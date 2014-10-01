@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MT</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_search">Search</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="agency_type_subway_short_name">Subway</string>
+    <string name="agency_type_rail_short_name">Train</string>
+    <string name="agency_type_bus_short_name">Bus</string>
+    <string name="agency_type_bike_short_name">Bike</string>
+    <string name="view_store_page">View in Google Play</string>
+    <string name="uninstall">Uninstall</string>
+    <string name="view_details">View Details</string>
+    <string name="view_fav">View favorite</string>
+    <string name="no_fav">No favorites.</string>
+    <string name="favorite_removed">Favorite removed.</string>
+    <string name="favorite_added">Favorite added.</string>
+    <string name="favorite_authority">org.mtransit.android.favorite</string>
+    <string name="same_location">Same location</string>
+    <string name="new_location">New location</string>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="default_route_short_name">@string/ellipsis</string>
+    <string name="default_stop_code">@string/ellipsis</string>
+    <string name="default_stop_name">@string/ellipsis</string>
+    <string name="default_heading">@string/ellipsis</string>
+    <string name="default_distance">@string/ellipsis</string>
+    <string name="default_data_next">@string/ellipsis</string>
+    <string name="default_data_next_next">@string/ellipsis</string>
+</resources>
