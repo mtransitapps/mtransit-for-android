@@ -322,6 +322,7 @@ public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChan
 	@Override
 	public void onPageScrollStateChanged(int state) {
 		MTLog.v(this, "onPageScrollStateChanged(%s)", state);
+		switch (state) {
 		case ViewPager.SCROLL_STATE_IDLE:
 			for (Fragment fragment : getActivity().getSupportFragmentManager().getFragments()) {
 				if (fragment instanceof NearbyAgencyTypeFragment) {
@@ -339,9 +340,6 @@ public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChan
 		}
 	}
 
-
-	@Override
-	}
 
 	private void setSwipeRefreshLayoutRefreshing(boolean refreshing) {
 		for (Fragment fragment : getActivity().getSupportFragmentManager().getFragments()) {

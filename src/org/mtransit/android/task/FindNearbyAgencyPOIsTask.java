@@ -30,7 +30,7 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<List<? extends POI>> {
 	private int maxSize;
 	private int minCoverage;
 
-	public FindNearbyAgencyPOIsTask(Context context, Uri contentUri, double lat, double lng, double aroundDiff, boolean hideDecentOnly
+	public FindNearbyAgencyPOIsTask(Context context, Uri contentUri, double lat, double lng, double aroundDiff, boolean hideDecentOnly,
 			int minCoverage, int maxSize) {
 		this.context = context;
 		this.contentUri = contentUri;

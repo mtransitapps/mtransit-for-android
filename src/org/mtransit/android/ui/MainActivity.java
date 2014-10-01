@@ -132,5 +132,6 @@ public class MainActivity extends MTActivityWithLocation {
 		if (mDrawerToggle.onOptionsItemSelected(item)) {
 			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 }
