@@ -1,7 +1,6 @@
 package org.mtransit.android.ui;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.fragment.MenuFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
 
@@ -14,8 +13,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
 public class MainActivity extends MTActivityWithLocation {
 

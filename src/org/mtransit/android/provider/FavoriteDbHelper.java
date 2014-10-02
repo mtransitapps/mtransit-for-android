@@ -1,6 +1,5 @@
 package org.mtransit.android.provider;
 
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.provider.MTSQLiteOpenHelper;
 

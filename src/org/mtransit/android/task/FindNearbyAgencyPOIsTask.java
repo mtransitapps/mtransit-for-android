@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.task.MTCallable;
 import org.mtransit.android.data.DataSourceProvider;

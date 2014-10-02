@@ -10,7 +10,6 @@ import java.util.WeakHashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
-import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.UriUtils;
@@ -22,7 +21,6 @@ import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.provider.POIProvider;
-import org.mtransit.android.commons.provider.ScheduleStatusFilter;
 import org.mtransit.android.commons.provider.StatusFilter;
 import org.mtransit.android.commons.provider.StatusProvider;
 

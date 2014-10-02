@@ -19,4 +19,5 @@
     <string name="favorite_authority">org.mtransit.android.favorite</string>
     <string name="same_location">Same location</string>
     <string name="new_location">New location</string>
+    <string name="no_results">No Results</string>
 </resources>

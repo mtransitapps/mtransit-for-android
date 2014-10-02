@@ -1,6 +1,5 @@
 package org.mtransit.android.ui;
 
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ui.MTFragmentActivity;
 
 import android.content.Intent;

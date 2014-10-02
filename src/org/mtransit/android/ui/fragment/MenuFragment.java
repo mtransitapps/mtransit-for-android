@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 
 import android.os.Bundle;
