@@ -45,7 +45,7 @@
         <!-- SPLASH SCREEN (not visible) DO NOT CHANGE ANDROID:NAME OR LAUNCHER ICON REMOVED! -->
         <activity
             android:name=".ui.SplashScreenActivity"
-            android:configChanges="keyboard|orientation|screenSize"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:icon="@drawable/ic_launcher"
             android:label="@string/ic_launcher" >
             <intent-filter>
