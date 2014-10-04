@@ -802,6 +802,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private void updateRTSExtra(POIManager poim, RouteTripStopViewHolder holder) {
 		if (poim.poi instanceof RouteTripStop) {
+			final RouteTripStop rts = (RouteTripStop) poim.poi;
 			if (rts.route == null) {
 				holder.rtsExtraV.setVisibility(View.GONE);
 				holder.routeFL.setVisibility(View.GONE);
