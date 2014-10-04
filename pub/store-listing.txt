@@ -1,0 +1,33 @@
+Title: MT
+----------
+Short description: Montreal Transit in your pocket.
+----------
+Full description:
+ALPHA: TEST IN PROGRESS
+
+Currently only displaying nearby information with basic and limited status.
+
+- Laval STL Bus
+- Longueuil RTL Bus
+- Montreal BIXI Bikes
+- Montreal STM Bus
+- Montreal STM Subway
+- Montreal AMT Train
+- Montreal AMT Bus
+
+This app is free and open-source:
+https://github.com/mtransitapps/mtransit-for-android
+----------
+Application type: Applications
+----------
+Category: Transportation
+----------
+Content rating: Low Maturity
+----------
+Website: https://github.com/mtransitapps/mtransit-for-android
+----------
+Email: mtransit.apps+GooglePlay@gmail.com
+----------
+Phone: 
+----------
+Privacy Policy:
