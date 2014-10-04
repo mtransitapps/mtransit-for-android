@@ -10,7 +10,6 @@ import java.util.WeakHashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
-import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.UriUtils;
