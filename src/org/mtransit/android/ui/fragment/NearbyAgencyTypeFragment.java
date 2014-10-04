@@ -194,7 +194,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 		}
 	}
 
-	public void onFragmentVisisble() {
+	private void onFragmentVisisble() {
 		if (this.fragmentVisible) {
 			return; // already visible
 		}
@@ -214,7 +214,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 		}
 	}
 
-	public void onFragmentInvisible() {
+	private void onFragmentInvisible() {
 		if (!this.fragmentVisible) {
 			return; // already invisible
 		}

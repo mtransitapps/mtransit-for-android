@@ -37,13 +37,14 @@ import com.astuetz.PagerSlidingTabStrip;
 public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChangeListener, MTActivityWithLocation.UserLocationListener,
 		SwipeRefreshLayout.OnRefreshListener {
 
-	public static final String FRAGMENT_TAG = NearbyFragment.class.getSimpleName();
 	private static final String TAG = NearbyFragment.class.getSimpleName();
 
 	@Override
 	public String getLogTag() {
 		return TAG;
 	}
+
+	public static final String FRAGMENT_TAG = NearbyFragment.class.getSimpleName();
 
 	private static final String EXTRA_NEARBY_LOCATION = "extra_nearby_location";
 
@@ -181,6 +182,7 @@ public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChan
 		this.lastPageSelected = 0;
 		new MTAsyncTask<Void, Void, Integer>() {
 
+			private final String TAG = NearbyFragment.class.getSimpleName() + ">LoadLastPageSelectedFromUserPreferences";
 			public String getLogTag() {
 				return TAG;
 			}
@@ -203,13 +205,14 @@ public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChan
 
 			@Override
 			protected void onPostExecute(Integer lastPageSelected) {
-				if (lastPageSelected != null) {
-					if (NearbyFragment.this.lastPageSelected == 0) { // user hasn't selected another page before
-						viewPager.setCurrentItem(lastPageSelected.intValue());
-						NearbyFragment.this.lastPageSelected = lastPageSelected.intValue();
-						onPageSelected(NearbyFragment.this.lastPageSelected); // tell current page it's selected
-					}
+				if (NearbyFragment.this.lastPageSelected != 0) {
+					return; // user has manually move to another page before, too late
 				}
+				if (lastPageSelected != null) {
+					NearbyFragment.this.lastPageSelected = lastPageSelected.intValue();
+					viewPager.setCurrentItem(NearbyFragment.this.lastPageSelected);
+				}
+				onPageSelected(NearbyFragment.this.lastPageSelected); // tell current page it's selected
 
 			}
 		}.execute();
