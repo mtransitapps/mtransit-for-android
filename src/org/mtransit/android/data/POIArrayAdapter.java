@@ -1,5 +1,6 @@
 package org.mtransit.android.data;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -13,8 +14,6 @@ import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SensorUtils;
-import org.mtransit.android.commons.SpanUtils;
-import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
@@ -24,6 +23,7 @@ import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.provider.FavoriteManager;
+import org.mtransit.android.provider.FavoriteManager.FavoriteUpdateListener;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.view.MTCompassView;
 import org.mtransit.android.ui.view.MTPieChartPercentView;
@@ -40,7 +40,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.os.Handler;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -50,16 +49,16 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.CompassListener, AdapterView.OnItemClickListener,
+public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements SensorUtils.CompassListener, AdapterView.OnItemClickListener,
 		AdapterView.OnItemLongClickListener, SensorEventListener, AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener, MTLog.Loggable,
-		POI.POIUpdateListener, SensorUtils.SensorTaskCompleted {
+		FavoriteUpdateListener, SensorUtils.SensorTaskCompleted {
 
-	public static final String TAG = POIArrayAdapter.class.getSimpleName();
+	private static final String TAG = POIArrayAdapter.class.getSimpleName();
 
 	private String tag = TAG;
 
@@ -83,7 +82,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 
 	private LayoutInflater layoutInflater;
 
-	private List<? extends POI> pois;
+	private List<POIManager> pois;
 
 	private Set<String> favUUIDs;
 
@@ -104,15 +103,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 
 	private float[] magneticFieldValues = new float[3];
 
-	private boolean showData = true;
+
+	private boolean showStatus = true; // show times / availability
 
 	private ViewGroup manualLayout;
+
+	private ScrollView manualScrollView;
 
 	private long lastNotifyDataSetChanged = -1;
 
 	private int scrollState = AbsListView.OnScrollListener.SCROLL_STATE_IDLE;
-
-	private ScrollView manualScrollView;
 
 	private long nowToTheMinute = -1;
 
@@ -132,8 +132,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 		this.manualLayout = manualLayout;
 	}
 
-	public void setShowData(boolean showData) {
-		this.showData = showData;
+	public void setShowStatus(boolean showData) {
+		this.showStatus = showData;
 	}
 
 	private static final int VIEW_TYPE_COUNT = 4;
@@ -147,13 +147,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 	@Override
 	public int getItemViewType(int position) {
 		// RETURN MUST MATCH getViewTypeCount() !
-		POI poi = getItem(position);
-		if (poi == null) {
+		POIManager poim = getItem(position);
+		if (poim == null) {
 			MTLog.d(this, "Cannot find type for object null!");
 			return Adapter.IGNORE_ITEM_VIEW_TYPE;
 		}
-		int type = poi.getType();
-		int statusType = poi.getStatusType();
+		int type = poim.poi.getType();
+		int statusType = poim.getStatusType();
 		switch (type) {
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
 			switch (statusType) {
@@ -180,42 +180,42 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 	}
 
 	@Override
-	public int getPosition(POI item) {
+	public int getPosition(POIManager item) {
 		final int position = pois == null ? 0 : pois.indexOf(item);
 		return position;
 	}
 
 	@Override
-	public POI getItem(int position) {
-		final POI item = this.pois == null ? null : this.pois.get(position);
+	public POIManager getItem(int position) {
+		final POIManager item = this.pois == null ? null : this.pois.get(position);
 		return item;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		POI poi = getItem(position);
-		if (poi == null) {
+		POIManager poim = getItem(position);
+		if (poim == null) {
 			MTLog.w(this, "getView() > Cannot create view for null poi at position '%s'!", position);
 			return null; // CRASH!!!
 		}
-		switch (poi.getType()) {
+		switch (poim.poi.getType()) {
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
-			return getRouteTripStopView(poi, convertView, parent);
+			return getRouteTripStopView(poim, convertView, parent);
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
-			return getBasicPOIView(poi, convertView, parent);
+			return getBasicPOIView(poim, convertView, parent);
 		default:
 			MTLog.w(this, "getView() > Unknow view type at position %s!", position);
 			return null; // CRASH!!!
 		}
 	}
 
-	public void updateCommonView(int position, View convertView) {
+	private void updateCommonViewManual(int position, View convertView) {
 		if (convertView == null || convertView.getTag() == null || !(convertView.getTag() instanceof CommonViewHolder)) {
 			return;
 		}
 		CommonViewHolder holder = (CommonViewHolder) convertView.getTag();
-		POI poi = getItem(position);
-		updateCommonView(holder, poi);
+		POIManager poim = getItem(position);
+		updateCommonView(holder, poim);
 		return;
 	}
 
@@ -250,37 +250,38 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 		return false;
 	}
 
-	public boolean showPoiViewerActivity(final POI poi) {
-		if (poi == null) {
+	public boolean showPoiViewerActivity(final POIManager poim) {
+		if (poim == null) {
 			return false;
 		}
-		if (poi.onActionItemClick(this.activity)) {
+		if (poim.onActionItemClick(this.activity)) {
 			return true;
 		}
-		MTLog.w(this, "Unknow view type for poi %s!", poi);
+		MTLog.w(this, "Unknow view type for poi %s!", poim);
 		return false;
 	}
 
-	public boolean showPoiMenu(final POI poi) {
-		if (poi == null) {
+	public boolean showPoiMenu(final POIManager poim) {
+		if (poim == null) {
 			return false;
 		}
-		switch (poi.getType()) {
+		switch (poim.poi.getType()) {
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
-			StringBuilder title = new StringBuilder(poi.getName());
-			final Favorite findFavorite = FavoriteManager.findFavorite(getContext(), poi.getUUID());
+		case POI.ITEM_VIEW_TYPE_BASIC_POI:
+			StringBuilder title = new StringBuilder(poim.poi.getName());
+			final Favorite findFavorite = FavoriteManager.findFavorite(getContext(), poim.poi.getUUID());
 			final boolean isFavorite = findFavorite != null;
 			new AlertDialog.Builder(getContext()).setTitle(title)
-					.setItems(poi.getActionsItems(getContext(), getContext().getString(R.string.view_details), isFavorite),
+					.setItems(poim.getActionsItems(getContext(), getContext().getString(R.string.view_details), isFavorite),
 							new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog, int item) {
 									MTLog.v(POIArrayAdapter.this, "onClick(%s)", item);
-									if (poi.onActionsItemClick(POIArrayAdapter.this.activity, item, isFavorite, POIArrayAdapter.this)) {
+									if (poim.onActionsItemClick(POIArrayAdapter.this.activity, item, isFavorite, POIArrayAdapter.this)) {
 										return;
 									}
 									switch (item) {
 									case 0:
-										showPoiViewerActivity(poi);
+										showPoiViewerActivity(poim);
 										break;
 									default:
 										break;
@@ -289,21 +290,21 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 							}).create().show();
 			return true;
 		default:
-			MTLog.w(this, "Unknow view type for poi %s!", poi);
+			MTLog.w(this, "Unknow view type for poi %s!", poim);
 			return false;
 		}
 	}
 
 	@Override
-	public void onPOIUpdated() {
+	public void onFavoriteUpdated() {
 		refreshFavorites();
 	}
 
-	public void setPois(List<? extends POI> pois) {
+	public void setPois(List<POIManager> pois) {
 		this.pois = pois;
 	}
 
-	public List<? extends POI> getPois() {
+	public List<POIManager> getPois() {
 		return pois;
 	}
 
@@ -334,9 +335,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 
 	public POI findPoi(String uuid) {
 		if (this.pois != null) {
-			for (final POI poi : this.pois) {
-				if (poi.getUUID().equals(uuid)) {
-					return poi;
+			for (final POIManager poim : this.pois) {
+				if (poim.poi.getUUID().equals(uuid)) {
+					return poim.poi;
 				}
 			}
 		}
@@ -346,7 +347,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 	public int indexOfPoi(String uuid) {
 		if (this.pois != null) {
 			for (int i = 0; i < pois.size(); i++) {
-				if (pois.get(i).getUUID().equals(uuid)) {
+				if (pois.get(i).poi.getUUID().equals(uuid)) {
 					return i;
 				}
 			}
@@ -361,6 +362,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 	@Deprecated
 	public void prefetchFavorites() {
 	}
+
 
 	private MTAsyncTask<Location, Void, Void> updateDistanceWithStringTask;
 
@@ -399,14 +401,17 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 		}
 	}
 
-	public void updateDistancesNow(Location currentLocation) {
+	public void updateDistancesNowSync(Location currentLocation) {
 		if (this.pois != null && currentLocation != null) {
 			LocationUtils.updateDistanceWithString(getContext(), this.pois, currentLocation, null);
 			updateClosestPoi();
 		}
-		if (this.location == null) {
-			setLocation(currentLocation);
-		}
+		setLocation(currentLocation);
+	}
+
+	public void updateDistanceNowAsync(Location currentLocation) {
+		this.location = null; // clear current location to force refresh
+		setLocation(currentLocation);
 	}
 
 	@Override
@@ -423,10 +428,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 	}
 
 	@Override
-	public void onStatusLoaded() {
-		if (this.showData) {
+	public void onStatusLoaded(POIStatus status) {
+		if (this.showStatus) {
 			// needs to force data set changed or schedule might never be shown
-			notifyDataSetChanged(true); // TODO use status view holder WR like compass instead of refreshing the world
+			if (this.poiStatusViewHoldersWR != null && this.poiStatusViewHoldersWR.containsKey(status.getTargetUUID())) {
+				updatePOIStatus(this.poiStatusViewHoldersWR.get(status.getTargetUUID()), status);
+			}
 		}
 	}
 
@@ -468,14 +475,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 				View view = this.manualLayout.getChildAt(i);
 				Object tag = view.getTag();
 				if (tag != null && tag instanceof CommonViewHolder) {
-					updateCommonView(position, view);
+					updateCommonViewManual(position, view);
 					position++;
 				}
 			}
 		}
 	}
 
-	public void setListView(ListView listView) {
+	public void setListView(AbsListView listView) {
 		listView.setOnItemClickListener(this);
 		listView.setOnItemLongClickListener(this);
 		listView.setOnScrollListener(this);
@@ -627,15 +634,18 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 	}
 
-	private View getBasicPOIView(POI poi, View convertView, ViewGroup parent) {
+	private WeakHashMap<String, CommonStatusViewHolder> poiStatusViewHoldersWR = new WeakHashMap<String, CommonStatusViewHolder>();
+
+	private View getBasicPOIView(POIManager poim, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = this.layoutInflater.inflate(getBasicPOILayout(poi.getStatusType()), parent, false);
+			convertView = this.layoutInflater.inflate(getBasicPOILayout(poim.getStatusType()), parent, false);
 			BasicPOIViewHolder holder = new BasicPOIViewHolder();
-			initCommonViewHolder(holder, convertView);
-			holder.statusViewHolder = getPOIStatusViewHolder(poi.getStatusType(), convertView);
+			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
+			holder.statusViewHolder = getPOIStatusViewHolder(poim.getStatusType(), convertView);
+			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
 			convertView.setTag(holder);
 		}
-		updateBasicPOIView(poi, convertView);
+		updateBasicPOIView(poim, convertView);
 		return convertView;
 	}
 
@@ -674,8 +684,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 
 	private WeakHashMap<MTCompassView, Object> compassImgsWR = new WeakHashMap<MTCompassView, Object>();
 
-	private void initCommonViewHolder(CommonViewHolder holder, View convertView) {
-		holder.uid = null;
+	private void initCommonViewHolder(CommonViewHolder holder, View convertView, String poiUUID) {
+		holder.uuid = poiUUID;
 		holder.view = convertView;
 		holder.nameTv = (TextView) convertView.findViewById(R.id.name);
 		holder.favImg = (ImageView) convertView.findViewById(R.id.fav);
@@ -688,71 +698,49 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 		holder.statusV = convertView.findViewById(R.id.status);
 	}
 
-	private View updateBasicPOIView(POI poi, View convertView) {
-		if (convertView == null || poi == null) {
+	private View updateBasicPOIView(POIManager poim, View convertView) {
+		if (convertView == null || poim == null) {
 			return convertView;
 		}
 		BasicPOIViewHolder holder = (BasicPOIViewHolder) convertView.getTag();
-		holder.compassV.setLatLng(poi.getLat(), poi.getLng());
-		if (poi instanceof DefaultPOIWithData) {
-			DefaultPOIWithData poidata = (DefaultPOIWithData) poi;
-			// availability
-			updateBasicPOIStatus(holder.statusViewHolder, poidata);
-			// setup distance, compass, favorite, closest
-			updateCommonView(holder, poi);
-		}
+		updateCommonView(holder, poim);
+		updatePOIStatus(holder.statusViewHolder, poim);
 		return convertView;
 	}
 
-	private void updateBasicPOIStatus(CommonStatusViewHolder statusViewHolder, DefaultPOIWithData poidata) {
-		if (this.showData && poidata != null && statusViewHolder instanceof AvailabilityPercentStatusViewHolder) {
-			AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = (AvailabilityPercentStatusViewHolder) statusViewHolder;
-			poidata.setStatusLoaderListener(this);
-			final POIStatus status = poidata.getStatus(getContext());
-			if (status != null && status instanceof AvailabilityPercent) {
-				AvailabilityPercent availabilityPercent = (AvailabilityPercent) status;
-				if (availabilityPercent.hasValueStricklyLowerThan(3) && availabilityPercent.getValue1() != availabilityPercent.getValue2()) {
-					SpannableStringBuilder textSSB = new SpannableStringBuilder();
-					int value;
-					int textColor;
-					int shadowColor;
-					if (availabilityPercent.getValue1() < availabilityPercent.getValue2()) {
-						textSSB.append(StringUtils.getEmptyOrPluralsIdentifier(getContext(), availabilityPercent.getValue1EmptyRes(),
-								availabilityPercent.getValue1QuantityRes(), availabilityPercent.getValue1()));
-						value = availabilityPercent.getValue1();
-						textColor = availabilityPercent.getValue1Color();
-						shadowColor = availabilityPercent.getValue1ColorBg();
-					} else {
-						textSSB.append(StringUtils.getEmptyOrPluralsIdentifier(getContext(), availabilityPercent.getValue2EmptyRes(),
-								availabilityPercent.getValue2QuantityRes(), availabilityPercent.getValue2()));
-						value = availabilityPercent.getValue2();
-						textColor = availabilityPercent.getValue2Color();
-						shadowColor = availabilityPercent.getValue2ColorBg();
-					}
-					if (value == 0) {
-						SpanUtils.set(textSSB, SpanUtils.BOLD_STYLE_SPAN);
-					}
-					SpanUtils.set(textSSB, SpanUtils.SANS_SERIF_CONDENSED_TYPEFACE_SPAN);
-					availabilityPercentStatusViewHolder.textTv.setTextColor(ColorUtils.getDarkerColor(textColor, shadowColor)); // theme light > darker
-					availabilityPercentStatusViewHolder.textTv.setText(textSSB);
-					availabilityPercentStatusViewHolder.textTv.setVisibility(View.VISIBLE);
-					availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.GONE);
-				} else {
-					availabilityPercentStatusViewHolder.piePercentV.setValueColors( //
-							availabilityPercent.getValue1Color(), //
-							availabilityPercent.getValue1ColorBg(), //
-							availabilityPercent.getValue2Color(), //
-							availabilityPercent.getValue2ColorBg() //
-							);
-					availabilityPercentStatusViewHolder.piePercentV.setValues(availabilityPercent.getValue1(), availabilityPercent.getValue2());
+	private void updateAvailabilityPercent(CommonStatusViewHolder statusViewHolder, POIManager poim) {
+		if (this.showStatus && poim != null && statusViewHolder instanceof AvailabilityPercentStatusViewHolder) {
+			poim.setStatusLoaderListener(this);
+			updateAvailabilityPercent(statusViewHolder, poim.getStatus(getContext()));
+		} else {
+			statusViewHolder.statusV.setVisibility(View.GONE);
+		}
+	}
 
-					availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.VISIBLE);
-					availabilityPercentStatusViewHolder.textTv.setVisibility(View.GONE);
-				}
-				statusViewHolder.statusV.setVisibility(View.VISIBLE);
+	private void updateAvailabilityPercent(CommonStatusViewHolder statusViewHolder, POIStatus status) {
+		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = (AvailabilityPercentStatusViewHolder) statusViewHolder;
+		if (status != null && status instanceof AvailabilityPercent) {
+			AvailabilityPercent availabilityPercent = (AvailabilityPercent) status;
+			if (!availabilityPercent.isStatusOK()) {
+				availabilityPercentStatusViewHolder.textTv.setText(availabilityPercent.getStatusMsg(getContext()));
+				availabilityPercentStatusViewHolder.textTv.setVisibility(View.VISIBLE);
+				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.GONE);
+			} else if (availabilityPercent.isShowingLowerValue()) {
+				availabilityPercentStatusViewHolder.textTv.setText(availabilityPercent.getLowerValueText(getContext()));
+				availabilityPercentStatusViewHolder.textTv.setVisibility(View.VISIBLE);
+				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.GONE);
 			} else {
-				statusViewHolder.statusV.setVisibility(View.GONE);
+				availabilityPercentStatusViewHolder.piePercentV.setValueColors( //
+						availabilityPercent.getValue1Color(), //
+						availabilityPercent.getValue1ColorBg(), //
+						availabilityPercent.getValue2Color(), //
+						availabilityPercent.getValue2ColorBg() //
+						);
+				availabilityPercentStatusViewHolder.piePercentV.setValues(availabilityPercent.getValue1(), availabilityPercent.getValue2());
+				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.VISIBLE);
+				availabilityPercentStatusViewHolder.textTv.setVisibility(View.GONE);
 			}
+			statusViewHolder.statusV.setVisibility(View.VISIBLE);
 		} else {
 			statusViewHolder.statusV.setVisibility(View.GONE);
 		}
@@ -779,33 +767,41 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 		return layoutRes;
 	}
 
-	private View getRouteTripStopView(POI poi, View convertView, ViewGroup parent) {
+	private View getRouteTripStopView(POIManager poim, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = this.layoutInflater.inflate(getRTSLayout(poi.getStatusType())/* R.layout.view_poi_list_route_trip_stop_item */, parent, false);
+			convertView = this.layoutInflater.inflate(getRTSLayout(poim.getStatusType()), parent, false);
 			RouteTripStopViewHolder holder = new RouteTripStopViewHolder();
-			initCommonViewHolder(holder, convertView);
-			// route trip stop
-			holder.rtsExtraV = convertView.findViewById(R.id.rts_extra);
-			holder.routeFL = convertView.findViewById(R.id.route);
-			holder.routeShortNameTv = (TextView) convertView.findViewById(R.id.route_short_name);
-			holder.tripHeadingTv = (TextView) convertView.findViewById(R.id.trip_heading);
+			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
+			initRTSExtra(convertView, holder);
 			// schedule status
-			holder.statusViewHolder = getPOIStatusViewHolder(poi.getStatusType(), convertView);
+			holder.statusViewHolder = getPOIStatusViewHolder(poim.getStatusType(), convertView);
+			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
 			convertView.setTag(holder);
 		}
-		updateRouteTripStopView(poi, convertView);
+		updateRouteTripStopView(poim, convertView);
 		return convertView;
 	}
 
-	private View updateRouteTripStopView(POI poi, View convertView) {
-		if (convertView == null || poi == null) {
+	private void initRTSExtra(View convertView, RouteTripStopViewHolder holder) {
+		holder.rtsExtraV = convertView.findViewById(R.id.rts_extra);
+		holder.routeFL = convertView.findViewById(R.id.route);
+		holder.routeShortNameTv = (TextView) convertView.findViewById(R.id.route_short_name);
+		holder.tripHeadingTv = (TextView) convertView.findViewById(R.id.trip_heading);
+	}
+
+	private View updateRouteTripStopView(POIManager poim, View convertView) {
+		if (convertView == null || poim == null) {
 			return convertView;
 		}
 		RouteTripStopViewHolder holder = (RouteTripStopViewHolder) convertView.getTag();
-		holder.compassV.setLatLng(poi.getLat(), poi.getLng());
-		if (poi instanceof RouteTripStopWithData) {
-			final RouteTripStopWithData rtsdata = (RouteTripStopWithData) poi;
-			final RouteTripStop rts = rtsdata.rts;
+		updateCommonView(holder, poim);
+		updateRTSExtra(poim, holder);
+		updatePOIStatus(holder.statusViewHolder, poim);
+		return convertView;
+	}
+
+	private void updateRTSExtra(POIManager poim, RouteTripStopViewHolder holder) {
+		if (poim.poi instanceof RouteTripStop) {
 			if (rts.route == null) {
 				holder.rtsExtraV.setVisibility(View.GONE);
 				holder.routeFL.setVisibility(View.GONE);
@@ -830,36 +826,76 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 					holder.tripHeadingTv.setVisibility(View.VISIBLE);
 				}
 			}
-			updateRouteTripStopData(holder.statusViewHolder, rtsdata);
-			// setup distance, compass, favorite, closest
-			updateCommonView(holder, poi);
 		}
-		return convertView;
 	}
 
-	private void updateRouteTripStopData(CommonStatusViewHolder statusViewHolder, RouteTripStopWithData rts) {
-		if (this.showData && rts != null && statusViewHolder instanceof ScheduleStatusViewHolder) {
-			ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
-			CharSequence line1CS = null;
-			CharSequence line2CS = null;
-			rts.setStatusLoaderListener(this);
-			final POIStatus status = rts.getStatus(getContext());
-			if (status != null && status instanceof Schedule) {
-				Schedule schedule = (Schedule) status;
-				final int count = 20; // needs enough to check if service is frequent (every 5 minutes or less for at least 30 minutes)
-				List<Pair<CharSequence, CharSequence>> lines = schedule.getNextTimesStrings(getContext(), getNowToTheMinute(), count, rts.rts.decentOnly);
-				if (lines != null && lines.size() >= 1) {
-					line1CS = lines.get(0).first;
-					line2CS = lines.get(0).second;
-				}
+	private void updatePOIStatus(CommonStatusViewHolder statusViewHolder, POIStatus status) {
+		if (!this.showStatus || status == null || statusViewHolder == null) {
+			if (statusViewHolder != null) {
+				statusViewHolder.statusV.setVisibility(View.GONE);
 			}
-			scheduleStatusViewHolder.dataNextLine1Tv.setText(line1CS);
-			scheduleStatusViewHolder.dataNextLine2Tv.setText(line2CS);
-			scheduleStatusViewHolder.dataNextLine2Tv.setVisibility(line2CS != null && line2CS.length() > 0 ? View.VISIBLE : View.GONE);
-			statusViewHolder.statusV.setVisibility(line1CS != null && line1CS.length() > 0 ? View.VISIBLE : View.GONE);
+			return;
+		}
+		switch (status.getType()) {
+		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
+			updateAvailabilityPercent(statusViewHolder, status);
+			break;
+		case POI.ITEM_STATUS_TYPE_SCHEDULE:
+			updateRTSSchedule(statusViewHolder, status);
+			break;
+		default:
+			MTLog.w(this, "Unexpected status type '%s'!", status.getType());
+			statusViewHolder.statusV.setVisibility(View.GONE);
+			return;
+		}
+	}
+
+	private void updatePOIStatus(CommonStatusViewHolder statusViewHolder, POIManager poim) {
+		if (!this.showStatus || poim == null || statusViewHolder == null) {
+			if (statusViewHolder != null) {
+				statusViewHolder.statusV.setVisibility(View.GONE);
+			}
+			return;
+		}
+		switch (poim.getStatusType()) {
+		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
+			updateAvailabilityPercent(statusViewHolder, poim);
+			break;
+		case POI.ITEM_STATUS_TYPE_SCHEDULE:
+			updateRTSSchedule(statusViewHolder, poim);
+			break;
+		default:
+			MTLog.w(this, "Unexpected status type '%s'!", poim.getStatusType());
+			statusViewHolder.statusV.setVisibility(View.GONE);
+		}
+	}
+
+	private void updateRTSSchedule(CommonStatusViewHolder statusViewHolder, POIManager poim) {
+		if (this.showStatus && poim != null && statusViewHolder instanceof ScheduleStatusViewHolder) {
+			poim.setStatusLoaderListener(this);
+			updateRTSSchedule(statusViewHolder, poim.getStatus(getContext()));
 		} else {
 			statusViewHolder.statusV.setVisibility(View.GONE);
 		}
+	}
+
+	private void updateRTSSchedule(CommonStatusViewHolder statusViewHolder, POIStatus status) {
+		CharSequence line1CS = null;
+		CharSequence line2CS = null;
+		if (status != null && status instanceof Schedule) {
+			Schedule schedule = (Schedule) status;
+			final int count = 20; // needs enough to check if service is frequent (every 5 minutes or less for at least 30 minutes)
+			List<Pair<CharSequence, CharSequence>> lines = schedule.getNextTimesStrings(getContext(), getNowToTheMinute(), count); // , schedule.decentOnly);
+			if (lines != null && lines.size() >= 1) {
+				line1CS = lines.get(0).first;
+				line2CS = lines.get(0).second;
+			}
+		}
+		ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
+		scheduleStatusViewHolder.dataNextLine1Tv.setText(line1CS);
+		scheduleStatusViewHolder.dataNextLine2Tv.setText(line2CS);
+		scheduleStatusViewHolder.dataNextLine2Tv.setVisibility(line2CS != null && line2CS.length() > 0 ? View.VISIBLE : View.GONE);
+		statusViewHolder.statusV.setVisibility(line1CS != null && line1CS.length() > 0 ? View.VISIBLE : View.GONE);
 	}
 
 	private long getNowToTheMinute() {
@@ -904,17 +940,24 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 		}
 	}
 
-	private void updateCommonView(CommonViewHolder holder, POI poi) {
-		if (poi == null || holder == null) {
+	private void updateCommonView(CommonViewHolder holder, POIManager poim) {
+		if (poim == null || holder == null) {
 			return;
 		}
-		holder.uid = poi.getUUID();
+		if (holder.uuid != null) {
+			this.poiStatusViewHoldersWR.remove(holder.uuid);
+		}
+		holder.uuid = poim.poi.getUUID();
+		if (holder.uuid != null) {
+			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
+		}
+		holder.compassV.setLatLng(poim.getLat(), poim.getLng());
 		// name
-		holder.nameTv.setText(poi.getName());
+		holder.nameTv.setText(poim.poi.getName());
 		// distance
-		if (!TextUtils.isEmpty(poi.getDistanceString())) {
-			if (!poi.getDistanceString().equals(holder.distanceTv.getText())) {
-				holder.distanceTv.setText(poi.getDistanceString());
+		if (!TextUtils.isEmpty(poim.getDistanceString())) {
+			if (!poim.getDistanceString().equals(holder.distanceTv.getText())) {
+				holder.distanceTv.setText(poim.getDistanceString());
 			}
 			holder.distanceTv.setVisibility(View.VISIBLE);
 		} else {
@@ -923,15 +966,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 		}
 		// compass (if distance available)
 		if (holder.distanceTv.getVisibility() == View.VISIBLE && this.location != null && this.lastCompassInDegree >= 0
-				&& this.location.getAccuracy() <= poi.getDistance()) {
-			float compassRotation = SensorUtils.getCompassRotationInDegree(this.location, poi, this.lastCompassInDegree, this.locationDeclination);
+				&& this.location.getAccuracy() <= poim.getDistance()) {
+			float compassRotation = SensorUtils.getCompassRotationInDegree(this.location.getLatitude(), this.location.getLongitude(), poim.getLat(),
+					poim.getLng(), this.lastCompassInDegree, this.locationDeclination);
 			holder.compassV.setHeadingInDegree((int) compassRotation);
 			holder.compassV.setVisibility(View.VISIBLE);
 		} else {
 			holder.compassV.setVisibility(View.GONE);
 		}
 		// favorite
-		if (this.favUUIDs != null && this.favUUIDs.contains(poi.getUUID())) {
+		if (this.favUUIDs != null && this.favUUIDs.contains(poim.poi.getUUID())) {
 			holder.favImg.setVisibility(View.VISIBLE);
 		} else {
 			holder.favImg.setVisibility(View.GONE);
@@ -998,7 +1042,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POI> implements SensorUtils.
 	}
 
 	public static class CommonViewHolder {
-		String uid;
+		String uuid;
 		View view;
 		TextView nameTv;
 		TextView distanceTv;

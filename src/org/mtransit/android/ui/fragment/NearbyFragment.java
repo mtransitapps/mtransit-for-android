@@ -13,6 +13,7 @@ import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
+import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 
 import android.app.Activity;
@@ -170,7 +171,7 @@ public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChan
 		this.agencyTypePagerAdapter = new AgencyTypePagerAdapter(getActivity(), getActivity().getSupportFragmentManager(), availableAgencyTypes);
 		this.agencyTypePagerAdapter.setNearbyLocation(this.nearbyLocation);
 		// view pager
-		ViewPager viewPager = (ViewPager) getView().findViewById(R.id.viewpager);
+		final ViewPager viewPager = (ViewPager) getView().findViewById(R.id.viewpager);
 		viewPager.setAdapter(this.agencyTypePagerAdapter);
 		viewPager.setOffscreenPageLimit(3); // TODO more?
 		// tabs
@@ -178,20 +179,40 @@ public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChan
 		tabs.setViewPager(viewPager);
 		tabs.setOnPageChangeListener(this);
 		this.lastPageSelected = 0;
-		try {
-			final int typeId = PreferenceUtils.getPrefLcl(getActivity(), PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE,
-					PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE_DEFAULT);
-			for (int i = 0; i < availableAgencyTypes.size(); i++) {
-				if (availableAgencyTypes.get(i).getId() == typeId) {
-					viewPager.setCurrentItem(i);
-					this.lastPageSelected = i;
-					break;
-				}
+		new MTAsyncTask<Void, Void, Integer>() {
+
+			public String getLogTag() {
+				return TAG;
 			}
-		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error while determining the select nearby tab!");
-		}
-		onPageSelected(this.lastPageSelected); // tell current page it's selected
+
+			@Override
+			protected Integer doInBackgroundMT(Void... params) {
+				try {
+					final int typeId = PreferenceUtils.getPrefLcl(getActivity(), PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE,
+							PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE_DEFAULT);
+					for (int i = 0; i < availableAgencyTypes.size(); i++) {
+						if (availableAgencyTypes.get(i).getId() == typeId) {
+							return i;
+						}
+					}
+				} catch (Exception e) {
+					MTLog.w(TAG, e, "Error while determining the select nearby tab!");
+				}
+				return null;
+			}
+
+			@Override
+			protected void onPostExecute(Integer lastPageSelected) {
+				if (lastPageSelected != null) {
+					if (NearbyFragment.this.lastPageSelected == 0) { // user hasn't selected another page before
+						viewPager.setCurrentItem(lastPageSelected.intValue());
+						NearbyFragment.this.lastPageSelected = lastPageSelected.intValue();
+						onPageSelected(NearbyFragment.this.lastPageSelected); // tell current page it's selected
+					}
+				}
+
+			}
+		}.execute();
 	}
 
 	@Override
@@ -303,6 +324,7 @@ public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChan
 
 	@Override
 	public void onPageSelected(int position) {
+		StatusLoader.get().clearAllTasks();
 		PreferenceUtils.savePrefLcl(getActivity(), PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE, this.agencyTypePagerAdapter.getTypeId(position), false);
 		for (Fragment fragment : getActivity().getSupportFragmentManager().getFragments()) {
 			if (fragment instanceof NearbyAgencyTypeFragment) {

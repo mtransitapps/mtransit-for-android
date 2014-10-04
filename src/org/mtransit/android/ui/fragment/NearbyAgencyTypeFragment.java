@@ -8,10 +8,10 @@ import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.LocationUtils.AroundDiff;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIArrayAdapter;
+import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 
@@ -24,10 +24,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderManager.LoaderCallbacks<List<POI>>, NearbyFragment.NearbyLocationListener {
+public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderManager.LoaderCallbacks<List<POIManager>>, NearbyFragment.NearbyLocationListener {
 
 	private static final int NEARBY_POIS_LOADER = 0;
 
@@ -151,7 +152,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 		this.adapter = new POIArrayAdapter(getActivity());
 		this.adapter.setTag(POIArrayAdapter.class.getSimpleName() + "-" + this.type);
 		inflateList();
-		this.adapter.setListView((ListView) getView().findViewById(R.id.list)); // TODO use RecyclerView?
+		this.adapter.setListView((AbsListView) getView().findViewById(R.id.list)); // TODO use RecyclerView?
 		if (this.adapter.getPois() == null) {
 			showLoading();
 		} else if (this.adapter.getPoisCount() == 0) {
@@ -201,7 +202,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 		if (this.adapter == null) {
 			initAdapter();
 		} else {
-			if (this.adapter.getPoisCount() > 0) { // IF loader not empty DO
+			if (this.adapter.getPoisCount() > 0) {
 				this.adapter.onResume();
 				this.adapter.refreshFavorites();
 			}
@@ -310,7 +311,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 	private void inflateList() {
 		if (getView().findViewById(R.id.list) == null) { // IF NOT present/inflated DO
 			((ViewStub) getView().findViewById(R.id.list_stub)).inflate(); // inflate
-			this.swipeRefreshLayout.setListViewWR((ListView) getView().findViewById(R.id.list));
+			this.swipeRefreshLayout.setListViewWR((AbsListView) getView().findViewById(R.id.list));
 		}
 	}
 
@@ -351,7 +352,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 	}
 
 	@Override
-	public Loader<List<POI>> onCreateLoader(int id, Bundle args) {
+	public Loader<List<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case NEARBY_POIS_LOADER:
 			if (this.nearbyLocation == null) {
@@ -367,7 +368,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 	}
 
 	@Override
-	public void onLoaderReset(Loader<List<POI>> loader) {
+	public void onLoaderReset(Loader<List<POIManager>> loader) {
 		if (this.adapter != null) {
 			this.adapter.setPois(null);
 			this.adapter.onPause();
@@ -375,7 +376,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 	}
 
 	@Override
-	public void onLoadFinished(Loader<List<POI>> loader, List<POI> data) {
+	public void onLoadFinished(Loader<List<POIManager>> loader, List<POIManager> data) {
 		int dataSize = CollectionUtils.getSize(data);
 		if (this.nearbyLocation != null) {
 			float distanceInKm = LocationUtils.getAroundCoveredDistance(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), ad.aroundDiff) / 1000;
@@ -390,7 +391,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 		} else {
 			// show found POIs (or empty list)
 			this.adapter.setPois(data);
-			this.adapter.updateDistancesNow(this.userLocation);
+			this.adapter.updateDistanceNowAsync(this.userLocation);
 			this.adapter.refreshFavorites();
 			if (this.adapter.getPoisCount() > 0) {
 				showList();

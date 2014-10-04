@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 
 public class MenuFragment extends MTFragmentV4 {
 
-	public static final String TAG = MenuFragment.class.getSimpleName();
+	private static final String TAG = MenuFragment.class.getSimpleName();
 
 	@Override
 	public String getLogTag() {

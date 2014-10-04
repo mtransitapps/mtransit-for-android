@@ -22,7 +22,6 @@ public class SplashScreenActivity extends MTFragmentActivity {
 
 	private void showHomeActivity() {
 		startActivity(new Intent(this, MainActivity.class));
-		this.finish();
+		finish();
 	}
-
 }

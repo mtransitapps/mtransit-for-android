@@ -168,14 +168,17 @@ public class FavoriteProvider extends MTContentProvider {
 	@Override
 	public int deleteMT(Uri uri, String selection, String[] selectionArgs) {
 		int affectedRows = 0;
+		SQLiteDatabase db = null;
 		try {
 			switch (getURIMATCHER(getContext()).match(uri)) {
 			case FAVORITE:
-				affectedRows = getDBHelper(getContext()).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE, selection, selectionArgs);
+				db = getDBHelper(getContext()).getWritableDatabase();
+				affectedRows = db.delete(FavoriteDbHelper.T_FAVORITE, selection, selectionArgs);
 				break;
 			case FAVORITE_ID:
 				selection = FavoriteDbHelper.T_FAVORITE + "." + FavoriteDbHelper.T_FAVORITE_K_ID + "=" + uri.getPathSegments().get(1);
-				affectedRows = getDBHelper(getContext()).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE, selection, null);
+				db = getDBHelper(getContext()).getWritableDatabase();
+				affectedRows = db.delete(FavoriteDbHelper.T_FAVORITE, selection, null);
 				break;
 			default:
 				throw new IllegalArgumentException(String.format("Unknown URI (delete): '%s'", uri));

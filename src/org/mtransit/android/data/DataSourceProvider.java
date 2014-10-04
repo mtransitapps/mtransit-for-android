@@ -10,14 +10,13 @@ import java.util.WeakHashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.AvailabilityPercent;
-import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
-import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.provider.POIProvider;
@@ -256,8 +255,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return result;
 	}
 
-	public static List<? extends POI> findPOIsWithLatLngList(Context context, Uri contentUri, double lat, double lng, double aroundDiff,
-			boolean hideDecentOnly) {
+	public static List<POIManager> findPOIsWithLatLngList(Context context, Uri contentUri, double lat, double lng, double aroundDiff, boolean hideDecentOnly) {
 		Cursor cursor = null;
 		try {
 			POIFilter poiFilter = new POIFilter(lat, lng, aroundDiff);
@@ -279,24 +277,12 @@ public class DataSourceProvider implements MTLog.Loggable {
 		}
 	}
 
-	private static List<? extends POI> getPOIs(Cursor cursor, String authority) {
-		List<POI> result = new ArrayList<POI>();
+	private static List<POIManager> getPOIs(Cursor cursor, String authority) {
+		List<POIManager> result = new ArrayList<POIManager>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
-					int poiType = DefaultPOI.getTypeFromCursor(cursor);
-					POI fromCursor;
-					switch (poiType) {
-					case POI.ITEM_VIEW_TYPE_BASIC_POI:
-						fromCursor = new DefaultPOIWithData(DefaultPOI.fromCursorStatic(cursor, authority));
-						break;
-					case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
-						fromCursor = new RouteTripStopWithData(RouteTripStop.fromCursorStatic(cursor, authority));
-						break;
-					default:
-						MTLog.w(TAG, "Unexpected POI type '%s'! (using default)", poiType);
-						fromCursor = DefaultPOI.fromCursorStatic(cursor, authority);
-					}
+					POIManager fromCursor = POIManager.fromCursorStatic(cursor, authority);
 					result.add(fromCursor);
 				} while (cursor.moveToNext());
 			}

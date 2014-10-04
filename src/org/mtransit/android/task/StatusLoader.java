@@ -8,10 +8,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
-import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.provider.StatusFilter;
 import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.StatusProviderProperties;
 
 import android.content.Context;
@@ -57,15 +57,21 @@ public class StatusLoader implements MTLog.Loggable {
 		return busy;
 	}
 
-	public boolean findStatus(Context context, POI poi, StatusFilter statusFilter, StatusLoader.StatusLoaderListener listener,
-			boolean skipIfBusy) {
+	public void clearAllTasks() {
+		if (this.fetchStatusExecutor != null) {
+			this.fetchStatusExecutor.shutdown();
+			this.fetchStatusExecutor = null;
+		}
+	}
+
+	public boolean findStatus(Context context, POIManager poim, StatusFilter statusFilter, StatusLoader.StatusLoaderListener listener, boolean skipIfBusy) {
 		if (skipIfBusy && isBusy()) {
 			return false;
 		}
-		Collection<StatusProviderProperties> providers = DataSourceProvider.get().getTargetAuthorityStatusProviders(context, poi.getAuthority());
+		Collection<StatusProviderProperties> providers = DataSourceProvider.get().getTargetAuthorityStatusProviders(context, poim.poi.getAuthority());
 		if (providers != null) {
 			for (final StatusProviderProperties provider : providers) {
-				final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poi, statusFilter);
+				final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter); // , null, timestamp);
 				task.executeOnExecutor(getFetchStatusExecutor());
 				break;
 			}
@@ -82,16 +88,16 @@ public class StatusLoader implements MTLog.Loggable {
 
 		private WeakReference<Context> contextWR;
 		private StatusProviderProperties statusProvider;
-		private WeakReference<POI> poiWR;
+		private WeakReference<POIManager> poiWR;
 		private StatusLoader.StatusLoaderListener listener;
 		private StatusFilter statusFilter;
 
-		public StatusFetcherCallable(Context context, StatusLoader.StatusLoaderListener listener, StatusProviderProperties statusProvider, POI poi,
+		public StatusFetcherCallable(Context context, StatusLoader.StatusLoaderListener listener, StatusProviderProperties statusProvider, POIManager poim,
 				StatusFilter statusFilter) {
 			this.contextWR = new WeakReference<Context>(context);
 			this.listener = listener;
 			this.statusProvider = statusProvider;
-			this.poiWR = new WeakReference<POI>(poi);
+			this.poiWR = new WeakReference<POIManager>(poim);
 			this.statusFilter = statusFilter;
 		}
 
@@ -108,11 +114,11 @@ public class StatusLoader implements MTLog.Loggable {
 		@Override
 		protected void onPostExecute(POIStatus result) {
 			if (result != null) {
-				POI poi = this.poiWR == null ? null : this.poiWR.get();
-				if (poi != null) {
-					poi.setStatus(result);
+				POIManager poim = this.poiWR == null ? null : this.poiWR.get();
+				if (poim != null) {
+					poim.setStatus(result);
 					if (listener != null) {
-						listener.onStatusLoaded();
+						listener.onStatusLoaded(result);
 					} else {
 						MTLog.d(this, "onPostExecute() > listener null!");
 					}
@@ -130,8 +136,8 @@ public class StatusLoader implements MTLog.Loggable {
 				MTLog.w(this, "Context mandatory!");
 				return null;
 			}
-			POI poi = this.poiWR == null ? null : this.poiWR.get();
-			if (poi == null) {
+			POIManager poim = this.poiWR == null ? null : this.poiWR.get();
+			if (poim == null) {
 				MTLog.w(this, "POI mandatory!");
 				return null;
 			}
@@ -140,7 +146,7 @@ public class StatusLoader implements MTLog.Loggable {
 				return null;
 			}
 			final Uri uri = DataSourceProvider.get().getUri(this.statusProvider.getAuthority());
-			final POIStatus status = DataSourceProvider.findStatus(context, uri, poi, statusFilter);
+			final POIStatus status = DataSourceProvider.findStatus(context, uri, poim.poi, statusFilter);
 			return status;
 		}
 
@@ -179,7 +185,7 @@ public class StatusLoader implements MTLog.Loggable {
 	}
 
 	public static interface StatusLoaderListener {
-		public void onStatusLoaded();
+		public void onStatusLoaded(POIStatus status);
 	}
 
 }

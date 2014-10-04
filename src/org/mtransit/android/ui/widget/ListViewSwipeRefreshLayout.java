@@ -10,7 +10,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.ListView;
 
 public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MTLog.Loggable {
 
@@ -21,7 +20,7 @@ public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MT
 		return TAG;
 	}
 
-	private WeakReference<ListView> listViewWR;
+	private WeakReference<AbsListView> listViewWR;
 	private WeakReference<View> loadingViewWR;
 	private WeakReference<View> emptyViewWR;
 
@@ -33,8 +32,8 @@ public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MT
 		super(context, attrs);
 	}
 
-	public void setListViewWR(ListView listView) {
-		this.listViewWR = new WeakReference<ListView>(listView);
+	public void setListViewWR(AbsListView listView) {
+		this.listViewWR = new WeakReference<AbsListView>(listView);
 	}
 
 	public void setLoadingViewWR(View loadingView) {
@@ -47,7 +46,7 @@ public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MT
 
 	@Override
 	public boolean canChildScrollUp() {
-		final ListView listView = this.listViewWR == null ? null : this.listViewWR.get();
+		final AbsListView listView = this.listViewWR == null ? null : this.listViewWR.get();
 		if (listView != null && listView.getVisibility() == View.VISIBLE) {
 			final boolean canListViewScrollUp = canListViewScrollUp(listView);
 			return canListViewScrollUp;
@@ -66,7 +65,7 @@ public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MT
 		return canChildScrollUp;
 	}
 
-	private static boolean canListViewScrollUp(ListView listView) {
+	private static boolean canListViewScrollUp(AbsListView listView) {
 		if (android.os.Build.VERSION.SDK_INT >= 14) {
 			return ViewCompat.canScrollVertically(listView, -1);
 		} else {

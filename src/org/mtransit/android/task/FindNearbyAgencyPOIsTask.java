@@ -4,14 +4,14 @@ import java.util.List;
 
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
-import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.task.MTCallable;
 import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
 import android.net.Uri;
 
-public class FindNearbyAgencyPOIsTask extends MTCallable<List<? extends POI>> {
+public class FindNearbyAgencyPOIsTask extends MTCallable<List<POIManager>> {
 
 	private static final String TAG = FindNearbyAgencyPOIsTask.class.getSimpleName();
 
@@ -42,12 +42,12 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<List<? extends POI>> {
 	}
 
 	@Override
-	public List<? extends POI> callMT() throws Exception {
-		List<? extends POI> pois = DataSourceProvider.findPOIsWithLatLngList(context, contentUri, lat, lng, aroundDiff, hideDecentOnly);
+	public List<POIManager> callMT() throws Exception {
+		List<POIManager> pois = DataSourceProvider.findPOIsWithLatLngList(context, contentUri, lat, lng, aroundDiff, hideDecentOnly);
 		LocationUtils.updateDistance(pois, lat, lng);
 		float maxDistance = LocationUtils.getAroundCoveredDistance(lat, lng, aroundDiff);
 		LocationUtils.removeTooFar(pois, maxDistance);
-		CollectionUtils.sort(pois, POI.POI_DISTANCE_COMPARATOR);
+		CollectionUtils.sort(pois, POIManager.POI_DISTANCE_COMPARATOR);
 		LocationUtils.removeTooMuchWhenNotInCoverage(pois, this.minCoverage, this.maxSize);
 		return pois;
 	}

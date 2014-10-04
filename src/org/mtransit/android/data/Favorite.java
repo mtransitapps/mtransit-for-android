@@ -32,10 +32,10 @@ public class Favorite {
 	public static ContentValues toContentValues(Favorite favorite) {
 		final ContentValues values = new ContentValues();
 		if (favorite.getId() > 0) {
-			values.put(FavoriteColumns.T_FAVORITE_K_ID, favorite.getId());
+			values.put(FavoriteColumns.T_FAVORITE_K_ID, favorite.id);
 		} // ELSE IF no ID yet, let SQLite choose the ID
-		values.put(FavoriteColumns.T_FAVORITE_K_TYPE, favorite.getType());
-		values.put(FavoriteColumns.T_FAVORITE_K_FK_ID, favorite.getFkId());
+		values.put(FavoriteColumns.T_FAVORITE_K_TYPE, favorite.type);
+		values.put(FavoriteColumns.T_FAVORITE_K_FK_ID, favorite.fkId);
 		return values;
 	}
 
@@ -47,9 +47,6 @@ public class Favorite {
 		return id;
 	}
 
-	public int getType() {
-		return type;
-	}
 
 	public String getFkId() {
 		return fkId;
