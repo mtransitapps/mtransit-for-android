@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="512"
+   height="512"
+   id="svg3770"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="app_icon.svg"
+   inkscape:export-filename="/media/SDATA/DEV/PROJECTS/MTRANSIT/IMG/app_icon_003.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs3772" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="120.45558"
+     inkscape:cy="276.46803"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer4"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1019"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:snap-grids="true" />
+  <metadata
+     id="metadata3775">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-540.36218)">
+    <rect
+       style="fill:#ffffff"
+       id="rect3778"
+       width="400"
+       height="400"
+       x="62.857143"
+       y="136.6479" />
+    <rect
+       style="fill:#003399;fill-opacity:1"
+       id="rect3780"
+       width="426"
+       height="426"
+       x="43"
+       y="583.36218" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1"
+       id="rect4309"
+       width="362"
+       height="362"
+       x="75"
+       y="615.36218" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1"
+       id="rect4311"
+       width="17.67767"
+       height="8.485281"
+       x="187.3833"
+       y="178.24561"
+       transform="translate(0,540.36218)" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="T-Form"
+     style="display:none">
+    <rect
+       style="fill:#6699ff;fill-opacity:1"
+       id="rect4363"
+       width="278"
+       height="90"
+       x="117"
+       y="117" />
+    <rect
+       style="fill:#6699ff;fill-opacity:1"
+       id="rect4361"
+       width="90"
+       height="278"
+       x="211"
+       y="117" />
+  </g>
+  <g
+     style="display:inline"
+     inkscape:label="T-Form-W"
+     id="g3055"
+     inkscape:groupmode="layer">
+    <rect
+       y="117"
+       x="117"
+       height="90"
+       width="278"
+       id="rect3057"
+       style="fill:#6699ff;fill-opacity:1" />
+    <rect
+       y="117"
+       x="204"
+       height="278"
+       width="104"
+       id="rect3059"
+       style="fill:#6699ff;fill-opacity:1" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="Arrow"
+     style="display:none">
+    <path
+       sodipodi:type="star"
+       style="fill:#6699ff;fill-opacity:1"
+       id="path3064"
+       sodipodi:sides="3"
+       sodipodi:cx="298"
+       sodipodi:cy="121"
+       sodipodi:r1="142.00352"
+       sodipodi:r2="71.001762"
+       sodipodi:arg1="-0.0070421371"
+       sodipodi:arg2="1.0401554"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="M 440,120 333.93301,182.2378 227.86602,244.47561 227,121.5 226.13397,-1.4756105 333.06699,59.262194 z"
+       inkscape:transform-center-x="-24.59507"
+       inkscape:transform-center-y="0.50822816"
+       transform="matrix(0.70137366,0,0,1.0164617,198.52957,38.975511)" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="T"
+     style="display:none">
+    <text
+       xml:space="preserve"
+       style="font-size:427.7093811px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#6699ff;fill-opacity:1;stroke:none;font-family:Roboto;-inkscape-font-specification:Roboto"
+       x="234.36107"
+       y="432.04849"
+       id="text4315"
+       sodipodi:linespacing="125%"
+       transform="scale(1.0937937,0.9142492)"><tspan
+         sodipodi:role="line"
+         id="tspan4317"
+         x="234.36107"
+         y="432.04849">T</tspan></text>
+  </g>
+</svg>
