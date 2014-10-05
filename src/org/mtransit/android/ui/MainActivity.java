@@ -88,6 +88,7 @@ public class MainActivity extends MTActivityWithLocation {
 
 		setTitle("Nearby"); // FIXME i18n
 		setSubtitle(null);
+		getActionBar().setIcon(R.drawable.ic_nearby);
 		mDrawerLayout.closeDrawer(mDrawerList.getView());
 	}
 
