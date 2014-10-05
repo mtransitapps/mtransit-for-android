@@ -79,6 +79,11 @@ public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChan
 	}
 
 	private void initiateRefresh() {
+		if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation)) {
+			setSwipeRefreshLayoutRefreshing(false);
+			ToastUtils.makeTextAndShow(getActivity(), R.string.same_location);
+			return;
+		}
 		ToastUtils.makeTextAndShow(getActivity(), R.string.new_location); // TODO remove, developer only?
 		// broadcast reset nearby location to all fragments
 		for (Fragment fragment : getActivity().getSupportFragmentManager().getFragments()) {
