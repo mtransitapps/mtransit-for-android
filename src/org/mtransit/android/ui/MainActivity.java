@@ -1,5 +1,7 @@
 package org.mtransit.android.ui;
 
+import java.util.List;
+
 import org.mtransit.android.R;
 import org.mtransit.android.ui.fragment.MenuFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
@@ -93,9 +95,12 @@ public class MainActivity extends MTActivityWithLocation {
 	public void onLocationChanged(Location location) {
 		super.onLocationChanged(location);
 		// ALL FRAGMENTs
-		for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-			if (fragment instanceof MTActivityWithLocation.UserLocationListener) {
-				((MTActivityWithLocation.UserLocationListener) fragment).onUserLocationChanged(location);
+		List<Fragment> fragments = getSupportFragmentManager().getFragments();
+		if (fragments != null) {
+			for (Fragment fragment : fragments) {
+				if (fragment != null && fragment instanceof MTActivityWithLocation.UserLocationListener) {
+					((MTActivityWithLocation.UserLocationListener) fragment).onUserLocationChanged(location);
+				}
 			}
 		}
 	}
@@ -110,7 +115,6 @@ public class MainActivity extends MTActivityWithLocation {
 		mSubtitle = subtitle;
 		getActionBar().setSubtitle(mSubtitle);
 	}
-
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
