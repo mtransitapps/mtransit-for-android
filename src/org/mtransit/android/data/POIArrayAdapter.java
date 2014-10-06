@@ -95,7 +95,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	@Deprecated
 	private Pair<Integer, String> closestPOI;
 
-	private int lastSuccessfulRefresh = -1;
 
 	private float[] accelerometerValues = new float[3];
 
@@ -108,17 +107,17 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private ScrollView manualScrollView;
 
-	private long lastNotifyDataSetChanged = -1;
+	private long lastNotifyDataSetChanged = -1l;
 
 	private int scrollState = AbsListView.OnScrollListener.SCROLL_STATE_IDLE;
 
-	private long nowToTheMinute = -1;
+	private long nowToTheMinute = -1l;
 
 	private boolean timeChangedReceiverEnabled = false;
 
 	private boolean compassUpdatesEnabled = false;
 
-	private long lastCompassChanged = -1;
+	private long lastCompassChanged = -1l;
 
 	public POIArrayAdapter(Activity activity) {
 		super(activity, R.layout.layout_loading_small);
@@ -591,8 +590,44 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
+	public void clearAll() {
+		if (this.pois != null) {
+			this.pois.clear();
+			this.pois = null;
+		}
+		disableTimeChangeddReceiver();
+		//
+		this.compassImgsWR.clear();
+		this.lastCompassChanged = -1;
+		this.lastCompassInDegree = -1;
+		this.accelerometerValues = new float[3];
+		this.magneticFieldValues = new float[3];
+		//
+		this.lastNotifyDataSetChanged = -1l;
+		this.handler.removeCallbacks(this.notifyDataSetChangedLater);
+		//
+		this.poiStatusViewHoldersWR.clear();
+		//
+		if (this.refreshFavoritesTask != null) {
+			this.refreshFavoritesTask.cancel(true);
+			this.refreshFavoritesTask = null;
+		}
+		//
+		if (this.updateDistanceWithStringTask != null) {
+			this.updateDistanceWithStringTask.cancel(true);
+			this.updateDistanceWithStringTask = null;
+		}
+		this.location = null;
+		this.locationDeclination = 0f;
+	}
+
 	public void onDestroy() {
 		disableTimeChangeddReceiver();
+		if (this.pois != null) {
+			this.pois.clear();
+		}
+		this.compassImgsWR.clear();
+		this.poiStatusViewHoldersWR.clear();
 	}
 
 	@Override
@@ -744,13 +779,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
-	public void setLastSuccessfulRefresh(int lastSuccessfulRefresh) {
-		this.lastSuccessfulRefresh = lastSuccessfulRefresh;
-	}
 
-	public int getLastSuccessfulRefresh() {
-		return lastSuccessfulRefresh;
-	}
 
 	private int getRTSLayout(int status) {
 		int layoutRes = R.layout.layout_poi_rts;
@@ -935,7 +964,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (this.timeChangedReceiverEnabled) {
 			getContext().unregisterReceiver(this.timeChangedReceiver);
 			this.timeChangedReceiverEnabled = false;
-			this.nowToTheMinute = -1;
+			this.nowToTheMinute = -1l;
 		}
 	}
 

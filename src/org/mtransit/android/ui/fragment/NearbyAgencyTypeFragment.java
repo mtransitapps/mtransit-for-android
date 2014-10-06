@@ -262,15 +262,13 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 		this.nearbyLocation = newNearbyLocation;
 		// reset all the things
 		if (this.adapter != null) {
-			this.adapter.setPois(null);
+			this.adapter.clearAll();
 			this.adapter.notifyDataSetChanged(true);
 		}
-		if (this.nearbyLocation == null) {
-			final View view = getView();
-			if (view != null) {
-				if (view.findViewById(R.id.list) != null) {
-					((ListView) view.findViewById(R.id.list)).setSelectionFromTop(0, 0); // scroll to top of the list
-				}
+		final View view = getView();
+		if (view != null) {
+			if (view.findViewById(R.id.list) != null) {
+				((ListView) view.findViewById(R.id.list)).setSelectionFromTop(0, 0); // scroll to top of the list
 			}
 		}
 		this.ad = LocationUtils.DEFAULT_AROUND_DIFF;
@@ -370,7 +368,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 	@Override
 	public void onLoaderReset(Loader<List<POIManager>> loader) {
 		if (this.adapter != null) {
-			this.adapter.setPois(null);
+			this.adapter.clearAll();
 			this.adapter.onPause();
 		}
 	}
