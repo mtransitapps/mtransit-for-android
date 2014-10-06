@@ -152,7 +152,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 		this.adapter = new POIArrayAdapter(getActivity());
 		this.adapter.setTag(POIArrayAdapter.class.getSimpleName() + "-" + this.type);
 		inflateList();
-		this.adapter.setListView((AbsListView) getView().findViewById(R.id.list)); // TODO use RecyclerView?
+		this.adapter.setListView((AbsListView) getView().findViewById(R.id.list));
 		if (this.adapter.getPois() == null) {
 			showLoading();
 		} else if (this.adapter.getPoisCount() == 0) {

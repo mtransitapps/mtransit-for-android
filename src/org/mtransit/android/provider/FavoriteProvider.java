@@ -208,7 +208,7 @@ public class FavoriteProvider extends MTContentProvider {
 	@Override
 	public Uri insertMT(Uri uri, ContentValues values) {
 		try {
-			ContentValues valuesCopy = new ContentValues(values); // TODO why a copy?
+			ContentValues valuesCopy = new ContentValues(values);
 			Uri insertUri = null;
 			long newRowId = -1;
 			switch (getURIMATCHER(getContext()).match(uri)) {

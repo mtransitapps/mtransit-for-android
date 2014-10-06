@@ -15,6 +15,7 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.ui.MainActivity;
 
 import android.app.Activity;
 import android.content.Context;
@@ -61,12 +62,6 @@ public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChan
 	private int lastPageSelected = -1;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true); // TODO really showing overflow menu?
-	}
-
-	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_nearby, container, false);
@@ -84,7 +79,7 @@ public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChan
 			ToastUtils.makeTextAndShow(getActivity(), R.string.same_location);
 			return;
 		}
-		ToastUtils.makeTextAndShow(getActivity(), R.string.new_location); // TODO remove, developer only?
+		ToastUtils.makeTextAndShow(getActivity(), R.string.new_location);
 		// broadcast reset nearby location to all fragments
 		for (Fragment fragment : getActivity().getSupportFragmentManager().getFragments()) {
 			if (fragment != null && fragment instanceof NearbyFragment.NearbyLocationListener) {
@@ -122,7 +117,7 @@ public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChan
 		if (this.nearbyLocationAddress != null && this.nearbyLocation != null) {
 			final FragmentActivity activity = getActivity();
 			if (activity != null) {
-				activity.getActionBar().setSubtitle(this.nearbyLocationAddress);
+				((MainActivity) getActivity()).setSubtitle(this.nearbyLocationAddress);
 			}
 		}
 	}
@@ -179,7 +174,7 @@ public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChan
 		// view pager
 		final ViewPager viewPager = (ViewPager) getView().findViewById(R.id.viewpager);
 		viewPager.setAdapter(this.agencyTypePagerAdapter);
-		viewPager.setOffscreenPageLimit(3); // TODO more?
+		viewPager.setOffscreenPageLimit(3);
 		// tabs
 		PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) getView().findViewById(R.id.tabs);
 		tabs.setViewPager(viewPager);
@@ -233,6 +228,11 @@ public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChan
 			if (this.nearbyLocation == null) {
 				setNewNearbyLocation(newLocation);
 			}
+			if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation)) {
+				((MainActivity) getActivity()).setIcon(R.drawable.ic_nearby_active);
+			} else {
+				((MainActivity) getActivity()).setIcon(R.drawable.ic_nearby);
+			}
 		}
 	}
 
@@ -242,7 +242,7 @@ public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChan
 		}
 		this.nearbyLocation = newNearbyLocation;
 		this.nearbyLocationAddress = null;
-		getActivity().getActionBar().setSubtitle(null);
+		((MainActivity) getActivity()).setSubtitle(null);
 		if (this.agencyTypePagerAdapter == null) {
 			initTabsAndViewPager();
 			if (this.agencyTypePagerAdapter != null && this.agencyTypePagerAdapter.getCount() > 0) {

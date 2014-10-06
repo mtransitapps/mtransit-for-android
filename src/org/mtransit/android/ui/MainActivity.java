@@ -37,6 +37,9 @@ public class MainActivity extends MTActivityWithLocation {
 	private CharSequence mDrawerSubtitle;
 	private CharSequence mSubtitle;
 
+	private int mIcon;
+	private int mDrawerIcon;
+
 	public MainActivity() {
 		super(LOCATION_ENABLED);
 	}
@@ -48,6 +51,7 @@ public class MainActivity extends MTActivityWithLocation {
 
 		mTitle = mDrawerTitle = getTitle();
 		mSubtitle = mDrawerSubtitle = getActionBar().getSubtitle();
+		mIcon = mDrawerIcon = R.drawable.ic_launcher;
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (MenuFragment) getSupportFragmentManager().findFragmentById(R.id.left_drawer);
 
@@ -59,18 +63,12 @@ public class MainActivity extends MTActivityWithLocation {
 		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
 			@Override
 			public void onDrawerClosed(View view) {
-				getActionBar().setTitle(mTitle);
-				getActionBar().setSubtitle(mSubtitle);
-				invalidateOptionsMenu();
+				updateActionBarDrawerClosed();
 			}
 
 			@Override
 			public void onDrawerOpened(View drawerView) {
-				mTitle = getActionBar().getTitle();
-				mSubtitle = getActionBar().getSubtitle();
-				getActionBar().setTitle(mDrawerTitle);
-				getActionBar().setSubtitle(mDrawerSubtitle);
-				invalidateOptionsMenu();
+				updateActionBarDrawerOpened();
 			}
 		};
 
@@ -81,14 +79,36 @@ public class MainActivity extends MTActivityWithLocation {
 		}
 	}
 
+	private void updateActionBarDrawerClosed() {
+		getActionBar().setTitle(mTitle);
+		getActionBar().setSubtitle(mSubtitle);
+		getActionBar().setIcon(mIcon);
+		invalidateOptionsMenu();
+	}
+
+	private void updateActionBarDrawerOpened() {
+		getActionBar().setTitle(mDrawerTitle);
+		getActionBar().setSubtitle(mDrawerSubtitle);
+		getActionBar().setIcon(mDrawerIcon);
+		invalidateOptionsMenu();
+	}
+
+	private void updateActionBar() {
+		if (mDrawerLayout.isDrawerOpen(mDrawerList.getView())) {
+			updateActionBarDrawerOpened();
+		} else {
+			updateActionBarDrawerClosed();
+		}
+	}
+
 	private void selectItem(int position) {
 		Fragment fragment = NearbyFragment.newInstance(null);
 
 		getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment, NearbyFragment.FRAGMENT_TAG).commit();
 
-		setTitle("Nearby"); // FIXME i18n
+		setTitle(R.string.nearby);
 		setSubtitle(null);
-		getActionBar().setIcon(R.drawable.ic_nearby);
+		setIcon(R.drawable.ic_nearby);
 		mDrawerLayout.closeDrawer(mDrawerList.getView());
 	}
 
@@ -109,12 +129,17 @@ public class MainActivity extends MTActivityWithLocation {
 	@Override
 	public void setTitle(CharSequence title) {
 		mTitle = title;
-		getActionBar().setTitle(mTitle);
+		updateActionBar();
 	}
 
 	public void setSubtitle(CharSequence subtitle) {
 		mSubtitle = subtitle;
-		getActionBar().setSubtitle(mSubtitle);
+		updateActionBar();
+	}
+
+	public void setIcon(int resId) {
+		mIcon = resId;
+		updateActionBar();
 	}
 
 	@Override

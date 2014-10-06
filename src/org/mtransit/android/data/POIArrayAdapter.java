@@ -936,7 +936,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private void resetNowToTheMinute() {
 		this.nowToTheMinute = TimeUtils.currentTimeToTheMinuteMillis();
-		notifyDataSetChanged(false); // TODO true?
+		notifyDataSetChanged(false);
 	}
 
 	private final BroadcastReceiver timeChangedReceiver = new BroadcastReceiver() {
