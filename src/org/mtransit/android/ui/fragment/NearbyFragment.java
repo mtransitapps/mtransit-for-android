@@ -16,6 +16,7 @@ import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.view.SlidingTabLayout;
 
 import android.app.Activity;
 import android.content.Context;
@@ -32,8 +33,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
-
-import com.astuetz.PagerSlidingTabStrip;
 
 public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChangeListener, MTActivityWithLocation.UserLocationListener,
 		SwipeRefreshLayout.OnRefreshListener {
@@ -176,9 +175,10 @@ public class NearbyFragment extends MTFragmentV4 implements ViewPager.OnPageChan
 		viewPager.setAdapter(this.agencyTypePagerAdapter);
 		viewPager.setOffscreenPageLimit(3);
 		// tabs
-		PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) getView().findViewById(R.id.tabs);
+		SlidingTabLayout tabs = (SlidingTabLayout) getView().findViewById(R.id.tabs);
 		tabs.setViewPager(viewPager);
 		tabs.setOnPageChangeListener(this);
+		tabs.setSelectedIndicatorColors(0xff666666);
 		this.lastPageSelected = 0;
 		new MTAsyncTask<Void, Void, Integer>() {
 

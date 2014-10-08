@@ -12,11 +12,10 @@
         android:layout="@layout/layout_loading_large"
         android:visibility="gone" />
     <!-- TABS -->
-    <com.astuetz.PagerSlidingTabStrip
+    <org.mtransit.android.ui.view.SlidingTabLayout
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:background="@drawable/background_tabs"
         android:visibility="gone" />
     <!-- VIEWPAGER -->
     <android.support.v4.view.ViewPager
