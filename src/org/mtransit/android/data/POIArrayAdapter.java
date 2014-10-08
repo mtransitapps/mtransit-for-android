@@ -590,7 +590,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
-	public void clearAll() {
+	@Override
+	public void clear() {
 		if (this.pois != null) {
 			this.pois.clear();
 			this.pois = null;
@@ -619,6 +620,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 		this.location = null;
 		this.locationDeclination = 0f;
+		super.clear();
 	}
 
 	public void onDestroy() {

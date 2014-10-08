@@ -262,8 +262,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 		this.nearbyLocation = newNearbyLocation;
 		// reset all the things
 		if (this.adapter != null) {
-			this.adapter.clearAll();
-			this.adapter.notifyDataSetChanged(true);
+			this.adapter.clear();
 		}
 		final View view = getView();
 		if (view != null) {
@@ -368,7 +367,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 	@Override
 	public void onLoaderReset(Loader<List<POIManager>> loader) {
 		if (this.adapter != null) {
-			this.adapter.clearAll();
+			this.adapter.clear();
 			this.adapter.onPause();
 		}
 	}
