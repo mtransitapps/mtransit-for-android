@@ -155,9 +155,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
 			switch (statusType) {
 			case POI.ITEM_STATUS_TYPE_SCHEDULE:
-				return 3; // RTS & SCHEDULE
+				return 2; // RTS & SCHEDULE
 			default:
-				return 4; // RTS
+				return 3; // RTS
 			}
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 		default:
