@@ -7,11 +7,12 @@
         android:id="@+id/content_frame"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-     <fragment
+    <ListView
         android:id="@+id/left_drawer"
-        android:name="org.mtransit.android.ui.fragment.MenuFragment"
-        android:layout_width="240dp"
+        android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        tools:layout="@layout/fragment_menu" />
+        android:background="@android:color/white"
+        android:choiceMode="singleChoice"
+        android:fadingEdge="none" />
 </android.support.v4.widget.DrawerLayout>

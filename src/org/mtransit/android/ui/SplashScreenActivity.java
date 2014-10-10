@@ -17,6 +17,11 @@ public class SplashScreenActivity extends MTFragmentActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
 		showHomeActivity();
 	}
 

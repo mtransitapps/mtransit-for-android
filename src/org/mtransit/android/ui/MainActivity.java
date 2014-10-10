@@ -3,20 +3,33 @@ package org.mtransit.android.ui;
 import java.util.List;
 
 import org.mtransit.android.R;
-import org.mtransit.android.ui.fragment.MenuFragment;
+import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.commons.ToastUtils;
+import org.mtransit.android.data.DataSourceType;
+import org.mtransit.android.data.MenuAdapter;
+import org.mtransit.android.ui.fragment.ABFragment;
+import org.mtransit.android.ui.fragment.AgencyTypeFragment;
+import org.mtransit.android.ui.fragment.DirectionsFragment;
+import org.mtransit.android.ui.fragment.FavoritesFragment;
+import org.mtransit.android.ui.fragment.MapsFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
+import org.mtransit.android.ui.fragment.SearchFragment;
 
 import android.content.res.Configuration;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
-public class MainActivity extends MTActivityWithLocation {
+public class MainActivity extends MTActivityWithLocation implements AdapterView.OnItemClickListener {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -28,7 +41,8 @@ public class MainActivity extends MTActivityWithLocation {
 	private static final boolean LOCATION_ENABLED = true;
 
 	private DrawerLayout mDrawerLayout;
-	private MenuFragment mDrawerList;
+	private ListView mDrawerList;
+	private MenuAdapter mDrawerListAdapter;
 	private ActionBarDrawerToggle mDrawerToggle;
 
 	private CharSequence mDrawerTitle;
@@ -53,9 +67,12 @@ public class MainActivity extends MTActivityWithLocation {
 		mSubtitle = mDrawerSubtitle = getActionBar().getSubtitle();
 		mIcon = mDrawerIcon = R.drawable.ic_launcher;
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		mDrawerList = (MenuFragment) getSupportFragmentManager().findFragmentById(R.id.left_drawer);
+		mDrawerList = (ListView) findViewById(R.id.left_drawer); // (mDrawerList) getSupportFragmentManager().findFragmentById(R.id.left_drawer);
 
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+		mDrawerListAdapter = new MenuAdapter(this);
+		mDrawerList.setAdapter(mDrawerListAdapter);
+		mDrawerList.setOnItemClickListener(this);
 
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setHomeButtonEnabled(true);
@@ -63,53 +80,75 @@ public class MainActivity extends MTActivityWithLocation {
 		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
 			@Override
 			public void onDrawerClosed(View view) {
-				updateActionBarDrawerClosed();
+				updateABDrawerClosed();
 			}
 
 			@Override
 			public void onDrawerOpened(View drawerView) {
-				updateActionBarDrawerOpened();
+				updateABDrawerOpened();
 			}
 		};
 
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 
 		if (savedInstanceState == null) {
-			selectItem(0);
+			final String itemId = PreferenceUtils.getPrefLcl(this, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
+			selectItem(this.mDrawerListAdapter.getScreenItemPosition(itemId));
 		}
 	}
 
-	private void updateActionBarDrawerClosed() {
-		getActionBar().setTitle(mTitle);
-		getActionBar().setSubtitle(mSubtitle);
-		getActionBar().setIcon(mIcon);
-		invalidateOptionsMenu();
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		selectItem(position);
 	}
 
-	private void updateActionBarDrawerOpened() {
-		getActionBar().setTitle(mDrawerTitle);
-		getActionBar().setSubtitle(mDrawerSubtitle);
-		getActionBar().setIcon(mDrawerIcon);
-		invalidateOptionsMenu();
-	}
 
-	private void updateActionBar() {
-		if (mDrawerLayout.isDrawerOpen(mDrawerList.getView())) {
-			updateActionBarDrawerOpened();
-		} else {
-			updateActionBarDrawerClosed();
-		}
-	}
+	private int currentSelectedItemPosition = -1;
 
 	private void selectItem(int position) {
-		Fragment fragment = NearbyFragment.newInstance(null);
-
-		getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment, NearbyFragment.FRAGMENT_TAG).commit();
-
-		setTitle(R.string.nearby);
-		setSubtitle(null);
-		setIcon(R.drawable.ic_nearby);
-		mDrawerLayout.closeDrawer(mDrawerList.getView());
+		if (position == this.currentSelectedItemPosition) {
+			closeDrawer();
+			return;
+		}
+		if (!this.mDrawerListAdapter.isRootScreen(position)) {
+			if (this.currentSelectedItemPosition >= 0) {
+				mDrawerList.setItemChecked(this.currentSelectedItemPosition, true); // keep current position
+			}
+			closeDrawer();
+			return;
+		}
+		final ABFragment newFragment;
+		if (position == MenuAdapter.ITEM_INDEX_SEARCH) {
+			newFragment = SearchFragment.newInstance();
+		} else if (position == MenuAdapter.ITEM_INDEX_FAVORITE) {
+			newFragment = FavoritesFragment.newInstance();
+		} else if (position == MenuAdapter.ITEM_INDEX_NEARBY) {
+			newFragment = NearbyFragment.newInstance(null);
+		} else if (position == MenuAdapter.ITEM_INDEX_DIRECTIONS) {
+			newFragment = DirectionsFragment.newInstance();
+		} else if (position == MenuAdapter.ITEM_INDEX_MAPS) {
+			newFragment = MapsFragment.newInstance();
+		} else {
+			DataSourceType type = this.mDrawerListAdapter.getAgencyTypeAt(position);
+			if (type != null) {
+				newFragment = AgencyTypeFragment.newInstance(type);
+			} else {
+				return;
+			}
+		}
+		setABTitle(newFragment.getTitle(this));
+		setABSubtitle(newFragment.getSubtitle(this));
+		setABIcon(newFragment.getIconDrawableResId());
+		final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		ft.replace(R.id.content_frame, newFragment);
+		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+		ft.commit();
+		mDrawerList.setItemChecked(position, true);
+		closeDrawer();
+		this.currentSelectedItemPosition = position;
+		if (this.mDrawerListAdapter.isRootScreen(position)) {
+			PreferenceUtils.savePrefLcl(this, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.mDrawerListAdapter.getScreenItemId(position), false);
+		}
 	}
 
 	@Override
@@ -126,20 +165,89 @@ public class MainActivity extends MTActivityWithLocation {
 		}
 	}
 
+	@Deprecated
 	@Override
+	public void setTitle(int titleId) {
+		super.setTitle(titleId); // call setTitle(CharSequence)
+	}
+
+	@Override
+	@Deprecated
 	public void setTitle(CharSequence title) {
+		setABTitle(title);
+	}
+
+	private void setABTitle(CharSequence title) {
 		mTitle = title;
-		updateActionBar();
+		updateAB();
 	}
 
-	public void setSubtitle(CharSequence subtitle) {
+	private void setABSubtitle(CharSequence subtitle) {
 		mSubtitle = subtitle;
-		updateActionBar();
+		updateAB();
 	}
 
-	public void setIcon(int resId) {
+	private void setABIcon(int resId) {
 		mIcon = resId;
-		updateActionBar();
+		updateAB();
+	}
+
+	public void notifyABChange() {
+		Fragment f = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+		if (f != null && f instanceof ABFragment) {
+			ABFragment abf = (ABFragment) f;
+			mTitle = abf.getTitle(this);
+			mSubtitle = abf.getSubtitle(this);
+			mIcon = abf.getIconDrawableResId();
+			updateAB();
+		}
+	}
+
+	private void updateAB() {
+		if (isDrawerOpen()) {
+			updateABDrawerOpened();
+		} else {
+			updateABDrawerClosed();
+		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		if (isDrawerOpen()) {
+			closeDrawer();
+			return;
+		}
+		super.onBackPressed();
+	}
+
+	private void closeDrawer() {
+		mDrawerLayout.closeDrawer(mDrawerList);
+	}
+
+	private boolean isDrawerOpen() {
+		return mDrawerLayout.isDrawerOpen(mDrawerList);
+	}
+
+	private void updateABDrawerClosed() {
+		getActionBar().setTitle(mTitle);
+		getActionBar().setSubtitle(mSubtitle);
+		if (mIcon > 0) {
+			getActionBar().setIcon(mIcon);
+		} else {
+			getActionBar().setIcon(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+		}
+		invalidateOptionsMenu();
+	}
+
+	private void updateABDrawerOpened() {
+		getActionBar().setTitle(mDrawerTitle);
+		getActionBar().setSubtitle(mDrawerSubtitle);
+		if (mDrawerIcon > 0) {
+			getActionBar().setIcon(mDrawerIcon);
+		} else {
+			getActionBar().setIcon(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+		}
+		invalidateOptionsMenu();
 	}
 
 	@Override

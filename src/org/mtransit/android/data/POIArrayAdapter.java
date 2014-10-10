@@ -122,7 +122,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	public POIArrayAdapter(Activity activity) {
 		super(activity, R.layout.layout_loading_small);
 		this.activity = activity;
-		this.layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		this.layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	public void setManualLayout(ViewGroup manualLayout) {

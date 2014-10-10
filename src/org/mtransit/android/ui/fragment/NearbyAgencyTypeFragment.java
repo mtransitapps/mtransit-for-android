@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import org.mtransit.android.R;
@@ -13,6 +14,7 @@ import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.NearbyPOIListLoader;
+import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 
 import android.location.Location;
@@ -25,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderManager.LoaderCallbacks<List<POIManager>>, NearbyFragment.NearbyLocationListener {
@@ -63,6 +64,8 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 	private int lastVisisbleFragmentPosition = -1;
 
 	private boolean fragmentVisible = false;
+
+	private WeakReference<NearbyFragment> nearbyFragmentWR;
 
 	public static NearbyAgencyTypeFragment newInstance(int fragmentPosition, int lastVisisbleFragmentPosition, DataSourceType type, Location nearbyLocationOpt,
 			Location userLocationOpt) {
@@ -110,6 +113,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 		Integer typeId = BundleUtils.getInt(EXTRA_TYPE_ID, savedInstanceState, getArguments());
 		if (typeId != null) {
 			this.type = DataSourceType.parseId(typeId);
+			((MainActivity) getActivity()).notifyABChange();
 		}
 		// FRAGMENT POSITION
 		Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, savedInstanceState, getArguments());
@@ -160,10 +164,13 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 		} else {
 			showList();
 		}
-		NearbyFragment nearbyFragment = (NearbyFragment) getActivity().getSupportFragmentManager().findFragmentByTag(NearbyFragment.FRAGMENT_TAG);
+		NearbyFragment nearbyFragment = this.nearbyFragmentWR == null ? null : this.nearbyFragmentWR.get();
 		if (nearbyFragment != null) {
 			this.swipeRefreshLayout.setOnRefreshListener(nearbyFragment);
 		}
+
+	public void setNearbyFragment(NearbyFragment nearbyFragment) {
+		this.nearbyFragmentWR = new WeakReference<NearbyFragment>(nearbyFragment);
 	}
 
 	public void setSwipeRefreshLayoutRefreshing(boolean refreshing) {
@@ -180,7 +187,13 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 	}
 
 	public void setFragmentVisisbleAtPosition(int visisbleFragmentPosition) {
-		if (this.lastVisisbleFragmentPosition == visisbleFragmentPosition) {
+		if (this.lastVisisbleFragmentPosition == visisbleFragmentPosition //
+				&& (//
+				(this.fragmentPosition == visisbleFragmentPosition && this.fragmentVisible) //
+				|| //
+				(this.fragmentPosition != visisbleFragmentPosition && !this.fragmentVisible) //
+				) //
+		) {
 			return;
 		}
 		this.lastVisisbleFragmentPosition = visisbleFragmentPosition;
@@ -207,7 +220,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 				this.adapter.refreshFavorites();
 			}
 		}
-		NearbyFragment nearbyFragment = (NearbyFragment) getActivity().getSupportFragmentManager().findFragmentByTag(NearbyFragment.FRAGMENT_TAG);
+		NearbyFragment nearbyFragment = this.nearbyFragmentWR == null ? null : this.nearbyFragmentWR.get();
 		if (nearbyFragment != null) {
 			useNewNearbyLocation(nearbyFragment.getNearbyLocation(), false); // nearby location was unknown yet or reset while not visible
 			onUserLocationChanged(nearbyFragment.getUserLocation()); // user location was unknown yet or discarded while not visible
