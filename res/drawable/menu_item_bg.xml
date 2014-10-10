@@ -6,5 +6,5 @@
     <item android:drawable="@drawable/platform_list_selector_background_transition_holo_light" android:state_focused="true" android:state_pressed="true"/>
     <item android:drawable="@drawable/platform_list_selector_background_transition_holo_light" android:state_focused="false" android:state_pressed="true"/>
     <item android:drawable="@drawable/platform_list_focused_holo" android:state_focused="true"/>
-    <item android:drawable="@android:color/transparent"/>
+    <item android:drawable="@color/menu_item_bg"/>
 </selector>

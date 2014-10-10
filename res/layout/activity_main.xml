@@ -12,7 +12,9 @@
         android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@android:color/white"
+        android:background="@color/menu_bg"
         android:choiceMode="singleChoice"
+        android:divider="@drawable/list_view_divider"
+        android:dividerHeight="@dimen/list_view_divider_height"
         android:fadingEdge="none" />
 </android.support.v4.widget.DrawerLayout>

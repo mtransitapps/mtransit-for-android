@@ -2,9 +2,14 @@
 <resources>
     <color name="mt_blue_malibu">#6699FF</color>
     <color name="mt_blue_smalt">#003399</color>
+    <color name="menu_bg">@color/platform_background_holo_light</color>
+    <color name="menu_item_bg">@android:color/white</color>
+    <color name="menu_secondary_item_bg">@color/platform_background_holo_light</color>
     <color name="menu_item_text_color">#333333</color>
     <color name="menu_header_item_text_color">@color/menu_item_text_color</color>
     <color name="platform_background_holo_light">#fff3f3f3</color>
+    <color name="platform_list_section_divider_holo_light">#33000000</color>
+    <color name="platform_list_divider_holo_light">#1A000000</color>
     <color name="active">#FF33b5e5</color>
     <color name="active_v19">#FF4285f4</color>
 </resources>

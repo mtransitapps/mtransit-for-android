@@ -33,8 +33,9 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 	private static final int VIEW_TYPE_STATIC_HEADERS = 1; // Browse...
 	private static final int VIEW_TYPE_DYNAMIC_AGENCY_TYPE = 2; // Bike, Bus, Subway, Train...
 	private static final int VIEW_TYPE_SECONDARY = 3; // Settings, Help, Send Feedback...
+	private static final int VIEW_TYPE_STATIC_SEPARATORS = 4; // -----
 
-	private static final int VIEW_TYPE_COUNT = 4;
+	private static final int VIEW_TYPE_COUNT = 5;
 
 	private static final int ITEM_INDEX_SEARCH = 0;
 	private static final int ITEM_INDEX_FAVORITE = 1;
@@ -45,15 +46,17 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 	// private static final int ITEM_INDEX_DYNAMIC_HEADER = 5;
 	private static final int ITEM_INDEX_DYNAMIC_HEADER = 3;
 
-	private static final int STATIC_ITEMS_BEFORE_DYNAMIC = ITEM_INDEX_DYNAMIC_HEADER + 1;
+	private static final int ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR = 4;
 
-	private static final int ITEM_INDEX_AFTER_START = 0; // 100;
-	private static final int ITEM_INDEX_SETTINGS = ITEM_INDEX_AFTER_START + 0;
-	// private static final int ITEM_INDEX_HELP = ITEM_INDEX_AFTER_START + 1;
-	private static final int ITEM_INDEX_SEND_FEEDBACK = ITEM_INDEX_AFTER_START + 1;
+	private static final int STATIC_ITEMS_BEFORE_DYNAMIC = ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR + 1;
 
-	// private static final int STATIC_ITEMS_AFTER_DYNAMIC = 3;
-	private static final int STATIC_ITEMS_AFTER_DYNAMIC = 2;
+	// private static final int ITEM_INDEX_AFTER_START = 0; // 100;
+	private static final int ITEM_INDEX_AFTER_SEPARATOR = 0;
+	private static final int ITEM_INDEX_SETTINGS = 1;
+	// private static final int ITEM_INDEX_HELP = ITEM_INDEX_AFTER_START + 2;
+	private static final int ITEM_INDEX_SEND_FEEDBACK = 2;
+	// private static final int STATIC_ITEMS_AFTER_DYNAMIC = 4;
+	private static final int STATIC_ITEMS_AFTER_DYNAMIC = 3;
 
 	private static final String ITEM_ID_AGENCYTYPE_START_WITH = "agencytype-";
 	private static final String ITEM_ID_STATIC_START_WITH = "static-";
@@ -106,7 +109,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 		} else if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size()) {
 			return 1000 + getAllAgencyTypes().get(position - STATIC_ITEMS_BEFORE_DYNAMIC).getId();
 		} else if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size() + STATIC_ITEMS_AFTER_DYNAMIC) {
-			return ITEM_INDEX_AFTER_START + (position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size());
+			return position + STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size();
 		} else {
 			MTLog.w(this, "No item ID expected at position '%s'!", position);
 			return -1;
@@ -120,6 +123,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 		case VIEW_TYPE_DYNAMIC_AGENCY_TYPE:
 			return ITEM_ID_AGENCYTYPE_START_WITH + getAgencyTypeAt(position).getId();
 		case VIEW_TYPE_STATIC_HEADERS:
+		case VIEW_TYPE_STATIC_SEPARATORS:
 		case VIEW_TYPE_SECONDARY:
 			return null;
 		default:
@@ -141,11 +145,23 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 			}
 		} else if (itemId.startsWith(ITEM_ID_AGENCYTYPE_START_WITH)) {
 			try {
-				return Integer.parseInt(itemId.substring(ITEM_ID_AGENCYTYPE_START_WITH.length())) + STATIC_ITEMS_BEFORE_DYNAMIC;
+				final int typeId = Integer.parseInt(itemId.substring(ITEM_ID_AGENCYTYPE_START_WITH.length()));
+				return getDynamicAgencyTypePosition(typeId);
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while finding agency type screen item ID '%s' position!", itemId);
 				return ITEM_ID_SELECTED_SCREEN_POSITION_DEFAULT;
 			}
+		}
+		return ITEM_ID_SELECTED_SCREEN_POSITION_DEFAULT;
+	}
+
+	private int getDynamicAgencyTypePosition(int typeId) {
+		int i = 0;
+		for (DataSourceType type : getAllAgencyTypes()) {
+			if (type.getId() == typeId) {
+				return i + STATIC_ITEMS_BEFORE_DYNAMIC;
+			}
+			i++;
 		}
 		return ITEM_ID_SELECTED_SCREEN_POSITION_DEFAULT;
 	}
@@ -160,11 +176,16 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 		if (position < STATIC_ITEMS_BEFORE_DYNAMIC) {
 			if (position == ITEM_INDEX_DYNAMIC_HEADER) {
 				return VIEW_TYPE_STATIC_HEADERS;
+			} else if (position == ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR) {
+				return VIEW_TYPE_STATIC_SEPARATORS;
 			}
 			return VIEW_TYPE_STATIC_MAIN_TEXT_WITH_ICON;
 		} else if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size()) {
 			return VIEW_TYPE_DYNAMIC_AGENCY_TYPE;
 		} else if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size() + STATIC_ITEMS_AFTER_DYNAMIC) {
+			if (position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size() == ITEM_INDEX_AFTER_SEPARATOR) {
+				return VIEW_TYPE_STATIC_SEPARATORS;
+			}
 			return VIEW_TYPE_SECONDARY;
 		} else {
 			MTLog.w(this, "No item view type expected at position '%s'!", position);
@@ -178,6 +199,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 		case VIEW_TYPE_DYNAMIC_AGENCY_TYPE:
 			return true;
 		case VIEW_TYPE_STATIC_HEADERS:
+		case VIEW_TYPE_STATIC_SEPARATORS:
 		case VIEW_TYPE_SECONDARY:
 			return false;
 		default:
@@ -195,6 +217,8 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 			return getStaticHeaderView(position, convertView, parent);
 		case VIEW_TYPE_DYNAMIC_AGENCY_TYPE:
 			return getDynamicAgencyTypeView(position, convertView, parent);
+		case VIEW_TYPE_STATIC_SEPARATORS:
+			return getStaticSeparator(position, convertView, parent);
 		case VIEW_TYPE_SECONDARY:
 			return getSecondarView(position, convertView, parent);
 		default:
@@ -204,7 +228,8 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 	}
 
 	public DataSourceType getAgencyTypeAt(int position) {
-		return getAllAgencyTypes().get(position - STATIC_ITEMS_BEFORE_DYNAMIC);
+		final DataSourceType dataSourceType = getAllAgencyTypes().get(position - STATIC_ITEMS_BEFORE_DYNAMIC);
+		return dataSourceType;
 	}
 
 	public View getDynamicAgencyTypeView(int position, View convertView, ViewGroup parent) {
@@ -215,12 +240,19 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 			convertView.setTag(holder);
 		}
 		MenuItemAgencyTypeViewHolder holder = (MenuItemAgencyTypeViewHolder) convertView.getTag();
-		final DataSourceType type = getAllAgencyTypes().get(position - STATIC_ITEMS_BEFORE_DYNAMIC);
+		final DataSourceType type = getAgencyTypeAt(position);
 		if (type != null) {
 			holder.nameTv.setText(type.getShortNameResId());
 		} else {
 			holder.nameTv.setText(null);
 			MTLog.w(this, "No agency view view expected at position '%s'!", position);
+		}
+		return convertView;
+	}
+
+	public View getStaticSeparator(int position, View convertView, ViewGroup parent) {
+		if (convertView == null) {
+			convertView = this.layoutInflater.inflate(R.layout.menu_separator, parent, false);
 		}
 		return convertView;
 	}
@@ -239,19 +271,28 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 
 	@Override
 	public boolean areAllItemsEnabled() {
-		return false;
+		// return false; // to hide divider around disabled items (list view background visible behind hidden divider)
+		return true; // to show divider around disabled items
 	}
 
 	@Override
 	public boolean isEnabled(int position) {
-		if (position == ITEM_INDEX_DYNAMIC_HEADER) {
+		switch (getItemViewType(position)) {
+		case VIEW_TYPE_STATIC_MAIN_TEXT_WITH_ICON:
+		case VIEW_TYPE_DYNAMIC_AGENCY_TYPE:
+		case VIEW_TYPE_SECONDARY:
+			return true;
+		case VIEW_TYPE_STATIC_HEADERS:
+		case VIEW_TYPE_STATIC_SEPARATORS:
+			return false;
+		default:
+			MTLog.w(this, "No root view expected at position '%s'!", position);
 			return false;
 		}
-		return true;
 	}
 
 	public int getSecondaryIndexItemAt(int position) {
-		final int secondaryPosition = position - (STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size()) + ITEM_INDEX_AFTER_START;
+		final int secondaryPosition = position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size();
 		return secondaryPosition;
 	}
 
@@ -264,7 +305,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 			convertView.setTag(holder);
 		}
 		MenuItemViewHolder holder = (MenuItemViewHolder) convertView.getTag();
-		int secondaryPosition = position - (STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size()) + ITEM_INDEX_AFTER_START;
+		int secondaryPosition = position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size();
 		if (secondaryPosition == ITEM_INDEX_SETTINGS) {
 			holder.nameTv.setText(R.string.settings);
 			holder.icon.setImageResource(R.drawable.ic_menu_settings);
