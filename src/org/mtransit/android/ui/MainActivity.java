@@ -4,15 +4,8 @@ import java.util.List;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.PreferenceUtils;
-import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.MenuAdapter;
 import org.mtransit.android.ui.fragment.ABFragment;
-import org.mtransit.android.ui.fragment.AgencyTypeFragment;
-import org.mtransit.android.ui.fragment.DirectionsFragment;
-import org.mtransit.android.ui.fragment.FavoritesFragment;
-import org.mtransit.android.ui.fragment.MapsFragment;
-import org.mtransit.android.ui.fragment.NearbyFragment;
-import org.mtransit.android.ui.fragment.SearchFragment;
 
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
@@ -116,24 +109,9 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 			closeDrawer();
 			return;
 		}
-		final ABFragment newFragment;
-		if (position == MenuAdapter.ITEM_INDEX_SEARCH) {
-			newFragment = SearchFragment.newInstance();
-		} else if (position == MenuAdapter.ITEM_INDEX_FAVORITE) {
-			newFragment = FavoritesFragment.newInstance();
-		} else if (position == MenuAdapter.ITEM_INDEX_NEARBY) {
-			newFragment = NearbyFragment.newInstance(null);
-		} else if (position == MenuAdapter.ITEM_INDEX_DIRECTIONS) {
-			newFragment = DirectionsFragment.newInstance();
-		} else if (position == MenuAdapter.ITEM_INDEX_MAPS) {
-			newFragment = MapsFragment.newInstance();
-		} else {
-			DataSourceType type = this.mDrawerListAdapter.getAgencyTypeAt(position);
-			if (type != null) {
-				newFragment = AgencyTypeFragment.newInstance(type);
-			} else {
-				return;
-			}
+		final ABFragment newFragment = this.mDrawerListAdapter.getNewStaticFragmentAt(position);
+		if (newFragment == null) {
+			return;
 		}
 		setABTitle(newFragment.getTitle(this));
 		setABSubtitle(newFragment.getSubtitle(this));
