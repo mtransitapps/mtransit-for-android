@@ -168,6 +168,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 		if (nearbyFragment != null) {
 			this.swipeRefreshLayout.setOnRefreshListener(nearbyFragment);
 		}
+	}
 
 	public void setNearbyFragment(NearbyFragment nearbyFragment) {
 		this.nearbyFragmentWR = new WeakReference<NearbyFragment>(nearbyFragment);
@@ -280,7 +281,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 		final View view = getView();
 		if (view != null) {
 			if (view.findViewById(R.id.list) != null) {
-				((ListView) view.findViewById(R.id.list)).setSelectionFromTop(0, 0); // scroll to top of the list
+				((AbsListView) view.findViewById(R.id.list)).scrollTo(0, 0);
 			}
 		}
 		this.ad = LocationUtils.DEFAULT_AROUND_DIFF;
