@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.PreferenceUtils;
-import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.MenuAdapter;
 import org.mtransit.android.ui.fragment.ABFragment;

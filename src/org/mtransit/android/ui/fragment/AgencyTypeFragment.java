@@ -4,7 +4,6 @@ import java.util.Locale;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.ui.MainActivity;
 
