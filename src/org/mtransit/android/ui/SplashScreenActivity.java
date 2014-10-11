@@ -1,8 +1,8 @@
 package org.mtransit.android.ui;
 
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ui.MTFragmentActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 public class SplashScreenActivity extends MTFragmentActivity {
@@ -26,7 +26,7 @@ public class SplashScreenActivity extends MTFragmentActivity {
 	}
 
 	private void showHomeActivity() {
-		startActivity(new Intent(this, MainActivity.class));
+		startActivity(MainActivity.newInstance(this, -1));
 		finish();
 	}
 }

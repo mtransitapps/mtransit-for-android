@@ -65,10 +65,10 @@ public class FavoriteProvider extends MTContentProvider {
 	}
 
 	private FavoriteDbHelper getDBHelper(Context context) {
-		if (dbHelper == null) { // initialize
+		if (dbHelper == null) {
 			dbHelper = getNewDbHelper(context);
 			currentDbVersion = getCurrentDbVersion();
-		} else { // reset
+		} else {
 			try {
 				if (currentDbVersion != getCurrentDbVersion()) {
 					dbHelper.close();
@@ -208,13 +208,12 @@ public class FavoriteProvider extends MTContentProvider {
 	@Override
 	public Uri insertMT(Uri uri, ContentValues values) {
 		try {
-			ContentValues valuesCopy = new ContentValues(values);
 			Uri insertUri = null;
 			long newRowId = -1;
 			switch (getURIMATCHER(getContext()).match(uri)) {
 			case FAVORITE:
 				MTLog.v(this, "insert>FAVORITE");
-				newRowId = getDBHelper(getContext()).getWritableDatabase().insert(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FK_ID, valuesCopy);
+				newRowId = getDBHelper(getContext()).getWritableDatabase().insert(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FK_ID, values);
 				if (newRowId > 0) {
 					insertUri = ContentUris.withAppendedId(getFavoriteContentUri(getContext()), newRowId);
 				}

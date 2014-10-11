@@ -37,6 +37,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	public static final POIDistanceComparator POI_DISTANCE_COMPARATOR = new POIDistanceComparator();
 
+	public static final POIAlphaComparator POI_ALPHA_COMPATOR = new POIAlphaComparator();
+
 	public POI poi;
 
 	private CharSequence distanceString = null;
@@ -56,6 +58,13 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	public POIManager(POI poi, POIStatus status) {
 		this.poi = poi;
 		this.status = status;
+	}
+
+	@Override
+	public String toString() {
+		return new StringBuilder(POIManager.class.getSimpleName()).append('[')//
+				.append("poi:").append(this.poi) //
+				.append(']').toString();
 	}
 
 	@Override
@@ -168,12 +177,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 	}
 
-	public int getActionsType() {
-		return this.poi.getActionsType();
-	}
-
 	public CharSequence[] getActionsItems(Context context, CharSequence defaultAction, boolean isFavorite) {
-		switch (getActionsType()) {
+		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
 			return new CharSequence[] {//
 			defaultAction, //
@@ -192,17 +197,41 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	public boolean onActionsItemClick(Activity activity, int itemClicked, boolean isFavorite, FavoriteUpdateListener listener) {
+		switch (this.poi.getActionsType()) {
+		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
+			return onActionsItemClickFavoritable(activity, itemClicked, isFavorite, listener);
+		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
+			return onActionsItemClickRTS(activity, itemClicked, isFavorite, listener);
+		default:
+			MTLog.w(this, "unexpected action type '%s'!", this.poi.getActionsType());
+			return false; // NOT HANDLED
+		}
+	}
+
+	private boolean onActionsItemClickRTS(Activity activity, int itemClicked, boolean isFavorite, FavoriteUpdateListener listener) {
 		switch (itemClicked) {
 		case 1:
 			return true; // HANDLED
 		case 2:
-			FavoriteManager.addOrDeleteFavorite(activity, isFavorite, this.poi.getUUID());
-			if (listener != null) {
-				listener.onFavoriteUpdated();
-			}
-			return true; // HANDLED
+			return addRemoteFavorite(activity, isFavorite, listener);
 		}
 		return false; // NOT HANDLED
+	}
+
+	private boolean onActionsItemClickFavoritable(Activity activity, int itemClicked, boolean isFavorite, FavoriteUpdateListener listener) {
+		switch (itemClicked) {
+		case 1:
+			return addRemoteFavorite(activity, isFavorite, listener);
+		}
+		return false; // NOT HANDLED
+	}
+
+	private boolean addRemoteFavorite(Activity activity, boolean isFavorite, FavoriteUpdateListener listener) {
+		FavoriteManager.addOrDeleteFavorite(activity, isFavorite, this.poi.getUUID()/* , getFavoriteType() */);
+		if (listener != null) {
+			listener.onFavoriteUpdated();
+		}
+		return true; // HANDLED
 	}
 
 	public boolean onActionItemClick(Activity activity) {
@@ -246,7 +275,24 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return this.poi.hasLocation();
 	}
 
-	public static class POIDistanceComparator implements Comparator<POIManager> {
+	private static class POIAlphaComparator implements Comparator<POIManager> {
+		@Override
+		public int compare(POIManager lhs, POIManager rhs) {
+			POI lhsPoi = lhs == null ? null : lhs.poi;
+			POI rhsPoi = rhs == null ? null : rhs.poi;
+			if (lhsPoi == null && rhsPoi == null) {
+				return 0;
+			}
+			if (lhsPoi == null) {
+				return -1;
+			} else if (rhsPoi == null) {
+				return +1;
+			}
+			return lhsPoi.compareToAlpha(null, rhsPoi);
+		}
+	}
+
+	private static class POIDistanceComparator implements Comparator<POIManager> {
 		@Override
 		public int compare(POIManager lhs, POIManager rhs) {
 			if (lhs.poi instanceof RouteTripStop && rhs.poi instanceof RouteTripStop) {

@@ -66,7 +66,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	public void setTag(String tag) {
-		this.tag = tag;
+		this.tag = TAG + "-" + tag;
 	}
 
 	private static IntentFilter s_intentFilter;
@@ -103,6 +103,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private boolean showStatus = true; // show times / availability
 
+	private boolean showFavorite = true; // show favorite star
+
 	private ViewGroup manualLayout;
 
 	private ScrollView manualScrollView;
@@ -119,6 +121,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private long lastCompassChanged = -1l;
 
+	private FavoriteUpdateListener favoriteUpdateListener = this;
+
 	public POIArrayAdapter(Activity activity) {
 		super(activity, R.layout.layout_loading_small);
 		this.activity = activity;
@@ -129,8 +133,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		this.manualLayout = manualLayout;
 	}
 
+	public void setFavoriteUpdateListener(FavoriteUpdateListener favoriteUpdateListener) {
+		this.favoriteUpdateListener = favoriteUpdateListener;
+	}
+
 	public void setShowStatus(boolean showData) {
 		this.showStatus = showData;
+	}
+
+	public void setShowFavorite(boolean showFavorite) {
+		this.showFavorite = showFavorite;
 	}
 
 	private static final int VIEW_TYPE_COUNT = 4;
@@ -273,7 +285,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 							new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog, int item) {
 									MTLog.v(POIArrayAdapter.this, "onClick(%s)", item);
-									if (poim.onActionsItemClick(POIArrayAdapter.this.activity, item, isFavorite, POIArrayAdapter.this)) {
+									if (poim.onActionsItemClick(POIArrayAdapter.this.activity, item, isFavorite, POIArrayAdapter.this.favoriteUpdateListener)) {
 										return;
 									}
 									switch (item) {
@@ -287,7 +299,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 							}).create().show();
 			return true;
 		default:
-			MTLog.w(this, "Unknow view type for poi %s!", poim);
+			MTLog.w(this, "Unknow view type '%s' for poi '%s'!", poim.poi.getType(), poim);
 			return false;
 		}
 	}
@@ -298,6 +310,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	public void setPois(List<POIManager> pois) {
+		this.lastNotifyDataSetChanged = -1; // last notify was with old data
 		this.pois = pois;
 	}
 
@@ -781,8 +794,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
-
-
 	private int getRTSLayout(int status) {
 		int layoutRes = R.layout.layout_poi_rts;
 		switch (status) {
@@ -971,19 +982,20 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	private void updateCommonView(CommonViewHolder holder, POIManager poim) {
-		if (poim == null || holder == null) {
+		if (poim == null || poim.poi == null || holder == null) {
 			return;
 		}
 		if (holder.uuid != null) {
 			this.poiStatusViewHoldersWR.remove(holder.uuid);
 		}
-		holder.uuid = poim.poi.getUUID();
+		final POI poi = poim.poi;
+		holder.uuid = poi.getUUID();
 		if (holder.uuid != null) {
 			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
 		}
 		holder.compassV.setLatLng(poim.getLat(), poim.getLng());
 		// name
-		holder.nameTv.setText(poim.poi.getName());
+		holder.nameTv.setText(poi.getName());
 		// distance
 		if (!TextUtils.isEmpty(poim.getDistanceString())) {
 			if (!poim.getDistanceString().equals(holder.distanceTv.getText())) {
@@ -1005,7 +1017,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			holder.compassV.setVisibility(View.GONE);
 		}
 		// favorite
-		if (this.favUUIDs != null && this.favUUIDs.contains(poim.poi.getUUID())) {
+		if (this.showFavorite && this.favUUIDs != null && this.favUUIDs.contains(poi.getUUID())) {
 			holder.favImg.setVisibility(View.VISIBLE);
 		} else {
 			holder.favImg.setVisibility(View.GONE);
@@ -1051,7 +1063,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					newFav = true;
 				}
 				newFavUUIDs.add(uid);
-				break;
 			}
 		}
 		this.favUUIDs = newFavUUIDs;

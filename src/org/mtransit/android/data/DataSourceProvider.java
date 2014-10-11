@@ -254,6 +254,25 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return result;
 	}
 
+	public static List<POIManager> findPOIsWithUUIDs(Context context, Uri contentUri, Set<String> uuids) {
+		Cursor cursor = null;
+		try {
+			POIFilter poiFilter = new POIFilter(uuids);
+			String filterJsonString = POIFilter.toJSON(poiFilter).toString();
+			final String sortOrder = null;
+			final Uri uri = getPOIUri(contentUri);
+			cursor = context.getContentResolver().query(uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, sortOrder);
+			return getPOIs(cursor, contentUri.getAuthority());
+		} catch (Throwable t) {
+			MTLog.w(TAG, t, "Error!");
+			return null;
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+	}
+
 	public static List<POIManager> findPOIsWithLatLngList(Context context, Uri contentUri, double lat, double lng, double aroundDiff, boolean hideDecentOnly) {
 		Cursor cursor = null;
 		try {

@@ -61,7 +61,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 	private static final String ITEM_ID_AGENCYTYPE_START_WITH = "agencytype-";
 	private static final String ITEM_ID_STATIC_START_WITH = "static-";
 
-	private static final int ITEM_ID_SELECTED_SCREEN_POSITION_DEFAULT = ITEM_INDEX_NEARBY;
+	public static final int ITEM_ID_SELECTED_SCREEN_POSITION_DEFAULT = ITEM_INDEX_NEARBY;
 
 	public static final String ITEM_ID_SELECTED_SCREEN_DEFAULT = ITEM_ID_STATIC_START_WITH + ITEM_ID_SELECTED_SCREEN_POSITION_DEFAULT;
 

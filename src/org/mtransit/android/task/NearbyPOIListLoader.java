@@ -94,17 +94,12 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 
 	@Override
 	public void deliverResult(List<POIManager> data) {
-		if (isReset()) {
-			onReleaseResources(data);
-		}
-		List<POIManager> oldPOIs = this.pois;
 		this.pois = data;
 		if (isStarted()) {
 			super.deliverResult(data);
 		} else {
 			MTLog.d(this, "deliverResult() > loader NOT started, not delivering result");
 		}
-		onReleaseResources(oldPOIs);
 	}
 
 	@Override
@@ -127,21 +122,12 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 	@Override
 	public void onCanceled(List<POIManager> data) {
 		super.onCanceled(data);
-		onReleaseResources(data);
 	}
 
 	@Override
 	protected void onReset() {
 		super.onReset();
 		onStopLoading();
-		onReleaseResources(this.pois);
-	}
-
-	private void onReleaseResources(List<?> data) {
-		if (data != null) {
-			// DO NOT CLEAR LIST, ONLY REMOVE REFERENCE
-			data = null;
-		}
 	}
 
 }

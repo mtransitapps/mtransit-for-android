@@ -7,6 +7,8 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.data.MenuAdapter;
 import org.mtransit.android.ui.fragment.ABFragment;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
@@ -32,6 +34,8 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 
 	private static final boolean LOCATION_ENABLED = true;
 
+	private static final String EXTRA_SELECTED_ROOT_SCREEN = "extra_selected_root_screen";
+
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
 	private MenuAdapter mDrawerListAdapter;
@@ -45,6 +49,14 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 
 	private int mIcon;
 	private int mDrawerIcon;
+
+	public static Intent newInstance(Context context, int selectedRootScreenPosition) {
+		Intent intent = new Intent(context, MainActivity.class);
+		if (selectedRootScreenPosition >= 0) {
+			intent.putExtra(EXTRA_SELECTED_ROOT_SCREEN, selectedRootScreenPosition);
+		}
+		return intent;
+	}
 
 	public MainActivity() {
 		super(LOCATION_ENABLED);
@@ -86,6 +98,26 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		if (savedInstanceState == null) {
 			final String itemId = PreferenceUtils.getPrefLcl(this, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
 			selectItem(this.mDrawerListAdapter.getScreenItemPosition(itemId));
+		} else {
+			int savedRootScreen = savedInstanceState.getInt(EXTRA_SELECTED_ROOT_SCREEN, -1);
+			if (savedRootScreen >= 0) {
+				selectItem(savedRootScreen);
+			}
+		}
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putInt(EXTRA_SELECTED_ROOT_SCREEN, this.currentSelectedItemPosition);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		int savedRootScreen = savedInstanceState.getInt(EXTRA_SELECTED_ROOT_SCREEN, -1);
+		if (savedRootScreen >= 0) {
+			selectItem(savedRootScreen);
 		}
 	}
 
@@ -98,6 +130,9 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	private int currentSelectedItemPosition = -1;
 
 	private void selectItem(int position) {
+		if (position < 0) {
+			return;
+		}
 		if (position == this.currentSelectedItemPosition) {
 			closeDrawer();
 			return;
@@ -106,7 +141,6 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 			if (this.currentSelectedItemPosition >= 0) {
 				mDrawerList.setItemChecked(this.currentSelectedItemPosition, true); // keep current position
 			}
-			closeDrawer();
 			return;
 		}
 		final ABFragment newFragment = this.mDrawerListAdapter.getNewStaticFragmentAt(position);
