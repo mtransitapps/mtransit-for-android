@@ -50,7 +50,6 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 
 	private static final int STATIC_ITEMS_BEFORE_DYNAMIC = ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR + 1;
 
-	// private static final int ITEM_INDEX_AFTER_START = 0; // 100;
 	private static final int ITEM_INDEX_AFTER_SEPARATOR = 0;
 	private static final int ITEM_INDEX_SETTINGS = 1;
 	// private static final int ITEM_INDEX_HELP = ITEM_INDEX_AFTER_START + 2;
