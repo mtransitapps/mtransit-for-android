@@ -53,6 +53,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		super.onResume();
 		initAdapter();
 		this.adapter.onResume();
+		getLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
 	}
 
 	private static final int FAVORITES_LOADER = 0;
