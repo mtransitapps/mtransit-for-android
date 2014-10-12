@@ -441,6 +441,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	@Deprecated
 	public boolean isClosestPOI(int position) {
 		return false;
+	}
 
 	@Deprecated
 	public void prefetchClosests() {
