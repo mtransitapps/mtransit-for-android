@@ -6,10 +6,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.task.MTAsyncTaskLoaderV4;
 import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.Favorite;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
@@ -53,6 +55,7 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 				}
 			}
 		}
+		CollectionUtils.sort(this.pois, new DataSourceType.POIManagerTypeShortNameComparator(getContext()));
 		return pois;
 	}
 
@@ -60,8 +63,8 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		HashMap<String, HashSet<String>> authorityToUUIDs = new HashMap<String, HashSet<String>>();
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {
-				String uuid = favorite.getFkId();
-				String authority = POI.POIUtils.extractAuthorityFromUUID(uuid);
+				final String uuid = favorite.getFkId();
+				final String authority = POI.POIUtils.extractAuthorityFromUUID(uuid);
 				if (!authorityToUUIDs.containsKey(authority)) {
 					authorityToUUIDs.put(authority, new HashSet<String>());
 				}

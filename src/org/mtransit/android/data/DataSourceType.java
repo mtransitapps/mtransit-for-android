@@ -81,4 +81,25 @@ public enum DataSourceType {
 
 	}
 
+	public static class POIManagerTypeShortNameComparator implements Comparator<POIManager> {
+
+		private WeakReference<Context> contextWR;
+
+		public POIManagerTypeShortNameComparator(Context context) {
+			this.contextWR = new WeakReference<Context>(context);
+		}
+
+		@Override
+		public int compare(POIManager lpoim, POIManager rpoim) {
+			final Context context = this.contextWR == null ? null : this.contextWR.get();
+			if (context == null) {
+				return 0;
+			}
+			final AgencyProperties lagency = DataSourceProvider.get().getAgency(context, lpoim.poi.getAuthority());
+			final AgencyProperties ragency = DataSourceProvider.get().getAgency(context, rpoim.poi.getAuthority());
+			final String lShortName = context.getString(lagency.getType().getShortNameResId());
+			final String rShortName = context.getString(ragency.getType().getShortNameResId());
+			return lShortName.compareTo(rShortName);
+		}
+	}
 }

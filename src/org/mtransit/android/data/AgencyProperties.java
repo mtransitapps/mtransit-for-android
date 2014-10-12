@@ -1,5 +1,7 @@
 package org.mtransit.android.data;
 
+import java.util.Comparator;
+
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
@@ -12,6 +14,8 @@ public class AgencyProperties implements MTLog.Loggable {
 	public String getLogTag() {
 		return TAG;
 	}
+
+	public static final AgencyPropertiesShortNameComparator SHORT_NAME_COMPARATOR = new AgencyPropertiesShortNameComparator();
 
 	private String id;
 	private DataSourceType type;
@@ -57,4 +61,13 @@ public class AgencyProperties implements MTLog.Loggable {
 		return isInArea;
 	}
 
+	private static class AgencyPropertiesShortNameComparator implements Comparator<AgencyProperties> {
+
+		@Override
+		public int compare(AgencyProperties lap, AgencyProperties rap) {
+			final String lShortName = lap.getShortName();
+			final String rShortName = rap.getShortName();
+			return lShortName.compareTo(rShortName);
+		}
+	}
 }

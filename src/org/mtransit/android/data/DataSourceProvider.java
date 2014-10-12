@@ -44,7 +44,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private List<DataSourceType> allAgencyTypes = null;
 
-	private WeakHashMap<DataSourceType, Set<AgencyProperties>> allAgenciesByType = null;
+	private WeakHashMap<DataSourceType, List<AgencyProperties>> allAgenciesByType = null;
+	private WeakHashMap<String, AgencyProperties> allAgenciesByAuthority = null;
 
 	private WeakHashMap<String, Set<StatusProviderProperties>> statusProvidersByTargetAuthority = null;
 
@@ -76,18 +77,25 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return this.allAgencyTypes;
 	}
 
-	public Collection<AgencyProperties> getAllDataSources(Context context) {
+	public List<AgencyProperties> getAllDataSources(Context context) {
 		if (this.allAgencies == null) {
 			init(context);
 		}
 		return this.allAgencies;
 	}
 
-	public Collection<AgencyProperties> getTypeDataSources(Context context, DataSourceType type) {
+	public List<AgencyProperties> getTypeDataSources(Context context, DataSourceType type) {
 		if (this.allAgenciesByType == null) {
 			init(context);
 		}
 		return this.allAgenciesByType.get(type);
+	}
+
+	public AgencyProperties getAgency(Context context, String authority) {
+		if (this.allAgenciesByAuthority == null) {
+			init(context);
+		}
+		return this.allAgenciesByAuthority.get(authority);
 	}
 
 	public Collection<StatusProviderProperties> getTargetAuthorityStatusProviders(Context context, String targetAuthority) {
@@ -100,7 +108,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 	private void init(Context context) {
 		this.allAgencies = new ArrayList<AgencyProperties>();
 		this.allAgencyTypes = new ArrayList<DataSourceType>();
-		this.allAgenciesByType = new WeakHashMap<DataSourceType, Set<AgencyProperties>>();
+		this.allAgenciesByType = new WeakHashMap<DataSourceType, List<AgencyProperties>>();
+		this.allAgenciesByAuthority = new WeakHashMap<String, AgencyProperties>();
 		this.statusProvidersByTargetAuthority = new WeakHashMap<String, Set<StatusProviderProperties>>();
 		String agencyProviderMetaData = context.getString(R.string.agency_provider);
 		String statusProviderMetaData = context.getString(R.string.status_provider);
@@ -133,6 +142,12 @@ public class DataSourceProvider implements MTLog.Loggable {
 			}
 		}
 		CollectionUtils.sort(this.allAgencyTypes, new DataSourceType.DataSourceTypeShortNameComparator(context));
+		CollectionUtils.sort(this.allAgencies, AgencyProperties.SHORT_NAME_COMPARATOR);
+		if (this.allAgenciesByType != null) {
+			for (DataSourceType type : this.allAgenciesByType.keySet()) {
+				CollectionUtils.sort(this.allAgenciesByType.get(type), AgencyProperties.SHORT_NAME_COMPARATOR);
+			}
+		}
 	}
 
 	private void addNewStatusProvider(StatusProviderProperties newStatusProvider) {
@@ -181,12 +196,13 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private void addNewAgency(AgencyProperties newAgency) {
 		this.allAgencies.add(newAgency);
+		this.allAgenciesByAuthority.put(newAgency.getAuthority(), newAgency);
 		DataSourceType newAgencyType = newAgency.getType();
 		if (!this.allAgencyTypes.contains(newAgencyType)) {
 			this.allAgencyTypes.add(newAgencyType);
 		}
 		if (!this.allAgenciesByType.containsKey(newAgencyType)) {
-			this.allAgenciesByType.put(newAgencyType, new HashSet<AgencyProperties>());
+			this.allAgenciesByType.put(newAgencyType, new ArrayList<AgencyProperties>());
 		}
 		this.allAgenciesByType.get(newAgencyType).add(newAgency);
 	}
