@@ -70,12 +70,10 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void initiateRefresh() {
-		if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation)) {
+		if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation, 2)) {
 			setSwipeRefreshLayoutRefreshing(false);
-			ToastUtils.makeTextAndShow(getActivity(), R.string.same_location);
 			return;
 		}
-		ToastUtils.makeTextAndShow(getActivity(), R.string.new_location);
 		// broadcast reset nearby location to all fragments
 		final List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
