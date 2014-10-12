@@ -157,7 +157,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 		this.adapter.setTag(this.type.toString());
 		inflateList();
 		this.adapter.setListView((AbsListView) getView().findViewById(R.id.list));
-		if (this.adapter.getPois() == null) {
+		if (this.adapter.isInitialized()) {
 			showLoading();
 		} else if (this.adapter.getPoisCount() == 0) {
 			showEmpty();

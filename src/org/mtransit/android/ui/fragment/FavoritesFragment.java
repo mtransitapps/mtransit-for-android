@@ -126,9 +126,10 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		this.adapter.setTag(getLogTag());
 		this.adapter.setShowFavorite(false); // all items in this screen are favorites
 		this.adapter.setFavoriteUpdateListener(this);
+		this.adapter.setShowTypeHeader(true);
 		inflateList();
 		this.adapter.setListView((AbsListView) getView().findViewById(R.id.list));
-		if (this.adapter.getPois() == null) {
+		if (!this.adapter.isInitialized()) {
 			showLoading();
 		} else if (this.adapter.getPoisCount() == 0) {
 			showEmpty();
