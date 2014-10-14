@@ -27,6 +27,7 @@ import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.FavoriteManager.FavoriteUpdateListener;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.view.MTCompassView;
+import org.mtransit.android.ui.view.MTJPathsView;
 import org.mtransit.android.ui.view.MTPieChartPercentView;
 
 import android.app.Activity;
@@ -36,6 +37,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -94,9 +97,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private float locationDeclination;
 
-	@Deprecated
-	private Pair<Integer, String> closestPOI;
-
+	private Set<String> closestPoiUuids;
 
 	private float[] accelerometerValues = new float[3];
 
@@ -429,18 +430,44 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return getPoisCount() > 0;
 	}
 
-	@Deprecated
 	private void updateClosestPoi() {
+		if (getPoisCount() == 0) {
+			this.closestPoiUuids = null;
+			return;
+		}
+		if (this.poisByType != null) {
+			this.closestPoiUuids = new HashSet<String>();
+			for (Integer type : this.poisByType.keySet()) {
+				List<POIManager> orderedPoims = new ArrayList<POIManager>(this.poisByType.get(type));
+				CollectionUtils.sort(orderedPoims, POIManager.POI_DISTANCE_COMPARATOR);
+				final POIManager theClosestOne = orderedPoims.get(0);
+				final float theClosestDistance = theClosestOne.getDistance();
+				if (theClosestDistance > 0) {
+					for (POIManager poim : orderedPoims) {
+						if (poim.getDistance() <= theClosestDistance) {
+							this.closestPoiUuids.add(poim.poi.getUUID());
+							continue;
+						}
+						break;
+					}
+				}
+			}
+		}
 	}
 
-	@Deprecated
 	public boolean hasClosestPOI() {
-		return false;
+		return this.closestPoiUuids != null && this.closestPoiUuids.size() > 0;
 	}
 
-	@Deprecated
 	public boolean isClosestPOI(int position) {
-		return false;
+		if (this.closestPoiUuids == null) {
+			return false;
+		}
+		final POIManager poim = getItem(position);
+		if (poim == null) {
+			return false;
+		}
+		return this.closestPoiUuids.contains(poim.poi.getUUID());
 	}
 
 	@Deprecated
@@ -482,9 +509,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					if (isCancelled()) {
 						return;
 					}
-					final Pair<Integer, String> previousClosest = POIArrayAdapter.this.closestPOI;
+					final Set<String> previousClosest = POIArrayAdapter.this.closestPoiUuids;
 					updateClosestPoi();
-					boolean newClosest = POIArrayAdapter.this.closestPOI == null ? false : POIArrayAdapter.this.closestPOI.equals(previousClosest);
+					boolean newClosest = POIArrayAdapter.this.closestPoiUuids == null ? false : POIArrayAdapter.this.closestPoiUuids.equals(previousClosest);
 					notifyDataSetChanged(newClosest);
 					prefetchClosests();
 				}
@@ -693,6 +720,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			this.poisByType.clear();
 			this.poisByType = null;
 		}
+		if (this.closestPoiUuids != null) {
+			this.closestPoiUuids.clear();
+			this.closestPoiUuids = null;
+		}
 		disableTimeChangeddReceiver();
 		//
 		this.compassImgsWR.clear();
@@ -818,7 +849,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		int layoutRes = R.layout.layout_poi_basic;
 		switch (status) {
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			layoutRes = R.layout.layout_poi_basic_availability_percent;
+			layoutRes = R.layout.layout_poi_basic_with_availability_percent;
 			break;
 		default:
 			MTLog.w(this, "Unexpected status '%s' (basic view w/o status)!", status);
@@ -836,7 +867,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		holder.favImg = (ImageView) convertView.findViewById(R.id.fav);
 		holder.distanceTv = (TextView) convertView.findViewById(R.id.distance);
 		holder.compassV = (MTCompassView) convertView.findViewById(R.id.compass);
-		this.compassImgsWR.put(holder.compassV, null);
 	}
 
 	private static void initCommonStatusViewHolderHolder(CommonStatusViewHolder holder, View convertView) {
@@ -858,7 +888,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			poim.setStatusLoaderListener(this);
 			updateAvailabilityPercent(statusViewHolder, poim.getStatus(getContext()));
 		} else {
-			statusViewHolder.statusV.setVisibility(View.GONE);
+			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
 	}
 
@@ -887,7 +917,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			}
 			statusViewHolder.statusV.setVisibility(View.VISIBLE);
 		} else {
-			statusViewHolder.statusV.setVisibility(View.GONE);
+			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
 	}
 
@@ -895,7 +925,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		int layoutRes = R.layout.layout_poi_rts;
 		switch (status) {
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			layoutRes = R.layout.layout_poi_rts_schedule;
+			layoutRes = R.layout.layout_poi_rts_with_schedule;
 			break;
 		default:
 			MTLog.w(this, "Unexpected status '%s' (rts view w/o status)!", status);
@@ -923,6 +953,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		holder.rtsExtraV = convertView.findViewById(R.id.rts_extra);
 		holder.routeFL = convertView.findViewById(R.id.route);
 		holder.routeShortNameTv = (TextView) convertView.findViewById(R.id.route_short_name);
+		holder.routeTypeImg = (MTJPathsView) convertView.findViewById(R.id.route_type_img);
 		holder.tripHeadingTv = (TextView) convertView.findViewById(R.id.trip_heading);
 	}
 
@@ -945,12 +976,21 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				holder.routeFL.setVisibility(View.GONE);
 				holder.tripHeadingTv.setVisibility(View.GONE);
 			} else {
-				int routeTextColor = ColorUtils.parseColor(rts.route.textColor);
-				int routeColor = ColorUtils.parseColor(rts.route.color);
+				final int routeTextColor = ColorUtils.parseColor(rts.route.textColor);
+				final int routeColor = ColorUtils.parseColor(rts.route.color);
 				if (TextUtils.isEmpty(rts.route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
+					final JPaths rtsRouteLogo = DataSourceProvider.get().getRTSRouteLogo(getContext(), poim.poi.getAuthority());
+					if (rtsRouteLogo != null) {
+						holder.routeTypeImg.setJSON(rtsRouteLogo);
+						holder.routeTypeImg.setColor(routeTextColor);
+						holder.routeTypeImg.setVisibility(View.VISIBLE);
+					} else {
+						holder.routeTypeImg.setVisibility(View.GONE);
+					}
 				} else {
-					holder.routeShortNameTv.setText(rts.route.shortName);
+					holder.routeTypeImg.setVisibility(View.GONE);
+					holder.routeShortNameTv.setText(rts.route.shortName.trim());
 					holder.routeShortNameTv.setTextColor(routeTextColor);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
@@ -960,6 +1000,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				if (rts.trip == null) {
 					holder.tripHeadingTv.setVisibility(View.GONE);
 				} else {
+					holder.tripHeadingTv.setTextColor(routeColor);
+					holder.tripHeadingTv.setBackgroundColor(routeTextColor);
 					holder.tripHeadingTv.setText(rts.trip.getHeading(getContext()).toUpperCase(Locale.getDefault()));
 					holder.tripHeadingTv.setVisibility(View.VISIBLE);
 				}
@@ -983,7 +1025,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			break;
 		default:
 			MTLog.w(this, "Unexpected status type '%s'!", status.getType());
-			statusViewHolder.statusV.setVisibility(View.GONE);
+			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 			return;
 		}
 	}
@@ -991,7 +1033,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private void updatePOIStatus(CommonStatusViewHolder statusViewHolder, POIManager poim) {
 		if (!this.showStatus || poim == null || statusViewHolder == null) {
 			if (statusViewHolder != null) {
-				statusViewHolder.statusV.setVisibility(View.GONE);
+				statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 			}
 			return;
 		}
@@ -1004,7 +1046,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			break;
 		default:
 			MTLog.w(this, "Unexpected status type '%s'!", poim.getStatusType());
-			statusViewHolder.statusV.setVisibility(View.GONE);
+			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
 	}
 
@@ -1013,7 +1055,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			poim.setStatusLoaderListener(this);
 			updateRTSSchedule(statusViewHolder, poim.getStatus(getContext()));
 		} else {
-			statusViewHolder.statusV.setVisibility(View.GONE);
+			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
 	}
 
@@ -1033,7 +1075,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		scheduleStatusViewHolder.dataNextLine1Tv.setText(line1CS);
 		scheduleStatusViewHolder.dataNextLine2Tv.setText(line2CS);
 		scheduleStatusViewHolder.dataNextLine2Tv.setVisibility(line2CS != null && line2CS.length() > 0 ? View.VISIBLE : View.GONE);
-		statusViewHolder.statusV.setVisibility(line1CS != null && line1CS.length() > 0 ? View.VISIBLE : View.GONE);
+		statusViewHolder.statusV.setVisibility(line1CS != null && line1CS.length() > 0 ? View.VISIBLE : View.INVISIBLE);
 	}
 
 	private long getNowToTheMinute() {
@@ -1090,6 +1132,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (holder.uuid != null) {
 			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
 		}
+		this.compassImgsWR.put(holder.compassV, null);
 		holder.compassV.setLatLng(poim.getLat(), poim.getLng());
 		// name
 		holder.nameTv.setText(poi.getName());
@@ -1118,6 +1161,27 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			holder.favImg.setVisibility(View.VISIBLE);
 		} else {
 			holder.favImg.setVisibility(View.GONE);
+		}
+		// closest POI
+		final int index;
+		if (this.closestPoiUuids != null && this.closestPoiUuids.contains(poi.getUUID())) {
+			index = 0;
+		} else {
+			index = -1;
+		}
+		switch (index) {
+		case 0:
+			holder.nameTv.setTypeface(Typeface.DEFAULT_BOLD);
+			holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
+			holder.distanceTv.setTextColor(ColorUtils.getTextColorPrimary(getContext()));
+			holder.compassV.setColor(Color.BLACK);
+			break;
+		default:
+			holder.nameTv.setTypeface(Typeface.DEFAULT);
+			holder.distanceTv.setTypeface(Typeface.DEFAULT);
+			holder.distanceTv.setTextColor(ColorUtils.getTextColorSecondary(getContext()));
+			holder.compassV.setColor(Color.GRAY);
+			break;
 		}
 	}
 
@@ -1173,6 +1237,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		TextView routeShortNameTv;
 		View routeFL;
 		View rtsExtraV;
+		MTJPathsView routeTypeImg;
 		TextView tripHeadingTv;
 	}
 

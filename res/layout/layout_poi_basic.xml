@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:layout_margin="0dp"
-    android:background="?android:attr/selectableItemBackground"
     android:clipChildren="false"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:padding="0dp" >
@@ -35,7 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:orientation="vertical"
-        android:paddingLeft="8dp"
+        android:paddingLeft="4dp"
         android:paddingRight="4dp" >
         <!-- NAME -->
         <TextView

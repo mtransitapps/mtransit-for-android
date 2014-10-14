@@ -8,9 +8,9 @@
     android:layout_alignWithParentIfMissing="true"
     android:layout_centerVertical="true"
     android:orientation="vertical"
-    android:paddingLeft="1dp"
-    android:paddingRight="1dp"
-    android:visibility="gone"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:visibility="invisible"
     tools:visibility="visible" >
     <TextView
         android:id="@+id/data_next_line_1"

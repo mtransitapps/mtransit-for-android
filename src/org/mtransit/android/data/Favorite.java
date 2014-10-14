@@ -16,8 +16,8 @@ public class Favorite {
 	public Favorite() {
 	}
 
-	public Favorite(/* int type, */String fkId) {
-		this.type = KEY_TYPE_VALUE_AUTHORITY_POI;// type;
+	public Favorite(String fkId) {
+		this.type = KEY_TYPE_VALUE_AUTHORITY_POI;
 		this.fkId = fkId;
 	}
 

@@ -44,7 +44,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_favorites, container, false);
+		final View view = inflater.inflate(R.layout.fragment_favorites, container, false);
 		return view;
 	}
 
@@ -62,7 +62,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public Loader<List<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case FAVORITES_LOADER:
-			FavoritesLoader favoriteLoader = new FavoritesLoader(getActivity());
+			final FavoritesLoader favoriteLoader = new FavoritesLoader(getActivity());
 			return favoriteLoader;
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);

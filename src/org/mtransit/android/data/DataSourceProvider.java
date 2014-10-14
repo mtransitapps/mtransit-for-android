@@ -49,6 +49,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private WeakHashMap<String, Set<StatusProviderProperties>> statusProvidersByTargetAuthority = null;
 
+	private WeakHashMap<String, JPaths> rtsRouteLogoByAuthority = null;
+
 	private HashMap<String, Uri> uriMap = new HashMap<String, Uri>();
 
 	public static DataSourceProvider get() {
@@ -105,12 +107,20 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return this.statusProvidersByTargetAuthority.get(targetAuthority);
 	}
 
+	public JPaths getRTSRouteLogo(Context context, String authority) {
+		if (this.rtsRouteLogoByAuthority == null) {
+			init(context);
+		}
+		return this.rtsRouteLogoByAuthority.get(authority);
+	}
+
 	private void init(Context context) {
 		this.allAgencies = new ArrayList<AgencyProperties>();
 		this.allAgencyTypes = new ArrayList<DataSourceType>();
 		this.allAgenciesByType = new WeakHashMap<DataSourceType, List<AgencyProperties>>();
 		this.allAgenciesByAuthority = new WeakHashMap<String, AgencyProperties>();
 		this.statusProvidersByTargetAuthority = new WeakHashMap<String, Set<StatusProviderProperties>>();
+		this.rtsRouteLogoByAuthority = new WeakHashMap<String, JPaths>();
 		String agencyProviderMetaData = context.getString(R.string.agency_provider);
 		String statusProviderMetaData = context.getString(R.string.status_provider);
 		String statusProviderTargetMetaData = context.getString(R.string.status_provider_target);
@@ -120,14 +130,18 @@ public class DataSourceProvider implements MTLog.Loggable {
 				for (ProviderInfo provider : providers) {
 					if (provider.metaData != null) {
 						if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
-							Uri contentUri = getUri(provider.authority);
-							String label = findAgencyLabel(context, contentUri);
-							int typeId = findTypeId(context, contentUri);
-							DataSourceType type = DataSourceType.parseId(typeId);
-							Area area = findAgencyArea(context, contentUri);
+							final Uri contentUri = getUri(provider.authority);
+							final String label = findAgencyLabel(context, contentUri);
+							final int typeId = findTypeId(context, contentUri);
+							final DataSourceType type = DataSourceType.parseId(typeId);
+							final Area area = findAgencyArea(context, contentUri);
+							final JPaths jPath = findAgencyRTSRouteLogo(context, contentUri);
 							if (type != null && typeId >= 0) {
-								AgencyProperties newAgency = new AgencyProperties(provider.authority, type, label, label, area);
+								final AgencyProperties newAgency = new AgencyProperties(provider.authority, type, label, label, area);
 								addNewAgency(newAgency);
+								if (jPath != null) {
+									this.rtsRouteLogoByAuthority.put(newAgency.getAuthority(), jPath);
+								}
 							} else {
 								MTLog.d(this, "Invalid type, skipping agency provider.");
 							}
@@ -258,6 +272,27 @@ public class DataSourceProvider implements MTLog.Loggable {
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					result = Area.fromCursor(cursor);
+				}
+			}
+		} catch (Throwable t) {
+			MTLog.w(this, t, "Error!");
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+		return result;
+	}
+
+	private JPaths findAgencyRTSRouteLogo(Context context, Uri contentUri) {
+		JPaths result = null;
+		Cursor cursor = null;
+		try {
+			Uri uri = Uri.withAppendedPath(Uri.withAppendedPath(contentUri, "route"), "logo");
+			cursor = context.getContentResolver().query(uri, null, null, null, null);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					result = JPaths.fromJSONString(cursor.getString(0));
 				}
 			}
 		} catch (Throwable t) {

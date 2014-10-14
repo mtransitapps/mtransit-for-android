@@ -2,12 +2,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_height="?android:attr/listPreferredItemHeightLarge"
     android:layout_margin="0dp"
     android:background="?android:attr/selectableItemBackground"
     android:clipChildren="false"
-    android:minHeight="?android:attr/listPreferredItemHeight"
-    android:padding="0dp" >
+    android:minHeight="?android:attr/listPreferredItemHeightLarge"
+    android:padding="4dp" >
     <include
         android:id="@+id/status"
         android:layout_width="?android:attr/listPreferredItemHeight"
@@ -15,12 +15,12 @@
         android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="4dp"
+        android:layout_marginRight="0dp"
         layout="@layout/layout_poi_status_availability_percent" />
     <include
         android:id="@+id/poi"
         android:layout_width="match_parent"
-        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:layout_height="?android:attr/listPreferredItemHeightLarge"
         android:layout_toLeftOf="@id/status"
         layout="@layout/layout_poi_basic" />
 </RelativeLayout>

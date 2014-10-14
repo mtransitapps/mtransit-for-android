@@ -59,6 +59,14 @@ public class MTCompassView extends MTView {
 		this.compassPaint.setAntiAlias(true);
 	}
 
+	public void setColor(int color) {
+		this.compassPaint.setColor(color);
+	}
+
+	public void setColorRes(int colorResId) {
+		setColor(getResources().getColor(colorResId));
+	}
+
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);

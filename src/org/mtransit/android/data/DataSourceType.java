@@ -46,7 +46,7 @@ public enum DataSourceType {
 		case 100:
 			return TYPE_BIKE;
 		default:
-			MTLog.w(TAG, "Id '%s' doesn't match any type!", id);
+			MTLog.w(TAG, "ID '%s' doesn't match any type!", id);
 			return null;
 		}
 	}

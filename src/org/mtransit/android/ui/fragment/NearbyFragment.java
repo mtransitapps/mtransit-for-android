@@ -8,7 +8,6 @@ import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
-import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
@@ -231,13 +230,13 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation)) {
 				if (this.userAwayFromNearbyLocation) {
 					requireNotifyAB = true;
+					this.userAwayFromNearbyLocation = false;
 				}
-				this.userAwayFromNearbyLocation = false;
 			} else {
 				if (!this.userAwayFromNearbyLocation) {
 					requireNotifyAB = true;
+					this.userAwayFromNearbyLocation = true;
 				}
-				this.userAwayFromNearbyLocation = true;
 			}
 			if (requireNotifyAB) {
 				((MainActivity) getActivity()).notifyABChange();

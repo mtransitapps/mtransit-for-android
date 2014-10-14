@@ -16,7 +16,7 @@
         android:id="@+id/list_stub"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout="@layout/layout_favorites_list"
+        android:layout="@layout/layout_poi_list"
         android:visibility="gone" />
     <ViewStub
         android:id="@+id/empty_stub"
