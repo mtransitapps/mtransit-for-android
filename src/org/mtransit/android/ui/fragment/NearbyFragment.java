@@ -220,6 +220,14 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	public void onUserLocationChanged(Location newLocation) {
 		if (newLocation != null) {
 			this.userLocation = newLocation;
+			final List<Fragment> fragments = getChildFragmentManager().getFragments();
+			if (fragments != null) {
+				for (Fragment fragment : fragments) {
+					if (fragment != null && fragment instanceof MTActivityWithLocation.UserLocationListener) {
+						((MTActivityWithLocation.UserLocationListener) fragment).onUserLocationChanged(this.userLocation);
+					}
+				}
+			}
 			if (this.agencyTypePagerAdapter != null) {
 				this.agencyTypePagerAdapter.setUserLocation(newLocation);
 			}
