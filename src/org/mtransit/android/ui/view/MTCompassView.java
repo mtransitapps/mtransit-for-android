@@ -4,10 +4,10 @@ import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SensorUtils;
 import org.mtransit.android.commons.ui.view.MTView;
+import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -55,7 +55,9 @@ public class MTCompassView extends MTView {
 			MTLog.v(this, "init()");
 		}
 		this.compassPaint = new Paint();
-		this.compassPaint.setColor(Color.GRAY);
+		if (!isInEditMode()) {
+			this.compassPaint.setColor(POIManager.getDefaultDistanceAndCompassColor(getContext()));
+		}
 		this.compassPaint.setAntiAlias(true);
 	}
 

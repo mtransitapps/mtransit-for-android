@@ -3,6 +3,7 @@ package org.mtransit.android.data;
 import java.lang.ref.WeakReference;
 import java.util.Comparator;
 
+import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.LocationUtils.LocationPOI;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.R;
@@ -38,6 +39,15 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	public static final POIDistanceComparator POI_DISTANCE_COMPARATOR = new POIDistanceComparator();
 
 	public static final POIAlphaComparator POI_ALPHA_COMPATOR = new POIAlphaComparator();
+
+	private static int defaultDistanceAndCompassColor = -1;
+
+	public static int getDefaultDistanceAndCompassColor(Context context) {
+		if (defaultDistanceAndCompassColor < 0) {
+			defaultDistanceAndCompassColor = ColorUtils.getTextColorTertiary(context);
+		}
+		return defaultDistanceAndCompassColor;
+	}
 
 	public POI poi;
 

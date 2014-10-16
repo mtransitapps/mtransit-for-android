@@ -1177,9 +1177,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		default:
 			holder.nameTv.setTypeface(Typeface.DEFAULT);
 			holder.distanceTv.setTypeface(Typeface.DEFAULT);
-			final int textColorSecondary = ColorUtils.getTextColorSecondary(getContext());
-			holder.distanceTv.setTextColor(textColorSecondary);
-			holder.compassV.setColor(textColorSecondary);
+			final int defaultDistanceAndCompassColor = POIManager.getDefaultDistanceAndCompassColor(getContext());
+			holder.distanceTv.setTextColor(defaultDistanceAndCompassColor);
+			holder.compassV.setColor(defaultDistanceAndCompassColor);
 			break;
 		}
 	}
