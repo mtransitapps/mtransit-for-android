@@ -155,6 +155,12 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	}
 
 	private void showTabsAndViewPager() {
+		if (getView().findViewById(R.id.loading) != null) { // IF inflated/present DO
+			getView().findViewById(R.id.loading).setVisibility(View.GONE); // hide
+		}
+		if (getView().findViewById(R.id.empty) != null) { // IF inflated/present DO
+			getView().findViewById(R.id.empty).setVisibility(View.GONE); // hide
+		}
 		if (getView().findViewById(R.id.tabs) == null) { // IF NOT present/inflated DO
 			// ((ViewStub) getView().findViewById(R.id.tabs_stub)).inflate(); // inflate
 		}
@@ -277,6 +283,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			super(agencyTypeFragment.getChildFragmentManager());
 			this.contextWR = new WeakReference<Context>(agencyTypeFragment.getActivity());
 			this.agencies = agencies;
+		}
+
 		public AgencyProperties getAgency(int position) {
 			return this.agencies.size() == 0 ? null : this.agencies.get(position);
 		}
