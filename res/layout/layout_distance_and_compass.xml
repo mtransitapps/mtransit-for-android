@@ -13,10 +13,9 @@
         android:layout_height="match_parent"
         android:fontFamily="sans-serif"
         android:gravity="center_vertical"
-        android:paddingRight="4dp"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorTertiary"
+        android:textColor="?android:attr/textColorSecondary"
         android:textStyle="normal"
         android:visibility="gone"
         tools:text="@string/default_distance"
@@ -24,12 +23,12 @@
     <!-- COMPASS -->
     <org.mtransit.android.ui.view.MTCompassView
         android:id="@+id/compass"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
+        android:layout_width="14sp"
+        android:layout_height="14sp"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
-        android:layout_marginTop="0dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="2dp"
         android:visibility="gone"
         tools:visibility="visible" />
 </LinearLayout>

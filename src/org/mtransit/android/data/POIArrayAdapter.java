@@ -37,6 +37,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -992,7 +993,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					holder.routeShortNameTv.setTextColor(routeTextColor);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
-				holder.routeFL.setBackgroundColor(routeColor);
+				holder.rtsExtraV.setBackgroundColor(routeColor);
 				holder.routeFL.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setVisibility(View.VISIBLE);
 				if (rts.trip == null) {
@@ -1167,14 +1168,18 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 		switch (index) {
 		case 0:
+			holder.nameTv.setTypeface(Typeface.DEFAULT_BOLD);
+			holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
 			final int textColorPrimary = ColorUtils.getTextColorPrimary(getContext());
 			holder.distanceTv.setTextColor(textColorPrimary);
 			holder.compassV.setColor(textColorPrimary);
 			break;
 		default:
-			final int textColorTertiary = ColorUtils.getTextColorTertiary(getContext());
-			holder.distanceTv.setTextColor(textColorTertiary);
-			holder.compassV.setColor(textColorTertiary);
+			holder.nameTv.setTypeface(Typeface.DEFAULT);
+			holder.distanceTv.setTypeface(Typeface.DEFAULT);
+			final int textColorSecondary = ColorUtils.getTextColorSecondary(getContext());
+			holder.distanceTv.setTextColor(textColorSecondary);
+			holder.compassV.setColor(textColorSecondary);
 			break;
 		}
 	}
