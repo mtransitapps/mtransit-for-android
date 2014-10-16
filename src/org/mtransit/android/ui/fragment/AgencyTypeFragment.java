@@ -322,4 +322,6 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			}
 			return AgencyPOIsFragment.newInstance(position, this.lastVisisbleFragmentPosition, agency, this.userLocation);
 		}
+	}
+
 }
