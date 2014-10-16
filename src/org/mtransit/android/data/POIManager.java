@@ -278,8 +278,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private static class POIAlphaComparator implements Comparator<POIManager> {
 		@Override
 		public int compare(POIManager lhs, POIManager rhs) {
-			POI lhsPoi = lhs == null ? null : lhs.poi;
-			POI rhsPoi = rhs == null ? null : rhs.poi;
+			final POI lhsPoi = lhs == null ? null : lhs.poi;
+			final POI rhsPoi = rhs == null ? null : rhs.poi;
 			if (lhsPoi == null && rhsPoi == null) {
 				return 0;
 			}

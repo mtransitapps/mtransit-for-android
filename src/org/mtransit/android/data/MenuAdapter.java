@@ -72,7 +72,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 
 	public MenuAdapter(Context context) {
 		this.context = context;
-		this.layoutInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		this.layoutInflater = LayoutInflater.from(context);
 	}
 
 	public List<DataSourceType> getAllAgencyTypes() {

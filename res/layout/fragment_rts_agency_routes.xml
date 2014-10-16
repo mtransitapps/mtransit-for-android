@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/viewFlipper"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    <!-- LOADING -->
+    <ViewStub
+        android:id="@+id/loading_stub"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:inflatedId="@+id/loading"
+        android:layout="@layout/layout_loading_large"
+        android:visibility="gone" />
+    <!-- LIST -->
+    <GridView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:columnWidth="?android:attr/listPreferredItemHeight"
+        android:fastScrollAlwaysVisible="false"
+        android:fastScrollEnabled="false"
+        android:horizontalSpacing="@dimen/grid_view_spacing"
+        android:numColumns="auto_fit"
+        android:paddingBottom="@dimen/grid_view_spacing"
+        android:paddingLeft="@dimen/grid_view_spacing"
+        android:paddingRight="@dimen/grid_view_spacing"
+        android:paddingTop="@dimen/grid_view_spacing"
+        android:scrollbarStyle="insideOverlay"
+        android:scrollbars="vertical"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="@dimen/grid_view_spacing"
+        tools:context=".ui.MainActivity"
+        tools:listitem="@layout/layout_rts_route_item" />
+    <!-- EMPTY -->
+    <ViewStub
+        android:id="@+id/empty_stub"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:inflatedId="@+id/empty"
+        android:layout="@layout/layout_empty"
+        android:visibility="gone" />
+</LinearLayout>

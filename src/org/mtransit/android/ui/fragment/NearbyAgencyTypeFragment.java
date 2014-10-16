@@ -29,7 +29,8 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
-public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderManager.LoaderCallbacks<List<POIManager>>, NearbyFragment.NearbyLocationListener {
+public class NearbyAgencyTypeFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<List<POIManager>>,
+		NearbyFragment.NearbyLocationListener {
 
 	private static final int NEARBY_POIS_LOADER = 0;
 
@@ -102,7 +103,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
-		View view = inflater.inflate(R.layout.fragment_nearby_agency_type, container, false);
+		final View view = inflater.inflate(R.layout.fragment_nearby_agency_type, container, false);
 		this.swipeRefreshLayout = (ListViewSwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
 		this.swipeRefreshLayout.setColorSchemeResources(R.color.mt_blue_malibu, R.color.mt_blue_smalt, R.color.mt_blue_malibu, R.color.mt_blue_smalt);
 		return view;
@@ -157,7 +158,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 		this.adapter.setTag(this.type.toString());
 		inflateList();
 		this.adapter.setListView((AbsListView) getView().findViewById(R.id.list));
-		if (this.adapter.isInitialized()) {
+		if (!this.adapter.isInitialized()) {
 			showLoading();
 		} else if (this.adapter.getPoisCount() == 0) {
 			showEmpty();
@@ -187,6 +188,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements LoaderMana
 
 	}
 
+	@Override
 	public void setFragmentVisisbleAtPosition(int visisbleFragmentPosition) {
 		if (this.lastVisisbleFragmentPosition == visisbleFragmentPosition //
 				&& (//

@@ -16,6 +16,7 @@ import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
+import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.provider.POIProvider;
@@ -132,12 +133,14 @@ public class DataSourceProvider implements MTLog.Loggable {
 						if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
 							final Uri contentUri = getUri(provider.authority);
 							final String label = findAgencyLabel(context, contentUri);
+							final String shortName = findAgencyShortName(context, contentUri);
 							final int typeId = findTypeId(context, contentUri);
 							final DataSourceType type = DataSourceType.parseId(typeId);
 							final Area area = findAgencyArea(context, contentUri);
 							final JPaths jPath = findAgencyRTSRouteLogo(context, contentUri);
+							final boolean isRTS = rtsProviderMetaData.equals(provider.metaData.getString(rtsProviderMetaData));
 							if (type != null && typeId >= 0) {
-								final AgencyProperties newAgency = new AgencyProperties(provider.authority, type, label, label, area);
+								final AgencyProperties newAgency = new AgencyProperties(provider.authority, type, shortName, label, area, isRTS);
 								addNewAgency(newAgency);
 								if (jPath != null) {
 									this.rtsRouteLogoByAuthority.put(newAgency.getAuthority(), jPath);
@@ -263,6 +266,27 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return result;
 	}
 
+	private String findAgencyShortName(Context context, Uri contentUri) {
+		String result = null;
+		Cursor cursor = null;
+		try {
+			Uri uri = Uri.withAppendedPath(contentUri, "shortName");
+			cursor = context.getContentResolver().query(uri, null, null, null, null);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					result = cursor.getString(0);
+				}
+			}
+		} catch (Throwable t) {
+			MTLog.w(this, t, "Error!");
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+		return result;
+	}
+
 	private Area findAgencyArea(Context context, Uri contentUri) {
 		Area result = null;
 		Cursor cursor = null;
@@ -305,10 +329,58 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return result;
 	}
 
+	public static List<Route> findAllRTSAgencyRoutes(Context context, Uri contentUri) {
+		Cursor cursor = null;
+		try {
+			final Uri uri = getRTSRoutesUri(contentUri);
+			cursor = context.getContentResolver().query(uri, null, null, null, null);
+			return getRTSRoutes(cursor, contentUri.getAuthority());
+		} catch (Throwable t) {
+			MTLog.w(TAG, t, "Error!");
+			return null;
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+	}
+
+	private static List<Route> getRTSRoutes(Cursor cursor, String authority) {
+		List<Route> result = new ArrayList<Route>();
+		if (cursor != null && cursor.getCount() > 0) {
+			if (cursor.moveToFirst()) {
+				do {
+					final Route fromCursor = Route.fromCursor(cursor);
+					result.add(fromCursor);
+				} while (cursor.moveToNext());
+			}
+		}
+		return result;
+	}
+
 	public static List<POIManager> findPOIsWithUUIDs(Context context, Uri contentUri, Set<String> uuids) {
 		Cursor cursor = null;
 		try {
 			POIFilter poiFilter = new POIFilter(uuids);
+			String filterJsonString = POIFilter.toJSON(poiFilter).toString();
+			final String sortOrder = null;
+			final Uri uri = getPOIUri(contentUri);
+			cursor = context.getContentResolver().query(uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, sortOrder);
+			return getPOIs(cursor, contentUri.getAuthority());
+		} catch (Throwable t) {
+			MTLog.w(TAG, t, "Error!");
+			return null;
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+	}
+
+	public static List<POIManager> findAllAgencyPOIs(Context context, Uri contentUri) {
+		Cursor cursor = null;
+		try {
+			POIFilter poiFilter = new POIFilter();
 			String filterJsonString = POIFilter.toJSON(poiFilter).toString();
 			final String sortOrder = null;
 			final Uri uri = getPOIUri(contentUri);
@@ -361,6 +433,10 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private static Uri getPOIUri(Uri contentUri) {
 		return Uri.withAppendedPath(contentUri, POIProvider.POI_CONTENT_DIRECTORY);
+	}
+
+	private static Uri getRTSRoutesUri(Uri contentUri) {
+		return Uri.withAppendedPath(contentUri, "route");
 	}
 
 }

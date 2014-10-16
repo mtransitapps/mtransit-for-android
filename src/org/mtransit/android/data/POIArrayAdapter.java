@@ -37,8 +37,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -131,7 +129,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	public POIArrayAdapter(Activity activity) {
 		super(activity, R.layout.layout_loading_small);
 		this.activity = activity;
-		this.layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		this.layoutInflater = LayoutInflater.from(getContext());
 	}
 
 	public void setManualLayout(ViewGroup manualLayout) {
@@ -1132,8 +1130,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (holder.uuid != null) {
 			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
 		}
-		this.compassImgsWR.put(holder.compassV, null);
 		holder.compassV.setLatLng(poim.getLat(), poim.getLng());
+		this.compassImgsWR.put(holder.compassV, null);
 		// name
 		holder.nameTv.setText(poi.getName());
 		// distance
@@ -1149,9 +1147,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		// compass (if distance available)
 		if (holder.distanceTv.getVisibility() == View.VISIBLE && this.location != null && this.lastCompassInDegree >= 0
 				&& this.location.getAccuracy() <= poim.getDistance()) {
-			float compassRotation = SensorUtils.getCompassRotationInDegree(this.location.getLatitude(), this.location.getLongitude(), poim.getLat(),
-					poim.getLng(), this.lastCompassInDegree, this.locationDeclination);
-			holder.compassV.setHeadingInDegree((int) compassRotation);
+			holder.compassV.generateAndSetHeading(this.location, this.lastCompassInDegree, this.locationDeclination);
 			holder.compassV.setVisibility(View.VISIBLE);
 		} else {
 			holder.compassV.setVisibility(View.GONE);
@@ -1171,16 +1167,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 		switch (index) {
 		case 0:
-			holder.nameTv.setTypeface(Typeface.DEFAULT_BOLD);
-			holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
-			holder.distanceTv.setTextColor(ColorUtils.getTextColorPrimary(getContext()));
-			holder.compassV.setColor(Color.BLACK);
+			final int textColorPrimary = ColorUtils.getTextColorPrimary(getContext());
+			holder.distanceTv.setTextColor(textColorPrimary);
+			holder.compassV.setColor(textColorPrimary);
 			break;
 		default:
-			holder.nameTv.setTypeface(Typeface.DEFAULT);
-			holder.distanceTv.setTypeface(Typeface.DEFAULT);
-			holder.distanceTv.setTextColor(ColorUtils.getTextColorSecondary(getContext()));
-			holder.compassV.setColor(Color.GRAY);
+			final int textColorTertiary = ColorUtils.getTextColorTertiary(getContext());
+			holder.distanceTv.setTextColor(textColorTertiary);
+			holder.compassV.setColor(textColorTertiary);
 			break;
 		}
 	}

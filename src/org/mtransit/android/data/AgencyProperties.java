@@ -6,6 +6,8 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
 
+import android.text.TextUtils;
+
 public class AgencyProperties implements MTLog.Loggable {
 
 	private static final String TAG = AgencyProperties.class.getSimpleName();
@@ -24,12 +26,19 @@ public class AgencyProperties implements MTLog.Loggable {
 
 	private Area area;
 
-	public AgencyProperties(String id, DataSourceType type, String shortName, String longName, Area area) {
+	private boolean isRTS = false;
+
+	public AgencyProperties(String id, DataSourceType type, String shortName, String longName, Area area, boolean isRTS) {
 		this.id = id;
 		this.type = type;
 		this.shortName = shortName;
 		this.longName = longName;
 		this.area = area;
+		this.isRTS = isRTS;
+	}
+
+	public boolean isRTS() {
+		return isRTS;
 	}
 
 	public DataSourceType getType() {
@@ -38,6 +47,10 @@ public class AgencyProperties implements MTLog.Loggable {
 
 	public String getShortName() {
 		return shortName;
+	}
+
+	public String getLongName() {
+		return longName;
 	}
 
 	@Override
@@ -67,6 +80,11 @@ public class AgencyProperties implements MTLog.Loggable {
 		public int compare(AgencyProperties lap, AgencyProperties rap) {
 			final String lShortName = lap.getShortName();
 			final String rShortName = rap.getShortName();
+			if (lShortName == null) {
+				return rShortName == null ? 0 : -1;
+			} else if (rShortName == null) {
+				return +1;
+			}
 			return lShortName.compareTo(rShortName);
 		}
 	}

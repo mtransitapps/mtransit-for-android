@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/route"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_gravity="center_horizontal"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:gravity="center_horizontal" >
+    <!-- ROUTE SHORT NAME -->
+    <TextView
+        android:id="@+id/route_short_name"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="0dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginTop="0dp"
+        android:fontFamily="sans-serif-condensed"
+        android:gravity="center"
+        android:padding="0dp"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:paddingTop="0dp"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="34sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        tools:text="@string/default_route_short_name" />
+    <!-- ROUTE TYPE IMG -->
+    <org.mtransit.android.ui.view.MTJPathsView
+        android:id="@+id/route_type_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_margin="4dp"
+        android:gravity="center"
+        android:padding="0dp"
+        android:visibility="gone" />
+</FrameLayout>

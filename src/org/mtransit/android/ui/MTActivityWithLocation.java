@@ -16,6 +16,7 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 
 	private boolean useLocation = false;
 	private LocationRequest locationRequest;
+	private Location userLocation;
 
 	public MTActivityWithLocation(boolean useLocation) {
 		super(useLocation); // location requires Google Play Services
@@ -64,6 +65,14 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 		if (Constants.LOG_LOCATION) {
 			MTLog.v(this, "onLocationChanged(%s)", location);
 		}
+		this.userLocation = location;
+		onUserLocationChanged(this.userLocation);
+	}
+
+	public abstract void onUserLocationChanged(Location newLocation);
+
+	public Location getUserLocation() {
+		return userLocation;
 	}
 
 	public Location getLastLocation() {

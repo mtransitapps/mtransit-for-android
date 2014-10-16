@@ -163,14 +163,13 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	}
 
 	@Override
-	public void onLocationChanged(Location location) {
-		super.onLocationChanged(location);
+	public void onUserLocationChanged(Location newLocation) {
 		// ALL FRAGMENTs
 		List<Fragment> fragments = getSupportFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment != null && fragment instanceof MTActivityWithLocation.UserLocationListener) {
-					((MTActivityWithLocation.UserLocationListener) fragment).onUserLocationChanged(location);
+					((MTActivityWithLocation.UserLocationListener) fragment).onUserLocationChanged(newLocation);
 				}
 			}
 		}

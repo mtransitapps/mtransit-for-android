@@ -190,9 +190,11 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				try {
 					final int typeId = PreferenceUtils.getPrefLcl(getActivity(), PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE,
 							PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE_DEFAULT);
-					for (int i = 0; i < availableAgencyTypes.size(); i++) {
-						if (availableAgencyTypes.get(i).getId() == typeId) {
-							return i;
+					if (typeId >= 0) {
+						for (int i = 0; i < availableAgencyTypes.size(); i++) {
+							if (availableAgencyTypes.get(i).getId() == typeId) {
+								return i;
+							}
 						}
 					}
 				} catch (Exception e) {
@@ -418,6 +420,29 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 	}
 
+	@Override
+	public CharSequence getTitle(Context context) {
+		return context.getString(R.string.nearby);
+	}
+
+	@Override
+	public CharSequence getSubtitle(Context context) {
+		return this.nearbyLocationAddress; // no subtitle
+	}
+
+	@Override
+	public int getIconDrawableResId() {
+		if (!this.userAwayFromNearbyLocation) {
+			return R.drawable.ic_menu_nearby_active;
+		} else {
+			return R.drawable.ic_menu_nearby;
+		}
+	}
+
+	public static interface NearbyLocationListener extends MTActivityWithLocation.UserLocationListener {
+		public void onNearbyLocationChanged(Location location);
+	}
+
 	private static class AgencyTypePagerAdapter extends FragmentStatePagerAdapter {
 
 		private List<DataSourceType> availableAgencyTypes;
@@ -482,29 +507,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			f.setNearbyFragment(this.nearbyFragmentWR == null ? null : this.nearbyFragmentWR.get());
 			return f;
 		}
-	}
 
-	public static interface NearbyLocationListener extends MTActivityWithLocation.UserLocationListener {
-		public void onNearbyLocationChanged(Location location);
-	}
-
-	@Override
-	public CharSequence getTitle(Context context) {
-		return context.getString(R.string.nearby);
-	}
-
-	@Override
-	public CharSequence getSubtitle(Context context) {
-		return this.nearbyLocationAddress; // no subtitle
-	}
-
-	@Override
-	public int getIconDrawableResId() {
-		if (!this.userAwayFromNearbyLocation) {
-			return R.drawable.ic_menu_nearby_active;
-		} else {
-			return R.drawable.ic_menu_nearby;
-		}
 	}
 
 }

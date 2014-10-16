@@ -22,6 +22,7 @@
         android:gravity="center_horizontal"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="?android:attr/textColorSecondary"
         android:textStyle="normal"
         android:visibility="visible" />
     <TextView
@@ -34,6 +35,7 @@
         android:gravity="center_horizontal"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="?android:attr/textColorTertiary"
         android:textStyle="normal"
         android:visibility="gone"
         tools:visibility="visible" />
