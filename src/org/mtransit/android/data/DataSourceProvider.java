@@ -123,6 +123,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 		this.statusProvidersByTargetAuthority = new WeakHashMap<String, Set<StatusProviderProperties>>();
 		this.rtsRouteLogoByAuthority = new WeakHashMap<String, JPaths>();
 		String agencyProviderMetaData = context.getString(R.string.agency_provider);
+		String rtsProviderMetaData = context.getString(R.string.rts_provider);
 		String statusProviderMetaData = context.getString(R.string.status_provider);
 		String statusProviderTargetMetaData = context.getString(R.string.status_provider_target);
 		for (PackageInfo packageInfo : context.getPackageManager().getInstalledPackages(PackageManager.GET_PROVIDERS | PackageManager.GET_META_DATA)) {
