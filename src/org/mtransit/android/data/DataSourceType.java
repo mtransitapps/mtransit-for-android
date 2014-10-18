@@ -97,8 +97,10 @@ public enum DataSourceType {
 			}
 			final AgencyProperties lagency = DataSourceProvider.get().getAgency(context, lpoim.poi.getAuthority());
 			final AgencyProperties ragency = DataSourceProvider.get().getAgency(context, rpoim.poi.getAuthority());
-			final String lShortName = context.getString(lagency.getType().getShortNameResId());
-			final String rShortName = context.getString(ragency.getType().getShortNameResId());
+			final int lshortNameResId = lagency.getType().getShortNameResId();
+			final int rshortNameResId = ragency.getType().getShortNameResId();
+			final String lShortName = context.getString(lshortNameResId);
+			final String rShortName = context.getString(rshortNameResId);
 			return lShortName.compareTo(rShortName);
 		}
 	}

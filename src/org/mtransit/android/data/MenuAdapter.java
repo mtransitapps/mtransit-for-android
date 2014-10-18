@@ -9,7 +9,6 @@ import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 import org.mtransit.android.ui.fragment.FavoritesFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
-import org.mtransit.android.ui.fragment.SearchFragment;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -37,25 +36,25 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 
 	private static final int VIEW_TYPE_COUNT = 5;
 
-	private static final int ITEM_INDEX_SEARCH = 0;
-	private static final int ITEM_INDEX_FAVORITE = 1;
-	private static final int ITEM_INDEX_NEARBY = 2;
+	// private static final int ITEM_INDEX_SEARCH = 0;
+	private static final int ITEM_INDEX_FAVORITE = 0;
+	private static final int ITEM_INDEX_NEARBY = 1;
 	// private static final int ITEM_INDEX_DIRECTIONS = 3;
 	// private static final int ITEM_INDEX_MAPS = 4;
 
 	// private static final int ITEM_INDEX_DYNAMIC_HEADER = 5;
-	private static final int ITEM_INDEX_DYNAMIC_HEADER = 3;
+	private static final int ITEM_INDEX_DYNAMIC_HEADER = 2;
 
-	private static final int ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR = 4;
+	private static final int ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR = 3;
 
 	private static final int STATIC_ITEMS_BEFORE_DYNAMIC = ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR + 1;
 
 	private static final int ITEM_INDEX_AFTER_SEPARATOR = 0;
-	private static final int ITEM_INDEX_SETTINGS = 1;
+	// private static final int ITEM_INDEX_SETTINGS = 1;
 	// private static final int ITEM_INDEX_HELP = ITEM_INDEX_AFTER_START + 2;
-	private static final int ITEM_INDEX_SEND_FEEDBACK = 2;
+	// private static final int ITEM_INDEX_SEND_FEEDBACK = 2;
 	// private static final int STATIC_ITEMS_AFTER_DYNAMIC = 4;
-	private static final int STATIC_ITEMS_AFTER_DYNAMIC = 3;
+	private static final int STATIC_ITEMS_AFTER_DYNAMIC = 0;
 
 	private static final String ITEM_ID_AGENCYTYPE_START_WITH = "agencytype-";
 	private static final String ITEM_ID_STATIC_START_WITH = "static-";
@@ -108,6 +107,8 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 		} else if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size()) {
 			return 1000 + getAllAgencyTypes().get(position - STATIC_ITEMS_BEFORE_DYNAMIC).getId();
 		} else if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size() + STATIC_ITEMS_AFTER_DYNAMIC) {
+			// return ITEM_INDEX_AFTER_START + (position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size());
+			// return position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size();
 			return position + STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size();
 		} else {
 			MTLog.w(this, "No item ID expected at position '%s'!", position);
@@ -304,21 +305,21 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 			convertView.setTag(holder);
 		}
 		MenuItemViewHolder holder = (MenuItemViewHolder) convertView.getTag();
-		int secondaryPosition = position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size();
-		if (secondaryPosition == ITEM_INDEX_SETTINGS) {
-			holder.nameTv.setText(R.string.settings);
-			holder.icon.setImageResource(R.drawable.ic_menu_settings);
-			// } else if (secondaryPosition == ITEM_INDEX_HELP) {
-			// holder.nameTv.setText(R.string.help);
-			// holder.icon.setImageResource(R.drawable.ic_menu_help);
-		} else if (secondaryPosition == ITEM_INDEX_SEND_FEEDBACK) {
-			holder.nameTv.setText(R.string.send_feedback);
-			holder.icon.setImageResource(R.drawable.ic_menu_feedback);
-		} else {
-			holder.nameTv.setText(null);
-			holder.icon.setImageDrawable(null);
-			MTLog.w(this, "No secondary view view expected at position '%s'!", position);
-		}
+		// final int secondaryPosition = position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size();
+		// if (secondaryPosition == ITEM_INDEX_SETTINGS) {
+		// holder.nameTv.setText(R.string.settings);
+		// holder.icon.setImageResource(R.drawable.ic_menu_settings);
+		// } else if (secondaryPosition == ITEM_INDEX_HELP) {
+		// holder.nameTv.setText(R.string.help);
+		// holder.icon.setImageResource(R.drawable.ic_menu_help);
+		// } else if (secondaryPosition == ITEM_INDEX_SEND_FEEDBACK) {
+		// holder.nameTv.setText(R.string.send_feedback);
+		// holder.icon.setImageResource(R.drawable.ic_menu_feedback);
+		// } else {
+		holder.nameTv.setText(null);
+		holder.icon.setImageDrawable(null);
+		MTLog.w(this, "No secondary view view expected at position '%s'!", position);
+		// }
 		return convertView;
 	}
 
@@ -341,9 +342,9 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 			// } else if (position == ITEM_INDEX_DIRECTIONS) {
 			// holder.nameTv.setText(R.string.directions);
 			// holder.icon.setImageResource(R.drawable.ic_menu_directions);
-		} else if (position == ITEM_INDEX_SEARCH) {
-			holder.nameTv.setText(R.string.search);
-			holder.icon.setImageResource(R.drawable.ic_menu_search);
+			// } else if (position == ITEM_INDEX_SEARCH) {
+			// holder.nameTv.setText(R.string.search);
+			// holder.icon.setImageResource(R.drawable.ic_menu_search);
 			// } else if (position == ITEM_INDEX_MAPS) {
 			// holder.nameTv.setText(R.string.maps);
 			// holder.icon.setImageResource(R.drawable.ic_menu_maps);
@@ -369,9 +370,10 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 	}
 
 	public ABFragment getNewStaticFragmentAt(int position) {
-		if (position == ITEM_INDEX_SEARCH) {
-			return SearchFragment.newInstance();
-		} else if (position == ITEM_INDEX_FAVORITE) {
+		// if (position == ITEM_INDEX_SEARCH) {
+		// return SearchFragment.newInstance();
+		// } else
+		if (position == ITEM_INDEX_FAVORITE) {
 			return FavoritesFragment.newInstance();
 		} else if (position == ITEM_INDEX_NEARBY) {
 			return NearbyFragment.newInstance(null);
