@@ -28,17 +28,22 @@ public class DirectionsFragment extends ABFragment {
 	}
 
 	@Override
-	public int getIconDrawableResId() {
+	public int getABIconDrawableResId() {
 		return R.drawable.ic_menu_directions;
 	}
 
 	@Override
-	public CharSequence getTitle(Context context) {
+	public CharSequence getABTitle(Context context) {
 		return context.getString(R.string.directions);
 	}
 
 	@Override
 	public CharSequence getSubtitle(Context context) {
 		return null;
+	}
+
+	@Override
+	public Integer getBgColor() {
+		return ABFragment.NO_BG_COLOR;
 	}
 }

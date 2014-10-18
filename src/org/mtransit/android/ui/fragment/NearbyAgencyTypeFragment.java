@@ -104,9 +104,20 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		final View view = inflater.inflate(R.layout.fragment_nearby_agency_type, container, false);
+		setupView(view);
+		return view;
+	}
+
+	private void setupView(View view) {
+		if (view == null) {
+			return;
+		}
 		this.swipeRefreshLayout = (ListViewSwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
 		this.swipeRefreshLayout.setColorSchemeResources(R.color.mt_blue_malibu, R.color.mt_blue_smalt, R.color.mt_blue_malibu, R.color.mt_blue_smalt);
-		return view;
+		if (this.adapter != null) {
+			inflateList(view);
+			this.adapter.setListView((AbsListView) getView().findViewById(R.id.list));
+		}
 	}
 
 	private void restoreInstanceState(Bundle savedInstanceState) {
@@ -156,15 +167,8 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	private void initAdapter() {
 		this.adapter = new POIArrayAdapter(getActivity());
 		this.adapter.setTag(this.type.toString());
-		inflateList();
-		this.adapter.setListView((AbsListView) getView().findViewById(R.id.list));
-		if (!this.adapter.isInitialized()) {
-			showLoading();
-		} else if (this.adapter.getPoisCount() == 0) {
-			showEmpty();
-		} else {
-			showList();
-		}
+		setupView(getView());
+		switchView();
 		NearbyFragment nearbyFragment = this.nearbyFragmentWR == null ? null : this.nearbyFragmentWR.get();
 		if (nearbyFragment != null) {
 			this.swipeRefreshLayout.setOnRefreshListener(nearbyFragment);
@@ -201,6 +205,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		}
 		this.lastVisisbleFragmentPosition = visisbleFragmentPosition;
 		if (this.fragmentPosition < 0) {
+			return;
+		}
+		if (!this.resumed) {
 			return;
 		}
 		if (this.fragmentPosition == visisbleFragmentPosition) {
@@ -243,12 +250,16 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	@Override
 	public void onPause() {
 		super.onPause();
+		this.resumed = false;
 		onFragmentInvisible();
 	}
 
 	@Override
+	private boolean resumed = false;
+
 	public void onResume() {
 		super.onResume();
+		this.resumed = true;
 		if (this.fragmentPosition < 0 || this.fragmentPosition == this.lastVisisbleFragmentPosition) {
 			onFragmentVisisble();
 		} // ELSE would be call later
@@ -280,6 +291,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
+		switchView();
 		final View view = getView();
 		if (view != null) {
 			if (view.findViewById(R.id.list) != null) {
@@ -287,9 +299,8 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			}
 		}
 		this.ad = LocationUtils.DEFAULT_AROUND_DIFF;
-		showLoading();
 		if (this.nearbyLocation != null) {
-			getLoaderManager().restartLoader(NEARBY_POIS_LOADER, null, this);
+			getActivity().getSupportLoaderManager().restartLoader(NEARBY_POIS_LOADER, null, this);
 		}
 	}
 
@@ -307,6 +318,16 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		}
 	}
 
+	private void switchView() {
+		if (this.adapter == null || !this.adapter.isInitialized()) {
+			showLoading();
+		} else if (this.adapter.getPoisCount() == 0) {
+			showEmpty();
+		} else {
+			showList();
+		}
+	}
+
 	private void showList() {
 		// loading
 		if (getView().findViewById(R.id.loading) != null) { // IF inflated/present DO
@@ -317,14 +338,14 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			getView().findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
 		// list
-		inflateList();
+		inflateList(getView());
 		getView().findViewById(R.id.list).setVisibility(View.VISIBLE); // show
 	}
 
-	private void inflateList() {
-		if (getView().findViewById(R.id.list) == null) { // IF NOT present/inflated DO
-			((ViewStub) getView().findViewById(R.id.list_stub)).inflate(); // inflate
-			this.swipeRefreshLayout.setListViewWR((AbsListView) getView().findViewById(R.id.list));
+	private void inflateList(View view) {
+		if (view.findViewById(R.id.list) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.list_stub)).inflate(); // inflate
+			this.swipeRefreshLayout.setListViewWR((AbsListView) view.findViewById(R.id.list));
 		}
 	}
 
@@ -400,17 +421,13 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		if (dataSize < LocationUtils.MIN_NEARBY_LIST && ad.aroundDiff < LocationUtils.MAX_AROUND_DIFF) {
 			// try with larger around location
 			LocationUtils.incAroundDiff(this.ad);
-			getLoaderManager().restartLoader(NEARBY_POIS_LOADER, null, this);
+			getActivity().getSupportLoaderManager().restartLoader(NEARBY_POIS_LOADER, null, this);
 		} else {
 			// show found POIs (or empty list)
 			this.adapter.setPois(data);
 			this.adapter.updateDistanceNowAsync(this.userLocation);
 			this.adapter.refreshFavorites();
-			if (this.adapter.getPoisCount() > 0) {
-				showList();
-			} else {
-				showEmpty();
-			}
+			switchView();
 		}
 	}
 

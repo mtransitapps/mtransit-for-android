@@ -508,10 +508,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					if (isCancelled()) {
 						return;
 					}
-					final Set<String> previousClosest = POIArrayAdapter.this.closestPoiUuids;
 					updateClosestPoi();
-					boolean newClosest = POIArrayAdapter.this.closestPoiUuids == null ? false : POIArrayAdapter.this.closestPoiUuids.equals(previousClosest);
-					notifyDataSetChanged(newClosest);
+					notifyDataSetChanged(true);
 					prefetchClosests();
 				}
 			};
@@ -967,10 +965,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return convertView;
 	}
 
+	private boolean showRTSExtra = true;
+
+	public void setShowRTSExtra(boolean showRTSExtra) {
+		this.showRTSExtra = showRTSExtra;
+	}
+
 	private void updateRTSExtra(POIManager poim, RouteTripStopViewHolder holder) {
 		if (poim.poi instanceof RouteTripStop) {
 			final RouteTripStop rts = (RouteTripStop) poim.poi;
-			if (rts.route == null) {
+			if (!showRTSExtra || rts.route == null) {
 				holder.rtsExtraV.setVisibility(View.GONE);
 				holder.routeFL.setVisibility(View.GONE);
 				holder.tripHeadingTv.setVisibility(View.GONE);

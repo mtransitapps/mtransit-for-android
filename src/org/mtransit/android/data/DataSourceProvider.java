@@ -12,12 +12,16 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
+import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
+import org.mtransit.android.commons.data.Trip;
+import org.mtransit.android.commons.provider.GTFSRouteTripStopProvider;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.provider.POIProvider;
 import org.mtransit.android.commons.provider.StatusFilter;
@@ -330,11 +334,78 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return result;
 	}
 
+	public static Trip findRTSTrip(Context context, Uri contentUri, int tripId) {
+		Cursor cursor = null;
+		try {
+			final Uri uri = getRTSTripsUri(contentUri);
+			final String selection = GTFSRouteTripStopProvider.TripColumns.T_TRIP_K_ID + "=" + tripId;
+			cursor = context.getContentResolver().query(uri, GTFSRouteTripStopProvider.PROJECTION_TRIP, selection, null, null);
+			final List<Trip> rtsTrips = getRTSTrips(cursor, contentUri.getAuthority());
+			return rtsTrips == null || rtsTrips.size() == 0 ? null : rtsTrips.get(0);
+		} catch (Throwable t) {
+			MTLog.w(TAG, t, "Error!");
+			return null;
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+	}
+
+	public static List<Trip> findRTSRouteTrips(Context context, Uri contentUri, int routeId) {
+		Cursor cursor = null;
+		try {
+			final Uri uri = getRTSTripsUri(contentUri);
+			final String selection = GTFSRouteTripStopProvider.TripColumns.T_TRIP_K_ROUTE_ID + "=" + routeId;
+			cursor = context.getContentResolver().query(uri, GTFSRouteTripStopProvider.PROJECTION_TRIP, selection, null, null);
+			return getRTSTrips(cursor, contentUri.getAuthority());
+		} catch (Throwable t) {
+			MTLog.w(TAG, t, "Error!");
+			return null;
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+	}
+
+	private static List<Trip> getRTSTrips(Cursor cursor, String authority) {
+		List<Trip> result = new ArrayList<Trip>();
+		if (cursor != null && cursor.getCount() > 0) {
+			if (cursor.moveToFirst()) {
+				do {
+					final Trip fromCursor = Trip.fromCursor(cursor);
+					result.add(fromCursor);
+				} while (cursor.moveToNext());
+			}
+		}
+		return result;
+	}
+
+	public static Route findRTSRoute(Context context, Uri contentUri, int routeId) {
+		Cursor cursor = null;
+		try {
+			final Uri uri = getRTSRoutesUri(contentUri);
+			final String selection = GTFSRouteTripStopProvider.RouteColumns.T_ROUTE_K_ID + "=" + routeId;
+			cursor = context.getContentResolver().query(uri, GTFSRouteTripStopProvider.PROJECTION_ROUTE, selection, null, null);
+			final List<Route> rtsRoutes = getRTSRoutes(cursor, contentUri.getAuthority());
+			return rtsRoutes == null || rtsRoutes.size() == 0 ? null : rtsRoutes.get(0);
+		} catch (Throwable t) {
+			MTLog.w(TAG, t, "Error!");
+			return null;
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+	}
+
 	public static List<Route> findAllRTSAgencyRoutes(Context context, Uri contentUri) {
 		Cursor cursor = null;
 		try {
 			final Uri uri = getRTSRoutesUri(contentUri);
-			cursor = context.getContentResolver().query(uri, null, null, null, null);
+			final String selection = null;
+			cursor = context.getContentResolver().query(uri, GTFSRouteTripStopProvider.PROJECTION_ROUTE, selection, null, null);
 			return getRTSRoutes(cursor, contentUri.getAuthority());
 		} catch (Throwable t) {
 			MTLog.w(TAG, t, "Error!");
@@ -352,6 +423,40 @@ public class DataSourceProvider implements MTLog.Loggable {
 			if (cursor.moveToFirst()) {
 				do {
 					final Route fromCursor = Route.fromCursor(cursor);
+					result.add(fromCursor);
+				} while (cursor.moveToNext());
+			}
+		}
+		return result;
+	}
+
+	public static List<POIManager> findRTSTripPOIs(Context context, Uri contentUri, int tripId) {
+		Cursor cursor = null;
+		try {
+			final String sortOrder = GTFSRouteTripStopProvider.RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE + " ASC";
+			final Uri uri = getPOIUri(contentUri);
+			final String selection = GTFSRouteTripStopProvider.RouteTripStopColumns.T_TRIP_K_ID + "=" + tripId;
+			POIFilter poiFilter = new POIFilter(selection);
+			String filterJsonString = POIFilter.toJSON(poiFilter).toString();
+			cursor = context.getContentResolver().query(uri, GTFSRouteTripStopProvider.PROJECTION_RTS_POI, filterJsonString, null, sortOrder);
+			return getRTSPOIs(cursor, contentUri.getAuthority());
+		} catch (Throwable t) {
+			MTLog.w(TAG, t, "Error!");
+			return null;
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+	}
+
+	private static List<POIManager> getRTSPOIs(Cursor cursor, String authority) {
+		List<POIManager> result = new ArrayList<POIManager>();
+		if (cursor != null && cursor.getCount() > 0) {
+			if (cursor.moveToFirst()) {
+				do {
+					final RouteTripStop rts = RouteTripStop.fromCursorStatic(cursor, authority);
+					final POIManager fromCursor = new POIManager(rts);
 					result.add(fromCursor);
 				} while (cursor.moveToNext());
 			}
@@ -381,7 +486,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 	public static List<POIManager> findAllAgencyPOIs(Context context, Uri contentUri) {
 		Cursor cursor = null;
 		try {
-			POIFilter poiFilter = new POIFilter();
+			POIFilter poiFilter = new POIFilter(StringUtils.EMPTY);
 			String filterJsonString = POIFilter.toJSON(poiFilter).toString();
 			final String sortOrder = null;
 			final Uri uri = getPOIUri(contentUri);
@@ -438,6 +543,10 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private static Uri getRTSRoutesUri(Uri contentUri) {
 		return Uri.withAppendedPath(contentUri, "route");
+	}
+
+	private static Uri getRTSTripsUri(Uri contentUri) {
+		return Uri.withAppendedPath(contentUri, "trip");
 	}
 
 }

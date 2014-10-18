@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/viewFlipper"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
@@ -13,13 +12,27 @@
         android:inflatedId="@+id/loading"
         android:layout="@layout/layout_loading_large"
         android:visibility="visible" />
-    <!-- LIST -->
-    <ViewStub
-        android:id="@+id/list_stub"
+    <!-- TABS -->
+    <com.viewpagerindicator.TitlePageIndicator
+        android:id="@+id/tabs"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout="@layout/layout_poi_list"
-        android:visibility="gone" />
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-condensed"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:footerIndicatorHeight="8dp"
+        app:footerIndicatorStyle="triangle"
+        app:footerPadding="2dp"
+        app:linePosition="top"
+        app:selectedBold="true"
+        app:titlePadding="10dp" />
+    <!-- VIEWPAGER -->
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
     <!-- EMPTY -->
     <ViewStub
         android:id="@+id/empty_stub"

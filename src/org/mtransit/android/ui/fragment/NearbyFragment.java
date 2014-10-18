@@ -4,10 +4,12 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
@@ -59,7 +61,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
-		View view = inflater.inflate(R.layout.fragment_nearby, container, false);
+		final View view = inflater.inflate(R.layout.fragment_nearby, container, false);
+		setupView(view);
 		return view;
 	}
 
@@ -89,9 +92,13 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		final Location nearbyLocation = getArguments().getParcelable(EXTRA_NEARBY_LOCATION);
+		restoreInstanceState(savedInstanceState);
+		switchView();
+	}
+
+	private void restoreInstanceState(Bundle savedInstanceState) {
+		final Location nearbyLocation = BundleUtils.getParcelable(EXTRA_NEARBY_LOCATION, savedInstanceState, getArguments());
 		setNewNearbyLocation(nearbyLocation);
-		showLoading();
 	}
 
 	@Override
@@ -103,12 +110,14 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 	}
 
-	private AgencyTypePagerAdapter agencyTypePagerAdapter;
+	private AgencyTypePagerAdapter adapter;
 
 	private Location nearbyLocation;
 	protected String nearbyLocationAddress;
 	private Location userLocation;
 	private boolean userAwayFromNearbyLocation = true;
+
+	private MTAsyncTask<Location, Void, String> findNearbyLocationTask;
 
 	private void showNewNearbyLocation() {
 		if (this.nearbyLocationAddress != null && this.nearbyLocation != null) {
@@ -119,8 +128,21 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 	}
 
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		this.adapter = null;
+		if (this.findNearbyLocationTask != null) {
+			this.findNearbyLocationTask.cancel(true);
+			this.findNearbyLocationTask = null;
+		}
+	}
+
 	private void findNearbyLocation() {
-		new MTAsyncTask<Location, Void, String>() {
+		if (this.findNearbyLocationTask != null) {
+			this.findNearbyLocationTask.cancel(true);
+		}
+		this.findNearbyLocationTask = new MTAsyncTask<Location, Void, String>() {
 
 			@Override
 			public String getLogTag() {
@@ -150,7 +172,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				}
 			}
 
-		}.execute(this.nearbyLocation);
+		};
+		this.findNearbyLocationTask.execute(this.nearbyLocation);
 	}
 
 	@Override
@@ -166,21 +189,15 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		if (CollectionUtils.getSize(availableAgencyTypes) == 0) {
 			return;
 		}
-		this.agencyTypePagerAdapter = new AgencyTypePagerAdapter(this, availableAgencyTypes);
-		this.agencyTypePagerAdapter.setNearbyLocation(this.nearbyLocation);
-		// view pager
+		this.adapter = new AgencyTypePagerAdapter(this, availableAgencyTypes);
+		this.adapter.setNearbyLocation(this.nearbyLocation);
+		setupView(getView());
 		final ViewPager viewPager = (ViewPager) getView().findViewById(R.id.viewpager);
-		viewPager.setAdapter(this.agencyTypePagerAdapter);
-		viewPager.setOffscreenPageLimit(3);
-		// tabs
-		SlidingTabLayout tabs = (SlidingTabLayout) getView().findViewById(R.id.tabs);
-		tabs.setViewPager(viewPager);
-		tabs.setOnPageChangeListener(this);
-		tabs.setSelectedIndicatorColors(0xff666666);
 		this.lastPageSelected = 0;
 		new MTAsyncTask<Void, Void, Integer>() {
 
 			private final String TAG = NearbyFragment.class.getSimpleName() + ">LoadLastPageSelectedFromUserPreferences";
+
 			public String getLogTag() {
 				return TAG;
 			}
@@ -212,10 +229,24 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 					NearbyFragment.this.lastPageSelected = lastPageSelected.intValue();
 					viewPager.setCurrentItem(NearbyFragment.this.lastPageSelected);
 				}
+				switchView();
 				onPageSelected(NearbyFragment.this.lastPageSelected); // tell current page it's selected
 
 			}
 		}.execute();
+	}
+
+	private void setupView(View view) {
+		if (view == null || this.adapter == null) {
+			return;
+		}
+		final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		viewPager.setAdapter(this.adapter);
+		viewPager.setOffscreenPageLimit(3);
+		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
+		tabs.setViewPager(viewPager);
+		tabs.setOnPageChangeListener(this);
+		tabs.setSelectedIndicatorColors(0xff666666);
 	}
 
 	@Override
@@ -230,8 +261,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 					}
 				}
 			}
-			if (this.agencyTypePagerAdapter != null) {
-				this.agencyTypePagerAdapter.setUserLocation(newLocation);
+			if (this.adapter != null) {
+				this.adapter.setUserLocation(newLocation);
 			}
 			if (this.nearbyLocation == null) {
 				setNewNearbyLocation(newLocation);
@@ -261,15 +292,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		this.nearbyLocation = newNearbyLocation;
 		this.nearbyLocationAddress = null;
 		((MainActivity) getActivity()).notifyABChange();
-		if (this.agencyTypePagerAdapter == null) {
+		if (this.adapter == null) {
 			initTabsAndViewPager();
-			if (this.agencyTypePagerAdapter != null && this.agencyTypePagerAdapter.getCount() > 0) {
-				showTabsAndViewPager();
-			} else {
-				showEmpty();
-			}
-		}
-		// ALL FRAGMENTs
 		final List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
@@ -288,6 +312,16 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 	public Location getUserLocation() {
 		return userLocation;
+	}
+
+	private void switchView() {
+		if (this.adapter == null) {
+			showLoading();
+		} else if (this.adapter.getCount() > 0) {
+			showTabsAndViewPager();
+		} else {
+			showEmpty();
+		}
 	}
 
 	private void showTabsAndViewPager() {
@@ -354,7 +388,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	@Override
 	public void onPageSelected(int position) {
 		StatusLoader.get().clearAllTasks();
-		PreferenceUtils.savePrefLcl(getActivity(), PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE, this.agencyTypePagerAdapter.getTypeId(position), false);
+		PreferenceUtils.savePrefLcl(getActivity(), PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE, this.adapter.getTypeId(position), false);
 		final List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
@@ -366,8 +400,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			}
 		}
 		this.lastPageSelected = position;
-		if (this.agencyTypePagerAdapter != null) {
-			this.agencyTypePagerAdapter.setLastVisisbleFragmentPosition(this.lastPageSelected);
+		if (this.adapter != null) {
+			this.adapter.setLastVisisbleFragmentPosition(this.lastPageSelected);
 		}
 	}
 
@@ -421,7 +455,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	@Override
-	public CharSequence getTitle(Context context) {
+	public CharSequence getABTitle(Context context) {
 		return context.getString(R.string.nearby);
 	}
 
@@ -431,12 +465,17 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	@Override
-	public int getIconDrawableResId() {
+	public int getABIconDrawableResId() {
 		if (!this.userAwayFromNearbyLocation) {
 			return R.drawable.ic_menu_nearby_active;
 		} else {
 			return R.drawable.ic_menu_nearby;
 		}
+	}
+
+	@Override
+	public Integer getBgColor() {
+		return ABFragment.NO_BG_COLOR;
 	}
 
 	public static interface NearbyLocationListener extends MTActivityWithLocation.UserLocationListener {
@@ -492,10 +531,10 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		public CharSequence getPageTitle(int position) {
 			final Context context = this.contextWR == null ? null : this.contextWR.get();
 			if (context == null) {
-				return "";
+				return StringUtils.EMPTY;
 			}
 			if (this.availableAgencyTypes == null || position >= this.availableAgencyTypes.size()) {
-				return "";
+				return StringUtils.EMPTY;
 			}
 			return context.getString(this.availableAgencyTypes.get(position).getShortNameResId());
 		}

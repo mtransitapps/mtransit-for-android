@@ -1,19 +1,23 @@
 package org.mtransit.android.ui.fragment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.UriUtils;
+import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
-import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
-import org.mtransit.android.task.AgencyPOIsLoader;
+import org.mtransit.android.task.RTSTripStopsLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 
+import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -26,25 +30,28 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
-public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<List<POIManager>>,
+public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<List<POIManager>>,
 		MTActivityWithLocation.UserLocationListener {
 
-	private static final String TAG = AgencyPOIsFragment.class.getSimpleName();
+	private static final String TAG = RTSTripStopsFragment.class.getSimpleName();
 
 	@Override
 	public String getLogTag() {
-		return TAG + "-" + (this.agency == null ? null : this.agency.getAuthority());
+		return TAG;
 	}
 
 	private static final String EXTRA_AGENCY_AUTHORITY = "extra_agency_authority";
+	private static final String EXTRA_TRIP_ID = "extra_trip_id";
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 	private static final String EXTRA_USER_LOCATION = "extra_user_location";
+	private static final String EXTRA_SELECTED_ITEM_POSITION = "extra_selected_item_position";
 
-	public static AgencyPOIsFragment newInstance(int fragmentPosition, int lastVisisbleFragmentPosition, AgencyProperties agency, Location userLocationOpt) {
-		AgencyPOIsFragment f = new AgencyPOIsFragment();
+	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisisbleFragmentPosition, String authority, Trip trip, Location userLocationOpt) {
+		RTSTripStopsFragment f = new RTSTripStopsFragment();
 		Bundle args = new Bundle();
-		args.putString(EXTRA_AGENCY_AUTHORITY, agency.getAuthority());
+		args.putString(EXTRA_AGENCY_AUTHORITY, authority);
+		args.putInt(EXTRA_TRIP_ID, trip.id);
 		if (fragmentPosition >= 0) {
 			args.putInt(EXTRA_FRAGMENT_POSITION, fragmentPosition);
 		}
@@ -58,18 +65,21 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 		return f;
 	}
 
-	private AgencyProperties agency;
+	private Trip trip;
+	private String authority;
+	private Integer tripId;
+	private POIArrayAdapter adapter;
 	private Location userLocation;
 	private int fragmentPosition = -1;
 	private int lastVisisbleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
-	private POIArrayAdapter adapter;
 	private String emptyText = null;
+	private Integer currentSelectedItemPosition = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
-		final View view = inflater.inflate(R.layout.fragment_agency_pois, container, false);
+		final View view = inflater.inflate(R.layout.fragment_rts_trip_stops, container, false);
 		setupView(view);
 		return view;
 	}
@@ -79,13 +89,17 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 		if (this.userLocation != null) {
 			outState.putParcelable(EXTRA_USER_LOCATION, this.userLocation);
 		}
+		if (getView() != null && getView().findViewById(R.id.list) != null) {
+			outState.putInt(EXTRA_SELECTED_ITEM_POSITION, ((AbsListView) getView().findViewById(R.id.list)).getFirstVisiblePosition());
+		}
 		super.onSaveInstanceState(outState);
 	}
 
 	private void restoreInstanceState(Bundle savedInstanceState) {
-		final String agencyAuthority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, savedInstanceState, getArguments());
-		if (!TextUtils.isEmpty(agencyAuthority)) {
-			this.agency = DataSourceProvider.get().getAgency(getActivity(), agencyAuthority);
+		this.authority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, savedInstanceState, getArguments());
+		this.tripId = BundleUtils.getInt(EXTRA_TRIP_ID, savedInstanceState, getArguments());
+		if (this.tripId != null) {
+			this.trip = DataSourceProvider.findRTSTrip(getActivity(), UriUtils.newContentUri(this.authority), this.tripId);
 		}
 		final Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, savedInstanceState, getArguments());
 		if (fragmentPosition != null) {
@@ -107,6 +121,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 		if (userLocation != null) {
 			onUserLocationChanged(userLocation);
 		}
+		this.currentSelectedItemPosition = BundleUtils.getInt(EXTRA_SELECTED_ITEM_POSITION, savedInstanceState, getArguments());
 	}
 
 	@Override
@@ -117,7 +132,8 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 
 	private void initAdapter() {
 		this.adapter = new POIArrayAdapter(getActivity());
-		this.adapter.setTag(this.agency.getAuthority());
+		this.adapter.setTag(this.authority + this.tripId);
+		this.adapter.setShowRTSExtra(false);
 		setupView(getView());
 		switchView();
 	}
@@ -127,7 +143,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 			return;
 		}
 		inflateList(view);
-		this.adapter.setListView((AbsListView) getView().findViewById(R.id.list));
+		this.adapter.setListView((AbsListView) view.findViewById(R.id.list));
 	}
 
 	@Override
@@ -176,7 +192,10 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 				this.adapter.refreshFavorites();
 			}
 		}
-		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation()); // user location was unknown yet or discarded while not visible
+		final Activity activity = getActivity();
+		if (activity != null && activity instanceof MTActivityWithLocation) {
+			onUserLocationChanged(((MTActivityWithLocation) activity).getUserLocation()); // user location was unknown yet or discarded while not visible
+		}
 	}
 
 	private static final int POIS_LOADER = 0;
@@ -185,8 +204,8 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 	public Loader<List<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
-			final AgencyPOIsLoader agencyPOIsLoader = new AgencyPOIsLoader(getActivity(), this.agency);
-			return agencyPOIsLoader;
+			final RTSTripStopsLoader rtsTripStopsLoader = new RTSTripStopsLoader(getActivity(), this.trip, this.authority);
+			return rtsTripStopsLoader;
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -203,9 +222,30 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 
 	@Override
 	public void onLoadFinished(Loader<List<POIManager>> loader, List<POIManager> data) {
+		if (this.currentSelectedItemPosition == null) {
+			this.currentSelectedItemPosition = findClosestPOIIndex(data);
+		}
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
+		if (this.currentSelectedItemPosition != null && this.currentSelectedItemPosition > 0) {
+			((AbsListView) getView().findViewById(R.id.list)).setSelection(this.currentSelectedItemPosition - 1); // show 1 more stop on top of the list
+		}
 		switchView();
+	}
+
+	private int findClosestPOIIndex(List<POIManager> pois) {
+		if (this.userLocation != null) {
+			LocationUtils.updateDistance(pois, this.userLocation.getLatitude(), this.userLocation.getLongitude());
+			ArrayList<POIManager> sortedPOIs = new ArrayList<>(pois);
+			CollectionUtils.sort(sortedPOIs, POIManager.POI_DISTANCE_COMPARATOR);
+			final String closestPoiUuid = sortedPOIs.get(0).poi.getUUID();
+			for (int i = 0; i < pois.size(); i++) {
+				if (pois.get(i).poi.getUUID().equals(closestPoiUuid)) {
+					return i;
+				}
+			}
+		}
+		return 0;
 	}
 
 	@Override
@@ -266,8 +306,6 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 	private void inflateList(View view) {
 		if (view.findViewById(R.id.list) == null) { // IF NOT present/inflated DO
 			((ViewStub) view.findViewById(R.id.list_stub)).inflate(); // inflate
-			((AbsListView) view.findViewById(R.id.list)).setFastScrollEnabled(true);
-			((AbsListView) view.findViewById(R.id.list)).setFastScrollAlwaysVisible(true); // long list
 		}
 	}
 
@@ -280,7 +318,6 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 		}
 		if (getView().findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
 			((ViewStub) getView().findViewById(R.id.loading_stub)).inflate(); // inflate
-			// this.swipeRefreshLayout.setLoadingViewWR(getView().findViewById(R.id.loading));
 		}
 		getView().findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}

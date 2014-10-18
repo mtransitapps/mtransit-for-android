@@ -45,6 +45,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		final View view = inflater.inflate(R.layout.fragment_favorites, container, false);
+		setupView(view);
 		return view;
 	}
 
@@ -53,7 +54,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		super.onResume();
 		initAdapter();
 		this.adapter.onResume();
-		getLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
+		getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
 	}
 
 	private static final int FAVORITES_LOADER = 0;
@@ -94,11 +95,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public void onLoadFinished(Loader<List<POIManager>> loader, List<POIManager> data) {
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
-		if (this.adapter.getPoisCount() > 0) {
-			showList();
-		} else {
-			showEmpty();
-		}
+		switchView();
 	}
 
 	@Override
@@ -127,22 +124,34 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		this.adapter.setShowFavorite(false); // all items in this screen are favorites
 		this.adapter.setFavoriteUpdateListener(this);
 		this.adapter.setShowTypeHeader(true);
-		inflateList();
+		setupView(getView());
+		switchView();
+	}
+
+	private void setupView(View view) {
+		if (view == null || this.adapter == null) {
+			return;
+		}
+		inflateList(view);
 		this.adapter.setListView((AbsListView) getView().findViewById(R.id.list));
-		if (!this.adapter.isInitialized()) {
+	}
+
+	@Override
+	public void onFavoriteUpdated() {
+		getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
+		if (this.adapter != null) {
+			// TODO useful? (favorite star not displayed
+			this.adapter.onFavoriteUpdated();
+		}
+	}
+
+	private void switchView() {
+		if (this.adapter == null || !this.adapter.isInitialized()) {
 			showLoading();
 		} else if (this.adapter.getPoisCount() == 0) {
 			showEmpty();
 		} else {
 			showList();
-		}
-	}
-
-	@Override
-	public void onFavoriteUpdated() {
-		getLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
-		if (this.adapter != null) {
-			this.adapter.onFavoriteUpdated();
 		}
 	}
 
@@ -153,13 +162,13 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		if (getView().findViewById(R.id.empty) != null) { // IF inflated/present DO
 			getView().findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		inflateList();
+		inflateList(getView());
 		getView().findViewById(R.id.list).setVisibility(View.VISIBLE); // show
 	}
 
-	private void inflateList() {
-		if (getView().findViewById(R.id.list) == null) { // IF NOT present/inflated DO
-			((ViewStub) getView().findViewById(R.id.list_stub)).inflate(); // inflate
+	private void inflateList(View view) {
+		if (view.findViewById(R.id.list) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.list_stub)).inflate(); // inflate
 		}
 	}
 
@@ -193,17 +202,22 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	}
 
 	@Override
-	public int getIconDrawableResId() {
+	public int getABIconDrawableResId() {
 		return R.drawable.ic_menu_favorites;
 	}
 
 	@Override
-	public CharSequence getTitle(Context context) {
+	public CharSequence getABTitle(Context context) {
 		return context.getString(R.string.favorites);
 	}
 
 	@Override
 	public CharSequence getSubtitle(Context context) {
 		return null;
+	}
+
+	@Override
+	public Integer getBgColor() {
+		return ABFragment.NO_BG_COLOR;
 	}
 }

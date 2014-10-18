@@ -28,17 +28,22 @@ public class MapsFragment extends ABFragment {
 	}
 
 	@Override
-	public int getIconDrawableResId() {
+	public int getABIconDrawableResId() {
 		return R.drawable.ic_menu_maps;
 	}
 
 	@Override
-	public CharSequence getTitle(Context context) {
+	public CharSequence getABTitle(Context context) {
 		return context.getString(R.string.maps);
 	}
 
 	@Override
 	public CharSequence getSubtitle(Context context) {
 		return null;
+	}
+
+	@Override
+	public Integer getBgColor() {
+		return android.R.color.transparent;
 	}
 }

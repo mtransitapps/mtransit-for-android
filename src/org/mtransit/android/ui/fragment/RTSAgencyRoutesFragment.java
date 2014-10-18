@@ -12,10 +12,10 @@ import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.JPaths;
 import org.mtransit.android.task.RTSAgencyRoutesLoader;
+import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTJPathsView;
 
 import android.content.Context;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -25,23 +25,31 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<List<Route>> {
+public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<List<Route>>,
+		AdapterView.OnItemClickListener {
 
 	private static final String TAG = RTSAgencyRoutesFragment.class.getSimpleName();
 
+	private String tag = TAG;
+
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return this.tag;
+	}
+
+	public void setLogTag(String tag) {
+		this.tag = TAG + "-" + tag;
 	}
 
 	private static final String EXTRA_AGENCY_AUTHORITY = "extra_agency_authority";
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 
-	public static RTSAgencyRoutesFragment newInstance(int fragmentPosition, int lastVisisbleFragmentPosition, AgencyProperties agency, Location userLocationOpt) {
+	public static RTSAgencyRoutesFragment newInstance(int fragmentPosition, int lastVisisbleFragmentPosition, AgencyProperties agency) {
 		RTSAgencyRoutesFragment f = new RTSAgencyRoutesFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, agency.getAuthority());
@@ -66,7 +74,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		final View view = inflater.inflate(R.layout.fragment_rts_agency_routes, container, false);
-
+		setupView(view);
 		return view;
 	}
 
@@ -75,6 +83,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		final String agencyAuthority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, savedInstanceState, getArguments());
 		if (!TextUtils.isEmpty(agencyAuthority)) {
 			this.agency = DataSourceProvider.get().getAgency(getActivity(), agencyAuthority);
+			setLogTag(this.agency.getShortName());
 		}
 		final Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, savedInstanceState, getArguments());
 		if (fragmentPosition != null) {
@@ -98,20 +107,33 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		restoreInstanceState(savedInstanceState);
+		if (this.adapter == null) {
+			initAdapter();
+		}
+		switchView();
 	}
 
 	private void initAdapter() {
 		this.adapter = new RTSRouteArrayAdapter(getActivity(), this.agency.getAuthority());
-		inflateList();
-		((AbsListView) getView().findViewById(R.id.list)).setAdapter(this.adapter);
-		((AbsListView) getView().findViewById(R.id.list)).setVerticalScrollBarEnabled(false);
-		((AbsListView) getView().findViewById(R.id.list)).setHorizontalScrollBarEnabled(false);
-		if (!this.adapter.isInitialized()) {
-			showLoading();
-		} else if (this.adapter.getCount() == 0) {
-			showEmpty();
-		} else {
-			showList();
+		setupView(getView());
+		switchView();
+	}
+
+	private void setupView(View view) {
+		if (view == null || this.adapter == null) {
+			return;
+		}
+		inflateList(view);
+		final AbsListView absListView = (AbsListView) view.findViewById(R.id.list);
+		absListView.setAdapter(this.adapter);
+		absListView.setOnItemClickListener(this);
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		final Route route = this.adapter.getItem(position);
+		if (route != null) {
+			((MainActivity) getActivity()).addFragmentToStack(RTSRouteFragment.newInstance(this.agency.getAuthority(), route));
 		}
 	}
 
@@ -149,9 +171,10 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 			return; // already visible
 		}
 		this.fragmentVisible = true;
-		if (this.adapter == null) {
-			initAdapter();
-			getLoaderManager().restartLoader(ROUTES_LOADER, null, this);
+		if (this.adapter == null || this.adapter.isEmpty()) {
+			getActivity().getSupportLoaderManager().restartLoader(ROUTES_LOADER, null, this);
+		} else {
+			switchView();
 		}
 	}
 
@@ -180,11 +203,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 	@Override
 	public void onLoadFinished(Loader<List<Route>> loader, List<Route> data) {
 		this.adapter.setRoutes(data);
-		if (this.adapter.getCount() > 0) {
-			showList();
-		} else {
-			showEmpty();
-		}
+		switchView();
 	}
 
 	@Override
@@ -209,6 +228,17 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		}
 	}
 
+	private void switchView() {
+		MTLog.v(this, "switchView()");
+		if (this.adapter == null || !this.adapter.isInitialized()) {
+			showLoading();
+		} else if (this.adapter.getCount() == 0) {
+			showEmpty();
+		} else {
+			showList();
+		}
+	}
+
 	private void showList() {
 		if (getView().findViewById(R.id.loading) != null) { // IF inflated/present DO
 			getView().findViewById(R.id.loading).setVisibility(View.GONE); // hide
@@ -216,15 +246,13 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		if (getView().findViewById(R.id.empty) != null) { // IF inflated/present DO
 			getView().findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		inflateList();
+		inflateList(getView());
 		getView().findViewById(R.id.list).setVisibility(View.VISIBLE); // show
 	}
 
-	private void inflateList() {
-		if (getView().findViewById(R.id.list) == null) { // IF NOT present/inflated DO
-			((ViewStub) getView().findViewById(R.id.list_stub)).inflate(); // inflate
-			((AbsListView) getView().findViewById(R.id.list)).setFastScrollEnabled(true);
-			((AbsListView) getView().findViewById(R.id.list)).setFastScrollAlwaysVisible(true); // long list
+	private void inflateList(View view) {
+		if (view.findViewById(R.id.list) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.list_stub)).inflate(); // inflate
 		}
 	}
 

@@ -15,6 +15,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -23,7 +24,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-public class MainActivity extends MTActivityWithLocation implements AdapterView.OnItemClickListener {
+public class MainActivity extends MTActivityWithLocation implements AdapterView.OnItemClickListener, FragmentManager.OnBackStackChangedListener {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -50,6 +51,9 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	private int mIcon;
 	private int mDrawerIcon;
 
+	private Integer mBgColor;
+	private Integer mDrawerBgColor;
+
 	public static Intent newInstance(Context context, int selectedRootScreenPosition) {
 		Intent intent = new Intent(context, MainActivity.class);
 		if (selectedRootScreenPosition >= 0) {
@@ -70,6 +74,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		mTitle = mDrawerTitle = getTitle();
 		mSubtitle = mDrawerSubtitle = getActionBar().getSubtitle();
 		mIcon = mDrawerIcon = R.drawable.ic_launcher;
+		mBgColor = mDrawerBgColor = ABFragment.NO_BG_COLOR;
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer); // (mDrawerList) getSupportFragmentManager().findFragmentById(R.id.left_drawer);
 
@@ -99,10 +104,14 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 			final String itemId = PreferenceUtils.getPrefLcl(this, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
 			selectItem(this.mDrawerListAdapter.getScreenItemPosition(itemId));
 		} else {
-			int savedRootScreen = savedInstanceState.getInt(EXTRA_SELECTED_ROOT_SCREEN, -1);
-			if (savedRootScreen >= 0) {
-				selectItem(savedRootScreen);
-			}
+			onRestoreState(savedInstanceState);
+		}
+	}
+
+	private void onRestoreState(Bundle savedInstanceState) {
+		int savedRootScreen = savedInstanceState.getInt(EXTRA_SELECTED_ROOT_SCREEN, -1);
+		if (savedRootScreen >= 0) {
+			this.currentSelectedItemPosition = savedRootScreen;
 		}
 	}
 
@@ -115,10 +124,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		int savedRootScreen = savedInstanceState.getInt(EXTRA_SELECTED_ROOT_SCREEN, -1);
-		if (savedRootScreen >= 0) {
-			selectItem(savedRootScreen);
-		}
+		onRestoreState(savedInstanceState);
 	}
 
 	@Override
@@ -147,9 +153,8 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		if (newFragment == null) {
 			return;
 		}
-		setABTitle(newFragment.getTitle(this));
-		setABSubtitle(newFragment.getSubtitle(this));
-		setABIcon(newFragment.getIconDrawableResId());
+		clearFragmentBackStack(); // root screen
+		setAB(newFragment);
 		final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		ft.replace(R.id.content_frame, newFragment);
 		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
@@ -162,10 +167,27 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		}
 	}
 
+	private void clearFragmentBackStack() {
+		final FragmentManager fm = getSupportFragmentManager();
+		for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
+			fm.popBackStack();
+		}
+	}
+
+	public void addFragmentToStack(ABFragment newFragment) {
+		setAB(newFragment);
+		final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		ft.replace(R.id.content_frame, newFragment);
+		ft.addToBackStack(null);
+		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+		ft.commit();
+		mDrawerList.setItemChecked(this.currentSelectedItemPosition, false);
+		this.currentSelectedItemPosition = -1;
+	}
+
 	@Override
 	public void onUserLocationChanged(Location newLocation) {
-		// ALL FRAGMENTs
-		List<Fragment> fragments = getSupportFragmentManager().getFragments();
+		final List<Fragment> fragments = getSupportFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment != null && fragment instanceof MTActivityWithLocation.UserLocationListener) {
@@ -187,16 +209,29 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		setABTitle(title);
 	}
 
+	private void setAB(ABFragment fragment) {
+		setAB(fragment.getABTitle(this), fragment.getSubtitle(this), fragment.getABIconDrawableResId(), fragment.getBgColor());
+	}
+
+	private void setAB(CharSequence title, CharSequence subtitle, int iconResId, Integer bgColor) {
+		mTitle = title;
+		mSubtitle = subtitle;
+		mIcon = iconResId;
+		mBgColor = bgColor;
+		updateAB();
+	}
 	private void setABTitle(CharSequence title) {
 		mTitle = title;
 		updateAB();
 	}
 
+	@SuppressWarnings("unused")
 	private void setABSubtitle(CharSequence subtitle) {
 		mSubtitle = subtitle;
 		updateAB();
 	}
 
+	@SuppressWarnings("unused")
 	private void setABIcon(int resId) {
 		mIcon = resId;
 		updateAB();
@@ -206,11 +241,17 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		Fragment f = getSupportFragmentManager().findFragmentById(R.id.content_frame);
 		if (f != null && f instanceof ABFragment) {
 			ABFragment abf = (ABFragment) f;
-			mTitle = abf.getTitle(this);
+			mTitle = abf.getABTitle(this);
 			mSubtitle = abf.getSubtitle(this);
-			mIcon = abf.getIconDrawableResId();
+			mIcon = abf.getABIconDrawableResId();
+			mBgColor = abf.getBgColor();
 			updateAB();
 		}
+	}
+
+	@Override
+	public void onBackStackChanged() {
+		updateAB(); // up/drawer icon
 	}
 
 	private void updateAB() {
@@ -246,6 +287,12 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		} else {
 			getActionBar().setIcon(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
 		}
+		if (mBgColor != null) {
+			getActionBar().setBackgroundDrawable(new ColorDrawable(mBgColor));
+		} else {
+			getActionBar().setBackgroundDrawable(null);
+		}
+		this.mDrawerToggle.setDrawerIndicatorEnabled(getSupportFragmentManager().getBackStackEntryCount() < 1);
 		invalidateOptionsMenu();
 	}
 
@@ -257,6 +304,12 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		} else {
 			getActionBar().setIcon(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
 		}
+		if (mDrawerBgColor != null) {
+			getActionBar().setBackgroundDrawable(new ColorDrawable(mDrawerBgColor));
+		} else {
+			getActionBar().setBackgroundDrawable(null);
+		}
+		this.mDrawerToggle.setDrawerIndicatorEnabled(true);
 		invalidateOptionsMenu();
 	}
 
@@ -275,6 +328,10 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (mDrawerToggle.onOptionsItemSelected(item)) {
+			return true;
+		}
+		if (item.getItemId() == android.R.id.home && getSupportFragmentManager().getBackStackEntryCount() > 0) {
+			getSupportFragmentManager().popBackStack();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);

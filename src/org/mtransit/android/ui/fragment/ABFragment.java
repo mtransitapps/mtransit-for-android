@@ -6,10 +6,16 @@ import android.content.Context;
 
 public abstract class ABFragment extends MTFragmentV4 {
 
-	public abstract CharSequence getTitle(Context context);
+	public static final int NO_ICON = -1;
+
+	public static final Integer NO_BG_COLOR = null;
+
+	public abstract CharSequence getABTitle(Context context);
 
 	public abstract CharSequence getSubtitle(Context context);
 
-	public abstract int getIconDrawableResId();
+	public abstract int getABIconDrawableResId();
+
+	public abstract Integer getBgColor();
 
 }

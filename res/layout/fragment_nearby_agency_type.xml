@@ -17,7 +17,7 @@
             android:layout_height="match_parent"
             android:inflatedId="@+id/loading"
             android:layout="@layout/layout_loading_large"
-            android:visibility="gone" />
+            android:visibility="visible" />
         <!-- LIST -->
         <ViewStub
             android:id="@+id/list_stub"

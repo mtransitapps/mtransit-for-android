@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         android:inflatedId="@+id/loading"
         android:layout="@layout/layout_loading_large"
-        android:visibility="gone" />
+        android:visibility="visible" />
     <!-- TABS -->
     <org.mtransit.android.ui.view.SlidingTabLayout
         android:id="@+id/tabs"

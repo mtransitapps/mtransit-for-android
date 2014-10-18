@@ -28,17 +28,22 @@ public class SearchFragment extends ABFragment {
 	}
 
 	@Override
-	public int getIconDrawableResId() {
+	public int getABIconDrawableResId() {
 		return R.drawable.ic_menu_search;
 	}
 
 	@Override
-	public CharSequence getTitle(Context context) {
+	public CharSequence getABTitle(Context context) {
 		return context.getString(R.string.search);
 	}
 
 	@Override
 	public CharSequence getSubtitle(Context context) {
 		return null;
+	}
+
+	@Override
+	public Integer getBgColor() {
+		return ABFragment.NO_BG_COLOR;
 	}
 }
