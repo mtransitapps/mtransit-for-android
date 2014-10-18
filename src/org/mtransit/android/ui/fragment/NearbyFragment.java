@@ -186,9 +186,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 	private void initTabsAndViewPager() {
 		final List<DataSourceType> availableAgencyTypes = DataSourceProvider.get().getAvailableAgencyTypes(getActivity());
-		if (CollectionUtils.getSize(availableAgencyTypes) == 0) {
-			return;
-		}
 		this.adapter = new AgencyTypePagerAdapter(this, availableAgencyTypes);
 		this.adapter.setNearbyLocation(this.nearbyLocation);
 		setupView(getView());
