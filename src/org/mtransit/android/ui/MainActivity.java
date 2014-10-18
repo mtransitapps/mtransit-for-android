@@ -100,6 +100,8 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 
+		getSupportFragmentManager().addOnBackStackChangedListener(this);
+
 		if (savedInstanceState == null) {
 			final String itemId = PreferenceUtils.getPrefLcl(this, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
 			selectItem(this.mDrawerListAdapter.getScreenItemPosition(itemId));
