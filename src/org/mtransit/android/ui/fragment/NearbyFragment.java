@@ -231,7 +231,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				}
 				switchView();
 				onPageSelected(NearbyFragment.this.lastPageSelected); // tell current page it's selected
-
 			}
 		}.execute();
 	}
@@ -294,6 +293,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		((MainActivity) getActivity()).notifyABChange();
 		if (this.adapter == null) {
 			initTabsAndViewPager();
+		}
 		final List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {

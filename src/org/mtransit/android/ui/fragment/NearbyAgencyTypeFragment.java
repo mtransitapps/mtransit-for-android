@@ -62,7 +62,10 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	private ListViewSwipeRefreshLayout swipeRefreshLayout;
 
 	private int fragmentPosition = -1;
+
 	private int lastVisisbleFragmentPosition = -1;
+
+	private boolean resumed = false;
 
 	private boolean fragmentVisible = false;
 
@@ -254,9 +257,8 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		onFragmentInvisible();
 	}
 
-	@Override
-	private boolean resumed = false;
 
+	@Override
 	public void onResume() {
 		super.onResume();
 		this.resumed = true;

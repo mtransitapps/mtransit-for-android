@@ -6,8 +6,6 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
 
-import android.text.TextUtils;
-
 public class AgencyProperties implements MTLog.Loggable {
 
 	private static final String TAG = AgencyProperties.class.getSimpleName();
