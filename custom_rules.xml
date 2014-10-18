@@ -9,13 +9,11 @@
     </target>
 
     <target name="copy-to-output-dir">
-        <xmlproperty file="AndroidManifest.xml" prefix="mymanifest" collapseAttributes="true"/>
-        <copy file="${out.final.file}" tofile="${output.dir}/${ant.project.name}_v${mymanifest.manifest.android:versionName}_r${mymanifest.manifest.android:versionCode}.apk"/>
+        <copy file="${out.final.file}" tofile="${output.dir}/${ant.project.name}_v${version.name}_r${version.code}.apk"/>
     </target>
 
     <target name="copy-to-cloud-dir">
-        <xmlproperty file="AndroidManifest.xml" prefix="mymanifest" collapseAttributes="true"/>
-        <copy file="${out.final.file}" tofile="${output.cloud.dir}/${ant.project.name}_v${mymanifest.manifest.android:versionName}_r${mymanifest.manifest.android:versionCode}.apk"/>
+        <copy file="${out.final.file}" tofile="${output.cloud.dir}/${ant.project.name}_v${version.name}_r${version.code}.apk"/>
     </target>
 
 </project>
