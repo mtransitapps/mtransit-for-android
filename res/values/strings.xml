@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">MT</string>
     <string name="app_name_and_version_name">MT (Version %s)</string>
+    <string name="home">Home</string>
     <string name="favorites">Favorites</string>
     <string name="nearby">Nearby</string>
     <string name="directions">Directions</string>

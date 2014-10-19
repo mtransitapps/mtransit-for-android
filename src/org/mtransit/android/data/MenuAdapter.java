@@ -8,6 +8,7 @@ import org.mtransit.android.commons.ui.widget.MTBaseAdapter;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 import org.mtransit.android.ui.fragment.FavoritesFragment;
+import org.mtransit.android.ui.fragment.HomeFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
 
 import android.content.Context;
@@ -36,16 +37,17 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 
 	private static final int VIEW_TYPE_COUNT = 5;
 
+	private static final int ITEM_INDEX_HOME = 0;
 	// private static final int ITEM_INDEX_SEARCH = 0;
-	private static final int ITEM_INDEX_FAVORITE = 0;
-	private static final int ITEM_INDEX_NEARBY = 1;
+	private static final int ITEM_INDEX_FAVORITE = 1;
+	private static final int ITEM_INDEX_NEARBY = 2;
 	// private static final int ITEM_INDEX_DIRECTIONS = 3;
 	// private static final int ITEM_INDEX_MAPS = 4;
 
 	// private static final int ITEM_INDEX_DYNAMIC_HEADER = 5;
-	private static final int ITEM_INDEX_DYNAMIC_HEADER = 2;
+	private static final int ITEM_INDEX_DYNAMIC_HEADER = 3;
 
-	private static final int ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR = 3;
+	private static final int ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR = 4;
 
 	private static final int STATIC_ITEMS_BEFORE_DYNAMIC = ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR + 1;
 
@@ -59,7 +61,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 	private static final String ITEM_ID_AGENCYTYPE_START_WITH = "agencytype-";
 	private static final String ITEM_ID_STATIC_START_WITH = "static-";
 
-	public static final int ITEM_ID_SELECTED_SCREEN_POSITION_DEFAULT = ITEM_INDEX_NEARBY;
+	public static final int ITEM_ID_SELECTED_SCREEN_POSITION_DEFAULT = ITEM_INDEX_HOME;
 
 	public static final String ITEM_ID_SELECTED_SCREEN_DEFAULT = ITEM_ID_STATIC_START_WITH + ITEM_ID_SELECTED_SCREEN_POSITION_DEFAULT;
 
@@ -333,8 +335,11 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 		}
 		// update UI
 		MenuItemViewHolder holder = (MenuItemViewHolder) convertView.getTag();
-		if (position == ITEM_INDEX_FAVORITE) {
-			holder.nameTv.setText("Favorites");
+		if (position == ITEM_INDEX_HOME) {
+			holder.nameTv.setText(R.string.home);
+			holder.icon.setImageResource(R.drawable.ic_menu_home);
+		} else if (position == ITEM_INDEX_FAVORITE) {
+			holder.nameTv.setText(R.string.favorites);
 			holder.icon.setImageResource(R.drawable.ic_menu_favorites);
 		} else if (position == ITEM_INDEX_NEARBY) {
 			holder.nameTv.setText(R.string.nearby);
@@ -370,13 +375,14 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 	}
 
 	public ABFragment getNewStaticFragmentAt(int position) {
-		// if (position == ITEM_INDEX_SEARCH) {
-		// return SearchFragment.newInstance();
-		// } else
-		if (position == ITEM_INDEX_FAVORITE) {
+		if (position == ITEM_INDEX_HOME) {
+			return HomeFragment.newInstance(null);
+		} else if (position == ITEM_INDEX_FAVORITE) {
 			return FavoritesFragment.newInstance();
 		} else if (position == ITEM_INDEX_NEARBY) {
 			return NearbyFragment.newInstance(null);
+			// else if (position == ITEM_INDEX_SEARCH) {
+			// return SearchFragment.newInstance();
 			// } else if (position == MenuAdapter.ITEM_INDEX_DIRECTIONS) {
 			// return DirectionsFragment.newInstance();
 			// } else if (position == MenuAdapter.ITEM_INDEX_MAPS) {
