@@ -56,6 +56,12 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private int lastPageSelected = -1;
+	private AgencyTypePagerAdapter adapter;
+	private Location nearbyLocation;
+	protected String nearbyLocationAddress;
+	private Location userLocation;
+	private boolean userAwayFromNearbyLocation = true;
+	private MTAsyncTask<Location, Void, String> findNearbyLocationTask;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
