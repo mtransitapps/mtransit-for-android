@@ -149,6 +149,9 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 			return;
 		}
 		if (position == this.currentSelectedItemPosition) {
+			while (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+				getSupportFragmentManager().popBackStackImmediate();
+			}
 			closeDrawer();
 			return;
 		}
@@ -191,7 +194,6 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 		ft.commit();
 		mDrawerList.setItemChecked(this.currentSelectedItemPosition, false);
-		this.currentSelectedItemPosition = -1;
 	}
 
 	@Override
@@ -261,13 +263,10 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	@Override
 	public void onBackStackChanged() {
 		updateAB(); // up/drawer icon
-	}
-
-	private void updateAB() {
-		if (isDrawerOpen()) {
-			updateABDrawerOpened();
+		if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+			mDrawerList.setItemChecked(this.currentSelectedItemPosition, true);
 		} else {
-			updateABDrawerClosed();
+			mDrawerList.setItemChecked(this.currentSelectedItemPosition, false);
 		}
 	}
 
@@ -286,6 +285,14 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 
 	private boolean isDrawerOpen() {
 		return mDrawerLayout.isDrawerOpen(mDrawerList);
+	}
+
+	private void updateAB() {
+		if (isDrawerOpen()) {
+			updateABDrawerOpened();
+		} else {
+			updateABDrawerClosed();
+		}
 	}
 
 	private void updateABDrawerClosed() {
