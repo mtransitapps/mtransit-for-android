@@ -25,6 +25,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+@SuppressWarnings("deprecation")
+// need to switch to support-v7-appcompat
 public class MainActivity extends MTActivityWithLocation implements AdapterView.OnItemClickListener, FragmentManager.OnBackStackChangedListener {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
