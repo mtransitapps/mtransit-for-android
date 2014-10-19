@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.MenuAdapter;
 import org.mtransit.android.ui.fragment.ABFragment;
 
@@ -115,6 +116,12 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		if (savedRootScreen >= 0) {
 			this.currentSelectedItemPosition = savedRootScreen;
 		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		DataSourceProvider.reset();
 	}
 
 	@Override

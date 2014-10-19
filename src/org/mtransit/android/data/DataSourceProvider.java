@@ -65,6 +65,13 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return instance;
 	}
 
+	public static void reset() {
+		if (instance != null) {
+			instance.onReset();
+			instance = null;
+		}
+	}
+
 	private DataSourceProvider() {
 	}
 
@@ -117,6 +124,33 @@ public class DataSourceProvider implements MTLog.Loggable {
 			init(context);
 		}
 		return this.rtsRouteLogoByAuthority.get(authority);
+	}
+
+	public void onReset() {
+		if (this.allAgencies != null) {
+			this.allAgencies.clear();
+			this.allAgencies = null;
+		}
+		if (this.allAgencyTypes != null) {
+			this.allAgencyTypes.clear();
+			this.allAgencyTypes = null;
+		}
+		if (this.allAgenciesByType != null) {
+			this.allAgenciesByType.clear();
+			this.allAgenciesByType = null;
+		}
+		if (this.allAgenciesByAuthority != null) {
+			this.allAgenciesByAuthority.clear();
+			this.allAgenciesByAuthority = null;
+		}
+		if (this.statusProvidersByTargetAuthority != null) {
+			this.statusProvidersByTargetAuthority.clear();
+			this.statusProvidersByTargetAuthority = null;
+		}
+		if (this.rtsRouteLogoByAuthority != null) {
+			this.rtsRouteLogoByAuthority.clear();
+			this.rtsRouteLogoByAuthority = null;
+		}
 	}
 
 	private void init(Context context) {
