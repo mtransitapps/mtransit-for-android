@@ -103,20 +103,11 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	@Override
 	public void onResume() {
 		super.onResume();
-		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getLastLocation());
 		if (this.lastPageSelected >= 0) {
 			onPageSelected(this.lastPageSelected); // tell current page it's selected
 		}
+		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getLastLocation());
 	}
-
-	private AgencyTypePagerAdapter adapter;
-
-	private Location nearbyLocation;
-	protected String nearbyLocationAddress;
-	private Location userLocation;
-	private boolean userAwayFromNearbyLocation = true;
-
-	private MTAsyncTask<Location, Void, String> findNearbyLocationTask;
 
 	private void showNewNearbyLocation() {
 		if (this.nearbyLocationAddress != null && this.nearbyLocation != null) {
@@ -130,7 +121,10 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		this.adapter = null;
+		if (this.adapter != null) {
+			this.adapter.onDestroy();
+			this.adapter = null;
+		}
 		if (this.findNearbyLocationTask != null) {
 			this.findNearbyLocationTask.cancel(true);
 			this.findNearbyLocationTask = null;
@@ -189,46 +183,50 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		this.adapter.setNearbyLocation(this.nearbyLocation);
 		setupView(getView());
 		final ViewPager viewPager = (ViewPager) getView().findViewById(R.id.viewpager);
-		this.lastPageSelected = 0;
-		new MTAsyncTask<Void, Void, Integer>() {
+		if (this.lastPageSelected >= 0) {
+			viewPager.setCurrentItem(NearbyFragment.this.lastPageSelected);
+		} else {
+			this.lastPageSelected = 0;
+			new MTAsyncTask<Void, Void, Integer>() {
 
-			private final String TAG = NearbyFragment.class.getSimpleName() + ">LoadLastPageSelectedFromUserPreferences";
+				private final String TAG = NearbyFragment.class.getSimpleName() + ">LoadLastPageSelectedFromUserPreferences";
 
-			public String getLogTag() {
-				return TAG;
-			}
+				public String getLogTag() {
+					return TAG;
+				}
 
-			@Override
-			protected Integer doInBackgroundMT(Void... params) {
-				try {
-					final int typeId = PreferenceUtils.getPrefLcl(getActivity(), PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE,
-							PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE_DEFAULT);
-					if (typeId >= 0) {
-						for (int i = 0; i < availableAgencyTypes.size(); i++) {
-							if (availableAgencyTypes.get(i).getId() == typeId) {
-								return i;
+				@Override
+				protected Integer doInBackgroundMT(Void... params) {
+					try {
+						final int typeId = PreferenceUtils.getPrefLcl(getActivity(), PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE,
+								PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE_DEFAULT);
+						if (typeId >= 0) {
+							for (int i = 0; i < availableAgencyTypes.size(); i++) {
+								if (availableAgencyTypes.get(i).getId() == typeId) {
+									return i;
+								}
 							}
 						}
+					} catch (Exception e) {
+						MTLog.w(TAG, e, "Error while determining the select nearby tab!");
 					}
-				} catch (Exception e) {
-					MTLog.w(TAG, e, "Error while determining the select nearby tab!");
+					return null;
 				}
-				return null;
-			}
 
-			@Override
-			protected void onPostExecute(Integer lastPageSelected) {
-				if (NearbyFragment.this.lastPageSelected != 0) {
-					return; // user has manually move to another page before, too late
+				@Override
+				protected void onPostExecute(Integer lastPageSelected) {
+					if (NearbyFragment.this.lastPageSelected != 0) {
+						return; // user has manually move to another page before, too late
+					}
+					if (lastPageSelected != null) {
+						NearbyFragment.this.lastPageSelected = lastPageSelected.intValue();
+						viewPager.setCurrentItem(NearbyFragment.this.lastPageSelected);
+					}
+					switchView();
+					onPageSelected(NearbyFragment.this.lastPageSelected); // tell current page it's selected
 				}
-				if (lastPageSelected != null) {
-					NearbyFragment.this.lastPageSelected = lastPageSelected.intValue();
-					viewPager.setCurrentItem(NearbyFragment.this.lastPageSelected);
-				}
-				switchView();
-				onPageSelected(NearbyFragment.this.lastPageSelected); // tell current page it's selected
-			}
-		}.execute();
+			}.execute();
+		}
 	}
 
 	private void setupView(View view) {
@@ -262,22 +260,27 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			if (this.nearbyLocation == null) {
 				setNewNearbyLocation(newLocation);
 			}
-			boolean requireNotifyAB = false;
-			if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation)) {
-				if (this.userAwayFromNearbyLocation) {
-					requireNotifyAB = true;
-					this.userAwayFromNearbyLocation = false;
-				}
-			} else {
-				if (!this.userAwayFromNearbyLocation) {
-					requireNotifyAB = true;
-					this.userAwayFromNearbyLocation = true;
-				}
-			}
+			final boolean requireNotifyAB = setUserAwayFromLocation();
 			if (requireNotifyAB) {
 				((MainActivity) getActivity()).notifyABChange();
 			}
 		}
+	}
+
+	private boolean setUserAwayFromLocation() {
+		boolean requireNotifyAB = false;
+		if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation)) {
+			if (this.userAwayFromNearbyLocation) {
+				requireNotifyAB = true;
+				this.userAwayFromNearbyLocation = false;
+			}
+		} else {
+			if (!this.userAwayFromNearbyLocation) {
+				requireNotifyAB = true;
+				this.userAwayFromNearbyLocation = true;
+			}
+		}
+		return requireNotifyAB;
 	}
 
 	private void setNewNearbyLocation(Location newNearbyLocation) {
@@ -407,7 +410,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 	@Override
 	public void onPageScrollStateChanged(int state) {
-		MTLog.v(this, "onPageScrollStateChanged(%s)", state);
 		switch (state) {
 		case ViewPager.SCROLL_STATE_IDLE:
 			List<Fragment> fragments = getChildFragmentManager().getFragments();
@@ -457,7 +459,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 	@Override
 	public CharSequence getSubtitle(Context context) {
-		return this.nearbyLocationAddress; // no subtitle
+		return this.nearbyLocationAddress;
 	}
 
 	@Override
@@ -492,6 +494,12 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			this.contextWR = new WeakReference<Context>(nearbyFragment.getActivity());
 			this.availableAgencyTypes = availableAgencyTypes;
 			this.nearbyFragmentWR = new WeakReference<NearbyFragment>(nearbyFragment);
+		}
+
+		public void onDestroy() {
+			this.availableAgencyTypes = null;
+			this.contextWR = null;
+			this.nearbyFragmentWR = null;
 		}
 
 		public int getTypeId(int position) {

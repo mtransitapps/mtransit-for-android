@@ -150,9 +150,10 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		if (position < 0) {
 			return;
 		}
+		final FragmentManager fm = getSupportFragmentManager();
 		if (position == this.currentSelectedItemPosition) {
-			while (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-				getSupportFragmentManager().popBackStackImmediate();
+			while (fm.getBackStackEntryCount() > 0) {
+				fm.popBackStackImmediate();
 			}
 			closeDrawer();
 			return;
@@ -167,9 +168,9 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		if (newFragment == null) {
 			return;
 		}
-		clearFragmentBackStack(); // root screen
+		clearFragmentBackStackImmediate(fm); // root screen
 		setAB(newFragment);
-		final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		final FragmentTransaction ft = fm.beginTransaction();
 		ft.replace(R.id.content_frame, newFragment);
 		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 		ft.commit();
@@ -181,10 +182,9 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		}
 	}
 
-	private void clearFragmentBackStack() {
-		final FragmentManager fm = getSupportFragmentManager();
-		for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
-			fm.popBackStack();
+	private void clearFragmentBackStackImmediate(FragmentManager fm) {
+		while (fm.getBackStackEntryCount() > 0) {
+			fm.popBackStackImmediate();
 		}
 	}
 
@@ -251,7 +251,10 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	}
 
 	public void notifyABChange() {
-		Fragment f = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+		notifyABChange(getSupportFragmentManager().findFragmentById(R.id.content_frame));
+	}
+
+	public void notifyABChange(Fragment f) {
 		if (f != null && f instanceof ABFragment) {
 			ABFragment abf = (ABFragment) f;
 			mTitle = abf.getABTitle(this);

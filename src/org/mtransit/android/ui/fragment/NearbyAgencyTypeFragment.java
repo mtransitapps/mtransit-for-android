@@ -32,7 +32,6 @@ import android.widget.TextView;
 public class NearbyAgencyTypeFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<List<POIManager>>,
 		NearbyFragment.NearbyLocationListener {
 
-	private static final int NEARBY_POIS_LOADER = 0;
 
 	private static final String TAG = NearbyAgencyTypeFragment.class.getSimpleName();
 
@@ -46,30 +45,6 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 	private static final String EXTRA_NEARBY_LOCATION = "extra_nearby_location";
 	private static final String EXTRA_USER_LOCATION = "extra_user_location";
-
-	private DataSourceType type;
-
-	private POIArrayAdapter adapter;
-
-	private AroundDiff ad = LocationUtils.DEFAULT_AROUND_DIFF;
-
-	private String emptyText;
-
-	private Location nearbyLocation;
-
-	private Location userLocation;
-
-	private ListViewSwipeRefreshLayout swipeRefreshLayout;
-
-	private int fragmentPosition = -1;
-
-	private int lastVisisbleFragmentPosition = -1;
-
-	private boolean resumed = false;
-
-	private boolean fragmentVisible = false;
-
-	private WeakReference<NearbyFragment> nearbyFragmentWR;
 
 	public static NearbyAgencyTypeFragment newInstance(int fragmentPosition, int lastVisisbleFragmentPosition, DataSourceType type, Location nearbyLocationOpt,
 			Location userLocationOpt) {
@@ -92,6 +67,29 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		return f;
 	}
 
+	private static final int NEARBY_POIS_LOADER = 0;
+
+	private DataSourceType type;
+	private POIArrayAdapter adapter;
+	private AroundDiff ad = LocationUtils.DEFAULT_AROUND_DIFF;
+	private String emptyText;
+	private Location nearbyLocation;
+	private Location userLocation;
+	private ListViewSwipeRefreshLayout swipeRefreshLayout;
+	private int fragmentPosition = -1;
+	private int lastVisisbleFragmentPosition = -1;
+	private boolean resumed = false;
+	private boolean fragmentVisible = false;
+	private WeakReference<NearbyFragment> nearbyFragmentWR;
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		super.onCreateView(inflater, container, savedInstanceState);
+		final View view = inflater.inflate(R.layout.fragment_nearby_agency_type, container, false);
+		setupView(view);
+		return view;
+	}
+
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		if (this.nearbyLocation != null) {
@@ -103,14 +101,6 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		super.onSaveInstanceState(outState);
 	}
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		super.onCreateView(inflater, container, savedInstanceState);
-		final View view = inflater.inflate(R.layout.fragment_nearby_agency_type, container, false);
-		setupView(view);
-		return view;
-	}
-
 	private void setupView(View view) {
 		if (view == null) {
 			return;
@@ -120,6 +110,10 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		if (this.adapter != null) {
 			inflateList(view);
 			this.adapter.setListView((AbsListView) getView().findViewById(R.id.list));
+		}
+		NearbyFragment nearbyFragment = this.nearbyFragmentWR == null ? null : this.nearbyFragmentWR.get();
+		if (nearbyFragment != null) {
+			this.swipeRefreshLayout.setOnRefreshListener(nearbyFragment);
 		}
 	}
 
@@ -172,10 +166,6 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		this.adapter.setTag(this.type.toString());
 		setupView(getView());
 		switchView();
-		NearbyFragment nearbyFragment = this.nearbyFragmentWR == null ? null : this.nearbyFragmentWR.get();
-		if (nearbyFragment != null) {
-			this.swipeRefreshLayout.setOnRefreshListener(nearbyFragment);
-		}
 	}
 
 	public void setNearbyFragment(NearbyFragment nearbyFragment) {
@@ -430,5 +420,4 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			switchView();
 		}
 	}
-
 }

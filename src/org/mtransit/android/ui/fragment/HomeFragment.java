@@ -277,7 +277,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	@Override
 	public void onFavoriteUpdated() {
-		getActivity().getSupportLoaderManager().restartLoader(POIS_LOADER, null, this);
 		if (this.adapter != null) {
 			this.adapter.onFavoriteUpdated();
 		}
