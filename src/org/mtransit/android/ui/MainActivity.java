@@ -6,6 +6,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.MenuAdapter;
+import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.fragment.ABFragment;
 
 import android.content.Context;
@@ -169,6 +170,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 			return;
 		}
 		clearFragmentBackStackImmediate(fm); // root screen
+		StatusLoader.get().clearAllTasks();
 		setAB(newFragment);
 		final FragmentTransaction ft = fm.beginTransaction();
 		ft.replace(R.id.content_frame, newFragment);

@@ -251,7 +251,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		((MainActivity) getActivity()).notifyABChange();
 		findNearbyLocation();
 		if (this.nearbyLocation != null) {
-			getActivity().getSupportLoaderManager().restartLoader(POIS_LOADER, null, this);
+			getLoaderManager().restartLoader(POIS_LOADER, null, this);
 		}
 	}
 

@@ -169,7 +169,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 		this.fragmentVisible = true;
 		if (this.adapter == null) {
 			initAdapter();
-			getActivity().getSupportLoaderManager().restartLoader(POIS_LOADER, null, this);
+			getLoaderManager().restartLoader(POIS_LOADER, null, this);
 		} else {
 			this.adapter.onResume();
 		}

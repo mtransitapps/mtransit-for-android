@@ -53,13 +53,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 			return this.pois;
 		}
 		this.pois = new ArrayList<POIManager>();
-		final List<Favorite> favorites = FavoriteManager.findFavorites(getContext());
-		Set<String> favoriteUUIDs = new HashSet<String>();
-		if (favorites != null) {
-			for (Favorite favorite : favorites) {
-				favoriteUUIDs.add(favorite.getFkId());
-			}
-		}
+		Set<String> favoriteUUIDs = findFavoriteUUIDs();
 		final List<DataSourceType> availableAgencyTypes = DataSourceProvider.get().getAvailableAgencyTypes(getContext());
 		if (availableAgencyTypes != null) {
 			for (DataSourceType type : availableAgencyTypes) {
@@ -98,12 +92,23 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 				this.pois.addAll(typePOIs);
 			}
 		}
-		return pois;
+		return this.pois;
 	}
 
-	private static List<POIManager> findNearby(Context context, DataSourceType type, double typeLat, double typeLng) {
+	private Set<String> findFavoriteUUIDs() {
+		Set<String> favoriteUUIDs = new HashSet<String>();
+		final List<Favorite> favorites = FavoriteManager.findFavorites(getContext());
+		if (favorites != null) {
+			for (Favorite favorite : favorites) {
+				favoriteUUIDs.add(favorite.getFkId());
+			}
+		}
+		return favoriteUUIDs;
+	}
+
+	private List<POIManager> findNearby(Context context, DataSourceType type, double typeLat, double typeLng) {
 		List<POIManager> typePOIs = new ArrayList<POIManager>();
-		LocationUtils.AroundDiff typeAd = LocationUtils.DEFAULT_AROUND_DIFF;
+		LocationUtils.AroundDiff typeAd = LocationUtils.getNewDefaultAroundDiff();
 		int typeMaxSize = LocationUtils.MIN_NEARBY_LIST_COVERAGE;
 		int typeMinCoverage = LocationUtils.MAX_NEARBY_LIST;
 		Collection<AgencyProperties> typeAgencies = DataSourceProvider.get().getTypeDataSources(context, type);
@@ -114,8 +119,8 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		return typePOIs;
 	}
 
-	private static List<POIManager> findNearby(Context context, double typeLat, double typeLng, LocationUtils.AroundDiff typeAd, int typeMaxSize,
-			int typeMinCoverage, Collection<AgencyProperties> typeAgencies) {
+	private List<POIManager> findNearby(Context context, double typeLat, double typeLng, LocationUtils.AroundDiff typeAd, int typeMaxSize, int typeMinCoverage,
+			Collection<AgencyProperties> typeAgencies) {
 		List<POIManager> typePOIs = new ArrayList<POIManager>();
 		List<String> typeAgenciesAuthorities = findTypeAgenciesAuthorities(typeLat, typeLng, typeAd, typeAgencies);
 		if (CollectionUtils.getSize(typeAgenciesAuthorities) == 0) {

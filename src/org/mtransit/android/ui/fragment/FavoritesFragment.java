@@ -54,7 +54,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		super.onResume();
 		initAdapter();
 		this.adapter.onResume();
-		getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
+		getLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
 	}
 
 	private static final int FAVORITES_LOADER = 0;
@@ -80,6 +80,13 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	}
 
 	@Override
+	public void onLoadFinished(Loader<List<POIManager>> loader, List<POIManager> data) {
+		this.adapter.setPois(data);
+		this.adapter.updateDistanceNowAsync(this.userLocation);
+		switchView();
+	}
+
+	@Override
 	public void onUserLocationChanged(Location newLocation) {
 		if (newLocation != null) {
 			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
@@ -89,13 +96,6 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 				}
 			}
 		}
-	}
-
-	@Override
-	public void onLoadFinished(Loader<List<POIManager>> loader, List<POIManager> data) {
-		this.adapter.setPois(data);
-		this.adapter.updateDistanceNowAsync(this.userLocation);
-		switchView();
 	}
 
 	@Override
@@ -138,7 +138,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 
 	@Override
 	public void onFavoriteUpdated() {
-		getActivity().getSupportLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
+		getLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
 		if (this.adapter != null) {
 			// TODO useful? (favorite star not displayed
 			this.adapter.onFavoriteUpdated();

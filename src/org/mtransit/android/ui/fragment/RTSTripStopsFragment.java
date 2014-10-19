@@ -185,7 +185,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		this.fragmentVisible = true;
 		if (this.adapter == null) {
 			initAdapter();
-			getActivity().getSupportLoaderManager().restartLoader(POIS_LOADER, null, this);
+			getLoaderManager().restartLoader(POIS_LOADER, null, this);
 		} else {
 			if (this.adapter.getPoisCount() > 0) {
 				this.adapter.onResume();

@@ -171,8 +171,8 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 			return; // already visible
 		}
 		this.fragmentVisible = true;
-		if (this.adapter == null || this.adapter.isEmpty()) {
-			getActivity().getSupportLoaderManager().restartLoader(ROUTES_LOADER, null, this);
+		if (this.adapter.isEmpty()) {
+			getLoaderManager().restartLoader(ROUTES_LOADER, null, this);
 		} else {
 			switchView();
 		}

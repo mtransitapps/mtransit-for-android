@@ -71,7 +71,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 
 	private DataSourceType type;
 	private POIArrayAdapter adapter;
-	private AroundDiff ad = LocationUtils.DEFAULT_AROUND_DIFF;
+	private AroundDiff ad = LocationUtils.getNewDefaultAroundDiff();
 	private String emptyText;
 	private Location nearbyLocation;
 	private Location userLocation;
@@ -261,6 +261,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		super.onDestroy();
 		if (this.adapter != null) {
 			this.adapter.onDestroy();
+			this.adapter = null;
 		}
 	}
 
@@ -274,8 +275,10 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	}
 
 	private void useNewNearbyLocation(Location newNearbyLocation, boolean force) {
-		if (!force && (newNearbyLocation == null || !this.fragmentVisible || LocationUtils.areTheSame(newNearbyLocation, this.nearbyLocation))) {
-			return;
+		if (!force) {
+			if (newNearbyLocation == null || !this.fragmentVisible || LocationUtils.areTheSame(newNearbyLocation, this.nearbyLocation)) {
+				return;
+			}
 		}
 		this.nearbyLocation = newNearbyLocation;
 		// reset all the things
@@ -289,9 +292,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 				((AbsListView) view.findViewById(R.id.list)).scrollTo(0, 0);
 			}
 		}
-		this.ad = LocationUtils.DEFAULT_AROUND_DIFF;
+		this.ad = LocationUtils.getNewDefaultAroundDiff();
 		if (this.nearbyLocation != null) {
-			getActivity().getSupportLoaderManager().restartLoader(NEARBY_POIS_LOADER, null, this);
+			getLoaderManager().restartLoader(NEARBY_POIS_LOADER, null, this);
 		}
 	}
 
@@ -412,7 +415,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		if (dataSize < LocationUtils.MIN_NEARBY_LIST && ad.aroundDiff < LocationUtils.MAX_AROUND_DIFF) {
 			// try with larger around location
 			LocationUtils.incAroundDiff(this.ad);
-			getActivity().getSupportLoaderManager().restartLoader(NEARBY_POIS_LOADER, null, this);
+			getLoaderManager().restartLoader(NEARBY_POIS_LOADER, null, this);
 		} else {
 			// show found POIs (or empty list)
 			this.adapter.setPois(data);
