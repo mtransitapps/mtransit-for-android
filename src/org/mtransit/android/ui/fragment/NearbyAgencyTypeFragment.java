@@ -230,7 +230,6 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		} else {
 			if (this.adapter.getPoisCount() > 0) {
 				this.adapter.onResume();
-				this.adapter.refreshFavorites();
 			}
 		}
 		NearbyFragment nearbyFragment = this.nearbyFragmentWR == null ? null : this.nearbyFragmentWR.get();
@@ -428,7 +427,6 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			// show found POIs (or empty list)
 			this.adapter.setPois(data);
 			this.adapter.updateDistanceNowAsync(this.userLocation);
-			this.adapter.refreshFavorites();
 			switchView();
 		}
 	}

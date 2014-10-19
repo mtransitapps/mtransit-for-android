@@ -171,10 +171,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 			initAdapter();
 			getActivity().getSupportLoaderManager().restartLoader(POIS_LOADER, null, this);
 		} else {
-			if (this.adapter.getPoisCount() > 0) {
-				this.adapter.onResume();
-				this.adapter.refreshFavorites();
-			}
+			this.adapter.onResume();
 		}
 		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation()); // user location was unknown yet or discarded while not visible
 	}
@@ -280,7 +277,6 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 		}
 		if (getView().findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
 			((ViewStub) getView().findViewById(R.id.loading_stub)).inflate(); // inflate
-			// this.swipeRefreshLayout.setLoadingViewWR(getView().findViewById(R.id.loading));
 		}
 		getView().findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}

@@ -409,6 +409,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				this.poisByType.get(typeId).add(poim);
 			}
 		}
+		refreshFavorites();
+		this.closestPoiUuids = null; // reset closest POIs
 	}
 
 	public boolean isInitialized() {
@@ -709,6 +711,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			SensorUtils.registerCompassListener(getContext(), this);
 			this.compassUpdatesEnabled = true;
 		}
+		refreshFavorites();
 	}
 
 	@Override
@@ -1191,6 +1194,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private MTAsyncTask<Integer, Void, List<Favorite>> refreshFavoritesTask;
 
 	public void refreshFavorites(Integer... typesFilter) {
+		if (!this.showFavorite) {
+			setFavorites(null);
+		}
 		if (this.refreshFavoritesTask != null && this.refreshFavoritesTask.getStatus() == MTAsyncTask.Status.RUNNING) {
 			return; // skipped, last refresh still in progress so probably good enough
 		}
