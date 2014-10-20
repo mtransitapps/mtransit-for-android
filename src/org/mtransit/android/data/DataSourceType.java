@@ -14,7 +14,10 @@ public enum DataSourceType {
 	TYPE_RAIL(2, R.string.agency_type_rail_short_name), // GTFS - Train
 	TYPE_BUS(3, R.string.agency_type_bus_short_name), // GTFS
 
-	TYPE_BIKE(100, R.string.agency_type_bike_short_name); // like Bixi, Velib
+	TYPE_BIKE(100, R.string.agency_type_bike_short_name), // like Bixi, Velib
+
+	TYPE_MODULE(999, R.string.agency_type_module_short_name), //
+	;
 
 	private static final String TAG = DataSourceType.class.getSimpleName();
 
@@ -45,6 +48,8 @@ public enum DataSourceType {
 			return TYPE_BUS;
 		case 100:
 			return TYPE_BIKE;
+		case 999:
+			return TYPE_MODULE;
 		default:
 			MTLog.w(TAG, "ID '%s' doesn't match any type!", id);
 			return null;
@@ -73,6 +78,14 @@ public enum DataSourceType {
 			final Context context = this.contextWR == null ? null : this.contextWR.get();
 			if (context == null) {
 				return 0;
+			}
+			if (ldst.equals(rdst)) {
+				return 0;
+			}
+			if (TYPE_MODULE.equals(ldst)) {
+				return +1;
+			} else if (TYPE_MODULE.equals(rdst)) {
+				return -1;
 			}
 			String lShortName = context.getString(ldst.getShortNameResId());
 			String rShortName = context.getString(rdst.getShortNameResId());

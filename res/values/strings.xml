@@ -20,7 +20,11 @@
     <string name="agency_type_rail_short_name">Train</string>
     <string name="agency_type_bus_short_name">Bus</string>
     <string name="agency_type_bike_short_name">Bike</string>
+    <string name="agency_type_module_short_name">+</string>
     <string name="view_store_page">View in Google Play</string>
+    <string name="download_on_store">Download on Google Play</string>
+    <string name="rate_on_store">Rate on Google Play</string>
+    <string name="join_leave_test_on_store">Join/Leave test on Google Play</string>
     <string name="uninstall">Uninstall</string>
     <string name="view_details">View Details</string>
     <string name="view_fav">View favorite</string>
@@ -31,4 +35,7 @@
     <string name="same_location">Same location</string>
     <string name="new_location">New location</string>
     <string name="no_results">No Results</string>
+    <string name="module_label">+</string>
+    <string name="module_short_name">+</string>
+    <string name="module_authority">org.mtransit.android.provider.module</string>
 </resources>

@@ -8,6 +8,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.data.Favorite;
+import org.mtransit.android.provider.FavoriteProvider.FavoriteColumns;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -22,8 +23,9 @@ public class FavoriteManager implements MTLog.Loggable {
 		return TAG;
 	}
 
-	private static final String[] PROJECTION_FAVORITE = new String[] { FavoriteColumns.T_FAVORITE_K_ID, FavoriteColumns.T_FAVORITE_K_TYPE,
-			FavoriteColumns.T_FAVORITE_K_FK_ID };
+	public static boolean isFavorite(Context context, String fkId) {
+		return findFavorite(context, fkId) != null;
+	}
 
 	public static Favorite findFavorite(Context context, String fkId) {
 		MTLog.v(TAG, "findFavorite(%s)", fkId);
@@ -34,7 +36,7 @@ public class FavoriteManager implements MTLog.Loggable {
 			String selection = new StringBuilder() //
 					.append(FavoriteColumns.T_FAVORITE_K_FK_ID).append("='").append(fkId).append("'") //
 					.toString();
-			cursor = context.getContentResolver().query(uri, PROJECTION_FAVORITE, selection, null, null);
+			cursor = context.getContentResolver().query(uri, FavoriteProvider.PROJECTION_FAVORITE, selection, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					favorite = Favorite.fromCursor(cursor);
@@ -54,7 +56,7 @@ public class FavoriteManager implements MTLog.Loggable {
 		Favorite cache = null;
 		Cursor cursor = null;
 		try {
-			cursor = context.getContentResolver().query(uri, PROJECTION_FAVORITE, selection, null, null);
+			cursor = context.getContentResolver().query(uri, FavoriteProvider.PROJECTION_FAVORITE, selection, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					cache = Favorite.fromCursor(cursor);
@@ -85,7 +87,8 @@ public class FavoriteManager implements MTLog.Loggable {
 				}
 				selectionSb.append(")");
 			}
-			cursor = context.getContentResolver().query(getFavoriteContentUri(context), PROJECTION_FAVORITE, selectionSb.toString(), null, null);
+			cursor = context.getContentResolver().query(getFavoriteContentUri(context), FavoriteProvider.PROJECTION_FAVORITE, selectionSb.toString(), null,
+					null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					do {

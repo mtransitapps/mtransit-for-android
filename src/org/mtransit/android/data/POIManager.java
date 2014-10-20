@@ -3,24 +3,27 @@ package org.mtransit.android.data;
 import java.lang.ref.WeakReference;
 import java.util.Comparator;
 
+import org.mtransit.android.R;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.LocationUtils.LocationPOI;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.R;
+import org.mtransit.android.commons.PackageManagerUtils;
+import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.TimeUtils;
+import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
-import org.mtransit.android.commons.provider.AvailabilityPercentStatusFilter;
-import org.mtransit.android.commons.provider.ScheduleStatusFilter;
 import org.mtransit.android.commons.provider.StatusFilter;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.FavoriteManager.FavoriteUpdateListener;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.task.StatusLoader.StatusLoaderListener;
+import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.fragment.RTSRouteFragment;
 
 import android.app.Activity;
 import android.content.Context;
@@ -129,6 +132,15 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				MTLog.w(this, "Unexpected availability percent status '%s'!", status);
 			}
 			break;
+		case POI.ITEM_STATUS_TYPE_APP:
+			if (status instanceof AppStatus) {
+				this.status = (AppStatus) status;
+			} else {
+				MTLog.w(this, "Unexpected app status '%s'!", status);
+			}
+			break;
+		default:
+			MTLog.w(this, "Unexpected status '%s'!", status);
 		}
 	}
 
@@ -172,7 +184,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
 			if (this.poi instanceof RouteTripStop) {
 				RouteTripStop rts = (RouteTripStop) this.poi;
-				ScheduleStatusFilter filter = new ScheduleStatusFilter(this.poi.getUUID(), rts);
+				Schedule.ScheduleStatusFilter filter = new Schedule.ScheduleStatusFilter(this.poi.getUUID(), rts);
 				filter.setTimestamp(findStatusTimestampMs);
 				return filter;
 			} else {
@@ -180,58 +192,99 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				return null;
 			}
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			return new AvailabilityPercentStatusFilter(this.poi.getUUID());
+			return new AvailabilityPercent.AvailabilityPercentStatusFilter(this.poi.getUUID());
+		case POI.ITEM_STATUS_TYPE_APP:
+			if (poi instanceof Module) {
+				Module module = (Module) this.poi;
+				return new AppStatus.AppStatusFilter(this.poi.getUUID(), module.getPkg());
+			} else {
+				MTLog.w(this, "App status fiter w/o '%s'!", this.poi);
+				return null;
+			}
 		default:
 			MTLog.w(this, "Unexpected status type '%s´  for filter!", getStatusType());
 			return null;
 		}
 	}
 
-	public CharSequence[] getActionsItems(Context context, CharSequence defaultAction, boolean isFavorite) {
+	public CharSequence[] getActionsItems(Context context, CharSequence defaultAction) {
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
 			return new CharSequence[] {//
 			defaultAction, //
-					isFavorite ? context.getString(R.string.remove_fav) : context.getString(R.string.add_fav) //
+					FavoriteManager.isFavorite(context, poi.getUUID()) ? context.getString(R.string.remove_fav) : context.getString(R.string.add_fav) //
 			};
 		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
 			return new CharSequence[] {//
 			context.getString(R.string.view_stop), //
 					context.getString(R.string.view_stop_route), //
-					isFavorite ? context.getString(R.string.remove_fav) : context.getString(R.string.add_fav) //
+					FavoriteManager.isFavorite(context, poi.getUUID()) ? context.getString(R.string.remove_fav) : context.getString(R.string.add_fav) //
 			};
+		case POI.ITEM_ACTION_TYPE_APP:
+			if (PackageManagerUtils.isAppInstalled(context, ((Module) poi).getPkg())) {
+				return new CharSequence[] { //
+				context.getString(R.string.join_leave_test_on_store), //
+						context.getString(R.string.rate_on_store), //
+						context.getString(R.string.uninstall), //
+				};
+			} else {
+				return new CharSequence[] { //
+				context.getString(R.string.join_leave_test_on_store), //
+						context.getString(R.string.download_on_store), //
+				};
+			}
 		default:
+			MTLog.w(this, "unexpected action type '%s'!", this.poi.getActionsType());
 			return new CharSequence[] { defaultAction };
 		}
 
 	}
 
-	public boolean onActionsItemClick(Activity activity, int itemClicked, boolean isFavorite, FavoriteUpdateListener listener) {
+	public boolean onActionsItemClick(Activity activity, int itemClicked, FavoriteUpdateListener listener) {
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
-			return onActionsItemClickFavoritable(activity, itemClicked, isFavorite, listener);
+			return onActionsItemClickFavoritable(activity, itemClicked, listener);
 		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
-			return onActionsItemClickRTS(activity, itemClicked, isFavorite, listener);
+			return onActionsItemClickRTS(activity, itemClicked, listener);
+		case POI.ITEM_ACTION_TYPE_APP:
+			return onActionsItemClickApp(activity, itemClicked, listener);
 		default:
 			MTLog.w(this, "unexpected action type '%s'!", this.poi.getActionsType());
 			return false; // NOT HANDLED
 		}
 	}
 
-	private boolean onActionsItemClickRTS(Activity activity, int itemClicked, boolean isFavorite, FavoriteUpdateListener listener) {
+	private boolean onActionsItemClickApp(Activity activity, int itemClicked, FavoriteUpdateListener listener) {
 		switch (itemClicked) {
+		case 0:
+			StoreUtils.viewTestingWebPage(activity, ((Module) poi).getPkg());
+			return true; // HANDLED
 		case 1:
+			StoreUtils.viewAppPage(activity, ((Module) poi).getPkg());
 			return true; // HANDLED
 		case 2:
-			return addRemoteFavorite(activity, isFavorite, listener);
+			PackageManagerUtils.showAppDetailsSettings(activity, ((Module) poi).getPkg());
+			return true; // HANDLED
 		}
 		return false; // NOT HANDLED
 	}
 
-	private boolean onActionsItemClickFavoritable(Activity activity, int itemClicked, boolean isFavorite, FavoriteUpdateListener listener) {
+	private boolean onActionsItemClickRTS(Activity activity, int itemClicked, FavoriteUpdateListener listener) {
 		switch (itemClicked) {
 		case 1:
-			return addRemoteFavorite(activity, isFavorite, listener);
+			RouteTripStop rts = (RouteTripStop) poi;
+			((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts.getAuthority(), rts.route));
+			return true; // HANDLED
+		case 2:
+			return addRemoteFavorite(activity, FavoriteManager.isFavorite(activity, poi.getUUID()), listener);
+		}
+		return false; // NOT HANDLED
+	}
+
+	private boolean onActionsItemClickFavoritable(Activity activity, int itemClicked, FavoriteUpdateListener listener) {
+		switch (itemClicked) {
+		case 1:
+			return addRemoteFavorite(activity, FavoriteManager.isFavorite(activity, poi.getUUID()), listener);
 		}
 		return false; // NOT HANDLED
 	}
@@ -254,6 +307,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			return new POIManager(DefaultPOI.fromCursorStatic(cursor, authority));
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
 			return new POIManager(RouteTripStop.fromCursorStatic(cursor, authority));
+		case POI.ITEM_VIEW_TYPE_MODULE:
+			return new POIManager(Module.fromCursorStatic(cursor, authority));
 		default:
 			MTLog.w(TAG, "Unexpected POI type '%s'! (using default)", DefaultPOI.getTypeFromCursor(cursor));
 			return new POIManager(DefaultPOI.fromCursorStatic(cursor, authority));

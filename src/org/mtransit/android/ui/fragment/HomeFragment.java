@@ -194,7 +194,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	public void onLoadFinished(Loader<List<POIManager>> loader, List<POIManager> data) {
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
-		switchView();
+		switchView(getView());
 	}
 
 	@Override
@@ -240,8 +240,8 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
-		switchView();
 		final View view = getView();
+		switchView(view);
 		if (view != null) {
 			if (view.findViewById(R.id.list) != null) {
 				((AbsListView) view.findViewById(R.id.list)).scrollTo(0, 0);
@@ -290,8 +290,9 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.adapter.setTag(getLogTag());
 		this.adapter.setFavoriteUpdateListener(this);
 		this.adapter.setShowTypeHeader(true);
-		setupView(getView());
-		switchView();
+		final View view = getView();
+		setupView(view);
+		switchView(view);
 	}
 
 	private void setupView(View view) {
@@ -301,29 +302,29 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.swipeRefreshLayout = (ListViewSwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
 		this.swipeRefreshLayout.setColorSchemeResources(R.color.mt_blue_malibu, R.color.mt_blue_smalt, R.color.mt_blue_malibu, R.color.mt_blue_smalt);
 		inflateList(view);
-		this.adapter.setListView((AbsListView) getView().findViewById(R.id.list));
+		this.adapter.setListView((AbsListView) view.findViewById(R.id.list));
 		this.swipeRefreshLayout.setOnRefreshListener(this);
 	}
 
-	private void switchView() {
+	private void switchView(View view) {
 		if (this.adapter == null || !this.adapter.isInitialized()) {
-			showLoading();
+			showLoading(view);
 		} else if (this.adapter.getPoisCount() == 0) {
-			showEmpty();
+			showEmpty(view);
 		} else {
-			showList();
+			showList(view);
 		}
 	}
 
-	private void showList() {
-		if (getView().findViewById(R.id.loading) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.loading).setVisibility(View.GONE); // hide
+	private void showList(View view) {
+		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
+			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.empty) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.empty).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
+			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		inflateList(getView());
-		getView().findViewById(R.id.list).setVisibility(View.VISIBLE); // show
+		inflateList(view);
+		view.findViewById(R.id.list).setVisibility(View.VISIBLE); // show
 	}
 
 	private void inflateList(View view) {
@@ -333,35 +334,35 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 	}
 
-	private void showLoading() {
-		if (getView().findViewById(R.id.list) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.list).setVisibility(View.GONE); // hide
+	private void showLoading(View view) {
+		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
+			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.empty) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.empty).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
+			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
-			((ViewStub) getView().findViewById(R.id.loading_stub)).inflate(); // inflate
-			this.swipeRefreshLayout.setLoadingViewWR(getView().findViewById(R.id.loading));
+		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
+			this.swipeRefreshLayout.setLoadingViewWR(view.findViewById(R.id.loading));
 		}
-		getView().findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
+		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}
 
-	private void showEmpty() {
-		if (getView().findViewById(R.id.list) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.list).setVisibility(View.GONE); // hide
+	private void showEmpty(View view) {
+		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
+			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.loading) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.loading).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
+			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
-			((ViewStub) getView().findViewById(R.id.empty_stub)).inflate(); // inflate
-			this.swipeRefreshLayout.setEmptyViewWR(getView().findViewById(R.id.empty));
+		if (view.findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.empty_stub)).inflate(); // inflate
+			this.swipeRefreshLayout.setEmptyViewWR(view.findViewById(R.id.empty));
 		}
 		if (!TextUtils.isEmpty(this.emptyText)) {
-			((TextView) getView().findViewById(R.id.empty_text)).setText(this.emptyText);
+			((TextView) view.findViewById(R.id.empty_text)).setText(this.emptyText);
 		}
-		getView().findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
+		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
 	@Override

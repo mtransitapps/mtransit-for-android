@@ -118,8 +118,9 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 	private void initAdapter() {
 		this.adapter = new POIArrayAdapter(getActivity());
 		this.adapter.setTag(this.agency.getAuthority());
-		setupView(getView());
-		switchView();
+		final View view = getView();
+		setupView(view);
+		switchView(view);
 	}
 
 	private void setupView(View view) {
@@ -127,7 +128,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 			return;
 		}
 		inflateList(view);
-		this.adapter.setListView((AbsListView) getView().findViewById(R.id.list));
+		this.adapter.setListView((AbsListView) view.findViewById(R.id.list));
 	}
 
 	@Override
@@ -202,7 +203,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 	public void onLoadFinished(Loader<List<POIManager>> loader, List<POIManager> data) {
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
-		switchView();
+		switchView(getView());
 	}
 
 	@Override
@@ -239,25 +240,25 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 		}
 	}
 
-	private void switchView() {
+	private void switchView(View view) {
 		if (this.adapter == null || !this.adapter.isInitialized()) {
-			showLoading();
+			showLoading(view);
 		} else if (this.adapter.getPoisCount() == 0) {
-			showEmpty();
+			showEmpty(view);
 		} else {
-			showList();
+			showList(view);
 		}
 	}
 
-	private void showList() {
-		if (getView().findViewById(R.id.loading) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.loading).setVisibility(View.GONE); // hide
+	private void showList(View view) {
+		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
+			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.empty) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.empty).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
+			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		inflateList(getView());
-		getView().findViewById(R.id.list).setVisibility(View.VISIBLE); // show
+		inflateList(view);
+		view.findViewById(R.id.list).setVisibility(View.VISIBLE); // show
 	}
 
 	private void inflateList(View view) {
@@ -268,33 +269,33 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 		}
 	}
 
-	private void showLoading() {
-		if (getView().findViewById(R.id.list) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.list).setVisibility(View.GONE); // hide
+	private void showLoading(View view) {
+		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
+			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.empty) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.empty).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
+			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
-			((ViewStub) getView().findViewById(R.id.loading_stub)).inflate(); // inflate
+		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
 		}
-		getView().findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
+		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}
 
-	private void showEmpty() {
-		if (getView().findViewById(R.id.list) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.list).setVisibility(View.GONE); // hide
+	private void showEmpty(View view) {
+		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
+			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.loading) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.loading).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
+			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
-			((ViewStub) getView().findViewById(R.id.empty_stub)).inflate(); // inflate
+		if (view.findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.empty_stub)).inflate(); // inflate
 		}
 		if (!TextUtils.isEmpty(this.emptyText)) {
-			((TextView) getView().findViewById(R.id.empty_text)).setText(this.emptyText);
+			((TextView) view.findViewById(R.id.empty_text)).setText(this.emptyText);
 		}
-		getView().findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
+		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
 }

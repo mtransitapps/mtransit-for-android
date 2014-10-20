@@ -98,7 +98,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		restoreInstanceState(savedInstanceState);
-		switchView();
+		switchView(getView());
 	}
 
 	private void restoreInstanceState(Bundle savedInstanceState) {
@@ -187,8 +187,9 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		final List<DataSourceType> availableAgencyTypes = DataSourceProvider.get().getAvailableAgencyTypes(getActivity());
 		this.adapter = new AgencyTypePagerAdapter(this, availableAgencyTypes);
 		this.adapter.setNearbyLocation(this.nearbyLocation);
-		setupView(getView());
-		final ViewPager viewPager = (ViewPager) getView().findViewById(R.id.viewpager);
+		final View view = getView();
+		setupView(view);
+		final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		if (this.lastPageSelected >= 0) {
 			viewPager.setCurrentItem(NearbyFragment.this.lastPageSelected);
 		} else {
@@ -228,7 +229,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 						NearbyFragment.this.lastPageSelected = lastPageSelected.intValue();
 						viewPager.setCurrentItem(NearbyFragment.this.lastPageSelected);
 					}
-					switchView();
+					switchView(view);
 					onPageSelected(NearbyFragment.this.lastPageSelected); // tell current page it's selected
 				}
 			}.execute();
@@ -319,75 +320,69 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		return userLocation;
 	}
 
-	private void switchView() {
+	private void switchView(View view) {
 		if (this.adapter == null) {
-			showLoading();
+			showLoading(view);
 		} else if (this.adapter.getCount() > 0) {
-			showTabsAndViewPager();
+			showTabsAndViewPager(view);
 		} else {
-			showEmpty();
+			showEmpty(view);
 		}
 	}
 
-	private void showTabsAndViewPager() {
+	private void showTabsAndViewPager(View view) {
 		// loading
-		if (getView().findViewById(R.id.loading) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.loading).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
+			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
 		}
 		// empty
-		if (getView().findViewById(R.id.empty) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.empty).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
+			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
 		// tabs
-		if (getView().findViewById(R.id.tabs) == null) { // IF NOT present/inflated DO
-			// ((ViewStub) getView().findViewById(R.id.tabs_stub)).inflate(); // inflate
-		}
-		getView().findViewById(R.id.tabs).setVisibility(View.VISIBLE); // show
+		view.findViewById(R.id.tabs).setVisibility(View.VISIBLE); // show
 		// view pager
-		if (getView().findViewById(R.id.viewpager) == null) { // IF NOT present/inflated DO
-			// ((ViewStub) getView().findViewById(R.id.viewpager_stub)).inflate(); // inflate
-		}
-		getView().findViewById(R.id.viewpager).setVisibility(View.VISIBLE); // show
+		view.findViewById(R.id.viewpager).setVisibility(View.VISIBLE); // show
 	}
 
-	private void showLoading() {
+	private void showLoading(View view) {
 		// tabs
-		if (getView().findViewById(R.id.tabs) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.tabs).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.tabs) != null) { // IF inflated/present DO
+			view.findViewById(R.id.tabs).setVisibility(View.GONE); // hide
 		}
 		// view pager
-		if (getView().findViewById(R.id.viewpager) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.viewpager).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.viewpager) != null) { // IF inflated/present DO
+			view.findViewById(R.id.viewpager).setVisibility(View.GONE); // hide
 		}
 		// empty
-		if (getView().findViewById(R.id.empty) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.empty).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
+			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
 		// loading
-		if (getView().findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
-			((ViewStub) getView().findViewById(R.id.loading_stub)).inflate(); // inflate
+		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
 		}
-		getView().findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
+		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}
 
-	private void showEmpty() {
+	private void showEmpty(View view) {
 		// tabs
-		if (getView().findViewById(R.id.tabs) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.tabs).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.tabs) != null) { // IF inflated/present DO
+			view.findViewById(R.id.tabs).setVisibility(View.GONE); // hide
 		}
 		// view pager
-		if (getView().findViewById(R.id.viewpager) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.viewpager).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.viewpager) != null) { // IF inflated/present DO
+			view.findViewById(R.id.viewpager).setVisibility(View.GONE); // hide
 		}
 		// loading
-		if (getView().findViewById(R.id.loading) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.loading).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
+			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
 		}
 		// empty
-		if (getView().findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
-			((ViewStub) getView().findViewById(R.id.empty_stub)).inflate(); // inflate
+		if (view.findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.empty_stub)).inflate(); // inflate
 		}
-		getView().findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
+		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
 	@Override

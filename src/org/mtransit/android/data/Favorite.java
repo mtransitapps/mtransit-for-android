@@ -1,6 +1,6 @@
 package org.mtransit.android.data;
 
-import org.mtransit.android.provider.FavoriteColumns;
+import org.mtransit.android.provider.FavoriteProvider.FavoriteColumns;
 
 import android.content.ContentValues;
 import android.database.Cursor;

@@ -79,7 +79,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		restoreInstanceState(savedInstanceState);
-		switchView();
+		switchView(getView());
 		if (this.adapter == null) {
 			initTabsAndViewPager();
 		}
@@ -96,15 +96,15 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 		final Uri authorityUri = UriUtils.newContentUri(this.authority);
 		this.route = DataSourceProvider.findRTSRoute(getActivity(), authorityUri, this.routeId);
-		setupTabTheme(getView());
+		final View view = getView();
 		((MainActivity) getActivity()).notifyABChange();
 		final List<Trip> routeTrips = DataSourceProvider.findRTSRouteTrips(getActivity(), authorityUri, this.routeId);
 		if (routeTrips == null) {
 			return;
 		}
 		this.adapter = new RouteTripPagerAdapter(this, routeTrips, this.authority);
-		setupView(getView());
-		final ViewPager viewPager = (ViewPager) getView().findViewById(R.id.viewpager);
+		setupView(view);
+		final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		this.lastPageSelected = 0;
 		new MTAsyncTask<Void, Void, Integer>() {
 
@@ -140,7 +140,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 					RTSRouteFragment.this.lastPageSelected = lastPageSelected.intValue();
 					viewPager.setCurrentItem(RTSRouteFragment.this.lastPageSelected);
 				}
-				switchView();
+				switchView(view);
 				onPageSelected(RTSRouteFragment.this.lastPageSelected); // tell current page it's selected
 			}
 		}.execute();
@@ -150,18 +150,19 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (view == null || this.adapter == null) {
 			return;
 		}
-		final ViewPager viewPager = (ViewPager) getView().findViewById(R.id.viewpager);
+		final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		viewPager.setAdapter(this.adapter);
-		TitlePageIndicator tabs = (TitlePageIndicator) getView().findViewById(R.id.tabs);
+		TitlePageIndicator tabs = (TitlePageIndicator) view.findViewById(R.id.tabs);
 		tabs.setViewPager(viewPager);
 		tabs.setOnPageChangeListener(this);
+		setupTabTheme(view);
 	}
 
 	private void setupTabTheme(View view) {
 		if (view == null || this.route == null) {
 			return;
 		}
-		TitlePageIndicator tabs = (TitlePageIndicator) getView().findViewById(R.id.tabs);
+		TitlePageIndicator tabs = (TitlePageIndicator) view.findViewById(R.id.tabs);
 		final int bgColor = ColorUtils.parseColor(this.route.textColor);
 		final int textColor = ColorUtils.parseColor(this.route.color);
 		tabs.setBackgroundColor(bgColor);
@@ -196,57 +197,57 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 	}
 
-	private void switchView() {
+	private void switchView(View view) {
 		if (this.adapter == null) {
-			showLoading();
+			showLoading(view);
 		} else if (this.adapter.getCount() > 0) {
-			showTabsAndViewPager();
+			showTabsAndViewPager(view);
 		} else {
-			showEmpty();
+			showEmpty(view);
 		}
 	}
 
-	private void showTabsAndViewPager() {
-		if (getView().findViewById(R.id.loading) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.loading).setVisibility(View.GONE); // hide
+	private void showTabsAndViewPager(View view) {
+		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
+			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.empty) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.empty).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
+			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		getView().findViewById(R.id.tabs).setVisibility(View.VISIBLE); // show
-		getView().findViewById(R.id.viewpager).setVisibility(View.VISIBLE); // show
+		view.findViewById(R.id.tabs).setVisibility(View.VISIBLE); // show
+		view.findViewById(R.id.viewpager).setVisibility(View.VISIBLE); // show
 	}
 
-	private void showLoading() {
-		if (getView().findViewById(R.id.tabs) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.tabs).setVisibility(View.GONE); // hide
+	private void showLoading(View view) {
+		if (view.findViewById(R.id.tabs) != null) { // IF inflated/present DO
+			view.findViewById(R.id.tabs).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.viewpager) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.viewpager).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.viewpager) != null) { // IF inflated/present DO
+			view.findViewById(R.id.viewpager).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.empty) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.empty).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
+			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
-			((ViewStub) getView().findViewById(R.id.loading_stub)).inflate(); // inflate
+		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
 		}
-		getView().findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
+		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}
 
-	private void showEmpty() {
-		if (getView().findViewById(R.id.tabs) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.tabs).setVisibility(View.GONE); // hide
+	private void showEmpty(View view) {
+		if (view.findViewById(R.id.tabs) != null) { // IF inflated/present DO
+			view.findViewById(R.id.tabs).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.viewpager) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.viewpager).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.viewpager) != null) { // IF inflated/present DO
+			view.findViewById(R.id.viewpager).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.loading) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.loading).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
+			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
-			((ViewStub) getView().findViewById(R.id.empty_stub)).inflate(); // inflate
+		if (view.findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.empty_stub)).inflate(); // inflate
 		}
-		getView().findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
+		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
 	@Override

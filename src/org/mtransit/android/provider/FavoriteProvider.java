@@ -17,6 +17,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 public class FavoriteProvider extends MTContentProvider {
@@ -43,6 +44,9 @@ public class FavoriteProvider extends MTContentProvider {
 				+ FavoriteColumns.T_FAVORITE_K_FK_ID);
 		FAVORITE_PROJECTION_MAP = map;
 	}
+
+	public static final String[] PROJECTION_FAVORITE = new String[] { FavoriteColumns.T_FAVORITE_K_ID, FavoriteColumns.T_FAVORITE_K_TYPE,
+			FavoriteColumns.T_FAVORITE_K_FK_ID };
 
 	public static UriMatcher getNewUriMatcher(String authority) {
 		UriMatcher URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
@@ -231,6 +235,12 @@ public class FavoriteProvider extends MTContentProvider {
 			MTLog.w(this, t, "Error while resolving insert query '%s'!", uri);
 			return null;
 		}
+	}
+
+	public static class FavoriteColumns {
+		public static final String T_FAVORITE_K_ID = BaseColumns._ID;
+		public static final String T_FAVORITE_K_FK_ID = "fk_id";
+		public static final String T_FAVORITE_K_TYPE = "type";
 	}
 
 }

@@ -14,6 +14,7 @@ import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.UriUtils;
+import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
@@ -176,8 +177,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 							final int typeId = findTypeId(context, contentUri);
 							final DataSourceType type = DataSourceType.parseId(typeId);
 							final Area area = findAgencyArea(context, contentUri);
-							final JPaths jPath = findAgencyRTSRouteLogo(context, contentUri);
 							final boolean isRTS = rtsProviderMetaData.equals(provider.metaData.getString(rtsProviderMetaData));
+							final JPaths jPath = isRTS ? findAgencyRTSRouteLogo(context, contentUri) : null;
 							if (type != null && typeId >= 0) {
 								final AgencyProperties newAgency = new AgencyProperties(provider.authority, type, shortName, label, area, isRTS);
 								addNewAgency(newAgency);
@@ -233,6 +234,9 @@ public class DataSourceProvider implements MTLog.Loggable {
 						break;
 					case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
 						result = AvailabilityPercent.fromCursor(cursor);
+						break;
+					case POI.ITEM_STATUS_TYPE_APP:
+						result = AppStatus.fromCursor(cursor);
 						break;
 					default:
 						result = null;

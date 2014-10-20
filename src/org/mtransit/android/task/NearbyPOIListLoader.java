@@ -58,15 +58,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		if (pois == null) {
 			pois = new ArrayList<POIManager>();
 		}
-		Collection<AgencyProperties> typeAgencies = DataSourceProvider.get().getTypeDataSources(getContext(), this.type);
-		List<String> typeAgenciesAuthorities = new ArrayList<String>();
-		if (typeAgencies != null) {
-			for (AgencyProperties agency : typeAgencies) {
-				if (agency.isInArea(this.lat, this.lng, this.aroundDiff)) {
-					typeAgenciesAuthorities.add(agency.getAuthority());
-				}
-			}
-		}
+		List<String> typeAgenciesAuthorities = findTypeAgenciesAuthorities();
 		if (typeAgenciesAuthorities.size() == 0) {
 			return this.pois;
 		}
@@ -90,6 +82,19 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		CollectionUtils.sort(this.pois, POIManager.POI_DISTANCE_COMPARATOR);
 		LocationUtils.removeTooMuchWhenNotInCoverage(this.pois, this.minCoverage, this.maxSize);
 		return this.pois;
+	}
+
+	private List<String> findTypeAgenciesAuthorities() {
+		Collection<AgencyProperties> typeAgencies = DataSourceProvider.get().getTypeDataSources(getContext(), this.type);
+		List<String> typeAgenciesAuthorities = new ArrayList<String>();
+		if (typeAgencies != null) {
+			for (AgencyProperties agency : typeAgencies) {
+				if (agency.isInArea(this.lat, this.lng, this.aroundDiff)) {
+					typeAgenciesAuthorities.add(agency.getAuthority());
+				}
+			}
+		}
+		return typeAgenciesAuthorities;
 	}
 
 	@Override

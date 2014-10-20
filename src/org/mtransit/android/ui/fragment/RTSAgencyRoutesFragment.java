@@ -110,13 +110,14 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		if (this.adapter == null) {
 			initAdapter();
 		}
-		switchView();
+		switchView(getView());
 	}
 
 	private void initAdapter() {
 		this.adapter = new RTSRouteArrayAdapter(getActivity(), this.agency.getAuthority());
-		setupView(getView());
-		switchView();
+		final View view = getView();
+		setupView(view);
+		switchView(view);
 	}
 
 	private void setupView(View view) {
@@ -174,7 +175,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		if (this.adapter.isEmpty()) {
 			getLoaderManager().restartLoader(ROUTES_LOADER, null, this);
 		} else {
-			switchView();
+			switchView(getView());
 		}
 	}
 
@@ -203,7 +204,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 	@Override
 	public void onLoadFinished(Loader<List<Route>> loader, List<Route> data) {
 		this.adapter.setRoutes(data);
-		switchView();
+		switchView(getView());
 	}
 
 	@Override
@@ -228,26 +229,26 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		}
 	}
 
-	private void switchView() {
+	private void switchView(View view) {
 		MTLog.v(this, "switchView()");
 		if (this.adapter == null || !this.adapter.isInitialized()) {
-			showLoading();
+			showLoading(view);
 		} else if (this.adapter.getCount() == 0) {
-			showEmpty();
+			showEmpty(view);
 		} else {
-			showList();
+			showList(view);
 		}
 	}
 
-	private void showList() {
-		if (getView().findViewById(R.id.loading) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.loading).setVisibility(View.GONE); // hide
+	private void showList(View view) {
+		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
+			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.empty) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.empty).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
+			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		inflateList(getView());
-		getView().findViewById(R.id.list).setVisibility(View.VISIBLE); // show
+		inflateList(view);
+		view.findViewById(R.id.list).setVisibility(View.VISIBLE); // show
 	}
 
 	private void inflateList(View view) {
@@ -256,33 +257,33 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		}
 	}
 
-	private void showLoading() {
-		if (getView().findViewById(R.id.list) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.list).setVisibility(View.GONE); // hide
+	private void showLoading(View view) {
+		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
+			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.empty) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.empty).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
+			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
-			((ViewStub) getView().findViewById(R.id.loading_stub)).inflate(); // inflate
+		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
 		}
-		getView().findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
+		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}
 
-	private void showEmpty() {
-		if (getView().findViewById(R.id.list) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.list).setVisibility(View.GONE); // hide
+	private void showEmpty(View view) {
+		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
+			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.loading) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.loading).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
+			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
-			((ViewStub) getView().findViewById(R.id.empty_stub)).inflate(); // inflate
+		if (view.findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.empty_stub)).inflate(); // inflate
 		}
 		if (!TextUtils.isEmpty(this.emptyText)) {
-			((TextView) getView().findViewById(R.id.empty_text)).setText(this.emptyText);
+			((TextView) view.findViewById(R.id.empty_text)).setText(this.emptyText);
 		}
-		getView().findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
+		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
 	private static class RTSRouteArrayAdapter extends ArrayAdapter<Route> implements MTLog.Loggable {

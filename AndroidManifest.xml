@@ -64,5 +64,24 @@
             android:name="org.mtransit.android.provider.FavoriteProvider"
             android:authorities="@string/favorite_authority"
             android:exported="false" />
+        <!-- MODULE PROVIDER -->
+        <provider
+            android:name="org.mtransit.android.provider.ModuleProvider"
+            android:authorities="@string/module_authority"
+            android:exported="false"
+            android:readPermission="org.mtransit.android.provider.permission.READ_PROVIDER" >
+            <meta-data
+                android:name="@string/agency_provider"
+                android:value="@string/agency_provider" />
+            <meta-data
+                android:name="@string/poi_provider"
+                android:value="@string/poi_provider" />
+            <meta-data
+                android:name="@string/status_provider"
+                android:value="@string/status_provider" />
+            <meta-data
+                android:name="@string/status_provider_target"
+                android:value="@string/module_authority" />
+        </provider>
     </application>
 </manifest>

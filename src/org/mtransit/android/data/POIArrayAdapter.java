@@ -16,6 +16,7 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SensorUtils;
 import org.mtransit.android.commons.TimeUtils;
+import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
@@ -24,7 +25,6 @@ import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.provider.FavoriteManager;
-import org.mtransit.android.provider.FavoriteManager.FavoriteUpdateListener;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.view.MTCompassView;
 import org.mtransit.android.ui.view.MTJPathsView;
@@ -58,7 +58,7 @@ import android.widget.TextView;
 
 public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements SensorUtils.CompassListener, AdapterView.OnItemClickListener,
 		AdapterView.OnItemLongClickListener, SensorEventListener, AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener, MTLog.Loggable,
-		FavoriteUpdateListener, SensorUtils.SensorTaskCompleted {
+		FavoriteManager.FavoriteUpdateListener, SensorUtils.SensorTaskCompleted {
 
 	private static final String TAG = POIArrayAdapter.class.getSimpleName();
 
@@ -125,7 +125,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private long lastCompassChanged = -1l;
 
-	private FavoriteUpdateListener favoriteUpdateListener = this;
+	private FavoriteManager.FavoriteUpdateListener favoriteUpdateListener = this;
 
 	public POIArrayAdapter(Activity activity) {
 		super(activity, R.layout.layout_loading_small);
@@ -137,7 +137,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		this.manualLayout = manualLayout;
 	}
 
-	public void setFavoriteUpdateListener(FavoriteUpdateListener favoriteUpdateListener) {
+	public void setFavoriteUpdateListener(FavoriteManager.FavoriteUpdateListener favoriteUpdateListener) {
 		this.favoriteUpdateListener = favoriteUpdateListener;
 	}
 
@@ -153,7 +153,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		this.showTypeHeader = showTypeHeader;
 	}
 
-	private static final int VIEW_TYPE_COUNT = 5;
+	private static final int VIEW_TYPE_COUNT = 7;
 
 	@Override
 	public int getViewTypeCount() {
@@ -170,7 +170,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				if (this.poisByType != null) {
 					final Integer type = getItemTypeHeader(position);
 					if (type != null) {
-						return 4; // TYPE HEADER
+						return 6; // TYPE HEADER
 					}
 				}
 			}
@@ -180,6 +180,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		int type = poim.poi.getType();
 		int statusType = poim.getStatusType();
 		switch (type) {
+		case POI.ITEM_VIEW_TYPE_MODULE:
+			switch (statusType) {
+			case POI.ITEM_STATUS_TYPE_SCHEDULE:
+				return 4; // MODULE & APP STATUS
+			default:
+				return 5; // MODULE
+			}
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
 			switch (statusType) {
 			case POI.ITEM_STATUS_TYPE_SCHEDULE:
@@ -278,6 +285,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			return null; // CRASH!!!
 		}
 		switch (poim.poi.getType()) {
+		case POI.ITEM_VIEW_TYPE_MODULE:
+			return getModuleView(poim, convertView, parent);
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
 			return getRouteTripStopView(poim, convertView, parent);
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
@@ -353,8 +362,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (poim.onActionItemClick(this.activity)) {
 			return true;
 		}
-		MTLog.w(this, "Unknow view type for poi %s!", poim);
-		return false;
+		return showPoiMenu(poim);
 	}
 
 	public boolean showPoiMenu(final POIManager poim) {
@@ -364,26 +372,23 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		switch (poim.poi.getType()) {
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
+		case POI.ITEM_VIEW_TYPE_MODULE:
 			StringBuilder title = new StringBuilder(poim.poi.getName());
-			final Favorite findFavorite = FavoriteManager.findFavorite(getContext(), poim.poi.getUUID());
-			final boolean isFavorite = findFavorite != null;
-			new AlertDialog.Builder(getContext()).setTitle(title)
-					.setItems(poim.getActionsItems(getContext(), getContext().getString(R.string.view_details), isFavorite),
-							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog, int item) {
-									MTLog.v(POIArrayAdapter.this, "onClick(%s)", item);
-									if (poim.onActionsItemClick(POIArrayAdapter.this.activity, item, isFavorite, POIArrayAdapter.this.favoriteUpdateListener)) {
-										return;
-									}
-									switch (item) {
-									case 0:
-										showPoiViewerActivity(poim);
-										break;
-									default:
-										break;
-									}
-								}
-							}).create().show();
+			new AlertDialog.Builder(getContext()).setTitle(title).setItems(poim.getActionsItems(getContext(), getContext().getString(R.string.view_details)),
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int item) {
+							if (poim.onActionsItemClick(POIArrayAdapter.this.activity, item, POIArrayAdapter.this.favoriteUpdateListener)) {
+								return;
+							}
+							switch (item) {
+							case 0:
+								showPoiViewerActivity(poim);
+								break;
+							default:
+								break;
+							}
+						}
+					}).create().show();
 			return true;
 		default:
 			MTLog.w(this, "Unknow view type '%s' for poi '%s'!", poim.poi.getType(), poim);
@@ -839,6 +844,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			scheduleStatusViewHolder.dataNextLine1Tv = (TextView) convertView.findViewById(R.id.data_next_line_1);
 			scheduleStatusViewHolder.dataNextLine2Tv = (TextView) convertView.findViewById(R.id.data_next_line_2);
 			return scheduleStatusViewHolder;
+		case POI.ITEM_STATUS_TYPE_APP:
+			AppStatusViewHolder appStatusViewHolder = new AppStatusViewHolder();
+			initCommonStatusViewHolderHolder(appStatusViewHolder, convertView);
+			appStatusViewHolder.textTv = (TextView) convertView.findViewById(R.id.textTv);
+			return appStatusViewHolder;
 		default:
 			MTLog.w(this, "Unexpected status '%s' (no view holder)!", status);
 			return null;
@@ -881,6 +891,27 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		updateCommonView(holder, poim);
 		updatePOIStatus(holder.statusViewHolder, poim);
 		return convertView;
+	}
+
+	private void updateAppStatus(CommonStatusViewHolder statusViewHolder, POIManager poim) {
+		if (this.showStatus && poim != null && statusViewHolder instanceof AppStatusViewHolder) {
+			poim.setStatusLoaderListener(this);
+			updateAppStatus(statusViewHolder, poim.getStatus(getContext()));
+		} else {
+			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
+		}
+	}
+
+	private void updateAppStatus(CommonStatusViewHolder statusViewHolder, POIStatus status) {
+		AppStatusViewHolder appStatusViewHolder = (AppStatusViewHolder) statusViewHolder;
+		if (status != null && status instanceof AppStatus) {
+			AppStatus appStatus = (AppStatus) status;
+			appStatusViewHolder.textTv.setText(appStatus.getStatusMsg(getContext()));
+			appStatusViewHolder.textTv.setVisibility(View.VISIBLE);
+			statusViewHolder.statusV.setVisibility(View.VISIBLE);
+		} else {
+			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
+		}
 	}
 
 	private void updateAvailabilityPercent(CommonStatusViewHolder statusViewHolder, POIManager poim) {
@@ -929,6 +960,42 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			break;
 		default:
 			MTLog.w(this, "Unexpected status '%s' (rts view w/o status)!", status);
+			break;
+		}
+		return layoutRes;
+	}
+
+	private View getModuleView(POIManager poim, View convertView, ViewGroup parent) {
+		if (convertView == null) {
+			convertView = this.layoutInflater.inflate(getModuleLayout(poim.getStatusType()), parent, false);
+			ModuleViewHolder holder = new ModuleViewHolder();
+			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
+			holder.statusViewHolder = getPOIStatusViewHolder(poim.getStatusType(), convertView);
+			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
+			convertView.setTag(holder);
+		}
+		updateModuleView(poim, convertView);
+		return convertView;
+	}
+
+	private View updateModuleView(POIManager poim, View convertView) {
+		if (convertView == null || poim == null) {
+			return convertView;
+		}
+		ModuleViewHolder holder = (ModuleViewHolder) convertView.getTag();
+		updateCommonView(holder, poim);
+		updatePOIStatus(holder.statusViewHolder, poim);
+		return convertView;
+	}
+
+	private int getModuleLayout(int status) {
+		int layoutRes = R.layout.layout_poi_module;
+		switch (status) {
+		case POI.ITEM_STATUS_TYPE_APP:
+			layoutRes = R.layout.layout_poi_module_with_app_status;
+			break;
+		default:
+			MTLog.w(this, "Unexpected status '%s' (module view w/o status)!", status);
 			break;
 		}
 		return layoutRes;
@@ -1029,10 +1096,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
 			updateRTSSchedule(statusViewHolder, status);
 			break;
+		case POI.ITEM_STATUS_TYPE_APP:
+			updateAppStatus(statusViewHolder, status);
+			break;
 		default:
 			MTLog.w(this, "Unexpected status type '%s'!", status.getType());
 			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
-			return;
 		}
 	}
 
@@ -1049,6 +1118,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			break;
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
 			updateRTSSchedule(statusViewHolder, poim);
+			break;
+		case POI.ITEM_STATUS_TYPE_APP:
+			updateAppStatus(statusViewHolder, poim);
 			break;
 		default:
 			MTLog.w(this, "Unexpected status type '%s'!", poim.getStatusType());
@@ -1242,6 +1314,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
+	public static class ModuleViewHolder extends CommonViewHolder {
+	}
+
 	public static class RouteTripStopViewHolder extends CommonViewHolder {
 		TextView routeShortNameTv;
 		View routeFL;
@@ -1261,6 +1336,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		ImageView favImg;
 		MTCompassView compassV;
 		CommonStatusViewHolder statusViewHolder;
+	}
+
+	public static class AppStatusViewHolder extends CommonStatusViewHolder {
+		TextView textTv;
 	}
 
 	public static class ScheduleStatusViewHolder extends CommonStatusViewHolder {

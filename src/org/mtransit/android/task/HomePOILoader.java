@@ -58,9 +58,9 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		if (availableAgencyTypes != null) {
 			for (DataSourceType type : availableAgencyTypes) {
 				List<POIManager> typePOIs = findNearby(getContext(), type, this.lat, this.lng);
-				LocationUtils.removeTooMuchWhenNotInCoverage(typePOIs, LocationUtils.MIN_NEARBY_LIST_COVERAGE, NB_MAX_BY_TYPE);
 				Iterator<POIManager> it = typePOIs.iterator();
 				int nbKept = 0;
+				float lastKeptDistance = -1;
 				Set<String> routeTripKept = new HashSet<String>();
 				while (it.hasNext()) {
 					POIManager poim = it.next();
@@ -72,20 +72,21 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 								it.remove();
 								continue;
 							}
-						} else if (nbKept >= NB_MAX_BY_TYPE) {
+						} else if (nbKept >= NB_MAX_BY_TYPE && lastKeptDistance != poim.getDistance()) {
 							it.remove();
 							continue;
 						}
-						if (nbKept == NB_MAX_BY_TYPE && poim.getDistance() > LocationUtils.MIN_NEARBY_LIST_COVERAGE) {
-							it.remove();
-							continue;
-						}
+					}
+					if (nbKept >= NB_MAX_BY_TYPE && lastKeptDistance != poim.getDistance() && poim.getDistance() > LocationUtils.MIN_NEARBY_LIST_COVERAGE) {
+						it.remove();
+						continue;
 					}
 					if (poim.poi instanceof RouteTripStop) {
 						final RouteTripStop rts = (RouteTripStop) poim.poi;
 						final String routeTripId = rts.route.id + "-" + rts.trip.id;
 						routeTripKept.add(routeTripId);
 					}
+					lastKeptDistance = poim.getDistance();
 					nbKept++;
 				}
 				CollectionUtils.sort(typePOIs, POIManager.POI_ALPHA_COMPATOR);
@@ -112,7 +113,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		int typeMaxSize = LocationUtils.MIN_NEARBY_LIST_COVERAGE;
 		int typeMinCoverage = LocationUtils.MAX_NEARBY_LIST;
 		Collection<AgencyProperties> typeAgencies = DataSourceProvider.get().getTypeDataSources(context, type);
-		while (CollectionUtils.getSize(typePOIs) < LocationUtils.MIN_NEARBY_LIST && typeAd.aroundDiff < LocationUtils.MAX_AROUND_DIFF) {
+		while (CollectionUtils.getSize(typePOIs) < NB_MAX_BY_TYPE && typeAd.aroundDiff < LocationUtils.MAX_AROUND_DIFF) {
 			typePOIs = findNearby(context, typeLat, typeLng, typeAd, typeMaxSize, typeMinCoverage, typeAgencies);
 			LocationUtils.incAroundDiff(typeAd);
 		}

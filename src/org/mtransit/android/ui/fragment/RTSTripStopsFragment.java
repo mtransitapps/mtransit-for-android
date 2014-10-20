@@ -89,8 +89,9 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (this.userLocation != null) {
 			outState.putParcelable(EXTRA_USER_LOCATION, this.userLocation);
 		}
-		if (getView() != null && getView().findViewById(R.id.list) != null) {
-			outState.putInt(EXTRA_SELECTED_ITEM_POSITION, ((AbsListView) getView().findViewById(R.id.list)).getFirstVisiblePosition());
+		final View view = getView();
+		if (view != null && view.findViewById(R.id.list) != null) {
+			outState.putInt(EXTRA_SELECTED_ITEM_POSITION, ((AbsListView) view.findViewById(R.id.list)).getFirstVisiblePosition());
 		}
 		super.onSaveInstanceState(outState);
 	}
@@ -134,8 +135,9 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		this.adapter = new POIArrayAdapter(getActivity());
 		this.adapter.setTag(this.authority + this.tripId);
 		this.adapter.setShowRTSExtra(false);
-		setupView(getView());
-		switchView();
+		final View view = getView();
+		setupView(view);
+		switchView(view);
 	}
 
 	private void setupView(View view) {
@@ -226,10 +228,11 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		}
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
+		final View view = getView();
 		if (this.currentSelectedItemPosition != null && this.currentSelectedItemPosition > 0) {
-			((AbsListView) getView().findViewById(R.id.list)).setSelection(this.currentSelectedItemPosition - 1); // show 1 more stop on top of the list
+			((AbsListView) view.findViewById(R.id.list)).setSelection(this.currentSelectedItemPosition - 1); // show 1 more stop on top of the list
 		}
-		switchView();
+		switchView(view);
 	}
 
 	private int findClosestPOIIndex(List<POIManager> pois) {
@@ -281,25 +284,25 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		}
 	}
 
-	private void switchView() {
+	private void switchView(View view) {
 		if (this.adapter == null || !this.adapter.isInitialized()) {
-			showLoading();
+			showLoading(view);
 		} else if (this.adapter.getPoisCount() == 0) {
-			showEmpty();
+			showEmpty(view);
 		} else {
-			showList();
+			showList(view);
 		}
 	}
 
-	private void showList() {
-		if (getView().findViewById(R.id.loading) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.loading).setVisibility(View.GONE); // hide
+	private void showList(View view) {
+		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
+			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.empty) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.empty).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
+			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		inflateList(getView());
-		getView().findViewById(R.id.list).setVisibility(View.VISIBLE); // show
+		inflateList(view);
+		view.findViewById(R.id.list).setVisibility(View.VISIBLE); // show
 	}
 
 	private void inflateList(View view) {
@@ -308,33 +311,33 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		}
 	}
 
-	private void showLoading() {
-		if (getView().findViewById(R.id.list) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.list).setVisibility(View.GONE); // hide
+	private void showLoading(View view) {
+		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
+			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.empty) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.empty).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
+			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
-			((ViewStub) getView().findViewById(R.id.loading_stub)).inflate(); // inflate
+		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
 		}
-		getView().findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
+		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}
 
-	private void showEmpty() {
-		if (getView().findViewById(R.id.list) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.list).setVisibility(View.GONE); // hide
+	private void showEmpty(View view) {
+		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
+			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.loading) != null) { // IF inflated/present DO
-			getView().findViewById(R.id.loading).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
+			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
 		}
-		if (getView().findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
-			((ViewStub) getView().findViewById(R.id.empty_stub)).inflate(); // inflate
+		if (view.findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.empty_stub)).inflate(); // inflate
 		}
 		if (!TextUtils.isEmpty(this.emptyText)) {
-			((TextView) getView().findViewById(R.id.empty_text)).setText(this.emptyText);
+			((TextView) view.findViewById(R.id.empty_text)).setText(this.emptyText);
 		}
-		getView().findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
+		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
 }
