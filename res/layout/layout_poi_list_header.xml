@@ -6,4 +6,5 @@
     android:layout_height="wrap_content"
     android:ellipsize="end"
     android:fontFamily="sans-serif"
+    android:paddingLeft="16dp"
     android:paddingRight="8dp" />

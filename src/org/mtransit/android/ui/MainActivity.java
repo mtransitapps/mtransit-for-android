@@ -15,6 +15,7 @@ import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -59,6 +60,9 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	private Integer mBgColor;
 	private Integer mDrawerBgColor;
 
+	private View mCustomView;
+	private View mDrawerCustomView;
+
 	public static Intent newInstance(Context context, int selectedRootScreenPosition) {
 		Intent intent = new Intent(context, MainActivity.class);
 		if (selectedRootScreenPosition >= 0) {
@@ -80,6 +84,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		mSubtitle = mDrawerSubtitle = getActionBar().getSubtitle();
 		mIcon = mDrawerIcon = R.drawable.ic_launcher;
 		mBgColor = mDrawerBgColor = ABFragment.NO_BG_COLOR;
+		mCustomView = mDrawerCustomView = getActionBar().getCustomView();
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer); // (mDrawerList) getSupportFragmentManager().findFragmentById(R.id.left_drawer);
 
@@ -130,6 +135,8 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		mCustomView = null;
+		mDrawerCustomView = null;
 		DataSourceProvider.reset();
 	}
 
@@ -230,16 +237,24 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		setABTitle(title);
 	}
 
-	private void setAB(ABFragment fragment) {
-		setAB(fragment.getABTitle(this), fragment.getSubtitle(this), fragment.getABIconDrawableResId(), fragment.getBgColor());
+	private void setAB() {
+		Fragment f = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+		if (f != null && f instanceof ABFragment) {
+			ABFragment abf = (ABFragment) f;
+			setAB(abf);
+		}
 	}
 
-	private void setAB(CharSequence title, CharSequence subtitle, int iconResId, Integer bgColor) {
+	private void setAB(ABFragment abf) {
+		setAB(abf.getABTitle(this), abf.getSubtitle(this), abf.getABIconDrawableResId(), abf.getBgColor(), abf.getABCustomView());
+	}
+
+	private void setAB(CharSequence title, CharSequence subtitle, int iconResId, Integer bgColor, View customView) {
 		mTitle = title;
 		mSubtitle = subtitle;
 		mIcon = iconResId;
 		mBgColor = bgColor;
-		updateAB();
+		mCustomView = customView;
 	}
 	private void setABTitle(CharSequence title) {
 		mTitle = title;
@@ -262,19 +277,17 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		notifyABChange(getSupportFragmentManager().findFragmentById(R.id.content_frame));
 	}
 
-	public void notifyABChange(Fragment f) {
+	private void notifyABChange(Fragment f) {
 		if (f != null && f instanceof ABFragment) {
 			ABFragment abf = (ABFragment) f;
-			mTitle = abf.getABTitle(this);
-			mSubtitle = abf.getSubtitle(this);
-			mIcon = abf.getABIconDrawableResId();
-			mBgColor = abf.getBgColor();
+			setAB(abf);
 			updateAB();
 		}
 	}
 
 	@Override
 	public void onBackStackChanged() {
+		setAB();
 		updateAB(); // up/drawer icon
 		if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
 			mDrawerList.setItemChecked(this.currentSelectedItemPosition, true);
@@ -300,8 +313,17 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		return mDrawerLayout.isDrawerOpen(mDrawerList);
 	}
 
+	private Handler handler = new Handler();
+
 	private void updateAB() {
 		if (mDrawerState != DrawerLayout.STATE_IDLE) {
+			this.handler.postDelayed(new Runnable() {
+
+				@Override
+				public void run() {
+					updateAB(); // try again in 1 second
+				}
+			}, 1000l); // 1 second
 			return;
 		}
 		if (isDrawerOpen()) {
@@ -325,6 +347,23 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		} else {
 			getActionBar().setBackgroundDrawable(null);
 		}
+		if (mCustomView != null) {
+			getActionBar().setCustomView(mCustomView);
+			getActionBar().getCustomView().setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+						getSupportFragmentManager().popBackStack();
+					}
+				}
+			});
+			getActionBar().setDisplayHomeAsUpEnabled(false);
+			getActionBar().setDisplayShowCustomEnabled(true);
+		} else {
+			getActionBar().setDisplayHomeAsUpEnabled(true);
+			getActionBar().setDisplayShowCustomEnabled(false);
+		}
 		this.mDrawerToggle.setDrawerIndicatorEnabled(getSupportFragmentManager().getBackStackEntryCount() < 1);
 		invalidateOptionsMenu();
 	}
@@ -342,6 +381,23 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 			getActionBar().setBackgroundDrawable(new ColorDrawable(mDrawerBgColor));
 		} else {
 			getActionBar().setBackgroundDrawable(null);
+		}
+		if (mDrawerCustomView != null) {
+			getActionBar().setCustomView(mDrawerCustomView);
+			getActionBar().getCustomView().setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+						getSupportFragmentManager().popBackStack();
+					}
+				}
+			});
+			getActionBar().setDisplayHomeAsUpEnabled(false);
+			getActionBar().setDisplayShowCustomEnabled(true);
+		} else {
+			getActionBar().setDisplayHomeAsUpEnabled(true);
+			getActionBar().setDisplayShowCustomEnabled(false);
 		}
 		this.mDrawerToggle.setDrawerIndicatorEnabled(true);
 		invalidateOptionsMenu();
@@ -364,9 +420,11 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		if (mDrawerToggle.onOptionsItemSelected(item)) {
 			return true;
 		}
-		if (item.getItemId() == android.R.id.home && getSupportFragmentManager().getBackStackEntryCount() > 0) {
-			getSupportFragmentManager().popBackStack();
-			return true;
+		if (item.getItemId() == android.R.id.home) {
+			if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+				getSupportFragmentManager().popBackStack();
+				return true;
+			}
 		}
 		return super.onOptionsItemSelected(item);
 	}

@@ -50,11 +50,17 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	}
 
 	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		initAdapter();
+	}
+
+	@Override
 	public void onResume() {
 		super.onResume();
-		initAdapter();
-		this.adapter.onResume();
-		getLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
+		if (this.adapter != null) {
+			this.adapter.onResume();
+		}
 	}
 
 	private static final int FAVORITES_LOADER = 0;
@@ -140,10 +146,6 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	@Override
 	public void onFavoriteUpdated() {
 		getLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
-		if (this.adapter != null) {
-			// TODO useful? (favorite star not displayed
-			this.adapter.onFavoriteUpdated();
-		}
 	}
 
 	private void switchView(View view) {
@@ -220,5 +222,10 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	@Override
 	public Integer getBgColor() {
 		return ABFragment.NO_BG_COLOR;
+	}
+
+	@Override
+	public View getABCustomView() {
+		return ABFragment.NO_CUSTOM_VIEW;
 	}
 }

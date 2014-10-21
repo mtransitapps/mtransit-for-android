@@ -215,9 +215,11 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 					FavoriteManager.isFavorite(context, poi.getUUID()) ? context.getString(R.string.remove_fav) : context.getString(R.string.add_fav) //
 			};
 		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
+			final RouteTripStop rts = (RouteTripStop) poi;
 			return new CharSequence[] {//
-			context.getString(R.string.view_stop), //
-					context.getString(R.string.view_stop_route), //
+					context.getString(R.string.view_stop), //
+					TextUtils.isEmpty(rts.route.shortName) ? context.getString(R.string.view_stop_route) : context.getString(
+							R.string.view_stop_route_and_route, rts.route.shortName), //
 					FavoriteManager.isFavorite(context, poi.getUUID()) ? context.getString(R.string.remove_fav) : context.getString(R.string.add_fav) //
 			};
 		case POI.ITEM_ACTION_TYPE_APP:

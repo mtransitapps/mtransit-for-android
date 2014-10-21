@@ -392,4 +392,8 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		return ABFragment.NO_BG_COLOR;
 	}
 
+	@Override
+	public View getABCustomView() {
+		return ABFragment.NO_CUSTOM_VIEW;
+	}
 }

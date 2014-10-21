@@ -264,8 +264,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 	private void inflateList(View view) {
 		if (view.findViewById(R.id.list) == null) { // IF NOT present/inflated DO
 			((ViewStub) view.findViewById(R.id.list_stub)).inflate(); // inflate
-			((AbsListView) view.findViewById(R.id.list)).setFastScrollEnabled(true);
-			((AbsListView) view.findViewById(R.id.list)).setFastScrollAlwaysVisible(true); // long list
+			((AbsListView) view.findViewById(R.id.list)).setFastScrollEnabled(true); // long list
 		}
 	}
 

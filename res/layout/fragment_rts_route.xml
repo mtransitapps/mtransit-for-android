@@ -23,6 +23,7 @@
         android:textStyle="bold"
         app:footerIndicatorHeight="8dp"
         app:footerIndicatorStyle="triangle"
+        app:footerLineHeight="0dp"
         app:footerPadding="2dp"
         app:linePosition="top"
         app:selectedBold="true"

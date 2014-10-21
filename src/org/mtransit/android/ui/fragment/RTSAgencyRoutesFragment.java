@@ -45,6 +45,8 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		this.tag = TAG + "-" + tag;
 	}
 
+	private static final boolean USE_GRID = false;
+
 	private static final String EXTRA_AGENCY_AUTHORITY = "extra_agency_authority";
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
@@ -124,8 +126,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		if (view == null || this.adapter == null) {
 			return;
 		}
-		inflateList(view);
-		final AbsListView absListView = (AbsListView) view.findViewById(R.id.list);
+		final AbsListView absListView = (AbsListView) view.findViewById(USE_GRID ? R.id.grid : R.id.list);
 		absListView.setAdapter(this.adapter);
 		absListView.setOnItemClickListener(this);
 	}
@@ -247,19 +248,13 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		inflateList(view);
-		view.findViewById(R.id.list).setVisibility(View.VISIBLE); // show
+		view.findViewById(USE_GRID ? R.id.grid : R.id.list).setVisibility(View.VISIBLE); // show
 	}
 
-	private void inflateList(View view) {
-		if (view.findViewById(R.id.list) == null) { // IF NOT present/inflated DO
-			((ViewStub) view.findViewById(R.id.list_stub)).inflate(); // inflate
-		}
-	}
 
 	private void showLoading(View view) {
-		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
-			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
+		if (view.findViewById(USE_GRID ? R.id.grid : R.id.list) != null) { // IF inflated/present DO
+			view.findViewById(USE_GRID ? R.id.grid : R.id.list).setVisibility(View.GONE); // hide
 		}
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
@@ -271,8 +266,8 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 	}
 
 	private void showEmpty(View view) {
-		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
-			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
+		if (view.findViewById(USE_GRID ? R.id.grid : R.id.list) != null) { // IF inflated/present DO
+			view.findViewById(USE_GRID ? R.id.grid : R.id.list).setVisibility(View.GONE); // hide
 		}
 		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
 			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
@@ -300,7 +295,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		private String authority;
 
 		public RTSRouteArrayAdapter(Context context, String authority) {
-			super(context, R.layout.layout_rts_route_item, R.id.route_short_name);
+			super(context, USE_GRID ? R.layout.layout_rts_route_grid_item : R.layout.layout_rts_route_list_item, R.id.route_short_name);
 			this.layoutInflater = LayoutInflater.from(context);
 			this.authority = authority;
 		}
@@ -330,11 +325,12 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 
 		private View getRouteView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null) {
-				convertView = this.layoutInflater.inflate(R.layout.layout_rts_route_item, parent, false);
+				convertView = this.layoutInflater.inflate(USE_GRID ? R.layout.layout_rts_route_grid_item : R.layout.layout_rts_route_list_item, parent, false);
 				RouteViewHolder holder = new RouteViewHolder();
 				holder.routeFL = convertView.findViewById(R.id.route);
 				holder.routeShortNameTv = (TextView) convertView.findViewById(R.id.route_short_name);
 				holder.routeTypeImg = (MTJPathsView) convertView.findViewById(R.id.route_type_img);
+				holder.routeLongNameTv = (TextView) convertView.findViewById(R.id.route_long_name);
 				convertView.setTag(holder);
 			}
 			updateRouteView(position, convertView);
@@ -368,6 +364,16 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 					holder.routeShortNameTv.setTextColor(routeTextColor);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
+				if (holder.routeLongNameTv != null) {
+					holder.routeLongNameTv.setTextColor(routeTextColor);
+					holder.routeLongNameTv.setBackgroundColor(routeColor);
+					if (TextUtils.isEmpty(route.longName)) {
+						holder.routeLongNameTv.setVisibility(View.GONE);
+					} else {
+						holder.routeLongNameTv.setText(route.longName);
+						holder.routeLongNameTv.setVisibility(View.VISIBLE);
+					}
+				}
 				holder.routeFL.setBackgroundColor(routeColor);
 				holder.routeFL.setVisibility(View.VISIBLE);
 			}
@@ -385,6 +391,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 			TextView routeShortNameTv;
 			View routeFL;
 			MTJPathsView routeTypeImg;
+			TextView routeLongNameTv;
 		}
 
 	}

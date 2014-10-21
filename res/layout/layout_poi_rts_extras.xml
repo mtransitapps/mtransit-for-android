@@ -7,8 +7,7 @@
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:layout_alignParentLeft="true"
     android:layout_marginRight="8dp"
-    android:orientation="vertical"
-    android:padding="0dp" >
+    android:orientation="vertical" >
     <!-- ROUTE -->
     <FrameLayout
         android:id="@+id/route"
@@ -24,16 +23,9 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
-            android:layout_margin="0dp"
-            android:layout_marginBottom="0dp"
-            android:layout_marginTop="0dp"
             android:fontFamily="sans-serif-condensed"
             android:gravity="center"
             android:includeFontPadding="false"
-            android:padding="0dp"
-            android:paddingLeft="0dp"
-            android:paddingRight="0dp"
-            android:paddingTop="0dp"
             android:singleLine="true"
             android:textAppearance="?android:attr/textAppearanceLargeInverse"
             android:textSize="34sp"
@@ -47,7 +39,6 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:layout_margin="4dp"
-            android:padding="0dp"
             android:visibility="visible" />
     </FrameLayout>
     <!-- TRIP HEADING -->
@@ -62,10 +53,8 @@
         android:ellipsize="marquee"
         android:fontFamily="sans-serif-condensed"
         android:gravity="center_horizontal"
-        android:paddingBottom="0dp"
         android:paddingLeft="1dp"
         android:paddingRight="1dp"
-        android:paddingTop="0dp"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmallInverse"
         android:textStyle="bold"

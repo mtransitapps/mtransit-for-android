@@ -16,9 +16,11 @@ import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.data.JPaths;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.view.MTJPathsView;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -35,6 +37,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.viewpagerindicator.TitlePageIndicator;
 
@@ -309,19 +313,94 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		return ABFragment.NO_ICON;
 	}
 
-	private CharSequence title;
+	private View customView;
+
+	@Override
+	public View getABCustomView() {
+		if (getActivity() == null) {
+			return null;
+		}
+		return getRouteView(getActivity(), this.customView, null);
+	}
+
+	public static class RouteViewHolder {
+		ImageView upImg;
+		TextView routeShortNameTv;
+		View routeFL;
+		MTJPathsView routeTypeImg;
+		TextView routeLongNameTv;
+	}
+
+	private View getRouteView(Context context, View convertView, ViewGroup parent) {
+		if (convertView == null) {
+			convertView = LayoutInflater.from(context).inflate(R.layout.layout_rts_route_ab_view, parent, false);
+			RouteViewHolder holder = new RouteViewHolder();
+			holder.routeFL = convertView.findViewById(R.id.route);
+			holder.upImg = (ImageView) convertView.findViewById(R.id.up);
+			holder.routeShortNameTv = (TextView) convertView.findViewById(R.id.route_short_name);
+			holder.routeTypeImg = (MTJPathsView) convertView.findViewById(R.id.route_type_img);
+			holder.routeLongNameTv = (TextView) convertView.findViewById(R.id.route_long_name);
+			convertView.setTag(holder);
+		}
+		updateRouteView(context, convertView);
+		return convertView;
+	}
+
+	private View updateRouteView(Context context, View convertView) {
+		if (convertView == null) {
+			return convertView;
+		}
+		RouteViewHolder holder = (RouteViewHolder) convertView.getTag();
+		if (route == null) {
+			holder.routeFL.setVisibility(View.GONE);
+		} else {
+			final int routeTextColor = ColorUtils.parseColor(route.textColor);
+			final int routeColor = ColorUtils.parseColor(route.color);
+			if (Color.WHITE == routeTextColor) {
+				holder.upImg.setImageResource(R.drawable.platform_ic_ab_back_holo_dark_am);
+			} else if (Color.BLACK == routeTextColor) {
+				holder.upImg.setImageResource(R.drawable.platform_ic_ab_back_holo_light_am);
+			} else {
+				holder.upImg.setImageResource(android.R.attr.homeAsUpIndicator);
+			}
+			if (TextUtils.isEmpty(route.shortName)) {
+				holder.routeShortNameTv.setVisibility(View.GONE);
+				final JPaths rtsRouteLogo = DataSourceProvider.get().getRTSRouteLogo(context, this.authority);
+				if (rtsRouteLogo != null) {
+					holder.routeTypeImg.setJSON(rtsRouteLogo);
+					holder.routeTypeImg.setColor(routeTextColor);
+					holder.routeTypeImg.setVisibility(View.VISIBLE);
+				} else {
+					holder.routeTypeImg.setVisibility(View.GONE);
+				}
+			} else {
+				holder.routeTypeImg.setVisibility(View.GONE);
+				holder.routeShortNameTv.setText(route.shortName.trim());
+				holder.routeShortNameTv.setTextColor(routeTextColor);
+				holder.routeShortNameTv.setVisibility(View.VISIBLE);
+			}
+			if (holder.routeLongNameTv != null) {
+				holder.routeLongNameTv.setTextColor(routeTextColor);
+				holder.routeLongNameTv.setBackgroundColor(routeColor);
+				if (TextUtils.isEmpty(route.longName)) {
+					holder.routeLongNameTv.setVisibility(View.GONE);
+				} else {
+					holder.routeLongNameTv.setText(route.longName);
+					holder.routeLongNameTv.setVisibility(View.VISIBLE);
+				}
+			}
+			holder.routeFL.setBackgroundColor(routeColor);
+			holder.routeFL.setVisibility(View.VISIBLE);
+		}
+		return convertView;
+	}
 
 	@Override
 	public CharSequence getABTitle(Context context) {
-		if (this.route == null) {
-			return context.getString(R.string.ellipsis);
-		}
-		if (this.title == null) {
-			initTitle();
-		}
-		return this.title;
+		return null;
 	}
 
+	@SuppressWarnings("unused")
 	private void initTitle() {
 		SpannableStringBuilder titleSb = new SpannableStringBuilder();
 		int startShortName = 0, endShortName = 0;

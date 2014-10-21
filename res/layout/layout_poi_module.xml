@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
-    android:layout_margin="0dp"
     android:background="?android:attr/selectableItemBackground"
     android:clipChildren="false"
     android:minHeight="?android:attr/listPreferredItemHeight"

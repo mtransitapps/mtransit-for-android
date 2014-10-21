@@ -46,4 +46,9 @@ public class SearchFragment extends ABFragment {
 	public Integer getBgColor() {
 		return ABFragment.NO_BG_COLOR;
 	}
+
+	@Override
+	public View getABCustomView() {
+		return ABFragment.NO_CUSTOM_VIEW;
+	}
 }

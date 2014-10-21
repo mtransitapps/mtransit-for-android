@@ -46,4 +46,9 @@ public class MapsFragment extends ABFragment {
 	public Integer getBgColor() {
 		return android.R.color.transparent;
 	}
+
+	@Override
+	public View getABCustomView() {
+		return ABFragment.NO_CUSTOM_VIEW;
+	}
 }

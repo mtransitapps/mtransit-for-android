@@ -374,8 +374,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			StringBuilder title = new StringBuilder(poim.poi.getName());
-			new AlertDialog.Builder(getContext()).setTitle(title).setItems(poim.getActionsItems(getContext(), getContext().getString(R.string.view_details)),
-					new DialogInterface.OnClickListener() {
+			new AlertDialog.Builder(getContext()).setTitle(title)
+					.setItems(poim.getActionsItems(getContext(), getContext().getString(R.string.view_details)), new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int item) {
 							if (poim.onActionsItemClick(POIArrayAdapter.this.activity, item, POIArrayAdapter.this.favoriteUpdateListener)) {
 								return;
@@ -385,6 +385,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 								showPoiViewerActivity(poim);
 								break;
 							default:
+								MTLog.w(POIArrayAdapter.this, "Unexpected action item '%s'!", item);
 								break;
 							}
 						}
@@ -476,14 +477,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return this.closestPoiUuids.contains(poim.poi.getUUID());
 	}
 
-	@Deprecated
-	public void prefetchClosests() {
-	}
-
-	@Deprecated
-	public void prefetchFavorites() {
-	}
-
 
 	private MTAsyncTask<Location, Void, Void> updateDistanceWithStringTask;
 
@@ -517,7 +510,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					}
 					updateClosestPoi();
 					notifyDataSetChanged(true);
-					prefetchClosests();
 				}
 			};
 			this.updateDistanceWithStringTask.execute(currentLocation);
@@ -1007,7 +999,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			RouteTripStopViewHolder holder = new RouteTripStopViewHolder();
 			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
 			initRTSExtra(convertView, holder);
-			// schedule status
 			holder.statusViewHolder = getPOIStatusViewHolder(poim.getStatusType(), convertView);
 			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
 			convertView.setTag(holder);
@@ -1266,9 +1257,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private MTAsyncTask<Integer, Void, List<Favorite>> refreshFavoritesTask;
 
 	public void refreshFavorites(Integer... typesFilter) {
-		if (!this.showFavorite) {
-			setFavorites(null);
-		}
 		if (this.refreshFavoritesTask != null && this.refreshFavoritesTask.getStatus() == MTAsyncTask.Status.RUNNING) {
 			return; // skipped, last refresh still in progress so probably good enough
 		}
@@ -1292,7 +1280,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	}
 
-	public void setFavorites(List<Favorite> favorites) {
+	private void setFavorites(List<Favorite> favorites) {
 		boolean newFav = false; // don't trigger update if favorites are the same
 		if (CollectionUtils.getSize(favorites) != CollectionUtils.getSize(this.favUUIDs)) {
 			newFav = true; // different size => different favorites
@@ -1310,7 +1298,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		this.favUUIDs = newFavUUIDs;
 		if (newFav) {
 			notifyDataSetChanged(true);
-			prefetchFavorites();
+			if (this.favoriteUpdateListener != null) {
+				this.favoriteUpdateListener.onFavoriteUpdated();
+			}
 		}
 	}
 

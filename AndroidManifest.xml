@@ -39,7 +39,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="false"
-        android:theme="@style/MTBaseTheme" >
+        android:theme="@style/MTTheme" >
         <!-- SPLASH SCREEN (not visible) DO NOT CHANGE ANDROID:NAME OR LAUNCHER ICON REMOVED! -->
         <activity
             android:name=".ui.SplashScreenActivity"

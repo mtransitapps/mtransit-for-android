@@ -473,6 +473,11 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		return ABFragment.NO_BG_COLOR;
 	}
 
+	@Override
+	public View getABCustomView() {
+		return ABFragment.NO_CUSTOM_VIEW;
+	}
+
 	public static interface NearbyLocationListener extends MTActivityWithLocation.UserLocationListener {
 		public void onNearbyLocationChanged(Location location);
 	}

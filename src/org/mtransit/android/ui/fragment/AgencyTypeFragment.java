@@ -293,6 +293,11 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	}
 
 	@Override
+	public View getABCustomView() {
+		return ABFragment.NO_CUSTOM_VIEW;
+	}
+
+	@Override
 	public Integer getBgColor() {
 		return ABFragment.NO_BG_COLOR;
 	}

@@ -38,4 +38,10 @@
     <string name="module_label">+</string>
     <string name="module_short_name">+</string>
     <string name="module_authority">org.mtransit.android.provider.module</string>
+    <string name="view_station">View station</string>
+    <string name="view_stop">View stop</string>
+    <string name="view_stop_route">View stop route</string>
+    <string name="view_stop_route_and_route">View route %s</string>
+    <string name="add_fav">Add to favorites</string>
+    <string name="remove_fav">Remove from favorites</string>
 </resources>
