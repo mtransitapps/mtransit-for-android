@@ -9,7 +9,6 @@ import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
-import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.Route;
@@ -30,8 +29,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -400,41 +397,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		return null;
 	}
 
-	@SuppressWarnings("unused")
-	private void initTitle() {
-		SpannableStringBuilder titleSb = new SpannableStringBuilder();
-		int startShortName = 0, endShortName = 0;
-		if (!TextUtils.isEmpty(this.route.shortName)) {
-			if (titleSb.length() > 0) {
-				titleSb.append(StringUtils.SPACE_CAR);
-			}
-			startShortName = titleSb.length();
-			titleSb.append(this.route.shortName.trim());
-			endShortName = titleSb.length();
-		}
-		int startLongName = 0, endLongName = 0;
-		if (!TextUtils.isEmpty(this.route.longName) && !this.route.longName.equals(this.route.shortName)) {
-			if (titleSb.length() > 0) {
-				titleSb.append(StringUtils.SPACE_CAR).append(StringUtils.SPACE_CAR);
-			}
-			startLongName = titleSb.length();
-			titleSb.append(this.route.longName);
-			endLongName = titleSb.length();
-		}
-		int startAgency = 0, endAgency = 0;
-		if (startShortName != endShortName) {
-			SpanUtils.set(titleSb, SpanUtils.BOLD_STYLE_SPAN, startShortName, endShortName);
-			SpanUtils.set(titleSb, SpanUtils.SANS_SERIF_CONDENSED_TYPEFACE_SPAN, startShortName, endShortName);
-		}
-		if (startLongName != endLongName) {
-			SpanUtils.set(titleSb, SpanUtils.SANS_SERIF_LIGHT_TYPEFACE_SPAN, startLongName, endLongName);
-		}
-		if (startAgency != endAgency) {
-			titleSb.setSpan(SpanUtils.FIFTY_PERCENT_SIZE_SPAN, startAgency, endAgency, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-		}
-		SpanUtils.set(titleSb, SpanUtils.getTextColor(ColorUtils.parseColor(this.route.textColor)));
-		this.title = titleSb;
-	}
 
 	@Override
 	public CharSequence getSubtitle(Context context) {
