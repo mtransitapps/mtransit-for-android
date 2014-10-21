@@ -100,6 +100,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (this.adapter != null) {
 			this.adapter.onResume();
 		}
+		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getLastLocation());
 	}
 
 	private MTAsyncTask<Location, Void, String> findNearbyLocationTask;
@@ -122,9 +123,8 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 				if (activity == null || nearbyLocation == null) {
 					return null;
 				}
-				Address address = LocationUtils.getLocationAddress(activity, nearbyLocation);
+				final Address address = LocationUtils.getLocationAddress(activity, nearbyLocation);
 				if (address == null) {
-					/* || nearbyLocation == null */
 					return null;
 				}
 				return LocationUtils.getLocationString(activity, null, address, nearbyLocation.getAccuracy());
@@ -132,10 +132,14 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 			@Override
 			protected void onPostExecute(String result) {
-				boolean refreshRequired = HomeFragment.this.nearbyLocationAddress == null;
+				super.onPostExecute(result);
+				boolean refreshRequired = result != null && !result.equals(HomeFragment.this.nearbyLocationAddress);
 				HomeFragment.this.nearbyLocationAddress = result;
 				if (refreshRequired) {
-					showNewNearbyLocation();
+					final FragmentActivity activity = getActivity();
+					if (activity != null) {
+						((MainActivity) getActivity()).notifyABChange();
+					}
 				}
 			}
 
@@ -143,18 +147,11 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.findNearbyLocationTask.execute(this.nearbyLocation);
 	}
 
-	private void showNewNearbyLocation() {
-		if (this.nearbyLocationAddress != null && this.nearbyLocation != null) {
-			final FragmentActivity activity = getActivity();
-			if (activity != null) {
-				((MainActivity) getActivity()).notifyABChange();
-			}
-		}
-	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		this.userLocation = null;
 		if (this.adapter != null) {
 			this.adapter.onDestroy();
 			this.adapter = null;
@@ -200,18 +197,23 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public void onUserLocationChanged(Location newLocation) {
 		if (newLocation != null) {
+			boolean locationChanged = false;
 			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 				this.userLocation = newLocation;
+				locationChanged = true;
 				if (this.adapter != null) {
 					this.adapter.setLocation(this.userLocation);
 				}
 			}
 			if (this.nearbyLocation == null) {
 				useNewNearbyLocation(newLocation);
+				locationChanged = true;
 			}
-			final boolean requireNotifyAB = setUserAwayFromLocation();
-			if (requireNotifyAB) {
-				((MainActivity) getActivity()).notifyABChange();
+			if (locationChanged) {
+				final boolean requireNotifyAB = setUserAwayFromLocation();
+				if (requireNotifyAB) {
+					((MainActivity) getActivity()).notifyABChange();
+				}
 			}
 		}
 	}
@@ -247,12 +249,13 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 				((AbsListView) view.findViewById(R.id.list)).scrollTo(0, 0);
 			}
 		}
-		this.nearbyLocationAddress = null;
-		((MainActivity) getActivity()).notifyABChange();
-		findNearbyLocation();
 		if (this.nearbyLocation != null) {
 			getLoaderManager().restartLoader(POIS_LOADER, null, this);
 		}
+		setSwipeRefreshLayoutRefreshing(false);
+		this.nearbyLocationAddress = null;
+		((MainActivity) getActivity()).notifyABChange();
+		findNearbyLocation();
 	}
 
 	public void setSwipeRefreshLayoutRefreshing(boolean refreshing) {

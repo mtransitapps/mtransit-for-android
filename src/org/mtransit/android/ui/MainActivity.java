@@ -45,6 +45,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	private ListView mDrawerList;
 	private MenuAdapter mDrawerListAdapter;
 	private ActionBarDrawerToggle mDrawerToggle;
+	private int mDrawerState = DrawerLayout.STATE_IDLE;
 
 	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
@@ -99,6 +100,11 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 			@Override
 			public void onDrawerOpened(View drawerView) {
 				updateABDrawerOpened();
+			}
+
+			@Override
+			public void onDrawerStateChanged(int newState) {
+				mDrawerState = newState;
 			}
 		};
 
@@ -295,6 +301,9 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	}
 
 	private void updateAB() {
+		if (mDrawerState != DrawerLayout.STATE_IDLE) {
+			return;
+		}
 		if (isDrawerOpen()) {
 			updateABDrawerOpened();
 		} else {
@@ -307,8 +316,9 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		getActionBar().setSubtitle(mSubtitle);
 		if (mIcon > 0) {
 			getActionBar().setIcon(mIcon);
+			getActionBar().setDisplayShowHomeEnabled(true);
 		} else {
-			getActionBar().setIcon(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+			getActionBar().setDisplayShowHomeEnabled(false);
 		}
 		if (mBgColor != null) {
 			getActionBar().setBackgroundDrawable(new ColorDrawable(mBgColor));
@@ -324,8 +334,9 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		getActionBar().setSubtitle(mDrawerSubtitle);
 		if (mDrawerIcon > 0) {
 			getActionBar().setIcon(mDrawerIcon);
+			getActionBar().setDisplayShowHomeEnabled(true);
 		} else {
-			getActionBar().setIcon(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+			getActionBar().setDisplayShowHomeEnabled(false);
 		}
 		if (mDrawerBgColor != null) {
 			getActionBar().setBackgroundDrawable(new ColorDrawable(mDrawerBgColor));
