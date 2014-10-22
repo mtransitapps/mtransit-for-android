@@ -305,10 +305,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 	}
 
-	@Override
-	public int getABIconDrawableResId() {
-		return ABFragment.NO_ICON;
-	}
 
 	private View customView;
 
@@ -399,14 +395,9 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 
 	@Override
-	public CharSequence getSubtitle(Context context) {
-		return null;
-	}
-
-	@Override
-	public Integer getBgColor() {
+	public Integer getABBgColor() {
 		if (this.route == null) {
-			return ABFragment.NO_BG_COLOR;
+			return super.getABBgColor();
 		}
 		return ColorUtils.parseColor(this.route.color);
 	}

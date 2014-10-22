@@ -253,7 +253,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	}
 
 	private void setAB(ABFragment abf) {
-		setAB(abf.getABTitle(this), abf.getSubtitle(this), abf.getABIconDrawableResId(), abf.getBgColor(), abf.getABCustomView());
+		setAB(abf.getABTitle(this), abf.getABSubtitle(this), abf.getABIconDrawableResId(), abf.getABBgColor(), abf.getABCustomView());
 	}
 
 	private void setAB(CharSequence title, CharSequence subtitle, int iconResId, Integer bgColor, View customView) {

@@ -383,17 +383,8 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public CharSequence getSubtitle(Context context) {
+	public CharSequence getABSubtitle(Context context) {
 		return this.nearbyLocationAddress;
 	}
 
-	@Override
-	public Integer getBgColor() {
-		return ABFragment.NO_BG_COLOR;
-	}
-
-	@Override
-	public View getABCustomView() {
-		return ABFragment.NO_CUSTOM_VIEW;
-	}
 }

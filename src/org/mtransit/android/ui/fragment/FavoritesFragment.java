@@ -214,18 +214,5 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		return context.getString(R.string.favorites);
 	}
 
-	@Override
-	public CharSequence getSubtitle(Context context) {
-		return null;
-	}
 
-	@Override
-	public Integer getBgColor() {
-		return ABFragment.NO_BG_COLOR;
-	}
-
-	@Override
-	public View getABCustomView() {
-		return ABFragment.NO_CUSTOM_VIEW;
-	}
 }

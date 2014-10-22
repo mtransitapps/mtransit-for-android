@@ -37,18 +37,10 @@ public class MapsFragment extends ABFragment {
 		return context.getString(R.string.maps);
 	}
 
-	@Override
-	public CharSequence getSubtitle(Context context) {
-		return null;
-	}
 
 	@Override
-	public Integer getBgColor() {
+	public Integer getABBgColor() {
 		return android.R.color.transparent;
 	}
 
-	@Override
-	public View getABCustomView() {
-		return ABFragment.NO_CUSTOM_VIEW;
-	}
 }

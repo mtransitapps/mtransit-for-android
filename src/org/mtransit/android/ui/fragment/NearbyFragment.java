@@ -455,7 +455,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	@Override
-	public CharSequence getSubtitle(Context context) {
+	public CharSequence getABSubtitle(Context context) {
 		return this.nearbyLocationAddress;
 	}
 
@@ -468,15 +468,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 	}
 
-	@Override
-	public Integer getBgColor() {
-		return ABFragment.NO_BG_COLOR;
-	}
-
-	@Override
-	public View getABCustomView() {
-		return ABFragment.NO_CUSTOM_VIEW;
-	}
 
 	public static interface NearbyLocationListener extends MTActivityWithLocation.UserLocationListener {
 		public void onNearbyLocationChanged(Location location);

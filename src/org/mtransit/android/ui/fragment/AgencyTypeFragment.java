@@ -282,25 +282,15 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		return context.getString(this.type.getShortNameResId()).toUpperCase(Locale.ENGLISH);
 	}
 
-	@Override
-	public CharSequence getSubtitle(Context context) {
-		return null;
-	}
 
 	@Override
 	public int getABIconDrawableResId() {
-		return ABFragment.NO_ICON;
+		if (this.type != null && this.type.getMenuResId() != -1) {
+			return this.type.getMenuResId();
+		}
+		return super.getABIconDrawableResId();
 	}
 
-	@Override
-	public View getABCustomView() {
-		return ABFragment.NO_CUSTOM_VIEW;
-	}
-
-	@Override
-	public Integer getBgColor() {
-		return ABFragment.NO_BG_COLOR;
-	}
 
 	private static class AgencyPagerAdapter extends FragmentStatePagerAdapter {
 

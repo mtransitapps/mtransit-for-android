@@ -15,12 +15,20 @@ public abstract class ABFragment extends MTFragmentV4 {
 
 	public abstract CharSequence getABTitle(Context context);
 
-	public abstract CharSequence getSubtitle(Context context);
+	public CharSequence getABSubtitle(Context context) {
+		return null;
+	}
 
-	public abstract int getABIconDrawableResId();
+	public int getABIconDrawableResId() {
+		return ABFragment.NO_ICON;
+	}
 
-	public abstract Integer getBgColor();
+	public Integer getABBgColor() {
+		return ABFragment.NO_BG_COLOR;
+	}
 
-	public abstract View getABCustomView();
+	public View getABCustomView() {
+		return ABFragment.NO_CUSTOM_VIEW;
+	}
 
 }
