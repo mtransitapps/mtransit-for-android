@@ -133,6 +133,13 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		setAB();
+		updateAB();
+	}
+
+	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		mCustomView = null;
