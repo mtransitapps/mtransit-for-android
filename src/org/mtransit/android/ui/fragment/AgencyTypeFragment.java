@@ -283,15 +283,6 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	}
 
 
-	@Override
-	public int getABIconDrawableResId() {
-		if (this.type != null && this.type.getMenuResId() != -1) {
-			return this.type.getMenuResId();
-		}
-		return super.getABIconDrawableResId();
-	}
-
-
 	private static class AgencyPagerAdapter extends FragmentStatePagerAdapter {
 
 		private List<AgencyProperties> agencies;
