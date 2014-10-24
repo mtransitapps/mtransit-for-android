@@ -245,6 +245,11 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 		final DataSourceType type = getAgencyTypeAt(position);
 		if (type != null) {
 			holder.nameTv.setText(type.getShortNameResId());
+			if (type.getMenuResId() != -1) {
+				holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getMenuResId(), 0, 0, 0);
+			} else {
+				holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+			}
 		} else {
 			holder.nameTv.setText(null);
 			MTLog.w(this, "No agency view view expected at position '%s'!", position);
@@ -301,12 +306,12 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 	public View getSecondarView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.menu_item_secondary, parent, false);
-			MenuItemViewHolder holder = new MenuItemViewHolder();
+			MenuItemSecondaryViewHolder holder = new MenuItemSecondaryViewHolder();
 			holder.nameTv = (TextView) convertView.findViewById(R.id.name);
 			holder.icon = (ImageView) convertView.findViewById(R.id.icon);
 			convertView.setTag(holder);
 		}
-		MenuItemViewHolder holder = (MenuItemViewHolder) convertView.getTag();
+		MenuItemSecondaryViewHolder holder = (MenuItemSecondaryViewHolder) convertView.getTag();
 		// final int secondaryPosition = position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size();
 		// if (secondaryPosition == ITEM_INDEX_SETTINGS) {
 		// holder.nameTv.setText(R.string.settings);
@@ -330,20 +335,19 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 			convertView = this.layoutInflater.inflate(R.layout.menu_item, parent, false);
 			MenuItemViewHolder holder = new MenuItemViewHolder();
 			holder.nameTv = (TextView) convertView.findViewById(R.id.name);
-			holder.icon = (ImageView) convertView.findViewById(R.id.icon);
 			convertView.setTag(holder);
 		}
 		// update UI
 		MenuItemViewHolder holder = (MenuItemViewHolder) convertView.getTag();
 		if (position == ITEM_INDEX_HOME) {
 			holder.nameTv.setText(R.string.home);
-			holder.icon.setImageResource(R.drawable.ic_menu_home);
+			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_home, 0, 0, 0);
 		} else if (position == ITEM_INDEX_FAVORITE) {
 			holder.nameTv.setText(R.string.favorites);
-			holder.icon.setImageResource(R.drawable.ic_menu_favorites);
+			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_favorites, 0, 0, 0);
 		} else if (position == ITEM_INDEX_NEARBY) {
 			holder.nameTv.setText(R.string.nearby);
-			holder.icon.setImageResource(R.drawable.ic_menu_nearby);
+			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_nearby, 0, 0, 0);
 			// } else if (position == ITEM_INDEX_DIRECTIONS) {
 			// holder.nameTv.setText(R.string.directions);
 			// holder.icon.setImageResource(R.drawable.ic_menu_directions);
@@ -355,15 +359,19 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 			// holder.icon.setImageResource(R.drawable.ic_menu_maps);
 		} else {
 			holder.nameTv.setText(null);
-			holder.icon.setImageDrawable(null);
+			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
 			MTLog.w(this, "No static view view expected at position '%s'!", position);
 		}
 		return convertView;
 	}
 
-	public static class MenuItemViewHolder {
+	public static class MenuItemSecondaryViewHolder {
 		TextView nameTv;
 		ImageView icon;
+	}
+
+	public static class MenuItemViewHolder {
+		TextView nameTv;
 	}
 
 	public static class MenuItemAgencyTypeViewHolder {

@@ -158,7 +158,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		restoreInstanceState(savedInstanceState);
-		initAdapter();
+		if (savedInstanceState != null) {
+			initAdapter(); // initialize now so restored view state used (keep scrolling position in list
+		}
 	}
 
 	private void initAdapter() {
@@ -420,7 +422,11 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		} else {
 			// show found POIs (or empty list)
 			this.adapter.setPois(data);
-			this.adapter.updateDistanceNowAsync(this.userLocation);
+			if (this.fragmentVisible) {
+				this.adapter.updateDistanceNowAsync(this.userLocation);
+			} else {
+				this.adapter.onPause();
+			}
 			switchView(getView());
 		}
 	}

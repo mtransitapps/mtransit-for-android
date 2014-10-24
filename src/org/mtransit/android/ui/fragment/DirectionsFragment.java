@@ -29,7 +29,7 @@ public class DirectionsFragment extends ABFragment {
 
 	@Override
 	public int getABIconDrawableResId() {
-		return R.drawable.ic_menu_directions;
+		return R.drawable.ic_menu_directions_holo_light;
 	}
 
 	@Override

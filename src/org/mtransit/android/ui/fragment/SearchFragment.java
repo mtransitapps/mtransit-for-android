@@ -29,7 +29,7 @@ public class SearchFragment extends ABFragment {
 
 	@Override
 	public int getABIconDrawableResId() {
-		return R.drawable.ic_menu_search;
+		return R.drawable.ic_menu_search_holo_light;
 	}
 
 	@Override

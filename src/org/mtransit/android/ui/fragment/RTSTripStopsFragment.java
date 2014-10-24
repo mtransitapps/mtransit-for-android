@@ -9,6 +9,7 @@ import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.UriUtils;
+import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.data.DataSourceProvider;
@@ -42,12 +43,14 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 
 	private static final String EXTRA_AGENCY_AUTHORITY = "extra_agency_authority";
 	private static final String EXTRA_TRIP_ID = "extra_trip_id";
+	private static final String EXTRA_STOP_ID = "extra_stop_id";
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 	private static final String EXTRA_USER_LOCATION = "extra_user_location";
 	private static final String EXTRA_SELECTED_ITEM_POSITION = "extra_selected_item_position";
 
-	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisisbleFragmentPosition, String authority, Trip trip, Location userLocationOpt) {
+	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisisbleFragmentPosition, String authority, Trip trip, Integer optStopId,
+			Location userLocationOpt) {
 		RTSTripStopsFragment f = new RTSTripStopsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, authority);
@@ -57,6 +60,9 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		}
 		if (lastVisisbleFragmentPosition >= 0) {
 			args.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, lastVisisbleFragmentPosition);
+		}
+		if (optStopId != null) {
+			args.putInt(EXTRA_STOP_ID, optStopId);
 		}
 		if (userLocationOpt != null) {
 			args.putParcelable(EXTRA_USER_LOCATION, userLocationOpt);
@@ -68,6 +74,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private Trip trip;
 	private String authority;
 	private Integer tripId;
+	private Integer stopId;
 	private POIArrayAdapter adapter;
 	private Location userLocation;
 	private int fragmentPosition = -1;
@@ -118,6 +125,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 				this.lastVisisbleFragmentPosition = -1;
 			}
 		}
+		this.stopId = BundleUtils.getInt(EXTRA_STOP_ID, savedInstanceState, getArguments());
 		final Location userLocation = BundleUtils.getParcelable(EXTRA_USER_LOCATION, savedInstanceState, getArguments());
 		if (userLocation != null) {
 			onUserLocationChanged(userLocation);
@@ -224,7 +232,12 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	@Override
 	public void onLoadFinished(Loader<List<POIManager>> loader, List<POIManager> data) {
 		if (this.currentSelectedItemPosition == null) {
-			this.currentSelectedItemPosition = findClosestPOIIndex(data);
+			if (this.stopId != null) {
+				this.currentSelectedItemPosition = findStopIndex(this.stopId.intValue(), data);
+			}
+			if (this.currentSelectedItemPosition == null) {
+				this.currentSelectedItemPosition = findClosestPOIIndex(data);
+			}
 		}
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
@@ -235,7 +248,20 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		switchView(view);
 	}
 
-	private int findClosestPOIIndex(List<POIManager> pois) {
+	private Integer findStopIndex(int stopId, List<POIManager> pois) {
+		for (int i = 0; i < pois.size(); i++) {
+			final POIManager poim = pois.get(i);
+			if (poim != null && poim.poi instanceof RouteTripStop) {
+				final RouteTripStop rts = (RouteTripStop) poim.poi;
+				if (rts.stop.id == stopId) {
+					return i;
+				}
+			}
+		}
+		return null;
+	}
+
+	private Integer findClosestPOIIndex(List<POIManager> pois) {
 		if (this.userLocation != null) {
 			LocationUtils.updateDistance(pois, this.userLocation.getLatitude(), this.userLocation.getLongitude());
 			ArrayList<POIManager> sortedPOIs = new ArrayList<POIManager>(pois);
@@ -247,7 +273,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 				}
 			}
 		}
-		return 0;
+		return null;
 	}
 
 	@Override

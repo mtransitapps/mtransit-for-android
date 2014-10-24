@@ -10,13 +10,11 @@ import android.content.Context;
 
 public enum DataSourceType {
 
-	TYPE_SUBWAY(1, R.string.agency_type_subway_short_name), // GTFS - Metro
-	TYPE_RAIL(2, R.string.agency_type_rail_short_name), // GTFS - Train
-	TYPE_BUS(3, R.string.agency_type_bus_short_name), // GTFS
-
-	TYPE_BIKE(100, R.string.agency_type_bike_short_name), // like Bixi, Velib
-
-	TYPE_MODULE(999, R.string.agency_type_module_short_name), //
+	TYPE_SUBWAY(1, R.string.agency_type_subway_short_name, R.drawable.ic_menu_subway, R.drawable.ic_menu_subway_light), // GTFS - Metro
+	TYPE_RAIL(2, R.string.agency_type_rail_short_name, R.drawable.ic_menu_train, R.drawable.ic_menu_train_light), // GTFS - Train
+	TYPE_BUS(3, R.string.agency_type_bus_short_name, R.drawable.ic_menu_bus, R.drawable.ic_menu_bus_light), // GTFS
+	TYPE_BIKE(100, R.string.agency_type_bike_short_name, R.drawable.ic_menu_bike, R.drawable.ic_menu_bike_light), // like Bixi, Velib
+	TYPE_MODULE(999, R.string.agency_type_module_short_name, R.drawable.ic_menu_play_store, R.drawable.ic_menu_play_store_light), //
 	;
 
 	private static final String TAG = DataSourceType.class.getSimpleName();
@@ -25,9 +23,15 @@ public enum DataSourceType {
 
 	private int shortNameResId;
 
-	DataSourceType(int id, int shortNameResId) {
+	private int menuResId;
+
+	private int abIconResId;
+
+	DataSourceType(int id, int shortNameResId, int menuResId, int abIconResId) {
 		this.id = id;
 		this.shortNameResId = shortNameResId;
+		this.menuResId = menuResId;
+		this.abIconResId = abIconResId;
 	}
 
 	public int getId() {
@@ -36,6 +40,14 @@ public enum DataSourceType {
 
 	public int getShortNameResId() {
 		return shortNameResId;
+	}
+
+	public int getMenuResId() {
+		return menuResId;
+	}
+
+	public int getAbIconResId() {
+		return abIconResId;
 	}
 
 	public static DataSourceType parseId(int id) {

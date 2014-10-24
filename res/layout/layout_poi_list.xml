@@ -4,11 +4,7 @@
     android:id="@+id/list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="0dp"
-    android:paddingLeft="@dimen/list_view_divider_height"
-    android:paddingRight="@dimen/list_view_divider_height"
-    android:paddingTop="0dp"
-    android:scrollbarStyle="outsideOverlay"
+    android:scrollbarStyle="insideOverlay"
     android:visibility="visible"
     tools:context=".ui.MainActivity"
     tools:listitem="@layout/layout_poi_basic" />

@@ -25,6 +25,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -52,6 +55,53 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	private Location userLocation;
 	private AgencyPagerAdapter adapter;
 	private int lastPageSelected = -1;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true); // child fragments options menus don't get updated when coming back from another activity
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		final List<Fragment> fragments = getChildFragmentManager().getFragments();
+		if (fragments != null) {
+			for (Fragment fragment : fragments) {
+				if (fragment != null) {
+					fragment.onCreateOptionsMenu(menu, inflater);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		final List<Fragment> fragments = getChildFragmentManager().getFragments();
+		if (fragments != null) {
+			for (Fragment fragment : fragments) {
+				if (fragment != null) {
+					fragment.onPrepareOptionsMenu(menu);
+				}
+			}
+		}
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		final List<Fragment> fragments = getChildFragmentManager().getFragments();
+		if (fragments != null) {
+			for (Fragment fragment : fragments) {
+				if (fragment != null) {
+					if (fragment.onOptionsItemSelected(item)) {
+						return true; // handled
+					}
+				}
+			}
+		}
+		return super.onOptionsItemSelected(item);
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -280,6 +330,14 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			return context.getString(R.string.ellipsis);
 		}
 		return context.getString(this.type.getShortNameResId()).toUpperCase(Locale.ENGLISH);
+	}
+
+	@Override
+	public int getABIconDrawableResId() {
+		if (this.type != null && this.type.getAbIconResId() != -1) {
+			return this.type.getAbIconResId();
+		}
+		return super.getABIconDrawableResId();
 	}
 
 

@@ -6,8 +6,10 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
+import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.JPaths;
@@ -21,12 +23,14 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<List<Route>>,
@@ -45,7 +49,6 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		this.tag = TAG + "-" + tag;
 	}
 
-	private static final boolean USE_GRID = false;
 
 	private static final String EXTRA_AGENCY_AUTHORITY = "extra_agency_authority";
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
@@ -116,7 +119,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 	}
 
 	private void initAdapter() {
-		this.adapter = new RTSRouteArrayAdapter(getActivity(), this.agency.getAuthority());
+		this.adapter = new RTSRouteArrayAdapter(getActivity(), this.agency.getAuthority(), isShowingListInsteadOfGrid());
 		final View view = getView();
 		setupView(view);
 		switchView(view);
@@ -126,16 +129,57 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		if (view == null || this.adapter == null) {
 			return;
 		}
-		final AbsListView absListView = (AbsListView) view.findViewById(USE_GRID ? R.id.grid : R.id.list);
+		final AbsListView absListView = (AbsListView) view.findViewById(isShowingListInsteadOfGrid() ? R.id.list : R.id.grid);
 		absListView.setAdapter(this.adapter);
 		absListView.setOnItemClickListener(this);
+	}
+
+	private Boolean showingListInsteadOfGrid = null;
+
+	private boolean isShowingListInsteadOfGrid() {
+		if (this.showingListInsteadOfGrid == null) {
+			this.showingListInsteadOfGrid = PreferenceUtils.getPrefDefault(getActivity(), PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID,
+					PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT);
+		return this.showingListInsteadOfGrid.booleanValue();
+	}
+
+	private void checkIfShowingListInsteadOfGridChanged() {
+		if (this.showingListInsteadOfGrid == null) {
+			return;
+		}
+		boolean newShowingListInsteadOfGrid = PreferenceUtils.getPrefDefault(getActivity(), PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID,
+				PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT);
+		if (newShowingListInsteadOfGrid != this.showingListInsteadOfGrid.booleanValue()) {
+			setShowingListInsteadOfGrid(newShowingListInsteadOfGrid);
+		}
+	}
+
+	private void setShowingListInsteadOfGrid(boolean newShowingListInsteadOfGrid) {
+		if (this.showingListInsteadOfGrid != null && this.showingListInsteadOfGrid.booleanValue() == newShowingListInsteadOfGrid) {
+			return; // nothing changed
+		}
+		this.showingListInsteadOfGrid = newShowingListInsteadOfGrid; // switching to grid
+		getActivity().invalidateOptionsMenu();
+		PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID,
+				this.showingListInsteadOfGrid.booleanValue(), false);
+		if (this.adapter == null) {
+			initAdapter();
+		}
+		this.adapter.seShowingListInsteadOfGrid(this.showingListInsteadOfGrid);
+		setupView(getView());
+		switchView(getView());
+		this.adapter.notifyDataSetChanged();
+	}
+
+	private void switchListGrid() {
+		setShowingListInsteadOfGrid(!isShowingListInsteadOfGrid()); // switching
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		final Route route = this.adapter.getItem(position);
 		if (route != null) {
-			((MainActivity) getActivity()).addFragmentToStack(RTSRouteFragment.newInstance(this.agency.getAuthority(), route));
+			((MainActivity) getActivity()).addFragmentToStack(RTSRouteFragment.newInstance(this.agency.getAuthority(), route, null, null));
 		}
 	}
 
@@ -178,6 +222,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		} else {
 			switchView(getView());
 		}
+		checkIfShowingListInsteadOfGridChanged();
 	}
 
 	private static final int ROUTES_LOADER = 0;
@@ -248,13 +293,17 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		view.findViewById(USE_GRID ? R.id.grid : R.id.list).setVisibility(View.VISIBLE); // show
+		view.findViewById(isShowingListInsteadOfGrid() ? R.id.grid : R.id.list).setVisibility(View.GONE); // show
+		view.findViewById(isShowingListInsteadOfGrid() ? R.id.list : R.id.grid).setVisibility(View.VISIBLE); // show
 	}
 
 
 	private void showLoading(View view) {
-		if (view.findViewById(USE_GRID ? R.id.grid : R.id.list) != null) { // IF inflated/present DO
-			view.findViewById(USE_GRID ? R.id.grid : R.id.list).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
+			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
+		}
+		if (view.findViewById(R.id.grid) != null) { // IF inflated/present DO
+			view.findViewById(R.id.grid).setVisibility(View.GONE); // hide
 		}
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
@@ -266,8 +315,11 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 	}
 
 	private void showEmpty(View view) {
-		if (view.findViewById(USE_GRID ? R.id.grid : R.id.list) != null) { // IF inflated/present DO
-			view.findViewById(USE_GRID ? R.id.grid : R.id.list).setVisibility(View.GONE); // hide
+		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
+			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
+		}
+		if (view.findViewById(R.id.grid) != null) { // IF inflated/present DO
+			view.findViewById(R.id.grid).setVisibility(View.GONE); // hide
 		}
 		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
 			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
@@ -281,7 +333,40 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
-	private static class RTSRouteArrayAdapter extends ArrayAdapter<Route> implements MTLog.Loggable {
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		if (!this.fragmentVisible) {
+			return;
+		}
+		inflater.inflate(R.menu.rts_agency_routes, menu);
+	}
+
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		if (!this.fragmentVisible) {
+			return;
+		}
+		final MenuItem toggle = menu.findItem(R.id.menu_toggle_list_grid);
+		toggle.setIcon(isShowingListInsteadOfGrid() ? R.drawable.ic_action_grid_light : R.drawable.ic_action_list_light);
+		toggle.setTitle(isShowingListInsteadOfGrid() ? R.string.menu_action_grid : R.string.menu_action_list);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (!this.fragmentVisible) {
+			return false; // not handled
+		}
+		switch (item.getItemId()) {
+		case R.id.menu_toggle_list_grid:
+			switchListGrid();
+			return true; // handled
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	private static class RTSRouteArrayAdapter extends MTArrayAdapter<Route> implements MTLog.Loggable {
 
 		private static final String TAG = RTSRouteArrayAdapter.class.getSimpleName();
 
@@ -293,11 +378,17 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		private List<Route> routes = null;
 		private LayoutInflater layoutInflater;
 		private String authority;
+		private boolean showingListInsteadOfGrid;
 
-		public RTSRouteArrayAdapter(Context context, String authority) {
-			super(context, USE_GRID ? R.layout.layout_rts_route_grid_item : R.layout.layout_rts_route_list_item, R.id.route_short_name);
+		public RTSRouteArrayAdapter(Context context, String authority, boolean showingListInsteadOfGrid) {
+			super(context, -1);
 			this.layoutInflater = LayoutInflater.from(context);
 			this.authority = authority;
+			this.showingListInsteadOfGrid = showingListInsteadOfGrid;
+		}
+
+		public void seShowingListInsteadOfGrid(boolean showingListInsteadOfGrid) {
+			this.showingListInsteadOfGrid = showingListInsteadOfGrid;
 		}
 
 		public void setRoutes(List<Route> routes) {
@@ -314,6 +405,16 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		}
 
 		@Override
+		public int getItemViewType(int position) {
+			return this.showingListInsteadOfGrid ? 0 : 1;
+		}
+
+		@Override
+		public int getViewTypeCount() {
+			return 2;
+		}
+
+		@Override
 		public Route getItem(int position) {
 			return this.routes == null ? null : this.routes.get(position);
 		}
@@ -325,7 +426,8 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 
 		private View getRouteView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null) {
-				convertView = this.layoutInflater.inflate(USE_GRID ? R.layout.layout_rts_route_grid_item : R.layout.layout_rts_route_list_item, parent, false);
+				convertView = this.layoutInflater.inflate(this.showingListInsteadOfGrid ? R.layout.layout_rts_route_list_item
+						: R.layout.layout_rts_route_grid_item, parent, false);
 				RouteViewHolder holder = new RouteViewHolder();
 				holder.routeFL = convertView.findViewById(R.id.route);
 				holder.routeShortNameTv = (TextView) convertView.findViewById(R.id.route_short_name);

@@ -3,6 +3,7 @@ package org.mtransit.android.ui;
 import java.lang.ref.WeakReference;
 
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.MTFragmentActivity;
 import org.mtransit.android.commons.ui.fragment.MTDialogFragmentV4;
 
@@ -37,10 +38,22 @@ public abstract class MTActivityWithGoogleAPIClient extends MTFragmentActivity i
 		super.onCreate(savedInstanceState);
 		this.resolvingError = savedInstanceState != null && savedInstanceState.getBoolean(STATE_RESOLVING_ERROR, false);
 		if (useGooglePlayServices) {
-			GoogleApiClient.Builder googleApiClientBuilder = new GoogleApiClient.Builder(this);
-			addGoogleAPIs(googleApiClientBuilder);
-			googleApiClientBuilder.addConnectionCallbacks(this).addOnConnectionFailedListener(this);
-			this.googleApiClient = googleApiClientBuilder.build();
+			new MTAsyncTask<Void, Void, Void>() {
+				@Override
+				public String getLogTag() {
+					return MTActivityWithGoogleAPIClient.this.getLogTag();
+				}
+
+				@Override
+				protected Void doInBackgroundMT(Void... params) {
+					GoogleApiClient.Builder googleApiClientBuilder = new GoogleApiClient.Builder(MTActivityWithGoogleAPIClient.this);
+					addGoogleAPIs(googleApiClientBuilder);
+					googleApiClientBuilder.addConnectionCallbacks(MTActivityWithGoogleAPIClient.this).addOnConnectionFailedListener(
+							MTActivityWithGoogleAPIClient.this);
+					MTActivityWithGoogleAPIClient.this.googleApiClient = googleApiClientBuilder.build();
+					return null;
+				}
+			}.execute();
 		}
 	}
 
@@ -76,15 +89,37 @@ public abstract class MTActivityWithGoogleAPIClient extends MTFragmentActivity i
 	protected void onStart() {
 		super.onStart();
 		if (!this.resolvingError) {
-			this.googleApiClient.connect();
+			new MTAsyncTask<Void, Void, Void>() {
+				@Override
+				public String getLogTag() {
+					return MTActivityWithGoogleAPIClient.this.getLogTag();
+				}
+
+				@Override
+				protected Void doInBackgroundMT(Void... params) {
+					MTActivityWithGoogleAPIClient.this.googleApiClient.connect();
+					return null;
+				}
+			}.execute();
 		}
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-		onBeforeClientDisconnected(this.googleApiClient);
-		this.googleApiClient.disconnect();
+		new MTAsyncTask<Void, Void, Void>() {
+			@Override
+			public String getLogTag() {
+				return MTActivityWithGoogleAPIClient.this.getLogTag();
+			}
+
+			@Override
+			protected Void doInBackgroundMT(Void... params) {
+				onBeforeClientDisconnected(MTActivityWithGoogleAPIClient.this.googleApiClient);
+				MTActivityWithGoogleAPIClient.this.googleApiClient.disconnect();
+				return null;
+			}
+		}.execute();
 	}
 
 	public abstract void onBeforeClientDisconnected(GoogleApiClient googleApiClient);

@@ -3,7 +3,7 @@
     android:id="@+id/name"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/menu_item_bg"
+    android:background="@color/menu_bg"
     android:ellipsize="end"
     android:fontFamily="sans-serif"
     android:gravity="bottom"

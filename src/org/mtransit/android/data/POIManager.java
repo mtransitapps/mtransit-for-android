@@ -23,6 +23,7 @@ import org.mtransit.android.provider.FavoriteManager.FavoriteUpdateListener;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.task.StatusLoader.StatusLoaderListener;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.fragment.POIFragment;
 import org.mtransit.android.ui.fragment.RTSRouteFragment;
 
 import android.app.Activity;
@@ -186,6 +187,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				RouteTripStop rts = (RouteTripStop) this.poi;
 				Schedule.ScheduleStatusFilter filter = new Schedule.ScheduleStatusFilter(this.poi.getUUID(), rts);
 				filter.setTimestamp(findStatusTimestampMs);
+				filter.setLookBehindInMs(TimeUtils.RECENT_IN_MILLIS);
 				return filter;
 			} else {
 				MTLog.w(this, "Schedule fiter w/o '%s'!", this.poi);
@@ -275,7 +277,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		switch (itemClicked) {
 		case 1:
 			RouteTripStop rts = (RouteTripStop) poi;
-			((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts.getAuthority(), rts.route));
+			((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts));
 			return true; // HANDLED
 		case 2:
 			return addRemoteFavorite(activity, FavoriteManager.isFavorite(activity, poi.getUUID()), listener);
@@ -291,7 +293,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return false; // NOT HANDLED
 	}
 
-	private boolean addRemoteFavorite(Activity activity, boolean isFavorite, FavoriteUpdateListener listener) {
+	public boolean addRemoteFavorite(Activity activity, boolean isFavorite, FavoriteUpdateListener listener) {
 		FavoriteManager.addOrDeleteFavorite(activity, isFavorite, this.poi.getUUID()/* , getFavoriteType() */);
 		if (listener != null) {
 			listener.onFavoriteUpdated();
@@ -299,7 +301,29 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return true; // HANDLED
 	}
 
+	public boolean isFavoritable() {
+		switch (this.poi.getActionsType()) {
+		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
+		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
+			return true;
+		case POI.ITEM_ACTION_TYPE_APP:
+			return false;
+		default:
+			MTLog.w(this, "unexpected action type '%s'!", this.poi.getActionsType());
+			return false;
+		}
+	}
+
 	public boolean onActionItemClick(Activity activity) {
+		switch (this.poi.getActionsType()) {
+		case POI.ITEM_ACTION_TYPE_APP:
+			return false; // show long-click menu
+		}
+		if (activity != null && activity instanceof MainActivity) {
+			final MainActivity mainActivity = (MainActivity) activity;
+			mainActivity.addFragmentToStack(POIFragment.newInstance(this, mainActivity.getUserLocation()));
+			return true; // HANDLED
+		}
 		return false; // NOT HANDLED
 	}
 

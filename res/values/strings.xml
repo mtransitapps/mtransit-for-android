@@ -44,4 +44,8 @@
     <string name="view_stop_route_and_route">View route %s</string>
     <string name="add_fav">Add to favorites</string>
     <string name="remove_fav">Remove from favorites</string>
+    <string name="menu_action_list">List</string>
+    <string name="menu_action_grid">Grid</string>
+    <string name="menu_action_add_favorite">Add to favroites</string>
+    <string name="menu_action_remove_favorite">Remove from favorites</string>
 </resources>

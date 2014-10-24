@@ -26,6 +26,8 @@ import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.StatusLoader;
+import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.fragment.RTSRouteFragment;
 import org.mtransit.android.ui.view.MTCompassView;
 import org.mtransit.android.ui.view.MTJPathsView;
 import org.mtransit.android.ui.view.MTPieChartPercentView;
@@ -128,7 +130,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private FavoriteManager.FavoriteUpdateListener favoriteUpdateListener = this;
 
 	public POIArrayAdapter(Activity activity) {
-		super(activity, R.layout.layout_loading_small);
+		super(activity, -1);
 		this.activity = activity;
 		this.layoutInflater = LayoutInflater.from(getContext());
 	}
@@ -309,7 +311,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		showPoiViewerActivity(position);
+		showPoiViewerScreen(position);
 	}
 
 	@Override
@@ -324,10 +326,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return false;
 	}
 
-	public boolean showPoiViewerActivity(int position) {
+	public boolean showPoiViewerScreen(int position) {
 		final POIManager poim = getItem(position);
 		if (poim != null) {
-			return showPoiViewerActivity(poim);
+			return showPoiViewerScreen(poim);
 		}
 		return false;
 	}
@@ -355,7 +357,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return true;
 	}
 
-	public boolean showPoiViewerActivity(final POIManager poim) {
+	public boolean showPoiViewerScreen(final POIManager poim) {
 		if (poim == null) {
 			return false;
 		}
@@ -373,8 +375,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 		case POI.ITEM_VIEW_TYPE_MODULE:
-			StringBuilder title = new StringBuilder(poim.poi.getName());
-			new AlertDialog.Builder(getContext()).setTitle(title)
+			new AlertDialog.Builder(getContext()).setTitle(poim.poi.getName())
 					.setItems(poim.getActionsItems(getContext(), getContext().getString(R.string.view_details)), new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int item) {
 							if (poim.onActionsItemClick(POIArrayAdapter.this.activity, item, POIArrayAdapter.this.favoriteUpdateListener)) {
@@ -382,7 +383,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 							}
 							switch (item) {
 							case 0:
-								showPoiViewerActivity(poim);
+								showPoiViewerScreen(poim);
 								break;
 							default:
 								MTLog.w(POIArrayAdapter.this, "Unexpected action item '%s'!", item);
@@ -576,7 +577,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			notifyDataSetChangedManual();
 			this.lastNotifyDataSetChanged = now;
 			this.handler.removeCallbacks(this.notifyDataSetChangedLater);
-			tryLoadingScheduleIfNotBusy();
 		} else {
 			// IF we really needed to show new data AND list wasn't not idle DO try again later
 			if (force && this.scrollState != AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
@@ -618,7 +618,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				view.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						showPoiViewerActivity(position);
+						showPoiViewerScreen(position);
 					}
 				});
 				view.setOnLongClickListener(new View.OnLongClickListener() {
@@ -775,12 +775,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			this.lastCompassInDegree = roundedOrientation;
 			this.lastCompassChanged = now;
 			if (this.compassUpdatesEnabled && this.location != null && this.lastCompassInDegree >= 0) {
-				if (this.compassImgsWR != null) {
+				if (this.compassImgsWR != null && this.compassImgsWR.size() != 0) {
 					for (MTCompassView compassView : this.compassImgsWR.keySet()) {
-						if (compassView != null && compassView.getVisibility() == View.VISIBLE) {
+						if (compassView != null) {
 							compassView.generateAndSetHeading(this.location, this.lastCompassInDegree, this.locationDeclination);
+							compassView.setVisibility(View.VISIBLE);
 						}
 					}
+				} else {
+					notifyDataSetChanged(true); // weak reference list not set
 				}
 			}
 		}
@@ -804,6 +807,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 		TypeHeaderViewHolder holder = (TypeHeaderViewHolder) convertView.getTag();
 		holder.nameTv.setText(getContext().getString(type.getShortNameResId()));
+		if (type.getAbIconResId() != -1) {
+			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getAbIconResId(), 0, 0, 0);
+		}
 		return convertView;
 	}
 
@@ -1059,6 +1065,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
 				holder.rtsExtraV.setBackgroundColor(routeColor);
+				holder.rtsExtraV.setOnClickListener(new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						((MainActivity) POIArrayAdapter.this.activity).addFragmentToStack(RTSRouteFragment.newInstance(rts));
+					}
+				});
 				holder.routeFL.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setVisibility(View.VISIBLE);
 				if (rts.trip == null) {
@@ -1076,7 +1089,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private void updatePOIStatus(CommonStatusViewHolder statusViewHolder, POIStatus status) {
 		if (!this.showStatus || status == null || statusViewHolder == null) {
 			if (statusViewHolder != null) {
-				statusViewHolder.statusV.setVisibility(View.GONE);
+				statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 			}
 			return;
 		}
@@ -1166,13 +1179,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			final String action = intent.getAction();
 			if (Intent.ACTION_TIME_TICK.equals(action) || Intent.ACTION_TIME_CHANGED.equals(action) || Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
 				resetNowToTheMinute();
-				tryLoadingScheduleIfNotBusy();
 			}
 		}
 	};
 
-	private void tryLoadingScheduleIfNotBusy() {
-	}
 
 	private void enableTimeChangedReceiver() {
 		if (!this.timeChangedReceiverEnabled) {

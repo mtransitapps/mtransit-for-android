@@ -53,7 +53,9 @@
             </intent-filter>
         </activity>
         <!-- MAIN SCREEN -->
-        <activity android:name=".ui.MainActivity" >
+        <activity
+            android:name=".ui.MainActivity"
+            android:launchMode="singleTask" >
         </activity>
         <!-- GOOGLE PLAY SERVICES VERSION -->
         <meta-data

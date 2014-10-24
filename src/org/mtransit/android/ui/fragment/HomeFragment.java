@@ -243,8 +243,8 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			this.adapter.clear();
 		}
 		final View view = getView();
-		switchView(view);
 		if (view != null) {
+			switchView(view);
 			if (view.findViewById(R.id.list) != null) {
 				((AbsListView) view.findViewById(R.id.list)).scrollTo(0, 0);
 			}
@@ -371,9 +371,9 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public int getABIconDrawableResId() {
 		if (!this.userAwayFromNearbyLocation) {
-			return R.drawable.ic_menu_home_active;
+			return R.drawable.ic_menu_guide_holo_light_active;
 		} else {
-			return R.drawable.ic_menu_home;
+			return R.drawable.ic_menu_guide_light;
 		}
 	}
 

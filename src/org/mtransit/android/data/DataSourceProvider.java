@@ -502,6 +502,29 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return result;
 	}
 
+	public static POIManager findPOIWithUUID(Context context, Uri contentUri, String uuid) {
+		Cursor cursor = null;
+		try {
+			POIFilter poiFilter = new POIFilter(POIProvider.POIColumns.T_POI_K_UUID_META + " = '" + uuid + "'");
+			String filterJsonString = POIFilter.toJSON(poiFilter).toString();
+			final String sortOrder = null;
+			final Uri uri = getPOIUri(contentUri);
+			cursor = context.getContentResolver().query(uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, sortOrder);
+			final List<POIManager> pois = getPOIs(cursor, contentUri.getAuthority());
+			if (pois != null && pois.size() > 0) {
+				return pois.get(0);
+			}
+			return null;
+		} catch (Throwable t) {
+			MTLog.w(TAG, t, "Error!");
+			return null;
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+	}
+
 	public static List<POIManager> findPOIsWithUUIDs(Context context, Uri contentUri, Set<String> uuids) {
 		Cursor cursor = null;
 		try {

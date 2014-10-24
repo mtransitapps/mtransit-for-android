@@ -22,6 +22,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -100,11 +101,13 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 			@Override
 			public void onDrawerClosed(View view) {
 				updateABDrawerClosed();
+				invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
 			}
 
 			@Override
 			public void onDrawerOpened(View drawerView) {
 				updateABDrawerOpened();
+				invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
 			}
 
 			@Override
@@ -408,6 +411,16 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		}
 		this.mDrawerToggle.setDrawerIndicatorEnabled(true);
 		invalidateOptionsMenu();
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+		final MenuItem menuToggleListGrid = menu.findItem(R.id.menu_toggle_list_grid);
+		if (menuToggleListGrid != null) {
+			menuToggleListGrid.setVisible(!drawerOpen);
+		}
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override

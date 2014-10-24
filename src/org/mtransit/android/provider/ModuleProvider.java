@@ -51,6 +51,11 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return TAG;
 	}
 
+	@Override
+	public String toString() {
+		return getLogTag();
+	}
+
 	private static final int AGENCY_TYPE = 999;
 
 	private static final String PREF_KEY_LAST_UPDATE_MS = ModuleDbHelper.PREF_KEY_LAST_UPDATE_MS;
@@ -456,7 +461,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		HashMap<String, String> poiProjectionMap = new HashMap<String, String>();
 		poiProjectionMap.put(POIColumns.T_POI_K_UUID_META, SqlUtils.concatenate("'" + POIUtils.UID_SEPARATOR + "'", //
 				"'" + authority + "'", //
-				POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_ID //
+				ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_PKG //
 		) + " AS " + POIColumns.T_POI_K_UUID_META);
 		poiProjectionMap.put(POIColumns.T_POI_K_ID, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_ID + " AS " + POIColumns.T_POI_K_ID);
 		poiProjectionMap.put(POIColumns.T_POI_K_NAME, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_NAME + " AS " + POIColumns.T_POI_K_NAME);

@@ -29,7 +29,7 @@ public class MapsFragment extends ABFragment {
 
 	@Override
 	public int getABIconDrawableResId() {
-		return R.drawable.ic_menu_maps;
+		return R.drawable.ic_menu_maps_holo_light;
 	}
 
 	@Override
