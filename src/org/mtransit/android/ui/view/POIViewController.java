@@ -141,26 +141,38 @@ public class POIViewController implements MTLog.Loggable {
 	private static CommonStatusViewHolder initPOIStatusViewHolder(int status, View view) {
 		switch (status) {
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = new AvailabilityPercentStatusViewHolder();
-			initCommonStatusViewHolderHolder(availabilityPercentStatusViewHolder, view);
-			availabilityPercentStatusViewHolder.textTv = (TextView) view.findViewById(R.id.textTv);
-			availabilityPercentStatusViewHolder.piePercentV = (MTPieChartPercentView) view.findViewById(R.id.pie);
-			return availabilityPercentStatusViewHolder;
+			return initAvailabilityPercentViewHolder(view);
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			ScheduleStatusViewHolder scheduleStatusViewHolder = new ScheduleStatusViewHolder();
-			initCommonStatusViewHolderHolder(scheduleStatusViewHolder, view);
-			scheduleStatusViewHolder.dataNextLine1Tv = (TextView) view.findViewById(R.id.data_next_line_1);
-			scheduleStatusViewHolder.dataNextLine2Tv = (TextView) view.findViewById(R.id.data_next_line_2);
-			return scheduleStatusViewHolder;
+			return initScheduleViewHolder(view);
 		case POI.ITEM_STATUS_TYPE_APP:
-			AppStatusViewHolder appStatusViewHolder = new AppStatusViewHolder();
-			initCommonStatusViewHolderHolder(appStatusViewHolder, view);
-			appStatusViewHolder.textTv = (TextView) view.findViewById(R.id.textTv);
-			return appStatusViewHolder;
+			return initAppStatusViewHolder(view);
 		default:
 			MTLog.w(TAG, "Unexpected status '%s' (no view holder)!", status);
 			return null;
 		}
+	}
+
+	private static CommonStatusViewHolder initScheduleViewHolder(View view) {
+		ScheduleStatusViewHolder scheduleStatusViewHolder = new ScheduleStatusViewHolder();
+		initCommonStatusViewHolderHolder(scheduleStatusViewHolder, view);
+		scheduleStatusViewHolder.dataNextLine1Tv = (TextView) view.findViewById(R.id.data_next_line_1);
+		scheduleStatusViewHolder.dataNextLine2Tv = (TextView) view.findViewById(R.id.data_next_line_2);
+		return scheduleStatusViewHolder;
+	}
+
+	private static CommonStatusViewHolder initAppStatusViewHolder(View view) {
+		AppStatusViewHolder appStatusViewHolder = new AppStatusViewHolder();
+		initCommonStatusViewHolderHolder(appStatusViewHolder, view);
+		appStatusViewHolder.textTv = (TextView) view.findViewById(R.id.textTv);
+		return appStatusViewHolder;
+	}
+
+	private static CommonStatusViewHolder initAvailabilityPercentViewHolder(View view) {
+		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = new AvailabilityPercentStatusViewHolder();
+		initCommonStatusViewHolderHolder(availabilityPercentStatusViewHolder, view);
+		availabilityPercentStatusViewHolder.textTv = (TextView) view.findViewById(R.id.textTv);
+		availabilityPercentStatusViewHolder.piePercentV = (MTPieChartPercentView) view.findViewById(R.id.pie);
+		return availabilityPercentStatusViewHolder;
 	}
 
 	private static void initCommonStatusViewHolderHolder(CommonStatusViewHolder holder, View view) {

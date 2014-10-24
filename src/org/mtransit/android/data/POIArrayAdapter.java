@@ -820,7 +820,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			convertView = this.layoutInflater.inflate(getBasicPOILayout(poim.getStatusType()), parent, false);
 			BasicPOIViewHolder holder = new BasicPOIViewHolder();
 			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
-			holder.statusViewHolder = getPOIStatusViewHolder(poim.getStatusType(), convertView);
+			holder.statusViewHolder = initPOIStatusViewHolder(poim.getStatusType(), convertView);
 			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
 			convertView.setTag(holder);
 		}
@@ -828,29 +828,41 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return convertView;
 	}
 
-	private CommonStatusViewHolder getPOIStatusViewHolder(int status, View convertView) {
+	private CommonStatusViewHolder initPOIStatusViewHolder(int status, View convertView) {
 		switch (status) {
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = new AvailabilityPercentStatusViewHolder();
-			initCommonStatusViewHolderHolder(availabilityPercentStatusViewHolder, convertView);
-			availabilityPercentStatusViewHolder.textTv = (TextView) convertView.findViewById(R.id.textTv);
-			availabilityPercentStatusViewHolder.piePercentV = (MTPieChartPercentView) convertView.findViewById(R.id.pie);
-			return availabilityPercentStatusViewHolder;
+			return initAvailabilityPercentViewHolder(convertView);
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			ScheduleStatusViewHolder scheduleStatusViewHolder = new ScheduleStatusViewHolder();
-			initCommonStatusViewHolderHolder(scheduleStatusViewHolder, convertView);
-			scheduleStatusViewHolder.dataNextLine1Tv = (TextView) convertView.findViewById(R.id.data_next_line_1);
-			scheduleStatusViewHolder.dataNextLine2Tv = (TextView) convertView.findViewById(R.id.data_next_line_2);
-			return scheduleStatusViewHolder;
+			return initScheduleViewHolder(convertView);
 		case POI.ITEM_STATUS_TYPE_APP:
-			AppStatusViewHolder appStatusViewHolder = new AppStatusViewHolder();
-			initCommonStatusViewHolderHolder(appStatusViewHolder, convertView);
-			appStatusViewHolder.textTv = (TextView) convertView.findViewById(R.id.textTv);
-			return appStatusViewHolder;
+			return initAppStatusViewHolder(convertView);
 		default:
 			MTLog.w(this, "Unexpected status '%s' (no view holder)!", status);
 			return null;
 		}
+	}
+
+	private CommonStatusViewHolder initScheduleViewHolder(View convertView) {
+		ScheduleStatusViewHolder scheduleStatusViewHolder = new ScheduleStatusViewHolder();
+		initCommonStatusViewHolderHolder(scheduleStatusViewHolder, convertView);
+		scheduleStatusViewHolder.dataNextLine1Tv = (TextView) convertView.findViewById(R.id.data_next_line_1);
+		scheduleStatusViewHolder.dataNextLine2Tv = (TextView) convertView.findViewById(R.id.data_next_line_2);
+		return scheduleStatusViewHolder;
+	}
+
+	private CommonStatusViewHolder initAppStatusViewHolder(View convertView) {
+		AppStatusViewHolder appStatusViewHolder = new AppStatusViewHolder();
+		initCommonStatusViewHolderHolder(appStatusViewHolder, convertView);
+		appStatusViewHolder.textTv = (TextView) convertView.findViewById(R.id.textTv);
+		return appStatusViewHolder;
+	}
+
+	private CommonStatusViewHolder initAvailabilityPercentViewHolder(View convertView) {
+		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = new AvailabilityPercentStatusViewHolder();
+		initCommonStatusViewHolderHolder(availabilityPercentStatusViewHolder, convertView);
+		availabilityPercentStatusViewHolder.textTv = (TextView) convertView.findViewById(R.id.textTv);
+		availabilityPercentStatusViewHolder.piePercentV = (MTPieChartPercentView) convertView.findViewById(R.id.pie);
+		return availabilityPercentStatusViewHolder;
 	}
 
 	private int getBasicPOILayout(int status) {
@@ -968,7 +980,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			convertView = this.layoutInflater.inflate(getModuleLayout(poim.getStatusType()), parent, false);
 			ModuleViewHolder holder = new ModuleViewHolder();
 			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
-			holder.statusViewHolder = getPOIStatusViewHolder(poim.getStatusType(), convertView);
+			holder.statusViewHolder = initPOIStatusViewHolder(poim.getStatusType(), convertView);
 			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
 			convertView.setTag(holder);
 		}
@@ -1005,7 +1017,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			RouteTripStopViewHolder holder = new RouteTripStopViewHolder();
 			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
 			initRTSExtra(convertView, holder);
-			holder.statusViewHolder = getPOIStatusViewHolder(poim.getStatusType(), convertView);
+			holder.statusViewHolder = initPOIStatusViewHolder(poim.getStatusType(), convertView);
 			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
 			convertView.setTag(holder);
 		}
