@@ -8,8 +8,6 @@
     android:layout_alignWithParentIfMissing="true"
     android:layout_centerVertical="true"
     android:orientation="vertical"
-    android:paddingLeft="0dp"
-    android:paddingRight="0dp"
     android:visibility="invisible"
     tools:visibility="visible" >
     <TextView
