@@ -140,6 +140,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		if (this.showingListInsteadOfGrid == null) {
 			this.showingListInsteadOfGrid = PreferenceUtils.getPrefDefault(getActivity(), PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID,
 					PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT);
+		}
 		return this.showingListInsteadOfGrid.booleanValue();
 	}
 
