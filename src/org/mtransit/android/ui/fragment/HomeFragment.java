@@ -371,7 +371,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public int getABIconDrawableResId() {
 		if (!this.userAwayFromNearbyLocation) {
-			return R.drawable.ic_menu_guide_holo_light_active;
+			return R.drawable.ic_menu_guide_light_active;
 		} else {
 			return R.drawable.ic_menu_guide_light;
 		}
