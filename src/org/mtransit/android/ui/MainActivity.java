@@ -83,7 +83,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 
 		mTitle = mDrawerTitle = getTitle();
 		mSubtitle = mDrawerSubtitle = getActionBar().getSubtitle();
-		mIcon = mDrawerIcon = R.drawable.ic_launcher;
+		mIcon = mDrawerIcon = R.mipmap.ic_launcher;
 		mBgColor = mDrawerBgColor = ABFragment.NO_BG_COLOR;
 		mCustomView = mDrawerCustomView = getActionBar().getCustomView();
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
