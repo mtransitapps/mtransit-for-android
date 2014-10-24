@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight"
-    android:background="?android:attr/selectableItemBackground"
-    android:clipChildren="false"
-    android:minHeight="?android:attr/listPreferredItemHeight"
-    android:padding="4dp" >
-    <include
-        android:id="@+id/rts_extra"
-        layout="@layout/layout_poi_rts_extras" />
-    <include
-        android:id="@+id/poi"
+    android:layout_height="?android:attr/listPreferredItemHeightLarge"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:minHeight="?android:attr/listPreferredItemHeightLarge" >
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="?android:attr/listPreferredItemHeight"
-        android:layout_toRightOf="@id/rts_extra"
-        layout="@layout/layout_poi_base" />
-</RelativeLayout>
+        android:layout_height="match_parent"
+        android:background="@color/poi_item_bg"
+        android:clipChildren="false"
+        android:padding="8dp" >
+        <include
+            android:id="@+id/rts_extra"
+            layout="@layout/layout_poi_rts_extras" />
+        <include
+            android:id="@+id/poi"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/listPreferredItemHeightLarge"
+            android:layout_toRightOf="@id/rts_extra"
+            layout="@layout/layout_poi_base" />
+    </RelativeLayout>
+</FrameLayout>
