@@ -50,13 +50,13 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 					final List<POIManager> agencyPOIs = DataSourceProvider.findPOIsWithUUIDs(getContext(), contentUri, authorityUUIDs);
 					if (agencyPOIs != null) {
 						Collections.sort(agencyPOIs, POIManager.POI_ALPHA_COMPATOR);
-						pois.addAll(agencyPOIs);
+						this.pois.addAll(agencyPOIs);
 					}
 				}
 			}
 		}
 		CollectionUtils.sort(this.pois, new DataSourceType.POIManagerTypeShortNameComparator(getContext()));
-		return pois;
+		return this.pois;
 	}
 
 	private HashMap<String, HashSet<String>> splitByAgency(List<Favorite> favorites) {

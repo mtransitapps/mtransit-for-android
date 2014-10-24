@@ -1304,7 +1304,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private void setFavorites(List<Favorite> favorites) {
 		boolean newFav = false; // don't trigger update if favorites are the same
-		if (CollectionUtils.getSize(favorites) != CollectionUtils.getSize(this.favUUIDs)) {
+		if (this.favUUIDs == null) {
+			newFav = true; // favorite never set before
+		} else if (CollectionUtils.getSize(favorites) != CollectionUtils.getSize(this.favUUIDs)) {
 			newFav = true; // different size => different favorites
 		}
 		Set<String> newFavUUIDs = new HashSet<String>();
