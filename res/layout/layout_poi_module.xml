@@ -8,7 +8,8 @@
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:padding="4dp" >
     <include
+        android:id="@+id/poi"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/listPreferredItemHeight"
-        layout="@layout/layout_poi_basic" />
+        layout="@layout/layout_poi_base" />
 </RelativeLayout>

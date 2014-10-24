@@ -3,17 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
-    android:layout_margin="0dp"
     android:background="?android:attr/selectableItemBackground"
     android:clipChildren="false"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:padding="4dp" >
     <include
-        android:id="@+id/route_trip"
+        android:id="@+id/rts_extra"
         layout="@layout/layout_poi_rts_extras" />
     <include
+        android:id="@+id/poi"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/listPreferredItemHeight"
-        android:layout_toRightOf="@id/route_trip"
-        layout="@layout/layout_poi_basic" />
+        android:layout_toRightOf="@id/rts_extra"
+        layout="@layout/layout_poi_base" />
 </RelativeLayout>

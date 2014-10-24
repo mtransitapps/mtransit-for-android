@@ -28,6 +28,6 @@
             android:layout_height="?android:attr/listPreferredItemHeightLarge"
             android:layout_toLeftOf="@id/status"
             android:layout_toRightOf="@id/rts_extra"
-            layout="@layout/layout_poi_basic" />
+            layout="@layout/layout_poi_base" />
     </RelativeLayout>
 </FrameLayout>

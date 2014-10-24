@@ -1,56 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight"
-    android:clipChildren="false"
-    android:minHeight="?android:attr/listPreferredItemHeight" >
-    <!-- FAVORITE -->
-    <ImageView
-        android:id="@+id/fav"
-        android:layout_width="?android:attr/listPreferredItemHeight"
-        android:layout_height="?android:attr/listPreferredItemHeight"
-        android:layout_alignParentBottom="false"
-        android:layout_alignParentRight="true"
-        android:layout_alignWithParentIfMissing="true"
-        android:layout_centerVertical="true"
-        android:adjustViewBounds="true"
-        android:paddingBottom="-20dp"
-        android:paddingLeft="-20dp"
-        android:paddingRight="-20dp"
-        android:paddingTop="-20dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/btn_star_off_disabled_holo_dark"
-        android:visibility="gone"
-        tools:visibility="visible" />
-    <LinearLayout
-        android:id="@+id/place"
+    android:layout_height="?android:attr/listPreferredItemHeightLarge"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:minHeight="?android:attr/listPreferredItemHeightLarge" >
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:orientation="vertical"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp" >
-        <!-- NAME -->
-        <TextView
-            android:id="@+id/name"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="0dp"
-            android:ellipsize="marquee"
-            android:fontFamily="sans-serif"
-            android:gravity="center_vertical|left"
-            android:paddingLeft="0dp"
-            android:paddingTop="0dp"
-            android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textStyle="normal"
-            tools:text="@string/default_stop_name" />
-        <!-- DISTANCE & COMPASS -->
+        android:layout_height="match_parent"
+        android:background="@color/poi_item_bg"
+        android:clipChildren="false"
+        android:padding="8dp" >
         <include
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            layout="@layout/layout_distance_and_compass" />
-    </LinearLayout>
-</RelativeLayout>
+            android:id="@+id/poi"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/listPreferredItemHeightLarge"
+            layout="@layout/layout_poi_base" />
+    </RelativeLayout>
+</FrameLayout>
