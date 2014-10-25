@@ -8,7 +8,6 @@ import android.location.Location;
 import android.os.Bundle;
 
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.GoogleApiClient.Builder;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
@@ -25,7 +24,7 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 	}
 
 	@Override
-	protected void addGoogleAPIs(Builder googleApiClientBuilder) {
+	protected void addGoogleAPIs(GoogleApiClient.Builder googleApiClientBuilder) {
 		if (useLocation) {
 			googleApiClientBuilder.addApi(LocationServices.API);
 		}
@@ -43,7 +42,7 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 	}
 
 	@Override
-	public void onClientConnected(GoogleApiClient googleApiClient) {
+	public void onClientConnected() {
 		if (useLocation) {
 			enableLocationUpdates();
 		}
@@ -57,10 +56,10 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 
 	public void enableLocationUpdates() {
 		if (this.useLocation && !this.locationUpdatesEnabled) {
-			if (this.googleApiClient != null && this.googleApiClient.isConnected()) {
-				LocationServices.FusedLocationApi.requestLocationUpdates(this.googleApiClient, this.locationRequest, this);
+			if (getGoogleApiClient() != null && getGoogleApiClient().isConnected()) {
+				LocationServices.FusedLocationApi.requestLocationUpdates(getGoogleApiClient(), this.locationRequest, this);
 				this.locationUpdatesEnabled = true;
-				final Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+				final Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(getGoogleApiClient());
 				onLocationChanged(lastLocation);
 			}
 		}
@@ -74,15 +73,15 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 
 	public void disableLocationUpdates() {
 		if (this.locationUpdatesEnabled) {
-			if (this.googleApiClient != null && this.googleApiClient.isConnected()) {
-				LocationServices.FusedLocationApi.removeLocationUpdates(this.googleApiClient, this);
+			if (getGoogleApiClient() != null && getGoogleApiClient().isConnected()) {
+				LocationServices.FusedLocationApi.removeLocationUpdates(getGoogleApiClient(), this);
 				this.locationUpdatesEnabled = false;
 			}
 		}
 	}
 
 	@Override
-	public void onBeforeClientDisconnected(GoogleApiClient googleApiClient) {
+	public void onBeforeClientDisconnected() {
 		disableLocationUpdates();
 	}
 
@@ -105,7 +104,7 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 		if (!locationUpdatesEnabled) {
 			return null;
 		}
-		final Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+		final Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(getGoogleApiClient());
 		onLocationChanged(lastLocation);
 		return this.userLocation;
 	}
