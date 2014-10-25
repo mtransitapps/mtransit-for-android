@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="IconColors">
+        <ignore path="res/**/ic_menu_guide_light_active.png" />
+        <ignore path="res/**/ic_menu_place_light_active.png" />
+    </issue>
+</lint>
