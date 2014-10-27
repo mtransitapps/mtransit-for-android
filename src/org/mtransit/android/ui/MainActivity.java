@@ -8,6 +8,7 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.MenuAdapter;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.fragment.ABFragment;
+import org.mtransit.android.util.AnalyticsUtils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -30,13 +31,21 @@ import android.widget.ListView;
 
 @SuppressWarnings("deprecation")
 // need to switch to support-v7-appcompat
-public class MainActivity extends MTActivityWithLocation implements AdapterView.OnItemClickListener, FragmentManager.OnBackStackChangedListener {
+public class MainActivity extends MTActivityWithLocation implements AdapterView.OnItemClickListener, FragmentManager.OnBackStackChangedListener,
+		AnalyticsUtils.Trackable {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 
 	@Override
 	public String getLogTag() {
 		return TAG;
+	}
+
+	private static final String TRACKING_SCREEN_NAME = "Main";
+
+	@Override
+	public String getScreenName() {
+		return TRACKING_SCREEN_NAME;
 	}
 
 	private static final boolean LOCATION_ENABLED = true;
@@ -140,6 +149,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		super.onResume();
 		setAB();
 		updateAB();
+		AnalyticsUtils.trackScreenView(this, this);
 	}
 
 	@Override

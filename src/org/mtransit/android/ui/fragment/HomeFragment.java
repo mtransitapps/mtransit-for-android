@@ -42,6 +42,13 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		return TAG;
 	}
 
+	private static final String TRACKING_SCREEN_NAME = "Home";
+
+	@Override
+	public String getScreenName() {
+		return TRACKING_SCREEN_NAME;
+	}
+
 	private static final String EXTRA_NEARBY_LOCATION = "extra_nearby_location";
 
 	public static HomeFragment newInstance(Location nearbyLocationOpt) {

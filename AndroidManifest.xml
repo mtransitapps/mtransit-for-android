@@ -67,6 +67,15 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+        <!-- GOOGLE PLAY STORE CAMPAIGN MEASUREMENT -->
+        <service android:name="com.google.android.gms.analytics.CampaignTrackingService" />
+        <receiver
+            android:name="com.google.android.gms.analytics.CampaignTrackingReceiver"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
         <!-- FAVORITE PROVIDER -->
         <provider
             android:name="org.mtransit.android.provider.FavoriteProvider"

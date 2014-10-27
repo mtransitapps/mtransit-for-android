@@ -50,6 +50,16 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		return TAG;
 	}
 
+	private static final String TRACKING_SCREEN_NAME = "RTSRoute";
+
+	@Override
+	public String getScreenName() {
+		if (this.route != null) {
+			return TRACKING_SCREEN_NAME + "/" + this.route.id;
+		}
+		return TRACKING_SCREEN_NAME;
+	}
+
 	private static final String EXTRA_AUTHORITY = "extra_authority";
 
 	private static final String EXTRA_ROUTE_ID = "extra_route_id";

@@ -1,10 +1,11 @@
 package org.mtransit.android.ui;
 
 import org.mtransit.android.commons.ui.MTFragmentActivity;
+import org.mtransit.android.util.AnalyticsUtils;
 
 import android.os.Bundle;
 
-public class SplashScreenActivity extends MTFragmentActivity {
+public class SplashScreenActivity extends MTFragmentActivity implements AnalyticsUtils.Trackable {
 
 	private static final String TAG = SplashScreenActivity.class.getSimpleName();
 
@@ -13,14 +14,17 @@ public class SplashScreenActivity extends MTFragmentActivity {
 		return TAG;
 	}
 
+	private static final String TRACKING_SCREEN_NAME = "Splash";
+
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public String getScreenName() {
+		return TRACKING_SCREEN_NAME;
 	}
 
 	@Override
-	protected void onResume() {
-		super.onResume();
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		AnalyticsUtils.trackScreenView(this, this);
 		showHomeActivity();
 	}
 

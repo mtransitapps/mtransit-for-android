@@ -45,6 +45,16 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		return TAG;
 	}
 
+	private static final String TRACKING_SCREEN_NAME = "POI";
+
+	@Override
+	public String getScreenName() {
+		if (this.poim != null && this.poim.poi != null) {
+			return TRACKING_SCREEN_NAME + "/" + this.poim.poi.getUUID();
+		}
+		return TRACKING_SCREEN_NAME;
+	}
+
 	private static final String EXTRA_AUTHORITY = "extra_agency_authority";
 	private static final String EXTRA_POI_UUID = "extra_poi_uuid";
 	private static final String EXTRA_USER_LOCATION = "extra_user_location";

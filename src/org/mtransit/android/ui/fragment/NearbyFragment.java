@@ -42,6 +42,12 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		return TAG;
 	}
 
+	private static final String TRACKING_SCREEN_NAME = "Nearby";
+
+	@Override
+	public String getScreenName() {
+		return TRACKING_SCREEN_NAME;
+	}
 
 	private static final String EXTRA_NEARBY_LOCATION = "extra_nearby_location";
 

@@ -41,6 +41,16 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		return TAG + "-" + this.type;
 	}
 
+	private static final String TRACKING_SCREEN_NAME = "Browse";
+
+	@Override
+	public String getScreenName() {
+		if (this.type != null) {
+			return TRACKING_SCREEN_NAME + "/" + this.type.name();
+		}
+		return TRACKING_SCREEN_NAME;
+	}
+
 	private static final String EXTRA_TYPE_ID = "extra_type_id";
 
 	public static AgencyTypeFragment newInstance(DataSourceType type) {
