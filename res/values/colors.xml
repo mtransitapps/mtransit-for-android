@@ -9,4 +9,5 @@
     <color name="poi_item_bg">@android:color/white</color>
     <color name="platform_background_holo_light">#FFF3F3F3</color>
     <color name="platform_list_divider_holo_light">#1A000000</color>
+    <color name="ic_menu_holo_light_text">#CC333333</color>
 </resources>

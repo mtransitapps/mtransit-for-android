@@ -206,7 +206,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 
 	@Override
 	public int getABIconDrawableResId() {
-		return R.drawable.ic_menu_favorites_light;
+		return R.drawable.ic_menu_favorites_holo_light;
 	}
 
 	@Override

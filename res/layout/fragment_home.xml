@@ -31,5 +31,9 @@
             android:inflatedId="@+id/empty"
             android:layout="@layout/layout_empty"
             android:visibility="gone" />
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/layout_shadow" />
     </FrameLayout>
 </org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout>

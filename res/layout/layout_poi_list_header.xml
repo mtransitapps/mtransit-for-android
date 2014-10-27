@@ -8,4 +8,5 @@
     android:ellipsize="end"
     android:fontFamily="sans-serif"
     android:paddingLeft="8dp"
-    android:paddingRight="8dp" />
+    android:paddingRight="8dp"
+    android:textColor="@color/ic_menu_holo_light_text" />

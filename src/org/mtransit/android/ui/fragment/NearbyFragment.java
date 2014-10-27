@@ -462,9 +462,9 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	@Override
 	public int getABIconDrawableResId() {
 		if (!this.userAwayFromNearbyLocation) {
-			return R.drawable.ic_menu_place_light_active;
+			return R.drawable.ic_menu_place_holo_light_active;
 		} else {
-			return R.drawable.ic_menu_place_light;
+			return R.drawable.ic_menu_place_holo_light;
 		}
 	}
 
