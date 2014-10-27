@@ -5,15 +5,15 @@ Short description: Montreal Transit in your pocket.
 Full description:
 ALPHA: TEST IN PROGRESS
 
-Currently only displaying nearby information with basic and limited status.
+Currently only displaying information with basic and limited status.
 
 - Laval STL Bus
 - Longueuil RTL Bus
+- Montreal AMT Bus
+- Montreal AMT Train
 - Montreal BIXI Bikes
 - Montreal STM Bus
 - Montreal STM Subway
-- Montreal AMT Train
-- Montreal AMT Bus
 
 This app is free and open-source:
 https://github.com/mtransitapps/mtransit-for-android
