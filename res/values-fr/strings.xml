@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MT</string>
+    <string name="home">Accueil</string>
+    <string name="favorites">Favoris</string>
+    <string name="nearby">Proche</string>
+    <string name="directions">Directions</string>
+    <string name="search">Recherche</string>
+    <string name="maps">Cartes</string>
+    <string name="browse">Parcourir</string>
+    <string name="drawer_open">Ouvrir le tiroir de navigation</string>
+    <string name="drawer_close">Fermer le tiroir de navigation</string>
+    <string name="agency_type_subway_short_name">Métro</string>
+    <string name="agency_type_rail_short_name">Train</string>
+    <string name="agency_type_bus_short_name">Bus</string>
+    <string name="agency_type_bike_short_name">Vélo</string>
+    <string name="agency_type_module_short_name">+</string>
+    <string name="download_on_store">Télécharger sur Google Play</string>
+    <string name="rate_on_store">Noter on Google Play</string>
+    <string name="join_leave_test_on_store">Joindre/Qutter le test sur Google Play</string>
+    <string name="uninstall">Désinstaller</string>
+    <string name="view_details">Voire Détails</string>
+    <string name="favorite_removed">Favori supprimé.</string>
+    <string name="favorite_added">Favori ajouté.</string>
+    <string name="no_results">Aucun Résultats</string>
+    <string name="module_label">+</string>
+    <string name="module_short_name">+</string>
+    <string name="view_stop">Voir l\'arrêt</string>
+    <string name="view_stop_route">Voir la ligne de l\'arrêt</string>
+    <string name="view_stop_route_and_route">Voir la ligne %s</string>
+    <string name="add_fav">Ajouter aux favoris</string>
+    <string name="remove_fav">Supprimer des favoris</string>
+    <string name="menu_action_list">Liste</string>
+    <string name="menu_action_grid">Grille</string>
+    <string name="menu_action_add_favorite">Ajouter aux favoris</string>
+    <string name="menu_action_remove_favorite">Supprimer des favoris</string>
+</resources>

@@ -1,9 +1,9 @@
 [
-{"id":"1","name":"Laval STL Bus","lat":"45.583333","lng":"-73.75","pkg":"org.mtransit.android.ca_laval_stl_bus"},
-{"id":"2","name":"Longueuil RTL Bus","lat":"45.533333","lng":"-73.516667","pkg":"org.mtransit.android.ca_longueuil_rtl_bus"},
-{"id":"3","name":"Montreal AMT Bus","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_amt_bus"},
-{"id":"4","name":"Montreal AMT Train","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_amt_train"},
-{"id":"5","name":"Montreal BIXI Bike","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_bixi_bike"},
-{"id":"6","name":"Montreal STM Bus","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_stm_bus"},
-{"id":"7","name":"Montreal STM Subway","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_stm_subway"}
+{"id":"1","name":"Laval STL Bus","name_fr":"Bus STL (Laval)","lat":"45.583333","lng":"-73.75","pkg":"org.mtransit.android.ca_laval_stl_bus"},
+{"id":"2","name":"Longueuil RTL Bus","name_fr":"Bus RTL (Longueuil)","lat":"45.533333","lng":"-73.516667","pkg":"org.mtransit.android.ca_longueuil_rtl_bus"},
+{"id":"3","name":"Montreal AMT Bus","name_fr":"Bus AMT (Montréal)","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_amt_bus"},
+{"id":"4","name":"Montreal AMT Train","name_fr":"Train AMT (Montréal)","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_amt_train"},
+{"id":"5","name":"Montreal BIXI Bike","name_fr":"Vélo BIXI (Montréal)","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_bixi_bike"},
+{"id":"6","name":"Montreal STM Bus","name_fr":"Bus STM (Montréal)","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_stm_bus"},
+{"id":"7","name":"Montreal STM Subway","name_fr":"Métro STM (Montréal)","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_stm_subway"}
 ]

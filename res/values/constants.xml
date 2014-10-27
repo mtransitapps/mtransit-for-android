@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="favorite_authority">org.mtransit.android.favorite</string>
+    <string name="module_authority">org.mtransit.android.provider.module</string>
+</resources>

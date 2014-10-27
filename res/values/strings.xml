@@ -22,11 +22,9 @@
     <string name="view_details">View Details</string>
     <string name="favorite_removed">Favorite removed.</string>
     <string name="favorite_added">Favorite added.</string>
-    <string name="favorite_authority">org.mtransit.android.favorite</string>
     <string name="no_results">No Results</string>
     <string name="module_label">+</string>
     <string name="module_short_name">+</string>
-    <string name="module_authority">org.mtransit.android.provider.module</string>
     <string name="view_stop">View stop</string>
     <string name="view_stop_route">View stop route</string>
     <string name="view_stop_route_and_route">View route %s</string>

@@ -262,14 +262,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			JSONArray jsonArray = new JSONArray(jsonString);
 			for (int i = 0; i < jsonArray.length(); i++) {
 				JSONObject jModule = jsonArray.getJSONObject(i);
-				Module module = new Module( //
-						getAUTHORITY(getContext()), //
-						jModule.getString("pkg") //
-				);
-				module.setId(jModule.getInt("id"));
-				module.setName(jModule.getString("name"));
-				module.setLat(jModule.getDouble("lat"));
-				module.setLng(jModule.getDouble("lng"));
+				Module module = Module.fromSimpleJSONStatic(jModule, getAUTHORITY(getContext()));
 				modules.add(module);
 			}
 			deleteAllModuleData();
@@ -461,7 +454,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		HashMap<String, String> poiProjectionMap = new HashMap<String, String>();
 		poiProjectionMap.put(POIColumns.T_POI_K_UUID_META, SqlUtils.concatenate("'" + POIUtils.UID_SEPARATOR + "'", //
 				"'" + authority + "'", //
-				ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_PKG //
+				ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_PKG //
 		) + " AS " + POIColumns.T_POI_K_UUID_META);
 		poiProjectionMap.put(POIColumns.T_POI_K_ID, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_ID + " AS " + POIColumns.T_POI_K_ID);
 		poiProjectionMap.put(POIColumns.T_POI_K_NAME, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_NAME + " AS " + POIColumns.T_POI_K_NAME);
@@ -472,11 +465,14 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 				+ POIColumns.T_POI_K_STATUS_TYPE);
 		poiProjectionMap.put(POIColumns.T_POI_K_ACTIONS_TYPE, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_ACTIONS_TYPE + " AS "
 				+ POIColumns.T_POI_K_ACTIONS_TYPE);
-		poiProjectionMap.put(ModuleColumns.T_MODULE_K_PKG, ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_PKG + " AS " + ModuleColumns.T_MODULE_K_PKG);
+		poiProjectionMap.put(ModuleColumns.T_MODULE_K_PKG, ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_PKG + " AS "
+				+ ModuleColumns.T_MODULE_K_PKG);
+		poiProjectionMap.put(ModuleColumns.T_MODULE_K_NAME_FR, ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_NAME_FR + " AS "
+				+ ModuleColumns.T_MODULE_K_NAME_FR);
 		return poiProjectionMap;
 	}
 
-	public static final String[] PROJECTION_MODULE = new String[] { ModuleColumns.T_MODULE_K_PKG };
+	public static final String[] PROJECTION_MODULE = new String[] { ModuleColumns.T_MODULE_K_PKG, ModuleColumns.T_MODULE_K_NAME_FR };
 
 	public static final String[] PROJECTION_MODULE_POI = ArrayUtils.addAll(POIProvider.PROJECTION_POI, PROJECTION_MODULE);
 
@@ -492,6 +488,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	public static class ModuleColumns {
 		public static final String T_MODULE_K_PKG = POIColumns.getFkColumnName("pkg");
+		public static final String T_MODULE_K_NAME_FR = POIColumns.getFkColumnName("name_fr");
 	}
 
 }

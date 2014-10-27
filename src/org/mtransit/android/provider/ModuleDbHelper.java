@@ -20,14 +20,16 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 
 	protected static final String DB_NAME = "module.db";
 
-	public static final int DB_VERSION = 1;
+	public static final int DB_VERSION = 2;
 
 	protected static final String PREF_KEY_LAST_UPDATE_MS = "pModuleLastUpdate";
 
 	public static final String T_MODULE = POIDbHelper.T_POI;
-	public static final String T_MODULE_PKG = POIDbHelper.getFkColumnName("pkg");
+	public static final String T_MODULE_K_PKG = POIDbHelper.getFkColumnName("pkg");
+	public static final String T_MODULE_K_NAME_FR = POIDbHelper.getFkColumnName("name_fr");
 	private static final String T_MODULE_SQL_CREATE = POIDbHelper.getSqlCreate(T_MODULE, //
-			T_MODULE_PKG + SqlUtils.TXT//
+			T_MODULE_K_PKG + SqlUtils.TXT,//
+			T_MODULE_K_NAME_FR + SqlUtils.TXT//
 	);
 	private static final String T_MODULE_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_MODULE);
 
