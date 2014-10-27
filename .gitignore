@@ -24,3 +24,6 @@ proguard/
 
 # Log Files
 *.log
+
+# Keys file
+res/values/keys.xml
