@@ -4,9 +4,6 @@
     <string name="home">Accueil</string>
     <string name="favorites">Favoris</string>
     <string name="nearby">Proche</string>
-    <string name="directions">Directions</string>
-    <string name="search">Recherche</string>
-    <string name="maps">Cartes</string>
     <string name="browse">Parcourir</string>
     <string name="drawer_open">Ouvrir le tiroir de navigation</string>
     <string name="drawer_close">Fermer le tiroir de navigation</string>
