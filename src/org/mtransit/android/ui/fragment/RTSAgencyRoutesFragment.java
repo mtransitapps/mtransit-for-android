@@ -350,7 +350,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 			return;
 		}
 		final MenuItem toggle = menu.findItem(R.id.menu_toggle_list_grid);
-		toggle.setIcon(isShowingListInsteadOfGrid() ? R.drawable.ic_action_grid_light : R.drawable.ic_action_list_light);
+		toggle.setIcon(isShowingListInsteadOfGrid() ? R.drawable.ic_action_grid_holo_light : R.drawable.ic_action_list_holo_light);
 		toggle.setTitle(isShowingListInsteadOfGrid() ? R.string.menu_action_grid : R.string.menu_action_list);
 	}
 
