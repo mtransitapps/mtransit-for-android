@@ -172,7 +172,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 			initAdapter();
 			getLoaderManager().restartLoader(POIS_LOADER, null, this);
 		} else {
-			this.adapter.onResume();
+			this.adapter.onResume(getActivity());
 		}
 		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation()); // user location was unknown yet or discarded while not visible
 	}

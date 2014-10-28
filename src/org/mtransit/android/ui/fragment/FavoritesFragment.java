@@ -66,7 +66,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public void onResume() {
 		super.onResume();
 		if (this.adapter != null) {
-			this.adapter.onResume();
+			this.adapter.onResume(getActivity());
 		}
 	}
 

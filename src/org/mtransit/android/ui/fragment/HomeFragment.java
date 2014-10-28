@@ -105,7 +105,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	public void onResume() {
 		super.onResume();
 		if (this.adapter != null) {
-			this.adapter.onResume();
+			this.adapter.onResume(getActivity());
 		}
 		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getLastLocation());
 	}

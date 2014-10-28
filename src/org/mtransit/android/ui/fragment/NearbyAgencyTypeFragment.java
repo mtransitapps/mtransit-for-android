@@ -222,7 +222,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			initAdapter();
 		} else {
 			if (this.adapter.getPoisCount() > 0) {
-				this.adapter.onResume();
+				this.adapter.onResume(getActivity());
 			}
 		}
 		NearbyFragment nearbyFragment = this.nearbyFragmentWR == null ? null : this.nearbyFragmentWR.get();
