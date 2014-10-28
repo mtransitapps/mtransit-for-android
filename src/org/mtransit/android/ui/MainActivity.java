@@ -8,6 +8,7 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.MenuAdapter;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.fragment.ABFragment;
+import org.mtransit.android.util.AdsUtils;
 import org.mtransit.android.util.AnalyticsUtils;
 
 import android.content.Context;
@@ -150,11 +151,19 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		setAB();
 		updateAB();
 		AnalyticsUtils.trackScreenView(this, this);
+		AdsUtils.setupAd(this);
+		AdsUtils.resumeAd(this);
 	}
 
 	@Override
+	protected void onPause() {
+		super.onPause();
+		AdsUtils.pauseAd(this);
+	}
+
 	protected void onDestroy() {
 		super.onDestroy();
+		AdsUtils.destroyAd(this);
 		mCustomView = null;
 		mDrawerCustomView = null;
 		DataSourceProvider.reset();

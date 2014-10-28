@@ -3,10 +3,20 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-    <FrameLayout
-        android:id="@+id/content_frame"
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent" >
+        <include
+            android:id="@+id/ad_layout"
+            android:layout_alignParentBottom="true"
+            layout="@layout/layout_ad" />
+        <FrameLayout
+            android:id="@+id/content_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/ad_layout" />
+    </RelativeLayout>
     <ListView
         android:id="@+id/left_drawer"
         android:layout_width="@dimen/drawer_width"

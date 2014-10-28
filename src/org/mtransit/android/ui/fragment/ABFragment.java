@@ -1,10 +1,12 @@
 package org.mtransit.android.ui.fragment;
 
+import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
+import org.mtransit.android.util.AnalyticsUtils;
 
 import android.content.Context;
 import android.view.View;
 
-public abstract class ABFragment extends TrackableFragment {
+public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.Trackable {
 
 	public static final int NO_ICON = -1;
 
@@ -28,6 +30,12 @@ public abstract class ABFragment extends TrackableFragment {
 
 	public View getABCustomView() {
 		return ABFragment.NO_CUSTOM_VIEW;
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		AnalyticsUtils.trackScreenView(getActivity(), this);
 	}
 
 }
