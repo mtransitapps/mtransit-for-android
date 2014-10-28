@@ -37,3 +37,13 @@
     public static final ** CREATOR;
 }
 # GOOGLE PLAY SERVICES - END
+
+# GOOGLE MOBILE ADS (ADMOB) - START
+-keep public class com.google.android.gms.ads.** {
+   public *;
+}
+
+-keep public class com.google.ads.** {
+   public *;
+}
+# GOOGLE MOBILE ADS (ADMOB) - END

@@ -1,5 +1,6 @@
 package org.mtransit.android.util;
 
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,8 +11,6 @@ import org.mtransit.android.ui.MTActivityWithLocation;
 
 import android.app.Activity;
 import android.content.Context;
-import android.location.Location;
-import android.os.AsyncTask;
 import android.view.View;
 
 import com.google.android.gms.ads.AdListener;
@@ -33,100 +32,101 @@ public final class AdsUtils implements MTLog.Loggable {
 
 	private static Boolean generousUser = null;
 
-	public static final boolean AD_ENABLED = true;
+	public static boolean AD_ENABLED = true;
 
 	private static final Set<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] { "transit", "transport", "bus", "subway", "metro", "taxi",
 			"bike", "sharing", "velo", "train" }));
 
-	public static void setupAd(final Activity activity) {
-		final Location lastLocation;
-		if (activity != null && activity instanceof MTActivityWithLocation) {
-			lastLocation = ((MTActivityWithLocation) activity).getLastLocation();
-		} else {
-			lastLocation = null;
-		}
-		new AsyncTask<Void, Void, Boolean>() {
-			@Override
-			protected Boolean doInBackground(Void... params) {
-				return AD_ENABLED && isShowingAds(activity);
-			}
-
-			@Override
-			protected void onPostExecute(Boolean result) {
-				if (result) {
-					final View adLayout = activity.findViewById(R.id.ad_layout);
-					if (adLayout != null) {
-						final AdView adView = (AdView) adLayout.findViewById(R.id.ad);
-						if (adView != null) {
-							AdRequest.Builder adRequestBd = new AdRequest.Builder();
-							adRequestBd.setLocation(lastLocation);
-							for (String keyword : KEYWORDS) {
-								adRequestBd.addKeyword(keyword);
-							}
-							adView.setAdListener(new AdListener() {
-
-								@Override
-								public void onAdFailedToLoad(int errorCode) {
-									super.onAdFailedToLoad(errorCode);
-									switch (errorCode) {
-									case AdRequest.ERROR_CODE_INTERNAL_ERROR:
-										MTLog.w(TAG, "Failed to received ad! Internal error code: '%s'.", errorCode);
-										break;
-									case AdRequest.ERROR_CODE_INVALID_REQUEST:
-										MTLog.w(TAG, "Failed to received ad! Invalid request error code: '%s'.", errorCode);
-										break;
-									case AdRequest.ERROR_CODE_NETWORK_ERROR:
-										MTLog.w(TAG, "Failed to received ad! Network error code: '%s'.", errorCode);
-										break;
-									case AdRequest.ERROR_CODE_NO_FILL:
-										MTLog.w(TAG, "Failed to received ad! No fill error code: '%s'.", errorCode);
-										break;
-									default:
-										MTLog.w(TAG, "Failed to received ad! Error code: '%s'.", errorCode);
-									}
-									hideAds(activity);
-								}
-
-								@Override
-								public void onAdLoaded() {
-									super.onAdLoaded();
-									showAds(activity);
-								}
-
-								@Override
-								public void onAdClosed() {
-									super.onAdClosed();
-								}
-
-								@Override
-								public void onAdLeftApplication() {
-									super.onAdLeftApplication();
-								}
-
-								@Override
-								public void onAdOpened() {
-									super.onAdOpened();
-								}
-							});
-							if (DEBUG) {
-								adRequestBd.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
-								adRequestBd.addTestDevice(activity.getString(R.string.google_ads_test_device_id));
-							}
-							adView.loadAd(adRequestBd.build());
-						}
+	public static void setupAd(Activity activity) {
+		final boolean result = AD_ENABLED && isShowingAds(activity);
+		if (result) {
+			View adLayout = activity.findViewById(R.id.ad_layout);
+			if (adLayout != null) {
+				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+				if (adView != null) {
+					adView.setAdListener(new MTAdListener(activity));
+					AdRequest.Builder adRequestBd = new AdRequest.Builder();
+					if (activity != null && activity instanceof MTActivityWithLocation) {
+						adRequestBd.setLocation(((MTActivityWithLocation) activity).getLastLocation());
 					}
-				} else {
-					hideAds(activity);
+					for (String keyword : KEYWORDS) {
+						adRequestBd.addKeyword(keyword);
+					}
+					if (DEBUG) {
+						adRequestBd.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
+						adRequestBd.addTestDevice(activity.getString(R.string.google_ads_test_device_id));
+					}
+					adView.loadAd(adRequestBd.build());
 				}
-			};
-		}.execute();
+			}
+		} else {
+			hideAds(activity);
+		}
+	}
+
+	private static class MTAdListener extends AdListener {
+
+		private WeakReference<Activity> activityWR;
+
+		public MTAdListener(Activity activity) {
+			this.activityWR = new WeakReference<Activity>(activity);
+		}
+
+		@Override
+		public void onAdFailedToLoad(int errorCode) {
+			super.onAdFailedToLoad(errorCode);
+			switch (errorCode) {
+			case AdRequest.ERROR_CODE_INTERNAL_ERROR:
+				MTLog.w(TAG, "Failed to received ad! Internal error code: '%s'.", errorCode);
+				break;
+			case AdRequest.ERROR_CODE_INVALID_REQUEST:
+				MTLog.w(TAG, "Failed to received ad! Invalid request error code: '%s'.", errorCode);
+				break;
+			case AdRequest.ERROR_CODE_NETWORK_ERROR:
+				MTLog.w(TAG, "Failed to received ad! Network error code: '%s'.", errorCode);
+				break;
+			case AdRequest.ERROR_CODE_NO_FILL:
+				MTLog.w(TAG, "Failed to received ad! No fill error code: '%s'.", errorCode);
+				break;
+			default:
+				MTLog.w(TAG, "Failed to received ad! Error code: '%s'.", errorCode);
+			}
+			final Activity activity = this.activityWR == null ? null : this.activityWR.get();
+			if (activity != null) {
+				hideAds(activity);
+			}
+		}
+
+		@Override
+		public void onAdLoaded() {
+			super.onAdLoaded();
+			final Activity activity = this.activityWR == null ? null : this.activityWR.get();
+			if (activity != null) {
+				showAds(activity);
+			}
+		}
+
+		@Override
+		public void onAdClosed() {
+			super.onAdClosed();
+		}
+
+		@Override
+		public void onAdLeftApplication() {
+			super.onAdLeftApplication();
+		}
+
+		@Override
+		public void onAdOpened() {
+			super.onAdOpened();
+		}
 	}
 
 	public static void showAds(Activity activity) {
-		final View adLayout = activity.findViewById(R.id.ad_layout);
+		View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
 		if (adLayout != null) {
 			adLayout.setVisibility(View.VISIBLE);
-			final AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+			AdView adView = (AdView) adLayout.findViewById(R.id.ad);
 			if (adView != null) {
 				adView.setVisibility(View.VISIBLE);
 			}
@@ -134,10 +134,10 @@ public final class AdsUtils implements MTLog.Loggable {
 	}
 
 	public static void hideAds(Activity activity) {
-		final View adLayout = activity.findViewById(R.id.ad_layout);
+		View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
 		if (adLayout != null) {
 			adLayout.setVisibility(View.GONE);
-			final AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+			AdView adView = (AdView) adLayout.findViewById(R.id.ad);
 			if (adView != null) {
 				adView.setVisibility(View.GONE);
 			}
@@ -146,9 +146,9 @@ public final class AdsUtils implements MTLog.Loggable {
 
 	public static void pauseAd(Activity activity) {
 		if (AD_ENABLED && isShowingAds(activity)) {
-			final View adLayout = activity.findViewById(R.id.ad_layout);
+			View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
 			if (adLayout != null) {
-				final AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
 				if (adView != null) {
 					adView.pause();
 				}
@@ -158,9 +158,9 @@ public final class AdsUtils implements MTLog.Loggable {
 
 	public static void resumeAd(Activity activity) {
 		if (AD_ENABLED && isShowingAds(activity)) {
-			final View adLayout = activity.findViewById(R.id.ad_layout);
+			View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
 			if (adLayout != null) {
-				final AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
 				if (adView != null) {
 					adView.resume();
 				}
@@ -170,11 +170,10 @@ public final class AdsUtils implements MTLog.Loggable {
 
 	public static void destroyAd(Activity activity) {
 		if (AD_ENABLED && isShowingAds(activity)) {
-			final View adLayout = activity.findViewById(R.id.ad_layout);
+			View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
 			if (adLayout != null) {
-				final AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
 				if (adView != null) {
-					adView.removeAllViews();
 					adView.destroy();
 				}
 			}

@@ -1,5 +1,6 @@
 package org.mtransit.android.ui;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import org.mtransit.android.R;
@@ -107,24 +108,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 		getActionBar().setHomeButtonEnabled(true);
 
-		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close) {
-			@Override
-			public void onDrawerClosed(View view) {
-				updateABDrawerClosed();
-				invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-			}
-
-			@Override
-			public void onDrawerOpened(View drawerView) {
-				updateABDrawerOpened();
-				invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-			}
-
-			@Override
-			public void onDrawerStateChanged(int newState) {
-				mDrawerState = newState;
-			}
-		};
+		mDrawerToggle = new ABToggle(this, mDrawerLayout);
 
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 
@@ -135,6 +119,42 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 			selectItem(this.mDrawerListAdapter.getScreenItemPosition(itemId));
 		} else {
 			onRestoreState(savedInstanceState);
+		}
+	}
+
+	private static class ABToggle extends ActionBarDrawerToggle {
+
+		private WeakReference<MainActivity> mainActivityWR;
+
+		public ABToggle(MainActivity mainActivity, DrawerLayout drawerLayout) {
+			super(mainActivity, drawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close);
+			this.mainActivityWR = new WeakReference<MainActivity>(mainActivity);
+		}
+
+		@Override
+		public void onDrawerClosed(View view) {
+			final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+			if (mainActivity != null) {
+				mainActivity.updateABDrawerClosed();
+				mainActivity.invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+			}
+		}
+
+		@Override
+		public void onDrawerOpened(View drawerView) {
+			final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+			if (mainActivity != null) {
+				mainActivity.updateABDrawerOpened();
+				mainActivity.invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+			}
+		}
+
+		@Override
+		public void onDrawerStateChanged(int newState) {
+			final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+			if (mainActivity != null) {
+				mainActivity.mDrawerState = newState;
+			}
 		}
 	}
 
@@ -161,9 +181,15 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		AdsUtils.pauseAd(this);
 	}
 
+	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		AdsUtils.destroyAd(this);
+		if (mDrawerLayout != null) {
+			mDrawerLayout.setDrawerListener(null);
+			mDrawerLayout = null;
+		}
+		mDrawerToggle = null;
 		mCustomView = null;
 		mDrawerCustomView = null;
 		DataSourceProvider.reset();

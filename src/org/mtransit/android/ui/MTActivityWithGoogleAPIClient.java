@@ -3,7 +3,6 @@ package org.mtransit.android.ui;
 import java.lang.ref.WeakReference;
 
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.MTFragmentActivity;
 import org.mtransit.android.commons.ui.fragment.MTDialogFragmentV4;
 
@@ -73,8 +72,9 @@ public abstract class MTActivityWithGoogleAPIClient extends MTFragmentActivity i
 		case REQUEST_RESOLVE_ERROR:
 			switch (resultCode) {
 			case Activity.RESULT_OK:
-				if (!getGoogleApiClient().isConnecting() && !getGoogleApiClient().isConnected()) {
-					getGoogleApiClient().connect();
+				final GoogleApiClient googleApiClient = getGoogleApiClient();
+				if (googleApiClient != null && !googleApiClient.isConnecting() && !googleApiClient.isConnected()) {
+					googleApiClient.connect();
 				}
 				break;
 			default:
@@ -90,37 +90,21 @@ public abstract class MTActivityWithGoogleAPIClient extends MTFragmentActivity i
 	protected void onStart() {
 		super.onStart();
 		if (!this.resolvingError) {
-			new MTAsyncTask<Void, Void, Void>() {
-				@Override
-				public String getLogTag() {
-					return MTActivityWithGoogleAPIClient.this.getLogTag() + ">onStart()";
-				}
-
-				@Override
-				protected Void doInBackgroundMT(Void... params) {
-					getGoogleApiClient().connect();
-					return null;
-				}
-			}.execute();
+			final GoogleApiClient googleApiClient = getGoogleApiClient();
+			if (googleApiClient != null) {
+				googleApiClient.connect();
+			}
 		}
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-		new MTAsyncTask<Void, Void, Void>() {
-			@Override
-			public String getLogTag() {
-				return MTActivityWithGoogleAPIClient.this.getLogTag() + ">onStop()";
-			}
-
-			@Override
-			protected Void doInBackgroundMT(Void... params) {
-				onBeforeClientDisconnected();
-				getGoogleApiClient().disconnect();
-				return null;
-			}
-		}.execute();
+		onBeforeClientDisconnected();
+		final GoogleApiClient googleApiClient = getGoogleApiClient();
+		if (googleApiClient != null) {
+			googleApiClient.disconnect();
+		}
 	}
 
 	public abstract void onBeforeClientDisconnected();
@@ -128,7 +112,11 @@ public abstract class MTActivityWithGoogleAPIClient extends MTFragmentActivity i
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		this.googleApiClient = null;
+		if (this.googleApiClient != null) {
+			this.googleApiClient.unregisterConnectionCallbacks(this);
+			this.googleApiClient.unregisterConnectionFailedListener(this);
+			this.googleApiClient = null;
+		}
 	}
 
 	@Override
@@ -152,7 +140,10 @@ public abstract class MTActivityWithGoogleAPIClient extends MTFragmentActivity i
 				result.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
 			} catch (SendIntentException sie) {
 				MTLog.w(this, sie, "Error while resolving Google Play Services error!");
-				getGoogleApiClient().connect();
+				final GoogleApiClient googleApiClient = getGoogleApiClient();
+				if (googleApiClient != null) {
+					googleApiClient.connect();
+				}
 			}
 		} else {
 			showErrorDialog(result.getErrorCode());

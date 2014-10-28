@@ -24,7 +24,7 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 
 	private static boolean LOCAL_ONLY = DEBUG & false;
 
-	private static boolean TRACKING = true;
+	private static boolean TRACKING_ENABLED = true;
 
 	private static boolean TRACKING_ADVERTISING_ID_COLLECTION = true;
 
@@ -63,7 +63,7 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 	}
 
 	public static void trackEvent(Context context, final String category, final String action, final String label, final int value) {
-		if (TRACKING) {
+		if (TRACKING_ENABLED) {
 			new AsyncTask<Context, Void, Void>() {
 				@Override
 				protected Void doInBackground(Context... params) {
@@ -80,7 +80,7 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 	}
 
 	public static void trackScreenView(Context context, final Trackable page) {
-		if (TRACKING) {
+		if (TRACKING_ENABLED) {
 			new AsyncTask<Context, Void, Void>() {
 				@Override
 				protected Void doInBackground(Context... params) {
@@ -98,7 +98,7 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 	}
 
 	public static void dispatch(Context context) {
-		if (TRACKING) {
+		if (TRACKING_ENABLED) {
 			try {
 				GoogleAnalytics.getInstance(context).dispatchLocalHits();
 			} catch (Throwable t) {

@@ -56,10 +56,11 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 
 	public void enableLocationUpdates() {
 		if (this.useLocation && !this.locationUpdatesEnabled) {
-			if (getGoogleApiClient() != null && getGoogleApiClient().isConnected()) {
-				LocationServices.FusedLocationApi.requestLocationUpdates(getGoogleApiClient(), this.locationRequest, this);
+			final GoogleApiClient googleApiClient = getGoogleApiClient();
+			if (googleApiClient != null && googleApiClient.isConnected()) {
+				LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, this.locationRequest, this);
 				this.locationUpdatesEnabled = true;
-				final Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(getGoogleApiClient());
+				final Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
 				onLocationChanged(lastLocation);
 			}
 		}
@@ -73,8 +74,9 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 
 	public void disableLocationUpdates() {
 		if (this.locationUpdatesEnabled) {
-			if (getGoogleApiClient() != null && getGoogleApiClient().isConnected()) {
-				LocationServices.FusedLocationApi.removeLocationUpdates(getGoogleApiClient(), this);
+			final GoogleApiClient googleApiClient = getGoogleApiClient();
+			if (googleApiClient != null && googleApiClient.isConnected()) {
+				LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
 				this.locationUpdatesEnabled = false;
 			}
 		}
@@ -104,7 +106,11 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 		if (!locationUpdatesEnabled) {
 			return null;
 		}
-		final Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(getGoogleApiClient());
+		final GoogleApiClient googleApiClient = getGoogleApiClient();
+		if (googleApiClient == null) {
+			return null;
+		}
+		final Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
 		onLocationChanged(lastLocation);
 		return this.userLocation;
 	}

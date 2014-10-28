@@ -1,5 +1,6 @@
 package org.mtransit.android.data;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -90,7 +91,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private Set<String> favUUIDs;
 
-	private Activity activity;
+	private WeakReference<Activity> activityWR;
 
 	private Location location;
 
@@ -131,7 +132,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public POIArrayAdapter(Activity activity) {
 		super(activity, -1);
-		this.activity = activity;
+		this.activityWR = new WeakReference<Activity>(activity);
 		this.layoutInflater = LayoutInflater.from(getContext());
 	}
 
@@ -361,7 +362,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (poim == null) {
 			return false;
 		}
-		if (poim.onActionItemClick(this.activity)) {
+		final Activity activity = this.activityWR == null ? null : this.activityWR.get();
+		if (activity != null && poim.onActionItemClick(activity)) {
 			return true;
 		}
 		return showPoiMenu(poim);
@@ -378,7 +380,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			new AlertDialog.Builder(getContext()).setTitle(poim.poi.getName())
 					.setItems(poim.getActionsItems(getContext(), getContext().getString(R.string.view_details)), new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int item) {
-							if (poim.onActionsItemClick(POIArrayAdapter.this.activity, item, POIArrayAdapter.this.favoriteUpdateListener)) {
+							final Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
+							if (activity != null && poim.onActionsItemClick(activity, item, POIArrayAdapter.this.favoriteUpdateListener)) {
 								return;
 							}
 							switch (item) {
@@ -417,7 +420,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			}
 		}
 		refreshFavorites();
-		this.closestPoiUuids = null; // reset closest POIs
+		updateClosestPoi();
 	}
 
 	public boolean isInitialized() {
@@ -703,7 +706,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				.toString();
 	}
 
-	public void onResume() {
+	public void onResume(Activity activity) {
+		this.activityWR = new WeakReference<Activity>(activity);
 		if (!this.compassUpdatesEnabled) {
 			SensorUtils.registerCompassListener(getContext(), this);
 			this.compassUpdatesEnabled = true;
@@ -1081,7 +1085,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 					@Override
 					public void onClick(View v) {
-						((MainActivity) POIArrayAdapter.this.activity).addFragmentToStack(RTSRouteFragment.newInstance(rts));
+						final Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
+						if (activity != null && activity instanceof MainActivity) {
+							((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts));
+						} else {
+							MTLog.w(POIArrayAdapter.this, "No activity available to open RTS fragment!");
+						}
 					}
 				});
 				holder.routeFL.setVisibility(View.VISIBLE);
