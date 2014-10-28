@@ -9,6 +9,5 @@
     android:visibility="gone"
     tools:visibility="visible" >
     <include
-        android:layout_centerHorizontal="true"
         layout="@layout/view_ad" />
 </RelativeLayout>

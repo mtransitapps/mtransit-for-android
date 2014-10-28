@@ -5,6 +5,7 @@
     android:id="@+id/ad"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_centerHorizontal="true"
     ads:adSize="BANNER"
     ads:adUnitId="@string/google_ads_banner_ad_unit_id"
     android:visibility="gone"

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
-    <issue id="IconColors">
+    <issue id="IconColors" >
         <ignore path="res/**/ic_menu_guide_holo_light_active.png" />
         <ignore path="res/**/ic_menu_place_holo_light_active.png" />
     </issue>

@@ -9,7 +9,6 @@
         android:layout_height="match_parent" >
         <include
             android:id="@+id/ad_layout"
-            android:layout_alignParentBottom="true"
             layout="@layout/layout_ad" />
         <FrameLayout
             android:id="@+id/content_frame"

@@ -69,6 +69,7 @@
             android:value="@integer/google_play_services_version" />
         <!-- GOOGLE PLAY STORE CAMPAIGN MEASUREMENT -->
         <service android:name="com.google.android.gms.analytics.CampaignTrackingService" />
+        <!--suppress ExportedReceiver -->
         <receiver
             android:name="com.google.android.gms.analytics.CampaignTrackingReceiver"
             android:exported="true" >
