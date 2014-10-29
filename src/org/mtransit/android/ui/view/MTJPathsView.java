@@ -21,7 +21,7 @@ import android.util.Pair;
 
 public class MTJPathsView extends MTView {
 
-	private static final String TAG = MTPieChartPercentView.class.getSimpleName();
+	private static final String TAG = MTJPathsView.class.getSimpleName();
 
 	@Override
 	public String getLogTag() {
@@ -133,19 +133,19 @@ public class MTJPathsView extends MTView {
 		if (this.jPaths != null) {
 			for (JPaths.JPath jPath : this.jPaths.getPaths()) {
 				Path path = new Path();
-				JPaths.JForm form = jPath.form;
-				if (form instanceof JPaths.JCircle) {
-					final JPaths.JCircle jCircle = (JPaths.JCircle) form;
+				if (jPath.form instanceof JPaths.JCircle) {
+					final JPaths.JCircle jCircle = (JPaths.JCircle) jPath.form;
 					path.addCircle(getX(jCircle.x), getY(jCircle.y), getSize(jCircle.radius), Path.Direction.CW);
-				} else if (form instanceof JPaths.JRect) {
-					final JPaths.JRect jRect = (JPaths.JRect) form;
+				} else if (jPath.form instanceof JPaths.JRect) {
+					final JPaths.JRect jRect = (JPaths.JRect) jPath.form;
 					path.addRect(getX(jRect.left), getY(jRect.top), getX(jRect.right), getY(jRect.bottom), Path.Direction.CW);
 				} else {
 					if (!isInEditMode()) {
-						MTLog.w(this, "Unexpected path form '%s'!", form);
+						MTLog.w(this, "Unexpected path form '%s'!", jPath.form);
 					}
 					continue;
 				}
+				path.close();
 				Paint paint = getNewDefaultPaint();
 				paint.setStyle(jPath.paint.style);
 				if (jPath.paint.strokeWidth >= 0f) {
