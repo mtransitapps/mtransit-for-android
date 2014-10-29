@@ -469,7 +469,6 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 				}
 				if (holder.routeLongNameTv != null) {
 					holder.routeLongNameTv.setTextColor(routeTextColor);
-					holder.routeLongNameTv.setBackgroundColor(routeColor);
 					if (TextUtils.isEmpty(route.longName)) {
 						holder.routeLongNameTv.setVisibility(View.GONE);
 					} else {
