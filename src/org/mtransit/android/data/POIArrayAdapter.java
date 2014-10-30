@@ -1035,6 +1035,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		holder.routeShortNameTv = (TextView) convertView.findViewById(R.id.route_short_name);
 		holder.routeTypeImg = (MTJPathsView) convertView.findViewById(R.id.route_type_img);
 		holder.tripHeadingTv = (TextView) convertView.findViewById(R.id.trip_heading);
+		holder.tripHeadingBg = convertView.findViewById(R.id.trip_heading_bg);
 	}
 
 	private View updateRouteTripStopView(POIManager poim, View convertView) {
@@ -1060,7 +1061,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			if (!showRTSExtra || rts.route == null) {
 				holder.rtsExtraV.setVisibility(View.GONE);
 				holder.routeFL.setVisibility(View.GONE);
-				holder.tripHeadingTv.setVisibility(View.GONE);
+				holder.tripHeadingBg.setVisibility(View.GONE);
 			} else {
 				final int routeTextColor = ColorUtils.parseColor(rts.route.textColor);
 				final int routeColor = ColorUtils.parseColor(rts.route.color);
@@ -1096,12 +1097,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				holder.routeFL.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setVisibility(View.VISIBLE);
 				if (rts.trip == null) {
-					holder.tripHeadingTv.setVisibility(View.GONE);
+					holder.tripHeadingBg.setVisibility(View.GONE);
 				} else {
 					holder.tripHeadingTv.setTextColor(routeColor);
-					holder.tripHeadingTv.setBackgroundColor(routeTextColor);
+					holder.tripHeadingBg.setBackgroundColor(routeTextColor);
 					holder.tripHeadingTv.setText(rts.trip.getHeading(getContext()).toUpperCase(Locale.getDefault()));
-					holder.tripHeadingTv.setVisibility(View.VISIBLE);
+					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}
 			}
 		}
@@ -1346,6 +1347,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		View rtsExtraV;
 		MTJPathsView routeTypeImg;
 		TextView tripHeadingTv;
+		View tripHeadingBg;
 	}
 
 	public static class BasicPOIViewHolder extends CommonViewHolder {

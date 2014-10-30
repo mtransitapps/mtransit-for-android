@@ -136,6 +136,7 @@ public class POIViewController implements MTLog.Loggable {
 		holder.routeShortNameTv = (TextView) view.findViewById(R.id.route_short_name);
 		holder.routeTypeImg = (MTJPathsView) view.findViewById(R.id.route_type_img);
 		holder.tripHeadingTv = (TextView) view.findViewById(R.id.trip_heading);
+		holder.tripHeadingBg = view.findViewById(R.id.trip_heading_bg);
 	}
 
 	private static CommonStatusViewHolder initPOIStatusViewHolder(int status, View view) {
@@ -223,7 +224,7 @@ public class POIViewController implements MTLog.Loggable {
 			if (dataProvider != null && dataProvider.isShowingExtra() && rts.route == null) {
 				holder.rtsExtraV.setVisibility(View.GONE);
 				holder.routeFL.setVisibility(View.GONE);
-				holder.tripHeadingTv.setVisibility(View.GONE);
+				holder.tripHeadingBg.setVisibility(View.GONE);
 			} else {
 				final int routeTextColor = ColorUtils.parseColor(rts.route.textColor);
 				final int routeColor = ColorUtils.parseColor(rts.route.color);
@@ -254,12 +255,12 @@ public class POIViewController implements MTLog.Loggable {
 				holder.routeFL.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setVisibility(View.VISIBLE);
 				if (rts.trip == null) {
-					holder.tripHeadingTv.setVisibility(View.GONE);
+					holder.tripHeadingBg.setVisibility(View.GONE);
 				} else {
 					holder.tripHeadingTv.setTextColor(routeColor);
-					holder.tripHeadingTv.setBackgroundColor(routeTextColor);
+					holder.tripHeadingBg.setBackgroundColor(routeTextColor);
 					holder.tripHeadingTv.setText(rts.trip.getHeading(context).toUpperCase(Locale.getDefault()));
-					holder.tripHeadingTv.setVisibility(View.VISIBLE);
+					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}
 			}
 		}
@@ -558,6 +559,7 @@ public class POIViewController implements MTLog.Loggable {
 		View rtsExtraV;
 		MTJPathsView routeTypeImg;
 		TextView tripHeadingTv;
+		View tripHeadingBg;
 	}
 
 	private static class BasicPOIViewHolder extends CommonViewHolder {
