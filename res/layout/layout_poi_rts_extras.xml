@@ -63,5 +63,6 @@
                 android:textAppearance="?android:attr/textAppearanceSmallInverse"
                 android:textStyle="bold"
                 tools:visibility="visible" />
+        </FrameLayout>
     </LinearLayout>
 </FrameLayout>
