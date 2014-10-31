@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.ui.MTActivityWithLocation;
 
 import android.app.Activity;
@@ -38,29 +39,54 @@ public final class AdsUtils implements MTLog.Loggable {
 			"bike", "sharing", "velo", "train" }));
 
 	public static void setupAd(Activity activity) {
-		final boolean result = AD_ENABLED && isShowingAds(activity);
-		if (result) {
-			View adLayout = activity.findViewById(R.id.ad_layout);
-			if (adLayout != null) {
-				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
-				if (adView != null) {
-					adView.setAdListener(new MTAdListener(activity));
-					AdRequest.Builder adRequestBd = new AdRequest.Builder();
-					if (activity != null && activity instanceof MTActivityWithLocation) {
-						adRequestBd.setLocation(((MTActivityWithLocation) activity).getLastLocation());
+		new SetupAdTask(activity).execute();
+	}
+
+	private static class SetupAdTask extends MTAsyncTask<Void, Void, Boolean> {
+
+		@Override
+		public String getLogTag() {
+			return TAG;
+		}
+
+		private WeakReference<Activity> activityWR;
+
+		public SetupAdTask(Activity activity) {
+			this.activityWR = new WeakReference<Activity>(activity);
+		}
+
+		@Override
+		protected Boolean doInBackgroundMT(Void... params) {
+			final Activity activity = this.activityWR == null ? null : this.activityWR.get();
+			return AD_ENABLED && isShowingAds(activity);
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			final Activity activity = this.activityWR == null ? null : this.activityWR.get();
+			if (result) {
+				View adLayout = activity.findViewById(R.id.ad_layout);
+				if (adLayout != null) {
+					AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+					if (adView != null) {
+						adView.setAdListener(new MTAdListener(activity));
+						AdRequest.Builder adRequestBd = new AdRequest.Builder();
+						if (activity != null && activity instanceof MTActivityWithLocation) {
+							adRequestBd.setLocation(((MTActivityWithLocation) activity).getLastLocation());
+						}
+						for (String keyword : KEYWORDS) {
+							adRequestBd.addKeyword(keyword);
+						}
+						if (DEBUG) {
+							adRequestBd.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
+							adRequestBd.addTestDevice(activity.getString(R.string.google_ads_test_device_id));
+						}
+						adView.loadAd(adRequestBd.build());
 					}
-					for (String keyword : KEYWORDS) {
-						adRequestBd.addKeyword(keyword);
-					}
-					if (DEBUG) {
-						adRequestBd.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
-						adRequestBd.addTestDevice(activity.getString(R.string.google_ads_test_device_id));
-					}
-					adView.loadAd(adRequestBd.build());
 				}
+			} else {
+				hideAds(activity);
 			}
-		} else {
-			hideAds(activity);
 		}
 	}
 
@@ -92,18 +118,14 @@ public final class AdsUtils implements MTLog.Loggable {
 				MTLog.w(TAG, "Failed to received ad! Error code: '%s'.", errorCode);
 			}
 			final Activity activity = this.activityWR == null ? null : this.activityWR.get();
-			if (activity != null) {
-				hideAds(activity);
-			}
+			hideAds(activity);
 		}
 
 		@Override
 		public void onAdLoaded() {
 			super.onAdLoaded();
 			final Activity activity = this.activityWR == null ? null : this.activityWR.get();
-			if (activity != null) {
-				showAds(activity);
-			}
+			showAds(activity);
 		}
 
 		@Override
