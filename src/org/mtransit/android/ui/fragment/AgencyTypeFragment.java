@@ -316,6 +316,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			if (agency != null) {
 				PreferenceUtils
 						.savePrefLcl(getActivity(), PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(this.type.getId()), agency.getAuthority(), false);
+			}
 		}
 		final List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
