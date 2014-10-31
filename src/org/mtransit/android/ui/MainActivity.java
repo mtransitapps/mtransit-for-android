@@ -387,7 +387,6 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		// getSupportFragmentManager().getBackStackEntryCount());
 		// MTLog.d(this, "onBackStackChanged() > this.currentSelectedItemPosition: %s", this.currentSelectedItemPosition);
 		// this.mDrawerToggle.setDrawerIndicatorEnabled(isDrawerOpen() ? true : getSupportFragmentManager().getBackStackEntryCount() < 1);
-		MTLog.d(this, "onBackStackChanged() > this.backStackEntryCount: %s", this.backStackEntryCount);
 		this.backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
 		setAB();
 		updateAB(); // up/drawer icon
