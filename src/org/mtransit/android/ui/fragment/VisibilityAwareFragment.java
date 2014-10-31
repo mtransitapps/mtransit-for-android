@@ -2,6 +2,8 @@ package org.mtransit.android.ui.fragment;
 
 public interface VisibilityAwareFragment {
 
-	void setFragmentVisisbleAtPosition(int visisbleFragmentPosition);
+	void setFragmentVisibleAtPosition(int visibleFragmentPosition);
+
+	void setFragmentPosition(int fragmentPosition);
 
 }

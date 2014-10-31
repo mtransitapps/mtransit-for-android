@@ -13,6 +13,7 @@ import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.AgencyPOIsLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 
 import android.location.Location;
 import android.os.Bundle;
@@ -26,7 +27,7 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
-public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<List<POIManager>>,
+public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<List<POIManager>>,
 		MTActivityWithLocation.UserLocationListener {
 
 	private static final String TAG = AgencyPOIsFragment.class.getSimpleName();
@@ -41,15 +42,15 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 	private static final String EXTRA_USER_LOCATION = "extra_user_location";
 
-	public static AgencyPOIsFragment newInstance(int fragmentPosition, int lastVisisbleFragmentPosition, AgencyProperties agency, Location userLocationOpt) {
+	public static AgencyPOIsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, AgencyProperties agency, Location userLocationOpt) {
 		AgencyPOIsFragment f = new AgencyPOIsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, agency.getAuthority());
 		if (fragmentPosition >= 0) {
 			args.putInt(EXTRA_FRAGMENT_POSITION, fragmentPosition);
 		}
-		if (lastVisisbleFragmentPosition >= 0) {
-			args.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, lastVisisbleFragmentPosition);
+		if (lastVisibleFragmentPosition >= 0) {
+			args.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, lastVisibleFragmentPosition);
 		}
 		if (userLocationOpt != null) {
 			args.putParcelable(EXTRA_USER_LOCATION, userLocationOpt);
@@ -61,10 +62,15 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 	private AgencyProperties agency;
 	private Location userLocation;
 	private int fragmentPosition = -1;
-	private int lastVisisbleFragmentPosition = -1;
+	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
 	private POIArrayAdapter adapter;
 	private String emptyText = null;
+
+	@Override
+	public AgencyProperties getAgency() {
+		return agency;
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -95,12 +101,12 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 				this.fragmentPosition = -1;
 			}
 		}
-		final Integer lastVisisbleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, savedInstanceState, getArguments());
-		if (lastVisisbleFragmentPosition != null) {
-			if (lastVisisbleFragmentPosition.intValue() >= 0) {
-				this.lastVisisbleFragmentPosition = lastVisisbleFragmentPosition;
+		final Integer lastVisibleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, savedInstanceState, getArguments());
+		if (lastVisibleFragmentPosition != null) {
+			if (lastVisibleFragmentPosition.intValue() >= 0) {
+				this.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
 			} else {
-				this.lastVisisbleFragmentPosition = -1;
+				this.lastVisibleFragmentPosition = -1;
 			}
 		}
 		final Location userLocation = BundleUtils.getParcelable(EXTRA_USER_LOCATION, savedInstanceState, getArguments());
@@ -132,22 +138,28 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 	}
 
 	@Override
-	public void setFragmentVisisbleAtPosition(int visisbleFragmentPosition) {
-		if (this.lastVisisbleFragmentPosition == visisbleFragmentPosition //
+	public void setFragmentPosition(int fragmentPosition) {
+		this.fragmentPosition = fragmentPosition;
+		setFragmentVisibleAtPosition(this.lastVisibleFragmentPosition); // force reset visibility
+	}
+
+	@Override
+	public void setFragmentVisibleAtPosition(int visibleFragmentPosition) {
+		if (this.lastVisibleFragmentPosition == visibleFragmentPosition //
 				&& (//
-				(this.fragmentPosition == visisbleFragmentPosition && this.fragmentVisible) //
+				(this.fragmentPosition == visibleFragmentPosition && this.fragmentVisible) //
 				|| //
-				(this.fragmentPosition != visisbleFragmentPosition && !this.fragmentVisible) //
+				(this.fragmentPosition != visibleFragmentPosition && !this.fragmentVisible) //
 				) //
 		) {
 			return;
 		}
-		this.lastVisisbleFragmentPosition = visisbleFragmentPosition;
+		this.lastVisibleFragmentPosition = visibleFragmentPosition;
 		if (this.fragmentPosition < 0) {
 			return;
 		}
-		if (this.fragmentPosition == visisbleFragmentPosition) {
-			onFragmentVisisble();
+		if (this.fragmentPosition == visibleFragmentPosition) {
+			onFragmentVisible();
 		} else {
 			onFragmentInvisible();
 		}
@@ -163,7 +175,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 		}
 	}
 
-	private void onFragmentVisisble() {
+	private void onFragmentVisible() {
 		if (this.fragmentVisible) {
 			return; // already visible
 		}
@@ -227,8 +239,8 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements VisibilityAwareF
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (this.fragmentPosition < 0 || this.fragmentPosition == this.lastVisisbleFragmentPosition) {
-			onFragmentVisisble();
+		if (this.fragmentPosition < 0 || this.fragmentPosition == this.lastVisibleFragmentPosition) {
+			onFragmentVisible();
 		} // ELSE would be call later
 	}
 

@@ -25,6 +25,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,7 +35,7 @@ import android.widget.ListView;
 @SuppressWarnings("deprecation")
 // need to switch to support-v7-appcompat
 public class MainActivity extends MTActivityWithLocation implements AdapterView.OnItemClickListener, FragmentManager.OnBackStackChangedListener,
-		AnalyticsUtils.Trackable {
+		AnalyticsUtils.Trackable, MenuAdapter.MenuUpdateListener {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -52,7 +53,8 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 
 	private static final boolean LOCATION_ENABLED = true;
 
-	private static final String EXTRA_SELECTED_ROOT_SCREEN = "extra_selected_root_screen";
+	private static final String EXTRA_SELECTED_ROOT_SCREEN_POSITION = "extra_selected_root_screen";
+	private static final String EXTRA_SELECTED_ROOT_SCREEN_ID = "extra_selected_root_screen_id";
 
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
@@ -75,10 +77,13 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	private View mCustomView;
 	private View mDrawerCustomView;
 
-	public static Intent newInstance(Context context, int selectedRootScreenPosition) {
+	public static Intent newInstance(Context context, int optSelectedRootScreenPosition, String optSelectedRootScreenId) {
 		Intent intent = new Intent(context, MainActivity.class);
-		if (selectedRootScreenPosition >= 0) {
-			intent.putExtra(EXTRA_SELECTED_ROOT_SCREEN, selectedRootScreenPosition);
+		if (optSelectedRootScreenPosition >= 0) {
+			intent.putExtra(EXTRA_SELECTED_ROOT_SCREEN_POSITION, optSelectedRootScreenPosition);
+		}
+		if (!TextUtils.isEmpty(optSelectedRootScreenId)) {
+			intent.putExtra(EXTRA_SELECTED_ROOT_SCREEN_ID, optSelectedRootScreenId);
 		}
 		return intent;
 	}
@@ -101,7 +106,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		mDrawerList = (ListView) findViewById(R.id.left_drawer); // (mDrawerList) getSupportFragmentManager().findFragmentById(R.id.left_drawer);
 
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-		mDrawerListAdapter = new MenuAdapter(this);
+		mDrawerListAdapter = new MenuAdapter(this, this);
 		mDrawerList.setAdapter(mDrawerListAdapter);
 		mDrawerList.setOnItemClickListener(this);
 
@@ -120,6 +125,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		} else {
 			onRestoreState(savedInstanceState);
 		}
+		AdsUtils.setupAd(this);
 	}
 
 	private static class ABToggle extends ActionBarDrawerToggle {
@@ -159,9 +165,13 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	}
 
 	private void onRestoreState(Bundle savedInstanceState) {
-		int savedRootScreen = savedInstanceState.getInt(EXTRA_SELECTED_ROOT_SCREEN, -1);
+		int savedRootScreen = savedInstanceState.getInt(EXTRA_SELECTED_ROOT_SCREEN_POSITION, -1);
 		if (savedRootScreen >= 0) {
 			this.currentSelectedItemPosition = savedRootScreen;
+		}
+		String savedRootScreenId = savedInstanceState.getString(EXTRA_SELECTED_ROOT_SCREEN_ID, null);
+		if (!TextUtils.isEmpty(savedRootScreenId)) {
+			this.currentSelectedScreenItemId = savedRootScreenId;
 		}
 	}
 
@@ -171,7 +181,6 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		setAB();
 		updateAB();
 		AnalyticsUtils.trackScreenView(this, this);
-		AdsUtils.setupAd(this);
 		AdsUtils.resumeAd(this);
 	}
 
@@ -179,6 +188,12 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	protected void onPause() {
 		super.onPause();
 		AdsUtils.pauseAd(this);
+	}
+
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		DataSourceProvider.reset(this);
 	}
 
 	@Override
@@ -192,13 +207,14 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		mDrawerToggle = null;
 		mCustomView = null;
 		mDrawerCustomView = null;
-		DataSourceProvider.reset();
+		DataSourceProvider.destroy();
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putInt(EXTRA_SELECTED_ROOT_SCREEN, this.currentSelectedItemPosition);
+		outState.putInt(EXTRA_SELECTED_ROOT_SCREEN_POSITION, this.currentSelectedItemPosition);
+		outState.putString(EXTRA_SELECTED_ROOT_SCREEN_ID, this.currentSelectedScreenItemId);
 	}
 
 	@Override
@@ -214,6 +230,8 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 
 
 	private int currentSelectedItemPosition = -1;
+
+	private String currentSelectedScreenItemId = null;
 
 	private void selectItem(int position) {
 		if (position < 0) {
@@ -247,9 +265,26 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		mDrawerList.setItemChecked(position, true);
 		closeDrawer();
 		this.currentSelectedItemPosition = position;
+		this.currentSelectedScreenItemId = this.mDrawerListAdapter.getScreenItemId(position);
 		if (this.mDrawerListAdapter.isRootScreen(position)) {
-			PreferenceUtils.savePrefLcl(this, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.mDrawerListAdapter.getScreenItemId(position), false);
+			PreferenceUtils.savePrefLcl(this, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId, false);
 		}
+	}
+
+	@Override
+	public void onMenuUpdated() {
+		final String itemId = PreferenceUtils.getPrefLcl(this, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
+		final int newSelectedItemPosition = this.mDrawerListAdapter.getScreenItemPosition(itemId);
+		if (this.currentSelectedScreenItemId != null && this.currentSelectedScreenItemId.equals(itemId)) {
+			this.currentSelectedItemPosition = newSelectedItemPosition;
+			if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+				mDrawerList.setItemChecked(this.currentSelectedItemPosition, true);
+			} else {
+				mDrawerList.setItemChecked(this.currentSelectedItemPosition, false);
+			}
+			return;
+		}
+		selectItem(newSelectedItemPosition); // re-select, selected item
 	}
 
 	private void clearFragmentBackStackImmediate(FragmentManager fm) {
@@ -478,6 +513,16 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		mDrawerToggle.onConfigurationChanged(newConfig);
+	}
+
+	public void popFragmentFromStack(Fragment fragment) {
+		if (fragment != null) {
+			final FragmentManager fm = getSupportFragmentManager();
+			final FragmentTransaction ft = fm.beginTransaction();
+			ft.remove(fragment);
+			ft.commit();
+			fm.popBackStack();
+		}
 	}
 
 	@Override

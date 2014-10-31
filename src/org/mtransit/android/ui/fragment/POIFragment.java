@@ -13,6 +13,7 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
 
@@ -117,6 +118,23 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		restoreInstanceState(savedInstanceState);
 	}
 
+	@Override
+	public void onModulesUpdated() {
+		if (this.poim != null) {
+			final POIManager newPoim = DataSourceProvider.findPOIWithUUID(getActivity(), UriUtils.newContentUri(this.poim.poi.getAuthority()),
+					this.poim.poi.getUUID());
+			if (newPoim == null) {
+				((MainActivity) getActivity()).popFragmentFromStack(this); // close this fragment
+				return;
+			} else if (!this.poim.poi.equals(newPoim.poi)) {
+				this.poim = newPoim;
+				setupView(getView());
+			}
+			POIViewController.updatePOIStatus(getPOIView(), this.poim, this);
+			POIStatusDetailViewController.updatePOIStatus(getPOIStatusView(), this.poim, this);
+		}
+	}
+
 	private void setupView(View view) {
 		if (view == null || this.poim == null) {
 			return;
@@ -130,7 +148,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	}
 
 	private View getPOIStatusView(View view) {
-		if (view == null || poim == null) {
+		if (view == null || this.poim == null) {
 			return null;
 		}
 		if (view.findViewById(R.id.poi_status_detail) == null) { // IF NOT present/inflated DO
@@ -148,7 +166,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	}
 
 	private View getPOIView(View view) {
-		if (view == null || poim == null) {
+		if (view == null || this.poim == null) {
 			return null;
 		}
 		if (view.findViewById(R.id.poi) == null) { // IF NOT present/inflated DO

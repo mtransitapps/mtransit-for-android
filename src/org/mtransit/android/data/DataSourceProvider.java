@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -27,6 +28,7 @@ import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.provider.POIProvider;
 import org.mtransit.android.commons.provider.StatusFilter;
 import org.mtransit.android.commons.provider.StatusProvider;
+import org.mtransit.android.commons.task.MTAsyncTask;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -34,6 +36,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 
 public class DataSourceProvider implements MTLog.Loggable {
 
@@ -47,6 +50,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 	private static DataSourceProvider instance = null;
 
 	private List<AgencyProperties> allAgencies = null;
+
+	private List<StatusProviderProperties> allStatusProviders = null;
 
 	private List<DataSourceType> allAgencyTypes = null;
 
@@ -66,10 +71,31 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return instance;
 	}
 
-	public static void reset() {
+	public static boolean isSet() {
+		return instance != null;
+	}
+
+	public static void destroy() {
 		if (instance != null) {
-			instance.onReset();
+			instance.onDestroy();
 			instance = null;
+		}
+	}
+
+	public static void reset(Context context) {
+		if (instance != null) {
+			if (context == null) { // cannot compare w/o context
+				destroy();
+				triggerModulesUpdated();
+			} else {
+				final DataSourceProvider newInstance = new DataSourceProvider();
+				newInstance.init(context);
+				if (CollectionUtils.getSize(newInstance.allAgencies) != CollectionUtils.getSize(instance.allAgencies)
+						|| CollectionUtils.getSize(newInstance.allStatusProviders) != CollectionUtils.getSize(instance.allStatusProviders)) {
+					instance = newInstance;
+					triggerModulesUpdated();
+				}
+			}
 		}
 	}
 
@@ -127,7 +153,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return this.rtsRouteLogoByAuthority.get(authority);
 	}
 
-	public void onReset() {
+	public void onDestroy() {
 		if (this.allAgencies != null) {
 			this.allAgencies.clear();
 			this.allAgencies = null;
@@ -144,6 +170,10 @@ public class DataSourceProvider implements MTLog.Loggable {
 			this.allAgenciesByAuthority.clear();
 			this.allAgenciesByAuthority = null;
 		}
+		if (this.allStatusProviders != null) {
+			this.allStatusProviders.clear();
+			this.allStatusProviders = null;
+		}
 		if (this.statusProvidersByTargetAuthority != null) {
 			this.statusProvidersByTargetAuthority.clear();
 			this.statusProvidersByTargetAuthority = null;
@@ -154,11 +184,12 @@ public class DataSourceProvider implements MTLog.Loggable {
 		}
 	}
 
-	private void init(Context context) {
+	private synchronized void init(Context context) {
 		this.allAgencies = new ArrayList<AgencyProperties>();
 		this.allAgencyTypes = new ArrayList<DataSourceType>();
 		this.allAgenciesByType = new WeakHashMap<DataSourceType, List<AgencyProperties>>();
 		this.allAgenciesByAuthority = new WeakHashMap<String, AgencyProperties>();
+		this.allStatusProviders = new ArrayList<StatusProviderProperties>();
 		this.statusProvidersByTargetAuthority = new WeakHashMap<String, Set<StatusProviderProperties>>();
 		this.rtsRouteLogoByAuthority = new WeakHashMap<String, JPaths>();
 		String agencyProviderMetaData = context.getString(R.string.agency_provider);
@@ -208,6 +239,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 	}
 
 	private void addNewStatusProvider(StatusProviderProperties newStatusProvider) {
+		this.allStatusProviders.add(newStatusProvider);
 		String newScheduleProviderTargetAuthority = newStatusProvider.getTargetAuthority();
 		if (!this.statusProvidersByTargetAuthority.containsKey(newScheduleProviderTargetAuthority)) {
 			this.statusProvidersByTargetAuthority.put(newScheduleProviderTargetAuthority, new HashSet<StatusProviderProperties>());
@@ -610,4 +642,79 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return Uri.withAppendedPath(contentUri, "trip");
 	}
 
+	private static WeakHashMap<ModulesUpdateListener, Object> modulesUpdateListeners = new WeakHashMap<ModulesUpdateListener, Object>();
+
+	public static void addModulesUpdateListerner(ModulesUpdateListener listener) {
+		try {
+			if (!modulesUpdateListeners.containsKey(listener)) {
+				modulesUpdateListeners.put(listener, null);
+			}
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "addModulesUpdateListerner() > error while adding listerner '%s'!", listener);
+		}
+	}
+
+	public static void removeModulesUpdateListerner(ModulesUpdateListener listener) {
+		try {
+			if (modulesUpdateListeners.containsKey(listener)) {
+				modulesUpdateListeners.remove(listener);
+			}
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "removeModulesUpdateListerner() > error while removing listerner '%s'!", listener);
+		}
+	}
+
+	private static TriggerModulesUpdatedTask triggerModulesUpdatedTask = null;
+
+	private static void triggerModulesUpdated() {
+		if (modulesUpdateListeners != null) {
+			if (triggerModulesUpdatedTask != null && triggerModulesUpdatedTask.getStatus() != AsyncTask.Status.RUNNING) {
+				triggerModulesUpdatedTask.cancel(true);
+			}
+			final WeakHashMap<ModulesUpdateListener, Object> listenersCopy = new WeakHashMap<ModulesUpdateListener, Object>(modulesUpdateListeners);
+			triggerModulesUpdatedTask = new TriggerModulesUpdatedTask(listenersCopy);
+			triggerModulesUpdatedTask.execute();
+		}
+	}
+
+	public static interface ModulesUpdateListener {
+		public void onModulesUpdated();
+	}
+
+	private static class TriggerModulesUpdatedTask extends MTAsyncTask<Void, ModulesUpdateListener, Void> {
+
+		private static final String TAG = TriggerModulesUpdatedTask.class.getSimpleName();
+
+		@Override
+		public String getLogTag() {
+			return TAG;
+		}
+
+		private WeakHashMap<ModulesUpdateListener, Object> listerners;
+
+		public TriggerModulesUpdatedTask(WeakHashMap<ModulesUpdateListener, Object> listeners) {
+			this.listerners = listeners;
+		}
+
+		@Override
+		protected Void doInBackgroundMT(Void... params) {
+			if (this.listerners != null) {
+				Iterator<ModulesUpdateListener> it = this.listerners.keySet().iterator();
+				while (it.hasNext()) {
+					ModulesUpdateListener listener = it.next();
+					if (listener != null) {
+						publishProgress(listener);
+					}
+				}
+			}
+			return null;
+		}
+
+		@Override
+		protected void onProgressUpdate(ModulesUpdateListener... values) {
+			if (values != null && values.length > 0) {
+				values[0].onModulesUpdated();
+			}
+		}
+	}
 }

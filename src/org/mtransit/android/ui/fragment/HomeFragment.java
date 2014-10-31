@@ -7,9 +7,10 @@ import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
-import org.mtransit.android.provider.FavoriteManager.FavoriteUpdateListener;
+import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.HomePOILoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
@@ -33,7 +34,7 @@ import android.widget.AbsListView;
 import android.widget.TextView;
 
 public class HomeFragment extends ABFragment implements LoaderManager.LoaderCallbacks<List<POIManager>>, MTActivityWithLocation.UserLocationListener,
-		FavoriteUpdateListener, SwipeRefreshLayout.OnRefreshListener {
+		FavoriteManager.FavoriteUpdateListener, SwipeRefreshLayout.OnRefreshListener, DataSourceProvider.ModulesUpdateListener {
 
 	private static final String TAG = HomeFragment.class.getSimpleName();
 
@@ -87,6 +88,12 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			return;
 		}
 		useNewNearbyLocation(this.userLocation);
+	}
+
+	@Override
+	public void onModulesUpdated() {
+		this.nearbyLocation = null; // force refresh
+		initiateRefresh();
 	}
 
 	@Override

@@ -267,7 +267,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			StoreUtils.viewAppPage(activity, ((Module) poi).getPkg());
 			return true; // HANDLED
 		case 2:
-			PackageManagerUtils.showAppDetailsSettings(activity, ((Module) poi).getPkg());
+			PackageManagerUtils.uninstallApp(activity, ((Module) poi).getPkg());
 			return true; // HANDLED
 		}
 		return false; // NOT HANDLED

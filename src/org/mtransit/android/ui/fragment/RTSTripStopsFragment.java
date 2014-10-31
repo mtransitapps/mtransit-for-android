@@ -49,7 +49,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private static final String EXTRA_USER_LOCATION = "extra_user_location";
 	private static final String EXTRA_SELECTED_ITEM_POSITION = "extra_selected_item_position";
 
-	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisisbleFragmentPosition, String authority, Trip trip, Integer optStopId,
+	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String authority, Trip trip, Integer optStopId,
 			Location userLocationOpt) {
 		RTSTripStopsFragment f = new RTSTripStopsFragment();
 		Bundle args = new Bundle();
@@ -58,8 +58,8 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (fragmentPosition >= 0) {
 			args.putInt(EXTRA_FRAGMENT_POSITION, fragmentPosition);
 		}
-		if (lastVisisbleFragmentPosition >= 0) {
-			args.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, lastVisisbleFragmentPosition);
+		if (lastVisibleFragmentPosition >= 0) {
+			args.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, lastVisibleFragmentPosition);
 		}
 		if (optStopId != null) {
 			args.putInt(EXTRA_STOP_ID, optStopId);
@@ -78,7 +78,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private POIArrayAdapter adapter;
 	private Location userLocation;
 	private int fragmentPosition = -1;
-	private int lastVisisbleFragmentPosition = -1;
+	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
 	private String emptyText = null;
 	private Integer currentSelectedItemPosition = null;
@@ -117,12 +117,12 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 				this.fragmentPosition = -1;
 			}
 		}
-		final Integer lastVisisbleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, savedInstanceState, getArguments());
-		if (lastVisisbleFragmentPosition != null) {
-			if (lastVisisbleFragmentPosition.intValue() >= 0) {
-				this.lastVisisbleFragmentPosition = lastVisisbleFragmentPosition;
+		final Integer lastVisibleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, savedInstanceState, getArguments());
+		if (lastVisibleFragmentPosition != null) {
+			if (lastVisibleFragmentPosition.intValue() >= 0) {
+				this.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
 			} else {
-				this.lastVisisbleFragmentPosition = -1;
+				this.lastVisibleFragmentPosition = -1;
 			}
 		}
 		this.stopId = BundleUtils.getInt(EXTRA_STOP_ID, savedInstanceState, getArguments());
@@ -157,22 +157,28 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	}
 
 	@Override
-	public void setFragmentVisisbleAtPosition(int visisbleFragmentPosition) {
-		if (this.lastVisisbleFragmentPosition == visisbleFragmentPosition //
+	public void setFragmentPosition(int fragmentPosition) {
+		this.fragmentPosition = fragmentPosition;
+		setFragmentVisibleAtPosition(this.lastVisibleFragmentPosition); // force reset visibility
+	}
+
+	@Override
+	public void setFragmentVisibleAtPosition(int visibleFragmentPosition) {
+		if (this.lastVisibleFragmentPosition == visibleFragmentPosition //
 				&& (//
-				(this.fragmentPosition == visisbleFragmentPosition && this.fragmentVisible) //
+				(this.fragmentPosition == visibleFragmentPosition && this.fragmentVisible) //
 				|| //
-				(this.fragmentPosition != visisbleFragmentPosition && !this.fragmentVisible) //
+				(this.fragmentPosition != visibleFragmentPosition && !this.fragmentVisible) //
 				) //
 		) {
 			return;
 		}
-		this.lastVisisbleFragmentPosition = visisbleFragmentPosition;
+		this.lastVisibleFragmentPosition = visibleFragmentPosition;
 		if (this.fragmentPosition < 0) {
 			return;
 		}
-		if (this.fragmentPosition == visisbleFragmentPosition) {
-			onFragmentVisisble();
+		if (this.fragmentPosition == visibleFragmentPosition) {
+			onFragmentVisible();
 		} else {
 			onFragmentInvisible();
 		}
@@ -188,7 +194,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		}
 	}
 
-	private void onFragmentVisisble() {
+	private void onFragmentVisible() {
 		if (this.fragmentVisible) {
 			return; // already visible
 		}
@@ -297,8 +303,8 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (this.fragmentPosition < 0 || this.fragmentPosition == this.lastVisisbleFragmentPosition) {
-			onFragmentVisisble();
+		if (this.fragmentPosition < 0 || this.fragmentPosition == this.lastVisibleFragmentPosition) {
+			onFragmentVisible();
 		} // ELSE would be call later
 	}
 

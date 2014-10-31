@@ -15,6 +15,7 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.JPaths;
 import org.mtransit.android.task.RTSAgencyRoutesLoader;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 import org.mtransit.android.ui.view.MTJPathsView;
 
 import android.content.Context;
@@ -33,7 +34,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.TextView;
 
-public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<List<Route>>,
+public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<List<Route>>,
 		AdapterView.OnItemClickListener {
 
 	private static final String TAG = RTSAgencyRoutesFragment.class.getSimpleName();
@@ -54,15 +55,15 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 
-	public static RTSAgencyRoutesFragment newInstance(int fragmentPosition, int lastVisisbleFragmentPosition, AgencyProperties agency) {
+	public static RTSAgencyRoutesFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, AgencyProperties agency) {
 		RTSAgencyRoutesFragment f = new RTSAgencyRoutesFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, agency.getAuthority());
 		if (fragmentPosition >= 0) {
 			args.putInt(EXTRA_FRAGMENT_POSITION, fragmentPosition);
 		}
-		if (lastVisisbleFragmentPosition >= 0) {
-			args.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, lastVisisbleFragmentPosition);
+		if (lastVisibleFragmentPosition >= 0) {
+			args.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, lastVisibleFragmentPosition);
 		}
 		f.setArguments(args);
 		return f;
@@ -70,10 +71,15 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 
 	private AgencyProperties agency;
 	private int fragmentPosition = -1;
-	private int lastVisisbleFragmentPosition = -1;
+	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
 	private RTSRouteArrayAdapter adapter;
 	private String emptyText = null;
+
+	@Override
+	public AgencyProperties getAgency() {
+		return agency;
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -88,7 +94,9 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		final String agencyAuthority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, savedInstanceState, getArguments());
 		if (!TextUtils.isEmpty(agencyAuthority)) {
 			this.agency = DataSourceProvider.get().getAgency(getActivity(), agencyAuthority);
-			setLogTag(this.agency.getShortName());
+			if (this.agency != null) {
+				setLogTag(this.agency.getShortName());
+			}
 		}
 		final Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, savedInstanceState, getArguments());
 		if (fragmentPosition != null) {
@@ -98,12 +106,12 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 				this.fragmentPosition = -1;
 			}
 		}
-		final Integer lastVisisbleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, savedInstanceState, getArguments());
-		if (lastVisisbleFragmentPosition != null) {
-			if (lastVisisbleFragmentPosition.intValue() >= 0) {
-				this.lastVisisbleFragmentPosition = lastVisisbleFragmentPosition;
+		final Integer lastVisibleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, savedInstanceState, getArguments());
+		if (lastVisibleFragmentPosition != null) {
+			if (lastVisibleFragmentPosition.intValue() >= 0) {
+				this.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
 			} else {
-				this.lastVisisbleFragmentPosition = -1;
+				this.lastVisibleFragmentPosition = -1;
 			}
 		}
 	}
@@ -112,13 +120,14 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		restoreInstanceState(savedInstanceState);
-		if (this.adapter == null) {
-			initAdapter();
-		}
+		initAdapter();
 		switchView(getView());
 	}
 
 	private void initAdapter() {
+		if (this.adapter != null) {
+			return;
+		}
 		this.adapter = new RTSRouteArrayAdapter(getActivity(), this.agency.getAuthority(), isShowingListInsteadOfGrid());
 		final View view = getView();
 		setupView(view);
@@ -163,9 +172,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		getActivity().invalidateOptionsMenu();
 		PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID,
 				this.showingListInsteadOfGrid.booleanValue(), false);
-		if (this.adapter == null) {
-			initAdapter();
-		}
+		initAdapter();
 		this.adapter.seShowingListInsteadOfGrid(this.showingListInsteadOfGrid);
 		setupView(getView());
 		switchView(getView());
@@ -185,22 +192,28 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 	}
 
 	@Override
-	public void setFragmentVisisbleAtPosition(int visisbleFragmentPosition) {
-		if (this.lastVisisbleFragmentPosition == visisbleFragmentPosition //
+	public void setFragmentPosition(int fragmentPosition) {
+		this.fragmentPosition = fragmentPosition;
+		setFragmentVisibleAtPosition(this.lastVisibleFragmentPosition); // force reset visibility
+	}
+
+	@Override
+	public void setFragmentVisibleAtPosition(int visibleFragmentPosition) {
+		if (this.lastVisibleFragmentPosition == visibleFragmentPosition //
 				&& (//
-				(this.fragmentPosition == visisbleFragmentPosition && this.fragmentVisible) //
+				(this.fragmentPosition == visibleFragmentPosition && this.fragmentVisible) //
 				|| //
-				(this.fragmentPosition != visisbleFragmentPosition && !this.fragmentVisible) //
+				(this.fragmentPosition != visibleFragmentPosition && !this.fragmentVisible) //
 				) //
 		) {
 			return;
 		}
-		this.lastVisisbleFragmentPosition = visisbleFragmentPosition;
+		this.lastVisibleFragmentPosition = visibleFragmentPosition;
 		if (this.fragmentPosition < 0) {
 			return;
 		}
-		if (this.fragmentPosition == visisbleFragmentPosition) {
-			onFragmentVisisble();
+		if (this.fragmentPosition == visibleFragmentPosition) {
+			onFragmentVisible();
 		} else {
 			onFragmentInvisible();
 		}
@@ -213,7 +226,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 		this.fragmentVisible = false;
 	}
 
-	private void onFragmentVisisble() {
+	private void onFragmentVisible() {
 		if (this.fragmentVisible) {
 			return; // already visible
 		}
@@ -263,8 +276,8 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (this.fragmentPosition < 0 || this.fragmentPosition == this.lastVisisbleFragmentPosition) {
-			onFragmentVisisble();
+		if (this.fragmentPosition < 0 || this.fragmentPosition == this.lastVisibleFragmentPosition) {
+			onFragmentVisible();
 		} // ELSE would be call later
 	}
 
@@ -277,7 +290,9 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements VisibilityA
 	}
 
 	private void switchView(View view) {
-		MTLog.v(this, "switchView()");
+		if (view == null) {
+			return;
+		}
 		if (this.adapter == null || !this.adapter.isInitialized()) {
 			showLoading(view);
 		} else if (this.adapter.getCount() == 0) {

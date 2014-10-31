@@ -5,9 +5,10 @@ import java.util.List;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
-import org.mtransit.android.provider.FavoriteManager.FavoriteUpdateListener;
+import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.FavoritesLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 
@@ -25,7 +26,7 @@ import android.widget.AbsListView;
 import android.widget.TextView;
 
 public class FavoritesFragment extends ABFragment implements LoaderManager.LoaderCallbacks<List<POIManager>>, MTActivityWithLocation.UserLocationListener,
-		FavoriteUpdateListener {
+		FavoriteManager.FavoriteUpdateListener, DataSourceProvider.ModulesUpdateListener {
 
 	private static final String TAG = FavoritesFragment.class.getSimpleName();
 
@@ -152,6 +153,11 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 
 	@Override
 	public void onFavoriteUpdated() {
+		getLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
+	}
+
+	@Override
+	public void onModulesUpdated() {
 		getLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
 	}
 

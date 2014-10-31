@@ -3,8 +3,10 @@ package org.mtransit.android.data;
 import java.util.List;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ui.widget.MTBaseAdapter;
+import org.mtransit.android.data.DataSourceProvider.ModulesUpdateListener;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 import org.mtransit.android.ui.fragment.FavoritesFragment;
@@ -20,7 +22,7 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
+public class MenuAdapter extends MTBaseAdapter implements ListAdapter, ModulesUpdateListener {
 
 	private static final String TAG = MenuAdapter.class.getSimpleName();
 
@@ -67,13 +69,17 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 
 	private Context context;
 
+	private MenuUpdateListener listener;
+
 	private LayoutInflater layoutInflater;
 
 	private List<DataSourceType> allAgencyTypes = null;
 
-	public MenuAdapter(Context context) {
+	public MenuAdapter(Context context, MenuUpdateListener listener) {
 		this.context = context;
+		this.listener = listener;
 		this.layoutInflater = LayoutInflater.from(context);
+		DataSourceProvider.addModulesUpdateListerner(this);
 	}
 
 	public List<DataSourceType> getAllAgencyTypes() {
@@ -81,6 +87,19 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 			this.allAgencyTypes = DataSourceProvider.get().getAvailableAgencyTypes(this.context);
 		}
 		return allAgencyTypes;
+	}
+
+	@Override
+	public void onModulesUpdated() {
+		final List<DataSourceType> newAllAgencyTypes = DataSourceProvider.get().getAvailableAgencyTypes(this.context);
+		if (CollectionUtils.getSize(this.allAgencyTypes) != CollectionUtils.getSize(newAllAgencyTypes)) {
+			this.allAgencyTypes = newAllAgencyTypes; // force reset
+			super.notifyDataSetChanged();
+			if (this.listener != null) {
+				this.listener.onMenuUpdated();
+			}
+
+		}
 	}
 
 	@Override
@@ -396,12 +415,16 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter {
 			// } else if (position == MenuAdapter.ITEM_INDEX_MAPS) {
 			// return MapsFragment.newInstance();
 		} else {
-			DataSourceType type = getAgencyTypeAt(position);
+			final DataSourceType type = getAgencyTypeAt(position);
 			if (type != null) {
 				return AgencyTypeFragment.newInstance(type);
 			}
 		}
 		MTLog.w(this, "No fragment for item at position '%s'!", position);
 		return null;
+	}
+
+	public static interface MenuUpdateListener {
+		public void onMenuUpdated();
 	}
 }

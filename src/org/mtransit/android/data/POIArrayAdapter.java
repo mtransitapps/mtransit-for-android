@@ -412,11 +412,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (pois != null) {
 			this.poisByType = new LinkedHashMap<Integer, List<POIManager>>();
 			for (POIManager poim : pois) {
-				Integer typeId = DataSourceProvider.get().getAgency(getContext(), poim.poi.getAuthority()).getType().getId();
-				if (!this.poisByType.containsKey(typeId)) {
-					this.poisByType.put(typeId, new ArrayList<POIManager>());
+				final AgencyProperties agency = DataSourceProvider.get().getAgency(getContext(), poim.poi.getAuthority());
+				if (agency != null) {
+					final Integer typeId = agency.getType().getId();
+					if (!this.poisByType.containsKey(typeId)) {
+						this.poisByType.put(typeId, new ArrayList<POIManager>());
+					}
+					this.poisByType.get(typeId).add(poim);
 				}
-				this.poisByType.get(typeId).add(poim);
 			}
 		}
 		refreshFavorites();
@@ -687,6 +690,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	public void onPause() {
+		if (this.activityWR != null) {
+			this.activityWR.clear();
+			this.activityWR = null;
+		}
 		if (this.compassUpdatesEnabled) {
 			SensorUtils.unregisterSensorListener(getContext(), this);
 			this.compassUpdatesEnabled = false;
@@ -783,7 +790,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					for (MTCompassView compassView : this.compassImgsWR.keySet()) {
 						if (compassView != null) {
 							compassView.generateAndSetHeading(this.location, this.lastCompassInDegree, this.locationDeclination);
-							compassView.setVisibility(View.VISIBLE);
 						}
 					}
 				} else {

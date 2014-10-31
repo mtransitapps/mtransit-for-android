@@ -29,7 +29,7 @@ public class SplashScreenActivity extends MTFragmentActivity implements Analytic
 	}
 
 	private void showHomeActivity() {
-		startActivity(MainActivity.newInstance(this, -1));
+		startActivity(MainActivity.newInstance(this, -1, null));
 		finish();
 	}
 }

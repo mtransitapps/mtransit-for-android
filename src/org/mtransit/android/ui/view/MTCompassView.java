@@ -27,13 +27,14 @@ public class MTCompassView extends MTView {
 
 	private Paint compassPaint;
 
-	private RectF bounds;
 
-	private Path headingArrayPath;
+	private RectF bounds;
 
 	private float boundsExactCenterX;
 
 	private float boundsExactCenterY;
+
+	private Path headingArrayPath;
 
 	public MTCompassView(Context context) {
 		super(context);

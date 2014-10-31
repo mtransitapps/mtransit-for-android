@@ -1,7 +1,6 @@
 package org.mtransit.android.task;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -31,7 +30,8 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 
 	private List<POIManager> pois;
 
-	private DataSourceType type;
+	private List<AgencyProperties> typeAgencies;
+
 
 	private double lat;
 
@@ -43,9 +43,9 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 
 	private int minCoverage;
 
-	public NearbyPOIListLoader(Context context, DataSourceType type, double lat, double lng, double aroundDiff, int minCoverage, int maxSize) {
+	public NearbyPOIListLoader(Context context, List<AgencyProperties> typeAgencies, double lat, double lng, double aroundDiff, int minCoverage, int maxSize) {
 		super(context);
-		this.type = type;
+		this.typeAgencies = typeAgencies;
 		this.lat = lat;
 		this.lng = lng;
 		this.aroundDiff = aroundDiff;
@@ -58,15 +58,14 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		if (pois == null) {
 			pois = new ArrayList<POIManager>();
 		}
-		List<String> typeAgenciesAuthorities = findTypeAgenciesAuthorities();
-		if (typeAgenciesAuthorities.size() == 0) {
+		if (typeAgencies.size() == 0) {
 			return this.pois;
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,
-				new LinkedBlockingDeque<Runnable>(typeAgenciesAuthorities.size()));
+				new LinkedBlockingDeque<Runnable>(typeAgencies.size()));
 		List<Future<List<POIManager>>> taskList = new ArrayList<Future<List<POIManager>>>();
-		for (String agencyAuthority : typeAgenciesAuthorities) {
-			final FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(getContext(), DataSourceProvider.get().getUri(agencyAuthority), this.lat,
+		for (AgencyProperties agency : typeAgencies) {
+			final FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(getContext(), DataSourceProvider.get().getUri(agency.getAuthority()), this.lat,
 					this.lng, this.aroundDiff, true, this.minCoverage, this.maxSize);
 			taskList.add(executor.submit(task));
 		}
@@ -84,17 +83,17 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		return this.pois;
 	}
 
-	private List<String> findTypeAgenciesAuthorities() {
-		Collection<AgencyProperties> typeAgencies = DataSourceProvider.get().getTypeDataSources(getContext(), this.type);
-		List<String> typeAgenciesAuthorities = new ArrayList<String>();
-		if (typeAgencies != null) {
-			for (AgencyProperties agency : typeAgencies) {
-				if (agency.isInArea(this.lat, this.lng, this.aroundDiff)) {
-					typeAgenciesAuthorities.add(agency.getAuthority());
+	public static List<AgencyProperties> findTypeAgencies(Context context, DataSourceType type, double lat, double lng, double aroundDiff) {
+		List<AgencyProperties> allTypeAgencies = DataSourceProvider.get().getTypeDataSources(context, type);
+		List<AgencyProperties> nearbyTypeAgenciesAuthorities = new ArrayList<AgencyProperties>();
+		if (allTypeAgencies != null) {
+			for (AgencyProperties agency : allTypeAgencies) {
+				if (agency.isInArea(lat, lng, aroundDiff)) {
+					nearbyTypeAgenciesAuthorities.add(agency);
 				}
 			}
 		}
-		return typeAgenciesAuthorities;
+		return nearbyTypeAgenciesAuthorities;
 	}
 
 	@Override
