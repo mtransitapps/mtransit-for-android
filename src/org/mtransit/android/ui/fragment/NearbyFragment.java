@@ -53,11 +53,16 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 	private static final String EXTRA_NEARBY_LOCATION = "extra_nearby_location";
 
-	public static NearbyFragment newInstance(Location nearbyLocationOpt) {
+	private static final String EXTRA_SELECTED_TYPE = "extra_selected_type";
+
+	public static NearbyFragment newInstance(Location nearbyLocationOpt, DataSourceType optType) {
 		NearbyFragment f = new NearbyFragment();
 		Bundle args = new Bundle();
 		if (nearbyLocationOpt != null) {
 			args.putParcelable(EXTRA_NEARBY_LOCATION, nearbyLocationOpt);
+		}
+		if (optType != null) {
+			args.putInt(EXTRA_SELECTED_TYPE, optType.getId());
 		}
 		f.setArguments(args);
 		return f;
@@ -70,6 +75,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	private Location userLocation;
 	private boolean userAwayFromNearbyLocation = true;
 	private MTAsyncTask<Location, Void, String> findNearbyLocationTask;
+
+	private Integer selectedTypeId = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -121,6 +128,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void restoreInstanceState(Bundle savedInstanceState) {
+		this.selectedTypeId = BundleUtils.getInt(EXTRA_SELECTED_TYPE, savedInstanceState, getArguments());
 		final Location nearbyLocation = BundleUtils.getParcelable(EXTRA_NEARBY_LOCATION, savedInstanceState, getArguments());
 		setNewNearbyLocation(nearbyLocation);
 	}
@@ -224,11 +232,13 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				@Override
 				protected Integer doInBackgroundMT(Void... params) {
 					try {
-						final int typeId = PreferenceUtils.getPrefLcl(getActivity(), PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE,
-								PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE_DEFAULT);
-						if (typeId >= 0) {
+						if (NearbyFragment.this.selectedTypeId == null) {
+							NearbyFragment.this.selectedTypeId = PreferenceUtils.getPrefLcl(getActivity(), PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE,
+									PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE_DEFAULT);
+						}
+						if (NearbyFragment.this.selectedTypeId.intValue() >= 0) {
 							for (int i = 0; i < newAgencyTypes.size(); i++) {
-								if (newAgencyTypes.get(i).getId() == typeId) {
+								if (newAgencyTypes.get(i).getId() == NearbyFragment.this.selectedTypeId.intValue()) {
 									return i;
 								}
 							}
@@ -417,7 +427,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	@Override
 	public void onPageSelected(int position) {
 		StatusLoader.get().clearAllTasks();
-		PreferenceUtils.savePrefLcl(getActivity(), PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE, this.adapter.getTypeId(position), false);
 		final List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
@@ -429,9 +438,11 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			}
 		}
 		this.lastPageSelected = position;
+		this.selectedTypeId = this.adapter.getTypeId(position);
 		if (this.adapter != null) {
 			this.adapter.setLastVisibleFragmentPosition(this.lastPageSelected);
 		}
+		PreferenceUtils.savePrefLcl(getActivity(), PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE, this.selectedTypeId, false);
 	}
 
 	@Override

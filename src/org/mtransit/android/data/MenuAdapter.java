@@ -142,13 +142,23 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, ModulesUp
 		case VIEW_TYPE_STATIC_MAIN_TEXT_WITH_ICON:
 			return ITEM_ID_STATIC_START_WITH + position;
 		case VIEW_TYPE_DYNAMIC_AGENCY_TYPE:
-			return ITEM_ID_AGENCYTYPE_START_WITH + getAgencyTypeAt(position).getId();
+			return getAgencyTypeScreenItemId(position);
 		case VIEW_TYPE_STATIC_HEADERS:
 		case VIEW_TYPE_STATIC_SEPARATORS:
 		case VIEW_TYPE_SECONDARY:
 			return null;
 		default:
 			MTLog.w(this, "No screen item ID expected at position '%s'!", position);
+			return null;
+		}
+	}
+
+	public String getAgencyTypeScreenItemId(int position) {
+		switch (getItemViewType(position)) {
+		case VIEW_TYPE_DYNAMIC_AGENCY_TYPE:
+			return ITEM_ID_AGENCYTYPE_START_WITH + getAgencyTypeAt(position).getId();
+		default:
+			MTLog.w(this, "No agency type screen item ID expected at position '%s'!", position);
 			return null;
 		}
 	}
@@ -407,7 +417,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, ModulesUp
 		} else if (position == ITEM_INDEX_FAVORITE) {
 			return FavoritesFragment.newInstance();
 		} else if (position == ITEM_INDEX_NEARBY) {
-			return NearbyFragment.newInstance(null);
+			return NearbyFragment.newInstance(null, null);
 			// else if (position == ITEM_INDEX_SEARCH) {
 			// return SearchFragment.newInstance();
 			// } else if (position == MenuAdapter.ITEM_INDEX_DIRECTIONS) {
