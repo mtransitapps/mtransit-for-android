@@ -141,7 +141,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 
 	private void initAdapter() {
 		this.adapter = new POIArrayAdapter(getActivity());
-		this.adapter.setTag(this.authority + this.tripId);
+		this.adapter.setTag(this.authority + "-" + this.tripId);
 		this.adapter.setShowRTSExtra(false);
 		final View view = getView();
 		setupView(view);
@@ -203,9 +203,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			initAdapter();
 			getLoaderManager().restartLoader(POIS_LOADER, null, this);
 		} else {
-			if (this.adapter.getPoisCount() > 0) {
-				this.adapter.onResume(getActivity());
-			}
+			this.adapter.onResume(getActivity());
 		}
 		final Activity activity = getActivity();
 		if (activity != null && activity instanceof MTActivityWithLocation) {
@@ -306,6 +304,9 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (this.fragmentPosition < 0 || this.fragmentPosition == this.lastVisibleFragmentPosition) {
 			onFragmentVisible();
 		} // ELSE would be call later
+		if (this.adapter != null) {
+			this.adapter.setActivity(getActivity());
+		}
 	}
 
 	@Override

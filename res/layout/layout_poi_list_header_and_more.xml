@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical"
+    android:minHeight="?android:attr/listPreferredItemHeightSmall" >
+    <FrameLayout
+        android:id="@+id/browseBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:padding="16dp" >
+        <TextView
+            android:id="@+id/browse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@color/ic_menu_holo_light_text"
+            android:fontFamily="sans-serif-condensed"
+            android:includeFontPadding="false"
+            android:padding="4dp"
+            android:text="@string/browse"
+            android:textAllCaps="true"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:attr/textColorSecondaryInverse" />
+    </FrameLayout>
+    <FrameLayout
+        android:id="@+id/nearbyBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="false"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/browseBtn"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:padding="16dp" >
+        <TextView
+            android:id="@+id/nearby"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@color/ic_menu_holo_light_text"
+            android:fontFamily="sans-serif-condensed"
+            android:includeFontPadding="false"
+            android:padding="4dp"
+            android:text="@string/nearby"
+            android:textAllCaps="true"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:attr/textColorSecondaryInverse" />
+    </FrameLayout>
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_gravity="center_vertical"
+        android:layout_toLeftOf="@id/nearbyBtn"
+        android:drawablePadding="8dp"
+        android:ellipsize="end"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center_vertical"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/ic_menu_holo_light_text" />
+</RelativeLayout>

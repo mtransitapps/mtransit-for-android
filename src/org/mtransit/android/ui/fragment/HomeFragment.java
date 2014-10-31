@@ -307,6 +307,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.adapter.setTag(getLogTag());
 		this.adapter.setFavoriteUpdateListener(this);
 		this.adapter.setShowTypeHeader(true);
+		this.adapter.setShowBrowseInTypeHeader(true);
 		final View view = getView();
 		setupView(view);
 		switchView(view);

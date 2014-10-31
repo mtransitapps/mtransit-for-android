@@ -169,7 +169,6 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			return; // nothing changed
 		}
 		this.showingListInsteadOfGrid = newShowingListInsteadOfGrid; // switching to grid
-		getActivity().invalidateOptionsMenu();
 		PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID,
 				this.showingListInsteadOfGrid.booleanValue(), false);
 		initAdapter();
@@ -177,6 +176,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		setupView(getView());
 		switchView(getView());
 		this.adapter.notifyDataSetChanged();
+		getActivity().invalidateOptionsMenu();
 	}
 
 	private void switchListGrid() {
@@ -237,6 +237,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			switchView(getView());
 		}
 		checkIfShowingListInsteadOfGridChanged();
+		getActivity().invalidateOptionsMenu();
 	}
 
 	private static final int ROUTES_LOADER = 0;

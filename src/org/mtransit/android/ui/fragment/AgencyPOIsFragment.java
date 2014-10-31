@@ -242,6 +242,9 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		if (this.fragmentPosition < 0 || this.fragmentPosition == this.lastVisibleFragmentPosition) {
 			onFragmentVisible();
 		} // ELSE would be call later
+		if (this.adapter != null) {
+			this.adapter.setActivity(getActivity());
+		}
 	}
 
 	@Override

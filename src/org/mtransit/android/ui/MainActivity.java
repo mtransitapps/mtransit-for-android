@@ -121,7 +121,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 
 		if (savedInstanceState == null) {
 			final String itemId = PreferenceUtils.getPrefLcl(this, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
-			selectItem(this.mDrawerListAdapter.getScreenItemPosition(itemId));
+			selectItem(this.mDrawerListAdapter.getScreenItemPosition(itemId), null, false);
 		} else {
 			onRestoreState(savedInstanceState);
 		}
@@ -142,7 +142,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 			final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 			if (mainActivity != null) {
 				mainActivity.updateABDrawerClosed();
-				mainActivity.invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+				mainActivity.invalidateOptionsMenu();
 			}
 		}
 
@@ -151,7 +151,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 			final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 			if (mainActivity != null) {
 				mainActivity.updateABDrawerOpened();
-				mainActivity.invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+				mainActivity.invalidateOptionsMenu();
 			}
 		}
 
@@ -225,7 +225,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		selectItem(position);
+		selectItem(position, null, false);
 	}
 
 
@@ -233,7 +233,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 
 	private String currentSelectedScreenItemId = null;
 
-	private void selectItem(int position) {
+	private void selectItem(int position, ABFragment newFragmentOrNull, boolean addToStack) {
 		if (position < 0) {
 			return;
 		}
@@ -247,26 +247,30 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		}
 		if (!this.mDrawerListAdapter.isRootScreen(position)) {
 			if (this.currentSelectedItemPosition >= 0) {
-				mDrawerList.setItemChecked(this.currentSelectedItemPosition, true); // keep current position
+				this.mDrawerList.setItemChecked(this.currentSelectedItemPosition, true); // keep current position
 			}
 			return;
 		}
-		final ABFragment newFragment = this.mDrawerListAdapter.getNewStaticFragmentAt(position);
+		final ABFragment newFragment = newFragmentOrNull != null ? newFragmentOrNull : this.mDrawerListAdapter.getNewStaticFragmentAt(position);
 		if (newFragment == null) {
 			return;
 		}
 		clearFragmentBackStackImmediate(fm); // root screen
 		StatusLoader.get().clearAllTasks();
-		setAB(newFragment);
 		final FragmentTransaction ft = fm.beginTransaction();
 		ft.replace(R.id.content_frame, newFragment);
+		if (addToStack) {
+			ft.addToBackStack(null);
+			this.backStackEntryCount++;
+		}
 		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 		ft.commit();
-		mDrawerList.setItemChecked(position, true);
+		setAB(newFragment);
+		this.mDrawerList.setItemChecked(position, true);
 		closeDrawer();
 		this.currentSelectedItemPosition = position;
 		this.currentSelectedScreenItemId = this.mDrawerListAdapter.getScreenItemId(position);
-		if (this.mDrawerListAdapter.isRootScreen(position)) {
+		if (!addToStack && this.mDrawerListAdapter.isRootScreen(position)) {
 			PreferenceUtils.savePrefLcl(this, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId, false);
 		}
 	}
@@ -284,7 +288,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 			}
 			return;
 		}
-		selectItem(newSelectedItemPosition); // re-select, selected item
+		selectItem(newSelectedItemPosition, null, false); // re-select, selected item
 	}
 
 	private void clearFragmentBackStackImmediate(FragmentManager fm) {
@@ -294,13 +298,15 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	}
 
 	public void addFragmentToStack(ABFragment newFragment) {
-		setAB(newFragment);
-		final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		final FragmentManager fm = getSupportFragmentManager();
+		final FragmentTransaction ft = fm.beginTransaction();
 		ft.replace(R.id.content_frame, newFragment);
 		ft.addToBackStack(null);
+		this.backStackEntryCount++;
 		ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
 		ft.commit();
-		mDrawerList.setItemChecked(this.currentSelectedItemPosition, false);
+		setAB(newFragment);
+		this.mDrawerList.setItemChecked(this.currentSelectedItemPosition, false);
 	}
 
 	@Override
@@ -377,9 +383,15 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 
 	@Override
 	public void onBackStackChanged() {
+		// MTLog.d(this, "onBackStackChanged() > getSupportFragmentManager().getBackStackEntryCount(): %s",
+		// getSupportFragmentManager().getBackStackEntryCount());
+		// MTLog.d(this, "onBackStackChanged() > this.currentSelectedItemPosition: %s", this.currentSelectedItemPosition);
+		// this.mDrawerToggle.setDrawerIndicatorEnabled(isDrawerOpen() ? true : getSupportFragmentManager().getBackStackEntryCount() < 1);
+		MTLog.d(this, "onBackStackChanged() > this.backStackEntryCount: %s", this.backStackEntryCount);
+		this.backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
 		setAB();
 		updateAB(); // up/drawer icon
-		if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+		if (this.backStackEntryCount == 0) {
 			mDrawerList.setItemChecked(this.currentSelectedItemPosition, true);
 		} else {
 			mDrawerList.setItemChecked(this.currentSelectedItemPosition, false);
@@ -403,24 +415,62 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		return mDrawerLayout.isDrawerOpen(mDrawerList);
 	}
 
-	private Handler handler = new Handler();
+	private long lastInvalidateOptionsMenu = -1l;
 
-	private void updateAB() {
-		if (mDrawerState != DrawerLayout.STATE_IDLE) {
-			this.handler.postDelayed(new Runnable() {
+	private static final long MIN_DURATION_BETWEEN_OPTION_MENU_INVALIDATE_IN_MS = 250l; // 0.5 second
 
-				@Override
-				public void run() {
-					updateAB(); // try again in 1 second
-				}
-			}, 1000l); // 1 second
+	private Runnable invalidateOptionsMenuLater = new Runnable() {
+
+		@Override
+		public void run() {
+			invalidateOptionsMenu();
+		}
+	};
+
+	@Override
+	public void invalidateOptionsMenu() {
+		final long now = System.currentTimeMillis();
+		final long howLongBeforeNextInvalidateInMs = this.lastInvalidateOptionsMenu + MIN_DURATION_BETWEEN_OPTION_MENU_INVALIDATE_IN_MS - now;
+		if (mDrawerState != DrawerLayout.STATE_IDLE || howLongBeforeNextInvalidateInMs > 0) {
+			this.handler.postDelayed(this.invalidateOptionsMenuLater, howLongBeforeNextInvalidateInMs > 0 ? howLongBeforeNextInvalidateInMs
+					: MIN_DURATION_BETWEEN_OPTION_MENU_INVALIDATE_IN_MS);
 			return;
 		}
+		this.handler.removeCallbacks(this.invalidateOptionsMenuLater);
+		super.invalidateOptionsMenu();
+		this.lastInvalidateOptionsMenu = now;
+	}
+	private Handler handler = new Handler();
+
+	private long lastUpdateAB = -1l;
+
+	private static final long MIN_DURATION_BETWEEN_UPDATE_AB_IN_MS = 250l; // 0.5 second
+
+	private Runnable updateABLater = new Runnable() {
+
+		@Override
+		public void run() {
+			updateAB();
+		}
+	};
+
+	private int backStackEntryCount = 0;
+
+	private void updateAB() {
+		final long now = System.currentTimeMillis();
+		final long howLongBeforeNextUpdateABInMs = this.lastUpdateAB + MIN_DURATION_BETWEEN_UPDATE_AB_IN_MS - now;
+		if (mDrawerState != DrawerLayout.STATE_IDLE || howLongBeforeNextUpdateABInMs > 0) {
+			this.handler.postDelayed(this.updateABLater, howLongBeforeNextUpdateABInMs > 0 ? howLongBeforeNextUpdateABInMs
+					: MIN_DURATION_BETWEEN_UPDATE_AB_IN_MS);
+			return;
+		}
+		this.handler.removeCallbacks(this.updateABLater);
 		if (isDrawerOpen()) {
 			updateABDrawerOpened();
 		} else {
 			updateABDrawerClosed();
 		}
+		this.lastUpdateAB = now;
 	}
 
 	private void updateABDrawerClosed() {
@@ -443,8 +493,9 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 
 				@Override
 				public void onClick(View v) {
-					if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-						getSupportFragmentManager().popBackStack();
+					final FragmentManager fm = getSupportFragmentManager();
+					if (fm.getBackStackEntryCount() > 0) {
+						fm.popBackStackImmediate();
 					}
 				}
 			});
@@ -454,7 +505,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 			getActionBar().setDisplayHomeAsUpEnabled(true);
 			getActionBar().setDisplayShowCustomEnabled(false);
 		}
-		this.mDrawerToggle.setDrawerIndicatorEnabled(getSupportFragmentManager().getBackStackEntryCount() < 1);
+		this.mDrawerToggle.setDrawerIndicatorEnabled(this.backStackEntryCount < 1);
 		invalidateOptionsMenu();
 	}
 
@@ -478,8 +529,9 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 
 				@Override
 				public void onClick(View v) {
-					if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-						getSupportFragmentManager().popBackStack();
+					final FragmentManager fm = getSupportFragmentManager();
+					if (fm.getBackStackEntryCount() > 0) {
+						fm.popBackStackImmediate();
 					}
 				}
 			});
@@ -495,10 +547,14 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+		final boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
 		final MenuItem menuToggleListGrid = menu.findItem(R.id.menu_toggle_list_grid);
 		if (menuToggleListGrid != null) {
 			menuToggleListGrid.setVisible(!drawerOpen);
+		}
+		final MenuItem menuAddRemoveFavorite = menu.findItem(R.id.add_remove_favorite);
+		if (menuAddRemoveFavorite != null) {
+			menuAddRemoveFavorite.setVisible(!drawerOpen);
 		}
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -521,7 +577,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 			final FragmentTransaction ft = fm.beginTransaction();
 			ft.remove(fragment);
 			ft.commit();
-			fm.popBackStack();
+			fm.popBackStackImmediate();
 		}
 	}
 
@@ -531,8 +587,9 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 			return true;
 		}
 		if (item.getItemId() == android.R.id.home) {
-			if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-				getSupportFragmentManager().popBackStack();
+			final FragmentManager fm = getSupportFragmentManager();
+			if (fm.getBackStackEntryCount() > 0) {
+				fm.popBackStackImmediate();
 				return true;
 			}
 		}

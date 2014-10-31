@@ -28,6 +28,8 @@ import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.fragment.AgencyTypeFragment;
+import org.mtransit.android.ui.fragment.NearbyFragment;
 import org.mtransit.android.ui.fragment.RTSRouteFragment;
 import org.mtransit.android.ui.view.MTCompassView;
 import org.mtransit.android.ui.view.MTJPathsView;
@@ -110,7 +112,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private boolean showFavorite = true; // show favorite star
 
-	private boolean showTypeHeader = false; // show poi type section header
+	private boolean showTypeHeader = false; // show POI type section header
+
+	private boolean showBrowseInTypeHeader = false; // show 'BROWSE' in section header
 
 	private ViewGroup manualLayout;
 
@@ -154,6 +158,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public void setShowTypeHeader(boolean showTypeHeader) {
 		this.showTypeHeader = showTypeHeader;
+	}
+
+	public void setShowBrowseInTypeHeader(boolean showBrowseInTypeHeader) {
+		this.showBrowseInTypeHeader = showBrowseInTypeHeader;
 	}
 
 	private static final int VIEW_TYPE_COUNT = 7;
@@ -351,7 +359,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	@Override
 	public boolean isEnabled(int position) {
-		Integer type = getItemTypeHeader(position);
+		final Integer type = getItemTypeHeader(position);
 		if (type != null) {
 			return false;
 		}
@@ -722,6 +730,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		refreshFavorites();
 	}
 
+	public void setActivity(Activity activity) {
+		this.activityWR = new WeakReference<Activity>(activity);
+	}
+
 	@Override
 	public void clear() {
 		if (this.poisByType != null) {
@@ -808,9 +820,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 	}
 
-	private View getTypeHeader(DataSourceType type, View convertView, ViewGroup parent) {
+	private View getTypeHeader(final DataSourceType type, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_header, parent, false);
+			final int layoutRes = this.showBrowseInTypeHeader ? R.layout.layout_poi_list_header_and_more : R.layout.layout_poi_list_header;
+			convertView = this.layoutInflater.inflate(layoutRes, parent, false);
 			TypeHeaderViewHolder holder = new TypeHeaderViewHolder();
 			holder.nameTv = (TextView) convertView.findViewById(R.id.name);
 			convertView.setTag(holder);
@@ -819,6 +832,34 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		holder.nameTv.setText(getContext().getString(type.getShortNameResId()));
 		if (type.getAbIconResId() != -1) {
 			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getAbIconResId(), 0, 0, 0);
+		}
+		if (holder.browseBtn != null) {
+			holder.browseBtn.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					if (type != null) {
+						final Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
+						if (activity != null) {
+							((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(type));
+						}
+					}
+				}
+			});
+		}
+		if (holder.nearbyBtn != null) {
+			holder.nearbyBtn.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					if (type != null) {
+						final Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
+						if (activity != null) {
+							((MainActivity) activity).addFragmentToStack(NearbyFragment.newInstance(null, type));
+						}
+					}
+				}
+			});
 		}
 		return convertView;
 	}
@@ -1389,6 +1430,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public static class TypeHeaderViewHolder {
 		TextView nameTv;
+		View browseBtn;
+		View nearbyBtn;
 	}
 
 }
