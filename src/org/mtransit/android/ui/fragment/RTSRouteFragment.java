@@ -193,6 +193,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 				}
 				if (lastPageSelected != null) {
 					RTSRouteFragment.this.lastPageSelected = lastPageSelected.intValue();
+					final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 					viewPager.setCurrentItem(RTSRouteFragment.this.lastPageSelected);
 				}
 				switchView(view);
