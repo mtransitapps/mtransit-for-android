@@ -64,6 +64,7 @@
         <!-- MAIN SCREEN -->
         <activity
             android:name=".ui.MainActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:launchMode="singleTask" >
         </activity>
         <!-- GOOGLE MOBILE ADS (ADMOB) -->
