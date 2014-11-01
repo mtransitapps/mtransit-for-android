@@ -6,7 +6,6 @@ import org.mtransit.android.data.DataSourceProvider;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 
 public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable {
 
