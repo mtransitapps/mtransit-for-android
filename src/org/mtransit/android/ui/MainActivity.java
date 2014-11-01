@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.MenuAdapter;
