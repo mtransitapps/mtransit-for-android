@@ -3,7 +3,6 @@
     <style name="MTBaseTheme" parent="android:Theme.Holo.Light">
     </style>
     <style name="MTTheme" parent="MTBaseTheme">
-        <item name="android:windowBackground">@color/platform_background_holo_light</item>
         <item name="android:windowContentOverlay">@null</item>
     </style>
 </resources>

@@ -169,10 +169,11 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	}
 
 	private void restoreInstanceState(Bundle savedInstanceState) {
-		Integer typeId = BundleUtils.getInt(EXTRA_TYPE_ID, savedInstanceState, getArguments());
+		final Integer typeId = BundleUtils.getInt(EXTRA_TYPE_ID, savedInstanceState, getArguments());
 		if (typeId != null) {
 			this.type = DataSourceType.parseId(typeId);
-			((MainActivity) getActivity()).notifyABChange();
+			((MainActivity) getActivity()).setABTitle(getABTitle(getActivity()), false);
+			((MainActivity) getActivity()).setABIcon(getABIconDrawableResId(), true);
 		}
 	}
 

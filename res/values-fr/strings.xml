@@ -3,7 +3,8 @@
     <string name="app_name">MT</string>
     <string name="home">Accueil</string>
     <string name="favorites">Favoris</string>
-    <string name="nearby">Proche</string>
+    <string name="nearby">À Proximité</string>
+    <string name="all">Tous</string>
     <string name="browse">Parcourir</string>
     <string name="drawer_open">Ouvrir le tiroir de navigation</string>
     <string name="drawer_close">Fermer le tiroir de navigation</string>

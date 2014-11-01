@@ -3,12 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:foreground="?android:attr/selectableItemBackground"
-    android:paddingRight="8dp" >
+    android:foreground="?android:attr/selectableItemBackground" >
     <LinearLayout
+        android:id="@+id/route"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:paddingRight="8dp" >
         <ImageView
             android:id="@+id/up"
             android:layout_width="wrap_content"
@@ -16,7 +17,6 @@
             android:layout_gravity="center_vertical"
             android:src="?android:attr/homeAsUpIndicator" />
         <FrameLayout
-            android:id="@+id/route"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center"
@@ -35,7 +35,8 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textSize="34sp"
                 android:textStyle="bold"
-                android:visibility="visible" />
+                android:visibility="gone"
+                tools:visibility="visible" />
             <org.mtransit.android.ui.view.MTJPathsView
                 android:id="@+id/route_type_img"
                 android:layout_width="?android:attr/actionBarSize"
@@ -43,7 +44,8 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:padding="4dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible" />
         </FrameLayout>
         <TextView
             android:id="@+id/route_long_name"

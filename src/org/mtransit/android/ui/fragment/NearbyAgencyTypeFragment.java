@@ -16,7 +16,6 @@ import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.NearbyPOIListLoader;
-import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 
 import android.location.Location;
@@ -131,10 +130,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 
 	private void restoreInstanceState(Bundle savedInstanceState) {
 		// TYPE ID
-		Integer typeId = BundleUtils.getInt(EXTRA_TYPE_ID, savedInstanceState, getArguments());
+		final Integer typeId = BundleUtils.getInt(EXTRA_TYPE_ID, savedInstanceState, getArguments());
 		if (typeId != null) {
 			this.type = DataSourceType.parseId(typeId);
-			((MainActivity) getActivity()).notifyABChange();
 		}
 		// FRAGMENT POSITION
 		Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, savedInstanceState, getArguments());

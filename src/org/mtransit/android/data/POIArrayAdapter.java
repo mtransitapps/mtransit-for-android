@@ -826,6 +826,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			convertView = this.layoutInflater.inflate(layoutRes, parent, false);
 			TypeHeaderViewHolder holder = new TypeHeaderViewHolder();
 			holder.nameTv = (TextView) convertView.findViewById(R.id.name);
+			holder.nearbyBtn = convertView.findViewById(R.id.nearbyBtn);
+			holder.browseBtn = convertView.findViewById(R.id.browseBtn);
 			convertView.setTag(holder);
 		}
 		TypeHeaderViewHolder holder = (TypeHeaderViewHolder) convertView.getTag();

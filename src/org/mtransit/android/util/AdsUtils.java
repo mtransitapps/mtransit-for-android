@@ -79,7 +79,9 @@ public final class AdsUtils implements MTLog.Loggable {
 						}
 						if (DEBUG) {
 							adRequestBd.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
-							adRequestBd.addTestDevice(activity.getString(R.string.google_ads_test_device_id));
+							for (String deviceId : activity.getResources().getStringArray(R.array.google_ads_test_devices_ids)) {
+								adRequestBd.addTestDevice(deviceId);
+							}
 						}
 						adView.loadAd(adRequestBd.build());
 					}

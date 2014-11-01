@@ -12,7 +12,7 @@ public enum DataSourceType {
 
 	TYPE_SUBWAY(1, R.string.agency_type_subway_short_name, R.drawable.ic_menu_subway, R.drawable.ic_menu_subway_holo_light), // GTFS - Metro
 	TYPE_RAIL(2, R.string.agency_type_rail_short_name, R.drawable.ic_menu_train, R.drawable.ic_menu_train_holo_light), // GTFS - Train
-	TYPE_BUS(3, R.string.agency_type_bus_short_name, R.drawable.ic_menu_bus, R.drawable.ic_menu_bus_holo_light), // GTFS
+	TYPE_BUS(3, R.string.agency_type_bus_short_name, R.drawable.ic_menu_bus, R.drawable.ic_menu_bus_holo_light), // GTFS - Bus
 	TYPE_BIKE(100, R.string.agency_type_bike_short_name, R.drawable.ic_menu_bike, R.drawable.ic_menu_bike_holo_light), // like Bixi, Velib
 	TYPE_MODULE(999, R.string.agency_type_module_short_name, R.drawable.ic_menu_play_store, R.drawable.ic_menu_play_store_holo_light), //
 	;

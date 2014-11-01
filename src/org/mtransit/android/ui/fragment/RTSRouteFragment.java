@@ -146,7 +146,8 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 		final Uri authorityUri = UriUtils.newContentUri(this.authority);
 		this.route = DataSourceProvider.findRTSRoute(getActivity(), authorityUri, this.routeId);
-		((MainActivity) getActivity()).notifyABChange();
+		((MainActivity) getActivity()).setABBgColor(getABBgColor(), false);
+		((MainActivity) getActivity()).setABCustomView(getABCustomView(), true);
 		final List<Trip> routeTrips = DataSourceProvider.findRTSRouteTrips(getActivity(), authorityUri, this.routeId);
 		if (routeTrips == null) {
 			return;
@@ -403,7 +404,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			holder.routeFL.setVisibility(View.GONE);
 		} else {
 			final int routeTextColor = ColorUtils.parseColor(route.textColor);
-			final int routeColor = ColorUtils.parseColor(route.color);
 			if (Color.WHITE == routeTextColor) {
 				holder.upImg.setImageResource(R.drawable.platform_ic_ab_back_holo_dark_am);
 			} else if (Color.BLACK == routeTextColor) {
@@ -429,7 +429,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			}
 			if (holder.routeLongNameTv != null) {
 				holder.routeLongNameTv.setTextColor(routeTextColor);
-				holder.routeLongNameTv.setBackgroundColor(routeColor);
 				if (TextUtils.isEmpty(route.longName)) {
 					holder.routeLongNameTv.setVisibility(View.GONE);
 				} else {
@@ -437,7 +436,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 					holder.routeLongNameTv.setVisibility(View.VISIBLE);
 				}
 			}
-			holder.routeFL.setBackgroundColor(routeColor);
 			holder.routeFL.setVisibility(View.VISIBLE);
 		}
 		return convertView;

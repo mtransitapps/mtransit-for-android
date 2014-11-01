@@ -190,7 +190,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				if (refreshRequired) {
 					final FragmentActivity activity = getActivity();
 					if (activity != null) {
-						((MainActivity) getActivity()).notifyABChange();
+						((MainActivity) getActivity()).setABSubtitle(getABSubtitle(getActivity()), true);
 					}
 				}
 			}
@@ -305,7 +305,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			if (locationChanged) {
 				final boolean requireNotifyAB = setUserAwayFromLocation();
 				if (requireNotifyAB) {
-					((MainActivity) getActivity()).notifyABChange();
+					((MainActivity) getActivity()).setABIcon(getABIconDrawableResId(), true);
 				}
 			}
 		}
@@ -347,7 +347,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 		setSwipeRefreshLayoutRefreshing(false);
 		this.nearbyLocationAddress = null;
-		((MainActivity) getActivity()).notifyABChange();
+		((MainActivity) getActivity()).setABIcon(getABIconDrawableResId(), true);
 		findNearbyLocation();
 	}
 
