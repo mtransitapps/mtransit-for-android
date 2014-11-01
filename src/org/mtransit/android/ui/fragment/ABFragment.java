@@ -36,6 +36,7 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		DataSourceProvider.addModulesUpdateListerner(this);
 	}
 
