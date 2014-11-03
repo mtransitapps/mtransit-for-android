@@ -1,19 +1,20 @@
 Title: MT
 ----------
-Short description: Transport Montréal dans votre poche.
+Short description: Transport Montréal dans votre poche
 ----------
 Full description:
-ALPHA : TEST EN COURS
+BETA : TEST EN COURS
+Pour quitter le test : http://goo.gl/rZ7J59
 
 Affiche actuellement seulement des informations basiques et des états limités.
 
-- Bus STL (Laval)
-- Bus RTL (Longueuil)
-- Bus AMT (Montréal)
-- Train AMT (Montréal)
-- Vélo BIXI (Montréal)
-- Bus STM (Montréal)
-- Métro STM (Montréal)
+- Bus STL (Laval) sur Google Play (gratuit) : http://goo.gl/oVpn75
+- Bus RTL (Longueuil) sur Google Play (gratuit) : http://goo.gl/dU2es1
+- Bus Express AMT (Montréal) sur Google Play (gratuit) : http://goo.gl/bQmUrH
+- Train AMT (Montréal) sur Google Play (gratuit) : http://goo.gl/nvQd13
+- Vélo BIXI (Montréal) sur Google Play (gratuit) : http://goo.gl/omUanh
+- Bus STM (Montréal) sur Google Play (gratuit) : http://goo.gl/YPJzF5
+- Métro STM (Montréal) sur Google Play (gratuit) : http://goo.gl/kpn9tP
 
 Cette application est gratuite et ouverte :
 https://github.com/mtransitapps/mtransit-for-android
