@@ -138,6 +138,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		this.adapter.setShowFavorite(false); // all items in this screen are favorites
 		this.adapter.setFavoriteUpdateListener(this);
 		this.adapter.setShowTypeHeader(true);
+		this.adapter.setShowBrowseInTypeHeader(true);
 		final View view = getView();
 		setupView(view);
 		switchView(view);

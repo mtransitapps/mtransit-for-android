@@ -10,11 +10,21 @@ import android.content.Context;
 
 public enum DataSourceType {
 
-	TYPE_SUBWAY(1, R.string.agency_type_subway_short_name, R.drawable.ic_menu_subway, R.drawable.ic_menu_subway_holo_light), // GTFS - Metro
-	TYPE_RAIL(2, R.string.agency_type_rail_short_name, R.drawable.ic_menu_train, R.drawable.ic_menu_train_holo_light), // GTFS - Train
-	TYPE_BUS(3, R.string.agency_type_bus_short_name, R.drawable.ic_menu_bus, R.drawable.ic_menu_bus_holo_light), // GTFS - Bus
-	TYPE_BIKE(100, R.string.agency_type_bike_short_name, R.drawable.ic_menu_bike, R.drawable.ic_menu_bike_holo_light), // like Bixi, Velib
-	TYPE_MODULE(999, R.string.agency_type_module_short_name, R.drawable.ic_menu_play_store, R.drawable.ic_menu_play_store_holo_light), //
+	TYPE_SUBWAY(1, // GTFS - Metro
+			R.string.agency_type_subway_short_name, R.string.agency_type_subway_stations_short_name, //
+			R.drawable.ic_menu_subway, R.drawable.ic_menu_subway_holo_light), //
+	TYPE_RAIL(2, // GTFS - Train
+			R.string.agency_type_rail_short_name, R.string.agency_type_rail_stations_short_name, //
+			R.drawable.ic_menu_train, R.drawable.ic_menu_train_holo_light), //
+	TYPE_BUS(3, // GTFS - Bus
+			R.string.agency_type_bus_short_name, R.string.agency_type_bus_stops_short_name, //
+			R.drawable.ic_menu_bus, R.drawable.ic_menu_bus_holo_light), //
+	TYPE_BIKE(100, // like Bixi, Velib
+			R.string.agency_type_bike_short_name, R.string.agency_type_bike_stations_short_name, //
+			R.drawable.ic_menu_bike, R.drawable.ic_menu_bike_holo_light), //
+	TYPE_MODULE(999, //
+			R.string.agency_type_module_short_name, R.string.agency_type_module_app_short_name, //
+			R.drawable.ic_menu_play_store, R.drawable.ic_menu_play_store_holo_light), //
 	;
 
 	private static final String TAG = DataSourceType.class.getSimpleName();
@@ -23,13 +33,15 @@ public enum DataSourceType {
 
 	private int shortNameResId;
 
+	private int poiShortNameResId;
 	private int menuResId;
 
 	private int abIconResId;
 
-	DataSourceType(int id, int shortNameResId, int menuResId, int abIconResId) {
+	DataSourceType(int id, int shortNameResId, int poiShortNameResId, int menuResId, int abIconResId) {
 		this.id = id;
 		this.shortNameResId = shortNameResId;
+		this.poiShortNameResId = poiShortNameResId;
 		this.menuResId = menuResId;
 		this.abIconResId = abIconResId;
 	}
@@ -40,6 +52,10 @@ public enum DataSourceType {
 
 	public int getShortNameResId() {
 		return shortNameResId;
+	}
+
+	public int getPoiShortNameResId() {
+		return poiShortNameResId;
 	}
 
 	public int getMenuResId() {

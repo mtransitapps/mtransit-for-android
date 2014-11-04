@@ -831,7 +831,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			convertView.setTag(holder);
 		}
 		TypeHeaderViewHolder holder = (TypeHeaderViewHolder) convertView.getTag();
-		holder.nameTv.setText(getContext().getString(type.getShortNameResId()));
+		holder.nameTv.setText(getContext().getString(type.getPoiShortNameResId()));
 		if (type.getAbIconResId() != -1) {
 			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getAbIconResId(), 0, 0, 0);
 		}
