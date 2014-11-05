@@ -38,10 +38,7 @@ import org.mtransit.android.ui.view.MTPieChartPercentView;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -63,7 +60,7 @@ import android.widget.TextView;
 
 public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements SensorUtils.CompassListener, AdapterView.OnItemClickListener,
 		AdapterView.OnItemLongClickListener, SensorEventListener, AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener, MTLog.Loggable,
-		FavoriteManager.FavoriteUpdateListener, SensorUtils.SensorTaskCompleted {
+		FavoriteManager.FavoriteUpdateListener, SensorUtils.SensorTaskCompleted, TimeUtils.TimeChangedReceiver.TimeChangedListener {
 
 	private static final String TAG = POIArrayAdapter.class.getSimpleName();
 
@@ -76,15 +73,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public void setTag(String tag) {
 		this.tag = TAG + "-" + tag;
-	}
-
-	private static IntentFilter s_intentFilter;
-
-	static {
-		s_intentFilter = new IntentFilter();
-		s_intentFilter.addAction(Intent.ACTION_TIME_TICK);
-		s_intentFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
-		s_intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
 	}
 
 	private LayoutInflater layoutInflater;
@@ -288,7 +276,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				if (typeId != null) {
 					final DataSourceType dst = DataSourceType.parseId(typeId);
 					if (dst != null) {
-						return getTypeHeader(dst, convertView, parent);
+						return getTypeHeaderView(dst, convertView, parent);
 					}
 				}
 			}
@@ -820,7 +808,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 	}
 
-	private View getTypeHeader(final DataSourceType type, View convertView, ViewGroup parent) {
+	private View getTypeHeaderView(final DataSourceType type, View convertView, ViewGroup parent) {
 		if (convertView == null) {
 			final int layoutRes = this.showBrowseInTypeHeader ? R.layout.layout_poi_list_header_and_more : R.layout.layout_poi_list_header;
 			convertView = this.layoutInflater.inflate(layoutRes, parent, false);
@@ -1244,20 +1232,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		notifyDataSetChanged(false);
 	}
 
-	private final BroadcastReceiver timeChangedReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			final String action = intent.getAction();
-			if (Intent.ACTION_TIME_TICK.equals(action) || Intent.ACTION_TIME_CHANGED.equals(action) || Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
-				resetNowToTheMinute();
-			}
-		}
-	};
+	@Override
+	public void onTimeChanged() {
+		resetNowToTheMinute();
+	}
 
+	private final BroadcastReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
 
 	private void enableTimeChangedReceiver() {
 		if (!this.timeChangedReceiverEnabled) {
-			getContext().registerReceiver(timeChangedReceiver, s_intentFilter);
+			getContext().registerReceiver(timeChangedReceiver, TimeUtils.TIME_CHANGED_INTENT_FILTER);
 			this.timeChangedReceiverEnabled = true;
 		}
 	}

@@ -453,29 +453,37 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	public void onPageScrollStateChanged(int state) {
 		switch (state) {
 		case ViewPager.SCROLL_STATE_IDLE:
-			List<Fragment> fragments = getChildFragmentManager().getFragments();
-			if (fragments != null) {
-				for (Fragment fragment : fragments) {
-					if (fragment instanceof NearbyAgencyTypeFragment) {
-						final NearbyAgencyTypeFragment nearbyAgencyTypeFragment = (NearbyAgencyTypeFragment) fragment;
-						nearbyAgencyTypeFragment.setNearbyFragment(this);
-						nearbyAgencyTypeFragment.setFragmentVisibleAtPosition(this.lastPageSelected); // resume
-					}
-				}
-			}
+			resumeAllVisibleAwareChildFragment();
 			break;
 		case ViewPager.SCROLL_STATE_DRAGGING:
-			List<Fragment> fragments2 = getChildFragmentManager().getFragments();
-			if (fragments2 != null) {
-				for (Fragment fragment : fragments2) {
-					if (fragment instanceof NearbyAgencyTypeFragment) {
-						final NearbyAgencyTypeFragment nearbyAgencyTypeFragment = (NearbyAgencyTypeFragment) fragment;
-						nearbyAgencyTypeFragment.setNearbyFragment(this);
-						nearbyAgencyTypeFragment.setFragmentVisibleAtPosition(-1); // pause
-					}
+			pauseAllVisibleAwareChildFragments();
+			break;
+		}
+	}
+
+	private void pauseAllVisibleAwareChildFragments() {
+		final List<Fragment> fragments = getChildFragmentManager().getFragments();
+		if (fragments != null) {
+			for (Fragment fragment : fragments) {
+				if (fragment instanceof NearbyAgencyTypeFragment) {
+					final NearbyAgencyTypeFragment nearbyAgencyTypeFragment = (NearbyAgencyTypeFragment) fragment;
+					nearbyAgencyTypeFragment.setNearbyFragment(this);
+					nearbyAgencyTypeFragment.setFragmentVisibleAtPosition(-1); // pause
 				}
 			}
-			break;
+		}
+	}
+
+	private void resumeAllVisibleAwareChildFragment() {
+		final List<Fragment> fragments = getChildFragmentManager().getFragments();
+		if (fragments != null) {
+			for (Fragment fragment : fragments) {
+				if (fragment instanceof NearbyAgencyTypeFragment) {
+					final NearbyAgencyTypeFragment nearbyAgencyTypeFragment = (NearbyAgencyTypeFragment) fragment;
+					nearbyAgencyTypeFragment.setNearbyFragment(this);
+					nearbyAgencyTypeFragment.setFragmentVisibleAtPosition(this.lastPageSelected); // resume
+				}
+			}
 		}
 	}
 

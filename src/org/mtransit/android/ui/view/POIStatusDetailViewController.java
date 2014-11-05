@@ -74,7 +74,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	private static void initScheduleViewHolder(POIManager poim, View view) {
 		ScheduleStatusViewHolder scheduleStatusViewHolder = new ScheduleStatusViewHolder();
 		initCommonStatusViewHolderHolder(scheduleStatusViewHolder, view);
-		scheduleStatusViewHolder.textTv = (TextView) view.findViewById(R.id.text);
+		scheduleStatusViewHolder.nextDeparturesTimesTv = (TextView) view.findViewById(R.id.next_departures_times);
 		view.setTag(scheduleStatusViewHolder);
 	}
 
@@ -237,8 +237,8 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			line1CS = schedule.getTimesListString(context, dataProvider.getNowToTheMinute(), count);
 		}
 		ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
-		scheduleStatusViewHolder.textTv.setText(line1CS);
-		scheduleStatusViewHolder.textTv.setVisibility(line1CS != null && line1CS.length() > 0 ? View.VISIBLE : View.GONE);
+		scheduleStatusViewHolder.nextDeparturesTimesTv.setText(line1CS);
+		scheduleStatusViewHolder.nextDeparturesTimesTv.setVisibility(line1CS != null && line1CS.length() > 0 ? View.VISIBLE : View.GONE);
 		statusViewHolder.statusV.setVisibility(line1CS != null && line1CS.length() > 0 ? View.VISIBLE : View.INVISIBLE);
 	}
 
@@ -261,6 +261,6 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static class ScheduleStatusViewHolder extends CommonStatusViewHolder {
-		TextView textTv;
+		TextView nextDeparturesTimesTv;
 	}
 }

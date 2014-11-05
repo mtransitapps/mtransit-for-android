@@ -22,10 +22,13 @@ import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
+import org.mtransit.android.commons.data.ScheduleTimestamps;
+import org.mtransit.android.commons.data.ScheduleTimestampsFilter;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.GTFSRouteTripStopProvider;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.provider.POIProvider;
+import org.mtransit.android.commons.provider.ScheduleTimestampsProvider;
 import org.mtransit.android.commons.provider.StatusFilter;
 import org.mtransit.android.commons.provider.StatusProvider;
 import org.mtransit.android.commons.task.MTAsyncTask;
@@ -53,12 +56,17 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private List<StatusProviderProperties> allStatusProviders = null;
 
+	private List<ScheduleProviderProperties> allScheduleProviders = null;
+
 	private List<DataSourceType> allAgencyTypes = null;
 
 	private WeakHashMap<DataSourceType, List<AgencyProperties>> allAgenciesByType = null;
+
 	private WeakHashMap<String, AgencyProperties> allAgenciesByAuthority = null;
 
 	private WeakHashMap<String, Set<StatusProviderProperties>> statusProvidersByTargetAuthority = null;
+
+	private WeakHashMap<String, Set<ScheduleProviderProperties>> scheduleProvidersByTargetAuthority = null;
 
 	private WeakHashMap<String, JPaths> rtsRouteLogoByAuthority = null;
 
@@ -91,7 +99,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 				final DataSourceProvider newInstance = new DataSourceProvider();
 				newInstance.init(context);
 				if (CollectionUtils.getSize(newInstance.allAgencies) != CollectionUtils.getSize(instance.allAgencies)
-						|| CollectionUtils.getSize(newInstance.allStatusProviders) != CollectionUtils.getSize(instance.allStatusProviders)) {
+						|| CollectionUtils.getSize(newInstance.allStatusProviders) != CollectionUtils.getSize(instance.allStatusProviders)
+						|| CollectionUtils.getSize(newInstance.allScheduleProviders) != CollectionUtils.getSize(instance.allScheduleProviders)) {
 					instance = newInstance;
 					triggerModulesUpdated();
 				}
@@ -146,6 +155,13 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return this.statusProvidersByTargetAuthority.get(targetAuthority);
 	}
 
+	public Collection<ScheduleProviderProperties> getTargetAuthorityScheduleProviders(Context context, String targetAuthority) {
+		if (this.scheduleProvidersByTargetAuthority == null) {
+			init(context);
+		}
+		return this.scheduleProvidersByTargetAuthority.get(targetAuthority);
+	}
+
 	public JPaths getRTSRouteLogo(Context context, String authority) {
 		if (this.rtsRouteLogoByAuthority == null) {
 			init(context);
@@ -182,6 +198,14 @@ public class DataSourceProvider implements MTLog.Loggable {
 			this.rtsRouteLogoByAuthority.clear();
 			this.rtsRouteLogoByAuthority = null;
 		}
+		if (this.allScheduleProviders != null) {
+			this.allScheduleProviders.clear();
+			this.allScheduleProviders = null;
+		}
+		if (this.scheduleProvidersByTargetAuthority != null) {
+			this.scheduleProvidersByTargetAuthority.clear();
+			this.scheduleProvidersByTargetAuthority = null;
+		}
 	}
 
 	private synchronized void init(Context context) {
@@ -192,11 +216,16 @@ public class DataSourceProvider implements MTLog.Loggable {
 		this.allStatusProviders = new ArrayList<StatusProviderProperties>();
 		this.statusProvidersByTargetAuthority = new WeakHashMap<String, Set<StatusProviderProperties>>();
 		this.rtsRouteLogoByAuthority = new WeakHashMap<String, JPaths>();
+		this.allScheduleProviders = new ArrayList<ScheduleProviderProperties>();
+		this.scheduleProvidersByTargetAuthority = new WeakHashMap<String, Set<ScheduleProviderProperties>>();
 		String agencyProviderMetaData = context.getString(R.string.agency_provider);
 		String rtsProviderMetaData = context.getString(R.string.rts_provider);
+		String scheduleProviderMetaData = context.getString(R.string.schedule_provider);
 		String statusProviderMetaData = context.getString(R.string.status_provider);
 		String statusProviderTargetMetaData = context.getString(R.string.status_provider_target);
-		for (PackageInfo packageInfo : context.getPackageManager().getInstalledPackages(PackageManager.GET_PROVIDERS | PackageManager.GET_META_DATA)) {
+		String scheduleProviderTargetMetaData = context.getString(R.string.schedule_provider_target);
+		final PackageManager pm = context.getPackageManager();
+		for (PackageInfo packageInfo : pm.getInstalledPackages(PackageManager.GET_PROVIDERS | PackageManager.GET_META_DATA)) {
 			ProviderInfo[] providers = packageInfo.providers;
 			if (providers != null) {
 				for (ProviderInfo provider : providers) {
@@ -225,6 +254,11 @@ public class DataSourceProvider implements MTLog.Loggable {
 							StatusProviderProperties newStatusProvider = new StatusProviderProperties(provider.authority, targetAuthority);
 							addNewStatusProvider(newStatusProvider);
 						}
+						if (scheduleProviderMetaData.equals(provider.metaData.getString(scheduleProviderMetaData))) {
+							String targetAuthority = provider.metaData.getString(scheduleProviderTargetMetaData);
+							ScheduleProviderProperties newScheduleProvider = new ScheduleProviderProperties(provider.authority, targetAuthority);
+							addNewScheduleProvider(newScheduleProvider);
+						}
 					}
 				}
 			}
@@ -247,10 +281,38 @@ public class DataSourceProvider implements MTLog.Loggable {
 		this.statusProvidersByTargetAuthority.get(newScheduleProviderTargetAuthority).add(newStatusProvider);
 	}
 
-	public static POIStatus findStatus(Context context, Uri contentUri, POI poi, StatusFilter statusFilter) {
-		if (poi == null) {
-			return null;
+	private void addNewScheduleProvider(ScheduleProviderProperties newScheduleProvider) {
+		this.allScheduleProviders.add(newScheduleProvider);
+		String newScheduleProviderTargetAuthority = newScheduleProvider.getTargetAuthority();
+		if (!this.scheduleProvidersByTargetAuthority.containsKey(newScheduleProviderTargetAuthority)) {
+			this.scheduleProvidersByTargetAuthority.put(newScheduleProviderTargetAuthority, new HashSet<ScheduleProviderProperties>());
 		}
+		this.scheduleProvidersByTargetAuthority.get(newScheduleProviderTargetAuthority).add(newScheduleProvider);
+	}
+
+	public static ScheduleTimestamps findScheduleTimestamps(Context context, Uri contentUri, ScheduleTimestampsFilter scheduleTimestampsFilter) {
+		ScheduleTimestamps result = null;
+		Cursor cursor = null;
+		try {
+			String scheduleTimestampsFilterFilterJSONString = scheduleTimestampsFilter == null ? null : scheduleTimestampsFilter.toJSONString();
+			Uri uri = Uri.withAppendedPath(contentUri, ScheduleTimestampsProvider.SCHEDULE_TIMESTAMPS_CONTENT_DIRECTORY);
+			cursor = context.getContentResolver().query(uri, null, scheduleTimestampsFilterFilterJSONString, null, null);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					result = ScheduleTimestamps.fromCursor(cursor);
+				}
+			}
+		} catch (Throwable t) {
+			MTLog.w(TAG, t, "Error!");
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+		return result;
+	}
+
+	public static POIStatus findStatus(Context context, Uri contentUri, StatusFilter statusFilter) {
 		POIStatus result = null;
 		Cursor cursor = null;
 		try {

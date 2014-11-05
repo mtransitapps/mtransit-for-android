@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    <TextView
+        android:id="@+id/dayDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center_horizontal"
+        android:text="@string/ellipsis"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/ic_menu_holo_light_text" />
+    <FrameLayout
+        android:id="@+id/viewFlipper"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+        <ViewStub
+            android:id="@+id/loading_stub"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inflatedId="@+id/loading"
+            android:layout="@layout/layout_loading_large"
+            android:visibility="visible" />
+        <ViewStub
+            android:id="@+id/list_stub"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout="@layout/layout_time_list"
+            android:visibility="gone" />
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/layout_shadow" />
+        <ViewStub
+            android:id="@+id/empty_stub"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inflatedId="@+id/empty"
+            android:layout="@layout/layout_empty"
+            android:visibility="gone" />
+    </FrameLayout>
+</LinearLayout>

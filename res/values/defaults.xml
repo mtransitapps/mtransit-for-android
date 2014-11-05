@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-    <string name="default_route_short_name">@string/ellipsis</string>
-    <string name="default_distance">@string/ellipsis</string>
-</resources>

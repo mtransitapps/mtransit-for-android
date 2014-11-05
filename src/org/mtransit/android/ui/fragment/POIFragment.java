@@ -1,16 +1,22 @@
 package org.mtransit.android.ui.fragment;
 
+import java.util.Collection;
+
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.SensorUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.POIStatus;
+import org.mtransit.android.commons.data.RouteTripStop;
+import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.data.ScheduleProviderProperties;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
@@ -19,8 +25,6 @@ import org.mtransit.android.ui.view.POIViewController;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -37,7 +41,7 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 
 public class POIFragment extends ABFragment implements POIViewController.POIDataProvider, MTActivityWithLocation.UserLocationListener, SensorEventListener,
-		SensorUtils.CompassListener, SensorUtils.SensorTaskCompleted, FavoriteManager.FavoriteUpdateListener {
+		SensorUtils.CompassListener, SensorUtils.SensorTaskCompleted, FavoriteManager.FavoriteUpdateListener, TimeUtils.TimeChangedReceiver.TimeChangedListener {
 
 	private static final String TAG = POIFragment.class.getSimpleName();
 
@@ -103,6 +107,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		final String uuid = BundleUtils.getString(EXTRA_POI_UUID, savedInstanceState, getArguments());
 		if (!TextUtils.isEmpty(authority) && !TextUtils.isEmpty(uuid)) {
 			this.poim = DataSourceProvider.findPOIWithUUID(getActivity(), UriUtils.newContentUri(authority), uuid);
+			this.poim.setScheduleMaxDataRequests(Schedule.ScheduleStatusFilter.DATA_REQUEST_MONTH);
 			this.agency = DataSourceProvider.get().getAgency(getActivity(), authority);
 			setupView(getView());
 		}
@@ -141,6 +146,23 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		}
 		POIViewController.updateView(this.poim, getPOIView(view), this);
 		POIStatusDetailViewController.updateView(this.poim, getPOIStatusView(view), this);
+		final View rtsScheduleBtn = view.findViewById(R.id.fullScheduleBtn);
+		if (rtsScheduleBtn != null) {
+			Collection<ScheduleProviderProperties> scheduleProviders = DataSourceProvider.get().getTargetAuthorityScheduleProviders(getActivity(),
+					this.poim.poi.getAuthority());
+			if (CollectionUtils.getSize(scheduleProviders) == 0) {
+				rtsScheduleBtn.setVisibility(View.GONE);
+			} else {
+				rtsScheduleBtn.setOnClickListener(new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						((MainActivity) getActivity()).addFragmentToStack(ScheduleFragment.newInstance((RouteTripStop) POIFragment.this.poim.poi));
+					}
+				});
+				rtsScheduleBtn.setVisibility(View.VISIBLE);
+			}
+		}
 	}
 
 	private View getPOIStatusView() {
@@ -271,6 +293,11 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		return this.nowToTheMinute;
 	}
 
+	@Override
+	public void onTimeChanged() {
+		resetNowToTheMinute();
+	}
+
 	private void resetNowToTheMinute() {
 		this.nowToTheMinute = TimeUtils.currentTimeToTheMinuteMillis();
 		POIViewController.updatePOIStatus(getPOIView(), this.poim, this);
@@ -281,18 +308,9 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	private void enableTimeChangedReceiver() {
 		if (!this.timeChangedReceiverEnabled) {
-			getActivity().registerReceiver(timeChangedReceiver, s_intentFilter);
+			getActivity().registerReceiver(timeChangedReceiver, TimeUtils.TIME_CHANGED_INTENT_FILTER);
 			this.timeChangedReceiverEnabled = true;
 		}
-	}
-
-	private static IntentFilter s_intentFilter;
-
-	static {
-		s_intentFilter = new IntentFilter();
-		s_intentFilter.addAction(Intent.ACTION_TIME_TICK);
-		s_intentFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
-		s_intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
 	}
 
 	private void disableTimeChangeddReceiver() {
@@ -303,15 +321,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		}
 	}
 
-	private final BroadcastReceiver timeChangedReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			final String action = intent.getAction();
-			if (Intent.ACTION_TIME_TICK.equals(action) || Intent.ACTION_TIME_CHANGED.equals(action) || Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
-				resetNowToTheMinute();
-			}
-		}
-	};
+	private final BroadcastReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
 
 	@Override
 	public boolean hasLocation() {

@@ -65,6 +65,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	private WeakReference<StatusLoaderListener> statusLoaderListenerWR;
 
+	private int scheduleMaxDataRequests = Schedule.ScheduleStatusFilter.MAX_DATA_REQUESTS_DEFAULT;
+
 	public POIManager(POI poi) {
 		this(poi, null);
 	}
@@ -180,6 +182,10 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return isNotSkipped;
 	}
 
+	public void setScheduleMaxDataRequests(int scheduleMaxDataRequests) {
+		this.scheduleMaxDataRequests = scheduleMaxDataRequests;
+	}
+
 	private StatusFilter getFilter(long findStatusTimestampMs) {
 		switch (getStatusType()) {
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
@@ -188,6 +194,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				Schedule.ScheduleStatusFilter filter = new Schedule.ScheduleStatusFilter(this.poi.getUUID(), rts);
 				filter.setTimestamp(findStatusTimestampMs);
 				filter.setLookBehindInMs(TimeUtils.RECENT_IN_MILLIS);
+				filter.setMaxDataRequests(this.scheduleMaxDataRequests);
 				return filter;
 			} else {
 				MTLog.w(this, "Schedule fiter w/o '%s'!", this.poi);

@@ -37,4 +37,7 @@
     <string name="menu_action_grid">Grille</string>
     <string name="menu_action_add_favorite">Ajouter aux favoris</string>
     <string name="menu_action_remove_favorite">Supprimer des favoris</string>
+    <string name="next_departures">Prochain Départs</string>
+    <string name="schedule">Horaires</string>
+    <string name="full_schedule">Horaires Complets</string>
 </resources>
