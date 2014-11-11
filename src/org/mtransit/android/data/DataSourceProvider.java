@@ -120,6 +120,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 	}
 
 	public List<AgencyProperties> getTypeDataSources(Context context, int typeId) {
+		if (this.allAgenciesByTypeId == null) {
 			init(context);
 		}
 		return this.allAgenciesByTypeId.get(typeId);
