@@ -382,6 +382,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		}
 		listGridToggleMenuItem.setIcon(isShowingListInsteadOfGrid() ? R.drawable.ic_action_grid_holo_light : R.drawable.ic_action_list_holo_light);
 		listGridToggleMenuItem.setTitle(isShowingListInsteadOfGrid() ? R.string.menu_action_grid : R.string.menu_action_list);
+		listGridToggleMenuItem.setVisible(true);
 	}
 
 	@Override
