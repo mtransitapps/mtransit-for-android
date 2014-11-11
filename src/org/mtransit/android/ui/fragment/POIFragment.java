@@ -14,6 +14,7 @@ import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.data.AgencyProperties;
+import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ScheduleProviderProperties;
@@ -30,6 +31,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -106,7 +108,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		final String authority = BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, getArguments());
 		final String uuid = BundleUtils.getString(EXTRA_POI_UUID, savedInstanceState, getArguments());
 		if (!TextUtils.isEmpty(authority) && !TextUtils.isEmpty(uuid)) {
-			this.poim = DataSourceProvider.findPOIWithUUID(getActivity(), UriUtils.newContentUri(authority), uuid);
+			this.poim = DataSourceManager.findPOIWithUUID(getActivity(), UriUtils.newContentUri(authority), uuid);
 			this.poim.setScheduleMaxDataRequests(Schedule.ScheduleStatusFilter.DATA_REQUEST_MONTH);
 			this.agency = DataSourceProvider.get().getAgency(getActivity(), authority);
 			setupView(getView());
@@ -121,23 +123,6 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		restoreInstanceState(savedInstanceState);
-	}
-
-	@Override
-	public void onModulesUpdated() {
-		if (this.poim != null) {
-			final POIManager newPoim = DataSourceProvider.findPOIWithUUID(getActivity(), UriUtils.newContentUri(this.poim.poi.getAuthority()),
-					this.poim.poi.getUUID());
-			if (newPoim == null) {
-				((MainActivity) getActivity()).popFragmentFromStack(this); // close this fragment
-				return;
-			} else if (!this.poim.poi.equals(newPoim.poi)) {
-				this.poim = newPoim;
-				setupView(getView());
-			}
-			POIViewController.updatePOIStatus(getPOIView(), this.poim, this);
-			POIStatusDetailViewController.updatePOIStatus(getPOIStatusView(), this.poim, this);
-		}
 	}
 
 	private void setupView(View view) {
@@ -258,6 +243,24 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			if (this.compassUpdatesEnabled && this.userLocation != null && this.lastCompassInDegree >= 0) {
 				POIViewController.updatePOIDistanceAndCompass(poim, getPOIView(), this);
 			}
+		}
+	}
+
+	@Override
+	public void onModulesUpdated() {
+		final FragmentActivity activity = getActivity();
+		if (this.poim != null && activity != null) {
+			final POIManager newPoim = DataSourceManager.findPOIWithUUID(activity, UriUtils.newContentUri(this.poim.poi.getAuthority()),
+					this.poim.poi.getUUID());
+			if (newPoim == null) {
+				((MainActivity) activity).popFragmentFromStack(this); // close this fragment
+				return;
+			} else if (!this.poim.poi.equals(newPoim.poi)) {
+				this.poim = newPoim;
+				setupView(getView());
+			}
+			POIViewController.updatePOIStatus(getPOIView(), this.poim, this);
+			POIStatusDetailViewController.updatePOIStatus(getPOIStatusView(), this.poim, this);
 		}
 	}
 
@@ -388,28 +391,29 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.poi_menu, menu);
-		if (this.poim != null && this.poim.isFavoritable()) {
-			menu.findItem(R.id.add_remove_favorite).setVisible(true);
-		} else {
-			menu.findItem(R.id.add_remove_favorite).setVisible(false);
-		}
+		((MainActivity) getActivity()).addMenuItem(R.id.menu_add_remove_favorite, menu.findItem(R.id.menu_add_remove_favorite));
+		updateFavMenuItem();
 	}
 
-	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
-		super.onPrepareOptionsMenu(menu);
+	private void updateFavMenuItem() {
+		final MenuItem favMenuItem = ((MainActivity) getActivity()).getMenuItem(R.id.menu_add_remove_favorite);
+		if (favMenuItem == null) {
+			return;
+		}
 		if (this.poim != null && this.poim.isFavoritable()) {
-			final MenuItem favMenuItem = menu.findItem(R.id.add_remove_favorite);
 			final boolean isFav = isFavorite();
 			favMenuItem.setIcon(isFav ? R.drawable.btn_star_on_normal_holo_light : R.drawable.btn_star_off_normal_holo_light);
 			favMenuItem.setTitle(isFav ? R.string.menu_action_remove_favorite : R.string.menu_action_add_favorite);
+			favMenuItem.setVisible(true);
+		} else {
+			favMenuItem.setVisible(false);
 		}
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.add_remove_favorite:
+		case R.id.menu_add_remove_favorite:
 			if (this.poim != null && this.poim.isFavoritable()) {
 				this.poim.addRemoteFavorite(getActivity(), isFavorite(), this);
 				return true; // handled
@@ -421,7 +425,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	@Override
 	public void onFavoriteUpdated() {
 		this.isFavorite = null; // reset
-		getActivity().invalidateOptionsMenu();
+		updateFavMenuItem();
 		POIViewController.updateView(this.poim, getPOIView(), this);
 	}
 

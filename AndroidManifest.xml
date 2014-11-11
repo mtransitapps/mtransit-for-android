@@ -66,12 +66,22 @@
             android:name=".ui.MainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:launchMode="singleTask" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
         </activity>
         <!-- GOOGLE MOBILE ADS (ADMOB) -->
         <activity
             android:name="com.google.android.gms.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:theme="@android:style/Theme.Translucent" />
+        <!-- SEARCH -->
+        <meta-data
+            android:name="android.app.default_searchable"
+            android:value=".ui.MainActivity" />
         <!-- GOOGLE PLAY SERVICES VERSION -->
         <meta-data
             android:name="com.google.android.gms.version"

@@ -16,6 +16,7 @@ import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Stop;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.JPaths;
 import org.mtransit.android.task.StatusLoader;
@@ -125,7 +126,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public void onModulesUpdated() {
 		if (this.route != null && !TextUtils.isEmpty(this.authority)) {
-			final Route newRoute = DataSourceProvider.findRTSRoute(getActivity(), UriUtils.newContentUri(this.authority), this.route.id);
+			final Route newRoute = DataSourceManager.findRTSRoute(getActivity(), UriUtils.newContentUri(this.authority), this.route.id);
 			if (newRoute == null) {
 				((MainActivity) getActivity()).popFragmentFromStack(this); // close this fragment
 				return;
@@ -145,10 +146,8 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			return;
 		}
 		final Uri authorityUri = UriUtils.newContentUri(this.authority);
-		this.route = DataSourceProvider.findRTSRoute(getActivity(), authorityUri, this.routeId);
-		((MainActivity) getActivity()).setABBgColor(getABBgColor(), false);
-		((MainActivity) getActivity()).setABCustomView(getABCustomView(), true);
-		final List<Trip> routeTrips = DataSourceProvider.findRTSRouteTrips(getActivity(), authorityUri, this.routeId);
+		this.route = DataSourceManager.findRTSRoute(getActivity(), authorityUri, this.routeId);
+		final List<Trip> routeTrips = DataSourceManager.findRTSRouteTrips(getActivity(), authorityUri, this.routeId);
 		if (routeTrips == null) {
 			return;
 		}
@@ -362,6 +361,19 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 
+	@Override
+	public boolean isABThemeDarkInsteadOfThemeLight() {
+		if (this.route == null) {
+			return super.isABThemeDarkInsteadOfThemeLight();
+		}
+		return Color.WHITE == ColorUtils.parseColor(this.route.textColor);
+	}
+
+	@Override
+	public boolean isABDisplayHomeAsUpEnabled() {
+		return false; // included in the custom view
+	}
+
 	private View customView;
 
 	@Override
@@ -423,7 +435,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 				}
 			} else {
 				holder.routeTypeImg.setVisibility(View.GONE);
-				holder.routeShortNameTv.setText(route.shortName.trim());
+				holder.routeShortNameTv.setText(route.shortName);
 				holder.routeShortNameTv.setTextColor(routeTextColor);
 				holder.routeShortNameTv.setVisibility(View.VISIBLE);
 			}
@@ -439,11 +451,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			holder.routeFL.setVisibility(View.VISIBLE);
 		}
 		return convertView;
-	}
-
-	@Override
-	public CharSequence getABTitle(Context context) {
-		return null;
 	}
 
 

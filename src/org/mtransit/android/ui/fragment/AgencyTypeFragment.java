@@ -34,8 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 
-public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageChangeListener, MTActivityWithLocation.UserLocationListener,
-		DataSourceProvider.ModulesUpdateListener {
+public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageChangeListener, MTActivityWithLocation.UserLocationListener {
 
 	private static final String TAG = AgencyTypeFragment.class.getSimpleName();
 
@@ -88,18 +87,6 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 	}
 
-	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
-		super.onPrepareOptionsMenu(menu);
-		final List<Fragment> fragments = getChildFragmentManager().getFragments();
-		if (fragments != null) {
-			for (Fragment fragment : fragments) {
-				if (fragment != null) {
-					fragment.onPrepareOptionsMenu(menu);
-				}
-			}
-		}
-	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -136,8 +123,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	@Override
 	public void onModulesUpdated() {
 		if (this.adapter != null) {
-			final List<AgencyProperties> newAvailableAgencies = this.type == null ? null : DataSourceProvider.get()
-					.getTypeDataSources(getActivity(), this.type);
+			final List<AgencyProperties> newAvailableAgencies = this.type == null ? null : DataSourceProvider.get().getTypeDataSources(getActivity(),
+					this.type.getId());
 			if (CollectionUtils.getSize(newAvailableAgencies) == CollectionUtils.getSize(this.adapter.getAgencies())) {
 				return;
 			}
@@ -172,8 +159,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		final Integer typeId = BundleUtils.getInt(EXTRA_TYPE_ID, savedInstanceState, getArguments());
 		if (typeId != null) {
 			this.type = DataSourceType.parseId(typeId);
-			((MainActivity) getActivity()).setABTitle(getABTitle(getActivity()), false);
-			((MainActivity) getActivity()).setABIcon(getABIconDrawableResId(), true);
+			((MainActivity) getActivity()).setABTitle(this, getABTitle(getActivity()), false);
+			((MainActivity) getActivity()).setABIcon(this, getABIconDrawableResId(), true);
 		}
 	}
 
@@ -181,7 +168,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		if (view == null) {
 			return;
 		}
-		final List<AgencyProperties> newAgencies = this.type == null ? null : DataSourceProvider.get().getTypeDataSources(getActivity(), this.type);
+		final List<AgencyProperties> newAgencies = this.type == null ? null : DataSourceProvider.get().getTypeDataSources(getActivity(), this.type.getId());
 		if (CollectionUtils.getSize(newAgencies) == 0) {
 			return;
 		}

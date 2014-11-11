@@ -20,7 +20,6 @@ import org.mtransit.android.commons.task.MTAsyncTaskLoaderV4;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
-import org.mtransit.android.data.Favorite;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
 
@@ -53,42 +52,12 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 			return this.pois;
 		}
 		this.pois = new ArrayList<POIManager>();
-		Set<String> favoriteUUIDs = findFavoriteUUIDs();
+		Set<String> favoriteUUIDs = FavoriteManager.findFavoriteUUIDs(getContext());
 		final List<DataSourceType> availableAgencyTypes = DataSourceProvider.get().getAvailableAgencyTypes(getContext());
 		if (availableAgencyTypes != null) {
 			for (DataSourceType type : availableAgencyTypes) {
 				List<POIManager> typePOIs = findNearby(getContext(), type, this.lat, this.lng);
-				Iterator<POIManager> it = typePOIs.iterator();
-				int nbKept = 0;
-				float lastKeptDistance = -1;
-				Set<String> routeTripKept = new HashSet<String>();
-				while (it.hasNext()) {
-					POIManager poim = it.next();
-					if (!favoriteUUIDs.contains(poim.poi.getUUID())) {
-						if (poim.poi instanceof RouteTripStop) {
-							final RouteTripStop rts = (RouteTripStop) poim.poi;
-							final String routeTripId = rts.route.id + "-" + rts.trip.id;
-							if (routeTripKept.contains(routeTripId) && lastKeptDistance != poim.getDistance()) {
-								it.remove();
-								continue;
-							}
-						} else if (nbKept >= NB_MAX_BY_TYPE && lastKeptDistance != poim.getDistance()) {
-							it.remove();
-							continue;
-						}
-					}
-					if (nbKept >= NB_MAX_BY_TYPE && lastKeptDistance != poim.getDistance() && poim.getDistance() > LocationUtils.MIN_NEARBY_LIST_COVERAGE) {
-						it.remove();
-						continue;
-					}
-					if (poim.poi instanceof RouteTripStop) {
-						final RouteTripStop rts = (RouteTripStop) poim.poi;
-						final String routeTripId = rts.route.id + "-" + rts.trip.id;
-						routeTripKept.add(routeTripId);
-					}
-					lastKeptDistance = poim.getDistance();
-					nbKept++;
-				}
+				filterTypePOIs(favoriteUUIDs, typePOIs);
 				CollectionUtils.sort(typePOIs, POIManager.POI_ALPHA_COMPATOR);
 				this.pois.addAll(typePOIs);
 			}
@@ -96,15 +65,38 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		return this.pois;
 	}
 
-	private Set<String> findFavoriteUUIDs() {
-		Set<String> favoriteUUIDs = new HashSet<String>();
-		final List<Favorite> favorites = FavoriteManager.findFavorites(getContext());
-		if (favorites != null) {
-			for (Favorite favorite : favorites) {
-				favoriteUUIDs.add(favorite.getFkId());
+	private void filterTypePOIs(Set<String> favoriteUUIDs, List<POIManager> typePOIs) {
+		Iterator<POIManager> it = typePOIs.iterator();
+		int nbKept = 0;
+		float lastKeptDistance = -1;
+		Set<String> routeTripKept = new HashSet<String>();
+		while (it.hasNext()) {
+			POIManager poim = it.next();
+			if (!favoriteUUIDs.contains(poim.poi.getUUID())) {
+				if (poim.poi instanceof RouteTripStop) {
+					final RouteTripStop rts = (RouteTripStop) poim.poi;
+					final String routeTripId = rts.route.id + "-" + rts.trip.id;
+					if (routeTripKept.contains(routeTripId) && lastKeptDistance != poim.getDistance()) {
+						it.remove();
+						continue;
+					}
+				} else if (nbKept >= NB_MAX_BY_TYPE && lastKeptDistance != poim.getDistance()) {
+					it.remove();
+					continue;
+				}
 			}
+			if (nbKept >= NB_MAX_BY_TYPE && lastKeptDistance != poim.getDistance() && poim.getDistance() > LocationUtils.MIN_NEARBY_LIST_COVERAGE) {
+				it.remove();
+				continue;
+			}
+			if (poim.poi instanceof RouteTripStop) {
+				final RouteTripStop rts = (RouteTripStop) poim.poi;
+				final String routeTripId = rts.route.id + "-" + rts.trip.id;
+				routeTripKept.add(routeTripId);
+			}
+			lastKeptDistance = poim.getDistance();
+			nbKept++;
 		}
-		return favoriteUUIDs;
 	}
 
 	private List<POIManager> findNearby(Context context, DataSourceType type, double typeLat, double typeLng) {
@@ -112,7 +104,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		LocationUtils.AroundDiff typeAd = LocationUtils.getNewDefaultAroundDiff();
 		int typeMaxSize = LocationUtils.MIN_NEARBY_LIST_COVERAGE;
 		int typeMinCoverage = LocationUtils.MAX_NEARBY_LIST;
-		Collection<AgencyProperties> typeAgencies = DataSourceProvider.get().getTypeDataSources(context, type);
+		Collection<AgencyProperties> typeAgencies = DataSourceProvider.get().getTypeDataSources(context, type.getId());
 		while (CollectionUtils.getSize(typePOIs) < NB_MAX_BY_TYPE && typeAd.aroundDiff < LocationUtils.MAX_AROUND_DIFF) {
 			typePOIs = findNearby(context, typeLat, typeLng, typeAd, typeMaxSize, typeMinCoverage, typeAgencies);
 			LocationUtils.incAroundDiff(typeAd);

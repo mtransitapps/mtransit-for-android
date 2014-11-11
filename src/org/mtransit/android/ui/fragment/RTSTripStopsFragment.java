@@ -12,7 +12,7 @@ import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
-import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.RTSTripStopsLoader;
@@ -107,7 +107,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		this.authority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, savedInstanceState, getArguments());
 		this.tripId = BundleUtils.getInt(EXTRA_TRIP_ID, savedInstanceState, getArguments());
 		if (this.tripId != null) {
-			this.trip = DataSourceProvider.findRTSTrip(getActivity(), UriUtils.newContentUri(this.authority), this.tripId);
+			this.trip = DataSourceManager.findRTSTrip(getActivity(), UriUtils.newContentUri(this.authority), this.tripId);
 		}
 		final Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, savedInstanceState, getArguments());
 		if (fragmentPosition != null) {

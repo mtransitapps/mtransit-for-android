@@ -16,7 +16,9 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 
 	public static final View NO_CUSTOM_VIEW = null;
 
-	public abstract CharSequence getABTitle(Context context);
+	public CharSequence getABTitle(Context context) {
+		return null;
+	}
 
 	public CharSequence getABSubtitle(Context context) {
 		return null;
@@ -32,6 +34,18 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 
 	public View getABCustomView() {
 		return ABFragment.NO_CUSTOM_VIEW;
+	}
+
+	public boolean isABDisplayHomeAsUpEnabled() {
+		return true;
+	}
+
+	public boolean isABShowSearchMenuItem() {
+		return true;
+	}
+
+	public boolean isABThemeDarkInsteadOfThemeLight() {
+		return false;
 	}
 
 	@Override

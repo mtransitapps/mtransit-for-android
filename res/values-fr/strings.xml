@@ -4,8 +4,13 @@
     <string name="home">Accueil</string>
     <string name="favorites">Favoris</string>
     <string name="nearby">À Proximité</string>
+    <string name="action_search">Recherche</string>
+    <string name="search_hint">Recherche MT</string>
+    <string name="search_no_result_for_and_query">Aucun résultat pour %s</string>
+    <string name="search_settings_description">Recherche les informations sur les transports en commun dans MT</string>
     <string name="all">Tous</string>
     <string name="browse">Parcourir</string>
+    <string name="more">Plus</string>
     <string name="drawer_open">Ouvrir le tiroir de navigation</string>
     <string name="drawer_close">Fermer le tiroir de navigation</string>
     <string name="agency_type_subway_short_name">Métro</string>

@@ -5,7 +5,6 @@ import java.util.List;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
@@ -26,7 +25,7 @@ import android.widget.AbsListView;
 import android.widget.TextView;
 
 public class FavoritesFragment extends ABFragment implements LoaderManager.LoaderCallbacks<List<POIManager>>, MTActivityWithLocation.UserLocationListener,
-		FavoriteManager.FavoriteUpdateListener, DataSourceProvider.ModulesUpdateListener {
+		FavoriteManager.FavoriteUpdateListener {
 
 	private static final String TAG = FavoritesFragment.class.getSimpleName();
 
@@ -77,8 +76,8 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public Loader<List<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case FAVORITES_LOADER:
-			final FavoritesLoader favoriteLoader = new FavoritesLoader(getActivity());
-			return favoriteLoader;
+			final FavoritesLoader favoritesLoader = new FavoritesLoader(getActivity());
+			return favoritesLoader;
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -137,8 +136,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		this.adapter.setTag(getLogTag());
 		this.adapter.setShowFavorite(false); // all items in this screen are favorites
 		this.adapter.setFavoriteUpdateListener(this);
-		this.adapter.setShowTypeHeader(true);
-		this.adapter.setShowBrowseInTypeHeader(true);
+		this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_BROWSE_NEARBY);
 		final View view = getView();
 		setupView(view);
 		switchView(view);

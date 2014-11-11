@@ -2,6 +2,7 @@ package org.mtransit.android.ui.view;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
@@ -233,8 +234,8 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		CharSequence line1CS = null;
 		if (dataProvider != null && status != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
-			final int count = 20; // needs enough to check if service is frequent (every 5 minutes or less for at least 30 minutes)
-			line1CS = schedule.getTimesListString(context, dataProvider.getNowToTheMinute(), count);
+			final long nowToTheMinute = dataProvider.getNowToTheMinute();
+			line1CS = schedule.getTimesListString(context, nowToTheMinute, nowToTheMinute + TimeUtils.ONE_DAY_IN_MS, 50);
 		}
 		ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
 		scheduleStatusViewHolder.nextDeparturesTimesTv.setText(line1CS);

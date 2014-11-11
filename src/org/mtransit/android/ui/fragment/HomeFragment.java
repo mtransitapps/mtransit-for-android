@@ -7,7 +7,6 @@ import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.task.MTAsyncTask;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
@@ -34,7 +33,7 @@ import android.widget.AbsListView;
 import android.widget.TextView;
 
 public class HomeFragment extends ABFragment implements LoaderManager.LoaderCallbacks<List<POIManager>>, MTActivityWithLocation.UserLocationListener,
-		FavoriteManager.FavoriteUpdateListener, SwipeRefreshLayout.OnRefreshListener, DataSourceProvider.ModulesUpdateListener {
+		FavoriteManager.FavoriteUpdateListener, SwipeRefreshLayout.OnRefreshListener {
 
 	private static final String TAG = HomeFragment.class.getSimpleName();
 
@@ -152,7 +151,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 				if (refreshRequired) {
 					final FragmentActivity activity = getActivity();
 					if (activity != null) {
-						((MainActivity) getActivity()).setABSubtitle(getABSubtitle(getActivity()), true);
+						((MainActivity) activity).setABSubtitle(HomeFragment.this, getABSubtitle(activity), true);
 					}
 				}
 			}
@@ -226,7 +225,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			if (locationChanged) {
 				final boolean requireNotifyAB = setUserAwayFromLocation();
 				if (requireNotifyAB) {
-					((MainActivity) getActivity()).setABIcon(getABIconDrawableResId(), true);
+					((MainActivity) getActivity()).setABIcon(this, getABIconDrawableResId(), true);
 				}
 			}
 		}
@@ -268,7 +267,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 		setSwipeRefreshLayoutRefreshing(false);
 		this.nearbyLocationAddress = null;
-		((MainActivity) getActivity()).setABSubtitle(getABSubtitle(getActivity()), true);
+		((MainActivity) getActivity()).setABSubtitle(this, getABSubtitle(getActivity()), true);
 		findNearbyLocation();
 	}
 
@@ -306,8 +305,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.adapter = new POIArrayAdapter(getActivity());
 		this.adapter.setTag(getLogTag());
 		this.adapter.setFavoriteUpdateListener(this);
-		this.adapter.setShowTypeHeader(true);
-		this.adapter.setShowBrowseInTypeHeader(true);
+		this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_BROWSE_NEARBY);
 		final View view = getView();
 		setupView(view);
 		switchView(view);

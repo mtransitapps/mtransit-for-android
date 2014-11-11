@@ -5,7 +5,7 @@ import java.util.List;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.task.MTCallable;
-import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
@@ -43,7 +43,7 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<List<POIManager>> {
 
 	@Override
 	public List<POIManager> callMT() throws Exception {
-		List<POIManager> pois = DataSourceProvider.findPOIsWithLatLngList(context, contentUri, lat, lng, aroundDiff, hideDecentOnly);
+		List<POIManager> pois = DataSourceManager.findPOIsWithLatLngList(context, contentUri, lat, lng, aroundDiff, hideDecentOnly);
 		LocationUtils.updateDistance(pois, lat, lng);
 		float maxDistance = LocationUtils.getAroundCoveredDistance(lat, lng, aroundDiff);
 		LocationUtils.removeTooFar(pois, maxDistance);

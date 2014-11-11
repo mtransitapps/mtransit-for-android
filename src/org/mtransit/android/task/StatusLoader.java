@@ -10,6 +10,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.provider.StatusFilter;
+import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.StatusProviderProperties;
@@ -146,7 +147,7 @@ public class StatusLoader implements MTLog.Loggable {
 				return null;
 			}
 			final Uri uri = DataSourceProvider.get().getUri(this.statusProvider.getAuthority());
-			final POIStatus status = DataSourceProvider.findStatus(context, uri, /* poim.poi, */ this.statusFilter);
+			final POIStatus status = DataSourceManager.findStatus(context, uri, /* poim.poi, */this.statusFilter);
 			return status;
 		}
 

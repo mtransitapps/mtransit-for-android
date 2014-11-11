@@ -84,7 +84,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 	}
 
 	public static List<AgencyProperties> findTypeAgencies(Context context, DataSourceType type, double lat, double lng, double aroundDiff) {
-		List<AgencyProperties> allTypeAgencies = DataSourceProvider.get().getTypeDataSources(context, type);
+		List<AgencyProperties> allTypeAgencies = DataSourceProvider.get().getTypeDataSources(context, type.getId());
 		List<AgencyProperties> nearbyTypeAgenciesAuthorities = new ArrayList<AgencyProperties>();
 		if (allTypeAgencies != null) {
 			for (AgencyProperties agency : allTypeAgencies) {

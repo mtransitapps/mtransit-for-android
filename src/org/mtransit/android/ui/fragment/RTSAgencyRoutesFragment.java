@@ -147,8 +147,11 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 
 	private boolean isShowingListInsteadOfGrid() {
 		if (this.showingListInsteadOfGrid == null) {
-			this.showingListInsteadOfGrid = PreferenceUtils.getPrefDefault(getActivity(), PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID,
+			final boolean showingListInsteadOfGridLastSet = PreferenceUtils.getPrefDefault(getActivity(),
+					PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET,
 					PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT);
+			this.showingListInsteadOfGrid = this.agency == null ? showingListInsteadOfGridLastSet : PreferenceUtils.getPrefDefault(getActivity(),
+					PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(this.agency.getAuthority()), showingListInsteadOfGridLastSet);
 		}
 		return this.showingListInsteadOfGrid.booleanValue();
 	}
@@ -157,8 +160,10 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		if (this.showingListInsteadOfGrid == null) {
 			return;
 		}
-		boolean newShowingListInsteadOfGrid = PreferenceUtils.getPrefDefault(getActivity(), PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID,
-				PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT);
+		final boolean showingListInsteadOfGridLastSet = PreferenceUtils.getPrefDefault(getActivity(),
+				PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET, PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT);
+		boolean newShowingListInsteadOfGrid = this.agency == null ? showingListInsteadOfGridLastSet : PreferenceUtils.getPrefDefault(getActivity(),
+				PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(this.agency.getAuthority()), showingListInsteadOfGridLastSet);
 		if (newShowingListInsteadOfGrid != this.showingListInsteadOfGrid.booleanValue()) {
 			setShowingListInsteadOfGrid(newShowingListInsteadOfGrid);
 		}
@@ -169,14 +174,18 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			return; // nothing changed
 		}
 		this.showingListInsteadOfGrid = newShowingListInsteadOfGrid; // switching to grid
-		PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID,
+		PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET,
 				this.showingListInsteadOfGrid.booleanValue(), false);
+		if (this.agency != null) {
+			PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(this.agency.getAuthority()),
+					this.showingListInsteadOfGrid.booleanValue(), false);
+		}
 		initAdapter();
 		this.adapter.seShowingListInsteadOfGrid(this.showingListInsteadOfGrid);
 		setupView(getView());
 		switchView(getView());
 		this.adapter.notifyDataSetChanged();
-		getActivity().invalidateOptionsMenu();
+		updateListGridToggleMenuItem();
 	}
 
 	private void switchListGrid() {
@@ -237,7 +246,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			switchView(getView());
 		}
 		checkIfShowingListInsteadOfGridChanged();
-		getActivity().invalidateOptionsMenu();
+		updateListGridToggleMenuItem();
 	}
 
 	private static final int ROUTES_LOADER = 0;
@@ -353,21 +362,24 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
-		if (!this.fragmentVisible) {
-			return;
+		if (menu.findItem(R.id.menu_toggle_list_grid) == null) {
+			inflater.inflate(R.menu.rts_agency_routes, menu);
+			((MainActivity) getActivity()).addMenuItem(R.id.menu_toggle_list_grid, menu.findItem(R.id.menu_toggle_list_grid));
+			if (!this.fragmentVisible) {
+				menu.findItem(R.id.menu_toggle_list_grid).setVisible(false);
+			}
 		}
-		inflater.inflate(R.menu.rts_agency_routes, menu);
+		updateListGridToggleMenuItem();
 	}
 
-	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
-		super.onPrepareOptionsMenu(menu);
+	private void updateListGridToggleMenuItem() {
 		if (!this.fragmentVisible) {
+		final MenuItem listGridToggleMenuItem = ((MainActivity) getActivity()).getMenuItem(R.id.menu_toggle_list_grid);
+		if (listGridToggleMenuItem == null) {
 			return;
 		}
-		final MenuItem toggle = menu.findItem(R.id.menu_toggle_list_grid);
-		toggle.setIcon(isShowingListInsteadOfGrid() ? R.drawable.ic_action_grid_holo_light : R.drawable.ic_action_list_holo_light);
-		toggle.setTitle(isShowingListInsteadOfGrid() ? R.string.menu_action_grid : R.string.menu_action_list);
+		listGridToggleMenuItem.setIcon(isShowingListInsteadOfGrid() ? R.drawable.ic_action_grid_holo_light : R.drawable.ic_action_list_holo_light);
+		listGridToggleMenuItem.setTitle(isShowingListInsteadOfGrid() ? R.string.menu_action_grid : R.string.menu_action_list);
 	}
 
 	@Override
@@ -479,7 +491,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 					}
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
-					holder.routeShortNameTv.setText(route.shortName.trim());
+					holder.routeShortNameTv.setText(route.shortName);
 					holder.routeShortNameTv.setTextColor(routeTextColor);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}

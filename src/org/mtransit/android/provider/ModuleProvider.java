@@ -24,6 +24,7 @@ import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POI.POIUtils;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.provider.AgencyProvider;
+import org.mtransit.android.commons.provider.ContentProviderConstants;
 import org.mtransit.android.commons.provider.POIDbHelper;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.provider.POIProvider;
@@ -60,12 +61,12 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	private static final String PREF_KEY_LAST_UPDATE_MS = ModuleDbHelper.PREF_KEY_LAST_UPDATE_MS;
 
-	private static final long MODULE_MAX_VALIDITY_IN_MS = 1 * 7 * 24 * 60 * 60 * 1000; // 1 week
-	private static final long MODULE_VALIDITY_IN_MS = 1 * 24 * 60 * 60 * 1000; // 1 day
+	private static final long MODULE_MAX_VALIDITY_IN_MS = TimeUtils.ONE_WEEK_IN_MS;
+	private static final long MODULE_VALIDITY_IN_MS = TimeUtils.ONE_DAY_IN_MS;
 
-	private static final long MODULE_STATUS_MAX_VALIDITY_IN_MS = 10 * 60 * 1000; // 10 minutes
-	private static final long MODULE_STATUS_VALIDITY_IN_MS = 30 * 1000; // 30 seconds
-	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS = 10 * 1000; // 10 seconds
+	private static final long MODULE_STATUS_MAX_VALIDITY_IN_MS = 10 * TimeUtils.ONE_MINUTE_IN_MS;
+	private static final long MODULE_STATUS_VALIDITY_IN_MS = 30 * TimeUtils.ONE_SECOND_IN_MS;
+	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS = 10 * TimeUtils.ONE_SECOND_IN_MS;
 
 	private static ModuleDbHelper dbHelper;
 
@@ -205,13 +206,29 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@Override
-	public Cursor getPOI(POIFilter poiFilter) {
-		return getPOIModules(poiFilter);
+	public Cursor getSearchSuggest(String query) {
+		return ContentProviderConstants.EMPTY_CURSOR; // no search suggest for modules
 	}
 
-	public Cursor getPOIModules(POIFilter poiFilter) {
+	@Override
+	public Map<String, String> getSearchSuggestProjectionMap() {
+		return null; // no search suggest for modules
+	}
+
+	@Override
+	public String getSearchSuggestTable() {
+		return null; // no search suggest for modules
+	}
+
+	@Override
+	public Cursor getPOI(POIFilter poiFilter) {
 		updateModuleDataIfRequired();
 		return getPOIFromDB(poiFilter);
+	}
+
+	@Override
+	public Cursor getPOIFromDB(POIFilter poiFilter) {
+		return POIProvider.getDefaultPOIFromDB(poiFilter, this);
 	}
 
 	public long getMODULE_MAX_VALIDITY_IN_MS() {
@@ -303,11 +320,6 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			}
 		}
 		return affectedRows;
-	}
-
-	@Override
-	public Cursor getPOIFromDB(POIFilter poiFilter) {
-		return POIProvider.getPOIFromDB(poiFilter, this);
 	}
 
 	@Override

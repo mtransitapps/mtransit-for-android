@@ -10,6 +10,7 @@ import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.data.AgencyProperties;
+import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.StatusLoader;
@@ -80,7 +81,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		final String authority = BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, getArguments());
 		final String uuid = BundleUtils.getString(EXTRA_POI_UUID, savedInstanceState, getArguments());
 		if (!TextUtils.isEmpty(authority) && !TextUtils.isEmpty(uuid)) {
-			final POIManager poim = DataSourceProvider.findPOIWithUUID(getActivity(), UriUtils.newContentUri(authority), uuid);
+			final POIManager poim = DataSourceManager.findPOIWithUUID(getActivity(), UriUtils.newContentUri(authority), uuid);
 			if (poim != null && poim.poi instanceof RouteTripStop) {
 				this.rts = (RouteTripStop) poim.poi;
 			}
@@ -186,12 +187,11 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public void onModulesUpdated() {
 		if (this.rts != null) {
-			final POIManager newPoim = DataSourceProvider.findPOIWithUUID(getActivity(), UriUtils.newContentUri(this.rts.getAuthority()), this.rts.getUUID());
+			final POIManager newPoim = DataSourceManager.findPOIWithUUID(getActivity(), UriUtils.newContentUri(this.rts.getAuthority()), this.rts.getUUID());
 			if (newPoim == null) {
 				((MainActivity) getActivity()).popFragmentFromStack(this); // close this fragment
 				return;
-			}
-			if (!this.rts.equals(newPoim.poi)) {
+			} else if (!this.rts.equals(newPoim.poi)) {
 				this.rts = (RouteTripStop) newPoim.poi;
 				setupView(getView());
 			}

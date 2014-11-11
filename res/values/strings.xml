@@ -4,8 +4,13 @@
     <string name="home">Home</string>
     <string name="favorites">Favorites</string>
     <string name="nearby">Nearby</string>
+    <string name="action_search">Search</string>
+    <string name="search_hint">Search MT</string>
+    <string name="search_no_result_for_and_query">No results for %s</string>
+    <string name="search_settings_description">Search transit information from MT</string>
     <string name="all">All</string>
     <string name="browse">Browse</string>
+    <string name="more">More</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="agency_type_subway_short_name">Subway</string>

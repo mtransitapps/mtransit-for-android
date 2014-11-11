@@ -72,6 +72,17 @@ public class FavoriteManager implements MTLog.Loggable {
 		return cache;
 	}
 
+	public static Set<String> findFavoriteUUIDs(Context context, Integer... types) {
+		Set<String> favoriteUUIDs = new HashSet<String>();
+		final List<Favorite> favorites = FavoriteManager.findFavorites(context, types);
+		if (favorites != null) {
+			for (Favorite favorite : favorites) {
+				favoriteUUIDs.add(favorite.getFkId());
+			}
+		}
+		return favoriteUUIDs;
+	}
+
 	public static List<Favorite> findFavorites(Context context, Integer... types) {
 		List<Favorite> result = new ArrayList<Favorite>();
 		Cursor cursor = null;

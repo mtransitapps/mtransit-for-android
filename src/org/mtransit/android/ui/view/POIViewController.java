@@ -240,7 +240,7 @@ public class POIViewController implements MTLog.Loggable {
 					}
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
-					holder.routeShortNameTv.setText(rts.route.shortName.trim());
+					holder.routeShortNameTv.setText(rts.route.shortName);
 					holder.routeShortNameTv.setTextColor(routeTextColor);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
@@ -387,7 +387,7 @@ public class POIViewController implements MTLog.Loggable {
 		if (dataProvider != null && status != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
 			final int count = 20; // needs enough to check if service is frequent (every 5 minutes or less for at least 30 minutes)
-			List<Pair<CharSequence, CharSequence>> lines = schedule.getNextTimesStrings(context, dataProvider.getNowToTheMinute(), count);
+			List<Pair<CharSequence, CharSequence>> lines = schedule.getNextTimesStrings(context, dataProvider.getNowToTheMinute(), null, count);
 			if (lines != null && lines.size() >= 1) {
 				line1CS = lines.get(0).first;
 				line2CS = lines.get(0).second;

@@ -12,19 +12,24 @@ public enum DataSourceType {
 
 	TYPE_SUBWAY(1, // GTFS - Metro
 			R.string.agency_type_subway_short_name, R.string.agency_type_subway_stations_short_name, //
-			R.drawable.ic_menu_subway, R.drawable.ic_menu_subway_holo_light), //
+			R.drawable.ic_menu_subway, R.drawable.ic_menu_subway_holo_light, //
+			true), //
 	TYPE_RAIL(2, // GTFS - Train
 			R.string.agency_type_rail_short_name, R.string.agency_type_rail_stations_short_name, //
-			R.drawable.ic_menu_train, R.drawable.ic_menu_train_holo_light), //
+			R.drawable.ic_menu_train, R.drawable.ic_menu_train_holo_light, //
+			true), //
 	TYPE_BUS(3, // GTFS - Bus
 			R.string.agency_type_bus_short_name, R.string.agency_type_bus_stops_short_name, //
-			R.drawable.ic_menu_bus, R.drawable.ic_menu_bus_holo_light), //
+			R.drawable.ic_menu_bus, R.drawable.ic_menu_bus_holo_light, //
+			true), //
 	TYPE_BIKE(100, // like Bixi, Velib
 			R.string.agency_type_bike_short_name, R.string.agency_type_bike_stations_short_name, //
-			R.drawable.ic_menu_bike, R.drawable.ic_menu_bike_holo_light), //
+			R.drawable.ic_menu_bike, R.drawable.ic_menu_bike_holo_light, //
+			true), //
 	TYPE_MODULE(999, //
 			R.string.agency_type_module_short_name, R.string.agency_type_module_app_short_name, //
-			R.drawable.ic_menu_play_store, R.drawable.ic_menu_play_store_holo_light), //
+			R.drawable.ic_menu_play_store, R.drawable.ic_menu_play_store_holo_light, //
+			false), //
 	;
 
 	private static final String TAG = DataSourceType.class.getSimpleName();
@@ -38,12 +43,15 @@ public enum DataSourceType {
 
 	private int abIconResId;
 
-	DataSourceType(int id, int shortNameResId, int poiShortNameResId, int menuResId, int abIconResId) {
+	private boolean searchable;
+
+	DataSourceType(int id, int shortNameResId, int poiShortNameResId, int menuResId, int abIconResId, boolean searchable) {
 		this.id = id;
 		this.shortNameResId = shortNameResId;
 		this.poiShortNameResId = poiShortNameResId;
 		this.menuResId = menuResId;
 		this.abIconResId = abIconResId;
+		this.searchable = searchable;
 	}
 
 	public int getId() {
@@ -64,6 +72,10 @@ public enum DataSourceType {
 
 	public int getAbIconResId() {
 		return abIconResId;
+	}
+
+	public boolean isSearchable() {
+		return searchable;
 	}
 
 	public static DataSourceType parseId(int id) {

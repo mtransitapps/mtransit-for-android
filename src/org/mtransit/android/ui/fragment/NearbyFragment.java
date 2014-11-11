@@ -35,7 +35,7 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 
 public class NearbyFragment extends ABFragment implements ViewPager.OnPageChangeListener, MTActivityWithLocation.UserLocationListener,
-		SwipeRefreshLayout.OnRefreshListener, DataSourceProvider.ModulesUpdateListener {
+		SwipeRefreshLayout.OnRefreshListener {
 
 	private static final String TAG = NearbyFragment.class.getSimpleName();
 
@@ -188,9 +188,9 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				boolean refreshRequired = result != null && !result.equals(NearbyFragment.this.nearbyLocationAddress);
 				NearbyFragment.this.nearbyLocationAddress = result;
 				if (refreshRequired) {
-					final FragmentActivity activity = getActivity();
+					final FragmentActivity activity = NearbyFragment.this.getActivity();
 					if (activity != null) {
-						((MainActivity) getActivity()).setABSubtitle(getABSubtitle(getActivity()), true);
+						((MainActivity) activity).setABSubtitle(NearbyFragment.this, getABSubtitle(activity), true);
 					}
 				}
 			}
@@ -305,7 +305,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			if (locationChanged) {
 				final boolean requireNotifyAB = setUserAwayFromLocation();
 				if (requireNotifyAB) {
-					((MainActivity) getActivity()).setABIcon(getABIconDrawableResId(), true);
+					((MainActivity) getActivity()).setABIcon(this, getABIconDrawableResId(), true);
 				}
 			}
 		}
@@ -347,7 +347,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 		setSwipeRefreshLayoutRefreshing(false);
 		this.nearbyLocationAddress = null;
-		((MainActivity) getActivity()).setABIcon(getABIconDrawableResId(), true);
+		((MainActivity) getActivity()).setABIcon(this, getABIconDrawableResId(), true);
 		findNearbyLocation();
 	}
 

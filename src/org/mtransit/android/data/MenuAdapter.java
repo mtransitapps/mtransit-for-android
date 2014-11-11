@@ -6,7 +6,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ui.widget.MTBaseAdapter;
-import org.mtransit.android.data.DataSourceProvider.ModulesUpdateListener;
+import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 import org.mtransit.android.ui.fragment.FavoritesFragment;
@@ -22,7 +22,7 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-public class MenuAdapter extends MTBaseAdapter implements ListAdapter, ModulesUpdateListener {
+public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourceProvider.ModulesUpdateListener {
 
 	private static final String TAG = MenuAdapter.class.getSimpleName();
 

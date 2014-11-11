@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item
-        android:id="@+id/add_remove_favorite"
+        android:id="@+id/menu_add_remove_favorite"
         android:icon="@drawable/btn_star_off_normal_holo_light"
         android:showAsAction="always"
         android:title="@string/menu_action_add_favorite"

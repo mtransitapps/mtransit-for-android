@@ -8,7 +8,7 @@ import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.task.MTAsyncTaskLoaderV4;
 import org.mtransit.android.data.AgencyProperties;
-import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.data.DataSourceManager;
 
 import android.content.Context;
 import android.net.Uri;
@@ -37,7 +37,7 @@ public class RTSAgencyRoutesLoader extends MTAsyncTaskLoaderV4<List<Route>> {
 		}
 		this.routes = new ArrayList<Route>();
 		final Uri contentUri = UriUtils.newContentUri(this.agency.getAuthority());
-		this.routes = DataSourceProvider.findAllRTSAgencyRoutes(getContext(), contentUri);
+		this.routes = DataSourceManager.findAllRTSAgencyRoutes(getContext(), contentUri);
 		CollectionUtils.sort(this.routes, Route.SHORT_NAME_COMPATOR);
 		return routes;
 	}

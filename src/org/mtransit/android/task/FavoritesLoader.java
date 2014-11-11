@@ -10,7 +10,7 @@ import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.task.MTAsyncTaskLoaderV4;
-import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.Favorite;
 import org.mtransit.android.data.POIManager;
@@ -47,7 +47,7 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 				final HashSet<String> authorityUUIDs = authorityToUUIDs.get(authority);
 				if (authorityUUIDs != null && authorityUUIDs.size() > 0) {
 					final Uri contentUri = UriUtils.newContentUri(authority);
-					final List<POIManager> agencyPOIs = DataSourceProvider.findPOIsWithUUIDs(getContext(), contentUri, authorityUUIDs);
+					final List<POIManager> agencyPOIs = DataSourceManager.findPOIsWithUUIDs(getContext(), contentUri, authorityUUIDs);
 					if (agencyPOIs != null) {
 						Collections.sort(agencyPOIs, POIManager.POI_ALPHA_COMPATOR);
 						this.pois.addAll(agencyPOIs);
