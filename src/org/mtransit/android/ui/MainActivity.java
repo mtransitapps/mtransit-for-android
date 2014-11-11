@@ -369,6 +369,8 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		mThemeDarkInsteadOfThemeLight = themeDarkInsteadOfThemeLight;
 		mDisplayHomeAsUpEnabled = displayHomeAsUpEnabled;
 		mShowSearchMenuItem = showSearchMenuItem;
+	}
+
 	private boolean isCurrentFragmentVisible(Fragment fragment) {
 		if (fragment == null) {
 			return false;
@@ -462,10 +464,6 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 
 	@Override
 	public void onBackStackChanged() {
-		// MTLog.d(this, "onBackStackChanged() > getSupportFragmentManager().getBackStackEntryCount(): %s",
-		// getSupportFragmentManager().getBackStackEntryCount());
-		// MTLog.d(this, "onBackStackChanged() > this.currentSelectedItemPosition: %s", this.currentSelectedItemPosition);
-		// this.mDrawerToggle.setDrawerIndicatorEnabled(isDrawerOpen() ? true : getSupportFragmentManager().getBackStackEntryCount() < 1);
 		this.backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
 		setAB();
 		updateAB(); // up/drawer icon
