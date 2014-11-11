@@ -4,13 +4,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
-import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.StringUtils;
@@ -33,6 +30,7 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -368,7 +366,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private int timesCount = 0;
 
-		private Map<Integer, List<Schedule.Timestamp>> hourToTimes = new HashMap<Integer, List<Schedule.Timestamp>>();
+		private SparseArray<List<Schedule.Timestamp>> hourToTimes = new SparseArray<List<Schedule.Timestamp>>();
 
 		private List<Date> hours = new ArrayList<Date>();
 
@@ -401,17 +399,17 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		private void initHours() {
 			this.hours.clear();
 			this.hourToTimes.clear();
-			for (int i = 0; i < HOUR_SEPARATORS_COUNT; i++) {
+			for (int hourOfTheDay = 0; hourOfTheDay < HOUR_SEPARATORS_COUNT; hourOfTheDay++) {
 				Calendar cal = (Calendar) dayStartsAt.clone();
-				cal.set(Calendar.HOUR_OF_DAY, i);
+				cal.set(Calendar.HOUR_OF_DAY, hourOfTheDay);
 				this.hours.add(cal.getTime());
-				this.hourToTimes.put(i, new ArrayList<Schedule.Timestamp>());
+				this.hourToTimes.put(hourOfTheDay, new ArrayList<Schedule.Timestamp>());
 			}
 		}
 
 		public void clearTimes() {
-			for (List<Schedule.Timestamp> times : this.hourToTimes.values()) {
-				times.clear();
+			for (int hourOfTheDay = 0; hourOfTheDay < HOUR_SEPARATORS_COUNT; hourOfTheDay++) {
+				this.hourToTimes.get(hourOfTheDay).clear();
 			}
 			this.timesCount = 0;
 			this.nextTimeInMs = null;
