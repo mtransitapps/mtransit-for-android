@@ -1,6 +1,7 @@
 package org.mtransit.android.provider;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.mtransit.android.R;
@@ -72,8 +73,8 @@ public class FavoriteManager implements MTLog.Loggable {
 		return cache;
 	}
 
-	public static Set<String> findFavoriteUUIDs(Context context, Integer... types) {
-		Set<String> favoriteUUIDs = new HashSet<String>();
+	public static HashSet<String> findFavoriteUUIDs(Context context, Integer... types) {
+		HashSet<String> favoriteUUIDs = new HashSet<String>();
 		final List<Favorite> favorites = FavoriteManager.findFavorites(context, types);
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {
