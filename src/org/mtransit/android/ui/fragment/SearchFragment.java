@@ -7,6 +7,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.KeyboardUtils;
 import org.mtransit.android.commons.LocationUtils;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
