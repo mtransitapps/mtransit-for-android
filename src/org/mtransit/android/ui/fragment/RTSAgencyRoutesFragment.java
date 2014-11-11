@@ -374,6 +374,8 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 
 	private void updateListGridToggleMenuItem() {
 		if (!this.fragmentVisible) {
+			return;
+		}
 		final MenuItem listGridToggleMenuItem = ((MainActivity) getActivity()).getMenuItem(R.id.menu_toggle_list_grid);
 		if (listGridToggleMenuItem == null) {
 			return;
