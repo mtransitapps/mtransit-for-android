@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.mtransit.android.R;
@@ -13,6 +14,7 @@ import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
+import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
@@ -108,7 +110,8 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		final String authority = BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, getArguments());
 		final String uuid = BundleUtils.getString(EXTRA_POI_UUID, savedInstanceState, getArguments());
 		if (!TextUtils.isEmpty(authority) && !TextUtils.isEmpty(uuid)) {
-			this.poim = DataSourceManager.findPOIWithUUID(getActivity(), UriUtils.newContentUri(authority), uuid);
+			final POIFilter poiFilter = new POIFilter(Arrays.asList(new String[] { uuid }));
+			this.poim = DataSourceManager.findPOI(getActivity(), UriUtils.newContentUri(authority), poiFilter);
 			this.poim.setScheduleMaxDataRequests(Schedule.ScheduleStatusFilter.DATA_REQUEST_MONTH);
 			this.agency = DataSourceProvider.get().getAgency(getActivity(), authority);
 			setupView(getView());
@@ -250,8 +253,8 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	public void onModulesUpdated() {
 		final FragmentActivity activity = getActivity();
 		if (this.poim != null && activity != null) {
-			final POIManager newPoim = DataSourceManager.findPOIWithUUID(activity, UriUtils.newContentUri(this.poim.poi.getAuthority()),
-					this.poim.poi.getUUID());
+			final POIFilter poiFilter = new POIFilter(Arrays.asList(new String[] { this.poim.poi.getUUID() }));
+			final POIManager newPoim = DataSourceManager.findPOI(activity, UriUtils.newContentUri(this.poim.poi.getAuthority()), poiFilter);
 			if (newPoim == null) {
 				((MainActivity) activity).popFragmentFromStack(this); // close this fragment
 				return;

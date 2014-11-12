@@ -15,6 +15,7 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.UriUtils;
+import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.task.MTAsyncTaskLoaderV4;
 import org.mtransit.android.commons.task.MTCallable;
 import org.mtransit.android.data.AgencyProperties;
@@ -292,7 +293,9 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 			if (TextUtils.isEmpty(this.query)) {
 				return null;
 			}
-			return DataSourceManager.findPOIWithSearchList(this.context, UriUtils.newContentUri(this.agency.getAuthority()), this.query, true);
+			POIFilter poiFilter = new POIFilter(new String[] { this.query });
+			poiFilter.addExtra("decentOnly", true);
+			return DataSourceManager.findPOIs(this.context, UriUtils.newContentUri(this.agency.getAuthority()), poiFilter);
 		}
 
 	}

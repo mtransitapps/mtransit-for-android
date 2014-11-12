@@ -7,13 +7,11 @@ import java.util.Set;
 
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
-import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ScheduleTimestamps;
 import org.mtransit.android.commons.data.ScheduleTimestampsFilter;
@@ -44,59 +42,69 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	public static ScheduleTimestamps findScheduleTimestamps(Context context, Uri contentUri, ScheduleTimestampsFilter scheduleTimestampsFilter) {
-		ScheduleTimestamps result = null;
 		Cursor cursor = null;
 		try {
 			String scheduleTimestampsFilterFilterJSONString = scheduleTimestampsFilter == null ? null : scheduleTimestampsFilter.toJSONString();
 			Uri uri = Uri.withAppendedPath(contentUri, ScheduleTimestampsProvider.SCHEDULE_TIMESTAMPS_CONTENT_DIRECTORY);
 			cursor = context.getContentResolver().query(uri, null, scheduleTimestampsFilterFilterJSONString, null, null);
-			if (cursor != null && cursor.getCount() > 0) {
-				if (cursor.moveToFirst()) {
-					result = ScheduleTimestamps.fromCursor(cursor);
-				}
-			}
+			return getScheduleTimestamp(cursor);
 		} catch (Throwable t) {
 			MTLog.w(TAG, t, "Error!");
+			return null;
 		} finally {
 			if (cursor != null) {
 				cursor.close();
+			}
+		}
+	}
+
+	private static ScheduleTimestamps getScheduleTimestamp(Cursor cursor) {
+		ScheduleTimestamps result = null;
+		if (cursor != null && cursor.getCount() > 0) {
+			if (cursor.moveToFirst()) {
+				result = ScheduleTimestamps.fromCursor(cursor);
 			}
 		}
 		return result;
 	}
 
 	public static POIStatus findStatus(Context context, Uri contentUri, StatusFilter statusFilter) {
-		POIStatus result = null;
 		Cursor cursor = null;
 		try {
 			String statusFilterJSONString = statusFilter == null ? null : statusFilter.toJSONStringStatic(statusFilter);
 			Uri uri = Uri.withAppendedPath(contentUri, StatusProvider.STATUS_CONTENT_DIRECTORY);
 			cursor = context.getContentResolver().query(uri, null, statusFilterJSONString, null, null);
-			if (cursor != null && cursor.getCount() > 0) {
-				if (cursor.moveToFirst()) {
-					int status = POIStatus.getTypeFromCursor(cursor);
-					switch (status) {
-					case POI.ITEM_STATUS_TYPE_SCHEDULE:
-						result = Schedule.fromCursor(cursor);
-						break;
-					case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-						result = AvailabilityPercent.fromCursor(cursor);
-						break;
-					case POI.ITEM_STATUS_TYPE_APP:
-						result = AppStatus.fromCursor(cursor);
-						break;
-					default:
-						MTLog.w(TAG, "findStatus() > Unexpected status '%s'!", status);
-						result = null;
-						break;
-					}
-				}
-			}
+			return getPOIStatus(cursor);
 		} catch (Throwable t) {
 			MTLog.w(TAG, t, "Error!");
+			return null;
 		} finally {
 			if (cursor != null) {
 				cursor.close();
+			}
+		}
+	}
+
+	private static POIStatus getPOIStatus(Cursor cursor) {
+		POIStatus result = null;
+		if (cursor != null && cursor.getCount() > 0) {
+			if (cursor.moveToFirst()) {
+				int status = POIStatus.getTypeFromCursor(cursor);
+				switch (status) {
+				case POI.ITEM_STATUS_TYPE_SCHEDULE:
+					result = Schedule.fromCursor(cursor);
+					break;
+				case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
+					result = AvailabilityPercent.fromCursor(cursor);
+					break;
+				case POI.ITEM_STATUS_TYPE_APP:
+					result = AppStatus.fromCursor(cursor);
+					break;
+				default:
+					MTLog.w(TAG, "findStatus() > Unexpected status '%s'!", status);
+					result = null;
+					break;
+				}
 			}
 		}
 		return result;
@@ -317,130 +325,14 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static List<POIManager> findRTSTripPOIs(Context context, Uri contentUri, int tripId) {
-		Cursor cursor = null;
-		try {
-			final String sortOrder = GTFSRouteTripStopProvider.RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE + " ASC";
-			final Uri uri = getPOIUri(contentUri);
-			final String selection = GTFSRouteTripStopProvider.RouteTripStopColumns.T_TRIP_K_ID + "=" + tripId;
-			POIFilter poiFilter = new POIFilter(selection);
-			String filterJsonString = POIFilter.toJSON(poiFilter).toString();
-			cursor = context.getContentResolver().query(uri, GTFSRouteTripStopProvider.PROJECTION_RTS_POI, filterJsonString, null, sortOrder);
-			return getRTSPOIs(cursor, contentUri.getAuthority());
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
-			return null;
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
+	public static POIManager findPOI(Context context, Uri contentUri, POIFilter poiFilter) {
+		final List<POIManager> pois = findPOIs(context, contentUri, poiFilter);
+		return pois == null || pois.size() == 0 ? null : pois.get(0);
 	}
 
-	private static List<POIManager> getRTSPOIs(Cursor cursor, String authority) {
-		List<POIManager> result = new ArrayList<POIManager>();
-		if (cursor != null && cursor.getCount() > 0) {
-			if (cursor.moveToFirst()) {
-				do {
-					final RouteTripStop rts = RouteTripStop.fromCursorStatic(cursor, authority);
-					final POIManager fromCursor = new POIManager(rts);
-					result.add(fromCursor);
-				} while (cursor.moveToNext());
-			}
-		}
-		return result;
-	}
-
-	public static POIManager findPOIWithUUID(Context context, Uri contentUri, String uuid) {
+	public static List<POIManager> findPOIs(Context context, Uri contentUri, POIFilter poiFilter) {
 		Cursor cursor = null;
 		try {
-			POIFilter poiFilter = new POIFilter(POIProvider.POIColumns.T_POI_K_UUID_META + " = '" + uuid + "'");
-			String filterJsonString = POIFilter.toJSON(poiFilter).toString();
-			final String sortOrder = null;
-			final Uri uri = getPOIUri(contentUri);
-			cursor = context.getContentResolver().query(uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, sortOrder);
-			final List<POIManager> pois = getPOIs(cursor, contentUri.getAuthority());
-			if (pois != null && pois.size() > 0) {
-				return pois.get(0);
-			}
-			return null;
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
-			return null;
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
-	}
-
-	public static List<POIManager> findPOIsWithUUIDs(Context context, Uri contentUri, Set<String> uuids) {
-		Cursor cursor = null;
-		try {
-			POIFilter poiFilter = new POIFilter(uuids);
-			String filterJsonString = POIFilter.toJSON(poiFilter).toString();
-			final String sortOrder = null;
-			final Uri uri = getPOIUri(contentUri);
-			cursor = context.getContentResolver().query(uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, sortOrder);
-			return getPOIs(cursor, contentUri.getAuthority());
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
-			return null;
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
-	}
-
-	public static List<POIManager> findPOIWithSearchList(Context context, Uri contentUri, String query, boolean hideDecentOnly) {
-		Cursor cursor = null;
-		try {
-			POIFilter poiFilter = new POIFilter(new String[] { query });
-			if (hideDecentOnly) {
-				poiFilter.addExtra("decentOnly", true);
-			}
-			String filterJsonString = POIFilter.toJSON(poiFilter).toString();
-			final String sortOrder = null;
-			final Uri uri = getPOIUri(contentUri);
-			cursor = context.getContentResolver().query(uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, sortOrder);
-			return getPOIs(cursor, contentUri.getAuthority());
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
-			return null;
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
-	}
-
-	public static List<POIManager> findAllAgencyPOIs(Context context, Uri contentUri) {
-		Cursor cursor = null;
-		try {
-			POIFilter poiFilter = new POIFilter(StringUtils.EMPTY);
-			String filterJsonString = POIFilter.toJSON(poiFilter).toString();
-			final String sortOrder = null;
-			final Uri uri = getPOIUri(contentUri);
-			cursor = context.getContentResolver().query(uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, sortOrder);
-			return getPOIs(cursor, contentUri.getAuthority());
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
-			return null;
-		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
-		}
-	}
-
-	public static List<POIManager> findPOIsWithLatLngList(Context context, Uri contentUri, double lat, double lng, double aroundDiff, boolean hideDecentOnly) {
-		Cursor cursor = null;
-		try {
-			POIFilter poiFilter = new POIFilter(lat, lng, aroundDiff);
-			if (hideDecentOnly) {
-				poiFilter.addExtra("decentOnly", true);
-			}
 			String filterJsonString = POIFilter.toJSON(poiFilter).toString();
 			final String sortOrder = null;
 			final Uri uri = getPOIUri(contentUri);
@@ -461,8 +353,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
-					POIManager fromCursor = POIManager.fromCursorStatic(cursor, authority);
-					result.add(fromCursor);
+					result.add(POIManager.fromCursorStatic(cursor, authority));
 				} while (cursor.moveToNext());
 			}
 		}

@@ -147,7 +147,7 @@ public class StatusLoader implements MTLog.Loggable {
 				return null;
 			}
 			final Uri uri = DataSourceProvider.get().getUri(this.statusProvider.getAuthority());
-			final POIStatus status = DataSourceManager.findStatus(context, uri, /* poim.poi, */this.statusFilter);
+			final POIStatus status = DataSourceManager.findStatus(context, uri, this.statusFilter);
 			return status;
 		}
 

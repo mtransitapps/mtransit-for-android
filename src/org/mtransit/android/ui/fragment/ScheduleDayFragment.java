@@ -2,6 +2,7 @@ package org.mtransit.android.ui.fragment;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
+import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.commons.ui.widget.MTBaseAdapter;
 import org.mtransit.android.data.DataSourceManager;
@@ -110,7 +112,8 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		final String authority = BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, getArguments());
 		final String uuid = BundleUtils.getString(EXTRA_POI_UUID, savedInstanceState, getArguments());
 		if (!TextUtils.isEmpty(authority) && !TextUtils.isEmpty(uuid)) {
-			final POIManager poim = DataSourceManager.findPOIWithUUID(getActivity(), UriUtils.newContentUri(authority), uuid);
+			final POIFilter poiFilter = new POIFilter(Arrays.asList(new String[] { uuid }));
+			final POIManager poim = DataSourceManager.findPOI(getActivity(), UriUtils.newContentUri(authority), poiFilter);
 			if (poim != null && poim.poi instanceof RouteTripStop) {
 				this.rts = (RouteTripStop) poim.poi;
 			}
