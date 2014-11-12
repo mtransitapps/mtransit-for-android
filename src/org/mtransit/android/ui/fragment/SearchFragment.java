@@ -98,6 +98,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	@Override
 	public void onTypeHeaderButtonClick(int buttonId, DataSourceType type) {
 		if (buttonId == POIArrayAdapter.TypeHeaderButtonsClickListener.BUTTON_MORE) {
+			KeyboardUtils.hideKeyboard(getActivity(), getView());
 			setTypeFilter(TypeFilter.fromDataSourceType(type));
 			return;
 		}
