@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- FROM @android:color/background_holo_light (API Level 19) -->
+    <color name="platform_background_holo_light">#FFF3F3F3</color>
+    <!-- FROM @android:drawable/background_holo_light (API Level 19) -->
+    <color name="platform_background_holo_light_gradient_start_color">#FFE8E8E8</color>
+    <color name="platform_background_holo_light_gradient_end_color">#FFFFFFFF</color>
+    <!-- FROM @android:drawable/list_divider_holo_light (API Level 19) -->
+    <color name="platform_list_divider_holo_light">#1A000000</color>
+</resources>
