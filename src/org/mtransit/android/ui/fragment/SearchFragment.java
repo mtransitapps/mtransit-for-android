@@ -186,6 +186,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 				getSearchView().requestFocusFromTouch();
 			}
 		}
+		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getLastLocation());
 	}
 
 	@Override
