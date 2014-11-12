@@ -207,7 +207,6 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	public void onLoaderReset(Loader<List<POIManager>> loader) {
 		if (this.adapter != null) {
 			this.adapter.clear();
-			this.adapter.onPause();
 		}
 	}
 

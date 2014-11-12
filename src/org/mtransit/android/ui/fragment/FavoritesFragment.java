@@ -88,7 +88,6 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public void onLoaderReset(Loader<List<POIManager>> loader) {
 		if (this.adapter != null) {
 			this.adapter.clear();
-			this.adapter.onPause();
 		}
 	}
 

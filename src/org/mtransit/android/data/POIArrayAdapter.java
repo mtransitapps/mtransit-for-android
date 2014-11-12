@@ -536,12 +536,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	@Override
-	public void onScrollStateChanged(AbsListView view, int scrollState) {
-		setScrollState(scrollState);
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 	}
 
 	@Override
-	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
+		setScrollState(scrollState);
 	}
 
 	public void setScrollState(int scrollState) {

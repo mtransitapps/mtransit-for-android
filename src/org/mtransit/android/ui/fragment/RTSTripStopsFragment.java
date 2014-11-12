@@ -229,7 +229,6 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	public void onLoaderReset(Loader<List<POIManager>> loader) {
 		if (this.adapter != null) {
 			this.adapter.clear();
-			this.adapter.onPause();
 		}
 	}
 

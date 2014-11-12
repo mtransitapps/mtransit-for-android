@@ -222,7 +222,6 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	public void onLoaderReset(Loader<List<POIManager>> loader) {
 		if (this.adapter != null) {
 			this.adapter.clear();
-			this.adapter.onPause();
 		}
 	}
 
