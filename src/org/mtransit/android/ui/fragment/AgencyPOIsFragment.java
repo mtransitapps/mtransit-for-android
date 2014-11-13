@@ -91,7 +91,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	private void restoreInstanceState(Bundle savedInstanceState) {
 		final String agencyAuthority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, savedInstanceState, getArguments());
 		if (!TextUtils.isEmpty(agencyAuthority)) {
-			this.agency = DataSourceProvider.get().getAgency(getActivity(), agencyAuthority);
+			this.agency = DataSourceProvider.get(getActivity()).getAgency(agencyAuthority);
 		}
 		final Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, savedInstanceState, getArguments());
 		if (fragmentPosition != null) {

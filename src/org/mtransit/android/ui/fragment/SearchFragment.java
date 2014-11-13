@@ -516,7 +516,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		private void init() {
 			List<TypeFilter> typeFilters = new ArrayList<TypeFilter>();
 			typeFilters.add(TypeFilter.ALL);
-			final List<DataSourceType> availableTypes = DataSourceProvider.get().getAvailableAgencyTypes(getContext());
+			final List<DataSourceType> availableTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
 			if (availableTypes != null) {
 				for (DataSourceType dst : availableTypes) {
 					if (dst.isSearchable()) {

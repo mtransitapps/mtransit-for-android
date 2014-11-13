@@ -27,13 +27,13 @@ public final class AdsUtils implements MTLog.Loggable {
 		return TAG;
 	}
 
+	public static boolean AD_ENABLED = true;
+
 	private static boolean DEBUG = false;
 
 	private static Boolean showingAds = null;
 
 	private static Boolean generousUser = null;
-
-	public static boolean AD_ENABLED = true;
 
 	private static final Set<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] { "transit", "transport", "bus", "subway", "metro", "taxi",
 			"bike", "sharing", "velo", "train" }));

@@ -45,7 +45,7 @@ public class ScheduleTimestampsLoader extends MTAsyncTaskLoaderV4<List<Schedule.
 		this.timestamps = new ArrayList<Schedule.Timestamp>();
 		long endsAtInMs = this.startsAtInMs + TimeUtils.ONE_DAY_IN_MS;
 		ScheduleTimestampsFilter scheduleFilter = new ScheduleTimestampsFilter(this.rts, this.startsAtInMs, endsAtInMs);
-		Collection<ScheduleProviderProperties> scheduleProviders = DataSourceProvider.get().getTargetAuthorityScheduleProviders(getContext(),
+		Collection<ScheduleProviderProperties> scheduleProviders = DataSourceProvider.get(getContext()).getTargetAuthorityScheduleProviders(
 				this.rts.getAuthority());
 		if (scheduleProviders != null) {
 			for (ScheduleProviderProperties scheduleProvider : scheduleProviders) {

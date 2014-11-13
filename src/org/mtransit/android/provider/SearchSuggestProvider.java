@@ -90,7 +90,7 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 		Set<String> recentSearchSuggestions = DataSourceManager.getSearchSuggest(recentSearchCursor);
 		Set<String> suggestions = new HashSet<String>();
 		if (!TextUtils.isEmpty(query)) {
-			List<AgencyProperties> agencies = DataSourceProvider.get().getAllAgencies(getContext());
+			List<AgencyProperties> agencies = DataSourceProvider.get(getContext()).getAllAgencies();
 			List<Future<Set<String>>> taskList = new ArrayList<Future<Set<String>>>();
 			for (AgencyProperties agency : agencies) {
 				final FindSearchSuggestTask task = new FindSearchSuggestTask(getContext(), agency, query);

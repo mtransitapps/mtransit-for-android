@@ -53,7 +53,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		}
 		this.pois = new ArrayList<POIManager>();
 		Set<String> favoriteUUIDs = FavoriteManager.findFavoriteUUIDs(getContext());
-		final List<DataSourceType> availableAgencyTypes = DataSourceProvider.get().getAvailableAgencyTypes(getContext());
+		final List<DataSourceType> availableAgencyTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
 		if (availableAgencyTypes != null) {
 			for (DataSourceType type : availableAgencyTypes) {
 				List<POIManager> typePOIs = findNearby(getContext(), type, this.lat, this.lng);
@@ -104,7 +104,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		LocationUtils.AroundDiff typeAd = LocationUtils.getNewDefaultAroundDiff();
 		int typeMaxSize = LocationUtils.MIN_NEARBY_LIST_COVERAGE;
 		int typeMinCoverage = LocationUtils.MAX_NEARBY_LIST;
-		Collection<AgencyProperties> typeAgencies = DataSourceProvider.get().getTypeDataSources(context, type.getId());
+		Collection<AgencyProperties> typeAgencies = DataSourceProvider.get(context).getTypeDataSources(type.getId());
 		while (CollectionUtils.getSize(typePOIs) < NB_MAX_BY_TYPE && typeAd.aroundDiff < LocationUtils.MAX_AROUND_DIFF) {
 			typePOIs = findNearby(context, typeLat, typeLng, typeAd, typeMaxSize, typeMinCoverage, typeAgencies);
 			LocationUtils.incAroundDiff(typeAd);
@@ -123,8 +123,8 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 				new LinkedBlockingDeque<Runnable>(typeAgenciesAuthorities.size()));
 		List<Future<List<POIManager>>> taskList = new ArrayList<Future<List<POIManager>>>();
 		for (String agencyAuthority : typeAgenciesAuthorities) {
-			final FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(context, DataSourceProvider.get().getUri(agencyAuthority), typeLat, typeLng,
-					typeAd.aroundDiff, true, typeMinCoverage, typeMaxSize);
+			final FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(context, DataSourceProvider.get(context).getUri(agencyAuthority), typeLat,
+					typeLng, typeAd.aroundDiff, true, typeMinCoverage, typeMaxSize);
 			taskList.add(executor.submit(task));
 		}
 		for (Future<List<POIManager>> future : taskList) {

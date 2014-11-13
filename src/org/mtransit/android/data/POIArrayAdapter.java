@@ -409,7 +409,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (pois != null) {
 			this.poisByType = new LinkedHashMap<Integer, List<POIManager>>();
 			for (POIManager poim : pois) {
-				final AgencyProperties agency = DataSourceProvider.get().getAgency(getContext(), poim.poi.getAuthority());
+				final AgencyProperties agency = DataSourceProvider.get(getContext()).getAgency(poim.poi.getAuthority());
 				if (agency != null) {
 					final Integer typeId = agency.getType().getId();
 					if (!this.poisByType.containsKey(typeId)) {
@@ -1162,7 +1162,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				final int routeColor = ColorUtils.parseColor(rts.route.color);
 				if (TextUtils.isEmpty(rts.route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
-					final JPaths rtsRouteLogo = DataSourceProvider.get().getRTSRouteLogo(getContext(), poim.poi.getAuthority());
+					final JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getRTSRouteLogo(poim.poi.getAuthority());
 					if (rtsRouteLogo != null) {
 						holder.routeTypeImg.setJSON(rtsRouteLogo);
 						holder.routeTypeImg.setColor(routeTextColor);

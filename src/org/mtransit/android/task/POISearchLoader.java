@@ -69,7 +69,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		final boolean keepAll;
 		final List<DataSourceType> agencyTypes;
 		if (this.typeFilter == null || this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
-			agencyTypes = DataSourceProvider.get().getAvailableAgencyTypes(getContext());
+			agencyTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
 			keepAll = false;
 		} else {
 			agencyTypes = new ArrayList<DataSourceType>();
@@ -178,7 +178,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 				return null;
 			}
 			clearFetchAgencySearchTasks();
-			final List<AgencyProperties> agencies = DataSourceProvider.get().getTypeDataSources(this.context, this.agencyType.getId());
+			final List<AgencyProperties> agencies = DataSourceProvider.get(this.context).getTypeDataSources(this.agencyType.getId());
 			List<Future<List<POIManager>>> taskList = new ArrayList<Future<List<POIManager>>>();
 			if (agencies != null) {
 				for (AgencyProperties agency : agencies) {

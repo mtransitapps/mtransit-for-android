@@ -5,6 +5,7 @@ import org.mtransit.android.commons.MTLog;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
@@ -20,11 +21,11 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 		return TAG;
 	}
 
+	private static boolean ANALYTICS_ENABLED = true;
+
 	private static boolean DEBUG = false;
 
-	private static boolean LOCAL_ONLY = DEBUG & false;
-
-	private static boolean TRACKING_ENABLED = true;
+	private static boolean LOCAL_ONLY = false;
 
 	private static boolean TRACKING_ADVERTISING_ID_COLLECTION = true;
 
@@ -63,7 +64,7 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 	}
 
 	public static void trackEvent(Context context, final String category, final String action, final String label, final int value) {
-		if (TRACKING_ENABLED) {
+		if (ANALYTICS_ENABLED) {
 			new AsyncTask<Context, Void, Void>() {
 				@Override
 				protected Void doInBackground(Context... params) {
@@ -80,14 +81,17 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 	}
 
 	public static void trackScreenView(Context context, final Trackable page) {
-		if (TRACKING_ENABLED) {
+		if (ANALYTICS_ENABLED) {
 			new AsyncTask<Context, Void, Void>() {
 				@Override
 				protected Void doInBackground(Context... params) {
 					try {
-						final Tracker gaTracker = getTracker(params[0]);
-						gaTracker.setScreenName(page.getScreenName());
-						gaTracker.send(new HitBuilders.AppViewBuilder().build());
+						final String pageScreenName = page.getScreenName();
+						if (!TextUtils.isEmpty(pageScreenName)) {
+							final Tracker gaTracker = getTracker(params[0]);
+							gaTracker.setScreenName(pageScreenName);
+							gaTracker.send(new HitBuilders.AppViewBuilder().build());
+						}
 					} catch (Throwable t) {
 						MTLog.w(TAG, t, "Error while tracing screen view! (%s)", page);
 					}
@@ -98,7 +102,7 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 	}
 
 	public static void dispatch(Context context) {
-		if (TRACKING_ENABLED) {
+		if (ANALYTICS_ENABLED) {
 			try {
 				GoogleAnalytics.getInstance(context).dispatchLocalHits();
 			} catch (Throwable t) {

@@ -93,7 +93,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		MTLog.v(this, "restoreInstanceState(%s)", savedInstanceState);
 		final String agencyAuthority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, savedInstanceState, getArguments());
 		if (!TextUtils.isEmpty(agencyAuthority)) {
-			this.agency = DataSourceProvider.get().getAgency(getActivity(), agencyAuthority);
+			this.agency = DataSourceProvider.get(getActivity()).getAgency(agencyAuthority);
 			if (this.agency != null) {
 				setLogTag(this.agency.getShortName());
 			}
@@ -484,7 +484,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 				final int routeColor = ColorUtils.parseColor(route.color);
 				if (TextUtils.isEmpty(route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
-					final JPaths rtsRouteLogo = DataSourceProvider.get().getRTSRouteLogo(getContext(), this.authority);
+					final JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getRTSRouteLogo(this.authority);
 					if (rtsRouteLogo != null) {
 						holder.routeTypeImg.setJSON(rtsRouteLogo);
 						holder.routeTypeImg.setColor(routeTextColor);

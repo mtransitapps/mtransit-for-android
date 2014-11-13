@@ -88,7 +88,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			if (poim != null && poim.poi instanceof RouteTripStop) {
 				this.rts = (RouteTripStop) poim.poi;
 			}
-			this.agency = DataSourceProvider.get().getAgency(getActivity(), authority);
+			this.agency = DataSourceProvider.get(getActivity()).getAgency(authority);
 		}
 	}
 

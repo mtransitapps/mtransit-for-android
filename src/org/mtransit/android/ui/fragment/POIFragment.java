@@ -113,7 +113,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			final POIFilter poiFilter = new POIFilter(Arrays.asList(new String[] { uuid }));
 			this.poim = DataSourceManager.findPOI(getActivity(), UriUtils.newContentUri(authority), poiFilter);
 			this.poim.setScheduleMaxDataRequests(Schedule.ScheduleStatusFilter.DATA_REQUEST_MONTH);
-			this.agency = DataSourceProvider.get().getAgency(getActivity(), authority);
+			this.agency = DataSourceProvider.get(getActivity()).getAgency(authority);
 			setupView(getView());
 		}
 		final Location optUserLocation = BundleUtils.getParcelable(EXTRA_USER_LOCATION, savedInstanceState, getArguments());
@@ -136,7 +136,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		POIStatusDetailViewController.updateView(this.poim, getPOIStatusView(view), this);
 		final View rtsScheduleBtn = view.findViewById(R.id.fullScheduleBtn);
 		if (rtsScheduleBtn != null) {
-			Collection<ScheduleProviderProperties> scheduleProviders = DataSourceProvider.get().getTargetAuthorityScheduleProviders(getActivity(),
+			Collection<ScheduleProviderProperties> scheduleProviders = DataSourceProvider.get(getActivity()).getTargetAuthorityScheduleProviders(
 					this.poim.poi.getAuthority());
 			if (CollectionUtils.getSize(scheduleProviders) == 0) {
 				rtsScheduleBtn.setVisibility(View.GONE);

@@ -1,16 +1,12 @@
 package org.mtransit.android.ui;
 
-import java.lang.ref.WeakReference;
-import java.util.HashMap;
 import java.util.List;
 import java.util.WeakHashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.data.DataSourceProvider;
-import org.mtransit.android.data.MenuAdapter;
-import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.SearchFragment;
 import org.mtransit.android.util.AdsUtils;
@@ -20,27 +16,18 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import android.view.ViewStub;
 
-@SuppressWarnings("deprecation")
-// need to switch to support-v7-appcompat
-public class MainActivity extends MTActivityWithLocation implements AdapterView.OnItemClickListener, FragmentManager.OnBackStackChangedListener,
-		AnalyticsUtils.Trackable, MenuAdapter.MenuUpdateListener {
+public class MainActivity extends MTActivityWithLocation implements FragmentManager.OnBackStackChangedListener, AnalyticsUtils.Trackable {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -56,48 +43,9 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		return TRACKING_SCREEN_NAME;
 	}
 
-	private static final boolean LOCATION_ENABLED = true;
 
-	private static final String EXTRA_SELECTED_ROOT_SCREEN_POSITION = "extra_selected_root_screen";
-	private static final String EXTRA_SELECTED_ROOT_SCREEN_ID = "extra_selected_root_screen_id";
-
-	private static final int FRAGMENT_TRANSITION = FragmentTransaction.TRANSIT_NONE;
-	private DrawerLayout mDrawerLayout;
-	private ListView mDrawerList;
-	private MenuAdapter mDrawerListAdapter;
-	private ActionBarDrawerToggle mDrawerToggle;
-	private int mDrawerState = DrawerLayout.STATE_IDLE;
-
-	private CharSequence mDrawerTitle;
-	private CharSequence mTitle;
-
-	private CharSequence mDrawerSubtitle;
-	private CharSequence mSubtitle;
-
-	private int mIcon;
-	private int mDrawerIcon;
-
-	private Integer mBgColor;
-	private Integer mDrawerBgColor;
-
-	private View mCustomView;
-	private View mDrawerCustomView;
-
-	private boolean mThemeDarkInsteadOfThemeLight;
-
-	private boolean mDisplayHomeAsUpEnabled;
-	private boolean mDrawerDisplayHomeAsUpEnabled;
-
-	private boolean mShowSearchMenuItem;
-
-	public static Intent newInstance(Context context, int optSelectedRootScreenPosition, String optSelectedRootScreenId) {
+	public static Intent newInstance(Context context) {
 		Intent intent = new Intent(context, MainActivity.class);
-		if (optSelectedRootScreenPosition >= 0) {
-			intent.putExtra(EXTRA_SELECTED_ROOT_SCREEN_POSITION, optSelectedRootScreenPosition);
-		}
-		if (!TextUtils.isEmpty(optSelectedRootScreenId)) {
-			intent.putExtra(EXTRA_SELECTED_ROOT_SCREEN_ID, optSelectedRootScreenId);
-		}
 		return intent;
 	}
 
@@ -109,39 +57,33 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-		mTitle = mDrawerTitle = getTitle();
-		mSubtitle = mDrawerSubtitle = getActionBar().getSubtitle();
-		mIcon = mDrawerIcon = R.mipmap.ic_launcher;
-		mBgColor = mDrawerBgColor = ABFragment.NO_BG_COLOR;
-		mCustomView = mDrawerCustomView = getActionBar().getCustomView();
-		mThemeDarkInsteadOfThemeLight = false;
-		mDisplayHomeAsUpEnabled = mDrawerDisplayHomeAsUpEnabled = true;
-		mShowSearchMenuItem = true;
-		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		mDrawerList = (ListView) findViewById(R.id.left_drawer); // (mDrawerList) getSupportFragmentManager().findFragmentById(R.id.left_drawer);
-
-		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-		mDrawerListAdapter = new MenuAdapter(this, this);
-		mDrawerList.setAdapter(mDrawerListAdapter);
-		mDrawerList.setOnItemClickListener(this);
-
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-		getActionBar().setHomeButtonEnabled(true);
-
-		mDrawerToggle = new ABToggle(this, mDrawerLayout);
-
-		mDrawerLayout.setDrawerListener(mDrawerToggle);
+		this.abController = new ActionBarController(this);
+		this.navigationDrawerController = new NavigationDrawerController(this);
+		this.navigationDrawerController.onRestoreState(savedInstanceState);
+		this.navigationDrawerController.setup();
 
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
-
-		if (savedInstanceState == null) {
-			final String itemId = PreferenceUtils.getPrefLcl(this, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
-			selectItem(this.mDrawerListAdapter.getScreenItemPosition(itemId), null, false);
-		} else {
-			onRestoreState(savedInstanceState);
-		}
 		AdsUtils.setupAd(this);
+		new Handler().postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if (getCurrentFragment() == null) {
+						showContentFrameAsLoading();
+					}
+				} catch (Exception e) {
+					MTLog.w(TAG, e, "Error while setting content as loading!");
+				}
+			}
+		}, 5 * TimeUtils.ONE_SECOND_IN_MS);
+	}
+
+	public ActionBarController getAbController() {
+		return abController;
+	}
+
+	public NavigationDrawerController getNavigationDrawerController() {
+		return navigationDrawerController;
 	}
 
 	@Override
@@ -166,7 +108,7 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	}
 
 	private void onSearchRequested(String query) {
-		Fragment f = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+		Fragment f = getCurrentFragment();
 		if (f != null && f instanceof SearchFragment) {
 			((SearchFragment) f).setQuery(query, false);
 		} else {
@@ -174,18 +116,6 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		}
 	}
 
-
-
-	private void onRestoreState(Bundle savedInstanceState) {
-		int savedRootScreen = savedInstanceState.getInt(EXTRA_SELECTED_ROOT_SCREEN_POSITION, -1);
-		if (savedRootScreen >= 0) {
-			this.currentSelectedItemPosition = savedRootScreen;
-		}
-		String savedRootScreenId = savedInstanceState.getString(EXTRA_SELECTED_ROOT_SCREEN_ID, null);
-		if (!TextUtils.isEmpty(savedRootScreenId)) {
-			this.currentSelectedScreenItemId = savedRootScreenId;
-		}
-	}
 
 	@Override
 	protected void onResume() {
@@ -213,72 +143,52 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 	protected void onDestroy() {
 		super.onDestroy();
 		AdsUtils.destroyAd(this);
-		if (this.mDrawerLayout != null) {
-			this.mDrawerLayout.setDrawerListener(null);
-			this.mDrawerLayout = null;
+		if (this.abController != null) {
+			this.abController.destroy();
+			this.abController = null;
 		}
-		if (this.allMenuItems != null) {
-			this.allMenuItems.clear();
+		if (this.navigationDrawerController != null) {
+			this.navigationDrawerController.destroy();
+			this.navigationDrawerController = null;
 		}
 		if (this.fragmentsToPopWR != null) {
 			this.fragmentsToPopWR.clear();
 			this.fragmentsToPopWR = null;
 		}
-		this.mDrawerToggle = null;
-		this.mCustomView = null;
-		this.mDrawerCustomView = null;
 		DataSourceProvider.destroy();
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putInt(EXTRA_SELECTED_ROOT_SCREEN_POSITION, this.currentSelectedItemPosition);
-		outState.putString(EXTRA_SELECTED_ROOT_SCREEN_ID, this.currentSelectedScreenItemId);
+		if (this.navigationDrawerController != null) {
+			this.navigationDrawerController.onSaveInstanceState(outState);
+		}
 	}
 
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		onRestoreState(savedInstanceState);
+		if (this.navigationDrawerController != null) {
+			this.navigationDrawerController.onRestoreState(savedInstanceState);
+		}
 	}
 
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		selectItem(position, null, false);
+	public void clearFragmentBackStackImmediate() {
+		clearFragmentBackStackImmediate(getSupportFragmentManager());
 	}
 
+	private void clearFragmentBackStackImmediate(FragmentManager fm) {
+		while (fm.getBackStackEntryCount() > 0) {
+			fm.popBackStackImmediate();
+		}
+		if (this.abController != null) {
+			this.abController.resetLastUpdateTime();
+		}
+	}
 
-	private int currentSelectedItemPosition = -1;
-
-	private String currentSelectedScreenItemId = null;
-
-	private void selectItem(int position, ABFragment newFragmentOrNull, boolean addToStack) {
-		if (position < 0) {
-			return;
-		}
-		final FragmentManager fm = getSupportFragmentManager();
-		if (position == this.currentSelectedItemPosition) {
-			while (fm.getBackStackEntryCount() > 0) {
-				fm.popBackStackImmediate();
-			}
-			this.lastUpdateAB = -1; // reset
-			closeDrawer();
-			return;
-		}
-		if (!this.mDrawerListAdapter.isRootScreen(position)) {
-			if (this.currentSelectedItemPosition >= 0) {
-				this.mDrawerList.setItemChecked(this.currentSelectedItemPosition, true); // keep current position
-			}
-			return;
-		}
-		final ABFragment newFragment = newFragmentOrNull != null ? newFragmentOrNull : this.mDrawerListAdapter.getNewStaticFragmentAt(position);
-		if (newFragment == null) {
-			return;
-		}
-		clearFragmentBackStackImmediate(fm); // root screen
-		StatusLoader.get().clearAllTasks();
-		final FragmentTransaction ft = fm.beginTransaction();
+	public void showNewFragment(ABFragment newFragment, boolean addToStack) {
+		final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		ft.replace(R.id.content_frame, newFragment);
 		if (addToStack) {
 			ft.addToBackStack(null);
@@ -286,51 +196,33 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		}
 		ft.setTransition(FRAGMENT_TRANSITION);
 		ft.commit();
-		this.lastUpdateAB = -1; // reset
-		setAB(newFragment);
-		this.mDrawerList.setItemChecked(position, true);
-		closeDrawer();
-		this.currentSelectedItemPosition = position;
-		this.currentSelectedScreenItemId = this.mDrawerListAdapter.getScreenItemId(position);
-		if (!addToStack && this.mDrawerListAdapter.isRootScreen(position)) {
-			PreferenceUtils.savePrefLcl(this, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId, false);
+		showContentFrameAsLoaded();
+		if (this.abController != null) {
+			this.abController.resetLastUpdateTime();
+			this.abController.setAB(newFragment);
+		}
+		if (this.navigationDrawerController != null) {
+			this.navigationDrawerController.setCurrentSelectedItemChecked(this.backStackEntryCount == 0);
 		}
 	}
 
-	@Override
-	public void onMenuUpdated() {
-		final String itemId = PreferenceUtils.getPrefLcl(this, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
-		final int newSelectedItemPosition = this.mDrawerListAdapter.getScreenItemPosition(itemId);
-		if (this.currentSelectedScreenItemId != null && this.currentSelectedScreenItemId.equals(itemId)) {
-			this.currentSelectedItemPosition = newSelectedItemPosition;
-			if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
-				mDrawerList.setItemChecked(this.currentSelectedItemPosition, true);
-			} else {
-				mDrawerList.setItemChecked(this.currentSelectedItemPosition, false);
-			}
-			return;
+	private void showContentFrameAsLoaded() {
+		if (findViewById(R.id.content_frame_loading) != null) {
+			findViewById(R.id.content_frame_loading).setVisibility(View.GONE);
 		}
-		selectItem(newSelectedItemPosition, null, false); // re-select, selected item
+		findViewById(R.id.content_frame).setVisibility(View.VISIBLE);
 	}
 
-	private void clearFragmentBackStackImmediate(FragmentManager fm) {
-		while (fm.getBackStackEntryCount() > 0) {
-			fm.popBackStackImmediate();
+	private void showContentFrameAsLoading() {
+		findViewById(R.id.content_frame).setVisibility(View.GONE);
+		if (findViewById(R.id.content_frame_loading) == null) {
+			((ViewStub) findViewById(R.id.content_frame_loading_stub)).inflate(); // inflate
 		}
-		this.lastUpdateAB = -1; // reset
+		findViewById(R.id.content_frame_loading).setVisibility(View.VISIBLE);
 	}
 
 	public void addFragmentToStack(ABFragment newFragment) {
-		final FragmentManager fm = getSupportFragmentManager();
-		final FragmentTransaction ft = fm.beginTransaction();
-		ft.replace(R.id.content_frame, newFragment);
-		ft.addToBackStack(null);
-		this.backStackEntryCount++;
-		ft.setTransition(FRAGMENT_TRANSITION);
-		ft.commit();
-		this.lastUpdateAB = -1; // reset
-		setAB(newFragment);
-		this.mDrawerList.setItemChecked(this.currentSelectedItemPosition, false);
+		showNewFragment(newFragment, true);
 	}
 
 	@Override
@@ -347,306 +239,125 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 
 
 	private void setAB() {
-		Fragment f = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+		Fragment f = getCurrentFragment();
 		if (f != null && f instanceof ABFragment) {
 			ABFragment abf = (ABFragment) f;
-			setAB(abf);
+			if (this.abController != null) {
+				this.abController.setAB(abf);
+			}
 		}
 	}
 
-	private void setAB(ABFragment abf) {
-		setAB(abf.getABTitle(this), abf.getABSubtitle(this), abf.getABIconDrawableResId(), abf.getABBgColor(), abf.getABCustomView(),
-				abf.isABThemeDarkInsteadOfThemeLight(), abf.isABDisplayHomeAsUpEnabled(), abf.isABShowSearchMenuItem());
-	}
-
-	private void setAB(CharSequence title, CharSequence subtitle, int iconResId, Integer bgColor, View customView, boolean themeDarkInsteadOfThemeLight,
-			boolean displayHomeAsUpEnabled, boolean showSearchMenuItem) {
-		mTitle = title;
-		mSubtitle = subtitle;
-		mIcon = iconResId;
-		mBgColor = bgColor;
-		mCustomView = customView;
-		mThemeDarkInsteadOfThemeLight = themeDarkInsteadOfThemeLight;
-		mDisplayHomeAsUpEnabled = displayHomeAsUpEnabled;
-		mShowSearchMenuItem = showSearchMenuItem;
-	}
-
-	private boolean isCurrentFragmentVisible(Fragment fragment) {
+	public boolean isCurrentFragmentVisible(Fragment fragment) {
 		if (fragment == null) {
 			return false;
 		}
-		if (fragment.isAdded() || fragment.isVisible() || fragment.isResumed()
-				|| fragment.equals(getSupportFragmentManager().findFragmentById(R.id.content_frame))) {
+		if (fragment.isAdded() || fragment.isVisible() || fragment.isResumed() || fragment.equals(getCurrentFragment())) {
 			return true;
 		}
 		return false;
 	}
 
-	public void setABTitle(Fragment source, CharSequence title, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
-		mTitle = title;
-		if (update && !isDrawerOpen()) {
-			updateAB();
-		}
+	private Fragment getCurrentFragment() {
+		return getSupportFragmentManager().findFragmentById(R.id.content_frame);
 	}
 
-	public void setABSubtitle(Fragment source, CharSequence subtitle, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
-		mSubtitle = subtitle;
-		if (update && !isDrawerOpen()) {
-			updateAB();
-		}
-	}
-
-	public void setABIcon(Fragment source, int resId, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
-		mIcon = resId;
-		if (update && !isDrawerOpen()) {
-			updateAB();
-		}
-	}
-
-	public void setABBgColor(Fragment source, int bgColor, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
-		mBgColor = bgColor;
-		if (update && !isDrawerOpen()) {
-			updateAB();
-		}
-	}
-
-	public void setABCustomView(Fragment source, View customView, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
-		mCustomView = customView;
-		if (update && !isDrawerOpen()) {
-			updateAB();
-		}
-	}
-
-	public void setABDisplayHomeAsUpEnabled(Fragment source, boolean displayHomeAsUpEnabled, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
-		mDisplayHomeAsUpEnabled = displayHomeAsUpEnabled;
-		if (update && !isDrawerOpen()) {
-			updateAB();
-		}
-	}
-
-	public void setABThemeDarkInsteadOfThemeLight(Fragment source, boolean themeDarkInsteadOfThemeLight, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
-		mThemeDarkInsteadOfThemeLight = themeDarkInsteadOfThemeLight;
-		if (update && !isDrawerOpen()) {
-			updateAB();
-		}
-	}
-
-	public void setABShowSearchMenuItem(Fragment source, boolean showSearchMenuItem, boolean update) {
-		if (!isCurrentFragmentVisible(source)) {
-			return;
-		}
-		mShowSearchMenuItem = showSearchMenuItem;
-		if (update && !isDrawerOpen()) {
-			updateAB();
-		}
-	}
 
 	@Override
 	public void onBackStackChanged() {
 		this.backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
 		setAB();
-		updateAB(); // up/drawer icon
-		if (this.backStackEntryCount == 0) {
-			mDrawerList.setItemChecked(this.currentSelectedItemPosition, true);
-		} else {
-			mDrawerList.setItemChecked(this.currentSelectedItemPosition, false);
+		updateAB();
+		if (this.navigationDrawerController != null) {
+			this.navigationDrawerController.onBackStackChanged(this.backStackEntryCount);
 		}
 	}
 
 	@Override
 	public void onBackPressed() {
-		if (isDrawerOpen()) {
-			closeDrawer();
+		if (this.navigationDrawerController != null && this.navigationDrawerController.onBackPressed()) {
 			return;
 		}
 		super.onBackPressed();
 	}
 
-	private void closeDrawer() {
-		mDrawerLayout.closeDrawer(mDrawerList);
+	public void updateNavigationDrawerToggleIndicator() {
+		if (this.navigationDrawerController != null) {
+			this.navigationDrawerController.setDrawerToggleIndicatorEnabled(this.backStackEntryCount < 1);
+		}
 	}
 
-	private boolean isDrawerOpen() {
-		return mDrawerLayout.isDrawerOpen(mDrawerList);
+	public void enableNavigationDrawerToggleIndicator() {
+		if (this.navigationDrawerController != null) {
+			this.navigationDrawerController.setDrawerToggleIndicatorEnabled(true);
+		}
 	}
 
-
-	private Handler handler = new Handler();
-
-	private long lastUpdateAB = -1l;
-
-	private static final long MIN_DURATION_BETWEEN_UPDATE_AB_IN_MS = 100l; // 0.1 second
-
-	private UpdateABLater updateABLater = null;
-
-
-	private int backStackEntryCount = 0;
-
-	private void updateAB() {
-		final long now = System.currentTimeMillis();
-		final long howLongBeforeNextUpdateABInMs = this.lastUpdateAB + MIN_DURATION_BETWEEN_UPDATE_AB_IN_MS - now;
-		if (mDrawerState != DrawerLayout.STATE_IDLE || howLongBeforeNextUpdateABInMs > 0) {
-			if (this.updateABLater == null) {
-				this.updateABLater = new UpdateABLater();
-				this.handler.postDelayed(this.updateABLater, howLongBeforeNextUpdateABInMs > 0 ? howLongBeforeNextUpdateABInMs
-						: MIN_DURATION_BETWEEN_UPDATE_AB_IN_MS);
-			}
-			return;
-		}
-		this.handler.removeCallbacks(this.updateABLater);
-		this.updateABLater = null;
-		if (isDrawerOpen()) {
-			updateABDrawerOpened();
-		} else {
-			updateABDrawerClosed();
-		}
-		this.lastUpdateAB = now;
+	public boolean isDrawerOpen() {
+		return this.navigationDrawerController != null && this.navigationDrawerController.isDrawerOpen();
 	}
 
-	private void updateABDrawerClosed() {
-		if (mCustomView != null) {
-			getActionBar().setCustomView(mCustomView);
-			if (!mDisplayHomeAsUpEnabled) {
-				getActionBar().getCustomView().setOnClickListener(this.upOnClickListener);
-			}
-			getActionBar().setDisplayShowCustomEnabled(true);
-		} else {
-			getActionBar().setDisplayShowCustomEnabled(false);
-		}
-		getActionBar().setDisplayHomeAsUpEnabled(mDisplayHomeAsUpEnabled);
-		if (TextUtils.isEmpty(mTitle)) {
-			getActionBar().setDisplayShowTitleEnabled(false);
-		} else {
-			getActionBar().setTitle(mTitle);
-			getActionBar().setSubtitle(mSubtitle);
-			getActionBar().setDisplayShowTitleEnabled(true);
-		}
-		if (mIcon > 0) {
-			getActionBar().setIcon(mIcon);
-			getActionBar().setDisplayShowHomeEnabled(true);
-		} else {
-			getActionBar().setDisplayShowHomeEnabled(false);
-		}
-		if (mBgColor != null) {
-			getActionBar().setBackgroundDrawable(new ColorDrawable(mBgColor));
-		} else {
-			getActionBar().setBackgroundDrawable(null);
-		}
-		this.mDrawerToggle.setDrawerIndicatorEnabled(this.backStackEntryCount < 1);
-		updateAllMenuItems(); // action bar icons are options menu items
+	public boolean isNotDrawerState(int drawerState) {
+		return this.navigationDrawerController != null && this.navigationDrawerController.getDrawerState() != drawerState;
 	}
 
-	private void updateABDrawerOpened() {
-		if (mDrawerCustomView != null) {
-			getActionBar().setCustomView(mDrawerCustomView);
-			if (!mDrawerDisplayHomeAsUpEnabled) {
-				getActionBar().getCustomView().setOnClickListener(this.upOnClickListener);
-			}
-			getActionBar().setDisplayShowCustomEnabled(true);
-		} else {
-			getActionBar().setDisplayShowCustomEnabled(false);
-		}
-		getActionBar().setDisplayHomeAsUpEnabled(mDrawerDisplayHomeAsUpEnabled);
-		if (TextUtils.isEmpty(mDrawerTitle)) {
-			getActionBar().setDisplayShowTitleEnabled(false);
-		} else {
-			getActionBar().setTitle(mDrawerTitle);
-			getActionBar().setSubtitle(mDrawerSubtitle);
-			getActionBar().setDisplayShowTitleEnabled(true);
-		}
-		if (mDrawerIcon > 0) {
-			getActionBar().setIcon(mDrawerIcon);
-			getActionBar().setDisplayShowHomeEnabled(true);
-		} else {
-			getActionBar().setDisplayShowHomeEnabled(false);
-		}
-		if (mDrawerBgColor != null) {
-			getActionBar().setBackgroundDrawable(new ColorDrawable(mDrawerBgColor));
-		} else {
-			getActionBar().setBackgroundDrawable(null);
-		}
-		this.mDrawerToggle.setDrawerIndicatorEnabled(true);
-		updateAllMenuItems(); // action bar icons are options menu items
+	public boolean isDrawerState(int drawerState) {
+		return this.navigationDrawerController != null && this.navigationDrawerController.getDrawerState() == drawerState;
 	}
 
-	private UpOnClickListener upOnClickListener = new UpOnClickListener();
+	public Integer getDrawerStateOrNull() {
+		return this.navigationDrawerController == null ? null : this.navigationDrawerController.getDrawerState();
+	}
 
-	private HashMap<Integer, MenuItem> allMenuItems = new HashMap<Integer, MenuItem>();
+	private int backStackEntryCount = 0; // because FragmentManager.getBackStackEntryCount() is not instantly up-to-date
+
+	public int getBackStackEntryCount() {
+		return backStackEntryCount;
+	}
+
+	public void updateAB() {
+		if (this.abController != null) {
+			this.abController.updateAB();
+		}
+	}
+
 
 	public void addMenuItem(int resId, MenuItem menuItem) {
-		this.allMenuItems.put(resId, menuItem);
+		if (this.abController != null) {
+			this.abController.addMenuItem(resId, menuItem);
+		}
 	}
 
 	public MenuItem getMenuItem(int resId) {
-		return this.allMenuItems.get(resId);
+		return this.abController == null ? null : this.abController.getMenuItem(resId);
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		getMenuInflater().inflate(R.menu.main_activity, menu);
-		this.allMenuItems.clear();
-		this.allMenuItems.put(R.id.menu_search, menu.findItem(R.id.menu_search));
-		final MenuItem menuToggleListGrid = menu.findItem(R.id.menu_toggle_list_grid);
-		if (menuToggleListGrid != null) {
-			this.allMenuItems.put(R.id.menu_toggle_list_grid, menuToggleListGrid);
+		if (this.abController != null) {
+			this.abController.initMenuItems(menu);
 		}
-		final MenuItem menuAddRemoveFavorite = menu.findItem(R.id.menu_add_remove_favorite);
-		if (menuAddRemoveFavorite != null) {
-			this.allMenuItems.put(R.id.menu_add_remove_favorite, menuAddRemoveFavorite);
-		}
-		updateAllMenuItems();
-		return true;
-	}
 
-	private void updateAllMenuItems() {
-		if (this.allMenuItems == null || this.allMenuItems.size() == 0) {
-			return;
-		}
-		final boolean drawerOpen = isDrawerOpen();
-		final boolean showABIcons = !drawerOpen;
-		if (this.allMenuItems.get(R.id.menu_toggle_list_grid) != null) {
-			this.allMenuItems.get(R.id.menu_toggle_list_grid).setVisible(showABIcons);
-		}
-		if (this.allMenuItems.get(R.id.menu_add_remove_favorite) != null) {
-			this.allMenuItems.get(R.id.menu_add_remove_favorite).setVisible(showABIcons);
-		}
-		this.allMenuItems.get(R.id.menu_search).setVisible(this.mShowSearchMenuItem && showABIcons);
-		this.allMenuItems.get(R.id.menu_search).setIcon(
-				mThemeDarkInsteadOfThemeLight ? R.drawable.ic_menu_action_search_holo_dark : R.drawable.ic_menu_action_search_holo_light);
+		return true;
+
 	}
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-		mDrawerToggle.syncState();
+		if (this.navigationDrawerController != null) {
+			this.navigationDrawerController.onActivityPostCreate(savedInstanceState);
+		}
 	}
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		mDrawerToggle.onConfigurationChanged(newConfig);
+		if (this.navigationDrawerController != null) {
+			this.navigationDrawerController.onActivityConfigurationChanged(newConfig);
+		}
 	}
 
 	private WeakHashMap<Fragment, Object> fragmentsToPopWR = new WeakHashMap<Fragment, Object>();
@@ -659,7 +370,9 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 				ft.remove(fragment);
 				ft.commit();
 				fm.popBackStackImmediate();
-				this.lastUpdateAB = -1; // reset
+				if (this.abController != null) {
+					this.abController.resetLastUpdateTime();
+				}
 			}
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while poping fragment '%s' from stack!", fragment);
@@ -682,85 +395,35 @@ public class MainActivity extends MTActivityWithLocation implements AdapterView.
 		}
 	}
 
+	public boolean onUpIconClick() {
+		final FragmentManager fm = getSupportFragmentManager();
+		if (fm.getBackStackEntryCount() > 0) {
+			fm.popBackStackImmediate();
+			if (this.abController != null) {
+				this.abController.resetLastUpdateTime();
+			}
+			return true; // handled
+		}
+		return false; // not handled
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (mDrawerToggle.onOptionsItemSelected(item)) {
-			return true;
+		if (this.navigationDrawerController != null && this.navigationDrawerController.onActivityOptionsItemSelected(item)) {
+			return true; // handled
 		}
 		if (item.getItemId() == android.R.id.home) {
-			final FragmentManager fm = getSupportFragmentManager();
-			if (fm.getBackStackEntryCount() > 0) {
-				fm.popBackStackImmediate();
-				this.lastUpdateAB = -1; // reset
-				return true;
+			if (onUpIconClick()) {
+				return true; // handled
 			}
 		}
 		switch (item.getItemId()) {
 		case R.id.menu_search:
 			onSearchRequested();
-			return true;
+			return true; // handled
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
 
-	private class UpOnClickListener implements View.OnClickListener {
-		@Override
-		public void onClick(View v) {
-			final FragmentManager fm = getSupportFragmentManager();
-			if (fm.getBackStackEntryCount() > 0) {
-				fm.popBackStackImmediate();
-				MainActivity.this.lastUpdateAB = -1; // reset
-			}
-		}
-	}
-
-	private class UpdateABLater implements Runnable {
-		@Override
-		public void run() {
-			MainActivity.this.updateABLater = null;
-			updateAB();
-		}
-	}
-
-	private static class ABToggle extends ActionBarDrawerToggle implements MTLog.Loggable {
-
-		private static final String TAG = MainActivity.class.getSimpleName() + ">" + ABToggle.class.getSimpleName();
-
-		@Override
-		public String getLogTag() {
-			return TAG;
-		}
-
-		private WeakReference<MainActivity> mainActivityWR;
-
-		public ABToggle(MainActivity mainActivity, DrawerLayout drawerLayout) {
-			super(mainActivity, drawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close);
-			this.mainActivityWR = new WeakReference<MainActivity>(mainActivity);
-		}
-
-		@Override
-		public void onDrawerClosed(View view) {
-			final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
-			if (mainActivity != null) {
-				mainActivity.updateAB();
-			}
-		}
-
-		@Override
-		public void onDrawerOpened(View drawerView) {
-			final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
-			if (mainActivity != null) {
-				mainActivity.updateAB();
-			}
-		}
-
-		@Override
-		public void onDrawerStateChanged(int newState) {
-			final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
-			if (mainActivity != null) {
-				mainActivity.mDrawerState = newState;
-			}
-		}
-	}
 }

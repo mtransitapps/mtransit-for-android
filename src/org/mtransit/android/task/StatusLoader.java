@@ -69,7 +69,7 @@ public class StatusLoader implements MTLog.Loggable {
 		if (skipIfBusy && isBusy()) {
 			return false;
 		}
-		Collection<StatusProviderProperties> providers = DataSourceProvider.get().getTargetAuthorityStatusProviders(context, poim.poi.getAuthority());
+		Collection<StatusProviderProperties> providers = DataSourceProvider.get(context).getTargetAuthorityStatusProviders(poim.poi.getAuthority());
 		if (providers != null) {
 			for (final StatusProviderProperties provider : providers) {
 				final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter); // , null, timestamp);
@@ -146,7 +146,7 @@ public class StatusLoader implements MTLog.Loggable {
 				MTLog.w(this, "Status filter mandatory!");
 				return null;
 			}
-			final Uri uri = DataSourceProvider.get().getUri(this.statusProvider.getAuthority());
+			final Uri uri = DataSourceProvider.get(context).getUri(this.statusProvider.getAuthority());
 			final POIStatus status = DataSourceManager.findStatus(context, uri, this.statusFilter);
 			return status;
 		}

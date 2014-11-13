@@ -54,11 +54,23 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private HashMap<String, Uri> uriMap = new HashMap<String, Uri>();
 
-	public static DataSourceProvider get() {
+	public static DataSourceProvider get(Context context) {
 		if (instance == null) {
-			instance = new DataSourceProvider();
+			initInstance(context);
 		}
 		return instance;
+	}
+
+	private synchronized static void initInstance(Context context) {
+		if (instance != null) {
+			return;
+		}
+		if (context == null) {
+			throw new IllegalArgumentException("Cannot instantiate provider w/o context!");
+		}
+		final DataSourceProvider newInstance = new DataSourceProvider();
+		newInstance.init(context);
+		instance = newInstance;
 	}
 
 	public static boolean isSet() {
@@ -72,15 +84,15 @@ public class DataSourceProvider implements MTLog.Loggable {
 		}
 	}
 
-	public static boolean reset(Context context) {
+	public static boolean reset(Context optContext) {
 		if (instance != null) {
-			if (context == null) { // cannot compare w/o context
+			if (optContext == null) { // cannot compare w/o context
 				destroy();
 				triggerModulesUpdated();
 				return true;
 			} else {
 				final DataSourceProvider newInstance = new DataSourceProvider();
-				newInstance.init(context);
+				newInstance.init(optContext);
 				if (CollectionUtils.getSize(newInstance.allAgencies) != CollectionUtils.getSize(instance.allAgencies)
 						|| CollectionUtils.getSize(newInstance.allStatusProviders) != CollectionUtils.getSize(instance.allStatusProviders)
 						|| CollectionUtils.getSize(newInstance.allScheduleProviders) != CollectionUtils.getSize(instance.allScheduleProviders)) {
@@ -105,52 +117,31 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return uri;
 	}
 
-	public List<DataSourceType> getAvailableAgencyTypes(Context context) {
-		if (this.allAgencyTypes == null) {
-			init(context);
-		}
+	public List<DataSourceType> getAvailableAgencyTypes() {
 		return this.allAgencyTypes;
 	}
 
-	public List<AgencyProperties> getAllAgencies(Context context) {
-		if (this.allAgencies == null) {
-			init(context);
-		}
+	public List<AgencyProperties> getAllAgencies() {
 		return this.allAgencies;
 	}
 
-	public List<AgencyProperties> getTypeDataSources(Context context, int typeId) {
-		if (this.allAgenciesByTypeId == null) {
-			init(context);
-		}
+	public List<AgencyProperties> getTypeDataSources(int typeId) {
 		return this.allAgenciesByTypeId.get(typeId);
 	}
 
-	public AgencyProperties getAgency(Context context, String authority) {
-		if (this.allAgenciesByAuthority == null) {
-			init(context);
-		}
+	public AgencyProperties getAgency(String authority) {
 		return this.allAgenciesByAuthority.get(authority);
 	}
 
-	public Collection<StatusProviderProperties> getTargetAuthorityStatusProviders(Context context, String targetAuthority) {
-		if (this.statusProvidersByTargetAuthority == null) {
-			init(context);
-		}
+	public Collection<StatusProviderProperties> getTargetAuthorityStatusProviders(String targetAuthority) {
 		return this.statusProvidersByTargetAuthority.get(targetAuthority);
 	}
 
-	public Collection<ScheduleProviderProperties> getTargetAuthorityScheduleProviders(Context context, String targetAuthority) {
-		if (this.scheduleProvidersByTargetAuthority == null) {
-			init(context);
-		}
+	public Collection<ScheduleProviderProperties> getTargetAuthorityScheduleProviders(String targetAuthority) {
 		return this.scheduleProvidersByTargetAuthority.get(targetAuthority);
 	}
 
-	public JPaths getRTSRouteLogo(Context context, String authority) {
-		if (this.rtsRouteLogoByAuthority == null) {
-			init(context);
-		}
+	public JPaths getRTSRouteLogo(String authority) {
 		return this.rtsRouteLogoByAuthority.get(authority);
 	}
 

@@ -123,7 +123,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	@Override
 	public void onModulesUpdated() {
 		if (this.adapter != null) {
-			final List<AgencyProperties> newAvailableAgencies = this.type == null ? null : DataSourceProvider.get().getTypeDataSources(getActivity(),
+			final List<AgencyProperties> newAvailableAgencies = this.type == null ? null : DataSourceProvider.get(getActivity()).getTypeDataSources(
 					this.type.getId());
 			if (CollectionUtils.getSize(newAvailableAgencies) == CollectionUtils.getSize(this.adapter.getAgencies())) {
 				return;
@@ -159,8 +159,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		final Integer typeId = BundleUtils.getInt(EXTRA_TYPE_ID, savedInstanceState, getArguments());
 		if (typeId != null) {
 			this.type = DataSourceType.parseId(typeId);
-			((MainActivity) getActivity()).setABTitle(this, getABTitle(getActivity()), false);
-			((MainActivity) getActivity()).setABIcon(this, getABIconDrawableResId(), true);
+			((MainActivity) getActivity()).getAbController().setABTitle(this, getABTitle(getActivity()), false);
+			((MainActivity) getActivity()).getAbController().setABIcon(this, getABIconDrawableResId(), true);
 		}
 	}
 
@@ -168,7 +168,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		if (view == null) {
 			return;
 		}
-		final List<AgencyProperties> newAgencies = this.type == null ? null : DataSourceProvider.get().getTypeDataSources(getActivity(), this.type.getId());
+		final List<AgencyProperties> newAgencies = this.type == null ? null : DataSourceProvider.get(getActivity()).getTypeDataSources(this.type.getId());
 		if (CollectionUtils.getSize(newAgencies) == 0) {
 			return;
 		}

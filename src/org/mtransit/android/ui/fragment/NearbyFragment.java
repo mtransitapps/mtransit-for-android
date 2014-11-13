@@ -112,7 +112,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	@Override
 	public void onModulesUpdated() {
 		if (this.adapter != null) {
-			final List<DataSourceType> newAvailableAgencyTypes = DataSourceProvider.get().getAvailableAgencyTypes(getActivity());
+			final List<DataSourceType> newAvailableAgencyTypes = DataSourceProvider.get(getActivity()).getAvailableAgencyTypes();
 			if (CollectionUtils.getSize(newAvailableAgencyTypes) != CollectionUtils.getSize(this.adapter.getAvailableAgencyTypes())) {
 				this.lastPageSelected = -1; // force refresh selected tab
 				initTabsAndViewPager(getView());
@@ -190,7 +190,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				if (refreshRequired) {
 					final FragmentActivity activity = NearbyFragment.this.getActivity();
 					if (activity != null) {
-						((MainActivity) activity).setABSubtitle(NearbyFragment.this, getABSubtitle(activity), true);
+						((MainActivity) activity).getAbController().setABSubtitle(NearbyFragment.this, getABSubtitle(activity), true);
 					}
 				}
 			}
@@ -203,7 +203,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		if (view == null) {
 			return;
 		}
-		final List<DataSourceType> newAgencyTypes = DataSourceProvider.get().getAvailableAgencyTypes(getActivity());
+		final List<DataSourceType> newAgencyTypes = DataSourceProvider.get(getActivity()).getAvailableAgencyTypes();
 		if (CollectionUtils.getSize(newAgencyTypes) == 0) {
 			return;
 		}
@@ -305,7 +305,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			if (locationChanged) {
 				final boolean requireNotifyAB = setUserAwayFromLocation();
 				if (requireNotifyAB) {
-					((MainActivity) getActivity()).setABIcon(this, getABIconDrawableResId(), true);
+					((MainActivity) getActivity()).getAbController().setABIcon(this, getABIconDrawableResId(), true);
 				}
 			}
 		}
@@ -347,7 +347,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 		setSwipeRefreshLayoutRefreshing(false);
 		this.nearbyLocationAddress = null;
-		((MainActivity) getActivity()).setABIcon(this, getABIconDrawableResId(), true);
+		((MainActivity) getActivity()).getAbController().setABIcon(this, getABIconDrawableResId(), true);
 		findNearbyLocation();
 	}
 

@@ -230,7 +230,7 @@ public class POIViewController implements MTLog.Loggable {
 				final int routeColor = ColorUtils.parseColor(rts.route.color);
 				if (TextUtils.isEmpty(rts.route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
-					final JPaths rtsRouteLogo = DataSourceProvider.get().getRTSRouteLogo(context, poim.poi.getAuthority());
+					final JPaths rtsRouteLogo = DataSourceProvider.get(context).getRTSRouteLogo(poim.poi.getAuthority());
 					if (rtsRouteLogo != null) {
 						holder.routeTypeImg.setJSON(rtsRouteLogo);
 						holder.routeTypeImg.setColor(routeTextColor);

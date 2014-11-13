@@ -82,16 +82,20 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		DataSourceProvider.addModulesUpdateListerner(this);
 	}
 
+	public void init() {
+		getAllAgencyTypes(); // load all agency types
+	}
+
 	public List<DataSourceType> getAllAgencyTypes() {
 		if (this.allAgencyTypes == null) {
-			this.allAgencyTypes = DataSourceProvider.get().getAvailableAgencyTypes(this.context);
+			this.allAgencyTypes = DataSourceProvider.get(this.context).getAvailableAgencyTypes();
 		}
 		return allAgencyTypes;
 	}
 
 	@Override
 	public void onModulesUpdated() {
-		final List<DataSourceType> newAllAgencyTypes = DataSourceProvider.get().getAvailableAgencyTypes(this.context);
+		final List<DataSourceType> newAllAgencyTypes = DataSourceProvider.get(this.context).getAvailableAgencyTypes();
 		if (CollectionUtils.getSize(this.allAgencyTypes) != CollectionUtils.getSize(newAllAgencyTypes)) {
 			this.allAgencyTypes = newAllAgencyTypes; // force reset
 			super.notifyDataSetChanged();

@@ -14,16 +14,20 @@
             android:id="@+id/content_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/ad_layout" />
+            android:layout_above="@+id/ad_layout"
+            android:visibility="gone" />
+        <ViewStub
+            android:id="@+id/content_frame_loading_stub"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inflatedId="@+id/content_frame_loading"
+            android:layout="@layout/layout_loading_large"
+            android:visibility="visible" />
     </RelativeLayout>
-    <ListView
+    <include
         android:id="@+id/left_drawer"
         android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@color/menu_bg"
-        android:choiceMode="singleChoice"
-        android:divider="@drawable/list_view_divider"
-        android:dividerHeight="@dimen/list_view_divider_height"
-        android:fadingEdge="none" />
+        layout="@layout/layout_left_drawer" />
 </android.support.v4.widget.DrawerLayout>

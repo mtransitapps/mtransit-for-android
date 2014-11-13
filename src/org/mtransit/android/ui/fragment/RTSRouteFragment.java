@@ -425,7 +425,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			}
 			if (TextUtils.isEmpty(route.shortName)) {
 				holder.routeShortNameTv.setVisibility(View.GONE);
-				final JPaths rtsRouteLogo = DataSourceProvider.get().getRTSRouteLogo(context, this.authority);
+				final JPaths rtsRouteLogo = DataSourceProvider.get(context).getRTSRouteLogo(this.authority);
 				if (rtsRouteLogo != null) {
 					holder.routeTypeImg.setJSON(rtsRouteLogo);
 					holder.routeTypeImg.setColor(routeTextColor);
