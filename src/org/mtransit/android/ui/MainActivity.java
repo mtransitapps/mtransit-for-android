@@ -49,6 +49,11 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		return intent;
 	}
 
+	private static final boolean LOCATION_ENABLED = true;
+	private static final int FRAGMENT_TRANSITION = FragmentTransaction.TRANSIT_NONE;
+	private NavigationDrawerController navigationDrawerController;
+	private ActionBarController abController;
+
 	public MainActivity() {
 		super(LOCATION_ENABLED);
 	}
