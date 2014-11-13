@@ -67,6 +67,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		for (AgencyProperties agency : typeAgencies) {
 			final FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(getContext(),
 					DataSourceProvider.get(getContext()).getUri(agency.getAuthority()), this.lat, this.lng, this.aroundDiff, true, this.minCoverage,
+					this.maxSize);
 			taskList.add(executor.submit(task));
 		}
 		for (Future<List<POIManager>> future : taskList) {

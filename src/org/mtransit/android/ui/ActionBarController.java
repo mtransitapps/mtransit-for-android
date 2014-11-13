@@ -60,7 +60,7 @@ public class ActionBarController implements MTLog.Loggable {
 	private UpOnClickListener upOnClickListener;
 
 	public ActionBarController(MainActivity mainActivity) {
-		this.mainActivityWR = new WeakReference<>(mainActivity);
+		this.mainActivityWR = new WeakReference<MainActivity>(mainActivity);
 		init();
 	}
 

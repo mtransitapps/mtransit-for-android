@@ -48,7 +48,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 	private String currentSelectedScreenItemId = null;
 
 	public NavigationDrawerController(MainActivity mainActivity) {
-		this.mainActivityWR = new WeakReference<>(mainActivity);
+		this.mainActivityWR = new WeakReference<MainActivity>(mainActivity);
 	}
 
 	public void setup() {
