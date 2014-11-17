@@ -7,12 +7,13 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.fragment.ABFragment;
 
+import android.app.ActionBar;
+import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.DrawerLayout;
 import android.text.TextUtils;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -25,7 +26,6 @@ public class ActionBarController implements MTLog.Loggable {
 		return TAG;
 	}
 
-	private static final long MIN_DURATION_BETWEEN_UPDATE_AB_IN_MS = 100l; // 0.1 second
 
 	private WeakReference<MainActivity> mainActivityWR;
 
@@ -35,8 +35,8 @@ public class ActionBarController implements MTLog.Loggable {
 	private CharSequence drawerSubtitle;
 	private CharSequence fragmentSubtitle;
 
-	private int fragmentIcon;
 	private int drawerIcon;
+	private int fragmentIcon;
 
 	private Integer fragmentBgColor;
 	private Integer drawerBgColor;
@@ -51,40 +51,51 @@ public class ActionBarController implements MTLog.Loggable {
 
 	private boolean fragmentShowSearchMenuItem;
 
-	private Handler handler = new Handler();
-
-	private long lastUpdateAB = -1l;
-
-	private UpdateABLater updateABLater = null;
 
 	private UpOnClickListener upOnClickListener;
 
 	public ActionBarController(MainActivity mainActivity) {
-		this.mainActivityWR = new WeakReference<MainActivity>(mainActivity);
+		setMainActivity(mainActivity);
 		init();
 	}
 
+	public void setMainActivity(MainActivity mainActivity) {
+		this.mainActivityWR = new WeakReference<MainActivity>(mainActivity);
+	}
+
+	private Context getContextOrNull() {
+		return getMainActivityOrNull();
+	}
+
+	private MainActivity getMainActivityOrNull() {
+		return this.mainActivityWR == null ? null : this.mainActivityWR.get();
+	}
+
+	private ActionBar getABOrNull() {
+		final MainActivity mainActivity = getMainActivityOrNull();
+		return mainActivity == null ? null : mainActivity.getActionBar();
+	}
 	private void init() {
-		final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		final MainActivity mainActivity = getMainActivityOrNull();
 		if (mainActivity != null) {
+			final ActionBar ab = getABOrNull();
 			this.fragmentTitle = this.drawerTitle = mainActivity.getTitle();
-			this.fragmentSubtitle = this.drawerSubtitle = mainActivity.getActionBar().getSubtitle();
+			this.fragmentSubtitle = this.drawerSubtitle = ab.getSubtitle();
 			this.fragmentIcon = this.drawerIcon = R.mipmap.ic_launcher;
 			this.fragmentBgColor = this.drawerBgColor = ABFragment.NO_BG_COLOR;
-			this.fragmentCustomView = this.drawerCustomView = mainActivity.getActionBar().getCustomView();
-			this.fragmentThemeDarkInsteadOfThemeLight = false;
-			this.fragmentDisplayHomeAsUpEnabled = this.drawerDisplayHomeAsUpEnabled = true;
-			this.fragmentShowSearchMenuItem = true;
-
-			mainActivity.getActionBar().setDisplayHomeAsUpEnabled(true);
-			mainActivity.getActionBar().setHomeButtonEnabled(true);
+			this.fragmentCustomView = this.drawerCustomView = ABFragment.NO_CUSTOM_VIEW;
+			this.fragmentThemeDarkInsteadOfThemeLight = ABFragment.DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT;
+			this.fragmentDisplayHomeAsUpEnabled = this.drawerDisplayHomeAsUpEnabled = ABFragment.DEFAULT_DISPLAY_HOME_AS_UP_ENABLED;
+			this.fragmentShowSearchMenuItem = ABFragment.DEFAULT_SHOW_SEARCH_MENU_ITEM;
+			ab.setDisplayHomeAsUpEnabled(this.fragmentDisplayHomeAsUpEnabled);
+			ab.setHomeButtonEnabled(true);
 		}
 	}
 
 	public void setAB(ABFragment abf) {
-		final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
-		if (mainActivity != null) {
-			setAB(abf.getABTitle(mainActivity), abf.getABSubtitle(mainActivity), abf.getABIconDrawableResId(), abf.getABBgColor(), abf.getABCustomView(),
+		final Context context = getContextOrNull();
+		if (context != null) {
+			setAB(abf.getABTitle(context), abf.getABSubtitle(context), abf.getABIconDrawableResId(), abf.getABBgColor(), abf.getABCustomView(),
 					abf.isABThemeDarkInsteadOfThemeLight(), abf.isABDisplayHomeAsUpEnabled(), abf.isABShowSearchMenuItem());
 		}
 	}
@@ -102,12 +113,12 @@ public class ActionBarController implements MTLog.Loggable {
 	}
 
 	private boolean isCurrentFragmentVisible(Fragment source) {
-		final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		final MainActivity mainActivity = getMainActivityOrNull();
 		return mainActivity == null ? false : mainActivity.isCurrentFragmentVisible(source);
 	}
 
 	private boolean isDrawerOpen() {
-		final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		final MainActivity mainActivity = getMainActivityOrNull();
 		return mainActivity == null ? false : mainActivity.isDrawerOpen();
 	}
 
@@ -192,97 +203,81 @@ public class ActionBarController implements MTLog.Loggable {
 	}
 
 	public void updateAB() {
-		final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
-		if (mainActivity == null) {
-			return;
-		}
-		final long now = System.currentTimeMillis();
-		final long howLongBeforeNextUpdateABInMs = this.lastUpdateAB + MIN_DURATION_BETWEEN_UPDATE_AB_IN_MS - now;
-		if (mainActivity.isNotDrawerState(DrawerLayout.STATE_IDLE) || howLongBeforeNextUpdateABInMs > 0) {
-			if (this.updateABLater == null) {
-				this.updateABLater = new UpdateABLater(this);
-				this.handler.postDelayed(this.updateABLater, howLongBeforeNextUpdateABInMs > 0 ? howLongBeforeNextUpdateABInMs
-						: MIN_DURATION_BETWEEN_UPDATE_AB_IN_MS);
-			}
-			return;
-		}
-		updateLaterDone();
-		if (mainActivity.isDrawerOpen()) {
-			updateABDrawerOpened(mainActivity);
+		if (isDrawerOpen()) {
+			updateABDrawerOpened();
 		} else {
-			updateABDrawerClosed(mainActivity);
-		}
-		this.lastUpdateAB = now;
-	}
-
-	private void updateLaterDone() {
-		if (this.updateABLater != null) {
-			this.handler.removeCallbacks(this.updateABLater);
-			this.updateABLater = null;
+			updateABDrawerClosed();
 		}
 	}
 
-	private void updateABDrawerClosed(MainActivity mainActivity) {
+
+	private void updateABDrawerClosed() {
+		final MainActivity mainActivity = getMainActivityOrNull();
+		final ActionBar ab = getABOrNull();
 		if (fragmentCustomView != null) {
-			mainActivity.getActionBar().setCustomView(fragmentCustomView);
+			ab.setCustomView(fragmentCustomView);
 			if (!fragmentDisplayHomeAsUpEnabled) {
-				mainActivity.getActionBar().getCustomView().setOnClickListener(getUpOnClickListener(mainActivity));
+				ab.getCustomView().setOnClickListener(getUpOnClickListener(getMainActivityOrNull()));
 			}
-			mainActivity.getActionBar().setDisplayShowCustomEnabled(true);
+			ab.setDisplayShowCustomEnabled(true);
 		} else {
-			mainActivity.getActionBar().setDisplayShowCustomEnabled(false);
+			ab.setDisplayShowCustomEnabled(false);
 		}
-		mainActivity.getActionBar().setDisplayHomeAsUpEnabled(fragmentDisplayHomeAsUpEnabled);
+		ab.setDisplayHomeAsUpEnabled(fragmentDisplayHomeAsUpEnabled);
 		if (TextUtils.isEmpty(fragmentTitle)) {
-			mainActivity.getActionBar().setDisplayShowTitleEnabled(false);
+			ab.setDisplayShowTitleEnabled(false);
 		} else {
-			mainActivity.getActionBar().setTitle(fragmentTitle);
-			mainActivity.getActionBar().setSubtitle(fragmentSubtitle);
-			mainActivity.getActionBar().setDisplayShowTitleEnabled(true);
+			ab.setTitle(fragmentTitle);
+			ab.setSubtitle(fragmentSubtitle);
+			ab.setDisplayShowTitleEnabled(true);
 		}
 		if (fragmentIcon > 0) {
-			mainActivity.getActionBar().setIcon(fragmentIcon);
-			mainActivity.getActionBar().setDisplayShowHomeEnabled(true);
+			ab.setIcon(fragmentIcon);
+			ab.setDisplayShowHomeEnabled(true);
 		} else {
-			mainActivity.getActionBar().setDisplayShowHomeEnabled(false);
+			ab.setDisplayShowHomeEnabled(false);
 		}
 		if (fragmentBgColor != null) {
-			mainActivity.getActionBar().setBackgroundDrawable(new ColorDrawable(fragmentBgColor));
+			ab.setBackgroundDrawable(new ColorDrawable(fragmentBgColor.intValue()));
+			mainActivity.getWindow().setStatusBarColor(fragmentBgColor.intValue());
 		} else {
-			mainActivity.getActionBar().setBackgroundDrawable(null);
+			mainActivity.getWindow().setStatusBarColor(mainActivity.getResources().getColor(R.color.platform_primary_dark_material_light));
+			ab.setBackgroundDrawable(null);
 		}
 		mainActivity.updateNavigationDrawerToggleIndicator();
 		updateAllMenuItems(); // action bar icons are options menu items
 	}
 
-	private void updateABDrawerOpened(MainActivity mainActivity) {
+	private void updateABDrawerOpened() {
+		final MainActivity mainActivity = getMainActivityOrNull();
+		final ActionBar ab = getABOrNull();
 		if (drawerCustomView != null) {
-			mainActivity.getActionBar().setCustomView(drawerCustomView);
+			ab.setCustomView(drawerCustomView);
 			if (!drawerDisplayHomeAsUpEnabled) {
-				mainActivity.getActionBar().getCustomView().setOnClickListener(getUpOnClickListener(mainActivity));
+				ab.getCustomView().setOnClickListener(getUpOnClickListener(mainActivity));
 			}
-			mainActivity.getActionBar().setDisplayShowCustomEnabled(true);
+			ab.setDisplayShowCustomEnabled(true);
 		} else {
-			mainActivity.getActionBar().setDisplayShowCustomEnabled(false);
+			ab.setDisplayShowCustomEnabled(false);
 		}
-		mainActivity.getActionBar().setDisplayHomeAsUpEnabled(drawerDisplayHomeAsUpEnabled);
+		ab.setDisplayHomeAsUpEnabled(drawerDisplayHomeAsUpEnabled);
 		if (TextUtils.isEmpty(drawerTitle)) {
-			mainActivity.getActionBar().setDisplayShowTitleEnabled(false);
+			ab.setDisplayShowTitleEnabled(false);
 		} else {
-			mainActivity.getActionBar().setTitle(drawerTitle);
-			mainActivity.getActionBar().setSubtitle(drawerSubtitle);
-			mainActivity.getActionBar().setDisplayShowTitleEnabled(true);
+			ab.setTitle(drawerTitle);
+			ab.setSubtitle(drawerSubtitle);
+			ab.setDisplayShowTitleEnabled(true);
 		}
 		if (drawerIcon > 0) {
-			mainActivity.getActionBar().setIcon(drawerIcon);
-			mainActivity.getActionBar().setDisplayShowHomeEnabled(true);
+			ab.setIcon(drawerIcon);
+			ab.setDisplayShowHomeEnabled(true);
 		} else {
-			mainActivity.getActionBar().setDisplayShowHomeEnabled(false);
+			ab.setDisplayShowHomeEnabled(false);
 		}
 		if (drawerBgColor != null) {
-			mainActivity.getActionBar().setBackgroundDrawable(new ColorDrawable(drawerBgColor));
+			ab.setBackgroundDrawable(new ColorDrawable(drawerBgColor));
 		} else {
-			mainActivity.getActionBar().setBackgroundDrawable(null);
+			ab.setBackgroundDrawable(null);
 		}
 		mainActivity.enableNavigationDrawerToggleIndicator();
 		updateAllMenuItems(); // action bar icons are options menu items
@@ -291,7 +286,7 @@ public class ActionBarController implements MTLog.Loggable {
 	private UpOnClickListener getUpOnClickListener(MainActivity mainActivity) {
 		if (this.upOnClickListener == null) {
 			if (mainActivity == null) {
-				mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+				mainActivity = getMainActivityOrNull();
 			}
 			if (mainActivity != null) {
 				this.upOnClickListener = new UpOnClickListener(mainActivity);
@@ -310,44 +305,6 @@ public class ActionBarController implements MTLog.Loggable {
 		return this.allMenuItems.get(resId);
 	}
 
-	public void initMenuItems(Menu menu) {
-		this.allMenuItems.clear();
-		this.allMenuItems.put(R.id.menu_search, menu.findItem(R.id.menu_search));
-		final MenuItem menuToggleListGrid = menu.findItem(R.id.menu_toggle_list_grid);
-		if (menuToggleListGrid != null) {
-			this.allMenuItems.put(R.id.menu_toggle_list_grid, menuToggleListGrid);
-		}
-		final MenuItem menuAddRemoveFavorite = menu.findItem(R.id.menu_add_remove_favorite);
-		if (menuAddRemoveFavorite != null) {
-			this.allMenuItems.put(R.id.menu_add_remove_favorite, menuAddRemoveFavorite);
-		}
-		updateAllMenuItems();
-	}
-
-	public void updateAllMenuItems() {
-		if (this.allMenuItems == null || this.allMenuItems.size() == 0) {
-			return;
-		}
-		final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
-		if (mainActivity == null) {
-			return;
-		}
-		final boolean drawerOpen = mainActivity.isDrawerOpen();
-		final boolean showABIcons = !drawerOpen;
-		if (this.allMenuItems.get(R.id.menu_toggle_list_grid) != null) {
-			this.allMenuItems.get(R.id.menu_toggle_list_grid).setVisible(showABIcons);
-		}
-		if (this.allMenuItems.get(R.id.menu_add_remove_favorite) != null) {
-			this.allMenuItems.get(R.id.menu_add_remove_favorite).setVisible(showABIcons);
-		}
-		this.allMenuItems.get(R.id.menu_search).setVisible(this.fragmentShowSearchMenuItem && showABIcons);
-		this.allMenuItems.get(R.id.menu_search).setIcon(
-				fragmentThemeDarkInsteadOfThemeLight ? R.drawable.ic_menu_action_search_holo_dark : R.drawable.ic_menu_action_search_holo_light);
-	}
-
-	public void resetLastUpdateTime() {
-		this.lastUpdateAB = -1;
-	}
 
 	public void destroy() {
 		if (this.mainActivityWR != null) {
@@ -361,22 +318,50 @@ public class ActionBarController implements MTLog.Loggable {
 		this.drawerCustomView = null;
 	}
 
-	private static class UpdateABLater implements Runnable {
+	public boolean onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
+		menuInflater.inflate(R.menu.main_activity, menu);
+		initMenuItems(menu);
+		return true;
+	}
 
-		private WeakReference<ActionBarController> abControllerWR;
+	public void initMenuItems(Menu menu) {
+		this.allMenuItems.clear();
+		this.allMenuItems.put(R.id.menu_search, menu.findItem(R.id.menu_search));
+		updateAllMenuItems();
+	}
 
-		public UpdateABLater(ActionBarController abController) {
-			this.abControllerWR = new WeakReference<ActionBarController>(abController);
-		}
+	public void updateAllMenuItems() {
+		final boolean drawerOpen = isDrawerOpen();
+		final boolean showABIcons = !drawerOpen;
 
-		@Override
-		public void run() {
-			final ActionBarController abController = this.abControllerWR == null ? null : this.abControllerWR.get();
-			if (abController != null) {
-				abController.updateLaterDone();
-				abController.updateAB();
+		if (this.allMenuItems != null) {
+			for (HashMap.Entry<Integer, MenuItem> menuItemEntry : this.allMenuItems.entrySet()) {
+				if (menuItemEntry.getKey().intValue() == R.id.menu_search) {
+					menuItemEntry.getValue().setVisible(this.fragmentShowSearchMenuItem && showABIcons);
+					this.allMenuItems.get(R.id.menu_search).setIcon(
+							fragmentThemeDarkInsteadOfThemeLight ? R.drawable.ic_menu_action_search_holo_dark : R.drawable.ic_menu_action_search_holo_light);
+					continue;
+				}
+				menuItemEntry.getValue().setVisible(showABIcons);
 			}
 		}
+
+	}
+
+	public boolean onOptionsItemSelected(MenuItem item) {
+		final MainActivity mainActivity = getMainActivityOrNull();
+		if (mainActivity != null) {
+			if (item.getItemId() == android.R.id.home) {
+				if (mainActivity.onUpIconClick()) {
+					return true; // handled
+				}
+			}
+			if (item.getItemId() == R.id.menu_search) {
+				mainActivity.onSearchRequested();
+				return true; // handled
+			}
+		}
+		return false; // not handled
 	}
 
 	private static class UpOnClickListener implements View.OnClickListener {

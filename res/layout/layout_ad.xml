@@ -8,6 +8,5 @@
     android:layout_alignParentBottom="true"
     android:visibility="gone"
     tools:visibility="visible" >
-    <include
-        layout="@layout/view_ad" />
+    <include layout="@layout/view_ad" />
 </RelativeLayout>

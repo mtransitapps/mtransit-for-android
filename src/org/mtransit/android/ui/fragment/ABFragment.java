@@ -2,6 +2,8 @@ package org.mtransit.android.ui.fragment;
 
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.ui.ActionBarController;
+import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.util.AnalyticsUtils;
 
 import android.content.Context;
@@ -15,6 +17,12 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 	public static final Integer NO_BG_COLOR = null;
 
 	public static final View NO_CUSTOM_VIEW = null;
+
+	public static final boolean DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT = false;
+
+	public static final boolean DEFAULT_DISPLAY_HOME_AS_UP_ENABLED = true;
+
+	public static final boolean DEFAULT_SHOW_SEARCH_MENU_ITEM = true;
 
 	public CharSequence getABTitle(Context context) {
 		return null;
@@ -37,15 +45,19 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 	}
 
 	public boolean isABDisplayHomeAsUpEnabled() {
-		return true;
+		return DEFAULT_DISPLAY_HOME_AS_UP_ENABLED;
 	}
 
 	public boolean isABShowSearchMenuItem() {
-		return true;
+		return DEFAULT_SHOW_SEARCH_MENU_ITEM;
 	}
 
 	public boolean isABThemeDarkInsteadOfThemeLight() {
-		return false;
+		return DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT;
+	}
+
+	public ActionBarController getAbController() {
+		return ((MainActivity) getActivity()).getAbController();
 	}
 
 	@Override

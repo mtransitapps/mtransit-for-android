@@ -202,19 +202,18 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 				availabilityPercentStatusViewHolder.textTv2.setVisibility(View.GONE);
 				availabilityPercentStatusViewHolder.textTv1.setText(availabilityPercent.getStatusMsg(context));
 				availabilityPercentStatusViewHolder.textTv1.setVisibility(View.VISIBLE);
-				availabilityPercentStatusViewHolder.progressBar.setVisibility(View.VISIBLE);
 			} else {
-				availabilityPercentStatusViewHolder.progressBar.setIndeterminate(false);
-				availabilityPercentStatusViewHolder.progressBar.setMax(availabilityPercent.getTotalValue());
-				availabilityPercentStatusViewHolder.progressBar.setProgress(availabilityPercent.getValue1());
-				availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter(//
-						availabilityPercent.getValue1Color(), PorterDuff.Mode.SRC_IN);
-				availabilityPercentStatusViewHolder.progressBar.setVisibility(View.VISIBLE);
 				availabilityPercentStatusViewHolder.textTv1.setText(availabilityPercent.getValue1Text(context));
 				availabilityPercentStatusViewHolder.textTv1.setVisibility(View.VISIBLE);
 				availabilityPercentStatusViewHolder.textTv2.setText(availabilityPercent.getValue2Text(context));
 				availabilityPercentStatusViewHolder.textTv2.setVisibility(View.VISIBLE);
 			}
+			availabilityPercentStatusViewHolder.progressBar.setIndeterminate(false);
+			availabilityPercentStatusViewHolder.progressBar.setMax(availabilityPercent.getTotalValue());
+			availabilityPercentStatusViewHolder.progressBar.setProgress(availabilityPercent.getValue1());
+			availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter(//
+					availabilityPercent.getValue1Color(), PorterDuff.Mode.SRC_IN);
+			availabilityPercentStatusViewHolder.progressBar.setVisibility(View.VISIBLE);
 			statusViewHolder.statusV.setVisibility(View.VISIBLE);
 		} else {
 			statusViewHolder.statusV.setVisibility(View.INVISIBLE);

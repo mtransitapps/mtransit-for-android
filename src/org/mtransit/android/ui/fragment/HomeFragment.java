@@ -12,7 +12,6 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.HomePOILoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
-import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 
 import android.app.Activity;
@@ -151,7 +150,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 				if (refreshRequired) {
 					final FragmentActivity activity = getActivity();
 					if (activity != null) {
-						((MainActivity) activity).getAbController().setABSubtitle(HomeFragment.this, getABSubtitle(activity), true);
+						getAbController().setABSubtitle(HomeFragment.this, getABSubtitle(activity), true);
 					}
 				}
 			}
@@ -224,7 +223,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			if (locationChanged) {
 				final boolean requireNotifyAB = setUserAwayFromLocation();
 				if (requireNotifyAB) {
-					((MainActivity) getActivity()).getAbController().setABIcon(this, getABIconDrawableResId(), true);
+					getAbController().setABIcon(this, getABIconDrawableResId(), true);
 				}
 			}
 		}
@@ -266,7 +265,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 		setSwipeRefreshLayoutRefreshing(false);
 		this.nearbyLocationAddress = null;
-		((MainActivity) getActivity()).getAbController().setABSubtitle(this, getABSubtitle(getActivity()), true);
+		getAbController().setABSubtitle(this, getABSubtitle(getActivity()), true);
 		findNearbyLocation();
 	}
 
@@ -304,7 +303,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.adapter = new POIArrayAdapter(getActivity());
 		this.adapter.setTag(getLogTag());
 		this.adapter.setFavoriteUpdateListener(this);
-		this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_BROWSE_NEARBY);
+		this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_ALL_NEARBY);
 		final View view = getView();
 		setupView(view);
 		switchView(view);

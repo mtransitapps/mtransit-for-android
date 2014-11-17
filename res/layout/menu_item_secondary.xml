@@ -32,5 +32,5 @@
         android:singleLine="true"
         android:textAllCaps="true"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/menu_item_selectable_text_color" />
+        android:textColor="@color/menu_item_text_color" />
 </RelativeLayout>

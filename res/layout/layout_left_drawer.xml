@@ -17,8 +17,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:choiceMode="singleChoice"
-        android:divider="@drawable/list_view_divider"
-        android:dividerHeight="@dimen/list_view_divider_height"
+        android:divider="@null"
+        android:dividerHeight="0dp"
         android:fadingEdge="none"
         android:visibility="gone" />
     <include

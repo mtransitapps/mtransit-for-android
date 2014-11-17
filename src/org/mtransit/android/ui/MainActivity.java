@@ -5,7 +5,6 @@ import java.util.WeakHashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.SearchFragment;
@@ -18,7 +17,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -50,7 +48,6 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	}
 
 	private static final boolean LOCATION_ENABLED = true;
-	private static final int FRAGMENT_TRANSITION = FragmentTransaction.TRANSIT_NONE;
 	private NavigationDrawerController navigationDrawerController;
 	private ActionBarController abController;
 
@@ -69,18 +66,6 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
 		AdsUtils.setupAd(this);
-		new Handler().postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if (getCurrentFragment() == null) {
-						showContentFrameAsLoading();
-					}
-				} catch (Exception e) {
-					MTLog.w(TAG, e, "Error while setting content as loading!");
-				}
-			}
-		}, 5 * TimeUtils.ONE_SECOND_IN_MS);
 	}
 
 	public ActionBarController getAbController() {
@@ -125,8 +110,9 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	@Override
 	protected void onResume() {
 		super.onResume();
-		setAB();
-		updateAB();
+		if (this.abController != null) {
+			this.abController.updateAB();
+		}
 		AnalyticsUtils.trackScreenView(this, this);
 		AdsUtils.resumeAd(this);
 	}
@@ -187,24 +173,24 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		while (fm.getBackStackEntryCount() > 0) {
 			fm.popBackStackImmediate();
 		}
-		if (this.abController != null) {
-			this.abController.resetLastUpdateTime();
-		}
 	}
 
 	public void showNewFragment(ABFragment newFragment, boolean addToStack) {
+		showNewFragment(newFragment, addToStack, null);
+	}
+
+	public void showNewFragment(ABFragment newFragment, boolean addToStack, View clickFromView) {
 		final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 		ft.replace(R.id.content_frame, newFragment);
 		if (addToStack) {
 			ft.addToBackStack(null);
 			this.backStackEntryCount++;
 		}
-		ft.setTransition(FRAGMENT_TRANSITION);
 		ft.commit();
 		showContentFrameAsLoaded();
 		if (this.abController != null) {
-			this.abController.resetLastUpdateTime();
 			this.abController.setAB(newFragment);
+			this.abController.updateAB();
 		}
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.setCurrentSelectedItemChecked(this.backStackEntryCount == 0);
@@ -215,11 +201,15 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		if (findViewById(R.id.content_frame_loading) != null) {
 			findViewById(R.id.content_frame_loading).setVisibility(View.GONE);
 		}
-		findViewById(R.id.content_frame).setVisibility(View.VISIBLE);
+		if (findViewById(R.id.content_frame) != null) {
+			findViewById(R.id.content_frame).setVisibility(View.VISIBLE);
+		}
 	}
 
 	private void showContentFrameAsLoading() {
-		findViewById(R.id.content_frame).setVisibility(View.GONE);
+		if (findViewById(R.id.content_frame) != null) {
+			findViewById(R.id.content_frame).setVisibility(View.GONE);
+		}
 		if (findViewById(R.id.content_frame_loading) == null) {
 			((ViewStub) findViewById(R.id.content_frame_loading_stub)).inflate(); // inflate
 		}
@@ -227,7 +217,11 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	}
 
 	public void addFragmentToStack(ABFragment newFragment) {
-		showNewFragment(newFragment, true);
+		addFragmentToStack(newFragment, null);
+	}
+
+	public void addFragmentToStack(ABFragment newFragment, View clickFromView) {
+		showNewFragment(newFragment, true, clickFromView);
 	}
 
 	@Override
@@ -242,16 +236,6 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		}
 	}
 
-
-	private void setAB() {
-		Fragment f = getCurrentFragment();
-		if (f != null && f instanceof ABFragment) {
-			ABFragment abf = (ABFragment) f;
-			if (this.abController != null) {
-				this.abController.setAB(abf);
-			}
-		}
-	}
 
 	public boolean isCurrentFragmentVisible(Fragment fragment) {
 		if (fragment == null) {
@@ -271,8 +255,10 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	@Override
 	public void onBackStackChanged() {
 		this.backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
-		setAB();
-		updateAB();
+		if (this.abController != null) {
+			this.abController.setAB((ABFragment) getCurrentFragment());
+			this.abController.updateAB(); // up/drawer icon
+		}
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onBackStackChanged(this.backStackEntryCount);
 		}
@@ -302,17 +288,6 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		return this.navigationDrawerController != null && this.navigationDrawerController.isDrawerOpen();
 	}
 
-	public boolean isNotDrawerState(int drawerState) {
-		return this.navigationDrawerController != null && this.navigationDrawerController.getDrawerState() != drawerState;
-	}
-
-	public boolean isDrawerState(int drawerState) {
-		return this.navigationDrawerController != null && this.navigationDrawerController.getDrawerState() == drawerState;
-	}
-
-	public Integer getDrawerStateOrNull() {
-		return this.navigationDrawerController == null ? null : this.navigationDrawerController.getDrawerState();
-	}
 
 	private int backStackEntryCount = 0; // because FragmentManager.getBackStackEntryCount() is not instantly up-to-date
 
@@ -327,22 +302,13 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	}
 
 
-	public void addMenuItem(int resId, MenuItem menuItem) {
-		if (this.abController != null) {
-			this.abController.addMenuItem(resId, menuItem);
-		}
-	}
 
-	public MenuItem getMenuItem(int resId) {
-		return this.abController == null ? null : this.abController.getMenuItem(resId);
-	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		getMenuInflater().inflate(R.menu.main_activity, menu);
 		if (this.abController != null) {
-			this.abController.initMenuItems(menu);
+			this.abController.onCreateOptionsMenu(menu, getMenuInflater());
 		}
 
 		return true;
@@ -361,7 +327,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		if (this.navigationDrawerController != null) {
-			this.navigationDrawerController.onActivityConfigurationChanged(newConfig);
+			this.navigationDrawerController.onConfigurationChanged(newConfig);
 		}
 	}
 
@@ -375,9 +341,6 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 				ft.remove(fragment);
 				ft.commit();
 				fm.popBackStackImmediate();
-				if (this.abController != null) {
-					this.abController.resetLastUpdateTime();
-				}
 			}
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while poping fragment '%s' from stack!", fragment);
@@ -404,9 +367,6 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		final FragmentManager fm = getSupportFragmentManager();
 		if (fm.getBackStackEntryCount() > 0) {
 			fm.popBackStackImmediate();
-			if (this.abController != null) {
-				this.abController.resetLastUpdateTime();
-			}
 			return true; // handled
 		}
 		return false; // not handled
@@ -414,21 +374,13 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (this.navigationDrawerController != null && this.navigationDrawerController.onActivityOptionsItemSelected(item)) {
+		if (this.navigationDrawerController != null && this.navigationDrawerController.onOptionsItemSelected(item)) {
 			return true; // handled
 		}
-		if (item.getItemId() == android.R.id.home) {
-			if (onUpIconClick()) {
-				return true; // handled
-			}
-		}
-		switch (item.getItemId()) {
-		case R.id.menu_search:
-			onSearchRequested();
+		if (this.abController != null && this.abController.onOptionsItemSelected(item)) {
 			return true; // handled
-		default:
-			return super.onOptionsItemSelected(item);
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 }

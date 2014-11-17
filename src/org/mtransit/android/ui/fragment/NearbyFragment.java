@@ -15,7 +15,6 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
-import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.SlidingTabLayout;
 
 import android.app.Activity;
@@ -190,7 +189,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				if (refreshRequired) {
 					final FragmentActivity activity = NearbyFragment.this.getActivity();
 					if (activity != null) {
-						((MainActivity) activity).getAbController().setABSubtitle(NearbyFragment.this, getABSubtitle(activity), true);
+						getAbController().setABSubtitle(NearbyFragment.this, getABSubtitle(activity), true);
 					}
 				}
 			}
@@ -305,7 +304,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			if (locationChanged) {
 				final boolean requireNotifyAB = setUserAwayFromLocation();
 				if (requireNotifyAB) {
-					((MainActivity) getActivity()).getAbController().setABIcon(this, getABIconDrawableResId(), true);
+					getAbController().setABIcon(this, getABIconDrawableResId(), true);
 				}
 			}
 		}
@@ -347,7 +346,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 		setSwipeRefreshLayoutRefreshing(false);
 		this.nearbyLocationAddress = null;
-		((MainActivity) getActivity()).getAbController().setABIcon(this, getABIconDrawableResId(), true);
+		getAbController().setABIcon(this, getABIconDrawableResId(), true);
 		findNearbyLocation();
 	}
 

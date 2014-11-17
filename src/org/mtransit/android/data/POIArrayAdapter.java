@@ -58,9 +58,9 @@ import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements SensorUtils.CompassListener, AdapterView.OnItemClickListener,
-		AdapterView.OnItemLongClickListener, SensorEventListener, AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener, MTLog.Loggable,
-		FavoriteManager.FavoriteUpdateListener, SensorUtils.SensorTaskCompleted, TimeUtils.TimeChangedReceiver.TimeChangedListener {
+public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements SensorUtils.CompassListener, AdapterView.OnItemClickListener, SensorEventListener,
+		AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener, MTLog.Loggable, FavoriteManager.FavoriteUpdateListener,
+		SensorUtils.SensorTaskCompleted, TimeUtils.TimeChangedReceiver.TimeChangedListener {
 
 	private static final String TAG = POIArrayAdapter.class.getSimpleName();
 
@@ -77,7 +77,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public static final int TYPE_HEADER_NONE = 0;
 	public static final int TYPE_HEADER_BASIC = 1;
-	public static final int TYPE_HEADER_BROWSE_NEARBY = 2;
+	public static final int TYPE_HEADER_ALL_NEARBY = 2;
 	public static final int TYPE_HEADER_MORE = 3;
 
 	private LayoutInflater layoutInflater;
@@ -312,10 +312,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		showPoiViewerScreen(position);
 	}
 
-	@Override
-	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-		return showPoiMenu(position);
-	}
 
 	public boolean showClosestPOI() {
 		if (!hasClosestPOI()) {
@@ -604,7 +600,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public void setListView(AbsListView listView) {
 		listView.setOnItemClickListener(this);
-		listView.setOnItemLongClickListener(this);
 		listView.setOnScrollListener(this);
 		listView.setAdapter(this);
 	}
@@ -622,13 +617,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					@Override
 					public void onClick(View v) {
 						showPoiViewerScreen(position);
-					}
-				});
-				view.setOnLongClickListener(new View.OnLongClickListener() {
-
-					@Override
-					public boolean onLongClick(View v) {
-						return showPoiMenu(position);
 					}
 				});
 				this.manualLayout.addView(view);
@@ -815,8 +803,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			return R.layout.layout_poi_list_header;
 		case TYPE_HEADER_MORE:
 			return R.layout.layout_poi_list_header_with_more;
-		case TYPE_HEADER_BROWSE_NEARBY:
-			return R.layout.layout_poi_list_header_with_browse_nearby;
+		case TYPE_HEADER_ALL_NEARBY:
+			return R.layout.layout_poi_list_header_with_all_nearby;
 		default:
 			MTLog.w(this, "Unexected header type '%s'!", this.showTypeHeader);
 			return R.layout.layout_poi_list_header;
@@ -837,7 +825,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			return;
 		}
 		switch (buttonId) {
-		case TypeHeaderButtonsClickListener.BUTTON_BROWSE:
+		case TypeHeaderButtonsClickListener.BUTTON_ALL:
 			if (type != null) {
 				final Activity activity = this.activityWR == null ? null : this.activityWR.get();
 				if (activity != null) {
@@ -873,7 +861,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			TypeHeaderViewHolder holder = new TypeHeaderViewHolder();
 			holder.nameTv = (TextView) convertView.findViewById(R.id.name);
 			holder.nearbyBtn = convertView.findViewById(R.id.nearbyBtn);
-			holder.browseBtn = convertView.findViewById(R.id.browseBtn);
+			holder.allBtn = convertView.findViewById(R.id.allBtn);
 			holder.moreBtn = convertView.findViewById(R.id.moreBtn);
 			convertView.setTag(holder);
 		}
@@ -882,12 +870,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (type.getAbIconResId() != -1) {
 			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getAbIconResId(), 0, 0, 0);
 		}
-		if (holder.browseBtn != null) {
-			holder.browseBtn.setOnClickListener(new View.OnClickListener() {
+		if (holder.allBtn != null) {
+			holder.allBtn.setOnClickListener(new View.OnClickListener() {
 
 				@Override
 				public void onClick(View v) {
-					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_BROWSE, type);
+					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_ALL, type);
 				}
 			});
 		}
@@ -1183,7 +1171,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					public void onClick(View v) {
 						final Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
 						if (activity != null && activity instanceof MainActivity) {
-							((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts));
+							((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts), v);
 						} else {
 							MTLog.w(POIArrayAdapter.this, "No activity available to open RTS fragment!");
 						}
@@ -1474,7 +1462,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public static class TypeHeaderViewHolder {
 		TextView nameTv;
-		View browseBtn;
+		View allBtn;
 		View nearbyBtn;
 		View moreBtn;
 	}
@@ -1483,7 +1471,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 		public static final int BUTTON_MORE = 0;
 		public static final int BUTTON_NEARBY = 1;
-		public static final int BUTTON_BROWSE = 2;
+		public static final int BUTTON_ALL = 2;
 
 		public void onTypeHeaderButtonClick(int buttonId, DataSourceType type);
 	}

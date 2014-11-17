@@ -33,7 +33,7 @@
             android:textColor="@color/platform_background_holo_light" />
     </FrameLayout>
     <FrameLayout
-        android:id="@+id/browseBtn"
+        android:id="@+id/allBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -47,7 +47,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_gravity="center_vertical"
             android:background="@color/ic_menu_holo_light_text"
             android:fontFamily="sans-serif-condensed"
@@ -66,7 +65,7 @@
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="false"
         android:layout_gravity="center_vertical"
-        android:layout_toLeftOf="@id/browseBtn"
+        android:layout_toLeftOf="@id/allBtn"
         android:drawablePadding="8dp"
         android:ellipsize="end"
         android:fontFamily="sans-serif-light"

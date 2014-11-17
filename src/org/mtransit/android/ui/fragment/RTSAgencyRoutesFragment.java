@@ -364,7 +364,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		super.onCreateOptionsMenu(menu, inflater);
 		if (menu.findItem(R.id.menu_toggle_list_grid) == null) {
 			inflater.inflate(R.menu.rts_agency_routes, menu);
-			((MainActivity) getActivity()).addMenuItem(R.id.menu_toggle_list_grid, menu.findItem(R.id.menu_toggle_list_grid));
+			((MainActivity) getActivity()).getAbController().addMenuItem(R.id.menu_toggle_list_grid, menu.findItem(R.id.menu_toggle_list_grid));
 			if (!this.fragmentVisible) {
 				menu.findItem(R.id.menu_toggle_list_grid).setVisible(false);
 			}
@@ -376,7 +376,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		if (!this.fragmentVisible) {
 			return;
 		}
-		final MenuItem listGridToggleMenuItem = ((MainActivity) getActivity()).getMenuItem(R.id.menu_toggle_list_grid);
+		final MenuItem listGridToggleMenuItem = ((MainActivity) getActivity()).getAbController().getMenuItem(R.id.menu_toggle_list_grid);
 		if (listGridToggleMenuItem == null) {
 			return;
 		}

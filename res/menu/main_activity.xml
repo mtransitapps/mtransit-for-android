@@ -1,5 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" >
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="org.mtransit.android.MainActivity" >
     <item
         android:id="@+id/menu_search"
         android:icon="@drawable/ic_menu_action_search_holo_light"

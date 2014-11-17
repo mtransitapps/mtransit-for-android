@@ -15,4 +15,4 @@
     android:singleLine="true"
     android:textAllCaps="false"
     android:textAppearance="?android:attr/textAppearanceMedium"
-    android:textColor="@color/menu_item_selectable_text_color" />
+    android:textColor="@color/menu_item_text_color" />

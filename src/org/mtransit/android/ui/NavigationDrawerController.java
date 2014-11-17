@@ -37,7 +37,6 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 
 	private DrawerLayout drawerLayout;
 	private ABDrawerToggle drawerToggle;
-	private int drawerState = DrawerLayout.STATE_IDLE;
 
 	private View leftDrawer;
 	private ListView drawerListView;
@@ -60,7 +59,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 			showDrawerLoading();
 			this.drawerLayout = (DrawerLayout) mainActivity.findViewById(R.id.drawer_layout);
 			this.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-			this.drawerToggle = new ABDrawerToggle(mainActivity, this.drawerLayout, this);
+			this.drawerToggle = new ABDrawerToggle(mainActivity, this.drawerLayout);
 			this.drawerLayout.setDrawerListener(drawerToggle);
 			finishSetupAsync();
 		}
@@ -215,24 +214,17 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		}
 	}
 
-	public void onActivityConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(Configuration newConfig) {
 		onDrawerToggleConfigurationChanged(newConfig);
 	}
 
-	public boolean onActivityOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(MenuItem item) {
 		if (this.drawerToggle != null && this.drawerToggle.onOptionsItemSelected(item)) {
 			return true; // processed
 		}
 		return false;
 	}
 
-	public void setDrawerState(int drawerState) {
-		this.drawerState = drawerState;
-	}
-
-	public int getDrawerState() {
-		return drawerState;
-	}
 
 	private boolean isCurrentSelectedSet() {
 		return this.currentSelectedItemPosition >= 0 && this.currentSelectedScreenItemId != null;
@@ -301,12 +293,10 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		}
 
 		private WeakReference<MainActivity> mainActivityWR;
-		private WeakReference<NavigationDrawerController> drawerControllerWR;
 
-		public ABDrawerToggle(MainActivity mainActivity, DrawerLayout drawerLayout, NavigationDrawerController drawerController) {
+		public ABDrawerToggle(MainActivity mainActivity, DrawerLayout drawerLayout) {
 			super(mainActivity, drawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close);
 			this.mainActivityWR = new WeakReference<MainActivity>(mainActivity);
-			this.drawerControllerWR = new WeakReference<NavigationDrawerController>(drawerController);
 		}
 
 		@Override
@@ -325,13 +315,6 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 			}
 		}
 
-		@Override
-		public void onDrawerStateChanged(int newState) {
-			final NavigationDrawerController drawerController = this.drawerControllerWR == null ? null : this.drawerControllerWR.get();
-			if (drawerController != null) {
-				drawerController.setDrawerState(newState);
-			}
-		}
 	}
 
 }

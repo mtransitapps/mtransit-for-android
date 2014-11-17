@@ -6,7 +6,6 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ui.widget.MTBaseAdapter;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 import org.mtransit.android.ui.fragment.FavoritesFragment;
@@ -32,7 +31,6 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 	}
 
 	private static final int VIEW_TYPE_STATIC_MAIN_TEXT_WITH_ICON = 0; // Favorite, Nearby, Direction, Search, Maps...
-	private static final int VIEW_TYPE_STATIC_HEADERS = 1; // Browse...
 	private static final int VIEW_TYPE_DYNAMIC_AGENCY_TYPE = 2; // Bike, Bus, Subway, Train...
 	private static final int VIEW_TYPE_SECONDARY = 3; // Settings, Help, Send Feedback...
 	private static final int VIEW_TYPE_STATIC_SEPARATORS = 4; // -----
@@ -47,9 +45,8 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 	// private static final int ITEM_INDEX_MAPS = 4;
 
 	// private static final int ITEM_INDEX_DYNAMIC_HEADER = 5;
-	private static final int ITEM_INDEX_DYNAMIC_HEADER = 3;
 
-	private static final int ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR = 4;
+	private static final int ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR = 3;
 
 	private static final int STATIC_ITEMS_BEFORE_DYNAMIC = ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR + 1;
 
@@ -147,7 +144,6 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 			return ITEM_ID_STATIC_START_WITH + position;
 		case VIEW_TYPE_DYNAMIC_AGENCY_TYPE:
 			return getAgencyTypeScreenItemId(position);
-		case VIEW_TYPE_STATIC_HEADERS:
 		case VIEW_TYPE_STATIC_SEPARATORS:
 		case VIEW_TYPE_SECONDARY:
 			return null;
@@ -187,6 +183,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 				return ITEM_ID_SELECTED_SCREEN_POSITION_DEFAULT;
 			}
 		}
+		MTLog.w(this, "Unknown item ID'%s'!", itemId);
 		return ITEM_ID_SELECTED_SCREEN_POSITION_DEFAULT;
 	}
 
@@ -198,6 +195,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 			}
 			i++;
 		}
+		MTLog.w(this, "Unknown agency type ID '%s'!", typeId);
 		return ITEM_ID_SELECTED_SCREEN_POSITION_DEFAULT;
 	}
 
@@ -209,9 +207,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 	@Override
 	public int getItemViewType(int position) {
 		if (position < STATIC_ITEMS_BEFORE_DYNAMIC) {
-			if (position == ITEM_INDEX_DYNAMIC_HEADER) {
-				return VIEW_TYPE_STATIC_HEADERS;
-			} else if (position == ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR) {
+			if (position == ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR) {
 				return VIEW_TYPE_STATIC_SEPARATORS;
 			}
 			return VIEW_TYPE_STATIC_MAIN_TEXT_WITH_ICON;
@@ -233,7 +229,6 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		case VIEW_TYPE_STATIC_MAIN_TEXT_WITH_ICON:
 		case VIEW_TYPE_DYNAMIC_AGENCY_TYPE:
 			return true;
-		case VIEW_TYPE_STATIC_HEADERS:
 		case VIEW_TYPE_STATIC_SEPARATORS:
 		case VIEW_TYPE_SECONDARY:
 			return false;
@@ -248,8 +243,6 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		switch (getItemViewType(position)) {
 		case VIEW_TYPE_STATIC_MAIN_TEXT_WITH_ICON:
 			return getStaticView(position, convertView, parent);
-		case VIEW_TYPE_STATIC_HEADERS:
-			return getStaticHeaderView(position, convertView, parent);
 		case VIEW_TYPE_DYNAMIC_AGENCY_TYPE:
 			return getDynamicAgencyTypeView(position, convertView, parent);
 		case VIEW_TYPE_STATIC_SEPARATORS:
@@ -267,7 +260,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		return dataSourceType;
 	}
 
-	public View getDynamicAgencyTypeView(int position, View convertView, ViewGroup parent) {
+	private View getDynamicAgencyTypeView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.menu_item_agency_type, parent, false);
 			MenuItemAgencyTypeViewHolder holder = new MenuItemAgencyTypeViewHolder();
@@ -277,7 +270,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		MenuItemAgencyTypeViewHolder holder = (MenuItemAgencyTypeViewHolder) convertView.getTag();
 		final DataSourceType type = getAgencyTypeAt(position);
 		if (type != null) {
-			holder.nameTv.setText(type.getShortNameResId());
+			holder.nameTv.setText(type.getAllStringResId());
 			if (type.getMenuResId() != -1) {
 				holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getMenuResId(), 0, 0, 0);
 			} else {
@@ -290,24 +283,13 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		return convertView;
 	}
 
-	public View getStaticSeparator(int position, View convertView, ViewGroup parent) {
+	private View getStaticSeparator(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.menu_separator, parent, false);
 		}
 		return convertView;
 	}
 
-	public View getStaticHeaderView(int position, View convertView, ViewGroup parent) {
-		if (convertView == null) {
-			convertView = this.layoutInflater.inflate(R.layout.menu_list_header, parent, false);
-			MenuListHeaderViewHolder holder = new MenuListHeaderViewHolder();
-			holder.nameTv = (TextView) convertView;
-			convertView.setTag(holder);
-		}
-		MenuListHeaderViewHolder holder = (MenuListHeaderViewHolder) convertView.getTag();
-		holder.nameTv.setText(R.string.browse);
-		return convertView;
-	}
 
 	@Override
 	public boolean areAllItemsEnabled() {
@@ -322,7 +304,6 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		case VIEW_TYPE_DYNAMIC_AGENCY_TYPE:
 		case VIEW_TYPE_SECONDARY:
 			return true;
-		case VIEW_TYPE_STATIC_HEADERS:
 		case VIEW_TYPE_STATIC_SEPARATORS:
 			return false;
 		default:
@@ -363,7 +344,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		return convertView;
 	}
 
-	public View getStaticView(int position, View convertView, ViewGroup parent) {
+	private View getStaticView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.menu_item, parent, false);
 			MenuItemViewHolder holder = new MenuItemViewHolder();
@@ -374,13 +355,13 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		MenuItemViewHolder holder = (MenuItemViewHolder) convertView.getTag();
 		if (position == ITEM_INDEX_HOME) {
 			holder.nameTv.setText(R.string.home);
-			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_home, 0, 0, 0);
+			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_guide_holo_light, 0, 0, 0);
 		} else if (position == ITEM_INDEX_FAVORITE) {
 			holder.nameTv.setText(R.string.favorites);
-			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_favorites, 0, 0, 0);
+			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_favorites_holo_light, 0, 0, 0);
 		} else if (position == ITEM_INDEX_NEARBY) {
 			holder.nameTv.setText(R.string.nearby);
-			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_nearby, 0, 0, 0);
+			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_place_holo_light, 0, 0, 0);
 			// } else if (position == ITEM_INDEX_DIRECTIONS) {
 			// holder.nameTv.setText(R.string.directions);
 			// holder.icon.setImageResource(R.drawable.ic_menu_directions);

@@ -4,6 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
+    <!-- TABS -->
+    <org.mtransit.android.ui.view.SlidingTabLayout
+        android:id="@+id/tabs"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:visibility="gone" />
     <!-- LOADING -->
     <ViewStub
         android:id="@+id/loading_stub"
@@ -12,12 +18,6 @@
         android:inflatedId="@+id/loading"
         android:layout="@layout/layout_loading_large"
         android:visibility="visible" />
-    <!-- TABS -->
-    <org.mtransit.android.ui.view.SlidingTabLayout
-        android:id="@+id/tabs"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:visibility="gone" />
     <!-- VIEWPAGER -->
     <android.support.v4.view.ViewPager
         android:id="@+id/viewpager"

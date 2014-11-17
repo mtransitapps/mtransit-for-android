@@ -2,7 +2,6 @@ package org.mtransit.android.ui.fragment;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.Locale;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -16,7 +15,6 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
-import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.SlidingTabLayout;
 
 import android.content.Context;
@@ -159,8 +157,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		final Integer typeId = BundleUtils.getInt(EXTRA_TYPE_ID, savedInstanceState, getArguments());
 		if (typeId != null) {
 			this.type = DataSourceType.parseId(typeId);
-			((MainActivity) getActivity()).getAbController().setABTitle(this, getABTitle(getActivity()), false);
-			((MainActivity) getActivity()).getAbController().setABIcon(this, getABIconDrawableResId(), true);
+			getAbController().setABTitle(this, getABTitle(getActivity()), false);
+			getAbController().setABIcon(this, getABIconDrawableResId(), true);
 		}
 	}
 
@@ -366,7 +364,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		if (this.type == null) {
 			return context.getString(R.string.ellipsis);
 		}
-		return context.getString(this.type.getShortNameResId()).toUpperCase(Locale.ENGLISH);
+		return context.getString(this.type.getAllStringResId());
 	}
 
 	@Override

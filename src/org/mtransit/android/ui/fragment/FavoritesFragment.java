@@ -135,7 +135,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		this.adapter.setTag(getLogTag());
 		this.adapter.setShowFavorite(false); // all items in this screen are favorites
 		this.adapter.setFavoriteUpdateListener(this);
-		this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_BROWSE_NEARBY);
+		this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_ALL_NEARBY);
 		final View view = getView();
 		setupView(view);
 		switchView(view);

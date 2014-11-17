@@ -394,22 +394,22 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.poi_menu, menu);
-		((MainActivity) getActivity()).addMenuItem(R.id.menu_add_remove_favorite, menu.findItem(R.id.menu_add_remove_favorite));
+		getAbController().addMenuItem(R.id.menu_add_remove_favorite, menu.findItem(R.id.menu_add_remove_favorite));
 		updateFavMenuItem();
 	}
 
 	private void updateFavMenuItem() {
-		final MenuItem favMenuItem = ((MainActivity) getActivity()).getMenuItem(R.id.menu_add_remove_favorite);
-		if (favMenuItem == null) {
+		MenuItem addRemoveFavoriteMenuItem = getAbController().getMenuItem(R.id.menu_add_remove_favorite);
+		if (addRemoveFavoriteMenuItem == null) {
 			return;
 		}
 		if (this.poim != null && this.poim.isFavoritable()) {
 			final boolean isFav = isFavorite();
-			favMenuItem.setIcon(isFav ? R.drawable.btn_star_on_normal_holo_light : R.drawable.btn_star_off_normal_holo_light);
-			favMenuItem.setTitle(isFav ? R.string.menu_action_remove_favorite : R.string.menu_action_add_favorite);
-			favMenuItem.setVisible(true);
+			addRemoveFavoriteMenuItem.setIcon(isFav ? R.drawable.btn_star_on_normal_holo_light : R.drawable.btn_star_off_normal_holo_light);
+			addRemoveFavoriteMenuItem.setTitle(isFav ? R.string.menu_action_remove_favorite : R.string.menu_action_add_favorite);
+			addRemoveFavoriteMenuItem.setVisible(true);
 		} else {
-			favMenuItem.setVisible(false);
+			addRemoveFavoriteMenuItem.setVisible(false);
 		}
 	}
 

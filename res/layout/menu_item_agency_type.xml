@@ -13,6 +13,5 @@
     android:paddingLeft="8dp"
     android:paddingRight="16dp"
     android:singleLine="true"
-    android:textAllCaps="true"
     android:textAppearance="?android:attr/textAppearanceMedium"
-    android:textColor="@color/menu_item_selectable_text_color" />
+    android:textColor="@color/menu_item_text_color" />

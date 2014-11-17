@@ -147,9 +147,9 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 		final Uri authorityUri = UriUtils.newContentUri(this.authority);
 		this.route = DataSourceManager.findRTSRoute(getActivity(), authorityUri, this.routeId);
-		((MainActivity) getActivity()).getAbController().setABBgColor(this, getABBgColor(), false);
-		((MainActivity) getActivity()).getAbController().setABThemeDarkInsteadOfThemeLight(this, isABThemeDarkInsteadOfThemeLight(), false);
-		((MainActivity) getActivity()).getAbController().setABCustomView(this, getABCustomView(), true);
+		getAbController().setABBgColor(this, getABBgColor(), false);
+		getAbController().setABThemeDarkInsteadOfThemeLight(this, isABThemeDarkInsteadOfThemeLight(), false);
+		getAbController().setABCustomView(this, getABCustomView(), true);
 		final List<Trip> routeTrips = DataSourceManager.findRTSRouteTrips(getActivity(), authorityUri, this.routeId);
 		if (routeTrips == null) {
 			return;

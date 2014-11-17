@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="org.mtransit.android.MainActivity" >
     <item
         android:id="@+id/menu_add_remove_favorite"
         android:icon="@drawable/btn_star_off_normal_holo_light"
