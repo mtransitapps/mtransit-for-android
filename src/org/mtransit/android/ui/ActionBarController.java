@@ -1,7 +1,6 @@
 package org.mtransit.android.ui;
 
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
@@ -12,6 +11,7 @@ import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -239,9 +239,7 @@ public class ActionBarController implements MTLog.Loggable {
 		}
 		if (fragmentBgColor != null) {
 			ab.setBackgroundDrawable(new ColorDrawable(fragmentBgColor.intValue()));
-			mainActivity.getWindow().setStatusBarColor(fragmentBgColor.intValue());
 		} else {
-			mainActivity.getWindow().setStatusBarColor(mainActivity.getResources().getColor(R.color.platform_primary_dark_material_light));
 			ab.setBackgroundDrawable(null);
 		}
 		mainActivity.updateNavigationDrawerToggleIndicator();
@@ -295,7 +293,7 @@ public class ActionBarController implements MTLog.Loggable {
 		return this.upOnClickListener;
 	}
 
-	private HashMap<Integer, MenuItem> allMenuItems = new HashMap<Integer, MenuItem>();
+	private SparseArray<MenuItem> allMenuItems = new SparseArray<MenuItem>();
 
 	public void addMenuItem(int resId, MenuItem menuItem) {
 		this.allMenuItems.put(resId, menuItem);
@@ -335,14 +333,16 @@ public class ActionBarController implements MTLog.Loggable {
 		final boolean showABIcons = !drawerOpen;
 
 		if (this.allMenuItems != null) {
-			for (HashMap.Entry<Integer, MenuItem> menuItemEntry : this.allMenuItems.entrySet()) {
-				if (menuItemEntry.getKey().intValue() == R.id.menu_search) {
-					menuItemEntry.getValue().setVisible(this.fragmentShowSearchMenuItem && showABIcons);
+			for (int i = 0; i < this.allMenuItems.size(); i++) {
+				final int menuItemId = this.allMenuItems.keyAt(i);
+				final MenuItem menuItem = this.allMenuItems.get(menuItemId);
+				if (menuItemId == R.id.menu_search) {
+					menuItem.setVisible(this.fragmentShowSearchMenuItem && showABIcons);
 					this.allMenuItems.get(R.id.menu_search).setIcon(
 							fragmentThemeDarkInsteadOfThemeLight ? R.drawable.ic_menu_action_search_holo_dark : R.drawable.ic_menu_action_search_holo_light);
 					continue;
 				}
-				menuItemEntry.getValue().setVisible(showABIcons);
+				menuItem.setVisible(showABIcons);
 			}
 		}
 

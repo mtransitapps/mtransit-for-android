@@ -22,6 +22,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.util.SparseArray;
 
 public class DataSourceProvider implements MTLog.Loggable {
 
@@ -42,7 +43,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private List<DataSourceType> allAgencyTypes = null;
 
-	private HashMap<Integer, List<AgencyProperties>> allAgenciesByTypeId = null;
+	private SparseArray<List<AgencyProperties>> allAgenciesByTypeId = null;
 
 	private HashMap<String, AgencyProperties> allAgenciesByAuthority = null;
 
@@ -187,7 +188,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 	private synchronized void init(Context context) {
 		this.allAgencies = new ArrayList<AgencyProperties>();
 		this.allAgencyTypes = new ArrayList<DataSourceType>();
-		this.allAgenciesByTypeId = new HashMap<Integer, List<AgencyProperties>>();
+		this.allAgenciesByTypeId = new SparseArray<List<AgencyProperties>>();
 		this.allAgenciesByAuthority = new HashMap<String, AgencyProperties>();
 		this.allStatusProviders = new ArrayList<StatusProviderProperties>();
 		this.statusProvidersByTargetAuthority = new HashMap<String, Set<StatusProviderProperties>>();
@@ -243,7 +244,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 		CollectionUtils.sort(this.allAgencies, AgencyProperties.SHORT_NAME_COMPARATOR);
 
 		if (this.allAgenciesByTypeId != null) {
-			for (Integer typeId : this.allAgenciesByTypeId.keySet()) {
+			for (int i = 0; i < this.allAgenciesByTypeId.size(); i++) {
+				final int typeId = this.allAgenciesByTypeId.keyAt(i);
 				CollectionUtils.sort(this.allAgenciesByTypeId.get(typeId), AgencyProperties.SHORT_NAME_COMPARATOR);
 			}
 		}
@@ -274,7 +276,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 		if (!this.allAgencyTypes.contains(newAgencyType)) {
 			this.allAgencyTypes.add(newAgencyType);
 		}
-		if (!this.allAgenciesByTypeId.containsKey(newAgencyType.getId())) {
+		if (this.allAgenciesByTypeId.get(newAgencyType.getId()) == null) {
 			this.allAgenciesByTypeId.put(newAgencyType.getId(), new ArrayList<AgencyProperties>());
 		}
 		this.allAgenciesByTypeId.get(newAgencyType.getId()).add(newAgency);
