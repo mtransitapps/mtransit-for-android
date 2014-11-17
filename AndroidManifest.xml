@@ -54,7 +54,8 @@
             android:name=".ui.SplashScreenActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:icon="@mipmap/ic_launcher"
-            android:label="@string/ic_launcher" >
+            android:label="@string/ic_launcher"
+            android:theme="@style/MTTheme.Invisible" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />

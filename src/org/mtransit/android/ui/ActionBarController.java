@@ -28,6 +28,7 @@ public class ActionBarController implements MTLog.Loggable {
 
 
 	private WeakReference<MainActivity> mainActivityWR;
+	private boolean fragmentAbSet = false;
 
 	private CharSequence drawerTitle;
 	private CharSequence fragmentTitle;
@@ -79,6 +80,7 @@ public class ActionBarController implements MTLog.Loggable {
 		final MainActivity mainActivity = getMainActivityOrNull();
 		if (mainActivity != null) {
 			final ActionBar ab = getABOrNull();
+			ab.hide();
 			this.fragmentTitle = this.drawerTitle = mainActivity.getTitle();
 			this.fragmentSubtitle = this.drawerSubtitle = ab.getSubtitle();
 			this.fragmentIcon = this.drawerIcon = R.mipmap.ic_launcher;
@@ -110,6 +112,7 @@ public class ActionBarController implements MTLog.Loggable {
 		fragmentThemeDarkInsteadOfThemeLight = themeDarkInsteadOfThemeLight;
 		fragmentDisplayHomeAsUpEnabled = displayHomeAsUpEnabled;
 		fragmentShowSearchMenuItem = showSearchMenuItem;
+		fragmentAbSet = true;
 	}
 
 	private boolean isCurrentFragmentVisible(Fragment source) {
@@ -214,6 +217,10 @@ public class ActionBarController implements MTLog.Loggable {
 	private void updateABDrawerClosed() {
 		final MainActivity mainActivity = getMainActivityOrNull();
 		final ActionBar ab = getABOrNull();
+		if (!fragmentAbSet) {
+			ab.hide();
+			return;
+		}
 		if (fragmentCustomView != null) {
 			ab.setCustomView(fragmentCustomView);
 			if (!fragmentDisplayHomeAsUpEnabled) {
@@ -244,6 +251,7 @@ public class ActionBarController implements MTLog.Loggable {
 		}
 		mainActivity.updateNavigationDrawerToggleIndicator();
 		updateAllMenuItems(); // action bar icons are options menu items
+		ab.show();
 	}
 
 	private void updateABDrawerOpened() {
@@ -279,6 +287,7 @@ public class ActionBarController implements MTLog.Loggable {
 		}
 		mainActivity.enableNavigationDrawerToggleIndicator();
 		updateAllMenuItems(); // action bar icons are options menu items
+		ab.show();
 	}
 
 	private UpOnClickListener getUpOnClickListener(MainActivity mainActivity) {
