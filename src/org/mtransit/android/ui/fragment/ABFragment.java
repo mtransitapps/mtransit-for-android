@@ -24,6 +24,10 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 
 	public static final boolean DEFAULT_SHOW_SEARCH_MENU_ITEM = true;
 
+	public boolean isABReady() {
+		return true;
+	}
+
 	public CharSequence getABTitle(Context context) {
 		return null;
 	}

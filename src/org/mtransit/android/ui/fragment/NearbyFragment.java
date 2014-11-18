@@ -189,7 +189,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				if (refreshRequired) {
 					final FragmentActivity activity = NearbyFragment.this.getActivity();
 					if (activity != null) {
-						getAbController().setABSubtitle(NearbyFragment.this, getABSubtitle(activity), true);
+						getAbController().setABSubtitle(NearbyFragment.this, getABSubtitle(activity), false);
+						getAbController().setABReady(NearbyFragment.this, isABReady(), true);
 					}
 				}
 			}
@@ -304,7 +305,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			if (locationChanged) {
 				final boolean requireNotifyAB = setUserAwayFromLocation();
 				if (requireNotifyAB) {
-					getAbController().setABIcon(this, getABIconDrawableResId(), true);
+					getAbController().setABIcon(this, getABIconDrawableResId(), false);
+					getAbController().setABReady(this, isABReady(), true);
 				}
 			}
 		}
@@ -346,7 +348,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 		setSwipeRefreshLayoutRefreshing(false);
 		this.nearbyLocationAddress = null;
-		getAbController().setABIcon(this, getABIconDrawableResId(), true);
+		getAbController().setABIcon(this, getABIconDrawableResId(), false);
+		getAbController().setABReady(this, isABReady(), true);
 		findNearbyLocation();
 	}
 
@@ -555,8 +558,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			}
 			try {
 				super.restoreState(state, loader);
-			} catch (IllegalStateException ise) {
-				MTLog.w(this, ise, "Error while restoring state!");
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while restoring state!");
 			}
 		}
 
@@ -565,8 +568,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			try {
 				this.saveStateCount = getCount();
 				return super.saveState();
-			} catch (IllegalStateException ise) {
-				MTLog.w(this, ise, "Error while saving fragment state!");
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while saving fragment state!");
 				return null;
 			}
 		}
@@ -575,8 +578,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		public void destroyItem(ViewGroup container, int position, Object object) {
 			try {
 				super.destroyItem(container, position, object);
-			} catch (IllegalStateException ise) {
-				MTLog.w(this, ise, "Error while destroying item at position '%s'!", position);
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while destroying item at position '%s'!", position);
 			}
 		}
 

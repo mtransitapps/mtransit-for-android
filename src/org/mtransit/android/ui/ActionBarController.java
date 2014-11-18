@@ -28,7 +28,8 @@ public class ActionBarController implements MTLog.Loggable {
 
 
 	private WeakReference<MainActivity> mainActivityWR;
-	private boolean fragmentAbSet = false;
+
+	private boolean fragmentReady;
 
 	private CharSequence drawerTitle;
 	private CharSequence fragmentTitle;
@@ -81,6 +82,7 @@ public class ActionBarController implements MTLog.Loggable {
 		if (mainActivity != null) {
 			final ActionBar ab = getABOrNull();
 			ab.hide();
+			this.fragmentReady = false;
 			this.fragmentTitle = this.drawerTitle = mainActivity.getTitle();
 			this.fragmentSubtitle = this.drawerSubtitle = ab.getSubtitle();
 			this.fragmentIcon = this.drawerIcon = R.mipmap.ic_launcher;
@@ -98,21 +100,21 @@ public class ActionBarController implements MTLog.Loggable {
 		final Context context = getContextOrNull();
 		if (context != null) {
 			setAB(abf.getABTitle(context), abf.getABSubtitle(context), abf.getABIconDrawableResId(), abf.getABBgColor(), abf.getABCustomView(),
-					abf.isABThemeDarkInsteadOfThemeLight(), abf.isABDisplayHomeAsUpEnabled(), abf.isABShowSearchMenuItem());
+					abf.isABThemeDarkInsteadOfThemeLight(), abf.isABDisplayHomeAsUpEnabled(), abf.isABShowSearchMenuItem(), abf.isABReady());
 		}
 	}
 
 	private void setAB(CharSequence title, CharSequence subtitle, int iconResId, Integer bgColor, View customView, boolean themeDarkInsteadOfThemeLight,
-			boolean displayHomeAsUpEnabled, boolean showSearchMenuItem) {
-		fragmentTitle = title;
-		fragmentSubtitle = subtitle;
-		fragmentIcon = iconResId;
-		fragmentBgColor = bgColor;
-		fragmentCustomView = customView;
-		fragmentThemeDarkInsteadOfThemeLight = themeDarkInsteadOfThemeLight;
-		fragmentDisplayHomeAsUpEnabled = displayHomeAsUpEnabled;
-		fragmentShowSearchMenuItem = showSearchMenuItem;
-		fragmentAbSet = true;
+			boolean displayHomeAsUpEnabled, boolean showSearchMenuItem, boolean fragmentReady) {
+		this.fragmentTitle = title;
+		this.fragmentSubtitle = subtitle;
+		this.fragmentIcon = iconResId;
+		this.fragmentBgColor = bgColor;
+		this.fragmentCustomView = customView;
+		this.fragmentThemeDarkInsteadOfThemeLight = themeDarkInsteadOfThemeLight;
+		this.fragmentDisplayHomeAsUpEnabled = displayHomeAsUpEnabled;
+		this.fragmentShowSearchMenuItem = showSearchMenuItem;
+		this.fragmentReady = fragmentReady;
 	}
 
 	private boolean isCurrentFragmentVisible(Fragment source) {
@@ -125,11 +127,21 @@ public class ActionBarController implements MTLog.Loggable {
 		return mainActivity == null ? false : mainActivity.isDrawerOpen();
 	}
 
+	public void setABReady(Fragment source, boolean ready, boolean update) {
+		if (!isCurrentFragmentVisible(source)) {
+			return;
+		}
+		this.fragmentReady = ready;
+		if (update && !isDrawerOpen()) {
+			updateAB();
+		}
+	}
+
 	public void setABTitle(Fragment source, CharSequence title, boolean update) {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
-		fragmentTitle = title;
+		this.fragmentTitle = title;
 		if (update && !isDrawerOpen()) {
 			updateAB();
 		}
@@ -139,7 +151,7 @@ public class ActionBarController implements MTLog.Loggable {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
-		fragmentSubtitle = subtitle;
+		this.fragmentSubtitle = subtitle;
 		if (update && !isDrawerOpen()) {
 			updateAB();
 		}
@@ -149,7 +161,7 @@ public class ActionBarController implements MTLog.Loggable {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
-		fragmentIcon = resId;
+		this.fragmentIcon = resId;
 		if (update && !isDrawerOpen()) {
 			updateAB();
 		}
@@ -159,7 +171,7 @@ public class ActionBarController implements MTLog.Loggable {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
-		fragmentBgColor = bgColor;
+		this.fragmentBgColor = bgColor;
 		if (update && !isDrawerOpen()) {
 			updateAB();
 		}
@@ -169,7 +181,7 @@ public class ActionBarController implements MTLog.Loggable {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
-		fragmentCustomView = customView;
+		this.fragmentCustomView = customView;
 		if (update && !isDrawerOpen()) {
 			updateAB();
 		}
@@ -179,7 +191,7 @@ public class ActionBarController implements MTLog.Loggable {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
-		fragmentDisplayHomeAsUpEnabled = displayHomeAsUpEnabled;
+		this.fragmentDisplayHomeAsUpEnabled = displayHomeAsUpEnabled;
 		if (update && !isDrawerOpen()) {
 			updateAB();
 		}
@@ -189,7 +201,7 @@ public class ActionBarController implements MTLog.Loggable {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
-		fragmentThemeDarkInsteadOfThemeLight = themeDarkInsteadOfThemeLight;
+		this.fragmentThemeDarkInsteadOfThemeLight = themeDarkInsteadOfThemeLight;
 		if (update && !isDrawerOpen()) {
 			updateAB();
 		}
@@ -199,7 +211,7 @@ public class ActionBarController implements MTLog.Loggable {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
-		fragmentShowSearchMenuItem = showSearchMenuItem;
+		this.fragmentShowSearchMenuItem = showSearchMenuItem;
 		if (update && !isDrawerOpen()) {
 			updateAB();
 		}
@@ -217,35 +229,34 @@ public class ActionBarController implements MTLog.Loggable {
 	private void updateABDrawerClosed() {
 		final MainActivity mainActivity = getMainActivityOrNull();
 		final ActionBar ab = getABOrNull();
-		if (!fragmentAbSet) {
-			ab.hide();
+		if (!this.fragmentReady) {
 			return;
 		}
-		if (fragmentCustomView != null) {
-			ab.setCustomView(fragmentCustomView);
-			if (!fragmentDisplayHomeAsUpEnabled) {
+		if (this.fragmentCustomView != null) {
+			ab.setCustomView(this.fragmentCustomView);
+			if (!this.fragmentDisplayHomeAsUpEnabled) {
 				ab.getCustomView().setOnClickListener(getUpOnClickListener(getMainActivityOrNull()));
 			}
 			ab.setDisplayShowCustomEnabled(true);
 		} else {
 			ab.setDisplayShowCustomEnabled(false);
 		}
-		ab.setDisplayHomeAsUpEnabled(fragmentDisplayHomeAsUpEnabled);
-		if (TextUtils.isEmpty(fragmentTitle)) {
+		ab.setDisplayHomeAsUpEnabled(this.fragmentDisplayHomeAsUpEnabled);
+		if (TextUtils.isEmpty(this.fragmentTitle)) {
 			ab.setDisplayShowTitleEnabled(false);
 		} else {
-			ab.setTitle(fragmentTitle);
-			ab.setSubtitle(fragmentSubtitle);
+			ab.setTitle(this.fragmentTitle);
+			ab.setSubtitle(this.fragmentSubtitle);
 			ab.setDisplayShowTitleEnabled(true);
 		}
-		if (fragmentIcon > 0) {
-			ab.setIcon(fragmentIcon);
+		if (this.fragmentIcon > 0) {
+			ab.setIcon(this.fragmentIcon);
 			ab.setDisplayShowHomeEnabled(true);
 		} else {
 			ab.setDisplayShowHomeEnabled(false);
 		}
-		if (fragmentBgColor != null) {
-			ab.setBackgroundDrawable(new ColorDrawable(fragmentBgColor.intValue()));
+		if (this.fragmentBgColor != null) {
+			ab.setBackgroundDrawable(new ColorDrawable(this.fragmentBgColor.intValue()));
 		} else {
 			ab.setBackgroundDrawable(null);
 		}
@@ -257,31 +268,31 @@ public class ActionBarController implements MTLog.Loggable {
 	private void updateABDrawerOpened() {
 		final MainActivity mainActivity = getMainActivityOrNull();
 		final ActionBar ab = getABOrNull();
-		if (drawerCustomView != null) {
-			ab.setCustomView(drawerCustomView);
-			if (!drawerDisplayHomeAsUpEnabled) {
+		if (this.drawerCustomView != null) {
+			ab.setCustomView(this.drawerCustomView);
+			if (!this.drawerDisplayHomeAsUpEnabled) {
 				ab.getCustomView().setOnClickListener(getUpOnClickListener(mainActivity));
 			}
 			ab.setDisplayShowCustomEnabled(true);
 		} else {
 			ab.setDisplayShowCustomEnabled(false);
 		}
-		ab.setDisplayHomeAsUpEnabled(drawerDisplayHomeAsUpEnabled);
-		if (TextUtils.isEmpty(drawerTitle)) {
+		ab.setDisplayHomeAsUpEnabled(this.drawerDisplayHomeAsUpEnabled);
+		if (TextUtils.isEmpty(this.drawerTitle)) {
 			ab.setDisplayShowTitleEnabled(false);
 		} else {
-			ab.setTitle(drawerTitle);
-			ab.setSubtitle(drawerSubtitle);
+			ab.setTitle(this.drawerTitle);
+			ab.setSubtitle(this.drawerSubtitle);
 			ab.setDisplayShowTitleEnabled(true);
 		}
-		if (drawerIcon > 0) {
-			ab.setIcon(drawerIcon);
+		if (this.drawerIcon > 0) {
+			ab.setIcon(this.drawerIcon);
 			ab.setDisplayShowHomeEnabled(true);
 		} else {
 			ab.setDisplayShowHomeEnabled(false);
 		}
-		if (drawerBgColor != null) {
-			ab.setBackgroundDrawable(new ColorDrawable(drawerBgColor));
+		if (this.drawerBgColor != null) {
+			ab.setBackgroundDrawable(new ColorDrawable(this.drawerBgColor));
 		} else {
 			ab.setBackgroundDrawable(null);
 		}
@@ -322,6 +333,7 @@ public class ActionBarController implements MTLog.Loggable {
 			this.allMenuItems.clear();
 		}
 		this.fragmentCustomView = null;
+		this.upOnClickListener = null;
 		this.drawerCustomView = null;
 	}
 
@@ -348,7 +360,8 @@ public class ActionBarController implements MTLog.Loggable {
 				if (menuItemId == R.id.menu_search) {
 					menuItem.setVisible(this.fragmentShowSearchMenuItem && showABIcons);
 					this.allMenuItems.get(R.id.menu_search).setIcon(
-							fragmentThemeDarkInsteadOfThemeLight ? R.drawable.ic_menu_action_search_holo_dark : R.drawable.ic_menu_action_search_holo_light);
+							this.fragmentThemeDarkInsteadOfThemeLight ? R.drawable.ic_menu_action_search_holo_dark
+									: R.drawable.ic_menu_action_search_holo_light);
 					continue;
 				}
 				menuItem.setVisible(showABIcons);

@@ -158,7 +158,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		if (typeId != null) {
 			this.type = DataSourceType.parseId(typeId);
 			getAbController().setABTitle(this, getABTitle(getActivity()), false);
-			getAbController().setABIcon(this, getABIconDrawableResId(), true);
+			getAbController().setABIcon(this, getABIconDrawableResId(), false);
+			getAbController().setABReady(this, isABReady(), true);
 		}
 	}
 
@@ -360,6 +361,11 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	}
 
 	@Override
+	public boolean isABReady() {
+		return this.type != null;
+	}
+
+	@Override
 	public CharSequence getABTitle(Context context) {
 		if (this.type == null) {
 			return context.getString(R.string.ellipsis);
@@ -404,8 +410,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			}
 			try {
 				super.restoreState(state, loader);
-			} catch (IllegalStateException ise) {
-				MTLog.w(this, ise, "Error while restoring state!");
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while restoring state!");
 			}
 		}
 
@@ -414,8 +420,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			try {
 				this.saveStateCount = getCount();
 				return super.saveState();
-			} catch (IllegalStateException ise) {
-				MTLog.w(this, ise, "Error while saving fragment state!");
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while saving fragment state!");
 				return null;
 			}
 		}
@@ -424,8 +430,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		public void destroyItem(ViewGroup container, int position, Object object) {
 			try {
 				super.destroyItem(container, position, object);
-			} catch (IllegalStateException ise) {
-				MTLog.w(this, ise, "Error while destroying fragment at position '%s'!", position);
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while destroying fragment at position '%s'!", position);
 			}
 		}
 

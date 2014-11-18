@@ -150,7 +150,8 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 				if (refreshRequired) {
 					final FragmentActivity activity = getActivity();
 					if (activity != null) {
-						getAbController().setABSubtitle(HomeFragment.this, getABSubtitle(activity), true);
+						getAbController().setABSubtitle(HomeFragment.this, getABSubtitle(activity), false);
+						getAbController().setABReady(HomeFragment.this, isABReady(), true);
 					}
 				}
 			}
@@ -223,7 +224,8 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			if (locationChanged) {
 				final boolean requireNotifyAB = setUserAwayFromLocation();
 				if (requireNotifyAB) {
-					getAbController().setABIcon(this, getABIconDrawableResId(), true);
+					getAbController().setABIcon(this, getABIconDrawableResId(), false);
+					getAbController().setABReady(this, isABReady(), true);
 				}
 			}
 		}
@@ -265,7 +267,8 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 		setSwipeRefreshLayoutRefreshing(false);
 		this.nearbyLocationAddress = null;
-		getAbController().setABSubtitle(this, getABSubtitle(getActivity()), true);
+		getAbController().setABSubtitle(this, getABSubtitle(getActivity()), false);
+		getAbController().setABReady(this, isABReady(), true);
 		findNearbyLocation();
 	}
 

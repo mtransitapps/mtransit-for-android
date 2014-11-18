@@ -89,6 +89,8 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 				this.rts = (RouteTripStop) poim.poi;
 			}
 			this.agency = DataSourceProvider.get(getActivity()).getAgency(authority);
+			getAbController().setABSubtitle(this, getABSubtitle(getActivity()), false);
+			getAbController().setABReady(this, isABReady(), true);
 		}
 	}
 
@@ -260,6 +262,11 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			((ViewStub) view.findViewById(R.id.empty_stub)).inflate(); // inflate
 		}
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
+	}
+
+	@Override
+	public boolean isABReady() {
+		return this.agency != null && this.rts != null;
 	}
 
 	@Override

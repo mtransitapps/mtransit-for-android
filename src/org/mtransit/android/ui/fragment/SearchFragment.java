@@ -420,6 +420,13 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			}
 
 		});
+		this.searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+
+			@Override
+			public boolean onClose() {
+				return true; // do not close
+			}
+		});
 		this.searchView.setQuery(this.query, false);
 		if (TextUtils.isEmpty(this.query)) {
 			this.searchView.requestFocusFromTouch();

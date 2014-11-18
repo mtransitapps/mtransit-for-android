@@ -149,7 +149,8 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		this.route = DataSourceManager.findRTSRoute(getActivity(), authorityUri, this.routeId);
 		getAbController().setABBgColor(this, getABBgColor(), false);
 		getAbController().setABThemeDarkInsteadOfThemeLight(this, isABThemeDarkInsteadOfThemeLight(), false);
-		getAbController().setABCustomView(this, getABCustomView(), true);
+		getAbController().setABCustomView(this, getABCustomView(), false);
+		getAbController().setABReady(this, isABReady(), true);
 		final List<Trip> routeTrips = DataSourceManager.findRTSRouteTrips(getActivity(), authorityUri, this.routeId);
 		if (routeTrips == null) {
 			return;
@@ -363,6 +364,10 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 	}
 
+	@Override
+	public boolean isABReady() {
+		return this.route != null;
+	}
 
 	@Override
 	public boolean isABThemeDarkInsteadOfThemeLight() {

@@ -433,6 +433,11 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	}
 
 	@Override
+	public boolean isABReady() {
+		return this.agency != null;
+	}
+
+	@Override
 	public CharSequence getABTitle(Context context) {
 		if (this.agency != null) {
 			return this.agency.getShortName();
