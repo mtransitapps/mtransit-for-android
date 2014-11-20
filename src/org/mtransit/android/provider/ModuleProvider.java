@@ -133,6 +133,11 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@Override
+	public Context getContentProviderContext() {
+		return getContext();
+	}
+
+	@Override
 	public SQLiteOpenHelper getDBHelper() {
 		return getDBHelper(getContext());
 	}
