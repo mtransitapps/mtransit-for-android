@@ -1027,6 +1027,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		} else {
 			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
+	}
+
 	private void updateServiceUpdate(CommonStatusViewHolder statusViewHolder, Boolean isServiceUpdateWarning) {
 		if (statusViewHolder.warningImg == null) {
 			return;
