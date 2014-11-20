@@ -9,7 +9,6 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.data.POIManager;
-import org.mtransit.android.ui.view.POIViewController;
 
 import android.content.Context;
 import android.text.Html;
@@ -17,7 +16,6 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.text.style.RelativeSizeSpan;
 import android.view.View;
 import android.widget.TextView;
 
@@ -102,8 +100,7 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 				Spanned thisMsgFromHtml = Html.fromHtml(serviceUpdate.getTextHTML());
 				SpannableStringBuilder thisMsgSSB = new SpannableStringBuilder(thisMsgFromHtml);
 				if (serviceUpdate.isSeverityWarning()) {
-					SpanUtils.set(thisMsgSSB, new RelativeSizeSpan(1.11f));
-					SpanUtils.set(thisMsgSSB, SpanUtils.getTextColor(ColorUtils.getTextColorPrimary(context)));
+					SpanUtils.set(thisMsgSSB, SpanUtils.getTextColor(ColorUtils.getTextColorSecondary(context)));
 				} else {
 					SpanUtils.set(thisMsgSSB, SpanUtils.getTextColor(ColorUtils.getTextColorTertiary(context)));
 				}
