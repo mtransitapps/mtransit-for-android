@@ -248,6 +248,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	public Boolean isServiceUpdateWarning(Context context) {
+		if (this.serviceUpdates == null || !areServiceUpdatesUseful()) {
+			findServiceUpdates(context, false);
 			return null;
 		}
 		boolean isWarning = ServiceUpdate.isSeverityWarning(this.serviceUpdates);

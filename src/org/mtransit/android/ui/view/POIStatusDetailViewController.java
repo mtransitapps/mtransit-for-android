@@ -89,6 +89,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static void updatePOIStatus(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status,
+			POIViewController.POIDataProvider dataProvider) {
 		if (dataProvider == null || !dataProvider.isShowingStatus() || status == null || statusViewHolder == null) {
 			if (statusViewHolder != null) {
 				statusViewHolder.statusV.setVisibility(View.INVISIBLE);
@@ -146,6 +147,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static void updateAppStatusView(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim,
+			POIViewController.POIDataProvider dataProvider) {
 		if (dataProvider != null && dataProvider.isShowingStatus() && poim != null && statusViewHolder instanceof AppStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
 			updateAppStatusView(context, statusViewHolder, poim.getStatus(context));
@@ -167,6 +169,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static void updateAvailabilityPercentView(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim,
+			POIViewController.POIDataProvider dataProvider) {
 		if (dataProvider != null && dataProvider.isShowingStatus() && poim != null && statusViewHolder instanceof AvailabilityPercentStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
 			updateAvailabilityPercentView(context, statusViewHolder, poim.getStatus(context));

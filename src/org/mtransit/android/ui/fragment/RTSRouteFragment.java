@@ -19,6 +19,7 @@ import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.JPaths;
+import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
@@ -125,6 +126,8 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		this.authority = BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, getArguments());
 		this.tripId = BundleUtils.getInt(EXTRA_TRIP_ID, savedInstanceState, getArguments());
 		this.stopId = BundleUtils.getInt(EXTRA_STOP_ID, savedInstanceState, getArguments());
+	}
+
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		if (this.tripId != null) {
@@ -332,6 +335,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public void onPageSelected(int position) {
 		StatusLoader.get().clearAllTasks();
+		ServiceUpdateLoader.get().clearAllTasks();
 		if (this.adapter != null) {
 			this.tripId = this.adapter.getRouteTrip(position).getId();
 			PreferenceUtils.savePrefLcl(getActivity(), PreferenceUtils.getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(this.authority, this.routeId), this.tripId, false);

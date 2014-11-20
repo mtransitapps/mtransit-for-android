@@ -113,6 +113,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 				|| CollectionUtils.getSize(dsp1.allStatusProviders) != CollectionUtils.getSize(dsp2.allStatusProviders)
 				|| CollectionUtils.getSize(dsp1.allScheduleProviders) != CollectionUtils.getSize(dsp2.allScheduleProviders)
 				|| CollectionUtils.getSize(dsp1.allServiceUpdateProviders) != CollectionUtils.getSize(dsp2.allServiceUpdateProviders);
+	}
+
 	private DataSourceProvider() {
 	}
 

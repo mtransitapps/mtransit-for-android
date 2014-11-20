@@ -537,6 +537,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			return TAG;
 		}
 
+		private ArrayList<DataSourceType> availableAgencyTypes;
 		private WeakReference<Context> contextWR;
 		private Location nearbyLocation;
 		private Location userLocation;
