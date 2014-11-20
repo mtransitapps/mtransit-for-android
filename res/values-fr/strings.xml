@@ -7,7 +7,6 @@
     <string name="action_search">Recherche</string>
     <string name="search_hint">Recherche MT</string>
     <string name="search_no_result_for_and_query">Aucun résultat pour %s</string>
-    <string name="search_settings_description">Recherche les informations sur les transports en commun dans MT</string>
     <string name="all">Tous</string>
     <string name="more">Plus</string>
     <string name="drawer_open">Ouvrir le tiroir de navigation</string>
@@ -51,5 +50,4 @@
     <string name="full_schedule">Horaires Complets</string>
     <string name="information">Information</string>
     <string name="warning">Avertissement</string>
-    <string name="no_service_update">Aucun message.</string>
 </resources>

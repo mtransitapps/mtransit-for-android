@@ -7,7 +7,6 @@
     <string name="action_search">Search</string>
     <string name="search_hint">Search MT</string>
     <string name="search_no_result_for_and_query">No results for %s</string>
-    <string name="search_settings_description">Search transit information from MT</string>
     <string name="all">All</string>
     <string name="more">More</string>
     <string name="drawer_open">Open navigation drawer</string>
@@ -51,5 +50,4 @@
     <string name="full_schedule">Full Schedules</string>
     <string name="information">Information</string>
     <string name="warning">Warning</string>
-    <string name="no_service_update">No message.</string>
 </resources>
