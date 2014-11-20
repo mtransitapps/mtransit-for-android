@@ -40,7 +40,7 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 		return ABFragment.NO_ICON;
 	}
 
-	public Integer getABBgColor() {
+	public Integer getABBgColor(Context context) {
 		return ABFragment.NO_BG_COLOR;
 	}
 

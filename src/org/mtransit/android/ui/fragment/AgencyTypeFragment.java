@@ -1,7 +1,7 @@
 package org.mtransit.android.ui.fragment;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
+import java.util.ArrayList;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -13,6 +13,7 @@ import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
+import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.SlidingTabLayout;
@@ -75,7 +76,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
-		final List<Fragment> fragments = getChildFragmentManager().getFragments();
+		final java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment != null) {
@@ -88,7 +89,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		final List<Fragment> fragments = getChildFragmentManager().getFragments();
+		final java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment != null) {
@@ -121,7 +122,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	@Override
 	public void onModulesUpdated() {
 		if (this.adapter != null) {
-			final List<AgencyProperties> newAvailableAgencies = this.type == null ? null : DataSourceProvider.get(getActivity()).getTypeDataSources(
+			final ArrayList<AgencyProperties> newAvailableAgencies = this.type == null ? null : DataSourceProvider.get(getActivity()).getTypeDataSources(
 					this.type.getId());
 			if (CollectionUtils.getSize(newAvailableAgencies) == CollectionUtils.getSize(this.adapter.getAgencies())) {
 				return;
@@ -167,7 +168,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		if (view == null) {
 			return;
 		}
-		final List<AgencyProperties> newAgencies = this.type == null ? null : DataSourceProvider.get(getActivity()).getTypeDataSources(this.type.getId());
+		final ArrayList<AgencyProperties> newAgencies = this.type == null ? null : DataSourceProvider.get(getActivity()).getTypeDataSources(this.type.getId());
 		if (CollectionUtils.getSize(newAgencies) == 0) {
 			return;
 		}
@@ -225,7 +226,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	public void onUserLocationChanged(Location newLocation) {
 		if (newLocation != null) {
 			this.userLocation = newLocation;
-			final List<Fragment> fragments = getChildFragmentManager().getFragments();
+			final java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 			if (fragments != null) {
 				for (Fragment fragment : fragments) {
 					if (fragment != null && fragment instanceof MTActivityWithLocation.UserLocationListener) {
@@ -298,6 +299,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	@Override
 	public void onPageSelected(int position) {
 		StatusLoader.get().clearAllTasks();
+		ServiceUpdateLoader.get().clearAllTasks();
 		if (this.adapter != null) {
 			final AgencyProperties agency = this.adapter.getAgency(position);
 			if (agency != null) {
@@ -305,7 +307,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 						.savePrefLcl(getActivity(), PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(this.type.getId()), agency.getAuthority(), false);
 			}
 		}
-		final List<Fragment> fragments = getChildFragmentManager().getFragments();
+		final java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof VisibilityAwareFragment) {
@@ -337,7 +339,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	}
 
 	private void resumeAllVisibleAwareChildFragment() {
-		List<Fragment> fragments = getChildFragmentManager().getFragments();
+		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof VisibilityAwareFragment) {
@@ -349,7 +351,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	}
 
 	private void pauseAllVisibleAwareChildFragments() {
-		List<Fragment> fragments = getChildFragmentManager().getFragments();
+		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof VisibilityAwareFragment) {
@@ -391,13 +393,13 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			return TAG;
 		}
 
-		private List<AgencyProperties> agencies;
+		private ArrayList<AgencyProperties> agencies;
 		private WeakReference<Context> contextWR;
 		private Location userLocation;
 		private int lastVisibleFragmentPosition = -1;
 		private int saveStateCount = -1;
 
-		public AgencyPagerAdapter(AgencyTypeFragment agencyTypeFragment, List<AgencyProperties> agencies) {
+		public AgencyPagerAdapter(AgencyTypeFragment agencyTypeFragment, ArrayList<AgencyProperties> agencies) {
 			super(agencyTypeFragment.getChildFragmentManager());
 			this.contextWR = new WeakReference<Context>(agencyTypeFragment.getActivity());
 			this.agencies = agencies;
@@ -435,11 +437,11 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			}
 		}
 
-		public void setAgencies(List<AgencyProperties> agencies) {
+		public void setAgencies(ArrayList<AgencyProperties> agencies) {
 			this.agencies = agencies;
 		}
 
-		public List<AgencyProperties> getAgencies() {
+		public ArrayList<AgencyProperties> getAgencies() {
 			return agencies;
 		}
 

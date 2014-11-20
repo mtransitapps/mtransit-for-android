@@ -3,8 +3,6 @@ package org.mtransit.android.provider;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -211,7 +209,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@Override
-	public Map<String, String> getSearchSuggestProjectionMap() {
+	public HashMap<String, String> getSearchSuggestProjectionMap() {
 		return null; // no search suggest for modules
 	}
 
@@ -271,11 +269,11 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		loadDataFromWWW(0); // 0 = 1st try
 	}
 
-	private Set<Module> loadDataFromWWW(int tried) {
+	private HashSet<Module> loadDataFromWWW(int tried) {
 		try {
 			long newLastUpdateInMs = TimeUtils.currentTimeMillis();
 			String jsonString = FileUtils.fromFileRes(getContext(), R.raw.modules);
-			Set<Module> modules = new HashSet<Module>();
+			HashSet<Module> modules = new HashSet<Module>();
 			JSONArray jsonArray = new JSONArray(jsonString);
 			for (int i = 0; i < jsonArray.length(); i++) {
 				JSONObject jModule = jsonArray.getJSONObject(i);
@@ -452,17 +450,17 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS;
 	}
 
-	private static Map<String, String> poiProjectionMap;
+	private static HashMap<String, String> poiProjectionMap;
 
 	@Override
-	public Map<String, String> getPOIProjectionMap() {
+	public HashMap<String, String> getPOIProjectionMap() {
 		if (poiProjectionMap == null) {
 			poiProjectionMap = getNewPoiProjectionMap(getAUTHORITY(getContext()));
 		}
 		return poiProjectionMap;
 	}
 
-	public static Map<String, String> getNewPoiProjectionMap(String authority) {
+	public static HashMap<String, String> getNewPoiProjectionMap(String authority) {
 		HashMap<String, String> poiProjectionMap = new HashMap<String, String>();
 		poiProjectionMap.put(POIColumns.T_POI_K_UUID_META, SqlUtils.concatenate("'" + POIUtils.UID_SEPARATOR + "'", //
 				"'" + authority + "'", //

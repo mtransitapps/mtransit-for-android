@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.view;
 
 import java.util.HashSet;
-import java.util.Set;
 
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
@@ -30,7 +29,7 @@ public class MTJPathsView extends MTView {
 
 	private RectF bounds;
 
-	private Set<Pair<Path, Paint>> pathsAndPaints = new HashSet<Pair<Path, Paint>>();
+	private HashSet<Pair<Path, Paint>> pathsAndPaints = new HashSet<Pair<Path, Paint>>();
 
 	private JPaths jPaths;
 

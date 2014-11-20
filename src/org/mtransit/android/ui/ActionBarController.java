@@ -99,7 +99,7 @@ public class ActionBarController implements MTLog.Loggable {
 	public void setAB(ABFragment abf) {
 		final Context context = getContextOrNull();
 		if (context != null) {
-			setAB(abf.getABTitle(context), abf.getABSubtitle(context), abf.getABIconDrawableResId(), abf.getABBgColor(), abf.getABCustomView(),
+			setAB(abf.getABTitle(context), abf.getABSubtitle(context), abf.getABIconDrawableResId(), abf.getABBgColor(context), abf.getABCustomView(),
 					abf.isABThemeDarkInsteadOfThemeLight(), abf.isABDisplayHomeAsUpEnabled(), abf.isABShowSearchMenuItem(), abf.isABReady());
 		}
 	}

@@ -3,7 +3,6 @@ package org.mtransit.android.util;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
@@ -35,10 +34,13 @@ public final class AdsUtils implements MTLog.Loggable {
 
 	private static Boolean generousUser = null;
 
-	private static final Set<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] { "transit", "transport", "bus", "subway", "metro", "taxi",
+	private static final HashSet<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] { "transit", "transport", "bus", "subway", "metro", "taxi",
 			"bike", "sharing", "velo", "train" }));
 
 	public static void setupAd(Activity activity) {
+		if (!AD_ENABLED) {
+			return;
+		}
 		new SetupAdTask(activity).execute();
 	}
 
@@ -57,8 +59,11 @@ public final class AdsUtils implements MTLog.Loggable {
 
 		@Override
 		protected Boolean doInBackgroundMT(Void... params) {
+			if (!AD_ENABLED) {
+				return false;
+			}
 			final Activity activity = this.activityWR == null ? null : this.activityWR.get();
-			return AD_ENABLED && isShowingAds(activity);
+			return isShowingAds(activity);
 		}
 
 		@Override
@@ -149,10 +154,12 @@ public final class AdsUtils implements MTLog.Loggable {
 	public static void showAds(Activity activity) {
 		View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
 		if (adLayout != null) {
-			adLayout.setVisibility(View.VISIBLE);
 			AdView adView = (AdView) adLayout.findViewById(R.id.ad);
-			if (adView != null) {
+			if (adView != null && adView.getVisibility() != View.VISIBLE) {
 				adView.setVisibility(View.VISIBLE);
+			}
+			if (adLayout.getVisibility() != View.VISIBLE) {
+				adLayout.setVisibility(View.VISIBLE);
 			}
 		}
 	}
@@ -160,16 +167,21 @@ public final class AdsUtils implements MTLog.Loggable {
 	public static void hideAds(Activity activity) {
 		View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
 		if (adLayout != null) {
-			adLayout.setVisibility(View.GONE);
 			AdView adView = (AdView) adLayout.findViewById(R.id.ad);
-			if (adView != null) {
+			if (adLayout.getVisibility() != View.GONE) {
+				adLayout.setVisibility(View.GONE);
+			}
+			if (adView != null && adView.getVisibility() != View.GONE) {
 				adView.setVisibility(View.GONE);
 			}
 		}
 	}
 
 	public static void pauseAd(Activity activity) {
-		if (AD_ENABLED && isShowingAds(activity)) {
+		if (!AD_ENABLED) {
+			return;
+		}
+		if (isShowingAds(activity)) {
 			View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
 			if (adLayout != null) {
 				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
@@ -181,7 +193,10 @@ public final class AdsUtils implements MTLog.Loggable {
 	}
 
 	public static void resumeAd(Activity activity) {
-		if (AD_ENABLED && isShowingAds(activity)) {
+		if (!AD_ENABLED) {
+			return;
+		}
+		if (isShowingAds(activity)) {
 			View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
 			if (adLayout != null) {
 				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
@@ -193,7 +208,10 @@ public final class AdsUtils implements MTLog.Loggable {
 	}
 
 	public static void destroyAd(Activity activity) {
-		if (AD_ENABLED && isShowingAds(activity)) {
+		if (!AD_ENABLED) {
+			return;
+		}
+		if (isShowingAds(activity)) {
 			View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
 			if (adLayout != null) {
 				AdView adView = (AdView) adLayout.findViewById(R.id.ad);

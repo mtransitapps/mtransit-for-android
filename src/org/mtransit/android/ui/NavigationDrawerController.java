@@ -7,6 +7,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.MenuAdapter;
+import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.fragment.ABFragment;
 
@@ -151,6 +152,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		closeDrawer();
 		mainActivity.clearFragmentBackStackImmediate(); // root screen
 		StatusLoader.get().clearAllTasks();
+		ServiceUpdateLoader.get().clearAllTasks();
 		mainActivity.showNewFragment(newFragment, addToStack);
 		if (!addToStack && this.drawerListViewAdapter.isRootScreen(position)) {
 			PreferenceUtils.savePrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId, false);

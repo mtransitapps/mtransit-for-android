@@ -1,6 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -34,7 +34,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.TextView;
 
-public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<List<Route>>,
+public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<ArrayList<Route>>,
 		AdapterView.OnItemClickListener {
 
 	private static final String TAG = RTSAgencyRoutesFragment.class.getSimpleName();
@@ -120,7 +120,6 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		restoreInstanceState(savedInstanceState);
-		initAdapter();
 		switchView(getView());
 	}
 
@@ -180,11 +179,12 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(this.agency.getAuthority()),
 					this.showingListInsteadOfGrid.booleanValue(), false);
 		}
-		initAdapter();
-		this.adapter.seShowingListInsteadOfGrid(this.showingListInsteadOfGrid);
-		setupView(getView());
-		switchView(getView());
-		this.adapter.notifyDataSetChanged();
+		if (this.adapter != null) {
+			this.adapter.seShowingListInsteadOfGrid(this.showingListInsteadOfGrid);
+			this.adapter.notifyDataSetChanged();
+			setupView(getView());
+			switchView(getView());
+		}
 		updateListGridToggleMenuItem();
 	}
 
@@ -194,7 +194,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		final Route route = this.adapter.getItem(position);
+		final Route route = this.adapter == null ? null : this.adapter.getItem(position);
 		if (route != null) {
 			((MainActivity) getActivity()).addFragmentToStack(RTSRouteFragment.newInstance(this.agency.getAuthority(), route, null, null));
 		}
@@ -240,7 +240,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			return; // already visible
 		}
 		this.fragmentVisible = true;
-		if (this.adapter.isEmpty()) {
+		if (this.adapter == null || this.adapter.isEmpty()) {
 			getLoaderManager().restartLoader(ROUTES_LOADER, null, this);
 		} else {
 			switchView(getView());
@@ -252,7 +252,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	private static final int ROUTES_LOADER = 0;
 
 	@Override
-	public Loader<List<Route>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<Route>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case ROUTES_LOADER:
 			final RTSAgencyRoutesLoader rtsAgencyRoutesLoader = new RTSAgencyRoutesLoader(getActivity(), this.agency);
@@ -264,15 +264,17 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	}
 
 	@Override
-	public void onLoaderReset(Loader<List<Route>> loader) {
+	public void onLoaderReset(Loader<ArrayList<Route>> loader) {
 		if (this.adapter != null) {
 			this.adapter.clear();
-			this.adapter = null;
 		}
 	}
 
 	@Override
-	public void onLoadFinished(Loader<List<Route>> loader, List<Route> data) {
+	public void onLoadFinished(Loader<ArrayList<Route>> loader, ArrayList<Route> data) {
+		if (this.adapter == null) {
+			initAdapter();
+		}
 		this.adapter.setRoutes(data);
 		switchView(getView());
 	}
@@ -407,7 +409,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			return TAG;
 		}
 
-		private List<Route> routes = null;
+		private ArrayList<Route> routes = null;
 		private LayoutInflater layoutInflater;
 		private String authority;
 		private boolean showingListInsteadOfGrid;
@@ -423,7 +425,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			this.showingListInsteadOfGrid = showingListInsteadOfGrid;
 		}
 
-		public void setRoutes(List<Route> routes) {
+		public void setRoutes(ArrayList<Route> routes) {
 			this.routes = routes;
 		}
 

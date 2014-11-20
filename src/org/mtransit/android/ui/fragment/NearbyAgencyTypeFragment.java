@@ -1,7 +1,7 @@
 package org.mtransit.android.ui.fragment;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
+import java.util.ArrayList;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -30,7 +30,7 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
-public class NearbyAgencyTypeFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<List<POIManager>>,
+public class NearbyAgencyTypeFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		NearbyFragment.NearbyLocationListener, DataSourceProvider.ModulesUpdateListener {
 
 	private static final String TAG = NearbyAgencyTypeFragment.class.getSimpleName();
@@ -81,7 +81,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	private boolean resumed = false;
 	private boolean fragmentVisible = false;
 	private WeakReference<NearbyFragment> nearbyFragmentWR;
-	private List<AgencyProperties> typeAgencies;
+	private ArrayList<AgencyProperties> typeAgencies;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -168,9 +168,6 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		restoreInstanceState(savedInstanceState);
-		if (savedInstanceState != null) {
-			initAdapter(); // initialize now so restored view state used (keep scrolling position in list)
-		}
 	}
 
 	private void initAdapter() {
@@ -233,9 +230,8 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			return; // already visible
 		}
 		this.fragmentVisible = true;
-		if (this.adapter == null) {
-			initAdapter();
-		} else {
+		switchView(getView());
+		if (this.adapter != null) {
 			this.adapter.onResume(getActivity());
 		}
 		NearbyFragment nearbyFragment = this.nearbyFragmentWR == null ? null : this.nearbyFragmentWR.get();
@@ -321,8 +317,8 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	@Override
 	public void onModulesUpdated() {
 		if (this.adapter != null && this.nearbyLocation != null) {
-			final List<AgencyProperties> newTypeAgencies = NearbyPOIListLoader.findTypeAgencies(getActivity(), this.type, this.nearbyLocation.getLatitude(),
-					this.nearbyLocation.getLongitude(), this.ad.aroundDiff);
+			final ArrayList<AgencyProperties> newTypeAgencies = NearbyPOIListLoader.findTypeAgencies(getActivity(), this.type,
+					this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff);
 			if (CollectionUtils.getSize(this.typeAgencies) != CollectionUtils.getSize(newTypeAgencies)) {
 				useNewNearbyLocation(this.nearbyLocation, true); // force
 			}
@@ -412,7 +408,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	}
 
 	@Override
-	public Loader<List<POIManager>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case NEARBY_POIS_LOADER:
 			if (this.nearbyLocation == null) {
@@ -430,14 +426,14 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	}
 
 	@Override
-	public void onLoaderReset(Loader<List<POIManager>> loader) {
+	public void onLoaderReset(Loader<ArrayList<POIManager>> loader) {
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
 	}
 
 	@Override
-	public void onLoadFinished(Loader<List<POIManager>> loader, List<POIManager> data) {
+	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
 		int dataSize = CollectionUtils.getSize(data);
 		if (this.nearbyLocation != null) {
 			float distanceInKm = LocationUtils.getAroundCoveredDistance(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), ad.aroundDiff) / 1000;
@@ -450,6 +446,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			LocationUtils.incAroundDiff(this.ad);
 			getLoaderManager().restartLoader(NEARBY_POIS_LOADER, null, this);
 		} else {
+			if (this.adapter == null) {
+				initAdapter();
+			}
 			// show found POIs (or empty list)
 			this.adapter.setPois(data);
 			if (this.fragmentVisible) {

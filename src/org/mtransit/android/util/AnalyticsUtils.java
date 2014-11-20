@@ -48,6 +48,9 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 	private static Tracker tracker;
 
 	private synchronized static Tracker getTracker(final Context context) {
+		if (!ANALYTICS_ENABLED) {
+			return null;
+		}
 		if (tracker == null) {
 			tracker = GoogleAnalytics.getInstance(context).newTracker(context.getString(R.string.google_analytics_id));
 			tracker.enableAdvertisingIdCollection(TRACKING_ADVERTISING_ID_COLLECTION);
@@ -64,50 +67,53 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 	}
 
 	public static void trackEvent(Context context, final String category, final String action, final String label, final int value) {
-		if (ANALYTICS_ENABLED) {
-			new AsyncTask<Context, Void, Void>() {
-				@Override
-				protected Void doInBackground(Context... params) {
-					try {
-						final Tracker gaTracker = getTracker(params[0]);
-						gaTracker.send(new HitBuilders.EventBuilder().setCategory(category).setAction(action).setLabel(label).setValue(value).build());
-					} catch (Throwable t) {
-						MTLog.w(TAG, t, "Error while tracing event (%s,%s,%s)!", action, label, value);
-					}
-					return null;
-				}
-			}.execute(context);
+		if (!ANALYTICS_ENABLED) {
+			return;
 		}
+		new AsyncTask<Context, Void, Void>() {
+			@Override
+			protected Void doInBackground(Context... params) {
+				try {
+					final Tracker gaTracker = getTracker(params[0]);
+					gaTracker.send(new HitBuilders.EventBuilder().setCategory(category).setAction(action).setLabel(label).setValue(value).build());
+				} catch (Throwable t) {
+					MTLog.w(TAG, t, "Error while tracing event (%s,%s,%s)!", action, label, value);
+				}
+				return null;
+			}
+		}.execute(context);
 	}
 
 	public static void trackScreenView(Context context, final Trackable page) {
-		if (ANALYTICS_ENABLED) {
-			new AsyncTask<Context, Void, Void>() {
-				@Override
-				protected Void doInBackground(Context... params) {
-					try {
-						final String pageScreenName = page.getScreenName();
-						if (!TextUtils.isEmpty(pageScreenName)) {
-							final Tracker gaTracker = getTracker(params[0]);
-							gaTracker.setScreenName(pageScreenName);
-							gaTracker.send(new HitBuilders.AppViewBuilder().build());
-						}
-					} catch (Throwable t) {
-						MTLog.w(TAG, t, "Error while tracing screen view! (%s)", page);
-					}
-					return null;
-				}
-			}.execute(context);
+		if (!ANALYTICS_ENABLED) {
+			return;
 		}
+		new AsyncTask<Context, Void, Void>() {
+			@Override
+			protected Void doInBackground(Context... params) {
+				try {
+					final String pageScreenName = page.getScreenName();
+					if (!TextUtils.isEmpty(pageScreenName)) {
+						final Tracker gaTracker = getTracker(params[0]);
+						gaTracker.setScreenName(pageScreenName);
+						gaTracker.send(new HitBuilders.AppViewBuilder().build());
+					}
+				} catch (Throwable t) {
+					MTLog.w(TAG, t, "Error while tracing screen view! (%s)", page);
+				}
+				return null;
+			}
+		}.execute(context);
 	}
 
 	public static void dispatch(Context context) {
-		if (ANALYTICS_ENABLED) {
-			try {
-				GoogleAnalytics.getInstance(context).dispatchLocalHits();
-			} catch (Throwable t) {
-				MTLog.w(TAG, t, "Error while dispatching analytics data.");
-			}
+		if (!ANALYTICS_ENABLED) {
+			return;
+		}
+		try {
+			GoogleAnalytics.getInstance(context).dispatchLocalHits();
+		} catch (Throwable t) {
+			MTLog.w(TAG, t, "Error while dispatching analytics data.");
 		}
 	}
 

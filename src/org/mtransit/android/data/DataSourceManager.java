@@ -2,8 +2,6 @@ package org.mtransit.android.data;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
@@ -15,11 +13,13 @@ import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ScheduleTimestamps;
 import org.mtransit.android.commons.data.ScheduleTimestampsFilter;
+import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.GTFSRouteTripStopProvider;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.provider.POIProvider;
 import org.mtransit.android.commons.provider.ScheduleTimestampsProvider;
+import org.mtransit.android.commons.provider.ServiceUpdateProvider;
 import org.mtransit.android.commons.provider.StatusFilter;
 import org.mtransit.android.commons.provider.StatusProvider;
 
@@ -41,12 +41,41 @@ public final class DataSourceManager implements MTLog.Loggable {
 	private DataSourceManager() {
 	}
 
+	public static ArrayList<ServiceUpdate> findServiceUpdates(Context context, Uri contentUri, ServiceUpdateProvider.ServiceUpdateFilter serviceUpdateFilter) {
+		Cursor cursor = null;
+		try {
+			String serviceUpdateFilterJSONString = serviceUpdateFilter == null ? null : serviceUpdateFilter.toJSONString();
+			Uri uri = Uri.withAppendedPath(contentUri, ServiceUpdateProvider.SERVICE_UPDATE_CONTENT_DIRECTORY);
+			cursor = context.getContentResolver().query(uri, null, serviceUpdateFilterJSONString, null, null);
+			return getServiceUpdates(cursor);
+		} catch (Throwable t) {
+			MTLog.w(TAG, t, "Error!");
+			return null;
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+	}
+
+	private static ArrayList<ServiceUpdate> getServiceUpdates(Cursor cursor) {
+		ArrayList<ServiceUpdate> result = new ArrayList<ServiceUpdate>();
+		if (cursor != null && cursor.getCount() > 0) {
+			if (cursor.moveToFirst()) {
+				do {
+					result.add(ServiceUpdate.fromCursor(cursor));
+				} while (cursor.moveToNext());
+			}
+		}
+		return result;
+	}
+
 	public static ScheduleTimestamps findScheduleTimestamps(Context context, Uri contentUri, ScheduleTimestampsFilter scheduleTimestampsFilter) {
 		Cursor cursor = null;
 		try {
-			String scheduleTimestampsFilterFilterJSONString = scheduleTimestampsFilter == null ? null : scheduleTimestampsFilter.toJSONString();
+			String scheduleTimestampsFilterJSONString = scheduleTimestampsFilter == null ? null : scheduleTimestampsFilter.toJSONString();
 			Uri uri = Uri.withAppendedPath(contentUri, ScheduleTimestampsProvider.SCHEDULE_TIMESTAMPS_CONTENT_DIRECTORY);
-			cursor = context.getContentResolver().query(uri, null, scheduleTimestampsFilterFilterJSONString, null, null);
+			cursor = context.getContentResolver().query(uri, null, scheduleTimestampsFilterJSONString, null, null);
 			return getScheduleTimestamp(cursor);
 		} catch (Throwable t) {
 			MTLog.w(TAG, t, "Error!");
@@ -235,7 +264,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			final Uri uri = getRTSTripsUri(contentUri);
 			final String selection = GTFSRouteTripStopProvider.TripColumns.T_TRIP_K_ID + "=" + tripId;
 			cursor = context.getContentResolver().query(uri, GTFSRouteTripStopProvider.PROJECTION_TRIP, selection, null, null);
-			final List<Trip> rtsTrips = getRTSTrips(cursor, contentUri.getAuthority());
+			final ArrayList<Trip> rtsTrips = getRTSTrips(cursor, contentUri.getAuthority());
 			return rtsTrips == null || rtsTrips.size() == 0 ? null : rtsTrips.get(0);
 		} catch (Throwable t) {
 			MTLog.w(TAG, t, "Error!");
@@ -247,7 +276,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
-	public static List<Trip> findRTSRouteTrips(Context context, Uri contentUri, int routeId) {
+	public static ArrayList<Trip> findRTSRouteTrips(Context context, Uri contentUri, int routeId) {
 		Cursor cursor = null;
 		try {
 			final Uri uri = getRTSTripsUri(contentUri);
@@ -264,8 +293,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
-	private static List<Trip> getRTSTrips(Cursor cursor, String authority) {
-		List<Trip> result = new ArrayList<Trip>();
+	private static ArrayList<Trip> getRTSTrips(Cursor cursor, String authority) {
+		ArrayList<Trip> result = new ArrayList<Trip>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -283,7 +312,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			final Uri uri = getRTSRoutesUri(contentUri);
 			final String selection = GTFSRouteTripStopProvider.RouteColumns.T_ROUTE_K_ID + "=" + routeId;
 			cursor = context.getContentResolver().query(uri, GTFSRouteTripStopProvider.PROJECTION_ROUTE, selection, null, null);
-			final List<Route> rtsRoutes = getRTSRoutes(cursor, contentUri.getAuthority());
+			final ArrayList<Route> rtsRoutes = getRTSRoutes(cursor, contentUri.getAuthority());
 			return rtsRoutes == null || rtsRoutes.size() == 0 ? null : rtsRoutes.get(0);
 		} catch (Throwable t) {
 			MTLog.w(TAG, t, "Error!");
@@ -295,7 +324,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
-	public static List<Route> findAllRTSAgencyRoutes(Context context, Uri contentUri) {
+	public static ArrayList<Route> findAllRTSAgencyRoutes(Context context, Uri contentUri) {
 		Cursor cursor = null;
 		try {
 			final Uri uri = getRTSRoutesUri(contentUri);
@@ -312,8 +341,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
-	private static List<Route> getRTSRoutes(Cursor cursor, String authority) {
-		List<Route> result = new ArrayList<Route>();
+	private static ArrayList<Route> getRTSRoutes(Cursor cursor, String authority) {
+		ArrayList<Route> result = new ArrayList<Route>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -326,11 +355,11 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	public static POIManager findPOI(Context context, Uri contentUri, POIFilter poiFilter) {
-		final List<POIManager> pois = findPOIs(context, contentUri, poiFilter);
+		final ArrayList<POIManager> pois = findPOIs(context, contentUri, poiFilter);
 		return pois == null || pois.size() == 0 ? null : pois.get(0);
 	}
 
-	public static List<POIManager> findPOIs(Context context, Uri contentUri, POIFilter poiFilter) {
+	public static ArrayList<POIManager> findPOIs(Context context, Uri contentUri, POIFilter poiFilter) {
 		Cursor cursor = null;
 		try {
 			String filterJsonString = POIFilter.toJSON(poiFilter).toString();
@@ -348,8 +377,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
-	private static List<POIManager> getPOIs(Cursor cursor, String authority) {
-		List<POIManager> result = new ArrayList<POIManager>();
+	private static ArrayList<POIManager> getPOIs(Cursor cursor, String authority) {
+		ArrayList<POIManager> result = new ArrayList<POIManager>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -360,7 +389,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static Set<String> findSearchSuggest(Context context, Uri contentUri, String query) {
+	public static HashSet<String> findSearchSuggest(Context context, Uri contentUri, String query) {
 		Cursor cursor = null;
 		try {
 			Uri searchSuggestUri = Uri.withAppendedPath(contentUri, SearchManager.SUGGEST_URI_PATH_QUERY);
@@ -379,8 +408,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
-	public static Set<String> getSearchSuggest(Cursor cursor) {
-		Set<String> results = new HashSet<String>();
+	public static HashSet<String> getSearchSuggest(Cursor cursor) {
+		HashSet<String> results = new HashSet<String>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				final int text1ColumnIdx = cursor.getColumnIndexOrThrow(SearchManager.SUGGEST_COLUMN_TEXT_1);

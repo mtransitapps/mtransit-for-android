@@ -1,7 +1,6 @@
 package org.mtransit.android.data;
 
 import java.util.HashSet;
-import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -21,7 +20,7 @@ public class JPaths implements MTLog.Loggable {
 
 	private String id;
 
-	private Set<JPath> paths = new HashSet<JPath>();
+	private HashSet<JPath> paths = new HashSet<JPath>();
 
 	public JPaths(String id) {
 		this.id = id;
@@ -35,7 +34,7 @@ public class JPaths implements MTLog.Loggable {
 		this.paths.add(newPath);
 	}
 
-	public Set<JPath> getPaths() {
+	public HashSet<JPath> getPaths() {
 		return paths;
 	}
 

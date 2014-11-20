@@ -2,8 +2,6 @@ package org.mtransit.android.provider;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -87,18 +85,18 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 
 	private Cursor getSearchSuggest(String query, Cursor recentSearchCursor) {
 		clearAllTasks();
-		Set<String> recentSearchSuggestions = DataSourceManager.getSearchSuggest(recentSearchCursor);
-		Set<String> suggestions = new HashSet<String>();
+		HashSet<String> recentSearchSuggestions = DataSourceManager.getSearchSuggest(recentSearchCursor);
+		HashSet<String> suggestions = new HashSet<String>();
 		if (!TextUtils.isEmpty(query)) {
-			List<AgencyProperties> agencies = DataSourceProvider.get(getContext()).getAllAgencies();
-			List<Future<Set<String>>> taskList = new ArrayList<Future<Set<String>>>();
+			ArrayList<AgencyProperties> agencies = DataSourceProvider.get(getContext()).getAllAgencies();
+			ArrayList<Future<HashSet<String>>> taskList = new ArrayList<Future<HashSet<String>>>();
 			for (AgencyProperties agency : agencies) {
 				final FindSearchSuggestTask task = new FindSearchSuggestTask(getContext(), agency, query);
 				taskList.add(getFetchSuggestExecutor().submit(task));
 			}
-			for (Future<Set<String>> future : taskList) {
+			for (Future<HashSet<String>> future : taskList) {
 				try {
-					Set<String> agencySuggestions = future.get();
+					HashSet<String> agencySuggestions = future.get();
 					suggestions.addAll(agencySuggestions);
 				} catch (Exception e) {
 					MTLog.w(this, e, "Error while loading in background!");
@@ -145,7 +143,7 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 		}
 	}
 
-	private static class FindSearchSuggestTask extends MTCallable<Set<String>> {
+	private static class FindSearchSuggestTask extends MTCallable<HashSet<String>> {
 
 		private static final String TAG = SearchSuggestProvider.class.getSimpleName() + ">" + FindSearchSuggestTask.class.getSimpleName();
 
@@ -165,7 +163,7 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 		}
 
 		@Override
-		public Set<String> callMT() throws Exception {
+		public HashSet<String> callMT() throws Exception {
 			final Uri agencyUri = UriUtils.newContentUri(this.agency.getAuthority());
 			return DataSourceManager.findSearchSuggest(this.context, agencyUri, this.query);
 		}

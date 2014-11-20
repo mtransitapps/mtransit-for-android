@@ -1,6 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -31,7 +31,7 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
-public class HomeFragment extends ABFragment implements LoaderManager.LoaderCallbacks<List<POIManager>>, MTActivityWithLocation.UserLocationListener,
+public class HomeFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
 		FavoriteManager.FavoriteUpdateListener, SwipeRefreshLayout.OnRefreshListener {
 
 	private static final String TAG = HomeFragment.class.getSimpleName();
@@ -98,7 +98,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		restoreInstanceState(savedInstanceState);
-		initAdapter();
 	}
 
 	private void restoreInstanceState(Bundle savedInstanceState) {
@@ -109,6 +108,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public void onResume() {
 		super.onResume();
+		switchView(getView());
 		if (this.adapter != null) {
 			this.adapter.onResume(getActivity());
 		}
@@ -178,7 +178,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	private static final int POIS_LOADER = 0;
 
 	@Override
-	public Loader<List<POIManager>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
 			if (this.nearbyLocation == null) {
@@ -193,14 +193,17 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public void onLoaderReset(Loader<List<POIManager>> loader) {
+	public void onLoaderReset(Loader<ArrayList<POIManager>> loader) {
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
 	}
 
 	@Override
-	public void onLoadFinished(Loader<List<POIManager>> loader, List<POIManager> data) {
+	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+		if (this.adapter == null) {
+			initAdapter();
+		}
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		switchView(getView());
@@ -318,12 +321,15 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 		this.swipeRefreshLayout = (ListViewSwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
 		this.swipeRefreshLayout.setColorSchemeResources(R.color.mt_blue_malibu, R.color.mt_blue_smalt, R.color.mt_blue_malibu, R.color.mt_blue_smalt);
+		this.swipeRefreshLayout.setOnRefreshListener(this);
 		inflateList(view);
 		this.adapter.setListView((AbsListView) view.findViewById(R.id.list));
-		this.swipeRefreshLayout.setOnRefreshListener(this);
 	}
 
 	private void switchView(View view) {
+		if (view == null) {
+			return;
+		}
 		if (this.adapter == null || !this.adapter.isInitialized()) {
 			showLoading(view);
 		} else if (this.adapter.getPoisCount() == 0) {
@@ -347,7 +353,9 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	private void inflateList(View view) {
 		if (view.findViewById(R.id.list) == null) { // IF NOT present/inflated DO
 			((ViewStub) view.findViewById(R.id.list_stub)).inflate(); // inflate
-			this.swipeRefreshLayout.setListViewWR((AbsListView) view.findViewById(R.id.list));
+			if (this.swipeRefreshLayout != null) {
+				this.swipeRefreshLayout.setListViewWR((AbsListView) view.findViewById(R.id.list));
+			}
 		}
 	}
 
@@ -360,7 +368,9 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
 			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
-			this.swipeRefreshLayout.setLoadingViewWR(view.findViewById(R.id.loading));
+			if (this.swipeRefreshLayout != null) {
+				this.swipeRefreshLayout.setLoadingViewWR(view.findViewById(R.id.loading));
+			}
 		}
 		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}
@@ -374,7 +384,9 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 		if (view.findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
 			((ViewStub) view.findViewById(R.id.empty_stub)).inflate(); // inflate
-			this.swipeRefreshLayout.setEmptyViewWR(view.findViewById(R.id.empty));
+			if (this.swipeRefreshLayout != null) {
+				this.swipeRefreshLayout.setEmptyViewWR(view.findViewById(R.id.empty));
+			}
 		}
 		if (!TextUtils.isEmpty(this.emptyText)) {
 			((TextView) view.findViewById(R.id.empty_text)).setText(this.emptyText);

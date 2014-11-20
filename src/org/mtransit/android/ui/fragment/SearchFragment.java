@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -36,7 +35,7 @@ import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class SearchFragment extends ABFragment implements LoaderManager.LoaderCallbacks<List<POIManager>>, MTActivityWithLocation.UserLocationListener,
+public class SearchFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
 		POIArrayAdapter.TypeHeaderButtonsClickListener, SearchView.OnQueryTextListener {
 
 	private static final String TAG = SearchFragment.class.getSimpleName();
@@ -88,7 +87,11 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 		this.adapter = new POIArrayAdapter(getActivity());
 		this.adapter.setTag(getLogTag());
-		this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);
+		if (this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
+			this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);
+		} else {
+			this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_NONE);
+		}
 		this.adapter.setOnTypeHeaderButtonsClickListener(this);
 		final View view = getView();
 		setupView(view);
@@ -102,7 +105,9 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			setTypeFilter(TypeFilter.fromDataSourceType(type));
 			return;
 		}
-		this.adapter.onTypeHeaderButtonClick(buttonId, type);
+		if (this.adapter != null) {
+			this.adapter.onTypeHeaderButtonClick(buttonId, type);
+		}
 	}
 
 	private void setupView(View view) {
@@ -131,11 +136,6 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			public void onNothingSelected(AdapterView<?> parent) {
 			}
 		});
-		if (this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
-			typeFiltersSpinner.setVisibility(View.GONE);
-		} else {
-			typeFiltersSpinner.setVisibility(View.VISIBLE);
-		}
 	}
 
 	private TypeFiltersAdapter typeFiltersAdapter = null;
@@ -150,7 +150,6 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		initAdapter();
 		restoreInstance(savedInstanceState);
 	}
 
@@ -208,7 +207,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	private static final int POI_SEARCH_LOADER = 0;
 
 	@Override
-	public Loader<List<POIManager>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case POI_SEARCH_LOADER:
 			final POISearchLoader poiSearchLoader = new POISearchLoader(getActivity(), this.query, this.typeFilter, this.userLocation);
@@ -220,14 +219,17 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	}
 
 	@Override
-	public void onLoaderReset(Loader<List<POIManager>> loader) {
+	public void onLoaderReset(Loader<ArrayList<POIManager>> loader) {
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
 	}
 
 	@Override
-	public void onLoadFinished(Loader<List<POIManager>> loader, List<POIManager> data) {
+	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+		if (this.adapter == null) {
+			initAdapter();
+		}
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		switchView(getView());
@@ -250,15 +252,19 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			this.typeFilter = typeFilter;
 			Spinner typeFiltersSpinner = (Spinner) getView().findViewById(R.id.typeFilters);
 			if (this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
-				this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);
-				typeFiltersSpinner.setVisibility(View.GONE);
+				if (this.adapter != null) {
+					this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);
+				}
 			} else {
-				this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_NONE);
-				typeFiltersSpinner.setVisibility(View.VISIBLE); // trigger onItemSelected() the 1st time
+				if (this.adapter != null) {
+					this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_NONE);
+				}
 			}
 			final int position = getTypeFiltersAdapter().getPosition(this.typeFilter);
 			typeFiltersSpinner.setSelection(position, true);
-			this.adapter.clear();
+			if (this.adapter != null) {
+				this.adapter.clear();
+			}
 			switchView(getView());
 			getLoaderManager().restartLoader(POI_SEARCH_LOADER, null, this);
 		}
@@ -275,7 +281,9 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			if (!alreadyInSearchView && getSearchView() != null) {
 				getSearchView().setQuery(this.query, false);
 			}
-			this.adapter.clear();
+			if (this.adapter != null) {
+				this.adapter.clear();
+			}
 			switchView(getView());
 
 			getLoaderManager().destroyLoader(POI_SEARCH_LOADER); // cancel now
@@ -320,12 +328,20 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	}
 
 	private void switchView(View view) {
+		if (view == null) {
+			return;
+		}
 		if (this.adapter == null || !this.adapter.isInitialized()) {
 			showLoading(view);
 		} else if (this.adapter.getPoisCount() == 0) {
 			showEmpty(view);
 		} else {
 			showList(view);
+		}
+		if (this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
+			view.findViewById(R.id.typeFilters).setVisibility(View.GONE);
+		} else {
+			view.findViewById(R.id.typeFilters).setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -521,9 +537,9 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 
 		private void init() {
-			List<TypeFilter> typeFilters = new ArrayList<TypeFilter>();
+			ArrayList<TypeFilter> typeFilters = new ArrayList<TypeFilter>();
 			typeFilters.add(TypeFilter.ALL);
-			final List<DataSourceType> availableTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
+			final ArrayList<DataSourceType> availableTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
 			if (availableTypes != null) {
 				for (DataSourceType dst : availableTypes) {
 					if (dst.isSearchable()) {

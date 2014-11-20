@@ -8,9 +8,31 @@
         android:layout_width="match_parent"
         android:layout_height="?android:attr/listPreferredItemHeightLarge"
         android:inflatedId="@+id/poi" />
-    <ViewStub
-        android:id="@+id/poi_status_detail_stub"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:inflatedId="@+id/poi_status_detail" />
+        android:layout_height="wrap_content" >
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+                <ViewStub
+                    android:id="@+id/poi_status_detail_stub"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inflatedId="@+id/poi_status_detail" />
+                <ViewStub
+                    android:id="@+id/poi_service_update_stub"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inflatedId="@+id/poi_service_update" />
+            </LinearLayout>
+        </ScrollView>
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/layout_shadow" />
+    </FrameLayout>
 </LinearLayout>

@@ -1,7 +1,6 @@
 package org.mtransit.android.task;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.StringUtils;
@@ -15,7 +14,7 @@ import org.mtransit.android.data.POIManager;
 import android.content.Context;
 import android.net.Uri;
 
-public class AgencyPOIsLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
+public class AgencyPOIsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
 	private static final String TAG = FavoritesLoader.class.getSimpleName();
 
@@ -25,7 +24,7 @@ public class AgencyPOIsLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 	}
 
 	private AgencyProperties agency;
-	private List<POIManager> pois;
+	private ArrayList<POIManager> pois;
 
 	public AgencyPOIsLoader(Context context, AgencyProperties agency) {
 		super(context);
@@ -33,7 +32,7 @@ public class AgencyPOIsLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 	}
 
 	@Override
-	public List<POIManager> loadInBackgroundMT() {
+	public ArrayList<POIManager> loadInBackgroundMT() {
 		if (this.pois != null) {
 			return this.pois;
 		}
@@ -62,7 +61,7 @@ public class AgencyPOIsLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 	}
 
 	@Override
-	public void deliverResult(List<POIManager> data) {
+	public void deliverResult(ArrayList<POIManager> data) {
 		this.pois = data;
 		if (isStarted()) {
 			super.deliverResult(data);

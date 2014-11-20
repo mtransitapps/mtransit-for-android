@@ -1,6 +1,6 @@
 package org.mtransit.android.data;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
@@ -70,7 +70,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 
 	private LayoutInflater layoutInflater;
 
-	private List<DataSourceType> allAgencyTypes = null;
+	private ArrayList<DataSourceType> allAgencyTypes = null;
 
 	public MenuAdapter(Context context, MenuUpdateListener listener) {
 		this.context = context;
@@ -83,7 +83,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		getAllAgencyTypes(); // load all agency types
 	}
 
-	public List<DataSourceType> getAllAgencyTypes() {
+	public ArrayList<DataSourceType> getAllAgencyTypes() {
 		if (this.allAgencyTypes == null) {
 			this.allAgencyTypes = DataSourceProvider.get(this.context).getAvailableAgencyTypes();
 		}
@@ -92,7 +92,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 
 	@Override
 	public void onModulesUpdated() {
-		final List<DataSourceType> newAllAgencyTypes = DataSourceProvider.get(this.context).getAvailableAgencyTypes();
+		final ArrayList<DataSourceType> newAllAgencyTypes = DataSourceProvider.get(this.context).getAvailableAgencyTypes();
 		if (CollectionUtils.getSize(this.allAgencyTypes) != CollectionUtils.getSize(newAllAgencyTypes)) {
 			this.allAgencyTypes = newAllAgencyTypes; // force reset
 			super.notifyDataSetChanged();

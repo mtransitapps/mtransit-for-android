@@ -2,7 +2,6 @@ package org.mtransit.android.task;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.UriUtils;
@@ -18,7 +17,7 @@ import org.mtransit.android.data.ScheduleProviderProperties;
 import android.content.Context;
 import android.net.Uri;
 
-public class ScheduleTimestampsLoader extends MTAsyncTaskLoaderV4<List<Schedule.Timestamp>> {
+public class ScheduleTimestampsLoader extends MTAsyncTaskLoaderV4<ArrayList<Schedule.Timestamp>> {
 
 	private static final String TAG = ScheduleTimestampsLoader.class.getSimpleName();
 
@@ -27,7 +26,7 @@ public class ScheduleTimestampsLoader extends MTAsyncTaskLoaderV4<List<Schedule.
 		return TAG;
 	}
 
-	private List<Schedule.Timestamp> timestamps;
+	private ArrayList<Schedule.Timestamp> timestamps;
 	private long startsAtInMs;
 	private RouteTripStop rts;
 
@@ -38,7 +37,7 @@ public class ScheduleTimestampsLoader extends MTAsyncTaskLoaderV4<List<Schedule.
 	}
 
 	@Override
-	public List<Schedule.Timestamp> loadInBackgroundMT() {
+	public ArrayList<Schedule.Timestamp> loadInBackgroundMT() {
 		if (this.timestamps != null) {
 			return this.timestamps;
 		}
@@ -77,7 +76,7 @@ public class ScheduleTimestampsLoader extends MTAsyncTaskLoaderV4<List<Schedule.
 	}
 
 	@Override
-	public void deliverResult(List<Schedule.Timestamp> data) {
+	public void deliverResult(ArrayList<Schedule.Timestamp> data) {
 		this.timestamps = data;
 		if (isStarted()) {
 			super.deliverResult(data);

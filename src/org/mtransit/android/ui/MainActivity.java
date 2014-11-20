@@ -1,6 +1,5 @@
 package org.mtransit.android.ui;
 
-import java.util.List;
 import java.util.WeakHashMap;
 
 import org.mtransit.android.R;
@@ -23,7 +22,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewStub;
 
 public class MainActivity extends MTActivityWithLocation implements FragmentManager.OnBackStackChangedListener, AnalyticsUtils.Trackable {
 
@@ -206,15 +204,6 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		}
 	}
 
-	private void showContentFrameAsLoading() {
-		if (findViewById(R.id.content_frame) != null) {
-			findViewById(R.id.content_frame).setVisibility(View.GONE);
-		}
-		if (findViewById(R.id.content_frame_loading) == null) {
-			((ViewStub) findViewById(R.id.content_frame_loading_stub)).inflate(); // inflate
-		}
-		findViewById(R.id.content_frame_loading).setVisibility(View.VISIBLE);
-	}
 
 	public void addFragmentToStack(ABFragment newFragment) {
 		addFragmentToStack(newFragment, null);
@@ -226,7 +215,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 
 	@Override
 	public void onUserLocationChanged(Location newLocation) {
-		final List<Fragment> fragments = getSupportFragmentManager().getFragments();
+		final java.util.List<Fragment> fragments = getSupportFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment != null && fragment instanceof MTActivityWithLocation.UserLocationListener) {

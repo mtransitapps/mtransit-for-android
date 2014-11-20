@@ -4,9 +4,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.WeakHashMap;
 
 import org.mtransit.android.R;
@@ -23,10 +21,12 @@ import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
+import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.StatusLoader;
+import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
@@ -59,8 +59,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements SensorUtils.CompassListener, AdapterView.OnItemClickListener, SensorEventListener,
-		AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener, MTLog.Loggable, FavoriteManager.FavoriteUpdateListener,
-		SensorUtils.SensorTaskCompleted, TimeUtils.TimeChangedReceiver.TimeChangedListener {
+		AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener, ServiceUpdateLoader.ServiceUpdateLoaderListener,
+		FavoriteManager.FavoriteUpdateListener, SensorUtils.SensorTaskCompleted, TimeUtils.TimeChangedReceiver.TimeChangedListener {
 
 	private static final String TAG = POIArrayAdapter.class.getSimpleName();
 
@@ -82,9 +82,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private LayoutInflater layoutInflater;
 
-	private LinkedHashMap<Integer, List<POIManager>> poisByType;
+	private LinkedHashMap<Integer, ArrayList<POIManager>> poisByType;
 
-	private Set<String> favUUIDs;
+	private HashSet<String> favUUIDs;
 
 	private WeakReference<Activity> activityWR;
 
@@ -94,7 +94,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private float locationDeclination;
 
-	private Set<String> closestPoiUuids;
+	private HashSet<String> closestPoiUuids;
 
 	private float[] accelerometerValues = new float[3];
 
@@ -102,6 +102,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 
 	private boolean showStatus = true; // show times / availability
+
+	private boolean showServiceUpdate = true; // show warning icon
 
 	private boolean showFavorite = true; // show favorite star
 
@@ -142,6 +144,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public void setShowStatus(boolean showData) {
 		this.showStatus = showData;
+	}
+
+	public void setShowServiceUpdate(boolean showServiceUpdate) {
+		this.showServiceUpdate = showServiceUpdate;
 	}
 
 	public void setShowFavorite(boolean showFavorite) {
@@ -399,11 +405,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		refreshFavorites();
 	}
 
-	public void setPois(List<POIManager> pois) {
+	public void setPois(ArrayList<POIManager> pois) {
 		this.lastNotifyDataSetChanged = -1; // last notify was with old data
 		this.poisByType = null;
 		if (pois != null) {
-			this.poisByType = new LinkedHashMap<Integer, List<POIManager>>();
+			this.poisByType = new LinkedHashMap<Integer, ArrayList<POIManager>>();
 			for (POIManager poim : pois) {
 				final AgencyProperties agency = DataSourceProvider.get(getContext()).getAgency(poim.poi.getAuthority());
 				if (agency != null) {
@@ -445,7 +451,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (this.poisByType != null) {
 			this.closestPoiUuids = new HashSet<String>();
 			for (Integer type : this.poisByType.keySet()) {
-				List<POIManager> orderedPoims = new ArrayList<POIManager>(this.poisByType.get(type));
+				ArrayList<POIManager> orderedPoims = new ArrayList<POIManager>(this.poisByType.get(type));
 				CollectionUtils.sort(orderedPoims, POIManager.POI_DISTANCE_COMPARATOR);
 				final POIManager theClosestOne = orderedPoims.get(0);
 				final float theClosestDistance = theClosestOne.getDistance();
@@ -496,7 +502,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				protected Void doInBackgroundMT(Location... params) {
 					android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
 					if (POIArrayAdapter.this.poisByType != null) {
-						for (List<POIManager> pois : POIArrayAdapter.this.poisByType.values()) {
+						for (ArrayList<POIManager> pois : POIArrayAdapter.this.poisByType.values()) {
 							LocationUtils.updateDistanceWithString(POIArrayAdapter.this.getContext(), pois, params[0], this);
 						}
 					}
@@ -518,7 +524,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public void updateDistancesNowSync(Location currentLocation) {
 		if (this.poisByType != null && currentLocation != null) {
-			for (List<POIManager> pois : this.poisByType.values()) {
+			for (ArrayList<POIManager> pois : this.poisByType.values()) {
 				LocationUtils.updateDistanceWithString(getContext(), pois, currentLocation, null);
 			}
 			updateClosestPoi();
@@ -550,6 +556,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			// needs to force data set changed or schedule might never be shown
 			if (this.poiStatusViewHoldersWR != null && this.poiStatusViewHoldersWR.containsKey(status.getTargetUUID())) {
 				updatePOIStatus(this.poiStatusViewHoldersWR.get(status.getTargetUUID()), status);
+			}
+		}
+	}
+
+	@Override
+	public void onServiceUpdatesLoaded(String targetUUID, ArrayList<ServiceUpdate> serviceUpdates) {
+		if (this.showServiceUpdate) {
+			if (this.poiStatusViewHoldersWR != null && this.poiStatusViewHoldersWR.containsKey(targetUUID)) {
+				updateServiceUpdate(this.poiStatusViewHoldersWR.get(targetUUID), ServiceUpdate.isSeverityWarning(serviceUpdates));
 			}
 		}
 	}
@@ -978,6 +993,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private static void initCommonStatusViewHolderHolder(CommonStatusViewHolder holder, View convertView) {
 		holder.statusV = convertView.findViewById(R.id.status);
+		holder.warningImg = (ImageView) convertView.findViewById(R.id.service_update_warning);
 	}
 
 	private View updateBasicPOIView(POIManager poim, View convertView) {
@@ -997,6 +1013,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		} else {
 			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
+		poim.setServiceUpdateLoaderListener(this);
+		updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext()));
 	}
 
 	private void updateAppStatus(CommonStatusViewHolder statusViewHolder, POIStatus status) {
@@ -1009,6 +1027,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		} else {
 			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
+	private void updateServiceUpdate(CommonStatusViewHolder statusViewHolder, Boolean isServiceUpdateWarning) {
+		if (statusViewHolder.warningImg == null) {
+			return;
+		}
+		if (this.showServiceUpdate && isServiceUpdateWarning != null) {
+			statusViewHolder.warningImg.setVisibility(isServiceUpdateWarning.booleanValue() ? View.VISIBLE : View.GONE);
+		} else {
+			statusViewHolder.warningImg.setVisibility(View.GONE);
+		}
 	}
 
 	private void updateAvailabilityPercent(CommonStatusViewHolder statusViewHolder, POIManager poim) {
@@ -1018,6 +1045,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		} else {
 			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
+		poim.setServiceUpdateLoaderListener(this);
+		updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext()));
 	}
 
 	private void updateAvailabilityPercent(CommonStatusViewHolder statusViewHolder, POIStatus status) {
@@ -1244,6 +1273,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		} else {
 			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
+		poim.setServiceUpdateLoaderListener(this);
+		updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext()));
 	}
 
 	private void updateRTSSchedule(CommonStatusViewHolder statusViewHolder, POIStatus status) {
@@ -1252,7 +1283,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (status != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
 			final int count = 20; // needs enough to check if service is frequent (every 5 minutes or less for at least 30 minutes)
-			List<Pair<CharSequence, CharSequence>> lines = schedule.getNextTimesStrings(getContext(), getNowToTheMinute(), null, count);
+			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getNextTimesStrings(getContext(), getNowToTheMinute(), null, count);
 			if (lines != null && lines.size() >= 1) {
 				line1CS = lines.get(0).first;
 				line2CS = lines.get(0).second;
@@ -1365,25 +1396,25 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
-	private MTAsyncTask<Integer, Void, List<Favorite>> refreshFavoritesTask;
+	private MTAsyncTask<Integer, Void, ArrayList<Favorite>> refreshFavoritesTask;
 
 	public void refreshFavorites(Integer... typesFilter) {
 		if (this.refreshFavoritesTask != null && this.refreshFavoritesTask.getStatus() == MTAsyncTask.Status.RUNNING) {
 			return; // skipped, last refresh still in progress so probably good enough
 		}
-		this.refreshFavoritesTask = new MTAsyncTask<Integer, Void, List<Favorite>>() {
+		this.refreshFavoritesTask = new MTAsyncTask<Integer, Void, ArrayList<Favorite>>() {
 			@Override
 			public String getLogTag() {
 				return POIArrayAdapter.this.getLogTag();
 			}
 
 			@Override
-			protected List<Favorite> doInBackgroundMT(Integer... params) {
+			protected ArrayList<Favorite> doInBackgroundMT(Integer... params) {
 				return FavoriteManager.findFavorites(POIArrayAdapter.this.getContext(), params);
 			}
 
 			@Override
-			protected void onPostExecute(List<Favorite> result) {
+			protected void onPostExecute(ArrayList<Favorite> result) {
 				setFavorites(result);
 			};
 		};
@@ -1391,19 +1422,23 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	}
 
-	private void setFavorites(List<Favorite> favorites) {
+	private void setFavorites(ArrayList<Favorite> favorites) {
 		boolean newFav = false; // don't trigger update if favorites are the same
+		boolean updatedFav = false; // don't trigger it favorites are the same OR were not set
 		if (this.favUUIDs == null) {
 			newFav = true; // favorite never set before
+			updatedFav = false; // never set before so not updated
 		} else if (CollectionUtils.getSize(favorites) != CollectionUtils.getSize(this.favUUIDs)) {
 			newFav = true; // different size => different favorites
+			updatedFav = true; // different size => different favorites
 		}
-		Set<String> newFavUUIDs = new HashSet<String>();
+		HashSet<String> newFavUUIDs = new HashSet<String>();
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {
 				final String uid = favorite.getFkId();
 				if (!newFav && this.favUUIDs != null && !this.favUUIDs.contains(uid)) {
 					newFav = true;
+					updatedFav = true;
 				}
 				newFavUUIDs.add(uid);
 			}
@@ -1411,6 +1446,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		this.favUUIDs = newFavUUIDs;
 		if (newFav) {
 			notifyDataSetChanged(true);
+		}
+		if (updatedFav) {
 			if (this.favoriteUpdateListener != null) {
 				this.favoriteUpdateListener.onFavoriteUpdated();
 			}
@@ -1458,6 +1495,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public static class CommonStatusViewHolder {
 		View statusV;
+		ImageView warningImg;
 	}
 
 	public static class TypeHeaderViewHolder {

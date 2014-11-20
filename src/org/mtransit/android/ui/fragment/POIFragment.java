@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -14,6 +15,7 @@ import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
+import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
@@ -23,11 +25,13 @@ import org.mtransit.android.data.ScheduleProviderProperties;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -132,8 +136,9 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		if (view == null || this.poim == null) {
 			return;
 		}
-		POIViewController.updateView(this.poim, getPOIView(view), this);
-		POIStatusDetailViewController.updateView(this.poim, getPOIStatusView(view), this);
+		POIViewController.updateView(getActivity(), getPOIView(view), this.poim, this);
+		POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), this.poim, this);
+		POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(view), this.poim, this);
 		final View rtsScheduleBtn = view.findViewById(R.id.fullScheduleBtn);
 		if (rtsScheduleBtn != null) {
 			Collection<ScheduleProviderProperties> scheduleProviders = DataSourceProvider.get(getActivity()).getTargetAuthorityScheduleProviders(
@@ -171,6 +176,24 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		return view.findViewById(R.id.poi_status_detail);
 	}
 
+	private View getPOIServiceUpdateView() {
+		return getPOIServiceUpdateView(getView());
+	}
+
+	private View getPOIServiceUpdateView(View view) {
+		if (view == null || this.poim == null) {
+			return null;
+		}
+		if (view.findViewById(R.id.poi_service_update) == null) { // IF NOT present/inflated DO
+			final Integer layoutResId = POIServiceUpdateViewController.getLayoutResId(this.poim);
+			if (layoutResId != null) {
+				((ViewStub) view.findViewById(R.id.poi_service_update_stub)).setLayoutResource(layoutResId.intValue());
+				((ViewStub) view.findViewById(R.id.poi_service_update_stub)).inflate(); // inflate
+			}
+		}
+		return view.findViewById(R.id.poi_service_update);
+	}
+
 	private View getPOIView() {
 		return getPOIView(getView());
 	}
@@ -189,8 +212,14 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	@Override
 	public void onStatusLoaded(POIStatus status) {
-		POIViewController.updatePOIStatus(getActivity(), this, getPOIView(), status);
-		POIStatusDetailViewController.updatePOIStatus(getActivity(), this, getPOIStatusView(), status);
+		POIViewController.updatePOIStatus(getActivity(), getPOIView(), status, this);
+		POIStatusDetailViewController.updatePOIStatus(getActivity(), getPOIStatusView(), status, this);
+	}
+
+	@Override
+	public void onServiceUpdatesLoaded(String targetUUID, ArrayList<ServiceUpdate> serviceUpdates) {
+		POIViewController.updateServiceUpdatesView(getActivity(), getPOIView(), serviceUpdates, this);
+		POIServiceUpdateViewController.updateServiceUpdate(getActivity(), getPOIServiceUpdateView(), serviceUpdates, this);
 	}
 
 	private Location userLocation;
@@ -206,7 +235,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 				this.userLocation = newLocation;
 				LocationUtils.updateDistanceWithString(getActivity(), this.poim, this.userLocation);
-				POIViewController.updatePOIDistanceAndCompass(this.poim, getPOIView(), this);
+				POIViewController.updatePOIDistanceAndCompass(getPOIView(), this.poim, this);
 			}
 		}
 	}
@@ -244,7 +273,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			this.lastCompassInDegree = roundedOrientation;
 			this.lastCompassChanged = now;
 			if (this.compassUpdatesEnabled && this.userLocation != null && this.lastCompassInDegree >= 0) {
-				POIViewController.updatePOIDistanceAndCompass(poim, getPOIView(), this);
+				POIViewController.updatePOIDistanceAndCompass(getPOIView(), this.poim, this);
 			}
 		}
 	}
@@ -262,8 +291,10 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 				this.poim = newPoim;
 				setupView(getView());
 			}
-			POIViewController.updatePOIStatus(getPOIView(), this.poim, this);
-			POIStatusDetailViewController.updatePOIStatus(getPOIStatusView(), this.poim, this);
+			POIViewController.updatePOIStatus(getActivity(), getPOIView(), this.poim, this);
+			POIViewController.updatePOIServiceUpdate(getActivity(), getPOIView(), this.poim, this);
+			POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(), this.poim, this);
+			POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(), this.poim, this);
 		}
 	}
 
@@ -275,8 +306,10 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			this.compassUpdatesEnabled = true;
 		}
 		this.isFavorite = null; // force refresh
-		POIViewController.updatePOIStatus(getPOIView(), this.poim, this);
-		POIStatusDetailViewController.updatePOIStatus(getPOIStatusView(), this.poim, this);
+		POIViewController.updatePOIStatus(getActivity(), getPOIView(), this.poim, this);
+		POIViewController.updatePOIServiceUpdate(getActivity(), getPOIView(), this.poim, this);
+		POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(), this.poim, this);
+		POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(), this.poim, this);
 	}
 
 	public void onPause() {
@@ -306,8 +339,10 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	private void resetNowToTheMinute() {
 		this.nowToTheMinute = TimeUtils.currentTimeToTheMinuteMillis();
-		POIViewController.updatePOIStatus(getPOIView(), this.poim, this);
-		POIStatusDetailViewController.updatePOIStatus(getPOIStatusView(), this.poim, this);
+		POIViewController.updatePOIStatus(getActivity(), getPOIView(), this.poim, this);
+		POIViewController.updatePOIServiceUpdate(getActivity(), getPOIView(), this.poim, this);
+		POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(), this.poim, this);
+		POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(), this.poim, this);
 	}
 
 	private boolean timeChangedReceiverEnabled = false;
@@ -391,6 +426,11 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	}
 
 	@Override
+	public boolean isShowingServiceUpdates() {
+		return true;
+	}
+
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.poi_menu, menu);
@@ -429,7 +469,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	public void onFavoriteUpdated() {
 		this.isFavorite = null; // reset
 		updateFavMenuItem();
-		POIViewController.updateView(this.poim, getPOIView(), this);
+		POIViewController.updateView(getActivity(), getPOIView(), this.poim, this);
 	}
 
 	@Override
@@ -443,6 +483,11 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			return this.agency.getShortName();
 		}
 		return context.getString(R.string.ellipsis);
+	}
+
+	@Override
+	public Integer getABBgColor(Context context) {
+		return Color.WHITE;
 	}
 
 	@Override

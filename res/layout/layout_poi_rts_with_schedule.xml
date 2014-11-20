@@ -11,6 +11,17 @@
         android:background="@color/poi_item_bg"
         android:clipChildren="false"
         android:padding="8dp" >
+        <ImageView
+            android:id="@+id/service_update_warning"
+            android:layout_width="?android:attr/listPreferredItemHeight"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_centerVertical="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_action_warning_outline_disabled_holo_dark"
+            android:visibility="gone"
+            tools:visibility="visible" />
         <include
             android:id="@+id/status"
             android:layout_width="?android:attr/listPreferredItemHeight"

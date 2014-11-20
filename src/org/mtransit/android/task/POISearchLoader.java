@@ -2,8 +2,7 @@ package org.mtransit.android.task;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.HashSet;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -30,7 +29,7 @@ import android.content.Context;
 import android.location.Location;
 import android.text.TextUtils;
 
-public class POISearchLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
+public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
 	private static final String TAG = FavoritesLoader.class.getSimpleName();
 
@@ -39,7 +38,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		return TAG;
 	}
 
-	private List<POIManager> pois;
+	private ArrayList<POIManager> pois;
 
 	private String query;
 
@@ -55,7 +54,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 	}
 
 	@Override
-	public List<POIManager> loadInBackgroundMT() {
+	public ArrayList<POIManager> loadInBackgroundMT() {
 		if (this.pois != null) {
 			return this.pois;
 		}
@@ -64,10 +63,10 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		if (TextUtils.isEmpty(this.query)) {
 			return this.pois;
 		}
-		Set<String> favoriteUUIDs = FavoriteManager.findFavoriteUUIDs(getContext());
+		HashSet<String> favoriteUUIDs = FavoriteManager.findFavoriteUUIDs(getContext());
 		POISearchComparator poiSearchComparator = new POISearchComparator(favoriteUUIDs);
 		final boolean keepAll;
-		final List<DataSourceType> agencyTypes;
+		final ArrayList<DataSourceType> agencyTypes;
 		if (this.typeFilter == null || this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
 			agencyTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
 			keepAll = false;
@@ -76,7 +75,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 			agencyTypes.add(DataSourceType.parseId(this.typeFilter.getDataSourceTypeId()));
 			keepAll = true;
 		}
-		List<Future<List<POIManager>>> taskList = new ArrayList<Future<List<POIManager>>>();
+		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
 		if (agencyTypes != null) {
 			for (DataSourceType agencyType : agencyTypes) {
 				if (!agencyType.isSearchable()) {
@@ -86,9 +85,9 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 				taskList.add(getFetchSearchTypeExecutor().submit(task));
 			}
 		}
-		for (Future<List<POIManager>> future : taskList) {
+		for (Future<ArrayList<POIManager>> future : taskList) {
 			try {
-				List<POIManager> typePOIs = future.get();
+				ArrayList<POIManager> typePOIs = future.get();
 				if (typePOIs != null) {
 					this.pois.addAll(typePOIs);
 				}
@@ -139,14 +138,14 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 	}
 
 	@Override
-	public void deliverResult(List<POIManager> data) {
+	public void deliverResult(ArrayList<POIManager> data) {
 		this.pois = data;
 		if (isStarted()) {
 			super.deliverResult(data);
 		}
 	}
 
-	private static class FindSearchTypeTask extends MTCallable<List<POIManager>> {
+	private static class FindSearchTypeTask extends MTCallable<ArrayList<POIManager>> {
 
 		private static final String TAG = POISearchLoader.class.getSimpleName() + ">" + FindSearchTypeTask.class.getSimpleName();
 
@@ -173,23 +172,23 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		}
 
 		@Override
-		public List<POIManager> callMT() throws Exception {
+		public ArrayList<POIManager> callMT() throws Exception {
 			if (TextUtils.isEmpty(this.query)) {
 				return null;
 			}
 			clearFetchAgencySearchTasks();
-			final List<AgencyProperties> agencies = DataSourceProvider.get(this.context).getTypeDataSources(this.agencyType.getId());
-			List<Future<List<POIManager>>> taskList = new ArrayList<Future<List<POIManager>>>();
+			final ArrayList<AgencyProperties> agencies = DataSourceProvider.get(this.context).getTypeDataSources(this.agencyType.getId());
+			ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
 			if (agencies != null) {
 				for (AgencyProperties agency : agencies) {
 					final FindSearchTask task = new FindSearchTask(this.context, agency, this.query);
 					taskList.add(getFetchAgencySearchExecutor().submit(task));
 				}
 			}
-			List<POIManager> typePois = new ArrayList<POIManager>();
-			for (Future<List<POIManager>> future : taskList) {
+			ArrayList<POIManager> typePois = new ArrayList<POIManager>();
+			for (Future<ArrayList<POIManager>> future : taskList) {
 				try {
-					List<POIManager> agencyPOIs = future.get();
+					ArrayList<POIManager> agencyPOIs = future.get();
 					typePois.addAll(agencyPOIs);
 				} catch (Exception e) {
 					MTLog.w(this, e, "Error while loading in background!");
@@ -199,7 +198,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 			LocationUtils.updateDistance(typePois, this.userLocation);
 			CollectionUtils.sort(typePois, this.poiSearchComparator);
 			if (!keepAll && typePois.size() > 2) {
-				typePois = typePois.subList(0, 2);
+				typePois = new ArrayList<POIManager>(typePois.subList(0, 2));
 			}
 			return typePois;
 		}
@@ -228,9 +227,9 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 
 	private static class POISearchComparator implements Comparator<POIManager> {
 
-		private Set<String> favoriteUUIDs;
+		private HashSet<String> favoriteUUIDs;
 
-		public POISearchComparator(Set<String> favoriteUUIDs) {
+		public POISearchComparator(HashSet<String> favoriteUUIDs) {
 			this.favoriteUUIDs = favoriteUUIDs;
 		}
 
@@ -269,7 +268,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 
 	}
 
-	private static class FindSearchTask extends MTCallable<List<POIManager>> {
+	private static class FindSearchTask extends MTCallable<ArrayList<POIManager>> {
 
 		private static final String TAG = POISearchLoader.class.getSimpleName() + ">" + FindSearchTask.class.getSimpleName();
 
@@ -289,7 +288,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		}
 
 		@Override
-		public List<POIManager> callMT() throws Exception {
+		public ArrayList<POIManager> callMT() throws Exception {
 			if (TextUtils.isEmpty(this.query)) {
 				return null;
 			}

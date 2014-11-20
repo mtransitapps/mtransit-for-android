@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:background="@color/poi_item_bg"
         android:gravity="bottom"
+        android:scrollbars="none"
         android:minHeight="?android:attr/listPreferredItemHeight"
         android:visibility="visible" >
         <TextView

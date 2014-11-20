@@ -1,9 +1,12 @@
 package org.mtransit.android.data;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.LocationUtils.LocationPOI;
 import org.mtransit.android.commons.MTLog;
@@ -17,11 +20,12 @@ import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
+import org.mtransit.android.commons.data.ServiceUpdate;
+import org.mtransit.android.commons.provider.ServiceUpdateProvider;
 import org.mtransit.android.commons.provider.StatusFilter;
 import org.mtransit.android.provider.FavoriteManager;
-import org.mtransit.android.provider.FavoriteManager.FavoriteUpdateListener;
+import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
-import org.mtransit.android.task.StatusLoader.StatusLoaderListener;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.POIFragment;
 import org.mtransit.android.ui.fragment.RTSRouteFragment;
@@ -60,10 +64,11 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private float distance = -1;
 
 	private POIStatus status;
+	private ArrayList<ServiceUpdate> serviceUpdates;
 
 	private long lastFindStatusTimestampMs = -1;
 
-	private WeakReference<StatusLoaderListener> statusLoaderListenerWR;
+	private WeakReference<StatusLoader.StatusLoaderListener> statusLoaderListenerWR;
 
 	private int scheduleMaxDataRequests = Schedule.ScheduleStatusFilter.MAX_DATA_REQUESTS_DEFAULT;
 
@@ -216,6 +221,84 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 	}
 
+	private WeakReference<ServiceUpdateLoader.ServiceUpdateLoaderListener> serviceUpdateLoaderListenerWR;
+
+	public void setServiceUpdateLoaderListener(ServiceUpdateLoader.ServiceUpdateLoaderListener serviceUpdateLoaderListener) {
+		this.serviceUpdateLoaderListenerWR = new WeakReference<ServiceUpdateLoader.ServiceUpdateLoaderListener>(serviceUpdateLoaderListener);
+	}
+
+	public boolean hasServiceUpdates() {
+		return CollectionUtils.getSize(this.serviceUpdates) != 0;
+	}
+
+	public void setServiceUpdates(Collection<ServiceUpdate> newServiceUpdates) {
+		if (this.serviceUpdates == null) {
+			this.serviceUpdates = new ArrayList<ServiceUpdate>();
+		} else {
+			this.serviceUpdates.clear();
+		}
+		if (newServiceUpdates != null) {
+			this.serviceUpdates.addAll(newServiceUpdates);
+			CollectionUtils.sort(this.serviceUpdates, ServiceUpdate.HIGHER_SEVERITY_FIRST_COMPARATOR);
+		}
+	}
+
+	public ArrayList<ServiceUpdate> getServiceUpdatesOrNull() {
+		return this.serviceUpdates;
+	}
+
+	public Boolean isServiceUpdateWarning(Context context) {
+			return null;
+		}
+		boolean isWarning = ServiceUpdate.isSeverityWarning(this.serviceUpdates);
+		return isWarning;
+	}
+
+	public ArrayList<ServiceUpdate> getServiceUpdates(Context context) {
+		if (this.serviceUpdates == null || !areServiceUpdatesUseful()) {
+			findServiceUpdates(context, false);
+		}
+		return this.serviceUpdates;
+	}
+
+	private boolean areServiceUpdatesUseful() {
+		if (this.serviceUpdates != null) {
+			for (ServiceUpdate serviceUpdate : this.serviceUpdates) {
+				if (serviceUpdate.isUseful()) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean pingServiceUpdates(Context context) {
+		if (this.serviceUpdates == null) {
+			return findServiceUpdates(context, true);
+		} else {
+			return false;
+		}
+	}
+
+	private long lastFindServiceUpdateTimestampMs = -1;
+
+	private boolean findServiceUpdates(Context context, boolean skipIfBusy) {
+		long findServiceUpdateTimestampMs = TimeUtils.currentTimeToTheMinuteMillis();
+		boolean isNotSkipped = false;
+		if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
+			final ServiceUpdateProvider.ServiceUpdateFilter filter = new ServiceUpdateProvider.ServiceUpdateFilter(this.poi);
+			if (filter != null) {
+				ServiceUpdateLoader.ServiceUpdateLoaderListener listener = this.serviceUpdateLoaderListenerWR == null ? null
+						: this.serviceUpdateLoaderListenerWR.get();
+				isNotSkipped = ServiceUpdateLoader.get().findServiceUpdate(context, this, filter, listener, skipIfBusy);
+				if (isNotSkipped) {
+					this.lastFindServiceUpdateTimestampMs = findServiceUpdateTimestampMs;
+				}
+			}
+		}
+		return isNotSkipped;
+	}
+
 	public CharSequence[] getActionsItems(Context context, CharSequence defaultAction) {
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
@@ -251,7 +334,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	}
 
-	public boolean onActionsItemClick(Activity activity, int itemClicked, FavoriteUpdateListener listener) {
+	public boolean onActionsItemClick(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener) {
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
 			return onActionsItemClickFavoritable(activity, itemClicked, listener);
@@ -265,7 +348,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 	}
 
-	private boolean onActionsItemClickApp(Activity activity, int itemClicked, FavoriteUpdateListener listener) {
+	private boolean onActionsItemClickApp(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener) {
 		switch (itemClicked) {
 		case 0:
 			StoreUtils.viewTestingWebPage(activity, ((Module) poi).getPkg());
@@ -280,7 +363,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return false; // NOT HANDLED
 	}
 
-	private boolean onActionsItemClickRTS(Activity activity, int itemClicked, FavoriteUpdateListener listener) {
+	private boolean onActionsItemClickRTS(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener) {
 		switch (itemClicked) {
 		case 1:
 			RouteTripStop rts = (RouteTripStop) poi;
@@ -292,7 +375,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return false; // NOT HANDLED
 	}
 
-	private boolean onActionsItemClickFavoritable(Activity activity, int itemClicked, FavoriteUpdateListener listener) {
+	private boolean onActionsItemClickFavoritable(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener) {
 		switch (itemClicked) {
 		case 1:
 			return addRemoteFavorite(activity, FavoriteManager.isFavorite(activity, poi.getUUID()), listener);
@@ -300,8 +383,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return false; // NOT HANDLED
 	}
 
-	public boolean addRemoteFavorite(Activity activity, boolean isFavorite, FavoriteUpdateListener listener) {
-		FavoriteManager.addOrDeleteFavorite(activity, isFavorite, this.poi.getUUID()/* , getFavoriteType() */);
+	public boolean addRemoteFavorite(Activity activity, boolean isFavorite, FavoriteManager.FavoriteUpdateListener listener) {
+		FavoriteManager.addOrDeleteFavorite(activity, isFavorite, this.poi.getUUID());
 		if (listener != null) {
 			listener.onFavoriteUpdated();
 		}

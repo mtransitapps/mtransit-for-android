@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -25,7 +23,7 @@ import org.mtransit.android.provider.FavoriteManager;
 
 import android.content.Context;
 
-public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
+public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
 	private static final String TAG = HomePOILoader.class.getSimpleName();
 
@@ -38,7 +36,8 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 
 	private double lat;
 	private double lng;
-	private List<POIManager> pois;
+
+	private ArrayList<POIManager> pois;
 
 	public HomePOILoader(Context context, double lat, double lng) {
 		super(context);
@@ -47,16 +46,16 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 	}
 
 	@Override
-	public List<POIManager> loadInBackgroundMT() {
+	public ArrayList<POIManager> loadInBackgroundMT() {
 		if (this.pois != null) {
 			return this.pois;
 		}
 		this.pois = new ArrayList<POIManager>();
-		Set<String> favoriteUUIDs = FavoriteManager.findFavoriteUUIDs(getContext());
-		final List<DataSourceType> availableAgencyTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
+		HashSet<String> favoriteUUIDs = FavoriteManager.findFavoriteUUIDs(getContext());
+		final ArrayList<DataSourceType> availableAgencyTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
 		if (availableAgencyTypes != null) {
 			for (DataSourceType type : availableAgencyTypes) {
-				List<POIManager> typePOIs = findNearby(getContext(), type, this.lat, this.lng);
+				ArrayList<POIManager> typePOIs = findNearby(getContext(), type, this.lat, this.lng);
 				filterTypePOIs(favoriteUUIDs, typePOIs);
 				CollectionUtils.sort(typePOIs, POIManager.POI_ALPHA_COMPATOR);
 				this.pois.addAll(typePOIs);
@@ -65,11 +64,11 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		return this.pois;
 	}
 
-	private void filterTypePOIs(Set<String> favoriteUUIDs, List<POIManager> typePOIs) {
+	private void filterTypePOIs(HashSet<String> favoriteUUIDs, ArrayList<POIManager> typePOIs) {
 		Iterator<POIManager> it = typePOIs.iterator();
 		int nbKept = 0;
 		float lastKeptDistance = -1;
-		Set<String> routeTripKept = new HashSet<String>();
+		HashSet<String> routeTripKept = new HashSet<String>();
 		while (it.hasNext()) {
 			POIManager poim = it.next();
 			if (!favoriteUUIDs.contains(poim.poi.getUUID())) {
@@ -99,8 +98,8 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		}
 	}
 
-	private List<POIManager> findNearby(Context context, DataSourceType type, double typeLat, double typeLng) {
-		List<POIManager> typePOIs = new ArrayList<POIManager>();
+	private ArrayList<POIManager> findNearby(Context context, DataSourceType type, double typeLat, double typeLng) {
+		ArrayList<POIManager> typePOIs = new ArrayList<POIManager>();
 		LocationUtils.AroundDiff typeAd = LocationUtils.getNewDefaultAroundDiff();
 		int typeMaxSize = LocationUtils.MIN_NEARBY_LIST_COVERAGE;
 		int typeMinCoverage = LocationUtils.MAX_NEARBY_LIST;
@@ -112,24 +111,24 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		return typePOIs;
 	}
 
-	private List<POIManager> findNearby(Context context, double typeLat, double typeLng, LocationUtils.AroundDiff typeAd, int typeMaxSize, int typeMinCoverage,
-			Collection<AgencyProperties> typeAgencies) {
-		List<POIManager> typePOIs = new ArrayList<POIManager>();
-		List<String> typeAgenciesAuthorities = findTypeAgenciesAuthorities(typeLat, typeLng, typeAd, typeAgencies);
+	private ArrayList<POIManager> findNearby(Context context, double typeLat, double typeLng, LocationUtils.AroundDiff typeAd, int typeMaxSize,
+			int typeMinCoverage, Collection<AgencyProperties> typeAgencies) {
+		ArrayList<POIManager> typePOIs = new ArrayList<POIManager>();
+		ArrayList<String> typeAgenciesAuthorities = findTypeAgenciesAuthorities(typeLat, typeLng, typeAd, typeAgencies);
 		if (CollectionUtils.getSize(typeAgenciesAuthorities) == 0) {
 			return typePOIs;
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,
 				new LinkedBlockingDeque<Runnable>(typeAgenciesAuthorities.size()));
-		List<Future<List<POIManager>>> taskList = new ArrayList<Future<List<POIManager>>>();
+		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
 		for (String agencyAuthority : typeAgenciesAuthorities) {
 			final FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(context, DataSourceProvider.get(context).getUri(agencyAuthority), typeLat,
 					typeLng, typeAd.aroundDiff, true, typeMinCoverage, typeMaxSize);
 			taskList.add(executor.submit(task));
 		}
-		for (Future<List<POIManager>> future : taskList) {
+		for (Future<ArrayList<POIManager>> future : taskList) {
 			try {
-				final List<POIManager> agencyNearbyStops = future.get();
+				final ArrayList<POIManager> agencyNearbyStops = future.get();
 				typePOIs.addAll(agencyNearbyStops);
 			} catch (Exception e) {
 				MTLog.w(TAG, e, "Error while loading in background!");
@@ -141,9 +140,9 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		return typePOIs;
 	}
 
-	private static List<String> findTypeAgenciesAuthorities(double typeLat, double typeLng, LocationUtils.AroundDiff typeAd,
+	private static ArrayList<String> findTypeAgenciesAuthorities(double typeLat, double typeLng, LocationUtils.AroundDiff typeAd,
 			Collection<AgencyProperties> typeAgencies) {
-		List<String> typeAgenciesAuthorities = new ArrayList<String>();
+		ArrayList<String> typeAgenciesAuthorities = new ArrayList<String>();
 		if (typeAgencies != null) {
 			for (AgencyProperties agency : typeAgencies) {
 				if (agency.isInArea(typeLat, typeLng, typeAd.aroundDiff)) {
@@ -172,7 +171,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 	}
 
 	@Override
-	public void deliverResult(List<POIManager> data) {
+	public void deliverResult(ArrayList<POIManager> data) {
 		this.pois = data;
 		if (isStarted()) {
 			super.deliverResult(data);

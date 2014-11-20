@@ -2,7 +2,6 @@ package org.mtransit.android.provider;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
@@ -75,7 +74,7 @@ public class FavoriteManager implements MTLog.Loggable {
 
 	public static HashSet<String> findFavoriteUUIDs(Context context, Integer... types) {
 		HashSet<String> favoriteUUIDs = new HashSet<String>();
-		final List<Favorite> favorites = FavoriteManager.findFavorites(context, types);
+		final ArrayList<Favorite> favorites = FavoriteManager.findFavorites(context, types);
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {
 				favoriteUUIDs.add(favorite.getFkId());
@@ -84,8 +83,8 @@ public class FavoriteManager implements MTLog.Loggable {
 		return favoriteUUIDs;
 	}
 
-	public static List<Favorite> findFavorites(Context context, Integer... types) {
-		List<Favorite> result = new ArrayList<Favorite>();
+	public static ArrayList<Favorite> findFavorites(Context context, Integer... types) {
+		ArrayList<Favorite> result = new ArrayList<Favorite>();
 		Cursor cursor = null;
 		try {
 			StringBuilder selectionSb = new StringBuilder();

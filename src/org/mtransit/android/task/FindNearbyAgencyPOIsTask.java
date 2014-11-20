@@ -1,6 +1,6 @@
 package org.mtransit.android.task;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
@@ -12,7 +12,7 @@ import org.mtransit.android.data.POIManager;
 import android.content.Context;
 import android.net.Uri;
 
-public class FindNearbyAgencyPOIsTask extends MTCallable<List<POIManager>> {
+public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> {
 
 	private static final String TAG = FindNearbyAgencyPOIsTask.class.getSimpleName();
 
@@ -43,12 +43,12 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<List<POIManager>> {
 	}
 
 	@Override
-	public List<POIManager> callMT() throws Exception {
+	public ArrayList<POIManager> callMT() throws Exception {
 		POIFilter poiFilter = new POIFilter(this.lat, this.lng, this.aroundDiff);
 		if (this.hideDecentOnly) {
 			poiFilter.addExtra("decentOnly", true);
 		}
-		List<POIManager> pois = DataSourceManager.findPOIs(this.context, this.contentUri, poiFilter);
+		ArrayList<POIManager> pois = DataSourceManager.findPOIs(this.context, this.contentUri, poiFilter);
 		LocationUtils.updateDistance(pois, lat, lng);
 		float maxDistance = LocationUtils.getAroundCoveredDistance(lat, lng, aroundDiff);
 		LocationUtils.removeTooFar(pois, maxDistance);

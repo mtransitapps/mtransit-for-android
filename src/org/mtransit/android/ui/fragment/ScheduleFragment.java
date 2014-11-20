@@ -2,7 +2,6 @@ package org.mtransit.android.ui.fragment;
 
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -15,6 +14,7 @@ import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
 
@@ -148,7 +148,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private void resumeAllVisibleAwareChildFragment() {
-		List<Fragment> fragments = getChildFragmentManager().getFragments();
+		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof VisibilityAwareFragment) {
@@ -160,7 +160,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private void pauseAllVisibleAwareChildFragments() {
-		List<Fragment> fragments = getChildFragmentManager().getFragments();
+		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof VisibilityAwareFragment) {
@@ -174,7 +174,8 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public void onPageSelected(int position) {
 		StatusLoader.get().clearAllTasks();
-		final List<Fragment> fragments = getChildFragmentManager().getFragments();
+		ServiceUpdateLoader.get().clearAllTasks();
+		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof VisibilityAwareFragment) {

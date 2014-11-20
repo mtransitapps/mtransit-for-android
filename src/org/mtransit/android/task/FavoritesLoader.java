@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.UriUtils;
@@ -20,7 +19,7 @@ import org.mtransit.android.provider.FavoriteManager;
 import android.content.Context;
 import android.net.Uri;
 
-public class FavoritesLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
+public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
 	private static final String TAG = FavoritesLoader.class.getSimpleName();
 
@@ -29,26 +28,26 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		return TAG;
 	}
 
-	private List<POIManager> pois;
+	private ArrayList<POIManager> pois;
 
 	public FavoritesLoader(Context context) {
 		super(context);
 	}
 
 	@Override
-	public List<POIManager> loadInBackgroundMT() {
+	public ArrayList<POIManager> loadInBackgroundMT() {
 		if (this.pois != null) {
 			return this.pois;
 		}
 		this.pois = new ArrayList<POIManager>();
-		final List<Favorite> favorites = FavoriteManager.findFavorites(getContext());
+		final ArrayList<Favorite> favorites = FavoriteManager.findFavorites(getContext());
 		final HashMap<String, HashSet<String>> authorityToUUIDs = splitByAgency(favorites);
 		if (authorityToUUIDs != null && authorityToUUIDs.size() > 0) {
 			for (String authority : authorityToUUIDs.keySet()) {
 				final HashSet<String> authorityUUIDs = authorityToUUIDs.get(authority);
 				if (authorityUUIDs != null && authorityUUIDs.size() > 0) {
 					final Uri contentUri = UriUtils.newContentUri(authority);
-					final List<POIManager> agencyPOIs = DataSourceManager.findPOIs(getContext(), contentUri, new POIFilter(authorityUUIDs));
+					final ArrayList<POIManager> agencyPOIs = DataSourceManager.findPOIs(getContext(), contentUri, new POIFilter(authorityUUIDs));
 					if (agencyPOIs != null) {
 						Collections.sort(agencyPOIs, POIManager.POI_ALPHA_COMPATOR);
 						this.pois.addAll(agencyPOIs);
@@ -60,7 +59,7 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		return this.pois;
 	}
 
-	private HashMap<String, HashSet<String>> splitByAgency(List<Favorite> favorites) {
+	private HashMap<String, HashSet<String>> splitByAgency(ArrayList<Favorite> favorites) {
 		HashMap<String, HashSet<String>> authorityToUUIDs = new HashMap<String, HashSet<String>>();
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {
@@ -93,7 +92,7 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 	}
 
 	@Override
-	public void deliverResult(List<POIManager> data) {
+	public void deliverResult(ArrayList<POIManager> data) {
 		this.pois = data;
 		if (isStarted()) {
 			super.deliverResult(data);

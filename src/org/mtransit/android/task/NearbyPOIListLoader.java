@@ -1,7 +1,6 @@
 package org.mtransit.android.task;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -19,7 +18,7 @@ import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
 
-public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
+public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
 	private static final String TAG = NearbyPOIListLoader.class.getSimpleName();
 
@@ -28,10 +27,10 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		return TAG;
 	}
 
-	private List<POIManager> pois;
+	private ArrayList<POIManager> pois;
 
-	private List<AgencyProperties> typeAgencies;
 
+	private ArrayList<AgencyProperties> typeAgencies;
 
 	private double lat;
 
@@ -43,7 +42,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 
 	private int minCoverage;
 
-	public NearbyPOIListLoader(Context context, List<AgencyProperties> typeAgencies, double lat, double lng, double aroundDiff, int minCoverage, int maxSize) {
+	public NearbyPOIListLoader(Context context, ArrayList<AgencyProperties> typeAgencies, double lat, double lng, double aroundDiff, int minCoverage, int maxSize) {
 		super(context);
 		this.typeAgencies = typeAgencies;
 		this.lat = lat;
@@ -54,7 +53,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 	}
 
 	@Override
-	public List<POIManager> loadInBackgroundMT() {
+	public ArrayList<POIManager> loadInBackgroundMT() {
 		if (pois == null) {
 			pois = new ArrayList<POIManager>();
 		}
@@ -63,16 +62,16 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,
 				new LinkedBlockingDeque<Runnable>(typeAgencies.size()));
-		List<Future<List<POIManager>>> taskList = new ArrayList<Future<List<POIManager>>>();
+		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
 		for (AgencyProperties agency : typeAgencies) {
 			final FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(getContext(),
 					DataSourceProvider.get(getContext()).getUri(agency.getAuthority()), this.lat, this.lng, this.aroundDiff, true, this.minCoverage,
 					this.maxSize);
 			taskList.add(executor.submit(task));
 		}
-		for (Future<List<POIManager>> future : taskList) {
+		for (Future<ArrayList<POIManager>> future : taskList) {
 			try {
-				List<POIManager> agencyNearbyStops = future.get();
+				ArrayList<POIManager> agencyNearbyStops = future.get();
 				this.pois.addAll(agencyNearbyStops);
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while loading in background!");
@@ -84,9 +83,9 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 		return this.pois;
 	}
 
-	public static List<AgencyProperties> findTypeAgencies(Context context, DataSourceType type, double lat, double lng, double aroundDiff) {
-		List<AgencyProperties> allTypeAgencies = DataSourceProvider.get(context).getTypeDataSources(type.getId());
-		List<AgencyProperties> nearbyTypeAgenciesAuthorities = new ArrayList<AgencyProperties>();
+	public static ArrayList<AgencyProperties> findTypeAgencies(Context context, DataSourceType type, double lat, double lng, double aroundDiff) {
+		ArrayList<AgencyProperties> allTypeAgencies = DataSourceProvider.get(context).getTypeDataSources(type.getId());
+		ArrayList<AgencyProperties> nearbyTypeAgenciesAuthorities = new ArrayList<AgencyProperties>();
 		if (allTypeAgencies != null) {
 			for (AgencyProperties agency : allTypeAgencies) {
 				if (agency.isInArea(lat, lng, aroundDiff)) {
@@ -98,7 +97,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 	}
 
 	@Override
-	public void deliverResult(List<POIManager> data) {
+	public void deliverResult(ArrayList<POIManager> data) {
 		this.pois = data;
 		if (isStarted()) {
 			super.deliverResult(data);
@@ -125,7 +124,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<List<POIManager>> {
 	}
 
 	@Override
-	public void onCanceled(List<POIManager> data) {
+	public void onCanceled(ArrayList<POIManager> data) {
 		super.onCanceled(data);
 	}
 

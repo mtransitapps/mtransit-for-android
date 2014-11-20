@@ -1,7 +1,7 @@
 package org.mtransit.android.ui.fragment;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
+import java.util.ArrayList;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -13,6 +13,7 @@ import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
+import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.SlidingTabLayout;
@@ -96,7 +97,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			return;
 		}
 		// broadcast reset nearby location to all fragments
-		final List<Fragment> fragments = getChildFragmentManager().getFragments();
+		final java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment != null && fragment instanceof NearbyFragment.NearbyLocationListener) {
@@ -111,7 +112,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	@Override
 	public void onModulesUpdated() {
 		if (this.adapter != null) {
-			final List<DataSourceType> newAvailableAgencyTypes = DataSourceProvider.get(getActivity()).getAvailableAgencyTypes();
+			final ArrayList<DataSourceType> newAvailableAgencyTypes = DataSourceProvider.get(getActivity()).getAvailableAgencyTypes();
 			if (CollectionUtils.getSize(newAvailableAgencyTypes) != CollectionUtils.getSize(this.adapter.getAvailableAgencyTypes())) {
 				this.lastPageSelected = -1; // force refresh selected tab
 				initTabsAndViewPager(getView());
@@ -203,7 +204,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		if (view == null) {
 			return;
 		}
-		final List<DataSourceType> newAgencyTypes = DataSourceProvider.get(getActivity()).getAvailableAgencyTypes();
+		final ArrayList<DataSourceType> newAgencyTypes = DataSourceProvider.get(getActivity()).getAvailableAgencyTypes();
 		if (CollectionUtils.getSize(newAgencyTypes) == 0) {
 			return;
 		}
@@ -214,7 +215,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			this.adapter.notifyDataSetChanged();
 		}
 		this.adapter.setNearbyLocation(this.nearbyLocation);
-		// final View view = getView();
 		setupView(view);
 		if (this.lastPageSelected >= 0) {
 			final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
@@ -286,7 +286,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 				this.userLocation = newLocation;
 				locationChanged = true;
-				final List<Fragment> fragments = getChildFragmentManager().getFragments();
+				final java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 				if (fragments != null) {
 					for (Fragment fragment : fragments) {
 						if (fragment != null && fragment instanceof MTActivityWithLocation.UserLocationListener) {
@@ -338,7 +338,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		} else {
 			this.adapter.setNearbyLocation(this.nearbyLocation);
 		}
-		final List<Fragment> fragments = getChildFragmentManager().getFragments();
+		final java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment != null && fragment instanceof NearbyFragment.NearbyLocationListener) {
@@ -429,7 +429,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	@Override
 	public void onPageSelected(int position) {
 		StatusLoader.get().clearAllTasks();
-		final List<Fragment> fragments = getChildFragmentManager().getFragments();
+		ServiceUpdateLoader.get().clearAllTasks();
+		final java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof NearbyAgencyTypeFragment) {
@@ -464,7 +465,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void pauseAllVisibleAwareChildFragments() {
-		final List<Fragment> fragments = getChildFragmentManager().getFragments();
+		final java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof NearbyAgencyTypeFragment) {
@@ -477,7 +478,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void resumeAllVisibleAwareChildFragment() {
-		final List<Fragment> fragments = getChildFragmentManager().getFragments();
+		final java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof NearbyAgencyTypeFragment) {
@@ -491,7 +492,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 
 	private void setSwipeRefreshLayoutRefreshing(boolean refreshing) {
-		final List<Fragment> fragments = getChildFragmentManager().getFragments();
+		final java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof NearbyAgencyTypeFragment) {
@@ -536,7 +537,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			return TAG;
 		}
 
-		private List<DataSourceType> availableAgencyTypes;
 		private WeakReference<Context> contextWR;
 		private Location nearbyLocation;
 		private Location userLocation;
@@ -544,7 +544,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		private WeakReference<NearbyFragment> nearbyFragmentWR;
 		private int saveStateCount = -1;
 
-		public AgencyTypePagerAdapter(NearbyFragment nearbyFragment, List<DataSourceType> availableAgencyTypes) {
+		public AgencyTypePagerAdapter(NearbyFragment nearbyFragment, ArrayList<DataSourceType> availableAgencyTypes) {
 			super(nearbyFragment.getChildFragmentManager());
 			this.contextWR = new WeakReference<Context>(nearbyFragment.getActivity());
 			this.availableAgencyTypes = availableAgencyTypes;
@@ -583,11 +583,11 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			}
 		}
 
-		public List<DataSourceType> getAvailableAgencyTypes() {
+		public ArrayList<DataSourceType> getAvailableAgencyTypes() {
 			return availableAgencyTypes;
 		}
 
-		public void setAvailableAgencyTypes(List<DataSourceType> availableAgencyTypes) {
+		public void setAvailableAgencyTypes(ArrayList<DataSourceType> availableAgencyTypes) {
 			this.availableAgencyTypes = availableAgencyTypes;
 		}
 

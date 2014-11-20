@@ -1,6 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -27,7 +27,7 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
-public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<List<POIManager>>,
+public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		MTActivityWithLocation.UserLocationListener {
 
 	private static final String TAG = AgencyPOIsFragment.class.getSimpleName();
@@ -180,8 +180,8 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 			return; // already visible
 		}
 		this.fragmentVisible = true;
+		switchView(getView());
 		if (this.adapter == null) {
-			initAdapter();
 			getLoaderManager().restartLoader(POIS_LOADER, null, this);
 		} else {
 			this.adapter.onResume(getActivity());
@@ -192,7 +192,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	private static final int POIS_LOADER = 0;
 
 	@Override
-	public Loader<List<POIManager>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
 			final AgencyPOIsLoader agencyPOIsLoader = new AgencyPOIsLoader(getActivity(), this.agency);
@@ -204,14 +204,17 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	}
 
 	@Override
-	public void onLoaderReset(Loader<List<POIManager>> loader) {
+	public void onLoaderReset(Loader<ArrayList<POIManager>> loader) {
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
 	}
 
 	@Override
-	public void onLoadFinished(Loader<List<POIManager>> loader, List<POIManager> data) {
+	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+		if (this.adapter == null) {
+			initAdapter();
+		}
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		switchView(getView());

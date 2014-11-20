@@ -9,7 +9,7 @@ import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.data.POIManager;
-import org.mtransit.android.ui.view.POIViewController.POIDataProvider;
+import org.mtransit.android.ui.view.POIViewController;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
@@ -79,35 +79,16 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		view.setTag(scheduleStatusViewHolder);
 	}
 
-	public static void updateView(POIManager poim, View view, POIDataProvider dataProvider) {
-		if (view.getTag() == null || !(view.getTag() instanceof CommonStatusViewHolder)) {
-			initViewHolder(poim, view);
-		}
-		CommonStatusViewHolder holder = (CommonStatusViewHolder) view.getTag();
-		switch (poim.getStatusType()) {
-		case POI.ITEM_STATUS_TYPE_APP:
-			updateAppStatusView(view.getContext(), holder, poim, dataProvider);
-			break;
-		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			updateScheduleView(view.getContext(), holder, poim, dataProvider);
-			break;
-		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			updateAvailabilityPercentView(view.getContext(), holder, poim, dataProvider);
-			break;
-		default:
-			MTLog.w(TAG, "updateView() > Unknow view status type for poi %s!", poim);
-		}
-	}
 
-	public static void updatePOIStatus(Context context, POIDataProvider dataProvider, View view, POIStatus status) {
+	public static void updatePOIStatus(Context context, View view, POIStatus status, POIViewController.POIDataProvider dataProvider) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof CommonStatusViewHolder)) {
 			return;
 		}
 		CommonStatusViewHolder holder = (CommonStatusViewHolder) view.getTag();
-		updatePOIStatus(view.getContext(), dataProvider, holder, status);
+		updatePOIStatus(context, holder, status, dataProvider);
 	}
 
-	public static void updatePOIStatus(Context context, POIDataProvider dataProvider, CommonStatusViewHolder statusViewHolder, POIStatus status) {
+	private static void updatePOIStatus(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status,
 		if (dataProvider == null || !dataProvider.isShowingStatus() || status == null || statusViewHolder == null) {
 			if (statusViewHolder != null) {
 				statusViewHolder.statusV.setVisibility(View.INVISIBLE);
@@ -130,7 +111,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 	}
 
-	public static void updatePOIStatus(View view, POIManager poim, POIDataProvider dataProvider) {
+	public static void updateView(Context context, View view, POIManager poim, POIViewController.POIDataProvider dataProvider) {
 		if (view == null) {
 			return;
 		}
@@ -138,10 +119,10 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			initViewHolder(poim, view);
 		}
 		CommonStatusViewHolder holder = (CommonStatusViewHolder) view.getTag();
-		updatePOIStatus(view.getContext(), holder, poim, dataProvider);
+		updateView(context, holder, poim, dataProvider);
 	}
 
-	public static void updatePOIStatus(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim, POIDataProvider dataProvider) {
+	private static void updateView(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim, POIViewController.POIDataProvider dataProvider) {
 		if (dataProvider == null || !dataProvider.isShowingStatus() || poim == null || statusViewHolder == null) {
 			if (statusViewHolder != null) {
 				statusViewHolder.statusV.setVisibility(View.INVISIBLE);
@@ -164,7 +145,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateAppStatusView(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim, POIDataProvider dataProvider) {
+	private static void updateAppStatusView(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim,
 		if (dataProvider != null && dataProvider.isShowingStatus() && poim != null && statusViewHolder instanceof AppStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
 			updateAppStatusView(context, statusViewHolder, poim.getStatus(context));
@@ -185,7 +166,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateAvailabilityPercentView(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim, POIDataProvider dataProvider) {
+	private static void updateAvailabilityPercentView(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim,
 		if (dataProvider != null && dataProvider.isShowingStatus() && poim != null && statusViewHolder instanceof AvailabilityPercentStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
 			updateAvailabilityPercentView(context, statusViewHolder, poim.getStatus(context));
@@ -220,7 +201,8 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateScheduleView(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim, POIDataProvider dataProvider) {
+	private static void updateScheduleView(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim,
+			POIViewController.POIDataProvider dataProvider) {
 		if (dataProvider != null && dataProvider.isShowingStatus() && poim != null && statusViewHolder instanceof ScheduleStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
 			updateScheduleView(context, statusViewHolder, poim.getStatus(context), dataProvider);
@@ -229,7 +211,8 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateScheduleView(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status, POIDataProvider dataProvider) {
+	private static void updateScheduleView(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status,
+			POIViewController.POIDataProvider dataProvider) {
 		CharSequence line1CS = null;
 		if (dataProvider != null && status != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;

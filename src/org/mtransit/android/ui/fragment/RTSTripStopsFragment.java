@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -31,7 +30,7 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
-public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<List<POIManager>>,
+public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		MTActivityWithLocation.UserLocationListener {
 
 	private static final String TAG = RTSTripStopsFragment.class.getSimpleName();
@@ -47,7 +46,6 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 	private static final String EXTRA_USER_LOCATION = "extra_user_location";
-	private static final String EXTRA_SELECTED_ITEM_POSITION = "extra_selected_item_position";
 
 	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String authority, Trip trip, Integer optStopId,
 			Location userLocationOpt) {
@@ -81,7 +79,12 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
 	private String emptyText = null;
-	private Integer currentSelectedItemPosition = null;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		restoreInstanceState(savedInstanceState);
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -95,10 +98,6 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	public void onSaveInstanceState(Bundle outState) {
 		if (this.userLocation != null) {
 			outState.putParcelable(EXTRA_USER_LOCATION, this.userLocation);
-		}
-		final View view = getView();
-		if (view != null && view.findViewById(R.id.list) != null) {
-			outState.putInt(EXTRA_SELECTED_ITEM_POSITION, ((AbsListView) view.findViewById(R.id.list)).getFirstVisiblePosition());
 		}
 		super.onSaveInstanceState(outState);
 	}
@@ -130,13 +129,11 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (userLocation != null) {
 			onUserLocationChanged(userLocation);
 		}
-		this.currentSelectedItemPosition = BundleUtils.getInt(EXTRA_SELECTED_ITEM_POSITION, savedInstanceState, getArguments());
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		restoreInstanceState(savedInstanceState);
 	}
 
 	private void initAdapter() {
@@ -199,8 +196,8 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			return; // already visible
 		}
 		this.fragmentVisible = true;
+		switchView(getView());
 		if (this.adapter == null) {
-			initAdapter();
 			getLoaderManager().restartLoader(POIS_LOADER, null, this);
 		} else {
 			this.adapter.onResume(getActivity());
@@ -214,7 +211,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private static final int POIS_LOADER = 0;
 
 	@Override
-	public Loader<List<POIManager>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
 			final RTSTripStopsLoader rtsTripStopsLoader = new RTSTripStopsLoader(getActivity(), this.trip, this.authority);
@@ -226,32 +223,36 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	}
 
 	@Override
-	public void onLoaderReset(Loader<List<POIManager>> loader) {
+	public void onLoaderReset(Loader<ArrayList<POIManager>> loader) {
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
 	}
 
 	@Override
-	public void onLoadFinished(Loader<List<POIManager>> loader, List<POIManager> data) {
-		if (this.currentSelectedItemPosition == null) {
-			if (this.stopId != null) {
-				this.currentSelectedItemPosition = findStopIndex(this.stopId.intValue(), data);
+	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+		Integer currentSelectedItemPosition = null;
+		if (this.adapter == null) {
+			if (currentSelectedItemPosition == null) {
+				if (this.stopId != null) {
+					currentSelectedItemPosition = findStopIndex(this.stopId.intValue(), data);
+				}
+				if (currentSelectedItemPosition == null) {
+					currentSelectedItemPosition = findClosestPOIIndex(data);
+				}
 			}
-			if (this.currentSelectedItemPosition == null) {
-				this.currentSelectedItemPosition = findClosestPOIIndex(data);
-			}
+			initAdapter();
 		}
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		final View view = getView();
-		if (this.currentSelectedItemPosition != null && this.currentSelectedItemPosition > 0) {
-			((AbsListView) view.findViewById(R.id.list)).setSelection(this.currentSelectedItemPosition - 1); // show 1 more stop on top of the list
+		if (currentSelectedItemPosition != null && currentSelectedItemPosition.intValue() > 0) {
+			((AbsListView) view.findViewById(R.id.list)).setSelection(currentSelectedItemPosition - 1); // show 1 more stop on top of the list
 		}
 		switchView(view);
 	}
 
-	private Integer findStopIndex(int stopId, List<POIManager> pois) {
+	private Integer findStopIndex(int stopId, ArrayList<POIManager> pois) {
 		for (int i = 0; i < pois.size(); i++) {
 			final POIManager poim = pois.get(i);
 			if (poim != null && poim.poi instanceof RouteTripStop) {
@@ -264,7 +265,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		return null;
 	}
 
-	private Integer findClosestPOIIndex(List<POIManager> pois) {
+	private Integer findClosestPOIIndex(ArrayList<POIManager> pois) {
 		if (this.userLocation != null) {
 			LocationUtils.updateDistance(pois, this.userLocation.getLatitude(), this.userLocation.getLongitude());
 			ArrayList<POIManager> sortedPOIs = new ArrayList<POIManager>(pois);

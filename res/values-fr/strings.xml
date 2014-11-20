@@ -49,4 +49,7 @@
     <string name="menu_action_remove_favorite">Supprimer des favoris</string>
     <string name="next_departures">Prochain Départs</string>
     <string name="full_schedule">Horaires Complets</string>
+    <string name="information">Information</string>
+    <string name="warning">Avertissement</string>
+    <string name="no_service_update">Aucun message.</string>
 </resources>

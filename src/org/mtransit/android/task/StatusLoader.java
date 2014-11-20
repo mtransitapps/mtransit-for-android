@@ -10,6 +10,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.provider.StatusFilter;
+import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
@@ -80,7 +81,7 @@ public class StatusLoader implements MTLog.Loggable {
 		return true;
 	}
 
-	private static class StatusFetcherCallable extends android.os.AsyncTask<Void, Void, POIStatus> implements MTLog.Loggable {
+	private static class StatusFetcherCallable extends MTAsyncTask<Void, Void, POIStatus> {
 
 		@Override
 		public String getLogTag() {
@@ -103,7 +104,7 @@ public class StatusLoader implements MTLog.Loggable {
 		}
 
 		@Override
-		protected POIStatus doInBackground(Void... params) {
+		protected POIStatus doInBackgroundMT(Void... params) {
 			try {
 				return call();
 			} catch (Exception e) {

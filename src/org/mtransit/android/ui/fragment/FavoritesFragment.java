@@ -1,6 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.LocationUtils;
@@ -24,7 +24,7 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
-public class FavoritesFragment extends ABFragment implements LoaderManager.LoaderCallbacks<List<POIManager>>, MTActivityWithLocation.UserLocationListener,
+public class FavoritesFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
 		FavoriteManager.FavoriteUpdateListener {
 
 	private static final String TAG = FavoritesFragment.class.getSimpleName();
@@ -59,21 +59,23 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		initAdapter();
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
+		switchView(getView());
 		if (this.adapter != null) {
 			this.adapter.onResume(getActivity());
+		} else {
+			getLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
 		}
 	}
 
 	private static final int FAVORITES_LOADER = 0;
 
 	@Override
-	public Loader<List<POIManager>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case FAVORITES_LOADER:
 			final FavoritesLoader favoritesLoader = new FavoritesLoader(getActivity());
@@ -85,14 +87,18 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	}
 
 	@Override
-	public void onLoaderReset(Loader<List<POIManager>> loader) {
+	public void onLoaderReset(Loader<ArrayList<POIManager>> loader) {
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
 	}
 
 	@Override
-	public void onLoadFinished(Loader<List<POIManager>> loader, List<POIManager> data) {
+	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+		this.emptyText = getString(R.string.no_favorites);
+		if (this.adapter == null) {
+			initAdapter();
+		}
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		switchView(getView());
@@ -160,6 +166,9 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	}
 
 	private void switchView(View view) {
+		if (view == null) {
+			return;
+		}
 		if (this.adapter == null || !this.adapter.isInitialized()) {
 			showLoading(view);
 		} else if (this.adapter.getPoisCount() == 0) {

@@ -1,7 +1,7 @@
 package org.mtransit.android.ui.fragment;
 
 import java.lang.ref.WeakReference;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Locale;
 
 import org.mtransit.android.R;
@@ -97,6 +97,11 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	private Integer tripId;
 	private Integer stopId;
 
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		restoreInstanceState(savedInstanceState);
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -109,7 +114,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		restoreInstanceState(savedInstanceState);
 		switchView(getView());
 		if (this.adapter == null) {
 			initTabsAndViewPager(getView());
@@ -121,6 +125,21 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		this.authority = BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, getArguments());
 		this.tripId = BundleUtils.getInt(EXTRA_TRIP_ID, savedInstanceState, getArguments());
 		this.stopId = BundleUtils.getInt(EXTRA_STOP_ID, savedInstanceState, getArguments());
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		if (this.tripId != null) {
+			outState.putInt(EXTRA_TRIP_ID, this.tripId.intValue());
+		}
+		if (this.stopId != null) {
+			outState.putInt(EXTRA_STOP_ID, this.stopId.intValue());
+		}
+		super.onSaveInstanceState(outState);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		this.stopId = null; // set only once
 	}
 
 	@Override
@@ -147,11 +166,11 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 		final Uri authorityUri = UriUtils.newContentUri(this.authority);
 		this.route = DataSourceManager.findRTSRoute(getActivity(), authorityUri, this.routeId);
-		getAbController().setABBgColor(this, getABBgColor(), false);
+		getAbController().setABBgColor(this, getABBgColor(getActivity()), false);
 		getAbController().setABThemeDarkInsteadOfThemeLight(this, isABThemeDarkInsteadOfThemeLight(), false);
 		getAbController().setABCustomView(this, getABCustomView(), false);
 		getAbController().setABReady(this, isABReady(), true);
-		final List<Trip> routeTrips = DataSourceManager.findRTSRouteTrips(getActivity(), authorityUri, this.routeId);
+		final ArrayList<Trip> routeTrips = DataSourceManager.findRTSRouteTrips(getActivity(), authorityUri, this.routeId);
 		if (routeTrips == null) {
 			return;
 		}
@@ -243,7 +262,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	public void onUserLocationChanged(Location newLocation) {
 		if (newLocation != null) {
 			this.userLocation = newLocation;
-			final List<Fragment> fragments = getChildFragmentManager().getFragments();
+			final java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 			if (fragments != null) {
 				for (Fragment fragment : fragments) {
 					if (fragment != null && fragment instanceof MTActivityWithLocation.UserLocationListener) {
@@ -314,10 +333,10 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	public void onPageSelected(int position) {
 		StatusLoader.get().clearAllTasks();
 		if (this.adapter != null) {
-			PreferenceUtils.savePrefLcl(getActivity(), PreferenceUtils.getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(this.authority, this.routeId), this.adapter
-					.getRouteTrip(position).getId(), false);
+			this.tripId = this.adapter.getRouteTrip(position).getId();
+			PreferenceUtils.savePrefLcl(getActivity(), PreferenceUtils.getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(this.authority, this.routeId), this.tripId, false);
 		}
-		final List<Fragment> fragments = getChildFragmentManager().getFragments();
+		final java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof VisibilityAwareFragment) {
@@ -340,7 +359,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	public void onPageScrollStateChanged(int state) {
 		switch (state) {
 		case ViewPager.SCROLL_STATE_IDLE:
-			List<Fragment> fragments = getChildFragmentManager().getFragments();
+			java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 			if (fragments != null) {
 				for (Fragment fragment : fragments) {
 					if (fragment instanceof VisibilityAwareFragment) {
@@ -351,7 +370,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			}
 			break;
 		case ViewPager.SCROLL_STATE_DRAGGING:
-			List<Fragment> fragments2 = getChildFragmentManager().getFragments();
+			java.util.List<Fragment> fragments2 = getChildFragmentManager().getFragments();
 			if (fragments2 != null) {
 				for (Fragment fragment : fragments2) {
 					if (fragment instanceof VisibilityAwareFragment) {
@@ -463,23 +482,23 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 
 	@Override
-	public Integer getABBgColor() {
+	public Integer getABBgColor(Context context) {
 		if (this.route == null) {
-			return super.getABBgColor();
+			return super.getABBgColor(context);
 		}
 		return ColorUtils.parseColor(this.route.color);
 	}
 
 	private static class RouteTripPagerAdapter extends FragmentStatePagerAdapter {
 
-		private List<Trip> routeTrips;
+		private ArrayList<Trip> routeTrips;
 		private WeakReference<Context> contextWR;
 		private Location userLocation;
 		private int lastVisibleFragmentPosition = -1;
 		private String authority;
 		private Integer optStopId = null;
 
-		public RouteTripPagerAdapter(RTSRouteFragment fragment, List<Trip> routeTrips, String authority, Integer optStopId) {
+		public RouteTripPagerAdapter(RTSRouteFragment fragment, ArrayList<Trip> routeTrips, String authority, Integer optStopId) {
 			super(fragment.getChildFragmentManager());
 			this.contextWR = new WeakReference<Context>(fragment.getActivity());
 			this.routeTrips = routeTrips;
@@ -487,7 +506,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			this.optStopId = optStopId;
 		}
 
-		public void setRouteTrips(List<Trip> routeTrips) {
+		public void setRouteTrips(ArrayList<Trip> routeTrips) {
 			this.routeTrips = routeTrips;
 		}
 

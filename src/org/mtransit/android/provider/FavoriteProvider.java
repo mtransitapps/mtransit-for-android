@@ -1,7 +1,6 @@
 package org.mtransit.android.provider;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
@@ -32,7 +31,7 @@ public class FavoriteProvider extends MTContentProvider {
 	private static final int FAVORITE = 100;
 	private static final int FAVORITE_ID = 101;
 
-	private static final Map<String, String> FAVORITE_PROJECTION_MAP;
+	private static final HashMap<String, String> FAVORITE_PROJECTION_MAP;
 	static {
 		HashMap<String, String> map;
 		map = new HashMap<String, String>();
