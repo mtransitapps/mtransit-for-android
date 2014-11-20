@@ -135,16 +135,13 @@ public class StatusLoader implements MTLog.Loggable {
 		public POIStatus call() throws Exception {
 			Context context = this.contextWR == null ? null : this.contextWR.get();
 			if (context == null) {
-				MTLog.w(this, "Context mandatory!");
 				return null;
 			}
 			POIManager poim = this.poiWR == null ? null : this.poiWR.get();
 			if (poim == null) {
-				MTLog.w(this, "POI mandatory!");
 				return null;
 			}
-			if (statusFilter == null) {
-				MTLog.w(this, "Status filter mandatory!");
+			if (this.statusFilter == null) {
 				return null;
 			}
 			final Uri uri = DataSourceProvider.get(context).getUri(this.statusProvider.getAuthority());

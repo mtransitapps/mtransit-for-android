@@ -131,16 +131,13 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		public Collection<ServiceUpdate> call() throws Exception {
 			Context context = this.contextWR == null ? null : this.contextWR.get();
 			if (context == null) {
-				MTLog.w(this, "Context mandatory!");
 				return null;
 			}
 			POIManager poim = this.poiWR == null ? null : this.poiWR.get();
 			if (poim == null) {
-				MTLog.w(this, "POI mandatory!");
 				return null;
 			}
 			if (this.serviceUpdateFilter == null) {
-				MTLog.w(this, "Service update filter mandatory!");
 				return null;
 			}
 			final Uri uri = DataSourceProvider.get(context).getUri(this.serviceUpdateProvider.getAuthority());
