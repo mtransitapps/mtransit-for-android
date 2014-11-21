@@ -9,7 +9,6 @@ import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.data.POIManager;
-import org.mtransit.android.ui.view.POIViewController;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
@@ -92,7 +91,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			POIViewController.POIDataProvider dataProvider) {
 		if (dataProvider == null || !dataProvider.isShowingStatus() || status == null || statusViewHolder == null) {
 			if (statusViewHolder != null) {
-				statusViewHolder.statusV.setVisibility(View.INVISIBLE);
+				setStatusView(statusViewHolder, false);
 			}
 			return;
 		}
@@ -108,7 +107,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			break;
 		default:
 			MTLog.w(TAG, "Unexpected status type '%s'!", status.getType());
-			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
+			setStatusView(statusViewHolder, false);
 		}
 	}
 
@@ -126,7 +125,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	private static void updateView(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim, POIViewController.POIDataProvider dataProvider) {
 		if (dataProvider == null || !dataProvider.isShowingStatus() || poim == null || statusViewHolder == null) {
 			if (statusViewHolder != null) {
-				statusViewHolder.statusV.setVisibility(View.INVISIBLE);
+				setStatusView(statusViewHolder, false);
 			}
 			return;
 		}
@@ -142,7 +141,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			break;
 		default:
 			MTLog.w(TAG, "Unexpected status type '%s'!", poim.getStatusType());
-			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
+			setStatusView(statusViewHolder, false);
 		}
 	}
 
@@ -152,7 +151,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			poim.setStatusLoaderListener(dataProvider);
 			updateAppStatusView(context, statusViewHolder, poim.getStatus(context));
 		} else {
-			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
+			setStatusView(statusViewHolder, false);
 		}
 	}
 
@@ -162,9 +161,9 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			AppStatus appStatus = (AppStatus) status;
 			appStatusViewHolder.textTv.setText(appStatus.getStatusMsg(context));
 			appStatusViewHolder.textTv.setVisibility(View.VISIBLE);
-			statusViewHolder.statusV.setVisibility(View.VISIBLE);
+			setStatusView(statusViewHolder, true);
 		} else {
-			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
+			setStatusView(statusViewHolder, false);
 		}
 	}
 
@@ -174,7 +173,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			poim.setStatusLoaderListener(dataProvider);
 			updateAvailabilityPercentView(context, statusViewHolder, poim.getStatus(context));
 		} else {
-			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
+			setStatusView(statusViewHolder, false);
 		}
 	}
 
@@ -198,9 +197,9 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter(//
 					availabilityPercent.getValue1Color(), PorterDuff.Mode.SRC_IN);
 			availabilityPercentStatusViewHolder.progressBar.setVisibility(View.VISIBLE);
-			statusViewHolder.statusV.setVisibility(View.VISIBLE);
+			setStatusView(statusViewHolder, true);
 		} else {
-			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
+			setStatusView(statusViewHolder, false);
 		}
 	}
 
@@ -210,7 +209,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			poim.setStatusLoaderListener(dataProvider);
 			updateScheduleView(context, statusViewHolder, poim.getStatus(context), dataProvider);
 		} else {
-			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
+			setStatusView(statusViewHolder, false);
 		}
 	}
 
@@ -224,8 +223,29 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 		ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
 		scheduleStatusViewHolder.nextDeparturesTimesTv.setText(line1CS);
-		scheduleStatusViewHolder.nextDeparturesTimesTv.setVisibility(line1CS != null && line1CS.length() > 0 ? View.VISIBLE : View.GONE);
-		statusViewHolder.statusV.setVisibility(line1CS != null && line1CS.length() > 0 ? View.VISIBLE : View.INVISIBLE);
+		setStatusView(statusViewHolder, line1CS != null && line1CS.length() > 0);
+	}
+
+	private static void setStatusView(CommonStatusViewHolder statusViewHolder, boolean loaded) {
+		if (loaded) {
+			setStatusAsLoaded(statusViewHolder);
+		} else {
+			setStatusAsLoading(statusViewHolder);
+		}
+	}
+
+	private static void setStatusAsLoading(CommonStatusViewHolder statusViewHolder) {
+		if (statusViewHolder.loadingV != null) {
+			statusViewHolder.loadingV.setVisibility(View.VISIBLE);
+			return;
+		}
+	}
+
+	private static void setStatusAsLoaded(CommonStatusViewHolder statusViewHolder) {
+		if (statusViewHolder.loadingV != null) {
+			statusViewHolder.loadingV.setVisibility(View.GONE);
+			return;
+		}
 	}
 
 	private static void initCommonStatusViewHolderHolder(CommonStatusViewHolder holder, View view) {
@@ -233,7 +253,9 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static class CommonStatusViewHolder {
+		@SuppressWarnings("unused")
 		View statusV;
+		View loadingV;
 	}
 
 	private static class AvailabilityPercentStatusViewHolder extends CommonStatusViewHolder {

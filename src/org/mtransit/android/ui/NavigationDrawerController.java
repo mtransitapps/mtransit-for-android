@@ -67,7 +67,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 	}
 
 	private void finishSetupAsync() {
-		new MTAsyncTask<Void, Void, String>() {
+		new MTAsyncTask<Void, String, String>() {
 
 			private final String TAG = NavigationDrawerController.TAG + ">finishSetupAsync()";
 
@@ -81,23 +81,36 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 				final MainActivity mainActivity = NavigationDrawerController.this.mainActivityWR == null ? null
 						: NavigationDrawerController.this.mainActivityWR.get();
 				NavigationDrawerController.this.drawerListViewAdapter = new MenuAdapter(mainActivity, NavigationDrawerController.this);
-				NavigationDrawerController.this.drawerListViewAdapter.init();
+				String itemId = null;
 				if (!isCurrentSelectedSet()) {
-					final String itemId = PreferenceUtils.getPrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID,
+					itemId = PreferenceUtils.getPrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID,
 							MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
-					return itemId;
+					publishProgress(itemId);
 				}
-				return null;
+				NavigationDrawerController.this.drawerListViewAdapter.init();
+				return itemId;
 			}
 
 			@Override
-			protected void onPostExecute(String result) {
+			protected void onPostExecute(String itemId) {
 				NavigationDrawerController.this.drawerListView.setAdapter(NavigationDrawerController.this.drawerListViewAdapter);
 				showDrawerLoaded();
-				if (!TextUtils.isEmpty(result)) {
-					selectItem(NavigationDrawerController.this.drawerListViewAdapter.getScreenItemPosition(result), null, false);
+				selectItemId(itemId);
+			}
+
+			public void selectItemId(String itemId) {
+				if (!TextUtils.isEmpty(itemId)) {
+					final int screenItemPosition = NavigationDrawerController.this.drawerListViewAdapter.getScreenItemPosition(itemId);
+					selectItem(screenItemPosition, null, false);
 				}
 			}
+
+			@Override
+			protected void onProgressUpdate(String... itemIds) {
+				super.onProgressUpdate(itemIds);
+				selectItemId(itemIds == null || itemIds.length == 0 ? null : itemIds[0]);
+			}
+
 		}.execute();
 	}
 

@@ -312,10 +312,6 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		}
 	}
 
-	public int getSecondaryIndexItemAt(int position) {
-		final int secondaryPosition = position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size();
-		return secondaryPosition;
-	}
 
 	public View getSecondarView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
