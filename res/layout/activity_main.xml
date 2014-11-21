@@ -23,12 +23,6 @@
             android:inflatedId="@+id/content_frame_loading"
             android:layout="@layout/layout_loading_large"
             android:visibility="visible" />
-        <include
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@id/ad_layout"
-            android:layout_alignWithParentIfMissing="true"
-            layout="@layout/layout_shadow_revert" />
     </RelativeLayout>
     <include
         android:id="@+id/left_drawer"
