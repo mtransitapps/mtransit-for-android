@@ -95,10 +95,10 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		return true; // processed
 	}
 
-	private void onSearchRequested(String query) {
+	public void onSearchRequested(String query) {
 		Fragment f = getCurrentFragment();
 		if (f != null && f instanceof SearchFragment) {
-			((SearchFragment) f).setQuery(query, false);
+			((SearchFragment) f).setSearchQuery(query, false);
 		} else {
 			addFragmentToStack(SearchFragment.newInstance(query, null));
 		}

@@ -15,9 +15,6 @@ import android.view.View;
 public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.Trackable, DataSourceProvider.ModulesUpdateListener {
 
 
-	public static final Integer NO_BG_COLOR = null;
-
-	public static final View NO_CUSTOM_VIEW = null;
 
 	public static final boolean DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT = false;
 
@@ -48,7 +45,11 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 	}
 
 	public View getABCustomView() {
-		return ABFragment.NO_CUSTOM_VIEW;
+		return null;
+	}
+
+	public boolean isABCustomViewRequestFocus() {
+		return false;
 	}
 
 	public boolean isABDisplayHomeAsUpEnabled() {

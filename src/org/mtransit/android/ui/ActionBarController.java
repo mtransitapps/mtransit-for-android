@@ -41,10 +41,12 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	private CharSequence fragmentSubtitle;
 
 
-	private Integer fragmentBgColor;
+	private Integer fragmentBgColor = null;
 
-	private View fragmentCustomView;
-	private View drawerCustomView;
+	private View fragmentCustomView = null;
+	private View drawerCustomView = null;
+
+	private boolean fragmentCustomViewRequestFocus = false;
 
 
 	private boolean fragmentDisplayHomeAsUpEnabled;
@@ -110,8 +112,6 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			this.fragmentReady = false;
 			this.fragmentTitle = this.drawerTitle = mainActivity.getTitle();
 			this.fragmentSubtitle = this.drawerSubtitle = ab == null ? null : ab.getSubtitle();
-			this.fragmentBgColor = ABFragment.NO_BG_COLOR;
-			this.fragmentCustomView = this.drawerCustomView = ABFragment.NO_CUSTOM_VIEW;
 			this.fragmentDisplayHomeAsUpEnabled = this.drawerDisplayHomeAsUpEnabled = ABFragment.DEFAULT_DISPLAY_HOME_AS_UP_ENABLED;
 			this.fragmentShowSearchMenuItem = ABFragment.DEFAULT_SHOW_SEARCH_MENU_ITEM;
 			if (ab != null) {
@@ -127,17 +127,18 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	public void setAB(ABFragment abf) {
 		final Context context = getContextOrNull();
 		if (abf != null && context != null) {
-			setAB(abf.getABTitle(context), abf.getABSubtitle(context), abf.getABBgColor(context), abf.getABCustomView(),
+			setAB(abf.getABTitle(context), abf.getABSubtitle(context), abf.getABBgColor(context), abf.getABCustomView(), abf.isABCustomViewRequestFocus(),
 					abf.isABThemeDarkInsteadOfThemeLight(), abf.isABDisplayHomeAsUpEnabled(), abf.isABShowSearchMenuItem(), abf.isABReady());
 		}
 	}
 
-	private void setAB(CharSequence title, CharSequence subtitle, Integer bgColor, View customView, boolean themeDarkInsteadOfThemeLight,
-			boolean displayHomeAsUpEnabled, boolean showSearchMenuItem, boolean fragmentReady) {
+	private void setAB(CharSequence title, CharSequence subtitle, Integer bgColor, View customView, boolean customViewRequestFocus,
+			boolean themeDarkInsteadOfThemeLight, boolean displayHomeAsUpEnabled, boolean showSearchMenuItem, boolean fragmentReady) {
 		this.fragmentTitle = title;
 		this.fragmentSubtitle = subtitle;
 		this.fragmentBgColor = bgColor;
 		this.fragmentCustomView = customView;
+		this.fragmentCustomViewRequestFocus = customViewRequestFocus;
 		this.fragmentDisplayHomeAsUpEnabled = displayHomeAsUpEnabled;
 		this.fragmentShowSearchMenuItem = showSearchMenuItem;
 		this.fragmentReady = fragmentReady;
@@ -212,6 +213,16 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
+	public void setABCustomViewRequestFocus(Fragment source, boolean fragmentCustomViewRequestFocus, boolean update) {
+		if (!isCurrentFragmentVisible(source)) {
+			return;
+		}
+		this.fragmentCustomViewRequestFocus = fragmentCustomViewRequestFocus;
+		if (update && !isDrawerOpen()) {
+			updateABDrawerClosed();
+		}
+	}
+
 	public void setABDisplayHomeAsUpEnabled(Fragment source, boolean displayHomeAsUpEnabled, boolean update) {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
@@ -249,9 +260,15 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			return;
 		}
 		if (this.fragmentCustomView != null) {
-			ab.setCustomView(this.fragmentCustomView);
+			if (!this.fragmentCustomView.equals(ab.getCustomView())) {
+				ab.setCustomView(this.fragmentCustomView);
+			}
 			if (!this.fragmentDisplayHomeAsUpEnabled) {
 				ab.getCustomView().setOnClickListener(getUpOnClickListener(getMainActivityOrNull()));
+			}
+			if (this.fragmentCustomViewRequestFocus) {
+				this.fragmentCustomView.setFocusable(true);
+				this.fragmentCustomView.requestFocusFromTouch();
 			}
 			ab.setDisplayShowCustomEnabled(true);
 		} else {
@@ -312,7 +329,9 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		final MainActivity mainActivity = getMainActivityOrNull();
 		final ActionBar ab = getABOrNull();
 		if (this.drawerCustomView != null) {
-			ab.setCustomView(this.drawerCustomView);
+			if (!this.drawerCustomView.equals(ab.getCustomView())) {
+				ab.setCustomView(this.drawerCustomView);
+			}
 			if (!this.drawerDisplayHomeAsUpEnabled) {
 				ab.getCustomView().setOnClickListener(getUpOnClickListener(mainActivity));
 			}
