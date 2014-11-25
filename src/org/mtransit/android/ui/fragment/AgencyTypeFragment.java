@@ -452,6 +452,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			return context.getString(R.string.ellipsis);
 		}
 		return context.getString(this.type.getAllStringResId());
+	}
+
 
 	private static class AgencyPagerAdapter extends FragmentStatePagerAdapter implements SlidingTabLayout.TabColorizer, MTLog.Loggable {
 

@@ -147,6 +147,8 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		if (view == null) {
 			return;
 		}
+	}
+
 	private static final ThreadSafeDateFormatter DAY_DATE_FORMAT = new ThreadSafeDateFormatter("EEEE, MMM d, yyyy");
 
 	private void setDayDateString(View view) {

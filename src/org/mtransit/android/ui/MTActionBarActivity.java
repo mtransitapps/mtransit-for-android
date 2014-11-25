@@ -3,7 +3,6 @@ package org.mtransit.android.ui;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;

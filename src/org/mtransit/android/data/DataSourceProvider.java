@@ -163,6 +163,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 				|| nbScheduleProviders != CollectionUtils.getSize(instance.allScheduleProviders) //
 				|| nbServiceUpdateProviders != CollectionUtils.getSize(instance.allServiceUpdateProviders)) {
 			return true;
+		}
 		return false;
 	}
 
@@ -225,6 +226,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 	public void onDestroy() {
 		if (this.allAgencyTypes != null) {
 			this.allAgencyTypes.clear();
+		}
 		if (this.allAgencies != null) {
 			this.allAgencies.clear();
 		}
@@ -236,6 +238,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 		}
 		if (this.allStatusProviders != null) {
 			this.allStatusProviders.clear();
+		}
 		if (this.allStatusProvidersByAuthority != null) {
 			this.allStatusProvidersByAuthority.clear();
 		}
@@ -247,6 +250,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 		}
 		if (this.allScheduleProviders != null) {
 			this.allScheduleProviders.clear();
+		}
 		if (this.allScheduleProvidersByAuthority != null) {
 			this.allScheduleProvidersByAuthority.clear();
 		}
@@ -255,6 +259,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 		}
 		if (this.allServiceUpdateProviders != null) {
 			this.allServiceUpdateProviders.clear();
+		}
 		if (this.allServiceUpdateProvidersByAuthority != null) {
 			this.allServiceUpdateProvidersByAuthority.clear();
 		}
