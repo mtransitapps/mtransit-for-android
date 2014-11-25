@@ -186,6 +186,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		ft.commit();
 		showContentFrameAsLoaded();
 		if (this.abController != null) {
+			fm.executePendingTransactions();
 			this.abController.setAB(newFragment);
 			this.abController.updateABDrawerClosed();
 		}
