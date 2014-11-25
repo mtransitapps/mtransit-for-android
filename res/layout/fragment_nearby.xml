@@ -9,7 +9,7 @@
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:background="?android:attr/colorPrimary"
+        android:background="?attr/colorPrimary"
         android:visibility="gone" />
     <!-- LOADING -->
     <ViewStub
