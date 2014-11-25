@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
@@ -235,8 +235,8 @@ public class POIViewController implements MTLog.Loggable {
 				holder.routeFL.setVisibility(View.GONE);
 				holder.tripHeadingBg.setVisibility(View.GONE);
 			} else {
-				final int routeTextColor = ColorUtils.parseColor(rts.route.textColor);
-				final int routeColor = ColorUtils.parseColor(rts.route.color);
+				int routeTextColor = rts.route.getTextColorInt();
+				int routeColor = rts.route.getColorInt();
 				if (TextUtils.isEmpty(rts.route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
 					final JPaths rtsRouteLogo = DataSourceProvider.get(context).getRTSRouteLogo(poim.poi.getAuthority());
@@ -375,8 +375,8 @@ public class POIViewController implements MTLog.Loggable {
 		CharSequence line2CS = null;
 		if (dataProvider != null && status != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
-			final int count = 20; // needs enough to check if service is frequent (every 5 minutes or less for at least 30 minutes)
-			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getNextTimesStrings(context, dataProvider.getNowToTheMinute(), null, count);
+			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getNextTimesStrings(context, dataProvider.getNowToTheMinute(),
+					TimeUtils.HALF_HOUR_IN_MS, null, 10, null);
 			if (lines != null && lines.size() >= 1) {
 				line1CS = lines.get(0).first;
 				line2CS = lines.get(0).second;
@@ -530,16 +530,10 @@ public class POIViewController implements MTLog.Loggable {
 		case 0:
 			holder.nameTv.setTypeface(Typeface.DEFAULT_BOLD);
 			holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
-			final int textColorPrimary = ColorUtils.getTextColorPrimary(context);
-			holder.distanceTv.setTextColor(textColorPrimary);
-			holder.compassV.setColor(textColorPrimary);
 			break;
 		default:
 			holder.nameTv.setTypeface(Typeface.DEFAULT);
 			holder.distanceTv.setTypeface(Typeface.DEFAULT);
-			final int defaultDistanceAndCompassColor = POIManager.getDefaultDistanceAndCompassColor(context);
-			holder.distanceTv.setTextColor(defaultDistanceAndCompassColor);
-			holder.compassV.setColor(defaultDistanceAndCompassColor);
 			break;
 		}
 	}

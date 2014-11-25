@@ -357,7 +357,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_favorites_holo_light, 0, 0, 0);
 		} else if (position == ITEM_INDEX_NEARBY) {
 			holder.nameTv.setText(R.string.nearby);
-			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_place_holo_light, 0, 0, 0);
+			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_menu_nearby_holo_light, 0, 0, 0);
 			// } else if (position == ITEM_INDEX_DIRECTIONS) {
 			// holder.nameTv.setText(R.string.directions);
 			// holder.icon.setImageResource(R.drawable.ic_menu_directions);

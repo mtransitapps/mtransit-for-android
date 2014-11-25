@@ -42,10 +42,10 @@ public class StatusLoader implements MTLog.Loggable {
 
 	private ThreadPoolExecutor fetchStatusExecutor;
 
-	private static final int CORE_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES;
 
-	private static final int MAX_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES;
+	private static final int CORE_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES > 1 ? RuntimeUtils.NUMBER_OF_CORES / 2 : 1;
 
+	private static final int MAX_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES > 1 ? RuntimeUtils.NUMBER_OF_CORES / 2 : 1;
 	public ThreadPoolExecutor getFetchStatusExecutor() {
 		if (this.fetchStatusExecutor == null) {
 			this.fetchStatusExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS,

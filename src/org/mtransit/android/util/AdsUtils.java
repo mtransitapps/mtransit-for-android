@@ -11,6 +11,7 @@ import org.mtransit.android.ui.MTActivityWithLocation;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.view.View;
 
 import com.google.android.gms.ads.AdListener;
@@ -33,6 +34,8 @@ public final class AdsUtils implements MTLog.Loggable {
 	private static Boolean showingAds = null;
 
 	private static Boolean generousUser = null;
+
+	private static Boolean adLoaded = null;
 
 	private static final HashSet<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] { "transit", "transport", "bus", "subway", "metro", "taxi",
 			"bike", "sharing", "velo", "train" }));
@@ -69,14 +72,14 @@ public final class AdsUtils implements MTLog.Loggable {
 		@Override
 		protected void onPostExecute(Boolean result) {
 			final Activity activity = this.activityWR == null ? null : this.activityWR.get();
-			if (result) {
+			if (activity != null && result) {
 				View adLayout = activity.findViewById(R.id.ad_layout);
 				if (adLayout != null) {
 					AdView adView = (AdView) adLayout.findViewById(R.id.ad);
 					if (adView != null) {
 						adView.setAdListener(new MTAdListener(activity));
 						AdRequest.Builder adRequestBd = new AdRequest.Builder();
-						if (activity != null && activity instanceof MTActivityWithLocation) {
+						if (activity instanceof MTActivityWithLocation) {
 							adRequestBd.setLocation(((MTActivityWithLocation) activity).getLastLocation());
 						}
 						for (String keyword : KEYWORDS) {
@@ -124,15 +127,15 @@ public final class AdsUtils implements MTLog.Loggable {
 			default:
 				MTLog.w(TAG, "Failed to received ad! Error code: '%s'.", errorCode);
 			}
-			final Activity activity = this.activityWR == null ? null : this.activityWR.get();
-			hideAds(activity);
+			adLoaded = null;
+			hideAds(this.activityWR == null ? null : this.activityWR.get());
 		}
 
 		@Override
 		public void onAdLoaded() {
 			super.onAdLoaded();
-			final Activity activity = this.activityWR == null ? null : this.activityWR.get();
-			showAds(activity);
+			adLoaded = true;
+			showAdsIfEnoughSpace(this.activityWR == null ? null : this.activityWR.get());
 		}
 
 		@Override
@@ -151,7 +154,41 @@ public final class AdsUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static void showAds(Activity activity) {
+	public static void adaptToScreenSize(Activity activity, Configuration configuration) {
+		if (!AD_ENABLED) {
+			return;
+		}
+		if (isEnoughSpace(configuration)) {
+			if (adLoaded != null && adLoaded.booleanValue()) {
+				resumeAd(activity);
+				showAds(activity);
+			}
+		} else {
+			hideAds(activity);
+			pauseAd(activity);
+		}
+	}
+
+	private static boolean isEnoughSpace(Configuration configuration) {
+		if (configuration == null) {
+			return false;
+		}
+		if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+			return true;
+		}
+		final int sizeMask = configuration.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+		final boolean smallScreen = sizeMask == Configuration.SCREENLAYOUT_SIZE_SMALL || sizeMask == Configuration.SCREENLAYOUT_SIZE_NORMAL;
+		return !smallScreen;
+	}
+
+	private static void showAdsIfEnoughSpace(Activity activity) {
+		MTLog.v(TAG, "showAdsIfEnoughSpace(%s)", activity);
+		if (activity != null) {
+			adaptToScreenSize(activity, activity.getResources().getConfiguration());
+		}
+	}
+
+	private static void showAds(Activity activity) {
 		View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
 		if (adLayout != null) {
 			AdView adView = (AdView) adLayout.findViewById(R.id.ad);
@@ -164,7 +201,7 @@ public final class AdsUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static void hideAds(Activity activity) {
+	private static void hideAds(Activity activity) {
 		View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
 		if (adLayout != null) {
 			AdView adView = (AdView) adLayout.findViewById(R.id.ad);

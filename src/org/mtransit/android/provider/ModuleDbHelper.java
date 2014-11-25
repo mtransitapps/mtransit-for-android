@@ -20,16 +20,22 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 
 	protected static final String DB_NAME = "module.db";
 
-	public static final int DB_VERSION = 2;
+	public static final int DB_VERSION = 3;
 
 	protected static final String PREF_KEY_LAST_UPDATE_MS = "pModuleLastUpdate";
 
 	public static final String T_MODULE = POIDbHelper.T_POI;
 	public static final String T_MODULE_K_PKG = POIDbHelper.getFkColumnName("pkg");
+	public static final String T_MODULE_K_TARGET_TYPE_ID = POIDbHelper.getFkColumnName("targetTypeId");
+	public static final String T_MODULE_K_COLOR = POIDbHelper.getFkColumnName("color");
+	public static final String T_MODULE_K_LOCATION = POIDbHelper.getFkColumnName("location");
 	public static final String T_MODULE_K_NAME_FR = POIDbHelper.getFkColumnName("name_fr");
 	private static final String T_MODULE_SQL_CREATE = POIDbHelper.getSqlCreate(T_MODULE, //
-			T_MODULE_K_PKG + SqlUtils.TXT,//
-			T_MODULE_K_NAME_FR + SqlUtils.TXT//
+			T_MODULE_K_PKG + SqlUtils.TXT, //
+			T_MODULE_K_TARGET_TYPE_ID + SqlUtils.INT, //
+			T_MODULE_K_COLOR + SqlUtils.TXT, //
+			T_MODULE_K_LOCATION + SqlUtils.TXT, //
+			T_MODULE_K_NAME_FR + SqlUtils.TXT //
 	);
 	private static final String T_MODULE_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_MODULE);
 

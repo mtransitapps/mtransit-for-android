@@ -17,4 +17,4 @@
     android:scrollbarStyle="insideOverlay"
     android:visibility="visible"
     tools:context=".ui.MainActivity"
-    tools:listitem="@layout/layout_poi_status_detail_schedule_time" />
+    tools:listitem="@layout/layout_poi_detail_status_schedule_time" />

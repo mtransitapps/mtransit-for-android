@@ -1,11 +1,10 @@
 package org.mtransit.android.ui;
 
-import org.mtransit.android.commons.ui.MTFragmentActivity;
 import org.mtransit.android.util.AnalyticsUtils;
 
 import android.os.Bundle;
 
-public class SplashScreenActivity extends MTFragmentActivity implements AnalyticsUtils.Trackable {
+public class SplashScreenActivity extends MTActionBarActivity implements AnalyticsUtils.Trackable {
 
 	private static final String TAG = SplashScreenActivity.class.getSimpleName();
 

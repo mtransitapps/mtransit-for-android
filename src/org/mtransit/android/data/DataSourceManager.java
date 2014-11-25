@@ -195,6 +195,27 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
+	public static String findAgencyColor(Context context, Uri contentUri) {
+		String result = null;
+		Cursor cursor = null;
+		try {
+			Uri uri = Uri.withAppendedPath(contentUri, "color");
+			cursor = context.getContentResolver().query(uri, null, null, null, null);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					result = cursor.getString(0);
+				}
+			}
+		} catch (Throwable t) {
+			MTLog.w(TAG, t, "Error!");
+		} finally {
+			if (cursor != null) {
+				cursor.close();
+			}
+		}
+		return result;
+	}
+
 	public static String findAgencyShortName(Context context, Uri contentUri) {
 		String result = null;
 		Cursor cursor = null;

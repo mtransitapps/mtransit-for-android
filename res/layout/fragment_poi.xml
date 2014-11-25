@@ -3,11 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    <ViewStub
-        android:id="@+id/poi_stub"
-        android:layout_width="match_parent"
-        android:layout_height="?android:attr/listPreferredItemHeightLarge"
-        android:inflatedId="@+id/poi" />
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
@@ -18,6 +13,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" >
+                <ViewStub
+                    android:id="@+id/poi_stub"
+                    android:layout_width="match_parent"
+                    android:layout_height="?android:attr/listPreferredItemHeightLarge"
+                    android:inflatedId="@+id/poi" />
                 <ViewStub
                     android:id="@+id/poi_status_detail_stub"
                     android:layout_width="match_parent"

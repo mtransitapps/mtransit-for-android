@@ -13,9 +13,9 @@ import org.mtransit.android.ui.fragment.ABFragment;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,8 +23,6 @@ import android.view.ViewStub;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-@SuppressWarnings("deprecation")
-// need to switch to support-v7-appcompat
 public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.MenuUpdateListener, ListView.OnItemClickListener {
 
 	private static final String TAG = NavigationDrawerController.class.getSimpleName();
@@ -150,6 +148,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		if (position == this.currentSelectedItemPosition) {
 			closeDrawer();
 			mainActivity.clearFragmentBackStackImmediate();
+			setCurrentSelectedItemChecked(true);
 			return;
 		}
 		if (!this.drawerListViewAdapter.isRootScreen(position)) {
@@ -166,7 +165,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		mainActivity.clearFragmentBackStackImmediate(); // root screen
 		StatusLoader.get().clearAllTasks();
 		ServiceUpdateLoader.get().clearAllTasks();
-		mainActivity.showNewFragment(newFragment, addToStack);
+		mainActivity.showNewFragment(newFragment, addToStack, true);
 		if (!addToStack && this.drawerListViewAdapter.isRootScreen(position)) {
 			PreferenceUtils.savePrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId, false);
 		}
@@ -310,7 +309,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		private WeakReference<MainActivity> mainActivityWR;
 
 		public ABDrawerToggle(MainActivity mainActivity, DrawerLayout drawerLayout) {
-			super(mainActivity, drawerLayout, R.drawable.ic_drawer, R.string.drawer_open, R.string.drawer_close);
+			super(mainActivity, drawerLayout, R.string.drawer_open, R.string.drawer_close);
 			this.mainActivityWR = new WeakReference<MainActivity>(mainActivity);
 		}
 
@@ -318,7 +317,10 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		public void onDrawerClosed(View view) {
 			final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 			if (mainActivity != null) {
-				mainActivity.updateAB();
+				ActionBarController abController = mainActivity.getAbController();
+				if (abController != null) {
+					abController.updateABDrawerClosed();
+				}
 			}
 		}
 
@@ -326,7 +328,10 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		public void onDrawerOpened(View drawerView) {
 			final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 			if (mainActivity != null) {
-				mainActivity.updateAB();
+				ActionBarController abController = mainActivity.getAbController();
+				if (abController != null) {
+					abController.updateABDrawerOpened();
+				}
 			}
 		}
 

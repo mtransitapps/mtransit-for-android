@@ -224,10 +224,6 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
-	@Override
-	public int getABIconDrawableResId() {
-		return R.drawable.ic_menu_favorites_holo_light;
-	}
 
 	@Override
 	public CharSequence getABTitle(Context context) {

@@ -9,7 +9,6 @@ import java.util.WeakHashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
-import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
@@ -882,8 +881,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 		TypeHeaderViewHolder holder = (TypeHeaderViewHolder) convertView.getTag();
 		holder.nameTv.setText(getContext().getString(type.getPoiShortNameResId()));
-		if (type.getAbIconResId() != -1) {
-			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getAbIconResId(), 0, 0, 0);
+		if (type.getMenuResId() != -1) {
+			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getMenuResId(), 0, 0, 0);
 		}
 		if (holder.allBtn != null) {
 			holder.allBtn.setOnClickListener(new View.OnClickListener() {
@@ -987,6 +986,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		holder.view = convertView;
 		holder.nameTv = (TextView) convertView.findViewById(R.id.name);
 		holder.favImg = (ImageView) convertView.findViewById(R.id.fav);
+		holder.locationTv = (TextView) convertView.findViewById(R.id.location);
 		holder.distanceTv = (TextView) convertView.findViewById(R.id.distance);
 		holder.compassV = (MTCompassView) convertView.findViewById(R.id.compass);
 	}
@@ -1098,6 +1098,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			convertView = this.layoutInflater.inflate(getModuleLayout(poim.getStatusType()), parent, false);
 			ModuleViewHolder holder = new ModuleViewHolder();
 			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
+			initModuleExtra(convertView, holder);
 			holder.statusViewHolder = initPOIStatusViewHolder(poim.getStatusType(), convertView);
 			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
 			convertView.setTag(holder);
@@ -1106,14 +1107,37 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return convertView;
 	}
 
+	private void initModuleExtra(View convertView, ModuleViewHolder holder) {
+		holder.moduleExtraV = convertView.findViewById(R.id.module_extra);
+		holder.moduleTypeImg = (ImageView) convertView.findViewById(R.id.module_type_img);
+	}
+
 	private View updateModuleView(POIManager poim, View convertView) {
 		if (convertView == null || poim == null) {
 			return convertView;
 		}
 		ModuleViewHolder holder = (ModuleViewHolder) convertView.getTag();
 		updateCommonView(holder, poim);
+		updateModuleExtra(poim, holder);
 		updatePOIStatus(holder.statusViewHolder, poim);
 		return convertView;
+	}
+
+	private void updateModuleExtra(POIManager poim, ModuleViewHolder holder) {
+		if (poim.poi instanceof Module) {
+			Module module = (Module) poim.poi;
+			if (!this.showExtra || module == null) {
+				holder.moduleExtraV.setVisibility(View.GONE);
+			} else {
+				int color = module.getColorInt();
+				holder.moduleExtraV.setBackgroundColor(color);
+				DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
+				holder.moduleTypeImg.setImageResource(moduleType.getAbIconResId());
+				holder.moduleExtraV.setVisibility(View.VISIBLE);
+			}
+		} else {
+			holder.moduleExtraV.setVisibility(View.GONE);
+		}
 	}
 
 	private int getModuleLayout(int status) {
@@ -1163,22 +1187,22 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return convertView;
 	}
 
-	private boolean showRTSExtra = true;
+	private boolean showExtra = true;
 
-	public void setShowRTSExtra(boolean showRTSExtra) {
-		this.showRTSExtra = showRTSExtra;
+	public void setShowExtra(boolean showExtra) {
+		this.showExtra = showExtra;
 	}
 
 	private void updateRTSExtra(POIManager poim, RouteTripStopViewHolder holder) {
 		if (poim.poi instanceof RouteTripStop) {
 			final RouteTripStop rts = (RouteTripStop) poim.poi;
-			if (!showRTSExtra || rts.route == null) {
+			if (!showExtra || rts.route == null) {
 				holder.rtsExtraV.setVisibility(View.GONE);
 				holder.routeFL.setVisibility(View.GONE);
 				holder.tripHeadingBg.setVisibility(View.GONE);
 			} else {
-				final int routeTextColor = ColorUtils.parseColor(rts.route.textColor);
-				final int routeColor = ColorUtils.parseColor(rts.route.color);
+				int routeTextColor = rts.route.getTextColorInt();
+				int routeColor = rts.route.getColorInt();
 				if (TextUtils.isEmpty(rts.route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
 					final JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getRTSRouteLogo(poim.poi.getAuthority());
@@ -1284,8 +1308,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		CharSequence line2CS = null;
 		if (status != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
-			final int count = 20; // needs enough to check if service is frequent (every 5 minutes or less for at least 30 minutes)
-			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getNextTimesStrings(getContext(), getNowToTheMinute(), null, count);
+			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getNextTimesStrings(getContext(), getNowToTheMinute(), TimeUtils.HALF_HOUR_IN_MS,
+					null, 10, null);
 			if (lines != null && lines.size() >= 1) {
 				line1CS = lines.get(0).first;
 				line2CS = lines.get(0).second;
@@ -1345,27 +1369,43 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (holder.uuid != null) {
 			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
 		}
-		holder.compassV.setLatLng(poim.getLat(), poim.getLng());
-		this.compassImgsWR.put(holder.compassV, null);
+		if (holder.compassV != null) {
+			holder.compassV.setLatLng(poim.getLat(), poim.getLng());
+			this.compassImgsWR.put(holder.compassV, null);
+		}
 		// name
 		holder.nameTv.setText(poi.getName());
 		// distance
-		if (!TextUtils.isEmpty(poim.getDistanceString())) {
-			if (!poim.getDistanceString().equals(holder.distanceTv.getText())) {
-				holder.distanceTv.setText(poim.getDistanceString());
+		if (holder.distanceTv != null) {
+			if (!TextUtils.isEmpty(poim.getDistanceString())) {
+				if (!poim.getDistanceString().equals(holder.distanceTv.getText())) {
+					holder.distanceTv.setText(poim.getDistanceString());
+				}
+				holder.distanceTv.setVisibility(View.VISIBLE);
+			} else {
+				holder.distanceTv.setVisibility(View.GONE);
+				holder.distanceTv.setText(null);
 			}
-			holder.distanceTv.setVisibility(View.VISIBLE);
-		} else {
-			holder.distanceTv.setVisibility(View.GONE);
-			holder.distanceTv.setText(null);
 		}
 		// compass (if distance available)
-		if (holder.distanceTv.getVisibility() == View.VISIBLE && this.location != null && this.lastCompassInDegree >= 0
-				&& this.location.getAccuracy() <= poim.getDistance()) {
-			holder.compassV.generateAndSetHeading(this.location, this.lastCompassInDegree, this.locationDeclination);
-			holder.compassV.setVisibility(View.VISIBLE);
-		} else {
-			holder.compassV.setVisibility(View.GONE);
+		if (holder.compassV != null) {
+			if (holder.distanceTv != null && holder.distanceTv.getVisibility() == View.VISIBLE && this.location != null && this.lastCompassInDegree >= 0
+					&& this.location.getAccuracy() <= poim.getDistance()) {
+				holder.compassV.generateAndSetHeading(this.location, this.lastCompassInDegree, this.locationDeclination);
+				holder.compassV.setVisibility(View.VISIBLE);
+			} else {
+				holder.compassV.setVisibility(View.GONE);
+			}
+		}
+		// location
+		if (holder.locationTv != null) {
+			if (TextUtils.isEmpty(poim.getLocation())) {
+				holder.locationTv.setVisibility(View.GONE);
+				holder.locationTv.setText(null);
+			} else {
+				holder.locationTv.setText(poim.getLocation());
+				holder.locationTv.setVisibility(View.VISIBLE);
+			}
 		}
 		// favorite
 		if (this.showFavorite && this.favUUIDs != null && this.favUUIDs.contains(poi.getUUID())) {
@@ -1383,17 +1423,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		switch (index) {
 		case 0:
 			holder.nameTv.setTypeface(Typeface.DEFAULT_BOLD);
-			holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
-			final int textColorPrimary = ColorUtils.getTextColorPrimary(getContext());
-			holder.distanceTv.setTextColor(textColorPrimary);
-			holder.compassV.setColor(textColorPrimary);
+			if (holder.distanceTv != null) {
+				holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
+			}
 			break;
 		default:
 			holder.nameTv.setTypeface(Typeface.DEFAULT);
-			holder.distanceTv.setTypeface(Typeface.DEFAULT);
-			final int defaultDistanceAndCompassColor = POIManager.getDefaultDistanceAndCompassColor(getContext());
-			holder.distanceTv.setTextColor(defaultDistanceAndCompassColor);
-			holder.compassV.setColor(defaultDistanceAndCompassColor);
+			if (holder.distanceTv != null) {
+				holder.distanceTv.setTypeface(Typeface.DEFAULT);
+			}
 			break;
 		}
 	}
@@ -1457,6 +1495,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	public static class ModuleViewHolder extends CommonViewHolder {
+		View moduleExtraV;
+		ImageView moduleTypeImg;
 	}
 
 	public static class RouteTripStopViewHolder extends CommonViewHolder {
@@ -1476,6 +1516,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		View view;
 		TextView nameTv;
 		TextView distanceTv;
+		TextView locationTv;
 		ImageView favImg;
 		MTCompassView compassV;
 		CommonStatusViewHolder statusViewHolder;

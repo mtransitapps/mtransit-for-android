@@ -2,6 +2,7 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -14,12 +15,95 @@
    id="svg3770"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="app_icon.svg"
-   inkscape:export-filename="/media/SDATA/DEV/PROJECTS/MTRANSIT/IMG/app_icon_003.png"
+   sodipodi:docname="hi-res-app-icon.svg"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
-     id="defs3772" />
+     id="defs3772">
+    <linearGradient
+       id="linearGradient5217">
+      <stop
+         style="stop-color:#5a9900;stop-opacity:1;"
+         offset="0"
+         id="stop5219" />
+      <stop
+         style="stop-color:#003299;stop-opacity:0;"
+         offset="1"
+         id="stop5221" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient5209"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#003299;stop-opacity:1;"
+         offset="0"
+         id="stop5211" />
+    </linearGradient>
+    <filter
+       id="filter5271"
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow">
+      <feFlood
+         id="feFlood5273"
+         flood-opacity="0.2"
+         flood-color="rgb(0,0,0)"
+         result="flood" />
+      <feComposite
+         in2="SourceGraphic"
+         id="feComposite5275"
+         in="flood"
+         operator="in"
+         result="composite1" />
+      <feGaussianBlur
+         id="feGaussianBlur5277"
+         in="composite"
+         stdDeviation="2"
+         result="blur" />
+      <feOffset
+         id="feOffset5279"
+         dx="0"
+         dy="6"
+         result="offset" />
+      <feComposite
+         in2="offset"
+         id="feComposite5281"
+         in="SourceGraphic"
+         operator="over"
+         result="composite2" />
+    </filter>
+    <filter
+       id="filter3870"
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow">
+      <feFlood
+         id="feFlood3872"
+         flood-opacity="0.2"
+         flood-color="rgb(0,0,0)"
+         result="flood" />
+      <feComposite
+         id="feComposite3874"
+         in2="SourceGraphic"
+         in="flood"
+         operator="in"
+         result="composite1" />
+      <feGaussianBlur
+         id="feGaussianBlur3876"
+         in="composite"
+         stdDeviation="6"
+         result="blur" />
+      <feOffset
+         id="feOffset3878"
+         dx="0"
+         dy="6"
+         result="offset" />
+      <feComposite
+         id="feComposite3880"
+         in2="offset"
+         in="SourceGraphic"
+         operator="over"
+         result="composite2" />
+    </filter>
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -28,16 +112,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="120.45558"
-     inkscape:cy="276.46803"
+     inkscape:cx="260.6274"
+     inkscape:cy="245.28821"
      inkscape:document-units="px"
-     inkscape:current-layer="layer4"
+     inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
+     inkscape:window-width="960"
      inkscape:window-height="1019"
      inkscape:window-x="0"
      inkscape:window-y="27"
-     inkscape:window-maximized="1"
+     inkscape:window-maximized="0"
      inkscape:snap-grids="true" />
   <metadata
      id="metadata3775">
@@ -57,19 +141,12 @@
      id="layer1"
      transform="translate(0,-540.36218)">
     <rect
-       style="fill:#ffffff"
-       id="rect3778"
-       width="400"
-       height="400"
-       x="62.857143"
-       y="136.6479" />
-    <rect
-       style="fill:#003399;fill-opacity:1"
+       style="fill:none;stroke:#003399;stroke-width:31.83299999999999841;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect3780"
-       width="426"
-       height="426"
-       x="43"
-       y="583.36218" />
+       width="394.16705"
+       height="394.16708"
+       x="58.916466"
+       y="599.27863" />
     <rect
        style="fill:#ffffff;fill-opacity:1"
        id="rect4309"
@@ -77,14 +154,6 @@
        height="362"
        x="75"
        y="615.36218" />
-    <rect
-       style="fill:#ffffff;fill-opacity:1"
-       id="rect4311"
-       width="17.67767"
-       height="8.485281"
-       x="187.3833"
-       y="178.24561"
-       transform="translate(0,540.36218)" />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -107,24 +176,82 @@
        y="117" />
   </g>
   <g
-     style="display:inline"
-     inkscape:label="T-Form-W"
+     style="display:none"
+     inkscape:label="T-Form-W shadow"
      id="g3055"
      inkscape:groupmode="layer">
-    <rect
-       y="117"
-       x="117"
-       height="90"
-       width="278"
-       id="rect3057"
-       style="fill:#6699ff;fill-opacity:1" />
-    <rect
-       y="117"
-       x="204"
-       height="278"
-       width="104"
-       id="rect3059"
-       style="fill:#6699ff;fill-opacity:1" />
+    <g
+       id="g5247"
+       style="fill:#6699ff;fill-opacity:1;filter:url(#filter5271)">
+      <rect
+         style="fill:#6699ff;fill-opacity:1"
+         id="rect3057"
+         width="278"
+         height="90"
+         x="117"
+         y="117" />
+      <rect
+         style="fill:#6699ff;fill-opacity:1"
+         id="rect3059"
+         width="104"
+         height="278"
+         x="204"
+         y="117" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="g3781"
+     inkscape:label="T-Form-W R"
+     style="display:none">
+    <g
+       style="fill:#6699ff;fill-opacity:1;filter:url(#filter5271)"
+       id="g3783" />
+    <g
+       style="fill:#6699ff;fill-opacity:1;stroke:#6699ff;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
+       id="g3009">
+      <rect
+         style="fill:#6699ff;fill-opacity:1;stroke:#6699ff;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         id="rect3057-8"
+         width="278"
+         height="90"
+         x="117"
+         y="117" />
+      <rect
+         style="fill:#6699ff;fill-opacity:1;stroke:#6699ff;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         id="rect3059-8"
+         width="104"
+         height="278"
+         x="204"
+         y="117" />
+    </g>
+  </g>
+  <g
+     style="display:inline"
+     inkscape:label="T-Form-W R shadow"
+     id="g3800"
+     inkscape:groupmode="layer">
+    <g
+       id="g3802"
+       style="fill:#6699ff;fill-opacity:1;filter:url(#filter5271)" />
+    <g
+       id="g3804"
+       style="fill:#6699ff;fill-opacity:1;stroke:#6699ff;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline;filter:url(#filter3870)">
+      <rect
+         y="117"
+         x="117"
+         height="90"
+         width="278"
+         id="rect3806"
+         style="fill:#6699ff;fill-opacity:1;stroke:#6699ff;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <rect
+         y="117"
+         x="204"
+         height="278"
+         width="104"
+         id="rect3808"
+         style="fill:#6699ff;fill-opacity:1;stroke:#6699ff;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"

@@ -16,6 +16,7 @@ import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.POISearchLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.ui.MainActivity;
 
 import android.app.Activity;
 import android.content.Context;
@@ -24,6 +25,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +33,6 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -391,10 +392,6 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
-	@Override
-	public int getABIconDrawableResId() {
-		return R.mipmap.ic_launcher; // search icon already in custom action bar search view
-	}
 
 	@Override
 	public boolean isABShowSearchMenuItem() {
@@ -420,7 +417,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		if (activity == null) {
 			return;
 		}
-		this.searchView = new SearchView(activity);
+		this.searchView = new SearchView(((MainActivity) activity).getSupportActionBar().getThemedContext());
 		this.searchView.setQueryHint(getString(R.string.search_hint));
 		this.searchView.setFocusable(true);
 		this.searchView.setIconifiedByDefault(true);
@@ -514,7 +511,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 
 		public static TypeFilter fromDataSourceType(DataSourceType dst) {
-			return new TypeFilter(dst.getId(), dst.getPoiShortNameResId(), dst.getAbIconResId());
+			return new TypeFilter(dst.getId(), dst.getPoiShortNameResId(), dst.getMenuResId());
 		}
 
 	}

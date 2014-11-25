@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="MTBaseTheme" parent="android:Theme.Holo.Light" />
-    <style name="MTTheme" parent="MTBaseTheme">
-        <item name="android:windowBackground">@color/window_background</item>
-        <item name="android:windowContentOverlay">@null</item>
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
+    <style name="MTBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorAccent">@color/mt_blue_smalt</item>
+        <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
     </style>
-    <style name="MTTheme.Invisible" parent="MTTheme">
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@null</item>
+    <style name="MTTheme" parent="MTBaseTheme">
+        <item name="android:windowContentOverlay">@null</item>
     </style>
 </resources>

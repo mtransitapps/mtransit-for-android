@@ -10,6 +10,7 @@ import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.provider.POIFilter;
+import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
@@ -67,6 +68,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		super.onCreateView(inflater, container, savedInstanceState);
 		final View view = inflater.inflate(R.layout.fragment_schedule, container, false);
 		setupView(view);
+		switchView(view);
 		return view;
 	}
 
@@ -99,6 +101,11 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		super.onActivityCreated(savedInstanceState);
 		restoreInstanceState(savedInstanceState);
 		switchView(getView());
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
 		if (this.adapter == null) {
 			initTabsAndViewPager(getView());
 		}
@@ -108,27 +115,53 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (view == null) {
 			return;
 		}
-		if (this.adapter == null) {
-			this.adapter = new DayPagerAdapter(this, this.rts, TimeUtils.getBeginningOfTodayInMs());
-		}
-		setupView(view);
-		if (this.lastPageSelected < 0) {
-			this.lastPageSelected = DayPagerAdapter.STARTING_POSITION;
-		}
-		final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-		viewPager.setCurrentItem(this.lastPageSelected);
-		switchView(view);
-		onPageSelected(this.lastPageSelected);
+		new MTAsyncTask<Void, Void, Void>() {
+
+			private final String TAG = ScheduleFragment.class.getSimpleName() + ">initTabsAndViewPagerTask";
+
+			@Override
+			public String getLogTag() {
+				return TAG;
+			}
+
+			@Override
+			protected Void doInBackgroundMT(Void... params) {
+				if (ScheduleFragment.this.adapter == null) {
+					ScheduleFragment.this.adapter = new DayPagerAdapter(ScheduleFragment.this, ScheduleFragment.this.rts, TimeUtils.getBeginningOfTodayInMs());
+				}
+				if (ScheduleFragment.this.lastPageSelected < 0) {
+					ScheduleFragment.this.lastPageSelected = DayPagerAdapter.STARTING_POSITION;
+				}
+				return null;
+			}
+
+			@Override
+			protected void onPostExecute(Void result) {
+				super.onPostExecute(result);
+				setupAdapter(view);
+				final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+				viewPager.setCurrentItem(ScheduleFragment.this.lastPageSelected);
+				switchView(view);
+			}
+
+		}.execute();
 	}
 
 	private void setupView(View view) {
+		if (view == null) {
+			return;
+		}
+		final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		viewPager.setOffscreenPageLimit(2);
+		viewPager.setOnPageChangeListener(this);
+	}
+
+	private void setupAdapter(View view) {
 		if (view == null || this.adapter == null) {
 			return;
 		}
 		final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		viewPager.setAdapter(this.adapter);
-		viewPager.setOffscreenPageLimit(2);
-		viewPager.setOnPageChangeListener(this);
 	}
 
 	@Override
@@ -198,9 +231,12 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			if (newPoim == null) {
 				((MainActivity) getActivity()).popFragmentFromStack(this); // close this fragment
 				return;
-			} else if (!this.rts.equals(newPoim.poi)) {
+			}
+			if (!this.rts.equals(newPoim.poi)) {
 				this.rts = (RouteTripStop) newPoim.poi;
-				setupView(getView());
+				this.adapter = null; // reset
+				switchView(getView());
+				initTabsAndViewPager(getView());
 			}
 		}
 	}
@@ -209,7 +245,6 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	public void onDestroy() {
 		super.onDestroy();
 		if (this.adapter != null) {
-			this.adapter = null;
 		}
 	}
 
@@ -283,10 +318,6 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		return this.agency.getShortName() + " - " + this.rts.route.shortName + " - " + this.rts.getName();
 	}
 
-	@Override
-	public int getABIconDrawableResId() {
-		return R.drawable.ic_action_action_schedule_holo_light;
-	}
 
 	private static class DayPagerAdapter extends FragmentStatePagerAdapter implements MTLog.Loggable {
 

@@ -2,10 +2,12 @@ package org.mtransit.android.data;
 
 import java.util.Comparator;
 
+import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
 
+import android.text.TextUtils;
 public class AgencyProperties implements MTLog.Loggable {
 
 	private static final String TAG = AgencyProperties.class.getSimpleName();
@@ -22,17 +24,34 @@ public class AgencyProperties implements MTLog.Loggable {
 	private String shortName;
 	private String longName;
 
+	private Integer colorInt = null;
+
 	private Area area;
 
 	private boolean isRTS = false;
 
-	public AgencyProperties(String id, DataSourceType type, String shortName, String longName, Area area, boolean isRTS) {
+	public AgencyProperties(String id, DataSourceType type, String shortName, String longName, String color, Area area, boolean isRTS) {
 		this.id = id;
 		this.type = type;
 		this.shortName = shortName;
 		this.longName = longName;
+		setColor(color);
 		this.area = area;
 		this.isRTS = isRTS;
+	}
+
+	public void setColor(String color) {
+		if (!TextUtils.isEmpty(color)) {
+			this.colorInt = ColorUtils.parseColor(color);
+		}
+	}
+
+	public int getColorInt() {
+		return colorInt;
+	}
+
+	public boolean hasColor() {
+		return this.colorInt != null;
 	}
 
 	public boolean isRTS() {
@@ -47,9 +66,6 @@ public class AgencyProperties implements MTLog.Loggable {
 		return shortName;
 	}
 
-	public String getLongName() {
-		return longName;
-	}
 
 	@Override
 	public String toString() {

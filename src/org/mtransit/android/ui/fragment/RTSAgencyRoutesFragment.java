@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
-import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.data.Route;
@@ -15,7 +14,6 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.JPaths;
 import org.mtransit.android.task.RTSAgencyRoutesLoader;
 import org.mtransit.android.ui.MainActivity;
-import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 import org.mtransit.android.ui.view.MTJPathsView;
 
 import android.content.Context;
@@ -246,6 +244,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			switchView(getView());
 		}
 		checkIfShowingListInsteadOfGridChanged();
+		getActivity().supportInvalidateOptionsMenu(); // initialize action bar list/grid switch icon
 		updateListGridToggleMenuItem();
 	}
 
@@ -382,7 +381,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		if (listGridToggleMenuItem == null) {
 			return;
 		}
-		listGridToggleMenuItem.setIcon(isShowingListInsteadOfGrid() ? R.drawable.ic_action_grid_holo_light : R.drawable.ic_action_list_holo_light);
+		listGridToggleMenuItem.setIcon(isShowingListInsteadOfGrid() ? R.drawable.ic_action_action_grid_holo_dark : R.drawable.ic_action_action_list_holo_dark);
 		listGridToggleMenuItem.setTitle(isShowingListInsteadOfGrid() ? R.string.menu_action_grid : R.string.menu_action_list);
 		listGridToggleMenuItem.setVisible(true);
 	}
@@ -482,8 +481,8 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			if (route == null) {
 				holder.routeFL.setVisibility(View.GONE);
 			} else {
-				final int routeTextColor = ColorUtils.parseColor(route.textColor);
-				final int routeColor = ColorUtils.parseColor(route.color);
+				int routeTextColor = route.getTextColorInt();
+				int routeColor = route.getColorInt();
 				if (TextUtils.isEmpty(route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
 					final JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getRTSRouteLogo(this.authority);

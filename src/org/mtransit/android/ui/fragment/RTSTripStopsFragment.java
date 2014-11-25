@@ -139,7 +139,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private void initAdapter() {
 		this.adapter = new POIArrayAdapter(getActivity());
 		this.adapter.setTag(this.authority + "-" + this.tripId);
-		this.adapter.setShowRTSExtra(false);
+		this.adapter.setShowExtra(false);
 		final View view = getView();
 		setupView(view);
 		switchView(view);

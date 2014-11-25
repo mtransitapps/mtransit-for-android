@@ -11,6 +11,7 @@ import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.LocationUtils.LocationPOI;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
+import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.AppStatus;
@@ -34,6 +35,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 
 public class POIManager implements LocationPOI, MTLog.Loggable {
 
@@ -42,6 +44,24 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	@Override
 	public String getLogTag() {
 		return TAG;
+	}
+
+	private static Integer defaultPoiTextColor = null;
+
+	public static int getDefaultPOITextColor(Context context) {
+		if (defaultPoiTextColor == null) {
+			defaultPoiTextColor = ColorUtils.getTextColorPrimary(context);
+		}
+		return defaultPoiTextColor;
+	}
+
+	private static ForegroundColorSpan defaultPoiTextColorSpan = null;
+
+	public static ForegroundColorSpan getDefaultPOITextColorSpan(Context context) {
+		if (defaultPoiTextColorSpan == null) {
+			defaultPoiTextColorSpan = SpanUtils.getTextColor(getDefaultPOITextColor(context));
+		}
+		return defaultPoiTextColorSpan;
 	}
 
 	public static final POIDistanceComparator POI_DISTANCE_COMPARATOR = new POIDistanceComparator();
@@ -110,6 +130,13 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	public void setStatusLoaderListener(StatusLoader.StatusLoaderListener statusLoaderListener) {
 		this.statusLoaderListenerWR = new WeakReference<StatusLoader.StatusLoaderListener>(statusLoaderListener);
+	}
+
+	public String getLocation() {
+		if (this.poi != null && this.poi instanceof Module) {
+			return ((Module) this.poi).getLocation();
+		}
+		return null;
 	}
 
 	public int getStatusType() {

@@ -6,9 +6,9 @@ import java.util.Locale;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
-import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.Route;
@@ -17,13 +17,10 @@ import org.mtransit.android.commons.data.Stop;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
-import org.mtransit.android.data.DataSourceProvider;
-import org.mtransit.android.data.JPaths;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
-import org.mtransit.android.ui.view.MTJPathsView;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -33,13 +30,12 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.viewpagerindicator.TitlePageIndicator;
 
@@ -170,7 +166,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		final Uri authorityUri = UriUtils.newContentUri(this.authority);
 		this.route = DataSourceManager.findRTSRoute(getActivity(), authorityUri, this.routeId);
 		getAbController().setABBgColor(this, getABBgColor(getActivity()), false);
-		getAbController().setABThemeDarkInsteadOfThemeLight(this, isABThemeDarkInsteadOfThemeLight(), false);
 		getAbController().setABCustomView(this, getABCustomView(), false);
 		getAbController().setABReady(this, isABReady(), true);
 		final ArrayList<Trip> routeTrips = DataSourceManager.findRTSRouteTrips(getActivity(), authorityUri, this.routeId);
@@ -245,8 +240,10 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			return;
 		}
 		TitlePageIndicator tabs = (TitlePageIndicator) view.findViewById(R.id.tabs);
-		final int bgColor = ColorUtils.parseColor(this.route.textColor);
-		final int textColor = ColorUtils.parseColor(this.route.color);
+		int routeTextColor = this.route.getTextColorInt();
+		int routeColor = this.route.getColorInt();
+		int bgColor = routeTextColor;
+		int textColor = routeColor;
 		tabs.setBackgroundColor(bgColor);
 		final int notSelectedTextColor;
 		if (bgColor == Color.BLACK) {
@@ -392,105 +389,44 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		return this.route != null;
 	}
 
+
+
 	@Override
-	public boolean isABThemeDarkInsteadOfThemeLight() {
+	public CharSequence getABTitle(Context context) {
 		if (this.route == null) {
-			return super.isABThemeDarkInsteadOfThemeLight();
+			return super.getABTitle(context);
 		}
-		return Color.WHITE == ColorUtils.parseColor(this.route.textColor);
-	}
-
-	@Override
-	public boolean isABDisplayHomeAsUpEnabled() {
-		return false; // included in the custom view
-	}
-
-	private View customView;
-
-	@Override
-	public View getABCustomView() {
-		if (getActivity() == null) {
-			return null;
+		SpannableStringBuilder ssb = new SpannableStringBuilder();
+		int startShortName = 0, endShortName = 0;
+		if (!TextUtils.isEmpty(this.route.shortName)) {
+			startShortName = ssb.length();
+			ssb.append(this.route.shortName);
+			endShortName = ssb.length();
 		}
-		return getRouteView(getActivity(), this.customView, null);
-	}
-
-	public static class RouteViewHolder {
-		ImageView upImg;
-		TextView routeShortNameTv;
-		View routeFL;
-		MTJPathsView routeTypeImg;
-		TextView routeLongNameTv;
-	}
-
-	private View getRouteView(Context context, View convertView, ViewGroup parent) {
-		if (convertView == null) {
-			convertView = LayoutInflater.from(context).inflate(R.layout.layout_rts_route_ab_view, parent, false);
-			RouteViewHolder holder = new RouteViewHolder();
-			holder.routeFL = convertView.findViewById(R.id.route);
-			holder.upImg = (ImageView) convertView.findViewById(R.id.up);
-			holder.routeShortNameTv = (TextView) convertView.findViewById(R.id.route_short_name);
-			holder.routeTypeImg = (MTJPathsView) convertView.findViewById(R.id.route_type_img);
-			holder.routeLongNameTv = (TextView) convertView.findViewById(R.id.route_long_name);
-			convertView.setTag(holder);
-		}
-		updateRouteView(context, convertView);
-		return convertView;
-	}
-
-	private View updateRouteView(Context context, View convertView) {
-		if (convertView == null) {
-			return convertView;
-		}
-		RouteViewHolder holder = (RouteViewHolder) convertView.getTag();
-		if (route == null) {
-			holder.routeFL.setVisibility(View.GONE);
-		} else {
-			final int routeTextColor = ColorUtils.parseColor(route.textColor);
-			if (Color.WHITE == routeTextColor) {
-				holder.upImg.setImageResource(R.drawable.platform_ic_ab_back_holo_dark_am);
-			} else if (Color.BLACK == routeTextColor) {
-				holder.upImg.setImageResource(R.drawable.platform_ic_ab_back_holo_light_am);
-			} else {
-				holder.upImg.setImageResource(android.R.attr.homeAsUpIndicator);
+		int startLongName = 0, endLongName = 0;
+		if (!TextUtils.isEmpty(this.route.longName)) {
+			if (ssb.length() > 0) {
+				ssb.append(StringUtils.SPACE_CAR).append(StringUtils.SPACE_CAR);
 			}
-			if (TextUtils.isEmpty(route.shortName)) {
-				holder.routeShortNameTv.setVisibility(View.GONE);
-				final JPaths rtsRouteLogo = DataSourceProvider.get(context).getRTSRouteLogo(this.authority);
-				if (rtsRouteLogo != null) {
-					holder.routeTypeImg.setJSON(rtsRouteLogo);
-					holder.routeTypeImg.setColor(routeTextColor);
-					holder.routeTypeImg.setVisibility(View.VISIBLE);
-				} else {
-					holder.routeTypeImg.setVisibility(View.GONE);
-				}
-			} else {
-				holder.routeTypeImg.setVisibility(View.GONE);
-				holder.routeShortNameTv.setText(route.shortName);
-				holder.routeShortNameTv.setTextColor(routeTextColor);
-				holder.routeShortNameTv.setVisibility(View.VISIBLE);
-			}
-			if (holder.routeLongNameTv != null) {
-				holder.routeLongNameTv.setTextColor(routeTextColor);
-				if (TextUtils.isEmpty(route.longName)) {
-					holder.routeLongNameTv.setVisibility(View.GONE);
-				} else {
-					holder.routeLongNameTv.setText(route.longName);
-					holder.routeLongNameTv.setVisibility(View.VISIBLE);
-				}
-			}
-			holder.routeFL.setVisibility(View.VISIBLE);
+			ssb.append(this.route.longName);
 		}
-		return convertView;
+		if (startShortName < endShortName) {
+			SpanUtils.set(ssb, SpanUtils.SANS_SERIF_CONDENSED_TYPEFACE_SPAN, startShortName, endShortName);
+			SpanUtils.set(ssb, SpanUtils.BOLD_STYLE_SPAN, startShortName, endShortName);
+		}
+		if (startLongName < endLongName) {
+			SpanUtils.set(ssb, SpanUtils.SANS_SERIF_LIGHT_TYPEFACE_SPAN, startLongName, endLongName);
+		}
+		return ssb;
 	}
 
 
 	@Override
 	public Integer getABBgColor(Context context) {
 		if (this.route == null) {
-			return super.getABBgColor(context);
+			return null; // not ready
 		}
-		return ColorUtils.parseColor(this.route.color);
+		return this.route.getColorInt();
 	}
 
 	private static class RouteTripPagerAdapter extends FragmentStatePagerAdapter {

@@ -28,11 +28,11 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	public static Integer getLayoutResId(POIManager poim) {
 		switch (poim.getStatusType()) {
 		case POI.ITEM_STATUS_TYPE_APP:
-			return R.layout.layout_poi_status_detail_app;
+			return R.layout.layout_poi_detail_status_app;
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			return R.layout.layout_poi_status_detail_schedule;
+			return R.layout.layout_poi_detail_status_schedule;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			return R.layout.layout_poi_status_detail_availability_percent;
+			return R.layout.layout_poi_detail_status_availability_percent;
 		default:
 			MTLog.w(TAG, "getLayoutResId() > Unknow view type for poi %s!", poim);
 			return null;
@@ -219,7 +219,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		if (dataProvider != null && status != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
 			final long nowToTheMinute = dataProvider.getNowToTheMinute();
-			line1CS = schedule.getTimesListString(context, nowToTheMinute, nowToTheMinute + TimeUtils.ONE_DAY_IN_MS, 50);
+			line1CS = schedule.getTimesListString(context, nowToTheMinute, TimeUtils.ONE_HOUR_IN_MS, TimeUtils.ONE_DAY_IN_MS, 10, 50);
 		}
 		ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
 		scheduleStatusViewHolder.nextDeparturesTimesTv.setText(line1CS);

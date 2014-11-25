@@ -414,6 +414,11 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@Override
+	public String getAgencyColorString(Context context) {
+		return null; // default
+	}
+
+	@Override
 	public int getAgencyShortNameResId() {
 		return R.string.module_short_name;
 	}
@@ -482,12 +487,19 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 				+ POIColumns.T_POI_K_ACTIONS_TYPE);
 		poiProjectionMap.put(ModuleColumns.T_MODULE_K_PKG, ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_PKG + " AS "
 				+ ModuleColumns.T_MODULE_K_PKG);
+		poiProjectionMap.put(ModuleColumns.T_MODULE_K_TARGET_TYPE_ID, ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_TARGET_TYPE_ID + " AS "
+				+ ModuleColumns.T_MODULE_K_TARGET_TYPE_ID);
+		poiProjectionMap.put(ModuleColumns.T_MODULE_K_COLOR, ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_COLOR + " AS "
+				+ ModuleColumns.T_MODULE_K_COLOR);
+		poiProjectionMap.put(ModuleColumns.T_MODULE_K_LOCATION, ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_LOCATION + " AS "
+				+ ModuleColumns.T_MODULE_K_LOCATION);
 		poiProjectionMap.put(ModuleColumns.T_MODULE_K_NAME_FR, ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_NAME_FR + " AS "
 				+ ModuleColumns.T_MODULE_K_NAME_FR);
 		return poiProjectionMap;
 	}
 
-	public static final String[] PROJECTION_MODULE = new String[] { ModuleColumns.T_MODULE_K_PKG, ModuleColumns.T_MODULE_K_NAME_FR };
+	public static final String[] PROJECTION_MODULE = new String[] { ModuleColumns.T_MODULE_K_PKG, ModuleColumns.T_MODULE_K_TARGET_TYPE_ID,
+			ModuleColumns.T_MODULE_K_COLOR, ModuleColumns.T_MODULE_K_LOCATION, ModuleColumns.T_MODULE_K_NAME_FR };
 
 	public static final String[] PROJECTION_MODULE_POI = ArrayUtils.addAll(POIProvider.PROJECTION_POI, PROJECTION_MODULE);
 
@@ -503,6 +515,9 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	public static class ModuleColumns {
 		public static final String T_MODULE_K_PKG = POIColumns.getFkColumnName("pkg");
+		public static final String T_MODULE_K_TARGET_TYPE_ID = POIColumns.getFkColumnName("targetTypeId");
+		public static final String T_MODULE_K_COLOR = POIColumns.getFkColumnName("color");
+		public static final String T_MODULE_K_LOCATION = POIColumns.getFkColumnName("location");
 		public static final String T_MODULE_K_NAME_FR = POIColumns.getFkColumnName("name_fr");
 	}
 

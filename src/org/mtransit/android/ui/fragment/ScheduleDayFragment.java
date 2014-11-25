@@ -8,7 +8,6 @@ import java.util.Date;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
-import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
@@ -17,6 +16,7 @@ import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.provider.POIFilter;
+import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.commons.ui.widget.MTBaseAdapter;
 import org.mtransit.android.data.DataSourceManager;
@@ -27,7 +27,6 @@ import org.mtransit.android.task.ScheduleTimestampsLoader;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -121,6 +120,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		this.dayStartsAtInMs = BundleUtils.getLong(EXTRA_DAY_START_AT_IN_MS, savedInstanceState, getArguments());
 		this.dayStartsAtCal = TimeUtils.getNewCalendar(this.dayStartsAtInMs);
 		this.dayStartsAtDate = this.dayStartsAtCal.getTime();
+		setDayDateString(getView());
 		final Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, savedInstanceState, getArguments());
 		if (fragmentPosition != null) {
 			if (fragmentPosition.intValue() >= 0) {
@@ -143,23 +143,35 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		return fragmentPosition;
 	}
 
+	private void setupView(View view) {
+		if (view == null) {
+			return;
+		}
 	private static final ThreadSafeDateFormatter DAY_DATE_FORMAT = new ThreadSafeDateFormatter("EEEE, MMM d, yyyy");
 
-	private void setupView(View view) {
+	private void setDayDateString(View view) {
+		if (view == null) {
+			return;
+		}
+		CharSequence dateS;
+		if (TimeUtils.isYesterday(this.dayStartsAtInMs)) {
+			dateS = getString(R.string.yesterday) + " " + DAY_DATE_FORMAT.formatThreadSafe(this.dayStartsAtDate);
+		} else if (TimeUtils.isToday(this.dayStartsAtInMs)) {
+			dateS = getString(R.string.today) + " " + DAY_DATE_FORMAT.formatThreadSafe(this.dayStartsAtDate);
+		} else if (TimeUtils.isTomorrow(this.dayStartsAtInMs)) {
+			dateS = getString(R.string.tomorrow) + " " + DAY_DATE_FORMAT.formatThreadSafe(this.dayStartsAtDate);
+		} else {
+			dateS = DAY_DATE_FORMAT.formatThreadSafe(this.dayStartsAtDate);
+		}
+		((TextView) view.findViewById(R.id.dayDate)).setText(dateS);
+	}
+
+	private void setupAdapter(View view) {
 		if (view == null || this.adapter == null) {
 			return;
 		}
 		inflateList(view);
 		((AbsListView) view.findViewById(R.id.list)).setAdapter(this.adapter);
-		String dateS = DAY_DATE_FORMAT.formatThreadSafe(this.dayStartsAtDate);
-		if (TimeUtils.isYesterday(this.dayStartsAtInMs)) {
-			dateS = getString(R.string.yesterday) + " " + dateS;
-		} else if (TimeUtils.isToday(this.dayStartsAtInMs)) {
-			dateS = getString(R.string.today) + " " + dateS;
-		} else if (TimeUtils.isTomorrow(this.dayStartsAtInMs)) {
-			dateS = getString(R.string.tomorrow) + " " + dateS;
-		}
-		((TextView) view.findViewById(R.id.dayDate)).setText(dateS);
 	}
 
 	@Override
@@ -228,7 +240,21 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		this.fragmentVisible = true;
 		switchView(getView());
 		if (this.adapter == null) {
-			getLoaderManager().restartLoader(SCHEDULE_LOADER, null, this);
+			new MTAsyncTask<Void, Void, Void>() {
+				private final String TAG = ScheduleDayFragment.class.getSimpleName() + ">restartLoaderTask";
+
+				@Override
+				public String getLogTag() {
+					return TAG;
+				}
+
+				@Override
+				protected Void doInBackgroundMT(Void... params) {
+					getLoaderManager().restartLoader(SCHEDULE_LOADER, null, ScheduleDayFragment.this);
+					return null;
+				}
+
+			}.execute();
 		} else {
 			if (this.adapter.getCount() > 0) {
 				this.adapter.onResume(getActivity());
@@ -260,6 +286,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 	@Override
 	public void onLoadFinished(Loader<ArrayList<Schedule.Timestamp>> loader, ArrayList<Schedule.Timestamp> data) {
+		switchView(getView());
 		if (this.adapter == null) {
 			initAdapter();
 		}
@@ -297,9 +324,8 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 	private void initAdapter() {
 		this.adapter = new TimeAdapter(getActivity(), this.dayStartsAtCal, this.rts);
-		final View view = getView();
-		setupView(view);
-		switchView(view);
+		View view = getView();
+		setupAdapter(view);
 	}
 
 	private void switchView(View view) {
@@ -626,7 +652,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private View getTimeView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null) {
-				convertView = this.layoutInflater.inflate(R.layout.layout_poi_status_detail_schedule_time, parent, false);
+				convertView = this.layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_time, parent, false);
 				TimeViewHolder holder = new TimeViewHolder();
 				holder.timeTv = (TextView) convertView.findViewById(R.id.time);
 				convertView.setTag(holder);
@@ -650,15 +676,15 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 					}
 				}
 				holder.timeTv.setText(timeS);
-				if (this.nextTimeInMs != null && TimeUtils.isSameDay(getNowToTheMinute(), this.nextTimeInMs.t) && this.nextTimeInMs.t == timestamp.t) {
-					holder.timeTv.setTextColor(ColorUtils.getTextColorPrimary(activity)); // now
-					holder.timeTv.setTypeface(Typeface.DEFAULT_BOLD);
+				if (this.nextTimeInMs != null && TimeUtils.isSameDay(getNowToTheMinute(), this.nextTimeInMs.t) && this.nextTimeInMs.t == timestamp.t) { // now
+					holder.timeTv.setTextColor(Schedule.getDefaultNowTextColor(activity));
+					holder.timeTv.setTypeface(Schedule.getDefaultNowTypeface());
 				} else if (timestamp.t < getNowToTheMinute()) { // past
-					holder.timeTv.setTextColor(ColorUtils.getTextColorTertiary(activity));
-					holder.timeTv.setTypeface(Typeface.DEFAULT);
+					holder.timeTv.setTextColor(Schedule.getDefaultPastTextColor(activity));
+					holder.timeTv.setTypeface(Schedule.getDefaultPastTypeface());
 				} else { // future
-					holder.timeTv.setTextColor(ColorUtils.getTextColorSecondary(activity));
-					holder.timeTv.setTypeface(Typeface.DEFAULT);
+					holder.timeTv.setTextColor(Schedule.getDefaultFutureTextColor(activity));
+					holder.timeTv.setTypeface(Schedule.getDefaultFutureTypeface());
 				}
 			} else {
 				holder.timeTv.setText(null);
@@ -667,7 +693,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private View getHourSeparatorView(int position, View convertView, ViewGroup parent) {
 			if (convertView == null) {
-				convertView = this.layoutInflater.inflate(R.layout.layout_poi_status_detail_schedule_hour_separator, parent, false);
+				convertView = this.layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_hour_separator, parent, false);
 				HourSperatorViewHolder holder = new HourSperatorViewHolder();
 				holder.hourTv = (TextView) convertView.findViewById(R.id.hour);
 				convertView.setTag(holder);

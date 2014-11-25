@@ -227,7 +227,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			if (locationChanged) {
 				final boolean requireNotifyAB = setUserAwayFromLocation();
 				if (requireNotifyAB) {
-					getAbController().setABIcon(this, getABIconDrawableResId(), false);
 					getAbController().setABReady(this, isABReady(), true);
 				}
 			}
@@ -394,14 +393,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
-	@Override
-	public int getABIconDrawableResId() {
-		if (!this.userAwayFromNearbyLocation) {
-			return R.drawable.ic_menu_guide_holo_light_active;
-		} else {
-			return R.drawable.ic_menu_guide_holo_light;
-		}
-	}
 
 	@Override
 	public CharSequence getABTitle(Context context) {

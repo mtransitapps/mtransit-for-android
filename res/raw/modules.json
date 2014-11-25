@@ -1,9 +1,9 @@
 [
-{"id":"1","name":"Laval STL Bus","name_fr":"Bus STL (Laval)","lat":"45.583333","lng":"-73.75","pkg":"org.mtransit.android.ca_laval_stl_bus"},
-{"id":"2","name":"Longueuil RTL Bus","name_fr":"Bus RTL (Longueuil)","lat":"45.533333","lng":"-73.516667","pkg":"org.mtransit.android.ca_longueuil_rtl_bus"},
-{"id":"3","name":"Montreal AMT Bus","name_fr":"Bus AMT (Montréal)","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_amt_bus"},
-{"id":"4","name":"Montreal AMT Train","name_fr":"Train AMT (Montréal)","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_amt_train"},
-{"id":"5","name":"Montreal BIXI Bike","name_fr":"Vélo BIXI (Montréal)","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_bixi_bike"},
-{"id":"6","name":"Montreal STM Bus","name_fr":"Bus STM (Montréal)","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_stm_bus"},
-{"id":"7","name":"Montreal STM Subway","name_fr":"Métro STM (Montréal)","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_stm_subway"}
+{"id":"1","name":"STL (Société de Transport de Laval)","name_fr":"STL (Société de Transport de Laval)","location":"Laval, QC, Canada","targetTypeId":"3","color":"0053A6","lat":"45.583333","lng":"-73.75","pkg":"org.mtransit.android.ca_laval_stl_bus"},
+{"id":"2","name":"RTL (Réseau de Transport de Longueuil)","name_fr":"RTL (Réseau de Transport de Longueuil)","location":"Longueuil, QC, Canada","targetTypeId":"3","color":"A32638","lat":"45.533333","lng":"-73.516667","pkg":"org.mtransit.android.ca_longueuil_rtl_bus"},
+{"id":"3","name":"AMT Bus (Agence Métropolitaine de Transport)","name_fr":"Bus AMT (Agence Métropolitaine de Transport)","location":"Montréal, QC, Canada","targetTypeId":"3","color":"20558A","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_amt_bus"},
+{"id":"4","name":"AMT Train (Agence Métropolitaine de Transport)","name_fr":"Train AMT (Agence Métropolitaine de Transport)","location":"Montréal, QC, Canada","targetTypeId":"2","color":"20558A","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_amt_train"},
+{"id":"5","name":"BIXI Montréal","name_fr":"BIXI Montréal","location":"Montréal, QC, Canada","targetTypeId":"100","color":"D42B1E","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_bixi_bike"},
+{"id":"6","name":"STM Bus (Société de Transport de Montréal)","name_fr":"Bus STM (Société de Transport de Montréal)","location":"Montréal, QC, Canada","targetTypeId":"3","color":"009EE0","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_stm_bus"},
+{"id":"7","name":"STM Subway (Société de Transport de Montréal)","name_fr":"Métro STM (Société de Transport de Montréal)","location":"Montréal, QC, Canada","targetTypeId":"1","color":"009EE0","lat":"45.5","lng":"-73.566667","pkg":"org.mtransit.android.ca_montreal_stm_subway"}
 ]

@@ -5,15 +5,14 @@ import java.util.ArrayList;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
+import org.mtransit.android.commons.HtmlUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
@@ -95,22 +94,21 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 					continue;
 				}
 				if (ssb.length() > 0) {
-					ssb.append('\n').append('\n');
+					ssb.append(HtmlUtils.BR).append(HtmlUtils.BR);
 				}
-				Spanned thisMsgFromHtml = Html.fromHtml(serviceUpdate.getTextHTML());
-				SpannableStringBuilder thisMsgSSB = new SpannableStringBuilder(thisMsgFromHtml);
+				String thisMsgFromHtml = serviceUpdate.getTextHTML();
 				if (serviceUpdate.isSeverityWarning()) {
-					SpanUtils.set(thisMsgSSB, SpanUtils.getTextColor(ColorUtils.getTextColorSecondary(context)));
+					thisMsgFromHtml = HtmlUtils.applyFontColor(thisMsgFromHtml, ColorUtils.toRGBColor(ColorUtils.getTextColorSecondary(context)));
 				} else {
-					SpanUtils.set(thisMsgSSB, SpanUtils.getTextColor(ColorUtils.getTextColorTertiary(context)));
+					thisMsgFromHtml = HtmlUtils.applyFontColor(thisMsgFromHtml, ColorUtils.toRGBColor(ColorUtils.getTextColorTertiary(context)));
 				}
-				ssb.append(thisMsgSSB);
+				ssb.append(thisMsgFromHtml);
 				if (!isWarning && serviceUpdate.isSeverityWarning()) {
 					isWarning = true;
 				}
 				serviceMessageDisplayed++;
 			}
-			serviceUpdatesListViewHolder.messagesTv.setText(ssb);
+			serviceUpdatesListViewHolder.messagesTv.setText(Html.fromHtml(ssb.toString()));
 			serviceUpdatesListViewHolder.messagesTv.setMovementMethod(LinkMovementMethod.getInstance());
 		}
 		if (serviceMessageDisplayed == 0) {

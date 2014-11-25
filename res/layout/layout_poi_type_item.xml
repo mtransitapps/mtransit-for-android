@@ -8,6 +8,7 @@
     android:ellipsize="end"
     android:fontFamily="sans-serif-light"
     android:gravity="center_vertical"
+    android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:paddingLeft="8dp"
     android:paddingRight="8dp"
     android:singleLine="true"

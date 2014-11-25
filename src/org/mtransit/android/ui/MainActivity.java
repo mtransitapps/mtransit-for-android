@@ -112,7 +112,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 			this.abController.updateAB();
 		}
 		AnalyticsUtils.trackScreenView(this, this);
-		AdsUtils.resumeAd(this);
+		AdsUtils.adaptToScreenSize(this, getResources().getConfiguration());
 	}
 
 	@Override
@@ -168,17 +168,16 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	}
 
 	private void clearFragmentBackStackImmediate(FragmentManager fm) {
-		while (fm.getBackStackEntryCount() > 0) {
-			fm.popBackStackImmediate();
-		}
+		fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 	}
 
-	public void showNewFragment(ABFragment newFragment, boolean addToStack) {
-		showNewFragment(newFragment, addToStack, null);
+	public void showNewFragment(ABFragment newFragment, boolean addToStack, boolean removeAllFragments) {
+		showNewFragment(newFragment, addToStack, removeAllFragments, null);
 	}
 
-	public void showNewFragment(ABFragment newFragment, boolean addToStack, View clickFromView) {
-		final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+	public void showNewFragment(ABFragment newFragment, boolean addToStack, boolean removeAllFragments, View clickFromView) {
+		FragmentManager fm = getSupportFragmentManager();
+		FragmentTransaction ft = fm.beginTransaction();
 		ft.replace(R.id.content_frame, newFragment);
 		if (addToStack) {
 			ft.addToBackStack(null);
@@ -188,7 +187,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		showContentFrameAsLoaded();
 		if (this.abController != null) {
 			this.abController.setAB(newFragment);
-			this.abController.updateAB();
+			this.abController.updateABDrawerClosed();
 		}
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.setCurrentSelectedItemChecked(this.backStackEntryCount == 0);
@@ -210,7 +209,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	}
 
 	public void addFragmentToStack(ABFragment newFragment, View clickFromView) {
-		showNewFragment(newFragment, true, clickFromView);
+		showNewFragment(newFragment, true, false, clickFromView);
 	}
 
 	@Override
@@ -246,7 +245,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		this.backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
 		if (this.abController != null) {
 			this.abController.setAB((ABFragment) getCurrentFragment());
-			this.abController.updateAB(); // up/drawer icon
+			this.abController.updateABDrawerClosed();
 		}
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onBackStackChanged(this.backStackEntryCount);
@@ -284,11 +283,6 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		return backStackEntryCount;
 	}
 
-	public void updateAB() {
-		if (this.abController != null) {
-			this.abController.updateAB();
-		}
-	}
 
 
 
@@ -326,10 +320,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		try {
 			if (fragment != null) {
 				final FragmentManager fm = getSupportFragmentManager();
-				final FragmentTransaction ft = fm.beginTransaction();
-				ft.remove(fragment);
-				ft.commit();
-				fm.popBackStackImmediate();
+				fm.popBackStack();
 			}
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while poping fragment '%s' from stack!", fragment);
@@ -355,7 +346,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	public boolean onUpIconClick() {
 		final FragmentManager fm = getSupportFragmentManager();
 		if (fm.getBackStackEntryCount() > 0) {
-			fm.popBackStackImmediate();
+			fm.popBackStack();
 			return true; // handled
 		}
 		return false; // not handled

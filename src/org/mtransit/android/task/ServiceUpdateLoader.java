@@ -43,8 +43,8 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 
 	private ThreadPoolExecutor fetchServiceUpdateExecutor;
 
-	private static final int CORE_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES;
-	private static final int MAX_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES;
+	private static final int CORE_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES > 1 ? RuntimeUtils.NUMBER_OF_CORES / 2 : 1;
+	private static final int MAX_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES > 1 ? RuntimeUtils.NUMBER_OF_CORES / 2 : 1;
 
 	public ThreadPoolExecutor getFetchServiceUpdateExecutor() {
 		if (this.fetchServiceUpdateExecutor == null) {

@@ -18,6 +18,9 @@ public class RTSAgencyRoutesLoader extends MTAsyncTaskLoaderV4<ArrayList<Route>>
 
 	@Override
 	public String getLogTag() {
+		if (this.agency != null) {
+			return TAG + "-" + this.agency.getShortName();
+		}
 		return TAG;
 	}
 

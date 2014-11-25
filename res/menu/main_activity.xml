@@ -1,11 +1,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="org.mtransit.android.MainActivity" >
     <item
         android:id="@+id/menu_search"
-        android:icon="@drawable/ic_menu_action_search_holo_light"
+        android:icon="@drawable/abc_ic_search_api_mtrl_alpha"
         android:orderInCategory="999"
         android:showAsAction="ifRoom|collapseActionView"
         android:title="@string/action_search"
-        android:visible="true"/>
+        android:visible="true"
+        app:showAsAction="ifRoom|collapseActionView"/>
 </menu>

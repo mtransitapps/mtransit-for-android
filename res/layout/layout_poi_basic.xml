@@ -15,6 +15,6 @@
             android:id="@+id/poi"
             android:layout_width="match_parent"
             android:layout_height="?android:attr/listPreferredItemHeightLarge"
-            layout="@layout/layout_poi_base" />
+            layout="@layout/layout_poi_base_distance_and_compass" />
     </RelativeLayout>
 </FrameLayout>

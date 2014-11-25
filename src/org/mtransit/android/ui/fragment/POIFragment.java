@@ -31,7 +31,6 @@ import org.mtransit.android.ui.view.POIViewController;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -445,7 +444,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		}
 		if (this.poim != null && this.poim.isFavoritable()) {
 			final boolean isFav = isFavorite();
-			addRemoveFavoriteMenuItem.setIcon(isFav ? R.drawable.btn_star_on_normal_holo_light : R.drawable.btn_star_off_normal_holo_light);
+			addRemoveFavoriteMenuItem.setIcon(isFav ? R.drawable.ic_action_toggle_star_holo_dark : R.drawable.ic_action_toggle_star_outline_holo_dark);
 			addRemoveFavoriteMenuItem.setTitle(isFav ? R.string.menu_action_remove_favorite : R.string.menu_action_add_favorite);
 			addRemoveFavoriteMenuItem.setVisible(true);
 		} else {
@@ -487,14 +486,12 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	@Override
 	public Integer getABBgColor(Context context) {
-		return Color.WHITE;
+		if (this.agency == null) {
+			return null; // agency not ready
+		} else if (!this.agency.hasColor()) {
+			return super.getABBgColor(context); // no agency color
+		}
+		return this.agency.getColorInt(); // agency color
 	}
 
-	@Override
-	public int getABIconDrawableResId() {
-		if (this.agency != null) {
-			return this.agency.getType().getAbIconResId();
-		}
-		return super.getABIconDrawableResId();
-	}
 }

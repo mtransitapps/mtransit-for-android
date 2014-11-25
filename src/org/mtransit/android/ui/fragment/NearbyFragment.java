@@ -20,6 +20,7 @@ import org.mtransit.android.ui.view.SlidingTabLayout;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
@@ -128,9 +129,14 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void restoreInstanceState(Bundle savedInstanceState) {
-		this.selectedTypeId = BundleUtils.getInt(EXTRA_SELECTED_TYPE, savedInstanceState, getArguments());
-		final Location nearbyLocation = BundleUtils.getParcelable(EXTRA_NEARBY_LOCATION, savedInstanceState, getArguments());
-		setNewNearbyLocation(nearbyLocation);
+		Integer newSelectedId = BundleUtils.getInt(EXTRA_SELECTED_TYPE, savedInstanceState, getArguments());
+		if (newSelectedId != null) {
+			this.selectedTypeId = newSelectedId;
+		}
+		Location newNearbyLocation = BundleUtils.getParcelable(EXTRA_NEARBY_LOCATION, savedInstanceState, getArguments());
+		if (newNearbyLocation != null) {
+			setNewNearbyLocation(newNearbyLocation);
+		}
 	}
 
 	@Override
@@ -215,7 +221,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			this.adapter.notifyDataSetChanged();
 		}
 		this.adapter.setNearbyLocation(this.nearbyLocation);
-		setupView(view);
+		setupAdapter(view);
 		if (this.lastPageSelected >= 0) {
 			final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 			viewPager.setCurrentItem(NearbyFragment.this.lastPageSelected);
@@ -267,16 +273,26 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void setupView(View view) {
+		if (view == null) {
+			return;
+		}
+		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		viewPager.setOffscreenPageLimit(3);
+		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
+		tabs.setCustomTabView(R.layout.layout_tab_indicator, R.id.tab_title);
+		tabs.setOnPageChangeListener(this);
+		tabs.setSelectedIndicatorColors(Color.WHITE);
+		setupAdapter(view);
+	}
+
+	private void setupAdapter(View view) {
 		if (view == null || this.adapter == null) {
 			return;
 		}
-		final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		viewPager.setAdapter(this.adapter);
-		viewPager.setOffscreenPageLimit(3);
 		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
 		tabs.setViewPager(viewPager);
-		tabs.setOnPageChangeListener(this);
-		tabs.setSelectedIndicatorColors(0xff666666);
 	}
 
 	@Override
@@ -305,7 +321,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			if (locationChanged) {
 				final boolean requireNotifyAB = setUserAwayFromLocation();
 				if (requireNotifyAB) {
-					getAbController().setABIcon(this, getABIconDrawableResId(), false);
 					getAbController().setABReady(this, isABReady(), true);
 				}
 			}
@@ -348,7 +363,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 		setSwipeRefreshLayoutRefreshing(false);
 		this.nearbyLocationAddress = null;
-		getAbController().setABIcon(this, getABIconDrawableResId(), false);
 		getAbController().setABReady(this, isABReady(), true);
 		findNearbyLocation();
 	}
@@ -514,21 +528,12 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		return this.nearbyLocationAddress;
 	}
 
-	@Override
-	public int getABIconDrawableResId() {
-		if (!this.userAwayFromNearbyLocation) {
-			return R.drawable.ic_menu_place_holo_light_active;
-		} else {
-			return R.drawable.ic_menu_place_holo_light;
-		}
-	}
-
 
 	public static interface NearbyLocationListener extends MTActivityWithLocation.UserLocationListener {
 		public void onNearbyLocationChanged(Location location);
 	}
 
-	private static class AgencyTypePagerAdapter extends FragmentStatePagerAdapter implements MTLog.Loggable {
+	private static class AgencyTypePagerAdapter extends FragmentStatePagerAdapter implements SlidingTabLayout.TabColorizer, MTLog.Loggable {
 
 		private static final String TAG = NearbyFragment.class.getSimpleName() + ">" + AgencyTypePagerAdapter.class.getSimpleName();
 
@@ -652,6 +657,11 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				return StringUtils.EMPTY;
 			}
 			return context.getString(this.availableAgencyTypes.get(position).getShortNameResId());
+		}
+
+		@Override
+		public int getIndicatorColor(int position) {
+			return Color.WHITE;
 		}
 
 		@Override

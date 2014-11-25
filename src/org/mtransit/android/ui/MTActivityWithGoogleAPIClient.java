@@ -4,7 +4,6 @@ import java.lang.ref.WeakReference;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.task.MTAsyncTask;
-import org.mtransit.android.commons.ui.MTFragmentActivity;
 import org.mtransit.android.commons.ui.fragment.MTDialogFragmentV4;
 
 import android.app.Activity;
@@ -18,7 +17,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-public abstract class MTActivityWithGoogleAPIClient extends MTFragmentActivity implements GoogleApiClient.ConnectionCallbacks,
+public abstract class MTActivityWithGoogleAPIClient extends MTActionBarActivity implements GoogleApiClient.ConnectionCallbacks,
 		GoogleApiClient.OnConnectionFailedListener {
 
 	private static final int REQUEST_RESOLVE_ERROR = 1001;

@@ -34,27 +34,34 @@ public class DataSourceProvider implements MTLog.Loggable {
 	private static DataSourceProvider instance = null;
 
 
-	private ArrayList<DataSourceType> allAgencyTypes = null;
+	private ArrayList<DataSourceType> allAgencyTypes = new ArrayList<DataSourceType>();
 
-	private ArrayList<AgencyProperties> allAgencies = null;
+	private ArrayList<AgencyProperties> allAgencies = new ArrayList<AgencyProperties>();
 
-	private ArrayList<StatusProviderProperties> allStatusProviders = null;
+	private ArrayList<StatusProviderProperties> allStatusProviders = new ArrayList<StatusProviderProperties>();
 
-	private ArrayList<ScheduleProviderProperties> allScheduleProviders = null;
+	private ArrayList<ScheduleProviderProperties> allScheduleProviders = new ArrayList<ScheduleProviderProperties>();
 
-	private ArrayList<ServiceUpdateProviderProperties> allServiceUpdateProviders = null;
+	private ArrayList<ServiceUpdateProviderProperties> allServiceUpdateProviders = new ArrayList<ServiceUpdateProviderProperties>();
 
-	private SparseArray<ArrayList<AgencyProperties>> allAgenciesByTypeId = null;
 
-	private HashMap<String, AgencyProperties> allAgenciesByAuthority = null;
+	private HashMap<String, AgencyProperties> allAgenciesByAuthority = new HashMap<String, AgencyProperties>();
 
-	private HashMap<String, HashSet<StatusProviderProperties>> statusProvidersByTargetAuthority = null;
+	private HashMap<String, StatusProviderProperties> allStatusProvidersByAuthority = new HashMap<String, StatusProviderProperties>();
 
-	private HashMap<String, HashSet<ScheduleProviderProperties>> scheduleProvidersByTargetAuthority = null;
+	private HashMap<String, ScheduleProviderProperties> allScheduleProvidersByAuthority = new HashMap<String, ScheduleProviderProperties>();
 
-	private HashMap<String, HashSet<ServiceUpdateProviderProperties>> serviceUpdateProvidersByTargetAuthority = null;
+	private HashMap<String, ServiceUpdateProviderProperties> allServiceUpdateProvidersByAuthority = new HashMap<String, ServiceUpdateProviderProperties>();
 
-	private HashMap<String, JPaths> rtsRouteLogoByAuthority = null;
+	private SparseArray<ArrayList<AgencyProperties>> allAgenciesByTypeId = new SparseArray<ArrayList<AgencyProperties>>();
+
+	private HashMap<String, HashSet<StatusProviderProperties>> statusProvidersByTargetAuthority = new HashMap<String, HashSet<StatusProviderProperties>>();
+
+	private HashMap<String, HashSet<ScheduleProviderProperties>> scheduleProvidersByTargetAuthority = new HashMap<String, HashSet<ScheduleProviderProperties>>();
+
+	private HashMap<String, HashSet<ServiceUpdateProviderProperties>> serviceUpdateProvidersByTargetAuthority = new HashMap<String, HashSet<ServiceUpdateProviderProperties>>();
+
+	private HashMap<String, JPaths> rtsRouteLogoByAuthority = new HashMap<String, JPaths>();
 
 	private HashMap<String, Uri> uriMap = new HashMap<String, Uri>();
 
@@ -95,10 +102,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 				triggerModulesUpdated();
 				return true;
 			} else {
-				final DataSourceProvider newInstance = new DataSourceProvider();
-				newInstance.init(optContext);
-				if (areDifferents(instance, newInstance)) {
-					instance = newInstance;
+				if (hasChanged(instance, optContext)) {
+					destroy();
 					triggerModulesUpdated();
 					return true;
 				}
@@ -107,12 +112,58 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return false;
 	}
 
-	private static boolean areDifferents(DataSourceProvider dsp1, DataSourceProvider dsp2) {
-		return CollectionUtils.getSize(dsp1.allAgencyTypes) != CollectionUtils.getSize(dsp2.allAgencyTypes)
-				|| CollectionUtils.getSize(dsp1.allAgencies) != CollectionUtils.getSize(dsp2.allAgencies)
-				|| CollectionUtils.getSize(dsp1.allStatusProviders) != CollectionUtils.getSize(dsp2.allStatusProviders)
-				|| CollectionUtils.getSize(dsp1.allScheduleProviders) != CollectionUtils.getSize(dsp2.allScheduleProviders)
-				|| CollectionUtils.getSize(dsp1.allServiceUpdateProviders) != CollectionUtils.getSize(dsp2.allServiceUpdateProviders);
+	private synchronized static boolean hasChanged(DataSourceProvider current, Context optContext) {
+		if (current == null) {
+			return true;
+		}
+		if (optContext == null) {
+			return true;
+		}
+		String agencyProviderMetaData = optContext.getString(R.string.agency_provider);
+		String scheduleProviderMetaData = optContext.getString(R.string.schedule_provider);
+		String statusProviderMetaData = optContext.getString(R.string.status_provider);
+		String serviceUpdateProviderMetaData = optContext.getString(R.string.service_update_provider);
+		int nbAgencyProviders = 0, nbScheduleProviders = 0, nbStatusProviders = 0, nbServiceUpdateProviders = 0;
+		final PackageManager pm = optContext.getPackageManager();
+		for (PackageInfo packageInfo : pm.getInstalledPackages(PackageManager.GET_PROVIDERS | PackageManager.GET_META_DATA)) {
+			ProviderInfo[] providers = packageInfo.providers;
+			if (providers != null) {
+				for (ProviderInfo provider : providers) {
+					if (provider.metaData != null) {
+						if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
+							if (instance.getAgency(provider.authority) == null) {
+								return true;
+							}
+							nbAgencyProviders++;
+						}
+						if (statusProviderMetaData.equals(provider.metaData.getString(statusProviderMetaData))) {
+							if (instance.getStatusProvider(provider.authority) == null) {
+								return true;
+							}
+							nbStatusProviders++;
+						}
+						if (scheduleProviderMetaData.equals(provider.metaData.getString(scheduleProviderMetaData))) {
+							if (instance.getScheduleProvider(provider.authority) == null) {
+								return true;
+							}
+							nbScheduleProviders++;
+						}
+						if (serviceUpdateProviderMetaData.equals(provider.metaData.getString(serviceUpdateProviderMetaData))) {
+							if (instance.getServiceUpdateProvider(provider.authority) == null) {
+								return true;
+							}
+							nbServiceUpdateProviders++;
+						}
+					}
+				}
+			}
+		}
+		if (nbAgencyProviders != CollectionUtils.getSize(instance.allAgencies) //
+				|| nbStatusProviders != CollectionUtils.getSize(instance.allStatusProviders) //
+				|| nbScheduleProviders != CollectionUtils.getSize(instance.allScheduleProviders) //
+				|| nbServiceUpdateProviders != CollectionUtils.getSize(instance.allServiceUpdateProviders)) {
+			return true;
+		return false;
 	}
 
 	private DataSourceProvider() {
@@ -135,12 +186,24 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return this.allAgencies == null ? null : new ArrayList<AgencyProperties>(this.allAgencies);
 	}
 
-	public ArrayList<AgencyProperties> getTypeDataSources(int typeId) {
-		return this.allAgenciesByTypeId.get(typeId);
-	}
-
 	public AgencyProperties getAgency(String authority) {
 		return this.allAgenciesByAuthority.get(authority);
+	}
+
+	public StatusProviderProperties getStatusProvider(String authority) {
+		return this.allStatusProvidersByAuthority.get(authority);
+	}
+
+	public ScheduleProviderProperties getScheduleProvider(String authority) {
+		return this.allScheduleProvidersByAuthority.get(authority);
+	}
+
+	public ServiceUpdateProviderProperties getServiceUpdateProvider(String authority) {
+		return this.allServiceUpdateProvidersByAuthority.get(authority);
+	}
+
+	public ArrayList<AgencyProperties> getTypeDataSources(int typeId) {
+		return this.allAgenciesByTypeId.get(typeId);
 	}
 
 	public Collection<StatusProviderProperties> getTargetAuthorityStatusProviders(String targetAuthority) {
@@ -160,64 +223,47 @@ public class DataSourceProvider implements MTLog.Loggable {
 	}
 
 	public void onDestroy() {
-		if (this.allAgencies != null) {
-			this.allAgencies.clear();
-			this.allAgencies = null;
-		}
 		if (this.allAgencyTypes != null) {
 			this.allAgencyTypes.clear();
-			this.allAgencyTypes = null;
+		if (this.allAgencies != null) {
+			this.allAgencies.clear();
 		}
 		if (this.allAgenciesByTypeId != null) {
 			this.allAgenciesByTypeId.clear();
-			this.allAgenciesByTypeId = null;
 		}
 		if (this.allAgenciesByAuthority != null) {
 			this.allAgenciesByAuthority.clear();
-			this.allAgenciesByAuthority = null;
 		}
 		if (this.allStatusProviders != null) {
 			this.allStatusProviders.clear();
-			this.allStatusProviders = null;
+		if (this.allStatusProvidersByAuthority != null) {
+			this.allStatusProvidersByAuthority.clear();
 		}
 		if (this.statusProvidersByTargetAuthority != null) {
 			this.statusProvidersByTargetAuthority.clear();
-			this.statusProvidersByTargetAuthority = null;
 		}
 		if (this.rtsRouteLogoByAuthority != null) {
 			this.rtsRouteLogoByAuthority.clear();
-			this.rtsRouteLogoByAuthority = null;
 		}
 		if (this.allScheduleProviders != null) {
 			this.allScheduleProviders.clear();
-			this.allScheduleProviders = null;
+		if (this.allScheduleProvidersByAuthority != null) {
+			this.allScheduleProvidersByAuthority.clear();
 		}
 		if (this.scheduleProvidersByTargetAuthority != null) {
 			this.scheduleProvidersByTargetAuthority.clear();
-			this.scheduleProvidersByTargetAuthority = null;
 		}
 		if (this.allServiceUpdateProviders != null) {
 			this.allServiceUpdateProviders.clear();
-			this.allServiceUpdateProviders = null;
+		if (this.allServiceUpdateProvidersByAuthority != null) {
+			this.allServiceUpdateProvidersByAuthority.clear();
 		}
 		if (this.serviceUpdateProvidersByTargetAuthority != null) {
 			this.serviceUpdateProvidersByTargetAuthority.clear();
-			this.serviceUpdateProvidersByTargetAuthority = null;
 		}
 	}
 
 	private synchronized void init(Context context) {
-		this.allAgencies = new ArrayList<AgencyProperties>();
-		this.allAgencyTypes = new ArrayList<DataSourceType>();
-		this.allAgenciesByTypeId = new SparseArray<ArrayList<AgencyProperties>>();
-		this.allAgenciesByAuthority = new HashMap<String, AgencyProperties>();
-		this.allStatusProviders = new ArrayList<StatusProviderProperties>();
-		this.statusProvidersByTargetAuthority = new HashMap<String, HashSet<StatusProviderProperties>>();
-		this.rtsRouteLogoByAuthority = new HashMap<String, JPaths>();
-		this.allScheduleProviders = new ArrayList<ScheduleProviderProperties>();
-		this.scheduleProvidersByTargetAuthority = new HashMap<String, HashSet<ScheduleProviderProperties>>();
-		this.allServiceUpdateProviders = new ArrayList<ServiceUpdateProviderProperties>();
-		this.serviceUpdateProvidersByTargetAuthority = new HashMap<String, HashSet<ServiceUpdateProviderProperties>>();
 		String agencyProviderMetaData = context.getString(R.string.agency_provider);
 		String rtsProviderMetaData = context.getString(R.string.rts_provider);
 		String scheduleProviderMetaData = context.getString(R.string.schedule_provider);
@@ -235,6 +281,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 						if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
 							final Uri contentUri = getUri(provider.authority);
 							final String label = DataSourceManager.findAgencyLabel(context, contentUri);
+							final String color = DataSourceManager.findAgencyColor(context, contentUri);
 							final String shortName = DataSourceManager.findAgencyShortName(context, contentUri);
 							final int typeId = DataSourceManager.findTypeId(context, contentUri);
 							final DataSourceType type = DataSourceType.parseId(typeId);
@@ -242,7 +289,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 							final boolean isRTS = rtsProviderMetaData.equals(provider.metaData.getString(rtsProviderMetaData));
 							final JPaths jPath = isRTS ? DataSourceManager.findAgencyRTSRouteLogo(context, contentUri) : null;
 							if (type != null && typeId >= 0) {
-								final AgencyProperties newAgency = new AgencyProperties(provider.authority, type, shortName, label, area, isRTS);
+								final AgencyProperties newAgency = new AgencyProperties(provider.authority, type, shortName, label, color, area, isRTS);
 								addNewAgency(newAgency);
 								if (jPath != null) {
 									this.rtsRouteLogoByAuthority.put(newAgency.getAuthority(), jPath);
@@ -283,6 +330,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private void addNewStatusProvider(StatusProviderProperties newStatusProvider) {
 		this.allStatusProviders.add(newStatusProvider);
+		this.allStatusProvidersByAuthority.put(newStatusProvider.getAuthority(), newStatusProvider);
 		String newScheduleProviderTargetAuthority = newStatusProvider.getTargetAuthority();
 		if (!this.statusProvidersByTargetAuthority.containsKey(newScheduleProviderTargetAuthority)) {
 			this.statusProvidersByTargetAuthority.put(newScheduleProviderTargetAuthority, new HashSet<StatusProviderProperties>());
@@ -292,6 +340,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private void addNewScheduleProvider(ScheduleProviderProperties newScheduleProvider) {
 		this.allScheduleProviders.add(newScheduleProvider);
+		this.allScheduleProvidersByAuthority.put(newScheduleProvider.getAuthority(), newScheduleProvider);
 		String newScheduleProviderTargetAuthority = newScheduleProvider.getTargetAuthority();
 		if (!this.scheduleProvidersByTargetAuthority.containsKey(newScheduleProviderTargetAuthority)) {
 			this.scheduleProvidersByTargetAuthority.put(newScheduleProviderTargetAuthority, new HashSet<ScheduleProviderProperties>());
@@ -301,6 +350,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private void addNewServiceUpdateProvider(ServiceUpdateProviderProperties newServiceUpdateProvider) {
 		this.allServiceUpdateProviders.add(newServiceUpdateProvider);
+		this.allServiceUpdateProvidersByAuthority.put(newServiceUpdateProvider.getAuthority(), newServiceUpdateProvider);
 		String newServiceUpdateProviderTargetAuthority = newServiceUpdateProvider.getTargetAuthority();
 		if (!this.serviceUpdateProvidersByTargetAuthority.containsKey(newServiceUpdateProviderTargetAuthority)) {
 			this.serviceUpdateProvidersByTargetAuthority.put(newServiceUpdateProviderTargetAuthority, new HashSet<ServiceUpdateProviderProperties>());

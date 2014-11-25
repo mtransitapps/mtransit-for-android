@@ -19,6 +19,6 @@
             android:layout_width="match_parent"
             android:layout_height="?android:attr/listPreferredItemHeightLarge"
             android:layout_toRightOf="@id/rts_extra"
-            layout="@layout/layout_poi_base" />
+            layout="@layout/layout_poi_base_distance_and_compass" />
     </RelativeLayout>
 </FrameLayout>

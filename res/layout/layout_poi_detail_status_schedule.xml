@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
-    <include layout="@layout/layout_poi_status_detail_schedule_title" />
+    <include layout="@layout/layout_poi_detail_status_schedule_title" />
     <HorizontalScrollView
         android:id="@+id/next_departures_layout"
         android:layout_width="match_parent"

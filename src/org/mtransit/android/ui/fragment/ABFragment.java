@@ -1,5 +1,7 @@
 package org.mtransit.android.ui.fragment;
 
+import org.mtransit.android.R;
+import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.ui.ActionBarController;
@@ -12,7 +14,6 @@ import android.view.View;
 
 public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.Trackable, DataSourceProvider.ModulesUpdateListener {
 
-	public static final int NO_ICON = -1;
 
 	public static final Integer NO_BG_COLOR = null;
 
@@ -36,12 +37,14 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 		return null;
 	}
 
-	public int getABIconDrawableResId() {
-		return ABFragment.NO_ICON;
-	}
+
+	private Integer defaultABBgColor = null;
 
 	public Integer getABBgColor(Context context) {
-		return ABFragment.NO_BG_COLOR;
+		if (this.defaultABBgColor == null) {
+			this.defaultABBgColor = ColorUtils.getThemeAttribute(context, R.attr.colorPrimary);
+		}
+		return this.defaultABBgColor;
 	}
 
 	public View getABCustomView() {

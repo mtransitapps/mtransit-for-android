@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
+import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StringUtils;
@@ -15,10 +16,12 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
+import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.SlidingTabLayout;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -115,8 +118,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		super.onActivityCreated(savedInstanceState);
 		restoreInstanceState(savedInstanceState);
 		final View view = getView();
-		initTabsAndViewPager(view);
 		switchView(view);
+		initTabsAndViewPager(view);
 	}
 
 	@Override
@@ -127,6 +130,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			if (CollectionUtils.getSize(newAvailableAgencies) == CollectionUtils.getSize(this.adapter.getAgencies())) {
 				return;
 			}
+			this.abColorizer = null; // force reset
 			this.lastPageSelected = -1;
 			this.adapter.setLastVisibleFragmentPosition(this.lastPageSelected);
 			pauseAllVisibleAwareChildFragments();
@@ -141,26 +145,62 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		this.adapter = null;
 	}
 
-	private void setupView(View view) {
+	private void setupAdapter(View view) {
 		if (view == null || this.adapter == null) {
 			return;
 		}
 		final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		viewPager.setAdapter(this.adapter);
-		viewPager.setOffscreenPageLimit(3);
-		final SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
+		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
 		tabs.setViewPager(viewPager);
+	}
+
+	private void setupView(View view) {
+		if (view == null) {
+			return;
+		}
+		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		viewPager.setOffscreenPageLimit(3);
+		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
+		tabs.setCustomTabView(R.layout.layout_tab_indicator, R.id.tab_title);
 		tabs.setOnPageChangeListener(this);
-		tabs.setSelectedIndicatorColors(0xff666666);
+		tabs.setSelectedIndicatorColors(Color.WHITE);
+	}
+
+	private ActionBarController.SimpleActionBarColorizer abColorizer;
+
+	private ActionBarController.ActionBarColorizer getABColorizer() {
+		if (this.abColorizer == null) {
+			initABColorizer();
+		}
+		return this.abColorizer;
+	}
+
+	private void initABColorizer() {
+		if (this.adapter != null) {
+			int defaultColor = ColorUtils.getThemeAttribute(getActivity(), R.attr.colorPrimary);
+			this.abColorizer = new ActionBarController.SimpleActionBarColorizer();
+			if (this.adapter.getCount() == 0) {
+				this.abColorizer.setBgColors(defaultColor);
+			} else {
+				ArrayList<AgencyProperties> agencies = this.adapter.getAgencies();
+				int[] agencyColors = new int[agencies.size()];
+				for (int i = 0; i < agencies.size(); i++) {
+					AgencyProperties agency = agencies.get(i);
+					agencyColors[i] = agency.hasColor() ? agency.getColorInt() : defaultColor;
+				}
+				this.abColorizer.setBgColors(agencyColors);
+			}
+		}
 	}
 
 	private void restoreInstanceState(Bundle savedInstanceState) {
 		final Integer typeId = BundleUtils.getInt(EXTRA_TYPE_ID, savedInstanceState, getArguments());
 		if (typeId != null) {
 			this.type = DataSourceType.parseId(typeId);
+			getAbController().setABReady(this, isABReady(), false);
 			getAbController().setABTitle(this, getABTitle(getActivity()), false);
-			getAbController().setABIcon(this, getABIconDrawableResId(), false);
-			getAbController().setABReady(this, isABReady(), true);
+			getAbController().setABBgColor(this, getABBgColor(getActivity()), true);
 		}
 	}
 
@@ -178,7 +218,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			this.adapter.setAgencies(newAgencies);
 			this.adapter.notifyDataSetChanged();
 		}
-		setupView(view);
+		setupAdapter(view);
 		this.lastPageSelected = 0;
 		new MTAsyncTask<Void, Void, Integer>() {
 
@@ -215,8 +255,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 					final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 					viewPager.setCurrentItem(AgencyTypeFragment.this.lastPageSelected);
 				}
-				switchView(view);
 				onPageSelected(AgencyTypeFragment.this.lastPageSelected); // tell current page it's selected
+				switchView(view);
 
 			}
 		}.execute();
@@ -324,6 +364,45 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	@Override
 	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+		onViewPagerPageChanged(position, positionOffset);
+	}
+
+	private int selectedPosition = -1;
+	private float selectionOffset = 0f;
+
+	private void onViewPagerPageChanged(int position, float positionOffset) {
+		this.selectedPosition = position;
+		this.selectionOffset = positionOffset;
+		this.abBgColor = getNewABBgColor();
+		if (this.abBgColor != null) {
+			getView().findViewById(R.id.tabs).setBackgroundColor(this.abBgColor);
+			getAbController().setABBgColor(this, getABBgColor(getActivity()), false);
+			getAbController().updateABBgColor();
+		}
+	}
+
+	private Integer abBgColor = null;
+
+	@Override
+	public Integer getABBgColor(Context context) {
+		if (this.abBgColor == null) {
+			this.abBgColor = getNewABBgColor();
+		}
+		return this.abBgColor;
+	}
+
+	private Integer getNewABBgColor() {
+		if (getABColorizer() != null && this.selectedPosition >= 0) {
+			int color = getABColorizer().getBgColor(this.selectedPosition);
+			if (this.selectionOffset > 0f && this.selectedPosition < (this.adapter.getCount() - 1)) {
+				int nextColor = getABColorizer().getBgColor(this.selectedPosition + 1);
+				if (color != nextColor) {
+					return ColorUtils.blendColors(nextColor, color, this.selectionOffset);
+				}
+			}
+			return color;
+		}
+		return null;
 	}
 
 	@Override
@@ -373,18 +452,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			return context.getString(R.string.ellipsis);
 		}
 		return context.getString(this.type.getAllStringResId());
-	}
 
-	@Override
-	public int getABIconDrawableResId() {
-		if (this.type != null && this.type.getAbIconResId() != -1) {
-			return this.type.getAbIconResId();
-		}
-		return super.getABIconDrawableResId();
-	}
-
-
-	private static class AgencyPagerAdapter extends FragmentStatePagerAdapter implements MTLog.Loggable {
+	private static class AgencyPagerAdapter extends FragmentStatePagerAdapter implements SlidingTabLayout.TabColorizer, MTLog.Loggable {
 
 		private static final String TAG = AgencyTypeFragment.class.getSimpleName() + ">" + AgencyPagerAdapter.class.getSimpleName();
 
@@ -489,6 +558,11 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 				return StringUtils.EMPTY;
 			}
 			return this.agencies.get(position).getShortName();
+		}
+
+		@Override
+		public int getIndicatorColor(int position) {
+			return Color.WHITE;
 		}
 
 		@Override
