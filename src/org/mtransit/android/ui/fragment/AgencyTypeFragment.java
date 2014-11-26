@@ -300,7 +300,9 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		view.findViewById(R.id.tabs).setVisibility(View.VISIBLE); // show
+		if (this.type != null && this.type != DataSourceType.TYPE_MODULE) {
+			view.findViewById(R.id.tabs).setVisibility(View.VISIBLE); // show
+		}
 		view.findViewById(R.id.viewpager).setVisibility(View.VISIBLE); // show
 	}
 
