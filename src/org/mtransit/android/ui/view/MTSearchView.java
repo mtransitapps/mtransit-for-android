@@ -8,8 +8,6 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.MainActivity;
 
 import android.content.Context;
-import android.graphics.Rect;
-import android.util.AttributeSet;
 import android.view.View;
 import android.widget.SearchView;
 
@@ -24,21 +22,6 @@ public class MTSearchView extends SearchView implements MTLog.Loggable, View.OnF
 
 	public MTSearchView(MainActivity mainActivity, Context context) {
 		super(context);
-		init(mainActivity);
-	}
-
-	public MTSearchView(MainActivity mainActivity, Context context, AttributeSet attrs) {
-		super(context, attrs);
-		init(mainActivity);
-	}
-
-	public MTSearchView(MainActivity mainActivity, Context context, AttributeSet attrs, int defStyleAttr) {
-		super(context, attrs, defStyleAttr);
-		init(mainActivity);
-	}
-
-	public MTSearchView(MainActivity mainActivity, Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-		super(context, attrs, defStyleAttr, defStyleRes);
 		init(mainActivity);
 	}
 
