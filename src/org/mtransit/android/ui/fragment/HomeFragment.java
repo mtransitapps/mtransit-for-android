@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.task.MTAsyncTask;
@@ -319,7 +320,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			return;
 		}
 		this.swipeRefreshLayout = (ListViewSwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
-		this.swipeRefreshLayout.setColorSchemeResources(R.color.mt_blue_malibu, R.color.mt_blue_smalt, R.color.mt_blue_malibu, R.color.mt_blue_smalt);
+		this.swipeRefreshLayout.setColorSchemeColors(ColorUtils.getThemeAttribute(getActivity(), R.attr.colorAccent));
 		this.swipeRefreshLayout.setOnRefreshListener(this);
 		inflateList(view);
 		this.adapter.setListView((AbsListView) view.findViewById(R.id.list));

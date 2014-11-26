@@ -8,5 +8,6 @@
     <color name="menu_secondary_item_bg">@color/window_background</color>
     <color name="menu_item_text_color">#333333</color>
     <color name="poi_item_bg">@android:color/white</color>
+    <color name="button_bg">@color/primary_material_dark</color>
     <color name="ic_menu_holo_light_text">#CC333333</color>
 </resources>
