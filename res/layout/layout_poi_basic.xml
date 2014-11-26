@@ -1,20 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeightLarge"
-    android:foreground="?android:attr/selectableItemBackground"
-    android:minHeight="?android:attr/listPreferredItemHeightLarge" >
-    <RelativeLayout
+    android:background="@color/poi_item_bg"
+    android:clipChildren="false"
+    android:minHeight="?android:attr/listPreferredItemHeightLarge"
+    android:padding="8dp" >
+    <include
+        android:id="@+id/poi"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/poi_item_bg"
-        android:clipChildren="false"
-        android:padding="8dp" >
-        <include
-            android:id="@+id/poi"
-            android:layout_width="match_parent"
-            android:layout_height="?android:attr/listPreferredItemHeightLarge"
-            layout="@layout/layout_poi_base_distance_and_compass" />
-    </RelativeLayout>
-</FrameLayout>
+        android:layout_height="?android:attr/listPreferredItemHeightLarge"
+        layout="@layout/layout_poi_base_distance_and_compass" />
+</RelativeLayout>

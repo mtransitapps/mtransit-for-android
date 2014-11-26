@@ -1,45 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeightLarge"
-    android:foreground="?android:attr/selectableItemBackground"
-    android:minHeight="?android:attr/listPreferredItemHeightLarge" >
-    <RelativeLayout
-        android:layout_width="match_parent"
+    android:background="@color/poi_item_bg"
+    android:clipChildren="false"
+    android:minHeight="?android:attr/listPreferredItemHeightLarge"
+    android:padding="8dp" >
+    <ImageView
+        android:id="@+id/service_update_warning"
+        android:layout_width="?android:attr/listPreferredItemHeight"
         android:layout_height="match_parent"
-        android:background="@color/poi_item_bg"
-        android:clipChildren="false"
-        android:padding="8dp" >
-        <ImageView
-            android:id="@+id/service_update_warning"
-            android:layout_width="?android:attr/listPreferredItemHeight"
-            android:layout_height="match_parent"
-            android:layout_alignParentRight="true"
-            android:layout_alignWithParentIfMissing="true"
-            android:layout_centerVertical="true"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_action_warning_outline_disabled_holo_dark"
-            android:visibility="gone"
-            tools:visibility="visible" />
-        <include
-            android:id="@+id/status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignWithParentIfMissing="true"
-            android:layout_centerVertical="true"
-            layout="@layout/layout_poi_status_schedule"
-            android:minWidth="?android:attr/listPreferredItemHeight" />
-        <include
-            android:id="@+id/rts_extra"
-            layout="@layout/layout_poi_rts_extras" />
-        <include
-            android:id="@+id/poi"
-            android:layout_width="match_parent"
-            android:layout_height="?android:attr/listPreferredItemHeightLarge"
-            android:layout_toLeftOf="@id/status"
-            android:layout_toRightOf="@id/rts_extra"
-            layout="@layout/layout_poi_base_distance_and_compass" />
-    </RelativeLayout>
-</FrameLayout>
+        android:layout_alignParentRight="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_centerVertical="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_action_warning_outline_disabled_holo_dark"
+        android:visibility="gone"
+        tools:visibility="visible" />
+    <include
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_centerVertical="true"
+        layout="@layout/layout_poi_status_schedule"
+        android:minWidth="?android:attr/listPreferredItemHeight" />
+    <include
+        android:id="@+id/rts_extra"
+        layout="@layout/layout_poi_rts_extras" />
+    <include
+        android:id="@+id/poi"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/listPreferredItemHeightLarge"
+        android:layout_toLeftOf="@id/status"
+        android:layout_toRightOf="@id/rts_extra"
+        layout="@layout/layout_poi_base_distance_and_compass" />
+</RelativeLayout>

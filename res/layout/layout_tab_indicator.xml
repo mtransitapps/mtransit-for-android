@@ -3,7 +3,7 @@
     android:id="@+id/tab_title"
     android:layout_width="wrap_content"
     android:layout_height="?android:attr/listPreferredItemHeightSmall"
-    android:background="?android:selectableItemBackground"
+    android:background="?android:attr/selectableItemBackground"
     android:fontFamily="sans-serif-medium"
     android:gravity="center"
     android:paddingLeft="16dp"

@@ -1,34 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeightLarge"
-    android:foreground="?android:attr/selectableItemBackground"
-    android:minHeight="?android:attr/listPreferredItemHeightLarge" >
-    <RelativeLayout
+    android:background="@color/poi_item_bg"
+    android:clipChildren="false"
+    android:minHeight="?android:attr/listPreferredItemHeightLarge"
+    android:padding="8dp" >
+    <include
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_centerVertical="true"
+        layout="@layout/layout_poi_status_app"
+        android:minWidth="?android:attr/listPreferredItemHeight" />
+    <include
+        android:id="@+id/module_extra"
+        layout="@layout/layout_poi_module_extras" />
+    <include
+        android:id="@+id/poi"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/poi_item_bg"
-        android:clipChildren="false"
-        android:padding="8dp" >
-        <include
-            android:id="@+id/status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignWithParentIfMissing="true"
-            android:layout_centerVertical="true"
-            layout="@layout/layout_poi_status_app"
-            android:minWidth="?android:attr/listPreferredItemHeight" />
-        <include
-            android:id="@+id/module_extra"
-            layout="@layout/layout_poi_module_extras" />
-        <include
-            android:id="@+id/poi"
-            android:layout_width="match_parent"
-            android:layout_height="?android:attr/listPreferredItemHeightLarge"
-            android:layout_toLeftOf="@id/status"
-            android:layout_toRightOf="@id/module_extra"
-            layout="@layout/layout_poi_base_location" />
-    </RelativeLayout>
-</FrameLayout>
+        android:layout_height="?android:attr/listPreferredItemHeightLarge"
+        android:layout_toLeftOf="@id/status"
+        android:layout_toRightOf="@id/module_extra"
+        layout="@layout/layout_poi_base_location" />
+</RelativeLayout>
