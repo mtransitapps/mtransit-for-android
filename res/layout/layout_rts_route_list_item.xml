@@ -20,12 +20,10 @@
             android:layout_gravity="center"
             android:fontFamily="sans-serif-condensed"
             android:singleLine="true"
-            android:text="@string/default_route_short_name"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textSize="34sp"
             android:textStyle="bold"
             android:visibility="gone"
-            tools:text="@string/default_route_short_name"
             tools:visibility="visible" />
         <org.mtransit.android.ui.view.MTJPathsView
             android:id="@+id/route_type_img"
@@ -49,9 +47,7 @@
         android:paddingLeft="0dp"
         android:paddingRight="0dp"
         android:singleLine="true"
-        android:text="@string/default_route_long_name"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:visibility="gone"
-        tools:text="@string/default_route_long_name"
         tools:visibility="visible" />
 </LinearLayout>

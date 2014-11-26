@@ -16,7 +16,7 @@
         android:textSize="34sp"
         android:textStyle="bold"
         android:visibility="gone"
-        tools:text="@string/default_route_short_name" />
+        tools:visibility="visible" />
     <!-- ROUTE TYPE IMG -->
     <org.mtransit.android.ui.view.MTJPathsView
         android:id="@+id/route_type_img"
