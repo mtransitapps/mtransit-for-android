@@ -254,6 +254,7 @@ public final class AdsUtils implements MTLog.Loggable {
 				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
 				if (adView != null) {
 					adView.destroy();
+					adLoaded = null;
 				}
 			}
 		}
