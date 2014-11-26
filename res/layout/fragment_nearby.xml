@@ -8,7 +8,7 @@
     <org.mtransit.android.ui.view.SlidingTabLayout
         android:id="@+id/tabs"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="?android:attr/listPreferredItemHeightSmall"
         android:background="?attr/colorPrimary"
         android:visibility="gone" />
     <!-- LOADING -->

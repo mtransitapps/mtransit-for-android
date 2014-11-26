@@ -21,6 +21,7 @@ import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.view.SlidingTabLayout;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -37,7 +38,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 
-import com.viewpagerindicator.TitlePageIndicator;
 
 public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChangeListener, MTActivityWithLocation.UserLocationListener {
 
@@ -227,35 +227,22 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (view == null || this.adapter == null) {
 			return;
 		}
-		final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-		viewPager.setAdapter(this.adapter);
-		TitlePageIndicator tabs = (TitlePageIndicator) view.findViewById(R.id.tabs);
-		tabs.setViewPager(viewPager);
+		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
+		tabs.setCustomTabView(R.layout.layout_tab_indicator, R.id.tab_title);
+		tabs.setSelectedIndicatorColors(Color.WHITE);
 		tabs.setOnPageChangeListener(this);
 		setupTabTheme(view);
+		viewPager.setAdapter(this.adapter);
+		tabs.setViewPager(viewPager);
 	}
 
 	private void setupTabTheme(View view) {
 		if (view == null || this.route == null) {
 			return;
 		}
-		TitlePageIndicator tabs = (TitlePageIndicator) view.findViewById(R.id.tabs);
-		int routeTextColor = this.route.getTextColorInt();
-		int routeColor = this.route.getColorInt();
-		int bgColor = routeTextColor;
-		int textColor = routeColor;
-		tabs.setBackgroundColor(bgColor);
-		final int notSelectedTextColor;
-		if (bgColor == Color.BLACK) {
-			notSelectedTextColor = Color.WHITE;
-		} else if (bgColor == Color.WHITE) {
-			notSelectedTextColor = Color.BLACK;
-		} else {
-			notSelectedTextColor = textColor;
-		}
-		tabs.setTextColor(notSelectedTextColor);
-		tabs.setFooterColor(textColor);
-		tabs.setSelectedColor(textColor);
+		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
+		tabs.setBackgroundColor(getABBgColor(getActivity()));
 	}
 
 	@Override
