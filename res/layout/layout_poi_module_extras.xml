@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rts_extra"
+    android:id="@+id/module_type_img"
     android:layout_width="?android:attr/listPreferredItemHeight"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:layout_alignParentLeft="true"
-    android:layout_marginRight="8dp" >
-    <ImageView
-        android:id="@+id/module_type_img"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="center" />
-</FrameLayout>
+    android:layout_marginRight="8dp"
+    android:scaleType="center" />

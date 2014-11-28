@@ -1150,8 +1150,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	private void initModuleExtra(View convertView, ModuleViewHolder holder) {
-		holder.moduleExtraV = convertView.findViewById(R.id.module_extra);
-		holder.moduleTypeImg = (ImageView) convertView.findViewById(R.id.module_type_img);
+		holder.moduleTypeImg = (ImageView) convertView.findViewById(R.id.module_extra);
 	}
 
 	private View updateModuleView(POIManager poim, View convertView) {
@@ -1169,16 +1168,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (poim.poi instanceof Module) {
 			Module module = (Module) poim.poi;
 			if (!this.showExtra || module == null) {
-				holder.moduleExtraV.setVisibility(View.GONE);
+				holder.moduleTypeImg.setVisibility(View.GONE);
 			} else {
 				int color = module.getColorInt();
-				holder.moduleExtraV.setBackgroundColor(color);
+				holder.moduleTypeImg.setBackgroundColor(color);
 				DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
 				holder.moduleTypeImg.setImageResource(moduleType.getAbIconResId());
-				holder.moduleExtraV.setVisibility(View.VISIBLE);
+				holder.moduleTypeImg.setVisibility(View.VISIBLE);
 			}
 		} else {
-			holder.moduleExtraV.setVisibility(View.GONE);
+			holder.moduleTypeImg.setVisibility(View.GONE);
 		}
 	}
 
@@ -1537,7 +1536,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	public static class ModuleViewHolder extends CommonViewHolder {
-		View moduleExtraV;
 		ImageView moduleTypeImg;
 	}
 
