@@ -1,6 +1,8 @@
 package org.mtransit.android.data;
 
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.LocationUtils;
@@ -86,6 +88,17 @@ public class AgencyProperties implements MTLog.Loggable {
 		Area area = LocationUtils.getArea(lat, lng, aroundDiff);
 		final boolean isInArea = Area.areOverlapping(area, this.area);
 		return isInArea;
+	}
+
+	public static void removeType(Collection<AgencyProperties> agencies, DataSourceType typeToRemove) {
+		if (agencies != null) {
+			Iterator<AgencyProperties> it = agencies.iterator();
+			while (it.hasNext()) {
+				if (it.next().type == typeToRemove) {
+					it.remove();
+				}
+			}
+		}
 	}
 
 	private static class AgencyPropertiesShortNameComparator implements Comparator<AgencyProperties> {

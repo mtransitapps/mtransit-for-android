@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.data.Route;
@@ -17,6 +18,7 @@ import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTJPathsView;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -239,7 +241,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		}
 		this.fragmentVisible = true;
 		if (this.adapter == null || this.adapter.isEmpty()) {
-			getLoaderManager().restartLoader(ROUTES_LOADER, null, this);
+			LoaderUtils.restartLoader(getLoaderManager(), ROUTES_LOADER, null, this);
 		} else {
 			switchView(getView());
 		}
@@ -364,7 +366,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		if (menu.findItem(R.id.menu_toggle_list_grid) == null) {
-			inflater.inflate(R.menu.rts_agency_routes, menu);
+			inflater.inflate(R.menu.menu_rts_agency_routes, menu);
 			((MainActivity) getActivity()).getAbController().addMenuItem(R.id.menu_toggle_list_grid, menu.findItem(R.id.menu_toggle_list_grid));
 			if (!this.fragmentVisible) {
 				menu.findItem(R.id.menu_toggle_list_grid).setVisible(false);
@@ -481,7 +483,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			if (route == null) {
 				holder.routeFL.setVisibility(View.GONE);
 			} else {
-				int routeTextColor = route.getTextColorInt();
+				int routeTextColor = Color.WHITE;
 				int routeColor = route.getColorInt();
 				if (TextUtils.isEmpty(route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);

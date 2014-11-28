@@ -398,7 +398,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		} else if (position == ITEM_INDEX_FAVORITE) {
 			return FavoritesFragment.newInstance();
 		} else if (position == ITEM_INDEX_NEARBY) {
-			return NearbyFragment.newInstance(null, null);
+			return NearbyFragment.newInstance(null, null, null);
 			// else if (position == ITEM_INDEX_SEARCH) {
 			// return SearchFragment.newInstance();
 			// } else if (position == MenuAdapter.ITEM_INDEX_DIRECTIONS) {

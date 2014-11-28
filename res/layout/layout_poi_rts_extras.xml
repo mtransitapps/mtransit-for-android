@@ -44,9 +44,6 @@
             android:id="@+id/trip_heading_bg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="1dp"
-            android:layout_marginLeft="1dp"
-            android:layout_marginRight="1dp"
             android:visibility="gone"
             tools:visibility="visible" >
             <TextView
@@ -57,8 +54,8 @@
                 android:ellipsize="marquee"
                 android:fontFamily="sans-serif-condensed"
                 android:includeFontPadding="true"
-                android:paddingLeft="1dp"
-                android:paddingRight="1dp"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
                 android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceSmallInverse"
                 android:textStyle="bold"

@@ -42,10 +42,7 @@
         android:visibility="gone"
         tools:context=".ui.MainActivity"
         tools:listitem="@layout/layout_rts_route_list_item" />
-    <include
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/layout_shadow" />
+    <include layout="@layout/layout_shadow" />
     <!-- EMPTY -->
     <ViewStub
         android:id="@+id/empty_stub"

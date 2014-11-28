@@ -331,13 +331,13 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	public CharSequence[] getActionsItems(Context context, CharSequence defaultAction) {
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
-			return new CharSequence[] {//
+			return new CharSequence[] { //
 			defaultAction, //
 					FavoriteManager.isFavorite(context, poi.getUUID()) ? context.getString(R.string.remove_fav) : context.getString(R.string.add_fav) //
 			};
 		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
 			final RouteTripStop rts = (RouteTripStop) poi;
-			return new CharSequence[] {//
+			return new CharSequence[] { //
 					context.getString(R.string.view_stop), //
 					TextUtils.isEmpty(rts.route.shortName) ? context.getString(R.string.view_stop_route) : context.getString(
 							R.string.view_stop_route_and_route, rts.route.shortName), //
@@ -440,7 +440,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 		if (activity != null && activity instanceof MainActivity) {
 			final MainActivity mainActivity = (MainActivity) activity;
-			mainActivity.addFragmentToStack(POIFragment.newInstance(this, mainActivity.getUserLocation()));
+			mainActivity.addFragmentToStack(POIFragment.newInstance(POIManager.this, mainActivity.getUserLocation()));
 			return true; // HANDLED
 		}
 		return false; // NOT HANDLED
@@ -482,7 +482,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@Override
 	public boolean hasLocation() {
-		return this.poi.hasLocation();
+		return this.poi != null && this.poi.hasLocation();
 	}
 
 	private static class POIAlphaComparator implements Comparator<POIManager> {

@@ -3,6 +3,7 @@ package org.mtransit.android.ui.fragment;
 import java.util.ArrayList;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.data.POIArrayAdapter;
@@ -68,7 +69,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		if (this.adapter != null) {
 			this.adapter.onResume(getActivity());
 		} else {
-			getLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
+			LoaderUtils.restartLoader(getLoaderManager(), FAVORITES_LOADER, null, this);
 		}
 	}
 
@@ -157,12 +158,12 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 
 	@Override
 	public void onFavoriteUpdated() {
-		getLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
+		LoaderUtils.restartLoader(getLoaderManager(), FAVORITES_LOADER, null, this);
 	}
 
 	@Override
 	public void onModulesUpdated() {
-		getLoaderManager().restartLoader(FAVORITES_LOADER, null, this);
+		LoaderUtils.restartLoader(getLoaderManager(), FAVORITES_LOADER, null, this);
 	}
 
 	private void switchView(View view) {

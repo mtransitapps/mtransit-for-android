@@ -4,7 +4,8 @@
     <string name="home">Home</string>
     <string name="favorites">Favorites</string>
     <string name="nearby">Nearby</string>
-    <string name="action_search">Search</string>
+    <string name="menu_action_nearby">Nearby</string>
+    <string name="menu_action_search">Search</string>
     <string name="search_hint">Search MT</string>
     <string name="search_no_result_for_and_query">No results for %s</string>
     <string name="all">All</string>
@@ -47,6 +48,7 @@
     <string name="menu_action_add_favorite">Add to favroites</string>
     <string name="menu_action_remove_favorite">Remove from favorites</string>
     <string name="next_departures">Next Departures</string>
+    <string name="availability">Availability</string>
     <string name="full_schedule">Full Schedules</string>
     <string name="information">Information</string>
     <string name="warning">Warning</string>

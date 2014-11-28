@@ -10,6 +10,7 @@ import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StringUtils;
+import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
@@ -18,6 +19,7 @@ import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.SlidingTabLayout;
 
 import android.content.Context;
@@ -79,6 +81,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.menu_agency_type, menu);
 		final java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
@@ -92,6 +95,11 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_nearby:
+			((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newInstance(null, this.type, null));
+			return true; // handled
+		}
 		final java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
@@ -178,7 +186,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	private void initABColorizer() {
 		if (this.adapter != null) {
-			int defaultColor = ColorUtils.getThemeAttribute(getActivity(), R.attr.colorPrimary);
+			int defaultColor = ThemeUtils.resolveColorAttribute(getActivity(), R.attr.colorPrimary);
 			this.abColorizer = new ActionBarController.SimpleActionBarColorizer();
 			if (this.adapter.getCount() == 0) {
 				this.abColorizer.setBgColors(defaultColor);

@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/swiperefresh"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:paddingTop="?attr/actionBarSize" >
     <FrameLayout
         android:id="@+id/viewFlipper"
         android:layout_width="match_parent"
@@ -31,9 +32,6 @@
             android:inflatedId="@+id/empty"
             android:layout="@layout/layout_empty"
             android:visibility="gone" />
-        <include
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            layout="@layout/layout_shadow" />
+        <include layout="@layout/layout_shadow" />
     </FrameLayout>
 </org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout>

@@ -23,6 +23,21 @@
             android:inflatedId="@+id/content_frame_loading"
             android:layout="@layout/layout_loading_large"
             android:visibility="visible" />
+        <include
+            android:id="@+id/ab_toolbar_transparent"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_alignParentTop="true"
+            layout="@layout/layout_ab_gradient" />
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/ab_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_alignParentTop="true"
+            android:background="?attr/colorPrimary"
+            android:visibility="invisible"
+            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            tools:visibility="visible" />
     </RelativeLayout>
     <include
         android:id="@+id/left_drawer"

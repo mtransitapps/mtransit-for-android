@@ -3,14 +3,12 @@ package org.mtransit.android.task;
 import java.util.ArrayList;
 
 import org.mtransit.android.commons.CollectionUtils;
-import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.task.MTAsyncTaskLoaderV4;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
 
 import android.content.Context;
-import android.net.Uri;
 
 public class RTSAgencyRoutesLoader extends MTAsyncTaskLoaderV4<ArrayList<Route>> {
 
@@ -38,8 +36,7 @@ public class RTSAgencyRoutesLoader extends MTAsyncTaskLoaderV4<ArrayList<Route>>
 			return this.routes;
 		}
 		this.routes = new ArrayList<Route>();
-		final Uri contentUri = UriUtils.newContentUri(this.agency.getAuthority());
-		this.routes = DataSourceManager.findAllRTSAgencyRoutes(getContext(), contentUri);
+		this.routes = DataSourceManager.findAllRTSAgencyRoutes(getContext(), this.agency.getAuthority());
 		CollectionUtils.sort(this.routes, Route.SHORT_NAME_COMPATOR);
 		return routes;
 	}

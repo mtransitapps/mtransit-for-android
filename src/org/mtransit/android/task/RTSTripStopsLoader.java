@@ -2,7 +2,6 @@ package org.mtransit.android.task;
 
 import java.util.ArrayList;
 
-import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.GTFSRouteTripStopProvider;
 import org.mtransit.android.commons.provider.POIFilter;
@@ -11,7 +10,6 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
-import android.net.Uri;
 
 public class RTSTripStopsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
@@ -38,10 +36,9 @@ public class RTSTripStopsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager
 			return this.pois;
 		}
 		this.pois = new ArrayList<POIManager>();
-		final Uri contentUri = UriUtils.newContentUri(this.authority);
 		POIFilter poiFilter = new POIFilter(GTFSRouteTripStopProvider.RouteTripStopColumns.T_TRIP_K_ID + "=" + this.trip.id);
 		poiFilter.addExtra("sortOrder", GTFSRouteTripStopProvider.RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE + " ASC");
-		this.pois = DataSourceManager.findPOIs(getContext(), contentUri, poiFilter);
+		this.pois = DataSourceManager.findPOIs(getContext(), this.authority, poiFilter);
 		return pois;
 	}
 

@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
+import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
@@ -106,7 +106,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		this.authority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, savedInstanceState, getArguments());
 		this.tripId = BundleUtils.getInt(EXTRA_TRIP_ID, savedInstanceState, getArguments());
 		if (this.tripId != null) {
-			this.trip = DataSourceManager.findRTSTrip(getActivity(), UriUtils.newContentUri(this.authority), this.tripId);
+			this.trip = DataSourceManager.findRTSTrip(getActivity(), this.authority, this.tripId);
 		}
 		final Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, savedInstanceState, getArguments());
 		if (fragmentPosition != null) {
@@ -198,7 +198,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		this.fragmentVisible = true;
 		switchView(getView());
 		if (this.adapter == null) {
-			getLoaderManager().restartLoader(POIS_LOADER, null, this);
+			LoaderUtils.restartLoader(getLoaderManager(), POIS_LOADER, null, this);
 		} else {
 			this.adapter.onResume(getActivity());
 		}

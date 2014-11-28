@@ -1,9 +1,11 @@
 package org.mtransit.android.ui.fragment;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.ColorUtils;
+import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.task.ServiceUpdateLoader;
+import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.util.AnalyticsUtils;
@@ -39,7 +41,7 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 
 	public Integer getABBgColor(Context context) {
 		if (this.defaultABBgColor == null) {
-			this.defaultABBgColor = ColorUtils.getThemeAttribute(context, R.attr.colorPrimary);
+			this.defaultABBgColor = ThemeUtils.resolveColorAttribute(context, R.attr.colorPrimary);
 		}
 		return this.defaultABBgColor;
 	}
@@ -78,6 +80,13 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 	public void onResume() {
 		super.onResume();
 		AnalyticsUtils.trackScreenView(getActivity(), this);
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		StatusLoader.get().clearAllTasks();
+		ServiceUpdateLoader.get().clearAllTasks();
 	}
 
 	@Override

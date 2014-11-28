@@ -7,7 +7,6 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TimeUtils;
-import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.task.MTAsyncTask;
@@ -66,7 +65,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
-		final View view = inflater.inflate(R.layout.fragment_schedule, container, false);
+		View view = inflater.inflate(R.layout.fragment_schedule, container, false);
 		setupView(view);
 		switchView(view);
 		return view;
@@ -82,11 +81,11 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private void restoreInstanceState(Bundle savedInstanceState) {
-		final String authority = BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, getArguments());
-		final String uuid = BundleUtils.getString(EXTRA_POI_UUID, savedInstanceState, getArguments());
+		String authority = BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, getArguments());
+		String uuid = BundleUtils.getString(EXTRA_POI_UUID, savedInstanceState, getArguments());
 		if (!TextUtils.isEmpty(authority) && !TextUtils.isEmpty(uuid)) {
-			final POIFilter poiFilter = new POIFilter(Arrays.asList(new String[] { uuid }));
-			final POIManager poim = DataSourceManager.findPOI(getActivity(), UriUtils.newContentUri(authority), poiFilter);
+			POIFilter poiFilter = new POIFilter(Arrays.asList(new String[] { uuid }));
+			POIManager poim = DataSourceManager.findPOI(getActivity(), authority, poiFilter);
 			if (poim != null && poim.poi instanceof RouteTripStop) {
 				this.rts = (RouteTripStop) poim.poi;
 			}
@@ -226,8 +225,8 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public void onModulesUpdated() {
 		if (this.rts != null) {
-			final POIFilter poiFilter = new POIFilter(Arrays.asList(new String[] { this.rts.getUUID() }));
-			final POIManager newPoim = DataSourceManager.findPOI(getActivity(), UriUtils.newContentUri(this.rts.getAuthority()), poiFilter);
+			POIFilter poiFilter = new POIFilter(Arrays.asList(new String[] { this.rts.getUUID() }));
+			POIManager newPoim = DataSourceManager.findPOI(getActivity(), this.rts.getAuthority(), poiFilter);
 			if (newPoim == null) {
 				((MainActivity) getActivity()).popFragmentFromStack(this); // close this fragment
 				return;
@@ -315,7 +314,23 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (this.rts == null || this.agency == null) {
 			return super.getABSubtitle(context);
 		}
-		return this.agency.getShortName() + " - " + this.rts.route.shortName + " - " + this.rts.getName();
+		StringBuilder sb = new StringBuilder(this.agency.getShortName());
+		sb.append(" -");
+		if (!TextUtils.isEmpty(this.rts.route.shortName)) {
+			sb.append(" ").append(this.rts.route.shortName);
+		}
+		if (!TextUtils.isEmpty(this.rts.route.longName)) {
+			sb.append(" ").append(this.rts.route.longName);
+		}
+		return sb.toString();
+	}
+
+	@Override
+	public Integer getABBgColor(Context context) {
+		if (this.rts == null) {
+			return super.getABBgColor(context);
+		}
+		return this.rts.route.getColorInt();
 	}
 
 

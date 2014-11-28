@@ -2,6 +2,7 @@ package org.mtransit.android.ui.fragment;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -10,9 +11,14 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StringUtils;
+import org.mtransit.android.commons.data.RouteTripStop;
+import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.data.AgencyProperties;
+import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
+import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
@@ -30,6 +36,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,19 +63,28 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 	private static final String EXTRA_SELECTED_TYPE = "extra_selected_type";
 
-	public static NearbyFragment newInstance(Location nearbyLocationOpt, DataSourceType optType) {
+	private static final String EXTRA_FIXED_ON_POI_UUID = "extra_fixed_on_poi_uuid";
+
+	private static final String EXTRA_FIXED_ON_POI_AUTHORITY = "extra_fixed_on_poi_authority";
+
+	public static NearbyFragment newInstance(Location optNearbyLocation, DataSourceType optType, POIManager optFixedOnPoi) {
 		NearbyFragment f = new NearbyFragment();
 		Bundle args = new Bundle();
-		if (nearbyLocationOpt != null) {
-			args.putParcelable(EXTRA_NEARBY_LOCATION, nearbyLocationOpt);
+		if (optNearbyLocation != null) {
+			args.putParcelable(EXTRA_NEARBY_LOCATION, optNearbyLocation);
 		}
 		if (optType != null) {
 			args.putInt(EXTRA_SELECTED_TYPE, optType.getId());
+		}
+		if (optFixedOnPoi != null) {
+			args.putString(EXTRA_FIXED_ON_POI_UUID, optFixedOnPoi.poi.getUUID());
+			args.putString(EXTRA_FIXED_ON_POI_AUTHORITY, optFixedOnPoi.poi.getAuthority());
 		}
 		f.setArguments(args);
 		return f;
 	}
 
+	private boolean fixedOnPoi = false;
 	private int lastPageSelected = -1;
 	private AgencyTypePagerAdapter adapter;
 	private Location nearbyLocation;
@@ -76,8 +92,9 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	private Location userLocation;
 	private boolean userAwayFromNearbyLocation = true;
 	private MTAsyncTask<Location, Void, String> findNearbyLocationTask;
-
 	private Integer selectedTypeId = null;
+	private POIManager poim;
+	private AgencyProperties poimAgency;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -93,7 +110,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void initiateRefresh() {
-		if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation, 2)) {
+		if (this.fixedOnPoi || LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation, 2)) {
 			setSwipeRefreshLayoutRefreshing(false);
 			return;
 		}
@@ -133,10 +150,22 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		if (newSelectedId != null) {
 			this.selectedTypeId = newSelectedId;
 		}
-		Location newNearbyLocation = BundleUtils.getParcelable(EXTRA_NEARBY_LOCATION, savedInstanceState, getArguments());
-		if (newNearbyLocation != null) {
-			setNewNearbyLocation(newNearbyLocation);
+		String fixedOnPoiUUID = BundleUtils.getString(EXTRA_FIXED_ON_POI_UUID, savedInstanceState, getArguments());
+		String fixedOnPoiAuthority = BundleUtils.getString(EXTRA_FIXED_ON_POI_AUTHORITY, savedInstanceState, getArguments());
+		if (!TextUtils.isEmpty(fixedOnPoiUUID) && !TextUtils.isEmpty(fixedOnPoiAuthority)) {
+			this.fixedOnPoi = true;
+			this.poim = DataSourceManager.findPOI(getActivity(), fixedOnPoiAuthority, new POIFilter(Arrays.asList(new String[] { fixedOnPoiUUID })));
+			this.poimAgency = DataSourceProvider.get(getActivity()).getAgency(fixedOnPoiAuthority);
+			setNewNearbyLocation(LocationUtils.getNewLocation(this.poim.getLat(), this.poim.getLng()));
+			setupTabTheme(getView());
+		} else {
+			this.fixedOnPoi = false;
+			Location newNearbyLocation = BundleUtils.getParcelable(EXTRA_NEARBY_LOCATION, savedInstanceState, getArguments());
+			if (newNearbyLocation != null) {
+				setNewNearbyLocation(newNearbyLocation);
+			}
 		}
+		setSwipeRefreshLayoutEnabled(!this.fixedOnPoi);
 	}
 
 	@Override
@@ -215,10 +244,11 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			return;
 		}
 		if (this.adapter == null) {
-			this.adapter = new AgencyTypePagerAdapter(this, newAgencyTypes);
+			this.adapter = new AgencyTypePagerAdapter(this, newAgencyTypes, !this.fixedOnPoi);
 		} else if (CollectionUtils.getSize(newAgencyTypes) != CollectionUtils.getSize(this.adapter.getAvailableAgencyTypes())) {
 			this.adapter.setAvailableAgencyTypes(newAgencyTypes);
 			this.adapter.notifyDataSetChanged();
+			this.adapter.setSwipeRefreshLayoutEnabled(!this.fixedOnPoi);
 		}
 		this.adapter.setNearbyLocation(this.nearbyLocation);
 		setupAdapter(view);
@@ -226,7 +256,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 			viewPager.setCurrentItem(NearbyFragment.this.lastPageSelected);
 		} else {
-			this.lastPageSelected = 0;
 			new MTAsyncTask<Void, Void, Integer>() {
 
 				private final String TAG = NearbyFragment.class.getSimpleName() + ">LoadLastPageSelectedFromUserPreferences";
@@ -257,12 +286,14 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 				@Override
 				protected void onPostExecute(Integer lastPageSelected) {
-					if (NearbyFragment.this.lastPageSelected != 0) {
+					if (NearbyFragment.this.lastPageSelected >= 0) {
 						return; // user has manually move to another page before, too late
 					}
-					if (lastPageSelected != null) {
+					if (lastPageSelected == null) {
+						NearbyFragment.this.lastPageSelected = 0;
+					} else if (lastPageSelected != null) {
 						NearbyFragment.this.lastPageSelected = lastPageSelected.intValue();
-						final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+						ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 						viewPager.setCurrentItem(NearbyFragment.this.lastPageSelected);
 					}
 					switchView(view);
@@ -283,6 +314,13 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		tabs.setOnPageChangeListener(this);
 		tabs.setSelectedIndicatorColors(Color.WHITE);
 		setupAdapter(view);
+	}
+
+	private void setupTabTheme(View view) {
+		if (view == null) {
+			return;
+		}
+		view.findViewById(R.id.tabs).setBackgroundColor(getABBgColor(getActivity()));
 	}
 
 	private void setupAdapter(View view) {
@@ -314,7 +352,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 					this.adapter.setUserLocation(newLocation);
 				}
 			}
-			if (this.nearbyLocation == null) {
+			if (!this.fixedOnPoi && this.nearbyLocation == null) {
 				setNewNearbyLocation(newLocation);
 				locationChanged = true;
 			}
@@ -510,7 +548,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof NearbyAgencyTypeFragment) {
-					final NearbyAgencyTypeFragment nearbyAgencyTypeFragment = (NearbyAgencyTypeFragment) fragment;
+					NearbyAgencyTypeFragment nearbyAgencyTypeFragment = (NearbyAgencyTypeFragment) fragment;
 					nearbyAgencyTypeFragment.setNearbyFragment(this);
 					nearbyAgencyTypeFragment.setSwipeRefreshLayoutRefreshing(refreshing);
 				}
@@ -518,9 +556,39 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 	}
 
+	private void setSwipeRefreshLayoutEnabled(boolean enabled) {
+		final java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
+		if (fragments != null) {
+			for (Fragment fragment : fragments) {
+				if (fragment instanceof NearbyAgencyTypeFragment) {
+					NearbyAgencyTypeFragment nearbyAgencyTypeFragment = (NearbyAgencyTypeFragment) fragment;
+					nearbyAgencyTypeFragment.setNearbyFragment(this);
+					nearbyAgencyTypeFragment.setSwipeRefreshLayoutEnabled(enabled);
+				}
+			}
+		}
+	}
+
 	@Override
 	public CharSequence getABTitle(Context context) {
+		if (this.fixedOnPoi) {
+			if (this.poim != null) {
+				return this.poim.poi.getName();
+			}
+		}
 		return context.getString(R.string.nearby);
+	}
+
+	@Override
+	public Integer getABBgColor(Context context) {
+		if (this.fixedOnPoi) {
+			if (this.poim != null && this.poim.poi instanceof RouteTripStop) {
+				return ((RouteTripStop) this.poim.poi).route.getColorInt();
+			} else if (this.poimAgency != null) {
+				return this.poimAgency.getColorInt();
+			}
+		}
+		return super.getABBgColor(context);
 	}
 
 	@Override
@@ -549,12 +617,14 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		private int lastVisibleFragmentPosition = -1;
 		private WeakReference<NearbyFragment> nearbyFragmentWR;
 		private int saveStateCount = -1;
+		private boolean swipeRefreshLayoutEnabled = true;
 
-		public AgencyTypePagerAdapter(NearbyFragment nearbyFragment, ArrayList<DataSourceType> availableAgencyTypes) {
+		public AgencyTypePagerAdapter(NearbyFragment nearbyFragment, ArrayList<DataSourceType> availableAgencyTypes, boolean swipeRefreshLayoutEnabled) {
 			super(nearbyFragment.getChildFragmentManager());
 			this.contextWR = new WeakReference<Context>(nearbyFragment.getActivity());
 			this.availableAgencyTypes = availableAgencyTypes;
 			this.nearbyFragmentWR = new WeakReference<NearbyFragment>(nearbyFragment);
+			this.swipeRefreshLayoutEnabled = swipeRefreshLayoutEnabled;
 		}
 
 		@Override
@@ -595,6 +665,10 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 		public void setAvailableAgencyTypes(ArrayList<DataSourceType> availableAgencyTypes) {
 			this.availableAgencyTypes = availableAgencyTypes;
+		}
+
+		public void setSwipeRefreshLayoutEnabled(boolean swipeRefreshLayoutEnabled) {
+			this.swipeRefreshLayoutEnabled = swipeRefreshLayoutEnabled;
 		}
 
 		public int getTypeId(int position) {
@@ -669,6 +743,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			final NearbyAgencyTypeFragment f = NearbyAgencyTypeFragment.newInstance(position, this.lastVisibleFragmentPosition,
 					this.availableAgencyTypes.get(position), this.nearbyLocation, this.userLocation);
 			f.setNearbyFragment(this.nearbyFragmentWR == null ? null : this.nearbyFragmentWR.get());
+			f.setSwipeRefreshLayoutEnabled(this.swipeRefreshLayoutEnabled);
 			return f;
 		}
 

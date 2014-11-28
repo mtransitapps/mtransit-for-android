@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.KeyboardUtils;
+import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.StringUtils;
@@ -99,15 +100,13 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	}
 
 	@Override
-	public void onTypeHeaderButtonClick(int buttonId, DataSourceType type) {
+	public boolean onTypeHeaderButtonClick(int buttonId, DataSourceType type) {
 		if (buttonId == POIArrayAdapter.TypeHeaderButtonsClickListener.BUTTON_MORE) {
 			KeyboardUtils.hideKeyboard(getActivity(), getView());
 			setTypeFilter(TypeFilter.fromDataSourceType(type));
-			return;
+			return true; // handled
 		}
-		if (this.adapter != null) {
-			this.adapter.onTypeHeaderButtonClick(buttonId, type);
-		}
+		return false; // not handled
 	}
 
 	private void setupAdapter(View view) {
@@ -201,7 +200,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	@Override
 	public void onModulesUpdated() {
 		getTypeFiltersAdapter().reset();
-		getLoaderManager().restartLoader(POI_SEARCH_LOADER, null, this);
+		LoaderUtils.restartLoader(getLoaderManager(), POI_SEARCH_LOADER, null, this);
 	}
 
 	private static final int POI_SEARCH_LOADER = 0;
@@ -266,7 +265,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 				this.adapter.clear();
 			}
 			switchView(getView());
-			getLoaderManager().restartLoader(POI_SEARCH_LOADER, null, this);
+			LoaderUtils.restartLoader(getLoaderManager(), POI_SEARCH_LOADER, null, this);
 		}
 	}
 
@@ -314,7 +313,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	private class RestartSearchLater implements Runnable {
 		@Override
 		public void run() {
-			getLoaderManager().restartLoader(POI_SEARCH_LOADER, null, SearchFragment.this);
+			LoaderUtils.restartLoader(SearchFragment.this.getLoaderManager(), POI_SEARCH_LOADER, null, SearchFragment.this);
 			cancelRestartSearchLater();
 		}
 	}

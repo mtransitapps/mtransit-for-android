@@ -124,7 +124,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	@Override
 	protected void onRestart() {
 		super.onRestart();
-		DataSourceProvider.reset(this);
+		DataSourceProvider.resetIfNecessary(this);
 		popFragmentsToPop();
 	}
 

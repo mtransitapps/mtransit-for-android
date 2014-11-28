@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
-import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.provider.ContentProviderConstants;
 import org.mtransit.android.commons.provider.MTSearchRecentSuggestionsProvider;
 import org.mtransit.android.commons.task.MTCallable;
@@ -164,8 +163,7 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 
 		@Override
 		public HashSet<String> callMT() throws Exception {
-			final Uri agencyUri = UriUtils.newContentUri(this.agency.getAuthority());
-			return DataSourceManager.findSearchSuggest(this.context, agencyUri, this.query);
+			return DataSourceManager.findSearchSuggest(this.context, this.agency.getAuthority(), this.query);
 		}
 	}
 

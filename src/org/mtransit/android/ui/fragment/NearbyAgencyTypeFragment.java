@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
-import org.mtransit.android.commons.ColorUtils;
+import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
-import org.mtransit.android.commons.LocationUtils.AroundDiff;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
@@ -68,15 +68,14 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		return f;
 	}
 
-	private static final int NEARBY_POIS_LOADER = 0;
-
 	private DataSourceType type;
 	private POIArrayAdapter adapter;
-	private AroundDiff ad = LocationUtils.getNewDefaultAroundDiff();
+	private LocationUtils.AroundDiff ad = LocationUtils.getNewDefaultAroundDiff();
 	private String emptyText;
 	private Location nearbyLocation;
 	private Location userLocation;
 	private ListViewSwipeRefreshLayout swipeRefreshLayout;
+	private boolean swipeRefreshLayoutEnabled = true;
 	private int fragmentPosition = -1;
 	private int lastVisibleFragmentPosition = -1;
 	private boolean resumed = false;
@@ -118,7 +117,8 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			return;
 		}
 		this.swipeRefreshLayout = (ListViewSwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
-		this.swipeRefreshLayout.setColorSchemeColors(ColorUtils.getThemeAttribute(getActivity(), R.attr.colorAccent));
+		this.swipeRefreshLayout.setColorSchemeColors(ThemeUtils.resolveColorAttribute(getActivity(), R.attr.colorAccent));
+		setSwipeRefreshLayoutEnabled(this.swipeRefreshLayoutEnabled);
 		if (this.adapter != null) {
 			inflateList(view);
 			this.adapter.setListView((AbsListView) view.findViewById(R.id.list));
@@ -192,6 +192,13 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			} else {
 				this.swipeRefreshLayout.setRefreshing(false);
 			}
+		}
+	}
+
+	public void setSwipeRefreshLayoutEnabled(boolean swipeRefreshLayoutEnabled) {
+		this.swipeRefreshLayoutEnabled = swipeRefreshLayoutEnabled;
+		if (this.swipeRefreshLayout != null) {
+			this.swipeRefreshLayout.setRefreshEnabled(swipeRefreshLayoutEnabled);
 		}
 	}
 
@@ -311,7 +318,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		}
 		this.ad = LocationUtils.getNewDefaultAroundDiff();
 		if (this.nearbyLocation != null) {
-			getLoaderManager().restartLoader(NEARBY_POIS_LOADER, null, this);
+			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
 		}
 	}
 
@@ -417,8 +424,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			}
 			this.typeAgencies = NearbyPOIListLoader.findTypeAgencies(getActivity(), this.type, this.nearbyLocation.getLatitude(),
 					this.nearbyLocation.getLongitude(), this.ad.aroundDiff);
-			NearbyPOIListLoader nearbyPOIListLoader = new NearbyPOIListLoader(getActivity(), this.typeAgencies, this.nearbyLocation.getLatitude(),
-					this.nearbyLocation.getLongitude(), this.ad.aroundDiff, LocationUtils.MIN_NEARBY_LIST_COVERAGE, LocationUtils.MAX_NEARBY_LIST);
+			NearbyPOIListLoader nearbyPOIListLoader = new NearbyPOIListLoader(getActivity(), this.nearbyLocation.getLatitude(),
+					this.nearbyLocation.getLongitude(), this.ad.aroundDiff, LocationUtils.MIN_NEARBY_LIST_COVERAGE, LocationUtils.MAX_NEARBY_LIST, false,
+					this.typeAgencies);
 			return nearbyPOIListLoader;
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
@@ -440,12 +448,11 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			float distanceInKm = LocationUtils.getAroundCoveredDistance(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), ad.aroundDiff) / 1000;
 			this.emptyText = String.format("%s stops found within %s km", dataSize, distanceInKm);
 		}
-		LocationUtils.removeTooMuchWhenNotInCoverage(data, LocationUtils.MIN_NEARBY_LIST_COVERAGE, LocationUtils.MAX_NEARBY_LIST);
 		// IF not enough POIs found AND maximum around location not reached DO
 		if (dataSize < LocationUtils.MIN_NEARBY_LIST && ad.aroundDiff < LocationUtils.MAX_AROUND_DIFF) {
 			// try with larger around location
 			LocationUtils.incAroundDiff(this.ad);
-			getLoaderManager().restartLoader(NEARBY_POIS_LOADER, null, this);
+			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
 		} else {
 			if (this.adapter == null) {
 				initAdapter();

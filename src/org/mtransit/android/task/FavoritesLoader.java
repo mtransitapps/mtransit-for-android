@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.mtransit.android.commons.CollectionUtils;
-import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.task.MTAsyncTaskLoaderV4;
@@ -17,7 +16,6 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
 
 import android.content.Context;
-import android.net.Uri;
 
 public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
@@ -40,14 +38,13 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			return this.pois;
 		}
 		this.pois = new ArrayList<POIManager>();
-		final ArrayList<Favorite> favorites = FavoriteManager.findFavorites(getContext());
-		final HashMap<String, HashSet<String>> authorityToUUIDs = splitByAgency(favorites);
+		ArrayList<Favorite> favorites = FavoriteManager.findFavorites(getContext());
+		HashMap<String, HashSet<String>> authorityToUUIDs = splitByAgency(favorites);
 		if (authorityToUUIDs != null && authorityToUUIDs.size() > 0) {
 			for (String authority : authorityToUUIDs.keySet()) {
-				final HashSet<String> authorityUUIDs = authorityToUUIDs.get(authority);
+				HashSet<String> authorityUUIDs = authorityToUUIDs.get(authority);
 				if (authorityUUIDs != null && authorityUUIDs.size() > 0) {
-					final Uri contentUri = UriUtils.newContentUri(authority);
-					final ArrayList<POIManager> agencyPOIs = DataSourceManager.findPOIs(getContext(), contentUri, new POIFilter(authorityUUIDs));
+					ArrayList<POIManager> agencyPOIs = DataSourceManager.findPOIs(getContext(), authority, new POIFilter(authorityUUIDs));
 					if (agencyPOIs != null) {
 						Collections.sort(agencyPOIs, POIManager.POI_ALPHA_COMPATOR);
 						this.pois.addAll(agencyPOIs);
@@ -63,8 +60,8 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 		HashMap<String, HashSet<String>> authorityToUUIDs = new HashMap<String, HashSet<String>>();
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {
-				final String uuid = favorite.getFkId();
-				final String authority = POI.POIUtils.extractAuthorityFromUUID(uuid);
+				String uuid = favorite.getFkId();
+				String authority = POI.POIUtils.extractAuthorityFromUUID(uuid);
 				if (!authorityToUUIDs.containsKey(authority)) {
 					authorityToUUIDs.put(authority, new HashSet<String>());
 				}

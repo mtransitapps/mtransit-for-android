@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.mtransit.android.commons.TimeUtils;
-import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ScheduleTimestamps;
@@ -15,7 +14,6 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.ScheduleProviderProperties;
 
 import android.content.Context;
-import android.net.Uri;
 
 public class ScheduleTimestampsLoader extends MTAsyncTaskLoaderV4<ArrayList<Schedule.Timestamp>> {
 
@@ -48,8 +46,7 @@ public class ScheduleTimestampsLoader extends MTAsyncTaskLoaderV4<ArrayList<Sche
 				this.rts.getAuthority());
 		if (scheduleProviders != null) {
 			for (ScheduleProviderProperties scheduleProvider : scheduleProviders) {
-				Uri contentUri = UriUtils.newContentUri(scheduleProvider.getAuthority());
-				ScheduleTimestamps scheduleTimestamps = DataSourceManager.findScheduleTimestamps(getContext(), contentUri, scheduleFilter);
+				ScheduleTimestamps scheduleTimestamps = DataSourceManager.findScheduleTimestamps(getContext(), scheduleProvider.getAuthority(), scheduleFilter);
 				if (scheduleTimestamps != null && scheduleTimestamps.getTimestampsCount() > 0) {
 					this.timestamps = scheduleTimestamps.getTimestamps();
 				}

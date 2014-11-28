@@ -20,6 +20,7 @@ public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MT
 		return TAG;
 	}
 
+	private boolean refreshEnabled = true;
 	private WeakReference<AbsListView> listViewWR;
 	private WeakReference<View> loadingViewWR;
 	private WeakReference<View> emptyViewWR;
@@ -44,8 +45,15 @@ public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MT
 		this.emptyViewWR = new WeakReference<View>(emptyView);
 	}
 
+	public void setRefreshEnabled(boolean refreshEnabled) {
+		this.refreshEnabled = refreshEnabled;
+	}
+
 	@Override
 	public boolean canChildScrollUp() {
+		if (!this.refreshEnabled) {
+			return true;
+		}
 		final AbsListView listView = this.listViewWR == null ? null : this.listViewWR.get();
 		if (listView != null && listView.getVisibility() == View.VISIBLE) {
 			final boolean canListViewScrollUp = canListViewScrollUp(listView);

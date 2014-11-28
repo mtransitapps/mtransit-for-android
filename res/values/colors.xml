@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="mt_blue_malibu">#6699FF</color>
-    <color name="mt_blue_smalt">#003399</color>
+    <color name="mt_blue_malibu">#6699FF</color><!-- dark blue -->
+    <color name="mt_blue_smalt">#003399</color><!-- light blue -->
     <color name="window_background">@color/platform_background_holo_light_gradient_start_color</color>
     <color name="menu_bg">@color/window_background</color>
     <color name="menu_item_bg">@android:color/white</color>

@@ -7,7 +7,9 @@ import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
+import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
+import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
@@ -39,7 +41,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 	}
 
-	public static void initViewHolder(POIManager poim, View view) {
+	public static void initViewHolder(AgencyProperties agency, POIManager poim, View view) {
 		switch (poim.getStatusType()) {
 		case POI.ITEM_STATUS_TYPE_APP:
 			initAppStatusViewHolder(poim, view);
@@ -48,7 +50,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			initScheduleViewHolder(poim, view);
 			break;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			initAvailabilityPercentViewHolder(poim, view);
+			initAvailabilityPercentViewHolder(agency, poim, view);
 			break;
 		default:
 			MTLog.w(TAG, "initViewHolder() > Unknow view status type for poi %s!", poim);
@@ -62,12 +64,19 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		view.setTag(appStatusViewHolder);
 	}
 
-	private static void initAvailabilityPercentViewHolder(POIManager poim, View view) {
+	private static void initAvailabilityPercentViewHolder(AgencyProperties agency, POIManager poim, View view) {
 		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = new AvailabilityPercentStatusViewHolder();
 		initCommonStatusViewHolderHolder(availabilityPercentStatusViewHolder, view);
 		availabilityPercentStatusViewHolder.textTv1 = (TextView) view.findViewById(R.id.progress_text1);
 		availabilityPercentStatusViewHolder.textTv2 = (TextView) view.findViewById(R.id.progress_text2);
 		availabilityPercentStatusViewHolder.progressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
+		if (poim != null && poim.poi instanceof RouteTripStop) {
+			availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter( //
+					((RouteTripStop) poim.poi).route.getColorInt(), PorterDuff.Mode.SRC_IN);
+		} else if (agency != null) {
+			availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter( //
+					agency.getColorInt(), PorterDuff.Mode.SRC_IN);
+		}
 		view.setTag(availabilityPercentStatusViewHolder);
 	}
 
@@ -111,12 +120,12 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 	}
 
-	public static void updateView(Context context, View view, POIManager poim, POIViewController.POIDataProvider dataProvider) {
+	public static void updateView(Context context, View view, AgencyProperties agency, POIManager poim, POIViewController.POIDataProvider dataProvider) {
 		if (view == null) {
 			return;
 		}
 		if (view.getTag() == null || !(view.getTag() instanceof CommonStatusViewHolder)) {
-			initViewHolder(poim, view);
+			initViewHolder(agency, poim, view);
 		}
 		CommonStatusViewHolder holder = (CommonStatusViewHolder) view.getTag();
 		updateView(context, holder, poim, dataProvider);
@@ -194,8 +203,6 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			availabilityPercentStatusViewHolder.progressBar.setIndeterminate(false);
 			availabilityPercentStatusViewHolder.progressBar.setMax(availabilityPercent.getTotalValue());
 			availabilityPercentStatusViewHolder.progressBar.setProgress(availabilityPercent.getValue1());
-			availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter(//
-					availabilityPercent.getValue1Color(), PorterDuff.Mode.SRC_IN);
 			availabilityPercentStatusViewHolder.progressBar.setVisibility(View.VISIBLE);
 			setStatusView(statusViewHolder, true);
 		} else {

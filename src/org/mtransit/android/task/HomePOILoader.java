@@ -52,7 +52,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 		}
 		this.pois = new ArrayList<POIManager>();
 		HashSet<String> favoriteUUIDs = FavoriteManager.findFavoriteUUIDs(getContext());
-		final ArrayList<DataSourceType> availableAgencyTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
+		ArrayList<DataSourceType> availableAgencyTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
 		if (availableAgencyTypes != null) {
 			for (DataSourceType type : availableAgencyTypes) {
 				ArrayList<POIManager> typePOIs = findNearby(getContext(), type, this.lat, this.lng);
@@ -73,8 +73,8 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 			POIManager poim = it.next();
 			if (!favoriteUUIDs.contains(poim.poi.getUUID())) {
 				if (poim.poi instanceof RouteTripStop) {
-					final RouteTripStop rts = (RouteTripStop) poim.poi;
-					final String routeTripId = rts.route.id + "-" + rts.trip.id;
+					RouteTripStop rts = (RouteTripStop) poim.poi;
+					String routeTripId = rts.route.id + "-" + rts.trip.id;
 					if (routeTripKept.contains(routeTripId) && lastKeptDistance != poim.getDistance()) {
 						it.remove();
 						continue;
@@ -89,8 +89,8 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 				continue;
 			}
 			if (poim.poi instanceof RouteTripStop) {
-				final RouteTripStop rts = (RouteTripStop) poim.poi;
-				final String routeTripId = rts.route.id + "-" + rts.trip.id;
+				RouteTripStop rts = (RouteTripStop) poim.poi;
+				String routeTripId = rts.route.id + "-" + rts.trip.id;
 				routeTripKept.add(routeTripId);
 			}
 			lastKeptDistance = poim.getDistance();
@@ -103,8 +103,8 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 		LocationUtils.AroundDiff typeAd = LocationUtils.getNewDefaultAroundDiff();
 		int typeMaxSize = LocationUtils.MIN_NEARBY_LIST_COVERAGE;
 		int typeMinCoverage = LocationUtils.MAX_NEARBY_LIST;
-		Collection<AgencyProperties> typeAgencies = DataSourceProvider.get(context).getTypeDataSources(type.getId());
 		while (CollectionUtils.getSize(typePOIs) < NB_MAX_BY_TYPE && typeAd.aroundDiff < LocationUtils.MAX_AROUND_DIFF) {
+			Collection<AgencyProperties> typeAgencies = DataSourceProvider.get(context).getTypeDataSources(type.getId());
 			typePOIs = findNearby(context, typeLat, typeLng, typeAd, typeMaxSize, typeMinCoverage, typeAgencies);
 			LocationUtils.incAroundDiff(typeAd);
 		}
@@ -114,21 +114,21 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 	private ArrayList<POIManager> findNearby(Context context, double typeLat, double typeLng, LocationUtils.AroundDiff typeAd, int typeMaxSize,
 			int typeMinCoverage, Collection<AgencyProperties> typeAgencies) {
 		ArrayList<POIManager> typePOIs = new ArrayList<POIManager>();
-		ArrayList<String> typeAgenciesAuthorities = findTypeAgenciesAuthorities(typeLat, typeLng, typeAd, typeAgencies);
-		if (CollectionUtils.getSize(typeAgenciesAuthorities) == 0) {
+		NearbyPOIListLoader.filterAgencies(typeAgencies, typeLat, typeLng, typeAd);
+		if (CollectionUtils.getSize(typeAgencies) == 0) {
 			return typePOIs;
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,
-				new LinkedBlockingDeque<Runnable>(typeAgenciesAuthorities.size()));
+				new LinkedBlockingDeque<Runnable>(typeAgencies.size()));
 		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
-		for (String agencyAuthority : typeAgenciesAuthorities) {
-			final FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(context, DataSourceProvider.get(context).getUri(agencyAuthority), typeLat,
-					typeLng, typeAd.aroundDiff, true, typeMinCoverage, typeMaxSize);
+		for (AgencyProperties agency : typeAgencies) {
+			FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(context, agency.getAuthority(), typeLat, typeLng, typeAd.aroundDiff, true,
+					typeMinCoverage, typeMaxSize);
 			taskList.add(executor.submit(task));
 		}
 		for (Future<ArrayList<POIManager>> future : taskList) {
 			try {
-				final ArrayList<POIManager> agencyNearbyStops = future.get();
+				ArrayList<POIManager> agencyNearbyStops = future.get();
 				typePOIs.addAll(agencyNearbyStops);
 			} catch (Exception e) {
 				MTLog.w(TAG, e, "Error while loading in background!");
@@ -140,18 +140,6 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 		return typePOIs;
 	}
 
-	private static ArrayList<String> findTypeAgenciesAuthorities(double typeLat, double typeLng, LocationUtils.AroundDiff typeAd,
-			Collection<AgencyProperties> typeAgencies) {
-		ArrayList<String> typeAgenciesAuthorities = new ArrayList<String>();
-		if (typeAgencies != null) {
-			for (AgencyProperties agency : typeAgencies) {
-				if (agency.isInArea(typeLat, typeLng, typeAd.aroundDiff)) {
-					typeAgenciesAuthorities.add(agency.getAuthority());
-				}
-			}
-		}
-		return typeAgenciesAuthorities;
-	}
 
 	@Override
 	protected void onStartLoading() {

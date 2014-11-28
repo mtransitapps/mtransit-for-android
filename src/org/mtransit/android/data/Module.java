@@ -96,7 +96,7 @@ public class Module extends DefaultPOI {
 
 	@Override
 	public boolean hasLocation() {
-		return false;
+		return true; // required for distance sort
 	}
 
 	@Override

@@ -13,6 +13,7 @@ import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SensorUtils;
+import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
@@ -24,8 +25,8 @@ import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.provider.FavoriteManager;
-import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.task.ServiceUpdateLoader;
+import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
@@ -38,6 +39,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -53,6 +55,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -325,12 +328,40 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return false;
 	}
 
-	public boolean showPoiViewerScreen(int position) {
-		final POIManager poim = getItem(position);
-		if (poim != null) {
-			return showPoiViewerScreen(poim);
-		}
-		return false;
+	public static interface OnPOISelectedListener {
+		public boolean onPOISelected(POIManager poim);
+	}
+
+	private WeakReference<OnPOISelectedListener> onPoiSelectedListenerWR;
+
+	public void setOnPoiSelectedListener(OnPOISelectedListener onPoiSelectedListener) {
+		this.onPoiSelectedListenerWR = new WeakReference<POIArrayAdapter.OnPOISelectedListener>(onPoiSelectedListener);
+	}
+
+	public void showPoiViewerScreen(int position) {
+		new MTAsyncTask<Integer, Void, POIManager>() {
+
+			@Override
+			public String getLogTag() {
+				return POIArrayAdapter.class.getSimpleName() + ">showPoiViewerScreen";
+			}
+
+			@Override
+			protected POIManager doInBackgroundMT(Integer... params) {
+				return getItem(params[0]);
+			}
+
+			@Override
+			protected void onPostExecute(POIManager poim) {
+				if (poim != null) {
+					OnPOISelectedListener listerner = POIArrayAdapter.this.onPoiSelectedListenerWR == null ? null
+							: POIArrayAdapter.this.onPoiSelectedListenerWR.get();
+					if (listerner == null || !listerner.onPOISelected(poim)) {
+						showPoiViewerScreen(poim);
+					}
+				}
+			}
+		}.execute(position);
 	}
 
 	public boolean showPoiMenu(int position) {
@@ -603,6 +634,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			int position = 0;
 			for (int i = 0; i < this.manualLayout.getChildCount(); i++) {
 				View view = this.manualLayout.getChildAt(i);
+				if (view instanceof FrameLayout) {
+					view = ((FrameLayout) view).getChildAt(0);
+				}
 				Object tag = view.getTag();
 				if (tag != null && tag instanceof CommonViewHolder) {
 					updateCommonViewManual(position, view);
@@ -626,14 +660,21 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					this.manualLayout.addView(this.layoutInflater.inflate(R.layout.list_view_divider, this.manualLayout, false));
 				}
 				View view = getView(i, null, this.manualLayout);
+				FrameLayout frameLayout = new FrameLayout(getContext());
+				frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+				frameLayout.addView(view);
+				View selectorView = new View(getContext());
+				selectorView.setBackground(ThemeUtils.obtainStyledDrawable(getContext(), R.attr.selectableItemBackground));
+				selectorView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+				frameLayout.addView(selectorView);
 				final int position = i;
-				view.setOnClickListener(new View.OnClickListener() {
+				frameLayout.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						showPoiViewerScreen(position);
 					}
 				});
-				this.manualLayout.addView(view);
+				this.manualLayout.addView(frameLayout);
 			}
 		}
 	}
@@ -831,11 +872,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		this.typeHeaderButtonsClickListenerWR = new WeakReference<TypeHeaderButtonsClickListener>(listener);
 	}
 
-	public void onTypeHeaderButtonClick(int buttonId, DataSourceType type) {
+	private void onTypeHeaderButtonClick(int buttonId, DataSourceType type) {
 		final TypeHeaderButtonsClickListener listener = POIArrayAdapter.this.typeHeaderButtonsClickListenerWR == null ? null
 				: POIArrayAdapter.this.typeHeaderButtonsClickListenerWR.get();
-		if (listener != null) {
-			listener.onTypeHeaderButtonClick(buttonId, type);
+		if (listener != null && listener.onTypeHeaderButtonClick(buttonId, type)) {
 			return;
 		}
 		switch (buttonId) {
@@ -851,7 +891,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			if (type != null) {
 				final Activity activity = this.activityWR == null ? null : this.activityWR.get();
 				if (activity != null) {
-					((MainActivity) activity).addFragmentToStack(NearbyFragment.newInstance(null, type));
+					((MainActivity) activity).addFragmentToStack(NearbyFragment.newInstance(null, type, null));
 				}
 			}
 			break;
@@ -876,6 +916,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			holder.nameTv = (TextView) convertView.findViewById(R.id.name);
 			holder.nearbyBtn = convertView.findViewById(R.id.nearbyBtn);
 			holder.allBtn = convertView.findViewById(R.id.allBtn);
+			holder.allBtnTv = (TextView) convertView.findViewById(R.id.allBtnTv);
 			holder.moreBtn = convertView.findViewById(R.id.moreBtn);
 			convertView.setTag(holder);
 		}
@@ -1201,7 +1242,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				holder.routeFL.setVisibility(View.GONE);
 				holder.tripHeadingBg.setVisibility(View.GONE);
 			} else {
-				int routeTextColor = rts.route.getTextColorInt();
+				int routeTextColor = Color.WHITE;
 				int routeColor = rts.route.getColorInt();
 				if (TextUtils.isEmpty(rts.route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
@@ -1237,8 +1278,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				if (rts.trip == null) {
 					holder.tripHeadingBg.setVisibility(View.GONE);
 				} else {
-					holder.tripHeadingTv.setTextColor(routeColor);
-					holder.tripHeadingBg.setBackgroundColor(routeTextColor);
+					holder.tripHeadingTv.setTextColor(Color.WHITE);
+					holder.tripHeadingBg.setBackgroundColor(Color.BLACK);
 					holder.tripHeadingTv.setText(rts.trip.getHeading(getContext()).toUpperCase(Locale.getDefault()));
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}
@@ -1445,7 +1486,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		this.refreshFavoritesTask = new MTAsyncTask<Integer, Void, ArrayList<Favorite>>() {
 			@Override
 			public String getLogTag() {
-				return POIArrayAdapter.this.getLogTag();
+				return POIArrayAdapter.this.getLogTag() + ">refreshFavoritesTask";
 			}
 
 			@Override
@@ -1543,6 +1584,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public static class TypeHeaderViewHolder {
 		TextView nameTv;
+		TextView allBtnTv;
 		View allBtn;
 		View nearbyBtn;
 		View moreBtn;
@@ -1554,7 +1596,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		public static final int BUTTON_NEARBY = 1;
 		public static final int BUTTON_ALL = 2;
 
-		public void onTypeHeaderButtonClick(int buttonId, DataSourceType type);
+		public boolean onTypeHeaderButtonClick(int buttonId, DataSourceType type);
 	}
 
 }

@@ -18,7 +18,6 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ServiceUpdateProviderProperties;
 
 import android.content.Context;
-import android.net.Uri;
 
 public class ServiceUpdateLoader implements MTLog.Loggable {
 
@@ -55,7 +54,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	}
 
 	public boolean isBusy() {
-		final boolean busy = this.fetchServiceUpdateExecutor != null && this.fetchServiceUpdateExecutor.getActiveCount() > 0;
+		boolean busy = this.fetchServiceUpdateExecutor != null && this.fetchServiceUpdateExecutor.getActiveCount() > 0;
 		return busy;
 	}
 
@@ -75,7 +74,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 				poim.poi.getAuthority());
 		if (providers != null) {
 			for (final ServiceUpdateProviderProperties provider : providers) {
-				final ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, provider, poim, serviceUpdateFilter);
+				ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, provider, poim, serviceUpdateFilter);
 				task.executeOnExecutor(getFetchServiceUpdateExecutor());
 				break;
 			}
@@ -140,8 +139,8 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 			if (this.serviceUpdateFilter == null) {
 				return null;
 			}
-			final Uri uri = DataSourceProvider.get(context).getUri(this.serviceUpdateProvider.getAuthority());
-			final Collection<ServiceUpdate> serviceUpdates = DataSourceManager.findServiceUpdates(context, uri, this.serviceUpdateFilter);
+			Collection<ServiceUpdate> serviceUpdates = DataSourceManager.findServiceUpdates(context, this.serviceUpdateProvider.getAuthority(),
+					this.serviceUpdateFilter);
 			return serviceUpdates;
 		}
 

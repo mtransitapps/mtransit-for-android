@@ -107,6 +107,15 @@ public class JPaths implements MTLog.Loggable {
 			this.form = form;
 			this.rotation = rotation;
 		}
+
+		@Override
+		public String toString() {
+			return new StringBuilder(JPath.class.getSimpleName()).append('[') //
+					.append("paint:").append(paint).append(',') //
+					.append("form:").append(form).append(',') //
+					.append("rotation:").append(rotation) //
+					.append(']').toString(); //
+		}
 	}
 
 	public static class JPaint {
@@ -151,6 +160,14 @@ public class JPaths implements MTLog.Loggable {
 				return null;
 			}
 		}
+
+		@Override
+		public String toString() {
+			return new StringBuilder(JPaint.class.getSimpleName()).append('[') //
+					.append("style:").append(style).append(',') //
+					.append("strokeWidth:").append(strokeWidth) //
+					.append(']').toString(); //
+		}
 	}
 
 	public static abstract class JForm {
@@ -182,6 +199,13 @@ public class JPaths implements MTLog.Loggable {
 				MTLog.w(TAG, e, "Error while parsing JSON!");
 				return null;
 			}
+		}
+
+		@Override
+		public String toString() {
+			return new StringBuilder(getClass().getSimpleName()).append('[') //
+					.append("getFormType():").append(getFormType()) //
+					.append(']').toString(); //
 		}
 	}
 
@@ -322,6 +346,15 @@ public class JPaths implements MTLog.Loggable {
 				MTLog.w(TAG, e, "Error while parsing JSON!");
 				return null;
 			}
+		}
+
+		@Override
+		public String toString() {
+			return new StringBuilder(JRotation.class.getSimpleName()).append('[') //
+					.append("degrees:").append(degrees).append(',') //
+					.append("px:").append(px).append(',') //
+					.append("py:").append(py) //
+					.append(']').toString(); //
 		}
 	}
 }

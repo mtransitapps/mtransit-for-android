@@ -4,4 +4,5 @@
     <dimen name="list_view_divider_height">1dp</dimen>
     <dimen name="list_view_serarator_height">2dp</dimen>
     <dimen name="grid_view_spacing">1dp</dimen>
+    <dimen name="large_header_height">180dp</dimen>
 </resources>

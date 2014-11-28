@@ -13,7 +13,6 @@ import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
-import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.task.MTAsyncTaskLoaderV4;
 import org.mtransit.android.commons.task.MTCallable;
@@ -65,8 +64,8 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 		}
 		HashSet<String> favoriteUUIDs = FavoriteManager.findFavoriteUUIDs(getContext());
 		POISearchComparator poiSearchComparator = new POISearchComparator(favoriteUUIDs);
-		final boolean keepAll;
-		final ArrayList<DataSourceType> agencyTypes;
+		boolean keepAll;
+		ArrayList<DataSourceType> agencyTypes;
 		if (this.typeFilter == null || this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
 			agencyTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
 			keepAll = false;
@@ -81,7 +80,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 				if (!agencyType.isSearchable()) {
 					continue;
 				}
-				final FindSearchTypeTask task = new FindSearchTypeTask(getContext(), agencyType, this.query, keepAll, this.userLocation, poiSearchComparator);
+				FindSearchTypeTask task = new FindSearchTypeTask(getContext(), agencyType, this.query, keepAll, this.userLocation, poiSearchComparator);
 				taskList.add(getFetchSearchTypeExecutor().submit(task));
 			}
 		}
@@ -177,11 +176,11 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 				return null;
 			}
 			clearFetchAgencySearchTasks();
-			final ArrayList<AgencyProperties> agencies = DataSourceProvider.get(this.context).getTypeDataSources(this.agencyType.getId());
+			ArrayList<AgencyProperties> agencies = DataSourceProvider.get(this.context).getTypeDataSources(this.agencyType.getId());
 			ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
 			if (agencies != null) {
 				for (AgencyProperties agency : agencies) {
-					final FindSearchTask task = new FindSearchTask(this.context, agency, this.query);
+					FindSearchTask task = new FindSearchTask(this.context, agency, this.query);
 					taskList.add(getFetchAgencySearchExecutor().submit(task));
 				}
 			}
@@ -242,15 +241,15 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			} else if (rhs == null) {
 				return ComparatorUtils.BEFORE;
 			}
-			final int lScore = lhs.poi.getScore() == null ? 0 : lhs.poi.getScore().intValue();
-			final int rScore = lhs.poi.getScore() == null ? 0 : rhs.poi.getScore().intValue();
+			int lScore = lhs.poi.getScore() == null ? 0 : lhs.poi.getScore().intValue();
+			int rScore = lhs.poi.getScore() == null ? 0 : rhs.poi.getScore().intValue();
 			if (lScore > rScore) {
 				return ComparatorUtils.BEFORE;
 			} else if (lScore < rScore) {
 				return ComparatorUtils.AFTER;
 			}
-			final boolean lfav = this.favoriteUUIDs.contains(lhs.poi.getUUID());
-			final boolean rfav = this.favoriteUUIDs.contains(rhs.poi.getUUID());
+			boolean lfav = this.favoriteUUIDs.contains(lhs.poi.getUUID());
+			boolean rfav = this.favoriteUUIDs.contains(rhs.poi.getUUID());
 			if (lfav && !rfav) {
 				return ComparatorUtils.BEFORE;
 			} else if (!lfav && rfav) {
@@ -294,7 +293,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			}
 			POIFilter poiFilter = new POIFilter(new String[] { this.query });
 			poiFilter.addExtra("decentOnly", true);
-			return DataSourceManager.findPOIs(this.context, UriUtils.newContentUri(this.agency.getAuthority()), poiFilter);
+			return DataSourceManager.findPOIs(this.context, this.agency.getAuthority(), poiFilter);
 		}
 
 	}

@@ -1,6 +1,8 @@
 package org.mtransit.android.task;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -30,7 +32,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 	private ArrayList<POIManager> pois;
 
 
-	private ArrayList<AgencyProperties> typeAgencies;
+	private AgencyProperties[] agencies;
 
 	private double lat;
 
@@ -42,9 +44,17 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 
 	private int minCoverage;
 
-	public NearbyPOIListLoader(Context context, ArrayList<AgencyProperties> typeAgencies, double lat, double lng, double aroundDiff, int minCoverage, int maxSize) {
+	private boolean hideDecentOnly;
+
+	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, int minCoverage, int maxSize, boolean hideDecentOnly,
+			ArrayList<AgencyProperties> agencies) {
+		this(context, lat, lng, aroundDiff, minCoverage, maxSize, hideDecentOnly, agencies == null ? null : agencies.toArray(new AgencyProperties[] {}));
+	}
+
+	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, int minCoverage, int maxSize, boolean hideDecentOnly,
+			AgencyProperties... agencies) {
 		super(context);
-		this.typeAgencies = typeAgencies;
+		this.agencies = agencies;
 		this.lat = lat;
 		this.lng = lng;
 		this.aroundDiff = aroundDiff;
@@ -54,19 +64,18 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 
 	@Override
 	public ArrayList<POIManager> loadInBackgroundMT() {
-		if (pois == null) {
-			pois = new ArrayList<POIManager>();
+		if (this.pois == null) {
+			this.pois = new ArrayList<POIManager>();
 		}
-		if (typeAgencies.size() == 0) {
+		if (this.agencies == null || this.agencies.length == 0) {
 			return this.pois;
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,
-				new LinkedBlockingDeque<Runnable>(typeAgencies.size()));
+				new LinkedBlockingDeque<Runnable>(this.agencies.length));
 		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
-		for (AgencyProperties agency : typeAgencies) {
-			final FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(getContext(),
-					DataSourceProvider.get(getContext()).getUri(agency.getAuthority()), this.lat, this.lng, this.aroundDiff, true, this.minCoverage,
-					this.maxSize);
+		for (AgencyProperties agency : this.agencies) {
+			FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(getContext(), agency.getAuthority(), this.lat, this.lng, this.aroundDiff,
+					this.hideDecentOnly, this.minCoverage, this.maxSize);
 			taskList.add(executor.submit(task));
 		}
 		for (Future<ArrayList<POIManager>> future : taskList) {
@@ -83,17 +92,28 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		return this.pois;
 	}
 
-	public static ArrayList<AgencyProperties> findTypeAgencies(Context context, DataSourceType type, double lat, double lng, double aroundDiff) {
-		ArrayList<AgencyProperties> allTypeAgencies = DataSourceProvider.get(context).getTypeDataSources(type.getId());
-		ArrayList<AgencyProperties> nearbyTypeAgenciesAuthorities = new ArrayList<AgencyProperties>();
-		if (allTypeAgencies != null) {
-			for (AgencyProperties agency : allTypeAgencies) {
-				if (agency.isInArea(lat, lng, aroundDiff)) {
-					nearbyTypeAgenciesAuthorities.add(agency);
+	public static void filterAgencies(Collection<AgencyProperties> agencies, double lat, double lng, LocationUtils.AroundDiff ad) {
+		if (agencies != null) {
+			Iterator<AgencyProperties> it = agencies.iterator();
+			while (it.hasNext()) {
+				if (!it.next().isInArea(lat, lng, ad.aroundDiff)) {
+					it.remove();
 				}
 			}
 		}
-		return nearbyTypeAgenciesAuthorities;
+	}
+
+	public static ArrayList<AgencyProperties> findTypeAgencies(Context context, DataSourceType type, double lat, double lng, double aroundDiff) {
+		ArrayList<AgencyProperties> allTypeAgencies = DataSourceProvider.get(context).getTypeDataSources(type.getId());
+		if (allTypeAgencies != null) {
+			Iterator<AgencyProperties> it = allTypeAgencies.iterator();
+			while (it.hasNext()) {
+				if (!it.next().isInArea(lat, lng, aroundDiff)) {
+					it.remove();
+				}
+			}
+		}
+		return allTypeAgencies;
 	}
 
 	@Override

@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:paddingTop="?attr/actionBarSize" >
     <Spinner
         android:id="@+id/typeFilters"
         android:layout_width="wrap_content"
@@ -38,9 +39,6 @@
             android:inflatedId="@+id/empty"
             android:layout="@layout/layout_empty"
             android:visibility="gone" />
-        <include
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            layout="@layout/layout_shadow" />
+        <include layout="@layout/layout_shadow" />
     </FrameLayout>
 </LinearLayout>

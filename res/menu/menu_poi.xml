@@ -5,7 +5,7 @@
     tools:context="org.mtransit.android.MainActivity" >
     <item
         android:id="@+id/menu_add_remove_favorite"
-        android:icon="@drawable/ic_action_toggle_star_outline_holo_dark"
+        android:icon="@drawable/ic_action_toggle_star_outline_material_dark"
         android:showAsAction="always"
         android:title="@string/menu_action_add_favorite"
         android:visible="false"

@@ -4,13 +4,13 @@ import java.util.ArrayList;
 
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.task.MTCallable;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
-import android.net.Uri;
 
 public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> {
 
@@ -22,7 +22,7 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> 
 	}
 
 	private Context context;
-	private Uri contentUri;
+	private String authority;
 	private double lat;
 	private double lng;
 	private double aroundDiff;
@@ -30,10 +30,10 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> 
 	private int maxSize;
 	private int minCoverage;
 
-	public FindNearbyAgencyPOIsTask(Context context, Uri contentUri, double lat, double lng, double aroundDiff, boolean hideDecentOnly,
-			int minCoverage, int maxSize) {
+	public FindNearbyAgencyPOIsTask(Context context, String authority, double lat, double lng, double aroundDiff, boolean hideDecentOnly, int minCoverage,
+			int maxSize) {
 		this.context = context;
-		this.contentUri = contentUri;
+		this.authority = authority;
 		this.lat = lat;
 		this.lng = lng;
 		this.aroundDiff = aroundDiff;
@@ -48,7 +48,7 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> 
 		if (this.hideDecentOnly) {
 			poiFilter.addExtra("decentOnly", true);
 		}
-		ArrayList<POIManager> pois = DataSourceManager.findPOIs(this.context, this.contentUri, poiFilter);
+		ArrayList<POIManager> pois = DataSourceManager.findPOIs(this.context, this.authority, poiFilter);
 		LocationUtils.updateDistance(pois, lat, lng);
 		float maxDistance = LocationUtils.getAroundCoveredDistance(lat, lng, aroundDiff);
 		LocationUtils.removeTooFar(pois, maxDistance);

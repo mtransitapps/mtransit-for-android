@@ -324,17 +324,6 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 			}
 		}
 
-		@Override
-		public void onDrawerOpened(View drawerView) {
-			final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
-			if (mainActivity != null) {
-				ActionBarController abController = mainActivity.getAbController();
-				if (abController != null) {
-					abController.updateABDrawerOpened();
-				}
-			}
-		}
-
 	}
 
 }

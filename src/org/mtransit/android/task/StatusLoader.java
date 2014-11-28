@@ -17,7 +17,6 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.StatusProviderProperties;
 
 import android.content.Context;
-import android.net.Uri;
 
 public class StatusLoader implements MTLog.Loggable {
 
@@ -144,8 +143,7 @@ public class StatusLoader implements MTLog.Loggable {
 			if (this.statusFilter == null) {
 				return null;
 			}
-			final Uri uri = DataSourceProvider.get(context).getUri(this.statusProvider.getAuthority());
-			final POIStatus status = DataSourceManager.findStatus(context, uri, this.statusFilter);
+			POIStatus status = DataSourceManager.findStatus(context, this.statusProvider.getAuthority(), this.statusFilter);
 			return status;
 		}
 

@@ -19,10 +19,7 @@
         android:layout_height="match_parent"
         android:layout="@layout/layout_poi_list"
         android:visibility="gone" />
-    <include
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/layout_shadow" />
+    <include layout="@layout/layout_shadow" />
     <!-- EMPTY -->
     <ViewStub
         android:id="@+id/empty_stub"

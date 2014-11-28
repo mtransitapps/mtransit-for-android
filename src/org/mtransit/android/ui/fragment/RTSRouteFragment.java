@@ -10,7 +10,6 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StringUtils;
-import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Stop;
@@ -26,7 +25,6 @@ import org.mtransit.android.ui.view.SlidingTabLayout;
 import android.content.Context;
 import android.graphics.Color;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -144,7 +142,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public void onModulesUpdated() {
 		if (this.route != null && !TextUtils.isEmpty(this.authority)) {
-			final Route newRoute = DataSourceManager.findRTSRoute(getActivity(), UriUtils.newContentUri(this.authority), this.route.id);
+			Route newRoute = DataSourceManager.findRTSRoute(getActivity(), this.authority, this.route.id);
 			if (newRoute == null) {
 				((MainActivity) getActivity()).popFragmentFromStack(this); // close this fragment
 				return;
@@ -163,12 +161,11 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (TextUtils.isEmpty(this.authority) || this.routeId == null || view == null) {
 			return;
 		}
-		final Uri authorityUri = UriUtils.newContentUri(this.authority);
-		this.route = DataSourceManager.findRTSRoute(getActivity(), authorityUri, this.routeId);
+		this.route = DataSourceManager.findRTSRoute(getActivity(), this.authority, this.routeId);
 		getAbController().setABBgColor(this, getABBgColor(getActivity()), false);
 		getAbController().setABCustomView(this, getABCustomView(), false);
 		getAbController().setABReady(this, isABReady(), true);
-		final ArrayList<Trip> routeTrips = DataSourceManager.findRTSRouteTrips(getActivity(), authorityUri, this.routeId);
+		final ArrayList<Trip> routeTrips = DataSourceManager.findRTSRouteTrips(getActivity(), this.authority, this.routeId);
 		if (routeTrips == null) {
 			return;
 		}

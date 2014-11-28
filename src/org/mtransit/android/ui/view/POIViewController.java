@@ -23,6 +23,7 @@ import org.mtransit.android.ui.fragment.RTSRouteFragment;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.text.TextUtils;
@@ -235,11 +236,11 @@ public class POIViewController implements MTLog.Loggable {
 				holder.routeFL.setVisibility(View.GONE);
 				holder.tripHeadingBg.setVisibility(View.GONE);
 			} else {
-				int routeTextColor = rts.route.getTextColorInt();
+				int routeTextColor = Color.WHITE;
 				int routeColor = rts.route.getColorInt();
 				if (TextUtils.isEmpty(rts.route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
-					final JPaths rtsRouteLogo = DataSourceProvider.get(context).getRTSRouteLogo(poim.poi.getAuthority());
+					JPaths rtsRouteLogo = DataSourceProvider.get(context).getRTSRouteLogo(poim.poi.getAuthority());
 					if (rtsRouteLogo != null) {
 						holder.routeTypeImg.setJSON(rtsRouteLogo);
 						holder.routeTypeImg.setColor(routeTextColor);
@@ -266,8 +267,8 @@ public class POIViewController implements MTLog.Loggable {
 				if (rts.trip == null) {
 					holder.tripHeadingBg.setVisibility(View.GONE);
 				} else {
-					holder.tripHeadingTv.setTextColor(routeColor);
-					holder.tripHeadingBg.setBackgroundColor(routeTextColor);
+					holder.tripHeadingTv.setTextColor(Color.WHITE);
+					holder.tripHeadingBg.setBackgroundColor(Color.BLACK);
 					holder.tripHeadingTv.setText(rts.trip.getHeading(context).toUpperCase(Locale.getDefault()));
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}

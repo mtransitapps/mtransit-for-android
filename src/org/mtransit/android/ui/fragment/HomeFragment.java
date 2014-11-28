@@ -4,9 +4,10 @@ import java.util.ArrayList;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
-import org.mtransit.android.commons.ColorUtils;
+import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
@@ -266,7 +267,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			}
 		}
 		if (this.nearbyLocation != null) {
-			getLoaderManager().restartLoader(POIS_LOADER, null, this);
+			LoaderUtils.restartLoader(getLoaderManager(), POIS_LOADER, null, this);
 		}
 		setSwipeRefreshLayoutRefreshing(false);
 		this.nearbyLocationAddress = null;
@@ -320,7 +321,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			return;
 		}
 		this.swipeRefreshLayout = (ListViewSwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
-		this.swipeRefreshLayout.setColorSchemeColors(ColorUtils.getThemeAttribute(getActivity(), R.attr.colorAccent));
+		this.swipeRefreshLayout.setColorSchemeColors(ThemeUtils.resolveColorAttribute(getActivity(), R.attr.colorAccent));
 		this.swipeRefreshLayout.setOnRefreshListener(this);
 		inflateList(view);
 		this.adapter.setListView((AbsListView) view.findViewById(R.id.list));
