@@ -7,6 +7,7 @@ import org.mtransit.android.commons.KeyboardUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.MainActivity;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
@@ -14,6 +15,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.SearchView;
 
+@SuppressLint("ViewConstructor")
 public class MTSearchView extends SearchView implements MTLog.Loggable, View.OnFocusChangeListener, SearchView.OnCloseListener, SearchView.OnQueryTextListener {
 
 	private static final String TAG = MTSearchView.class.getSimpleName();
