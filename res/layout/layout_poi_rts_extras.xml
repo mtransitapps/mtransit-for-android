@@ -6,8 +6,7 @@
     android:layout_width="?android:attr/listPreferredItemHeight"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:layout_alignParentLeft="true"
-    android:layout_marginRight="8dp"
-    android:foreground="?android:attr/selectableItemBackground" >
+    android:layout_marginRight="8dp" >
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -62,4 +61,8 @@
                 tools:visibility="visible" />
         </FrameLayout>
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?android:attr/selectableItemBackground" />
 </FrameLayout>

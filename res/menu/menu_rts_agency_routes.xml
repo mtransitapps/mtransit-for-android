@@ -6,8 +6,8 @@
     <item
         android:id="@+id/menu_toggle_list_grid"
         android:icon="@drawable/ic_action_action_list_holo_dark"
-        android:showAsAction="always"
+        android:showAsAction="ifRoom"
         android:title="@string/menu_action_list"
         android:visible="true"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom"/>
 </menu>
