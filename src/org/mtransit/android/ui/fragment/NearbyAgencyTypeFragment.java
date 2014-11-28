@@ -415,6 +415,8 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
+	private static final int NEARBY_POIS_LOADER = 0;
+
 	@Override
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
