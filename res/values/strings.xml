@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:locale="en">
-    <string name="app_name">MT</string>
+    <string name="app_name">MonTransit</string>
     <string name="home">Home</string>
     <string name="favorites">Favorites</string>
     <string name="nearby">Nearby</string>
     <string name="menu_action_nearby">Nearby</string>
     <string name="menu_action_search">Search</string>
-    <string name="search_hint">Search MT</string>
+    <string name="search_hint">Search MonTransit</string>
     <string name="search_no_result_for_and_query">No results for %s</string>
     <string name="all">All</string>
     <string name="more">More</string>

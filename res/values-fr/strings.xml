@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MT</string>
+    <string name="app_name">MonTransit</string>
     <string name="home">Accueil</string>
     <string name="favorites">Favoris</string>
     <string name="nearby">À Proximité</string>
     <string name="menu_action_nearby">Nearby</string>
     <string name="menu_action_search">Recherche</string>
-    <string name="search_hint">Recherche MT</string>
+    <string name="search_hint">Recherche MonTransit</string>
     <string name="search_no_result_for_and_query">Aucun résultat pour %s</string>
     <string name="all">Tous</string>
     <string name="more">Plus</string>
