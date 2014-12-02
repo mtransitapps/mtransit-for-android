@@ -43,7 +43,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 			return;
 		}
 		if (context == null) {
-			throw new IllegalArgumentException("Cannot instantiate provider w/o context!");
+			return;
 		}
 		DataSourceProvider newInstance = new DataSourceProvider();
 		newInstance.init(context);
