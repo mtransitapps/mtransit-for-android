@@ -1263,6 +1263,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					holder.tripHeadingBg.setBackgroundColor(Color.BLACK);
 					holder.tripHeadingTv.setText(rts.trip.getHeading(getContext()).toUpperCase(Locale.getDefault()));
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
+				}
 				holder.rtsExtraV.setBackgroundColor(routeColor);
 				final Integer stopId = rts.stop == null ? null : rts.stop.id;
 				holder.rtsExtraV.setOnClickListener(new View.OnClickListener() {

@@ -48,8 +48,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
 public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
-		MTActivityWithLocation.UserLocationListener {
+		MTActivityWithLocation.UserLocationListener, LocationSource, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMyLocationButtonClickListener,
+		GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnCameraChangeListener {
 
 	private static final String TAG = RTSTripStopsFragment.class.getSimpleName();
 
@@ -366,6 +368,8 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		switch (id) {
 		case POIS_LOADER:
 			if (this.tripId == null || TextUtils.isEmpty(this.authority)) {
+				return null;
+			}
 			RTSTripStopsLoader rtsTripStopsLoader = new RTSTripStopsLoader(getActivity(), this.tripId.intValue(), this.authority);
 			return rtsTripStopsLoader;
 		default:
@@ -513,6 +517,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			this.map.getUiSettings().setIndoorLevelPickerEnabled(false);
 			this.map.setTrafficEnabled(false);
 			this.map.setIndoorEnabled(false);
+		}
 	}
 
 	@Override

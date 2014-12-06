@@ -117,6 +117,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		String newAuthority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, bundles);
 		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
+		}
 		Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, bundles);
 		if (fragmentPosition != null) {
 			if (fragmentPosition.intValue() >= 0) {
@@ -385,6 +386,8 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		}
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
+
+	private MenuItem listGridToggleMenuItem;
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

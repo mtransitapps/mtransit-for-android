@@ -547,8 +547,10 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	private boolean isShowingListInsteadOfMap() {
 		if (this.showingListInsteadOfMap == null) {
 			this.showingListInsteadOfMap = PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT;
+		}
 		return this.showingListInsteadOfMap.booleanValue();
 	}
+
 	public void setShowingListInsteadOfMap(boolean newShowingListInsteadOfMap) {
 		if (this.showingListInsteadOfMap != null && this.showingListInsteadOfMap.booleanValue() == newShowingListInsteadOfMap) {
 			return; // nothing changed

@@ -50,6 +50,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
 public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		MTActivityWithLocation.UserLocationListener, LocationSource, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMyLocationButtonClickListener,
 		GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnCameraChangeListener {
@@ -435,6 +436,8 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		}
 	}
 
+	private MapView mapView = null;
+
 	private MapView getMapView(View view) {
 		if (this.mapView == null) {
 			initMapView(view, null);
@@ -476,6 +479,8 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 					this.mapView.onResume();
 				}
 				initMap(this.mapView);
+			}
+		}
 	}
 
 	private GoogleMap map = null;

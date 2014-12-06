@@ -876,6 +876,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			POIManager poim = getPoimOrNull();
 			if (poim != null) {
 				this.isFavorite = FavoriteManager.isFavorite(getActivity(), poim.poi.getUUID());
+			}
 		}
 		return isFavorite;
 	}

@@ -120,6 +120,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 	public Object getItemMT(int position) {
 		if (position < STATIC_ITEMS_BEFORE_DYNAMIC) {
 			return null;
+		}
 		if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypesCount()) {
 			return getAllAgencyTypes().get(position - STATIC_ITEMS_BEFORE_DYNAMIC);
 		} else if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypesCount() + STATIC_ITEMS_AFTER_DYNAMIC) {

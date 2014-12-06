@@ -457,6 +457,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	public void onActionItemClick(Activity activity, FavoriteManager.FavoriteUpdateListener favoriteUpdateListener) {
+		if (activity == null) {
 			return;
 		}
 		boolean poiScreenShow = showPoiViewerScreen(activity);
