@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.fragment;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,6 +36,7 @@ import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
+import org.mtransit.android.util.MapUtils;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -61,12 +61,9 @@ import android.view.ViewTreeObserver;
 import android.widget.AbsListView;
 import android.widget.ScrollView;
 
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -89,138 +86,178 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	@Override
 	public String getScreenName() {
-		if (this.poim != null && this.poim.poi != null) {
-			return TRACKING_SCREEN_NAME + "/" + this.poim.poi.getUUID();
+		if (!TextUtils.isEmpty(this.uuid)) {
+			return TRACKING_SCREEN_NAME + "/" + this.uuid;
 		}
 		return TRACKING_SCREEN_NAME;
 	}
 
 	private static final String EXTRA_AUTHORITY = "extra_agency_authority";
 	private static final String EXTRA_POI_UUID = "extra_poi_uuid";
-	private static final String EXTRA_USER_LOCATION = "extra_user_location";
 
-	public static POIFragment newInstance(POIManager poim, Location optUserLocation) {
+	public static POIFragment newInstance(String uuid, String authority, Location optUserLocation, AgencyProperties optAgency, POIManager optPoim) {
 		POIFragment f = new POIFragment();
 		Bundle args = new Bundle();
-		args.putString(EXTRA_AUTHORITY, poim.poi.getAuthority());
-		args.putString(EXTRA_POI_UUID, poim.poi.getUUID());
-		if (optUserLocation != null) {
-			args.putParcelable(EXTRA_USER_LOCATION, optUserLocation);
-		}
+		args.putString(EXTRA_AUTHORITY, authority);
+		f.authority = authority;
+		f.agency = optAgency;
+		args.putString(EXTRA_POI_UUID, uuid);
+		f.uuid = uuid;
+		f.poim = optPoim;
+		f.poim.resetLastFindTimestamps();
 		f.setArguments(args);
 		return f;
 	}
 
-	private POIManager poim;
+	private String authority;
 	private AgencyProperties agency;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
-		restoreInstanceState(savedInstanceState);
+	private boolean hasAgency() {
+		if (this.agency == null) {
+			initAgencyAsync();
+			return false;
+		}
+		return true;
 	}
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		super.onCreateView(inflater, container, savedInstanceState);
-		final View view = inflater.inflate(R.layout.fragment_poi, container, false);
-		setupView(view);
-		getMapView(view).onCreate(savedInstanceState);
-		return view;
+	private void initAgencyAsync() {
+		if (this.loadAgencyTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+			return;
+		}
+		if (TextUtils.isEmpty(this.authority)) {
+			return;
+		}
+		this.loadAgencyTask.execute();
 	}
 
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		if (this.poim != null && this.poim.poi != null) {
-			outState.putString(EXTRA_POI_UUID, this.poim.poi.getUUID());
-			outState.putString(EXTRA_AUTHORITY, this.poim.poi.getAuthority());
-		}
-		if (this.mapView != null) {
-			this.mapView.onSaveInstanceState(outState);
-		}
-		super.onSaveInstanceState(outState);
-	}
-
-	private void restoreInstanceState(Bundle savedInstanceState) {
-		String authority = BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, getArguments());
-		String uuid = BundleUtils.getString(EXTRA_POI_UUID, savedInstanceState, getArguments());
-		if (!TextUtils.isEmpty(authority) && !TextUtils.isEmpty(uuid)) {
-			new LoadNewPOITask(this, authority, uuid).execute();
-		}
-		final Location optUserLocation = BundleUtils.getParcelable(EXTRA_USER_LOCATION, savedInstanceState, getArguments());
-		if (optUserLocation != null) {
-			onUserLocationChanged(optUserLocation);
-		}
-	}
-
-	private static final class LoadNewPOITask extends MTAsyncTask<String, Void, POIManager> {
-
-		private final String TAG = POIFragment.class.getSimpleName() + ">" + LoadNewPOITask.class.getSimpleName();
-
+	private MTAsyncTask<Void, Void, Boolean> loadAgencyTask = new MTAsyncTask<Void, Void, Boolean>() {
 		@Override
 		public String getLogTag() {
-			return TAG;
-		}
-
-		private WeakReference<POIFragment> poiFragmentWR;
-
-		private String authority;
-		private String uuid;
-
-		public LoadNewPOITask(POIFragment poiFragment, String authority, String uuid) {
-			this.poiFragmentWR = new WeakReference<POIFragment>(poiFragment);
-			this.authority = authority;
-			this.uuid = uuid;
+			return TAG + ">loadAgencyTask";
 		}
 
 		@Override
-		protected POIManager doInBackgroundMT(String... params) {
-			if (TextUtils.isEmpty(this.authority) || TextUtils.isEmpty(this.uuid)) {
-				MTLog.w(this, "doInBackground() > wrong parameters (this.authority:%s|this.uuid:%s)", this.authority, this.uuid);
-				return null;
-			}
-			POIFragment poiFragment = this.poiFragmentWR == null ? null : this.poiFragmentWR.get();
-			if (poiFragment == null) {
-				MTLog.w(this, "doInBackground() > no fragment");
-				return null;
-			}
-			poiFragment.agency = DataSourceProvider.get(poiFragment.getActivity()).getAgency(this.authority);
-			POIFilter poiFilter = new POIFilter(Arrays.asList(new String[] { this.uuid }));
-			POIManager newPOI = DataSourceManager.findPOI(poiFragment.getActivity(), this.authority, poiFilter);
-			return newPOI;
+		protected Boolean doInBackgroundMT(Void... params) {
+			return initAgencySync();
 		}
 
 		@Override
-		protected void onPostExecute(POIManager newPOI) {
-			super.onPostExecute(newPOI);
-			POIFragment poiFragment = this.poiFragmentWR == null ? null : this.poiFragmentWR.get();
-			if (poiFragment == null) {
-				return;
+		protected void onPostExecute(Boolean result) {
+			super.onPostExecute(result);
+			if (result) {
+				applyNewAgency();
 			}
-			poiFragment.setupNewPOI(newPOI);
 		}
+	};
+
+	private AgencyProperties getAgencyOrNull() {
+		if (!hasAgency()) {
+			return null;
+		}
+		return this.agency;
 	}
 
-	private void setupNewPOI(POIManager newPOI) {
-		if (newPOI == null) {
-			((MainActivity) getActivity()).popFragmentFromStack(this); // close this fragment
+	private boolean initAgencySync() {
+		if (this.agency != null) {
+			return false;
+		}
+		if (!TextUtils.isEmpty(this.authority)) {
+			this.agency = DataSourceProvider.get(getActivity()).getAgency(getActivity(), this.authority);
+		}
+		return this.agency != null;
+	}
+
+	private void applyNewAgency() {
+		if (this.agency == null) {
 			return;
 		}
-		if (this.poim != null && this.poim.poi.equals(newPOI.poi)) {
+		POIManager poim = getPoimOrNull();
+		if (poim != null) {
+			POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(getView()), this.agency, poim, this);
+		}
+		getAbController().setABTitle(this, getABTitle(getActivity()), false);
+		getAbController().setABReady(this, isABReady(), true);
+	}
+
+	private void resetAgency() {
+		this.agency = null;
+	}
+
+	private String uuid;
+
+	private POIManager poim;
+
+	private boolean hasPoim() {
+		if (this.poim == null) {
+			initPoimAsync();
+			return false;
+		}
+		return true;
+	}
+
+	private void initPoimAsync() {
+		if (this.loadPoimTask.getStatus() == MTAsyncTask.Status.RUNNING) {
 			return;
 		}
-		this.poim = newPOI;
+		if (TextUtils.isEmpty(this.uuid) || TextUtils.isEmpty(this.authority)) {
+			return;
+		}
+		this.loadPoimTask.execute();
+	}
+
+	private MTAsyncTask<Void, Void, Boolean> loadPoimTask = new MTAsyncTask<Void, Void, Boolean>() {
+		@Override
+		public String getLogTag() {
+			return TAG + ">loadPoimTask";
+		}
+
+		@Override
+		protected Boolean doInBackgroundMT(Void... params) {
+			return initPoimSync();
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			super.onPostExecute(result);
+			if (result) {
+				applyNewPoim();
+			}
+		}
+	};
+
+	private POIManager getPoimOrNull() {
+		if (!hasPoim()) {
+			return null;
+		}
+		return this.poim;
+	}
+
+	private boolean initPoimSync() {
+		if (this.poim != null) {
+			return false;
+		}
+		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
+			this.poim = DataSourceManager.findPOI(getActivity(), this.authority, new POIFilter(Arrays.asList(new String[] { this.uuid })));
+		}
+		return this.poim != null;
+	}
+
+	private void applyNewPoim() {
+		if (this.poim == null) {
+			return;
+		}
 		this.poim.setScheduleMaxDataRequests(Schedule.ScheduleStatusFilter.DATA_REQUEST_MONTH);
-		View view = getView();
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
 		this.isFavorite = null; // reset
-		forceOnUserLocationChanged();
 		updateMapPosition(false);
+		View view = getView();
 		POIViewController.updateView(getActivity(), getPOIView(view), this.poim, this);
-		POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), this.agency, this.poim, this);
+		AgencyProperties agency = getAgencyOrNull();
+		if (agency != null) {
+			POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), agency, this.poim, this);
+		}
 		POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(view), this.poim, this);
 		setupRTSFullScheduleBtn(view);
 		setupMoreNearbyButton(view);
@@ -228,17 +265,71 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		setupNearbyList();
 	}
 
+	private void resetPoim() {
+		this.poim = null;
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+		restoreInstanceState(savedInstanceState, getArguments());
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		super.onCreateView(inflater, container, savedInstanceState);
+		restoreInstanceState(savedInstanceState);
+		View view = inflater.inflate(R.layout.fragment_poi, container, false);
+		setupView(view);
+		initMapView(view, savedInstanceState);
+		return view;
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		restoreInstanceState(savedInstanceState);
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		if (!TextUtils.isEmpty(this.uuid)) {
+			outState.putString(EXTRA_POI_UUID, this.uuid);
+		}
+		if (!TextUtils.isEmpty(this.authority)) {
+			outState.putString(EXTRA_AUTHORITY, this.authority);
+		}
+		if (this.mapView != null) {
+			this.mapView.onSaveInstanceState(outState);
+		}
+		super.onSaveInstanceState(outState);
+	}
+
+	private void restoreInstanceState(Bundle... bundles) {
+		String newAuthority = BundleUtils.getString(EXTRA_AUTHORITY, bundles);
+		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
+			this.authority = newAuthority;
+			resetAgency();
+		}
+		String newUuid = BundleUtils.getString(EXTRA_POI_UUID, bundles);
+		if (!TextUtils.isEmpty(newUuid) && !newUuid.equals(this.uuid)) {
+			this.uuid = newUuid;
+			resetPoim();
+		}
+	}
+
 	private POIArrayAdapter adapter;
 
 	private void setupNearbyList() {
-		if (this.poim == null) {
-			return;
-		} else if (this.adapter != null && this.adapter.isInitialized()) {
+		if (this.adapter != null && this.adapter.isInitialized()) {
 			showNearbyList();
 			return;
 		}
 		hideNearbyList(true);
-		LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
+		if (hasPoim()) {
+			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
+		}
 	}
 
 	private static final int NEARBY_POIS_LOADER = 0;
@@ -248,15 +339,16 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case NEARBY_POIS_LOADER:
-			if (this.agency == null || this.poim == null) {
+			POIManager poim = getPoimOrNull();
+			if (TextUtils.isEmpty(this.authority) || poim == null) {
 				return null;
 			}
 			Context context = getActivity();
 			if (context == null) {
 				return null;
 			}
-			NearbyPOIListLoader nearbyPOIListLoader = new NearbyPOIListLoader(context, this.poim.poi.getLat(), this.poim.poi.getLng(), this.ad.aroundDiff,
-					LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE, LocationUtils.MAX_POI_NEARBY_POIS_LIST, false, this.agency);
+			NearbyPOIListLoader nearbyPOIListLoader = new NearbyPOIListLoader(context, poim.poi.getLat(), poim.poi.getLng(), this.ad.aroundDiff,
+					LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE, LocationUtils.MAX_POI_NEARBY_POIS_LIST, false, this.authority);
 			return nearbyPOIListLoader;
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
@@ -278,11 +370,14 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
 			return;
 		}
-		Iterator<POIManager> it = data.iterator();
-		while (it.hasNext()) {
-			if (it.next().poi.getUUID().equals(this.poim.poi.getUUID())) {
-				it.remove();
-				break;
+		POIManager poim = getPoimOrNull();
+		if (poim != null) {
+			Iterator<POIManager> it = data.iterator();
+			while (it.hasNext()) {
+				if (it.next().poi.getUUID().equals(poim.poi.getUUID())) {
+					it.remove();
+					break;
+				}
 			}
 		}
 		if (this.adapter == null) {
@@ -322,36 +417,35 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		this.adapter.setManualLayout((ViewGroup) view.findViewById(R.id.poi_nearby_pois_list));
 	}
 
-	private void forceOnUserLocationChanged() {
-		if (this.userLocation != null) {
-			Location lastUserLocation = this.userLocation;
-			this.userLocation = null; // reset
-			onUserLocationChanged(lastUserLocation);
-		}
-	}
 
 	private MapView mapView = null;
 	private Marker poiMarker = null;
 
 	private MapView getMapView(View view) {
 		if (this.mapView == null) {
-			initMapView(view);
+			initMapView(view, null);
 		}
 		return this.mapView;
 	}
 
-	private void initMapView(View view) {
+	private void initMapView(View view, Bundle savedInstanceState) {
 		if (view != null) {
 			this.mapView = (MapView) view.findViewById(R.id.map);
 			if (this.mapView != null) {
+				this.mapView.onCreate(savedInstanceState);
+				if (this.isResumed()) {
+					this.mapView.onResume();
+				}
 				initMap(this.mapView);
 				if (this.mapView.getViewTreeObserver().isAlive()) {
 					this.mapView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 
 						@Override
 						public void onGlobalLayout() {
-							SupportFactory.get().removeOnGlobalLayoutListener(POIFragment.this.mapView.getViewTreeObserver(), this);
-							updateMapPosition(false);
+							if (POIFragment.this.mapView != null) {
+								SupportFactory.get().removeOnGlobalLayoutListener(POIFragment.this.mapView.getViewTreeObserver(), this);
+								updateMapPosition(false);
+							}
 						}
 
 					});
@@ -361,54 +455,49 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	}
 
 	private void updateMapPosition(boolean anim) {
-		try {
-			if (this.poim != null) {
-				MapView mapView = getMapView(getView());
-				GoogleMap map = getMap(mapView);
-				if (map != null) {
-					if (!anim) {
-						mapView.setVisibility(View.INVISIBLE);
-					}
-					MapsInitializer.initialize(getActivity());
-					LatLng poiLatLng = new LatLng(this.poim.poi.getLat(), this.poim.poi.getLng());
-					if (this.poiMarker == null) {
-						MarkerOptions poiMarkerOptions = new MarkerOptions() //
-								.title(this.poim.poi.getName()) //
-								.position(poiLatLng) //
-								.icon(getBitmapDescriptor());
-						this.poiMarker = map.addMarker(poiMarkerOptions);
-					} else {
-						this.poiMarker.setVisible(false);
-						this.poiMarker.setTitle(this.poim.poi.getName());
-						this.poiMarker.setPosition(poiLatLng);
-						this.poiMarker.setIcon(getBitmapDescriptor());
-						this.poiMarker.setVisible(true);
-					}
-					LatLngBounds.Builder llb = LatLngBounds.builder().include(poiLatLng);
-					if (this.userLocation != null) {
-						llb.include(new LatLng(this.userLocation.getLatitude(), this.userLocation.getLongitude()));
-					}
-					CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(llb.build(), (int) ResourceUtils.convertSptoPx(getActivity(), 32));
-					if (anim) {
-						map.animateCamera(cameraUpdate);
-					} else {
-						map.moveCamera(cameraUpdate);
-					}
-					mapView.setVisibility(View.VISIBLE);
-				}
-			}
-		} catch (Exception e) {
-			MTLog.w(this, e, "Error while initializing map position!");
+		POIManager poim = getPoimOrNull();
+		if (poim == null) {
+			return;
 		}
+		MapView mapView = getMapView(getView());
+		GoogleMap map = getMap(mapView);
+		if (map == null) {
+			return;
+		}
+		LatLng poiLatLng = new LatLng(poim.poi.getLat(), poim.poi.getLng());
+		if (this.poiMarker == null) {
+			if (map != null) {
+				this.poiMarker = map.addMarker(new MarkerOptions() //
+						.title(poim.poi.getName()) //
+						.position(poiLatLng) //
+						.icon(getBitmapDescriptor()));
+			}
+		} else {
+			this.poiMarker.setVisible(false);
+			this.poiMarker.setTitle(poim.poi.getName());
+			this.poiMarker.setPosition(poiLatLng);
+			this.poiMarker.setIcon(getBitmapDescriptor());
+			this.poiMarker.setVisible(true);
+		}
+		LatLngBounds.Builder llb = LatLngBounds.builder().include(poiLatLng);
+		if (this.userLocation != null) {
+			llb.include(new LatLng(this.userLocation.getLatitude(), this.userLocation.getLongitude()));
+		}
+
+		MapUtils.updateMapPosition(getActivity(), map, mapView, anim, llb.build(), MapUtils.getMapWithoutButtonsCameraPaddingInPx(getActivity()));
 	}
 
 	private BitmapDescriptor getBitmapDescriptor() {
 		try {
 			int markerColor = Color.WHITE;
-			if (this.poim.poi instanceof RouteTripStop) {
-				markerColor = ((RouteTripStop) this.poim.poi).route.getColorInt();
-			} else if (this.agency != null) {
-				markerColor = this.agency.getColorInt();
+			POIManager poim = getPoimOrNull();
+			if (poim != null && poim.poi instanceof RouteTripStop) {
+				markerColor = ((RouteTripStop) poim.poi).route.getColorInt();
+			} else {
+				AgencyProperties agency = getAgencyOrNull();
+				if (agency != null) {
+					markerColor = agency.getColorInt();
+				}
 			}
 			if (markerColor == Color.BLACK) {
 				markerColor = Color.DKGRAY;
@@ -438,7 +527,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			this.map.getUiSettings().setIndoorLevelPickerEnabled(false);
 			this.map.setTrafficEnabled(false);
 			this.map.setIndoorEnabled(false);
-			int paddingTop = (int) ResourceUtils.convertSptoPx(getActivity(), 32);
+			int paddingTop = (int) ResourceUtils.convertSptoPx(getActivity(), 32); // action bar
 			this.map.setPadding(0, paddingTop, 0, 0);
 		}
 	}
@@ -455,13 +544,13 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	}
 
 	private void setupRTSFullScheduleBtn(View view) {
-		if (view == null || this.poim == null) {
+		if (view == null) {
 			return;
 		}
 		View rtsScheduleBtn = view.findViewById(R.id.fullScheduleBtn);
 		if (rtsScheduleBtn != null) {
-			Collection<ScheduleProviderProperties> scheduleProviders = DataSourceProvider.get(getActivity()).getTargetAuthorityScheduleProviders(
-					this.poim.poi.getAuthority());
+			Collection<ScheduleProviderProperties> scheduleProviders = DataSourceProvider.get(getActivity())
+					.getTargetAuthorityScheduleProviders(this.authority);
 			if (CollectionUtils.getSize(scheduleProviders) == 0) {
 				rtsScheduleBtn.setVisibility(View.GONE);
 			} else {
@@ -469,7 +558,12 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 					@Override
 					public void onClick(View v) {
-						((MainActivity) getActivity()).addFragmentToStack(ScheduleFragment.newInstance((RouteTripStop) POIFragment.this.poim.poi));
+						RouteTripStop optRts = null;
+						if (POIFragment.this.poim != null && POIFragment.this.poim.poi instanceof RouteTripStop) {
+							optRts = (RouteTripStop) POIFragment.this.poim.poi;
+						}
+						((MainActivity) getActivity()).addFragmentToStack(ScheduleFragment.newInstance(POIFragment.this.uuid, POIFragment.this.authority,
+								POIFragment.this.agency, optRts));
 					}
 				});
 				rtsScheduleBtn.setVisibility(View.VISIBLE);
@@ -478,7 +572,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	}
 
 	private void setupMoreNearbyButton(View view) {
-		if (view == null || this.poim == null) {
+		if (view == null) {
 			return;
 		}
 		View moreBtn = view.findViewById(R.id.poi_nearby_pois_title).findViewById(R.id.moreBtn);
@@ -486,10 +580,13 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			moreBtn.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					if (POIFragment.this.poim != null && POIFragment.this.agency != null) {
-						((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newInstance(null, POIFragment.this.agency.getType(),
-								POIFragment.this.poim));
+					Integer optTypeId = null;
+					AgencyProperties agency = getAgencyOrNull();
+					if (agency != null) {
+						optTypeId = agency.getType().getId();
 					}
+					((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newPoiInstance(optTypeId, POIFragment.this.uuid,
+							POIFragment.this.authority, POIFragment.this.poim, POIFragment.this.agency));
 				}
 			});
 			moreBtn.setVisibility(View.VISIBLE);
@@ -497,11 +594,12 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	}
 
 	private View getPOIStatusView(View view) {
-		if (view == null || this.poim == null) {
+		POIManager poim = getPoimOrNull();
+		if (view == null || poim == null) {
 			return null;
 		}
 		if (view.findViewById(R.id.poi_status_detail) == null) { // IF NOT present/inflated DO
-			final Integer layoutResId = POIStatusDetailViewController.getLayoutResId(this.poim);
+			Integer layoutResId = POIStatusDetailViewController.getLayoutResId(poim);
 			if (layoutResId != null) {
 				((ViewStub) view.findViewById(R.id.poi_status_detail_stub)).setLayoutResource(layoutResId.intValue());
 				((ViewStub) view.findViewById(R.id.poi_status_detail_stub)).inflate(); // inflate
@@ -512,11 +610,11 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 
 	private View getPOIServiceUpdateView(View view) {
-		if (view == null || this.poim == null) {
+		if (view == null) {
 			return null;
 		}
 		if (view.findViewById(R.id.poi_service_update) == null) { // IF NOT present/inflated DO
-			final Integer layoutResId = POIServiceUpdateViewController.getLayoutResId(this.poim);
+			Integer layoutResId = POIServiceUpdateViewController.getLayoutResId();
 			if (layoutResId != null) {
 				((ViewStub) view.findViewById(R.id.poi_service_update_stub)).setLayoutResource(layoutResId.intValue());
 				((ViewStub) view.findViewById(R.id.poi_service_update_stub)).inflate(); // inflate
@@ -527,11 +625,12 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 
 	private View getPOIView(View view) {
-		if (view == null || this.poim == null) {
+		POIManager poim = getPoimOrNull();
+		if (view == null || poim == null) {
 			return null;
 		}
 		if (view.findViewById(R.id.this_poi) == null) { // IF NOT present/inflated DO
-			final int layoutResId = POIViewController.getLayoutResId(this.poim);
+			int layoutResId = POIViewController.getLayoutResId(poim);
 			((ViewStub) view.findViewById(R.id.this_poi_stub)).setLayoutResource(layoutResId);
 			((ViewStub) view.findViewById(R.id.this_poi_stub)).inflate(); // inflate
 		}
@@ -564,11 +663,14 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		if (newLocation != null) {
 			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 				this.userLocation = newLocation;
-				LocationUtils.updateDistanceWithString(getActivity(), this.poim, this.userLocation);
-				POIViewController.updatePOIDistanceAndCompass(getPOIView(getView()), this.poim, this);
+				POIManager poim = getPoimOrNull();
+				if (poim != null) {
+					LocationUtils.updateDistanceWithString(getActivity(), poim, this.userLocation);
+					POIViewController.updatePOIDistanceAndCompass(getPOIView(getView()), poim, this);
+				}
 				updateMapPosition(true);
 				if (this.adapter != null) {
-					this.adapter.setLocation(this.userLocation);
+					this.adapter.setLocation(newLocation);
 				}
 			}
 		}
@@ -577,10 +679,10 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		}
 	}
 
-	private OnLocationChangedListener locationChandedListener;
+	private LocationSource.OnLocationChangedListener locationChandedListener;
 
 	@Override
-	public void activate(OnLocationChangedListener locationChandedListener) {
+	public void activate(LocationSource.OnLocationChangedListener locationChandedListener) {
 		this.locationChandedListener = locationChandedListener;
 	}
 
@@ -622,16 +724,23 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			this.lastCompassInDegree = roundedOrientation;
 			this.lastCompassChanged = now;
 			if (this.compassUpdatesEnabled && this.userLocation != null && this.lastCompassInDegree >= 0) {
-				POIViewController.updatePOIDistanceAndCompass(getPOIView(getView()), this.poim, this);
+				POIManager poim = getPoimOrNull();
+				if (poim != null) {
+					POIViewController.updatePOIDistanceAndCompass(getPOIView(getView()), poim, this);
+				}
 			}
 		}
 	}
 
 	@Override
 	public void onModulesUpdated() {
-		final FragmentActivity activity = getActivity();
-		if (this.poim != null && activity != null) {
-			new LoadNewPOITask(this, this.poim.poi.getAuthority(), this.poim.poi.getUUID());
+		POIManager newPoim = DataSourceManager.findPOI(getActivity(), this.authority, new POIFilter(Arrays.asList(new String[] { this.uuid })));
+		FragmentActivity activity = getActivity();
+		if (newPoim == null) {
+			if (activity != null) {
+				((MainActivity) activity).popFragmentFromStack(this); // close this fragment
+			}
+			return;
 		}
 	}
 
@@ -643,20 +752,26 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			this.compassUpdatesEnabled = true;
 		}
 		this.isFavorite = null; // force refresh
-		View view = getView();
-		POIViewController.updateView(getActivity(), getPOIView(view), this.poim, this);
-		POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), this.agency, this.poim, this);
-		POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(view), this.poim, this);
 		if (this.mapView != null) {
 			this.mapView.onResume();
 		}
-		setupRTSFullScheduleBtn(view);
-		setupMoreNearbyButton(view);
-		forceOnUserLocationChanged();
-		setupNearbyList();
 		if (this.adapter != null) {
 			this.adapter.onResume(getActivity());
 		}
+		POIManager poim = getPoimOrNull();
+		if (poim != null) {
+			View view = getView();
+			POIViewController.updateView(getActivity(), getPOIView(view), poim, this);
+			AgencyProperties agency = getAgencyOrNull();
+			if (agency != null) {
+				POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), agency, poim, this);
+			}
+			POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(view), poim, this);
+			setupRTSFullScheduleBtn(view);
+			setupMoreNearbyButton(view);
+			setupNearbyList();
+		}
+		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
 	}
 
 	public void onPause() {
@@ -692,12 +807,18 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	private void resetNowToTheMinute() {
 		this.nowToTheMinute = TimeUtils.currentTimeToTheMinuteMillis();
-		View view = getView();
-		View poiView = getPOIView(view);
-		POIViewController.updatePOIStatus(getActivity(), poiView, this.poim, this);
-		POIViewController.updatePOIServiceUpdate(getActivity(), poiView, this.poim, this);
-		POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), this.agency, this.poim, this);
-		POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(view), this.poim, this);
+		POIManager poim = getPoimOrNull();
+		if (poim != null) {
+			View view = getView();
+			View poiView = getPOIView(view);
+			POIViewController.updatePOIStatus(getActivity(), poiView, poim, this);
+			POIViewController.updatePOIServiceUpdate(getActivity(), poiView, poim, this);
+			AgencyProperties agency = getAgencyOrNull();
+			if (agency != null) {
+				POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), agency, poim, this);
+			}
+			POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(view), poim, this);
+		}
 	}
 
 	private boolean timeChangedReceiverEnabled = false;
@@ -752,14 +873,17 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	public boolean isFavorite() {
 		if (this.isFavorite == null) {
-			this.isFavorite = FavoriteManager.isFavorite(getActivity(), this.poim.poi.getUUID());
+			POIManager poim = getPoimOrNull();
+			if (poim != null) {
+				this.isFavorite = FavoriteManager.isFavorite(getActivity(), poim.poi.getUUID());
 		}
 		return isFavorite;
 	}
 
 	@Override
 	public boolean isFavorite(String uuid) {
-		if (this.poim != null && this.poim.poi != null && this.poim.poi.getUUID().equals(uuid)) {
+		POIManager poim = getPoimOrNull();
+		if (poim != null && poim.poi != null && poim.poi.getUUID().equals(uuid)) {
 			return isFavorite();
 		}
 		return FavoriteManager.isFavorite(getActivity(), uuid);
@@ -785,26 +909,29 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		return true;
 	}
 
+	private MenuItem addRemoveFavoriteMenuItem;
+
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.menu_poi, menu);
-		getAbController().addMenuItem(R.id.menu_add_remove_favorite, menu.findItem(R.id.menu_add_remove_favorite));
+		this.addRemoveFavoriteMenuItem = menu.findItem(R.id.menu_add_remove_favorite);
 		updateFavMenuItem();
 	}
 
 	private void updateFavMenuItem() {
-		MenuItem addRemoveFavoriteMenuItem = getAbController().getMenuItem(R.id.menu_add_remove_favorite);
-		if (addRemoveFavoriteMenuItem == null) {
+		if (this.addRemoveFavoriteMenuItem == null) {
 			return;
 		}
-		if (this.poim != null && this.poim.isFavoritable()) {
+		POIManager poim = getPoimOrNull();
+		if (poim != null && poim.isFavoritable()) {
 			boolean isFav = isFavorite();
-			addRemoveFavoriteMenuItem.setIcon(isFav ? R.drawable.ic_action_toggle_star_material_dark : R.drawable.ic_action_toggle_star_outline_material_dark);
-			addRemoveFavoriteMenuItem.setTitle(isFav ? R.string.menu_action_remove_favorite : R.string.menu_action_add_favorite);
-			addRemoveFavoriteMenuItem.setVisible(true);
+			this.addRemoveFavoriteMenuItem.setIcon(isFav ? R.drawable.ic_action_toggle_star_material_dark
+					: R.drawable.ic_action_toggle_star_outline_material_dark);
+			this.addRemoveFavoriteMenuItem.setTitle(isFav ? R.string.menu_action_remove_favorite : R.string.menu_action_add_favorite);
+			this.addRemoveFavoriteMenuItem.setVisible(true);
 		} else {
-			addRemoveFavoriteMenuItem.setVisible(false);
+			this.addRemoveFavoriteMenuItem.setVisible(false);
 		}
 	}
 
@@ -812,8 +939,9 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_add_remove_favorite:
-			if (this.poim != null && this.poim.isFavoritable()) {
-				this.poim.addRemoteFavorite(getActivity(), isFavorite(), this);
+			POIManager poim = getPoimOrNull();
+			if (poim != null && poim.isFavoritable()) {
+				poim.addRemoteFavorite(getActivity(), isFavorite(), this);
 				return true; // handled
 			}
 		}
@@ -824,18 +952,22 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	public void onFavoriteUpdated() {
 		this.isFavorite = null; // reset
 		updateFavMenuItem();
-		POIViewController.updateView(getActivity(), getPOIView(getView()), this.poim, this);
+		POIManager poim = getPoimOrNull();
+		if (poim != null) {
+			POIViewController.updateView(getActivity(), getPOIView(getView()), poim, this);
+		}
 	}
 
 	@Override
 	public boolean isABReady() {
-		return this.agency != null;
+		return hasAgency();
 	}
 
 	@Override
 	public CharSequence getABTitle(Context context) {
-		if (this.agency != null) {
-			return this.agency.getShortName();
+		AgencyProperties agency = getAgencyOrNull();
+		if (agency != null) {
+			return agency.getShortName();
 		}
 		return context.getString(R.string.ellipsis);
 	}

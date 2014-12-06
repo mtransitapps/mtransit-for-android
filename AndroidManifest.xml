@@ -143,6 +143,9 @@
                 android:name="@string/agency_provider"
                 android:value="@string/agency_provider" />
             <meta-data
+                android:name="@string/agency_provider_type"
+                android:value="999" />
+            <meta-data
                 android:name="@string/poi_provider"
                 android:value="@string/poi_provider" />
             <meta-data

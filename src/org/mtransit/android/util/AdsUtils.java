@@ -65,13 +65,13 @@ public final class AdsUtils implements MTLog.Loggable {
 			if (!AD_ENABLED) {
 				return false;
 			}
-			final Activity activity = this.activityWR == null ? null : this.activityWR.get();
+			Activity activity = this.activityWR == null ? null : this.activityWR.get();
 			return isShowingAds(activity);
 		}
 
 		@Override
 		protected void onPostExecute(Boolean result) {
-			final Activity activity = this.activityWR == null ? null : this.activityWR.get();
+			Activity activity = this.activityWR == null ? null : this.activityWR.get();
 			if (activity != null && result) {
 				View adLayout = activity.findViewById(R.id.ad_layout);
 				if (adLayout != null) {
@@ -176,8 +176,8 @@ public final class AdsUtils implements MTLog.Loggable {
 		if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
 			return true;
 		}
-		final int sizeMask = configuration.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
-		final boolean smallScreen = sizeMask == Configuration.SCREENLAYOUT_SIZE_SMALL || sizeMask == Configuration.SCREENLAYOUT_SIZE_NORMAL;
+		int sizeMask = configuration.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+		boolean smallScreen = sizeMask == Configuration.SCREENLAYOUT_SIZE_SMALL || sizeMask == Configuration.SCREENLAYOUT_SIZE_NORMAL;
 		return !smallScreen;
 	}
 

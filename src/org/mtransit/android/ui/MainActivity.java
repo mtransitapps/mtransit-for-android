@@ -9,6 +9,7 @@ import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.SearchFragment;
 import org.mtransit.android.util.AdsUtils;
 import org.mtransit.android.util.AnalyticsUtils;
+import org.mtransit.android.util.MapUtils;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -59,11 +60,11 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		setContentView(R.layout.activity_main);
 		this.abController = new ActionBarController(this);
 		this.navigationDrawerController = new NavigationDrawerController(this);
-		this.navigationDrawerController.onRestoreState(savedInstanceState);
-		this.navigationDrawerController.setup();
+		this.navigationDrawerController.setup(savedInstanceState);
 
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
 		AdsUtils.setupAd(this);
+		MapUtils.initMapAsync(this);
 	}
 
 	public ActionBarController getAbController() {
@@ -100,7 +101,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		if (f != null && f instanceof SearchFragment) {
 			((SearchFragment) f).setSearchQuery(query, false);
 		} else {
-			addFragmentToStack(SearchFragment.newInstance(query, null));
+			addFragmentToStack(SearchFragment.newInstance(query, null, null));
 		}
 	}
 
@@ -111,8 +112,12 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		if (this.abController != null) {
 			this.abController.updateAB();
 		}
+		if (this.navigationDrawerController != null) {
+			this.navigationDrawerController.onResume();
+		}
 		AnalyticsUtils.trackScreenView(this, this);
 		AdsUtils.adaptToScreenSize(this, getResources().getConfiguration());
+		onUserLocationChanged(getUserLocation());
 	}
 
 	@Override
@@ -149,18 +154,15 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
 		if (this.navigationDrawerController != null) {
-			this.navigationDrawerController.onSaveInstanceState(outState);
+			this.navigationDrawerController.onSaveState(outState);
 		}
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		if (this.navigationDrawerController != null) {
-			this.navigationDrawerController.onRestoreState(savedInstanceState);
-		}
 	}
 
 	public void clearFragmentBackStackImmediate() {
@@ -195,7 +197,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		}
 	}
 
-	private void showContentFrameAsLoaded() {
+	public void showContentFrameAsLoaded() {
 		if (findViewById(R.id.content_frame_loading) != null) {
 			findViewById(R.id.content_frame_loading).setVisibility(View.GONE);
 		}
@@ -215,14 +217,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 
 	@Override
 	public void onUserLocationChanged(Location newLocation) {
-		final java.util.List<Fragment> fragments = getSupportFragmentManager().getFragments();
-		if (fragments != null) {
-			for (Fragment fragment : fragments) {
-				if (fragment != null && fragment instanceof MTActivityWithLocation.UserLocationListener) {
-					((MTActivityWithLocation.UserLocationListener) fragment).onUserLocationChanged(newLocation);
-				}
-			}
-		}
+		MTActivityWithLocation.broadcastUserLocationChanged(this, getSupportFragmentManager(), newLocation);
 	}
 
 
@@ -320,7 +315,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	public void popFragmentFromStack(Fragment fragment) {
 		try {
 			if (fragment != null) {
-				final FragmentManager fm = getSupportFragmentManager();
+				FragmentManager fm = getSupportFragmentManager();
 				fm.popBackStack();
 			}
 		} catch (Exception e) {
@@ -345,7 +340,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	}
 
 	public boolean onUpIconClick() {
-		final FragmentManager fm = getSupportFragmentManager();
+		FragmentManager fm = getSupportFragmentManager();
 		if (fm.getBackStackEntryCount() > 0) {
 			fm.popBackStack();
 			return true; // handled

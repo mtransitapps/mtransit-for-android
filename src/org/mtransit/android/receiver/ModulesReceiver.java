@@ -1,6 +1,5 @@
 package org.mtransit.android.receiver;
 
-import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.data.DataSourceManager;
@@ -22,13 +21,15 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		String pkg = intent.getData().getSchemeSpecificPart();
 		if (DataSourceProvider.isSet()) {
-			DataSourceProvider.resetIfNecessary(context);
+			if (DataSourceProvider.isProvider(context, pkg)) {
+				DataSourceProvider.resetIfNecessary(context);
+			}
 		} else {
-			final String pkg = intent.getData().getSchemeSpecificPart();
-			final ProviderInfo[] providers = PackageManagerUtils.findContentProvidersWithMetaData(context, pkg);
+			ProviderInfo[] providers = PackageManagerUtils.findContentProvidersWithMetaData(context, pkg);
 			if (providers != null) {
-				final String agencyProviderMetaData = context.getString(R.string.agency_provider);
+				String agencyProviderMetaData = DataSourceProvider.getAgencyProviderMetaData(context);
 				for (ProviderInfo provider : providers) {
 					if (provider.metaData != null) {
 						if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {

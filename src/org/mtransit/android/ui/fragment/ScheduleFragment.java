@@ -48,23 +48,177 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	private static final String EXTRA_AUTHORITY = "extra_agency_authority";
 	private static final String EXTRA_POI_UUID = "extra_poi_uuid";
 
-	public static ScheduleFragment newInstance(RouteTripStop rts) {
+	public static ScheduleFragment newInstance(String uuid, String authority, AgencyProperties optAgency, RouteTripStop optRts) {
 		ScheduleFragment f = new ScheduleFragment();
 		Bundle args = new Bundle();
-		args.putString(EXTRA_AUTHORITY, rts.getAuthority());
-		args.putString(EXTRA_POI_UUID, rts.getUUID());
+		args.putString(EXTRA_AUTHORITY, authority);
+		f.authority = authority;
+		f.agency = optAgency;
+		args.putString(EXTRA_POI_UUID, uuid);
+		f.uuid = uuid;
+		f.rts = optRts;
 		f.setArguments(args);
 		return f;
 	}
 
 	private DayPagerAdapter adapter;
 	private int lastPageSelected = -1;
+	private String uuid;
+
 	private RouteTripStop rts;
+	private boolean hasRts() {
+		if (this.rts == null) {
+			initRtsAsync();
+			return false;
+		}
+		return true;
+	}
+
+	private void initRtsAsync() {
+		if (this.loadRtsTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+			return;
+		}
+		if (TextUtils.isEmpty(this.uuid) || TextUtils.isEmpty(this.authority)) {
+			return;
+		}
+		this.loadRtsTask.execute();
+	}
+
+	private MTAsyncTask<Void, Void, Boolean> loadRtsTask = new MTAsyncTask<Void, Void, Boolean>() {
+		@Override
+		public String getLogTag() {
+			return TAG + ">loadRtsTask";
+		}
+
+		@Override
+		protected Boolean doInBackgroundMT(Void... params) {
+			return initRtsSync();
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			super.onPostExecute(result);
+			if (result) {
+				applyNewRts();
+			}
+		}
+	};
+
+	private void resetRts() {
+		this.rts = null;
+	}
+
+	private RouteTripStop getRtsOrNull() {
+		if (!hasRts()) {
+			return null;
+		}
+		return this.rts;
+	}
+
+	private boolean initRtsSync() {
+		if (this.rts != null) {
+			return false;
+		}
+		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
+			POIManager poim = DataSourceManager.findPOI(getActivity(), this.authority, new POIFilter(Arrays.asList(new String[] { this.uuid })));
+			if (poim != null && poim.poi instanceof RouteTripStop) {
+				this.rts = (RouteTripStop) poim.poi;
+			}
+		}
+		return this.rts != null;
+	}
+
+	private void applyNewRts() {
+		if (this.rts == null) {
+			return;
+		}
+		getAbController().setABBgColor(this, getABBgColor(getActivity()), false);
+		getAbController().setABSubtitle(this, getABSubtitle(getActivity()), false);
+		getAbController().setABReady(this, isABReady(), true);
+		if (this.adapter != null) {
+			this.adapter.setOptRts(this.rts);
+		}
+	}
+	private String authority;
+
 	private AgencyProperties agency;
+
+	private boolean hasAgency() {
+		if (this.agency == null) {
+			initAgencyAsync();
+			return false;
+		}
+		return true;
+	}
+
+	private void initAgencyAsync() {
+		if (this.loadAgencyTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+			return;
+		}
+		if (TextUtils.isEmpty(this.authority)) {
+			return;
+		}
+		this.loadAgencyTask.execute();
+	}
+
+	private MTAsyncTask<Void, Void, Boolean> loadAgencyTask = new MTAsyncTask<Void, Void, Boolean>() {
+		@Override
+		public String getLogTag() {
+			return TAG + ">loadAgencyTask";
+		}
+
+		@Override
+		protected Boolean doInBackgroundMT(Void... params) {
+			return initAgencySync();
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			super.onPostExecute(result);
+			if (result) {
+				applyNewAgency();
+			}
+		}
+	};
+	private void applyNewAgency() {
+		if (this.agency == null) {
+			return;
+		}
+		getAbController().setABSubtitle(this, getABSubtitle(getActivity()), false);
+		getAbController().setABReady(this, isABReady(), true);
+	}
+
+	private AgencyProperties getAgencyOrNull() {
+		if (!hasAgency()) {
+			return null;
+		}
+		return this.agency;
+	}
+
+	private boolean initAgencySync() {
+		if (this.agency != null) {
+			return false;
+		}
+		if (!TextUtils.isEmpty(this.authority)) {
+			this.agency = DataSourceProvider.get(getActivity()).getAgency(getActivity(), this.authority);
+		}
+		return this.agency != null;
+	}
+
+	private void resetAgency() {
+		this.agency = null;
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		restoreInstanceState(savedInstanceState, getArguments());
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
+		restoreInstanceState(savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_schedule, container, false);
 		setupView(view);
 		switchView(view);
@@ -73,25 +227,26 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		if (this.rts != null && this.rts != null) {
-			outState.putString(EXTRA_POI_UUID, this.rts.getUUID());
-			outState.putString(EXTRA_AUTHORITY, this.rts.getAuthority());
+		if (!TextUtils.isEmpty(this.authority)) {
+			outState.putString(EXTRA_AUTHORITY, this.authority);
+		}
+		if (!TextUtils.isEmpty(this.uuid)) {
+			outState.putString(EXTRA_POI_UUID, this.uuid);
 		}
 		super.onSaveInstanceState(outState);
 	}
 
-	private void restoreInstanceState(Bundle savedInstanceState) {
-		String authority = BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, getArguments());
-		String uuid = BundleUtils.getString(EXTRA_POI_UUID, savedInstanceState, getArguments());
-		if (!TextUtils.isEmpty(authority) && !TextUtils.isEmpty(uuid)) {
-			POIFilter poiFilter = new POIFilter(Arrays.asList(new String[] { uuid }));
-			POIManager poim = DataSourceManager.findPOI(getActivity(), authority, poiFilter);
-			if (poim != null && poim.poi instanceof RouteTripStop) {
-				this.rts = (RouteTripStop) poim.poi;
-			}
-			this.agency = DataSourceProvider.get(getActivity()).getAgency(authority);
-			getAbController().setABSubtitle(this, getABSubtitle(getActivity()), false);
-			getAbController().setABReady(this, isABReady(), true);
+	private void restoreInstanceState(Bundle... bundles) {
+		String newAuthority = BundleUtils.getString(EXTRA_AUTHORITY, bundles);
+		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
+			this.authority = newAuthority;
+			resetRts();
+			resetAgency();
+		}
+		String newUuid = BundleUtils.getString(EXTRA_POI_UUID, bundles);
+		if (!TextUtils.isEmpty(newUuid) && !newUuid.equals(this.uuid)) {
+			this.uuid = newUuid;
+			resetRts();
 		}
 	}
 
@@ -126,7 +281,8 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			@Override
 			protected Void doInBackgroundMT(Void... params) {
 				if (ScheduleFragment.this.adapter == null) {
-					ScheduleFragment.this.adapter = new DayPagerAdapter(ScheduleFragment.this, ScheduleFragment.this.rts, TimeUtils.getBeginningOfTodayInMs());
+					ScheduleFragment.this.adapter = new DayPagerAdapter(ScheduleFragment.this, TimeUtils.getBeginningOfTodayInMs(), ScheduleFragment.this.uuid,
+							ScheduleFragment.this.authority, getRtsOrNull());
 				}
 				if (ScheduleFragment.this.lastPageSelected < 0) {
 					ScheduleFragment.this.lastPageSelected = DayPagerAdapter.STARTING_POSITION;
@@ -138,7 +294,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			protected void onPostExecute(Void result) {
 				super.onPostExecute(result);
 				setupAdapter(view);
-				final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+				ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 				viewPager.setCurrentItem(ScheduleFragment.this.lastPageSelected);
 				switchView(view);
 			}
@@ -150,7 +306,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (view == null) {
 			return;
 		}
-		final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		viewPager.setOffscreenPageLimit(2);
 		viewPager.setOnPageChangeListener(this);
 	}
@@ -159,7 +315,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (view == null || this.adapter == null) {
 			return;
 		}
-		final ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		viewPager.setAdapter(this.adapter);
 	}
 
@@ -184,7 +340,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof VisibilityAwareFragment) {
-					final VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
+					VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
 					visibilityAwareFragment.setFragmentVisibleAtPosition(this.lastPageSelected); // resume
 				}
 			}
@@ -196,7 +352,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof VisibilityAwareFragment) {
-					final VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
+					VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
 					visibilityAwareFragment.setFragmentVisibleAtPosition(-1); // pause
 				}
 			}
@@ -211,7 +367,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof VisibilityAwareFragment) {
-					final VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
+					VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
 					visibilityAwareFragment.setFragmentVisibleAtPosition(position);
 				}
 			}
@@ -224,19 +380,17 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 	@Override
 	public void onModulesUpdated() {
-		if (this.rts != null) {
-			POIFilter poiFilter = new POIFilter(Arrays.asList(new String[] { this.rts.getUUID() }));
-			POIManager newPoim = DataSourceManager.findPOI(getActivity(), this.rts.getAuthority(), poiFilter);
-			if (newPoim == null) {
+		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
+			POIFilter poiFilter = new POIFilter(Arrays.asList(new String[] { this.uuid }));
+			POIManager newPoim = DataSourceManager.findPOI(getActivity(), this.authority, poiFilter);
+			if (newPoim == null || !(newPoim.poi instanceof RouteTripStop)) {
 				((MainActivity) getActivity()).popFragmentFromStack(this); // close this fragment
 				return;
 			}
-			if (!this.rts.equals(newPoim.poi)) {
-				this.rts = (RouteTripStop) newPoim.poi;
-				this.adapter = null; // reset
-				switchView(getView());
-				initTabsAndViewPager(getView());
-			}
+			resetRts();
+			this.adapter = null; // reset
+			switchView(getView());
+			initTabsAndViewPager(getView());
 		}
 	}
 
@@ -301,7 +455,8 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 	@Override
 	public boolean isABReady() {
-		return this.agency != null && this.rts != null;
+		boolean ready = hasAgency() && hasRts();
+		return ready;
 	}
 
 	@Override
@@ -311,26 +466,29 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 	@Override
 	public CharSequence getABSubtitle(Context context) {
-		if (this.rts == null || this.agency == null) {
+		RouteTripStop rts = getRtsOrNull();
+		AgencyProperties agency = getAgencyOrNull();
+		if (agency == null || rts == null) {
 			return super.getABSubtitle(context);
 		}
-		StringBuilder sb = new StringBuilder(this.agency.getShortName());
+		StringBuilder sb = new StringBuilder(agency.getShortName());
 		sb.append(" -");
-		if (!TextUtils.isEmpty(this.rts.route.shortName)) {
-			sb.append(" ").append(this.rts.route.shortName);
+		if (!TextUtils.isEmpty(rts.route.shortName)) {
+			sb.append(" ").append(rts.route.shortName);
 		}
-		if (!TextUtils.isEmpty(this.rts.route.longName)) {
-			sb.append(" ").append(this.rts.route.longName);
+		if (!TextUtils.isEmpty(rts.route.longName)) {
+			sb.append(" ").append(rts.route.longName);
 		}
 		return sb.toString();
 	}
 
 	@Override
 	public Integer getABBgColor(Context context) {
-		if (this.rts == null) {
+		RouteTripStop rts = getRtsOrNull();
+		if (rts == null) {
 			return super.getABBgColor(context);
 		}
-		return this.rts.route.getColorInt();
+		return rts.route.getColorInt();
 	}
 
 
@@ -352,13 +510,21 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		private long todayStartsAtInMs;
 		private Calendar todayStartsAtCal;
 		private int lastVisibleFragmentPosition = -1;
-		private RouteTripStop rts;
+		private String uuid;
+		private String authority;
+		private RouteTripStop optRts;
 
-		public DayPagerAdapter(ScheduleFragment scheduleFragment, RouteTripStop rts, long todayStartsAtInMs) {
+		public DayPagerAdapter(ScheduleFragment scheduleFragment, long todayStartsAtInMs, String uuid, String authority, RouteTripStop optRts) {
 			super(scheduleFragment.getChildFragmentManager());
-			this.rts = scheduleFragment.rts;
+			this.uuid = uuid;
+			this.authority = authority;
+			this.optRts = optRts;
 			this.todayStartsAtInMs = todayStartsAtInMs;
 			this.todayStartsAtCal = TimeUtils.getNewCalendarInstance(this.todayStartsAtInMs);
+		}
+
+		public void setOptRts(RouteTripStop optRts) {
+			this.optRts = optRts;
 		}
 
 		public void setLastVisibleFragmentPosition(int lastVisibleFragmentPosition) {
@@ -373,13 +539,14 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 		@Override
 		public Fragment getItem(int position) {
-			return ScheduleDayFragment.newInstance(this.rts, getPageDayCal(position).getTimeInMillis(), position, this.lastVisibleFragmentPosition);
+			return ScheduleDayFragment.newInstance(this.uuid, this.authority, getPageDayCal(position).getTimeInMillis(), position,
+					this.lastVisibleFragmentPosition, this.optRts);
 		}
 
 		@Override
 		public int getItemPosition(Object object) {
 			if (object != null && object instanceof ScheduleDayFragment) {
-				final ScheduleDayFragment f = (ScheduleDayFragment) object;
+				ScheduleDayFragment f = (ScheduleDayFragment) object;
 				return f.getFragmentPosition();
 			}
 			return POSITION_NONE;

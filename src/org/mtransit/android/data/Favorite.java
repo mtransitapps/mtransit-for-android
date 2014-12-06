@@ -22,7 +22,7 @@ public class Favorite {
 	}
 
 	public static Favorite fromCursor(Cursor c) {
-		final Favorite favorite = new Favorite();
+		Favorite favorite = new Favorite();
 		favorite.id = c.getInt(c.getColumnIndexOrThrow(FavoriteColumns.T_FAVORITE_K_ID));
 		favorite.type = c.getInt(c.getColumnIndexOrThrow(FavoriteColumns.T_FAVORITE_K_TYPE));
 		favorite.fkId = c.getString(c.getColumnIndexOrThrow(FavoriteColumns.T_FAVORITE_K_FK_ID));
@@ -30,7 +30,7 @@ public class Favorite {
 	}
 
 	public static ContentValues toContentValues(Favorite favorite) {
-		final ContentValues values = new ContentValues();
+		ContentValues values = new ContentValues();
 		if (favorite.getId() > 0) {
 			values.put(FavoriteColumns.T_FAVORITE_K_ID, favorite.id);
 		} // ELSE IF no ID yet, let SQLite choose the ID

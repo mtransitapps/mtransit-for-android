@@ -176,7 +176,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 				return null;
 			}
 			clearFetchAgencySearchTasks();
-			ArrayList<AgencyProperties> agencies = DataSourceProvider.get(this.context).getTypeDataSources(this.agencyType.getId());
+			ArrayList<AgencyProperties> agencies = DataSourceProvider.get(this.context).getTypeDataSources(this.context, this.agencyType.getId());
 			ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
 			if (agencies != null) {
 				for (AgencyProperties agency : agencies) {

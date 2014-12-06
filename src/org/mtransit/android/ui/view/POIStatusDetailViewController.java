@@ -28,17 +28,17 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	public static Integer getLayoutResId(POIManager poim) {
-		switch (poim.getStatusType()) {
-		case POI.ITEM_STATUS_TYPE_APP:
-			return R.layout.layout_poi_detail_status_app;
-		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			return R.layout.layout_poi_detail_status_schedule;
-		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			return R.layout.layout_poi_detail_status_availability_percent;
-		default:
-			MTLog.w(TAG, "getLayoutResId() > Unknow view type for poi %s!", poim);
-			return null;
+		if (poim != null) {
+			switch (poim.getStatusType()) {
+			case POI.ITEM_STATUS_TYPE_APP:
+				return R.layout.layout_poi_detail_status_app;
+			case POI.ITEM_STATUS_TYPE_SCHEDULE:
+				return R.layout.layout_poi_detail_status_schedule;
+			case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
+				return R.layout.layout_poi_detail_status_availability_percent;
+			}
 		}
+		return null;
 	}
 
 	public static void initViewHolder(AgencyProperties agency, POIManager poim, View view) {
@@ -165,7 +165,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static void updateAppStatusView(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status) {
-		final AppStatusViewHolder appStatusViewHolder = (AppStatusViewHolder) statusViewHolder;
+		AppStatusViewHolder appStatusViewHolder = (AppStatusViewHolder) statusViewHolder;
 		if (status != null && status instanceof AppStatus) {
 			AppStatus appStatus = (AppStatus) status;
 			appStatusViewHolder.textTv.setText(appStatus.getStatusMsg(context));
@@ -225,7 +225,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		CharSequence line1CS = null;
 		if (dataProvider != null && status != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
-			final long nowToTheMinute = dataProvider.getNowToTheMinute();
+			long nowToTheMinute = dataProvider.getNowToTheMinute();
 			line1CS = schedule.getTimesListString(context, nowToTheMinute, TimeUtils.ONE_HOUR_IN_MS, TimeUtils.ONE_DAY_IN_MS, 10, 50);
 		}
 		ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;

@@ -123,9 +123,9 @@ public class MTPieChartPercentView extends MTView {
 	}
 
 	public void resetValuesAngles() {
-		final int total = getTotal();
-		final float value1Percent = this.value1 * 360.0f / total;
-		final float value2Percent = this.value2 * 360.0f / total;
+		int total = getTotal();
+		float value1Percent = this.value1 * 360.0f / total;
+		float value2Percent = this.value2 * 360.0f / total;
 		this.value1StartAngle = 90f; // 90° => orientation
 		this.value1EndAngle = this.value1StartAngle + value1Percent;
 		this.value2StartAngle = this.value1EndAngle;

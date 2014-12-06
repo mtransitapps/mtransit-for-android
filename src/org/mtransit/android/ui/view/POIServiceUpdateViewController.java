@@ -27,7 +27,7 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		return TAG;
 	}
 
-	public static Integer getLayoutResId(POIManager poim) {
+	public static Integer getLayoutResId() {
 		return R.layout.layout_poi_service_update;
 	}
 

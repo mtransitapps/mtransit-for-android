@@ -42,7 +42,7 @@ public class JPaths implements MTLog.Loggable {
 		try {
 			JSONObject json = new JSONObject();
 			json.put("id", this.id);
-			final JSONArray jPaths = new JSONArray();
+			JSONArray jPaths = new JSONArray();
 			if (this.paths != null) {
 				for (JPath path : this.paths) {
 					JSONObject jPath = new JSONObject();
@@ -73,7 +73,7 @@ public class JPaths implements MTLog.Loggable {
 
 	public static JPaths fromJSON(JSONObject json) {
 		try {
-			final String id = json.getString("id");
+			String id = json.getString("id");
 			JPaths jPaths = new JPaths(id);
 			JSONArray jsonPaths = json.optJSONArray("paths");
 			if (jsonPaths != null && jsonPaths.length() > 0) {
@@ -148,9 +148,9 @@ public class JPaths implements MTLog.Loggable {
 
 		public static JPaint fromJSON(JSONObject json) {
 			try {
-				final Paint.Style style = Paint.Style.valueOf(json.getString("style"));
+				Paint.Style style = Paint.Style.valueOf(json.getString("style"));
 				JPaint jPaint = new JPaint(style);
-				final float strokeWidth = (float) json.optDouble("strokeWidth", -1);
+				float strokeWidth = (float) json.optDouble("strokeWidth", -1);
 				if (strokeWidth >= 0f) {
 					jPaint.strokeWidth = strokeWidth;
 				}
@@ -242,9 +242,9 @@ public class JPaths implements MTLog.Loggable {
 
 		public static JCircle fromJSON(JSONObject json) {
 			try {
-				final float x = (float) json.getDouble("x");
-				final float y = (float) json.getDouble("y");
-				final float radius = (float) json.getDouble("radius");
+				float x = (float) json.getDouble("x");
+				float y = (float) json.getDouble("y");
+				float radius = (float) json.getDouble("radius");
 				return new JCircle(x, y, radius);
 			} catch (JSONException e) {
 				MTLog.w(TAG, e, "Error while parsing JSON!");
@@ -289,10 +289,10 @@ public class JPaths implements MTLog.Loggable {
 
 		public static JRect fromJSON(JSONObject json) {
 			try {
-				final float left = (float) json.getDouble("left");
-				final float top = (float) json.getDouble("top");
-				final float right = (float) json.getDouble("right");
-				final float bottom = (float) json.getDouble("bottom");
+				float left = (float) json.getDouble("left");
+				float top = (float) json.getDouble("top");
+				float right = (float) json.getDouble("right");
+				float bottom = (float) json.getDouble("bottom");
 				return new JRect(left, top, right, bottom);
 			} catch (JSONException e) {
 				MTLog.w(TAG, e, "Error while parsing JSON!");
@@ -338,9 +338,9 @@ public class JPaths implements MTLog.Loggable {
 				if (json == null) {
 					return null;
 				}
-				final float degrees = (float) json.getDouble("degrees");
-				final float px = (float) json.getDouble("px");
-				final float py = (float) json.getDouble("py");
+				float degrees = (float) json.getDouble("degrees");
+				float px = (float) json.getDouble("px");
+				float py = (float) json.getDouble("py");
 				return new JRotation(degrees, px, py);
 			} catch (JSONException e) {
 				MTLog.w(TAG, e, "Error while parsing JSON!");

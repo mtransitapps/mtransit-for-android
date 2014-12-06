@@ -55,7 +55,6 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return getLogTag();
 	}
 
-	private static final int AGENCY_TYPE = 999;
 
 	private static final String PREF_KEY_LAST_UPDATE_MS = ModuleDbHelper.PREF_KEY_LAST_UPDATE_MS;
 
@@ -303,7 +302,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			db.beginTransaction(); // start the transaction
 			if (defaultPOIs != null) {
 				for (DefaultPOI defaultPOI : defaultPOIs) {
-					final long rowId = db.insert(provider.getPOITable(), POIDbHelper.T_POI_K_ID, defaultPOI.toContentValues());
+					long rowId = db.insert(provider.getPOITable(), POIDbHelper.T_POI_K_ID, defaultPOI.toContentValues());
 					if (rowId > 0) {
 						affectedRows++;
 					}
@@ -330,7 +329,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		if (!(filter instanceof AppStatus.AppStatusFilter)) {
 			return null;
 		}
-		final AppStatus.AppStatusFilter moduleStatusFilter = (AppStatus.AppStatusFilter) filter;
+		AppStatus.AppStatusFilter moduleStatusFilter = (AppStatus.AppStatusFilter) filter;
 		return getNewModuleStatus(moduleStatusFilter);
 	}
 
@@ -393,10 +392,6 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return getURIMATCHER(getContext());
 	}
 
-	@Override
-	public int getAgencyType() {
-		return AGENCY_TYPE;
-	}
 
 	@Override
 	public int getStatusType() {

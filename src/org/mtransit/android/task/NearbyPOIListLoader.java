@@ -15,7 +15,6 @@ import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.task.MTAsyncTaskLoaderV4;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
-import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
@@ -32,7 +31,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 	private ArrayList<POIManager> pois;
 
 
-	private AgencyProperties[] agencies;
+	private String[] agenciesAuthority;
 
 	private double lat;
 
@@ -47,14 +46,14 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 	private boolean hideDecentOnly;
 
 	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, int minCoverage, int maxSize, boolean hideDecentOnly,
-			ArrayList<AgencyProperties> agencies) {
-		this(context, lat, lng, aroundDiff, minCoverage, maxSize, hideDecentOnly, agencies == null ? null : agencies.toArray(new AgencyProperties[] {}));
+			ArrayList<String> agenciesAuthority) {
+		this(context, lat, lng, aroundDiff, minCoverage, maxSize, hideDecentOnly, agenciesAuthority == null ? null : agenciesAuthority.toArray(new String[] {}));
 	}
 
 	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, int minCoverage, int maxSize, boolean hideDecentOnly,
-			AgencyProperties... agencies) {
+			String... agenciesAuthority) {
 		super(context);
-		this.agencies = agencies;
+		this.agenciesAuthority = agenciesAuthority;
 		this.lat = lat;
 		this.lng = lng;
 		this.aroundDiff = aroundDiff;
@@ -67,14 +66,14 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		if (this.pois == null) {
 			this.pois = new ArrayList<POIManager>();
 		}
-		if (this.agencies == null || this.agencies.length == 0) {
+		if (this.agenciesAuthority == null || this.agenciesAuthority.length == 0) {
 			return this.pois;
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,
-				new LinkedBlockingDeque<Runnable>(this.agencies.length));
+				new LinkedBlockingDeque<Runnable>(this.agenciesAuthority.length));
 		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
-		for (AgencyProperties agency : this.agencies) {
-			FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(getContext(), agency.getAuthority(), this.lat, this.lng, this.aroundDiff,
+		for (String agencyAuthority : this.agenciesAuthority) {
+			FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(getContext(), agencyAuthority, this.lat, this.lng, this.aroundDiff,
 					this.hideDecentOnly, this.minCoverage, this.maxSize);
 			taskList.add(executor.submit(task));
 		}
@@ -103,8 +102,8 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		}
 	}
 
-	public static ArrayList<AgencyProperties> findTypeAgencies(Context context, DataSourceType type, double lat, double lng, double aroundDiff) {
-		ArrayList<AgencyProperties> allTypeAgencies = DataSourceProvider.get(context).getTypeDataSources(type.getId());
+	public static ArrayList<AgencyProperties> findTypeAgencies(Context context, int typeId, double lat, double lng, double aroundDiff) {
+		ArrayList<AgencyProperties> allTypeAgencies = DataSourceProvider.get(context).getTypeDataSources(context, typeId);
 		if (allTypeAgencies != null) {
 			Iterator<AgencyProperties> it = allTypeAgencies.iterator();
 			while (it.hasNext()) {
@@ -114,6 +113,17 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 			}
 		}
 		return allTypeAgencies;
+	}
+
+	public static ArrayList<String> findTypeAgenciesAuthority(Context context, int typeId, double lat, double lng, double aroundDiff) {
+		ArrayList<String> authorities = new ArrayList<String>();
+		ArrayList<AgencyProperties> agencies = findTypeAgencies(context, typeId, lat, lng, aroundDiff);
+		if (agencies != null) {
+			for (AgencyProperties agency : agencies) {
+				authorities.add(agency.getAuthority());
+			}
+		}
+		return authorities;
 	}
 
 	@Override

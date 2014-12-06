@@ -140,15 +140,15 @@ public class Module extends DefaultPOI {
 					json.getString("pkg"), //
 					json.getInt("targetTypeId") //
 			);
-			final String optColor = json.optString("color");
+			String optColor = json.optString("color");
 			if (!TextUtils.isEmpty(optColor)) {
 				module.color = optColor;
 			}
-			final String optLocation = json.optString("location");
+			String optLocation = json.optString("location");
 			if (!TextUtils.isEmpty(optLocation)) {
 				module.location = optLocation;
 			}
-			final String optNameFr = json.optString("name_fr");
+			String optNameFr = json.optString("name_fr");
 			if (!TextUtils.isEmpty(optNameFr)) {
 				module.nameFr = optNameFr;
 			}
@@ -175,11 +175,11 @@ public class Module extends DefaultPOI {
 			if (!TextUtils.isEmpty(optColor)) {
 				module.color = optColor;
 			}
-			final String optLocation = json.optString("location");
+			String optLocation = json.optString("location");
 			if (!TextUtils.isEmpty(optLocation)) {
 				module.location = optLocation;
 			}
-			final String optNameFr = json.optString("name_fr");
+			String optNameFr = json.optString("name_fr");
 			if (!TextUtils.isEmpty(optNameFr)) {
 				module.nameFr = optNameFr;
 			}
@@ -192,7 +192,7 @@ public class Module extends DefaultPOI {
 
 	@Override
 	public ContentValues toContentValues() {
-		final ContentValues values = super.toContentValues();
+		ContentValues values = super.toContentValues();
 		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_PKG, this.pkg);
 		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_TARGET_TYPE_ID, this.targetTypeId);
 		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_COLOR, this.color);

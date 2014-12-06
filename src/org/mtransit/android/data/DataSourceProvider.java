@@ -10,6 +10,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
 
 import android.content.Context;
@@ -17,6 +18,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 import android.util.SparseArray;
 
 public class DataSourceProvider implements MTLog.Loggable {
@@ -61,6 +63,73 @@ public class DataSourceProvider implements MTLog.Loggable {
 		}
 	}
 
+	private static String agencyProviderMetaData;
+
+	public static String getAgencyProviderMetaData(Context context) {
+		if (agencyProviderMetaData == null) {
+			agencyProviderMetaData = context == null ? null : context.getString(R.string.agency_provider);
+		}
+		return agencyProviderMetaData;
+	}
+
+	private static String scheduleProviderMetaData;
+
+	public static String getScheduleProviderMetaData(Context context) {
+		if (scheduleProviderMetaData == null) {
+			scheduleProviderMetaData = context == null ? null : context.getString(R.string.schedule_provider);
+		}
+		return scheduleProviderMetaData;
+	}
+
+	private static String statusProviderMetaData;
+
+	public static String getStatusProviderMetaData(Context context) {
+		if (statusProviderMetaData == null) {
+			statusProviderMetaData = context == null ? null : context.getString(R.string.status_provider);
+		}
+		return statusProviderMetaData;
+	}
+
+	private static String serviceUpdateProviderMetaData;
+
+	public static String getServiceUpdateProviderMetaData(Context context) {
+		if (serviceUpdateProviderMetaData == null) {
+			serviceUpdateProviderMetaData = context == null ? null : context.getString(R.string.service_update_provider);
+		}
+		return serviceUpdateProviderMetaData;
+	}
+
+	public static boolean isProvider(Context context, String pkg) {
+		if (TextUtils.isEmpty(pkg)) {
+			return false;
+		}
+		ProviderInfo[] providers = PackageManagerUtils.findContentProvidersWithMetaData(context, pkg);
+		if (providers == null || providers.length == 0) {
+			return false;
+		}
+		String agencyProviderMetaData = getAgencyProviderMetaData(context);
+		String scheduleProviderMetaData = getScheduleProviderMetaData(context);
+		String statusProviderMetaData = getStatusProviderMetaData(context);
+		String serviceUpdateProviderMetaData = getServiceUpdateProviderMetaData(context);
+		for (ProviderInfo provider : providers) {
+			if (provider.metaData != null) {
+				if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
+					return true;
+				}
+				if (scheduleProviderMetaData.equals(provider.metaData.getString(scheduleProviderMetaData))) {
+					return true;
+				}
+				if (statusProviderMetaData.equals(provider.metaData.getString(statusProviderMetaData))) {
+					return true;
+				}
+				if (serviceUpdateProviderMetaData.equals(provider.metaData.getString(serviceUpdateProviderMetaData))) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public static boolean resetIfNecessary(Context optContext) {
 		if (instance != null) {
 			if (optContext == null) { // cannot compare w/o context
@@ -85,10 +154,10 @@ public class DataSourceProvider implements MTLog.Loggable {
 		if (optContext == null) {
 			return true;
 		}
-		String agencyProviderMetaData = optContext.getString(R.string.agency_provider);
-		String scheduleProviderMetaData = optContext.getString(R.string.schedule_provider);
-		String statusProviderMetaData = optContext.getString(R.string.status_provider);
-		String serviceUpdateProviderMetaData = optContext.getString(R.string.service_update_provider);
+		String agencyProviderMetaData = getAgencyProviderMetaData(optContext);
+		String scheduleProviderMetaData = getScheduleProviderMetaData(optContext);
+		String statusProviderMetaData = getStatusProviderMetaData(optContext);
+		String serviceUpdateProviderMetaData = getServiceUpdateProviderMetaData(optContext);
 		int nbAgencyProviders = 0, nbScheduleProviders = 0, nbStatusProviders = 0, nbServiceUpdateProviders = 0;
 		PackageManager pm = optContext.getPackageManager();
 		for (PackageInfo packageInfo : pm.getInstalledPackages(PackageManager.GET_PROVIDERS | PackageManager.GET_META_DATA)) {
@@ -97,7 +166,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 				for (ProviderInfo provider : providers) {
 					if (provider.metaData != null) {
 						if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
-							if (instance.getAgency(provider.authority) == null) {
+							if (!instance.hasAgency(provider.authority)) {
 								return true;
 							}
 							nbAgencyProviders++;
@@ -124,7 +193,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 				}
 			}
 		}
-		if (nbAgencyProviders != CollectionUtils.getSize(instance.allAgencies) //
+		if (nbAgencyProviders != CollectionUtils.getSize(instance.allAgenciesAuthority) //
 				|| nbStatusProviders != CollectionUtils.getSize(instance.allStatusProviders) //
 				|| nbScheduleProviders != CollectionUtils.getSize(instance.allScheduleProviders) //
 				|| nbServiceUpdateProviders != CollectionUtils.getSize(instance.allServiceUpdateProviders)) {
@@ -133,20 +202,24 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return false;
 	}
 
+	private HashSet<String> allAgenciesAuthority = new HashSet<String>();
+	private HashMap<String, Integer> agenciesAuthorityTypeId = new HashMap<String, Integer>();
+	private HashMap<String, Boolean> agenciesAuthorityIsRts = new HashMap<String, Boolean>();
 	private ArrayList<DataSourceType> allAgencyTypes = new ArrayList<DataSourceType>();
-	private ArrayList<AgencyProperties> allAgencies = new ArrayList<AgencyProperties>();
+
+	private ArrayList<AgencyProperties> allAgencies = null;
 	private ArrayList<StatusProviderProperties> allStatusProviders = new ArrayList<StatusProviderProperties>();
 	private ArrayList<ScheduleProviderProperties> allScheduleProviders = new ArrayList<ScheduleProviderProperties>();
 	private ArrayList<ServiceUpdateProviderProperties> allServiceUpdateProviders = new ArrayList<ServiceUpdateProviderProperties>();
-	private HashMap<String, AgencyProperties> allAgenciesByAuthority = new HashMap<String, AgencyProperties>();
+	private HashMap<String, AgencyProperties> allAgenciesByAuthority = null;
 	private HashMap<String, StatusProviderProperties> allStatusProvidersByAuthority = new HashMap<String, StatusProviderProperties>();
 	private HashMap<String, ScheduleProviderProperties> allScheduleProvidersByAuthority = new HashMap<String, ScheduleProviderProperties>();
 	private HashMap<String, ServiceUpdateProviderProperties> allServiceUpdateProvidersByAuthority = new HashMap<String, ServiceUpdateProviderProperties>();
-	private SparseArray<ArrayList<AgencyProperties>> allAgenciesByTypeId = new SparseArray<ArrayList<AgencyProperties>>();
+	private SparseArray<ArrayList<AgencyProperties>> allAgenciesByTypeId = null;
 	private HashMap<String, HashSet<StatusProviderProperties>> statusProvidersByTargetAuthority = new HashMap<String, HashSet<StatusProviderProperties>>();
 	private HashMap<String, HashSet<ScheduleProviderProperties>> scheduleProvidersByTargetAuthority = new HashMap<String, HashSet<ScheduleProviderProperties>>();
 	private HashMap<String, HashSet<ServiceUpdateProviderProperties>> serviceUpdateProvidersByTargetAuthority = new HashMap<String, HashSet<ServiceUpdateProviderProperties>>();
-	private HashMap<String, JPaths> rtsRouteLogoByAuthority = new HashMap<String, JPaths>();
+	private HashMap<String, JPaths> rtsAgencyRouteLogoByAuthority = null;
 	private DataSourceProvider() {
 	}
 
@@ -158,18 +231,102 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return new ArrayList<DataSourceType>(this.allAgencyTypes); // copy
 	}
 
-	public ArrayList<AgencyProperties> getAllAgencies() {
+	public int getAllAgenciesCount() {
+		return this.allAgenciesAuthority == null ? 0 : this.allAgenciesAuthority.size();
+	}
+
+	public ArrayList<AgencyProperties> getAllAgencies(Context context) {
+		if (!isAgencyPropertiesSet()) {
+			initAgencyProperties(context);
+		}
 		if (this.allAgencies == null) {
 			return null;
 		}
 		return new ArrayList<AgencyProperties>(this.allAgencies); // copy
 	}
 
-	public AgencyProperties getAgency(String authority) {
+	private boolean isAgencyPropertiesSet() {
+		return this.allAgencies != null;
+	}
+
+	private synchronized void initAgencyProperties(Context context) {
+		if (this.allAgencies != null) {
+			return; // too late
+		}
+		if (context == null) {
+			return;
+		}
+		if (this.allAgenciesAuthority != null) {
+			this.allAgencies = new ArrayList<AgencyProperties>();
+			this.allAgenciesByAuthority = new HashMap<String, AgencyProperties>();
+			this.allAgenciesByTypeId = new SparseArray<ArrayList<AgencyProperties>>();
+			this.rtsAgencyRouteLogoByAuthority = new HashMap<String, JPaths>();
+			for (String authority : this.allAgenciesAuthority) {
+				String label = DataSourceManager.findAgencyLabel(context, authority);
+				String color = DataSourceManager.findAgencyColor(context, authority);
+				String shortName = DataSourceManager.findAgencyShortName(context, authority);
+				LocationUtils.Area area = DataSourceManager.findAgencyArea(context, authority);
+				boolean isRTS = this.agenciesAuthorityIsRts.get(authority);
+				JPaths jPath = isRTS ? DataSourceManager.findAgencyRTSRouteLogo(context, authority) : null;
+				Integer typeId = this.agenciesAuthorityTypeId.get(authority);
+				if (typeId != null && typeId >= 0) {
+					DataSourceType type = DataSourceType.parseId(typeId);
+					if (type != null) {
+						AgencyProperties newAgency = new AgencyProperties(authority, type, shortName, label, color, area, isRTS);
+						addNewAgency(newAgency);
+						if (jPath != null) {
+							this.rtsAgencyRouteLogoByAuthority.put(newAgency.getAuthority(), jPath);
+						}
+					} else {
+						MTLog.w(this, "Invalid type '%s' , skipping agency provider.", type);
+					}
+				} else {
+					MTLog.w(this, "Invalid type ID '%s', skipping agency provider.", typeId);
+				}
+			}
+			CollectionUtils.sort(this.allAgencies, AgencyProperties.SHORT_NAME_COMPARATOR);
+			if (this.allAgenciesByTypeId != null) {
+				for (int i = 0; i < this.allAgenciesByTypeId.size(); i++) {
+					int typeId = this.allAgenciesByTypeId.keyAt(i);
+					CollectionUtils.sort(this.allAgenciesByTypeId.get(typeId), AgencyProperties.SHORT_NAME_COMPARATOR);
+				}
+			}
+		}
+	}
+
+	public boolean hasAgency(String authority) {
+		return this.allAgenciesAuthority == null ? false : this.allAgenciesAuthority.contains(authority);
+	}
+
+	public AgencyProperties getAgency(Context context, String authority) {
+		if (!isAgencyPropertiesSet()) {
+			initAgencyProperties(context);
+		}
 		if (this.allAgenciesByAuthority == null) {
 			return null;
 		}
 		return this.allAgenciesByAuthority.get(authority);
+	}
+
+	public ArrayList<AgencyProperties> getTypeDataSources(Context context, int typeId) {
+		if (!isAgencyPropertiesSet()) {
+			initAgencyProperties(context);
+		}
+		ArrayList<AgencyProperties> agencies = this.allAgenciesByTypeId == null ? null : this.allAgenciesByTypeId.get(typeId);
+		if (agencies == null) {
+			return null;
+		}
+		return new ArrayList<AgencyProperties>(agencies); // copy
+	}
+
+	public JPaths getRTSAgencyRouteLogo(Context context, String authority) {
+		if (!isAgencyPropertiesSet()) {
+			initAgencyProperties(context);
+		}
+		if (this.rtsAgencyRouteLogoByAuthority == null) {
+			return null;
+		}
+		return this.rtsAgencyRouteLogoByAuthority.get(authority);
 	}
 
 	public StatusProviderProperties getStatusProvider(String authority) {
@@ -191,14 +348,6 @@ public class DataSourceProvider implements MTLog.Loggable {
 			return null;
 		}
 		return this.allServiceUpdateProvidersByAuthority.get(authority);
-	}
-
-	public ArrayList<AgencyProperties> getTypeDataSources(int typeId) {
-		ArrayList<AgencyProperties> agencies = this.allAgenciesByTypeId == null ? null : this.allAgenciesByTypeId.get(typeId);
-		if (agencies == null) {
-			return null;
-		}
-		return new ArrayList<AgencyProperties>(agencies); // copy
 	}
 
 	public HashSet<StatusProviderProperties> getTargetAuthorityStatusProviders(String targetAuthority) {
@@ -228,25 +377,28 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return new HashSet<ServiceUpdateProviderProperties>(this.serviceUpdateProvidersByTargetAuthority.get(targetAuthority)); // copy
 	}
 
-	public JPaths getRTSRouteLogo(String authority) {
-		if (this.rtsRouteLogoByAuthority == null) {
-			return null;
-		}
-		return this.rtsRouteLogoByAuthority.get(authority);
-	}
-
 	public void onDestroy() {
 		if (this.allAgencyTypes != null) {
 			this.allAgencyTypes.clear();
 		}
+		if (this.allAgenciesAuthority != null) {
+			this.allAgenciesAuthority.clear();
+		}
 		if (this.allAgencies != null) {
 			this.allAgencies.clear();
+			this.allAgencies = null;
 		}
 		if (this.allAgenciesByTypeId != null) {
 			this.allAgenciesByTypeId.clear();
+			this.allAgenciesByTypeId = null;
 		}
 		if (this.allAgenciesByAuthority != null) {
 			this.allAgenciesByAuthority.clear();
+			this.allAgenciesByAuthority = null;
+		}
+		if (this.rtsAgencyRouteLogoByAuthority != null) {
+			this.rtsAgencyRouteLogoByAuthority.clear();
+			this.rtsAgencyRouteLogoByAuthority = null;
 		}
 		if (this.allStatusProviders != null) {
 			this.allStatusProviders.clear();
@@ -256,9 +408,6 @@ public class DataSourceProvider implements MTLog.Loggable {
 		}
 		if (this.statusProvidersByTargetAuthority != null) {
 			this.statusProvidersByTargetAuthority.clear();
-		}
-		if (this.rtsRouteLogoByAuthority != null) {
-			this.rtsRouteLogoByAuthority.clear();
 		}
 		if (this.allScheduleProviders != null) {
 			this.allScheduleProviders.clear();
@@ -281,11 +430,12 @@ public class DataSourceProvider implements MTLog.Loggable {
 	}
 
 	private synchronized void init(Context context) {
-		String agencyProviderMetaData = context.getString(R.string.agency_provider);
+		String agencyProviderMetaData = getAgencyProviderMetaData(context);
+		String agencyProviderTypeMetaData = context.getString(R.string.agency_provider_type);
 		String rtsProviderMetaData = context.getString(R.string.rts_provider);
-		String scheduleProviderMetaData = context.getString(R.string.schedule_provider);
-		String statusProviderMetaData = context.getString(R.string.status_provider);
-		String serviceUpdateProviderMetaData = context.getString(R.string.service_update_provider);
+		String scheduleProviderMetaData = getScheduleProviderMetaData(context);
+		String statusProviderMetaData = getStatusProviderMetaData(context);
+		String serviceUpdateProviderMetaData = getServiceUpdateProviderMetaData(context);
 		String statusProviderTargetMetaData = context.getString(R.string.status_provider_target);
 		String scheduleProviderTargetMetaData = context.getString(R.string.schedule_provider_target);
 		String serviceUpdateProviderTargetMetaData = context.getString(R.string.service_update_provider_target);
@@ -296,23 +446,19 @@ public class DataSourceProvider implements MTLog.Loggable {
 				for (ProviderInfo provider : providers) {
 					if (provider.metaData != null) {
 						if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
-							String label = DataSourceManager.findAgencyLabel(context, provider.authority);
-							String color = DataSourceManager.findAgencyColor(context, provider.authority);
-							String shortName = DataSourceManager.findAgencyShortName(context, provider.authority);
-							int typeId = DataSourceManager.findTypeId(context, provider.authority);
-							DataSourceType type = DataSourceType.parseId(typeId);
-							LocationUtils.Area area = DataSourceManager.findAgencyArea(context, provider.authority);
-							boolean isRTS = rtsProviderMetaData.equals(provider.metaData.getString(rtsProviderMetaData));
-							JPaths jPath = isRTS ? DataSourceManager.findAgencyRTSRouteLogo(context, provider.authority) : null;
-							if (type != null && typeId >= 0) {
-								AgencyProperties newAgency = new AgencyProperties(provider.authority, type, shortName, label, color, area, isRTS);
-								addNewAgency(newAgency);
-								if (jPath != null) {
-									this.rtsRouteLogoByAuthority.put(newAgency.getAuthority(), jPath);
+							int agencyTypeId = provider.metaData.getInt(agencyProviderTypeMetaData, -1);
+							if (agencyTypeId >= 0) {
+								DataSourceType newAgencyType = DataSourceType.parseId(agencyTypeId);
+								if (newAgencyType != null) {
+									if (!this.allAgencyTypes.contains(newAgencyType)) {
+										this.allAgencyTypes.add(newAgencyType);
+									}
 								}
-							} else {
-								MTLog.w(this, "Invalid type ID '%s' (%s), skipping agency provider.", typeId, type);
+								this.agenciesAuthorityTypeId.put(provider.authority, agencyTypeId);
 							}
+							boolean isRTS = rtsProviderMetaData.equals(provider.metaData.getString(rtsProviderMetaData));
+							this.agenciesAuthorityIsRts.put(provider.authority, isRTS);
+							this.allAgenciesAuthority.add(provider.authority);
 						}
 						if (statusProviderMetaData.equals(provider.metaData.getString(statusProviderMetaData))) {
 							String targetAuthority = provider.metaData.getString(statusProviderTargetMetaData);
@@ -334,15 +480,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 			}
 		}
 		CollectionUtils.sort(this.allAgencyTypes, new DataSourceType.DataSourceTypeShortNameComparator(context));
-		CollectionUtils.sort(this.allAgencies, AgencyProperties.SHORT_NAME_COMPARATOR);
-
-		if (this.allAgenciesByTypeId != null) {
-			for (int i = 0; i < this.allAgenciesByTypeId.size(); i++) {
-				int typeId = this.allAgenciesByTypeId.keyAt(i);
-				CollectionUtils.sort(this.allAgenciesByTypeId.get(typeId), AgencyProperties.SHORT_NAME_COMPARATOR);
-			}
-		}
 	}
+
 
 	private void addNewStatusProvider(StatusProviderProperties newStatusProvider) {
 		this.allStatusProviders.add(newStatusProvider);
@@ -378,9 +517,6 @@ public class DataSourceProvider implements MTLog.Loggable {
 		this.allAgencies.add(newAgency);
 		this.allAgenciesByAuthority.put(newAgency.getAuthority(), newAgency);
 		DataSourceType newAgencyType = newAgency.getType();
-		if (!this.allAgencyTypes.contains(newAgencyType)) {
-			this.allAgencyTypes.add(newAgencyType);
-		}
 		if (this.allAgenciesByTypeId.get(newAgencyType.getId()) == null) {
 			this.allAgenciesByTypeId.put(newAgencyType.getId(), new ArrayList<AgencyProperties>());
 		}

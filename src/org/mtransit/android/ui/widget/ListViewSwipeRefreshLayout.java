@@ -54,22 +54,22 @@ public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MT
 		if (!this.refreshEnabled) {
 			return true;
 		}
-		final AbsListView listView = this.listViewWR == null ? null : this.listViewWR.get();
+		AbsListView listView = this.listViewWR == null ? null : this.listViewWR.get();
 		if (listView != null && listView.getVisibility() == View.VISIBLE) {
-			final boolean canListViewScrollUp = canListViewScrollUp(listView);
+			boolean canListViewScrollUp = canListViewScrollUp(listView);
 			return canListViewScrollUp;
 		}
-		final View loadingView = this.loadingViewWR == null ? null : this.loadingViewWR.get();
+		View loadingView = this.loadingViewWR == null ? null : this.loadingViewWR.get();
 		if (loadingView != null && loadingView.getVisibility() == View.VISIBLE) {
-			final boolean canLoadingViewScrollUp = true;
+			boolean canLoadingViewScrollUp = true;
 			return canLoadingViewScrollUp;
 		}
-		final View emptyView = this.emptyViewWR == null ? null : this.emptyViewWR.get();
+		View emptyView = this.emptyViewWR == null ? null : this.emptyViewWR.get();
 		if (emptyView != null && emptyView.getVisibility() == View.VISIBLE) {
-			final boolean canEmptyViewScrollUp = canViewScrollUp(emptyView);
+			boolean canEmptyViewScrollUp = canViewScrollUp(emptyView);
 			return canEmptyViewScrollUp;
 		}
-		final boolean canChildScrollUp = super.canChildScrollUp();
+		boolean canChildScrollUp = super.canChildScrollUp();
 		return canChildScrollUp;
 	}
 
@@ -84,7 +84,7 @@ public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MT
 	public boolean canViewScrollUp(View view) {
 		if (android.os.Build.VERSION.SDK_INT < 14) {
 			if (view instanceof AbsListView) {
-				final AbsListView absListView = (AbsListView) view;
+				AbsListView absListView = (AbsListView) view;
 				return absListView.getChildCount() > 0
 						&& (absListView.getFirstVisiblePosition() > 0 || absListView.getChildAt(0).getTop() < absListView.getPaddingTop());
 			} else {

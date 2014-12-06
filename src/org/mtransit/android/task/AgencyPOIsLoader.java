@@ -6,7 +6,6 @@ import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.task.MTAsyncTaskLoaderV4;
-import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 
@@ -21,12 +20,12 @@ public class AgencyPOIsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>>
 		return TAG;
 	}
 
-	private AgencyProperties agency;
+	private String authority;
 	private ArrayList<POIManager> pois;
 
-	public AgencyPOIsLoader(Context context, AgencyProperties agency) {
+	public AgencyPOIsLoader(Context context, String authority) {
 		super(context);
-		this.agency = agency;
+		this.authority = authority;
 	}
 
 	@Override
@@ -35,7 +34,7 @@ public class AgencyPOIsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>>
 			return this.pois;
 		}
 		this.pois = new ArrayList<POIManager>();
-		this.pois = DataSourceManager.findPOIs(getContext(), this.agency.getAuthority(), new POIFilter(StringUtils.EMPTY));
+		this.pois = DataSourceManager.findPOIs(getContext(), this.authority, new POIFilter(StringUtils.EMPTY));
 		CollectionUtils.sort(this.pois, POIManager.POI_ALPHA_COMPATOR);
 		return pois;
 	}

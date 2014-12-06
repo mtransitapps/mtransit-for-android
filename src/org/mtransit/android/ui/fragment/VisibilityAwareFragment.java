@@ -6,4 +6,6 @@ public interface VisibilityAwareFragment {
 
 	void setFragmentPosition(int fragmentPosition);
 
+	boolean isFragmentVisible();
+
 }

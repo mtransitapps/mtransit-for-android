@@ -16,6 +16,7 @@ import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.provider.POIFilter;
+import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.commons.ui.widget.MTBaseAdapter;
 import org.mtransit.android.data.DataSourceManager;
@@ -54,17 +55,24 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 
-	public static ScheduleDayFragment newInstance(RouteTripStop rts, long dayStartsAtInMs, int fragmentPosition, int lastVisibleFragmentPosition) {
+	public static ScheduleDayFragment newInstance(String uuid, String authority, long dayStartsAtInMs, int fragmentPosition, int lastVisibleFragmentPosition,
+			RouteTripStop optRts) {
 		ScheduleDayFragment f = new ScheduleDayFragment();
 		Bundle args = new Bundle();
-		args.putString(EXTRA_AUTHORITY, rts.getAuthority());
-		args.putString(EXTRA_POI_UUID, rts.getUUID());
+		args.putString(EXTRA_AUTHORITY, authority);
+		f.authority = authority;
+		args.putString(EXTRA_POI_UUID, uuid);
+		f.uuid = uuid;
+		f.rts = optRts;
 		args.putLong(EXTRA_DAY_START_AT_IN_MS, dayStartsAtInMs);
+		f.dayStartsAtInMs = dayStartsAtInMs;
 		if (fragmentPosition >= 0) {
 			args.putInt(EXTRA_FRAGMENT_POSITION, fragmentPosition);
+			f.fragmentPosition = fragmentPosition;
 		}
 		if (lastVisibleFragmentPosition >= 0) {
 			args.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, lastVisibleFragmentPosition);
+			f.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
 		}
 		f.setArguments(args);
 		return f;
@@ -78,12 +86,127 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	private long dayStartsAtInMs = -1l;
 	private Calendar dayStartsAtCal = null;
 	private Date dayStartsAtDate;
+	private void resetDayStarts() {
+		this.dayStartsAtCal = null;
+		this.dayStartsAtDate = null;
+	}
+
+	private Calendar getDayStartsAtCal() {
+		if (this.dayStartsAtCal == null) {
+			initDayStartsAtCal();
+		}
+		return this.dayStartsAtCal;
+	}
+
+	private void initDayStartsAtCal() {
+		if (this.dayStartsAtInMs > 0l) {
+			this.dayStartsAtCal = TimeUtils.getNewCalendar(this.dayStartsAtInMs);
+		}
+	}
+
+	private Date getDayStartsAtDate() {
+		if (this.dayStartsAtDate == null) {
+			initDayStartsAtDate();
+		}
+		return this.dayStartsAtDate;
+	}
+
+	private void initDayStartsAtDate() {
+		if (getDayStartsAtCal() != null) {
+			this.dayStartsAtDate = getDayStartsAtCal().getTime();
+		}
+	}
+
+	private String authority;
+
+	private String uuid;
+
 	private RouteTripStop rts;
+
+	private boolean hasRts() {
+		if (this.rts == null) {
+			initRtsAsync();
+			return false;
+		}
+		return true;
+	}
+
+	private void initRtsAsync() {
+		if (this.loadRtsTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+			return;
+		}
+		if (TextUtils.isEmpty(this.uuid) || TextUtils.isEmpty(this.authority)) {
+			return;
+		}
+		this.loadRtsTask.execute();
+	}
+
+	private MTAsyncTask<Void, Void, Boolean> loadRtsTask = new MTAsyncTask<Void, Void, Boolean>() {
+		@Override
+		public String getLogTag() {
+			return TAG + ">loadRtsTask";
+		}
+
+		@Override
+		protected Boolean doInBackgroundMT(Void... params) {
+			return initRtsSync();
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			super.onPostExecute(result);
+			if (result) {
+				applyNewRts();
+			}
+		}
+	};
+
+	private void resetRts() {
+		this.rts = null;
+	}
+
+	private RouteTripStop getRtsOrNull() {
+		if (!hasRts()) {
+			return null;
+		}
+		return this.rts;
+	}
+
+	private boolean initRtsSync() {
+		if (this.rts != null) {
+			return false;
+		}
+		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
+			POIManager poim = DataSourceManager.findPOI(getActivity(), this.authority, new POIFilter(Arrays.asList(new String[] { this.uuid })));
+			if (poim != null && poim.poi instanceof RouteTripStop) {
+				this.rts = (RouteTripStop) poim.poi;
+			}
+		}
+		return this.rts != null;
+	}
+
+	private void applyNewRts() {
+		if (this.rts == null) {
+			return;
+		}
+		if (this.adapter == null) {
+			LoaderUtils.restartLoader(getLoaderManager(), SCHEDULE_LOADER, null, this);
+		} else {
+			this.adapter.setRts(this.rts);
+		}
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		restoreInstanceState(savedInstanceState, getArguments());
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
-		final View view = inflater.inflate(R.layout.fragment_schedule_day, container, false);
+		restoreInstanceState(savedInstanceState);
+		View view = inflater.inflate(R.layout.fragment_schedule_day, container, false);
 		setupView(view);
 		return view;
 	}
@@ -96,31 +219,41 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		if (this.rts != null && this.rts != null) {
-			outState.putString(EXTRA_POI_UUID, this.rts.getUUID());
-			outState.putString(EXTRA_AUTHORITY, this.rts.getAuthority());
+		if (!TextUtils.isEmpty(this.authority)) {
+			outState.putString(EXTRA_AUTHORITY, this.authority);
+		}
+		if (!TextUtils.isEmpty(this.uuid)) {
+			outState.putString(EXTRA_POI_UUID, this.uuid);
 		}
 		if (this.dayStartsAtInMs >= 0l) {
 			outState.putLong(EXTRA_DAY_START_AT_IN_MS, this.dayStartsAtInMs);
 		}
+		if (this.fragmentPosition >= 0) {
+			outState.putInt(EXTRA_FRAGMENT_POSITION, this.fragmentPosition);
+		}
+		if (this.lastVisibleFragmentPosition >= 0) {
+			outState.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, this.lastVisibleFragmentPosition);
+		}
 		super.onSaveInstanceState(outState);
 	}
 
-	private void restoreInstanceState(Bundle savedInstanceState) {
-		String authority = BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, getArguments());
-		String uuid = BundleUtils.getString(EXTRA_POI_UUID, savedInstanceState, getArguments());
-		if (!TextUtils.isEmpty(authority) && !TextUtils.isEmpty(uuid)) {
-			POIFilter poiFilter = new POIFilter(Arrays.asList(new String[] { uuid }));
-			POIManager poim = DataSourceManager.findPOI(getActivity(), authority, poiFilter);
-			if (poim != null && poim.poi instanceof RouteTripStop) {
-				this.rts = (RouteTripStop) poim.poi;
-			}
+	private void restoreInstanceState(Bundle... bundles) {
+		String newAuthority = BundleUtils.getString(EXTRA_AUTHORITY, bundles);
+		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
+			this.authority = newAuthority;
+			resetRts();
 		}
-		this.dayStartsAtInMs = BundleUtils.getLong(EXTRA_DAY_START_AT_IN_MS, savedInstanceState, getArguments());
-		this.dayStartsAtCal = TimeUtils.getNewCalendar(this.dayStartsAtInMs);
-		this.dayStartsAtDate = this.dayStartsAtCal.getTime();
-		setDayDateString(getView());
-		Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, savedInstanceState, getArguments());
+		String newUuid = BundleUtils.getString(EXTRA_POI_UUID, bundles);
+		if (!TextUtils.isEmpty(newUuid) && !newUuid.equals(this.uuid)) {
+			this.uuid = newUuid;
+			resetRts();
+		}
+		Long newDayStartsAtInMs = BundleUtils.getLong(EXTRA_DAY_START_AT_IN_MS, bundles);
+		if (newDayStartsAtInMs != null && !newDayStartsAtInMs.equals(this.dayStartsAtInMs)) {
+			this.dayStartsAtInMs = newDayStartsAtInMs.longValue();
+			resetDayStarts();
+		}
+		Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, bundles);
 		if (fragmentPosition != null) {
 			if (fragmentPosition.intValue() >= 0) {
 				this.fragmentPosition = fragmentPosition.intValue();
@@ -128,7 +261,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 				this.fragmentPosition = -1;
 			}
 		}
-		Integer lastVisibleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, savedInstanceState, getArguments());
+		Integer lastVisibleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, bundles);
 		if (lastVisibleFragmentPosition != null) {
 			if (lastVisibleFragmentPosition.intValue() >= 0) {
 				this.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
@@ -146,25 +279,23 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		if (view == null) {
 			return;
 		}
+		((TextView) view.findViewById(R.id.dayDate)).setText(getDayDateString());
 	}
 
 	private static final ThreadSafeDateFormatter DAY_DATE_FORMAT = new ThreadSafeDateFormatter("EEEE, MMM d, yyyy");
 
-	private void setDayDateString(View view) {
-		if (view == null) {
-			return;
-		}
+	private CharSequence getDayDateString() {
 		CharSequence dateS;
 		if (TimeUtils.isYesterday(this.dayStartsAtInMs)) {
-			dateS = getString(R.string.yesterday) + " " + DAY_DATE_FORMAT.formatThreadSafe(this.dayStartsAtDate);
+			dateS = getString(R.string.yesterday) + " " + DAY_DATE_FORMAT.formatThreadSafe(getDayStartsAtDate());
 		} else if (TimeUtils.isToday(this.dayStartsAtInMs)) {
-			dateS = getString(R.string.today) + " " + DAY_DATE_FORMAT.formatThreadSafe(this.dayStartsAtDate);
+			dateS = getString(R.string.today) + " " + DAY_DATE_FORMAT.formatThreadSafe(getDayStartsAtDate());
 		} else if (TimeUtils.isTomorrow(this.dayStartsAtInMs)) {
-			dateS = getString(R.string.tomorrow) + " " + DAY_DATE_FORMAT.formatThreadSafe(this.dayStartsAtDate);
+			dateS = getString(R.string.tomorrow) + " " + DAY_DATE_FORMAT.formatThreadSafe(getDayStartsAtDate());
 		} else {
-			dateS = DAY_DATE_FORMAT.formatThreadSafe(this.dayStartsAtDate);
+			dateS = DAY_DATE_FORMAT.formatThreadSafe(getDayStartsAtDate());
 		}
-		((TextView) view.findViewById(R.id.dayDate)).setText(dateS);
+		return dateS;
 	}
 
 	private void setupAdapter(View view) {
@@ -234,6 +365,11 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		}
 	}
 
+	@Override
+	public boolean isFragmentVisible() {
+		return this.fragmentVisible;
+	}
+
 	private void onFragmentVisible() {
 		if (this.fragmentVisible) {
 			return; // already visible
@@ -241,7 +377,6 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		this.fragmentVisible = true;
 		switchView(getView());
 		if (this.adapter == null) {
-			LoaderUtils.restartLoader(getLoaderManager(), SCHEDULE_LOADER, null, this);
 		} else {
 			if (this.adapter.getCount() > 0) {
 				this.adapter.onResume(getActivity());
@@ -255,7 +390,11 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	public Loader<ArrayList<Schedule.Timestamp>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case SCHEDULE_LOADER:
-			final ScheduleTimestampsLoader scheduleLoader = new ScheduleTimestampsLoader(getActivity(), this.rts, this.dayStartsAtInMs);
+			RouteTripStop rts = getRtsOrNull();
+			if (this.dayStartsAtInMs <= 0l || rts == null) {
+				return null;
+			}
+			ScheduleTimestampsLoader scheduleLoader = new ScheduleTimestampsLoader(getActivity(), rts, this.dayStartsAtInMs);
 			return scheduleLoader;
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
@@ -278,9 +417,9 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			initAdapter();
 		}
 		this.adapter.setTimes(data);
-		final View view = getView();
+		View view = getView();
 		int compareToToday = this.adapter.compareToToday();
-		final int selectPosition;
+		int selectPosition;
 		if (compareToToday < 0) { // past
 			selectPosition = this.adapter.getCount(); // scroll down
 		} else if (compareToToday > 0) { // future
@@ -293,7 +432,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	}
 
 	private int getTodaySelectPosition() {
-		final Schedule.Timestamp nextTime = this.adapter.getNextTimeInMs();
+		Schedule.Timestamp nextTime = this.adapter.getNextTimeInMs();
 		if (nextTime != null) {
 			int nextTimePosition = this.adapter.getPosition(nextTime);
 			if (nextTimePosition > 0) {
@@ -310,7 +449,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	}
 
 	private void initAdapter() {
-		this.adapter = new TimeAdapter(getActivity(), this.dayStartsAtCal, this.rts);
+		this.adapter = new TimeAdapter(getActivity(), getDayStartsAtCal(), getRtsOrNull());
 		View view = getView();
 		setupAdapter(view);
 	}
@@ -400,15 +539,19 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private Schedule.Timestamp nextTimeInMs = null;
 
-		private RouteTripStop rts;
+		private RouteTripStop optRts;
 
-		public TimeAdapter(Activity activity, Calendar dayStartsAt, RouteTripStop rts) {
+		public TimeAdapter(Activity activity, Calendar dayStartsAt, RouteTripStop optRts) {
 			super();
 			setActivity(activity);
 			this.layoutInflater = LayoutInflater.from(activity);
 			this.dayStartsAt = dayStartsAt;
-			this.rts = rts;
+			this.optRts = optRts;
 			initHours();
+		}
+
+		public void setRts(RouteTripStop optRts) {
+			this.optRts = optRts;
 		}
 
 		public void onResume(Activity activity) {
@@ -524,7 +667,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		private final BroadcastReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
 
 		private void addTime(Schedule.Timestamp time) {
-			final int hourOfTheDay = TimeUtils.getHourOfTheDay(time.t);
+			int hourOfTheDay = TimeUtils.getHourOfTheDay(time.t);
 			this.hourToTimes.get(hourOfTheDay).add(time);
 			this.timesCount++;
 		}
@@ -537,6 +680,11 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		@Override
 		public int getViewTypeCount() {
 			return 2;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return getItemMT(position);
 		}
 
 		@Override
@@ -554,11 +702,11 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		}
 
 		public int compareToToday() {
-			final Calendar todayStartsAt = TimeUtils.getBeginningOfTodayCal();
+			Calendar todayStartsAt = TimeUtils.getBeginningOfTodayCal();
 			if (this.dayStartsAt.before(todayStartsAt)) {
 				return -1; // past
 			}
-			final Calendar todayEndsAt = TimeUtils.getBeginningOfTomorrowCal();
+			Calendar todayEndsAt = TimeUtils.getBeginningOfTomorrowCal();
 			todayEndsAt.add(Calendar.MILLISECOND, -1);
 			if (this.dayStartsAt.after(todayEndsAt)) {
 				return +1; // future
@@ -576,10 +724,10 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			for (int hourOfTheDay = 0; hourOfTheDay < HOUR_SEPARATORS_COUNT; hourOfTheDay++) {
 				index++; // separator
 				if (this.hourToTimes.get(hourOfTheDay).size() > 0) {
-					final Date thatDate = this.hours.get(hourOfTheDay);
+					Date thatDate = this.hours.get(hourOfTheDay);
 					if (date.after(thatDate)) {
-						final int nextHourOfTheDay = hourOfTheDay + 1;
-						final Date nextDate = nextHourOfTheDay < this.hours.size() ? this.hours.get(nextHourOfTheDay) : null;
+						int nextHourOfTheDay = hourOfTheDay + 1;
+						Date nextDate = nextHourOfTheDay < this.hours.size() ? this.hours.get(nextHourOfTheDay) : null;
 						if (nextDate == null || date.before(nextDate)) {
 							for (Schedule.Timestamp hourTime : this.hourToTimes.get(hourOfTheDay)) {
 								if (time.t == hourTime.t) {
@@ -655,14 +803,14 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			Schedule.Timestamp timestamp = (Schedule.Timestamp) getItem(position);
 			Activity activity = this.activityWR == null ? null : this.activityWR.get();
 			if (timestamp != null && activity != null) {
-				String timeS = FORMAT_TIME.formatThreadSafe(timestamp.t);
+				StringBuilder timeSb = new StringBuilder(FORMAT_TIME.formatThreadSafe(timestamp.t));
 				if (timestamp.hasHeadsign()) {
-					final String timestampHeading = timestamp.getHeading(activity);
-					if (!StringUtils.equals(timestampHeading, this.rts.trip.getHeading(activity))) {
-						timeS += " (" + timestampHeading + ")";
+					String timestampHeading = timestamp.getHeading(activity);
+					if (this.optRts != null && !StringUtils.equals(timestampHeading, this.optRts.trip.getHeading(activity))) {
+						timeSb.append(" (").append(timestampHeading).append(")");
 					}
 				}
-				holder.timeTv.setText(timeS);
+				holder.timeTv.setText(timeSb);
 				if (this.nextTimeInMs != null && TimeUtils.isSameDay(getNowToTheMinute(), this.nextTimeInMs.t) && this.nextTimeInMs.t == timestamp.t) { // now
 					holder.timeTv.setTextColor(Schedule.getDefaultNowTextColor(activity));
 					holder.timeTv.setTypeface(Schedule.getDefaultNowTypeface());

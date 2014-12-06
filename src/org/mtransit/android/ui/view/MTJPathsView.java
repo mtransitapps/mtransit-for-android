@@ -72,8 +72,8 @@ public class MTJPathsView extends MTView {
 		if (this.jPaths == null && jPaths != null) {
 			invalidate = true;
 		} else {
-			final String thisId = this.jPaths == null ? StringUtils.EMPTY : this.jPaths.getId();
-			final String newId = jPaths == null ? StringUtils.EMPTY : this.jPaths.getId();
+			String thisId = this.jPaths == null ? StringUtils.EMPTY : this.jPaths.getId();
+			String newId = jPaths == null ? StringUtils.EMPTY : this.jPaths.getId();
 			invalidate = !thisId.equals(newId);
 		}
 		this.jPaths = jPaths;
@@ -133,10 +133,10 @@ public class MTJPathsView extends MTView {
 			for (JPaths.JPath jPath : this.jPaths.getPaths()) {
 				Path path = new Path();
 				if (jPath.form instanceof JPaths.JCircle) {
-					final JPaths.JCircle jCircle = (JPaths.JCircle) jPath.form;
+					JPaths.JCircle jCircle = (JPaths.JCircle) jPath.form;
 					path.addCircle(getX(jCircle.x), getY(jCircle.y), getSize(jCircle.radius), Path.Direction.CW);
 				} else if (jPath.form instanceof JPaths.JRect) {
-					final JPaths.JRect jRect = (JPaths.JRect) jPath.form;
+					JPaths.JRect jRect = (JPaths.JRect) jPath.form;
 					path.addRect(getX(jRect.left), getY(jRect.top), getX(jRect.right), getY(jRect.bottom), Path.Direction.CW);
 				} else {
 					if (!isInEditMode()) {

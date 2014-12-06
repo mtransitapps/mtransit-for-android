@@ -32,7 +32,9 @@ import org.mtransit.android.ui.fragment.POIFragment;
 import org.mtransit.android.ui.fragment.RTSRouteFragment;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
@@ -106,6 +108,11 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return new StringBuilder(POIManager.class.getSimpleName()).append('[')//
 				.append("poi:").append(this.poi) //
 				.append(']').toString();
+	}
+
+	public void resetLastFindTimestamps() {
+		this.lastFindServiceUpdateTimestampMs = -1;
+		this.lastFindStatusTimestampMs = -1;
 	}
 
 	@Override
@@ -202,7 +209,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		long findStatusTimestampMs = TimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindStatusTimestampMs != findStatusTimestampMs) { // IF not same minute as last findStatus() call DO
-			final StatusFilter filter = getFilter(findStatusTimestampMs);
+			StatusFilter filter = getFilter(findStatusTimestampMs);
 			if (filter != null) {
 				StatusLoader.StatusLoaderListener listener = this.statusLoaderListenerWR == null ? null : this.statusLoaderListenerWR.get();
 				isNotSkipped = StatusLoader.get().findStatus(context, this, filter, listener, skipIfBusy);
@@ -315,7 +322,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		long findServiceUpdateTimestampMs = TimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
-			final ServiceUpdateProvider.ServiceUpdateFilter filter = new ServiceUpdateProvider.ServiceUpdateFilter(this.poi);
+			ServiceUpdateProvider.ServiceUpdateFilter filter = new ServiceUpdateProvider.ServiceUpdateFilter(this.poi);
 			if (filter != null) {
 				ServiceUpdateLoader.ServiceUpdateLoaderListener listener = this.serviceUpdateLoaderListenerWR == null ? null
 						: this.serviceUpdateLoaderListenerWR.get();
@@ -336,7 +343,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 					FavoriteManager.isFavorite(context, poi.getUUID()) ? context.getString(R.string.remove_fav) : context.getString(R.string.add_fav) //
 			};
 		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
-			final RouteTripStop rts = (RouteTripStop) poi;
+			RouteTripStop rts = (RouteTripStop) poi;
 			return new CharSequence[] { //
 					context.getString(R.string.view_stop), //
 					TextUtils.isEmpty(rts.route.shortName) ? context.getString(R.string.view_stop_route) : context.getString(
@@ -396,7 +403,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		switch (itemClicked) {
 		case 1:
 			RouteTripStop rts = (RouteTripStop) poi;
-			((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts));
+			((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts.getAuthority(), rts.route.id, rts.trip.id, rts.stop.id, rts.route));
 			return true; // HANDLED
 		case 2:
 			return addRemoteFavorite(activity, FavoriteManager.isFavorite(activity, poi.getUUID()), listener);
@@ -433,17 +440,60 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 	}
 
-	public boolean onActionItemClick(Activity activity) {
+	private boolean showPoiViewerScreen(Activity activity) {
+		if (activity == null) {
+			return false; // show long-click menu
+		}
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_APP:
 			return false; // show long-click menu
 		}
-		if (activity != null && activity instanceof MainActivity) {
-			final MainActivity mainActivity = (MainActivity) activity;
-			mainActivity.addFragmentToStack(POIFragment.newInstance(POIManager.this, mainActivity.getUserLocation()));
+		if (activity instanceof MainActivity) {
+			MainActivity mainActivity = (MainActivity) activity;
+			mainActivity.addFragmentToStack(POIFragment.newInstance(this.poi.getUUID(), this.poi.getAuthority(), mainActivity.getUserLocation(), null, this));
 			return true; // HANDLED
 		}
 		return false; // NOT HANDLED
+	}
+
+	public void onActionItemClick(Activity activity, FavoriteManager.FavoriteUpdateListener favoriteUpdateListener) {
+			return;
+		}
+		boolean poiScreenShow = showPoiViewerScreen(activity);
+		if (!poiScreenShow) {
+			showPoiMenu(activity, favoriteUpdateListener);
+		}
+	}
+
+	private boolean showPoiMenu(final Activity activity, final FavoriteManager.FavoriteUpdateListener favoriteUpdateListener) {
+		if (activity == null) {
+			return false;
+		}
+		switch (this.poi.getType()) {
+		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
+		case POI.ITEM_VIEW_TYPE_BASIC_POI:
+		case POI.ITEM_VIEW_TYPE_MODULE:
+			new AlertDialog.Builder(activity).setTitle(this.poi.getName())
+					.setItems(getActionsItems(activity, activity.getString(R.string.view_details)), new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int item) {
+							if (activity != null && onActionsItemClick(activity, item, favoriteUpdateListener)) {
+								return;
+							}
+							switch (item) {
+							case 0:
+								showPoiViewerScreen(activity);
+								break;
+							default:
+								MTLog.w(POIManager.this, "Unexpected action item '%s'!", item);
+								break;
+							}
+						}
+					}).create().show();
+			return true;
+		default:
+			MTLog.w(this, "Unknow view type '%s' for poi '%s'!", this.poi.getType(), this);
+			return false;
+		}
 	}
 
 	public static POIManager fromCursorStatic(Cursor cursor, String authority) {
@@ -488,8 +538,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private static class POIAlphaComparator implements Comparator<POIManager> {
 		@Override
 		public int compare(POIManager lhs, POIManager rhs) {
-			final POI lhsPoi = lhs == null ? null : lhs.poi;
-			final POI rhsPoi = rhs == null ? null : rhs.poi;
+			POI lhsPoi = lhs == null ? null : lhs.poi;
+			POI rhsPoi = rhs == null ? null : rhs.poi;
 			if (lhsPoi == null && rhsPoi == null) {
 				return 0;
 			}

@@ -54,7 +54,7 @@ public class StatusLoader implements MTLog.Loggable {
 	}
 
 	public boolean isBusy() {
-		final boolean busy = this.fetchStatusExecutor != null && this.fetchStatusExecutor.getActiveCount() > 0;
+		boolean busy = this.fetchStatusExecutor != null && this.fetchStatusExecutor.getActiveCount() > 0;
 		return busy;
 	}
 
@@ -72,7 +72,7 @@ public class StatusLoader implements MTLog.Loggable {
 		Collection<StatusProviderProperties> providers = DataSourceProvider.get(context).getTargetAuthorityStatusProviders(poim.poi.getAuthority());
 		if (providers != null) {
 			for (final StatusProviderProperties provider : providers) {
-				final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter); // , null, timestamp);
+				StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter); // , null, timestamp);
 				task.executeOnExecutor(getFetchStatusExecutor());
 				break;
 			}

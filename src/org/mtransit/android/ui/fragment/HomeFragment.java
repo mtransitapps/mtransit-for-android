@@ -3,7 +3,6 @@ package org.mtransit.android.ui.fragment;
 import java.util.ArrayList;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
@@ -19,9 +18,9 @@ import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 import android.app.Activity;
 import android.content.Context;
 import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -52,11 +51,11 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	private static final String EXTRA_NEARBY_LOCATION = "extra_nearby_location";
 
-	public static HomeFragment newInstance(Location nearbyLocationOpt) {
+	public static HomeFragment newInstance(Location optNearbyLocation, Location optUserLocation) {
 		HomeFragment f = new HomeFragment();
 		Bundle args = new Bundle();
-		if (nearbyLocationOpt != null) {
-			args.putParcelable(EXTRA_NEARBY_LOCATION, nearbyLocationOpt);
+		if (optNearbyLocation != null) {
+			args.putParcelable(EXTRA_NEARBY_LOCATION, optNearbyLocation);
 		}
 		f.setArguments(args);
 		return f;
@@ -68,11 +67,18 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	private Location nearbyLocation;
 	private String nearbyLocationAddress;
 	private ListViewSwipeRefreshLayout swipeRefreshLayout;
-	private boolean userAwayFromNearbyLocation = true;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		restoreInstanceState(savedInstanceState, getArguments());
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		final View view = inflater.inflate(R.layout.fragment_home, container, false);
+		super.onCreateView(inflater, container, savedInstanceState);
+		restoreInstanceState(savedInstanceState);
+		View view = inflater.inflate(R.layout.fragment_home, container, false);
 		setupView(view);
 		return view;
 	}
@@ -102,9 +108,15 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		restoreInstanceState(savedInstanceState);
 	}
 
-	private void restoreInstanceState(Bundle savedInstanceState) {
-		final Location nearbyLocation = BundleUtils.getParcelable(EXTRA_NEARBY_LOCATION, savedInstanceState, getArguments());
-		useNewNearbyLocation(nearbyLocation);
+	private void restoreInstanceState(Bundle... bundles) {
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		if (this.nearbyLocation != null) {
+			outState.putParcelable(EXTRA_NEARBY_LOCATION, this.nearbyLocation);
+		}
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -120,6 +132,9 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	private MTAsyncTask<Location, Void, String> findNearbyLocationTask;
 
 	private void findNearbyLocation() {
+		if (!Geocoder.isPresent()) {
+			return;
+		}
 		if (this.findNearbyLocationTask != null) {
 			this.findNearbyLocationTask.cancel(true);
 		}
@@ -132,12 +147,12 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 			@Override
 			protected String doInBackgroundMT(Location... locations) {
-				final Activity activity = getActivity();
-				final Location nearbyLocation = locations[0];
+				Activity activity = getActivity();
+				Location nearbyLocation = locations[0];
 				if (activity == null || nearbyLocation == null) {
 					return null;
 				}
-				final Address address = LocationUtils.getLocationAddress(activity, nearbyLocation);
+				Address address = LocationUtils.getLocationAddress(activity, nearbyLocation);
 				if (address == null) {
 					return null;
 				}
@@ -150,7 +165,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 				boolean refreshRequired = result != null && !result.equals(HomeFragment.this.nearbyLocationAddress);
 				HomeFragment.this.nearbyLocationAddress = result;
 				if (refreshRequired) {
-					final FragmentActivity activity = getActivity();
+					Activity activity = getActivity();
 					if (activity != null) {
 						getAbController().setABSubtitle(HomeFragment.this, getABSubtitle(activity), false);
 						getAbController().setABReady(HomeFragment.this, isABReady(), true);
@@ -186,7 +201,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			if (this.nearbyLocation == null) {
 				return null;
 			}
-			final HomePOILoader homePoiLoader = new HomePOILoader(getActivity(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude());
+			HomePOILoader homePoiLoader = new HomePOILoader(getActivity(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude());
 			return homePoiLoader;
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
@@ -214,42 +229,18 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public void onUserLocationChanged(Location newLocation) {
 		if (newLocation != null) {
-			boolean locationChanged = false;
 			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 				this.userLocation = newLocation;
-				locationChanged = true;
 				if (this.adapter != null) {
-					this.adapter.setLocation(this.userLocation);
+					this.adapter.setLocation(newLocation);
 				}
 			}
 			if (this.nearbyLocation == null) {
 				useNewNearbyLocation(newLocation);
-				locationChanged = true;
-			}
-			if (locationChanged) {
-				final boolean requireNotifyAB = setUserAwayFromLocation();
-				if (requireNotifyAB) {
-					getAbController().setABReady(this, isABReady(), true);
-				}
 			}
 		}
 	}
 
-	private boolean setUserAwayFromLocation() {
-		boolean requireNotifyAB = false;
-		if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation)) {
-			if (this.userAwayFromNearbyLocation) {
-				requireNotifyAB = true;
-				this.userAwayFromNearbyLocation = false;
-			}
-		} else {
-			if (!this.userAwayFromNearbyLocation) {
-				requireNotifyAB = true;
-				this.userAwayFromNearbyLocation = true;
-			}
-		}
-		return requireNotifyAB;
-	}
 
 	private void useNewNearbyLocation(Location newNearbyLocation) {
 		if (newNearbyLocation == null || LocationUtils.areTheSame(newNearbyLocation, this.nearbyLocation)) {
@@ -259,7 +250,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
-		final View view = getView();
+		View view = getView();
 		if (view != null) {
 			switchView(view);
 			if (view.findViewById(R.id.list) != null) {
@@ -311,7 +302,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.adapter.setTag(getLogTag());
 		this.adapter.setFavoriteUpdateListener(this);
 		this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_ALL_NEARBY);
-		final View view = getView();
+		View view = getView();
 		setupView(view);
 		switchView(view);
 	}

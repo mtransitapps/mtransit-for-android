@@ -10,6 +10,7 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TimeUtils;
+import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
@@ -57,15 +58,18 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	private static final String EXTRA_QUERY = "extra_query";
 	private static final String EXTRA_TYPE_FILTER = "extra_type_filter";
 
-	public static SearchFragment newInstance(String optQuery, DataSourceType optTypeFilter) {
+	public static SearchFragment newInstance(String optQuery, Integer optTypeIdFilter, TypeFilter optTypeFilter) {
 		SearchFragment f = new SearchFragment();
 		Bundle args = new Bundle();
 		if (!TextUtils.isEmpty(optQuery)) {
 			args.putString(EXTRA_QUERY, optQuery);
+			f.query = optQuery;
 		}
-		if (optTypeFilter != null) {
-			args.putInt(EXTRA_TYPE_FILTER, optTypeFilter.getId());
+		if (optTypeIdFilter != null) {
+			args.putInt(EXTRA_TYPE_FILTER, optTypeIdFilter.intValue());
+			f.typeIdFilter = optTypeIdFilter;
 		}
+		f.typeFilter = optTypeFilter;
 		f.setArguments(args);
 		return f;
 	}
@@ -74,11 +78,119 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	private CharSequence emptyText = null;
 	private Location userLocation;
 	private String query = null;
+	private Integer typeIdFilter = null;
 	private TypeFilter typeFilter = null;
+
+	private void resetTypeFilter() {
+		this.typeFilter = null;
+	}
+
+	private boolean hasTypeFilter() {
+		if (this.typeFilter == null) {
+			initTypeFilterAsync();
+			return false;
+		}
+		return true;
+	}
+
+	private void initTypeFilterAsync() {
+		if (this.loadTypeFilterTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+			return;
+		}
+		if (this.typeIdFilter == null) {
+			this.typeIdFilter = TypeFilter.ALL.getDataSourceTypeId(); // default
+		}
+		this.loadTypeFilterTask.execute();
+	}
+
+	private MTAsyncTask<Void, Void, Boolean> loadTypeFilterTask = new MTAsyncTask<Void, Void, Boolean>() {
+		@Override
+		public String getLogTag() {
+			return TAG + ">loadTypeFilterTask";
+		}
+
+		@Override
+		protected Boolean doInBackgroundMT(Void... params) {
+			return initTypeFilterSync();
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			super.onPostExecute(result);
+			if (result) {
+				applyNewTypeFilter();
+			}
+		}
+	};
+
+	private boolean initTypeFilterSync() {
+		if (this.typeFilter != null) {
+			return false;
+		}
+		if (this.typeIdFilter != null) {
+			if (this.typeIdFilter.equals(TypeFilter.ALL.getDataSourceTypeId())) {
+				this.typeFilter = TypeFilter.ALL;
+			} else {
+				this.typeFilter = TypeFilter.fromDataSourceType(DataSourceType.parseId(this.typeIdFilter));
+			}
+		}
+		return this.typeFilter != null;
+	}
+
+	private void setTypeFilterFromType(Integer newTypeId) {
+		if (newTypeId == null) {
+			return;
+		}
+		if (this.typeIdFilter != null && this.typeIdFilter.equals(newTypeId)) {
+			return;
+		}
+		this.typeIdFilter = newTypeId;
+		resetTypeFilter();
+		initTypeFilterSync();
+		applyNewTypeFilter();
+	}
+
+	private void applyNewTypeFilter() {
+		if (this.typeFilter == null) {
+			return;
+		}
+		Spinner typeFiltersSpinner = (Spinner) getView().findViewById(R.id.typeFilters);
+		if (this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
+			if (this.adapter != null) {
+				this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);
+			}
+		} else {
+			if (this.adapter != null) {
+				this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_NONE);
+			}
+		}
+		int position = getTypeFiltersAdapter().getPosition(this.typeFilter);
+		typeFiltersSpinner.setSelection(position, true);
+		if (this.adapter != null) {
+			this.adapter.clear();
+		}
+		switchView(getView());
+		LoaderUtils.restartLoader(getLoaderManager(), POI_SEARCH_LOADER, null, this);
+	}
+
+	private TypeFilter getTypeFilterOrNull() {
+		if (!hasTypeFilter()) {
+			return null;
+		}
+		return this.typeFilter;
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		restoreInstanceState(savedInstanceState, getArguments());
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		final View view = inflater.inflate(R.layout.fragment_search, container, false);
+		super.onCreateView(inflater, container, savedInstanceState);
+		restoreInstanceState(savedInstanceState);
+		View view = inflater.inflate(R.layout.fragment_search, container, false);
 		setupView(view);
 		return view;
 	}
@@ -89,13 +201,14 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 		this.adapter = new POIArrayAdapter(getActivity());
 		this.adapter.setTag(getLogTag());
-		if (this.typeFilter == null || this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
+		TypeFilter typeFilter = getTypeFilterOrNull();
+		if (typeFilter == null || typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
 			this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);
 		} else {
 			this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_NONE);
 		}
 		this.adapter.setOnTypeHeaderButtonsClickListener(this);
-		final View view = getView();
+		View view = getView();
 		setupAdapter(view);
 	}
 
@@ -103,7 +216,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	public boolean onTypeHeaderButtonClick(int buttonId, DataSourceType type) {
 		if (buttonId == POIArrayAdapter.TypeHeaderButtonsClickListener.BUTTON_MORE) {
 			KeyboardUtils.hideKeyboard(getActivity(), getView());
-			setTypeFilter(TypeFilter.fromDataSourceType(type));
+			setTypeFilterFromType(type.getId());
 			return true; // handled
 		}
 		return false; // not handled
@@ -125,14 +238,15 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			return;
 		}
 		Spinner typeFiltersSpinner = (Spinner) view.findViewById(R.id.typeFilters);
-		int position = getTypeFiltersAdapter().getPosition(this.typeFilter);
+		TypeFilter typeFilter = getTypeFilterOrNull();
+		int position = getTypeFiltersAdapter().getPosition(typeFilter);
 		typeFiltersSpinner.setSelection(position, false);
 		typeFiltersSpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
 
 
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				setTypeFilter(getTypeFiltersAdapter().getItem(position));
+				setTypeFilterFromType(getTypeFiltersAdapter().getItem(position).getDataSourceTypeId());
 			}
 
 			@Override
@@ -154,17 +268,19 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		restoreInstance(savedInstanceState);
+		restoreInstanceState(savedInstanceState);
 	}
 
-	private void restoreInstance(Bundle savedInstanceState) {
-		final Integer typeIdFilter = BundleUtils.getInt(EXTRA_TYPE_FILTER, savedInstanceState, getArguments());
-		if (typeIdFilter != null) {
-			this.typeFilter = TypeFilter.fromDataSourceType(DataSourceType.parseId(typeIdFilter));
+	private void restoreInstanceState(Bundle... bundles) {
+		Integer newTypeIdFilter = BundleUtils.getInt(EXTRA_TYPE_FILTER, bundles);
+		if (newTypeIdFilter != null && !newTypeIdFilter.equals(this.typeIdFilter)) {
+			this.typeIdFilter = newTypeIdFilter;
+			resetTypeFilter();
 		}
-		final String query = BundleUtils.getString(EXTRA_QUERY, savedInstanceState, getArguments());
-		if (this.query == null || !TextUtils.isEmpty(query)) {
-			setSearchQuery(query, true);
+		String newQuery = BundleUtils.getString(EXTRA_QUERY, bundles);
+		if (!TextUtils.isEmpty(newQuery) && !newQuery.equals(this.query)) {
+			this.query = newQuery;
+			applyNewQuery();
 		}
 	}
 
@@ -173,8 +289,8 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		if (this.query != null) {
 			outState.putString(EXTRA_QUERY, this.query);
 		}
-		if (this.typeFilter != null) {
-			outState.putInt(EXTRA_TYPE_FILTER, this.typeFilter.getDataSourceTypeId());
+		if (this.typeIdFilter != null) {
+			outState.putInt(EXTRA_TYPE_FILTER, this.typeIdFilter);
 		}
 		super.onSaveInstanceState(outState);
 	}
@@ -209,7 +325,11 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case POI_SEARCH_LOADER:
-			final POISearchLoader poiSearchLoader = new POISearchLoader(getActivity(), this.query, this.typeFilter, this.userLocation);
+			TypeFilter typeFilter = getTypeFilterOrNull();
+			if (typeFilter == null) {
+				return null;
+			}
+			POISearchLoader poiSearchLoader = new POISearchLoader(getActivity(), this.query, typeFilter, this.userLocation);
 			return poiSearchLoader;
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
@@ -240,62 +360,37 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 				this.userLocation = newLocation;
 				if (this.adapter != null) {
-					this.adapter.setLocation(this.userLocation);
+					this.adapter.setLocation(newLocation);
 				}
 			}
 		}
 	}
 
-	public void setTypeFilter(TypeFilter typeFilter) {
-		if (typeFilter != null && (this.typeFilter == null || this.typeFilter.getDataSourceTypeId() != typeFilter.getDataSourceTypeId())) {
-			this.typeFilter = typeFilter;
-			Spinner typeFiltersSpinner = (Spinner) getView().findViewById(R.id.typeFilters);
-			if (this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
-				if (this.adapter != null) {
-					this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);
-				}
-			} else {
-				if (this.adapter != null) {
-					this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_NONE);
-				}
+	private void applyNewQuery() {
+		getLoaderManager().destroyLoader(POI_SEARCH_LOADER); // cancel now
+		cancelRestartSearchLater();
+		if (TextUtils.isEmpty(this.query)) {
+			this.emptyText = getString(R.string.search_hint);
+			if (this.adapter == null) {
+				initAdapter();
 			}
-			final int position = getTypeFiltersAdapter().getPosition(this.typeFilter);
-			typeFiltersSpinner.setSelection(position, true);
-			if (this.adapter != null) {
-				this.adapter.clear();
-			}
+			this.adapter.setPois(new ArrayList<POIManager>()); // empty search = no result
 			switchView(getView());
-			LoaderUtils.restartLoader(getLoaderManager(), POI_SEARCH_LOADER, null, this);
+			return;
 		}
+		this.emptyText = getString(R.string.search_no_result_for_and_query, this.query);
+		if (this.adapter != null) {
+			this.adapter.clear();
+		}
+		switchView(getView());
+		this.restartSearchLater = new RestartSearchLater();
+		this.handler.postDelayed(this.restartSearchLater, TimeUtils.ONE_SECOND_IN_MS);
 	}
 
 	public void setSearchQuery(String query, boolean alreadyInSearchView) {
 		if (this.query == null || !StringUtils.equals(StringUtils.trim(this.query), StringUtils.trim(query))) {
 			this.query = query == null ? StringUtils.EMPTY : query;
-			if (TextUtils.isEmpty(this.query)) {
-				this.emptyText = getString(R.string.search_hint);
-			} else {
-				this.emptyText = getString(R.string.search_no_result_for_and_query, this.query);
-			}
-
-			getLoaderManager().destroyLoader(POI_SEARCH_LOADER); // cancel now
-
-			cancelRestartSearchLater();
-			if (TextUtils.isEmpty(this.query)) { // clear now
-				if (this.adapter == null) {
-					initAdapter();
-				}
-				this.adapter.setPois(new ArrayList<POIManager>()); // empty search = no result
-				switchView(getView());
-			} else {
-				if (this.adapter != null) {
-					this.adapter.clear();
-				}
-				switchView(getView());
-				this.restartSearchLater = new RestartSearchLater();
-				this.handler.postDelayed(this.restartSearchLater, TimeUtils.ONE_SECOND_IN_MS);
-			}
-
+			applyNewQuery();
 		}
 	}
 
@@ -330,7 +425,8 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		} else {
 			showList(view);
 		}
-		if (this.typeFilter == null || this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
+		TypeFilter typeFilter = getTypeFilterOrNull();
+		if (typeFilter == null || typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
 			view.findViewById(R.id.typeFilters).setVisibility(View.GONE);
 		} else {
 			view.findViewById(R.id.typeFilters).setVisibility(View.VISIBLE);
@@ -413,7 +509,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	}
 
 	private void initSearchView() {
-		final Activity activity = getActivity();
+		Activity activity = getActivity();
 		if (activity == null) {
 			return;
 		}
@@ -428,7 +524,14 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		this.handler = null;
 	}
 
-	public static class TypeFilter {
+	public static class TypeFilter implements MTLog.Loggable {
+
+		private static final String TAG = SearchFragment.class.getSimpleName() + ">" + TypeFilter.class.getSimpleName();
+
+		@Override
+		public String getLogTag() {
+			return TAG;
+		}
 
 		public static final TypeFilter ALL = new TypeFilter(-1, R.string.all, -1);
 
@@ -458,7 +561,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			if (o == null || !(o instanceof TypeFilter)) {
 				return false;
 			}
-			final TypeFilter other = (TypeFilter) o;
+			TypeFilter other = (TypeFilter) o;
 			if (this.dataSourceTypeId != other.dataSourceTypeId) {
 				return false;
 			}
@@ -491,7 +594,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 	private static class TypeFiltersAdapter extends MTArrayAdapter<TypeFilter> {
 
-		private static final String TAG = TypeFiltersAdapter.class.getSimpleName();
+		private static final String TAG = SearchFragment.class.getSimpleName() + ">" + TypeFiltersAdapter.class.getSimpleName();
 
 		@Override
 		public String getLogTag() {
@@ -509,7 +612,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		private void init() {
 			ArrayList<TypeFilter> typeFilters = new ArrayList<TypeFilter>();
 			typeFilters.add(TypeFilter.ALL);
-			final ArrayList<DataSourceType> availableTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
+			ArrayList<DataSourceType> availableTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
 			if (availableTypes != null) {
 				for (DataSourceType dst : availableTypes) {
 					if (dst.isSearchable()) {
@@ -544,7 +647,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 				convertView.setTag(holder);
 			}
 			TypeViewHolder holder = (TypeViewHolder) convertView.getTag();
-			final TypeFilter type = getItem(position);
+			TypeFilter type = getItem(position);
 			holder.nameTv.setText(type.getNameResId());
 			if (type.getIconResId() != -1) {
 				holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getIconResId(), 0, 0, 0);

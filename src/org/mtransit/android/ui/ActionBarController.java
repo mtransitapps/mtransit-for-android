@@ -15,7 +15,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -268,7 +267,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			setBgColor(ab, this.fragmentBgColor.intValue());
 		}
 		mainActivity.updateNavigationDrawerToggleIndicator();
-		updateAllMenuItems(); // action bar icons are options menu items
+		updateSearchMenuItemVisibility(); // action bar icons are options menu items
 		ab.show();
 	}
 
@@ -320,15 +319,8 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		return this.upOnClickListener;
 	}
 
-	private SparseArray<MenuItem> allMenuItems = new SparseArray<MenuItem>();
 
-	public void addMenuItem(int resId, MenuItem menuItem) {
-		this.allMenuItems.put(resId, menuItem);
-	}
 
-	public MenuItem getMenuItem(int resId) {
-		return this.allMenuItems.get(resId);
-	}
 
 
 	public void destroy() {
@@ -336,37 +328,22 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			this.mainActivityWR.clear();
 			this.mainActivityWR = null;
 		}
-		if (this.allMenuItems != null) {
-			this.allMenuItems.clear();
-		}
 		this.fragmentCustomView = null;
 		this.upOnClickListener = null;
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
 		menuInflater.inflate(R.menu.menu_main, menu);
-		initMenuItems(menu);
+		this.searchMenuItem = menu.findItem(R.id.menu_search);
+		updateSearchMenuItemVisibility();
 		return true;
 	}
 
-	public void initMenuItems(Menu menu) {
-		this.allMenuItems.clear();
-		this.allMenuItems.put(R.id.menu_search, menu.findItem(R.id.menu_search));
-		updateAllMenuItems();
-	}
-
-	public void updateAllMenuItems() {
-		if (this.allMenuItems != null) {
-			for (int i = 0; i < this.allMenuItems.size(); i++) {
-				int menuItemId = this.allMenuItems.keyAt(i);
-				MenuItem menuItem = this.allMenuItems.get(menuItemId);
-				if (menuItemId == R.id.menu_search) {
-					menuItem.setVisible(this.fragmentShowSearchMenuItem);
-					continue;
-				}
-			}
+	private MenuItem searchMenuItem;
+	public void updateSearchMenuItemVisibility() {
+		if (this.searchMenuItem != null) {
+			this.searchMenuItem.setVisible(this.fragmentShowSearchMenuItem);
 		}
-
 	}
 
 	public boolean onOptionsItemSelected(MenuItem item) {

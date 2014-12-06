@@ -47,7 +47,7 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 
 	private static Tracker tracker;
 
-	private synchronized static Tracker getTracker(final Context context) {
+	private synchronized static Tracker getTracker(Context context) {
 		if (!ANALYTICS_ENABLED) {
 			return null;
 		}
@@ -74,7 +74,7 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 			@Override
 			protected Void doInBackground(Context... params) {
 				try {
-					final Tracker gaTracker = getTracker(params[0]);
+					Tracker gaTracker = getTracker(params[0]);
 					gaTracker.send(new HitBuilders.EventBuilder().setCategory(category).setAction(action).setLabel(label).setValue(value).build());
 				} catch (Throwable t) {
 					MTLog.w(TAG, t, "Error while tracing event (%s,%s,%s)!", action, label, value);
@@ -92,9 +92,9 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 			@Override
 			protected Void doInBackground(Context... params) {
 				try {
-					final String pageScreenName = page.getScreenName();
+					String pageScreenName = page.getScreenName();
 					if (!TextUtils.isEmpty(pageScreenName)) {
-						final Tracker gaTracker = getTracker(params[0]);
+						Tracker gaTracker = getTracker(params[0]);
 						gaTracker.setScreenName(pageScreenName);
 						gaTracker.send(new HitBuilders.AppViewBuilder().build());
 					}

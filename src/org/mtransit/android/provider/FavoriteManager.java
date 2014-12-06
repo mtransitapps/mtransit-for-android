@@ -7,6 +7,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.UriUtils;
+import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.Favorite;
 import org.mtransit.android.provider.FavoriteProvider.FavoriteColumns;
 
@@ -36,7 +37,7 @@ public class FavoriteManager implements MTLog.Loggable {
 			String selection = new StringBuilder() //
 					.append(FavoriteColumns.T_FAVORITE_K_FK_ID).append("='").append(fkId).append("'") //
 					.toString();
-			cursor = context.getContentResolver().query(uri, FavoriteProvider.PROJECTION_FAVORITE, selection, null, null);
+			cursor = DataSourceManager.queryContentResolver(context.getContentResolver(), uri, FavoriteProvider.PROJECTION_FAVORITE, selection, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					favorite = Favorite.fromCursor(cursor);
@@ -56,7 +57,7 @@ public class FavoriteManager implements MTLog.Loggable {
 		Favorite cache = null;
 		Cursor cursor = null;
 		try {
-			cursor = context.getContentResolver().query(uri, FavoriteProvider.PROJECTION_FAVORITE, selection, null, null);
+			cursor = DataSourceManager.queryContentResolver(context.getContentResolver(), uri, FavoriteProvider.PROJECTION_FAVORITE, selection, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					cache = Favorite.fromCursor(cursor);
@@ -74,7 +75,7 @@ public class FavoriteManager implements MTLog.Loggable {
 
 	public static HashSet<String> findFavoriteUUIDs(Context context, Integer... types) {
 		HashSet<String> favoriteUUIDs = new HashSet<String>();
-		final ArrayList<Favorite> favorites = FavoriteManager.findFavorites(context, types);
+		ArrayList<Favorite> favorites = FavoriteManager.findFavorites(context, types);
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {
 				favoriteUUIDs.add(favorite.getFkId());
@@ -98,8 +99,8 @@ public class FavoriteManager implements MTLog.Loggable {
 				}
 				selectionSb.append(")");
 			}
-			cursor = context.getContentResolver().query(getFavoriteContentUri(context), FavoriteProvider.PROJECTION_FAVORITE, selectionSb.toString(), null,
-					null);
+			cursor = DataSourceManager.queryContentResolver(context.getContentResolver(), getFavoriteContentUri(context), FavoriteProvider.PROJECTION_FAVORITE,
+					selectionSb.toString(), null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					do {
@@ -119,7 +120,7 @@ public class FavoriteManager implements MTLog.Loggable {
 
 	public static void addOrDeleteFavorite(Context context, boolean isFavorite, String fkId) {
 		if (isFavorite) { // WAS FAVORITE => TRY TO DELETE
-			final Favorite findFavorite = findFavorite(context, fkId);
+			Favorite findFavorite = findFavorite(context, fkId);
 			boolean success = findFavorite == null ? true : // already deleted
 					deleteFavorite(context, findFavorite.getId());
 			if (success) {
@@ -139,12 +140,11 @@ public class FavoriteManager implements MTLog.Loggable {
 	}
 
 	public static Favorite addFavorite(Context context, Favorite newFavorite) {
-		final Uri uri = context.getContentResolver().insert(getFavoriteContentUri(context), newFavorite.toContentValues());
-		if (uri != null) {
-			return findFavorite(context, uri, null);
-		} else {
+		Uri uri = context.getContentResolver().insert(getFavoriteContentUri(context), newFavorite.toContentValues());
+		if (uri == null) {
 			return null;
 		}
+		return findFavorite(context, uri, null);
 	}
 
 	public static boolean deleteFavorite(Context context, int id) {

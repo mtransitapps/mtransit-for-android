@@ -52,7 +52,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		final View view = inflater.inflate(R.layout.fragment_favorites, container, false);
+		View view = inflater.inflate(R.layout.fragment_favorites, container, false);
 		setupView(view);
 		return view;
 	}
@@ -71,6 +71,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		} else {
 			LoaderUtils.restartLoader(getLoaderManager(), FAVORITES_LOADER, null, this);
 		}
+		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
 	}
 
 	private static final int FAVORITES_LOADER = 0;
@@ -79,7 +80,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case FAVORITES_LOADER:
-			final FavoritesLoader favoritesLoader = new FavoritesLoader(getActivity());
+			FavoritesLoader favoritesLoader = new FavoritesLoader(getActivity());
 			return favoritesLoader;
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
@@ -111,7 +112,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 				this.userLocation = newLocation;
 				if (this.adapter != null) {
-					this.adapter.setLocation(this.userLocation);
+					this.adapter.setLocation(newLocation);
 				}
 			}
 		}
@@ -143,7 +144,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		this.adapter.setShowFavorite(false); // all items in this screen are favorites
 		this.adapter.setFavoriteUpdateListener(this);
 		this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_ALL_NEARBY);
-		final View view = getView();
+		View view = getView();
 		setupView(view);
 		switchView(view);
 	}

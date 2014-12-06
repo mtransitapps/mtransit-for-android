@@ -86,7 +86,7 @@ public class AgencyProperties implements MTLog.Loggable {
 
 	public boolean isInArea(double lat, double lng, double aroundDiff) {
 		Area area = LocationUtils.getArea(lat, lng, aroundDiff);
-		final boolean isInArea = Area.areOverlapping(area, this.area);
+		boolean isInArea = Area.areOverlapping(area, this.area);
 		return isInArea;
 	}
 
@@ -105,8 +105,8 @@ public class AgencyProperties implements MTLog.Loggable {
 
 		@Override
 		public int compare(AgencyProperties lap, AgencyProperties rap) {
-			final String lShortName = lap.getShortName();
-			final String rShortName = rap.getShortName();
+			String lShortName = lap.getShortName();
+			String rShortName = rap.getShortName();
 			if (lShortName == null) {
 				return rShortName == null ? 0 : -1;
 			} else if (rShortName == null) {

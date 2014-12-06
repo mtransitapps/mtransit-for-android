@@ -53,7 +53,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActionBarActivity 
 		if (this.googleApiClient != null) {
 			return;
 		}
-		final GoogleApiClient.Builder googleApiClientBuilder = new GoogleApiClient.Builder(this);
+		GoogleApiClient.Builder googleApiClientBuilder = new GoogleApiClient.Builder(this);
 		addGoogleAPIs(googleApiClientBuilder);
 		googleApiClientBuilder //
 				.addConnectionCallbacks(this)//
@@ -76,7 +76,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActionBarActivity 
 		case REQUEST_RESOLVE_ERROR:
 			switch (resultCode) {
 			case Activity.RESULT_OK:
-				final GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
+				GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
 				if (googleApiClient != null && !googleApiClient.isConnecting() && !googleApiClient.isConnected()) {
 					googleApiClient.connect();
 				}
@@ -119,7 +119,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActionBarActivity 
 			if (activity == null) {
 				return null;
 			}
-			final GoogleApiClient googleApiClient = activity.getGoogleApiClientOrInit();
+			GoogleApiClient googleApiClient = activity.getGoogleApiClientOrInit();
 			if (googleApiClient != null) {
 				googleApiClient.connect();
 			}
@@ -155,7 +155,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActionBarActivity 
 				return null;
 			}
 			activity.onBeforeClientDisconnected();
-			final GoogleApiClient googleApiClient = activity.getGoogleApiClientOrNull();
+			GoogleApiClient googleApiClient = activity.getGoogleApiClientOrNull();
 			if (googleApiClient != null) {
 				googleApiClient.disconnect();
 			}
@@ -196,7 +196,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActionBarActivity 
 				result.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
 			} catch (SendIntentException sie) {
 				MTLog.w(this, sie, "Error while resolving Google Play Services error!");
-				final GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
+				GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
 				if (googleApiClient != null) {
 					googleApiClient.connect();
 				}

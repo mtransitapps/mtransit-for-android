@@ -61,17 +61,17 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 		try {
 			switch (URI_MATCHER.match(uri)) {
 			case ContentProviderConstants.SEARCH_SUGGEST_EMPTY:
-				final String query;
+				String query;
 				if (selectionArgs != null && selectionArgs.length > 0) {
 					query = selectionArgs[0];
 				} else {
 					query = null;
 				}
-				final Cursor recentSearchCursor = super.query(uri, projection, selection, selectionArgs, sortOrder);
+				Cursor recentSearchCursor = super.query(uri, projection, selection, selectionArgs, sortOrder);
 				return getSearchSuggest(query, recentSearchCursor);
 			case ContentProviderConstants.SEARCH_SUGGEST_QUERY:
-				final Cursor recentSearchCursor2 = super.query(uri, projection, selection, selectionArgs, sortOrder);
-				final String query2 = uri.getLastPathSegment();
+				Cursor recentSearchCursor2 = super.query(uri, projection, selection, selectionArgs, sortOrder);
+				String query2 = uri.getLastPathSegment();
 				return getSearchSuggest(query2, recentSearchCursor2);
 			default:
 				throw new IllegalArgumentException(String.format("Unknown URI (query): '%s'", uri));
@@ -87,10 +87,10 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 		HashSet<String> recentSearchSuggestions = DataSourceManager.getSearchSuggest(recentSearchCursor);
 		HashSet<String> suggestions = new HashSet<String>();
 		if (!TextUtils.isEmpty(query)) {
-			ArrayList<AgencyProperties> agencies = DataSourceProvider.get(getContext()).getAllAgencies();
+			ArrayList<AgencyProperties> agencies = DataSourceProvider.get(getContext()).getAllAgencies(getContext());
 			ArrayList<Future<HashSet<String>>> taskList = new ArrayList<Future<HashSet<String>>>();
 			for (AgencyProperties agency : agencies) {
-				final FindSearchSuggestTask task = new FindSearchSuggestTask(getContext(), agency, query);
+				FindSearchSuggestTask task = new FindSearchSuggestTask(getContext(), agency, query);
 				taskList.add(getFetchSuggestExecutor().submit(task));
 			}
 			for (Future<HashSet<String>> future : taskList) {

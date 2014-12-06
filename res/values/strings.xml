@@ -45,6 +45,7 @@
     <string name="remove_fav">Remove from favorites</string>
     <string name="menu_action_list">List</string>
     <string name="menu_action_grid">Grid</string>
+    <string name="menu_action_map">Map</string>
     <string name="menu_action_add_favorite">Add to favroites</string>
     <string name="menu_action_remove_favorite">Remove from favorites</string>
     <string name="next_departures">Next Departures</string>

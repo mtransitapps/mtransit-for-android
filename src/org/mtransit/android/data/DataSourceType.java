@@ -121,7 +121,7 @@ public enum DataSourceType {
 
 		@Override
 		public int compare(DataSourceType ldst, DataSourceType rdst) {
-			final Context context = this.contextWR == null ? null : this.contextWR.get();
+			Context context = this.contextWR == null ? null : this.contextWR.get();
 			if (context == null) {
 				return 0;
 			}
@@ -150,16 +150,19 @@ public enum DataSourceType {
 
 		@Override
 		public int compare(POIManager lpoim, POIManager rpoim) {
-			final Context context = this.contextWR == null ? null : this.contextWR.get();
+			Context context = this.contextWR == null ? null : this.contextWR.get();
 			if (context == null) {
 				return 0;
 			}
-			final AgencyProperties lagency = DataSourceProvider.get(context).getAgency(lpoim.poi.getAuthority());
-			final AgencyProperties ragency = DataSourceProvider.get(context).getAgency(rpoim.poi.getAuthority());
-			final int lshortNameResId = lagency.getType().getShortNameResId();
-			final int rshortNameResId = ragency.getType().getShortNameResId();
-			final String lShortName = context.getString(lshortNameResId);
-			final String rShortName = context.getString(rshortNameResId);
+			AgencyProperties lagency = DataSourceProvider.get(context).getAgency(context, lpoim.poi.getAuthority());
+			AgencyProperties ragency = DataSourceProvider.get(context).getAgency(context, rpoim.poi.getAuthority());
+			if (lagency == null || ragency == null) {
+				return 0;
+			}
+			int lshortNameResId = lagency.getType().getShortNameResId();
+			int rshortNameResId = ragency.getType().getShortNameResId();
+			String lShortName = context.getString(lshortNameResId);
+			String rShortName = context.getString(rshortNameResId);
 			return lShortName.compareTo(rShortName);
 		}
 	}

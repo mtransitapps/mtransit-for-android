@@ -49,8 +49,8 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		this.mainActivityWR = new WeakReference<MainActivity>(mainActivity);
 	}
 
-	public void setup() {
-		final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+	public void setup(Bundle savedInstanceState) {
+		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 		if (mainActivity != null) {
 			this.leftDrawer = mainActivity.findViewById(R.id.left_drawer);
 			this.drawerListView = (ListView) mainActivity.findViewById(R.id.left_drawer_list);
@@ -60,12 +60,12 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 			this.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 			this.drawerToggle = new ABDrawerToggle(mainActivity, this.drawerLayout);
 			this.drawerLayout.setDrawerListener(drawerToggle);
-			finishSetupAsync();
+			finishSetupAsync(savedInstanceState);
 		}
 	}
 
-	private void finishSetupAsync() {
-		new MTAsyncTask<Void, String, String>() {
+	private void finishSetupAsync(Bundle savedInstanceState) {
+		new MTAsyncTask<Bundle, String, String>() {
 
 			private final String TAG = NavigationDrawerController.TAG + ">finishSetupAsync()";
 
@@ -75,12 +75,13 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 			}
 
 			@Override
-			protected String doInBackgroundMT(Void... params) {
-				final MainActivity mainActivity = NavigationDrawerController.this.mainActivityWR == null ? null
-						: NavigationDrawerController.this.mainActivityWR.get();
+			protected String doInBackgroundMT(Bundle... params) {
+				Bundle savedInstanceState = params == null || params.length == 0 ? null : params[0];
+				MainActivity mainActivity = NavigationDrawerController.this.mainActivityWR == null ? null : NavigationDrawerController.this.mainActivityWR
+						.get();
 				NavigationDrawerController.this.drawerListViewAdapter = new MenuAdapter(mainActivity, NavigationDrawerController.this);
 				String itemId = null;
-				if (!isCurrentSelectedSet()) {
+				if (savedInstanceState == null && !isCurrentSelectedSet()) {
 					itemId = PreferenceUtils.getPrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID,
 							MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
 					publishProgress(itemId);
@@ -98,8 +99,8 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 
 			public void selectItemId(String itemId) {
 				if (!TextUtils.isEmpty(itemId)) {
-					final int screenItemPosition = NavigationDrawerController.this.drawerListViewAdapter.getScreenItemPosition(itemId);
-					selectItem(screenItemPosition, null, false);
+					int screenItemPosition = NavigationDrawerController.this.drawerListViewAdapter.getScreenItemPosition(itemId);
+					selectItem(screenItemPosition);
 				}
 			}
 
@@ -109,7 +110,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 				selectItemId(itemIds == null || itemIds.length == 0 ? null : itemIds[0]);
 			}
 
-		}.execute();
+		}.execute(savedInstanceState);
 	}
 
 	@Override
@@ -117,31 +118,41 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		if (this.drawerListViewAdapter == null) {
 			return;
 		}
-		final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 		if (mainActivity == null) {
 			return;
 		}
-		final String itemId = PreferenceUtils.getPrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID,
-				MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
-		final int newSelectedItemPosition = this.drawerListViewAdapter.getScreenItemPosition(itemId);
-		if (this.currentSelectedScreenItemId != null && this.currentSelectedScreenItemId.equals(itemId)) {
+		String itemId = PreferenceUtils.getPrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
+		int newSelectedItemPosition = this.drawerListViewAdapter.getScreenItemPosition(itemId);
+		if (this.currentSelectedItemPosition == newSelectedItemPosition && this.currentSelectedScreenItemId != null
+				&& this.currentSelectedScreenItemId.equals(itemId)) {
 			this.currentSelectedItemPosition = newSelectedItemPosition;
 			setCurrentSelectedItemChecked(mainActivity.getBackStackEntryCount() == 0);
 			return;
 		}
-		selectItem(newSelectedItemPosition, null, false); // re-select, selected item
+		selectItem(newSelectedItemPosition);
+	}
+
+	public void forceReset() {
+		if (this.currentSelectedItemPosition < 0) {
+			return;
+		}
+		int saveCurrentSelectedItemPosition = this.currentSelectedItemPosition;
+		this.currentSelectedItemPosition = -1;
+		this.currentSelectedScreenItemId = null;
+		selectItem(saveCurrentSelectedItemPosition);
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		selectItem(position, null, false);
+		selectItem(position);
 	}
 
-	private void selectItem(int position, ABFragment newFragmentOrNull, boolean addToStack) {
+	private void selectItem(int position) {
 		if (position < 0) {
 			return;
 		}
-		final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 		if (mainActivity == null) {
 			return;
 		}
@@ -149,13 +160,14 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 			closeDrawer();
 			mainActivity.clearFragmentBackStackImmediate();
 			setCurrentSelectedItemChecked(true);
+			mainActivity.showContentFrameAsLoaded();
 			return;
 		}
 		if (!this.drawerListViewAdapter.isRootScreen(position)) {
 			setCurrentSelectedItemChecked(true); // keep current position
 			return;
 		}
-		final ABFragment newFragment = newFragmentOrNull != null ? newFragmentOrNull : this.drawerListViewAdapter.getNewStaticFragmentAt(position);
+		ABFragment newFragment = this.drawerListViewAdapter.getNewStaticFragmentAt(position);
 		if (newFragment == null) {
 			return;
 		}
@@ -165,15 +177,15 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		mainActivity.clearFragmentBackStackImmediate(); // root screen
 		StatusLoader.get().clearAllTasks();
 		ServiceUpdateLoader.get().clearAllTasks();
-		mainActivity.showNewFragment(newFragment, addToStack, true);
-		if (!addToStack && this.drawerListViewAdapter.isRootScreen(position)) {
+		mainActivity.showNewFragment(newFragment, false, true);
+		if (this.drawerListViewAdapter.isRootScreen(position)) {
 			PreferenceUtils.savePrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId, false);
 		}
 	}
 
 	private void showDrawerLoading() {
 		this.drawerListView.setVisibility(View.GONE);
-		final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 		if (mainActivity != null) {
 			if (mainActivity.findViewById(R.id.left_drawer_loading) == null) { // IF NOT present/inflated DO
 				((ViewStub) mainActivity.findViewById(R.id.left_drawer_loading_stub)).inflate(); // inflate
@@ -241,7 +253,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 
 
 	private boolean isCurrentSelectedSet() {
-		return this.currentSelectedItemPosition >= 0 && this.currentSelectedScreenItemId != null;
+		return this.currentSelectedItemPosition >= 0 && !TextUtils.isEmpty(this.currentSelectedScreenItemId);
 	}
 
 	public void setCurrentSelectedItemChecked(boolean value) {
@@ -254,30 +266,23 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		setCurrentSelectedItemChecked(backStackEntryCount == 0);
 	}
 
+	public void onResume() {
+	}
+
 	private static final String EXTRA_SELECTED_ROOT_SCREEN_POSITION = "extra_selected_root_screen";
 	private static final String EXTRA_SELECTED_ROOT_SCREEN_ID = "extra_selected_root_screen_id";
 
-	public void onSaveInstanceState(Bundle outState) {
-		outState.putInt(EXTRA_SELECTED_ROOT_SCREEN_POSITION, this.currentSelectedItemPosition);
-		outState.putString(EXTRA_SELECTED_ROOT_SCREEN_ID, this.currentSelectedScreenItemId);
-	}
-
-	public void onRestoreState(Bundle savedInstanceState) {
-		if (savedInstanceState == null) {
-			return; // nothing to restore
+	public void onSaveState(Bundle outState) {
+		if (this.currentSelectedItemPosition >= 0) {
+			outState.putInt(EXTRA_SELECTED_ROOT_SCREEN_POSITION, this.currentSelectedItemPosition);
 		}
-		int savedRootScreen = savedInstanceState.getInt(EXTRA_SELECTED_ROOT_SCREEN_POSITION, -1);
-		if (savedRootScreen >= 0) {
-			this.currentSelectedItemPosition = savedRootScreen;
-		}
-		String savedRootScreenId = savedInstanceState.getString(EXTRA_SELECTED_ROOT_SCREEN_ID, null);
-		if (!TextUtils.isEmpty(savedRootScreenId)) {
-			this.currentSelectedScreenItemId = savedRootScreenId;
+		if (!TextUtils.isEmpty(this.currentSelectedScreenItemId)) {
+			outState.putString(EXTRA_SELECTED_ROOT_SCREEN_ID, this.currentSelectedScreenItemId);
 		}
 	}
 
 	private void showDrawerLoaded() {
-		final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 		if (mainActivity != null) {
 			if (mainActivity.findViewById(R.id.left_drawer_loading) != null) {
 				mainActivity.findViewById(R.id.left_drawer_loading).setVisibility(View.GONE);
@@ -292,6 +297,8 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 			this.mainActivityWR.clear();
 			this.mainActivityWR = null;
 		}
+		this.currentSelectedItemPosition = -1;
+		this.currentSelectedScreenItemId = null;
 		this.leftDrawer = null;
 		this.drawerListView = null;
 		this.drawerToggle = null;
@@ -315,7 +322,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 
 		@Override
 		public void onDrawerClosed(View view) {
-			final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+			MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 			if (mainActivity != null) {
 				ActionBarController abController = mainActivity.getAbController();
 				if (abController != null) {

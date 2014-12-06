@@ -54,11 +54,11 @@ class SlidingTabStrip extends LinearLayout {
 		super(context, attrs);
 		setWillNotDraw(false);
 
-		final float density = getResources().getDisplayMetrics().density;
+		float density = getResources().getDisplayMetrics().density;
 
 		TypedValue outValue = new TypedValue();
 		context.getTheme().resolveAttribute(android.R.attr.colorForeground, outValue, true);
-		final int themeForegroundColor = outValue.data;
+		int themeForegroundColor = outValue.data;
 
 		mDefaultBottomBorderColor = setColorAlpha(themeForegroundColor, DEFAULT_BOTTOM_BORDER_COLOR_ALPHA);
 
@@ -93,9 +93,9 @@ class SlidingTabStrip extends LinearLayout {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		final int height = getHeight();
-		final int childCount = getChildCount();
-		final SlidingTabLayout.TabColorizer tabColorizer = mCustomTabColorizer != null ? mCustomTabColorizer : mDefaultTabColorizer;
+		int height = getHeight();
+		int childCount = getChildCount();
+		SlidingTabLayout.TabColorizer tabColorizer = mCustomTabColorizer != null ? mCustomTabColorizer : mDefaultTabColorizer;
 
 		// Thick colored underline below the current selection
 		if (childCount > 0) {
@@ -138,7 +138,7 @@ class SlidingTabStrip extends LinearLayout {
 	 * @param ratio of which to blend. 1.0 will return {@code color1}, 0.5 will give an even blend, 0.0 will return {@code color2}.
 	 */
 	private static int blendColors(int color1, int color2, float ratio) {
-		final float inverseRation = 1f - ratio;
+		float inverseRation = 1f - ratio;
 		float r = (Color.red(color1) * ratio) + (Color.red(color2) * inverseRation);
 		float g = (Color.green(color1) * ratio) + (Color.green(color2) * inverseRation);
 		float b = (Color.blue(color1) * ratio) + (Color.blue(color2) * inverseRation);

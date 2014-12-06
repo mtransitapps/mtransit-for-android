@@ -3,9 +3,12 @@ package org.mtransit.android.ui;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.ui.fragment.VisibilityAwareFragment;
 
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -56,11 +59,11 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 
 	public void enableLocationUpdates() {
 		if (this.useLocation && !this.locationUpdatesEnabled) {
-			final GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
+			GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
 			if (googleApiClient != null && googleApiClient.isConnected()) {
 				LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, this.locationRequest, this);
 				this.locationUpdatesEnabled = true;
-				final Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+				Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
 				onLocationChanged(lastLocation);
 			}
 		}
@@ -74,7 +77,7 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 
 	public void disableLocationUpdates() {
 		if (this.locationUpdatesEnabled) {
-			final GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
+			GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
 			if (googleApiClient != null && googleApiClient.isConnected()) {
 				LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
 				this.locationUpdatesEnabled = false;
@@ -106,13 +109,36 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 		if (!locationUpdatesEnabled) {
 			return null;
 		}
-		final GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
+		 GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
 		if (googleApiClient == null) {
 			return null;
 		}
-		final Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+		Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
 		onLocationChanged(lastLocation);
 		return this.userLocation;
+	}
+
+	public static void broadcastUserLocationChanged(MTLog.Loggable loggable, FragmentManager fm, Location newLocation) {
+		java.util.List<Fragment> fragments = fm.getFragments();
+		if (fragments != null) {
+			for (Fragment fragment : fragments) {
+				if (fragment == null) {
+					continue;
+				}
+				if (fragment instanceof MTActivityWithLocation.UserLocationListener) {
+					if (!fragment.isResumed() && !fragment.isVisible()) {
+						continue;
+					}
+					if (fragment instanceof VisibilityAwareFragment) {
+						VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
+						if (!visibilityAwareFragment.isFragmentVisible()) {
+							continue;
+						}
+					}
+					((MTActivityWithLocation.UserLocationListener) fragment).onUserLocationChanged(newLocation);
+				}
+			}
+		}
 	}
 
 	public static interface UserLocationListener {

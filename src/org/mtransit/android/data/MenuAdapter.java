@@ -83,16 +83,24 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		getAllAgencyTypes(); // load all agency types
 	}
 
-	public ArrayList<DataSourceType> getAllAgencyTypes() {
+	private ArrayList<DataSourceType> getAllAgencyTypes() {
 		if (this.allAgencyTypes == null) {
-			this.allAgencyTypes = DataSourceProvider.get(this.context).getAvailableAgencyTypes();
+			initAllAgencyTypes();
 		}
 		return allAgencyTypes;
 	}
 
+	private void initAllAgencyTypes() {
+		this.allAgencyTypes = DataSourceProvider.get(this.context).getAvailableAgencyTypes();
+	}
+
+	private int getAllAgencyTypesCount() {
+		return getAllAgencyTypes().size();
+	}
+
 	@Override
 	public void onModulesUpdated() {
-		final ArrayList<DataSourceType> newAllAgencyTypes = DataSourceProvider.get(this.context).getAvailableAgencyTypes();
+		ArrayList<DataSourceType> newAllAgencyTypes = DataSourceProvider.get(this.context).getAvailableAgencyTypes();
 		if (CollectionUtils.getSize(this.allAgencyTypes) != CollectionUtils.getSize(newAllAgencyTypes)) {
 			this.allAgencyTypes = newAllAgencyTypes; // force reset
 			super.notifyDataSetChanged();
@@ -105,16 +113,16 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 
 	@Override
 	public int getCountMT() {
-		return STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size() + STATIC_ITEMS_AFTER_DYNAMIC;
+		return STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypesCount() + STATIC_ITEMS_AFTER_DYNAMIC;
 	}
 
 	@Override
 	public Object getItemMT(int position) {
 		if (position < STATIC_ITEMS_BEFORE_DYNAMIC) {
 			return null;
-		} else if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size()) {
+		if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypesCount()) {
 			return getAllAgencyTypes().get(position - STATIC_ITEMS_BEFORE_DYNAMIC);
-		} else if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size() + STATIC_ITEMS_AFTER_DYNAMIC) {
+		} else if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypesCount() + STATIC_ITEMS_AFTER_DYNAMIC) {
 			return null;
 		} else {
 			MTLog.w(this, "No item expected at position '%s'!", position);
@@ -126,12 +134,13 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 	public long getItemIdMT(int position) {
 		if (position < STATIC_ITEMS_BEFORE_DYNAMIC) {
 			return position;
-		} else if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size()) {
+		}
+		if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypesCount()) {
 			return 1000 + getAllAgencyTypes().get(position - STATIC_ITEMS_BEFORE_DYNAMIC).getId();
-		} else if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size() + STATIC_ITEMS_AFTER_DYNAMIC) {
+		} else if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypesCount() + STATIC_ITEMS_AFTER_DYNAMIC) {
 			// return ITEM_INDEX_AFTER_START + (position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size());
 			// return position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size();
-			return position + STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size();
+			return position + STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypesCount();
 		} else {
 			MTLog.w(this, "No item ID expected at position '%s'!", position);
 			return -1;
@@ -176,7 +185,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 			}
 		} else if (itemId.startsWith(ITEM_ID_AGENCYTYPE_START_WITH)) {
 			try {
-				final int typeId = Integer.parseInt(itemId.substring(ITEM_ID_AGENCYTYPE_START_WITH.length()));
+				int typeId = Integer.parseInt(itemId.substring(ITEM_ID_AGENCYTYPE_START_WITH.length()));
 				return getDynamicAgencyTypePosition(typeId);
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while finding agency type screen item ID '%s' position!", itemId);
@@ -211,10 +220,11 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 				return VIEW_TYPE_STATIC_SEPARATORS;
 			}
 			return VIEW_TYPE_STATIC_MAIN_TEXT_WITH_ICON;
-		} else if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size()) {
+		}
+		if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypesCount()) {
 			return VIEW_TYPE_DYNAMIC_AGENCY_TYPE;
-		} else if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypes().size() + STATIC_ITEMS_AFTER_DYNAMIC) {
-			if (position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size() == ITEM_INDEX_AFTER_SEPARATOR) {
+		} else if (position < STATIC_ITEMS_BEFORE_DYNAMIC + getAllAgencyTypesCount() + STATIC_ITEMS_AFTER_DYNAMIC) {
+			if (position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypesCount() == ITEM_INDEX_AFTER_SEPARATOR) {
 				return VIEW_TYPE_STATIC_SEPARATORS;
 			}
 			return VIEW_TYPE_SECONDARY;
@@ -256,7 +266,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 	}
 
 	public DataSourceType getAgencyTypeAt(int position) {
-		final DataSourceType dataSourceType = getAllAgencyTypes().get(position - STATIC_ITEMS_BEFORE_DYNAMIC);
+		DataSourceType dataSourceType = getAllAgencyTypes().get(position - STATIC_ITEMS_BEFORE_DYNAMIC);
 		return dataSourceType;
 	}
 
@@ -268,7 +278,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 			convertView.setTag(holder);
 		}
 		MenuItemAgencyTypeViewHolder holder = (MenuItemAgencyTypeViewHolder) convertView.getTag();
-		final DataSourceType type = getAgencyTypeAt(position);
+		DataSourceType type = getAgencyTypeAt(position);
 		if (type != null) {
 			holder.nameTv.setText(type.getAllStringResId());
 			if (type.getMenuResId() != -1) {
@@ -394,11 +404,11 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 
 	public ABFragment getNewStaticFragmentAt(int position) {
 		if (position == ITEM_INDEX_HOME) {
-			return HomeFragment.newInstance(null);
+			return HomeFragment.newInstance(null, null);
 		} else if (position == ITEM_INDEX_FAVORITE) {
 			return FavoritesFragment.newInstance();
 		} else if (position == ITEM_INDEX_NEARBY) {
-			return NearbyFragment.newInstance(null, null, null);
+			return NearbyFragment.newNearbyInstance(null, null);
 			// else if (position == ITEM_INDEX_SEARCH) {
 			// return SearchFragment.newInstance();
 			// } else if (position == MenuAdapter.ITEM_INDEX_DIRECTIONS) {
@@ -406,9 +416,9 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 			// } else if (position == MenuAdapter.ITEM_INDEX_MAPS) {
 			// return MapsFragment.newInstance();
 		} else {
-			final DataSourceType type = getAgencyTypeAt(position);
+			DataSourceType type = getAgencyTypeAt(position);
 			if (type != null) {
-				return AgencyTypeFragment.newInstance(type);
+				return AgencyTypeFragment.newInstance(type.getId(), type);
 			}
 		}
 		MTLog.w(this, "No fragment for item at position '%s'!", position);

@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="org.mtransit.android.MainActivity" >
     <item
-        android:id="@+id/menu_toggle_list_grid"
-        android:icon="@drawable/ic_action_action_list_holo_dark"
+        android:id="@+id/menu_toggle_list_map"
+        android:icon="@drawable/ic_action_action_map_holo_dark"
         android:showAsAction="ifRoom"
-        android:title="@string/menu_action_list"
+        android:title="@string/menu_action_map"
         android:visible="false"
         app:showAsAction="ifRoom"/>
 </menu>

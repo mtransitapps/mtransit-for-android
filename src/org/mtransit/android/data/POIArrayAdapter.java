@@ -20,6 +20,7 @@ import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
+import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
@@ -37,9 +38,7 @@ import org.mtransit.android.ui.view.MTJPathsView;
 import org.mtransit.android.ui.view.MTPieChartPercentView;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
@@ -173,11 +172,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	@Override
 	public int getItemViewType(int position) {
 		// RETURN MUST MATCH getViewTypeCount() !
-		final POIManager poim = getItem(position);
+		POIManager poim = getItem(position);
 		if (poim == null) {
 			if (this.showTypeHeader != TYPE_HEADER_NONE) {
 				if (this.poisByType != null) {
-					final Integer type = getItemTypeHeader(position);
+					Integer type = getItemTypeHeader(position);
 					if (type != null) {
 						return 6; // TYPE HEADER
 					}
@@ -263,6 +262,19 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return null;
 	}
 
+	public POIManager getItem(String uuid) {
+		if (this.poisByType != null) {
+			for (Integer type : this.poisByType.keySet()) {
+				for (POIManager poim : this.poisByType.get(type)) {
+					if (poim.poi.getUUID().equals(uuid)) {
+						return poim;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
 	public Integer getItemTypeHeader(int position) {
 		if (this.showTypeHeader != TYPE_HEADER_NONE && this.poisByType != null) {
 			int index = 0;
@@ -279,12 +291,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		final POIManager poim = getItem(position);
+		POIManager poim = getItem(position);
 		if (poim == null) {
 			if (this.showTypeHeader != TYPE_HEADER_NONE) {
-				final Integer typeId = getItemTypeHeader(position);
+				Integer typeId = getItemTypeHeader(position);
 				if (typeId != null) {
-					final DataSourceType dst = DataSourceType.parseId(typeId);
+					DataSourceType dst = DataSourceType.parseId(typeId);
 					if (dst != null) {
 						return getTypeHeaderView(dst, convertView, parent);
 					}
@@ -365,13 +377,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}.execute(position);
 	}
 
-	public boolean showPoiMenu(int position) {
-		final POIManager poim = getItem(position);
-		if (poim != null) {
-			return showPoiMenu(poim);
-		}
-		return false;
-	}
 
 	@Override
 	public boolean areAllItemsEnabled() {
@@ -381,55 +386,24 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	@Override
 	public boolean isEnabled(int position) {
-		final Integer type = getItemTypeHeader(position);
+		Integer type = getItemTypeHeader(position);
 		if (type != null) {
 			return false;
 		}
 		return true;
 	}
 
-	public boolean showPoiViewerScreen(final POIManager poim) {
+	public void showPoiViewerScreen(POIManager poim) {
 		if (poim == null) {
-			return false;
+			return;
 		}
-		final Activity activity = this.activityWR == null ? null : this.activityWR.get();
-		if (activity != null && poim.onActionItemClick(activity)) {
-			return true;
+		Activity activity = this.activityWR == null ? null : this.activityWR.get();
+		if (activity == null) {
+			return;
 		}
-		return showPoiMenu(poim);
+		poim.onActionItemClick(activity, this.favoriteUpdateListener);
 	}
 
-	public boolean showPoiMenu(final POIManager poim) {
-		if (poim == null) {
-			return false;
-		}
-		switch (poim.poi.getType()) {
-		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
-		case POI.ITEM_VIEW_TYPE_BASIC_POI:
-		case POI.ITEM_VIEW_TYPE_MODULE:
-			new AlertDialog.Builder(getContext()).setTitle(poim.poi.getName())
-					.setItems(poim.getActionsItems(getContext(), getContext().getString(R.string.view_details)), new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int item) {
-							final Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
-							if (activity != null && poim.onActionsItemClick(activity, item, POIArrayAdapter.this.favoriteUpdateListener)) {
-								return;
-							}
-							switch (item) {
-							case 0:
-								showPoiViewerScreen(poim);
-								break;
-							default:
-								MTLog.w(POIArrayAdapter.this, "Unexpected action item '%s'!", item);
-								break;
-							}
-						}
-					}).create().show();
-			return true;
-		default:
-			MTLog.w(this, "Unknow view type '%s' for poi '%s'!", poim.poi.getType(), poim);
-			return false;
-		}
-	}
 
 	@Override
 	public void onFavoriteUpdated() {
@@ -442,9 +416,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (pois != null) {
 			this.poisByType = new LinkedHashMap<Integer, ArrayList<POIManager>>();
 			for (POIManager poim : pois) {
-				final AgencyProperties agency = DataSourceProvider.get(getContext()).getAgency(poim.poi.getAuthority());
+				AgencyProperties agency = DataSourceProvider.get(getContext()).getAgency(getContext(), poim.poi.getAuthority());
 				if (agency != null) {
-					final Integer typeId = agency.getType().getId();
+					Integer typeId = agency.getType().getId();
 					if (!this.poisByType.containsKey(typeId)) {
 						this.poisByType.put(typeId, new ArrayList<POIManager>());
 					}
@@ -484,8 +458,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			for (Integer type : this.poisByType.keySet()) {
 				ArrayList<POIManager> orderedPoims = new ArrayList<POIManager>(this.poisByType.get(type));
 				CollectionUtils.sort(orderedPoims, POIManager.POI_DISTANCE_COMPARATOR);
-				final POIManager theClosestOne = orderedPoims.get(0);
-				final float theClosestDistance = theClosestOne.getDistance();
+				POIManager theClosestOne = orderedPoims.get(0);
+				float theClosestDistance = theClosestOne.getDistance();
 				if (theClosestDistance > 0) {
 					for (POIManager poim : orderedPoims) {
 						if (poim.getDistance() <= theClosestDistance) {
@@ -507,11 +481,19 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (this.closestPoiUuids == null) {
 			return false;
 		}
-		final POIManager poim = getItem(position);
+		POIManager poim = getItem(position);
 		if (poim == null) {
 			return false;
 		}
 		return this.closestPoiUuids.contains(poim.poi.getUUID());
+	}
+
+	public POIManager getClosestPOI() {
+		if (this.closestPoiUuids == null && this.closestPoiUuids.size() == 0) {
+			return null;
+		}
+		String closestPOIUUID = this.closestPoiUuids.iterator().next();
+		return getItem(closestPOIUUID);
 	}
 
 
@@ -616,7 +598,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public void notifyDataSetChanged(boolean force, int minAdapterThresoldInMs) {
 		long now = System.currentTimeMillis();
-		final long adapterThreasold = Math.max(minAdapterThresoldInMs, Constants.ADAPTER_NOTIFY_THRESOLD_IN_MS);
+		long adapterThreasold = Math.max(minAdapterThresoldInMs, Constants.ADAPTER_NOTIFY_THRESOLD_IN_MS);
 		if (this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && (force || (now - this.lastNotifyDataSetChanged) > adapterThreasold)) {
 			notifyDataSetChanged();
 			notifyDataSetChangedManual();
@@ -815,7 +797,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	@Override
-	public void updateCompass(final float orientation, boolean force) {
+	public void updateCompass(float orientation, boolean force) {
 		if (this.poisByType == null) {
 			return;
 		}
@@ -832,9 +814,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			this.lastCompassChanged = now;
 			if (this.compassUpdatesEnabled && this.location != null && this.lastCompassInDegree >= 0) {
 				if (this.compassImgsWR != null && this.compassImgsWR.size() != 0) {
-					for (MTCompassView compassView : this.compassImgsWR.keySet()) {
+					for (WeakHashMap.Entry<MTCompassView, View> compassAndDistance : this.compassImgsWR.entrySet()) {
+						MTCompassView compassView = compassAndDistance.getKey();
 						if (compassView != null) {
 							compassView.generateAndSetHeading(this.location, this.lastCompassInDegree, this.locationDeclination);
+							if (compassView.getVisibility() != View.VISIBLE) {
+								View distanceView = compassAndDistance.getValue();
+								if (distanceView != null && distanceView.getVisibility() == View.VISIBLE) {
+									compassView.setVisibility(View.VISIBLE);
+								}
+							}
 						}
 					}
 				} else {
@@ -874,7 +863,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	private void onTypeHeaderButtonClick(int buttonId, DataSourceType type) {
-		final TypeHeaderButtonsClickListener listener = POIArrayAdapter.this.typeHeaderButtonsClickListenerWR == null ? null
+		TypeHeaderButtonsClickListener listener = POIArrayAdapter.this.typeHeaderButtonsClickListenerWR == null ? null
 				: POIArrayAdapter.this.typeHeaderButtonsClickListenerWR.get();
 		if (listener != null && listener.onTypeHeaderButtonClick(buttonId, type)) {
 			return;
@@ -882,25 +871,25 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		switch (buttonId) {
 		case TypeHeaderButtonsClickListener.BUTTON_ALL:
 			if (type != null) {
-				final Activity activity = this.activityWR == null ? null : this.activityWR.get();
+				Activity activity = this.activityWR == null ? null : this.activityWR.get();
 				if (activity != null) {
-					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(type));
+					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(type.getId(), type));
 				}
 			}
 			break;
 		case TypeHeaderButtonsClickListener.BUTTON_NEARBY:
 			if (type != null) {
-				final Activity activity = this.activityWR == null ? null : this.activityWR.get();
+				Activity activity = this.activityWR == null ? null : this.activityWR.get();
 				if (activity != null) {
-					((MainActivity) activity).addFragmentToStack(NearbyFragment.newInstance(null, type, null));
+					((MainActivity) activity).addFragmentToStack(NearbyFragment.newNearbyInstance(null, type.getId()));
 				}
 			}
 			break;
 		case TypeHeaderButtonsClickListener.BUTTON_MORE:
 			if (type != null) {
-				final Activity activity = this.activityWR == null ? null : this.activityWR.get();
+				Activity activity = this.activityWR == null ? null : this.activityWR.get();
 				if (activity != null) {
-					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(type));
+					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(type.getId(), type));
 				}
 			}
 			break;
@@ -911,7 +900,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private View getTypeHeaderView(final DataSourceType type, View convertView, ViewGroup parent) {
 		if (convertView == null) {
-			final int layoutRes = getTypeHeaderLayoutResId();
+			int layoutRes = getTypeHeaderLayoutResId();
 			convertView = this.layoutInflater.inflate(layoutRes, parent, false);
 			TypeHeaderViewHolder holder = new TypeHeaderViewHolder();
 			holder.nameTv = (TextView) convertView.findViewById(R.id.name);
@@ -1021,7 +1010,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return layoutRes;
 	}
 
-	private WeakHashMap<MTCompassView, Object> compassImgsWR = new WeakHashMap<MTCompassView, Object>();
+	private WeakHashMap<MTCompassView, View> compassImgsWR = new WeakHashMap<MTCompassView, View>();
 
 	private void initCommonViewHolder(CommonViewHolder holder, View convertView, String poiUUID) {
 		holder.uuid = poiUUID;
@@ -1236,17 +1225,19 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private void updateRTSExtra(POIManager poim, RouteTripStopViewHolder holder) {
 		if (poim.poi instanceof RouteTripStop) {
-			final RouteTripStop rts = (RouteTripStop) poim.poi;
+			RouteTripStop rts = (RouteTripStop) poim.poi;
 			if (!showExtra || rts.route == null) {
 				holder.rtsExtraV.setVisibility(View.GONE);
 				holder.routeFL.setVisibility(View.GONE);
 				holder.tripHeadingBg.setVisibility(View.GONE);
 			} else {
+				final String authority = rts.getAuthority();
+				final Route route = rts.route;
 				int routeTextColor = Color.WHITE;
 				int routeColor = rts.route.getColorInt();
 				if (TextUtils.isEmpty(rts.route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
-					final JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getRTSRouteLogo(poim.poi.getAuthority());
+					JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getRTSAgencyRouteLogo(getContext(), poim.poi.getAuthority());
 					if (rtsRouteLogo != null) {
 						holder.routeTypeImg.setJSON(rtsRouteLogo);
 						holder.routeTypeImg.setColor(routeTextColor);
@@ -1260,29 +1251,32 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					holder.routeShortNameTv.setTextColor(routeTextColor);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
+				holder.routeFL.setVisibility(View.VISIBLE);
+				holder.rtsExtraV.setVisibility(View.VISIBLE);
+				final Integer tripId;
+				if (rts.trip == null) {
+					holder.tripHeadingBg.setVisibility(View.GONE);
+					tripId = null;
+				} else {
+					tripId = rts.trip.id;
+					holder.tripHeadingTv.setTextColor(Color.WHITE);
+					holder.tripHeadingBg.setBackgroundColor(Color.BLACK);
+					holder.tripHeadingTv.setText(rts.trip.getHeading(getContext()).toUpperCase(Locale.getDefault()));
+					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setBackgroundColor(routeColor);
+				final Integer stopId = rts.stop == null ? null : rts.stop.id;
 				holder.rtsExtraV.setOnClickListener(new View.OnClickListener() {
 
 					@Override
 					public void onClick(View v) {
-						final Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
+						Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
 						if (activity != null && activity instanceof MainActivity) {
-							((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts), v);
+							((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(authority, route.id, tripId, stopId, route), v);
 						} else {
 							MTLog.w(POIArrayAdapter.this, "No activity available to open RTS fragment!");
 						}
 					}
 				});
-				holder.routeFL.setVisibility(View.VISIBLE);
-				holder.rtsExtraV.setVisibility(View.VISIBLE);
-				if (rts.trip == null) {
-					holder.tripHeadingBg.setVisibility(View.GONE);
-				} else {
-					holder.tripHeadingTv.setTextColor(Color.WHITE);
-					holder.tripHeadingBg.setBackgroundColor(Color.BLACK);
-					holder.tripHeadingTv.setText(rts.trip.getHeading(getContext()).toUpperCase(Locale.getDefault()));
-					holder.tripHeadingBg.setVisibility(View.VISIBLE);
-				}
 			}
 		}
 	}
@@ -1412,7 +1406,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 		if (holder.compassV != null) {
 			holder.compassV.setLatLng(poim.getLat(), poim.getLng());
-			this.compassImgsWR.put(holder.compassV, null);
+			this.compassImgsWR.put(holder.compassV, holder.distanceTv);
 		}
 		// name
 		holder.nameTv.setText(poi.getName());
@@ -1455,7 +1449,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			holder.favImg.setVisibility(View.GONE);
 		}
 		// closest POI
-		final int index;
+		int index;
 		if (this.closestPoiUuids != null && this.closestPoiUuids.contains(poi.getUUID())) {
 			index = 0;
 		} else {
@@ -1516,7 +1510,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		HashSet<String> newFavUUIDs = new HashSet<String>();
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {
-				final String uid = favorite.getFkId();
+				String uid = favorite.getFkId();
 				if (!newFav && this.favUUIDs != null && !this.favUUIDs.contains(uid)) {
 					newFav = true;
 					updatedFav = true;

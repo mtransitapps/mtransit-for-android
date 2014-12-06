@@ -1,35 +1,53 @@
 package org.mtransit.android.ui.fragment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
+import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.api.SupportFactory;
+import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteTripStop;
-import org.mtransit.android.commons.data.Trip;
+import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.RTSTripStopsLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.util.MapUtils;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.util.Pair;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.view.ViewTreeObserver;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.LocationSource;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		MTActivityWithLocation.UserLocationListener {
 
@@ -41,38 +59,46 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	}
 
 	private static final String EXTRA_AGENCY_AUTHORITY = "extra_agency_authority";
+	private static final String EXTRA_ROUTE_ID = "extra_route_id";
 	private static final String EXTRA_TRIP_ID = "extra_trip_id";
 	private static final String EXTRA_STOP_ID = "extra_stop_id";
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
-	private static final String EXTRA_USER_LOCATION = "extra_user_location";
+	private static final String EXTRA_SHOWING_LIST_INSTEAD_OF_MAP = "extra_showing_list_instead_of_map";
 
-	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String authority, Trip trip, Integer optStopId,
-			Location userLocationOpt) {
+	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String authority, int routeId, int tripId,
+			Integer optStopId, Location optUserLocation, boolean showingListInsteadOfMap, Route optRoute) {
 		RTSTripStopsFragment f = new RTSTripStopsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, authority);
-		args.putInt(EXTRA_TRIP_ID, trip.id);
+		f.authority = authority;
+		args.putInt(EXTRA_ROUTE_ID, routeId);
+		f.routeId = routeId;
+		f.route = optRoute;
+		args.putInt(EXTRA_TRIP_ID, tripId);
+		f.tripId = tripId;
 		if (fragmentPosition >= 0) {
 			args.putInt(EXTRA_FRAGMENT_POSITION, fragmentPosition);
+			f.fragmentPosition = fragmentPosition;
 		}
 		if (lastVisibleFragmentPosition >= 0) {
 			args.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, lastVisibleFragmentPosition);
+			f.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
 		}
 		if (optStopId != null) {
 			args.putInt(EXTRA_STOP_ID, optStopId);
+			f.stopId = optStopId;
 		}
-		if (userLocationOpt != null) {
-			args.putParcelable(EXTRA_USER_LOCATION, userLocationOpt);
-		}
+		args.putBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, showingListInsteadOfMap);
+		f.showingListInsteadOfMap = showingListInsteadOfMap;
 		f.setArguments(args);
 		return f;
 	}
 
-	private Trip trip;
-	private String authority;
+	private Integer routeId;
 	private Integer tripId;
 	private Integer stopId;
+	private String authority;
 	private POIArrayAdapter adapter;
 	private Location userLocation;
 	private int fragmentPosition = -1;
@@ -83,32 +109,72 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		restoreInstanceState(savedInstanceState);
+		restoreInstanceState(savedInstanceState, getArguments());
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
-		final View view = inflater.inflate(R.layout.fragment_rts_trip_stops, container, false);
+		restoreInstanceState(savedInstanceState);
+		View view = inflater.inflate(R.layout.fragment_rts_trip_stops, container, false);
 		setupView(view);
+		if (!this.showingListInsteadOfMap) { // showing map
+			initMapView(view, savedInstanceState);
+		}
 		return view;
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		if (this.userLocation != null) {
-			outState.putParcelable(EXTRA_USER_LOCATION, this.userLocation);
+		if (!TextUtils.isEmpty(this.authority)) {
+			outState.putString(EXTRA_AGENCY_AUTHORITY, this.authority);
 		}
+		if (this.routeId != null) {
+			outState.putInt(EXTRA_ROUTE_ID, this.routeId);
+		}
+		if (this.tripId != null) {
+			outState.putInt(EXTRA_TRIP_ID, this.tripId);
+		}
+		if (this.stopId != null) {
+			outState.putInt(EXTRA_STOP_ID, this.stopId);
+		}
+		if (this.fragmentPosition >= 0) {
+			outState.putInt(EXTRA_FRAGMENT_POSITION, this.fragmentPosition);
+		}
+		if (this.lastVisibleFragmentPosition >= 0) {
+			outState.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, this.lastVisibleFragmentPosition);
+		}
+		if (this.showingListInsteadOfMap != null) {
+			outState.putBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, this.showingListInsteadOfMap.booleanValue());
+		}
+		saveMapViewInstance(outState);
 		super.onSaveInstanceState(outState);
 	}
 
-	private void restoreInstanceState(Bundle savedInstanceState) {
-		this.authority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, savedInstanceState, getArguments());
-		this.tripId = BundleUtils.getInt(EXTRA_TRIP_ID, savedInstanceState, getArguments());
-		if (this.tripId != null) {
-			this.trip = DataSourceManager.findRTSTrip(getActivity(), this.authority, this.tripId);
+	private void restoreInstanceState(Bundle... bundles) {
+		String newAuthority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, bundles);
+		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
+			this.authority = newAuthority;
+			resetRoute();
 		}
-		final Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, savedInstanceState, getArguments());
+		Integer newTripId = BundleUtils.getInt(EXTRA_TRIP_ID, bundles);
+		if (newTripId != null && !newTripId.equals(this.tripId)) {
+			this.tripId = newTripId;
+		}
+		Integer newRouteId = BundleUtils.getInt(EXTRA_ROUTE_ID, bundles);
+		if (newRouteId != null && !newRouteId.equals(this.routeId)) {
+			this.routeId = newRouteId;
+			resetRoute();
+		}
+		Integer newStopId = BundleUtils.getInt(EXTRA_STOP_ID, bundles);
+		if (newStopId != null && !newStopId.equals(this.stopId)) {
+			this.stopId = newStopId;
+		}
+		Boolean newShowingListInsteadOfMap = BundleUtils.getBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, bundles);
+		if (newShowingListInsteadOfMap != null) {
+			this.showingListInsteadOfMap = newShowingListInsteadOfMap;
+		}
+		Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, bundles);
 		if (fragmentPosition != null) {
 			if (fragmentPosition.intValue() >= 0) {
 				this.fragmentPosition = fragmentPosition.intValue();
@@ -116,7 +182,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 				this.fragmentPosition = -1;
 			}
 		}
-		final Integer lastVisibleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, savedInstanceState, getArguments());
+		Integer lastVisibleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, bundles);
 		if (lastVisibleFragmentPosition != null) {
 			if (lastVisibleFragmentPosition.intValue() >= 0) {
 				this.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
@@ -124,33 +190,110 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 				this.lastVisibleFragmentPosition = -1;
 			}
 		}
-		this.stopId = BundleUtils.getInt(EXTRA_STOP_ID, savedInstanceState, getArguments());
-		final Location userLocation = BundleUtils.getParcelable(EXTRA_USER_LOCATION, savedInstanceState, getArguments());
-		if (userLocation != null) {
-			onUserLocationChanged(userLocation);
-		}
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		restoreInstanceState(savedInstanceState);
+	}
+
+	private Route route;
+
+	private boolean hasRoute() {
+		if (this.route == null) {
+			initRouteAsync();
+			return false;
+		}
+		return true;
+	}
+
+	private Route getRouteOrNull() {
+		if (!hasRoute()) {
+			return null;
+		}
+		return this.route;
+	}
+
+	private void initRouteAsync() {
+		if (this.loadRouteTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+			return;
+		}
+		if (this.routeId == null || TextUtils.isEmpty(this.authority)) {
+			return;
+		}
+		this.loadRouteTask.execute();
+	}
+
+	private MTAsyncTask<Void, Void, Boolean> loadRouteTask = new MTAsyncTask<Void, Void, Boolean>() {
+		@Override
+		public String getLogTag() {
+			return TAG + ">initRouteAsync";
+		}
+
+		@Override
+		protected Boolean doInBackgroundMT(Void... params) {
+			return initRouteSync();
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			super.onPostExecute(result);
+			if (result) {
+				applyNewRoute();
+			}
+		}
+
+	};
+
+	private void applyNewRoute() {
+		if (this.route == null) {
+			return;
+		}
+		initMapMarkers(null);
+	}
+
+	private boolean initRouteSync() {
+		if (this.route != null) {
+			return false;
+		}
+		if (this.routeId != null && !TextUtils.isEmpty(this.authority)) {
+			this.route = DataSourceManager.findRTSRoute(getActivity(), this.authority, this.routeId.intValue());
+		}
+		return this.route != null;
+	}
+
+	private void resetRoute() {
+		this.route = null; // reset
 	}
 
 	private void initAdapter() {
 		this.adapter = new POIArrayAdapter(getActivity());
 		this.adapter.setTag(this.authority + "-" + this.tripId);
 		this.adapter.setShowExtra(false);
-		final View view = getView();
+		View view = getView();
 		setupView(view);
+		linkAdapterWithListView(view);
 		switchView(view);
 	}
 
-	private void setupView(View view) {
+	private void linkAdapterWithListView(View view) {
 		if (view == null || this.adapter == null) {
 			return;
 		}
-		inflateList(view);
-		this.adapter.setListView((AbsListView) view.findViewById(R.id.list));
+		View listView = view.findViewById(R.id.list);
+		if (listView != null) {
+			this.adapter.setListView((AbsListView) listView);
+		}
+	}
+
+	private void setupView(View view) {
+		if (view == null) {
+			return;
+		}
+		if (this.showingListInsteadOfMap) { // showing list
+			inflateList(view); // inflate ASAP for view state restore
+		}
 	}
 
 	@Override
@@ -189,6 +332,12 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (this.adapter != null) {
 			this.adapter.onPause();
 		}
+		pauseMapView();
+	}
+
+	@Override
+	public boolean isFragmentVisible() {
+		return this.fragmentVisible;
 	}
 
 	private void onFragmentVisible() {
@@ -202,10 +351,12 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		} else {
 			this.adapter.onResume(getActivity());
 		}
-		final Activity activity = getActivity();
+		resumeMapView();
+		Activity activity = getActivity();
 		if (activity != null && activity instanceof MTActivityWithLocation) {
 			onUserLocationChanged(((MTActivityWithLocation) activity).getUserLocation()); // user location was unknown yet or discarded while not visible
 		}
+		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
 	}
 
 	private static final int POIS_LOADER = 0;
@@ -214,7 +365,8 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
-			final RTSTripStopsLoader rtsTripStopsLoader = new RTSTripStopsLoader(getActivity(), this.trip, this.authority);
+			if (this.tripId == null || TextUtils.isEmpty(this.authority)) {
+			RTSTripStopsLoader rtsTripStopsLoader = new RTSTripStopsLoader(getActivity(), this.tripId.intValue(), this.authority);
 			return rtsTripStopsLoader;
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
@@ -231,49 +383,334 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 
 	@Override
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
-		Integer currentSelectedItemPosition = null;
+		Pair<Integer, String> currentSelectedItemindexUuid = null;
 		if (this.adapter == null) {
-			if (currentSelectedItemPosition == null) {
-				if (this.stopId != null) {
-					currentSelectedItemPosition = findStopIndex(this.stopId.intValue(), data);
-				}
-				if (currentSelectedItemPosition == null) {
-					currentSelectedItemPosition = findClosestPOIIndex(data);
-				}
+			if (this.stopId != null) {
+				currentSelectedItemindexUuid = findStopIndexUuid(this.stopId.intValue(), data);
+			}
+			if (currentSelectedItemindexUuid == null) {
+				currentSelectedItemindexUuid = findClosestPOIIndexUuid(data);
 			}
 			initAdapter();
 		}
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
-		final View view = getView();
-		if (currentSelectedItemPosition != null && currentSelectedItemPosition.intValue() > 0) {
-			((AbsListView) view.findViewById(R.id.list)).setSelection(currentSelectedItemPosition - 1); // show 1 more stop on top of the list
+		View view = getView();
+		if (this.showingListInsteadOfMap) {
+			Integer selectedPosition = currentSelectedItemindexUuid == null ? null : currentSelectedItemindexUuid.first;
+			if (selectedPosition != null && selectedPosition.intValue() > 0) {
+				inflateList(view);
+				MTLog.d(this, "onLoadFinished() > list.setSelection(%s)", selectedPosition);
+				((AbsListView) view.findViewById(R.id.list)).setSelection(selectedPosition.intValue() - 1); // show 1 more stop on top of the list
+			}
+		} else {
+			String selectedUuid = currentSelectedItemindexUuid == null ? null : currentSelectedItemindexUuid.second;
+			initMapMarkers(selectedUuid);
 		}
 		switchView(view);
 	}
 
-	private Integer findStopIndex(int stopId, ArrayList<POIManager> pois) {
+	private MapView mapView = null;
+	private MapView getMapView(View view) {
+		if (this.mapView == null) {
+			initMapView(view, null);
+		}
+		return this.mapView;
+	}
+
+	private void pauseMapView() {
+		if (this.mapView != null) {
+			this.mapView.onPause();
+		}
+	}
+
+	private void resumeMapView() {
+		if (this.mapView != null) {
+			this.mapView.onResume();
+		}
+	}
+
+	private void saveMapViewInstance(Bundle outState) {
+		if (this.mapView != null) {
+			this.mapView.onSaveInstanceState(outState);
+		}
+	}
+
+	private void destroyMapView() {
+		if (this.mapView != null) {
+			this.mapView.onDestroy();
+			this.mapView = null;
+		}
+	}
+
+	private void initMapView(View view, Bundle savedInstanceState) {
+		if (view != null) {
+			this.mapView = (MapView) view.findViewById(R.id.map);
+			if (this.mapView != null) {
+				this.mapView.onCreate(savedInstanceState);
+				if (this.fragmentVisible) {
+					this.mapView.onResume();
+				}
+				initMap(this.mapView);
+			}
+		}
+	}
+
+	private boolean mapLayoutReady = false;
+
+	private ViewTreeObserver.OnGlobalLayoutListener mapViewOnGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
+
+		@Override
+		public void onGlobalLayout() {
+			if (RTSTripStopsFragment.this.mapView != null) {
+				SupportFactory.get().removeOnGlobalLayoutListener(RTSTripStopsFragment.this.mapView.getViewTreeObserver(), this);
+				RTSTripStopsFragment.this.mapLayoutReady = true;
+				updateMapPosition(false);
+			}
+		}
+	};
+
+	private void updateMapPosition(boolean anim) {
+		if (!this.mapLayoutReady) {
+			return;
+		}
+		if (this.mapMarkersShown) {
+			return;
+		}
+		if (this.mapMarkers == null || this.mapMarkers.size() == 0) {
+			return;
+		}
+		LatLngBounds.Builder llb = LatLngBounds.builder();
+		for (Marker mapMarker : this.mapMarkers.values()) {
+			llb.include(mapMarker.getPosition());
+		}
+		MapView mapView = getMapView(getView());
+		GoogleMap map = getMap(mapView);
+		this.mapMarkersShown = MapUtils.updateMapPosition(getActivity(), map, mapView, anim, llb.build(),
+				MapUtils.getMapWithButtonsCameraPaddingInPx(getActivity()));
+	}
+
+	private GoogleMap map = null;
+
+	private GoogleMap getMap(MapView mapView) {
+		if (this.map == null) {
+			initMap(mapView);
+		}
+		return this.map;
+	}
+
+	private void initMap(MapView mapView) {
+		this.map = mapView == null ? null : mapView.getMap();
+		if (this.map != null) {
+			this.map.setOnMapLoadedCallback(this);
+			this.map.setOnMyLocationButtonClickListener(this);
+			this.map.setOnInfoWindowClickListener(this);
+			this.map.setOnMarkerClickListener(this);
+			this.map.setOnCameraChangeListener(this);
+			this.map.setLocationSource(this);
+			this.map.setMyLocationEnabled(true);
+			this.map.getUiSettings().setMyLocationButtonEnabled(true);
+			this.map.getUiSettings().setIndoorLevelPickerEnabled(false);
+			this.map.setTrafficEnabled(false);
+			this.map.setIndoorEnabled(false);
+	}
+
+	@Override
+	public void onCameraChange(CameraPosition position) {
+		this.showingMyLocation = this.showingMyLocation == null ? true : false;
+	}
+
+	private Boolean showingMyLocation = false;
+
+	@Override
+	public boolean onMyLocationButtonClick() {
+		if (this.showingMyLocation != null && this.showingMyLocation.booleanValue()) {
+			this.mapMarkersShown = false;
+			updateMapPosition(true);
+			this.showingMyLocation = false;
+			return true; // handled
+		}
+		if (this.userLocation == null) {
+			return false; // not handled
+		}
+		LatLngBounds.Builder llb = LatLngBounds.builder();
+		llb.include(new LatLng(this.userLocation.getLatitude(), this.userLocation.getLongitude()));
+		if (this.adapter != null && this.adapter.hasClosestPOI()) {
+			POIManager poim = this.adapter.getClosestPOI();
+			if (poim != null) {
+				LatLng poiLatLng = new LatLng(poim.getLat(), poim.getLng());
+				llb.include(poiLatLng);
+				Marker poiMarker = this.mapMarkers == null ? null : this.mapMarkers.get(poim.poi.getUUID());
+				if (poiMarker != null) {
+					poiMarker.showInfoWindow();
+				}
+			}
+		}
+		MapView mapView = getMapView(getView());
+		GoogleMap map = getMap(mapView);
+		boolean success = MapUtils
+				.updateMapPosition(getActivity(), map, mapView, true, llb.build(), MapUtils.getMapWithButtonsCameraPaddingInPx(getActivity()));
+		this.showingMyLocation = null;
+		return success; // handled or not
+	}
+
+	private boolean mapLoaded = false;
+
+	@Override
+	public void onMapLoaded() {
+		this.mapLoaded = true;
+		updateMapPosition(false);
+	}
+
+	private HashMap<String, Marker> mapMarkers = null;
+	private HashMap<String, String> mapMarkersIdToUUID = new HashMap<String, String>();
+
+	private boolean mapMarkersShown = false;
+
+	private void initMapMarkers(final String optSelectedItemUuid) {
+		if (this.mapMarkers != null) {
+			return;
+		}
+		if (!hasRoute()) {
+			return;
+		}
+		GoogleMap map = getMap(getMapView(getView()));
+		if (map == null) {
+			return;
+		}
+		this.mapMarkers = new HashMap<String, Marker>();
+		this.mapMarkersShown = false;
+		new MTAsyncTask<Void, Void, HashMap<String, MarkerOptions>>() {
+
+			private final String TAG = RTSTripStopsFragment.class.getSimpleName() + ">initMapMarkers";
+
+			@Override
+			public String getLogTag() {
+				return TAG;
+			}
+
+			@Override
+			protected HashMap<String, MarkerOptions> doInBackgroundMT(Void... params) {
+				Route route = getRouteOrNull();
+				HashMap<String, MarkerOptions> result = new HashMap<String, MarkerOptions>();
+				if (RTSTripStopsFragment.this.adapter != null) {
+					for (int i = 0; i < RTSTripStopsFragment.this.adapter.getPoisCount(); i++) {
+						POIManager poim = RTSTripStopsFragment.this.adapter.getItem(i);
+						if (poim != null) {
+							LatLng poiLatLng = new LatLng(poim.poi.getLat(), poim.poi.getLng());
+							MarkerOptions poiMarkerOptions = new MarkerOptions() //
+									.title(poim.poi.getName()) //
+									.position(poiLatLng) //
+									.icon(getBitmapDescriptor(route));
+							result.put(poim.poi.getUUID(), poiMarkerOptions);
+						}
+					}
+				}
+				return result;
+			}
+
+			@Override
+			protected void onPostExecute(HashMap<String, MarkerOptions> result) {
+				super.onPostExecute(result);
+				GoogleMap map = getMap(getMapView(getView()));
+				if (map != null) {
+					if (result != null) {
+						for (HashMap.Entry<String, MarkerOptions> uuidMarkerOptions : result.entrySet()) {
+							Marker poiMarker = map.addMarker(uuidMarkerOptions.getValue());
+							if (optSelectedItemUuid != null && optSelectedItemUuid.equals(uuidMarkerOptions.getKey())) {
+								poiMarker.showInfoWindow();
+							}
+							RTSTripStopsFragment.this.mapMarkers.put(uuidMarkerOptions.getKey(), poiMarker);
+							RTSTripStopsFragment.this.mapMarkersIdToUUID.put(poiMarker.getId(), uuidMarkerOptions.getKey());
+						}
+						updateMapPosition(false);
+					}
+				}
+			}
+		}.execute();
+	}
+
+	@Override
+	public void onInfoWindowClick(Marker marker) {
+		new MTAsyncTask<Marker, Void, POIManager>() {
+
+			@Override
+			public String getLogTag() {
+				return RTSTripStopsFragment.class.getSimpleName() + ">onInfoWindowClick";
+			}
+
+			@Override
+			protected POIManager doInBackgroundMT(Marker... params) {
+				Marker marker = params == null || params.length == 0 ? null : params[0];
+				String uuid = marker == null ? null : RTSTripStopsFragment.this.mapMarkersIdToUUID.get(marker.getId());
+				if (TextUtils.isEmpty(uuid)) {
+					return null;
+				}
+				return RTSTripStopsFragment.this.adapter.getItem(uuid);
+			}
+
+			@Override
+			protected void onPostExecute(POIManager poim) {
+				if (poim != null) {
+					poim.onActionItemClick(getActivity(), null);
+				}
+			}
+		}.execute(marker);
+	}
+
+	@Override
+	public boolean onMarkerClick(Marker marker) {
+		return false; // not handled
+	}
+
+	private BitmapDescriptor mapMarkerBitmap = null;
+
+	private BitmapDescriptor getBitmapDescriptor(Route route) {
+		if (this.mapMarkerBitmap == null) {
+			try {
+				int markerColor = Color.WHITE;
+				if (route != null) {
+					markerColor = route.getColorInt();
+				}
+				if (markerColor == Color.BLACK) {
+					markerColor = Color.DKGRAY;
+				}
+				int bitmapResId = R.drawable.ic_place_white_slim;
+				this.mapMarkerBitmap = BitmapDescriptorFactory.fromBitmap(ColorUtils.colorizeBitmapResource(getActivity(), markerColor, bitmapResId));
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while setting custom marker color!");
+				this.mapMarkerBitmap = null;
+			}
+			if (this.mapMarkerBitmap == null) {
+				return BitmapDescriptorFactory.defaultMarker();
+			}
+		}
+		return this.mapMarkerBitmap;
+	}
+
+	private Pair<Integer, String> findStopIndexUuid(int stopId, ArrayList<POIManager> pois) {
 		for (int i = 0; i < pois.size(); i++) {
-			final POIManager poim = pois.get(i);
+			POIManager poim = pois.get(i);
 			if (poim != null && poim.poi instanceof RouteTripStop) {
-				final RouteTripStop rts = (RouteTripStop) poim.poi;
+				RouteTripStop rts = (RouteTripStop) poim.poi;
 				if (rts.stop.id == stopId) {
-					return i;
+					return new Pair<Integer, String>(i, poim.poi.getUUID());
 				}
 			}
 		}
 		return null;
 	}
 
-	private Integer findClosestPOIIndex(ArrayList<POIManager> pois) {
+	private Pair<Integer, String> findClosestPOIIndexUuid(ArrayList<POIManager> pois) {
 		if (this.userLocation != null) {
 			LocationUtils.updateDistance(pois, this.userLocation.getLatitude(), this.userLocation.getLongitude());
 			ArrayList<POIManager> sortedPOIs = new ArrayList<POIManager>(pois);
 			CollectionUtils.sort(sortedPOIs, POIManager.POI_DISTANCE_COMPARATOR);
-			final String closestPoiUuid = sortedPOIs.get(0).poi.getUUID();
+			String closestPoiUuid = sortedPOIs.get(0).poi.getUUID();
 			for (int i = 0; i < pois.size(); i++) {
-				if (pois.get(i).poi.getUUID().equals(closestPoiUuid)) {
-					return i;
+				POIManager poim = pois.get(i);
+				if (poim.poi.getUUID().equals(closestPoiUuid)) {
+					return new Pair<Integer, String>(i, poim.poi.getUUID());
 				}
 			}
 		}
@@ -286,15 +723,31 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 				this.userLocation = newLocation;
 				if (this.adapter != null) {
-					this.adapter.setLocation(this.userLocation);
+					this.adapter.setLocation(newLocation);
 				}
 			}
 		}
+		if (this.locationChandedListener != null) {
+			this.locationChandedListener.onLocationChanged(newLocation);
+		}
+	}
+
+	private LocationSource.OnLocationChangedListener locationChandedListener;
+
+	@Override
+	public void activate(LocationSource.OnLocationChangedListener locationChandedListener) {
+		this.locationChandedListener = locationChandedListener;
+	}
+
+	@Override
+	public void deactivate() {
+		this.locationChandedListener = null;
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
+		this.stopId = null;
 		onFragmentInvisible();
 	}
 
@@ -307,6 +760,32 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (this.adapter != null) {
 			this.adapter.setActivity(getActivity());
 		}
+	}
+
+
+	@Override
+	public void onLowMemory() {
+		super.onLowMemory();
+		if (!this.showingListInsteadOfMap) { // showing map
+			if (getMapView(getView()) != null) {
+				getMapView(getView()).onLowMemory();
+			}
+		}
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		destroyMapView();
+		this.map = null;
+		if (this.mapMarkers != null) {
+			this.mapMarkers.clear();
+			this.mapMarkers = null;
+		}
+		this.mapMarkerBitmap = null;
+		this.mapLoaded = false;
+		this.mapMarkersShown = false;
+		this.mapLayoutReady = false;
 	}
 
 	@Override
@@ -323,24 +802,40 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		} else if (this.adapter.getPoisCount() == 0) {
 			showEmpty(view);
 		} else {
-			showList(view);
+			showListOrMap(view);
 		}
 	}
 
-	private void showList(View view) {
+	private void showListOrMap(View view) {
 		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
 			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
 		}
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		inflateList(view);
-		view.findViewById(R.id.list).setVisibility(View.VISIBLE); // show
+		if (this.showingListInsteadOfMap) { // list
+			view.findViewById(R.id.map).setVisibility(View.GONE); // hide
+			inflateList(view);
+			view.findViewById(R.id.list).setVisibility(View.VISIBLE); // show
+		} else { // map
+			if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
+				view.findViewById(R.id.list).setVisibility(View.GONE); // hide
+			}
+			if (this.mapLayoutReady) {
+				view.findViewById(R.id.map).setVisibility(View.VISIBLE);
+			} else {
+				view.findViewById(R.id.map).setVisibility(View.INVISIBLE); // show when ready
+				if (view.findViewById(R.id.map).getViewTreeObserver().isAlive()) {
+					view.findViewById(R.id.map).getViewTreeObserver().addOnGlobalLayoutListener(this.mapViewOnGlobalLayoutListener);
+				}
+			}
+		}
 	}
 
 	private void inflateList(View view) {
 		if (view.findViewById(R.id.list) == null) { // IF NOT present/inflated DO
 			((ViewStub) view.findViewById(R.id.list_stub)).inflate(); // inflate
+			linkAdapterWithListView(view);
 		}
 	}
 
@@ -373,4 +868,19 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
+	private Boolean showingListInsteadOfMap = null;
+
+	public void setShowingListInsteadOfMap(boolean newShowingListInsteadOfMap) {
+		if (this.showingListInsteadOfMap != null && this.showingListInsteadOfMap.booleanValue() == newShowingListInsteadOfMap) {
+			return; // nothing changed
+		}
+		this.showingListInsteadOfMap = newShowingListInsteadOfMap; // switching
+		if (this.adapter != null) {
+			setupView(getView());
+			switchView(getView());
+			if (!this.showingListInsteadOfMap) {
+				initMapMarkers(null);
+			}
+		}
+	}
 }

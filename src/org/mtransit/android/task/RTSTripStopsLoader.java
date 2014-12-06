@@ -2,7 +2,6 @@ package org.mtransit.android.task;
 
 import java.util.ArrayList;
 
-import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.GTFSRouteTripStopProvider;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.task.MTAsyncTaskLoaderV4;
@@ -20,13 +19,13 @@ public class RTSTripStopsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager
 		return TAG;
 	}
 
-	private Trip trip;
+	private int tripId;
 	private ArrayList<POIManager> pois;
 	private String authority;
 
-	public RTSTripStopsLoader(Context context, Trip trip, String authority) {
+	public RTSTripStopsLoader(Context context, int tripId, String authority) {
 		super(context);
-		this.trip = trip;
+		this.tripId = tripId;
 		this.authority = authority;
 	}
 
@@ -36,7 +35,7 @@ public class RTSTripStopsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager
 			return this.pois;
 		}
 		this.pois = new ArrayList<POIManager>();
-		POIFilter poiFilter = new POIFilter(GTFSRouteTripStopProvider.RouteTripStopColumns.T_TRIP_K_ID + "=" + this.trip.id);
+		POIFilter poiFilter = new POIFilter(GTFSRouteTripStopProvider.RouteTripStopColumns.T_TRIP_K_ID + "=" + this.tripId);
 		poiFilter.addExtra("sortOrder", GTFSRouteTripStopProvider.RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE + " ASC");
 		this.pois = DataSourceManager.findPOIs(getContext(), this.authority, poiFilter);
 		return pois;
