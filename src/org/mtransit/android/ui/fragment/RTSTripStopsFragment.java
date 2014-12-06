@@ -559,11 +559,9 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		return success; // handled or not
 	}
 
-	private boolean mapLoaded = false;
 
 	@Override
 	public void onMapLoaded() {
-		this.mapLoaded = true;
 		updateMapPosition(false);
 	}
 
@@ -788,7 +786,6 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			this.mapMarkers = null;
 		}
 		this.mapMarkerBitmap = null;
-		this.mapLoaded = false;
 		this.mapMarkersShown = false;
 		this.mapLayoutReady = false;
 	}

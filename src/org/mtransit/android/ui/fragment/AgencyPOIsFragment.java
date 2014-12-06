@@ -423,7 +423,6 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 			this.mapMarkers = null;
 		}
 		this.map = null;
-		this.mapLoaded = false;
 		this.mapMarkersShown = false;
 		this.mapLayoutReady = false;
 	}
@@ -666,11 +665,9 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		}
 	};
 
-	private boolean mapLoaded = false;
 
 	@Override
 	public void onMapLoaded() {
-		this.mapLoaded = true;
 		updateMapPosition(false);
 	}
 
