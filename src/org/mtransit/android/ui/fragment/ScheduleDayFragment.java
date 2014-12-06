@@ -377,6 +377,9 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		this.fragmentVisible = true;
 		switchView(getView());
 		if (this.adapter == null) {
+			if (hasRts()) {
+				LoaderUtils.restartLoader(getLoaderManager(), SCHEDULE_LOADER, null, this);
+			}
 		} else {
 			if (this.adapter.getCount() > 0) {
 				this.adapter.onResume(getActivity());
