@@ -11,7 +11,7 @@
     android:orientation="vertical"
     android:paddingLeft="1dp"
     android:paddingRight="1dp"
-    android:visibility="gone"
+    android:visibility="invisible"
     tools:visibility="visible" >
     <!-- PIE CHART % -->
     <org.mtransit.android.ui.view.MTPieChartPercentView

@@ -104,6 +104,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		args.putString(EXTRA_POI_UUID, uuid);
 		f.uuid = uuid;
 		f.poim = optPoim;
+		f.poim.setInFocus(true);
 		f.poim.resetLastFindTimestamps();
 		f.setArguments(args);
 		return f;
@@ -246,6 +247,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		if (this.poim == null) {
 			return;
 		}
+		this.poim.setInFocus(true);
 		this.poim.setScheduleMaxDataRequests(Schedule.ScheduleStatusFilter.DATA_REQUEST_MONTH);
 		if (this.adapter != null) {
 			this.adapter.clear();

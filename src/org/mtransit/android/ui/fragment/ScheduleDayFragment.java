@@ -799,14 +799,13 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return convertView;
 		}
 
-		private static final ThreadSafeDateFormatter FORMAT_TIME = ThreadSafeDateFormatter.getTimeInstance(ThreadSafeDateFormatter.SHORT);
 
 		private void updateTimeView(int position, View convertView) {
 			TimeViewHolder holder = (TimeViewHolder) convertView.getTag();
 			Schedule.Timestamp timestamp = (Schedule.Timestamp) getItem(position);
 			Activity activity = this.activityWR == null ? null : this.activityWR.get();
 			if (timestamp != null && activity != null) {
-				StringBuilder timeSb = new StringBuilder(FORMAT_TIME.formatThreadSafe(timestamp.t));
+				StringBuilder timeSb = new StringBuilder(TimeUtils.formatTime(timestamp.t));
 				if (timestamp.hasHeadsign()) {
 					String timestampHeading = timestamp.getHeading(activity);
 					if (this.optRts != null && !StringUtils.equals(timestampHeading, this.optRts.trip.getHeading(activity))) {

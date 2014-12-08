@@ -83,6 +83,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		restoreInstanceState(savedInstanceState, getArguments());
 		DataSourceProvider.addModulesUpdateListerner(this);
 	}
 

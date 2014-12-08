@@ -383,8 +383,8 @@ public class POIViewController implements MTLog.Loggable {
 		CharSequence line2CS = null;
 		if (dataProvider != null && status != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
-			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getNextTimesStrings(context, dataProvider.getNowToTheMinute(),
-					TimeUtils.HALF_HOUR_IN_MS, null, 10, null);
+			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getStatus(context, dataProvider.getNowToTheMinute(), TimeUtils.HALF_HOUR_IN_MS, null,
+					10, null);
 			if (lines != null && lines.size() >= 1) {
 				line1CS = lines.get(0).first;
 				line2CS = lines.get(0).second;

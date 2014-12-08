@@ -18,7 +18,7 @@
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
         android:paddingTop="8dp"
-        android:visibility="gone"
+        android:visibility="invisible"
         tools:visibility="visible" >
         <TextView
             android:id="@+id/moreBtnTxt"

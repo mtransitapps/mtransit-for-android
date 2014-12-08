@@ -109,7 +109,7 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 		if (!locationUpdatesEnabled) {
 			return null;
 		}
-		 GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
+		GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
 		if (googleApiClient == null) {
 			return null;
 		}

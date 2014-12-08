@@ -1344,8 +1344,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		CharSequence line2CS = null;
 		if (status != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
-			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getNextTimesStrings(getContext(), getNowToTheMinute(), TimeUtils.HALF_HOUR_IN_MS,
-					null, 10, null);
+			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule
+					.getStatus(getContext(), getNowToTheMinute(), TimeUtils.HALF_HOUR_IN_MS, null, 10, null);
 			if (lines != null && lines.size() >= 1) {
 				line1CS = lines.get(0).first;
 				line2CS = lines.get(0).second;

@@ -87,6 +87,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	private POIStatus status;
 	private ArrayList<ServiceUpdate> serviceUpdates;
+	private boolean inFocus = false;
 
 	private long lastFindStatusTimestampMs = -1;
 
@@ -113,6 +114,14 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	public void resetLastFindTimestamps() {
 		this.lastFindServiceUpdateTimestampMs = -1;
 		this.lastFindStatusTimestampMs = -1;
+	}
+
+	public void setInFocus(boolean inFocus) {
+		this.inFocus = inFocus;
+	}
+
+	public boolean isInFocus() {
+		return this.inFocus;
 	}
 
 	@Override
@@ -191,7 +200,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	public POIStatus getStatus(Context context) {
-		if (this.status == null || !status.isUseful()) {
+		if (this.status == null || this.lastFindStatusTimestampMs < 0 || this.inFocus || !this.status.isUseful()) {
 			findStatus(context, false);
 		}
 		return this.status;
@@ -210,6 +219,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		boolean isNotSkipped = false;
 		if (this.lastFindStatusTimestampMs != findStatusTimestampMs) { // IF not same minute as last findStatus() call DO
 			StatusFilter filter = getFilter(findStatusTimestampMs);
+			filter.setInFocus(this.inFocus);
 			if (filter != null) {
 				StatusLoader.StatusLoaderListener listener = this.statusLoaderListenerWR == null ? null : this.statusLoaderListenerWR.get();
 				isNotSkipped = StatusLoader.get().findStatus(context, this, filter, listener, skipIfBusy);
@@ -282,7 +292,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	public Boolean isServiceUpdateWarning(Context context) {
-		if (this.serviceUpdates == null || !areServiceUpdatesUseful()) {
+		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0 || this.inFocus || !areServiceUpdatesUseful()) {
 			findServiceUpdates(context, false);
 			return null;
 		}
@@ -291,7 +301,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	public ArrayList<ServiceUpdate> getServiceUpdates(Context context) {
-		if (this.serviceUpdates == null || !areServiceUpdatesUseful()) {
+		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0 || this.inFocus || !areServiceUpdatesUseful()) {
 			findServiceUpdates(context, false);
 		}
 		return this.serviceUpdates;
@@ -323,6 +333,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		boolean isNotSkipped = false;
 		if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
 			ServiceUpdateProvider.ServiceUpdateFilter filter = new ServiceUpdateProvider.ServiceUpdateFilter(this.poi);
+			filter.setInFocus(this.inFocus);
 			if (filter != null) {
 				ServiceUpdateLoader.ServiceUpdateLoaderListener listener = this.serviceUpdateLoaderListenerWR == null ? null
 						: this.serviceUpdateLoaderListenerWR.get();
