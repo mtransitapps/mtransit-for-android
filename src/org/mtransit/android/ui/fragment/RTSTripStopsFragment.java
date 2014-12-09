@@ -41,6 +41,7 @@ import android.widget.TextView;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -51,7 +52,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		MTActivityWithLocation.UserLocationListener, LocationSource, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMyLocationButtonClickListener,
-		GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnCameraChangeListener {
+		GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnCameraChangeListener, OnMapReadyCallback {
 
 	private static final String TAG = RTSTripStopsFragment.class.getSimpleName();
 
@@ -400,14 +401,14 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		View view = getView();
-		if (this.showingListInsteadOfMap) {
+		if (this.showingListInsteadOfMap) { // list
 			Integer selectedPosition = currentSelectedItemindexUuid == null ? null : currentSelectedItemindexUuid.first;
 			if (selectedPosition != null && selectedPosition.intValue() > 0) {
 				inflateList(view);
 				MTLog.d(this, "onLoadFinished() > list.setSelection(%s)", selectedPosition);
 				((AbsListView) view.findViewById(R.id.list)).setSelection(selectedPosition.intValue() - 1); // show 1 more stop on top of the list
 			}
-		} else {
+		} else { // map
 			String selectedUuid = currentSelectedItemindexUuid == null ? null : currentSelectedItemindexUuid.second;
 			initMapMarkers(selectedUuid);
 		}
@@ -504,7 +505,18 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	}
 
 	private void initMap(MapView mapView) {
-		this.map = mapView == null ? null : mapView.getMap();
+		if (mapView != null) {
+			mapView.getMapAsync(this);
+		}
+	}
+
+	@Override
+	public void onMapReady(GoogleMap map) {
+		this.map = map;
+		setupMap();
+	}
+
+	private void setupMap() {
 		if (this.map != null) {
 			this.map.setOnMapLoadedCallback(this);
 			this.map.setOnMyLocationButtonClickListener(this);
@@ -517,6 +529,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			this.map.getUiSettings().setIndoorLevelPickerEnabled(false);
 			this.map.setTrafficEnabled(false);
 			this.map.setIndoorEnabled(false);
+			initMapMarkers(null);
 		}
 	}
 

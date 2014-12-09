@@ -43,6 +43,7 @@ import android.widget.TextView;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -53,7 +54,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		MTActivityWithLocation.UserLocationListener, LocationSource, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMyLocationButtonClickListener,
-		GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnCameraChangeListener {
+		GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnCameraChangeListener, OnMapReadyCallback {
 
 	private static final String TAG = AgencyPOIsFragment.class.getSimpleName();
 
@@ -492,7 +493,18 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	}
 
 	private void initMap(MapView mapView) {
-		this.map = mapView == null ? null : mapView.getMap();
+		if (mapView != null) {
+			mapView.getMapAsync(this);
+		}
+	}
+
+	@Override
+	public void onMapReady(GoogleMap map) {
+		this.map = map;
+		setupMap();
+	}
+
+	private void setupMap() {
 		if (this.map != null) {
 			this.map.setOnMapLoadedCallback(this);
 			this.map.setOnMyLocationButtonClickListener(this);
@@ -505,6 +517,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 			this.map.getUiSettings().setIndoorLevelPickerEnabled(false);
 			this.map.setTrafficEnabled(false);
 			this.map.setIndoorEnabled(false);
+			initMapMarkers(null);
 		}
 	}
 

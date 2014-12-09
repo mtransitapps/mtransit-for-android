@@ -64,6 +64,7 @@ import android.widget.ScrollView;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -73,7 +74,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class POIFragment extends ABFragment implements POIViewController.POIDataProvider, MTActivityWithLocation.UserLocationListener, SensorEventListener,
 		SensorUtils.CompassListener, SensorUtils.SensorTaskCompleted, FavoriteManager.FavoriteUpdateListener,
-		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, TimeUtils.TimeChangedReceiver.TimeChangedListener, LocationSource {
+		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, TimeUtils.TimeChangedReceiver.TimeChangedListener, LocationSource, OnMapReadyCallback {
 
 	private static final String TAG = POIFragment.class.getSimpleName();
 
@@ -470,13 +471,11 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		if (this.poiMarker == null) {
 			if (map != null) {
 				this.poiMarker = map.addMarker(new MarkerOptions() //
-						.title(poim.poi.getName()) //
 						.position(poiLatLng) //
 						.icon(getBitmapDescriptor()));
 			}
 		} else {
 			this.poiMarker.setVisible(false);
-			this.poiMarker.setTitle(poim.poi.getName());
 			this.poiMarker.setPosition(poiLatLng);
 			this.poiMarker.setIcon(getBitmapDescriptor());
 			this.poiMarker.setVisible(true);
@@ -521,7 +520,18 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	}
 
 	private void initMap(MapView mapView) {
-		this.map = mapView == null ? null : mapView.getMap();
+		if (mapView != null) {
+			mapView.getMapAsync(this);
+		}
+	}
+
+	@Override
+	public void onMapReady(GoogleMap map) {
+		this.map = map;
+		setupMap();
+	}
+
+	private void setupMap() {
 		if (this.map != null) {
 			this.map.setMyLocationEnabled(true);
 			this.map.setLocationSource(this);
@@ -531,6 +541,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			this.map.setIndoorEnabled(false);
 			int paddingTop = (int) ResourceUtils.convertSptoPx(getActivity(), 32); // action bar
 			this.map.setPadding(0, paddingTop, 0, 0);
+			updateMapPosition(false);
 		}
 	}
 
@@ -605,6 +616,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			if (layoutResId != null) {
 				((ViewStub) view.findViewById(R.id.poi_status_detail_stub)).setLayoutResource(layoutResId.intValue());
 				((ViewStub) view.findViewById(R.id.poi_status_detail_stub)).inflate(); // inflate
+				setupRTSFullScheduleBtn(view);
 			}
 		}
 		return view.findViewById(R.id.poi_status_detail);
