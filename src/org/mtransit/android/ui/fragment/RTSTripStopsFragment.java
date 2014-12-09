@@ -398,6 +398,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			}
 			initAdapter();
 		}
+		this.mapMarkers = null; // force refresh
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		View view = getView();
