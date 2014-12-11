@@ -2,8 +2,8 @@ apply plugin: 'com.android.application'
 
 dependencies {
     compile project(':commons-android')
-    compile 'com.android.support:appcompat-v7:21.+'
-    compile 'com.google.android.gms:play-services:6.5.+'
+    compile 'com.android.support:appcompat-v7:21.0.2'
+    compile 'com.google.android.gms:play-services:6.5.87'
 }
 
 android {
