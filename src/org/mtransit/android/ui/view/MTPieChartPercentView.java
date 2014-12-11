@@ -88,15 +88,6 @@ public class MTPieChartPercentView extends MTView {
 		}
 	}
 
-	public void setValue1(int value1) {
-		this.value1 = value1;
-		resetValuesAngles();
-	}
-
-	public void setValue2(int value2) {
-		this.value2 = value2;
-		resetValuesAngles();
-	}
 
 	public void setValues(int value1, int value2) {
 		this.value1 = value1;

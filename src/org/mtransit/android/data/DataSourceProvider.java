@@ -278,7 +278,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 							this.rtsAgencyRouteLogoByAuthority.put(newAgency.getAuthority(), jPath);
 						}
 					} else {
-						MTLog.w(this, "Invalid type '%s' , skipping agency provider.", type);
+						MTLog.w(this, "Invalid type, skipping agency provider.");
 					}
 				} else {
 					MTLog.w(this, "Invalid type ID '%s', skipping agency provider.", typeId);
@@ -295,7 +295,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 	}
 
 	public boolean hasAgency(String authority) {
-		return this.allAgenciesAuthority == null ? false : this.allAgenciesAuthority.contains(authority);
+		return this.allAgenciesAuthority != null && this.allAgenciesAuthority.contains(authority);
 	}
 
 	public AgencyProperties getAgency(Context context, String authority) {
@@ -571,16 +571,16 @@ public class DataSourceProvider implements MTLog.Loggable {
 			return TAG;
 		}
 
-		private WeakHashMap<ModulesUpdateListener, Object> listerners;
+		private WeakHashMap<ModulesUpdateListener, Object> listeners;
 
 		public TriggerModulesUpdatedTask(WeakHashMap<ModulesUpdateListener, Object> listeners) {
-			this.listerners = listeners;
+			this.listeners = listeners;
 		}
 
 		@Override
 		protected Void doInBackgroundMT(Void... params) {
-			if (this.listerners != null) {
-				Iterator<ModulesUpdateListener> it = this.listerners.keySet().iterator();
+			if (this.listeners != null) {
+				Iterator<ModulesUpdateListener> it = this.listeners.keySet().iterator();
 				while (it.hasNext()) {
 					ModulesUpdateListener listener = it.next();
 					if (listener != null) {

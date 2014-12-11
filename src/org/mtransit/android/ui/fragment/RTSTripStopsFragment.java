@@ -70,7 +70,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private static final String EXTRA_SHOWING_LIST_INSTEAD_OF_MAP = "extra_showing_list_instead_of_map";
 
 	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String authority, int routeId, int tripId,
-			Integer optStopId, Location optUserLocation, boolean showingListInsteadOfMap, Route optRoute) {
+			Integer optStopId, boolean showingListInsteadOfMap, Route optRoute) {
 		RTSTripStopsFragment f = new RTSTripStopsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, authority);
@@ -148,7 +148,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			outState.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, this.lastVisibleFragmentPosition);
 		}
 		if (this.showingListInsteadOfMap != null) {
-			outState.putBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, this.showingListInsteadOfMap.booleanValue());
+			outState.putBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, this.showingListInsteadOfMap);
 		}
 		saveMapViewInstance(outState);
 		super.onSaveInstanceState(outState);
@@ -179,15 +179,15 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		}
 		Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, bundles);
 		if (fragmentPosition != null) {
-			if (fragmentPosition.intValue() >= 0) {
-				this.fragmentPosition = fragmentPosition.intValue();
+			if (fragmentPosition >= 0) {
+				this.fragmentPosition = fragmentPosition;
 			} else {
 				this.fragmentPosition = -1;
 			}
 		}
 		Integer lastVisibleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, bundles);
 		if (lastVisibleFragmentPosition != null) {
-			if (lastVisibleFragmentPosition.intValue() >= 0) {
+			if (lastVisibleFragmentPosition >= 0) {
 				this.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
 			} else {
 				this.lastVisibleFragmentPosition = -1;
@@ -261,7 +261,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			return false;
 		}
 		if (this.routeId != null && !TextUtils.isEmpty(this.authority)) {
-			this.route = DataSourceManager.findRTSRoute(getActivity(), this.authority, this.routeId.intValue());
+			this.route = DataSourceManager.findRTSRoute(getActivity(), this.authority, this.routeId);
 		}
 		return this.route != null;
 	}
@@ -371,8 +371,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			if (this.tripId == null || TextUtils.isEmpty(this.authority)) {
 				return null;
 			}
-			RTSTripStopsLoader rtsTripStopsLoader = new RTSTripStopsLoader(getActivity(), this.tripId.intValue(), this.authority);
-			return rtsTripStopsLoader;
+			return new RTSTripStopsLoader(getActivity(), this.tripId, this.authority);
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -388,13 +387,13 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 
 	@Override
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
-		Pair<Integer, String> currentSelectedItemindexUuid = null;
+		Pair<Integer, String> currentSelectedItemIndexUuid = null;
 		if (this.adapter == null) {
 			if (this.stopId != null) {
-				currentSelectedItemindexUuid = findStopIndexUuid(this.stopId.intValue(), data);
+				currentSelectedItemIndexUuid = findStopIndexUuid(this.stopId, data);
 			}
-			if (currentSelectedItemindexUuid == null) {
-				currentSelectedItemindexUuid = findClosestPOIIndexUuid(data);
+			if (currentSelectedItemIndexUuid == null) {
+				currentSelectedItemIndexUuid = findClosestPOIIndexUuid(data);
 			}
 			initAdapter();
 		}
@@ -403,14 +402,15 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		View view = getView();
 		if (this.showingListInsteadOfMap) { // list
-			Integer selectedPosition = currentSelectedItemindexUuid == null ? null : currentSelectedItemindexUuid.first;
-			if (selectedPosition != null && selectedPosition.intValue() > 0) {
-				inflateList(view);
-				MTLog.d(this, "onLoadFinished() > list.setSelection(%s)", selectedPosition);
-				((AbsListView) view.findViewById(R.id.list)).setSelection(selectedPosition.intValue() - 1); // show 1 more stop on top of the list
+			Integer selectedPosition = currentSelectedItemIndexUuid == null ? null : currentSelectedItemIndexUuid.first;
+			if (selectedPosition != null && selectedPosition > 0) {
+				if (view != null) {
+					inflateList(view);
+					MTLog.d(this, "onLoadFinished() > list.setSelection(%s)", selectedPosition);
+				}
 			}
 		} else { // map
-			String selectedUuid = currentSelectedItemindexUuid == null ? null : currentSelectedItemindexUuid.second;
+			String selectedUuid = currentSelectedItemIndexUuid == null ? null : currentSelectedItemIndexUuid.second;
 			initMapMarkers(selectedUuid);
 		}
 		switchView(view);
@@ -536,14 +536,14 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 
 	@Override
 	public void onCameraChange(CameraPosition position) {
-		this.showingMyLocation = this.showingMyLocation == null ? true : false;
+		this.showingMyLocation = this.showingMyLocation == null;
 	}
 
 	private Boolean showingMyLocation = false;
 
 	@Override
 	public boolean onMyLocationButtonClick() {
-		if (this.showingMyLocation != null && this.showingMyLocation.booleanValue()) {
+		if (this.showingMyLocation != null && this.showingMyLocation) {
 			this.mapMarkersShown = false;
 			updateMapPosition(true);
 			this.showingMyLocation = false;
@@ -859,6 +859,9 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
 			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 		}
+		if (view.findViewById(R.id.map) != null) { // IF inflated/present DO
+			view.findViewById(R.id.map).setVisibility(View.GONE); // hide
+		}
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
@@ -871,6 +874,9 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private void showEmpty(View view) {
 		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
 			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
+		}
+		if (view.findViewById(R.id.map) != null) { // IF inflated/present DO
+			view.findViewById(R.id.map).setVisibility(View.GONE); // hide
 		}
 		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
 			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
@@ -887,7 +893,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private Boolean showingListInsteadOfMap = null;
 
 	public void setShowingListInsteadOfMap(boolean newShowingListInsteadOfMap) {
-		if (this.showingListInsteadOfMap != null && this.showingListInsteadOfMap.booleanValue() == newShowingListInsteadOfMap) {
+		if (this.showingListInsteadOfMap != null && this.showingListInsteadOfMap == newShowingListInsteadOfMap) {
 			return; // nothing changed
 		}
 		this.showingListInsteadOfMap = newShowingListInsteadOfMap; // switching

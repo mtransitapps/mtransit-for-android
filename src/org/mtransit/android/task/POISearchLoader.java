@@ -241,8 +241,8 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			} else if (rhs == null) {
 				return ComparatorUtils.BEFORE;
 			}
-			int lScore = lhs.poi.getScore() == null ? 0 : lhs.poi.getScore().intValue();
-			int rScore = lhs.poi.getScore() == null ? 0 : rhs.poi.getScore().intValue();
+			int lScore = lhs.poi.getScore() == null ? 0 : lhs.poi.getScore();
+			int rScore = lhs.poi.getScore() == null ? 0 : rhs.poi.getScore();
 			if (lScore > rScore) {
 				return ComparatorUtils.BEFORE;
 			} else if (lScore < rScore) {

@@ -57,7 +57,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 			for (DataSourceType type : availableAgencyTypes) {
 				ArrayList<POIManager> typePOIs = findNearby(getContext(), type, this.lat, this.lng);
 				filterTypePOIs(favoriteUUIDs, typePOIs);
-				CollectionUtils.sort(typePOIs, POIManager.POI_ALPHA_COMPATOR);
+				CollectionUtils.sort(typePOIs, POIManager.POI_ALPHA_COMPARATOR);
 				this.pois.addAll(typePOIs);
 			}
 		}

@@ -66,9 +66,6 @@ public class MTCompassView extends MTView {
 		this.compassPaint.setColor(color);
 	}
 
-	public void setColorRes(int colorResId) {
-		setColor(getResources().getColor(colorResId));
-	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {

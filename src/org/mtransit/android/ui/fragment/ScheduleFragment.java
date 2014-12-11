@@ -394,12 +394,6 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 	}
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		if (this.adapter != null) {
-		}
-	}
 
 	private void switchView(View view) {
 		if (this.adapter == null) {

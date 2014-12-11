@@ -32,7 +32,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
 	private WeakReference<MainActivity> mainActivityWR;
 
-	private boolean fragmentReady;
+	private boolean fragmentReady = false;
 
 	private CharSequence fragmentTitle;
 
@@ -46,9 +46,9 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	private boolean fragmentCustomViewRequestFocus = false;
 
 
-	private boolean fragmentDisplayHomeAsUpEnabled;
+	private boolean fragmentDisplayHomeAsUpEnabled = ABFragment.DEFAULT_DISPLAY_HOME_AS_UP_ENABLED;
 
-	private boolean fragmentShowSearchMenuItem;
+	private boolean fragmentShowSearchMenuItem = ABFragment.DEFAULT_SHOW_SEARCH_MENU_ITEM;
 
 
 	private UpOnClickListener upOnClickListener;
@@ -107,11 +107,8 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			Toolbar toolbar = (Toolbar) mainActivity.findViewById(R.id.ab_toolbar);
 			mainActivity.setSupportActionBar(toolbar);
 			ActionBar ab = getABOrNull();
-			this.fragmentReady = false;
 			this.fragmentTitle = mainActivity.getTitle();
 			this.fragmentSubtitle = ab == null ? null : ab.getSubtitle();
-			this.fragmentDisplayHomeAsUpEnabled = ABFragment.DEFAULT_DISPLAY_HOME_AS_UP_ENABLED;
-			this.fragmentShowSearchMenuItem = ABFragment.DEFAULT_SHOW_SEARCH_MENU_ITEM;
 			if (ab != null) {
 				ab.setElevation(0f);
 				ab.hide();
@@ -144,7 +141,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
 	private boolean isCurrentFragmentVisible(Fragment source) {
 		MainActivity mainActivity = getMainActivityOrNull();
-		return mainActivity == null ? false : mainActivity.isCurrentFragmentVisible(source);
+		return mainActivity != null && mainActivity.isCurrentFragmentVisible(source);
 	}
 
 
@@ -264,7 +261,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			ab.setDisplayShowTitleEnabled(true);
 		}
 		if (this.fragmentBgColor != null) {
-			setBgColor(ab, this.fragmentBgColor.intValue());
+			setBgColor(ab, this.fragmentBgColor);
 		}
 		mainActivity.updateNavigationDrawerToggleIndicator();
 		updateSearchMenuItemVisibility(); // action bar icons are options menu items
@@ -276,7 +273,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			return;
 		}
 		if (this.fragmentBgColor != null) {
-			setBgColor(getABOrNull(), this.fragmentBgColor.intValue());
+			setBgColor(getABOrNull(), this.fragmentBgColor);
 		}
 	}
 

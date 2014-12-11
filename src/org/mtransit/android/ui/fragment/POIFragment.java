@@ -96,7 +96,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	private static final String EXTRA_AUTHORITY = "extra_agency_authority";
 	private static final String EXTRA_POI_UUID = "extra_poi_uuid";
 
-	public static POIFragment newInstance(String uuid, String authority, Location optUserLocation, AgencyProperties optAgency, POIManager optPoim) {
+	public static POIFragment newInstance(String uuid, String authority, AgencyProperties optAgency, POIManager optPoim) {
 		POIFragment f = new POIFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
@@ -350,9 +350,8 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			if (context == null) {
 				return null;
 			}
-			NearbyPOIListLoader nearbyPOIListLoader = new NearbyPOIListLoader(context, poim.poi.getLat(), poim.poi.getLng(), this.ad.aroundDiff,
-					LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE, LocationUtils.MAX_POI_NEARBY_POIS_LIST, false, this.authority);
-			return nearbyPOIListLoader;
+			return new NearbyPOIListLoader(context, poim.poi.getLat(), poim.poi.getLng(), this.ad.aroundDiff, LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE,
+					LocationUtils.MAX_POI_NEARBY_POIS_LIST, false, this.authority);
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -374,7 +373,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			return;
 		}
 		POIManager poim = getPoimOrNull();
-		if (poim != null) {
+		if (poim != null && data != null) {
 			Iterator<POIManager> it = data.iterator();
 			while (it.hasNext()) {
 				if (it.next().poi.getUUID().equals(poim.poi.getUUID())) {
@@ -416,10 +415,11 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		this.adapter = new POIArrayAdapter(getActivity());
 		this.adapter.setTag(TAG);
 		View view = getView();
-		this.adapter.setManualScrollView((ScrollView) view.findViewById(R.id.scrollview));
-		this.adapter.setManualLayout((ViewGroup) view.findViewById(R.id.poi_nearby_pois_list));
+		if (view != null) {
+			this.adapter.setManualScrollView((ScrollView) view.findViewById(R.id.scrollview));
+			this.adapter.setManualLayout((ViewGroup) view.findViewById(R.id.poi_nearby_pois_list));
+		}
 	}
-
 
 	private MapView mapView = null;
 	private Marker poiMarker = null;
@@ -469,11 +469,9 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		}
 		LatLng poiLatLng = new LatLng(poim.poi.getLat(), poim.poi.getLng());
 		if (this.poiMarker == null) {
-			if (map != null) {
-				this.poiMarker = map.addMarker(new MarkerOptions() //
-						.position(poiLatLng) //
-						.icon(getBitmapDescriptor()));
-			}
+			this.poiMarker = map.addMarker(new MarkerOptions() //
+					.position(poiLatLng) //
+					.icon(getBitmapDescriptor()));
 		} else {
 			this.poiMarker.setVisible(false);
 			this.poiMarker.setPosition(poiLatLng);
@@ -539,7 +537,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			this.map.getUiSettings().setIndoorLevelPickerEnabled(false);
 			this.map.setTrafficEnabled(false);
 			this.map.setIndoorEnabled(false);
-			int paddingTop = (int) ResourceUtils.convertSptoPx(getActivity(), 32); // action bar
+			int paddingTop = (int) ResourceUtils.convertSPtoPX(getActivity(), 32); // action bar
 			this.map.setPadding(0, paddingTop, 0, 0);
 			updateMapPosition(false);
 		}
@@ -614,7 +612,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		if (view.findViewById(R.id.poi_status_detail) == null) { // IF NOT present/inflated DO
 			Integer layoutResId = POIStatusDetailViewController.getLayoutResId(poim);
 			if (layoutResId != null) {
-				((ViewStub) view.findViewById(R.id.poi_status_detail_stub)).setLayoutResource(layoutResId.intValue());
+				((ViewStub) view.findViewById(R.id.poi_status_detail_stub)).setLayoutResource(layoutResId);
 				((ViewStub) view.findViewById(R.id.poi_status_detail_stub)).inflate(); // inflate
 				setupRTSFullScheduleBtn(view);
 			}
@@ -630,7 +628,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		if (view.findViewById(R.id.poi_service_update) == null) { // IF NOT present/inflated DO
 			Integer layoutResId = POIServiceUpdateViewController.getLayoutResId();
 			if (layoutResId != null) {
-				((ViewStub) view.findViewById(R.id.poi_service_update_stub)).setLayoutResource(layoutResId.intValue());
+				((ViewStub) view.findViewById(R.id.poi_service_update_stub)).setLayoutResource(layoutResId);
 				((ViewStub) view.findViewById(R.id.poi_service_update_stub)).inflate(); // inflate
 			}
 		}
@@ -661,7 +659,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	@Override
 	public void onServiceUpdatesLoaded(String targetUUID, ArrayList<ServiceUpdate> serviceUpdates) {
 		View view = getView();
-		POIViewController.updateServiceUpdatesView(getActivity(), getPOIView(view), serviceUpdates, this);
+		POIViewController.updateServiceUpdatesView(getPOIView(view), serviceUpdates, this);
 		POIServiceUpdateViewController.updateServiceUpdate(getActivity(), getPOIServiceUpdateView(view), serviceUpdates, this);
 	}
 
@@ -677,9 +675,10 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		if (newLocation != null) {
 			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 				this.userLocation = newLocation;
+				this.locationDeclination = SensorUtils.getLocationDeclination(newLocation);
 				POIManager poim = getPoimOrNull();
 				if (poim != null) {
-					LocationUtils.updateDistanceWithString(getActivity(), poim, this.userLocation);
+					LocationUtils.updateDistanceWithString(getActivity(), poim, newLocation);
 					POIViewController.updatePOIDistanceAndCompass(getPOIView(getView()), poim, this);
 				}
 				updateMapPosition(true);
@@ -698,6 +697,9 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	@Override
 	public void activate(LocationSource.OnLocationChangedListener locationChandedListener) {
 		this.locationChandedListener = locationChandedListener;
+		if (this.userLocation != null && this.locationChandedListener != null) {
+			this.locationChandedListener.onLocationChanged(this.userLocation);
+		}
 	}
 
 	@Override
@@ -720,7 +722,6 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		SensorUtils.checkForCompass(getActivity(), se, this.accelerometerValues, this.magneticFieldValues, this);
 	}
 
-	private int scrollState = AbsListView.OnScrollListener.SCROLL_STATE_IDLE;
 
 	private long lastCompassChanged = -1l;
 
@@ -728,8 +729,8 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	public void updateCompass(float orientation, boolean force) {
 		long now = System.currentTimeMillis();
 		int roundedOrientation = SensorUtils.convertToPosivite360Degree((int) orientation);
-		SensorUtils.updateCompass(force, this.userLocation, roundedOrientation, now, this.scrollState, this.lastCompassChanged, this.lastCompassInDegree,
-				Constants.ADAPTER_NOTIFY_THRESOLD_IN_MS, this);
+		SensorUtils.updateCompass(force, this.userLocation, roundedOrientation, now, AbsListView.OnScrollListener.SCROLL_STATE_IDLE, this.lastCompassChanged,
+				this.lastCompassInDegree, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS, this);
 	}
 
 	@Override
@@ -754,7 +755,6 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			if (activity != null) {
 				((MainActivity) activity).popFragmentFromStack(this); // close this fragment
 			}
-			return;
 		}
 	}
 
@@ -788,6 +788,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
 	}
 
+	@Override
 	public void onPause() {
 		super.onPause();
 		if (this.compassUpdatesEnabled) {
@@ -892,7 +893,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 				this.isFavorite = FavoriteManager.isFavorite(getActivity(), poim.poi.getUUID());
 			}
 		}
-		return isFavorite;
+		return isFavorite == null ? false : isFavorite;
 	}
 
 	@Override

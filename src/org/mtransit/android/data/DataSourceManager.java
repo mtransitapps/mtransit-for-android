@@ -279,7 +279,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			Uri uri = getRTSTripsUri(authority);
 			String selection = GTFSRouteTripStopProvider.TripColumns.T_TRIP_K_ID + "=" + tripId;
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSRouteTripStopProvider.PROJECTION_TRIP, selection, null, null);
-			ArrayList<Trip> rtsTrips = getRTSTrips(cursor, authority);
+			ArrayList<Trip> rtsTrips = getRTSTrips(cursor);
 			return rtsTrips == null || rtsTrips.size() == 0 ? null : rtsTrips.get(0);
 		} catch (Throwable t) {
 			MTLog.w(TAG, t, "Error!");
@@ -297,7 +297,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			Uri uri = getRTSTripsUri(authority);
 			String selection = GTFSRouteTripStopProvider.TripColumns.T_TRIP_K_ROUTE_ID + "=" + routeId;
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSRouteTripStopProvider.PROJECTION_TRIP, selection, null, null);
-			return getRTSTrips(cursor, authority);
+			return getRTSTrips(cursor);
 		} catch (Throwable t) {
 			MTLog.w(TAG, t, "Error!");
 			return null;
@@ -308,7 +308,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
-	private static ArrayList<Trip> getRTSTrips(Cursor cursor, String authority) {
+	private static ArrayList<Trip> getRTSTrips(Cursor cursor) {
 		ArrayList<Trip> result = new ArrayList<Trip>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
@@ -327,7 +327,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			Uri uri = getRTSRoutesUri(authority);
 			String selection = GTFSRouteTripStopProvider.RouteColumns.T_ROUTE_K_ID + "=" + routeId;
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSRouteTripStopProvider.PROJECTION_ROUTE, selection, null, null);
-			ArrayList<Route> rtsRoutes = getRTSRoutes(cursor, authority);
+			ArrayList<Route> rtsRoutes = getRTSRoutes(cursor);
 			return rtsRoutes == null || rtsRoutes.size() == 0 ? null : rtsRoutes.get(0);
 		} catch (Throwable t) {
 			MTLog.w(TAG, t, "Error!");
@@ -348,9 +348,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 		Cursor cursor = null;
 		try {
 			Uri uri = getRTSRoutesUri(authority);
-			String selection = null;
-			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSRouteTripStopProvider.PROJECTION_ROUTE, selection, null, null);
-			return getRTSRoutes(cursor, authority);
+			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSRouteTripStopProvider.PROJECTION_ROUTE, null, null, null);
+			return getRTSRoutes(cursor);
 		} catch (Throwable t) {
 			MTLog.w(TAG, t, "Error!");
 			return null;
@@ -361,7 +360,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
-	private static ArrayList<Route> getRTSRoutes(Cursor cursor, String authority) {
+	private static ArrayList<Route> getRTSRoutes(Cursor cursor) {
 		ArrayList<Route> result = new ArrayList<Route>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
@@ -383,9 +382,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 		Cursor cursor = null;
 		try {
 			String filterJsonString = POIFilter.toJSON(poiFilter).toString();
-			String sortOrder = null;
 			Uri uri = getPOIUri(authority);
-			cursor = queryContentResolver(context.getContentResolver(), uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, sortOrder);
+			cursor = queryContentResolver(context.getContentResolver(), uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, null);
 			return getPOIs(cursor, authority);
 		} catch (Throwable t) {
 			MTLog.w(TAG, t, "Error!");

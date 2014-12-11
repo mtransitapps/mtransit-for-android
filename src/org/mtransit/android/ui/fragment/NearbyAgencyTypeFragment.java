@@ -45,8 +45,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 	private static final String EXTRA_NEARBY_LOCATION = "extra_nearby_location";
 
-	public static NearbyAgencyTypeFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, int typeId, Location optNearbyLocation,
-			Location optUserLocation) {
+	public static NearbyAgencyTypeFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, int typeId, Location optNearbyLocation) {
 		NearbyAgencyTypeFragment f = new NearbyAgencyTypeFragment();
 		Bundle args = new Bundle();
 		args.putInt(EXTRA_TYPE_ID, typeId);
@@ -99,7 +98,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		if (this.typeId != null) {
-			outState.putInt(EXTRA_TYPE_ID, this.typeId.intValue());
+			outState.putInt(EXTRA_TYPE_ID, this.typeId);
 		}
 		if (this.nearbyLocation != null) {
 			outState.putParcelable(EXTRA_NEARBY_LOCATION, this.nearbyLocation);
@@ -145,8 +144,8 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		// FRAGMENT POSITION
 		Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, bundles);
 		if (fragmentPosition != null) {
-			if (fragmentPosition.intValue() >= 0) {
-				this.fragmentPosition = fragmentPosition.intValue();
+			if (fragmentPosition >= 0) {
+				this.fragmentPosition = fragmentPosition;
 			} else {
 				this.fragmentPosition = -1;
 			}
@@ -154,7 +153,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		// LAST VISIBLE FRAGMENT POSITION
 		Integer lastVisibleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, bundles);
 		if (lastVisibleFragmentPosition != null) {
-			if (lastVisibleFragmentPosition.intValue() >= 0) {
+			if (lastVisibleFragmentPosition >= 0) {
 				this.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
 			} else {
 				this.lastVisibleFragmentPosition = -1;
@@ -315,7 +314,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		switchView(view);
 		if (view != null) {
 			if (view.findViewById(R.id.list) != null) {
-				((AbsListView) view.findViewById(R.id.list)).scrollTo(0, 0);
+				view.findViewById(R.id.list).scrollTo(0, 0);
 			}
 		}
 		this.ad = LocationUtils.getNewDefaultAroundDiff();
@@ -428,10 +427,8 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			}
 			this.typeAgenciesAuthority = NearbyPOIListLoader.findTypeAgenciesAuthority(getActivity(), this.typeId, this.nearbyLocation.getLatitude(),
 					this.nearbyLocation.getLongitude(), this.ad.aroundDiff);
-			NearbyPOIListLoader nearbyPOIListLoader = new NearbyPOIListLoader(getActivity(), this.nearbyLocation.getLatitude(),
-					this.nearbyLocation.getLongitude(), this.ad.aroundDiff, LocationUtils.MIN_NEARBY_LIST_COVERAGE, LocationUtils.MAX_NEARBY_LIST, false,
-					this.typeAgenciesAuthority);
-			return nearbyPOIListLoader;
+			return new NearbyPOIListLoader(getActivity(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff,
+					LocationUtils.MIN_NEARBY_LIST_COVERAGE, LocationUtils.MAX_NEARBY_LIST, false, this.typeAgenciesAuthority);
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;

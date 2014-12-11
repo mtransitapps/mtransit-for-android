@@ -29,7 +29,7 @@ public final class AdsUtils implements MTLog.Loggable {
 
 	public static boolean AD_ENABLED = true;
 
-	private static boolean DEBUG = false;
+	private static final boolean DEBUG = false;
 
 	private static Boolean showingAds = null;
 
@@ -159,7 +159,7 @@ public final class AdsUtils implements MTLog.Loggable {
 			return;
 		}
 		if (isEnoughSpace(configuration)) {
-			if (adLoaded != null && adLoaded.booleanValue()) {
+			if (adLoaded != null && adLoaded) {
 				resumeAd(activity);
 				showAds(activity);
 			}

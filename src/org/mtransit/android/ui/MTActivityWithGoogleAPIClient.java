@@ -190,7 +190,8 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActionBarActivity 
 	public void onConnectionFailed(ConnectionResult result) {
 		if (this.resolvingError) {
 			return;
-		} else if (result.hasResolution()) {
+		}
+		if (result.hasResolution()) {
 			try {
 				this.resolvingError = true;
 				result.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
@@ -208,7 +209,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActionBarActivity 
 	}
 
 	private void showErrorDialog(int errorCode) {
-		ErrorDialogFragment dialogFragment = new ErrorDialogFragment(this);
+		ErrorDialogFragment dialogFragment = new ErrorDialogFragment();
 		Bundle args = new Bundle();
 		args.putInt(DIALOG_ERROR, errorCode);
 		dialogFragment.setArguments(args);
@@ -228,24 +229,18 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActionBarActivity 
 			return TAG;
 		}
 
-		private WeakReference<MTActivityWithGoogleAPIClient> activityWR;
-
-		public ErrorDialogFragment(MTActivityWithGoogleAPIClient activity) {
-			this.activityWR = new WeakReference<MTActivityWithGoogleAPIClient>(activity);
+		public ErrorDialogFragment() {
 		}
 
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			int errorCode = this.getArguments().getInt(DIALOG_ERROR);
-			return GooglePlayServicesUtil.getErrorDialog(errorCode, this.getActivity(), REQUEST_RESOLVE_ERROR);
+			int errorCode = getArguments().getInt(DIALOG_ERROR);
+			return GooglePlayServicesUtil.getErrorDialog(errorCode, getActivity(), REQUEST_RESOLVE_ERROR);
 		}
 
 		@Override
 		public void onDismiss(DialogInterface dialog) {
-			MTActivityWithGoogleAPIClient activity = this.activityWR == null ? null : this.activityWR.get();
-			if (activity != null) {
-				activity.onDialogDismissed();
-			}
+			((MainActivity) getActivity()).onDialogDismissed();
 		}
 
 	}

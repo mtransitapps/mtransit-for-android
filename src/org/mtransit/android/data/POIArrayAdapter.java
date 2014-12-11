@@ -325,7 +325,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		CommonViewHolder holder = (CommonViewHolder) convertView.getTag();
 		POIManager poim = getItem(position);
 		updateCommonView(holder, poim);
-		return;
 	}
 
 	@Override
@@ -482,14 +481,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			return false;
 		}
 		POIManager poim = getItem(position);
-		if (poim == null) {
-			return false;
-		}
-		return this.closestPoiUuids.contains(poim.poi.getUUID());
+		return poim != null && this.closestPoiUuids.contains(poim.poi.getUUID());
 	}
 
 	public POIManager getClosestPOI() {
-		if (this.closestPoiUuids == null && this.closestPoiUuids.size() == 0) {
+		if (this.closestPoiUuids == null || this.closestPoiUuids.size() == 0) {
 			return null;
 		}
 		String closestPOIUUID = this.closestPoiUuids.iterator().next();
@@ -583,7 +579,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	public void notifyDataSetChanged(boolean force) {
-		notifyDataSetChanged(force, Constants.ADAPTER_NOTIFY_THRESOLD_IN_MS);
+		notifyDataSetChanged(force, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
 	}
 
 	private Handler handler = new Handler();
@@ -598,7 +594,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public void notifyDataSetChanged(boolean force, int minAdapterThresoldInMs) {
 		long now = System.currentTimeMillis();
-		long adapterThreasold = Math.max(minAdapterThresoldInMs, Constants.ADAPTER_NOTIFY_THRESOLD_IN_MS);
+		long adapterThreasold = Math.max(minAdapterThresoldInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
 		if (this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && (force || (now - this.lastNotifyDataSetChanged) > adapterThreasold)) {
 			notifyDataSetChanged();
 			notifyDataSetChangedManual();
@@ -804,7 +800,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		long now = System.currentTimeMillis();
 		int roundedOrientation = SensorUtils.convertToPosivite360Degree((int) orientation);
 		SensorUtils.updateCompass(force, this.location, roundedOrientation, now, this.scrollState, this.lastCompassChanged, this.lastCompassInDegree,
-				Constants.ADAPTER_NOTIFY_THRESOLD_IN_MS, this);
+				Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS, this);
 	}
 
 	@Override
@@ -1044,8 +1040,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		} else {
 			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
-		poim.setServiceUpdateLoaderListener(this);
-		updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext()));
+		if (poim != null) {
+			poim.setServiceUpdateLoaderListener(this);
+			updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext()));
+		}
 	}
 
 	private void updateAppStatus(CommonStatusViewHolder statusViewHolder, POIStatus status) {
@@ -1065,7 +1063,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			return;
 		}
 		if (this.showServiceUpdate && isServiceUpdateWarning != null) {
-			statusViewHolder.warningImg.setVisibility(isServiceUpdateWarning.booleanValue() ? View.VISIBLE : View.GONE);
+			statusViewHolder.warningImg.setVisibility(isServiceUpdateWarning ? View.VISIBLE : View.GONE);
 		} else {
 			statusViewHolder.warningImg.setVisibility(View.GONE);
 		}
@@ -1078,8 +1076,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		} else {
 			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
-		poim.setServiceUpdateLoaderListener(this);
-		updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext()));
+		if (poim != null) {
+			poim.setServiceUpdateLoaderListener(this);
+			updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext()));
+		}
 	}
 
 	private void updateAvailabilityPercent(CommonStatusViewHolder statusViewHolder, POIStatus status) {
@@ -1154,17 +1154,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	private void updateModuleExtra(POIManager poim, ModuleViewHolder holder) {
-		if (poim.poi instanceof Module) {
+		if (this.showExtra && poim.poi != null && poim.poi instanceof Module) {
 			Module module = (Module) poim.poi;
-			if (!this.showExtra || module == null) {
-				holder.moduleTypeImg.setVisibility(View.GONE);
-			} else {
-				int color = module.getColorInt();
-				holder.moduleTypeImg.setBackgroundColor(color);
-				DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
-				holder.moduleTypeImg.setImageResource(moduleType.getAbIconResId());
-				holder.moduleTypeImg.setVisibility(View.VISIBLE);
-			}
+			int color = module.getColorInt();
+			holder.moduleTypeImg.setBackgroundColor(color);
+			DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
+			holder.moduleTypeImg.setImageResource(moduleType.getAbIconResId());
+			holder.moduleTypeImg.setVisibility(View.VISIBLE);
 		} else {
 			holder.moduleTypeImg.setVisibility(View.GONE);
 		}
@@ -1272,7 +1268,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					public void onClick(View v) {
 						Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
 						if (activity != null && activity instanceof MainActivity) {
-							((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(authority, route.id, tripId, stopId, route), v);
+							((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(authority, route.id, tripId, stopId, route));
 						} else {
 							MTLog.w(POIArrayAdapter.this, "No activity available to open RTS fragment!");
 						}
@@ -1335,8 +1331,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		} else {
 			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
-		poim.setServiceUpdateLoaderListener(this);
-		updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext()));
+		if (poim != null) {
+			poim.setServiceUpdateLoaderListener(this);
+			updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext()));
+		}
 	}
 
 	private void updateRTSSchedule(CommonStatusViewHolder statusViewHolder, POIStatus status) {
@@ -1492,7 +1490,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			@Override
 			protected void onPostExecute(ArrayList<Favorite> result) {
 				setFavorites(result);
-			};
+			}
 		};
 		this.refreshFavoritesTask.execute(typesFilter);
 

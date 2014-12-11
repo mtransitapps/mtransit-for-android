@@ -53,7 +53,7 @@ public class POIViewController implements MTLog.Loggable {
 				return getBasicPOILayout(poim.getStatusType());
 			}
 		}
-		return getBasicPOILayout(poim.getStatusType());
+		return getBasicPOILayout(poim == null ? -1 : poim.getStatusType());
 	}
 
 	private static int getRTSLayout(int status) {
@@ -124,13 +124,11 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static CommonViewHolder initModuleViewHolder(POIManager poim, View view) {
-		ModuleViewHolder holder = new ModuleViewHolder();
-		return holder;
+		return new ModuleViewHolder();
 	}
 
 	private static CommonViewHolder initBasicViewHolder(POIManager poim, View view) {
-		BasicPOIViewHolder holder = new BasicPOIViewHolder();
-		return holder;
+		return new BasicPOIViewHolder();
 	}
 
 	private static CommonViewHolder initRTSViewHolder(POIManager poim, View view) {
@@ -209,7 +207,7 @@ public class POIViewController implements MTLog.Loggable {
 			initViewHolder(poim, view);
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
-		updateCommonView(context, holder, poim, dataProvider);
+		updateCommonView(holder, poim, dataProvider);
 		updateExtra(context, holder, poim, dataProvider);
 		updatePOIStatus(context, holder.statusViewHolder, poim, dataProvider);
 		updatePOIServiceUpdate(context, holder.serviceUpdateViewHolder, poim, dataProvider);
@@ -276,7 +274,10 @@ public class POIViewController implements MTLog.Loggable {
 
 					@Override
 					public void onClick(View v) {
-						((MainActivity) dataProvider.getActivity()).addFragmentToStack(RTSRouteFragment.newInstance(authority, route.id, tripId, stopId, route));
+						if (dataProvider != null) {
+							MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
+							mainActivity.addFragmentToStack(RTSRouteFragment.newInstance(authority, route.id, tripId, stopId, route));
+						}
 					}
 				});
 			}
@@ -436,7 +437,7 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	public static void updateServiceUpdatesView(Context context, View view, ArrayList<ServiceUpdate> serviceUpdates, POIDataProvider dataProvider) {
+	public static void updateServiceUpdatesView(View view, ArrayList<ServiceUpdate> serviceUpdates, POIDataProvider dataProvider) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
 			return;
 		}
@@ -456,11 +457,13 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static void updatePOIServiceUpdate(Context context, ServiceUpdateViewHolder serviceUpdateViewHolder, POIManager poim, POIDataProvider dataProvider) {
-		if (dataProvider != null && dataProvider.isShowingServiceUpdates() && poim != null && serviceUpdateViewHolder instanceof ServiceUpdateViewHolder) {
-			poim.setServiceUpdateLoaderListener(dataProvider);
-			updateServiceUpdateViewHolder(serviceUpdateViewHolder, poim.isServiceUpdateWarning(context), dataProvider);
-		} else {
-			serviceUpdateViewHolder.warningImg.setVisibility(View.GONE);
+		if (serviceUpdateViewHolder != null) {
+			if (dataProvider != null && dataProvider.isShowingServiceUpdates() && poim != null) {
+				poim.setServiceUpdateLoaderListener(dataProvider);
+				updateServiceUpdateViewHolder(serviceUpdateViewHolder, poim.isServiceUpdateWarning(context), dataProvider);
+			} else {
+				serviceUpdateViewHolder.warningImg.setVisibility(View.GONE);
+			}
 		}
 	}
 
@@ -470,7 +473,7 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		if (dataProvider != null && dataProvider.isShowingServiceUpdates() && isServiceUpdateWarning != null) {
-			serviceUpdateViewHolder.warningImg.setVisibility(isServiceUpdateWarning.booleanValue() ? View.VISIBLE : View.GONE);
+			serviceUpdateViewHolder.warningImg.setVisibility(isServiceUpdateWarning ? View.VISIBLE : View.GONE);
 		} else {
 			serviceUpdateViewHolder.warningImg.setVisibility(View.GONE);
 		}
@@ -500,7 +503,7 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateCommonView(Context context, CommonViewHolder holder, POIManager poim, POIDataProvider dataProvider) {
+	private static void updateCommonView(CommonViewHolder holder, POIManager poim, POIDataProvider dataProvider) {
 		if (poim == null || poim.poi == null || holder == null) {
 			return;
 		}

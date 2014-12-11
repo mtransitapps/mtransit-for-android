@@ -47,7 +47,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 
 	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, int minCoverage, int maxSize, boolean hideDecentOnly,
 			ArrayList<String> agenciesAuthority) {
-		this(context, lat, lng, aroundDiff, minCoverage, maxSize, hideDecentOnly, agenciesAuthority == null ? null : agenciesAuthority.toArray(new String[] {}));
+		this(context, lat, lng, aroundDiff, minCoverage, maxSize, hideDecentOnly, agenciesAuthority == null ? null : agenciesAuthority.toArray(new String[agenciesAuthority.size()]));
 	}
 
 	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, int minCoverage, int maxSize, boolean hideDecentOnly,
@@ -93,9 +93,10 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 
 	public static void filterAgencies(Collection<AgencyProperties> agencies, double lat, double lng, LocationUtils.AroundDiff ad) {
 		if (agencies != null) {
+			LocationUtils.Area area = LocationUtils.getArea(lat, lng, ad.aroundDiff);
 			Iterator<AgencyProperties> it = agencies.iterator();
 			while (it.hasNext()) {
-				if (!it.next().isInArea(lat, lng, ad.aroundDiff)) {
+				if (!it.next().isInArea(area)) {
 					it.remove();
 				}
 			}
@@ -105,9 +106,10 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 	public static ArrayList<AgencyProperties> findTypeAgencies(Context context, int typeId, double lat, double lng, double aroundDiff) {
 		ArrayList<AgencyProperties> allTypeAgencies = DataSourceProvider.get(context).getTypeDataSources(context, typeId);
 		if (allTypeAgencies != null) {
+			LocationUtils.Area area = LocationUtils.getArea(lat, lng, aroundDiff);
 			Iterator<AgencyProperties> it = allTypeAgencies.iterator();
 			while (it.hasNext()) {
-				if (!it.next().isInArea(lat, lng, aroundDiff)) {
+				if (!it.next().isInArea(area)) {
 					it.remove();
 				}
 			}

@@ -211,7 +211,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		if (this.typeId != null) {
-			outState.putInt(EXTRA_TYPE_ID, this.typeId.intValue());
+			outState.putInt(EXTRA_TYPE_ID, this.typeId);
 		}
 		super.onSaveInstanceState(outState);
 	}
@@ -283,7 +283,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			return false;
 		}
 		if (this.typeId != null) {
-			this.type = DataSourceType.parseId(this.typeId.intValue());
+			this.type = DataSourceType.parseId(this.typeId);
 		}
 		return this.type != null;
 	}
@@ -326,9 +326,11 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 					String agencyAuthority = PreferenceUtils.getPrefLcl(getActivity(),
 							PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(AgencyTypeFragment.this.typeId),
 							PreferenceUtils.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT);
-					for (int i = 0; i < newAgencies.size(); i++) {
-						if (newAgencies.get(i).getAuthority().equals(agencyAuthority)) {
-							return i;
+					if (newAgencies != null) {
+						for (int i = 0; i < newAgencies.size(); i++) {
+							if (newAgencies.get(i).getAuthority().equals(agencyAuthority)) {
+								return i;
+							}
 						}
 					}
 				} catch (Exception e) {
@@ -345,7 +347,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 				if (lastPageSelected == null) {
 					AgencyTypeFragment.this.lastPageSelected = 0;
 				} else {
-					AgencyTypeFragment.this.lastPageSelected = lastPageSelected.intValue();
+					AgencyTypeFragment.this.lastPageSelected = lastPageSelected;
 					ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 					viewPager.setCurrentItem(AgencyTypeFragment.this.lastPageSelected);
 				}
@@ -366,9 +368,6 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	public void onUserLocationChanged(Location newLocation) {
 		if (newLocation != null) {
 			MTActivityWithLocation.broadcastUserLocationChanged(this, getChildFragmentManager(), newLocation);
-			if (this.adapter != null) {
-				this.adapter.setUserLocation(newLocation);
-			}
 		}
 	}
 
@@ -392,7 +391,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		if (this.typeId == null || this.typeId.intValue() != DataSourceType.TYPE_MODULE.getId()) {
+		if (this.typeId == null || this.typeId != DataSourceType.TYPE_MODULE.getId()) {
 			view.findViewById(R.id.tabs).setVisibility(View.VISIBLE); // show
 		}
 		view.findViewById(R.id.viewpager).setVisibility(View.VISIBLE); // show
@@ -468,7 +467,13 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		this.selectionOffset = positionOffset;
 		this.abBgColor = getNewABBgColor();
 		if (this.abBgColor != null) {
-			getView().findViewById(R.id.tabs).setBackgroundColor(this.abBgColor);
+			View view = getView();
+			if (view != null) {
+				View tabs = view.findViewById(R.id.tabs);
+				if (tabs != null) {
+					tabs.setBackgroundColor(this.abBgColor);
+				}
+			}
 			getAbController().setABBgColor(this, getABBgColor(getActivity()), false);
 			getAbController().updateABBgColor();
 		}
@@ -560,7 +565,6 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 		private ArrayList<AgencyProperties> agencies;
 		private WeakReference<Context> contextWR;
-		private Location userLocation;
 		private int lastVisibleFragmentPosition = -1;
 		private int saveStateCount = -1;
 
@@ -645,11 +649,6 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			return indexOf;
 		}
 
-
-		public void setUserLocation(Location userLocation) {
-			this.userLocation = userLocation;
-		}
-
 		public void setLastVisibleFragmentPosition(int lastVisibleFragmentPosition) {
 			this.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
 		}
@@ -684,7 +683,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 				f.setLogTag(agency.getShortName());
 				return f;
 			}
-			return AgencyPOIsFragment.newInstance(position, this.lastVisibleFragmentPosition, agency.getAuthority(), this.userLocation, null, agency);
+			return AgencyPOIsFragment.newInstance(position, this.lastVisibleFragmentPosition, getAgencyAuthority(position), null, agency);
 		}
 	}
 

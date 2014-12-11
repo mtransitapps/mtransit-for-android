@@ -71,12 +71,13 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 
 	private static void updateServiceUpdatesView(Context context, ServiceUpdatesListViewHolder serviceUpdatesListViewHolder, POIManager poim,
 			POIViewController.POIDataProvider dataProvider) {
-		if (dataProvider != null && dataProvider.isShowingServiceUpdates() && poim != null
-				&& serviceUpdatesListViewHolder instanceof ServiceUpdatesListViewHolder) {
-			poim.setServiceUpdateLoaderListener(dataProvider);
-			updateServiceUpdatesView(context, serviceUpdatesListViewHolder, poim.getServiceUpdates(context), dataProvider);
-		} else {
-			serviceUpdatesListViewHolder.layout.setVisibility(View.GONE);
+		if (serviceUpdatesListViewHolder != null) {
+			if (dataProvider != null && dataProvider.isShowingServiceUpdates() && poim != null) {
+				poim.setServiceUpdateLoaderListener(dataProvider);
+				updateServiceUpdatesView(context, serviceUpdatesListViewHolder, poim.getServiceUpdates(context), dataProvider);
+			} else {
+				serviceUpdatesListViewHolder.layout.setVisibility(View.GONE);
+			}
 		}
 	}
 
@@ -86,27 +87,29 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		boolean isWarning = false;
 		if (dataProvider != null && CollectionUtils.getSize(serviceUpdates) != 0) {
 			SpannableStringBuilder ssb = new SpannableStringBuilder();
-			for (ServiceUpdate serviceUpdate : serviceUpdates) {
-				if (serviceUpdate.getSeverity() == ServiceUpdate.SEVERITY_NONE) {
-					continue;
+			if (serviceUpdates != null) {
+				for (ServiceUpdate serviceUpdate : serviceUpdates) {
+					if (serviceUpdate.getSeverity() == ServiceUpdate.SEVERITY_NONE) {
+						continue;
+					}
+					if (TextUtils.isEmpty(serviceUpdate.getText()) && TextUtils.isEmpty(serviceUpdate.getTextHTML())) {
+						continue;
+					}
+					if (ssb.length() > 0) {
+						ssb.append(HtmlUtils.BR).append(HtmlUtils.BR);
+					}
+					String thisMsgFromHtml = serviceUpdate.getTextHTML();
+					if (serviceUpdate.isSeverityWarning()) {
+						thisMsgFromHtml = HtmlUtils.applyFontColor(thisMsgFromHtml, ColorUtils.toRGBColor(ColorUtils.getTextColorSecondary(context)));
+					} else {
+						thisMsgFromHtml = HtmlUtils.applyFontColor(thisMsgFromHtml, ColorUtils.toRGBColor(ColorUtils.getTextColorTertiary(context)));
+					}
+					ssb.append(thisMsgFromHtml);
+					if (!isWarning && serviceUpdate.isSeverityWarning()) {
+						isWarning = true;
+					}
+					serviceMessageDisplayed++;
 				}
-				if (TextUtils.isEmpty(serviceUpdate.getText()) && TextUtils.isEmpty(serviceUpdate.getTextHTML())) {
-					continue;
-				}
-				if (ssb.length() > 0) {
-					ssb.append(HtmlUtils.BR).append(HtmlUtils.BR);
-				}
-				String thisMsgFromHtml = serviceUpdate.getTextHTML();
-				if (serviceUpdate.isSeverityWarning()) {
-					thisMsgFromHtml = HtmlUtils.applyFontColor(thisMsgFromHtml, ColorUtils.toRGBColor(ColorUtils.getTextColorSecondary(context)));
-				} else {
-					thisMsgFromHtml = HtmlUtils.applyFontColor(thisMsgFromHtml, ColorUtils.toRGBColor(ColorUtils.getTextColorTertiary(context)));
-				}
-				ssb.append(thisMsgFromHtml);
-				if (!isWarning && serviceUpdate.isSeverityWarning()) {
-					isWarning = true;
-				}
-				serviceMessageDisplayed++;
 			}
 			serviceUpdatesListViewHolder.messagesTv.setText(Html.fromHtml(ssb.toString()));
 			serviceUpdatesListViewHolder.messagesTv.setMovementMethod(LinkMovementMethod.getInstance());

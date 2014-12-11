@@ -104,21 +104,26 @@ public class Module extends DefaultPOI {
 		return POI.POIUtils.getUUID(getAuthority(), this.pkg);
 	}
 
+	private static final String JSON_PKG = "pkg";
+	private static final String JSON_TARGET_TYPE_ID = "targetTypeId";
+	private static final String JSON_COLOR = "color";
+	private static final String JSON_LOCATION = "location";
+	private static final String JSON_NAME_FR = "name_fr";
 
 	@Override
 	public JSONObject toJSON() {
 		try {
 			JSONObject json = new JSONObject();
-			json.put("pkg", this.pkg);
-			json.put("targetTypeId", this.targetTypeId);
+			json.put(JSON_PKG, this.pkg);
+			json.put(JSON_TARGET_TYPE_ID, this.targetTypeId);
 			if (!TextUtils.isEmpty(this.color)) {
-				json.put("color", this.color);
+				json.put(JSON_COLOR, this.color);
 			}
 			if (!TextUtils.isEmpty(this.location)) {
-				json.put("location", this.location);
+				json.put(JSON_LOCATION, this.location);
 			}
 			if (!TextUtils.isEmpty(this.nameFr)) {
-				json.put("name_fr", this.nameFr);
+				json.put(JSON_NAME_FR, this.nameFr);
 			}
 			DefaultPOI.toJSON(this, json);
 			return json;
@@ -137,18 +142,18 @@ public class Module extends DefaultPOI {
 		try {
 			Module module = new Module( //
 					DefaultPOI.getAuthorityFromJSON(json), //
-					json.getString("pkg"), //
-					json.getInt("targetTypeId") //
+					json.getString(JSON_PKG), //
+					json.getInt(JSON_TARGET_TYPE_ID) //
 			);
-			String optColor = json.optString("color");
+			String optColor = json.optString(JSON_COLOR);
 			if (!TextUtils.isEmpty(optColor)) {
 				module.color = optColor;
 			}
-			String optLocation = json.optString("location");
+			String optLocation = json.optString(JSON_LOCATION);
 			if (!TextUtils.isEmpty(optLocation)) {
 				module.location = optLocation;
 			}
-			String optNameFr = json.optString("name_fr");
+			String optNameFr = json.optString(JSON_NAME_FR);
 			if (!TextUtils.isEmpty(optNameFr)) {
 				module.nameFr = optNameFr;
 			}
@@ -164,22 +169,22 @@ public class Module extends DefaultPOI {
 		try {
 			Module module = new Module( //
 					authority, //
-					json.getString("pkg"), //
-					json.getInt("targetTypeId") //
+					json.getString(JSON_PKG), //
+					json.getInt(JSON_TARGET_TYPE_ID) //
 			);
-			module.setId(json.getInt("id"));
-			module.setName(json.getString("name"));
-			module.setLat(json.getDouble("lat"));
-			module.setLng(json.getDouble("lng"));
-			String optColor = json.optString("color");
+			module.setId(json.getInt(JSON_ID));
+			module.setName(json.getString(JSON_NAME));
+			module.setLat(json.getDouble(JSON_LAT));
+			module.setLng(json.getDouble(JSON_LNG));
+			String optColor = json.optString(JSON_COLOR);
 			if (!TextUtils.isEmpty(optColor)) {
 				module.color = optColor;
 			}
-			String optLocation = json.optString("location");
+			String optLocation = json.optString(JSON_LOCATION);
 			if (!TextUtils.isEmpty(optLocation)) {
 				module.location = optLocation;
 			}
-			String optNameFr = json.optString("name_fr");
+			String optNameFr = json.optString(JSON_NAME_FR);
 			if (!TextUtils.isEmpty(optNameFr)) {
 				module.nameFr = optNameFr;
 			}

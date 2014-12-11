@@ -14,7 +14,7 @@ import android.view.MenuItem;
  */
 public abstract class MTActionBarActivity extends ActionBarActivity implements MTLog.Loggable {
 
-	// INHERITED FROM FRAGMENTACTIVITY
+	// INHERITED FROM FRAGMENT ACTIVITY
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

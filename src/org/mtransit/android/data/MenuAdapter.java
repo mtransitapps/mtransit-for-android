@@ -257,7 +257,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		case VIEW_TYPE_DYNAMIC_AGENCY_TYPE:
 			return getDynamicAgencyTypeView(position, convertView, parent);
 		case VIEW_TYPE_STATIC_SEPARATORS:
-			return getStaticSeparator(position, convertView, parent);
+			return getStaticSeparator(convertView, parent);
 		case VIEW_TYPE_SECONDARY:
 			return getSecondarView(position, convertView, parent);
 		default:
@@ -267,8 +267,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 	}
 
 	public DataSourceType getAgencyTypeAt(int position) {
-		DataSourceType dataSourceType = getAllAgencyTypes().get(position - STATIC_ITEMS_BEFORE_DYNAMIC);
-		return dataSourceType;
+		return getAllAgencyTypes().get(position - STATIC_ITEMS_BEFORE_DYNAMIC);
 	}
 
 	private View getDynamicAgencyTypeView(int position, View convertView, ViewGroup parent) {
@@ -294,7 +293,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		return convertView;
 	}
 
-	private View getStaticSeparator(int position, View convertView, ViewGroup parent) {
+	private View getStaticSeparator(View convertView, ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.menu_separator, parent, false);
 		}
@@ -399,13 +398,10 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		TextView nameTv;
 	}
 
-	public static class MenuListHeaderViewHolder {
-		TextView nameTv;
-	}
 
 	public ABFragment getNewStaticFragmentAt(int position) {
 		if (position == ITEM_INDEX_HOME) {
-			return HomeFragment.newInstance(null, null);
+			return HomeFragment.newInstance(null);
 		} else if (position == ITEM_INDEX_FAVORITE) {
 			return FavoritesFragment.newInstance();
 		} else if (position == ITEM_INDEX_NEARBY) {

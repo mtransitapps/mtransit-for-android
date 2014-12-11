@@ -23,15 +23,15 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 
 	private static boolean ANALYTICS_ENABLED = true;
 
-	private static boolean DEBUG = false;
+	private static final boolean DEBUG = false;
 
 	private static boolean LOCAL_ONLY = false;
 
-	private static boolean TRACKING_ADVERTISING_ID_COLLECTION = true;
+	private static final boolean TRACKING_ADVERTISING_ID_COLLECTION = true;
 
-	private static boolean TRACKING_EXCEPTION_REPORTING = true;
+	private static final boolean TRACKING_EXCEPTION_REPORTING = true;
 
-	private static int TRACKING_LOCAL_DISPATCH_PERIOD_IN_SEC = 30 * 60; // 30 minutes
+	private static final int TRACKING_LOCAL_DISPATCH_PERIOD_IN_SEC = 30 * 60; // 30 minutes
 
 	private static AnalyticsUtils instance;
 

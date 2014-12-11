@@ -110,13 +110,11 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 				cursor.addRow(new Object[] { autoIncId++, RECENT_SEARCH_SUGGEST_ICON, suggestion, suggestion });
 			}
 		}
-		if (suggestions != null) {
-			for (String suggestion : suggestions) {
-				if (recentSearchSuggestions != null && recentSearchSuggestions.contains(suggestion)) {
-					continue; // skip
-				}
-				cursor.addRow(new Object[] { autoIncId++, SEARCH_SUGGEST_ICON, suggestion, suggestion });
+		for (String suggestion : suggestions) {
+			if (recentSearchSuggestions != null && recentSearchSuggestions.contains(suggestion)) {
+				continue; // skip
 			}
+			cursor.addRow(new Object[] { autoIncId++, SEARCH_SUGGEST_ICON, suggestion, suggestion });
 		}
 		return cursor;
 	}

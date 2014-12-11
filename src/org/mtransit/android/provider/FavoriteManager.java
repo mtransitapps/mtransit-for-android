@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.UriUtils;
@@ -89,7 +90,7 @@ public class FavoriteManager implements MTLog.Loggable {
 		Cursor cursor = null;
 		try {
 			StringBuilder selectionSb = new StringBuilder();
-			if (types != null && types.length > 0) {
+			if (ArrayUtils.getSize(types) > 0) {
 				selectionSb.append(FavoriteColumns.T_FAVORITE_K_TYPE).append(" IN (");
 				for (int i = 0; i < types.length; i++) {
 					if (i > 0) {
@@ -121,7 +122,7 @@ public class FavoriteManager implements MTLog.Loggable {
 	public static void addOrDeleteFavorite(Context context, boolean isFavorite, String fkId) {
 		if (isFavorite) { // WAS FAVORITE => TRY TO DELETE
 			Favorite findFavorite = findFavorite(context, fkId);
-			boolean success = findFavorite == null ? true : // already deleted
+			boolean success = findFavorite == null || // already deleted
 					deleteFavorite(context, findFavorite.getId());
 			if (success) {
 				ToastUtils.makeTextAndShowCentered(context, R.string.favorite_removed);

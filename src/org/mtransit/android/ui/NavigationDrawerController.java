@@ -177,7 +177,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		mainActivity.clearFragmentBackStackImmediate(); // root screen
 		StatusLoader.get().clearAllTasks();
 		ServiceUpdateLoader.get().clearAllTasks();
-		mainActivity.showNewFragment(newFragment, false, true);
+		mainActivity.showNewFragment(newFragment, false);
 		if (this.drawerListViewAdapter.isRootScreen(position)) {
 			PreferenceUtils.savePrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId, false);
 		}
@@ -207,7 +207,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 	}
 
 	public boolean isDrawerOpen() {
-		return this.drawerLayout == null || this.leftDrawer == null ? false : this.drawerLayout.isDrawerOpen(this.leftDrawer);
+		return this.drawerLayout != null && this.leftDrawer != null && this.drawerLayout.isDrawerOpen(this.leftDrawer);
 	}
 
 	public boolean onBackPressed() {
@@ -230,7 +230,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		}
 	}
 
-	public void onActivityPostCreate(Bundle savedInstanceState) {
+	public void onActivityPostCreate() {
 		syncDrawerToggleState();
 	}
 
@@ -288,7 +288,6 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 				mainActivity.findViewById(R.id.left_drawer_loading).setVisibility(View.GONE);
 			}
 		}
-		/* findViewById(R.id.left_drawer_list) */
 		this.drawerListView.setVisibility(View.VISIBLE);
 	}
 

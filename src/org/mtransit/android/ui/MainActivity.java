@@ -42,8 +42,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 
 
 	public static Intent newInstance(Context context) {
-		Intent intent = new Intent(context, MainActivity.class);
-		return intent;
+		return new Intent(context, MainActivity.class);
 	}
 
 	private static final boolean LOCATION_ENABLED = true;
@@ -173,11 +172,8 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 	}
 
-	public void showNewFragment(ABFragment newFragment, boolean addToStack, boolean removeAllFragments) {
-		showNewFragment(newFragment, addToStack, removeAllFragments, null);
-	}
 
-	public void showNewFragment(ABFragment newFragment, boolean addToStack, boolean removeAllFragments, View clickFromView) {
+	public void showNewFragment(ABFragment newFragment, boolean addToStack) {
 		FragmentManager fm = getSupportFragmentManager();
 		FragmentTransaction ft = fm.beginTransaction();
 		ft.replace(R.id.content_frame, newFragment);
@@ -208,11 +204,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 
 
 	public void addFragmentToStack(ABFragment newFragment) {
-		addFragmentToStack(newFragment, null);
-	}
-
-	public void addFragmentToStack(ABFragment newFragment, View clickFromView) {
-		showNewFragment(newFragment, true, false, clickFromView);
+		showNewFragment(newFragment, true);
 	}
 
 	@Override
@@ -298,7 +290,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 		if (this.navigationDrawerController != null) {
-			this.navigationDrawerController.onActivityPostCreate(savedInstanceState);
+			this.navigationDrawerController.onActivityPostCreate();
 		}
 	}
 

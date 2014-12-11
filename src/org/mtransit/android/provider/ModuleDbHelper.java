@@ -43,14 +43,14 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	private static final String T_MODULE_STATUS_SQL_CREATE = StatusDbHelper.getSqlCreate(T_MODULE_STATUS);
 	private static final String T_MODULE_STATUS_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_MODULE_STATUS);
 
-	public static int getDbVersion(Context context) {
+	public static int getDbVersion() {
 		return DB_VERSION;
 	}
 
 	private Context context;
 
 	public ModuleDbHelper(Context context) {
-		super(context, DB_NAME, null, getDbVersion(context));
+		super(context, DB_NAME, null, getDbVersion());
 		this.context = context;
 	}
 

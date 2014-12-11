@@ -66,7 +66,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			f.query = optQuery;
 		}
 		if (optTypeIdFilter != null) {
-			args.putInt(EXTRA_TYPE_FILTER, optTypeIdFilter.intValue());
+			args.putInt(EXTRA_TYPE_FILTER, optTypeIdFilter);
 			f.typeIdFilter = optTypeIdFilter;
 		}
 		f.typeFilter = optTypeFilter;
@@ -154,7 +154,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		if (this.typeFilter == null) {
 			return;
 		}
-		Spinner typeFiltersSpinner = (Spinner) getView().findViewById(R.id.typeFilters);
+		View view = getView();
 		if (this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
 			if (this.adapter != null) {
 				this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);
@@ -165,11 +165,13 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			}
 		}
 		int position = getTypeFiltersAdapter().getPosition(this.typeFilter);
-		typeFiltersSpinner.setSelection(position, true);
+		if (view != null) {
+			((Spinner) view.findViewById(R.id.typeFilters)).setSelection(position, true);
+		}
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
-		switchView(getView());
+		switchView(view);
 		LoaderUtils.restartLoader(getLoaderManager(), POI_SEARCH_LOADER, null, this);
 	}
 
@@ -329,8 +331,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			if (typeFilter == null) {
 				return null;
 			}
-			POISearchLoader poiSearchLoader = new POISearchLoader(getActivity(), this.query, typeFilter, this.userLocation);
-			return poiSearchLoader;
+			return new POISearchLoader(getActivity(), this.query, typeFilter, this.userLocation);
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;

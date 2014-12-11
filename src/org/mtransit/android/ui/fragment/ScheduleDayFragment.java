@@ -79,7 +79,6 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	}
 
 	private TimeAdapter adapter;
-	private CharSequence emptyText;
 	private int fragmentPosition = -1;
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
@@ -250,20 +249,20 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		}
 		Long newDayStartsAtInMs = BundleUtils.getLong(EXTRA_DAY_START_AT_IN_MS, bundles);
 		if (newDayStartsAtInMs != null && !newDayStartsAtInMs.equals(this.dayStartsAtInMs)) {
-			this.dayStartsAtInMs = newDayStartsAtInMs.longValue();
+			this.dayStartsAtInMs = newDayStartsAtInMs;
 			resetDayStarts();
 		}
 		Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, bundles);
 		if (fragmentPosition != null) {
-			if (fragmentPosition.intValue() >= 0) {
-				this.fragmentPosition = fragmentPosition.intValue();
+			if (fragmentPosition >= 0) {
+				this.fragmentPosition = fragmentPosition;
 			} else {
 				this.fragmentPosition = -1;
 			}
 		}
 		Integer lastVisibleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, bundles);
 		if (lastVisibleFragmentPosition != null) {
-			if (lastVisibleFragmentPosition.intValue() >= 0) {
+			if (lastVisibleFragmentPosition >= 0) {
 				this.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
 			} else {
 				this.lastVisibleFragmentPosition = -1;
@@ -397,8 +396,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			if (this.dayStartsAtInMs <= 0l || rts == null) {
 				return null;
 			}
-			ScheduleTimestampsLoader scheduleLoader = new ScheduleTimestampsLoader(getActivity(), rts, this.dayStartsAtInMs);
-			return scheduleLoader;
+			return new ScheduleTimestampsLoader(getActivity(), rts, this.dayStartsAtInMs);
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -421,16 +419,18 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		}
 		this.adapter.setTimes(data);
 		View view = getView();
-		int compareToToday = this.adapter.compareToToday();
-		int selectPosition;
-		if (compareToToday < 0) { // past
-			selectPosition = this.adapter.getCount(); // scroll down
-		} else if (compareToToday > 0) { // future
-			selectPosition = 0; // scroll up
-		} else { // today
-			selectPosition = getTodaySelectPosition();
+		if (view != null) {
+			int compareToToday = this.adapter.compareToToday();
+			int selectPosition;
+			if (compareToToday < 0) { // past
+				selectPosition = this.adapter.getCount(); // scroll down
+			} else if (compareToToday > 0) { // future
+				selectPosition = 0; // scroll up
+			} else { // today
+				selectPosition = getTodaySelectPosition();
+			}
+			((AbsListView) view.findViewById(R.id.list)).setSelection(selectPosition);
 		}
-		((AbsListView) view.findViewById(R.id.list)).setSelection(selectPosition);
 		switchView(view);
 	}
 
@@ -506,9 +506,6 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		}
 		if (view.findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
 			((ViewStub) view.findViewById(R.id.empty_stub)).inflate(); // inflate
-		}
-		if (!TextUtils.isEmpty(this.emptyText)) {
-			((TextView) view.findViewById(R.id.empty_text)).setText(this.emptyText);
 		}
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}

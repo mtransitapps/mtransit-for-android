@@ -38,24 +38,41 @@ public class JPaths implements MTLog.Loggable {
 		return paths;
 	}
 
+	private static final String JSON_ID = "id";
+	private static final String JSON_PAINT = "paint";
+	private static final String JSON_FORM = "form";
+	private static final String JSON_ROTATION = "rotation";
+
 	public JSONObject toJSON() {
 		try {
 			JSONObject json = new JSONObject();
-			json.put("id", this.id);
+			json.put(JSON_ID, this.id);
 			JSONArray jPaths = new JSONArray();
 			if (this.paths != null) {
 				for (JPath path : this.paths) {
-					JSONObject jPath = new JSONObject();
-					jPath.put("paint", path.paint.toJSON());
-					jPath.put("form", path.form.toJSON());
-					if (path.rotation != null) {
-						jPath.put("rotation", path.rotation.toJSON());
+					JSONObject jPath = toJSONPath(path);
+					if (jPath != null) {
+						jPaths.put(jPath);
 					}
-					jPaths.put(jPath);
 				}
 			}
 			json.put("paths", jPaths);
 			return json;
+		} catch (JSONException e) {
+			MTLog.w(TAG, e, "Error while converting to JSON!");
+			return null;
+		}
+	}
+
+	private JSONObject toJSONPath(JPath path) {
+		try {
+			JSONObject jPath = new JSONObject();
+			jPath.put(JSON_PAINT, path.paint.toJSON());
+			jPath.put(JSON_FORM, path.form.toJSON());
+			if (path.rotation != null) {
+				jPath.put(JSON_ROTATION, path.rotation.toJSON());
+			}
+			return jPath;
 		} catch (JSONException e) {
 			MTLog.w(TAG, e, "Error while converting to JSON!");
 			return null;
@@ -71,21 +88,34 @@ public class JPaths implements MTLog.Loggable {
 		}
 	}
 
+	private static final String JSON_PATHS = "paths";
+
 	public static JPaths fromJSON(JSONObject json) {
 		try {
-			String id = json.getString("id");
+			String id = json.getString(JSON_ID);
 			JPaths jPaths = new JPaths(id);
-			JSONArray jsonPaths = json.optJSONArray("paths");
+			JSONArray jsonPaths = json.optJSONArray(JSON_PATHS);
 			if (jsonPaths != null && jsonPaths.length() > 0) {
 				for (int i = 0; i < jsonPaths.length(); i++) {
-					JSONObject jsonPath = jsonPaths.getJSONObject(i);
-					JSONObject jPaint = jsonPath.getJSONObject("paint");
-					JSONObject jForm = jsonPath.getJSONObject("form");
-					JSONObject jRotation = jsonPath.optJSONObject("rotation");
-					jPaths.addPath(new JPath(JPaint.fromJSON(jPaint), JForm.fromJSON(jForm), JRotation.fromJSON(jRotation)));
+					JPath newPath = fromJSONPath(jsonPaths.getJSONObject(i));
+					if (newPath != null) {
+						jPaths.addPath(newPath);
+					}
 				}
 			}
 			return jPaths;
+		} catch (JSONException e) {
+			MTLog.w(TAG, e, "Error while parsing JSON!");
+			return null;
+		}
+	}
+
+	private static JPath fromJSONPath(JSONObject json) throws JSONException {
+		try {
+			JSONObject jPaint = json.getJSONObject(JSON_PAINT);
+			JSONObject jForm = json.getJSONObject(JSON_FORM);
+			JSONObject jRotation = json.optJSONObject(JSON_ROTATION);
+			return new JPath(JPaint.fromJSON(jPaint), JForm.fromJSON(jForm), JRotation.fromJSON(jRotation));
 		} catch (JSONException e) {
 			MTLog.w(TAG, e, "Error while parsing JSON!");
 			return null;
@@ -132,12 +162,15 @@ public class JPaths implements MTLog.Loggable {
 			this.strokeWidth = strokeWidth;
 		}
 
+		private static final String JSON_STYLE = "style";
+		private static final String JSON_STROKE_WIDTH = "strokeWidth";
+
 		public JSONObject toJSON() {
 			try {
 				JSONObject json = new JSONObject();
-				json.put("style", this.style.name());
+				json.put(JSON_STYLE, this.style.name());
 				if (strokeWidth >= 0f) {
-					json.put("strokeWidth", strokeWidth);
+					json.put(JSON_STROKE_WIDTH, strokeWidth);
 				}
 				return json;
 			} catch (JSONException e) {
@@ -148,9 +181,9 @@ public class JPaths implements MTLog.Loggable {
 
 		public static JPaint fromJSON(JSONObject json) {
 			try {
-				Paint.Style style = Paint.Style.valueOf(json.getString("style"));
+				Paint.Style style = Paint.Style.valueOf(json.getString(JSON_STYLE));
 				JPaint jPaint = new JPaint(style);
-				float strokeWidth = (float) json.optDouble("strokeWidth", -1);
+				float strokeWidth = (float) json.optDouble(JSON_STROKE_WIDTH, -1);
 				if (strokeWidth >= 0f) {
 					jPaint.strokeWidth = strokeWidth;
 				}
@@ -179,13 +212,15 @@ public class JPaths implements MTLog.Loggable {
 
 		public abstract JSONObject toJSON();
 
+		private static final String JSON_FORM_TYPE = "formType";
+
 		public void toJSON(JSONObject json) throws JSONException {
-			json.put("formType", getFormType());
+			json.put(JSON_FORM_TYPE, getFormType());
 		}
 
 		public static JForm fromJSON(JSONObject json) {
 			try {
-				int formType = json.getInt("formType");
+				int formType = json.getInt(JSON_FORM_TYPE);
 				switch (formType) {
 				case FORM_CIRCLE:
 					return JCircle.fromJSON(json);
@@ -226,12 +261,17 @@ public class JPaths implements MTLog.Loggable {
 			return JForm.FORM_CIRCLE;
 		}
 
+		private static final String JSON_X = "x";
+		private static final String JSON_Y = "y";
+		private static final String JSON_RADIUS = "radius";
+
+		@Override
 		public JSONObject toJSON() {
 			try {
 				JSONObject json = new JSONObject();
-				json.put("x", this.x);
-				json.put("y", this.y);
-				json.put("radius", this.radius);
+				json.put(JSON_X, this.x);
+				json.put(JSON_Y, this.y);
+				json.put(JSON_RADIUS, this.radius);
 				super.toJSON(json);
 				return json;
 			} catch (JSONException e) {
@@ -242,9 +282,9 @@ public class JPaths implements MTLog.Loggable {
 
 		public static JCircle fromJSON(JSONObject json) {
 			try {
-				float x = (float) json.getDouble("x");
-				float y = (float) json.getDouble("y");
-				float radius = (float) json.getDouble("radius");
+				float x = (float) json.getDouble(JSON_X);
+				float y = (float) json.getDouble(JSON_Y);
+				float radius = (float) json.getDouble(JSON_RADIUS);
 				return new JCircle(x, y, radius);
 			} catch (JSONException e) {
 				MTLog.w(TAG, e, "Error while parsing JSON!");
@@ -272,13 +312,19 @@ public class JPaths implements MTLog.Loggable {
 			return JForm.FORM_RECT;
 		}
 
+		private static final String JSON_LEFT = "left";
+		private static final String JSON_TOP = "top";
+		private static final String JSON_RIGHT = "right";
+		private static final String JSON_BOTTOM = "bottom";
+
+		@Override
 		public JSONObject toJSON() {
 			try {
 				JSONObject json = new JSONObject();
-				json.put("left", this.left);
-				json.put("top", this.top);
-				json.put("right", this.right);
-				json.put("bottom", this.bottom);
+				json.put(JSON_LEFT, this.left);
+				json.put(JSON_TOP, this.top);
+				json.put(JSON_RIGHT, this.right);
+				json.put(JSON_BOTTOM, this.bottom);
 				super.toJSON(json);
 				return json;
 			} catch (JSONException e) {
@@ -289,10 +335,10 @@ public class JPaths implements MTLog.Loggable {
 
 		public static JRect fromJSON(JSONObject json) {
 			try {
-				float left = (float) json.getDouble("left");
-				float top = (float) json.getDouble("top");
-				float right = (float) json.getDouble("right");
-				float bottom = (float) json.getDouble("bottom");
+				float left = (float) json.getDouble(JSON_LEFT);
+				float top = (float) json.getDouble(JSON_TOP);
+				float right = (float) json.getDouble(JSON_RIGHT);
+				float bottom = (float) json.getDouble(JSON_BOTTOM);
 				return new JRect(left, top, right, bottom);
 			} catch (JSONException e) {
 				MTLog.w(TAG, e, "Error while parsing JSON!");
@@ -320,12 +366,16 @@ public class JPaths implements MTLog.Loggable {
 			this.py = py;
 		}
 
+		private static final String JSON_DEGREES = "degrees";
+		private static final String JSON_PX = "px";
+		private static final String JSON_PY = "py";
+
 		public JSONObject toJSON() {
 			try {
 				JSONObject json = new JSONObject();
-				json.put("degrees", this.degrees);
-				json.put("px", this.px);
-				json.put("py", this.py);
+				json.put(JSON_DEGREES, this.degrees);
+				json.put(JSON_PX, this.px);
+				json.put(JSON_PY, this.py);
 				return json;
 			} catch (JSONException e) {
 				MTLog.w(TAG, e, "Error while converting to JSON!");
@@ -338,9 +388,9 @@ public class JPaths implements MTLog.Loggable {
 				if (json == null) {
 					return null;
 				}
-				float degrees = (float) json.getDouble("degrees");
-				float px = (float) json.getDouble("px");
-				float py = (float) json.getDouble("py");
+				float degrees = (float) json.getDouble(JSON_DEGREES);
+				float px = (float) json.getDouble(JSON_PX);
+				float py = (float) json.getDouble(JSON_PY);
 				return new JRotation(degrees, px, py);
 			} catch (JSONException e) {
 				MTLog.w(TAG, e, "Error while parsing JSON!");

@@ -80,8 +80,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case FAVORITES_LOADER:
-			FavoritesLoader favoritesLoader = new FavoritesLoader(getActivity());
-			return favoritesLoader;
+			return new FavoritesLoader(getActivity());
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;

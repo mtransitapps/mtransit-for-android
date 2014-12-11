@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 
 import org.mtransit.android.commons.ColorUtils;
-import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
 
@@ -84,10 +83,8 @@ public class AgencyProperties implements MTLog.Loggable {
 		return id;
 	}
 
-	public boolean isInArea(double lat, double lng, double aroundDiff) {
-		Area area = LocationUtils.getArea(lat, lng, aroundDiff);
-		boolean isInArea = Area.areOverlapping(area, this.area);
-		return isInArea;
+	public boolean isInArea(Area area) {
+		return Area.areOverlapping(area, this.area);
 	}
 
 	public static void removeType(Collection<AgencyProperties> agencies, DataSourceType typeToRemove) {

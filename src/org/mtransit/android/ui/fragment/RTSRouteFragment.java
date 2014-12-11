@@ -75,11 +75,11 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		f.routeId = routeId;
 		f.route = optRoute;
 		if (optTripId != null) {
-			args.putInt(EXTRA_TRIP_ID, optTripId.intValue());
+			args.putInt(EXTRA_TRIP_ID, optTripId);
 			f.tripId = optTripId;
 		}
 		if (optStopId != null) {
-			args.putInt(EXTRA_STOP_ID, optStopId.intValue());
+			args.putInt(EXTRA_STOP_ID, optStopId);
 			f.stopId = optStopId;
 		}
 		f.setArguments(args);
@@ -197,7 +197,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			return false;
 		}
 		if (this.routeId != null && !TextUtils.isEmpty(this.authority)) {
-			this.route = DataSourceManager.findRTSRoute(getActivity(), this.authority, this.routeId.intValue());
+			this.route = DataSourceManager.findRTSRoute(getActivity(), this.authority, this.routeId);
 		}
 		return this.route != null;
 	}
@@ -232,13 +232,13 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			outState.putString(EXTRA_AUTHORITY, this.authority);
 		}
 		if (this.routeId != null) {
-			outState.putInt(EXTRA_ROUTE_ID, this.routeId.intValue());
+			outState.putInt(EXTRA_ROUTE_ID, this.routeId);
 		}
 		if (this.tripId != null) {
-			outState.putInt(EXTRA_TRIP_ID, this.tripId.intValue());
+			outState.putInt(EXTRA_TRIP_ID, this.tripId);
 		}
 		if (this.stopId != null) {
-			outState.putInt(EXTRA_STOP_ID, this.stopId.intValue());
+			outState.putInt(EXTRA_STOP_ID, this.stopId);
 		}
 		super.onSaveInstanceState(outState);
 	}
@@ -291,6 +291,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 			private final String TAG = AgencyTypeFragment.class.getSimpleName() + ">LoadLastPageSelectedFromUserPreferences";
 
+			@Override
 			public String getLogTag() {
 				return TAG;
 			}
@@ -322,7 +323,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 				if (lastPageSelected == null) {
 					RTSRouteFragment.this.lastPageSelected = 0;
 				} else {
-					RTSRouteFragment.this.lastPageSelected = lastPageSelected.intValue();
+					RTSRouteFragment.this.lastPageSelected = lastPageSelected;
 					ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 					viewPager.setCurrentItem(RTSRouteFragment.this.lastPageSelected);
 				}
@@ -361,9 +362,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	public void onUserLocationChanged(Location newLocation) {
 		if (newLocation != null) {
 			MTActivityWithLocation.broadcastUserLocationChanged(this, getChildFragmentManager(), newLocation);
-			if (this.adapter != null) {
-				this.adapter.setUserLocation(newLocation);
-			}
 		}
 	}
 
@@ -500,7 +498,9 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			if (ssb.length() > 0) {
 				ssb.append(StringUtils.SPACE_CAR).append(StringUtils.SPACE_CAR);
 			}
+			startLongName = ssb.length();
 			ssb.append(route.longName);
+			endLongName = ssb.length();
 		}
 		if (startShortName < endShortName) {
 			SpanUtils.set(ssb, SpanUtils.SANS_SERIF_CONDENSED_TYPEFACE_SPAN, startShortName, endShortName);
@@ -548,24 +548,24 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (this.showingListInsteadOfMap == null) {
 			this.showingListInsteadOfMap = PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT;
 		}
-		return this.showingListInsteadOfMap.booleanValue();
+		return this.showingListInsteadOfMap;
 	}
 
 	public void setShowingListInsteadOfMap(boolean newShowingListInsteadOfMap) {
-		if (this.showingListInsteadOfMap != null && this.showingListInsteadOfMap.booleanValue() == newShowingListInsteadOfMap) {
+		if (this.showingListInsteadOfMap != null && this.showingListInsteadOfMap == newShowingListInsteadOfMap) {
 			return; // nothing changed
 		}
 		this.showingListInsteadOfMap = newShowingListInsteadOfMap; // switching
 		getActivity().invalidateOptionsMenu(); // change action bar list/map switch icon
 		updateListMapToggleMenuItem();
 		if (this.adapter != null) {
-			this.adapter.setShowingListInsteadOfMap(this.showingListInsteadOfMap.booleanValue());
+			this.adapter.setShowingListInsteadOfMap(this.showingListInsteadOfMap);
 		}
 		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment != null && fragment instanceof RTSTripStopsFragment) {
-					((RTSTripStopsFragment) fragment).setShowingListInsteadOfMap(this.showingListInsteadOfMap.booleanValue());
+					((RTSTripStopsFragment) fragment).setShowingListInsteadOfMap(this.showingListInsteadOfMap);
 				}
 			}
 		}
@@ -585,7 +585,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 		private ArrayList<Trip> routeTrips;
 		private WeakReference<Context> contextWR;
-		private Location userLocation;
 		private int lastVisibleFragmentPosition = -1;
 		private String authority;
 		private Integer optStopId = null;
@@ -621,9 +620,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			return this.routeTrips.size() == 0 ? null : this.routeTrips.get(position);
 		}
 
-		public void setUserLocation(Location userLocation) {
-			this.userLocation = userLocation;
-		}
 
 		public void setLastVisibleFragmentPosition(int lastVisibleFragmentPosition) {
 			this.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
@@ -649,7 +645,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		@Override
 		public Fragment getItem(int position) {
 			return RTSTripStopsFragment.newInstance(position, this.lastVisibleFragmentPosition, this.authority, this.routeId, getTrip(position).id,
-					this.optStopId, this.userLocation, this.showingListInsteadOfMap, this.optRoute);
+					this.optStopId, this.showingListInsteadOfMap, this.optRoute);
 		}
 
 	}

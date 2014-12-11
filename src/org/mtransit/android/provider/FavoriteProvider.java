@@ -118,7 +118,6 @@ public class FavoriteProvider extends MTContentProvider {
 	public Cursor queryMT(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		try {
 			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-			String limit = null;
 			switch (getURIMATCHER(getContext()).match(uri)) {
 			case FAVORITE:
 				MTLog.v(this, "query>FAVORITE");
@@ -137,7 +136,7 @@ public class FavoriteProvider extends MTContentProvider {
 			if (TextUtils.isEmpty(sortOrder)) {
 				sortOrder = getSortOrder(uri);
 			}
-			Cursor cursor = qb.query(getDBHelper(getContext()).getReadableDatabase(), projection, selection, selectionArgs, null, null, sortOrder, limit);
+			Cursor cursor = qb.query(getDBHelper(getContext()).getReadableDatabase(), projection, selection, selectionArgs, null, null, sortOrder, null);
 			if (cursor != null) {
 				cursor.setNotificationUri(getContext().getContentResolver(), uri);
 			}
@@ -172,7 +171,7 @@ public class FavoriteProvider extends MTContentProvider {
 	@Override
 	public int deleteMT(Uri uri, String selection, String[] selectionArgs) {
 		int affectedRows = 0;
-		SQLiteDatabase db = null;
+		SQLiteDatabase db;
 		try {
 			switch (getURIMATCHER(getContext()).match(uri)) {
 			case FAVORITE:
@@ -212,7 +211,7 @@ public class FavoriteProvider extends MTContentProvider {
 	public Uri insertMT(Uri uri, ContentValues values) {
 		try {
 			Uri insertUri = null;
-			long newRowId = -1;
+			long newRowId;
 			switch (getURIMATCHER(getContext()).match(uri)) {
 			case FAVORITE:
 				MTLog.v(this, "insert>FAVORITE");

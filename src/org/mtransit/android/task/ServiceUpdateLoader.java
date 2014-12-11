@@ -3,6 +3,7 @@ package org.mtransit.android.task;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -54,8 +55,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	}
 
 	public boolean isBusy() {
-		boolean busy = this.fetchServiceUpdateExecutor != null && this.fetchServiceUpdateExecutor.getActiveCount() > 0;
-		return busy;
+		return this.fetchServiceUpdateExecutor != null && this.fetchServiceUpdateExecutor.getActiveCount() > 0;
 	}
 
 	public void clearAllTasks() {
@@ -70,13 +70,12 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		if (skipIfBusy && isBusy()) {
 			return false;
 		}
-		Collection<ServiceUpdateProviderProperties> providers = DataSourceProvider.get(context).getTargetAuthorityServiceUpdateProviders(
-				poim.poi.getAuthority());
+		HashSet<ServiceUpdateProviderProperties> providers = DataSourceProvider.get(context).getTargetAuthorityServiceUpdateProviders(poim.poi.getAuthority());
 		if (providers != null) {
-			for (final ServiceUpdateProviderProperties provider : providers) {
+			if (providers.size() > 0) {
+				ServiceUpdateProviderProperties provider = providers.iterator().next();
 				ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, provider, poim, serviceUpdateFilter);
 				task.executeOnExecutor(getFetchServiceUpdateExecutor());
-				break;
 			}
 		}
 		return true;
@@ -116,15 +115,18 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 
 		@Override
 		protected void onPostExecute(Collection<ServiceUpdate> result) {
-			if (result != null) {
-				POIManager poim = this.poiWR == null ? null : this.poiWR.get();
-				if (poim != null) {
-					poim.setServiceUpdates(result);
-					if (listener != null) {
-						listener.onServiceUpdatesLoaded(poim.poi.getUUID(), poim.getServiceUpdatesOrNull());
-					}
-				}
+			if (result == null) {
+				return;
 			}
+			POIManager poim = this.poiWR == null ? null : this.poiWR.get();
+			if (poim == null) {
+				return;
+			}
+			poim.setServiceUpdates(result);
+			if (listener == null) {
+				return;
+			}
+			listener.onServiceUpdatesLoaded(poim.poi.getUUID(), poim.getServiceUpdatesOrNull());
 		}
 
 		public Collection<ServiceUpdate> call() throws Exception {
@@ -139,9 +141,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 			if (this.serviceUpdateFilter == null) {
 				return null;
 			}
-			Collection<ServiceUpdate> serviceUpdates = DataSourceManager.findServiceUpdates(context, this.serviceUpdateProvider.getAuthority(),
-					this.serviceUpdateFilter);
-			return serviceUpdates;
+			return DataSourceManager.findServiceUpdates(context, this.serviceUpdateProvider.getAuthority(), this.serviceUpdateFilter);
 		}
 
 	}

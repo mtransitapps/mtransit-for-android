@@ -51,7 +51,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	private static final String EXTRA_NEARBY_LOCATION = "extra_nearby_location";
 
-	public static HomeFragment newInstance(Location optNearbyLocation, Location optUserLocation) {
+	public static HomeFragment newInstance(Location optNearbyLocation) {
 		HomeFragment f = new HomeFragment();
 		Bundle args = new Bundle();
 		if (optNearbyLocation != null) {
@@ -201,8 +201,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			if (this.nearbyLocation == null) {
 				return null;
 			}
-			HomePOILoader homePoiLoader = new HomePOILoader(getActivity(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude());
-			return homePoiLoader;
+			return new HomePOILoader(getActivity(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude());
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -254,7 +253,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (view != null) {
 			switchView(view);
 			if (view.findViewById(R.id.list) != null) {
-				((AbsListView) view.findViewById(R.id.list)).scrollTo(0, 0);
+				view.findViewById(R.id.list).scrollTo(0, 0);
 			}
 		}
 		if (this.nearbyLocation != null) {

@@ -68,7 +68,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 	private static final String EXTRA_SHOWING_LIST_INSTEAD_OF_MAP = "extra_showing_list_instead_of_map";
 
-	public static AgencyPOIsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String agencyAuthority, Location optUserLocation,
+	public static AgencyPOIsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String agencyAuthority,
 			Boolean optShowingListInsteadOfMap, AgencyProperties optAgency) {
 		AgencyPOIsFragment f = new AgencyPOIsFragment();
 		Bundle args = new Bundle();
@@ -84,7 +84,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 			f.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
 		}
 		if (optShowingListInsteadOfMap != null) {
-			args.putBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, optShowingListInsteadOfMap.booleanValue());
+			args.putBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, optShowingListInsteadOfMap);
 			f.showingListInsteadOfMap = optShowingListInsteadOfMap;
 		}
 		f.setArguments(args);
@@ -203,7 +203,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 			outState.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, this.lastVisibleFragmentPosition);
 		}
 		if (this.showingListInsteadOfMap != null) {
-			outState.putBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, this.showingListInsteadOfMap.booleanValue());
+			outState.putBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, this.showingListInsteadOfMap);
 		}
 		saveMapViewInstance(outState);
 		super.onSaveInstanceState(outState);
@@ -221,15 +221,15 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		}
 		Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, bundles);
 		if (fragmentPosition != null) {
-			if (fragmentPosition.intValue() >= 0) {
-				this.fragmentPosition = fragmentPosition.intValue();
+			if (fragmentPosition >= 0) {
+				this.fragmentPosition = fragmentPosition;
 			} else {
 				this.fragmentPosition = -1;
 			}
 		}
 		Integer lastVisibleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, bundles);
 		if (lastVisibleFragmentPosition != null) {
-			if (lastVisibleFragmentPosition.intValue() >= 0) {
+			if (lastVisibleFragmentPosition >= 0) {
 				this.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
 			} else {
 				this.lastVisibleFragmentPosition = -1;
@@ -342,8 +342,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 			if (TextUtils.isEmpty(this.authority)) {
 				return null;
 			}
-			AgencyPOIsLoader agencyPOIsLoader = new AgencyPOIsLoader(getActivity(), this.authority);
-			return agencyPOIsLoader;
+			return new AgencyPOIsLoader(getActivity(), this.authority);
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -523,14 +522,14 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 
 	@Override
 	public void onCameraChange(CameraPosition position) {
-		this.showingMyLocation = this.showingMyLocation == null ? true : false;
+		this.showingMyLocation = this.showingMyLocation == null;
 	}
 
 	private Boolean showingMyLocation = false;
 
 	@Override
 	public boolean onMyLocationButtonClick() {
-		if (this.showingMyLocation != null && this.showingMyLocation.booleanValue()) {
+		if (this.showingMyLocation != null && this.showingMyLocation) {
 			this.mapMarkersShown = false;
 			updateMapPosition(true);
 			this.showingMyLocation = false;
@@ -768,7 +767,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 			this.showingListInsteadOfMap = TextUtils.isEmpty(this.authority) ? showingListInsteadOfMapLastSet : PreferenceUtils.getPrefDefault(getActivity(),
 					PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(this.authority), showingListInsteadOfMapLastSet);
 		}
-		return this.showingListInsteadOfMap.booleanValue();
+		return this.showingListInsteadOfMap;
 	}
 
 	private void checkIfShowingListInsteadOfMapChanged() {
@@ -779,21 +778,21 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 				PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET, PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT);
 		boolean newShowingListInsteadOfMap = TextUtils.isEmpty(this.authority) ? showingListInsteadOfMapLastSet : PreferenceUtils.getPrefDefault(getActivity(),
 				PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(this.authority), showingListInsteadOfMapLastSet);
-		if (newShowingListInsteadOfMap != this.showingListInsteadOfMap.booleanValue()) {
+		if (newShowingListInsteadOfMap != this.showingListInsteadOfMap) {
 			setShowingListInsteadOfMap(newShowingListInsteadOfMap);
 		}
 	}
 
 	private void setShowingListInsteadOfMap(boolean newShowingListInsteadOfMap) {
-		if (this.showingListInsteadOfMap != null && this.showingListInsteadOfMap.booleanValue() == newShowingListInsteadOfMap) {
+		if (this.showingListInsteadOfMap != null && this.showingListInsteadOfMap == newShowingListInsteadOfMap) {
 			return; // nothing changed
 		}
 		this.showingListInsteadOfMap = newShowingListInsteadOfMap; // switching
-		PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET,
-				this.showingListInsteadOfMap.booleanValue(), false);
+		PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET, this.showingListInsteadOfMap,
+				false);
 		if (!TextUtils.isEmpty(this.authority)) {
 			PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(this.authority),
-					this.showingListInsteadOfMap.booleanValue(), false);
+					this.showingListInsteadOfMap, false);
 		}
 		if (this.adapter != null) {
 			setupView(getView());

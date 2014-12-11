@@ -1,7 +1,7 @@
 package org.mtransit.android.task;
 
 import java.lang.ref.WeakReference;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -54,8 +54,7 @@ public class StatusLoader implements MTLog.Loggable {
 	}
 
 	public boolean isBusy() {
-		boolean busy = this.fetchStatusExecutor != null && this.fetchStatusExecutor.getActiveCount() > 0;
-		return busy;
+		return this.fetchStatusExecutor != null && this.fetchStatusExecutor.getActiveCount() > 0;
 	}
 
 	public void clearAllTasks() {
@@ -69,12 +68,12 @@ public class StatusLoader implements MTLog.Loggable {
 		if (skipIfBusy && isBusy()) {
 			return false;
 		}
-		Collection<StatusProviderProperties> providers = DataSourceProvider.get(context).getTargetAuthorityStatusProviders(poim.poi.getAuthority());
+		HashSet<StatusProviderProperties> providers = DataSourceProvider.get(context).getTargetAuthorityStatusProviders(poim.poi.getAuthority());
 		if (providers != null) {
-			for (final StatusProviderProperties provider : providers) {
+			if (providers.size() > 0) {
+				StatusProviderProperties provider = providers.iterator().next();
 				StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter); // , null, timestamp);
 				task.executeOnExecutor(getFetchStatusExecutor());
-				break;
 			}
 		}
 		return true;
@@ -114,21 +113,18 @@ public class StatusLoader implements MTLog.Loggable {
 
 		@Override
 		protected void onPostExecute(POIStatus result) {
-			if (result != null) {
-				POIManager poim = this.poiWR == null ? null : this.poiWR.get();
-				if (poim != null) {
-					poim.setStatus(result);
-					if (listener != null) {
-						listener.onStatusLoaded(result);
-					} else {
-						MTLog.d(this, "onPostExecute() > listener null!");
-					}
-				} else {
-					MTLog.d(this, "onPostExecute() > rts null!");
-				}
-			} else {
-				MTLog.d(this, "onPostExecute() > result null!");
+			if (result == null) {
+				return;
 			}
+			POIManager poim = this.poiWR == null ? null : this.poiWR.get();
+			if (poim == null) {
+				return;
+			}
+			poim.setStatus(result);
+			if (listener == null) {
+				return;
+			}
+			listener.onStatusLoaded(result);
 		}
 
 		public POIStatus call() throws Exception {
@@ -143,8 +139,7 @@ public class StatusLoader implements MTLog.Loggable {
 			if (this.statusFilter == null) {
 				return null;
 			}
-			POIStatus status = DataSourceManager.findStatus(context, this.statusProvider.getAuthority(), this.statusFilter);
-			return status;
+			return DataSourceManager.findStatus(context, this.statusProvider.getAuthority(), this.statusFilter);
 		}
 
 	}

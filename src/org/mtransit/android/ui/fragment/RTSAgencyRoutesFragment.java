@@ -120,15 +120,15 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		}
 		Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, bundles);
 		if (fragmentPosition != null) {
-			if (fragmentPosition.intValue() >= 0) {
-				this.fragmentPosition = fragmentPosition.intValue();
+			if (fragmentPosition >= 0) {
+				this.fragmentPosition = fragmentPosition;
 			} else {
 				this.fragmentPosition = -1;
 			}
 		}
 		Integer newLastVisibleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, bundles);
 		if (newLastVisibleFragmentPosition != null) {
-			if (newLastVisibleFragmentPosition.intValue() >= 0) {
+			if (newLastVisibleFragmentPosition >= 0) {
 				this.lastVisibleFragmentPosition = newLastVisibleFragmentPosition;
 			} else {
 				this.lastVisibleFragmentPosition = -1;
@@ -172,7 +172,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			this.showingListInsteadOfGrid = TextUtils.isEmpty(this.authority) ? showingListInsteadOfGridLastSet : PreferenceUtils.getPrefDefault(getActivity(),
 					PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(this.authority), showingListInsteadOfGridLastSet);
 		}
-		return this.showingListInsteadOfGrid.booleanValue();
+		return this.showingListInsteadOfGrid;
 	}
 
 	private void checkIfShowingListInsteadOfGridChanged() {
@@ -183,21 +183,21 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 				PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET, PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT);
 		boolean newShowingListInsteadOfGrid = TextUtils.isEmpty(this.authority) ? showingListInsteadOfGridLastSet : PreferenceUtils.getPrefDefault(
 				getActivity(), PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(this.authority), showingListInsteadOfGridLastSet);
-		if (newShowingListInsteadOfGrid != this.showingListInsteadOfGrid.booleanValue()) {
+		if (newShowingListInsteadOfGrid != this.showingListInsteadOfGrid) {
 			setShowingListInsteadOfGrid(newShowingListInsteadOfGrid);
 		}
 	}
 
 	private void setShowingListInsteadOfGrid(boolean newShowingListInsteadOfGrid) {
-		if (this.showingListInsteadOfGrid != null && this.showingListInsteadOfGrid.booleanValue() == newShowingListInsteadOfGrid) {
+		if (this.showingListInsteadOfGrid != null && this.showingListInsteadOfGrid == newShowingListInsteadOfGrid) {
 			return; // nothing changed
 		}
 		this.showingListInsteadOfGrid = newShowingListInsteadOfGrid; // switching to grid
-		PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET,
-				this.showingListInsteadOfGrid.booleanValue(), false);
+		PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET, this.showingListInsteadOfGrid,
+				false);
 		if (!TextUtils.isEmpty(this.authority)) {
 			PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(this.authority),
-					this.showingListInsteadOfGrid.booleanValue(), false);
+					this.showingListInsteadOfGrid, false);
 		}
 		if (this.adapter != null) {
 			this.adapter.seShowingListInsteadOfGrid(this.showingListInsteadOfGrid);
@@ -281,8 +281,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			if (TextUtils.isEmpty(this.authority) || getActivity() == null) {
 				return null;
 			}
-			RTSAgencyRoutesLoader rtsAgencyRoutesLoader = new RTSAgencyRoutesLoader(getActivity(), this.authority);
-			return rtsAgencyRoutesLoader;
+			return new RTSAgencyRoutesLoader(getActivity(), this.authority);
 		default:
 			MTLog.w(this, "Loader ID '%s' unknown!", id);
 			return null;
@@ -507,7 +506,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		private View updateRouteView(int position, View convertView) {
 			Route route = getItem(position);
 			if (convertView == null) {
-				return convertView;
+				return null;
 			}
 			RouteViewHolder holder = (RouteViewHolder) convertView.getTag();
 			if (route == null) {

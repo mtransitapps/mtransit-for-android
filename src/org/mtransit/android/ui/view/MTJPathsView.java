@@ -68,7 +68,7 @@ public class MTJPathsView extends MTView {
 	}
 
 	public void setJSON(JPaths jPaths) {
-		boolean invalidate = false;
+		boolean invalidate;
 		if (this.jPaths == null && jPaths != null) {
 			invalidate = true;
 		} else {
@@ -82,9 +82,6 @@ public class MTJPathsView extends MTView {
 		}
 	}
 
-	public void setColorRes(int colorResId) {
-		setColor(getResources().getColor(colorResId));
-	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {

@@ -68,7 +68,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	public static final POIDistanceComparator POI_DISTANCE_COMPARATOR = new POIDistanceComparator();
 
-	public static final POIAlphaComparator POI_ALPHA_COMPATOR = new POIAlphaComparator();
+	public static final POIAlphaComparator POI_ALPHA_COMPARATOR = new POIAlphaComparator();
 
 	private static int defaultDistanceAndCompassColor = -1;
 
@@ -170,29 +170,28 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 		switch (getStatusType()) {
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			if (status instanceof Schedule) {
-				this.status = (Schedule) status;
-			} else {
+			if (!(status instanceof Schedule)) {
 				MTLog.w(this, "Unexpected schedule status '%s'!", status);
+				return;
 			}
 			break;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			if (status instanceof AvailabilityPercent) {
-				this.status = (AvailabilityPercent) status;
-			} else {
+			if (!(status instanceof AvailabilityPercent)) {
 				MTLog.w(this, "Unexpected availability percent status '%s'!", status);
+				return;
 			}
 			break;
 		case POI.ITEM_STATUS_TYPE_APP:
-			if (status instanceof AppStatus) {
-				this.status = (AppStatus) status;
-			} else {
+			if (!(status instanceof AppStatus)) {
 				MTLog.w(this, "Unexpected app status '%s'!", status);
+				return;
 			}
 			break;
 		default:
 			MTLog.w(this, "Unexpected status '%s'!", status);
+			return;
 		}
+		this.status = status;
 	}
 
 	public POIStatus getStatusOrNull() {
@@ -206,21 +205,14 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return this.status;
 	}
 
-	public boolean pingStatus(Context context) {
-		if (this.status == null) {
-			return findStatus(context, true);
-		} else {
-			return false;
-		}
-	}
 
 	private boolean findStatus(Context context, boolean skipIfBusy) {
 		long findStatusTimestampMs = TimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindStatusTimestampMs != findStatusTimestampMs) { // IF not same minute as last findStatus() call DO
-			StatusFilter filter = getFilter(findStatusTimestampMs);
-			filter.setInFocus(this.inFocus);
+			StatusFilter filter = getFilter();
 			if (filter != null) {
+				filter.setInFocus(this.inFocus);
 				StatusLoader.StatusLoaderListener listener = this.statusLoaderListenerWR == null ? null : this.statusLoaderListenerWR.get();
 				isNotSkipped = StatusLoader.get().findStatus(context, this, filter, listener, skipIfBusy);
 				if (isNotSkipped) {
@@ -235,18 +227,17 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		this.scheduleMaxDataRequests = scheduleMaxDataRequests;
 	}
 
-	private StatusFilter getFilter(long findStatusTimestampMs) {
+	private StatusFilter getFilter() {
 		switch (getStatusType()) {
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
 			if (this.poi instanceof RouteTripStop) {
 				RouteTripStop rts = (RouteTripStop) this.poi;
 				Schedule.ScheduleStatusFilter filter = new Schedule.ScheduleStatusFilter(this.poi.getUUID(), rts);
-				filter.setTimestamp(findStatusTimestampMs);
 				filter.setLookBehindInMs(TimeUtils.RECENT_IN_MILLIS);
 				filter.setMaxDataRequests(this.scheduleMaxDataRequests);
 				return filter;
 			} else {
-				MTLog.w(this, "Schedule fiter w/o '%s'!", this.poi);
+				MTLog.w(this, "Schedule filter w/o '%s'!", this.poi);
 				return null;
 			}
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
@@ -256,7 +247,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				Module module = (Module) this.poi;
 				return new AppStatus.AppStatusFilter(this.poi.getUUID(), module.getPkg());
 			} else {
-				MTLog.w(this, "App status fiter w/o '%s'!", this.poi);
+				MTLog.w(this, "App status filter w/o '%s'!", this.poi);
 				return null;
 			}
 		default:
@@ -296,8 +287,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			findServiceUpdates(context, false);
 			return null;
 		}
-		boolean isWarning = ServiceUpdate.isSeverityWarning(this.serviceUpdates);
-		return isWarning;
+		return ServiceUpdate.isSeverityWarning(this.serviceUpdates);
 	}
 
 	public ArrayList<ServiceUpdate> getServiceUpdates(Context context) {
@@ -318,13 +308,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return false;
 	}
 
-	public boolean pingServiceUpdates(Context context) {
-		if (this.serviceUpdates == null) {
-			return findServiceUpdates(context, true);
-		} else {
-			return false;
-		}
-	}
 
 	private long lastFindServiceUpdateTimestampMs = -1;
 
@@ -334,13 +317,11 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
 			ServiceUpdateProvider.ServiceUpdateFilter filter = new ServiceUpdateProvider.ServiceUpdateFilter(this.poi);
 			filter.setInFocus(this.inFocus);
-			if (filter != null) {
-				ServiceUpdateLoader.ServiceUpdateLoaderListener listener = this.serviceUpdateLoaderListenerWR == null ? null
-						: this.serviceUpdateLoaderListenerWR.get();
-				isNotSkipped = ServiceUpdateLoader.get().findServiceUpdate(context, this, filter, listener, skipIfBusy);
-				if (isNotSkipped) {
-					this.lastFindServiceUpdateTimestampMs = findServiceUpdateTimestampMs;
-				}
+			ServiceUpdateLoader.ServiceUpdateLoaderListener listener = this.serviceUpdateLoaderListenerWR == null ? null : this.serviceUpdateLoaderListenerWR
+					.get();
+			isNotSkipped = ServiceUpdateLoader.get().findServiceUpdate(context, this, filter, listener, skipIfBusy);
+			if (isNotSkipped) {
+				this.lastFindServiceUpdateTimestampMs = findServiceUpdateTimestampMs;
 			}
 		}
 		return isNotSkipped;
@@ -461,7 +442,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 		if (activity instanceof MainActivity) {
 			MainActivity mainActivity = (MainActivity) activity;
-			mainActivity.addFragmentToStack(POIFragment.newInstance(this.poi.getUUID(), this.poi.getAuthority(), mainActivity.getUserLocation(), null, this));
+			mainActivity.addFragmentToStack(POIFragment.newInstance(this.poi.getUUID(), this.poi.getAuthority(), null, this));
 			return true; // HANDLED
 		}
 		return false; // NOT HANDLED
@@ -488,7 +469,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			new AlertDialog.Builder(activity).setTitle(this.poi.getName())
 					.setItems(getActionsItems(activity, activity.getString(R.string.view_details)), new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int item) {
-							if (activity != null && onActionsItemClick(activity, item, favoriteUpdateListener)) {
+							if (onActionsItemClick(activity, item, favoriteUpdateListener)) {
 								return;
 							}
 							switch (item) {

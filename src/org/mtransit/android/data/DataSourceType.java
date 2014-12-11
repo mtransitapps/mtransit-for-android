@@ -105,8 +105,8 @@ public enum DataSourceType {
 	public static class DataSourceTypeComparator implements Comparator<DataSourceType> {
 
 		@Override
-		public int compare(DataSourceType ldst, DataSourceType rdst) {
-			return ldst.id - rdst.id;
+		public int compare(DataSourceType lType, DataSourceType rType) {
+			return lType.id - rType.id;
 		}
 
 	}
@@ -120,21 +120,21 @@ public enum DataSourceType {
 		}
 
 		@Override
-		public int compare(DataSourceType ldst, DataSourceType rdst) {
+		public int compare(DataSourceType lType, DataSourceType rType) {
 			Context context = this.contextWR == null ? null : this.contextWR.get();
 			if (context == null) {
 				return 0;
 			}
-			if (ldst.equals(rdst)) {
+			if (lType.equals(rType)) {
 				return 0;
 			}
-			if (TYPE_MODULE.equals(ldst)) {
+			if (TYPE_MODULE.equals(lType)) {
 				return +1;
-			} else if (TYPE_MODULE.equals(rdst)) {
+			} else if (TYPE_MODULE.equals(rType)) {
 				return -1;
 			}
-			String lShortName = context.getString(ldst.getShortNameResId());
-			String rShortName = context.getString(rdst.getShortNameResId());
+			String lShortName = context.getString(lType.getShortNameResId());
+			String rShortName = context.getString(rType.getShortNameResId());
 			return lShortName.compareTo(rShortName);
 		}
 
@@ -149,20 +149,20 @@ public enum DataSourceType {
 		}
 
 		@Override
-		public int compare(POIManager lpoim, POIManager rpoim) {
+		public int compare(POIManager lPoim, POIManager rPoim) {
 			Context context = this.contextWR == null ? null : this.contextWR.get();
 			if (context == null) {
 				return 0;
 			}
-			AgencyProperties lagency = DataSourceProvider.get(context).getAgency(context, lpoim.poi.getAuthority());
-			AgencyProperties ragency = DataSourceProvider.get(context).getAgency(context, rpoim.poi.getAuthority());
-			if (lagency == null || ragency == null) {
+			AgencyProperties lAgency = DataSourceProvider.get(context).getAgency(context, lPoim.poi.getAuthority());
+			AgencyProperties rAgency = DataSourceProvider.get(context).getAgency(context, rPoim.poi.getAuthority());
+			if (lAgency == null || rAgency == null) {
 				return 0;
 			}
-			int lshortNameResId = lagency.getType().getShortNameResId();
-			int rshortNameResId = ragency.getType().getShortNameResId();
-			String lShortName = context.getString(lshortNameResId);
-			String rShortName = context.getString(rshortNameResId);
+			int lShortNameResId = lAgency.getType().getShortNameResId();
+			int rShortNameResId = rAgency.getType().getShortNameResId();
+			String lShortName = context.getString(lShortNameResId);
+			String rShortName = context.getString(rShortNameResId);
 			return lShortName.compareTo(rShortName);
 		}
 	}
