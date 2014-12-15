@@ -542,6 +542,8 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private RouteTripStop optRts;
 
+		private TimeZone deviceTimeZone = TimeZone.getDefault();
+
 		public TimeAdapter(Activity activity, Calendar dayStartsAt, RouteTripStop optRts) {
 			super();
 			setActivity(activity);
