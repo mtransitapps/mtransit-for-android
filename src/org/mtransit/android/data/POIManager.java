@@ -19,6 +19,7 @@ import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
+import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
@@ -552,12 +553,10 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				RouteTripStop alhs = (RouteTripStop) lhs.poi;
 				RouteTripStop arhs = (RouteTripStop) rhs.poi;
 				if (alhs.stop.id == arhs.stop.id) {
-					if (!TextUtils.isEmpty(alhs.route.shortName) || !TextUtils.isEmpty(arhs.route.shortName)) {
-						try {
-							return Integer.valueOf(alhs.route.shortName) - Integer.valueOf(arhs.route.shortName);
-						} catch (NumberFormatException nfe) {
-							return alhs.route.shortName.compareTo(arhs.route.shortName);
-						}
+					String lShortName = alhs.route.shortName;
+					String rShortName = arhs.route.shortName;
+					if (!TextUtils.isEmpty(lShortName) || !TextUtils.isEmpty(rShortName)) {
+						return Route.SHORT_NAME_COMPATOR.compare(alhs.route, arhs.route);
 					}
 				}
 			}

@@ -257,7 +257,7 @@ public class POIViewController implements MTLog.Loggable {
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setVisibility(View.VISIBLE);
-				final Integer tripId;
+				final Long tripId;
 				if (rts.trip == null) {
 					holder.tripHeadingBg.setVisibility(View.GONE);
 					tripId = null;

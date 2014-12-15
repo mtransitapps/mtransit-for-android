@@ -12,10 +12,6 @@ android {
 
     defaultConfig {
         applicationId "org.mtransit.android"
-        minSdkVersion 14
-        targetSdkVersion 21
-        versionCode 26
-        versionName "0.2r26_BETA"
     }
     sourceSets {
         main {

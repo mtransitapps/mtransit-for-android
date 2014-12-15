@@ -291,7 +291,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
-	public static ArrayList<Trip> findRTSRouteTrips(Context context, String authority, int routeId) {
+	public static ArrayList<Trip> findRTSRouteTrips(Context context, String authority, long routeId) {
 		Cursor cursor = null;
 		try {
 			Uri uri = getRTSTripsUri(authority);
@@ -321,7 +321,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static Route findRTSRoute(Context context, String authority, int routeId) {
+	public static Route findRTSRoute(Context context, String authority, long routeId) {
 		Cursor cursor = null;
 		try {
 			Uri uri = getRTSRoutesUri(authority);

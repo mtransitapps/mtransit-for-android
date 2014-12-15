@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -800,24 +801,28 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		private void updateTimeView(int position, View convertView) {
 			TimeViewHolder holder = (TimeViewHolder) convertView.getTag();
 			Schedule.Timestamp timestamp = (Schedule.Timestamp) getItem(position);
-			Activity activity = this.activityWR == null ? null : this.activityWR.get();
-			if (timestamp != null && activity != null) {
-				StringBuilder timeSb = new StringBuilder(TimeUtils.formatTime(timestamp.t));
+			Context context = this.activityWR == null ? null : this.activityWR.get();
+			if (timestamp != null && context != null) {
+				StringBuilder timeSb = new StringBuilder(TimeUtils.formatTime(context, timestamp.t));
+				if (timestamp.hasLocalTimeZone() && !this.deviceTimeZone.equals(TimeZone.getTimeZone(timestamp.getLocalTimeZone()))) {
+					String localTime = TimeUtils.formatTime(context, timestamp.t, timestamp.getLocalTimeZone());
+					timeSb.append(" (").append(context.getString(R.string.local_time_and_time, localTime)).append(")");
+				}
 				if (timestamp.hasHeadsign()) {
-					String timestampHeading = timestamp.getHeading(activity);
-					if (this.optRts != null && !StringUtils.equals(timestampHeading, this.optRts.trip.getHeading(activity))) {
+					String timestampHeading = timestamp.getHeading(context);
+					if (this.optRts != null && !StringUtils.equals(timestampHeading, this.optRts.trip.getHeading(context))) {
 						timeSb.append(" (").append(timestampHeading).append(")");
 					}
 				}
 				holder.timeTv.setText(timeSb);
 				if (this.nextTimeInMs != null && TimeUtils.isSameDay(getNowToTheMinute(), this.nextTimeInMs.t) && this.nextTimeInMs.t == timestamp.t) { // now
-					holder.timeTv.setTextColor(Schedule.getDefaultNowTextColor(activity));
+					holder.timeTv.setTextColor(Schedule.getDefaultNowTextColor(context));
 					holder.timeTv.setTypeface(Schedule.getDefaultNowTypeface());
 				} else if (timestamp.t < getNowToTheMinute()) { // past
-					holder.timeTv.setTextColor(Schedule.getDefaultPastTextColor(activity));
+					holder.timeTv.setTextColor(Schedule.getDefaultPastTextColor(context));
 					holder.timeTv.setTypeface(Schedule.getDefaultPastTypeface());
 				} else { // future
-					holder.timeTv.setTextColor(Schedule.getDefaultFutureTextColor(activity));
+					holder.timeTv.setTextColor(Schedule.getDefaultFutureTextColor(context));
 					holder.timeTv.setTypeface(Schedule.getDefaultFutureTypeface());
 				}
 			} else {
@@ -839,9 +844,9 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		private void updateHourSeparatorView(int position, View convertView) {
 			HourSperatorViewHolder holder = (HourSperatorViewHolder) convertView.getTag();
 			Integer hourOfTheDay = getItemHourSeparator(position);
-			Activity activity = this.activityWR == null ? null : this.activityWR.get();
-			if (hourOfTheDay != null && activity != null) {
-				holder.hourTv.setText(getHourFormatter(activity).formatThreadSafe(this.hours.get(hourOfTheDay.intValue())));
+			Context context = this.activityWR == null ? null : this.activityWR.get();
+			if (hourOfTheDay != null && context != null) {
+				holder.hourTv.setText(getHourFormatter(context).formatThreadSafe(this.hours.get(hourOfTheDay.intValue())));
 			} else {
 				holder.hourTv.setText(null);
 			}

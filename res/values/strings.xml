@@ -12,6 +12,9 @@
     <string name="more">More</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string name="agency_type_light_rail_short_name">Light Rail</string>
+    <string name="agency_type_light_rail_all">All Light Rails</string>
+    <string name="agency_type_light_rail_stations_short_name">Light Rail Stations</string>
     <string name="agency_type_subway_short_name">Subway</string>
     <string name="agency_type_subway_all">All Subways</string>
     <string name="agency_type_subway_stations_short_name">Subway Stations</string>
@@ -51,6 +54,7 @@
     <string name="next_departures">Next Departures</string>
     <string name="availability">Availability</string>
     <string name="full_schedule">Full Schedules</string>
+    <string name="local_time_and_time">%s local time</string>
     <string name="information">Information</string>
     <string name="warning">Warning</string>
 </resources>

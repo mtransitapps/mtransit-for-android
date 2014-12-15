@@ -66,16 +66,16 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	private static final String EXTRA_STOP_ID = "extra_stop_id";
 
 
-	public static RTSRouteFragment newInstance(String authority, int routeId, Integer optTripId, Integer optStopId, Route optRoute) {
+	public static RTSRouteFragment newInstance(String authority, long routeId, Long optTripId, Integer optStopId, Route optRoute) {
 		RTSRouteFragment f = new RTSRouteFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
 		f.authority = authority;
-		args.putInt(EXTRA_ROUTE_ID, routeId);
+		args.putLong(EXTRA_ROUTE_ID, routeId);
 		f.routeId = routeId;
 		f.route = optRoute;
 		if (optTripId != null) {
-			args.putInt(EXTRA_TRIP_ID, optTripId);
+			args.putLong(EXTRA_TRIP_ID, optTripId);
 			f.tripId = optTripId;
 		}
 		if (optStopId != null) {
@@ -89,8 +89,8 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	private int lastPageSelected = -1;
 	private RouteTripPagerAdapter adapter;
 	private String authority;
-	private Integer routeId;
-	private Integer tripId;
+	private Long routeId;
+	private Long tripId;
 	private Integer stopId;
 
 	@Override
@@ -130,12 +130,12 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
 		}
-		Integer newRouteId = BundleUtils.getInt(EXTRA_ROUTE_ID, bundles);
+		Long newRouteId = BundleUtils.getLong(EXTRA_ROUTE_ID, bundles);
 		if (newRouteId != null && !newRouteId.equals(this.routeId)) {
 			this.routeId = newRouteId;
 			resetRoute();
 		}
-		Integer newTripId = BundleUtils.getInt(EXTRA_TRIP_ID, bundles);
+		Long newTripId = BundleUtils.getLong(EXTRA_TRIP_ID, bundles);
 		if (newTripId != null && !newTripId.equals(this.tripId)) {
 			this.tripId = newTripId;
 		}
@@ -232,10 +232,10 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			outState.putString(EXTRA_AUTHORITY, this.authority);
 		}
 		if (this.routeId != null) {
-			outState.putInt(EXTRA_ROUTE_ID, this.routeId);
+			outState.putLong(EXTRA_ROUTE_ID, this.routeId);
 		}
 		if (this.tripId != null) {
-			outState.putInt(EXTRA_TRIP_ID, this.tripId);
+			outState.putLong(EXTRA_TRIP_ID, this.tripId);
 		}
 		if (this.stopId != null) {
 			outState.putInt(EXTRA_STOP_ID, this.stopId);
@@ -589,10 +589,10 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		private String authority;
 		private Integer optStopId = null;
 		private boolean showingListInsteadOfMap;
-		private Integer routeId;
+		private long routeId;
 		private Route optRoute;
 
-		public RouteTripPagerAdapter(RTSRouteFragment fragment, ArrayList<Trip> routeTrips, String authority, Integer routeId, Route optRoute,
+		public RouteTripPagerAdapter(RTSRouteFragment fragment, ArrayList<Trip> routeTrips, String authority, Long routeId, Route optRoute,
 				Integer optStopId, boolean showingListInsteadOfMap) {
 			super(fragment.getChildFragmentManager());
 			this.contextWR = new WeakReference<Context>(fragment.getActivity());

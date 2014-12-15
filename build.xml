@@ -3,6 +3,8 @@
 
     <property file="local.properties" />
 
+    <property file="ant.properties" />
+
     <property file="version.properties" />
     
     <property file="../keys.properties" />

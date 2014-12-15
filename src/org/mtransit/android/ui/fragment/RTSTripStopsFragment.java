@@ -69,16 +69,16 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 	private static final String EXTRA_SHOWING_LIST_INSTEAD_OF_MAP = "extra_showing_list_instead_of_map";
 
-	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String authority, int routeId, int tripId,
+	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String authority, long routeId, long tripId,
 			Integer optStopId, boolean showingListInsteadOfMap, Route optRoute) {
 		RTSTripStopsFragment f = new RTSTripStopsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, authority);
 		f.authority = authority;
-		args.putInt(EXTRA_ROUTE_ID, routeId);
+		args.putLong(EXTRA_ROUTE_ID, routeId);
 		f.routeId = routeId;
 		f.route = optRoute;
-		args.putInt(EXTRA_TRIP_ID, tripId);
+		args.putLong(EXTRA_TRIP_ID, tripId);
 		f.tripId = tripId;
 		if (fragmentPosition >= 0) {
 			args.putInt(EXTRA_FRAGMENT_POSITION, fragmentPosition);
@@ -98,8 +98,8 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		return f;
 	}
 
-	private Integer routeId;
-	private Integer tripId;
+	private Long routeId;
+	private Long tripId;
 	private Integer stopId;
 	private String authority;
 	private POIArrayAdapter adapter;
@@ -133,13 +133,13 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			outState.putString(EXTRA_AGENCY_AUTHORITY, this.authority);
 		}
 		if (this.routeId != null) {
-			outState.putInt(EXTRA_ROUTE_ID, this.routeId);
+			outState.putLong(EXTRA_ROUTE_ID, this.routeId);
 		}
 		if (this.tripId != null) {
-			outState.putInt(EXTRA_TRIP_ID, this.tripId);
+			outState.putLong(EXTRA_TRIP_ID, this.tripId);
 		}
 		if (this.stopId != null) {
-			outState.putInt(EXTRA_STOP_ID, this.stopId);
+			outState.putLong(EXTRA_STOP_ID, this.stopId);
 		}
 		if (this.fragmentPosition >= 0) {
 			outState.putInt(EXTRA_FRAGMENT_POSITION, this.fragmentPosition);
@@ -160,11 +160,11 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			this.authority = newAuthority;
 			resetRoute();
 		}
-		Integer newTripId = BundleUtils.getInt(EXTRA_TRIP_ID, bundles);
+		Long newTripId = BundleUtils.getLong(EXTRA_TRIP_ID, bundles);
 		if (newTripId != null && !newTripId.equals(this.tripId)) {
 			this.tripId = newTripId;
 		}
-		Integer newRouteId = BundleUtils.getInt(EXTRA_ROUTE_ID, bundles);
+		Long newRouteId = BundleUtils.getLong(EXTRA_ROUTE_ID, bundles);
 		if (newRouteId != null && !newRouteId.equals(this.routeId)) {
 			this.routeId = newRouteId;
 			resetRoute();

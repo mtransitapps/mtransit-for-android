@@ -84,7 +84,7 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
-        <!-- GOOGLE MOBILE ADS (ADMOB) -->
+        <!-- GOOGLE MOBILE ADS (AD MOB) -->
         <activity
             android:name="com.google.android.gms.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
