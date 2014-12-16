@@ -805,10 +805,13 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			Schedule.Timestamp timestamp = (Schedule.Timestamp) getItem(position);
 			Context context = this.activityWR == null ? null : this.activityWR.get();
 			if (timestamp != null && context != null) {
-				StringBuilder timeSb = new StringBuilder(TimeUtils.formatTime(context, timestamp.t));
+				String userTime = TimeUtils.formatTime(context, timestamp.t);
+				StringBuilder timeSb = new StringBuilder(userTime);
 				if (timestamp.hasLocalTimeZone() && !this.deviceTimeZone.equals(TimeZone.getTimeZone(timestamp.getLocalTimeZone()))) {
 					String localTime = TimeUtils.formatTime(context, timestamp.t, timestamp.getLocalTimeZone());
-					timeSb.append(" (").append(context.getString(R.string.local_time_and_time, localTime)).append(")");
+					if (!localTime.equalsIgnoreCase(userTime)) {
+						timeSb.append(" (").append(context.getString(R.string.local_time_and_time, localTime)).append(")");
+					}
 				}
 				if (timestamp.hasHeadsign()) {
 					String timestampHeading = timestamp.getHeading(context);
