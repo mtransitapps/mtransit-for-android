@@ -90,6 +90,8 @@ public enum DataSourceType {
 
 	public static DataSourceType parseId(int id) {
 		switch (id) {
+		case 0:
+			return TYPE_LIGHT_RAIL;
 		case 1:
 			return TYPE_SUBWAY;
 		case 2:

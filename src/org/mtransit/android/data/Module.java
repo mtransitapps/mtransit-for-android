@@ -172,7 +172,6 @@ public class Module extends DefaultPOI {
 					json.getString(JSON_PKG), //
 					json.getInt(JSON_TARGET_TYPE_ID) //
 			);
-			module.setId(json.getInt(JSON_ID));
 			module.setName(json.getString(JSON_NAME));
 			module.setLat(json.getDouble(JSON_LAT));
 			module.setLng(json.getDouble(JSON_LNG));

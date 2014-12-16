@@ -103,9 +103,12 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 		LocationUtils.AroundDiff typeAd = LocationUtils.getNewDefaultAroundDiff();
 		int typeMaxSize = LocationUtils.MIN_NEARBY_LIST_COVERAGE;
 		int typeMinCoverage = LocationUtils.MAX_NEARBY_LIST;
-		while (CollectionUtils.getSize(typePOIs) < NB_MAX_BY_TYPE && typeAd.aroundDiff < LocationUtils.MAX_AROUND_DIFF) {
+		while (CollectionUtils.getSize(typePOIs) < NB_MAX_BY_TYPE) {
 			Collection<AgencyProperties> typeAgencies = DataSourceProvider.get(context).getTypeDataSources(getContext(), type.getId());
 			typePOIs = findNearby(context, typeLat, typeLng, typeAd, typeMaxSize, typeMinCoverage, typeAgencies);
+			if (typeAd.aroundDiff > LocationUtils.MAX_AROUND_DIFF) {
+				break;
+			}
 			LocationUtils.incAroundDiff(typeAd);
 		}
 		return typePOIs;
