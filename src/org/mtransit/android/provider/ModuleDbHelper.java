@@ -20,7 +20,7 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 
 	protected static final String DB_NAME = "module.db";
 
-	public static final int DB_VERSION = 5;
+	public static final int DB_VERSION = 6;
 
 	protected static final String PREF_KEY_LAST_UPDATE_MS = "pModuleLastUpdate";
 
