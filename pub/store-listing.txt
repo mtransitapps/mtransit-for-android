@@ -7,6 +7,9 @@ BETA: TEST IN PROGRESS
 To leave the test: http://goo.gl/rZ7J59
 
 MonTransit BETA gives you access to transit agencies information in the greater Montreal: 
+- CIT Laurentides Bus on Google Play (free): http://goo.gl/2X5O0v
+- CIT Roussillon Bus on Google Play (free): http://goo.gl/AHZMf9
+- CIT Sud-Ouest Bus on Google Play (free): http://goo.gl/0lKFAF
 - STL Bus (Laval) on Google Play (free): http://goo.gl/oVpn75
 - RTL Bus (Longueuil) on Google Play (free): http://goo.gl/dU2es1
 - AMT Express Bus (Montreal) on Google Play (free): http://goo.gl/bQmUrH
