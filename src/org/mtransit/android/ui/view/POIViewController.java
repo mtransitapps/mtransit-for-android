@@ -263,8 +263,6 @@ public class POIViewController implements MTLog.Loggable {
 					tripId = null;
 				} else {
 					tripId = rts.trip.id;
-					holder.tripHeadingTv.setTextColor(Color.WHITE);
-					holder.tripHeadingBg.setBackgroundColor(Color.BLACK);
 					holder.tripHeadingTv.setText(rts.trip.getHeading(context).toUpperCase(Locale.getDefault()));
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}

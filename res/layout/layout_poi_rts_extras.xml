@@ -43,6 +43,7 @@
             android:id="@+id/trip_heading_bg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#66000000"
             android:visibility="gone"
             tools:visibility="visible" >
             <TextView
@@ -57,6 +58,7 @@
                 android:paddingRight="2dp"
                 android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceSmallInverse"
+                android:textColor="@android:color/white"
                 android:textStyle="bold"
                 tools:visibility="visible" />
         </FrameLayout>

@@ -1255,8 +1255,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					tripId = null;
 				} else {
 					tripId = rts.trip.id;
-					holder.tripHeadingTv.setTextColor(Color.WHITE);
-					holder.tripHeadingBg.setBackgroundColor(Color.BLACK);
 					holder.tripHeadingTv.setText(rts.trip.getHeading(getContext()).toUpperCase(Locale.getDefault()));
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}
