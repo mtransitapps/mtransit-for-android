@@ -2,11 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeightLarge"
+    android:layout_height="?android:attr/listPreferredItemHeight"
     android:background="@color/poi_item_bg"
     android:clipChildren="false"
-    android:minHeight="?android:attr/listPreferredItemHeightLarge"
-    android:padding="8dp" >
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:padding="@dimen/poi_padding" >
     <ImageView
         android:id="@+id/service_update_warning"
         android:layout_width="?android:attr/listPreferredItemHeight"
@@ -25,6 +25,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="true"
         android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/poi_status_inner_padding"
         layout="@layout/layout_poi_status_schedule"
         android:minWidth="?android:attr/listPreferredItemHeight" />
     <include
@@ -33,7 +34,8 @@
     <include
         android:id="@+id/poi"
         android:layout_width="match_parent"
-        android:layout_height="?android:attr/listPreferredItemHeightLarge"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/poi_inner_padding"
         android:layout_toLeftOf="@id/status"
         android:layout_toRightOf="@id/rts_extra"
         layout="@layout/layout_poi_base_distance_and_compass" />

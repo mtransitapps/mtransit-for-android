@@ -5,5 +5,4 @@
     android:layout_width="?android:attr/listPreferredItemHeight"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:layout_alignParentLeft="true"
-    android:layout_marginRight="8dp"
     android:scaleType="center" />

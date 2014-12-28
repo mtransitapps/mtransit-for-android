@@ -5,8 +5,7 @@
     android:id="@+id/rts_extra"
     android:layout_width="?android:attr/listPreferredItemHeight"
     android:layout_height="?android:attr/listPreferredItemHeight"
-    android:layout_alignParentLeft="true"
-    android:layout_marginRight="8dp" >
+    android:layout_alignParentLeft="true" >
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
