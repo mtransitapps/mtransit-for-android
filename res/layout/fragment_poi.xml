@@ -28,7 +28,7 @@
             <ViewStub
                 android:id="@+id/this_poi_stub"
                 android:layout_width="match_parent"
-                android:layout_height="?android:attr/listPreferredItemHeightLarge"
+                android:layout_height="?android:attr/listPreferredItemHeight"
                 android:inflatedId="@+id/this_poi" />
             <ViewStub
                 android:id="@+id/poi_status_detail_stub"

@@ -16,6 +16,7 @@
         android:textSize="34dp"
         android:textStyle="bold"
         android:visibility="gone"
+        tools:ignore="SpUsage"
         tools:visibility="visible" />
     <!-- ROUTE TYPE IMG -->
     <org.mtransit.android.ui.view.MTJPathsView
