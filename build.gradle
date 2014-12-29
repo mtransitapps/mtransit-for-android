@@ -2,16 +2,45 @@ apply plugin: 'com.android.application'
 
 dependencies {
     compile project(':commons-android')
-    compile 'com.android.support:appcompat-v7:21.0.2'
-    compile 'com.google.android.gms:play-services:6.5.87'
+    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.google.android.gms:play-services-ads:6.5.87'
+    compile 'com.google.android.gms:play-services-base:6.5.87'
+    compile 'com.google.android.gms:play-services-location:6.5.87'
+    compile 'com.google.android.gms:play-services-maps:6.5.87'
 }
 
 android {
-    compileSdkVersion 21
-    buildToolsVersion "21.1.2"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    Properties releaseVersionProps = new Properties()
+    releaseVersionProps.load(new FileInputStream(file("version.properties")))
 
     defaultConfig {
         applicationId "org.mtransit.android"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode releaseVersionProps['version.code'] as Integer
+        versionName releaseVersionProps['version.name']
+    }
+    Properties releaseKeyProps = new Properties()
+    releaseKeyProps.load(new FileInputStream(file("../keys.properties")))
+
+    signingConfigs {
+        release {
+            storeFile file(releaseKeyProps['key.store'])
+            storePassword releaseKeyProps['key.store.password']
+            keyAlias releaseKeyProps['key.alias']
+            keyPassword releaseKeyProps['key.alias.password']
+        }
+    }
+    buildTypes {
+        debug {
+            versionNameSuffix "_DEBUG"
+        }
+        release {
+            signingConfig signingConfigs.release
+        }
     }
     sourceSets {
         main {
