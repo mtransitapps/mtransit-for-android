@@ -23,23 +23,28 @@ android {
         versionCode releaseVersionProps['version.code'] as Integer
         versionName releaseVersionProps['version.name']
     }
-    Properties releaseKeyProps = new Properties()
-    releaseKeyProps.load(new FileInputStream(file("../keys.properties")))
 
-    signingConfigs {
-        release {
-            storeFile file(releaseKeyProps['key.store'])
-            storePassword releaseKeyProps['key.store.password']
-            keyAlias releaseKeyProps['key.alias']
-            keyPassword releaseKeyProps['key.alias.password']
-        }
+    Properties releaseKeyProps = new Properties()
+    def keysFile = file("../keys.properties")
+    if (keysFile.exists()) {
+        releaseKeyProps.load(new FileInputStream(file("../keys.properties")))
+	    signingConfigs {
+	        release {
+	            storeFile file(releaseKeyProps['key.store'])
+	            storePassword releaseKeyProps['key.store.password']
+	            keyAlias releaseKeyProps['key.alias']
+	            keyPassword releaseKeyProps['key.alias.password']
+	        }
+	    }
     }
     buildTypes {
         debug {
             versionNameSuffix "_DEBUG"
         }
         release {
-            signingConfig signingConfigs.release
+            if (keysFile.exists()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
     sourceSets {
