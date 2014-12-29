@@ -4,8 +4,7 @@
     android:id="@+id/distance_and_compass"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="0dp" >
+    android:orientation="horizontal" >
     <!-- DISTANCE -->
     <TextView
         android:id="@+id/distance"
