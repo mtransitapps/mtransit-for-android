@@ -9,6 +9,7 @@ Pour quitter le test : http://goo.gl/rZ7J59
 MonTransit BETA vous donne accès à l'information des agences de transport en commun dans la région de Montréal : 
 - Bus CIT Laurentides sur Google Play (gratuit) : http://goo.gl/2X5O0v
 - Bus CIT Roussillon sur Google Play (gratuit) : http://goo.gl/AHZMf9
+- Bus CIT Sorel-Varennes sur Google Play (gratuit) : http://goo.gl/DXSj7G
 - Bus CIT Sud-Ouest sur Google Play (gratuit) : http://goo.gl/0lKFAF
 - Bus STL (Laval) sur Google Play (gratuit) : http://goo.gl/oVpn75
 - Bus RTL (Longueuil) sur Google Play (gratuit) : http://goo.gl/dU2es1
