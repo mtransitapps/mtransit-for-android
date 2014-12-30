@@ -19,7 +19,6 @@ import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
-import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
@@ -67,7 +66,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return defaultPoiTextColorSpan;
 	}
 
-	public static final POIDistanceComparator POI_DISTANCE_COMPARATOR = new POIDistanceComparator();
 
 	public static final POIAlphaComparator POI_ALPHA_COMPARATOR = new POIAlphaComparator();
 
@@ -546,30 +544,5 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 	}
 
-	private static class POIDistanceComparator implements Comparator<POIManager> {
-		@Override
-		public int compare(POIManager lhs, POIManager rhs) {
-			if (lhs.poi instanceof RouteTripStop && rhs.poi instanceof RouteTripStop) {
-				RouteTripStop alhs = (RouteTripStop) lhs.poi;
-				RouteTripStop arhs = (RouteTripStop) rhs.poi;
-				if (alhs.stop.id == arhs.stop.id) {
-					String lShortName = alhs.route.shortName;
-					String rShortName = arhs.route.shortName;
-					if (!TextUtils.isEmpty(lShortName) || !TextUtils.isEmpty(rShortName)) {
-						return Route.SHORT_NAME_COMPATOR.compare(alhs.route, arhs.route);
-					}
-				}
-			}
-			float d1 = lhs.getDistance();
-			float d2 = rhs.getDistance();
-			if (d1 > d2) {
-				return +1;
-			} else if (d1 < d2) {
-				return -1;
-			} else {
-				return 0;
-			}
-		}
-	}
 
 }

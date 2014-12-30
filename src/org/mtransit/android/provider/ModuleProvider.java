@@ -276,7 +276,8 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	private HashSet<Module> loadDataFromWWW(int tried) {
 		try {
 			long newLastUpdateInMs = TimeUtils.currentTimeMillis();
-			String jsonString = FileUtils.fromFileRes(getContext(), R.raw.modules);
+			int fileResId = R.raw.modules;
+			String jsonString = FileUtils.fromFileRes(getContext(), fileResId);
 			HashSet<Module> modules = new HashSet<Module>();
 			JSONArray jsonArray = new JSONArray(jsonString);
 			for (int i = 0; i < jsonArray.length(); i++) {

@@ -5,6 +5,7 @@ import java.util.Locale;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
@@ -27,6 +28,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.location.Location;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
@@ -251,7 +253,16 @@ public class POIViewController implements MTLog.Loggable {
 					}
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
-					holder.routeShortNameTv.setText(rts.route.shortName);
+					SpannableStringBuilder ssb = new SpannableStringBuilder(rts.route.shortName);
+					if (ssb.length() > 3) {
+						SpanUtils.set(ssb, SpanUtils.FIFTY_PERCENT_SIZE_SPAN);
+						holder.routeShortNameTv.setSingleLine(false);
+						holder.routeShortNameTv.setMaxLines(2);
+					} else {
+						holder.routeShortNameTv.setSingleLine(true);
+						holder.routeShortNameTv.setMaxLines(1);
+					}
+					holder.routeShortNameTv.setText(ssb);
 					holder.routeShortNameTv.setTextColor(routeTextColor);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}

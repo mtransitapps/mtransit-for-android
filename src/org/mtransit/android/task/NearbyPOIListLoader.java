@@ -8,7 +8,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
@@ -41,16 +40,17 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 
 	private int maxSize;
 
-	private int minCoverage;
+	private float minCoverage;
 
 	private boolean hideDecentOnly;
 
-	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, int minCoverage, int maxSize, boolean hideDecentOnly,
+	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, float minCoverage, int maxSize, boolean hideDecentOnly,
 			ArrayList<String> agenciesAuthority) {
-		this(context, lat, lng, aroundDiff, minCoverage, maxSize, hideDecentOnly, agenciesAuthority == null ? null : agenciesAuthority.toArray(new String[agenciesAuthority.size()]));
+		this(context, lat, lng, aroundDiff, minCoverage, maxSize, hideDecentOnly, agenciesAuthority == null ? null : agenciesAuthority
+				.toArray(new String[agenciesAuthority.size()]));
 	}
 
-	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, int minCoverage, int maxSize, boolean hideDecentOnly,
+	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, float minCoverage, int maxSize, boolean hideDecentOnly,
 			String... agenciesAuthority) {
 		super(context);
 		this.agenciesAuthority = agenciesAuthority;
@@ -86,7 +86,6 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 			}
 		}
 		executor.shutdown();
-		CollectionUtils.sort(this.pois, POIManager.POI_DISTANCE_COMPARATOR);
 		LocationUtils.removeTooMuchWhenNotInCoverage(this.pois, this.minCoverage, this.maxSize);
 		return this.pois;
 	}

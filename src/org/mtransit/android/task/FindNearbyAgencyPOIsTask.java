@@ -2,7 +2,6 @@ package org.mtransit.android.task;
 
 import java.util.ArrayList;
 
-import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.task.MTCallable;
@@ -27,9 +26,9 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> 
 	private double aroundDiff;
 	private boolean hideDecentOnly;
 	private int maxSize;
-	private int minCoverage;
+	private float minCoverage;
 
-	public FindNearbyAgencyPOIsTask(Context context, String authority, double lat, double lng, double aroundDiff, boolean hideDecentOnly, int minCoverage,
+	public FindNearbyAgencyPOIsTask(Context context, String authority, double lat, double lng, double aroundDiff, boolean hideDecentOnly, float minCoverage,
 			int maxSize) {
 		this.context = context;
 		this.authority = authority;
@@ -48,10 +47,9 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> 
 			poiFilter.addExtra("decentOnly", true);
 		}
 		ArrayList<POIManager> pois = DataSourceManager.findPOIs(this.context, this.authority, poiFilter);
-		LocationUtils.updateDistance(pois, lat, lng);
-		float maxDistance = LocationUtils.getAroundCoveredDistance(lat, lng, aroundDiff);
+		LocationUtils.updateDistance(pois, this.lat, this.lng);
+		float maxDistance = LocationUtils.getAroundCoveredDistance(this.lat, this.lng, this.aroundDiff);
 		LocationUtils.removeTooFar(pois, maxDistance);
-		CollectionUtils.sort(pois, POIManager.POI_DISTANCE_COMPARATOR);
 		LocationUtils.removeTooMuchWhenNotInCoverage(pois, this.minCoverage, this.maxSize);
 		return pois;
 	}

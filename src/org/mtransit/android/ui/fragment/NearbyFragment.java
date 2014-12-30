@@ -30,7 +30,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -396,9 +395,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void findNearbyLocation() {
-		if (!Geocoder.isPresent()) {
-			return;
-		}
 		if (this.findNearbyLocationTask != null) {
 			this.findNearbyLocationTask.cancel(true);
 		}
@@ -417,9 +413,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 					return null;
 				}
 				Address address = LocationUtils.getLocationAddress(activity, nearbyLocation);
-				if (address == null) {
-					return null;
-				}
 				String locationString = LocationUtils.getLocationString(activity, null, address, nearbyLocation.getAccuracy());
 				return locationString;
 			}

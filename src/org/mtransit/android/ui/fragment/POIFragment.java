@@ -350,8 +350,8 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			if (context == null) {
 				return null;
 			}
-			return new NearbyPOIListLoader(context, poim.poi.getLat(), poim.poi.getLng(), this.ad.aroundDiff, LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE,
-					LocationUtils.MAX_POI_NEARBY_POIS_LIST, false, this.authority);
+			return new NearbyPOIListLoader(context, poim.poi.getLat(), poim.poi.getLng(), this.ad.aroundDiff,
+					LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS, LocationUtils.MAX_POI_NEARBY_POIS_LIST, false, this.authority);
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -367,7 +367,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	@Override
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
-		if (CollectionUtils.getSize(data) < LocationUtils.MIN_NEARBY_LIST && ad.aroundDiff < LocationUtils.MAX_AROUND_DIFF) {
+		if (CollectionUtils.getSize(data) < LocationUtils.MIN_NEARBY_LIST && this.ad.aroundDiff < LocationUtils.MAX_AROUND_DIFF) {
 			LocationUtils.incAroundDiff(this.ad);
 			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
 			return;
@@ -727,7 +727,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	@Override
 	public void updateCompass(float orientation, boolean force) {
-		long now = System.currentTimeMillis();
+		long now = TimeUtils.currentTimeMillis();
 		int roundedOrientation = SensorUtils.convertToPosivite360Degree((int) orientation);
 		SensorUtils.updateCompass(force, this.userLocation, roundedOrientation, now, AbsListView.OnScrollListener.SCROLL_STATE_IDLE, this.lastCompassChanged,
 				this.lastCompassInDegree, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS, this);

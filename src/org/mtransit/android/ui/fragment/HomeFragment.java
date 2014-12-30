@@ -18,7 +18,6 @@ import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 import android.app.Activity;
 import android.content.Context;
 import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -132,9 +131,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	private MTAsyncTask<Location, Void, String> findNearbyLocationTask;
 
 	private void findNearbyLocation() {
-		if (!Geocoder.isPresent()) {
-			return;
-		}
 		if (this.findNearbyLocationTask != null) {
 			this.findNearbyLocationTask.cancel(true);
 		}
@@ -153,9 +149,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 					return null;
 				}
 				Address address = LocationUtils.getLocationAddress(activity, nearbyLocation);
-				if (address == null) {
-					return null;
-				}
 				return LocationUtils.getLocationString(activity, null, address, nearbyLocation.getAccuracy());
 			}
 

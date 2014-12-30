@@ -13,6 +13,7 @@ import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SensorUtils;
+import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.api.SupportFactory;
@@ -46,6 +47,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.os.Handler;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -456,7 +458,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			this.closestPoiUuids = new HashSet<String>();
 			for (Integer type : this.poisByType.keySet()) {
 				ArrayList<POIManager> orderedPoims = new ArrayList<POIManager>(this.poisByType.get(type));
-				CollectionUtils.sort(orderedPoims, POIManager.POI_DISTANCE_COMPARATOR);
+				CollectionUtils.sort(orderedPoims, LocationUtils.POI_DISTANCE_COMPARATOR);
 				POIManager theClosestOne = orderedPoims.get(0);
 				float theClosestDistance = theClosestOne.getDistance();
 				if (theClosestDistance > 0) {
@@ -593,7 +595,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	};
 
 	public void notifyDataSetChanged(boolean force, int minAdapterThresoldInMs) {
-		long now = System.currentTimeMillis();
+		long now = TimeUtils.currentTimeMillis();
 		long adapterThreasold = Math.max(minAdapterThresoldInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
 		if (this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && (force || (now - this.lastNotifyDataSetChanged) > adapterThreasold)) {
 			notifyDataSetChanged();
@@ -797,7 +799,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (this.poisByType == null) {
 			return;
 		}
-		long now = System.currentTimeMillis();
+		long now = TimeUtils.currentTimeMillis();
 		int roundedOrientation = SensorUtils.convertToPosivite360Degree((int) orientation);
 		SensorUtils.updateCompass(force, this.location, roundedOrientation, now, this.scrollState, this.lastCompassChanged, this.lastCompassInDegree,
 				Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS, this);
@@ -1222,7 +1224,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private void updateRTSExtra(POIManager poim, RouteTripStopViewHolder holder) {
 		if (poim.poi instanceof RouteTripStop) {
 			RouteTripStop rts = (RouteTripStop) poim.poi;
-			if (!showExtra || rts.route == null) {
+			if (!this.showExtra || rts.route == null) {
 				holder.rtsExtraV.setVisibility(View.GONE);
 				holder.routeFL.setVisibility(View.GONE);
 				holder.tripHeadingBg.setVisibility(View.GONE);
@@ -1243,7 +1245,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					}
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
-					holder.routeShortNameTv.setText(rts.route.shortName);
+					SpannableStringBuilder ssb = new SpannableStringBuilder(rts.route.shortName);
+					if (ssb.length() > 3) {
+						SpanUtils.set(ssb, SpanUtils.FIFTY_PERCENT_SIZE_SPAN);
+						holder.routeShortNameTv.setSingleLine(false);
+						holder.routeShortNameTv.setMaxLines(2);
+					} else {
+						holder.routeShortNameTv.setSingleLine(true);
+						holder.routeShortNameTv.setMaxLines(1);
+					}
+					holder.routeShortNameTv.setText(ssb);
 					holder.routeShortNameTv.setTextColor(routeTextColor);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}

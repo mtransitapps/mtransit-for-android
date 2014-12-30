@@ -427,8 +427,13 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			}
 			this.typeAgenciesAuthority = NearbyPOIListLoader.findTypeAgenciesAuthority(getActivity(), this.typeId, this.nearbyLocation.getLatitude(),
 					this.nearbyLocation.getLongitude(), this.ad.aroundDiff);
+			float minDistanceInMeters = LocationUtils.getAroundCoveredDistance(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(),
+					LocationUtils.MIN_AROUND_DIFF);
+			if (minDistanceInMeters < LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS) {
+				minDistanceInMeters = LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS;
+			}
 			return new NearbyPOIListLoader(getActivity(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff,
-					LocationUtils.MIN_NEARBY_LIST_COVERAGE, LocationUtils.MAX_NEARBY_LIST, false, this.typeAgenciesAuthority);
+					minDistanceInMeters, LocationUtils.MAX_NEARBY_LIST, false, this.typeAgenciesAuthority);
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -450,7 +455,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			this.emptyText = String.format("%s stops found within %s km", dataSize, distanceInKm);
 		}
 		// IF not enough POIs found AND maximum around location not reached DO
-		if (dataSize < LocationUtils.MIN_NEARBY_LIST && ad.aroundDiff < LocationUtils.MAX_AROUND_DIFF) {
+		if (dataSize < LocationUtils.MIN_NEARBY_LIST && this.ad.aroundDiff < LocationUtils.MAX_AROUND_DIFF) {
 			// try with larger around location
 			LocationUtils.incAroundDiff(this.ad);
 			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);

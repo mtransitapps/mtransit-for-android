@@ -7,6 +7,7 @@ import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
@@ -21,6 +22,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -526,7 +528,16 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 					}
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
-					holder.routeShortNameTv.setText(route.shortName);
+					SpannableStringBuilder ssb = new SpannableStringBuilder(route.shortName);
+					if (ssb.length() > 3) {
+						SpanUtils.set(ssb, SpanUtils.FIFTY_PERCENT_SIZE_SPAN);
+						holder.routeShortNameTv.setSingleLine(false);
+						holder.routeShortNameTv.setMaxLines(2);
+					} else {
+						holder.routeShortNameTv.setSingleLine(true);
+						holder.routeShortNameTv.setMaxLines(1);
+					}
+					holder.routeShortNameTv.setText(ssb);
 					holder.routeShortNameTv.setTextColor(routeTextColor);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
