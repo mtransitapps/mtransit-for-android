@@ -79,7 +79,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 				if (poim.poi instanceof RouteTripStop) {
 					RouteTripStop rts = (RouteTripStop) poim.poi;
 					String routeTripId = rts.route.id + "-" + rts.trip.id;
-					if (routeTripKept.contains(routeTripId) && lastKeptDistance != poim.getDistance()) {
+					if (routeTripKept.contains(routeTripId)) {
 						it.remove();
 						continue;
 					}
