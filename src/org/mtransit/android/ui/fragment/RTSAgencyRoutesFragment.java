@@ -168,11 +168,11 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 
 	private boolean isShowingListInsteadOfGrid() {
 		if (this.showingListInsteadOfGrid == null) {
-			boolean showingListInsteadOfGridLastSet = PreferenceUtils.getPrefDefault(getActivity(),
-					PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET,
-					PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT);
-			this.showingListInsteadOfGrid = TextUtils.isEmpty(this.authority) ? showingListInsteadOfGridLastSet : PreferenceUtils.getPrefDefault(getActivity(),
-					PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(this.authority), showingListInsteadOfGridLastSet);
+			this.showingListInsteadOfGrid = isShowingListInsteadOfGridPref();
+			if (!TextUtils.isEmpty(this.authority)) {
+				PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(this.authority),
+						this.showingListInsteadOfGrid, true);
+			}
 		}
 		return this.showingListInsteadOfGrid;
 	}
@@ -181,13 +181,20 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		if (this.showingListInsteadOfGrid == null) {
 			return;
 		}
-		boolean showingListInsteadOfGridLastSet = PreferenceUtils.getPrefDefault(getActivity(),
-				PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET, PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT);
-		boolean newShowingListInsteadOfGrid = TextUtils.isEmpty(this.authority) ? showingListInsteadOfGridLastSet : PreferenceUtils.getPrefDefault(
-				getActivity(), PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(this.authority), showingListInsteadOfGridLastSet);
+		boolean newShowingListInsteadOfGrid = isShowingListInsteadOfGridPref();
 		if (newShowingListInsteadOfGrid != this.showingListInsteadOfGrid) {
 			setShowingListInsteadOfGrid(newShowingListInsteadOfGrid);
 		}
+	}
+
+	private boolean isShowingListInsteadOfGridPref() {
+		boolean showingListInsteadOfGridLastSet = PreferenceUtils.getPrefDefault(getActivity(),
+				PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET, PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT);
+		if (TextUtils.isEmpty(this.authority)) {
+			return showingListInsteadOfGridLastSet;
+		}
+		return PreferenceUtils.getPrefDefault(getActivity(), PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(this.authority),
+				showingListInsteadOfGridLastSet);
 	}
 
 	private void setShowingListInsteadOfGrid(boolean newShowingListInsteadOfGrid) {
