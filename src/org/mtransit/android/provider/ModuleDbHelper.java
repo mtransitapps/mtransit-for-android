@@ -18,10 +18,19 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 		return TAG;
 	}
 
+	/**
+	 * Override if multiple {@link ModuleDbHelper} implementations in same app.
+	 */
 	protected static final String DB_NAME = "module.db";
 
-	public static final int DB_VERSION = 7;
+	/**
+	 * Override if multiple {@link ModuleDbHelper} in same app.
+	 */
+	public static final int DB_VERSION = 8;
 
+	/**
+	 * Override if multiple {@link ModuleDbHelper} implementations in same app.
+	 */
 	protected static final String PREF_KEY_LAST_UPDATE_MS = "pModuleLastUpdate";
 
 	public static final String T_MODULE = POIDbHelper.T_POI;
