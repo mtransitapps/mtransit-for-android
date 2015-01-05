@@ -11,6 +11,7 @@ MonTransit BETA gives you access to transit agencies information in the greater 
 - CIT Roussillon Bus on Google Play (free): http://goo.gl/AHZMf9
 - CIT Sorel-Varennes Bus on Google Play (free): http://goo.gl/DXSj7G
 - CIT Sud-Ouest Bus on Google Play (free): http://goo.gl/0lKFAF
+- CIT Vallée du Richelieu Bus on Google Play (free): http://goo.gl/561ksW
 - STL Bus (Laval) on Google Play (free): http://goo.gl/oVpn75
 - RTL Bus (Longueuil) on Google Play (free): http://goo.gl/dU2es1
 - AMT Express Bus (Montreal) on Google Play (free): http://goo.gl/bQmUrH
