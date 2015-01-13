@@ -8,11 +8,14 @@ To leave the test: http://goo.gl/rZ7J59
 
 MonTransit BETA gives you access to transit agencies information in the greater Montreal: 
 - CIT Chambly-Richelieu-Carignan (Blus) Bus on Google Play (free): http://goo.gl/bB3uXn
+- CIT Haut-St-Laurent Bus on Google Play (free): http://goo.gl/63tdvt
 - CIT Laurentides Bus on Google Play (free): http://goo.gl/2X5O0v
+- CIT La Presqu'Île Bus on Google Play (free): http://goo.gl/BGW1tZ
 - CIT Roussillon Bus on Google Play (free): http://goo.gl/AHZMf9
 - CIT Sorel-Varennes Bus on Google Play (free): http://goo.gl/DXSj7G
 - CIT Sud-Ouest Bus on Google Play (free): http://goo.gl/0lKFAF
 - CIT Vallée du Richelieu Bus on Google Play (free): http://goo.gl/561ksW
+- CRT Lanaudière Bus on Google Play (free): http://goo.gl/u4wWcI
 - STL Bus (Laval) on Google Play (free): http://goo.gl/oVpn75
 - RTL Bus (Longueuil) on Google Play (free): http://goo.gl/dU2es1
 - AMT Express Bus (Montreal) on Google Play (free): http://goo.gl/bQmUrH
