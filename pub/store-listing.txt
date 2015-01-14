@@ -16,6 +16,7 @@ MonTransit BETA gives you access to transit agencies information in the greater 
 - CIT Sud-Ouest Bus on Google Play (free): http://goo.gl/0lKFAF
 - CIT Vallée du Richelieu Bus on Google Play (free): http://goo.gl/561ksW
 - CRT Lanaudière Bus on Google Play (free): http://goo.gl/u4wWcI
+- MRC L'Assomption (RTCR) Bus on Google Play (free): http://goo.gl/PCpIIT
 - STL Bus (Laval) on Google Play (free): http://goo.gl/oVpn75
 - RTL Bus (Longueuil) on Google Play (free): http://goo.gl/dU2es1
 - AMT Express Bus (Montreal) on Google Play (free): http://goo.gl/bQmUrH
