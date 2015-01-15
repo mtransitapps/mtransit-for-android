@@ -16,6 +16,7 @@ MonTransit BETA vous donne accès à l'information des agences de transport en c
 - Bus CIT Sud-Ouest sur Google Play (gratuit) : http://goo.gl/0lKFAF
 - Bus CIT Vallée du Richelieu sur Google Play (gratuit): http://goo.gl/561ksW
 - Bus CRT Lanaudière sur Google Play (gratuit) : http://goo.gl/u4wWcI
+- Bus MRC Deux-Montagnes (L'Express d'Oka) Bus sur Google Play (gratuit) : http://goo.gl/ciI3YT
 - Bus MRC L'Assomption (RTCR) sur Google Play (gratuit) : http://goo.gl/PCpIIT
 - Bus MRC Les Moulins (Urbis) sur Google Play (gratuit) : http://goo.gl/TZTNvl
 - Bus STL (Laval) sur Google Play (gratuit) : http://goo.gl/oVpn75
