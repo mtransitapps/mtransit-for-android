@@ -20,6 +20,7 @@ MonTransit BETA gives you access to transit agencies information in the greater 
 - MRC Deux-Montagnes (Oka Express) Bus on Google Play (free): http://goo.gl/ciI3YT
 - MRC L'Assomption (RTCR) Bus on Google Play (free): http://goo.gl/PCpIIT
 - MRC Les Moulins (Urbis) Bus on Google Play (free): http://goo.gl/TZTNvl
+- Ste-Julie Bus on Google Play (free): http://goo.gl/lpqCFM
 - STL Bus (Laval) on Google Play (free): http://goo.gl/oVpn75
 - RTL Bus (Longueuil) on Google Play (free): http://goo.gl/dU2es1
 - AMT Express Bus (Montreal) on Google Play (free): http://goo.gl/bQmUrH
