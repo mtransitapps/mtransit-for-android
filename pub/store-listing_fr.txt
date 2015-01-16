@@ -11,6 +11,7 @@ MonTransit BETA vous donne accès à l'information des agences de transport en c
 - Bus CIT Haut-St-Laurent sur Google Play (gratuit) : http://goo.gl/63tdvt
 - Bus CIT Laurentides sur Google Play (gratuit) : http://goo.gl/2X5O0v
 - Bus CIT La Presqu'Île sur Google Play (gratuit) : http://goo.gl/BGW1tZ
+- Bus CIT Le Richelain sur Google Play (gratuit) : http://goo.gl/C4RvHu
 - Bus CIT Roussillon sur Google Play (gratuit) : http://goo.gl/AHZMf9
 - Bus CIT Sorel-Varennes sur Google Play (gratuit) : http://goo.gl/DXSj7G
 - Bus CIT Sud-Ouest sur Google Play (gratuit) : http://goo.gl/0lKFAF
