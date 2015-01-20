@@ -406,7 +406,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			if (selectedPosition != null && selectedPosition > 0) {
 				if (view != null) {
 					inflateList(view);
-					MTLog.d(this, "onLoadFinished() > list.setSelection(%s)", selectedPosition);
+					((AbsListView) view.findViewById(R.id.list)).setSelection(selectedPosition - 1); // show 1 more stop on top of the list
 				}
 			}
 		} else { // map
