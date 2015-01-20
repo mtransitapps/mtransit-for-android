@@ -2,11 +2,11 @@ package org.mtransit.android.ui.view;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SpanUtils;
-import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
@@ -393,8 +393,8 @@ public class POIViewController implements MTLog.Loggable {
 		CharSequence line2CS = null;
 		if (dataProvider != null && status != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
-			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getStatus(context, dataProvider.getNowToTheMinute(), TimeUtils.HALF_HOUR_IN_MS, null,
-					10, null);
+			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getStatus(context, dataProvider.getNowToTheMinute(), TimeUnit.MINUTES.toMillis(30),
+					null, 10, null);
 			if (lines != null && lines.size() >= 1) {
 				line1CS = lines.get(0).first;
 				line2CS = lines.get(0).second;

@@ -1,6 +1,7 @@
 package org.mtransit.android.ui.fragment;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -9,7 +10,6 @@ import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.StringUtils;
-import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.data.DataSourceProvider;
@@ -385,7 +385,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 		switchView(getView());
 		this.restartSearchLater = new RestartSearchLater();
-		this.handler.postDelayed(this.restartSearchLater, TimeUtils.ONE_SECOND_IN_MS);
+		this.handler.postDelayed(this.restartSearchLater, TimeUnit.SECONDS.toMillis(1));
 	}
 
 	public void setSearchQuery(String query, boolean alreadyInSearchView) {

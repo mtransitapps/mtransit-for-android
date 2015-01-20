@@ -3,6 +3,7 @@ package org.mtransit.android.provider;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -58,12 +59,12 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	private static final String PREF_KEY_LAST_UPDATE_MS = ModuleDbHelper.PREF_KEY_LAST_UPDATE_MS;
 
-	private static final long MODULE_MAX_VALIDITY_IN_MS = TimeUtils.ONE_WEEK_IN_MS;
-	private static final long MODULE_VALIDITY_IN_MS = TimeUtils.ONE_DAY_IN_MS;
+	private static final long MODULE_MAX_VALIDITY_IN_MS = TimeUnit.DAYS.toMillis(7);
+	private static final long MODULE_VALIDITY_IN_MS = TimeUnit.DAYS.toMillis(1);
 
-	private static final long MODULE_STATUS_MAX_VALIDITY_IN_MS = 10 * TimeUtils.ONE_MINUTE_IN_MS;
-	private static final long MODULE_STATUS_VALIDITY_IN_MS = 30 * TimeUtils.ONE_SECOND_IN_MS;
-	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS = 10 * TimeUtils.ONE_SECOND_IN_MS;
+	private static final long MODULE_STATUS_MAX_VALIDITY_IN_MS = TimeUnit.MINUTES.toMillis(10);
+	private static final long MODULE_STATUS_VALIDITY_IN_MS = TimeUnit.SECONDS.toMillis(30);
+	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS = TimeUnit.SECONDS.toMillis(10);
 
 	private static ModuleDbHelper dbHelper;
 

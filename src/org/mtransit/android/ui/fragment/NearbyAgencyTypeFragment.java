@@ -455,7 +455,8 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			this.emptyText = String.format("%s stops found within %s km", dataSize, distanceInKm);
 		}
 		// IF not enough POIs found AND maximum around location not reached DO
-		if (dataSize < LocationUtils.MIN_NEARBY_LIST && this.ad.aroundDiff < LocationUtils.MAX_AROUND_DIFF) {
+		if (dataSize < LocationUtils.MIN_NEARBY_LIST
+				&& !LocationUtils.searchComplete(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff)) {
 			// try with larger around location
 			LocationUtils.incAroundDiff(this.ad);
 			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);

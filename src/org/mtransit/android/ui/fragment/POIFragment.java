@@ -367,7 +367,8 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	@Override
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
-		if (CollectionUtils.getSize(data) < LocationUtils.MIN_NEARBY_LIST && this.ad.aroundDiff < LocationUtils.MAX_AROUND_DIFF) {
+		if (CollectionUtils.getSize(data) < LocationUtils.MIN_NEARBY_LIST
+				&& !LocationUtils.searchComplete(poim.poi.getLat(), poim.poi.getLng(), this.ad.aroundDiff)) {
 			LocationUtils.incAroundDiff(this.ad);
 			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
 			return;

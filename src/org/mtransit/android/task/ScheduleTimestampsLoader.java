@@ -2,8 +2,8 @@ package org.mtransit.android.task;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
-import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ScheduleTimestamps;
@@ -40,7 +40,7 @@ public class ScheduleTimestampsLoader extends MTAsyncTaskLoaderV4<ArrayList<Sche
 			return this.timestamps;
 		}
 		this.timestamps = new ArrayList<Schedule.Timestamp>();
-		long endsAtInMs = this.startsAtInMs + TimeUtils.ONE_DAY_IN_MS;
+		long endsAtInMs = this.startsAtInMs + TimeUnit.DAYS.toMillis(1);
 		ScheduleTimestampsFilter scheduleFilter = new ScheduleTimestampsFilter(this.rts, this.startsAtInMs, endsAtInMs);
 		Collection<ScheduleProviderProperties> scheduleProviders = DataSourceProvider.get(getContext()).getTargetAuthorityScheduleProviders(
 				this.rts.getAuthority());

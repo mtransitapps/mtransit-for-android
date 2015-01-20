@@ -59,6 +59,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		this.aroundDiff = aroundDiff;
 		this.minCoverage = minCoverage;
 		this.maxSize = maxSize;
+		this.hideDecentOnly = hideDecentOnly;
 	}
 
 	@Override
@@ -95,7 +96,8 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 			LocationUtils.Area area = LocationUtils.getArea(lat, lng, ad.aroundDiff);
 			Iterator<AgencyProperties> it = agencies.iterator();
 			while (it.hasNext()) {
-				if (!it.next().isInArea(area)) {
+				AgencyProperties agency = it.next();
+				if (!agency.isInArea(area)) {
 					it.remove();
 				}
 			}
@@ -108,7 +110,8 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 			LocationUtils.Area area = LocationUtils.getArea(lat, lng, aroundDiff);
 			Iterator<AgencyProperties> it = allTypeAgencies.iterator();
 			while (it.hasNext()) {
-				if (!it.next().isInArea(area)) {
+				AgencyProperties agency = it.next();
+				if (!agency.isInArea(area)) {
 					it.remove();
 				}
 			}

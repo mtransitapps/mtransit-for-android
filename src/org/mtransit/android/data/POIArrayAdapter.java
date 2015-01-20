@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.WeakHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
@@ -1351,8 +1352,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		CharSequence line2CS = null;
 		if (status != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
-			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule
-					.getStatus(getContext(), getNowToTheMinute(), TimeUtils.HALF_HOUR_IN_MS, null, 10, null);
+			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getStatus(getContext(), getNowToTheMinute(), TimeUnit.MINUTES.toMillis(30), null, 10,
+					null);
 			if (lines != null && lines.size() >= 1) {
 				line1CS = lines.get(0).first;
 				line2CS = lines.get(0).second;
