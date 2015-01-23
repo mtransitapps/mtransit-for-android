@@ -291,7 +291,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	public Boolean isServiceUpdateWarning(Context context) {
 		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0 || this.inFocus || !areServiceUpdatesUseful()) {
 			findServiceUpdates(context, false);
-			return null;
 		}
 		return ServiceUpdate.isSeverityWarning(this.serviceUpdates);
 	}
