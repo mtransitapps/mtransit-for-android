@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 import java.util.Comparator;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.MTLog;
 
 import android.content.Context;
@@ -129,15 +130,15 @@ public enum DataSourceType {
 		public int compare(DataSourceType lType, DataSourceType rType) {
 			Context context = this.contextWR == null ? null : this.contextWR.get();
 			if (context == null) {
-				return 0;
+				return ComparatorUtils.SAME;
 			}
 			if (lType.equals(rType)) {
-				return 0;
+				return ComparatorUtils.SAME;
 			}
 			if (TYPE_MODULE.equals(lType)) {
-				return +1;
+				return ComparatorUtils.AFTER;
 			} else if (TYPE_MODULE.equals(rType)) {
-				return -1;
+				return ComparatorUtils.BEFORE;
 			}
 			String lShortName = context.getString(lType.getShortNameResId());
 			String rShortName = context.getString(rType.getShortNameResId());

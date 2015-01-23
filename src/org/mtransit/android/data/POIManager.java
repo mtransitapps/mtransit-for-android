@@ -9,6 +9,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.LocationUtils.LocationPOI;
+import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.SpanUtils;
@@ -45,6 +46,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@Override
 	public String getLogTag() {
+		if (this.poi != null) {
+			return TAG + "-" + this.poi.getUUID();
+		}
 		return TAG;
 	}
 
@@ -162,35 +166,38 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return this.status != null;
 	}
 
-	public void setStatus(POIStatus status) {
-		if (status == null) {
-			this.status = null;
-			return;
+	public boolean setStatus(POIStatus newStatus) {
+		if (newStatus == null || !newStatus.isUseful()) {
+			return false; // no change
 		}
 		switch (getStatusType()) {
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			if (!(status instanceof Schedule)) {
-				MTLog.w(this, "Unexpected schedule status '%s'!", status);
-				return;
+			if (!(newStatus instanceof Schedule)) {
+				MTLog.w(this, "setStatus() > Unexpected schedule status '%s'!", newStatus);
+				return false; // no change
 			}
 			break;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			if (!(status instanceof AvailabilityPercent)) {
-				MTLog.w(this, "Unexpected availability percent status '%s'!", status);
-				return;
+			if (!(newStatus instanceof AvailabilityPercent)) {
+				MTLog.w(this, "setStatus() > Unexpected availability percent status '%s'!", newStatus);
+				return false; // no change
 			}
 			break;
 		case POI.ITEM_STATUS_TYPE_APP:
-			if (!(status instanceof AppStatus)) {
-				MTLog.w(this, "Unexpected app status '%s'!", status);
-				return;
+			if (!(newStatus instanceof AppStatus)) {
+				MTLog.w(this, "setStatus() > Unexpected app status '%s'!", newStatus);
+				return false; // no change
 			}
 			break;
 		default:
-			MTLog.w(this, "Unexpected status '%s'!", status);
-			return;
+			MTLog.w(this, "setStatus() > Unexpected status '%s'!", newStatus);
+			return false; // no change
 		}
-		this.status = status;
+		if (this.status != null && this.status.getReadFromSourceAtInMs() > newStatus.getReadFromSourceAtInMs()) {
+			return false; // no change
+		}
+		this.status = newStatus;
+		return true; // change
 	}
 
 	public POIStatus getStatusOrNull() {
@@ -533,12 +540,12 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			POI lhsPoi = lhs == null ? null : lhs.poi;
 			POI rhsPoi = rhs == null ? null : rhs.poi;
 			if (lhsPoi == null && rhsPoi == null) {
-				return 0;
+				return ComparatorUtils.SAME;
 			}
 			if (lhsPoi == null) {
-				return -1;
+				return ComparatorUtils.BEFORE;
 			} else if (rhsPoi == null) {
-				return +1;
+				return ComparatorUtils.AFTER;
 			}
 			return lhsPoi.compareToAlpha(null, rhsPoi);
 		}

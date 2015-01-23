@@ -2,6 +2,7 @@ package org.mtransit.android.task;
 
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -69,9 +70,10 @@ public class StatusLoader implements MTLog.Loggable {
 			return false;
 		}
 		HashSet<StatusProviderProperties> providers = DataSourceProvider.get(context).getTargetAuthorityStatusProviders(poim.poi.getAuthority());
-		if (providers != null) {
-			if (providers.size() > 0) {
-				StatusProviderProperties provider = providers.iterator().next();
+		if (providers != null && providers.size() > 0) {
+			Iterator<StatusProviderProperties> it = providers.iterator();
+			while (it.hasNext()) {
+				StatusProviderProperties provider = it.next();
 				StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter); // , null, timestamp);
 				task.executeOnExecutor(getFetchStatusExecutor());
 			}
@@ -120,11 +122,13 @@ public class StatusLoader implements MTLog.Loggable {
 			if (poim == null) {
 				return;
 			}
-			poim.setStatus(result);
-			if (listener == null) {
-				return;
+			boolean statusChanged = poim.setStatus(result);
+			if (statusChanged) {
+				if (this.listener == null) {
+					return;
+				}
+				this.listener.onStatusLoaded(result);
 			}
-			listener.onStatusLoaded(result);
 		}
 
 		public POIStatus call() throws Exception {

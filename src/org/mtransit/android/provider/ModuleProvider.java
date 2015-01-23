@@ -64,7 +64,9 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	private static final long MODULE_STATUS_MAX_VALIDITY_IN_MS = TimeUnit.MINUTES.toMillis(10);
 	private static final long MODULE_STATUS_VALIDITY_IN_MS = TimeUnit.SECONDS.toMillis(30);
-	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS = TimeUnit.SECONDS.toMillis(10);
+	private static final long MODULE_STATUS_VALIDITY_IN_FOCUS_IN_MS = TimeUnit.SECONDS.toMillis(15);
+	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS = TimeUnit.SECONDS.toMillis(20);
+	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_FOCUS_IN_MS = TimeUnit.SECONDS.toMillis(10);
 
 	private static ModuleDbHelper dbHelper;
 
@@ -288,7 +290,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 				modules.add(module);
 			}
 			deleteAllModuleData();
-			insertDefaultPOIs(this, modules);
+			insertModulesLockDB(this, modules);
 			PreferenceUtils.savePrefLcl(getContext(), PREF_KEY_LAST_UPDATE_MS, newLastUpdateInMs, true); // sync
 			return modules;
 		} catch (Exception e) {
@@ -297,7 +299,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		}
 	}
 
-	private static synchronized int insertDefaultPOIs(POIProviderContract provider, Collection<Module> defaultPOIs) {
+	private static synchronized int insertModulesLockDB(POIProviderContract provider, Collection<Module> defaultPOIs) {
 		int affectedRows = 0;
 		SQLiteDatabase db = null;
 		try {
@@ -339,7 +341,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	public POIStatus getNewModuleStatus(AppStatus.AppStatusFilter filter) {
 		long newLastUpdateInMs = TimeUtils.currentTimeMillis();
 		boolean appInstalled = PackageManagerUtils.isAppInstalled(getContext(), filter.getPkg());
-		return new AppStatus(filter.getTargetUUID(), newLastUpdateInMs, getStatusMaxValidityInMs(), appInstalled);
+		return new AppStatus(filter.getTargetUUID(), newLastUpdateInMs, getStatusMaxValidityInMs(), newLastUpdateInMs, appInstalled);
 	}
 
 	@Override
@@ -348,8 +350,8 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@Override
-	public POIStatus getCachedStatus(String targetUUID) {
-		return StatusProvider.getCachedStatusS(this, targetUUID);
+	public POIStatus getCachedStatus(StatusFilter statusFilter) {
+		return StatusProvider.getCachedStatusS(this, statusFilter.getTargetUUID());
 	}
 
 	@Override
@@ -449,12 +451,18 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@Override
-	public long getStatusValidityInMs() {
+	public long getStatusValidityInMs(boolean inFocus) {
+		if (inFocus) {
+			return MODULE_STATUS_VALIDITY_IN_FOCUS_IN_MS;
+		}
 		return MODULE_STATUS_VALIDITY_IN_MS;
 	}
 
 	@Override
-	public long getMinDurationBetweenRefreshInMs() {
+	public long getMinDurationBetweenRefreshInMs(boolean inFocus) {
+		if (inFocus) {
+			return MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_FOCUS_IN_MS;
+		}
 		return MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS;
 	}
 
