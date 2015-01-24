@@ -8,11 +8,13 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.HomePOILoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 
 import android.app.Activity;
@@ -32,7 +34,7 @@ import android.widget.AbsListView;
 import android.widget.TextView;
 
 public class HomeFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
-		FavoriteManager.FavoriteUpdateListener, SwipeRefreshLayout.OnRefreshListener {
+		FavoriteManager.FavoriteUpdateListener, SwipeRefreshLayout.OnRefreshListener, POIArrayAdapter.TypeHeaderButtonsClickListener {
 
 	private static final String TAG = HomeFragment.class.getSimpleName();
 
@@ -293,10 +295,22 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.adapter = new POIArrayAdapter(getActivity());
 		this.adapter.setTag(getLogTag());
 		this.adapter.setFavoriteUpdateListener(this);
-		this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_ALL_NEARBY);
+		this.adapter.setShowBrowseHeaderSection(true);
+		this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);
+		this.adapter.setShowTypeHeaderNearby(true);
+		this.adapter.setOnTypeHeaderButtonsClickListener(this);
 		View view = getView();
 		setupView(view);
 		switchView(view);
+	}
+
+	@Override
+	public boolean onTypeHeaderButtonClick(int buttonId, DataSourceType type) {
+		if (buttonId == POIArrayAdapter.TypeHeaderButtonsClickListener.BUTTON_MORE) {
+			((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newNearbyInstance(null, type.getId()));
+			return true; // handled
+		}
+		return false; // not handled
 	}
 
 	private void setupView(View view) {

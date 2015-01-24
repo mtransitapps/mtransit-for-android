@@ -60,6 +60,7 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -112,7 +113,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private boolean showFavorite = true; // show favorite star
 
+	private boolean showBrowseHeaderSection = false; // show header with shortcut to agency type screens
+
 	private int showTypeHeader = TYPE_HEADER_NONE;
+
+	private boolean showTypeHeaderNearby = false; // show nearby header instead of default type header
 
 
 	private ViewGroup manualLayout;
@@ -159,12 +164,20 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		this.showFavorite = showFavorite;
 	}
 
+	public void setShowBrowseHeaderSection(boolean showBrowseHeaderSection) {
+		this.showBrowseHeaderSection = showBrowseHeaderSection;
+	}
+
 	public void setShowTypeHeader(int showTypeHeader) {
 		this.showTypeHeader = showTypeHeader;
 	}
 
+	public void setShowTypeHeaderNearby(boolean showTypeHeaderNearby) {
+		this.showTypeHeaderNearby = showTypeHeaderNearby;
+	}
 
-	private static final int VIEW_TYPE_COUNT = 7;
+
+	private static final int VIEW_TYPE_COUNT = 8;
 
 	@Override
 	public int getViewTypeCount() {
@@ -177,11 +190,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		// RETURN MUST MATCH getViewTypeCount() !
 		POIManager poim = getItem(position);
 		if (poim == null) {
+			if (this.showBrowseHeaderSection && position == 0) {
+				return 0;
+			}
 			if (this.showTypeHeader != TYPE_HEADER_NONE) {
 				if (this.poisByType != null) {
 					Integer type = getItemTypeHeader(position);
 					if (type != null) {
-						return 6; // TYPE HEADER
+						return 7; // TYPE HEADER
 					}
 				}
 			}
@@ -194,24 +210,24 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			switch (statusType) {
 			case POI.ITEM_STATUS_TYPE_SCHEDULE:
-				return 4; // MODULE & APP STATUS
+				return 5; // MODULE & APP STATUS
 			default:
-				return 5; // MODULE
+				return 6; // MODULE
 			}
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
 			switch (statusType) {
 			case POI.ITEM_STATUS_TYPE_SCHEDULE:
-				return 2; // RTS & SCHEDULE
+				return 3; // RTS & SCHEDULE
 			default:
-				return 3; // RTS
+				return 4; // RTS
 			}
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 		default:
 			switch (statusType) {
 			case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-				return 0; // DEFAULT & AVAILABILITY %
+				return 1; // DEFAULT & AVAILABILITY %
 			default:
-				return 1; // DEFAULT
+				return 2; // DEFAULT
 			}
 		}
 	}
@@ -220,6 +236,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	public int getCount() {
 		int count = 0;
 		if (this.poisByType != null) {
+			if (this.showBrowseHeaderSection) {
+				count++;
+			}
 			for (Integer type : this.poisByType.keySet()) {
 				if (this.showTypeHeader != TYPE_HEADER_NONE) {
 					count++;
@@ -234,6 +253,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	public int getPosition(POIManager item) {
 		int position = 0;
 		if (this.poisByType != null) {
+			if (this.showBrowseHeaderSection) {
+				position++;
+			}
 			for (Integer type : this.poisByType.keySet()) {
 				if (this.showTypeHeader != TYPE_HEADER_NONE) {
 					position++;
@@ -252,6 +274,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	public POIManager getItem(int position) {
 		if (this.poisByType != null) {
 			int index = 0;
+			if (this.showBrowseHeaderSection) {
+				index++;
+			}
 			for (Integer type : this.poisByType.keySet()) {
 				if (this.showTypeHeader != TYPE_HEADER_NONE) {
 					index++;
@@ -281,6 +306,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	public Integer getItemTypeHeader(int position) {
 		if (this.showTypeHeader != TYPE_HEADER_NONE && this.poisByType != null) {
 			int index = 0;
+			if (this.showBrowseHeaderSection) {
+				index++;
+			}
 			for (Integer type : this.poisByType.keySet()) {
 				if (index == position) {
 					return type;
@@ -296,6 +324,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	public View getView(int position, View convertView, ViewGroup parent) {
 		POIManager poim = getItem(position);
 		if (poim == null) {
+			if (this.showBrowseHeaderSection && position == 0) {
+				return getBrowseHeaderSectionView(convertView, parent);
+			}
 			if (this.showTypeHeader != TYPE_HEADER_NONE) {
 				Integer typeId = getItemTypeHeader(position);
 				if (typeId != null) {
@@ -319,6 +350,46 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			MTLog.w(this, "getView() > Unknow view type at position %s!", position);
 			return null; // CRASH!!!
 		}
+	}
+
+	private View getBrowseHeaderSectionView(View convertView, ViewGroup parent) {
+		if (convertView == null) {
+			convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header, parent, false);
+		}
+		LinearLayout gridLL = (LinearLayout) convertView.findViewById(R.id.gridLL);
+		gridLL.removeAllViews();
+		if (this.poisByType != null) {
+			int availableButtons = 0;
+			View gridLine = null;
+			for (Integer typeId : this.poisByType.keySet()) {
+				if (availableButtons == 0) {
+					gridLine = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header_line, this.manualLayout, false);
+					gridLL.addView(gridLine);
+					availableButtons = 2;
+				}
+				final DataSourceType dst = DataSourceType.parseId(typeId);
+				View btn = gridLine.findViewById(availableButtons == 2 ? R.id.btn1 : R.id.btn2);
+				TextView btnTv = (TextView) gridLine.findViewById(availableButtons == 2 ? R.id.btn1Tv : R.id.btn2Tv);
+				btnTv.setText(dst.getAllStringResId());
+				if (dst.getAbIconResId() != -1) {
+					btnTv.setCompoundDrawablesWithIntrinsicBounds(dst.getAbIconResId(), 0, 0, 0);
+				} else {
+					btnTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+				}
+				btn.setOnClickListener(new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						MTLog.v(TAG, "onClick(%s)", v);
+						MTLog.d(TAG, "onClick() > type: %s", dst);
+						onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_ALL, dst);
+					}
+				});
+				btn.setVisibility(View.VISIBLE);
+				availableButtons--;
+			}
+		}
+		return convertView;
 	}
 
 	private void updateCommonViewManual(int position, View convertView) {
@@ -910,7 +981,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			convertView.setTag(holder);
 		}
 		TypeHeaderViewHolder holder = (TypeHeaderViewHolder) convertView.getTag();
-		holder.nameTv.setText(getContext().getString(type.getPoiShortNameResId()));
+		holder.nameTv.setText(this.showTypeHeaderNearby ? type.getNearbyNameResId() : type.getPoiShortNameResId());
 		if (type.getMenuResId() != -1) {
 			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getMenuResId(), 0, 0, 0);
 		}
