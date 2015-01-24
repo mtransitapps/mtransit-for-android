@@ -358,16 +358,21 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 		LinearLayout gridLL = (LinearLayout) convertView.findViewById(R.id.gridLL);
 		gridLL.removeAllViews();
-		if (this.poisByType != null) {
+		if (this.poisByType == null || this.poisByType.size() <= 1) {
+			gridLL.setVisibility(View.GONE);
+		} else {
 			int availableButtons = 0;
 			View gridLine = null;
 			for (Integer typeId : this.poisByType.keySet()) {
+				final DataSourceType dst = DataSourceType.parseId(typeId);
+				if (availableButtons == 0 && dst == DataSourceType.TYPE_MODULE) {
+					continue;
+				}
 				if (availableButtons == 0) {
 					gridLine = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header_line, this.manualLayout, false);
 					gridLL.addView(gridLine);
 					availableButtons = 2;
 				}
-				final DataSourceType dst = DataSourceType.parseId(typeId);
 				View btn = gridLine.findViewById(availableButtons == 2 ? R.id.btn1 : R.id.btn2);
 				TextView btnTv = (TextView) gridLine.findViewById(availableButtons == 2 ? R.id.btn1Tv : R.id.btn2Tv);
 				btnTv.setText(dst.getAllStringResId());
@@ -388,6 +393,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				btn.setVisibility(View.VISIBLE);
 				availableButtons--;
 			}
+			gridLL.setVisibility(View.VISIBLE);
 		}
 		return convertView;
 	}

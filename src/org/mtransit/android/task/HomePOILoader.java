@@ -33,6 +33,8 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 	}
 
 	private static final int NB_MAX_BY_TYPE = 2;
+	private static final int NB_MAX_BY_TYPE_ONE_TYPE = 4;
+	private int nbMaxByType = NB_MAX_BY_TYPE;
 
 	private double lat;
 	private double lng;
@@ -54,6 +56,9 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 		HashSet<String> favoriteUUIDs = FavoriteManager.findFavoriteUUIDs(getContext());
 		ArrayList<DataSourceType> availableAgencyTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
 		if (availableAgencyTypes != null) {
+			if (availableAgencyTypes.size() <= 1) {
+				this.nbMaxByType = NB_MAX_BY_TYPE_ONE_TYPE;
+			}
 			float minDistanceInMeters = LocationUtils.getAroundCoveredDistance(this.lat, this.lng, LocationUtils.MIN_AROUND_DIFF);
 			if (minDistanceInMeters < LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS) {
 				minDistanceInMeters = LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS;
@@ -83,12 +88,12 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 						it.remove();
 						continue;
 					}
-				} else if (nbKept >= NB_MAX_BY_TYPE && lastKeptDistance != poim.getDistance()) {
+				} else if (nbKept >= this.nbMaxByType && lastKeptDistance != poim.getDistance()) {
 					it.remove();
 					continue;
 				}
 			}
-			if (nbKept >= NB_MAX_BY_TYPE && lastKeptDistance != poim.getDistance() && poim.getDistance() > minDistanceInMeters) {
+			if (nbKept >= this.nbMaxByType && lastKeptDistance != poim.getDistance() && poim.getDistance() > minDistanceInMeters) {
 				it.remove();
 				continue;
 			}
@@ -112,7 +117,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 			if (LocationUtils.searchComplete(typeLat, typeLng, typeAd.aroundDiff)) {
 				break;
 			}
-			if (CollectionUtils.getSize(typePOIs) > NB_MAX_BY_TYPE
+			if (CollectionUtils.getSize(typePOIs) > this.nbMaxByType
 					&& LocationUtils.getAroundCoveredDistance(typeLat, typeLng, typeAd.aroundDiff) >= typeMinCoverageInMeters) {
 				break;
 			}
