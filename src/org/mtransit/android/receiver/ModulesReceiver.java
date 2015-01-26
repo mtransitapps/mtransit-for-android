@@ -25,6 +25,8 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 		if (DataSourceProvider.isSet()) {
 			if (DataSourceProvider.isProvider(context, pkg)) {
 				DataSourceProvider.resetIfNecessary(context);
+			} else if (Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(intent.getAction()) || Intent.ACTION_PACKAGE_REMOVED.equals(intent.getAction())) {
+				DataSourceProvider.resetIfNecessary(context);
 			}
 		} else {
 			ProviderInfo[] providers = PackageManagerUtils.findContentProvidersWithMetaData(context, pkg);
