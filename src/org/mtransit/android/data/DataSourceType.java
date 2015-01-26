@@ -15,32 +15,37 @@ public enum DataSourceType {
 			R.string.agency_type_light_rail_short_name, R.string.agency_type_light_rail_all, //
 			R.string.agency_type_light_rail_stations_short_name, R.string.agency_type_light_rail_nearby, //
 			R.drawable.ic_menu_train_holo_light, R.drawable.ic_menu_train_holo_dark, //
-			true), //
+			true, true, true, true), //
 	TYPE_SUBWAY(1, // GTFS - Metro
 			R.string.agency_type_subway_short_name, R.string.agency_type_subway_all, //
 			R.string.agency_type_subway_stations_short_name, R.string.agency_type_subway_nearby, //
 			R.drawable.ic_menu_subway_holo_light, R.drawable.ic_menu_subway_holo_dark, //
-			true), //
+			true, true, true, true), //
 	TYPE_RAIL(2, // GTFS - Train
 			R.string.agency_type_rail_short_name, R.string.agency_type_rail_all, //
 			R.string.agency_type_rail_stations_short_name, R.string.agency_type_rail_nearby, //
 			R.drawable.ic_menu_train_holo_light, R.drawable.ic_menu_train_holo_dark, //
-			true), //
+			true, true, true, true), //
 	TYPE_BUS(3, // GTFS - Bus
 			R.string.agency_type_bus_short_name, R.string.agency_type_bus_all, //
 			R.string.agency_type_bus_stops_short_name, R.string.agency_type_bus_nearby, //
 			R.drawable.ic_menu_bus_holo_light, R.drawable.ic_menu_bus_holo_dark, //
-			true), //
+			true, true, true, true), //
 	TYPE_BIKE(100, // like Bixi, Velib
 			R.string.agency_type_bike_short_name, R.string.agency_type_bike_all, //
 			R.string.agency_type_bike_stations_short_name, R.string.agency_type_bike_nearby, //
 			R.drawable.ic_menu_bike_holo_light, R.drawable.ic_menu_bike_holo_dark, //
-			true), //
+			true, true, true, true), //
+	TYPE_PLACE(666, //
+			R.string.agency_type_place_short_name, R.string.agency_type_place_all, //
+			R.string.agency_type_place_app_short_name, R.string.agency_type_place_nearby, //
+			R.drawable.ic_menu_place_holo_light, R.drawable.ic_menu_place_holo_dark, //
+			false, false, false, true), //
 	TYPE_MODULE(999, //
 			R.string.agency_type_module_short_name, R.string.agency_type_module_all, //
 			R.string.agency_type_module_app_short_name, R.string.agency_type_module_nearby, //
 			R.drawable.ic_menu_play_store_holo_light, R.drawable.ic_menu_play_store_holo_dark, //
-			false), //
+			true, true, true, false), //
 	;
 
 	private static final String TAG = DataSourceType.class.getSimpleName();
@@ -59,10 +64,16 @@ public enum DataSourceType {
 
 	private int abIconResId;
 
+	private boolean menuList;
+
+	private boolean homeScreen;
+
+	private boolean nearbyScreen;
+
 	private boolean searchable;
 
 	DataSourceType(int id, int shortNameResId, int allStringResId, int poiShortNameResId, int nearbyNameResId, int menuResId, int abIconResId,
-			boolean searchable) {
+			boolean menuList, boolean homeScreen, boolean nearbyScreen, boolean searchable) {
 		this.id = id;
 		this.shortNameResId = shortNameResId;
 		this.allStringResId = allStringResId;
@@ -70,6 +81,9 @@ public enum DataSourceType {
 		this.nearbyNameResId = nearbyNameResId;
 		this.menuResId = menuResId;
 		this.abIconResId = abIconResId;
+		this.menuList = menuList;
+		this.homeScreen = homeScreen;
+		this.nearbyScreen = nearbyScreen;
 		this.searchable = searchable;
 	}
 
@@ -101,6 +115,18 @@ public enum DataSourceType {
 		return abIconResId;
 	}
 
+	public boolean isMenuList() {
+		return this.menuList;
+	}
+
+	public boolean isHomeScreen() {
+		return this.homeScreen;
+	}
+
+	public boolean isNearbyScreen() {
+		return this.nearbyScreen;
+	}
+
 	public boolean isSearchable() {
 		return searchable;
 	}
@@ -117,6 +143,8 @@ public enum DataSourceType {
 			return TYPE_BUS;
 		case 100:
 			return TYPE_BIKE;
+		case 666:
+			return TYPE_PLACE;
 		case 999:
 			return TYPE_MODULE;
 		default:
@@ -154,6 +182,10 @@ public enum DataSourceType {
 			if (TYPE_MODULE.equals(lType)) {
 				return ComparatorUtils.AFTER;
 			} else if (TYPE_MODULE.equals(rType)) {
+				return ComparatorUtils.BEFORE;
+			} else if (TYPE_PLACE.equals(lType)) {
+				return ComparatorUtils.AFTER;
+			} else if (TYPE_PLACE.equals(rType)) {
 				return ComparatorUtils.BEFORE;
 			}
 			String lShortName = context.getString(lType.getShortNameResId());

@@ -32,6 +32,10 @@
     <string name="agency_type_bike_all">Vélos</string>
     <string name="agency_type_bike_stations_short_name">Stations de Vélo</string>
     <string name="agency_type_bike_nearby">Stations Proches</string>
+    <string name="agency_type_place_short_name">Lieu</string>
+    <string name="agency_type_place_all">Lieux</string>
+    <string name="agency_type_place_app_short_name">Lieux</string>
+    <string name="agency_type_place_nearby">Lieux Proches</string>
     <string name="agency_type_module_short_name">+</string>
     <string name="agency_type_module_all">+</string>
     <string name="agency_type_module_app_short_name">+</string>
@@ -47,6 +51,8 @@
     <string name="no_results">Aucun Résultats</string>
     <string name="module_label">+</string>
     <string name="module_short_name">+</string>
+    <string name="place_label">Lieux</string>
+    <string name="place_short_name">Lieux</string>
     <string name="view_stop">Voir l\'arrêt</string>
     <string name="view_stop_route">Voir la ligne de l\'arrêt</string>
     <string name="view_stop_route_and_route">Voir la ligne %s</string>

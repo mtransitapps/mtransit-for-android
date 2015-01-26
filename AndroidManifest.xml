@@ -155,5 +155,21 @@
                 android:name="@string/status_provider_target"
                 android:value="@string/module_authority" />
         </provider>
+        <!-- PLACE PROVIDER -->
+        <provider
+            android:name="org.mtransit.android.provider.PlaceProvider"
+            android:authorities="@string/place_authority"
+            android:exported="false"
+            android:readPermission="org.mtransit.android.provider.permission.READ_PROVIDER" >
+            <meta-data
+                android:name="@string/agency_provider"
+                android:value="@string/agency_provider" />
+            <meta-data
+                android:name="@string/agency_provider_type"
+                android:value="666" />
+            <meta-data
+                android:name="@string/poi_provider"
+                android:value="@string/poi_provider" />
+        </provider>
     </application>
 </manifest>

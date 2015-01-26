@@ -712,7 +712,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 				markerColor = ((Module) optPoim.poi).getColorInt();
 			} else {
 				AgencyProperties agency = getAgencyOrNull();
-				if (agency != null) {
+				if (agency != null && agency.hasColor()) {
 					markerColor = agency.getColorInt();
 				}
 			}

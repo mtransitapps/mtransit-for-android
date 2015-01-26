@@ -56,15 +56,18 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 		HashSet<String> favoriteUUIDs = FavoriteManager.findFavoriteUUIDs(getContext());
 		ArrayList<DataSourceType> availableAgencyTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
 		if (availableAgencyTypes != null) {
-			if (availableAgencyTypes.size() <= 1) {
+			if (availableAgencyTypes.size() <= 2) {
 				this.nbMaxByType = NB_MAX_BY_TYPE_ONE_TYPE;
 			}
-			float minDistanceInMeters = LocationUtils.getAroundCoveredDistance(this.lat, this.lng, LocationUtils.MIN_AROUND_DIFF);
+			float minDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(this.lat, this.lng, LocationUtils.MIN_AROUND_DIFF);
 			if (minDistanceInMeters < LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS) {
 				minDistanceInMeters = LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS;
 			}
 			for (DataSourceType type : availableAgencyTypes) {
-				ArrayList<POIManager> typePOIs = findNearby(getContext(), type, this.lat, this.lng, minDistanceInMeters);
+				if (!type.isHomeScreen()) {
+					continue;
+				}
+				ArrayList<POIManager> typePOIs = findAllNearby(getContext(), type, this.lat, this.lng, minDistanceInMeters, this.nbMaxByType);
 				filterTypePOIs(favoriteUUIDs, typePOIs, minDistanceInMeters);
 				CollectionUtils.sort(typePOIs, POIManager.POI_ALPHA_COMPARATOR);
 				this.pois.addAll(typePOIs);
@@ -107,18 +110,19 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 		}
 	}
 
-	private ArrayList<POIManager> findNearby(Context context, DataSourceType type, double typeLat, double typeLng, float typeMinCoverageInMeters) {
+	private static ArrayList<POIManager> findAllNearby(Context context, DataSourceType type, double typeLat, double typeLng, float typeMinCoverageInMeters,
+			int nbMaxByType) {
 		ArrayList<POIManager> typePOIs = new ArrayList<POIManager>();
 		LocationUtils.AroundDiff typeAd = LocationUtils.getNewDefaultAroundDiff();
 		int typeMaxSize = LocationUtils.MAX_NEARBY_LIST;
 		while (true) {
-			Collection<AgencyProperties> typeAgencies = DataSourceProvider.get(context).getTypeDataSources(getContext(), type.getId());
+			Collection<AgencyProperties> typeAgencies = DataSourceProvider.get(context).getTypeDataSources(context, type.getId());
 			typePOIs = findNearby(context, typeLat, typeLng, typeAd, typeMaxSize, typeMinCoverageInMeters, typeAgencies);
 			if (LocationUtils.searchComplete(typeLat, typeLng, typeAd.aroundDiff)) {
 				break;
 			}
-			if (CollectionUtils.getSize(typePOIs) > this.nbMaxByType
-					&& LocationUtils.getAroundCoveredDistance(typeLat, typeLng, typeAd.aroundDiff) >= typeMinCoverageInMeters) {
+			if (CollectionUtils.getSize(typePOIs) > nbMaxByType
+					&& LocationUtils.getAroundCoveredDistanceInMeters(typeLat, typeLng, typeAd.aroundDiff) >= typeMinCoverageInMeters) {
 				break;
 			}
 			LocationUtils.incAroundDiff(typeAd);
@@ -126,7 +130,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 		return typePOIs;
 	}
 
-	private ArrayList<POIManager> findNearby(Context context, double typeLat, double typeLng, LocationUtils.AroundDiff typeAd, int typeMaxSize,
+	private static ArrayList<POIManager> findNearby(Context context, double typeLat, double typeLng, LocationUtils.AroundDiff typeAd, int typeMaxSize,
 			float typeMinCoverageInMeters, Collection<AgencyProperties> typeAgencies) {
 		ArrayList<POIManager> typePOIs = new ArrayList<POIManager>();
 		NearbyPOIListLoader.filterAgencies(typeAgencies, typeLat, typeLng, typeAd);

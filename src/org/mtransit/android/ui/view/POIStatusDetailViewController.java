@@ -75,7 +75,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		if (poim != null && poim.poi instanceof RouteTripStop) {
 			availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter( //
 					((RouteTripStop) poim.poi).route.getColorInt(), PorterDuff.Mode.SRC_IN);
-		} else if (agency != null) {
+		} else if (agency != null && agency.hasColor()) {
 			availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter( //
 					agency.getColorInt(), PorterDuff.Mode.SRC_IN);
 		}

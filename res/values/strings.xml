@@ -32,6 +32,10 @@
     <string name="agency_type_bike_all">Bikes</string>
     <string name="agency_type_bike_stations_short_name">Bike Stations</string>
     <string name="agency_type_bike_nearby">Nearby Stations</string>
+    <string name="agency_type_place_short_name">Place</string>
+    <string name="agency_type_place_all">Places</string>
+    <string name="agency_type_place_app_short_name">Places</string>
+    <string name="agency_type_place_nearby">Nearby Places</string>
     <string name="agency_type_module_short_name">+</string>
     <string name="agency_type_module_all">+</string>
     <string name="agency_type_module_app_short_name">+</string>
@@ -47,6 +51,8 @@
     <string name="no_results">No Results</string>
     <string name="module_label">+</string>
     <string name="module_short_name">+</string>
+    <string name="place_label">Places</string>
+    <string name="place_short_name">Places</string>
     <string name="view_stop">View stop</string>
     <string name="view_stop_route">View stop route</string>
     <string name="view_stop_route_and_route">View route %s</string>

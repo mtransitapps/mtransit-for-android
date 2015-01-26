@@ -29,6 +29,7 @@ import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.fragment.NearbyFragment;
 import org.mtransit.android.ui.fragment.POIFragment;
 import org.mtransit.android.ui.fragment.RTSRouteFragment;
 
@@ -360,6 +361,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 						context.getString(R.string.download_on_store), //
 				};
 			}
+		case POI.ITEM_ACTION_TYPE_PLACE:
+			return new CharSequence[] { defaultAction };
 		default:
 			MTLog.w(this, "unexpected action type '%s'!", this.poi.getActionsType());
 			return new CharSequence[] { defaultAction };
@@ -375,6 +378,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			return onActionsItemClickRTS(activity, itemClicked, listener);
 		case POI.ITEM_ACTION_TYPE_APP:
 			return onActionsItemClickApp(activity, itemClicked, listener);
+		case POI.ITEM_ACTION_TYPE_PLACE:
+			return onActionsItemClickPlace(activity, itemClicked, listener);
 		default:
 			MTLog.w(this, "unexpected action type '%s'!", this.poi.getActionsType());
 			return false; // NOT HANDLED
@@ -391,6 +396,15 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			return true; // HANDLED
 		case 2:
 			PackageManagerUtils.uninstallApp(activity, ((Module) poi).getPkg());
+			return true; // HANDLED
+		}
+		return false; // NOT HANDLED
+	}
+
+	private boolean onActionsItemClickPlace(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener) {
+		switch (itemClicked) {
+		case 0:
+			((MainActivity) activity).addFragmentToStack(NearbyFragment.newPoiInstance(null, poi.getUUID(), poi.getAuthority(), this, null));
 			return true; // HANDLED
 		}
 		return false; // NOT HANDLED
@@ -430,6 +444,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
 			return true;
 		case POI.ITEM_ACTION_TYPE_APP:
+		case POI.ITEM_ACTION_TYPE_PLACE:
 			return false;
 		default:
 			MTLog.w(this, "unexpected action type '%s'!", this.poi.getActionsType());
@@ -444,10 +459,13 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_APP:
 			return false; // show long-click menu
+		case POI.ITEM_ACTION_TYPE_PLACE:
+			AgencyProperties agency = null;
+			((MainActivity) activity).addFragmentToStack(NearbyFragment.newPoiInstance(null, poi.getUUID(), poi.getAuthority(), this, agency));
+			return true; // nearby screen shown
 		}
 		if (activity instanceof MainActivity) {
-			MainActivity mainActivity = (MainActivity) activity;
-			mainActivity.addFragmentToStack(POIFragment.newInstance(this.poi.getUUID(), this.poi.getAuthority(), null, this));
+			((MainActivity) activity).addFragmentToStack(POIFragment.newInstance(this.poi.getUUID(), this.poi.getAuthority(), null, this));
 			return true; // HANDLED
 		}
 		return false; // NOT HANDLED

@@ -3,6 +3,7 @@ package org.mtransit.android.ui.fragment;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -309,7 +310,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	@Override
 	public void onModulesUpdated() {
 		if (this.adapter != null) {
-			ArrayList<DataSourceType> newAvailableAgencyTypes = DataSourceProvider.get(getActivity()).getAvailableAgencyTypes();
+			ArrayList<DataSourceType> newAvailableAgencyTypes = filterAgencyTypes(DataSourceProvider.get(getActivity()).getAvailableAgencyTypes());
 			if (CollectionUtils.getSize(newAvailableAgencyTypes) == CollectionUtils.getSize(this.adapter.getAvailableAgencyTypes())) {
 				return;
 			}
@@ -353,7 +354,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		if (!TextUtils.isEmpty(fixedOnPoiAuthority) && !fixedOnPoiAuthority.equals(this.fixedOnPoiUAuthority)) {
 			this.fixedOnPoiUAuthority = fixedOnPoiAuthority;
 			resetFixedOnPoiAgency();
-			resetFixedOnPoi();
 			resetIsFixedOnPoi();
 		}
 		String newFixedOnPoiUUID = BundleUtils.getString(EXTRA_FIXED_ON_POI_UUID, bundles);
@@ -435,11 +435,23 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		this.findNearbyLocationTask.execute(this.nearbyLocation);
 	}
 
+	private ArrayList<DataSourceType> filterAgencyTypes(ArrayList<DataSourceType> availableAgencyTypes) {
+		if (availableAgencyTypes != null) {
+			Iterator<DataSourceType> it = availableAgencyTypes.iterator();
+			while (it.hasNext()) {
+				if (!it.next().isNearbyScreen()) {
+					it.remove();
+				}
+			}
+		}
+		return availableAgencyTypes;
+	}
+
 	private void initTabsAndViewPager(final View view) {
 		if (view == null) {
 			return;
 		}
-		final ArrayList<DataSourceType> newAgencyTypes = DataSourceProvider.get(getActivity()).getAvailableAgencyTypes();
+		final ArrayList<DataSourceType> newAgencyTypes = filterAgencyTypes(DataSourceProvider.get(getActivity()).getAvailableAgencyTypes());
 		if (CollectionUtils.getSize(newAgencyTypes) == 0) {
 			return;
 		}
@@ -756,7 +768,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				return ((RouteTripStop) poim.poi).route.getColorInt();
 			} else {
 				AgencyProperties agency = getFixedOnPoiAgencyOrNull();
-				if (agency != null) {
+				if (agency != null && agency.hasColor()) {
 					return agency.getColorInt();
 				}
 			}

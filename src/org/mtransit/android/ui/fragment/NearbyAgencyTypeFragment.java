@@ -427,7 +427,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			}
 			this.typeAgenciesAuthority = NearbyPOIListLoader.findTypeAgenciesAuthority(getActivity(), this.typeId, this.nearbyLocation.getLatitude(),
 					this.nearbyLocation.getLongitude(), this.ad.aroundDiff);
-			float minDistanceInMeters = LocationUtils.getAroundCoveredDistance(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(),
+			float minDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(),
 					LocationUtils.MIN_AROUND_DIFF);
 			if (minDistanceInMeters < LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS) {
 				minDistanceInMeters = LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS;
@@ -451,7 +451,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
 		int dataSize = CollectionUtils.getSize(data);
 		if (this.nearbyLocation != null) {
-			float distanceInKm = LocationUtils.getAroundCoveredDistance(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), ad.aroundDiff) / 1000;
+			float distanceInKm = LocationUtils.getAroundCoveredDistanceInMeters(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), ad.aroundDiff) / 1000;
 			this.emptyText = String.format("%s stops found within %s km", dataSize, distanceInKm);
 		}
 		// IF not enough POIs found AND maximum around location not reached DO

@@ -495,7 +495,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 				markerColor = ((RouteTripStop) poim.poi).route.getColorInt();
 			} else {
 				AgencyProperties agency = getAgencyOrNull();
-				if (agency != null) {
+				if (agency != null && agency.hasColor()) {
 					markerColor = agency.getColorInt();
 				}
 			}

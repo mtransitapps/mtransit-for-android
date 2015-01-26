@@ -1,6 +1,7 @@
 package org.mtransit.android.data;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
@@ -91,7 +92,19 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 	}
 
 	private void initAllAgencyTypes() {
-		this.allAgencyTypes = DataSourceProvider.get(this.context).getAvailableAgencyTypes();
+		this.allAgencyTypes = filterAgencyTypes(DataSourceProvider.get(this.context).getAvailableAgencyTypes());
+	}
+
+	private ArrayList<DataSourceType> filterAgencyTypes(ArrayList<DataSourceType> availableAgencyTypes) {
+		if (availableAgencyTypes != null) {
+			Iterator<DataSourceType> it = availableAgencyTypes.iterator();
+			while (it.hasNext()) {
+				if (!it.next().isMenuList()) {
+					it.remove();
+				}
+			}
+		}
+		return availableAgencyTypes;
 	}
 
 	private int getAllAgencyTypesCount() {
@@ -100,7 +113,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 
 	@Override
 	public void onModulesUpdated() {
-		ArrayList<DataSourceType> newAllAgencyTypes = DataSourceProvider.get(this.context).getAvailableAgencyTypes();
+		ArrayList<DataSourceType> newAllAgencyTypes = filterAgencyTypes(DataSourceProvider.get(this.context).getAvailableAgencyTypes());
 		if (CollectionUtils.getSize(this.allAgencyTypes) != CollectionUtils.getSize(newAllAgencyTypes)) {
 			this.allAgencyTypes = newAllAgencyTypes; // force reset
 			super.notifyDataSetChanged();

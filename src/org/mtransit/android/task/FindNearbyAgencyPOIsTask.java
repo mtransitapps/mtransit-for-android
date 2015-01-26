@@ -48,7 +48,7 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> 
 		}
 		ArrayList<POIManager> pois = DataSourceManager.findPOIs(this.context, this.authority, poiFilter);
 		LocationUtils.updateDistance(pois, this.lat, this.lng);
-		float maxDistance = LocationUtils.getAroundCoveredDistance(this.lat, this.lng, this.aroundDiff);
+		float maxDistance = LocationUtils.getAroundCoveredDistanceInMeters(this.lat, this.lng, this.aroundDiff);
 		LocationUtils.removeTooFar(pois, maxDistance);
 		LocationUtils.removeTooMuchWhenNotInCoverage(pois, this.minCoverage, this.maxSize);
 		return pois;
