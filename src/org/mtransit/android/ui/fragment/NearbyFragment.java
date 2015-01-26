@@ -661,8 +661,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			}
 		}
 		this.lastPageSelected = position;
-		this.selectedTypeId = this.adapter.getTypeId(position);
 		if (this.adapter != null) {
+			this.selectedTypeId = this.adapter.getTypeId(position);
 			this.adapter.setLastVisibleFragmentPosition(this.lastPageSelected);
 		}
 		PreferenceUtils.savePrefLcl(getActivity(), PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE, this.selectedTypeId, false);
