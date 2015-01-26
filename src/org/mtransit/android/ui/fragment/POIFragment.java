@@ -80,6 +80,9 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	@Override
 	public String getLogTag() {
+		if (this.poim != null && this.poim.poi != null) {
+			return TAG + "-" + this.poim.poi.getUUID();
+		}
 		return TAG;
 	}
 
@@ -961,6 +964,14 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 				poim.addRemoteFavorite(getActivity(), isFavorite(), this);
 				return true; // handled
 			}
+			break;
+		case R.id.menu_show_directions:
+			POIManager poim2 = getPoimOrNull();
+			if (poim2 != null) {
+				MapUtils.showDirection(getActivity(), poim2.poi.getLat(), poim2.poi.getLng(), null, null, poim2.poi.getName());
+				return true; // handled
+			}
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}

@@ -26,6 +26,7 @@ import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.NavigationDrawerController;
 import org.mtransit.android.ui.view.SlidingTabLayout;
+import org.mtransit.android.util.MapUtils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -41,6 +42,9 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -272,6 +276,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
 		restoreInstanceState(savedInstanceState, getArguments());
 	}
 
@@ -747,6 +752,41 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				}
 			}
 		}
+	}
+
+	private MenuItem showDirectionsMenuItem;
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.menu_nearby, menu);
+		this.showDirectionsMenuItem = menu.findItem(R.id.menu_show_directions);
+		updateDirectionsMenuItem();
+	}
+
+	private void updateDirectionsMenuItem() {
+		if (this.showDirectionsMenuItem == null) {
+			return;
+		}
+		if (isFixedOnPoi()) {
+			this.showDirectionsMenuItem.setVisible(true);
+		} else {
+			this.showDirectionsMenuItem.setVisible(false);
+		}
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_show_directions:
+			POIManager fixedOnPoim = getFixedOnPoiOrNull();
+			if (fixedOnPoim != null) {
+				MapUtils.showDirection(getActivity(), fixedOnPoim.poi.getLat(), fixedOnPoim.poi.getLng(), null, null, fixedOnPoim.poi.getName());
+				return true; // handled
+			}
+			break;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

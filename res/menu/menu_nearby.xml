@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="org.mtransit.android.MainActivity" >
     <item
-        android:id="@+id/menu_nearby"
-        android:icon="@drawable/ic_menu_nearby_holo_dark"
-        android:orderInCategory="499"
-        android:title="@string/menu_action_nearby"
+        android:id="@+id/menu_show_directions"
+        android:icon="@drawable/ic_menu_direction_holo_dark"
+        android:title="@string/menu_action_show_directions"
+        android:visible="false"
         app:showAsAction="ifRoom"/>
 </menu>
