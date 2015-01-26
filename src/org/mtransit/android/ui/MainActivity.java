@@ -169,7 +169,11 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	}
 
 	private void clearFragmentBackStackImmediate(FragmentManager fm) {
-		fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+		try {
+			fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while clearing fragment stack!");
+		}
 	}
 
 
@@ -300,6 +304,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onConfigurationChanged(newConfig);
 		}
+		AdsUtils.adaptToScreenSize(this, newConfig);
 	}
 
 	private WeakHashMap<Fragment, Object> fragmentsToPopWR = new WeakHashMap<Fragment, Object>();
