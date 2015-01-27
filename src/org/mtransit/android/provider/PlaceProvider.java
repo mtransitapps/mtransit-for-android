@@ -243,6 +243,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 			ArrayList<Place> result = new ArrayList<Place>();
 			JSONObject json = new JSONObject(jsonString);
 			if (json.has(JSON_RESULTS)) {
+				int score = 1000;
 				JSONArray jResults = json.getJSONArray(JSON_RESULTS);
 				for (int i = 0; i < jResults.length(); i++) {
 					try {
