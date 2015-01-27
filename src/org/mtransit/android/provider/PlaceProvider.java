@@ -107,8 +107,8 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		return PlaceDbHelper.T_PLACE;
 	}
 
-	public static final String[] PROJECTION_PLACE = new String[] { PlaceColumns.T_PLACE_K_PROVIDER_ID, PlaceColumns.T_PLACE_K_LANG,
-			PlaceColumns.T_PLACE_K_READ_AT_IN_MS };
+	private static final String[] PROJECTION_PLACE = new String[] { POIColumns.T_POI_K_SCORE_META_OPT, //
+			PlaceColumns.T_PLACE_K_PROVIDER_ID, PlaceColumns.T_PLACE_K_LANG, PlaceColumns.T_PLACE_K_READ_AT_IN_MS };
 
 	public static final String[] PROJECTION_PLACE_POI = ArrayUtils.addAll(POIProvider.PROJECTION_POI, PROJECTION_PLACE);
 
@@ -143,7 +143,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		sb.append(TEXT_SEARCH_URL_PART_1_BEFORE_KEY).append(getGOOGLE_PLACES_API_KEY(context));
 		sb.append(TEXT_SEARCH_URL_PART_2_BEFORE_LANG).append(LocaleUtils.isFR() ? TEXT_SEARCH_URL_LANG_FRENCH : TEXT_SEARCH_URL_LANG_DEFAULT);
 		if (optLat != null && optLng != null) {
-			sb.append(TEXT_SEARCH_URL_PART_3_BEFORE_LOCATION).append(optLat).append(optLng);
+			sb.append(TEXT_SEARCH_URL_PART_3_BEFORE_LOCATION).append(optLat).append(',').append(optLng);
 			sb.append(TEXT_SEARCH_URL_PART_4_BEFORE_RADIUS).append(optRadiusInMeters == null ? TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT : optRadiusInMeters);
 		}
 		if (ArrayUtils.getSize(searchKeywords) != 0 && !TextUtils.isEmpty(searchKeywords[0])) {
@@ -180,7 +180,9 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 			url = getTextSearchUrlString(getContext(), poiFilter.getLat(), poiFilter.getLng(), radiusInMeters, null);
 			return ContentProviderConstants.EMPTY_CURSOR; // empty cursor = processed
 		} else if (POIFilter.isSearchKeywords(poiFilter)) {
-			url = getTextSearchUrlString(getContext(), null, null, null, poiFilter.getSearchKeywords());
+			Double lat = poiFilter.getExtraDouble("lat", null);
+			Double lng = poiFilter.getExtraDouble("lng", null);
+			url = getTextSearchUrlString(getContext(), lat, lng, null, poiFilter.getSearchKeywords());
 			return getTextSearchResults(url);
 		} else if (POIFilter.isUUIDFilter(poiFilter)) {
 			return ContentProviderConstants.EMPTY_CURSOR; // empty cursor = processed
@@ -253,6 +255,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 						place.setName(name);
 						place.setLat(jLocation.getDouble(JSON_LAT));
 						place.setLng(jLocation.getDouble(JSON_LNG));
+						place.setScore(score--);
 						result.add(place);
 					} catch (Exception e) {
 						MTLog.w(this, e, "Error while parsing JSON result '%s'!", i);
@@ -267,11 +270,15 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	}
 
 	private Cursor getTextSearchResults(ArrayList<Place> places) {
-		MatrixCursor cursor = new MatrixCursor(PlaceProvider.PROJECTION_PLACE_POI);
+		MatrixCursor cursor = new MatrixCursor(getPOIProjection());
 		if (places != null) {
 			for (Place place : places) {
-				cursor.addRow(new Object[] { place.getUUID(), place.getId(), place.getName(), place.getLat(), place.getLng(), place.getType(),
-						place.getStatusType(), place.getActionsType(), place.getProviderId(), place.getLang(), place.getReadAtInMs() });
+				cursor.addRow(new Object[] { //
+				place.getUUID(), place.getId(), place.getName(), place.getLat(), place.getLng(), //
+						place.getType(), place.getStatusType(), place.getActionsType(), //
+						place.getScore(), //
+						place.getProviderId(), place.getLang(), place.getReadAtInMs() //
+				});
 			}
 		}
 		return cursor;

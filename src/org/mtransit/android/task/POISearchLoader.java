@@ -180,7 +180,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
 			if (agencies != null) {
 				for (AgencyProperties agency : agencies) {
-					FindSearchTask task = new FindSearchTask(this.context, agency, this.query);
+					FindSearchTask task = new FindSearchTask(this.context, agency, this.query, this.userLocation);
 					taskList.add(getFetchAgencySearchExecutor().submit(task));
 				}
 			}
@@ -196,7 +196,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			clearFetchAgencySearchTasks();
 			LocationUtils.updateDistance(typePois, this.userLocation);
 			CollectionUtils.sort(typePois, this.poiSearchComparator);
-			if (!keepAll && typePois.size() > 2) {
+			if (!this.keepAll && typePois.size() > 2) {
 				typePois = new ArrayList<POIManager>(typePois.subList(0, 2));
 			}
 			return typePois;
@@ -279,11 +279,13 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 		private Context context;
 		private AgencyProperties agency;
 		private String query;
+		private Location userLocation;
 
-		public FindSearchTask(Context context, AgencyProperties agency, String query) {
+		public FindSearchTask(Context context, AgencyProperties agency, String query, Location userLocation) {
 			this.context = context;
 			this.agency = agency;
 			this.query = query;
+			this.userLocation = userLocation;
 		}
 
 		@Override
@@ -293,6 +295,10 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			}
 			POIFilter poiFilter = new POIFilter(new String[] { this.query });
 			poiFilter.addExtra("decentOnly", true);
+			if (this.userLocation != null) {
+				poiFilter.addExtra("lat", this.userLocation.getLatitude());
+				poiFilter.addExtra("lng", this.userLocation.getLongitude());
+			}
 			return DataSourceManager.findPOIs(this.context, this.agency.getAuthority(), poiFilter);
 		}
 
