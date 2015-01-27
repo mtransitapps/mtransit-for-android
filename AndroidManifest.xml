@@ -84,6 +84,10 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
+        <!-- PREFERENCES SCREEN -->
+        <activity
+            android:name=".ui.PreferencesActivity"
+            android:theme="@android:style/Theme.Material.Light.DarkActionBar" />
         <!-- GOOGLE MOBILE ADS (AD MOB) -->
         <activity
             android:name="com.google.android.gms.ads.AdActivity"

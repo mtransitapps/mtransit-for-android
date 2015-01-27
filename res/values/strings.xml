@@ -4,6 +4,7 @@
     <string name="home">Home</string>
     <string name="favorites">Favorites</string>
     <string name="nearby">Nearby</string>
+    <string name="settings">Settings</string>
     <string name="menu_action_nearby">Nearby</string>
     <string name="menu_action_search">Search</string>
     <string name="search_hint">Search MonTransit</string>
@@ -70,4 +71,10 @@
     <string name="local_time_and_time">%s local time</string>
     <string name="information">Information</string>
     <string name="warning">Warning</string>
+    <string name="display_pref_cat_title">Display</string>
+    <string name="unit_pref_title">Units</string>
+    <string name="unit_pref_summary">Metric(km/m) or Imperial(mi/ft).</string>
+    <string name="unit_pref_dialog_title">Units</string>
+    <string name="unit_pref_meter">Metric (km/m)</string>
+    <string name="unit_pref_imperial">Imperial (mi/ft)</string>
 </resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <!-- DISPLAY -->
+    <PreferenceCategory
+        android:key="pDisplay"
+        android:title="@string/display_pref_cat_title" >
+        <!-- UNITS -->
+        <ListPreference
+            android:defaultValue="meter"
+            android:dialogTitle="@string/unit_pref_dialog_title"
+            android:entries="@array/unit_pref_entries"
+            android:entryValues="@array/unit_pref_values"
+            android:key="pUnits"
+            android:summary="@string/unit_pref_summary"
+            android:title="@string/unit_pref_title" />
+    </PreferenceCategory>
+</PreferenceScreen>
