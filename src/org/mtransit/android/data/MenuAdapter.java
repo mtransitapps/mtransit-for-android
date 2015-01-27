@@ -7,12 +7,14 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ui.widget.MTBaseAdapter;
+import org.mtransit.android.ui.PreferencesActivity;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 import org.mtransit.android.ui.fragment.FavoritesFragment;
 import org.mtransit.android.ui.fragment.HomeFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -39,24 +41,17 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 	private static final int VIEW_TYPE_COUNT = 5;
 
 	private static final int ITEM_INDEX_HOME = 0;
-	// private static final int ITEM_INDEX_SEARCH = 0;
 	private static final int ITEM_INDEX_FAVORITE = 1;
 	private static final int ITEM_INDEX_NEARBY = 2;
-	// private static final int ITEM_INDEX_DIRECTIONS = 3;
-	// private static final int ITEM_INDEX_MAPS = 4;
 
-	// private static final int ITEM_INDEX_DYNAMIC_HEADER = 5;
 
 	private static final int ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR = 3;
 
 	private static final int STATIC_ITEMS_BEFORE_DYNAMIC = ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR + 1;
 
 	private static final int ITEM_INDEX_AFTER_SEPARATOR = 0;
-	// private static final int ITEM_INDEX_SETTINGS = 1;
-	// private static final int ITEM_INDEX_HELP = ITEM_INDEX_AFTER_START + 2;
-	// private static final int ITEM_INDEX_SEND_FEEDBACK = 2;
-	// private static final int STATIC_ITEMS_AFTER_DYNAMIC = 4;
-	private static final int STATIC_ITEMS_AFTER_DYNAMIC = 0;
+	private static final int ITEM_INDEX_SETTINGS = 1;
+	private static final int STATIC_ITEMS_AFTER_DYNAMIC = 2;
 
 	private static final String ITEM_ID_AGENCYTYPE_START_WITH = "agencytype-";
 	private static final String ITEM_ID_STATIC_START_WITH = "static-";
@@ -335,6 +330,10 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		}
 	}
 
+	private int getSecondaryIndexItemAt(int position) {
+		final int secondaryPosition = position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size();
+		return secondaryPosition;
+	}
 
 	public View getSecondarView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
@@ -345,21 +344,15 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 			convertView.setTag(holder);
 		}
 		MenuItemSecondaryViewHolder holder = (MenuItemSecondaryViewHolder) convertView.getTag();
-		// final int secondaryPosition = position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size();
-		// if (secondaryPosition == ITEM_INDEX_SETTINGS) {
-		// holder.nameTv.setText(R.string.settings);
-		// holder.icon.setImageResource(R.drawable.ic_menu_settings);
-		// } else if (secondaryPosition == ITEM_INDEX_HELP) {
-		// holder.nameTv.setText(R.string.help);
-		// holder.icon.setImageResource(R.drawable.ic_menu_help);
-		// } else if (secondaryPosition == ITEM_INDEX_SEND_FEEDBACK) {
-		// holder.nameTv.setText(R.string.send_feedback);
-		// holder.icon.setImageResource(R.drawable.ic_menu_feedback);
-		// } else {
-		holder.nameTv.setText(null);
-		holder.icon.setImageDrawable(null);
-		MTLog.w(this, "No secondary view view expected at position '%s'!", position);
-		// }
+		final int secondaryPosition = position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size();
+		if (secondaryPosition == ITEM_INDEX_SETTINGS) {
+			holder.nameTv.setText(R.string.settings);
+			holder.icon.setImageResource(R.drawable.ic_action_settings);
+		} else {
+			holder.nameTv.setText(null);
+			holder.icon.setImageDrawable(null);
+			MTLog.w(this, "No secondary view view expected at position '%s'!", position);
+		}
 		return convertView;
 	}
 
