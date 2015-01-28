@@ -14,7 +14,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- WRITE_EXTERNAL_STORAGE: required by Google Maps -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <!-- IN-APP BILLING & SUBSCRIPTIONS -->
+    <!-- GOOGLE PLAY IN-APP BILLING & SUBSCRIPTIONS -->
     <uses-permission android:name="com.android.vending.BILLING" />
     <!-- READ_PROVIDER: required to read modules data -->
     <uses-permission android:name="org.mtransit.android.provider.permission.READ_PROVIDER" />
