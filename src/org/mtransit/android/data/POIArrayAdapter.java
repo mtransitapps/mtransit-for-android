@@ -352,48 +352,54 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
+	private ArrayList<DataSourceType> allAgencyTypes = null;
+
 	private View getBrowseHeaderSectionView(View convertView, ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header, parent, false);
 		}
-		LinearLayout gridLL = (LinearLayout) convertView.findViewById(R.id.gridLL);
-		gridLL.removeAllViews();
-		if (this.poisByType == null || this.poisByType.size() <= 1) {
-			gridLL.setVisibility(View.GONE);
-		} else {
-			int availableButtons = 0;
-			View gridLine = null;
-			for (Integer typeId : this.poisByType.keySet()) {
-				final DataSourceType dst = DataSourceType.parseId(typeId);
-				if (availableButtons == 0 && dst == DataSourceType.TYPE_MODULE) {
-					continue;
-				}
-				if (availableButtons == 0) {
-					gridLine = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header_line, this.manualLayout, false);
-					gridLL.addView(gridLine);
-					availableButtons = 2;
-				}
-				View btn = gridLine.findViewById(availableButtons == 2 ? R.id.btn1 : R.id.btn2);
-				TextView btnTv = (TextView) gridLine.findViewById(availableButtons == 2 ? R.id.btn1Tv : R.id.btn2Tv);
-				btnTv.setText(dst.getAllStringResId());
-				if (dst.getAbIconResId() != -1) {
-					btnTv.setCompoundDrawablesWithIntrinsicBounds(dst.getAbIconResId(), 0, 0, 0);
-				} else {
-					btnTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-				}
-				btn.setOnClickListener(new View.OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-						MTLog.v(TAG, "onClick(%s)", v);
-						MTLog.d(TAG, "onClick() > type: %s", dst);
-						onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_ALL, dst);
+		if (this.allAgencyTypes == null) {
+			LinearLayout gridLL = (LinearLayout) convertView.findViewById(R.id.gridLL);
+			gridLL.removeAllViews();
+			Activity activity = this.activityWR == null ? null : this.activityWR.get();
+			this.allAgencyTypes = DataSourceProvider.get(activity).getAvailableAgencyTypes();
+			if (this.allAgencyTypes == null || this.allAgencyTypes.size() <= 1) {
+				gridLL.setVisibility(View.GONE);
+			} else {
+				int availableButtons = 0;
+				View gridLine = null;
+				for (final DataSourceType dst : this.allAgencyTypes) {
+					if (availableButtons == 0 && dst.getId() == DataSourceType.TYPE_MODULE.getId()) {
+						continue;
 					}
-				});
-				btn.setVisibility(View.VISIBLE);
-				availableButtons--;
+					if (dst.getId() == DataSourceType.TYPE_PLACE.getId()) {
+						continue;
+					}
+					if (availableButtons == 0) {
+						gridLine = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header_line, this.manualLayout, false);
+						gridLL.addView(gridLine);
+						availableButtons = 2;
+					}
+					View btn = gridLine.findViewById(availableButtons == 2 ? R.id.btn1 : R.id.btn2);
+					TextView btnTv = (TextView) gridLine.findViewById(availableButtons == 2 ? R.id.btn1Tv : R.id.btn2Tv);
+					btnTv.setText(dst.getAllStringResId());
+					if (dst.getAbIconResId() != -1) {
+						btnTv.setCompoundDrawablesWithIntrinsicBounds(dst.getAbIconResId(), 0, 0, 0);
+					} else {
+						btnTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+					}
+					btn.setOnClickListener(new View.OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_ALL, dst);
+						}
+					});
+					btn.setVisibility(View.VISIBLE);
+					availableButtons--;
+				}
+				gridLL.setVisibility(View.VISIBLE);
 			}
-			gridLL.setVisibility(View.VISIBLE);
 		}
 		return convertView;
 	}
@@ -491,6 +497,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public void setPois(ArrayList<POIManager> pois) {
 		this.lastNotifyDataSetChanged = -1; // last notify was with old data
+		this.allAgencyTypes = null;
 		this.poisByType = null;
 		if (pois != null) {
 			this.poisByType = new LinkedHashMap<Integer, ArrayList<POIManager>>();
@@ -870,6 +877,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 		this.compassImgsWR.clear();
 		this.poiStatusViewHoldersWR.clear();
+		this.allAgencyTypes = null;
 	}
 
 	@Override
