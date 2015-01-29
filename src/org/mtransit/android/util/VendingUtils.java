@@ -118,7 +118,7 @@ public final class VendingUtils implements MTLog.Loggable {
 		}
 	}
 
-	private static Boolean isHasSubscription(Context context) {
+	public static Boolean isHasSubscription(Context context) {
 		if (hasSubscription == null) {
 			if (PreferenceUtils.hasPrefLcl(context, PREF_KEY_HAS_SUBSCRIPTION)) {
 				boolean newHasSubscription = PreferenceUtils.getPrefLcl(context, PREF_KEY_HAS_SUBSCRIPTION, PREF_KEY_HAS_SUBSCRIPTION_DEFAULT);
