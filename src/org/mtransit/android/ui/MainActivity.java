@@ -10,6 +10,7 @@ import org.mtransit.android.ui.fragment.SearchFragment;
 import org.mtransit.android.util.AdsUtils;
 import org.mtransit.android.util.AnalyticsUtils;
 import org.mtransit.android.util.MapUtils;
+import org.mtransit.android.util.VendingUtils;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -24,7 +25,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-public class MainActivity extends MTActivityWithLocation implements FragmentManager.OnBackStackChangedListener, AnalyticsUtils.Trackable {
+public class MainActivity extends MTActivityWithLocation implements FragmentManager.OnBackStackChangedListener, AnalyticsUtils.Trackable,
+		VendingUtils.OnVendingResultListener, DataSourceProvider.ModulesUpdateListener {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -62,8 +64,27 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		this.navigationDrawerController.setup(savedInstanceState);
 
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
-		AdsUtils.setupAd(this);
+		DataSourceProvider.addModulesUpdateListerner(this);
 		MapUtils.initMapAsync(this);
+	}
+
+	@Override
+	public void onModulesUpdated() {
+		AdsUtils.onModulesUpdated(this);
+	}
+
+	@Override
+	public void onVendingResult(Boolean hasSubscription) {
+		if (hasSubscription != null) {
+			AdsUtils.setShowingAds(!hasSubscription, this);
+		}
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (!VendingUtils.onActivityResult(this, requestCode, resultCode, data)) {
+			super.onActivityResult(requestCode, resultCode, data);
+		}
 	}
 
 	public ActionBarController getAbController() {
@@ -115,6 +136,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 			this.navigationDrawerController.onResume();
 		}
 		AnalyticsUtils.trackScreenView(this, this);
+		VendingUtils.onResume(this, this);
 		AdsUtils.adaptToScreenSize(this, getResources().getConfiguration());
 		onUserLocationChanged(getUserLocation());
 	}
@@ -122,6 +144,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	@Override
 	protected void onPause() {
 		super.onPause();
+		VendingUtils.onPause();
 		AdsUtils.pauseAd(this);
 	}
 
@@ -136,6 +159,8 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	protected void onDestroy() {
 		super.onDestroy();
 		AdsUtils.destroyAd(this);
+		VendingUtils.destroyBilling(this);
+		DataSourceProvider.removeModulesUpdateListerner(this);
 		if (this.abController != null) {
 			this.abController.destroy();
 			this.abController = null;
@@ -274,9 +299,6 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	public int getBackStackEntryCount() {
 		return backStackEntryCount;
 	}
-
-
-
 
 
 	@Override

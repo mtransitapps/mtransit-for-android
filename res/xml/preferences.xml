@@ -14,4 +14,15 @@
             android:summary="@string/unit_pref_summary"
             android:title="@string/unit_pref_title" />
     </PreferenceCategory>
+    <!-- SUPPORT -->
+    <PreferenceCategory
+        android:key="pSupport"
+        android:title="@string/support_pref_cat_title" >
+        <!-- SUBSCRIPTION -->
+        <Preference
+            android:enabled="false"
+            android:key="pSupportSubs"
+            android:summary="@string/ellipsis"
+            android:title="@string/ellipsis" />
+    </PreferenceCategory>
 </PreferenceScreen>

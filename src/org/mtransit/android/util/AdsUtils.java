@@ -7,6 +7,7 @@ import java.util.HashSet;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.ui.MTActivityWithLocation;
 
 import android.app.Activity;
@@ -33,21 +34,30 @@ public final class AdsUtils implements MTLog.Loggable {
 
 	private static Boolean showingAds = null;
 
-	private static Boolean generousUser = null;
 
 	private static Boolean adLoaded = null;
 
 	private static final HashSet<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] { "transit", "transport", "bus", "subway", "metro", "taxi",
 			"bike", "sharing", "velo", "train" }));
 
-	public static void setupAd(Activity activity) {
+	private static void setupAd(Activity activity) {
 		if (!AD_ENABLED) {
 			return;
 		}
-		new SetupAdTask(activity).execute();
+		if (!isShowingAds(activity)) {
+			return;
+		}
+		if (setupAdTask == null) {
+			setupAdTask = new SetupAdTask(activity);
+			setupAdTask.execute();
+		}
 	}
 
+	private static SetupAdTask setupAdTask;
+
 	private static class SetupAdTask extends MTAsyncTask<Void, Void, Boolean> {
+
+		private static final String TAG = AdsUtils.class.getSimpleName() + ">" + SetupAdTask.class.getSimpleName();
 
 		@Override
 		public String getLogTag() {
@@ -66,13 +76,13 @@ public final class AdsUtils implements MTLog.Loggable {
 				return false;
 			}
 			Activity activity = this.activityWR == null ? null : this.activityWR.get();
-			return isShowingAds(activity);
+			return !isCancelled() && isShowingAds(activity);
 		}
 
 		@Override
 		protected void onPostExecute(Boolean result) {
 			Activity activity = this.activityWR == null ? null : this.activityWR.get();
-			if (activity != null && result) {
+			if (activity != null && result && !isCancelled()) { // show ads
 				View adLayout = activity.findViewById(R.id.ad_layout);
 				if (adLayout != null) {
 					AdView adView = (AdView) adLayout.findViewById(R.id.ad);
@@ -94,7 +104,7 @@ public final class AdsUtils implements MTLog.Loggable {
 						adView.loadAd(adRequestBd.build());
 					}
 				}
-			} else {
+			} else { // hide ads
 				hideAds(activity);
 			}
 		}
@@ -158,6 +168,9 @@ public final class AdsUtils implements MTLog.Loggable {
 		if (!AD_ENABLED) {
 			return;
 		}
+		if (!isShowingAds(activity)) {
+			return;
+		}
 		if (isEnoughSpace(configuration)) {
 			if (adLoaded != null && adLoaded) {
 				resumeAd(activity);
@@ -218,13 +231,14 @@ public final class AdsUtils implements MTLog.Loggable {
 		if (!AD_ENABLED) {
 			return;
 		}
-		if (isShowingAds(activity)) {
-			View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
-			if (adLayout != null) {
-				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
-				if (adView != null) {
-					adView.pause();
-				}
+		if (!isShowingAds(activity)) {
+			return;
+		}
+		View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
+		if (adLayout != null) {
+			AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+			if (adView != null) {
+				adView.pause();
 			}
 		}
 	}
@@ -233,13 +247,14 @@ public final class AdsUtils implements MTLog.Loggable {
 		if (!AD_ENABLED) {
 			return;
 		}
-		if (isShowingAds(activity)) {
-			View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
-			if (adLayout != null) {
-				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
-				if (adView != null) {
-					adView.resume();
-				}
+		if (!isShowingAds(activity)) {
+			return;
+		}
+		View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
+		if (adLayout != null) {
+			AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+			if (adView != null) {
+				adView.resume();
 			}
 		}
 	}
@@ -248,40 +263,65 @@ public final class AdsUtils implements MTLog.Loggable {
 		if (!AD_ENABLED) {
 			return;
 		}
-		if (isShowingAds(activity)) {
-			View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
-			if (adLayout != null) {
-				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
-				if (adView != null) {
-					adView.destroy();
-					adLoaded = null;
+		if (!isShowingAds(activity)) {
+			return;
+		}
+		View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
+		if (adLayout != null) {
+			AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+			if (adView != null) {
+				adView.destroy();
+				adLoaded = null;
+				if (setupAdTask != null) {
+					setupAdTask.cancel(true);
 				}
+				setupAdTask = null;
 			}
 		}
 	}
 
-	public static boolean isShowingAds(Context context) {
+	private static final int MIN_AGENCIES_FOR_ADS = 2;
+
+	private static Integer nbAgencies = null;
+
+	public static void onModulesUpdated(Activity activity) {
+		nbAgencies = null; // reset
+		refreshAdStatus(activity);
+	}
+
+	private static boolean isShowingAds(Context context) {
 		if (!AD_ENABLED) {
 			return false;
 		}
-		if (AdsUtils.showingAds == null) {
-			AdsUtils.showingAds = true;
+		if (nbAgencies == null) {
+			nbAgencies = DataSourceProvider.get(context).getAllAgenciesCount();
 		}
-		return AdsUtils.showingAds;
-	}
-
-	public static void setShowingAds(Boolean showingAds) {
-		AdsUtils.showingAds = showingAds;
-	}
-
-	public static boolean isGenerousUser(Context context) {
-		if (AdsUtils.generousUser == null) {
-			AdsUtils.generousUser = false;
+		if (nbAgencies != null && nbAgencies <= MIN_AGENCIES_FOR_ADS) {
+			return false;
 		}
-		return AdsUtils.generousUser;
+		if (showingAds == null) {
+			return false;
+		}
+		return showingAds;
 	}
 
-	public static void setGenerousUser(Boolean generousUser) {
-		AdsUtils.generousUser = generousUser;
+	public static void setShowingAds(Boolean newShowingAds, Activity activity) {
+		showingAds = newShowingAds;
+		refreshAdStatus(activity);
 	}
+
+	private static void refreshAdStatus(Activity activity) {
+		if (isShowingAds(activity)) {
+			if (adLoaded == null || !adLoaded) {
+				setupAd(activity);
+			}
+		} else {
+			if (adLoaded != null && adLoaded) {
+				hideAds(activity);
+				pauseAd(activity);
+			}
+			destroyAd(activity);
+		}
+	}
+
 }

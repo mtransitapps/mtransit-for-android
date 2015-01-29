@@ -47,3 +47,7 @@
    public *;
 }
 # GOOGLE MOBILE ADS (ADMOB) - END
+
+# GOOGLE PLAY IN-APP BILLING - START
+-keep class com.android.vending.billing.**
+# GOOGLE PLAY IN-APP BILLING - END

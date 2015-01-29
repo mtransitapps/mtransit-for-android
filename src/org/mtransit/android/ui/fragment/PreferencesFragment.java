@@ -2,7 +2,9 @@ package org.mtransit.android.ui.fragment;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.ui.fragment.MTPreferenceFragment;
+import org.mtransit.android.util.VendingUtils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,7 +12,8 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 
-public class PreferencesFragment extends MTPreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class PreferencesFragment extends MTPreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener,
+		VendingUtils.OnVendingResultListener {
 
 	private static final String TAG = PreferenceFragment.class.getSimpleName();
 
@@ -19,10 +22,43 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 		return TAG;
 	}
 
+	private static final String SUPPORT_SUBSCRIPTIONS_PREF = "pSupportSubs";
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
+		((Preference) findPreference(SUPPORT_SUBSCRIPTIONS_PREF)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Boolean hasSubscription = VendingUtils.isHasSubscription(PreferencesFragment.this.getActivity());
+				if (hasSubscription == null) {
+				} else if (hasSubscription) {
+					StoreUtils.viewAppPage(getActivity(), getActivity().getPackageName());
+				} else {
+					VendingUtils.purchase(getActivity(), VendingUtils.MONTHLY_SUBSCRIPTION_SKU);
+				}
+				return false;
+			}
+		});
+	}
+
+	@Override
+	public void onVendingResult(Boolean hasSubscription) {
+		Preference supportSubsPref = (Preference) findPreference(SUPPORT_SUBSCRIPTIONS_PREF);
+		if (hasSubscription == null) {
+			supportSubsPref.setTitle(R.string.ellipsis);
+			supportSubsPref.setSummary(R.string.ellipsis);
+			supportSubsPref.setEnabled(false);
+		} else if (hasSubscription) {
+			supportSubsPref.setTitle(R.string.support_subs_cancel_pref_title);
+			supportSubsPref.setSummary(R.string.support_subs_cancel_pref_summary);
+			supportSubsPref.setEnabled(true);
+		} else {
+			supportSubsPref.setTitle(R.string.support_subs_pref_title);
+			supportSubsPref.setSummary(R.string.support_subs_pref_summary);
+			supportSubsPref.setEnabled(true);
+		}
 	}
 
 	@Override
@@ -53,6 +89,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 	@Override
 	public void onResume() {
 		super.onResume();
+		VendingUtils.onResume(getActivity(), this);
 		PreferenceUtils.getPrefDefault(getActivity()).registerOnSharedPreferenceChangeListener(this);
 		setUnitSummary(getActivity());
 	}
@@ -61,6 +98,13 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 	public void onPause() {
 		super.onPause();
 		PreferenceUtils.getPrefDefault(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
+		VendingUtils.onPause();
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		VendingUtils.destroyBilling(this);
 	}
 
 }

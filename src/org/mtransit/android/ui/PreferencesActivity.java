@@ -2,6 +2,7 @@ package org.mtransit.android.ui;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.ui.MTActivity;
+import org.mtransit.android.util.VendingUtils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +28,13 @@ public class PreferencesActivity extends MTActivity {
 		setContentView(R.layout.activity_preferences);
 		getActionBar().setTitle(R.string.settings);
 		getActionBar().setDisplayHomeAsUpEnabled(true);
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (!VendingUtils.onActivityResult(this, requestCode, resultCode, data)) {
+			super.onActivityResult(requestCode, resultCode, data);
+		}
 	}
 
 	@Override
