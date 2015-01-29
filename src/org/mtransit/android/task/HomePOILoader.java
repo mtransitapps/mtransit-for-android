@@ -114,10 +114,11 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 			int nbMaxByType) {
 		ArrayList<POIManager> typePOIs = new ArrayList<POIManager>();
 		LocationUtils.AroundDiff typeAd = LocationUtils.getNewDefaultAroundDiff();
+		Double lastTypeAroundDiff = null;
 		int typeMaxSize = LocationUtils.MAX_NEARBY_LIST;
 		while (true) {
 			Collection<AgencyProperties> typeAgencies = DataSourceProvider.get(context).getTypeDataSources(context, type.getId());
-			typePOIs = findNearby(context, typeLat, typeLng, typeAd, typeMaxSize, typeMinCoverageInMeters, typeAgencies);
+			typePOIs = findNearby(context, typeLat, typeLng, typeAd, lastTypeAroundDiff, typeMaxSize, typeMinCoverageInMeters, typeAgencies);
 			if (LocationUtils.searchComplete(typeLat, typeLng, typeAd.aroundDiff)) {
 				break;
 			}
@@ -125,15 +126,20 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 					&& LocationUtils.getAroundCoveredDistanceInMeters(typeLat, typeLng, typeAd.aroundDiff) >= typeMinCoverageInMeters) {
 				break;
 			}
+			if (CollectionUtils.getSize(typePOIs) == 0) {
+				lastTypeAroundDiff = typeAd.aroundDiff;
+			} else {
+				lastTypeAroundDiff = null;
+			}
 			LocationUtils.incAroundDiff(typeAd);
 		}
 		return typePOIs;
 	}
 
-	private static ArrayList<POIManager> findNearby(Context context, double typeLat, double typeLng, LocationUtils.AroundDiff typeAd, int typeMaxSize,
-			float typeMinCoverageInMeters, Collection<AgencyProperties> typeAgencies) {
+	private static ArrayList<POIManager> findNearby(Context context, double typeLat, double typeLng, LocationUtils.AroundDiff typeAd,
+			Double lastTypeAroundDiff, int typeMaxSize, float typeMinCoverageInMeters, Collection<AgencyProperties> typeAgencies) {
 		ArrayList<POIManager> typePOIs = new ArrayList<POIManager>();
-		NearbyPOIListLoader.filterAgencies(typeAgencies, typeLat, typeLng, typeAd);
+		NearbyPOIListLoader.filterAgencies(typeAgencies, typeLat, typeLng, typeAd, lastTypeAroundDiff);
 		if (CollectionUtils.getSize(typeAgencies) == 0) {
 			return typePOIs;
 		}

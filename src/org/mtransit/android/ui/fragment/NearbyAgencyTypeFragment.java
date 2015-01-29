@@ -22,13 +22,11 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
-import android.widget.TextView;
 
 public class NearbyAgencyTypeFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		NearbyFragment.NearbyLocationListener, DataSourceProvider.ModulesUpdateListener {
@@ -67,7 +65,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 
 	private POIArrayAdapter adapter;
 	private LocationUtils.AroundDiff ad = LocationUtils.getNewDefaultAroundDiff();
-	private String emptyText;
+	private Double lastAroundDiff = null;
 	private Location nearbyLocation;
 	private Location userLocation;
 	private ListViewSwipeRefreshLayout swipeRefreshLayout;
@@ -318,6 +316,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			}
 		}
 		this.ad = LocationUtils.getNewDefaultAroundDiff();
+		this.lastAroundDiff = null;
 		if (this.nearbyLocation != null) {
 			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
 		}
@@ -327,7 +326,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	public void onModulesUpdated() {
 		if (this.adapter != null && this.nearbyLocation != null && this.typeId != null) {
 			ArrayList<String> newTypeAgenciesAuthority = NearbyPOIListLoader.findTypeAgenciesAuthority(getActivity(), this.typeId,
-					this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff);
+					this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff, this.lastAroundDiff);
 			if (CollectionUtils.getSize(this.typeAgenciesAuthority) != CollectionUtils.getSize(newTypeAgenciesAuthority)) {
 				useNewNearbyLocation(this.nearbyLocation, true); // force
 			}
@@ -410,9 +409,6 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			((ViewStub) view.findViewById(R.id.empty_stub)).inflate(); // inflate
 			this.swipeRefreshLayout.setEmptyViewWR(view.findViewById(R.id.empty));
 		}
-		if (!TextUtils.isEmpty(this.emptyText)) {
-			((TextView) view.findViewById(R.id.empty_text)).setText(this.emptyText);
-		}
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
@@ -426,7 +422,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 				return null;
 			}
 			this.typeAgenciesAuthority = NearbyPOIListLoader.findTypeAgenciesAuthority(getActivity(), this.typeId, this.nearbyLocation.getLatitude(),
-					this.nearbyLocation.getLongitude(), this.ad.aroundDiff);
+					this.nearbyLocation.getLongitude(), this.ad.aroundDiff, this.lastAroundDiff);
 			float minDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(),
 					LocationUtils.MIN_AROUND_DIFF);
 			if (minDistanceInMeters < LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS) {
@@ -450,14 +446,15 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	@Override
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
 		int dataSize = CollectionUtils.getSize(data);
-		if (this.nearbyLocation != null) {
-			float distanceInKm = LocationUtils.getAroundCoveredDistanceInMeters(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), ad.aroundDiff) / 1000;
-			this.emptyText = String.format("%s stops found within %s km", dataSize, distanceInKm);
-		}
 		// IF not enough POIs found AND maximum around location not reached DO
 		if (dataSize < LocationUtils.MIN_NEARBY_LIST
 				&& !LocationUtils.searchComplete(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff)) {
 			// try with larger around location
+			if (dataSize == 0) {
+				this.lastAroundDiff = this.ad.aroundDiff;
+			} else {
+				this.lastAroundDiff = null;
+			}
 			LocationUtils.incAroundDiff(this.ad);
 			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
 		} else {

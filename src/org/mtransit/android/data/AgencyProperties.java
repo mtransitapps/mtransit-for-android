@@ -48,6 +48,9 @@ public class AgencyProperties implements MTLog.Loggable {
 	}
 
 	public int getColorInt() {
+		if (colorInt == null) {
+			return 0;
+		}
 		return colorInt;
 	}
 
@@ -71,11 +74,11 @@ public class AgencyProperties implements MTLog.Loggable {
 	@Override
 	public String toString() {
 		return new StringBuilder().append(AgencyProperties.class.getSimpleName()).append('{') //
-				.append("id:").append(id).append(',') //
-				.append("type:").append(type).append(',') //
-				.append("shortName:").append(shortName).append(',') //
-				.append("longName:").append(longName).append(',') //
-				.append("area:").append(area).append(',') //
+				.append("id:").append(this.id).append(',') //
+				.append("type:").append(this.type).append(',') //
+				.append("shortName:").append(this.shortName).append(',') //
+				.append("longName:").append(this.longName).append(',') //
+				.append("area:").append(this.area).append(',') //
 				.append('}').toString();
 	}
 
@@ -85,6 +88,10 @@ public class AgencyProperties implements MTLog.Loggable {
 
 	public boolean isInArea(Area area) {
 		return Area.areOverlapping(area, this.area);
+	}
+
+	public boolean isEntirelyInside(Area otherArea) {
+		return this.area == null || this.area.isEntirelyInside(otherArea);
 	}
 
 	public static void removeType(Collection<AgencyProperties> agencies, DataSourceType typeToRemove) {

@@ -91,27 +91,33 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		return this.pois;
 	}
 
-	public static void filterAgencies(Collection<AgencyProperties> agencies, double lat, double lng, LocationUtils.AroundDiff ad) {
+	public static void filterAgencies(Collection<AgencyProperties> agencies, double lat, double lng, LocationUtils.AroundDiff ad, Double optLastAroundDiff) {
 		if (agencies != null) {
 			LocationUtils.Area area = LocationUtils.getArea(lat, lng, ad.aroundDiff);
+			LocationUtils.Area optLastArea = optLastAroundDiff == null ? null : LocationUtils.getArea(lat, lng, optLastAroundDiff);
 			Iterator<AgencyProperties> it = agencies.iterator();
 			while (it.hasNext()) {
 				AgencyProperties agency = it.next();
 				if (!agency.isInArea(area)) {
+					it.remove();
+				} else if (optLastArea != null && agency.isEntirelyInside(optLastArea)) {
 					it.remove();
 				}
 			}
 		}
 	}
 
-	public static ArrayList<AgencyProperties> findTypeAgencies(Context context, int typeId, double lat, double lng, double aroundDiff) {
+	public static ArrayList<AgencyProperties> findTypeAgencies(Context context, int typeId, double lat, double lng, double aroundDiff, Double optLastAroundDiff) {
 		ArrayList<AgencyProperties> allTypeAgencies = DataSourceProvider.get(context).getTypeDataSources(context, typeId);
 		if (allTypeAgencies != null) {
 			LocationUtils.Area area = LocationUtils.getArea(lat, lng, aroundDiff);
+			LocationUtils.Area optLastArea = optLastAroundDiff == null ? null : LocationUtils.getArea(lat, lng, optLastAroundDiff);
 			Iterator<AgencyProperties> it = allTypeAgencies.iterator();
 			while (it.hasNext()) {
 				AgencyProperties agency = it.next();
 				if (!agency.isInArea(area)) {
+					it.remove();
+				} else if (optLastArea != null && agency.isEntirelyInside(optLastArea)) {
 					it.remove();
 				}
 			}
@@ -119,9 +125,9 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		return allTypeAgencies;
 	}
 
-	public static ArrayList<String> findTypeAgenciesAuthority(Context context, int typeId, double lat, double lng, double aroundDiff) {
+	public static ArrayList<String> findTypeAgenciesAuthority(Context context, int typeId, double lat, double lng, double aroundDiff, Double optLastAroundDiff) {
 		ArrayList<String> authorities = new ArrayList<String>();
-		ArrayList<AgencyProperties> agencies = findTypeAgencies(context, typeId, lat, lng, aroundDiff);
+		ArrayList<AgencyProperties> agencies = findTypeAgencies(context, typeId, lat, lng, aroundDiff, optLastAroundDiff);
 		if (agencies != null) {
 			for (AgencyProperties agency : agencies) {
 				authorities.add(agency.getAuthority());
