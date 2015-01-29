@@ -77,4 +77,13 @@
     <string name="unit_pref_dialog_title">Units</string>
     <string name="unit_pref_meter">Metric (km/m)</string>
     <string name="unit_pref_imperial">Imperial (mi/ft)</string>
+    <string name="support_pref_cat_title">Support</string>
+    <string name="support_subs_pref_title">Support MonTransit</string>
+    <string name="support_subs_pref_summary">Hide ads and support MonTransit development.</string>
+    <string name="support_subs_cancel_pref_title">Thanks for supporting MonTransit!</string>
+    <string name="support_subs_cancel_pref_summary">Cancel anytime.</string>
+    <string name="support_subs_default_failure_message">:(</string>
+    <string name="support_subs_user_canceled_message">Maybe another time.</string>
+    <string name="support_subs_authenticity_check_fail_message">Cannot verify authenticity!</string>
+    <string name="support_subs_purchase_successful_message">Thank You :)</string>
 </resources>

@@ -4,6 +4,7 @@
     <string name="google_ads_banner_ad_unit_id">INSERT_GOOGLE_ADS_BANNER_AD_UNIT_ID_HERE</string>
     <string name="google_maps_api_key">INSERT_GOOGLE_MAPS_API_KEY_HERE</string>
     <string name="google_places_api_key">INSERT_GOOGLE_PLACES_API_KEY_HERE</string>
+    <string name="google_play_license_key">INSERT_GOOGLE_PLAY_LICENSE_KEY_HERE</string>
     <string-array name="google_ads_test_devices_ids">
         <item>INSERT_GOOGLE_ADS_TEST_DEVICE_ID_HERE</item>
     </string-array>
