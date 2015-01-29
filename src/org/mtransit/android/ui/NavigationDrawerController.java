@@ -164,6 +164,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 			return;
 		}
 		if (!this.drawerListViewAdapter.isRootScreen(position)) {
+			this.drawerListViewAdapter.startNewScreen(mainActivity, position);
 			setCurrentSelectedItemChecked(true); // keep current position
 			return;
 		}

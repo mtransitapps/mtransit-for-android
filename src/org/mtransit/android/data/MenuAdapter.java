@@ -404,6 +404,14 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		TextView nameTv;
 	}
 
+	public void startNewScreen(Activity activity, int position) {
+		int secondaryPosition = getSecondaryIndexItemAt(position);
+		if (secondaryPosition == ITEM_INDEX_SETTINGS) {
+			activity.startActivity(PreferencesActivity.newInstance(activity));
+			return;
+		}
+		MTLog.w(this, "No new screen for item at position '%s'!", position);
+	}
 
 	public ABFragment getNewStaticFragmentAt(int position) {
 		if (position == ITEM_INDEX_HOME) {
@@ -418,11 +426,10 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 			// return DirectionsFragment.newInstance();
 			// } else if (position == MenuAdapter.ITEM_INDEX_MAPS) {
 			// return MapsFragment.newInstance();
-		} else {
-			DataSourceType type = getAgencyTypeAt(position);
-			if (type != null) {
-				return AgencyTypeFragment.newInstance(type.getId(), type);
-			}
+		}
+		DataSourceType type = getAgencyTypeAt(position);
+		if (type != null) {
+			return AgencyTypeFragment.newInstance(type.getId(), type);
 		}
 		MTLog.w(this, "No fragment for item at position '%s'!", position);
 		return null;
