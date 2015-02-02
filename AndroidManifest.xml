@@ -89,6 +89,7 @@
         <!-- PREFERENCES SCREEN -->
         <activity
             android:name=".ui.PreferencesActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
         <!-- GOOGLE MOBILE ADS (AD MOB) -->
         <activity
