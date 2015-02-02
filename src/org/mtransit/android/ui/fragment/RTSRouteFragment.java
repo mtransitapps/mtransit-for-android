@@ -141,6 +141,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		Integer newStopId = BundleUtils.getInt(EXTRA_STOP_ID, bundles);
 		if (newStopId != null && !newStopId.equals(this.stopId)) {
 			this.stopId = newStopId;
+		}
 		this.adapter.setAuthority(this.authority);
 		this.adapter.setRouteId(this.routeId);
 		this.adapter.setOptStopId(this.stopId);
