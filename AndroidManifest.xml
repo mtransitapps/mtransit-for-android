@@ -89,7 +89,7 @@
         <!-- PREFERENCES SCREEN -->
         <activity
             android:name=".ui.PreferencesActivity"
-            android:theme="@android:style/Theme.Material.Light.DarkActionBar" />
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
         <!-- GOOGLE MOBILE ADS (AD MOB) -->
         <activity
             android:name="com.google.android.gms.ads.AdActivity"

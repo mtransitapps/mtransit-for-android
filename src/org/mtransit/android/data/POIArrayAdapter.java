@@ -64,9 +64,10 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements SensorUtils.CompassListener, AdapterView.OnItemClickListener, SensorEventListener,
-		AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener, ServiceUpdateLoader.ServiceUpdateLoaderListener,
-		FavoriteManager.FavoriteUpdateListener, SensorUtils.SensorTaskCompleted, TimeUtils.TimeChangedReceiver.TimeChangedListener {
+public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements SensorUtils.CompassListener, AdapterView.OnItemClickListener,
+		AdapterView.OnItemLongClickListener, SensorEventListener, AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener,
+		ServiceUpdateLoader.ServiceUpdateLoaderListener, FavoriteManager.FavoriteUpdateListener, SensorUtils.SensorTaskCompleted,
+		TimeUtils.TimeChangedReceiver.TimeChangedListener {
 
 	private static final String TAG = POIArrayAdapter.class.getSimpleName();
 
@@ -418,13 +419,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		showPoiViewerScreen(position);
 	}
 
-
-	public boolean showClosestPOI() {
-		if (!hasClosestPOI()) {
-			return false;
-		}
-		return false;
+	@Override
+	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		showPoiMenu(position);
+		return true; // handled
 	}
+
 
 	public static interface OnPOISelectedListener {
 		public boolean onPOISelected(POIManager poim);
@@ -462,6 +462,32 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}.execute(position);
 	}
 
+	public void showPoiMenu(int position) {
+		new MTAsyncTask<Integer, Void, POIManager>() {
+
+			@Override
+			public String getLogTag() {
+				return POIArrayAdapter.class.getSimpleName() + ">showPoiMenu";
+			}
+
+			@Override
+			protected POIManager doInBackgroundMT(Integer... params) {
+				return getItem(params[0]);
+			}
+
+			@Override
+			protected void onPostExecute(POIManager poim) {
+				if (poim != null) {
+					OnPOISelectedListener listerner = POIArrayAdapter.this.onPoiSelectedListenerWR == null ? null
+							: POIArrayAdapter.this.onPoiSelectedListenerWR.get();
+					if (listerner == null || !listerner.onPOISelected(poim)) {
+						showPoiMenu(poim);
+					}
+				}
+			}
+		}.execute(position);
+	}
+
 
 	@Override
 	public boolean areAllItemsEnabled() {
@@ -489,6 +515,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		poim.onActionItemClick(activity, this.favoriteUpdateListener);
 	}
 
+	public void showPoiMenu(POIManager poim) {
+		if (poim == null) {
+			return;
+		}
+		Activity activity = this.activityWR == null ? null : this.activityWR.get();
+		if (activity == null) {
+			return;
+		}
+		poim.onActionItemLongClick(activity, this.favoriteUpdateListener);
+	}
 
 	@Override
 	public void onFavoriteUpdated() {
@@ -714,6 +750,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public void setListView(AbsListView listView) {
 		listView.setOnItemClickListener(this);
+		listView.setOnItemLongClickListener(this);
 		listView.setOnScrollListener(this);
 		listView.setAdapter(this);
 	}
@@ -738,6 +775,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					@Override
 					public void onClick(View v) {
 						showPoiViewerScreen(position);
+					}
+				});
+				frameLayout.setOnLongClickListener(new View.OnLongClickListener() {
+					@Override
+					public boolean onLongClick(View v) {
+						showPoiMenu(position);
+						return true; // handled
 					}
 				});
 				this.manualLayout.addView(frameLayout);

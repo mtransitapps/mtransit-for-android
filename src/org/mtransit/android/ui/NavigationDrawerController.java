@@ -3,6 +3,7 @@ package org.mtransit.android.ui;
 import java.lang.ref.WeakReference;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
@@ -25,7 +26,7 @@ import android.widget.ListView;
 
 public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.MenuUpdateListener, ListView.OnItemClickListener {
 
-	private static final String TAG = NavigationDrawerController.class.getSimpleName();
+	private static final String TAG = "Stack-" + NavigationDrawerController.class.getSimpleName();
 
 	@Override
 	public String getLogTag() {
@@ -81,7 +82,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 						.get();
 				NavigationDrawerController.this.drawerListViewAdapter = new MenuAdapter(mainActivity, NavigationDrawerController.this);
 				String itemId = null;
-				if (savedInstanceState == null && !isCurrentSelectedSet()) {
+				if (!isCurrentSelectedSet()) {
 					itemId = PreferenceUtils.getPrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID,
 							MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
 					publishProgress(itemId);
@@ -100,7 +101,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 			public void selectItemId(String itemId) {
 				if (!TextUtils.isEmpty(itemId)) {
 					int screenItemPosition = NavigationDrawerController.this.drawerListViewAdapter.getScreenItemPosition(itemId);
-					selectItem(screenItemPosition);
+					selectItem(screenItemPosition, false);
 				}
 			}
 
@@ -130,7 +131,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 			setCurrentSelectedItemChecked(mainActivity.getBackStackEntryCount() == 0);
 			return;
 		}
-		selectItem(newSelectedItemPosition);
+		selectItem(newSelectedItemPosition, false);
 	}
 
 	public void forceReset() {
@@ -140,15 +141,15 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		int saveCurrentSelectedItemPosition = this.currentSelectedItemPosition;
 		this.currentSelectedItemPosition = -1;
 		this.currentSelectedScreenItemId = null;
-		selectItem(saveCurrentSelectedItemPosition);
+		selectItem(saveCurrentSelectedItemPosition, true);
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		selectItem(position);
+		selectItem(position, true);
 	}
 
-	private void selectItem(int position) {
+	private void selectItem(int position, boolean clearStack) {
 		if (position < 0) {
 			return;
 		}
@@ -158,8 +159,12 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		}
 		if (position == this.currentSelectedItemPosition) {
 			closeDrawer();
-			mainActivity.clearFragmentBackStackImmediate();
-			setCurrentSelectedItemChecked(true);
+			if (clearStack) {
+				mainActivity.clearFragmentBackStackImmediate();
+			}
+			if (mainActivity.getBackStackEntryCount() == 0) {
+				setCurrentSelectedItemChecked(true);
+			}
 			mainActivity.showContentFrameAsLoaded();
 			return;
 		}
@@ -257,9 +262,9 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		return this.currentSelectedItemPosition >= 0 && !TextUtils.isEmpty(this.currentSelectedScreenItemId);
 	}
 
-	public void setCurrentSelectedItemChecked(boolean value) {
+	public void setCurrentSelectedItemChecked(boolean checked) {
 		if (this.drawerListView != null && this.currentSelectedItemPosition >= 0) {
-			this.drawerListView.setItemChecked(this.currentSelectedItemPosition, value);
+			this.drawerListView.setItemChecked(this.currentSelectedItemPosition, checked);
 		}
 	}
 
@@ -279,6 +284,17 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		}
 		if (!TextUtils.isEmpty(this.currentSelectedScreenItemId)) {
 			outState.putString(EXTRA_SELECTED_ROOT_SCREEN_ID, this.currentSelectedScreenItemId);
+		}
+	}
+
+	public void onRestoreState(Bundle savedInstanceState) {
+		Integer newSavedRootScreen = BundleUtils.getInt(EXTRA_SELECTED_ROOT_SCREEN_POSITION, savedInstanceState);
+		if (newSavedRootScreen != null && !newSavedRootScreen.equals(this.currentSelectedItemPosition)) {
+			this.currentSelectedItemPosition = newSavedRootScreen.intValue();
+		}
+		String newRootScreenId = BundleUtils.getString(EXTRA_SELECTED_ROOT_SCREEN_ID);
+		if (!TextUtils.isEmpty(newRootScreenId) && !newRootScreenId.equals(this.currentSelectedScreenItemId)) {
+			this.currentSelectedScreenItemId = newRootScreenId;
 		}
 	}
 

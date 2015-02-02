@@ -70,6 +70,12 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	private ListViewSwipeRefreshLayout swipeRefreshLayout;
 
 	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		initAdapters(activity);
+	}
+
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
@@ -78,7 +84,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
-		restoreInstanceState(savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_home, container, false);
 		setupView(view);
 		return view;
@@ -103,11 +108,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		initiateRefresh();
 	}
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		restoreInstanceState(savedInstanceState);
-	}
 
 	private void restoreInstanceState(Bundle... bundles) {
 	}
@@ -212,9 +212,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	@Override
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
-		if (this.adapter == null) {
-			initAdapter();
-		}
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		switchView(getView());
@@ -288,20 +285,14 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 	}
 
-	private void initAdapter() {
-		if (this.adapter != null) {
-			return;
-		}
-		this.adapter = new POIArrayAdapter(getActivity());
+	private void initAdapters(Activity activity) {
+		this.adapter = new POIArrayAdapter(activity);
 		this.adapter.setTag(getLogTag());
 		this.adapter.setFavoriteUpdateListener(this);
 		this.adapter.setShowBrowseHeaderSection(true);
 		this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);
 		this.adapter.setShowTypeHeaderNearby(true);
 		this.adapter.setOnTypeHeaderButtonsClickListener(this);
-		View view = getView();
-		setupView(view);
-		switchView(view);
 	}
 
 	@Override
@@ -314,7 +305,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	private void setupView(View view) {
-		if (view == null || this.adapter == null) {
+		if (view == null) {
 			return;
 		}
 		this.swipeRefreshLayout = (ListViewSwipeRefreshLayout) view.findViewById(R.id.swiperefresh);

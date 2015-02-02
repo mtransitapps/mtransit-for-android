@@ -12,6 +12,7 @@ import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.FavoritesLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 
+import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
@@ -51,22 +52,25 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	private Location userLocation;
 
 	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		initAdapters(activity);
+	}
+
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_favorites, container, false);
 		setupView(view);
 		return view;
 	}
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
 		switchView(getView());
-		if (this.adapter != null) {
+		if (this.adapter.isInitialized()) {
 			this.adapter.onResume(getActivity());
 		} else {
 			LoaderUtils.restartLoader(getLoaderManager(), FAVORITES_LOADER, null, this);
@@ -97,9 +101,6 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	@Override
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
 		this.emptyText = getString(R.string.no_favorites);
-		if (this.adapter == null) {
-			initAdapter();
-		}
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		switchView(getView());
@@ -134,22 +135,16 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		}
 	}
 
-	private void initAdapter() {
-		if (this.adapter != null) {
-			return;
-		}
-		this.adapter = new POIArrayAdapter(getActivity());
+	private void initAdapters(Activity activity) {
+		this.adapter = new POIArrayAdapter(activity);
 		this.adapter.setTag(getLogTag());
 		this.adapter.setShowFavorite(false); // all items in this screen are favorites
 		this.adapter.setFavoriteUpdateListener(this);
 		this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_ALL_NEARBY);
-		View view = getView();
-		setupView(view);
-		switchView(view);
 	}
 
 	private void setupView(View view) {
-		if (view == null || this.adapter == null) {
+		if (view == null) {
 			return;
 		}
 		inflateList(view);
@@ -230,6 +225,5 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public CharSequence getABTitle(Context context) {
 		return context.getString(R.string.favorites);
 	}
-
 
 }

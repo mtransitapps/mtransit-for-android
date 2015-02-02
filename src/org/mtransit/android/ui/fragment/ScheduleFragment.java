@@ -18,6 +18,7 @@ import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -210,6 +211,12 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		initAdapters(activity);
+	}
+
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
@@ -218,7 +225,6 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
-		restoreInstanceState(savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_schedule, container, false);
 		setupView(view);
 		switchView(view);
@@ -248,58 +254,15 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			this.uuid = newUuid;
 			resetRts();
 		}
+		this.adapter.setUuid(this.uuid);
+		this.adapter.setAuthority(this.authority);
 	}
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		restoreInstanceState(savedInstanceState);
-		switchView(getView());
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		if (this.adapter == null) {
-			initTabsAndViewPager(getView());
-		}
-	}
-
-	private void initTabsAndViewPager(final View view) {
-		if (view == null) {
+	private void initAdapters(Activity activity) {
+		if (activity == null) {
 			return;
 		}
-		new MTAsyncTask<Void, Void, Void>() {
-
-			private final String TAG = ScheduleFragment.class.getSimpleName() + ">initTabsAndViewPagerTask";
-
-			@Override
-			public String getLogTag() {
-				return TAG;
-			}
-
-			@Override
-			protected Void doInBackgroundMT(Void... params) {
-				if (ScheduleFragment.this.adapter == null) {
-					ScheduleFragment.this.adapter = new DayPagerAdapter(ScheduleFragment.this, TimeUtils.getBeginningOfTodayInMs(), ScheduleFragment.this.uuid,
-							ScheduleFragment.this.authority, getRtsOrNull());
-				}
-				if (ScheduleFragment.this.lastPageSelected < 0) {
-					ScheduleFragment.this.lastPageSelected = DayPagerAdapter.STARTING_POSITION;
-				}
-				return null;
-			}
-
-			@Override
-			protected void onPostExecute(Void result) {
-				super.onPostExecute(result);
-				setupAdapter(view);
-				ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-				viewPager.setCurrentItem(ScheduleFragment.this.lastPageSelected);
-				switchView(view);
-			}
-
-		}.execute();
+		this.adapter = new DayPagerAdapter(this, TimeUtils.getBeginningOfTodayInMs(), null, null, null);
 	}
 
 	private void setupView(View view) {
@@ -309,14 +272,21 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		viewPager.setOffscreenPageLimit(2);
 		viewPager.setOnPageChangeListener(this);
+		setupAdapter(view);
 	}
 
 	private void setupAdapter(View view) {
-		if (view == null || this.adapter == null) {
+		if (view == null) {
 			return;
 		}
 		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		viewPager.setAdapter(this.adapter);
+		if (this.lastPageSelected < 0) {
+			this.lastPageSelected = DayPagerAdapter.STARTING_POSITION;
+		}
+		viewPager.setCurrentItem(this.lastPageSelected);
+		switchView(view);
+		onPageSelected(this.lastPageSelected); // tell current page it's selected
 	}
 
 	@Override
@@ -388,14 +358,15 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 				return;
 			}
 			resetRts();
-			this.adapter = null; // reset
-			switchView(getView());
-			initTabsAndViewPager(getView());
+			setupView(getView());
 		}
 	}
 
 
 	private void switchView(View view) {
+		if (view == null) {
+			return;
+		}
 		if (this.adapter == null) {
 			showLoading(view);
 		} else if (this.adapter.getCount() > 0) {
@@ -517,6 +488,14 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			this.todayStartsAtCal = TimeUtils.getNewCalendarInstance(this.todayStartsAtInMs);
 		}
 
+		public void setUuid(String uuid) {
+			this.uuid = uuid;
+		}
+
+		public void setAuthority(String authority) {
+			this.authority = authority;
+		}
+
 		public void setOptRts(RouteTripStop optRts) {
 			this.optRts = optRts;
 		}
@@ -527,7 +506,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 		private Calendar getPageDayCal(int position) {
 			Calendar pageDay = (Calendar) this.todayStartsAtCal.clone();
-			pageDay.add(Calendar.DATE, (position - todayPosition));
+			pageDay.add(Calendar.DATE, (position - this.todayPosition));
 			return pageDay;
 		}
 

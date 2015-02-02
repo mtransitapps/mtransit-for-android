@@ -28,6 +28,7 @@ public final class VendingUtils implements MTLog.Loggable {
 	}
 
 	private static final boolean FORCE_HAS_SUBSCRIPTION = false;
+	private static final boolean FORCE_DO_NOT_HAVE_SUBSCRIPTION = false;
 
 	public static final String MONTHLY_SUBSCRIPTION_SKU = "monthly_subscription";
 
@@ -107,6 +108,8 @@ public final class VendingUtils implements MTLog.Loggable {
 	private static void setHasSubscription(Boolean newHasSubscription) {
 		if (FORCE_HAS_SUBSCRIPTION) {
 			newHasSubscription = true;
+		} else if (FORCE_DO_NOT_HAVE_SUBSCRIPTION) {
+			newHasSubscription = false;
 		}
 		hasSubscription = newHasSubscription;
 		broadcastNewVendingResult(hasSubscription);
@@ -124,6 +127,8 @@ public final class VendingUtils implements MTLog.Loggable {
 				boolean newHasSubscription = PreferenceUtils.getPrefLcl(context, PREF_KEY_HAS_SUBSCRIPTION, PREF_KEY_HAS_SUBSCRIPTION_DEFAULT);
 				if (FORCE_HAS_SUBSCRIPTION) {
 					newHasSubscription = true;
+				} else if (FORCE_DO_NOT_HAVE_SUBSCRIPTION) {
+					newHasSubscription = false;
 				}
 				hasSubscription = newHasSubscription;
 			}

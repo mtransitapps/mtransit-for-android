@@ -64,10 +64,11 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private static final String EXTRA_AGENCY_AUTHORITY = "extra_agency_authority";
 	private static final String EXTRA_ROUTE_ID = "extra_route_id";
 	private static final String EXTRA_TRIP_ID = "extra_trip_id";
-	private static final String EXTRA_STOP_ID = "extra_stop_id";
+	private static final String EXTRA_TRIP_STOP_ID = "extra_trip_stop_id";
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 	private static final String EXTRA_SHOWING_LIST_INSTEAD_OF_MAP = "extra_showing_list_instead_of_map";
+	private static final String EXTRA_CLOSEST_POI_SHOWN = "extra_closest_poi_shown";
 
 	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String authority, long routeId, long tripId,
 			Integer optStopId, boolean showingListInsteadOfMap, Route optRoute) {
@@ -89,7 +90,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			f.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
 		}
 		if (optStopId != null) {
-			args.putInt(EXTRA_STOP_ID, optStopId);
+			args.putInt(EXTRA_TRIP_STOP_ID, optStopId);
 			f.stopId = optStopId;
 		}
 		args.putBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, showingListInsteadOfMap);
@@ -100,7 +101,8 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 
 	private Long routeId;
 	private Long tripId;
-	private Integer stopId;
+	private int stopId = -1;
+	private boolean closestPOIShow = false;
 	private String authority;
 	private POIArrayAdapter adapter;
 	private Location userLocation;
@@ -108,6 +110,12 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
 	private String emptyText = null;
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		initAdapters(activity);
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -118,7 +126,6 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
-		restoreInstanceState(savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_rts_trip_stops, container, false);
 		setupView(view);
 		if (!this.showingListInsteadOfMap) { // showing map
@@ -138,9 +145,8 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (this.tripId != null) {
 			outState.putLong(EXTRA_TRIP_ID, this.tripId);
 		}
-		if (this.stopId != null) {
-			outState.putLong(EXTRA_STOP_ID, this.stopId);
-		}
+		outState.putInt(EXTRA_TRIP_STOP_ID, this.stopId);
+		outState.putBoolean(EXTRA_CLOSEST_POI_SHOWN, this.closestPOIShow);
 		if (this.fragmentPosition >= 0) {
 			outState.putInt(EXTRA_FRAGMENT_POSITION, this.fragmentPosition);
 		}
@@ -169,9 +175,13 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			this.routeId = newRouteId;
 			resetRoute();
 		}
-		Integer newStopId = BundleUtils.getInt(EXTRA_STOP_ID, bundles);
+		Integer newStopId = BundleUtils.getInt(EXTRA_TRIP_STOP_ID, bundles);
 		if (newStopId != null && !newStopId.equals(this.stopId)) {
 			this.stopId = newStopId;
+		}
+		Boolean newClosestPOIShown = BundleUtils.getBoolean(EXTRA_CLOSEST_POI_SHOWN, bundles);
+		if (newClosestPOIShown != null) {
+			this.closestPOIShow = newClosestPOIShown;
 		}
 		Boolean newShowingListInsteadOfMap = BundleUtils.getBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, bundles);
 		if (newShowingListInsteadOfMap != null) {
@@ -195,11 +205,6 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		}
 	}
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		restoreInstanceState(savedInstanceState);
-	}
 
 	private Route route;
 
@@ -270,14 +275,9 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		this.route = null; // reset
 	}
 
-	private void initAdapter() {
-		this.adapter = new POIArrayAdapter(getActivity());
-		this.adapter.setTag(this.authority + "-" + this.tripId);
+	private void initAdapters(Activity activity) {
+		this.adapter = new POIArrayAdapter(activity);
 		this.adapter.setShowExtra(false);
-		View view = getView();
-		setupView(view);
-		linkAdapterWithListView(view);
-		switchView(view);
 	}
 
 	private void linkAdapterWithListView(View view) {
@@ -349,7 +349,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		}
 		this.fragmentVisible = true;
 		switchView(getView());
-		if (this.adapter == null) {
+		if (this.adapter == null || !this.adapter.isInitialized()) {
 			LoaderUtils.restartLoader(getLoaderManager(), POIS_LOADER, null, this);
 		} else {
 			this.adapter.onResume(getActivity());
@@ -388,14 +388,17 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	@Override
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
 		Pair<Integer, String> currentSelectedItemIndexUuid = null;
-		if (this.adapter == null) {
-			if (this.stopId != null) {
+		if (this.stopId > 0 || !this.closestPOIShow) {
+			if (this.stopId > 0) {
 				currentSelectedItemIndexUuid = findStopIndexUuid(this.stopId, data);
 			}
 			if (currentSelectedItemIndexUuid == null) {
-				currentSelectedItemIndexUuid = findClosestPOIIndexUuid(data);
+				if (!this.closestPOIShow) {
+					currentSelectedItemIndexUuid = findClosestPOIIndexUuid(data);
+				}
 			}
-			initAdapter();
+			this.stopId = -1; // can only be used once
+			this.closestPOIShow = true; // only the 1rst time
 		}
 		this.mapMarkers = null; // force refresh
 		this.adapter.setPois(data);
@@ -764,7 +767,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	@Override
 	public void onPause() {
 		super.onPause();
-		this.stopId = null;
+		this.stopId = -1;
 		onFragmentInvisible();
 	}
 
@@ -813,6 +816,9 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	}
 
 	private void switchView(View view) {
+		if (view == null) {
+			return;
+		}
 		if (this.adapter == null || !this.adapter.isInitialized()) {
 			showLoading(view);
 		} else if (this.adapter.getPoisCount() == 0) {

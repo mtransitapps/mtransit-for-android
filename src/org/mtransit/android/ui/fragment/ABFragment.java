@@ -12,6 +12,7 @@ import org.mtransit.android.util.AnalyticsUtils;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
 public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.Trackable, DataSourceProvider.ModulesUpdateListener {
@@ -50,6 +51,10 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 		return null;
 	}
 
+	public boolean isABCustomViewFocusable() {
+		return false;
+	}
+
 	public boolean isABCustomViewRequestFocus() {
 		return false;
 	}
@@ -67,7 +72,11 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 	}
 
 	public ActionBarController getAbController() {
-		return ((MainActivity) getActivity()).getAbController();
+		FragmentActivity activity = getActivity();
+		if (activity == null) {
+			return null;
+		}
+		return ((MainActivity) activity).getAbController();
 	}
 
 	@Override
@@ -80,6 +89,11 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 	public void onResume() {
 		super.onResume();
 		AnalyticsUtils.trackScreenView(getActivity(), this);
+		ActionBarController abController = getAbController();
+		if (abController != null) {
+			abController.setAB(this);
+			abController.updateAB();
+		}
 	}
 
 	@Override

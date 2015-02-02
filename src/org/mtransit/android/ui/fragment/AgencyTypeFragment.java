@@ -23,6 +23,7 @@ import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.NavigationDrawerController;
 import org.mtransit.android.ui.view.SlidingTabLayout;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.location.Location;
@@ -75,6 +76,12 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	private int lastPageSelected = -1;
 
 	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		initAdapters(activity);
+	}
+
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true); // child fragments options menus don't get updated when coming back from another activity
@@ -119,21 +126,11 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
-		restoreInstanceState(savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_agency_type, container, false);
 		setupView(view);
 		return view;
 	}
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		restoreInstanceState(savedInstanceState);
-		View view = getView();
-		switchView(view);
-		this.adapter = null; // reset
-		initTabsAndViewPager(view);
-	}
 
 	@Override
 	public void onModulesUpdated() {
@@ -156,17 +153,21 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		this.adapter = null;
 	}
 
 	private void setupAdapter(View view) {
-		if (view == null || this.adapter == null) {
+		if (view == null) {
 			return;
 		}
 		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		viewPager.setAdapter(this.adapter);
 		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
 		tabs.setViewPager(viewPager);
+		if (this.lastPageSelected >= 0) {
+			viewPager.setCurrentItem(this.lastPageSelected);
+		} else {
+			new LoadLastPageSelectedFromUserPreference(getActivity(), this, this.typeId, this.adapter.getAgencies()).execute();
+		}
 	}
 
 	private void setupView(View view) {
@@ -179,6 +180,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		tabs.setCustomTabView(R.layout.layout_tab_indicator, R.id.tab_title);
 		tabs.setOnPageChangeListener(this);
 		tabs.setSelectedIndicatorColors(Color.WHITE);
+		setupAdapter(view);
 	}
 
 	private ActionBarController.SimpleActionBarColorizer abColorizer;
@@ -222,6 +224,12 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			this.typeId = typeId;
 			resetType();
 		}
+		ArrayList<AgencyProperties> newAgencies = this.typeId == null ? null : DataSourceProvider.get(getActivity()).getTypeDataSources(getActivity(),
+				this.typeId);
+		if (CollectionUtils.getSize(newAgencies) == 0) {
+			return;
+		}
+		this.adapter.setAgencies(newAgencies);
 	}
 
 	private Integer typeId = null;
@@ -295,72 +303,86 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		return this.type;
 	}
 
-	private void initTabsAndViewPager(final View view) {
-		if (view == null) {
-			return;
-		}
-		final ArrayList<AgencyProperties> newAgencies = this.typeId == null ? null : DataSourceProvider.get(getActivity()).getTypeDataSources(getActivity(),
-				this.typeId);
-		if (CollectionUtils.getSize(newAgencies) == 0) {
-			return;
-		}
-		if (this.adapter == null) {
-			this.adapter = new AgencyPagerAdapter(this, newAgencies);
-		} else if (CollectionUtils.getSize(newAgencies) != CollectionUtils.getSize(this.adapter.getAgencies())) {
-			this.adapter.setAgencies(newAgencies);
-			this.adapter.notifyDataSetChanged();
-		}
-		setupAdapter(view);
-		this.lastPageSelected = -1;
-		new MTAsyncTask<Void, Void, Integer>() {
+	private void initAdapters(Activity activity) {
+		this.adapter = new AgencyPagerAdapter(activity, this, null);
+	}
 
-			private final String TAG = AgencyTypeFragment.class.getSimpleName() + ">LoadLastPageSelectedFromUserPreferences";
+	private static class LoadLastPageSelectedFromUserPreference extends MTAsyncTask<Void, Void, Integer> {
 
-			public String getLogTag() {
-				return TAG;
-			}
+		private final String TAG = AgencyTypeFragment.class.getSimpleName() + ">" + LoadLastPageSelectedFromUserPreference.class.getSimpleName();
 
-			@Override
-			protected Integer doInBackgroundMT(Void... params) {
-				try {
-					String agencyAuthority = PreferenceUtils.getPrefLcl(getActivity(),
-							PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(AgencyTypeFragment.this.typeId),
+		@Override
+		public String getLogTag() {
+			return TAG;
+		}
+
+		private WeakReference<Context> contextWR;
+		private WeakReference<AgencyTypeFragment> agencyTypeFragmentWR;
+		private Integer typeId;
+		private ArrayList<AgencyProperties> newAgencies;
+
+		public LoadLastPageSelectedFromUserPreference(Context context, AgencyTypeFragment agencyTypeFragment, Integer typeId,
+				ArrayList<AgencyProperties> newAgencies) {
+			this.contextWR = new WeakReference<Context>(context);
+			this.agencyTypeFragmentWR = new WeakReference<AgencyTypeFragment>(agencyTypeFragment);
+			this.typeId = typeId;
+			this.newAgencies = newAgencies;
+		}
+
+		@Override
+		protected Integer doInBackgroundMT(Void... params) {
+			try {
+				String agencyAuthority;
+				Context context = this.contextWR == null ? null : this.contextWR.get();
+				if (context != null) {
+					agencyAuthority = PreferenceUtils.getPrefLcl(context, PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(this.typeId),
 							PreferenceUtils.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT);
-					if (newAgencies != null) {
-						for (int i = 0; i < newAgencies.size(); i++) {
-							if (newAgencies.get(i).getAuthority().equals(agencyAuthority)) {
-								return i;
-							}
+				} else {
+					agencyAuthority = PreferenceUtils.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT;
+				}
+				if (this.newAgencies != null) {
+					for (int i = 0; i < this.newAgencies.size(); i++) {
+						if (this.newAgencies.get(i).getAuthority().equals(agencyAuthority)) {
+							return i;
 						}
 					}
-				} catch (Exception e) {
-					MTLog.w(TAG, e, "Error while determining the select agency tab!");
 				}
-				return null;
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while determining the select agency tab!");
 			}
+			return null;
+		}
 
-			@Override
-			protected void onPostExecute(Integer lastPageSelected) {
-				if (AgencyTypeFragment.this.lastPageSelected >= 0) {
-					return; // user has manually move to another page before, too late
-				}
-				if (lastPageSelected == null) {
-					AgencyTypeFragment.this.lastPageSelected = 0;
-				} else {
-					AgencyTypeFragment.this.lastPageSelected = lastPageSelected;
+		@Override
+		protected void onPostExecute(Integer lastPageSelected) {
+			AgencyTypeFragment agencyTypeFragment = this.agencyTypeFragmentWR == null ? null : this.agencyTypeFragmentWR.get();
+			if (agencyTypeFragment == null) {
+				return; // too late
+			}
+			if (agencyTypeFragment.lastPageSelected >= 0) {
+				return; // user has manually move to another page before, too late
+			}
+			if (lastPageSelected == null) {
+				agencyTypeFragment.lastPageSelected = 0;
+			} else {
+				agencyTypeFragment.lastPageSelected = lastPageSelected;
+				View view = agencyTypeFragment.getView();
+				if (view != null) {
 					ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-					viewPager.setCurrentItem(AgencyTypeFragment.this.lastPageSelected);
+					viewPager.setCurrentItem(agencyTypeFragment.lastPageSelected);
 				}
-				onPageSelected(AgencyTypeFragment.this.lastPageSelected); // tell current page it's selected
-				switchView(view);
-
 			}
-		}.execute();
+			agencyTypeFragment.onPageSelected(agencyTypeFragment.lastPageSelected); // tell current page it's selected
+		}
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
+		if (this.lastPageSelected >= 0) {
+			onPageSelected(this.lastPageSelected); // tell current page it's selected
+		}
+		switchView(getView());
 		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
 	}
 
@@ -568,9 +590,9 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		private int lastVisibleFragmentPosition = -1;
 		private int saveStateCount = -1;
 
-		public AgencyPagerAdapter(AgencyTypeFragment agencyTypeFragment, ArrayList<AgencyProperties> agencies) {
+		public AgencyPagerAdapter(Context context, AgencyTypeFragment agencyTypeFragment, ArrayList<AgencyProperties> agencies) {
 			super(agencyTypeFragment.getChildFragmentManager());
-			this.contextWR = new WeakReference<Context>(agencyTypeFragment.getActivity());
+			this.contextWR = new WeakReference<Context>(context);
 			setAgencies(agencies);
 		}
 

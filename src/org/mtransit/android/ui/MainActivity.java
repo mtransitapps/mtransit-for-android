@@ -28,7 +28,7 @@ import android.view.View;
 public class MainActivity extends MTActivityWithLocation implements FragmentManager.OnBackStackChangedListener, AnalyticsUtils.Trackable,
 		VendingUtils.OnVendingResultListener, DataSourceProvider.ModulesUpdateListener {
 
-	private static final String TAG = MainActivity.class.getSimpleName();
+	private static final String TAG = "Stack-" + MainActivity.class.getSimpleName();
 
 	@Override
 	public String getLogTag() {
@@ -62,7 +62,6 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		this.abController = new ActionBarController(this);
 		this.navigationDrawerController = new NavigationDrawerController(this);
 		this.navigationDrawerController.setup(savedInstanceState);
-
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
 		DataSourceProvider.addModulesUpdateListerner(this);
 		MapUtils.initMapAsync(this);
@@ -181,12 +180,21 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onSaveState(outState);
 		}
+		if (this.abController != null) {
+			this.abController.onSaveState(outState);
+		}
 		super.onSaveInstanceState(outState);
 	}
 
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
+		if (this.navigationDrawerController != null) {
+			this.navigationDrawerController.onRestoreState(savedInstanceState);
+		}
+		if (this.abController != null) {
+			this.abController.onRestoreState(savedInstanceState);
+		}
 	}
 
 	public void clearFragmentBackStackImmediate() {
@@ -208,7 +216,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		ft.replace(R.id.content_frame, newFragment);
 		if (addToStack) {
 			ft.addToBackStack(null);
-			this.backStackEntryCount++;
+			incBackEntryCount();
 		}
 		ft.commit();
 		showContentFrameAsLoaded();
@@ -218,7 +226,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 			this.abController.updateABDrawerClosed();
 		}
 		if (this.navigationDrawerController != null) {
-			this.navigationDrawerController.setCurrentSelectedItemChecked(this.backStackEntryCount == 0);
+			this.navigationDrawerController.setCurrentSelectedItemChecked(getBackStackEntryCount() == 0);
 		}
 	}
 
@@ -259,13 +267,13 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 
 	@Override
 	public void onBackStackChanged() {
-		this.backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
+		resetBackStackEntryCount();
 		if (this.abController != null) {
 			this.abController.setAB((ABFragment) getCurrentFragment());
 			this.abController.updateABDrawerClosed();
 		}
 		if (this.navigationDrawerController != null) {
-			this.navigationDrawerController.onBackStackChanged(this.backStackEntryCount);
+			this.navigationDrawerController.onBackStackChanged(getBackStackEntryCount());
 		}
 	}
 
@@ -279,7 +287,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 
 	public void updateNavigationDrawerToggleIndicator() {
 		if (this.navigationDrawerController != null) {
-			this.navigationDrawerController.setDrawerToggleIndicatorEnabled(this.backStackEntryCount < 1);
+			this.navigationDrawerController.setDrawerToggleIndicatorEnabled(getBackStackEntryCount() < 1);
 		}
 	}
 
@@ -294,10 +302,28 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	}
 
 
-	private int backStackEntryCount = 0; // because FragmentManager.getBackStackEntryCount() is not instantly up-to-date
+	private Integer backStackEntryCount = null;
 
 	public int getBackStackEntryCount() {
-		return backStackEntryCount;
+		if (this.backStackEntryCount == null) {
+			initBackStackEntryCount();
+		}
+		return this.backStackEntryCount;
+	}
+
+	private void initBackStackEntryCount() {
+		this.backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
+	}
+
+	private void resetBackStackEntryCount() {
+		this.backStackEntryCount = null;
+	}
+
+	private void incBackEntryCount() {
+		if (this.backStackEntryCount == null) {
+			initBackStackEntryCount();
+		}
+		this.backStackEntryCount++;
 	}
 
 

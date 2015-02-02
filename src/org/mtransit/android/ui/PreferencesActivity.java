@@ -1,7 +1,7 @@
 package org.mtransit.android.ui;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.ui.MTActivity;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.util.VendingUtils;
 
 import android.content.Context;
@@ -9,7 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-public class PreferencesActivity extends MTActivity {
+public class PreferencesActivity extends MTActionBarActivity {
 
 	private static final String TAG = PreferencesActivity.class.getSimpleName();
 
@@ -26,8 +26,8 @@ public class PreferencesActivity extends MTActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_preferences);
-		getActionBar().setTitle(R.string.settings);
-		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getSupportActionBar().setTitle(R.string.settings);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 
 	@Override

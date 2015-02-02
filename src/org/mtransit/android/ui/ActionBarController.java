@@ -10,6 +10,7 @@ import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -22,7 +23,7 @@ import android.view.View;
 
 public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
-	private static final String TAG = ActionBarController.class.getSimpleName();
+	private static final String TAG = "Stack-" + ActionBarController.class.getSimpleName();
 
 	@Override
 	public String getLogTag() {
@@ -43,8 +44,9 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
 	private View fragmentCustomView = null;
 
-	private boolean fragmentCustomViewRequestFocus = false;
+	private boolean fragmentCustomViewFocusable = false;
 
+	private boolean fragmentCustomViewRequestFocus = false;
 
 	private boolean fragmentDisplayHomeAsUpEnabled = ABFragment.DEFAULT_DISPLAY_HOME_AS_UP_ENABLED;
 
@@ -122,17 +124,20 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	public void setAB(ABFragment abf) {
 		Context context = getContextOrNull();
 		if (abf != null && context != null) {
-			setAB(abf.getABTitle(context), abf.getABSubtitle(context), abf.getABBgColor(context), abf.getABCustomView(), abf.isABCustomViewRequestFocus(),
-					abf.isABThemeDarkInsteadOfThemeLight(), abf.isABDisplayHomeAsUpEnabled(), abf.isABShowSearchMenuItem(), abf.isABReady());
+			setAB(abf.getABTitle(context), abf.getABSubtitle(context), abf.getABBgColor(context), abf.getABCustomView(), abf.isABCustomViewFocusable(),
+					abf.isABCustomViewRequestFocus(), abf.isABThemeDarkInsteadOfThemeLight(), abf.isABDisplayHomeAsUpEnabled(), abf.isABShowSearchMenuItem(),
+					abf.isABReady());
 		}
 	}
 
-	private void setAB(CharSequence title, CharSequence subtitle, Integer bgColor, View customView, boolean customViewRequestFocus,
-			boolean themeDarkInsteadOfThemeLight, boolean displayHomeAsUpEnabled, boolean showSearchMenuItem, boolean fragmentReady) {
+	private void setAB(CharSequence title, CharSequence subtitle, Integer bgColor, View customView, boolean customViewFocusable,
+			boolean customViewRequestFocus, boolean themeDarkInsteadOfThemeLight, boolean displayHomeAsUpEnabled, boolean showSearchMenuItem,
+			boolean fragmentReady) {
 		this.fragmentTitle = title;
 		this.fragmentSubtitle = subtitle;
 		this.fragmentBgColor = bgColor;
 		this.fragmentCustomView = customView;
+		this.fragmentCustomViewFocusable = customViewFocusable;
 		this.fragmentCustomViewRequestFocus = customViewRequestFocus;
 		this.fragmentDisplayHomeAsUpEnabled = displayHomeAsUpEnabled;
 		this.fragmentShowSearchMenuItem = showSearchMenuItem;
@@ -196,6 +201,16 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
+	public void setABCustomViewFocusable(Fragment source, boolean fragmentCustomViewFocusable, boolean update) {
+		if (!isCurrentFragmentVisible(source)) {
+			return;
+		}
+		this.fragmentCustomViewFocusable = fragmentCustomViewFocusable;
+		if (update) {
+			updateABDrawerClosed();
+		}
+	}
+
 	public void setABCustomViewRequestFocus(Fragment source, boolean fragmentCustomViewRequestFocus, boolean update) {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
@@ -244,9 +259,13 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			if (!this.fragmentDisplayHomeAsUpEnabled) {
 				ab.getCustomView().setOnClickListener(getUpOnClickListener(getMainActivityOrNull()));
 			}
-			if (this.fragmentCustomViewRequestFocus) {
+			if (this.fragmentCustomViewFocusable) {
 				this.fragmentCustomView.setFocusable(true);
-				this.fragmentCustomView.requestFocusFromTouch();
+				this.fragmentCustomView.setFocusableInTouchMode(true);
+				if (this.fragmentCustomViewRequestFocus) {
+					this.fragmentCustomView.requestFocus();
+					this.fragmentCustomView.requestFocusFromTouch();
+				}
 			}
 			ab.setDisplayShowCustomEnabled(true);
 		} else {
@@ -316,9 +335,14 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		return this.upOnClickListener;
 	}
 
+	public void onSaveState(Bundle outState) {
+	}
 
-
-
+	public void onRestoreState(Bundle savedInstanceState) {
+		if (savedInstanceState == null) {
+			return;
+		}
+	}
 
 	public void destroy() {
 		if (this.mainActivityWR != null) {

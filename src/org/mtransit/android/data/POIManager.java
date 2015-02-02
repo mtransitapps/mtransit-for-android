@@ -404,7 +404,16 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private boolean onActionsItemClickPlace(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener) {
 		switch (itemClicked) {
 		case 0:
-			((MainActivity) activity).addFragmentToStack(NearbyFragment.newPoiInstance(null, poi.getUUID(), poi.getAuthority(), this, null));
+			Integer optColor = null;
+			if (poi instanceof RouteTripStop) {
+				optColor = ((RouteTripStop) poi).route.getColorInt();
+			} else {
+				AgencyProperties agency = DataSourceProvider.get(activity).getAgency(activity, poi.getAuthority());
+				if (agency != null && agency.hasColor()) {
+					optColor = agency.getColorInt();
+				}
+			}
+			((MainActivity) activity).addFragmentToStack(NearbyFragment.newFixedOnInstance(null, poi.getLat(), poi.getLng(), poi.getName(), optColor));
 			return true; // HANDLED
 		}
 		return false; // NOT HANDLED
@@ -458,10 +467,10 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_APP:
-			return false; // show long-click menu
+			StoreUtils.viewAppPage(activity, ((Module) poi).getPkg());
+			return true; // handled
 		case POI.ITEM_ACTION_TYPE_PLACE:
-			AgencyProperties agency = null;
-			((MainActivity) activity).addFragmentToStack(NearbyFragment.newPoiInstance(null, poi.getUUID(), poi.getAuthority(), this, agency));
+			((MainActivity) activity).addFragmentToStack(NearbyFragment.newFixedOnInstance(null, poi.getLat(), poi.getLng(), poi.getName(), null));
 			return true; // nearby screen shown
 		}
 		if (activity instanceof MainActivity) {
@@ -469,6 +478,13 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			return true; // HANDLED
 		}
 		return false; // NOT HANDLED
+	}
+
+	public void onActionItemLongClick(Activity activity, FavoriteManager.FavoriteUpdateListener favoriteUpdateListener) {
+		if (activity == null) {
+			return;
+		}
+		showPoiMenu(activity, favoriteUpdateListener);
 	}
 
 	public void onActionItemClick(Activity activity, FavoriteManager.FavoriteUpdateListener favoriteUpdateListener) {

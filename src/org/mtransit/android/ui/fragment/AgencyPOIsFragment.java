@@ -23,6 +23,7 @@ import org.mtransit.android.task.AgencyPOIsLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.util.MapUtils;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -174,6 +175,12 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	}
 
 	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		initAdapters(activity);
+	}
+
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
@@ -182,7 +189,6 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
-		restoreInstanceState(savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_agency_pois, container, false);
 		setupView(view);
 		if (!isShowingListInsteadOfMap()) { // showing map
@@ -235,21 +241,11 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 				this.lastVisibleFragmentPosition = -1;
 			}
 		}
-	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		restoreInstanceState(savedInstanceState);
-	}
-
-	private void initAdapter() {
-		this.adapter = new POIArrayAdapter(getActivity());
 		this.adapter.setTag(this.authority);
-		View view = getView();
-		setupView(view);
-		linkAdapterWithListView(view);
-		switchView(view);
+	}
+
+	private void initAdapters(Activity activity) {
+		this.adapter = new POIArrayAdapter(activity);
 	}
 
 	private void linkAdapterWithListView(View view) {
@@ -263,7 +259,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	}
 
 	private void setupView(View view) {
-		if (view == null || this.adapter == null) {
+		if (view == null) {
 			return;
 		}
 		if (isShowingListInsteadOfMap()) { // showing list
@@ -321,7 +317,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		}
 		this.fragmentVisible = true;
 		switchView(getView());
-		if (this.adapter == null) {
+		if (!this.adapter.isInitialized()) {
 			LoaderUtils.restartLoader(getLoaderManager(), POIS_LOADER, null, this);
 		} else {
 			this.adapter.onResume(getActivity());
@@ -358,9 +354,6 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 
 	@Override
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
-		if (this.adapter == null) {
-			initAdapter();
-		}
 		this.mapMarkers = null; // force refresh
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);

@@ -38,6 +38,7 @@ import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
 import org.mtransit.android.util.MapUtils;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.graphics.Color;
@@ -276,6 +277,12 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	}
 
 	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		initAdapters(activity);
+	}
+
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
@@ -285,18 +292,12 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
-		restoreInstanceState(savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_poi, container, false);
 		setupView(view);
 		initMapView(view, savedInstanceState);
 		return view;
 	}
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		restoreInstanceState(savedInstanceState);
-	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
@@ -386,9 +387,6 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 				}
 			}
 		}
-		if (this.adapter == null) {
-			initAdapter();
-		}
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		this.adapter.initManual();
@@ -415,15 +413,11 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		}
 	}
 
-	private void initAdapter() {
-		this.adapter = new POIArrayAdapter(getActivity());
-		this.adapter.setTag(TAG);
-		View view = getView();
-		if (view != null) {
-			this.adapter.setManualScrollView((ScrollView) view.findViewById(R.id.scrollview));
-			this.adapter.setManualLayout((ViewGroup) view.findViewById(R.id.poi_nearby_pois_list));
-		}
+	private void initAdapters(Activity activity) {
+		this.adapter = new POIArrayAdapter(activity);
+		this.adapter.setTag(getLogTag());
 	}
+
 
 	private MapView mapView = null;
 	private Marker poiMarker = null;
@@ -552,10 +546,8 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		if (view == null) {
 			return;
 		}
-		if (this.adapter != null) {
-			this.adapter.setManualScrollView((ScrollView) view.findViewById(R.id.scrollview));
-			this.adapter.setManualLayout((ViewGroup) view.findViewById(R.id.poi_nearby_pois_list));
-		}
+		this.adapter.setManualScrollView((ScrollView) view.findViewById(R.id.scrollview));
+		this.adapter.setManualLayout((ViewGroup) view.findViewById(R.id.poi_nearby_pois_list));
 	}
 
 	private void setupRTSFullScheduleBtn(View view) {
@@ -600,8 +592,14 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 					if (agency != null) {
 						optTypeId = agency.getType().getId();
 					}
-					((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newPoiInstance(optTypeId, POIFragment.this.uuid,
-							POIFragment.this.authority, POIFragment.this.poim, POIFragment.this.agency));
+					Integer optColor = null;
+					if (POIFragment.this.poim.poi instanceof RouteTripStop) {
+						optColor = ((RouteTripStop) POIFragment.this.poim.poi).route.getColorInt();
+					} else if (agency != null && agency.hasColor()) {
+						optColor = agency.getColorInt();
+					}
+					((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newFixedOnInstance(optTypeId, POIFragment.this.poim.getLat(),
+							POIFragment.this.poim.getLng(), POIFragment.this.poim.poi.getName(), optColor));
 				}
 			});
 			moreBtn.setVisibility(View.VISIBLE);

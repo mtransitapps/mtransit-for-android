@@ -17,6 +17,7 @@ import org.mtransit.android.task.RTSAgencyRoutesLoader;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTJPathsView;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -87,6 +88,12 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	}
 
 	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		initAdapters(activity);
+	}
+
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
@@ -95,7 +102,6 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
-		restoreInstanceState(savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_rts_agency_routes, container, false);
 		setupView(view);
 		return view;
@@ -136,27 +142,14 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 				this.lastVisibleFragmentPosition = -1;
 			}
 		}
+		this.adapter.setAuthority(this.authority);
 	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		restoreInstanceState(savedInstanceState);
-		switchView(getView());
-	}
-
-	private void initAdapter() {
-		if (this.adapter != null) {
-			return;
-		}
-		this.adapter = new RTSRouteArrayAdapter(getActivity(), this.authority, isShowingListInsteadOfGrid());
-		View view = getView();
-		setupView(view);
-		switchView(view);
+	private void initAdapters(Activity activity) {
+		this.adapter = new RTSRouteArrayAdapter(activity, this.authority, isShowingListInsteadOfGrid());
 	}
 
 	private void setupView(View view) {
-		if (view == null || this.adapter == null) {
+		if (view == null) {
 			return;
 		}
 		AbsListView absListView = (AbsListView) view.findViewById(isShowingListInsteadOfGrid() ? R.id.list : R.id.grid);
@@ -271,7 +264,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			return; // already visible
 		}
 		this.fragmentVisible = true;
-		if (this.adapter == null || this.adapter.isEmpty()) {
+		if (this.adapter == null || !this.adapter.isInitialized()) {
 			LoaderUtils.restartLoader(getLoaderManager(), ROUTES_LOADER, null, this);
 		} else {
 			switchView(getView());
@@ -306,9 +299,6 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 
 	@Override
 	public void onLoadFinished(Loader<ArrayList<Route>> loader, ArrayList<Route> data) {
-		if (this.adapter == null) {
-			initAdapter();
-		}
 		this.adapter.setRoutes(data);
 		switchView(getView());
 	}
@@ -462,6 +452,10 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 
 		public void seShowingListInsteadOfGrid(boolean showingListInsteadOfGrid) {
 			this.showingListInsteadOfGrid = showingListInsteadOfGrid;
+		}
+
+		public void setAuthority(String authority) {
+			this.authority = authority;
 		}
 
 		public void setRoutes(ArrayList<Route> routes) {

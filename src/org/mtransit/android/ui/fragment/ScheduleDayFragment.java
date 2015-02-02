@@ -55,6 +55,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	private static final String EXTRA_DAY_START_AT_IN_MS = "extra_day_starts_at_ms";
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
+	private static final String EXTRA_SCOLLED_TO_NOW = "extra_scolled_to_now";
 
 	public static ScheduleDayFragment newInstance(String uuid, String authority, long dayStartsAtInMs, int fragmentPosition, int lastVisibleFragmentPosition,
 			RouteTripStop optRts) {
@@ -83,6 +84,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	private int fragmentPosition = -1;
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
+	private boolean scrolledToNow = false;
 	private long dayStartsAtInMs = -1l;
 	private Calendar dayStartsAtCal = null;
 	private Date dayStartsAtDate;
@@ -189,11 +191,17 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		if (this.rts == null) {
 			return;
 		}
-		if (this.adapter == null) {
+		if (this.adapter == null || !this.adapter.isInitialized()) {
 			LoaderUtils.restartLoader(getLoaderManager(), SCHEDULE_LOADER, null, this);
 		} else {
 			this.adapter.setRts(this.rts);
 		}
+	}
+
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		initAdapters(activity);
 	}
 
 	@Override
@@ -205,17 +213,11 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
-		restoreInstanceState(savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_schedule_day, container, false);
 		setupView(view);
 		return view;
 	}
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		restoreInstanceState(savedInstanceState);
-	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
@@ -234,6 +236,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		if (this.lastVisibleFragmentPosition >= 0) {
 			outState.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, this.lastVisibleFragmentPosition);
 		}
+		outState.putBoolean(EXTRA_SCOLLED_TO_NOW, this.scrolledToNow);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -253,22 +256,27 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			this.dayStartsAtInMs = newDayStartsAtInMs;
 			resetDayStarts();
 		}
-		Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, bundles);
-		if (fragmentPosition != null) {
-			if (fragmentPosition >= 0) {
-				this.fragmentPosition = fragmentPosition;
+		Integer newFragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, bundles);
+		if (newFragmentPosition != null) {
+			if (newFragmentPosition >= 0) {
+				this.fragmentPosition = newFragmentPosition;
 			} else {
 				this.fragmentPosition = -1;
 			}
 		}
-		Integer lastVisibleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, bundles);
-		if (lastVisibleFragmentPosition != null) {
-			if (lastVisibleFragmentPosition >= 0) {
-				this.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
+		Integer newLastVisibleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, bundles);
+		if (newLastVisibleFragmentPosition != null) {
+			if (newLastVisibleFragmentPosition >= 0) {
+				this.lastVisibleFragmentPosition = newLastVisibleFragmentPosition;
 			} else {
 				this.lastVisibleFragmentPosition = -1;
 			}
 		}
+		Boolean newScrolledToNow = BundleUtils.getBoolean(EXTRA_SCOLLED_TO_NOW, bundles);
+		if (newScrolledToNow != null) {
+			this.scrolledToNow = newScrolledToNow;
+		}
+		this.adapter.setDayStartsAt(getDayStartsAtCal());
 	}
 
 	public int getFragmentPosition() {
@@ -280,6 +288,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return;
 		}
 		((TextView) view.findViewById(R.id.dayDate)).setText(getDayDateString());
+		setupAdapter(view);
 	}
 
 	private static final ThreadSafeDateFormatter DAY_DATE_FORMAT = new ThreadSafeDateFormatter("EEEE, MMM d, yyyy");
@@ -299,7 +308,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	}
 
 	private void setupAdapter(View view) {
-		if (view == null || this.adapter == null) {
+		if (view == null) {
 			return;
 		}
 		inflateList(view);
@@ -376,14 +385,12 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		}
 		this.fragmentVisible = true;
 		switchView(getView());
-		if (this.adapter == null) {
+		if (this.adapter == null || !this.adapter.isInitialized()) {
 			if (hasRts()) {
 				LoaderUtils.restartLoader(getLoaderManager(), SCHEDULE_LOADER, null, this);
 			}
 		} else {
-			if (this.adapter.getCount() > 0) {
-				this.adapter.onResume(getActivity());
-			}
+			this.adapter.onResume(getActivity());
 		}
 	}
 
@@ -414,13 +421,13 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 	@Override
 	public void onLoadFinished(Loader<ArrayList<Schedule.Timestamp>> loader, ArrayList<Schedule.Timestamp> data) {
-		switchView(getView());
-		if (this.adapter == null) {
-			initAdapter();
-		}
-		this.adapter.setTimes(data);
 		View view = getView();
-		if (view != null) {
+		if (view == null) {
+			return; // too late
+		}
+		switchView(view);
+		this.adapter.setTimes(data);
+		if (!this.scrolledToNow) {
 			int compareToToday = this.adapter.compareToToday();
 			int selectPosition;
 			if (compareToToday < 0) { // past
@@ -431,6 +438,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 				selectPosition = getTodaySelectPosition();
 			}
 			((AbsListView) view.findViewById(R.id.list)).setSelection(selectPosition);
+			this.scrolledToNow = true;
 		}
 		switchView(view);
 	}
@@ -452,14 +460,15 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		return 0;
 	}
 
-	private void initAdapter() {
-		this.adapter = new TimeAdapter(getActivity(), getDayStartsAtCal(), getRtsOrNull());
-		View view = getView();
-		setupAdapter(view);
+	private void initAdapters(Activity activity) {
+		this.adapter = new TimeAdapter(activity, null, null);
 	}
 
 	private void switchView(View view) {
-		if (this.adapter == null) {
+		if (view == null) {
+			return;
+		}
+		if (this.adapter == null || !this.adapter.isInitialized()) {
 			showLoading(view);
 		} else if (this.adapter.getCount() == 0) {
 			showEmpty(view);
@@ -548,9 +557,14 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			super();
 			setActivity(activity);
 			this.layoutInflater = LayoutInflater.from(activity);
+		}
+
+		public void setDayStartsAt(Calendar dayStartsAt) {
 			this.dayStartsAt = dayStartsAt;
-			this.optRts = optRts;
-			initHours();
+			resetHours();
+			if (this.dayStartsAt != null) {
+				initHours();
+			}
 		}
 
 		public void setRts(RouteTripStop optRts) {
@@ -570,14 +584,18 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		}
 
 		private void initHours() {
-			this.hours.clear();
-			this.hourToTimes.clear();
+			resetHours();
 			for (int hourOfTheDay = 0; hourOfTheDay < HOUR_SEPARATORS_COUNT; hourOfTheDay++) {
-				Calendar cal = (Calendar) dayStartsAt.clone();
+				Calendar cal = (Calendar) this.dayStartsAt.clone();
 				cal.set(Calendar.HOUR_OF_DAY, hourOfTheDay);
 				this.hours.add(cal.getTime());
 				this.hourToTimes.put(hourOfTheDay, new ArrayList<Schedule.Timestamp>());
 			}
+		}
+
+		private void resetHours() {
+			this.hours.clear();
+			this.hourToTimes.clear();
 		}
 
 		public void clearTimes() {
@@ -597,6 +615,11 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 					MTLog.d(this, "setTimes() > this.nextTimeInMs: %s", this.nextTimeInMs);
 				}
 			}
+			this.initialized = true;
+		}
+
+		public boolean isInitialized() {
+			return this.initialized;
 		}
 
 		@Override
