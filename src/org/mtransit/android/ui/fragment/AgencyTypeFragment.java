@@ -30,6 +30,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
@@ -131,20 +132,33 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		return view;
 	}
 
+	private boolean modulesUpdated = false;
 
 	@Override
 	public void onModulesUpdated() {
+		this.modulesUpdated = true;
+		if (!isResumed()) {
+			return;
+		}
 		if (this.adapter != null) {
-			ArrayList<AgencyProperties> newAvailableAgencies = this.typeId == null ? null : DataSourceProvider.get(getActivity()).getTypeDataSources(
-					getActivity(), this.typeId);
-			if (CollectionUtils.getSize(newAvailableAgencies) == CollectionUtils.getSize(this.adapter.getAgencies())) {
+			FragmentActivity activity = getActivity();
+			if (activity == null) {
 				return;
 			}
-			MainActivity mainActivity = (MainActivity) getActivity();
+			ArrayList<AgencyProperties> newAvailableAgencies = this.typeId == null ? null : DataSourceProvider.get(activity).getTypeDataSources(activity,
+					this.typeId);
+			if (CollectionUtils.getSize(newAvailableAgencies) == CollectionUtils.getSize(this.adapter.getAgencies())) {
+				this.modulesUpdated = false; // nothing to update
+				return;
+			}
+			MainActivity mainActivity = (MainActivity) activity;
 			if (mainActivity != null) {
-				NavigationDrawerController navigationController = mainActivity.getNavigationDrawerController();
-				if (navigationController != null) {
-					navigationController.forceReset();
+				if (mainActivity.isMTResumed()) {
+					NavigationDrawerController navigationController = mainActivity.getNavigationDrawerController();
+					if (navigationController != null) {
+						navigationController.forceReset();
+						this.modulesUpdated = false; // processed
+					}
 				}
 			}
 		}
@@ -379,6 +393,16 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	@Override
 	public void onResume() {
 		super.onResume();
+		if (this.modulesUpdated) {
+			getView().post(new Runnable() {
+				@Override
+				public void run() {
+					if (AgencyTypeFragment.this.modulesUpdated) {
+						onModulesUpdated();
+					}
+				}
+			});
+		}
 		if (this.lastPageSelected >= 0) {
 			onPageSelected(this.lastPageSelected); // tell current page it's selected
 		}
@@ -651,7 +675,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 
 		public String getAgencyAuthority(int position) {
-			return this.agenciesAuthority == null ? null : this.agenciesAuthority.get(position);
+			return this.agenciesAuthority == null || this.agenciesAuthority.size() <= position ? null : this.agenciesAuthority.get(position);
 		}
 
 		@Override

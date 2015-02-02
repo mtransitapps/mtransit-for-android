@@ -63,6 +63,19 @@ public class DataSourceProvider implements MTLog.Loggable {
 		}
 	}
 
+	private static boolean resumed = false;
+
+	public static void onPause() {
+		resumed = false;
+	}
+
+	public static void onResume() {
+		resumed = true;
+		if (triggerModulesUpdated) {
+			triggerModulesUpdated();
+		}
+	}
+
 	private static String agencyProviderMetaData;
 
 	public static String getAgencyProviderMetaData(Context context) {
@@ -547,7 +560,13 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private static TriggerModulesUpdatedTask triggerModulesUpdatedTask = null;
 
+	private static boolean triggerModulesUpdated = false;
+
 	public static void triggerModulesUpdated() {
+		triggerModulesUpdated = true;
+		if (!resumed) {
+			return;
+		}
 		if (modulesUpdateListeners != null) {
 			if (triggerModulesUpdatedTask != null && triggerModulesUpdatedTask.getStatus() != AsyncTask.Status.RUNNING) {
 				triggerModulesUpdatedTask.cancel(true);
@@ -555,6 +574,9 @@ public class DataSourceProvider implements MTLog.Loggable {
 			WeakHashMap<ModulesUpdateListener, Object> listenersCopy = new WeakHashMap<ModulesUpdateListener, Object>(modulesUpdateListeners);
 			triggerModulesUpdatedTask = new TriggerModulesUpdatedTask(listenersCopy);
 			triggerModulesUpdatedTask.execute();
+			triggerModulesUpdated = false; // processed
+		} else {
+			triggerModulesUpdated = false; // processed
 		}
 	}
 

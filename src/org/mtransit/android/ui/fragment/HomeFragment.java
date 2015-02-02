@@ -102,10 +102,17 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		useNewNearbyLocation(this.userLocation);
 	}
 
+	private boolean modulesUpdated = false;
+
 	@Override
 	public void onModulesUpdated() {
+		this.modulesUpdated = true;
+		if (!isResumed()) {
+			return;
+		}
 		this.nearbyLocation = null; // force refresh
 		initiateRefresh();
+		this.modulesUpdated = false; // processed
 	}
 
 
@@ -123,6 +130,16 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public void onResume() {
 		super.onResume();
+		if (this.modulesUpdated) {
+			getView().post(new Runnable() {
+				@Override
+				public void run() {
+					if (HomeFragment.this.modulesUpdated) {
+						onModulesUpdated();
+					}
+				}
+			});
+		}
 		switchView(getView());
 		if (this.adapter != null) {
 			this.adapter.onResume(getActivity());

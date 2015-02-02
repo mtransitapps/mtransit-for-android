@@ -114,13 +114,19 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		}.execute(savedInstanceState);
 	}
 
+	private boolean menuUpdated = false;
+
 	@Override
 	public void onMenuUpdated() {
+		this.menuUpdated = true;
 		if (this.drawerListViewAdapter == null) {
 			return;
 		}
 		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 		if (mainActivity == null) {
+			return;
+		}
+		if (!mainActivity.isMTResumed()) {
 			return;
 		}
 		String itemId = PreferenceUtils.getPrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
@@ -132,6 +138,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 			return;
 		}
 		selectItem(newSelectedItemPosition, false);
+		this.menuUpdated = false; // processed
 	}
 
 	public void forceReset() {
@@ -273,6 +280,18 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 	}
 
 	public void onResume() {
+		if (this.menuUpdated) {
+			onMenuUpdated();
+		}
+		if (this.drawerListViewAdapter != null) {
+			this.drawerListViewAdapter.onResume();
+		}
+	}
+
+	public void onPause() {
+		if (this.drawerListViewAdapter != null) {
+			this.drawerListViewAdapter.onPause();
+		}
 	}
 
 	private static final String EXTRA_SELECTED_ROOT_SCREEN_POSITION = "extra_selected_root_screen";

@@ -69,6 +69,16 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	@Override
 	public void onResume() {
 		super.onResume();
+		if (this.modulesUpdated) {
+			getView().post(new Runnable() {
+				@Override
+				public void run() {
+					if (FavoritesFragment.this.modulesUpdated) {
+						onModulesUpdated();
+					}
+				}
+			});
+		}
 		switchView(getView());
 		if (this.adapter.isInitialized()) {
 			this.adapter.onResume(getActivity());
@@ -156,9 +166,16 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		LoaderUtils.restartLoader(getLoaderManager(), FAVORITES_LOADER, null, this);
 	}
 
+	private boolean modulesUpdated = false;
+
 	@Override
 	public void onModulesUpdated() {
+		this.modulesUpdated = true;
+		if (!isResumed()) {
+			return;
+		}
 		LoaderUtils.restartLoader(getLoaderManager(), FAVORITES_LOADER, null, this);
+		this.modulesUpdated = false; // processed
 	}
 
 	private void switchView(View view) {

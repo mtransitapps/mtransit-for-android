@@ -183,20 +183,36 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		setNewNearbyLocation(this.userLocation);
 	}
 
+	private boolean modulesUpdated = false;
+
 	@Override
 	public void onModulesUpdated() {
+		this.modulesUpdated = true;
+		if (!isResumed()) {
+			return;
+		}
 		if (this.adapter != null) {
-			ArrayList<DataSourceType> newAvailableAgencyTypes = filterAgencyTypes(DataSourceProvider.get(getActivity()).getAvailableAgencyTypes());
-			if (CollectionUtils.getSize(newAvailableAgencyTypes) == CollectionUtils.getSize(this.adapter.getAvailableAgencyTypes())) {
+			FragmentActivity activity = getActivity();
+			if (activity == null) {
 				return;
 			}
-			MainActivity mainActivity = (MainActivity) getActivity();
+			ArrayList<DataSourceType> newAvailableAgencyTypes = filterAgencyTypes(DataSourceProvider.get(activity).getAvailableAgencyTypes());
+			if (CollectionUtils.getSize(newAvailableAgencyTypes) == CollectionUtils.getSize(this.adapter.getAvailableAgencyTypes())) {
+				this.modulesUpdated = false; // nothing to do
+				return;
+			}
+			MainActivity mainActivity = (MainActivity) activity;
 			if (mainActivity != null) {
-				NavigationDrawerController navigationController = mainActivity.getNavigationDrawerController();
-				if (navigationController != null) {
-					navigationController.forceReset();
+				if (mainActivity.isMTResumed()) {
+					NavigationDrawerController navigationController = mainActivity.getNavigationDrawerController();
+					if (navigationController != null) {
+						navigationController.forceReset();
+						this.modulesUpdated = false; // processed
+					}
 				}
 			}
+		} else {
+			this.modulesUpdated = false; // nothing to do
 		}
 	}
 
@@ -250,6 +266,13 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	@Override
 	public void onResume() {
 		super.onResume();
+		if (this.modulesUpdated) {
+			getView().post(new Runnable() {
+				@Override
+				public void run() {
+				}
+			});
+		}
 		if (this.lastPageSelected >= 0) {
 			onPageSelected(this.lastPageSelected); // tell current page it's selected
 		}

@@ -47,7 +47,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
@@ -749,20 +748,42 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		}
 	}
 
+	private boolean modulesUpdated = false;
+
 	@Override
 	public void onModulesUpdated() {
-		POIManager newPoim = DataSourceManager.findPOI(getActivity(), this.authority, new POIFilter(Arrays.asList(new String[] { this.uuid })));
-		FragmentActivity activity = getActivity();
+		this.modulesUpdated = true;
+		if (!isResumed()) {
+			return;
+		}
+		MainActivity activity = (MainActivity) getActivity();
+		if (activity == null) {
+			return;
+		}
+		POIManager newPoim = DataSourceManager.findPOI(activity, this.authority, new POIFilter(Arrays.asList(new String[] { this.uuid })));
 		if (newPoim == null) {
-			if (activity != null) {
+			if (activity.isMTResumed()) {
 				((MainActivity) activity).popFragmentFromStack(this); // close this fragment
+				this.modulesUpdated = false; // processed
 			}
+		} else {
+			this.modulesUpdated = false; // nothing to do
 		}
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
+		if (this.modulesUpdated) {
+			getView().post(new Runnable() {
+				@Override
+				public void run() {
+					if (POIFragment.this.modulesUpdated) {
+						onModulesUpdated();
+					}
+				}
+			});
+		}
 		if (!this.compassUpdatesEnabled) {
 			SensorUtils.registerCompassListener(getActivity(), this);
 			this.compassUpdatesEnabled = true;

@@ -300,6 +300,16 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	@Override
 	public void onResume() {
 		super.onResume();
+		if (this.modulesUpdated) {
+			new Handler().post(new Runnable() {
+				@Override
+				public void run() {
+					if (SearchFragment.this.modulesUpdated) {
+						onModulesUpdated();
+					}
+				}
+			});
+		}
 		switchView(getView());
 		this.adapter.onResume(getActivity());
 		if (!this.adapter.isInitialized()) {
@@ -316,13 +326,20 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 	}
 
+	private boolean modulesUpdated = false;
+
 	@Override
 	public void onModulesUpdated() {
+		this.modulesUpdated = true;
+		if (!isResumed()) {
+			return;
+		}
 		if (this.typeFiltersAdapter != null) {
 			this.typeFiltersAdapter.reset();
 		}
 		cancelRestartSearchLater();
 		restartSearchLater();
+		this.modulesUpdated = false; // processed
 	}
 
 	private static final int POI_SEARCH_LOADER = 0;

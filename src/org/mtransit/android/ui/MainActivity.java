@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -67,9 +68,16 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		MapUtils.initMapAsync(this);
 	}
 
+	private boolean modulesUpdated = false;
+
 	@Override
 	public void onModulesUpdated() {
+		this.modulesUpdated = true;
+		if (!this.resumed) {
+			return;
+		}
 		AdsUtils.onModulesUpdated(this);
+		this.modulesUpdated = false; // processed
 	}
 
 	@Override
@@ -141,10 +149,38 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	}
 
 	@Override
+	protected void onPostResume() {
+		super.onPostResume();
+		this.resumed = true;
+		if (this.modulesUpdated) {
+			new Handler().post(new Runnable() {
+				@Override
+				public void run() {
+					if (MainActivity.this.modulesUpdated) {
+						onModulesUpdated();
+					}
+				}
+			});
+		}
+		DataSourceProvider.onResume();
+	}
+
+	private boolean resumed = false;
+
+	public boolean isMTResumed() {
+		return this.resumed;
+	}
+
+	@Override
 	protected void onPause() {
 		super.onPause();
+		this.resumed = false;
+		if (this.navigationDrawerController != null) {
+			this.navigationDrawerController.onPause();
+		}
 		VendingUtils.onPause();
 		AdsUtils.pauseAd(this);
+		DataSourceProvider.onPause();
 	}
 
 	@Override

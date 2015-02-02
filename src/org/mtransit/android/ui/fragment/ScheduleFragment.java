@@ -22,6 +22,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
@@ -349,16 +350,45 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	@Override
+	public void onResume() {
+		super.onResume();
+		if (this.modulesUpdated) {
+			getView().post(new Runnable() {
+				@Override
+				public void run() {
+					if (ScheduleFragment.this.modulesUpdated) {
+						onModulesUpdated();
+					}
+				}
+			});
+		}
+	}
+
+	private boolean modulesUpdated = false;
+
+	@Override
 	public void onModulesUpdated() {
+		this.modulesUpdated = true;
+		if (!isResumed()) {
+			return;
+		}
 		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
+			FragmentActivity activity = getActivity();
+			if (activity == null) {
+				return;
+			}
 			POIFilter poiFilter = new POIFilter(Arrays.asList(new String[] { this.uuid }));
-			POIManager newPoim = DataSourceManager.findPOI(getActivity(), this.authority, poiFilter);
+			POIManager newPoim = DataSourceManager.findPOI(activity, this.authority, poiFilter);
 			if (newPoim == null || !(newPoim.poi instanceof RouteTripStop)) {
-				((MainActivity) getActivity()).popFragmentFromStack(this); // close this fragment
+				((MainActivity) activity).popFragmentFromStack(this); // close this fragment
+				this.modulesUpdated = false; // processed
 				return;
 			}
 			resetRts();
 			setupView(getView());
+			this.modulesUpdated = false; // processed
+		} else {
+			this.modulesUpdated = false; // processed
 		}
 	}
 

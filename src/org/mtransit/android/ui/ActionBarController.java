@@ -39,7 +39,6 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
 	private CharSequence fragmentSubtitle;
 
-
 	private Integer fragmentBgColor = null;
 
 	private View fragmentCustomView = null;

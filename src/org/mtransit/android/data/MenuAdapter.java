@@ -1,5 +1,6 @@
 package org.mtransit.android.data;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -16,6 +17,7 @@ import org.mtransit.android.ui.fragment.NearbyFragment;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,7 +62,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 
 	public static final String ITEM_ID_SELECTED_SCREEN_DEFAULT = ITEM_ID_STATIC_START_WITH + ITEM_ID_SELECTED_SCREEN_POSITION_DEFAULT;
 
-	private Context context;
+	private WeakReference<Context> contextWR;
 
 	private MenuUpdateListener listener;
 
@@ -69,7 +71,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 	private ArrayList<DataSourceType> allAgencyTypes = null;
 
 	public MenuAdapter(Context context, MenuUpdateListener listener) {
-		this.context = context;
+		this.contextWR = new WeakReference<Context>(context);
 		this.listener = listener;
 		this.layoutInflater = LayoutInflater.from(context);
 		DataSourceProvider.addModulesUpdateListerner(this);
@@ -87,7 +89,8 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 	}
 
 	private void initAllAgencyTypes() {
-		this.allAgencyTypes = filterAgencyTypes(DataSourceProvider.get(this.context).getAvailableAgencyTypes());
+		Context context = this.contextWR == null ? null : this.contextWR.get();
+		this.allAgencyTypes = filterAgencyTypes(DataSourceProvider.get(context).getAvailableAgencyTypes());
 	}
 
 	private ArrayList<DataSourceType> filterAgencyTypes(ArrayList<DataSourceType> availableAgencyTypes) {
@@ -106,16 +109,45 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		return getAllAgencyTypes().size();
 	}
 
+	private boolean resumed = false;
+
+	public void onPause() {
+		this.resumed = false;
+	}
+
+	public void onResume() {
+		this.resumed = true;
+		if (this.modulesUpdated) {
+			new Handler().post(new Runnable() {
+				@Override
+				public void run() {
+					if (MenuAdapter.this.modulesUpdated) {
+						onModulesUpdated();
+					}
+				}
+			});
+		}
+	}
+
+	private boolean modulesUpdated = false;
+
 	@Override
 	public void onModulesUpdated() {
-		ArrayList<DataSourceType> newAllAgencyTypes = filterAgencyTypes(DataSourceProvider.get(this.context).getAvailableAgencyTypes());
+		this.modulesUpdated = true;
+		if (!this.resumed) {
+			return;
+		}
+		Context context = this.contextWR == null ? null : this.contextWR.get();
+		ArrayList<DataSourceType> newAllAgencyTypes = filterAgencyTypes(DataSourceProvider.get(context).getAvailableAgencyTypes());
 		if (CollectionUtils.getSize(this.allAgencyTypes) != CollectionUtils.getSize(newAllAgencyTypes)) {
 			this.allAgencyTypes = newAllAgencyTypes; // force reset
 			super.notifyDataSetChanged();
 			if (this.listener != null) {
 				this.listener.onMenuUpdated();
+				this.modulesUpdated = false; // processed
 			}
-
+		} else {
+			this.modulesUpdated = false; // nothing to do
 		}
 	}
 

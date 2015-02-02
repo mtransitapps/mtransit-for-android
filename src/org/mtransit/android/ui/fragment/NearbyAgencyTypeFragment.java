@@ -21,6 +21,7 @@ import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
@@ -73,7 +74,6 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	private boolean swipeRefreshLayoutEnabled = true;
 	private int fragmentPosition = -1;
 	private int lastVisibleFragmentPosition = -1;
-	private boolean resumed = false;
 	private boolean fragmentVisible = false;
 	private WeakReference<NearbyFragment> nearbyFragmentWR;
 	private ArrayList<String> typeAgenciesAuthority;
@@ -209,7 +209,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		if (this.fragmentPosition < 0) {
 			return;
 		}
-		if (!this.resumed) {
+		if (!isResumed()) {
 			return;
 		}
 		if (this.fragmentPosition == visibleFragmentPosition) {
@@ -253,7 +253,6 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	@Override
 	public void onPause() {
 		super.onPause();
-		this.resumed = false;
 		onFragmentInvisible();
 	}
 
@@ -261,7 +260,16 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	@Override
 	public void onResume() {
 		super.onResume();
-		this.resumed = true;
+		if (this.modulesUpdated) {
+			getView().post(new Runnable() {
+				@Override
+				public void run() {
+					if (NearbyAgencyTypeFragment.this.modulesUpdated) {
+						onModulesUpdated();
+					}
+				}
+			});
+		}
 		if (this.fragmentPosition < 0 || this.fragmentPosition == this.lastVisibleFragmentPosition) {
 			onFragmentVisible();
 		} // ELSE would be call later
@@ -311,15 +319,27 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		}
 	}
 
+	private boolean modulesUpdated = false;
+
 	@Override
 	public void onModulesUpdated() {
+		this.modulesUpdated = true;
+		if (!isResumed()) {
+			return;
+		}
 		if (this.adapter != null && this.nearbyLocation != null && this.typeId != null) {
-			ArrayList<String> newTypeAgenciesAuthority = NearbyPOIListLoader.findTypeAgenciesAuthority(getActivity(), this.typeId,
+			FragmentActivity activity = getActivity();
+			if (activity == null) {
+				return;
+			}
+			ArrayList<String> newTypeAgenciesAuthority = NearbyPOIListLoader.findTypeAgenciesAuthority(activity, this.typeId,
 					this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff, this.lastAroundDiff);
 			if (CollectionUtils.getSize(this.typeAgenciesAuthority) != CollectionUtils.getSize(newTypeAgenciesAuthority)) {
 				useNewNearbyLocation(this.nearbyLocation, true); // force
 			}
-
+			this.modulesUpdated = false; // processed
+		} else {
+			this.modulesUpdated = false; // processed
 		}
 	}
 

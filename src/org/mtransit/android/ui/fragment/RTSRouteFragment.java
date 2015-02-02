@@ -27,6 +27,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.SpannableStringBuilder;
@@ -120,6 +121,16 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public void onResume() {
 		super.onResume();
+		if (this.modulesUpdated) {
+			getView().post(new Runnable() {
+				@Override
+				public void run() {
+					if (RTSRouteFragment.this.modulesUpdated) {
+						onModulesUpdated();
+					}
+				}
+			});
+		}
 		switchView(getView());
 		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
 	}
@@ -252,22 +263,34 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		this.stopId = -1; // set only once
 	}
 
+	private boolean modulesUpdated = false;
+
 	@Override
 	public void onModulesUpdated() {
+		this.modulesUpdated = true;
+		if (!isResumed()) {
+			return;
+		}
 		if (this.routeId != null && !TextUtils.isEmpty(this.authority)) {
-			Route newRoute = DataSourceManager.findRTSRoute(getActivity(), this.authority, this.routeId);
+			FragmentActivity activity = getActivity();
+			if (activity == null) {
+				return;
+			}
+			Route newRoute = DataSourceManager.findRTSRoute(activity, this.authority, this.routeId);
 			if (newRoute == null) {
-				((MainActivity) getActivity()).popFragmentFromStack(this); // close this fragment
+				((MainActivity) activity).popFragmentFromStack(this); // close this fragment
+				this.modulesUpdated = false; // processed
 				return;
 			}
 			if (isRouteEqual(newRoute)) {
+				this.modulesUpdated = false; // nothing to do
 				return;
 			}
 			resetRoute();
-			initAdapters(getActivity());
+			initAdapters(activity);
 			setupView(getView());
+			this.modulesUpdated = false; // processed
 		}
-
 	}
 
 	private void initAdapters(Activity activity) {

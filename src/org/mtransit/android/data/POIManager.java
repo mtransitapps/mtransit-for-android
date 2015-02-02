@@ -351,14 +351,12 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_ACTION_TYPE_APP:
 			if (PackageManagerUtils.isAppInstalled(context, ((Module) poi).getPkg())) {
 				return new CharSequence[] { //
-				context.getString(R.string.join_leave_test_on_store), //
 						context.getString(R.string.rate_on_store), //
 						context.getString(R.string.uninstall), //
 				};
 			} else {
 				return new CharSequence[] { //
-				context.getString(R.string.join_leave_test_on_store), //
-						context.getString(R.string.download_on_store), //
+				context.getString(R.string.download_on_store), //
 				};
 			}
 		case POI.ITEM_ACTION_TYPE_PLACE:
@@ -389,12 +387,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private boolean onActionsItemClickApp(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener) {
 		switch (itemClicked) {
 		case 0:
-			StoreUtils.viewTestingWebPage(activity, ((Module) poi).getPkg());
-			return true; // HANDLED
-		case 1:
 			StoreUtils.viewAppPage(activity, ((Module) poi).getPkg());
 			return true; // HANDLED
-		case 2:
+		case 1:
 			PackageManagerUtils.uninstallApp(activity, ((Module) poi).getPkg());
 			return true; // HANDLED
 		}
