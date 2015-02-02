@@ -539,6 +539,8 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private SparseArray<ArrayList<Schedule.Timestamp>> hourToTimes = new SparseArray<ArrayList<Schedule.Timestamp>>();
 
+		private boolean initialized = false;
+
 		private ArrayList<Date> hours = new ArrayList<Date>();
 
 		private LayoutInflater layoutInflater;
@@ -557,6 +559,8 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			super();
 			setActivity(activity);
 			this.layoutInflater = LayoutInflater.from(activity);
+			setDayStartsAt(dayStartsAt);
+			setRts(optRts);
 		}
 
 		public void setDayStartsAt(Calendar dayStartsAt) {
