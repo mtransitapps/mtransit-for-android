@@ -1,4 +1,4 @@
 mtransit-for-android
 ====================
 
-MT for Android
+MonTransit BETA for Android
