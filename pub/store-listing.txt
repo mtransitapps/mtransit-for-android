@@ -1,10 +1,14 @@
 Title: MonTransit BETA
 ----------
-Short description: Montreal Transit in your pocket
+Short description: Montreal Transit in your pocket (BETA).
+----------
+What's new in this version?:
+BETA: Thanks for your patience while the last features are being added and the last bugs are being fixed.
+
+Bug fixes & performance improvements.
 ----------
 Full description:
-BETA: TEST IN PROGRESS
-To leave the test: http://goo.gl/rZ7J59
+BETA: Thanks for your patience while the last features are being added and the last bugs are being fixed.
 
 MonTransit BETA gives you access to transit agencies information in the greater Montreal: 
 - CIT Chambly-Richelieu-Carignan (Blus) Bus on Google Play (free): http://goo.gl/bB3uXn
@@ -31,6 +35,12 @@ MonTransit BETA gives you access to transit agencies information in the greater 
 
 This app is free and open-source:
 https://github.com/mtransitapps/mtransit-for-android
+
+Permissions:
+- In-app purchases: required for donations (hide ads & support MonTransit)
+- Location: required to show nearby transit information & show distance & compass
+- Photo/Media/Files: required by Google Maps
+- Other: required by Google Analytics & Google Mobile Ads (AdMob) & Google Maps
 ----------
 Application type: Applications
 ----------

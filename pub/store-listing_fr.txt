@@ -1,10 +1,14 @@
 Title: MonTransit BETA
 ----------
-Short description: Transport Montréal dans votre poche
+Short description: Transport Montréal dans votre poche (BETA).
+----------
+What's new in this version?:
+BETA : Merci de votre patience pendant que les dernières fonctionnalités sont ajoutées et les derniers problèmes sont corrigés.
+
+Correction de problèmes & Amélioration des performances.
 ----------
 Full description:
-BETA : TEST EN COURS
-Pour quitter le test : http://goo.gl/rZ7J59
+BETA : Merci de votre patience pendant que les dernières fonctionnalités sont ajoutées et les derniers problèmes corrigés.
 
 MonTransit BETA vous donne accès à l'information des agences de transport en commun dans la région de Montréal : 
 - Bus CIT Chambly-Richelieu-Carignan (Blus) sur Google Play (gratuit) : http://goo.gl/bB3uXn
@@ -31,3 +35,9 @@ MonTransit BETA vous donne accès à l'information des agences de transport en c
 
 Cette application est gratuite et ouverte :
 https://github.com/mtransitapps/mtransit-for-android
+
+Autorisations :
+- Achats via l'application: requis pour les dons (cacher pubs & supporter MonTransit)
+- Position: requis pour afficher les informations de transport à proximité ainsi que la distances et la boussole
+- Photos/Contenus multimédias/Fichiers: requis par Google Maps
+- Autres: requis par Google Analytics & Google Mobile Ads (AdMob) & Google Maps
