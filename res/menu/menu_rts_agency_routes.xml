@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="org.mtransit.android.MainActivity" >
+    <item
+        android:id="@+id/menu_toggle_list_grid"
+        android:icon="@drawable/ic_action_action_list_holo_dark"
+        android:title="@string/menu_action_list"
+        android:visible="false"
+        app:showAsAction="ifRoom"/>
+</menu>

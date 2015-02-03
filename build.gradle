@@ -1,0 +1,67 @@
+apply plugin: 'com.android.application'
+
+dependencies {
+    compile project(':commons-android')
+    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.google.android.gms:play-services-ads:6.5.87'
+    compile 'com.google.android.gms:play-services-base:6.5.87'
+    compile 'com.google.android.gms:play-services-location:6.5.87'
+    compile 'com.google.android.gms:play-services-maps:6.5.87'
+}
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    Properties releaseVersionProps = new Properties()
+    releaseVersionProps.load(new FileInputStream(file("version.properties")))
+
+    defaultConfig {
+        applicationId "org.mtransit.android"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode releaseVersionProps['version.code'] as Integer
+        versionName releaseVersionProps['version.name']
+    }
+
+    Properties releaseKeyProps = new Properties()
+    def keysFile = file("../keys.properties")
+    if (keysFile.exists()) {
+        releaseKeyProps.load(new FileInputStream(file("../keys.properties")))
+	    signingConfigs {
+	        release {
+	            storeFile file(releaseKeyProps['key.store'])
+	            storePassword releaseKeyProps['key.store.password']
+	            keyAlias releaseKeyProps['key.alias']
+	            keyPassword releaseKeyProps['key.alias.password']
+	        }
+	    }
+    }
+    buildTypes {
+        debug {
+            versionNameSuffix "_DEBUG"
+        }
+        release {
+            if (keysFile.exists()) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
+    }
+}

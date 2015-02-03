@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="mt_blue_malibu">#6699FF</color><!-- dark blue -->
+    <color name="mt_blue_smalt">#003399</color><!-- light blue -->
+    <color name="window_background">@color/platform_background_holo_light_gradient_start_color</color>
+    <color name="menu_bg">@color/window_background</color>
+    <color name="menu_item_bg">@android:color/white</color>
+    <color name="menu_secondary_item_bg">@color/window_background</color>
+    <color name="menu_item_text_color">#333333</color>
+    <color name="poi_item_bg">@android:color/white</color>
+    <color name="button_bg">@color/primary_material_dark</color>
+    <color name="ic_menu_holo_light_text">#CC333333</color>
+</resources>

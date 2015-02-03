@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/status"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentRight="true"
+    android:layout_alignWithParentIfMissing="true"
+    android:layout_centerVertical="true"
+    android:minWidth="?android:attr/listPreferredItemHeight"
+    android:orientation="vertical"
+    android:paddingLeft="1dp"
+    android:paddingRight="1dp"
+    android:visibility="invisible"
+    tools:visibility="visible" >
+    <!-- PIE CHART % -->
+    <org.mtransit.android.ui.view.MTPieChartPercentView
+        android:id="@+id/pie"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="0dp"
+        android:visibility="gone"
+        tools:visibility="visible" />
+    <TextView
+        android:id="@+id/textTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="0dp"
+        android:ellipsize="marquee"
+        android:fontFamily="sans-serif"
+        android:padding="0dp"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textStyle="normal"
+        android:visibility="gone"
+        tools:visibility="visible" />
+</LinearLayout>

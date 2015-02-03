@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingTop="?attr/actionBarSize" >
+    <!-- TABS -->
+    <org.mtransit.android.ui.view.SlidingTabLayout
+        android:id="@+id/tabs"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/listPreferredItemHeightSmall"
+        android:background="?attr/colorPrimary"
+        android:visibility="gone" />
+    <!-- LOADING -->
+    <ViewStub
+        android:id="@+id/loading_stub"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:inflatedId="@+id/loading"
+        android:layout="@layout/layout_loading_large"
+        android:visibility="visible" />
+    <!-- VIEWPAGER -->
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        tools:context="org.mtransit.android.MainActivity" />
+    <!-- EMPTY -->
+    <ViewStub
+        android:id="@+id/empty_stub"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:inflatedId="@+id/empty"
+        android:layout="@layout/layout_empty"
+        android:visibility="gone" />
+</LinearLayout>

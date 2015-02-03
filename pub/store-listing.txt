@@ -1,0 +1,57 @@
+Title: MonTransit BETA
+----------
+Short description: Montreal Transit in your pocket (BETA).
+----------
+What's new in this version?:
+BETA: Thanks for your patience while the last features are being added and the last bugs are being fixed.
+
+Bug fixes & performance improvements.
+----------
+Full description:
+BETA: Thanks for your patience while the last features are being added and the last bugs are being fixed.
+
+MonTransit BETA gives you access to transit agencies information in the greater Montreal: 
+- CIT Chambly-Richelieu-Carignan (Blus) Bus on Google Play (free): http://goo.gl/bB3uXn
+- CIT Haut-St-Laurent Bus on Google Play (free): http://goo.gl/63tdvt
+- CIT Laurentides Bus on Google Play (free): http://goo.gl/2X5O0v
+- CIT La Presqu'Île Bus on Google Play (free): http://goo.gl/BGW1tZ
+- CIT Le Richelain Bus on Google Play (free): http://goo.gl/C4RvHu
+- CIT Roussillon Bus on Google Play (free): http://goo.gl/AHZMf9
+- CIT Sorel-Varennes Bus on Google Play (free): http://goo.gl/DXSj7G
+- CIT Sud-Ouest Bus on Google Play (free): http://goo.gl/0lKFAF
+- CIT Vallée du Richelieu Bus on Google Play (free): http://goo.gl/561ksW
+- CRT Lanaudière Bus on Google Play (free): http://goo.gl/u4wWcI
+- MRC Deux-Montagnes (Oka Express) Bus on Google Play (free): http://goo.gl/ciI3YT
+- MRC L'Assomption (RTCR) Bus on Google Play (free): http://goo.gl/PCpIIT
+- MRC Les Moulins (Urbis) Bus on Google Play (free): http://goo.gl/TZTNvl
+- Ste-Julie Bus on Google Play (free): http://goo.gl/lpqCFM
+- STL Bus (Laval) on Google Play (free): http://goo.gl/oVpn75
+- RTL Bus (Longueuil) on Google Play (free): http://goo.gl/dU2es1
+- AMT Express Bus (Montreal) on Google Play (free): http://goo.gl/bQmUrH
+- AMT Train (Montreal) on Google Play (free): http://goo.gl/nvQd13
+- BIXI Bikes (Montreal) on Google Play (free): http://goo.gl/omUanh
+- STM Bus (Montreal) on Google Play (free): http://goo.gl/YPJzF5
+- STM Subway (Montreal) on Google Play (free): http://goo.gl/kpn9tP
+
+This app is free and open-source:
+https://github.com/mtransitapps/mtransit-for-android
+
+Permissions:
+- In-app purchases: required for donations (hide ads & support MonTransit)
+- Location: required to show nearby transit information & show distance & compass
+- Photo/Media/Files: required by Google Maps
+- Other: required by Google Analytics & Google Mobile Ads (AdMob) & Google Maps
+----------
+Application type: Applications
+----------
+Category: Transportation
+----------
+Content rating: Low Maturity
+----------
+Website: https://github.com/mtransitapps/mtransit-for-android
+----------
+Email: mtransit.apps+GooglePlay@gmail.com
+----------
+Phone: 
+----------
+Privacy Policy:

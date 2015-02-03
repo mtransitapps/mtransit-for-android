@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ROUTE TRIP -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rts_extra"
+    android:layout_width="?android:attr/listPreferredItemHeight"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_alignParentLeft="true" >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+        <FrameLayout
+            android:id="@+id/route"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="2dp"
+            android:layout_weight="1"
+            android:gravity="center" >
+            <TextView
+                android:id="@+id/route_short_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="sans-serif-condensed"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:textAppearance="?android:attr/textAppearanceLargeInverse"
+                android:textSize="34dp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:ignore="SpUsage"
+                tools:visibility="visible" />
+            <org.mtransit.android.ui.view.MTJPathsView
+                android:id="@+id/route_type_img"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:padding="4dp"
+                android:visibility="gone" />
+        </FrameLayout>
+        <FrameLayout
+            android:id="@+id/trip_heading_bg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#66000000"
+            android:visibility="gone"
+            tools:visibility="visible" >
+            <TextView
+                android:id="@+id/trip_heading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:ellipsize="marquee"
+                android:fontFamily="sans-serif-condensed"
+                android:includeFontPadding="true"
+                android:paddingLeft="2dp"
+                android:paddingRight="2dp"
+                android:singleLine="true"
+                android:textAppearance="?android:attr/textAppearanceSmallInverse"
+                android:textColor="@android:color/white"
+                android:textStyle="bold"
+                tools:visibility="visible" />
+        </FrameLayout>
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?android:attr/selectableItemBackground" />
+</FrameLayout>

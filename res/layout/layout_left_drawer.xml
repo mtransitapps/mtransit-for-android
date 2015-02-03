@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:drawableLeft="@mipmap/ic_launcher"
+        android:drawablePadding="8dp"
+        android:fontFamily="sans-serif"
+        android:gravity="center_vertical"
+        android:minHeight="?attr/actionBarSize"
+        android:paddingLeft="8dp"
+        android:paddingRight="16dp"
+        android:text="@string/app_name"
+        android:textAppearance="?android:attr/textAppearanceLargeInverse"
+        android:textStyle="normal" />
+    <FrameLayout
+        android:id="@+id/viewFlipper"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/menu_bg" >
+        <ViewStub
+            android:id="@+id/left_drawer_loading_stub"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inflatedId="@+id/left_drawer_loading"
+            android:layout="@layout/layout_loading_large"
+            android:visibility="visible" />
+        <ListView
+            android:id="@+id/left_drawer_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:choiceMode="singleChoice"
+            android:divider="@null"
+            android:dividerHeight="0dp"
+            android:fadingEdge="none"
+            android:visibility="gone" />
+        <include layout="@layout/layout_shadow" />
+    </FrameLayout>
+</LinearLayout>
