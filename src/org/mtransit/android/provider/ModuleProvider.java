@@ -127,8 +127,8 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 					dbHelper = null;
 					return getDBHelper(context);
 				}
-			} catch (Throwable t) {
-				MTLog.d(this, t, "Can't check DB version!");
+			} catch (Exception e) {
+				MTLog.d(this, e, "Can't check DB version!");
 			}
 		}
 		return dbHelper;
@@ -160,8 +160,8 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 				return cursor;
 			}
 			throw new IllegalArgumentException(String.format("Unknown URI (query): '%s'", uri));
-		} catch (Throwable t) {
-			MTLog.w(this, t, "Error while resolving query '%s'!", uri);
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while resolving query '%s'!", uri);
 			return null;
 		}
 	}
@@ -259,12 +259,14 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	private int deleteAllModuleData() {
 		int affectedRows = 0;
-		SQLiteDatabase db;
+		SQLiteDatabase db = null;
 		try {
 			db = getDBHelper(getContext()).getWritableDatabase();
 			affectedRows = db.delete(ModuleDbHelper.T_MODULE, null, null);
-		} catch (Throwable t) {
-			MTLog.w(this, t, "Error while deleting all module data!");
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while deleting all module data!");
+		} finally {
+			SqlUtils.closeQuietly(db);
 		}
 		return affectedRows;
 	}
@@ -317,14 +319,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		} catch (Exception e) {
 			MTLog.w(TAG, e, "ERROR while applying batch update to the database!");
 		} finally {
-			try {
-				if (db != null) {
-					db.endTransaction(); // end the transaction
-					db.close();
-				}
-			} catch (Exception e) {
-				MTLog.w(TAG, e, "ERROR while closing the new database!");
-			}
+			SqlUtils.endTransactionAndCloseQuietly(db);
 		}
 		return affectedRows;
 	}

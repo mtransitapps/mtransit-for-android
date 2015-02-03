@@ -76,8 +76,8 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 			default:
 				throw new IllegalArgumentException(String.format("Unknown URI (query): '%s'", uri));
 			}
-		} catch (Throwable t) {
-			MTLog.w(this, t, "Error while resolving query %s!", uri);
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while resolving query %s!", uri);
 			return null;
 		}
 	}

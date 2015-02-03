@@ -28,7 +28,7 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 
 	@Override
 	protected void addGoogleAPIs(GoogleApiClient.Builder googleApiClientBuilder) {
-		if (useLocation) {
+		if (this.useLocation) {
 			googleApiClientBuilder.addApi(LocationServices.API);
 		}
 	}
@@ -36,7 +36,7 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (useLocation) {
+		if (this.useLocation) {
 			this.locationRequest = LocationRequest.create();
 			this.locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY); // foreground app == high accuracy
 			this.locationRequest.setInterval(LocationUtils.UPDATE_INTERVAL_IN_MS);
@@ -46,7 +46,7 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 
 	@Override
 	public void onClientConnected() {
-		if (useLocation) {
+		if (this.useLocation) {
 			enableLocationUpdates();
 		}
 	}
@@ -102,11 +102,11 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 	public abstract void onUserLocationChanged(Location newLocation);
 
 	public Location getUserLocation() {
-		return userLocation;
+		return this.userLocation;
 	}
 
 	public Location getLastLocation() {
-		if (!locationUpdatesEnabled) {
+		if (!this.locationUpdatesEnabled) {
 			return null;
 		}
 		GoogleApiClient googleApiClient = getGoogleApiClientOrInit();

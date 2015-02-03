@@ -6,6 +6,7 @@ import java.util.HashSet;
 
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
@@ -62,13 +63,11 @@ public final class DataSourceManager implements MTLog.Loggable {
 			Uri uri = Uri.withAppendedPath(getUri(authority), ServiceUpdateProvider.SERVICE_UPDATE_CONTENT_DIRECTORY);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, serviceUpdateFilterJSONString, null, null);
 			return getServiceUpdates(cursor);
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 			return null;
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
@@ -91,13 +90,11 @@ public final class DataSourceManager implements MTLog.Loggable {
 			Uri uri = Uri.withAppendedPath(getUri(authority), ScheduleTimestampsProvider.SCHEDULE_TIMESTAMPS_CONTENT_DIRECTORY);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, scheduleTimestampsFilterJSONString, null, null);
 			return getScheduleTimestamp(cursor);
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 			return null;
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
@@ -118,13 +115,11 @@ public final class DataSourceManager implements MTLog.Loggable {
 			Uri uri = Uri.withAppendedPath(getUri(authority), StatusProvider.STATUS_CONTENT_DIRECTORY);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, statusFilterJSONString, null, null);
 			return getPOIStatus(cursor);
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 			return null;
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
@@ -159,12 +154,10 @@ public final class DataSourceManager implements MTLog.Loggable {
 		try {
 			Uri uri = Uri.withAppendedPath(getUri(authority), "ping");
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
@@ -179,12 +172,10 @@ public final class DataSourceManager implements MTLog.Loggable {
 					result = cursor.getString(0);
 				}
 			}
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 		return result;
 	}
@@ -200,12 +191,10 @@ public final class DataSourceManager implements MTLog.Loggable {
 					result = cursor.getString(0);
 				}
 			}
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 		return result;
 	}
@@ -221,12 +210,10 @@ public final class DataSourceManager implements MTLog.Loggable {
 					result = cursor.getString(0);
 				}
 			}
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 		return result;
 	}
@@ -242,12 +229,10 @@ public final class DataSourceManager implements MTLog.Loggable {
 					result = Area.fromCursor(cursor);
 				}
 			}
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 		return result;
 	}
@@ -263,12 +248,10 @@ public final class DataSourceManager implements MTLog.Loggable {
 					result = JPaths.fromJSONString(cursor.getString(0));
 				}
 			}
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 		return result;
 	}
@@ -281,13 +264,11 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSRouteTripStopProvider.PROJECTION_TRIP, selection, null, null);
 			ArrayList<Trip> rtsTrips = getRTSTrips(cursor);
 			return rtsTrips == null || rtsTrips.size() == 0 ? null : rtsTrips.get(0);
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 			return null;
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
@@ -298,13 +279,11 @@ public final class DataSourceManager implements MTLog.Loggable {
 			String selection = GTFSRouteTripStopProvider.TripColumns.T_TRIP_K_ROUTE_ID + "=" + routeId;
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSRouteTripStopProvider.PROJECTION_TRIP, selection, null, null);
 			return getRTSTrips(cursor);
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 			return null;
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
@@ -329,13 +308,11 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSRouteTripStopProvider.PROJECTION_ROUTE, selection, null, null);
 			ArrayList<Route> rtsRoutes = getRTSRoutes(cursor);
 			return rtsRoutes == null || rtsRoutes.size() == 0 ? null : rtsRoutes.get(0);
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 			return null;
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
@@ -350,13 +327,11 @@ public final class DataSourceManager implements MTLog.Loggable {
 			Uri uri = getRTSRoutesUri(authority);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSRouteTripStopProvider.PROJECTION_ROUTE, null, null, null);
 			return getRTSRoutes(cursor);
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 			return null;
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
@@ -385,13 +360,11 @@ public final class DataSourceManager implements MTLog.Loggable {
 			Uri uri = getPOIUri(authority);
 			cursor = queryContentResolver(context.getContentResolver(), uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, null);
 			return getPOIs(cursor, authority);
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 			return null;
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
@@ -416,13 +389,11 @@ public final class DataSourceManager implements MTLog.Loggable {
 			}
 			cursor = queryContentResolver(context.getContentResolver(), searchSuggestUri, null, null, null, null);
 			return getSearchSuggest(cursor);
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 			return null;
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 	}
 

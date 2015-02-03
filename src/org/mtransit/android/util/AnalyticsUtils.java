@@ -76,8 +76,8 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 				try {
 					Tracker gaTracker = getTracker(params[0]);
 					gaTracker.send(new HitBuilders.EventBuilder().setCategory(category).setAction(action).setLabel(label).setValue(value).build());
-				} catch (Throwable t) {
-					MTLog.w(TAG, t, "Error while tracing event (%s,%s,%s)!", action, label, value);
+				} catch (Exception e) {
+					MTLog.w(TAG, e, "Error while tracing event (%s,%s,%s)!", action, label, value);
 				}
 				return null;
 			}
@@ -98,8 +98,8 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 						gaTracker.setScreenName(pageScreenName);
 						gaTracker.send(new HitBuilders.AppViewBuilder().build());
 					}
-				} catch (Throwable t) {
-					MTLog.w(TAG, t, "Error while tracing screen view! (%s)", page);
+				} catch (Exception e) {
+					MTLog.w(TAG, e, "Error while tracing screen view! (%s)", page);
 				}
 				return null;
 			}
@@ -112,8 +112,8 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 		}
 		try {
 			GoogleAnalytics.getInstance(context).dispatchLocalHits();
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error while dispatching analytics data.");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error while dispatching analytics data.");
 		}
 	}
 

@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.provider.MTContentProvider;
 
@@ -78,8 +79,8 @@ public class FavoriteProvider extends MTContentProvider {
 					dbHelper = null;
 					return getDBHelper(context);
 				}
-			} catch (Throwable t) {
-				MTLog.d(this, t, "Can't check DB version!");
+			} catch (Exception e) {
+				MTLog.d(this, e, "Can't check DB version!");
 			}
 		}
 		return dbHelper;
@@ -141,8 +142,8 @@ public class FavoriteProvider extends MTContentProvider {
 				cursor.setNotificationUri(getContext().getContentResolver(), uri);
 			}
 			return cursor;
-		} catch (Throwable t) {
-			MTLog.w(this, t, "Error while resolving query '%s'!", uri);
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while resolving query '%s'!", uri);
 			return null;
 		}
 	}
@@ -171,7 +172,7 @@ public class FavoriteProvider extends MTContentProvider {
 	@Override
 	public int deleteMT(Uri uri, String selection, String[] selectionArgs) {
 		int affectedRows = 0;
-		SQLiteDatabase db;
+		SQLiteDatabase db = null;
 		try {
 			switch (getURIMATCHER(getContext()).match(uri)) {
 			case FAVORITE:
@@ -189,8 +190,10 @@ public class FavoriteProvider extends MTContentProvider {
 			if (affectedRows > 0) {
 				getContext().getContentResolver().notifyChange(uri, null);
 			}
-		} catch (Throwable t) {
-			MTLog.w(this, t, "Error while processing delete query %s!", uri);
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while processing delete query %s!", uri);
+		} finally {
+			SqlUtils.closeQuietly(db);
 		}
 		return affectedRows;
 	}
@@ -209,13 +212,15 @@ public class FavoriteProvider extends MTContentProvider {
 
 	@Override
 	public Uri insertMT(Uri uri, ContentValues values) {
+		SQLiteDatabase db = null;
 		try {
 			Uri insertUri = null;
 			long newRowId;
 			switch (getURIMATCHER(getContext()).match(uri)) {
 			case FAVORITE:
 				MTLog.v(this, "insert>FAVORITE");
-				newRowId = getDBHelper(getContext()).getWritableDatabase().insert(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FK_ID, values);
+				db = getDBHelper(getContext()).getWritableDatabase();
+				newRowId = db.insert(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FK_ID, values);
 				if (newRowId > 0) {
 					insertUri = ContentUris.withAppendedId(getFavoriteContentUri(getContext()), newRowId);
 				}
@@ -229,9 +234,11 @@ public class FavoriteProvider extends MTContentProvider {
 				getContext().getContentResolver().notifyChange(insertUri, null);
 				return insertUri;
 			}
-		} catch (Throwable t) {
-			MTLog.w(this, t, "Error while resolving insert query '%s'!", uri);
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while resolving insert query '%s'!", uri);
 			return null;
+		} finally {
+			SqlUtils.closeQuietly(db);
 		}
 	}
 

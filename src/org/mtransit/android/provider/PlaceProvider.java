@@ -395,8 +395,8 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 				return cursor;
 			}
 			throw new IllegalArgumentException(String.format("Unknown URI (query): '%s'", uri));
-		} catch (Throwable t) {
-			MTLog.w(this, t, "Error while resolving query '%s'!", uri);
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while resolving query '%s'!", uri);
 			return null;
 		}
 	}
@@ -480,8 +480,8 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 					dbHelper = null;
 					return getDBHelper(context);
 				}
-			} catch (Throwable t) {
-				MTLog.d(this, t, "Can't check DB version!");
+			} catch (Exception e) {
+				MTLog.d(this, e, "Can't check DB version!");
 			}
 		}
 		return dbHelper;

@@ -6,6 +6,7 @@ import java.util.HashSet;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.data.DataSourceManager;
@@ -44,12 +45,10 @@ public class FavoriteManager implements MTLog.Loggable {
 					favorite = Favorite.fromCursor(cursor);
 				}
 			}
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 		return favorite;
 	}
@@ -64,12 +63,10 @@ public class FavoriteManager implements MTLog.Loggable {
 					cache = Favorite.fromCursor(cursor);
 				}
 			}
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 		return cache;
 	}
@@ -109,12 +106,10 @@ public class FavoriteManager implements MTLog.Loggable {
 					} while (cursor.moveToNext());
 				}
 			}
-		} catch (Throwable t) {
-			MTLog.w(TAG, t, "Error!");
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			SqlUtils.closeQuietly(cursor);
 		}
 		return result;
 	}
