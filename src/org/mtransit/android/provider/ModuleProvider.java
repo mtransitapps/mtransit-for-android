@@ -288,6 +288,9 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			for (int i = 0; i < jsonArray.length(); i++) {
 				JSONObject jModule = jsonArray.getJSONObject(i);
 				Module module = Module.fromSimpleJSONStatic(jModule, getAUTHORITY(getContext()));
+				if (module == null) {
+					continue; // error while converting JSON to Module
+				}
 				module.setId(i);
 				modules.add(module);
 			}

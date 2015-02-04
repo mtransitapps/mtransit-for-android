@@ -71,10 +71,17 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 	private ArrayList<DataSourceType> allAgencyTypes = null;
 
 	public MenuAdapter(Context context, MenuUpdateListener listener) {
-		this.contextWR = new WeakReference<Context>(context);
+		setContext(context);
 		this.listener = listener;
-		this.layoutInflater = LayoutInflater.from(context);
 		DataSourceProvider.addModulesUpdateListerner(this);
+	}
+
+	public void setContext(Context context) {
+		if (context == null) {
+			return;
+		}
+		this.contextWR = new WeakReference<Context>(context);
+		this.layoutInflater = LayoutInflater.from(context);
 	}
 
 	public void init() {

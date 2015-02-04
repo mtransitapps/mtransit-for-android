@@ -941,7 +941,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			this.lastCompassInDegree = roundedOrientation;
 			this.lastCompassChanged = now;
 			if (this.compassUpdatesEnabled && this.location != null && this.lastCompassInDegree >= 0) {
-				if (this.compassImgsWR != null && this.compassImgsWR.size() != 0) {
+				if (this.compassImgsWR.size() > 0) {
 					for (WeakHashMap.Entry<MTCompassView, View> compassAndDistance : this.compassImgsWR.entrySet()) {
 						MTCompassView compassView = compassAndDistance.getKey();
 						if (compassView != null) {
@@ -1291,7 +1291,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			int color = module.getColorInt();
 			holder.moduleTypeImg.setBackgroundColor(color);
 			DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
-			holder.moduleTypeImg.setImageResource(moduleType.getAbIconResId());
+			if (moduleType != null) {
+				holder.moduleTypeImg.setImageResource(moduleType.getAbIconResId());
+			} else {
+				holder.moduleTypeImg.setImageResource(0);
+			}
 			holder.moduleTypeImg.setVisibility(View.VISIBLE);
 		} else {
 			holder.moduleTypeImg.setVisibility(View.GONE);

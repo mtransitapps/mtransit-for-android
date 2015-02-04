@@ -12,6 +12,7 @@ import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.fragment.ABFragment;
 
+import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
@@ -78,13 +79,11 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 			@Override
 			protected String doInBackgroundMT(Bundle... params) {
 				Bundle savedInstanceState = params == null || params.length == 0 ? null : params[0];
-				MainActivity mainActivity = NavigationDrawerController.this.mainActivityWR == null ? null : NavigationDrawerController.this.mainActivityWR
-						.get();
-				NavigationDrawerController.this.drawerListViewAdapter = new MenuAdapter(mainActivity, NavigationDrawerController.this);
+				Context context = NavigationDrawerController.this.mainActivityWR == null ? null : NavigationDrawerController.this.mainActivityWR.get();
+				NavigationDrawerController.this.drawerListViewAdapter = new MenuAdapter(context, NavigationDrawerController.this);
 				String itemId = null;
-				if (!isCurrentSelectedSet()) {
-					itemId = PreferenceUtils.getPrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID,
-							MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
+				if (context != null && !isCurrentSelectedSet()) {
+					itemId = PreferenceUtils.getPrefLcl(context, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
 					publishProgress(itemId);
 				}
 				NavigationDrawerController.this.drawerListViewAdapter.init();

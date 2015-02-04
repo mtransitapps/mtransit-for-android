@@ -469,8 +469,12 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		StatusLoader.get().clearAllTasks();
 		ServiceUpdateLoader.get().clearAllTasks();
 		if (this.adapter != null) {
-			this.tripId = this.adapter.getTrip(position).getId();
-			PreferenceUtils.savePrefLcl(getActivity(), PreferenceUtils.getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(this.authority, this.routeId), this.tripId, false);
+			Trip trip = this.adapter.getTrip(position);
+			if (trip != null) {
+				this.tripId = trip.getId();
+				String routePref = PreferenceUtils.getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(this.authority, this.routeId);
+				PreferenceUtils.savePrefLcl(getActivity(), routePref, this.tripId, false);
+			}
 		}
 		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
@@ -716,8 +720,12 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 		@Override
 		public Fragment getItem(int position) {
-			return RTSTripStopsFragment.newInstance(position, this.lastVisibleFragmentPosition, this.authority, this.routeId, getTrip(position).id,
-					this.optStopId, this.showingListInsteadOfMap, this.optRoute);
+			Trip trip = getTrip(position);
+			if (trip == null) {
+				return null;
+			}
+			return RTSTripStopsFragment.newInstance(position, this.lastVisibleFragmentPosition, this.authority, this.routeId, trip.id, this.optStopId,
+					this.showingListInsteadOfMap, this.optRoute);
 		}
 
 	}

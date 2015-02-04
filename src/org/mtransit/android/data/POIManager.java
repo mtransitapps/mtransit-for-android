@@ -160,6 +160,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	public int getStatusType() {
+		if (this.poi == null) {
+			return -1;
+		}
 		return this.poi.getStatusType();
 	}
 

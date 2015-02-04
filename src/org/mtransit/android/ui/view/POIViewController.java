@@ -45,17 +45,25 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	public static int getLayoutResId(POIManager poim) {
-		if (poim != null && poim.poi != null) {
-			switch (poim.poi.getType()) {
-			case POI.ITEM_VIEW_TYPE_MODULE:
-				return getModuleLayout(poim.getStatusType());
-			case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
-				return getRTSLayout(poim.getStatusType());
-			case POI.ITEM_VIEW_TYPE_BASIC_POI:
-				return getBasicPOILayout(poim.getStatusType());
-			}
+		if (poim == null) {
+			MTLog.w(TAG, "getLayoutResId() > Unknown view type for poim %s!", poim);
+			return getBasicPOILayout(-1);
 		}
-		return getBasicPOILayout(poim == null ? -1 : poim.getStatusType());
+		if (poim.poi == null) {
+			MTLog.w(TAG, "getLayoutResId() > Unknown view type for poi %s!", poim.poi);
+			return getBasicPOILayout(poim.getStatusType());
+		}
+		switch (poim.poi.getType()) {
+		case POI.ITEM_VIEW_TYPE_MODULE:
+			return getModuleLayout(poim.getStatusType());
+		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
+			return getRTSLayout(poim.getStatusType());
+		case POI.ITEM_VIEW_TYPE_BASIC_POI:
+			return getBasicPOILayout(poim.getStatusType());
+		default:
+			MTLog.w(TAG, "getLayoutResId() > Unknown view type '%s' for poi %s!", poim.poi.getType(), poim);
+			return getBasicPOILayout(poim.getStatusType());
+		}
 	}
 
 	private static int getRTSLayout(int status) {

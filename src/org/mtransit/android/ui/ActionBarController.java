@@ -246,8 +246,10 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	public void updateABDrawerClosed() {
-		MainActivity mainActivity = getMainActivityOrNull();
 		ActionBar ab = getABOrNull();
+		if (ab == null) {
+			return;
+		}
 		if (!this.fragmentReady) {
 			return;
 		}
@@ -281,7 +283,10 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		if (this.fragmentBgColor != null) {
 			setBgColor(ab, this.fragmentBgColor);
 		}
-		mainActivity.updateNavigationDrawerToggleIndicator();
+		MainActivity mainActivity = getMainActivityOrNull();
+		if (mainActivity != null) {
+			mainActivity.updateNavigationDrawerToggleIndicator();
+		}
 		updateSearchMenuItemVisibility(); // action bar icons are options menu items
 		ab.show();
 	}

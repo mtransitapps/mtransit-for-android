@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
+import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.provider.ContentProviderConstants;
 import org.mtransit.android.commons.provider.MTSearchRecentSuggestionsProvider;
 import org.mtransit.android.commons.task.MTCallable;
@@ -58,27 +59,26 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+		Cursor cursor = null;
+		String query = null;
 		try {
 			switch (URI_MATCHER.match(uri)) {
 			case ContentProviderConstants.SEARCH_SUGGEST_EMPTY:
-				String query;
-				if (selectionArgs != null && selectionArgs.length > 0) {
-					query = selectionArgs[0];
-				} else {
-					query = null;
-				}
-				Cursor recentSearchCursor = super.query(uri, projection, selection, selectionArgs, sortOrder);
-				return getSearchSuggest(query, recentSearchCursor);
+				query = selectionArgs == null || selectionArgs.length == 0 ? null : selectionArgs[0];
+				cursor = super.query(uri, projection, selection, selectionArgs, sortOrder);
+				return getSearchSuggest(query, cursor);
 			case ContentProviderConstants.SEARCH_SUGGEST_QUERY:
-				Cursor recentSearchCursor2 = super.query(uri, projection, selection, selectionArgs, sortOrder);
-				String query2 = uri.getLastPathSegment();
-				return getSearchSuggest(query2, recentSearchCursor2);
+				query = uri.getLastPathSegment();
+				cursor = super.query(uri, projection, selection, selectionArgs, sortOrder);
+				return getSearchSuggest(query, cursor);
 			default:
 				throw new IllegalArgumentException(String.format("Unknown URI (query): '%s'", uri));
 			}
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while resolving query %s!", uri);
 			return null;
+		} finally {
+			SqlUtils.close(cursor);
 		}
 	}
 
@@ -89,9 +89,11 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 		if (!TextUtils.isEmpty(query)) {
 			ArrayList<AgencyProperties> agencies = DataSourceProvider.get(getContext()).getAllAgencies(getContext());
 			ArrayList<Future<HashSet<String>>> taskList = new ArrayList<Future<HashSet<String>>>();
-			for (AgencyProperties agency : agencies) {
-				FindSearchSuggestTask task = new FindSearchSuggestTask(getContext(), agency, query);
-				taskList.add(getFetchSuggestExecutor().submit(task));
+			if (agencies != null) {
+				for (AgencyProperties agency : agencies) {
+					FindSearchSuggestTask task = new FindSearchSuggestTask(getContext(), agency, query);
+					taskList.add(getFetchSuggestExecutor().submit(task));
+				}
 			}
 			for (Future<HashSet<String>> future : taskList) {
 				try {

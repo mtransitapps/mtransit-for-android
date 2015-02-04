@@ -75,7 +75,9 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 			protected Void doInBackground(Context... params) {
 				try {
 					Tracker gaTracker = getTracker(params[0]);
-					gaTracker.send(new HitBuilders.EventBuilder().setCategory(category).setAction(action).setLabel(label).setValue(value).build());
+					if (gaTracker != null) {
+						gaTracker.send(new HitBuilders.EventBuilder().setCategory(category).setAction(action).setLabel(label).setValue(value).build());
+					}
 				} catch (Exception e) {
 					MTLog.w(TAG, e, "Error while tracing event (%s,%s,%s)!", action, label, value);
 				}
@@ -84,26 +86,29 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 		}.execute(context);
 	}
 
-	public static void trackScreenView(Context context, final Trackable page) {
+	public static void trackScreenView(Context context, Trackable page) {
 		if (!ANALYTICS_ENABLED) {
 			return;
 		}
-		new AsyncTask<Context, Void, Void>() {
+		new AsyncTask<Object, Void, Void>() {
 			@Override
-			protected Void doInBackground(Context... params) {
+			protected Void doInBackground(Object... params) {
 				try {
-					String pageScreenName = page.getScreenName();
+					Context context = (Context) params[0];
+					String pageScreenName = (String) params[1];
 					if (!TextUtils.isEmpty(pageScreenName)) {
-						Tracker gaTracker = getTracker(params[0]);
-						gaTracker.setScreenName(pageScreenName);
-						gaTracker.send(new HitBuilders.AppViewBuilder().build());
+						Tracker gaTracker = getTracker(context);
+						if (gaTracker != null) {
+							gaTracker.setScreenName(pageScreenName);
+							gaTracker.send(new HitBuilders.AppViewBuilder().build());
+						}
 					}
 				} catch (Exception e) {
-					MTLog.w(TAG, e, "Error while tracing screen view! (%s)", page);
+					MTLog.w(TAG, e, "Error while tracing screen view! (%s)", params);
 				}
 				return null;
 			}
-		}.execute(context);
+		}.execute(context, page.getScreenName());
 	}
 
 	public static void dispatch(Context context) {

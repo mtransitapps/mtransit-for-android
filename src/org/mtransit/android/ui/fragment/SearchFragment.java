@@ -139,7 +139,10 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			if (this.typeIdFilter.equals(TypeFilter.ALL.getDataSourceTypeId())) {
 				this.typeFilter = TypeFilter.ALL;
 			} else {
-				this.typeFilter = TypeFilter.fromDataSourceType(DataSourceType.parseId(this.typeIdFilter));
+				DataSourceType parseId = DataSourceType.parseId(this.typeIdFilter);
+				if (parseId != null) {
+					this.typeFilter = TypeFilter.fromDataSourceType(parseId);
+				}
 			}
 		}
 		return this.typeFilter != null;
@@ -631,6 +634,9 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 
 		public static TypeFilter fromDataSourceType(DataSourceType dst) {
+			if (dst == null) {
+				return null;
+			}
 			return new TypeFilter(dst.getId(), dst.getPoiShortNameResId(), dst.getMenuResId());
 		}
 
