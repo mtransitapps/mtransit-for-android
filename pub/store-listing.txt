@@ -1,6 +1,9 @@
 Title: MonTransit BETA
 ----------
-Short description: Montreal Transit in your pocket (BETA).
+Short description:
+Montreal Transit in your pocket (BETA).
+
+Bike, Bus, Subway, Train.
 ----------
 What's new in this version?:
 BETA: Thanks for your patience while the last features are being added and the last bugs are being fixed.
@@ -10,7 +13,12 @@ Bug fixes & performance improvements.
 Full description:
 BETA: Thanks for your patience while the last features are being added and the last bugs are being fixed.
 
+Montreal Transit in your pocket.
+
 MonTransit BETA gives you access to transit agencies information in the greater Montreal: 
+- AMT Express Bus (Montreal) on Google Play (free): http://goo.gl/bQmUrH
+- AMT Train (Montreal) on Google Play (free): http://goo.gl/nvQd13
+- BIXI Bikes (Montreal) on Google Play (free): http://goo.gl/omUanh
 - CIT Chambly-Richelieu-Carignan (Blus) Bus on Google Play (free): http://goo.gl/bB3uXn
 - CIT Haut-St-Laurent Bus on Google Play (free): http://goo.gl/63tdvt
 - CIT Laurentides Bus on Google Play (free): http://goo.gl/2X5O0v
@@ -24,12 +32,9 @@ MonTransit BETA gives you access to transit agencies information in the greater 
 - MRC Deux-Montagnes (Oka Express) Bus on Google Play (free): http://goo.gl/ciI3YT
 - MRC L'Assomption (RTCR) Bus on Google Play (free): http://goo.gl/PCpIIT
 - MRC Les Moulins (Urbis) Bus on Google Play (free): http://goo.gl/TZTNvl
+- RTL Bus (Longueuil) on Google Play (free): http://goo.gl/dU2es1
 - Ste-Julie Bus on Google Play (free): http://goo.gl/lpqCFM
 - STL Bus (Laval) on Google Play (free): http://goo.gl/oVpn75
-- RTL Bus (Longueuil) on Google Play (free): http://goo.gl/dU2es1
-- AMT Express Bus (Montreal) on Google Play (free): http://goo.gl/bQmUrH
-- AMT Train (Montreal) on Google Play (free): http://goo.gl/nvQd13
-- BIXI Bikes (Montreal) on Google Play (free): http://goo.gl/omUanh
 - STM Bus (Montreal) on Google Play (free): http://goo.gl/YPJzF5
 - STM Subway (Montreal) on Google Play (free): http://goo.gl/kpn9tP
 

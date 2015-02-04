@@ -1,6 +1,9 @@
 Title: MonTransit BETA
 ----------
-Short description: Transport Montréal dans votre poche (BETA).
+Short description:
+Transport Montréal dans votre poche (BETA).
+
+Bus, Métro, Train, Vélo.
 ----------
 What's new in this version?:
 BETA : Merci de votre patience pendant que les dernières fonctionnalités sont ajoutées et les derniers problèmes sont corrigés.
@@ -9,6 +12,8 @@ Correction de problèmes & Amélioration des performances.
 ----------
 Full description:
 BETA : Merci de votre patience pendant que les dernières fonctionnalités sont ajoutées et les derniers problèmes corrigés.
+
+Transport Montréal dans votre poche.
 
 MonTransit BETA vous donne accès à l'information des agences de transport en commun dans la région de Montréal : 
 - Bus CIT Chambly-Richelieu-Carignan (Blus) sur Google Play (gratuit) : http://goo.gl/bB3uXn
@@ -21,17 +26,17 @@ MonTransit BETA vous donne accès à l'information des agences de transport en c
 - Bus CIT Sud-Ouest sur Google Play (gratuit) : http://goo.gl/0lKFAF
 - Bus CIT Vallée du Richelieu sur Google Play (gratuit): http://goo.gl/561ksW
 - Bus CRT Lanaudière sur Google Play (gratuit) : http://goo.gl/u4wWcI
+- Bus Express AMT (Montréal) sur Google Play (gratuit) : http://goo.gl/bQmUrH
 - Bus MRC Deux-Montagnes (L'Express d'Oka) Bus sur Google Play (gratuit) : http://goo.gl/ciI3YT
 - Bus MRC L'Assomption (RTCR) sur Google Play (gratuit) : http://goo.gl/PCpIIT
 - Bus MRC Les Moulins (Urbis) sur Google Play (gratuit) : http://goo.gl/TZTNvl
-- Bus Ville de Ste-Julie sur Google Play (gratuit) : http://goo.gl/lpqCFM
-- Bus STL (Laval) sur Google Play (gratuit) : http://goo.gl/oVpn75
 - Bus RTL (Longueuil) sur Google Play (gratuit) : http://goo.gl/dU2es1
-- Bus Express AMT (Montréal) sur Google Play (gratuit) : http://goo.gl/bQmUrH
+- Bus STL (Laval) sur Google Play (gratuit) : http://goo.gl/oVpn75
+- Bus STM (Montréal) sur Google Play (gratuit) : http://goo.gl/YPJzF5
+- Bus Ville de Ste-Julie sur Google Play (gratuit) : http://goo.gl/lpqCFM
+- Métro STM (Montréal) sur Google Play (gratuit) : http://goo.gl/kpn9tP
 - Train AMT (Montréal) sur Google Play (gratuit) : http://goo.gl/nvQd13
 - Vélo BIXI (Montréal) sur Google Play (gratuit) : http://goo.gl/omUanh
-- Bus STM (Montréal) sur Google Play (gratuit) : http://goo.gl/YPJzF5
-- Métro STM (Montréal) sur Google Play (gratuit) : http://goo.gl/kpn9tP
 
 Cette application est gratuite et ouverte :
 https://github.com/mtransitapps/mtransit-for-android
