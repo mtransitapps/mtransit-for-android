@@ -1,9 +1,9 @@
 Title: MonTransit BETA
 ----------
 Short description:
-Montreal Transit in your pocket (BETA).
-
-Bike, Bus, Subway, Train.
+Montreal Transit in your pocket (BETA)
+Bike Bus Subway Train
+Offline & Real-Time
 ----------
 What's new in this version?:
 BETA: Thanks for your patience while the last features are being added and the last bugs are being fixed.
@@ -15,28 +15,32 @@ BETA: Thanks for your patience while the last features are being added and the l
 
 Montreal Transit in your pocket.
 
-MonTransit BETA gives you access to transit agencies information in the greater Montreal: 
-- AMT Express Bus (Montreal) on Google Play (free): http://goo.gl/bQmUrH
-- AMT Train (Montreal) on Google Play (free): http://goo.gl/nvQd13
-- BIXI Bikes (Montreal) on Google Play (free): http://goo.gl/omUanh
-- CIT Chambly-Richelieu-Carignan (Blus) Bus on Google Play (free): http://goo.gl/bB3uXn
-- CIT Haut-St-Laurent Bus on Google Play (free): http://goo.gl/63tdvt
-- CIT Laurentides Bus on Google Play (free): http://goo.gl/2X5O0v
-- CIT La Presqu'Île Bus on Google Play (free): http://goo.gl/BGW1tZ
-- CIT Le Richelain Bus on Google Play (free): http://goo.gl/C4RvHu
-- CIT Roussillon Bus on Google Play (free): http://goo.gl/AHZMf9
-- CIT Sorel-Varennes Bus on Google Play (free): http://goo.gl/DXSj7G
-- CIT Sud-Ouest Bus on Google Play (free): http://goo.gl/0lKFAF
-- CIT Vallée du Richelieu Bus on Google Play (free): http://goo.gl/561ksW
-- CRT Lanaudière Bus on Google Play (free): http://goo.gl/u4wWcI
-- MRC Deux-Montagnes (Oka Express) Bus on Google Play (free): http://goo.gl/ciI3YT
-- MRC L'Assomption (RTCR) Bus on Google Play (free): http://goo.gl/PCpIIT
-- MRC Les Moulins (Urbis) Bus on Google Play (free): http://goo.gl/TZTNvl
-- RTL Bus (Longueuil) on Google Play (free): http://goo.gl/dU2es1
-- Ste-Julie Bus on Google Play (free): http://goo.gl/lpqCFM
-- STL Bus (Laval) on Google Play (free): http://goo.gl/oVpn75
-- STM Bus (Montreal) on Google Play (free): http://goo.gl/YPJzF5
-- STM Subway (Montreal) on Google Play (free): http://goo.gl/kpn9tP
+Information about bikes, buses, subways and trains for the greater Montreal, QC, Canada.
+
+Real-time schedule and alerts (for some agencies).
+
+Transit agencies available on Google Play (free):
+- AMT Express Bus (Montreal): http://goo.gl/bQmUrH
+- AMT Train (Montreal): http://goo.gl/nvQd13
+- BIXI Bikes (Montreal): http://goo.gl/omUanh
+- CIT Chambly-Richelieu-Carignan (Blus) Bus: http://goo.gl/bB3uXn
+- CIT Haut-St-Laurent Bus: http://goo.gl/63tdvt
+- CIT Laurentides Bus: http://goo.gl/2X5O0v
+- CIT La Presqu'Île Bus: http://goo.gl/BGW1tZ
+- CIT Le Richelain Bus: http://goo.gl/C4RvHu
+- CIT Roussillon Bus: http://goo.gl/AHZMf9
+- CIT Sorel-Varennes Bus: http://goo.gl/DXSj7G
+- CIT Sud-Ouest Bus: http://goo.gl/0lKFAF
+- CIT Vallée du Richelieu Bus: http://goo.gl/561ksW
+- CRT Lanaudière Bus: http://goo.gl/u4wWcI
+- MRC Deux-Montagnes (Oka Express) Bus: http://goo.gl/ciI3YT
+- MRC L'Assomption (RTCR) Bus: http://goo.gl/PCpIIT
+- MRC Les Moulins (Urbis) Bus: http://goo.gl/TZTNvl
+- RTL Bus (Longueuil): http://goo.gl/dU2es1
+- Ste-Julie Bus: http://goo.gl/lpqCFM
+- STL Bus (Laval): http://goo.gl/oVpn75
+- STM Bus (Montreal): http://goo.gl/YPJzF5
+- STM Subway (Montreal): http://goo.gl/kpn9tP
 
 This app is free and open-source:
 https://github.com/mtransitapps/mtransit-for-android
