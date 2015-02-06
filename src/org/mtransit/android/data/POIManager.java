@@ -431,11 +431,10 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				}
 			} else if (poi instanceof Module) {
 				return ((Module) poi).getColorInt();
-			} else {
-				Integer agencyColorInt = DataSourceProvider.get(context).getAgencyColorInt(context, poi.getAuthority());
-				if (agencyColorInt != null) {
-					return agencyColorInt;
-				}
+			}
+			Integer agencyColorInt = DataSourceProvider.get(context).getAgencyColorInt(context, poi.getAuthority());
+			if (agencyColorInt != null) {
+				return agencyColorInt;
 			}
 		}
 		return defaultColor;
