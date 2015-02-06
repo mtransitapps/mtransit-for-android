@@ -33,7 +33,7 @@ public class MTJPathsView extends MTView {
 
 	private JPaths jPaths;
 
-	private int color = Color.BLACK;
+	private int color = Color.WHITE;
 
 	private float width;
 

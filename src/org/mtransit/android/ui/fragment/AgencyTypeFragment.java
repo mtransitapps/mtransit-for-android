@@ -25,7 +25,6 @@ import org.mtransit.android.ui.view.SlidingTabLayout;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -193,7 +192,6 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
 		tabs.setCustomTabView(R.layout.layout_tab_indicator, R.id.tab_title);
 		tabs.setOnPageChangeListener(this);
-		tabs.setSelectedIndicatorColors(Color.WHITE);
 		setupAdapter(view);
 	}
 
@@ -600,7 +598,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	}
 
 
-	private static class AgencyPagerAdapter extends FragmentStatePagerAdapter implements SlidingTabLayout.TabColorizer, MTLog.Loggable {
+	private static class AgencyPagerAdapter extends FragmentStatePagerAdapter implements MTLog.Loggable {
 
 		private static final String TAG = AgencyTypeFragment.class.getSimpleName() + ">" + AgencyPagerAdapter.class.getSimpleName();
 
@@ -714,11 +712,6 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 				return StringUtils.EMPTY;
 			}
 			return this.agencies.get(position).getShortName();
-		}
-
-		@Override
-		public int getIndicatorColor(int position) {
-			return Color.WHITE;
 		}
 
 		@Override

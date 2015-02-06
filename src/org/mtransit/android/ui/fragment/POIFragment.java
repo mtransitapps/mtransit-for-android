@@ -115,6 +115,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	}
 
 	private String authority;
+
 	private AgencyProperties agency;
 
 	private boolean hasAgency() {
@@ -464,37 +465,48 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		if (map == null) {
 			return;
 		}
+		Context context = getActivity();
+		if (context == null) {
+			return;
+		}
 		LatLng poiLatLng = new LatLng(poim.poi.getLat(), poim.poi.getLng());
+		BitmapDescriptor bitmapDescriptor = getBitmapDescriptor(context);
 		if (this.poiMarker == null) {
-			this.poiMarker = map.addMarker(new MarkerOptions() //
-					.position(poiLatLng) //
-					.icon(getBitmapDescriptor()));
+			MarkerOptions newMarkerOptions = new MarkerOptions() //
+					.position(poiLatLng);
+			if (bitmapDescriptor != null) {
+				newMarkerOptions.icon(bitmapDescriptor);
+			}
+			this.poiMarker = map.addMarker(newMarkerOptions); //
 		} else {
 			this.poiMarker.setVisible(false);
 			this.poiMarker.setPosition(poiLatLng);
-			this.poiMarker.setIcon(getBitmapDescriptor());
+			if (bitmapDescriptor != null) {
+				this.poiMarker.setIcon(bitmapDescriptor);
+			}
 			this.poiMarker.setVisible(true);
 		}
 		LatLngBounds.Builder llb = LatLngBounds.builder().include(poiLatLng);
 		if (this.userLocation != null) {
 			llb.include(new LatLng(this.userLocation.getLatitude(), this.userLocation.getLongitude()));
 		}
-
-		MapUtils.updateMapPosition(getActivity(), map, mapView, anim, llb.build(), MapUtils.getMapWithoutButtonsCameraPaddingInPx(getActivity()));
+		MapUtils.updateMapPosition(context, map, mapView, anim, llb.build(), MapUtils.getMapWithoutButtonsCameraPaddingInPx(context));
 	}
-
-	private BitmapDescriptor getBitmapDescriptor() {
+	private BitmapDescriptor getBitmapDescriptor(Context context) {
 		try {
-			int markerColor = Color.WHITE;
+			if (context == null) {
+				return BitmapDescriptorFactory.defaultMarker();
+			}
+			int markerColor = MapUtils.DEFAULT_MARKET_COLOR;
 			POIManager poim = getPoimOrNull();
 			if (poim != null) {
-				markerColor = poim.getColor(getActivity());
+				markerColor = poim.getColor(context);
 			}
 			if (markerColor == Color.BLACK) {
 				markerColor = Color.DKGRAY;
 			}
 			int bitmapResId = R.drawable.ic_place_white_slim;
-			return BitmapDescriptorFactory.fromBitmap(ColorUtils.colorizeBitmapResource(getActivity(), markerColor, bitmapResId));
+			return BitmapDescriptorFactory.fromBitmap(ColorUtils.colorizeBitmapResource(context, markerColor, bitmapResId));
 		} catch (Exception e) {
 			return BitmapDescriptorFactory.defaultMarker();
 		}

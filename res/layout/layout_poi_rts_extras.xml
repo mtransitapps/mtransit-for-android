@@ -26,6 +26,7 @@
                 android:includeFontPadding="false"
                 android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceLargeInverse"
+                android:textColor="@android:color/white"
                 android:textSize="34dp"
                 android:textStyle="bold"
                 android:visibility="gone"

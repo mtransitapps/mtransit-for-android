@@ -24,7 +24,6 @@ import org.mtransit.android.ui.view.SlidingTabLayout;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -40,7 +39,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
-
 
 public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChangeListener, MTActivityWithLocation.UserLocationListener {
 
@@ -68,7 +66,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	private static final String EXTRA_TRIP_ID = "extra_trip_id";
 
 	private static final String EXTRA_STOP_ID = "extra_stop_id";
-
 
 	public static RTSRouteFragment newInstance(String authority, long routeId, Long optTripId, Integer optStopId, Route optRoute) {
 		RTSRouteFragment f = new RTSRouteFragment();
@@ -117,7 +114,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		setupView(view);
 		return view;
 	}
-
 
 	@Override
 	public void onResume() {
@@ -379,7 +375,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
 		tabs.setCustomTabView(R.layout.layout_tab_indicator, R.id.tab_title);
-		tabs.setSelectedIndicatorColors(Color.WHITE);
 		tabs.setOnPageChangeListener(this);
 		setupTabTheme(view);
 		viewPager.setAdapter(this.adapter);

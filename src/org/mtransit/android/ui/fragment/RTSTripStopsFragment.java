@@ -688,7 +688,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private BitmapDescriptor getBitmapDescriptor(Route route) {
 		if (this.mapMarkerBitmap == null) {
 			try {
-				int markerColor = POIManager.getRouteColor(getActivity(), route, this.authority, Color.WHITE);
+				int markerColor = POIManager.getRouteColor(getActivity(), route, this.authority, MapUtils.DEFAULT_MARKET_COLOR);
 				if (markerColor == Color.BLACK) {
 					markerColor = Color.DKGRAY;
 				}

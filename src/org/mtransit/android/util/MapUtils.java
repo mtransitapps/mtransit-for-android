@@ -7,6 +7,7 @@ import org.mtransit.android.commons.task.MTAsyncTask;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.view.View;
 
@@ -25,6 +26,8 @@ public final class MapUtils implements MTLog.Loggable {
 	public String getLogTag() {
 		return TAG;
 	}
+
+	public static final int DEFAULT_MARKET_COLOR = Color.WHITE;
 
 	private static final String MAP_DIRECTION_URL_PART_1 = "http://maps.google.com/maps";
 	private static final String MAP_DIRECTION_URL_SOURCE_ADDRESS_PARAM = "saddr";

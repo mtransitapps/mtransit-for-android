@@ -622,7 +622,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 
 	private BitmapDescriptor getBitmapDescriptor(POIManager optPoim) {
 		try {
-			int markerColor = Color.BLACK;
+			int markerColor = MapUtils.DEFAULT_MARKET_COLOR;
 			if (optPoim != null) {
 				markerColor = optPoim.getColor(getActivity());
 			}

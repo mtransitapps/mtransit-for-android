@@ -25,7 +25,6 @@ import org.mtransit.android.ui.fragment.RTSRouteFragment;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.text.SpannableStringBuilder;
@@ -246,14 +245,12 @@ public class POIViewController implements MTLog.Loggable {
 				holder.tripHeadingBg.setVisibility(View.GONE);
 			} else {
 				final String authority = rts.getAuthority();
-				int routeTextColor = Color.WHITE;
 				final Route route = rts.route;
 				if (TextUtils.isEmpty(rts.route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
 					JPaths rtsRouteLogo = DataSourceProvider.get(context).getRTSAgencyRouteLogo(context, poim.poi.getAuthority());
 					if (rtsRouteLogo != null) {
 						holder.routeTypeImg.setJSON(rtsRouteLogo);
-						holder.routeTypeImg.setColor(routeTextColor);
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
 						holder.routeTypeImg.setVisibility(View.GONE);
@@ -270,7 +267,6 @@ public class POIViewController implements MTLog.Loggable {
 						holder.routeShortNameTv.setMaxLines(1);
 					}
 					holder.routeShortNameTv.setText(ssb);
-					holder.routeShortNameTv.setTextColor(routeTextColor);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);

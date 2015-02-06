@@ -516,13 +516,11 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			if (route == null) {
 				holder.routeFL.setVisibility(View.GONE);
 			} else {
-				int routeTextColor = Color.WHITE;
 				if (TextUtils.isEmpty(route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
 					JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getRTSAgencyRouteLogo(getContext(), this.authority);
 					if (rtsRouteLogo != null) {
 						holder.routeTypeImg.setJSON(rtsRouteLogo);
-						holder.routeTypeImg.setColor(routeTextColor);
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
 						holder.routeTypeImg.setVisibility(View.GONE);
@@ -539,11 +537,9 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 						holder.routeShortNameTv.setMaxLines(1);
 					}
 					holder.routeShortNameTv.setText(ssb);
-					holder.routeShortNameTv.setTextColor(routeTextColor);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
 				if (holder.routeLongNameTv != null) {
-					holder.routeLongNameTv.setTextColor(routeTextColor);
 					if (TextUtils.isEmpty(route.longName)) {
 						holder.routeLongNameTv.setVisibility(View.GONE);
 					} else {

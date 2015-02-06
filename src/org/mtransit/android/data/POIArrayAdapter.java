@@ -41,7 +41,6 @@ import org.mtransit.android.ui.view.MTPieChartPercentView;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -1364,13 +1363,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			} else {
 				final String authority = rts.getAuthority();
 				final Route route = rts.route;
-				int routeTextColor = Color.WHITE;
 				if (TextUtils.isEmpty(rts.route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
 					JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getRTSAgencyRouteLogo(getContext(), poim.poi.getAuthority());
 					if (rtsRouteLogo != null) {
 						holder.routeTypeImg.setJSON(rtsRouteLogo);
-						holder.routeTypeImg.setColor(routeTextColor);
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
 						holder.routeTypeImg.setVisibility(View.GONE);
@@ -1387,7 +1384,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 						holder.routeShortNameTv.setMaxLines(1);
 					}
 					holder.routeShortNameTv.setText(ssb);
-					holder.routeShortNameTv.setTextColor(routeTextColor);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);

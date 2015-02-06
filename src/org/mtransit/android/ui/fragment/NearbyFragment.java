@@ -24,7 +24,6 @@ import org.mtransit.android.util.MapUtils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
@@ -429,7 +428,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
 		tabs.setCustomTabView(R.layout.layout_tab_indicator, R.id.tab_title);
 		tabs.setOnPageChangeListener(this);
-		tabs.setSelectedIndicatorColors(Color.WHITE);
 		setupTabTheme(view);
 		setupAdapters(view);
 		setSwipeRefreshLayoutEnabled(!isFixedOn());
@@ -718,7 +716,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		public void onNearbyLocationChanged(Location location);
 	}
 
-	private static class AgencyTypePagerAdapter extends FragmentStatePagerAdapter implements SlidingTabLayout.TabColorizer, MTLog.Loggable {
+	private static class AgencyTypePagerAdapter extends FragmentStatePagerAdapter implements MTLog.Loggable {
 
 		private static final String TAG = NearbyFragment.class.getSimpleName() + ">" + AgencyTypePagerAdapter.class.getSimpleName();
 
@@ -846,11 +844,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				return StringUtils.EMPTY;
 			}
 			return context.getString(this.availableAgencyTypes.get(position).getShortNameResId());
-		}
-
-		@Override
-		public int getIndicatorColor(int position) {
-			return Color.WHITE;
 		}
 
 		@Override
