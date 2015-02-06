@@ -117,6 +117,7 @@ public class FavoriteProvider extends MTContentProvider {
 
 	@Override
 	public Cursor queryMT(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+		SQLiteDatabase db = null;
 		try {
 			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 			switch (getURIMATCHER(getContext()).match(uri)) {
@@ -137,7 +138,7 @@ public class FavoriteProvider extends MTContentProvider {
 			if (TextUtils.isEmpty(sortOrder)) {
 				sortOrder = getSortOrder(uri);
 			}
-			Cursor cursor = qb.query(getDBHelper(getContext()).getReadableDatabase(), projection, selection, selectionArgs, null, null, sortOrder, null);
+			Cursor cursor = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder, null);
 			if (cursor != null) {
 				cursor.setNotificationUri(getContext().getContentResolver(), uri);
 			}
@@ -145,6 +146,8 @@ public class FavoriteProvider extends MTContentProvider {
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while resolving query '%s'!", uri);
 			return null;
+		} finally {
+			SqlUtils.closeQuietly(db);
 		}
 	}
 
