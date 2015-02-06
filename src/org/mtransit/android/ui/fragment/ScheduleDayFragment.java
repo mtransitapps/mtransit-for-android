@@ -191,10 +191,11 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		if (this.rts == null) {
 			return;
 		}
+		if (this.adapter != null) {
+			this.adapter.setRts(this.rts);
+		}
 		if (this.adapter == null || !this.adapter.isInitialized()) {
 			LoaderUtils.restartLoader(getLoaderManager(), SCHEDULE_LOADER, null, this);
-		} else {
-			this.adapter.setRts(this.rts);
 		}
 	}
 
@@ -842,7 +843,8 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 				}
 				if (timestamp.hasHeadsign()) {
 					String timestampHeading = timestamp.getHeading(context);
-					if (this.optRts != null && !StringUtils.equals(timestampHeading, this.optRts.trip.getHeading(context))) {
+					String tripHeading = this.optRts == null ? null : this.optRts.trip.getHeading(context);
+					if (!StringUtils.equals(timestampHeading, tripHeading)) {
 						timeSb.append(" (").append(timestampHeading).append(")");
 					}
 				}
