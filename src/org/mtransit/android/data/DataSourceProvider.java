@@ -32,7 +32,6 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private static DataSourceProvider instance = null;
 
-
 	public static DataSourceProvider get(Context context) {
 		if (instance == null) {
 			initInstance(context);
@@ -233,6 +232,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 	private HashMap<String, HashSet<ScheduleProviderProperties>> scheduleProvidersByTargetAuthority = new HashMap<String, HashSet<ScheduleProviderProperties>>();
 	private HashMap<String, HashSet<ServiceUpdateProviderProperties>> serviceUpdateProvidersByTargetAuthority = new HashMap<String, HashSet<ServiceUpdateProviderProperties>>();
 	private HashMap<String, JPaths> rtsAgencyRouteLogoByAuthority = null;
+	private HashMap<String, Integer> allAgenciesColorInts = new HashMap<String, Integer>();
+
 	private DataSourceProvider() {
 	}
 
@@ -342,6 +343,16 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return this.rtsAgencyRouteLogoByAuthority.get(authority);
 	}
 
+	public Integer getAgencyColorInt(Context context, String authority) {
+		if (!isAgencyPropertiesSet()) {
+			initAgencyProperties(context);
+		}
+		if (this.allAgenciesColorInts == null) {
+			return null;
+		}
+		return this.allAgenciesColorInts.get(authority);
+	}
+
 	public StatusProviderProperties getStatusProvider(String authority) {
 		if (this.allStatusProvidersByAuthority == null) {
 			return null;
@@ -440,6 +451,9 @@ public class DataSourceProvider implements MTLog.Loggable {
 		if (this.serviceUpdateProvidersByTargetAuthority != null) {
 			this.serviceUpdateProvidersByTargetAuthority.clear();
 		}
+		if (this.allAgenciesColorInts != null) {
+			this.allAgenciesColorInts.clear();
+		}
 	}
 
 	private synchronized void init(Context context) {
@@ -534,6 +548,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 			this.allAgenciesByTypeId.put(newAgencyType.getId(), new ArrayList<AgencyProperties>());
 		}
 		this.allAgenciesByTypeId.get(newAgencyType.getId()).add(newAgency);
+		this.allAgenciesColorInts.put(newAgency.getAuthority(), newAgency.hasColor() ? newAgency.getColorInt() : null);
 	}
 
 	private static WeakHashMap<ModulesUpdateListener, Object> modulesUpdateListeners = new WeakHashMap<ModulesUpdateListener, Object>();

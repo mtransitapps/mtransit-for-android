@@ -13,6 +13,7 @@ import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.JPaths;
+import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.RTSAgencyRoutesLoader;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTJPathsView;
@@ -516,7 +517,6 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 				holder.routeFL.setVisibility(View.GONE);
 			} else {
 				int routeTextColor = Color.WHITE;
-				int routeColor = route.getColorInt();
 				if (TextUtils.isEmpty(route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
 					JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getRTSAgencyRouteLogo(getContext(), this.authority);
@@ -551,7 +551,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 						holder.routeLongNameTv.setVisibility(View.VISIBLE);
 					}
 				}
-				holder.routeFL.setBackgroundColor(routeColor);
+				holder.routeFL.setBackgroundColor(POIManager.getRouteColor(getContext(), route, this.authority, Color.BLACK));
 				holder.routeFL.setVisibility(View.VISIBLE);
 			}
 			return convertView;

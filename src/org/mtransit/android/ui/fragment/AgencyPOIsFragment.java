@@ -11,12 +11,8 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.api.SupportFactory;
-import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
-import org.mtransit.android.data.AgencyProperties;
-import org.mtransit.android.data.DataSourceProvider;
-import org.mtransit.android.data.Module;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.AgencyPOIsLoader;
@@ -70,12 +66,11 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	private static final String EXTRA_SHOWING_LIST_INSTEAD_OF_MAP = "extra_showing_list_instead_of_map";
 
 	public static AgencyPOIsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String agencyAuthority,
-			Boolean optShowingListInsteadOfMap, AgencyProperties optAgency) {
+			Boolean optShowingListInsteadOfMap) {
 		AgencyPOIsFragment f = new AgencyPOIsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, agencyAuthority);
 		f.authority = agencyAuthority;
-		f.agency = optAgency;
 		if (fragmentPosition >= 0) {
 			args.putInt(EXTRA_FRAGMENT_POSITION, fragmentPosition);
 			f.fragmentPosition = fragmentPosition;
@@ -106,73 +101,6 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 
 	private String authority;
 
-	private AgencyProperties agency;
-
-	private boolean hasAgency() {
-		if (this.agency == null) {
-			initAgencyAsync();
-			return false;
-		}
-		return true;
-	}
-
-	private void initAgencyAsync() {
-		if (this.loadAgencyTask.getStatus() == MTAsyncTask.Status.RUNNING) {
-			return;
-		}
-		if (TextUtils.isEmpty(this.authority)) {
-			return;
-		}
-		this.loadAgencyTask.execute();
-	}
-
-	private MTAsyncTask<Void, Void, Boolean> loadAgencyTask = new MTAsyncTask<Void, Void, Boolean>() {
-		@Override
-		public String getLogTag() {
-			return TAG + ">loadAgencyTask";
-		}
-
-		@Override
-		protected Boolean doInBackgroundMT(Void... params) {
-			return initAgencySync();
-		}
-
-		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
-			if (result) {
-				applyNewAgency();
-			}
-		}
-	};
-
-	private AgencyProperties getAgencyOrNull() {
-		if (!hasAgency()) {
-			return null;
-		}
-		return this.agency;
-	}
-
-	private boolean initAgencySync() {
-		if (this.agency != null) {
-			return false;
-		}
-		if (!TextUtils.isEmpty(this.authority)) {
-			this.agency = DataSourceProvider.get(getActivity()).getAgency(getActivity(), this.authority);
-		}
-		return this.agency != null;
-	}
-
-	private void applyNewAgency() {
-		if (this.agency == null) {
-			return;
-		}
-		initMapMarkers(null);
-	}
-
-	private void resetAgency() {
-		this.agency = null;
-	}
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -219,7 +147,6 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		String newAuthority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, bundles);
 		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
-			resetAgency();
 		}
 		Boolean newShowingListInsteadOfMap = BundleUtils.getBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, bundles);
 		if (newShowingListInsteadOfMap != null) {
@@ -563,9 +490,6 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		if (this.mapMarkers != null) {
 			return;
 		}
-		if (!hasAgency()) {
-			return;
-		}
 		if (this.adapter == null) {
 			return;
 		}
@@ -699,15 +623,8 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	private BitmapDescriptor getBitmapDescriptor(POIManager optPoim) {
 		try {
 			int markerColor = Color.BLACK;
-			if (optPoim != null && optPoim.poi instanceof RouteTripStop) {
-				markerColor = ((RouteTripStop) optPoim.poi).route.getColorInt();
-			} else if (optPoim != null && optPoim.poi instanceof Module) {
-				markerColor = ((Module) optPoim.poi).getColorInt();
-			} else {
-				AgencyProperties agency = getAgencyOrNull();
-				if (agency != null && agency.hasColor()) {
-					markerColor = agency.getColorInt();
-				}
+			if (optPoim != null) {
+				markerColor = optPoim.getColor(getActivity());
 			}
 			if (markerColor == Color.BLACK) {
 				markerColor = Color.DKGRAY;

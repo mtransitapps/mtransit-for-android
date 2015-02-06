@@ -20,6 +20,7 @@ import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
+import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
@@ -38,6 +39,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 
@@ -402,19 +404,54 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private boolean onActionsItemClickPlace(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener) {
 		switch (itemClicked) {
 		case 0:
-			Integer optColor = null;
-			if (poi instanceof RouteTripStop) {
-				optColor = ((RouteTripStop) poi).route.getColorInt();
-			} else {
-				AgencyProperties agency = DataSourceProvider.get(activity).getAgency(activity, poi.getAuthority());
-				if (agency != null && agency.hasColor()) {
-					optColor = agency.getColorInt();
-				}
-			}
-			((MainActivity) activity).addFragmentToStack(NearbyFragment.newFixedOnInstance(null, poi.getLat(), poi.getLng(), poi.getName(), optColor));
+			((MainActivity) activity)
+					.addFragmentToStack(NearbyFragment.newFixedOnInstance(null, poi.getLat(), poi.getLng(), poi.getName(), getColor(activity)));
 			return true; // HANDLED
 		}
 		return false; // NOT HANDLED
+	}
+
+	private Integer color = null;
+
+	public int getColor(Context context) {
+		if (color == null) {
+			color = getColor(context, poi, null);
+		}
+		if (color == null) {
+			return Color.BLACK; // default
+		}
+		return color;
+	}
+
+	public static Integer getColor(Context context, POI poi, Integer defaultColor) {
+		if (poi != null) {
+			if (poi instanceof RouteTripStop) {
+				if (((RouteTripStop) poi).route.hasColor()) {
+					return ((RouteTripStop) poi).route.getColorInt();
+				}
+			} else if (poi instanceof Module) {
+				return ((Module) poi).getColorInt();
+			} else {
+				Integer agencyColorInt = DataSourceProvider.get(context).getAgencyColorInt(context, poi.getAuthority());
+				if (agencyColorInt != null) {
+					return agencyColorInt;
+				}
+			}
+		}
+		return defaultColor;
+	}
+
+	public static Integer getRouteColor(Context context, Route route, String authority, Integer defaultColor) {
+		if (route != null) {
+			if (route.hasColor()) {
+				return route.getColorInt();
+			}
+		}
+		Integer agencyColorInt = DataSourceProvider.get(context).getAgencyColorInt(context, authority);
+		if (agencyColorInt != null) {
+			return agencyColorInt;
+		}
+		return defaultColor;
 	}
 
 	private boolean onActionsItemClickRTS(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener) {

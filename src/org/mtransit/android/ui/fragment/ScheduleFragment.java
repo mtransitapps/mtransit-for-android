@@ -480,10 +480,6 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public Integer getABBgColor(Context context) {
 		RouteTripStop rts = getRtsOrNull();
-		if (rts == null) {
-			return super.getABBgColor(context);
-		}
-		return rts.route.getColorInt();
 	}
 
 

@@ -15,6 +15,7 @@ import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
+import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
@@ -565,11 +566,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 	@Override
 	public Integer getABBgColor(Context context) {
-		Route route = getRouteOrNull();
-		if (route == null) {
-			return null; // not ready
-		}
-		return route.getColorInt();
+		return POIManager.getRouteColor(context, getRouteOrNull(), this.authority, null);
 	}
 
 	private MenuItem listMapToggleMenuItem;

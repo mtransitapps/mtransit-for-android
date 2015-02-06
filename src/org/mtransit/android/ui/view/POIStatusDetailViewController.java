@@ -8,7 +8,6 @@ import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
-import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.POIManager;
@@ -72,12 +71,8 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		availabilityPercentStatusViewHolder.textTv1 = (TextView) view.findViewById(R.id.progress_text1);
 		availabilityPercentStatusViewHolder.textTv2 = (TextView) view.findViewById(R.id.progress_text2);
 		availabilityPercentStatusViewHolder.progressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
-		if (poim != null && poim.poi instanceof RouteTripStop) {
-			availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter( //
-					((RouteTripStop) poim.poi).route.getColorInt(), PorterDuff.Mode.SRC_IN);
-		} else if (agency != null && agency.hasColor()) {
-			availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter( //
-					agency.getColorInt(), PorterDuff.Mode.SRC_IN);
+		if (poim != null) {
+			availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter(poim.getColor(view.getContext()), PorterDuff.Mode.SRC_IN);
 		}
 		view.setTag(availabilityPercentStatusViewHolder);
 	}

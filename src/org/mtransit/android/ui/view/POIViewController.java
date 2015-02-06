@@ -248,7 +248,6 @@ public class POIViewController implements MTLog.Loggable {
 				final String authority = rts.getAuthority();
 				int routeTextColor = Color.WHITE;
 				final Route route = rts.route;
-				int routeColor = rts.route.getColorInt();
 				if (TextUtils.isEmpty(rts.route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
 					JPaths rtsRouteLogo = DataSourceProvider.get(context).getRTSAgencyRouteLogo(context, poim.poi.getAuthority());
@@ -285,7 +284,7 @@ public class POIViewController implements MTLog.Loggable {
 					holder.tripHeadingTv.setText(rts.trip.getHeading(context).toUpperCase(Locale.getDefault()));
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}
-				holder.rtsExtraV.setBackgroundColor(routeColor);
+				holder.rtsExtraV.setBackgroundColor(poim.getColor(context));
 				final Integer stopId = rts.stop == null ? null : rts.stop.id;
 				holder.rtsExtraV.setOnClickListener(new View.OnClickListener() {
 

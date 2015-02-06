@@ -487,13 +487,8 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		try {
 			int markerColor = Color.WHITE;
 			POIManager poim = getPoimOrNull();
-			if (poim != null && poim.poi instanceof RouteTripStop) {
-				markerColor = ((RouteTripStop) poim.poi).route.getColorInt();
-			} else {
-				AgencyProperties agency = getAgencyOrNull();
-				if (agency != null && agency.hasColor()) {
-					markerColor = agency.getColorInt();
-				}
+			if (poim != null) {
+				markerColor = poim.getColor(getActivity());
 			}
 			if (markerColor == Color.BLACK) {
 				markerColor = Color.DKGRAY;
@@ -591,14 +586,8 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 					if (agency != null) {
 						optTypeId = agency.getType().getId();
 					}
-					Integer optColor = null;
-					if (POIFragment.this.poim.poi instanceof RouteTripStop) {
-						optColor = ((RouteTripStop) POIFragment.this.poim.poi).route.getColorInt();
-					} else if (agency != null && agency.hasColor()) {
-						optColor = agency.getColorInt();
-					}
 					((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newFixedOnInstance(optTypeId, POIFragment.this.poim.getLat(),
-							POIFragment.this.poim.getLng(), POIFragment.this.poim.poi.getName(), optColor));
+							POIFragment.this.poim.getLng(), POIFragment.this.poim.poi.getName(), POIFragment.this.poim.getColor(POIFragment.this.getActivity())));
 				}
 			});
 			moreBtn.setVisibility(View.VISIBLE);

@@ -1288,8 +1288,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private void updateModuleExtra(POIManager poim, ModuleViewHolder holder) {
 		if (this.showExtra && poim.poi != null && poim.poi instanceof Module) {
 			Module module = (Module) poim.poi;
-			int color = module.getColorInt();
-			holder.moduleTypeImg.setBackgroundColor(color);
+			holder.moduleTypeImg.setBackgroundColor(poim.getColor(getContext()));
 			DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
 			if (moduleType != null) {
 				holder.moduleTypeImg.setImageResource(moduleType.getAbIconResId());
@@ -1366,7 +1365,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				final String authority = rts.getAuthority();
 				final Route route = rts.route;
 				int routeTextColor = Color.WHITE;
-				int routeColor = rts.route.getColorInt();
 				if (TextUtils.isEmpty(rts.route.shortName)) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
 					JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getRTSAgencyRouteLogo(getContext(), poim.poi.getAuthority());
@@ -1403,7 +1401,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					holder.tripHeadingTv.setText(rts.trip.getHeading(getContext()).toUpperCase(Locale.getDefault()));
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}
-				holder.rtsExtraV.setBackgroundColor(routeColor);
+				holder.rtsExtraV.setBackgroundColor(poim.getColor(getContext()));
 				final Integer stopId = rts.stop == null ? null : rts.stop.id;
 				holder.rtsExtraV.setOnClickListener(new View.OnClickListener() {
 
