@@ -729,7 +729,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 				f.setLogTag(agency.getShortName());
 				return f;
 			}
-			return AgencyPOIsFragment.newInstance(position, this.lastVisibleFragmentPosition, getAgencyAuthority(position), null, agency);
+			return AgencyPOIsFragment.newInstance(position, this.lastVisibleFragmentPosition, getAgencyAuthority(position), null);
 		}
 	}
 
