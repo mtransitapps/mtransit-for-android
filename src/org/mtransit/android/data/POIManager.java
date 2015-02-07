@@ -87,10 +87,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	public POI poi;
 
+
 	private CharSequence distanceString = null;
-
 	private float distance = -1;
-
 	private POIStatus status;
 	private ArrayList<ServiceUpdate> serviceUpdates;
 	private boolean inFocus = false;

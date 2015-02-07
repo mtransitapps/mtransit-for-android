@@ -57,6 +57,9 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 
+	/**
+	 * Override if multiple {@link ModuleProvider} implementations in same app.
+	 */
 	private static final String PREF_KEY_LAST_UPDATE_MS = ModuleDbHelper.PREF_KEY_LAST_UPDATE_MS;
 
 	private static final long MODULE_MAX_VALIDITY_IN_MS = TimeUnit.DAYS.toMillis(7);
@@ -74,6 +77,9 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	private static UriMatcher uriMatcher = null;
 
+	/**
+	 * Override if multiple {@link ModuleProvider} implementations in same app.
+	 */
 	public static UriMatcher getURIMATCHER(Context context) {
 		if (uriMatcher == null) {
 			uriMatcher = getNewUriMatcher(getAUTHORITY(context));
@@ -90,6 +96,9 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	private static String authority = null;
 
+	/**
+	 * Override if multiple {@link ModuleProvider} implementations in same app.
+	 */
 	public static String getAUTHORITY(Context context) {
 		if (authority == null) {
 			authority = context.getResources().getString(R.string.module_authority);
@@ -99,6 +108,9 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	private static Uri authorityUri = null;
 
+	/**
+	 * Override if multiple {@link ModuleProvider} implementations in same app.
+	 */
 	public static Uri getAUTHORITYURI(Context context) {
 		if (authorityUri == null) {
 			authorityUri = UriUtils.newContentUri(getAUTHORITY(context));
@@ -406,26 +418,41 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return getCurrentDbVersion();
 	}
 
+	/**
+	 * Override if multiple {@link ModuleProvider} implementations in same app.
+	 */
 	@Override
 	public int getAgencyLabelResId() {
 		return R.string.module_label;
 	}
 
+	/**
+	 * Override if multiple {@link ModuleProvider} implementations in same app.
+	 */
 	@Override
 	public String getAgencyColorString(Context context) {
 		return null; // default
 	}
 
+	/**
+	 * Override if multiple {@link ModuleProvider} implementations in same app.
+	 */
 	@Override
 	public int getAgencyShortNameResId() {
 		return R.string.module_short_name;
 	}
 
+	/**
+	 * Override if multiple {@link ModuleProvider} implementations in same app.
+	 */
 	@Override
 	public Area getAgencyArea(Context context) {
 		return new Area(-90.0, +90.0, -180.0, +180.0); // the whole world
 	}
 
+	/**
+	 * Override if multiple {@link ModuleProvider} implementations in same app.
+	 */
 	public String getDbName() {
 		return ModuleDbHelper.DB_NAME;
 	}
@@ -435,10 +462,16 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return getURIMATCHER(getContext());
 	}
 
+	/**
+	 * Override if multiple {@link ModuleProvider} implementations in same app.
+	 */
 	public int getCurrentDbVersion() {
 		return ModuleDbHelper.getDbVersion();
 	}
 
+	/**
+	 * Override if multiple {@link ModuleProvider} implementations in same app.
+	 */
 	public ModuleDbHelper getNewDbHelper(Context context) {
 		return new ModuleDbHelper(context.getApplicationContext());
 	}
@@ -480,6 +513,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 				"'" + authority + "'", //
 				ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_PKG //
 		) + " AS " + POIColumns.T_POI_K_UUID_META);
+		poiProjectionMap.put(POIColumns.T_POI_K_DST_ID_META, Module.DST_ID + " AS " + POIColumns.T_POI_K_DST_ID_META);
 		poiProjectionMap.put(POIColumns.T_POI_K_ID, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_ID + " AS " + POIColumns.T_POI_K_ID);
 		poiProjectionMap.put(POIColumns.T_POI_K_NAME, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_NAME + " AS " + POIColumns.T_POI_K_NAME);
 		poiProjectionMap.put(POIColumns.T_POI_K_LAT, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_LAT + " AS " + POIColumns.T_POI_K_LAT);

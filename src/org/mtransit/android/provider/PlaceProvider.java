@@ -275,7 +275,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		if (places != null) {
 			for (Place place : places) {
 				cursor.addRow(new Object[] { //
-				place.getUUID(), place.getId(), place.getName(), place.getLat(), place.getLng(), //
+				place.getUUID(), place.getDataSourceTypeId(), place.getId(), place.getName(), place.getLat(), place.getLng(), //
 						place.getType(), place.getStatusType(), place.getActionsType(), //
 						place.getScore(), //
 						place.getProviderId(), place.getLang(), place.getReadAtInMs() //
@@ -443,6 +443,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 				"'" + authority + "'", //
 				PlaceDbHelper.T_PLACE + "." + PlaceDbHelper.T_PLACE_K_PROVIDER_ID //
 		) + " AS " + POIColumns.T_POI_K_UUID_META);
+		poiProjectionMap.put(POIColumns.T_POI_K_DST_ID_META, Place.DST_ID + " AS " + POIColumns.T_POI_K_DST_ID_META);
 		poiProjectionMap.put(POIColumns.T_POI_K_ID, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_ID + " AS " + POIColumns.T_POI_K_ID);
 		poiProjectionMap.put(POIColumns.T_POI_K_NAME, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_NAME + " AS " + POIColumns.T_POI_K_NAME);
 		poiProjectionMap.put(POIColumns.T_POI_K_LAT, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_LAT + " AS " + POIColumns.T_POI_K_LAT);
@@ -523,7 +524,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		/**
 		 * Override if multiple {@link PlaceDbHelper} in same app.
 		 */
-		public static final int DB_VERSION = 1;
+		public static final int DB_VERSION = 2;
 
 		public static final String T_PLACE = POIDbHelper.T_POI;
 		public static final String T_PLACE_K_PROVIDER_ID = POIDbHelper.getFkColumnName("provider_id");

@@ -397,7 +397,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (view == null) {
 			return;
 		}
-		if (this.adapter == null) {
+		if (this.adapter == null || !this.adapter.isInitialized()) {
 			showLoading(view);
 		} else if (this.adapter.getCount() > 0) {
 			showTabsAndViewPager(view);
@@ -513,6 +513,10 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			this.optRts = optRts;
 			this.todayStartsAtInMs = todayStartsAtInMs;
 			this.todayStartsAtCal = TimeUtils.getNewCalendarInstance(this.todayStartsAtInMs);
+		}
+
+		public boolean isInitialized() {
+			return !TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority);
 		}
 
 		public void setUuid(String uuid) {

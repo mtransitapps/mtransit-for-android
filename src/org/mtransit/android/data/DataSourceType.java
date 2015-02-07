@@ -159,7 +159,6 @@ public enum DataSourceType {
 		public int compare(DataSourceType lType, DataSourceType rType) {
 			return lType.id - rType.id;
 		}
-
 	}
 
 	public static class DataSourceTypeShortNameComparator implements Comparator<DataSourceType> {
@@ -192,7 +191,6 @@ public enum DataSourceType {
 			String rShortName = context.getString(rType.getShortNameResId());
 			return lShortName.compareTo(rShortName);
 		}
-
 	}
 
 	public static class POIManagerTypeShortNameComparator implements Comparator<POIManager> {

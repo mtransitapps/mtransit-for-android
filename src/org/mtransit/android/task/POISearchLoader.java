@@ -30,7 +30,7 @@ import android.text.TextUtils;
 
 public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
-	private static final String TAG = FavoritesLoader.class.getSimpleName();
+	private static final String TAG = POISearchLoader.class.getSimpleName();
 
 	@Override
 	public String getLogTag() {

@@ -43,13 +43,14 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		return TRACKING_SCREEN_NAME;
 	}
 
-
 	public static Intent newInstance(Context context) {
 		return new Intent(context, MainActivity.class);
 	}
 
 	private static final boolean LOCATION_ENABLED = true;
+
 	private NavigationDrawerController navigationDrawerController;
+
 	private ActionBarController abController;
 
 	public MainActivity() {

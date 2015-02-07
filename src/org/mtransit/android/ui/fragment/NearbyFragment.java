@@ -59,9 +59,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		return TRACKING_SCREEN_NAME;
 	}
 
-
 	private static final String EXTRA_SELECTED_TYPE = "extra_selected_type";
-
 
 	private static final String EXTRA_FIXED_ON_LAT = "extra_fixed_on_lat";
 	private static final String EXTRA_FIXED_ON_LNG = "extra_fixed_on_lng";
@@ -215,7 +213,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 	}
 
-
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		MTLog.d(this, "onSaveInstanceState() > this.selectedTypeId: %s", this.selectedTypeId);
@@ -281,7 +278,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getLastLocation());
 	}
-
 
 	@Override
 	public void onDestroy() {
@@ -431,6 +427,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		setupTabTheme(view);
 		setupAdapters(view);
 		setSwipeRefreshLayoutEnabled(!isFixedOn());
+		switchView(view);
 	}
 
 	private void setupTabTheme(View view) {
@@ -468,7 +465,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 	}
 
-
 	private void setNewNearbyLocation(Location newNearbyLocation) {
 		if (newNearbyLocation == null) {
 			return;
@@ -501,7 +497,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		if (view == null) {
 			return;
 		}
-		if (this.adapter == null) {
+		if (this.adapter == null || !this.adapter.isInitialized()) {
 			showLoading(view);
 		} else if (this.adapter.getCount() > 0) {
 			showTabsAndViewPager(view);
@@ -627,7 +623,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 	}
 
-
 	private void setSwipeRefreshLayoutRefreshing(boolean refreshing) {
 		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
@@ -711,7 +706,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		return this.nearbyLocationAddress;
 	}
 
-
 	public static interface NearbyLocationListener extends MTActivityWithLocation.UserLocationListener {
 		public void onNearbyLocationChanged(Location location);
 	}
@@ -790,6 +784,10 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			}
 		}
 
+		public boolean isInitialized() {
+			return this.availableAgencyTypes != null && this.availableAgencyTypes.size() > 0;
+		}
+
 		public void setSwipeRefreshLayoutEnabled(boolean swipeRefreshLayoutEnabled) {
 			this.swipeRefreshLayoutEnabled = swipeRefreshLayoutEnabled;
 		}
@@ -798,11 +796,9 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			return this.typeIds == null ? null : this.typeIds.get(position);
 		}
 
-
 		public void setNearbyLocation(Location nearbyLocation) {
 			this.nearbyLocation = nearbyLocation;
 		}
-
 
 		public void setLastVisibleFragmentPosition(int lastVisibleFragmentPosition) {
 			this.lastVisibleFragmentPosition = lastVisibleFragmentPosition;

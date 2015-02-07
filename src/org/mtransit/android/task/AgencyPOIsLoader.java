@@ -13,7 +13,7 @@ import android.content.Context;
 
 public class AgencyPOIsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
-	private static final String TAG = FavoritesLoader.class.getSimpleName();
+	private static final String TAG = AgencyPOIsLoader.class.getSimpleName();
 
 	@Override
 	public String getLogTag() {

@@ -159,6 +159,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		}
 		inflateList(view);
 		this.adapter.setListView((AbsListView) view.findViewById(R.id.list));
+		switchView(view);
 	}
 
 	@Override
@@ -236,7 +237,6 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		}
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
-
 
 	@Override
 	public CharSequence getABTitle(Context context) {

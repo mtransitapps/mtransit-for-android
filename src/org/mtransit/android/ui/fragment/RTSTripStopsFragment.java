@@ -203,6 +203,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 				this.lastVisibleFragmentPosition = -1;
 			}
 		}
+		this.adapter.setTag(this.authority + "-" + this.tripId);
 	}
 
 

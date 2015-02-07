@@ -22,6 +22,8 @@ public class Module extends DefaultPOI {
 		return TAG;
 	}
 
+	public static final int DST_ID = DataSourceType.TYPE_MODULE.getId();
+
 	private String pkg;
 
 	private int targetTypeId;
@@ -29,10 +31,11 @@ public class Module extends DefaultPOI {
 	private String color = null;
 
 	private String location = null;
+
 	private String nameFr = null;
 
 	public Module(String authority, String pkg, int targetTypeId) {
-		super(authority, POI.ITEM_VIEW_TYPE_MODULE, POI.ITEM_STATUS_TYPE_APP, POI.ITEM_ACTION_TYPE_APP);
+		super(authority, DST_ID, POI.ITEM_VIEW_TYPE_MODULE, POI.ITEM_STATUS_TYPE_APP, POI.ITEM_ACTION_TYPE_APP);
 		this.pkg = pkg;
 		this.targetTypeId = targetTypeId;
 	}

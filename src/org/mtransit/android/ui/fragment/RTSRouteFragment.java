@@ -136,11 +136,13 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		String newAuthority = BundleUtils.getString(EXTRA_AUTHORITY, bundles);
 		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
+			resetRouteTrips();
 		}
 		Long newRouteId = BundleUtils.getLong(EXTRA_ROUTE_ID, bundles);
 		if (newRouteId != null && !newRouteId.equals(this.routeId)) {
 			this.routeId = newRouteId;
 			resetRoute();
+			resetRouteTrips();
 		}
 		Long newTripId = BundleUtils.getLong(EXTRA_TRIP_ID, bundles);
 		if (newTripId != null && !newTripId.equals(this.tripId)) {
@@ -153,11 +155,79 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		this.adapter.setAuthority(this.authority);
 		this.adapter.setRouteId(this.routeId);
 		this.adapter.setStopId(this.stopId);
-		ArrayList<Trip> routeTrips = DataSourceManager.findRTSRouteTrips(getActivity(), this.authority, this.routeId);
-		if (CollectionUtils.getSize(routeTrips) == 0) {
+		this.adapter.setRouteTrips(getRouteTripsOrNull());
+	}
+
+	private ArrayList<Trip> routeTrips;
+
+	private boolean hasRouteTrips() {
+		if (this.routeTrips == null) {
+			initRouteTripsAsync();
+			return false;
+		}
+		return true;
+	}
+
+	private ArrayList<Trip> getRouteTripsOrNull() {
+		if (!hasRouteTrips()) {
+			return null;
+		}
+		return this.routeTrips;
+	}
+
+	private void initRouteTripsAsync() {
+		if (this.loadRouteTripsTask.getStatus() == MTAsyncTask.Status.RUNNING) {
 			return;
 		}
-		this.adapter.setRouteTrips(routeTrips);
+		if (this.routeId == null || TextUtils.isEmpty(this.authority)) {
+			return;
+		}
+		this.loadRouteTripsTask.execute(this.authority, this.routeId);
+	}
+
+	private MTAsyncTask<Object, Void, Boolean> loadRouteTripsTask = new MTAsyncTask<Object, Void, Boolean>() {
+		@Override
+		public String getLogTag() {
+			return TAG + ">initRouteTripsAsync";
+		}
+
+		@Override
+		protected Boolean doInBackgroundMT(Object... params) {
+			return initRouteTripsSync();
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			super.onPostExecute(result);
+			if (result) {
+				applyNewRouteTrips();
+			}
+		}
+	};
+
+	private boolean initRouteTripsSync() {
+		if (this.routeTrips != null) {
+			return false;
+		}
+		if (this.routeId != null && !TextUtils.isEmpty(this.authority)) {
+			this.routeTrips = DataSourceManager.findRTSRouteTrips(getActivity(), this.authority, this.routeId);
+		}
+		return this.routeTrips != null;
+	}
+
+	private void applyNewRouteTrips() {
+		if (this.routeTrips == null) {
+			return;
+		}
+		if (this.adapter != null) {
+			this.adapter.setRouteTrips(this.routeTrips);
+			setupAdapters(getView());
+			switchView(getView());
+		}
+	}
+
+	private void resetRouteTrips() {
+		this.routeTrips = null; // reset
 	}
 
 	private Route route;
@@ -372,17 +442,29 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (view == null) {
 			return;
 		}
-		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
 		tabs.setCustomTabView(R.layout.layout_tab_indicator, R.id.tab_title);
 		tabs.setOnPageChangeListener(this);
 		setupTabTheme(view);
+		setupAdapters(view);
+		switchView(view);
+	}
+
+	private void setupAdapters(View view) {
+		if (view == null) {
+			return;
+		}
+		if (!hasRouteTrips()) {
+			return;
+		}
+		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		viewPager.setAdapter(this.adapter);
+		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
 		tabs.setViewPager(viewPager);
 		if (this.lastPageSelected >= 0) {
 			viewPager.setCurrentItem(this.lastPageSelected);
 		} else {
-			new LoadLastPageSelectedFromUserPreference(getActivity(), this, this.authority, this.routeId, this.tripId, this.adapter.getRouteTrips()).execute();
+			new LoadLastPageSelectedFromUserPreference(getActivity(), this, this.authority, this.routeId, this.tripId, getRouteTripsOrNull()).execute();
 		}
 	}
 
@@ -561,7 +643,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 	@Override
 	public Integer getABBgColor(Context context) {
-		return POIManager.getRouteColor(context, getRouteOrNull(), this.authority, null);
+		return POIManager.getRouteColor(context, getRouteOrNull(), this.authority, super.getABBgColor(context));
 	}
 
 	private MenuItem listMapToggleMenuItem;
@@ -680,9 +762,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			this.routeTrips = routeTrips;
 		}
 
-		public ArrayList<Trip> getRouteTrips() {
-			return routeTrips;
-		}
 
 		public Trip getTrip(int position) {
 			return this.routeTrips == null || this.routeTrips.size() == 0 ? null : this.routeTrips.get(position);

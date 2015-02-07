@@ -83,6 +83,8 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 
 	private static class ServiceUpdateFetcherCallable extends MTAsyncTask<Void, Void, Collection<ServiceUpdate>> {
 
+		private static final String TAG = ServiceUpdateLoader.TAG + '>' + ServiceUpdateFetcherCallable.class.getSimpleName();
+
 		@Override
 		public String getLogTag() {
 			return TAG;

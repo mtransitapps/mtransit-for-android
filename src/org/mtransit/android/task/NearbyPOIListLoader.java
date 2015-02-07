@@ -29,7 +29,6 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 
 	private ArrayList<POIManager> pois;
 
-
 	private String[] agenciesAuthority;
 
 	private double lat;

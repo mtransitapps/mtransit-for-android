@@ -19,6 +19,8 @@ public class Place extends DefaultPOI {
 		return TAG;
 	}
 
+	public static final int DST_ID = DataSourceType.TYPE_PLACE.getId();
+
 	private String providerId;
 
 	private String lang;
@@ -26,7 +28,7 @@ public class Place extends DefaultPOI {
 	private long readAtInMs = -1l;
 
 	public Place(String authority, String providerId, String lang, long readAtInMs) {
-		super(authority, POI.ITEM_VIEW_TYPE_BASIC_POI, -1, POI.ITEM_ACTION_TYPE_PLACE);
+		super(authority, DST_ID, POI.ITEM_VIEW_TYPE_BASIC_POI, -1, POI.ITEM_ACTION_TYPE_PLACE);
 		this.providerId = providerId;
 		this.lang = lang;
 		this.readAtInMs = readAtInMs;

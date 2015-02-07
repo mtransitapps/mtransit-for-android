@@ -537,14 +537,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (pois != null) {
 			this.poisByType = new LinkedHashMap<Integer, ArrayList<POIManager>>();
 			for (POIManager poim : pois) {
-				AgencyProperties agency = DataSourceProvider.get(getContext()).getAgency(getContext(), poim.poi.getAuthority());
-				if (agency != null) {
-					Integer typeId = agency.getType().getId();
-					if (!this.poisByType.containsKey(typeId)) {
-						this.poisByType.put(typeId, new ArrayList<POIManager>());
-					}
-					this.poisByType.get(typeId).add(poim);
+				if (!this.poisByType.containsKey(poim.poi.getDataSourceTypeId())) {
+					this.poisByType.put(poim.poi.getDataSourceTypeId(), new ArrayList<POIManager>());
 				}
+				this.poisByType.get(poim.poi.getDataSourceTypeId()).add(poim);
 			}
 		}
 		refreshFavorites();
