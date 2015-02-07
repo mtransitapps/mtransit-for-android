@@ -152,7 +152,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 		this.adapter.setAuthority(this.authority);
 		this.adapter.setRouteId(this.routeId);
-		this.adapter.setOptStopId(this.stopId);
+		this.adapter.setStopId(this.stopId);
 		ArrayList<Trip> routeTrips = DataSourceManager.findRTSRouteTrips(getActivity(), this.authority, this.routeId);
 		if (CollectionUtils.getSize(routeTrips) == 0) {
 			return;
@@ -307,10 +307,10 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		private WeakReference<RTSRouteFragment> rtsRouteFragmentWR;
 		private String authority;
 		private Long routeId;
-		private Long tripId;
+		private long tripId;
 		private ArrayList<Trip> routeTrips;
 
-		public LoadLastPageSelectedFromUserPreference(Context context, RTSRouteFragment rtsRouteFragment, String authority, Long routeId, Long tripId,
+		public LoadLastPageSelectedFromUserPreference(Context context, RTSRouteFragment rtsRouteFragment, String authority, Long routeId, long tripId,
 				ArrayList<Trip> routeTrips) {
 			this.contextWR = new WeakReference<Context>(context);
 			this.rtsRouteFragmentWR = new WeakReference<RTSRouteFragment>(rtsRouteFragment);
@@ -324,10 +324,10 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		protected Integer doInBackgroundMT(Void... params) {
 			try {
 				Context context = this.contextWR == null ? null : this.contextWR.get();
-				if (this.tripId == null) {
+				if (this.tripId < 0l) {
 					if (context != null) {
-						this.tripId = PreferenceUtils.getPrefLcl(context, PreferenceUtils.getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(this.authority, this.routeId),
-								PreferenceUtils.PREFS_LCL_RTS_ROUTE_TRIP_ID_TAB_DEFAULT);
+						String routePref = PreferenceUtils.getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(this.authority, this.routeId);
+						this.tripId = PreferenceUtils.getPrefLcl(context, routePref, PreferenceUtils.PREFS_LCL_RTS_ROUTE_TRIP_ID_TAB_DEFAULT);
 					} else {
 						this.tripId = PreferenceUtils.PREFS_LCL_RTS_ROUTE_TRIP_ID_TAB_DEFAULT;
 					}
@@ -629,18 +629,18 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		private WeakReference<Context> contextWR;
 		private int lastVisibleFragmentPosition = -1;
 		private String authority;
-		private Integer optStopId = null;
+		private int stopId = -1;
 		private boolean showingListInsteadOfMap;
 		private Long routeId;
 		private Route optRoute;
 
 		public RouteTripPagerAdapter(Context context, RTSRouteFragment fragment, ArrayList<Trip> routeTrips, String authority, Long routeId, Route optRoute,
-				Integer optStopId, boolean showingListInsteadOfMap) {
+				int stopId, boolean showingListInsteadOfMap) {
 			super(fragment.getChildFragmentManager());
 			this.contextWR = new WeakReference<Context>(context);
 			this.routeTrips = routeTrips;
 			this.authority = authority;
-			this.optStopId = optStopId;
+			this.stopId = stopId;
 			this.showingListInsteadOfMap = showingListInsteadOfMap;
 			this.routeId = routeId;
 			this.optRoute = optRoute;
@@ -668,8 +668,8 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			}
 		}
 
-		public void setOptStopId(Integer optStopId) {
-			this.optStopId = optStopId;
+		public void setStopId(int stopId) {
+			this.stopId = stopId;
 		}
 
 		public void setShowingListInsteadOfMap(boolean showingListInsteadOfMap) {
@@ -716,7 +716,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			if (trip == null) {
 				return null;
 			}
-			return RTSTripStopsFragment.newInstance(position, this.lastVisibleFragmentPosition, this.authority, this.routeId, trip.id, this.optStopId,
+			return RTSTripStopsFragment.newInstance(position, this.lastVisibleFragmentPosition, this.authority, this.routeId, trip.id, this.stopId,
 					this.showingListInsteadOfMap, this.optRoute);
 		}
 
