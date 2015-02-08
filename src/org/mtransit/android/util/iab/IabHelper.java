@@ -488,7 +488,6 @@ public class IabHelper implements MTLog.Loggable {
 				MTLog.e(this, "In-app billing error: Bundle returned from getPurchases() doesn't contain required fields.");
 				return IABHELPER_BAD_RESPONSE;
 			}
-			ArrayList<String> ownedSkus = ownedItems.getStringArrayList(RESPONSE_INAPP_ITEM_LIST);
 			ArrayList<String> purchaseDataList = ownedItems.getStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST);
 			ArrayList<String> signatureList = ownedItems.getStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST);
 			for (int i = 0; i < purchaseDataList.size(); ++i) {
