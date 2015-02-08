@@ -86,8 +86,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	public POI poi;
-
-
 	private CharSequence distanceString = null;
 	private float distance = -1;
 	private POIStatus status;
@@ -540,6 +538,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			new AlertDialog.Builder(activity).setTitle(this.poi.getName())
 					.setItems(getActionsItems(activity, activity.getString(R.string.view_details)), new DialogInterface.OnClickListener() {
+						@Override
 						public void onClick(DialogInterface dialog, int item) {
 							if (onActionsItemClick(activity, item, favoriteUpdateListener)) {
 								return;
@@ -616,6 +615,4 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			return lhsPoi.compareToAlpha(null, rhsPoi);
 		}
 	}
-
-
 }

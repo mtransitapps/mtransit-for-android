@@ -106,7 +106,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private float[] magneticFieldValues = new float[3];
 
-
 	private boolean showStatus = true; // show times / availability
 
 	private boolean showServiceUpdate = true; // show warning icon
@@ -118,7 +117,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private int showTypeHeader = TYPE_HEADER_NONE;
 
 	private boolean showTypeHeaderNearby = false; // show nearby header instead of default type header
-
 
 	private ViewGroup manualLayout;
 
@@ -140,7 +138,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public POIArrayAdapter(Activity activity) {
 		super(activity, -1);
-		this.activityWR = new WeakReference<Activity>(activity);
+		setActivity(activity);
 		this.layoutInflater = LayoutInflater.from(getContext());
 	}
 
@@ -175,7 +173,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	public void setShowTypeHeaderNearby(boolean showTypeHeaderNearby) {
 		this.showTypeHeaderNearby = showTypeHeaderNearby;
 	}
-
 
 	private static final int VIEW_TYPE_COUNT = 8;
 
@@ -424,7 +421,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return true; // handled
 	}
 
-
 	public static interface OnPOISelectedListener {
 		public boolean onPOISelected(POIManager poim);
 	}
@@ -610,7 +606,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return getItem(closestPOIUUID);
 	}
 
-
 	private MTAsyncTask<Location, Void, Void> updateDistanceWithStringTask;
 
 	private void updateDistances(Location currentLocation) {
@@ -649,6 +644,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
+	// do we really ever want to set distance strings synchronously?
+	@Deprecated
 	public void updateDistancesNowSync(Location currentLocation) {
 		if (this.poisByType != null && currentLocation != null) {
 			for (ArrayList<POIManager> pois : this.poisByType.values()) {
@@ -859,7 +856,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	public void onResume(Activity activity) {
-		this.activityWR = new WeakReference<Activity>(activity);
+		setActivity(activity);
 		if (!this.compassUpdatesEnabled) {
 			SensorUtils.registerCompassListener(getContext(), this);
 			this.compassUpdatesEnabled = true;
@@ -882,23 +879,18 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			this.closestPoiUuids = null;
 		}
 		disableTimeChangeddReceiver();
-		//
 		this.compassImgsWR.clear();
 		this.lastCompassChanged = -1;
 		this.lastCompassInDegree = -1;
 		this.accelerometerValues = new float[3];
 		this.magneticFieldValues = new float[3];
-		//
 		this.lastNotifyDataSetChanged = -1l;
 		this.handler.removeCallbacks(this.notifyDataSetChangedLater);
-		//
 		this.poiStatusViewHoldersWR.clear();
-		//
 		if (this.refreshFavoritesTask != null) {
 			this.refreshFavoritesTask.cancel(true);
 			this.refreshFavoritesTask = null;
 		}
-		//
 		if (this.updateDistanceWithStringTask != null) {
 			this.updateDistanceWithStringTask.cancel(true);
 			this.updateDistanceWithStringTask = null;
@@ -1626,7 +1618,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			}
 		};
 		this.refreshFavoritesTask.execute(typesFilter);
-
 	}
 
 	private void setFavorites(ArrayList<Favorite> favorites) {
