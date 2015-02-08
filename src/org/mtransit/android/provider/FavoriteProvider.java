@@ -56,7 +56,9 @@ public class FavoriteProvider extends MTContentProvider {
 	}
 
 	private static String authority;
+
 	private static Uri authorityUri;
+
 	private static UriMatcher uriMatcher;
 
 	private static FavoriteDbHelper dbHelper;
@@ -138,6 +140,7 @@ public class FavoriteProvider extends MTContentProvider {
 			if (TextUtils.isEmpty(sortOrder)) {
 				sortOrder = getSortOrder(uri);
 			}
+			db = getDBHelper(getContext()).getReadableDatabase();
 			Cursor cursor = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder, null);
 			if (cursor != null) {
 				cursor.setNotificationUri(getContext().getContentResolver(), uri);
