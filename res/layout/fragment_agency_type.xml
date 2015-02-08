@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingTop="?attr/actionBarSize" >
+    android:paddingTop="@dimen/action_bar_size_static" >
     <!-- TABS -->
     <org.mtransit.android.ui.view.SlidingTabLayout
         android:id="@+id/tabs"

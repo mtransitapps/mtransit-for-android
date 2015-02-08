@@ -8,4 +8,5 @@
     <dimen name="poi_padding">0dp</dimen>
     <dimen name="poi_inner_padding">8dp</dimen>
     <dimen name="poi_status_inner_padding">8dp</dimen>
+    <dimen name="action_bar_size_static">56dp</dimen>
 </resources>

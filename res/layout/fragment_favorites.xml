@@ -4,7 +4,7 @@
     android:id="@+id/viewFlipper"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="?attr/actionBarSize" >
+    android:paddingTop="@dimen/action_bar_size_static" >
     <ViewStub
         android:id="@+id/loading_stub"
         android:layout_width="match_parent"
