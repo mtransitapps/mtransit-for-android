@@ -38,13 +38,15 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
 	private double lat;
 	private double lng;
+	private float accuracyInMeters;
 
 	private ArrayList<POIManager> pois;
 
-	public HomePOILoader(Context context, double lat, double lng) {
+	public HomePOILoader(Context context, double lat, double lng, float accuracyInMeters) {
 		super(context);
 		this.lat = lat;
 		this.lng = lng;
+		this.accuracyInMeters = accuracyInMeters;
 	}
 
 	@Override
@@ -62,6 +64,9 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 			float minDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(this.lat, this.lng, LocationUtils.MIN_AROUND_DIFF);
 			if (minDistanceInMeters < LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS) {
 				minDistanceInMeters = LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS;
+			}
+			if (minDistanceInMeters < this.accuracyInMeters) {
+				minDistanceInMeters = this.accuracyInMeters;
 			}
 			for (DataSourceType type : availableAgencyTypes) {
 				if (!type.isHomeScreen()) {

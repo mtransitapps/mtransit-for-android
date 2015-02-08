@@ -314,7 +314,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			});
 		}
 		switchView(getView());
-		this.adapter.onResume(getActivity());
+		this.adapter.onResume(getActivity(), this.userLocation);
 		if (!this.adapter.isInitialized()) {
 			applyNewQuery();
 		}

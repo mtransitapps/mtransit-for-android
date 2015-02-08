@@ -142,7 +142,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 		switchView(getView());
 		if (this.adapter != null) {
-			this.adapter.onResume(getActivity());
+			this.adapter.onResume(getActivity(), this.userLocation);
 		}
 		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getLastLocation());
 	}
@@ -213,7 +213,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			if (this.nearbyLocation == null) {
 				return null;
 			}
-			return new HomePOILoader(getActivity(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude());
+			return new HomePOILoader(getActivity(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.nearbyLocation.getAccuracy());
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;

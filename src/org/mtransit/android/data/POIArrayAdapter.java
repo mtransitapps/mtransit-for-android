@@ -707,7 +707,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	};
 
-	public void notifyDataSetChanged(boolean force, int minAdapterThresoldInMs) {
+	public void notifyDataSetChanged(boolean force, long minAdapterThresoldInMs) {
 		long now = TimeUtils.currentTimeMillis();
 		long adapterThreasold = Math.max(minAdapterThresoldInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
 		if (this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && (force || (now - this.lastNotifyDataSetChanged) > adapterThreasold)) {
@@ -855,12 +855,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				.toString();
 	}
 
-	public void onResume(Activity activity) {
+	public void onResume(Activity activity, Location userLocation) {
 		setActivity(activity);
-		if (!this.compassUpdatesEnabled) {
-			SensorUtils.registerCompassListener(getContext(), this);
-			this.compassUpdatesEnabled = true;
-		}
+		this.location = null; // clear current location to force refresh
+		setLocation(userLocation);
 		refreshFavorites();
 	}
 
@@ -924,26 +922,25 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	@Override
 	public void onSensorTaskCompleted(boolean result, int roundedOrientation, long now) {
-		if (result) {
-			this.lastCompassInDegree = roundedOrientation;
-			this.lastCompassChanged = now;
-			if (this.compassUpdatesEnabled && this.location != null && this.lastCompassInDegree >= 0) {
-				if (this.compassImgsWR.size() > 0) {
-					for (WeakHashMap.Entry<MTCompassView, View> compassAndDistance : this.compassImgsWR.entrySet()) {
-						MTCompassView compassView = compassAndDistance.getKey();
-						if (compassView != null) {
-							compassView.generateAndSetHeading(this.location, this.lastCompassInDegree, this.locationDeclination);
-							if (compassView.getVisibility() != View.VISIBLE) {
-								View distanceView = compassAndDistance.getValue();
-								if (distanceView != null && distanceView.getVisibility() == View.VISIBLE) {
-									compassView.setVisibility(View.VISIBLE);
-								}
-							}
-						}
-					}
-				} else {
-					notifyDataSetChanged(true); // weak reference list not set
-				}
+		if (!result) {
+			return;
+		}
+		this.lastCompassInDegree = roundedOrientation;
+		this.lastCompassChanged = now;
+		if (!this.compassUpdatesEnabled || this.location == null || this.lastCompassInDegree < 0) {
+			return;
+		}
+		if (!this.compassUpdatesEnabled) {
+			return;
+		}
+		if (this.compassImgsWR.size() == 0) {
+			notifyDataSetChanged(true); // weak reference list not set
+			return;
+		}
+		for (WeakHashMap.Entry<MTCompassView, View> compassAndDistance : this.compassImgsWR.entrySet()) {
+			MTCompassView compassView = compassAndDistance.getKey();
+			if (compassView != null && compassView.isHeadingSet()) {
+				compassView.generateAndSetHeading(this.location, this.lastCompassInDegree, this.locationDeclination);
 			}
 		}
 	}
@@ -1548,11 +1545,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 		// compass (if distance available)
 		if (holder.compassV != null) {
-			if (holder.distanceTv != null && holder.distanceTv.getVisibility() == View.VISIBLE && this.location != null && this.lastCompassInDegree >= 0
-					&& this.location.getAccuracy() <= poim.getDistance()) {
-				holder.compassV.generateAndSetHeading(this.location, this.lastCompassInDegree, this.locationDeclination);
+			if (holder.distanceTv != null && holder.distanceTv.getVisibility() == View.VISIBLE) {
+				if (this.location != null && this.lastCompassInDegree >= 0 && this.location.getAccuracy() <= poim.getDistance()) {
+					holder.compassV.generateAndSetHeading(this.location, this.lastCompassInDegree, this.locationDeclination);
+				} else {
+					holder.compassV.resetHeading();
+				}
 				holder.compassV.setVisibility(View.VISIBLE);
 			} else {
+				holder.compassV.resetHeading();
 				holder.compassV.setVisibility(View.GONE);
 			}
 		}

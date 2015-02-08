@@ -298,7 +298,6 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		return view;
 	}
 
-
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		if (!TextUtils.isEmpty(this.uuid)) {
@@ -678,6 +677,10 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 				this.userLocation = newLocation;
 				this.locationDeclination = SensorUtils.getLocationDeclination(newLocation);
+				if (!this.compassUpdatesEnabled) {
+					SensorUtils.registerCompassListener(getActivity(), this);
+					this.compassUpdatesEnabled = true;
+				}
 				POIManager poim = getPoimOrNull();
 				if (poim != null) {
 					LocationUtils.updateDistanceWithString(getActivity(), poim, newLocation);
@@ -785,16 +788,12 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 				}
 			});
 		}
-		if (!this.compassUpdatesEnabled) {
-			SensorUtils.registerCompassListener(getActivity(), this);
-			this.compassUpdatesEnabled = true;
-		}
 		this.isFavorite = null; // force refresh
 		if (this.mapView != null) {
 			this.mapView.onResume();
 		}
 		if (this.adapter != null) {
-			this.adapter.onResume(getActivity());
+			this.adapter.onResume(getActivity(), this.userLocation);
 		}
 		POIManager poim = getPoimOrNull();
 		if (poim != null) {

@@ -81,7 +81,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		}
 		switchView(getView());
 		if (this.adapter.isInitialized()) {
-			this.adapter.onResume(getActivity());
+			this.adapter.onResume(getActivity(), this.userLocation);
 		} else {
 			LoaderUtils.restartLoader(getLoaderManager(), FAVORITES_LOADER, null, this);
 		}

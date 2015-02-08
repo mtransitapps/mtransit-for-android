@@ -247,7 +247,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		if (!this.adapter.isInitialized()) {
 			LoaderUtils.restartLoader(getLoaderManager(), POIS_LOADER, null, this);
 		} else {
-			this.adapter.onResume(getActivity());
+			this.adapter.onResume(getActivity(), this.userLocation);
 		}
 		resumeMapView();
 		checkIfShowingListInsteadOfMapChanged();

@@ -17,7 +17,7 @@ import android.util.AttributeSet;
 public class MTCompassView extends MTView {
 
 	private static final String TAG = MTCompassView.class.getSimpleName();
-	
+
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -26,7 +26,6 @@ public class MTCompassView extends MTView {
 	private int headingInDegree = -1; // 0-360°
 
 	private Paint compassPaint;
-
 
 	private RectF bounds;
 
@@ -89,18 +88,15 @@ public class MTCompassView extends MTView {
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		super.onSizeChanged(w, h, oldw, oldh);
-
 		float innerCircleDiameter = Math.min(w, h);
 		float left = w > innerCircleDiameter ? (w - innerCircleDiameter) / 2 : 0;
 		float top = h > innerCircleDiameter ? (h - innerCircleDiameter) / 2 : 0;
 		float right = left + innerCircleDiameter;
 		float bottom = top + innerCircleDiameter;
-
 		left += getPaddingLeft();
 		top += getPaddingTop();
 		right -= getPaddingRight();
 		bottom -= getPaddingBottom();
-
 		this.bounds = new RectF(left, top, right, bottom);
 		this.boundsExactCenterX = left + (this.bounds.right - this.bounds.left) / 2;
 		this.boundsExactCenterY = top + (this.bounds.bottom - this.bounds.top) / 2;
@@ -148,6 +144,18 @@ public class MTCompassView extends MTView {
 			this.headingInDegree = headingInDegree;
 			invalidate();
 		}
+	}
+
+	public void resetHeading() {
+		if (this.headingInDegree < 0) {
+			return; // skip
+		}
+		this.headingInDegree = -1; // no data
+		invalidate();
+	}
+
+	public boolean isHeadingSet() {
+		return this.headingInDegree >= 0;
 	}
 
 }

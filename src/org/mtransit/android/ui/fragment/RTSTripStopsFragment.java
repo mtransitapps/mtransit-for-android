@@ -353,7 +353,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (this.adapter == null || !this.adapter.isInitialized()) {
 			LoaderUtils.restartLoader(getLoaderManager(), POIS_LOADER, null, this);
 		} else {
-			this.adapter.onResume(getActivity());
+			this.adapter.onResume(getActivity(), this.userLocation);
 		}
 		resumeMapView();
 		Activity activity = getActivity();

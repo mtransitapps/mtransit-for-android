@@ -496,6 +496,13 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
+		updatePOIDistanceAndCompass(holder, poim, dataProvider);
+	}
+
+	private static void updatePOIDistanceAndCompass(CommonViewHolder holder, POIManager poim, POIDataProvider dataProvider) {
+		if (poim == null || poim.poi == null || holder == null) {
+			return;
+		}
 		holder.compassV.setLatLng(poim.getLat(), poim.getLng());
 		if (!TextUtils.isEmpty(poim.getDistanceString())) {
 			if (!poim.getDistanceString().equals(holder.distanceTv.getText())) {
@@ -506,11 +513,16 @@ public class POIViewController implements MTLog.Loggable {
 			holder.distanceTv.setVisibility(View.GONE);
 			holder.distanceTv.setText(null);
 		}
-		if (holder.distanceTv.getVisibility() == View.VISIBLE && dataProvider != null && dataProvider.hasLocation() && dataProvider.hasLastCompassInDegree()
-				&& dataProvider.getLocation().getAccuracy() <= poim.getDistance()) {
-			holder.compassV.generateAndSetHeading(dataProvider.getLocation(), dataProvider.getLastCompassInDegree(), dataProvider.getLocationDeclination());
+		if (holder.distanceTv.getVisibility() == View.VISIBLE) {
+			if (dataProvider != null && dataProvider.hasLocation() && dataProvider.hasLastCompassInDegree()
+					&& dataProvider.getLocation().getAccuracy() <= poim.getDistance()) {
+				holder.compassV.generateAndSetHeading(dataProvider.getLocation(), dataProvider.getLastCompassInDegree(), dataProvider.getLocationDeclination());
+			} else {
+				holder.compassV.resetHeading();
+			}
 			holder.compassV.setVisibility(View.VISIBLE);
 		} else {
+			holder.compassV.resetHeading();
 			holder.compassV.setVisibility(View.GONE);
 		}
 	}
@@ -520,24 +532,8 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		POI poi = poim.poi;
-		holder.compassV.setLatLng(poim.getLat(), poim.getLng());
 		holder.nameTv.setText(poi.getName());
-		if (!TextUtils.isEmpty(poim.getDistanceString())) {
-			if (!poim.getDistanceString().equals(holder.distanceTv.getText())) {
-				holder.distanceTv.setText(poim.getDistanceString());
-			}
-			holder.distanceTv.setVisibility(View.VISIBLE);
-		} else {
-			holder.distanceTv.setVisibility(View.GONE);
-			holder.distanceTv.setText(null);
-		}
-		if (holder.distanceTv.getVisibility() == View.VISIBLE && dataProvider != null && dataProvider.hasLocation() && dataProvider.hasLastCompassInDegree()
-				&& dataProvider.getLocation().getAccuracy() <= poim.getDistance()) {
-			holder.compassV.generateAndSetHeading(dataProvider.getLocation(), dataProvider.getLastCompassInDegree(), dataProvider.getLocationDeclination());
-			holder.compassV.setVisibility(View.VISIBLE);
-		} else {
-			holder.compassV.setVisibility(View.GONE);
-		}
+		updatePOIDistanceAndCompass(holder, poim, dataProvider);
 		if (dataProvider != null && dataProvider.isShowingFavorite() && dataProvider.isFavorite(poi.getUUID())) {
 			holder.favImg.setVisibility(View.VISIBLE);
 		} else {
@@ -586,6 +582,7 @@ public class POIViewController implements MTLog.Loggable {
 		public boolean hasLastCompassInDegree();
 
 		public boolean hasLocation();
+
 		public boolean isShowingServiceUpdates();
 	}
 
@@ -634,5 +631,4 @@ public class POIViewController implements MTLog.Loggable {
 		TextView dataNextLine1Tv;
 		TextView dataNextLine2Tv;
 	}
-
 }

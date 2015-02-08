@@ -291,7 +291,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		this.fragmentVisible = true;
 		switchView(getView());
 		if (this.adapter != null) {
-			this.adapter.onResume(getActivity());
+			this.adapter.onResume(getActivity(), this.userLocation);
 		}
 		NearbyFragment nearbyFragment = this.nearbyFragmentWR == null ? null : this.nearbyFragmentWR.get();
 		if (nearbyFragment != null) {
@@ -366,6 +366,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			}
 		}
 		this.nearbyLocation = newNearbyLocation;
+		resetTypeAgenciesAuthority();
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
@@ -493,6 +494,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 					LocationUtils.MIN_AROUND_DIFF);
 			if (minDistanceInMeters < LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS) {
 				minDistanceInMeters = LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS;
+			}
+			if (minDistanceInMeters < this.nearbyLocation.getAccuracy()) {
+				minDistanceInMeters = this.nearbyLocation.getAccuracy();
 			}
 			return new NearbyPOIListLoader(getActivity(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff,
 					minDistanceInMeters, LocationUtils.MAX_NEARBY_LIST, false, getTypeAgenciesAuthorityOrNull());
