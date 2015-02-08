@@ -494,7 +494,6 @@ public class IabHelper implements MTLog.Loggable {
 			for (int i = 0; i < purchaseDataList.size(); ++i) {
 				String purchaseData = purchaseDataList.get(i);
 				String signature = signatureList.get(i);
-				String sku = ownedSkus.get(i);
 				if (Security.verifyPurchase(mSignatureBase64, purchaseData, signature)) {
 					Purchase purchase = new Purchase(itemType, purchaseData, signature);
 					if (TextUtils.isEmpty(purchase.getToken())) {

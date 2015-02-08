@@ -78,7 +78,6 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 
 			@Override
 			protected String doInBackgroundMT(Bundle... params) {
-				Bundle savedInstanceState = params == null || params.length == 0 ? null : params[0];
 				Context context = NavigationDrawerController.this.mainActivityWR == null ? null : NavigationDrawerController.this.mainActivityWR.get();
 				NavigationDrawerController.this.drawerListViewAdapter = new MenuAdapter(context, NavigationDrawerController.this);
 				String itemId = null;

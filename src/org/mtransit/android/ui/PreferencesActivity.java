@@ -1,7 +1,6 @@
 package org.mtransit.android.ui;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.util.VendingUtils;
 
 import android.content.Context;
