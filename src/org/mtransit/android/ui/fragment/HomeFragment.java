@@ -7,6 +7,7 @@ import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
+import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIArrayAdapter;
@@ -27,10 +28,12 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 public class HomeFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
@@ -94,12 +97,13 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		initiateRefresh();
 	}
 
-	private void initiateRefresh() {
-		if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation, 2)) {
+	private boolean initiateRefresh() {
+		if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation)) {
 			setSwipeRefreshLayoutRefreshing(false);
-			return;
+			return false;
 		}
 		useNewNearbyLocation(this.userLocation);
+		return true;
 	}
 
 	private boolean modulesUpdated = false;
@@ -114,7 +118,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		initiateRefresh();
 		this.modulesUpdated = false; // processed
 	}
-
 
 	private void restoreInstanceState(Bundle... bundles) {
 	}
@@ -236,22 +239,81 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	@Override
 	public void onUserLocationChanged(Location newLocation) {
-		if (newLocation != null) {
-			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
-				this.userLocation = newLocation;
-				if (this.adapter != null) {
-					this.adapter.setLocation(newLocation);
-				}
+		if (newLocation == null) {
+			return;
+		}
+		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
+			this.userLocation = newLocation;
+			if (this.adapter != null) {
+				this.adapter.setLocation(newLocation);
 			}
-			if (this.nearbyLocation == null) {
-				useNewNearbyLocation(newLocation);
+		}
+		if (this.nearbyLocation == null) {
+			useNewNearbyLocation(newLocation);
+		} else {
+			if (this.adapter != null && this.adapter.isInitialized() && !LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation)) {
+				showLocationToast();
+			} else {
+				hideLocationToast();
 			}
 		}
 	}
 
+	private PopupWindow locationToast = null;
+
+	private PopupWindow getLocationToast() {
+		if (this.locationToast == null) {
+			initLocationPopup();
+		}
+		return this.locationToast;
+	}
+
+	private void initLocationPopup() {
+		this.locationToast = ToastUtils.getNewTouchableToast(getActivity(), R.string.new_location_toast);
+		if (this.locationToast != null) {
+			this.locationToast.setTouchInterceptor(new View.OnTouchListener() {
+				@Override
+				public boolean onTouch(View v, MotionEvent me) {
+					if (me.getAction() == MotionEvent.ACTION_DOWN) {
+						boolean handled = initiateRefresh();
+						hideLocationToast();
+						return handled;
+					}
+					return false; // not handled
+				}
+			});
+			this.locationToast.setOnDismissListener(new PopupWindow.OnDismissListener() {
+				@Override
+				public void onDismiss() {
+					HomeFragment.this.toastShown = false;
+				}
+			});
+		}
+	}
+
+	private boolean toastShown = false;
+
+	private void showLocationToast() {
+		if (!this.toastShown) {
+			PopupWindow locationToast = getLocationToast();
+			if (locationToast != null) {
+				this.toastShown = ToastUtils.showTouchableToast(getActivity(), locationToast, getView());
+			}
+		}
+	}
+
+	private void hideLocationToast() {
+		if (this.locationToast != null) {
+			this.locationToast.dismiss();
+		}
+		this.toastShown = false;
+	}
 
 	private void useNewNearbyLocation(Location newNearbyLocation) {
-		if (newNearbyLocation == null || LocationUtils.areTheSame(newNearbyLocation, this.nearbyLocation)) {
+		if (newNearbyLocation == null) {
+			return;
+		}
+		if (LocationUtils.areTheSame(newNearbyLocation, this.nearbyLocation)) {
 			return;
 		}
 		this.nearbyLocation = newNearbyLocation;
@@ -268,6 +330,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (this.nearbyLocation != null) {
 			LoaderUtils.restartLoader(getLoaderManager(), POIS_LOADER, null, this);
 		}
+		hideLocationToast();
 		setSwipeRefreshLayoutRefreshing(false);
 		this.nearbyLocationAddress = null;
 		getAbController().setABSubtitle(this, getABSubtitle(getActivity()), false);
@@ -293,6 +356,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (this.adapter != null) {
 			this.adapter.onPause();
 		}
+		hideLocationToast();
 	}
 
 	@Override
@@ -399,7 +463,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
-
 
 	@Override
 	public CharSequence getABTitle(Context context) {

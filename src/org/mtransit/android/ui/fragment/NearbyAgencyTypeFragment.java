@@ -137,19 +137,23 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	}
 
 	private void initTypeAgenciesAuthorityAsync() {
-		if (this.loadTypeAgenciesAuthorityAsyncTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadTypeAgenciesAuthorityAsyncTask != null && this.loadTypeAgenciesAuthorityAsyncTask.getStatus() == MTAsyncTask.Status.RUNNING) {
 			return;
 		}
 		if (this.nearbyLocation == null || this.typeId == null) {
 			return;
 		}
+		this.loadTypeAgenciesAuthorityAsyncTask = new LoadTypeAgenciesAuthorityAsyncTask();
 		this.loadTypeAgenciesAuthorityAsyncTask.execute();
 	}
 
-	private MTAsyncTask<Void, Void, Boolean> loadTypeAgenciesAuthorityAsyncTask = new MTAsyncTask<Void, Void, Boolean>() {
+	private LoadTypeAgenciesAuthorityAsyncTask loadTypeAgenciesAuthorityAsyncTask = null;
+
+	private class LoadTypeAgenciesAuthorityAsyncTask extends MTAsyncTask<Void, Void, Boolean> {
+
 		@Override
 		public String getLogTag() {
-			return TAG + ">TypeAgenciesAuthority";
+			return NearbyAgencyTypeFragment.class.getSimpleName() + ">" + LoadTypeAgenciesAuthorityAsyncTask.class.getSimpleName();
 		}
 
 		@Override
@@ -366,7 +370,6 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			}
 		}
 		this.nearbyLocation = newNearbyLocation;
-		resetTypeAgenciesAuthority();
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
@@ -379,6 +382,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		}
 		this.ad = LocationUtils.getNewDefaultAroundDiff();
 		this.lastAroundDiff = null;
+		resetTypeAgenciesAuthority();
 		if (this.nearbyLocation != null && hasTypeAgenciesAuthority()) {
 			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
 		}
@@ -410,13 +414,14 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 
 	@Override
 	public void onUserLocationChanged(Location newLocation) {
-		if (newLocation != null) {
-			if (this.fragmentVisible) {
-				if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
-					this.userLocation = newLocation;
-					if (this.adapter != null) {
-						this.adapter.setLocation(newLocation);
-					}
+		if (newLocation == null) {
+			return;
+		}
+		if (this.fragmentVisible) {
+			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
+				this.userLocation = newLocation;
+				if (this.adapter != null) {
+					this.adapter.setLocation(newLocation);
 				}
 			}
 		}

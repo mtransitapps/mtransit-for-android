@@ -11,6 +11,7 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StringUtils;
+import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
@@ -38,9 +39,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.widget.PopupWindow;
 
 public class NearbyFragment extends ABFragment implements ViewPager.OnPageChangeListener, MTActivityWithLocation.UserLocationListener,
 		SwipeRefreshLayout.OnRefreshListener {
@@ -101,16 +104,14 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	private int lastPageSelected = -1;
 	private AgencyTypePagerAdapter adapter;
 	private Location nearbyLocation;
-	protected String nearbyLocationAddress;
+	private String nearbyLocationAddress;
 	private Location userLocation;
 	private MTAsyncTask<Location, Void, String> findNearbyLocationTask;
 	private Integer selectedTypeId = null;
-
 	private Double fixedOnLat = null;
 	private Double fixedOnLng = null;
 	private String fixedOnName = null;
 	private Integer fixedOnColor = null;
-
 	private Boolean isFixedOn = null;
 
 	private void resetIsFixedOn() {
@@ -164,20 +165,18 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		initiateRefresh();
 	}
 
-	private void initiateRefresh() {
-		if (isFixedOn() || LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation, 2)) {
+	private boolean initiateRefresh() {
+		if (isFixedOn()) {
 			setSwipeRefreshLayoutRefreshing(false);
-			return;
+			return false;
 		}
-		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
-		if (fragments != null) {
-			for (Fragment fragment : fragments) {
-				if (fragment != null && fragment instanceof NearbyFragment.NearbyLocationListener) {
-					((NearbyFragment.NearbyLocationListener) fragment).onNearbyLocationChanged(null);
-				}
-			}
+		if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation)) {
+			setSwipeRefreshLayoutRefreshing(false);
+			return false;
 		}
+		broadcastNearbyLocationChanged(null); // force reset
 		setNewNearbyLocation(this.userLocation);
+		return true;
 	}
 
 	private boolean modulesUpdated = false;
@@ -260,12 +259,21 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	@Override
+	public void onPause() {
+		super.onPause();
+		hideLocationToast();
+	}
+
+	@Override
 	public void onResume() {
 		super.onResume();
 		if (this.modulesUpdated) {
 			getView().post(new Runnable() {
 				@Override
 				public void run() {
+					if (NearbyFragment.this.modulesUpdated) {
+						onModulesUpdated();
+					}
 				}
 			});
 		}
@@ -454,15 +462,74 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 	@Override
 	public void onUserLocationChanged(Location newLocation) {
-		if (newLocation != null) {
-			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
-				this.userLocation = newLocation;
-				MTActivityWithLocation.broadcastUserLocationChanged(this, getChildFragmentManager(), newLocation);
-			}
-			if (!isFixedOn() && this.nearbyLocation == null) {
+		if (newLocation == null) {
+			return;
+		}
+		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
+			this.userLocation = newLocation;
+			MTActivityWithLocation.broadcastUserLocationChanged(this, getChildFragmentManager(), newLocation);
+		}
+		if (!isFixedOn()) {
+			if (this.nearbyLocation == null) {
 				setNewNearbyLocation(newLocation);
+			} else {
+				if (this.adapter != null && this.adapter.isInitialized() && !LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation)) {
+					showLocationToast();
+				} else {
+					hideLocationToast();
+				}
 			}
 		}
+	}
+
+	private PopupWindow locationToast = null;
+
+	private PopupWindow getLocationToast() {
+		if (this.locationToast == null) {
+			initLocationPopup();
+		}
+		return this.locationToast;
+	}
+
+	private void initLocationPopup() {
+		this.locationToast = ToastUtils.getNewTouchableToast(getActivity(), R.string.new_location_toast);
+		if (this.locationToast != null) {
+			this.locationToast.setTouchInterceptor(new View.OnTouchListener() {
+				@Override
+				public boolean onTouch(View v, MotionEvent me) {
+					if (me.getAction() == MotionEvent.ACTION_DOWN) {
+						boolean handled = initiateRefresh();
+						hideLocationToast();
+						return handled;
+					}
+					return false; // not handled
+				}
+			});
+			this.locationToast.setOnDismissListener(new PopupWindow.OnDismissListener() {
+				@Override
+				public void onDismiss() {
+					NearbyFragment.this.toastShown = false;
+				}
+			});
+		}
+	}
+
+	private boolean toastShown = false;
+
+	private void showLocationToast() {
+		if (!this.toastShown) {
+			PopupWindow locationToast = getLocationToast();
+			if (locationToast != null) {
+				this.toastShown = ToastUtils.showTouchableToast(getActivity(), locationToast, getView());
+			}
+		}
+	}
+
+	private void hideLocationToast() {
+		if (this.locationToast != null) {
+			this.locationToast.dismiss();
+		}
+		this.toastShown = false;
 	}
 
 	private void setNewNearbyLocation(Location newNearbyLocation) {
@@ -470,19 +537,24 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			return;
 		}
 		this.nearbyLocation = newNearbyLocation;
+		hideLocationToast();
 		this.adapter.setNearbyLocation(this.nearbyLocation);
-		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
-		if (fragments != null) {
-			for (Fragment fragment : fragments) {
-				if (fragment != null && fragment instanceof NearbyFragment.NearbyLocationListener) {
-					((NearbyFragment.NearbyLocationListener) fragment).onNearbyLocationChanged(this.nearbyLocation);
-				}
-			}
-		}
+		broadcastNearbyLocationChanged(this.nearbyLocation);
 		setSwipeRefreshLayoutRefreshing(false);
 		this.nearbyLocationAddress = null;
 		getAbController().setABReady(this, isABReady(), true);
 		findNearbyLocation();
+	}
+
+	private void broadcastNearbyLocationChanged(Location location) {
+		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
+		if (fragments != null) {
+			for (Fragment fragment : fragments) {
+				if (fragment != null && fragment instanceof NearbyFragment.NearbyLocationListener) {
+					((NearbyFragment.NearbyLocationListener) fragment).onNearbyLocationChanged(location);
+				}
+			}
+		}
 	}
 
 	public Location getNearbyLocation() {
