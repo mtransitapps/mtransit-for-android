@@ -170,7 +170,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			setSwipeRefreshLayoutRefreshing(false);
 			return false;
 		}
-		if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation)) {
+		if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation, LocationUtils.LOCATION_CHANGED_ALLOW_REFRESH_IN_METERS)) {
 			setSwipeRefreshLayoutRefreshing(false);
 			return false;
 		}
@@ -473,7 +473,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			if (this.nearbyLocation == null) {
 				setNewNearbyLocation(newLocation);
 			} else {
-				if (this.adapter != null && this.adapter.isInitialized() && !LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation)) {
+				if (this.adapter != null && this.adapter.isInitialized()
+						&& !LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)) {
 					showLocationToast();
 				} else {
 					hideLocationToast();

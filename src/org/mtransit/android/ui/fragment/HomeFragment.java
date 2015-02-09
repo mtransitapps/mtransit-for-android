@@ -98,7 +98,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	private boolean initiateRefresh() {
-		if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation)) {
+		if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation, LocationUtils.LOCATION_CHANGED_ALLOW_REFRESH_IN_METERS)) {
 			setSwipeRefreshLayoutRefreshing(false);
 			return false;
 		}
@@ -251,7 +251,8 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (this.nearbyLocation == null) {
 			useNewNearbyLocation(newLocation);
 		} else {
-			if (this.adapter != null && this.adapter.isInitialized() && !LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation)) {
+			if (this.adapter != null && this.adapter.isInitialized()
+					&& !LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)) {
 				showLocationToast();
 			} else {
 				hideLocationToast();
