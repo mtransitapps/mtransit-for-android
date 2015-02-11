@@ -9,6 +9,5 @@
     <style name="MTTheme" parent="MTBaseTheme">
         <item name="android:windowContentOverlay">@null</item>
         <item name="windowActionBarOverlay">true</item>
-        <item name="android:windowIsTranslucent">true</item>
     </style>
 </resources>
