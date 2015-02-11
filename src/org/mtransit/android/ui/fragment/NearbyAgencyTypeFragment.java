@@ -428,7 +428,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
-		switchView(view);
+		switchView(getView());
 		resetTypeAgenciesAuthority();
 		if (this.nearbyLocation != null && hasTypeAgenciesAuthority()) {
 			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
