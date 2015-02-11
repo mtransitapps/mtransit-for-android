@@ -42,6 +42,7 @@ public class JPaths implements MTLog.Loggable {
 	private static final String JSON_PAINT = "paint";
 	private static final String JSON_FORM = "form";
 	private static final String JSON_ROTATION = "rotation";
+	private static final String JSON_PATHS = "paths";
 
 	public JSONObject toJSON() {
 		try {
@@ -56,7 +57,7 @@ public class JPaths implements MTLog.Loggable {
 					}
 				}
 			}
-			json.put("paths", jPaths);
+			json.put(JSON_PATHS, jPaths);
 			return json;
 		} catch (JSONException e) {
 			MTLog.w(TAG, e, "Error while converting to JSON!");
@@ -87,8 +88,6 @@ public class JPaths implements MTLog.Loggable {
 			return null;
 		}
 	}
-
-	private static final String JSON_PATHS = "paths";
 
 	public static JPaths fromJSON(JSONObject json) {
 		try {

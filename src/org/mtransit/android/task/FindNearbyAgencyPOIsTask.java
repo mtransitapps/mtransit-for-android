@@ -26,17 +26,17 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> 
 	private double aroundDiff;
 	private boolean hideDecentOnly;
 	private int maxSize;
-	private float minCoverage;
+	private float minCoverageInMeters;
 
-	public FindNearbyAgencyPOIsTask(Context context, String authority, double lat, double lng, double aroundDiff, boolean hideDecentOnly, float minCoverage,
-			int maxSize) {
+	public FindNearbyAgencyPOIsTask(Context context, String authority, double lat, double lng, double aroundDiff, boolean hideDecentOnly,
+			float minCoverageInMeters, int maxSize) {
 		this.context = context;
 		this.authority = authority;
 		this.lat = lat;
 		this.lng = lng;
 		this.aroundDiff = aroundDiff;
 		this.hideDecentOnly = hideDecentOnly;
-		this.minCoverage = minCoverage;
+		this.minCoverageInMeters = minCoverageInMeters;
 		this.maxSize = maxSize;
 	}
 
@@ -50,8 +50,7 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> 
 		LocationUtils.updateDistance(pois, this.lat, this.lng);
 		float maxDistance = LocationUtils.getAroundCoveredDistanceInMeters(this.lat, this.lng, this.aroundDiff);
 		LocationUtils.removeTooFar(pois, maxDistance);
-		LocationUtils.removeTooMuchWhenNotInCoverage(pois, this.minCoverage, this.maxSize);
+		LocationUtils.removeTooMuchWhenNotInCoverage(pois, this.minCoverageInMeters, this.maxSize);
 		return pois;
 	}
-
 }

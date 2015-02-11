@@ -206,7 +206,6 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		this.adapter.setTag(this.authority + "-" + this.tripId);
 	}
 
-
 	private Route route;
 
 	private boolean hasRoute() {
@@ -421,6 +420,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	}
 
 	private MapView mapView = null;
+
 	private MapView getMapView(View view) {
 		if (this.mapView == null) {
 			initMapView(view, null);
@@ -469,7 +469,6 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private boolean mapLayoutReady = false;
 
 	private ViewTreeObserver.OnGlobalLayoutListener mapViewOnGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-
 		@Override
 		public void onGlobalLayout() {
 			if (RTSTripStopsFragment.this.mapView != null) {
@@ -577,13 +576,13 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		return success; // handled or not
 	}
 
-
 	@Override
 	public void onMapLoaded() {
 		updateMapPosition(false);
 	}
 
 	private HashMap<String, Marker> mapMarkers = null;
+
 	private HashMap<String, String> mapMarkersIdToUUID = new HashMap<String, String>();
 
 	private boolean mapMarkersShown = false;
@@ -711,7 +710,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			POIManager poim = pois.get(i);
 			if (poim != null && poim.poi instanceof RouteTripStop) {
 				RouteTripStop rts = (RouteTripStop) poim.poi;
-				if (rts.stop.id == stopId) {
+				if (rts.getStop().getId() == stopId) {
 					return new Pair<Integer, String>(i, poim.poi.getUUID());
 				}
 			}
@@ -779,7 +778,6 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			this.adapter.setActivity(getActivity());
 		}
 	}
-
 
 	@Override
 	public void onLowMemory() {

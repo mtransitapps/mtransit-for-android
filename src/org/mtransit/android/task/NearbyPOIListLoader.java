@@ -39,24 +39,24 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 
 	private int maxSize;
 
-	private float minCoverage;
+	private float minCoverageInMeters;
 
 	private boolean hideDecentOnly;
 
-	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, float minCoverage, int maxSize, boolean hideDecentOnly,
+	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, float minCoverageInMeters, int maxSize, boolean hideDecentOnly,
 			ArrayList<String> agenciesAuthority) {
-		this(context, lat, lng, aroundDiff, minCoverage, maxSize, hideDecentOnly, agenciesAuthority == null ? null : agenciesAuthority
+		this(context, lat, lng, aroundDiff, minCoverageInMeters, maxSize, hideDecentOnly, agenciesAuthority == null ? null : agenciesAuthority
 				.toArray(new String[agenciesAuthority.size()]));
 	}
 
-	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, float minCoverage, int maxSize, boolean hideDecentOnly,
+	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, float minCoverageInMeters, int maxSize, boolean hideDecentOnly,
 			String... agenciesAuthority) {
 		super(context);
 		this.agenciesAuthority = agenciesAuthority;
 		this.lat = lat;
 		this.lng = lng;
 		this.aroundDiff = aroundDiff;
-		this.minCoverage = minCoverage;
+		this.minCoverageInMeters = minCoverageInMeters;
 		this.maxSize = maxSize;
 		this.hideDecentOnly = hideDecentOnly;
 	}
@@ -74,7 +74,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
 		for (String agencyAuthority : this.agenciesAuthority) {
 			FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(getContext(), agencyAuthority, this.lat, this.lng, this.aroundDiff,
-					this.hideDecentOnly, this.minCoverage, this.maxSize);
+					this.hideDecentOnly, this.minCoverageInMeters, this.maxSize);
 			taskList.add(executor.submit(task));
 		}
 		for (Future<ArrayList<POIManager>> future : taskList) {
@@ -86,7 +86,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 			}
 		}
 		executor.shutdown();
-		LocationUtils.removeTooMuchWhenNotInCoverage(this.pois, this.minCoverage, this.maxSize);
+		LocationUtils.removeTooMuchWhenNotInCoverage(this.pois, this.minCoverageInMeters, this.maxSize);
 		return this.pois;
 	}
 

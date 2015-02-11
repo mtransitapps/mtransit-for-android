@@ -215,28 +215,43 @@ public class DataSourceProvider implements MTLog.Loggable {
 	}
 
 	private HashSet<String> allAgenciesAuthority = new HashSet<String>();
+
 	private HashMap<String, Integer> agenciesAuthorityTypeId = new HashMap<String, Integer>();
+
 	private HashMap<String, Boolean> agenciesAuthorityIsRts = new HashMap<String, Boolean>();
+
 	private ArrayList<DataSourceType> allAgencyTypes = new ArrayList<DataSourceType>();
 
 	private ArrayList<AgencyProperties> allAgencies = null;
+
 	private ArrayList<StatusProviderProperties> allStatusProviders = new ArrayList<StatusProviderProperties>();
+
 	private ArrayList<ScheduleProviderProperties> allScheduleProviders = new ArrayList<ScheduleProviderProperties>();
+
 	private ArrayList<ServiceUpdateProviderProperties> allServiceUpdateProviders = new ArrayList<ServiceUpdateProviderProperties>();
+
 	private HashMap<String, AgencyProperties> allAgenciesByAuthority = null;
+
 	private HashMap<String, StatusProviderProperties> allStatusProvidersByAuthority = new HashMap<String, StatusProviderProperties>();
+
 	private HashMap<String, ScheduleProviderProperties> allScheduleProvidersByAuthority = new HashMap<String, ScheduleProviderProperties>();
+
 	private HashMap<String, ServiceUpdateProviderProperties> allServiceUpdateProvidersByAuthority = new HashMap<String, ServiceUpdateProviderProperties>();
+
 	private SparseArray<ArrayList<AgencyProperties>> allAgenciesByTypeId = null;
+
 	private HashMap<String, HashSet<StatusProviderProperties>> statusProvidersByTargetAuthority = new HashMap<String, HashSet<StatusProviderProperties>>();
+
 	private HashMap<String, HashSet<ScheduleProviderProperties>> scheduleProvidersByTargetAuthority = new HashMap<String, HashSet<ScheduleProviderProperties>>();
+
 	private HashMap<String, HashSet<ServiceUpdateProviderProperties>> serviceUpdateProvidersByTargetAuthority = new HashMap<String, HashSet<ServiceUpdateProviderProperties>>();
+
 	private HashMap<String, JPaths> rtsAgencyRouteLogoByAuthority = null;
+
 	private HashMap<String, Integer> allAgenciesColorInts = new HashMap<String, Integer>();
 
 	private DataSourceProvider() {
 	}
-
 
 	public ArrayList<DataSourceType> getAvailableAgencyTypes() {
 		if (this.allAgencyTypes == null) {

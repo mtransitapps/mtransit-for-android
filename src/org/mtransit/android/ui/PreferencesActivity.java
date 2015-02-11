@@ -44,5 +44,4 @@ public class PreferencesActivity extends MTActionBarActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
 }

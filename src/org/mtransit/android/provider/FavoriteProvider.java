@@ -71,18 +71,18 @@ public class FavoriteProvider extends MTContentProvider {
 	}
 
 	private FavoriteDbHelper getDBHelper(Context context) {
-		if (dbHelper == null) {
+		if (dbHelper == null) { // initialize
 			dbHelper = getNewDbHelper(context);
 			currentDbVersion = getCurrentDbVersion();
-		} else {
+		} else { // reset
 			try {
 				if (currentDbVersion != getCurrentDbVersion()) {
 					dbHelper.close();
 					dbHelper = null;
 					return getDBHelper(context);
 				}
-			} catch (Exception e) {
-				MTLog.d(this, e, "Can't check DB version!");
+			} catch (Exception e) { // fail if locked, will try again later
+				MTLog.w(this, e, "Can't check DB version!");
 			}
 		}
 		return dbHelper;
@@ -110,6 +110,9 @@ public class FavoriteProvider extends MTContentProvider {
 		return uriMatcher;
 	}
 
+	/**
+	 * Override if multiple {@link FavoriteProvider} implementations in same app.
+	 */
 	public static String getAUTHORITY(Context context) {
 		if (authority == null) {
 			authority = context.getResources().getString(R.string.favorite_authority);
@@ -253,5 +256,4 @@ public class FavoriteProvider extends MTContentProvider {
 		public static final String T_FAVORITE_K_FK_ID = "fk_id";
 		public static final String T_FAVORITE_K_TYPE = "type";
 	}
-
 }

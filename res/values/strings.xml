@@ -50,6 +50,7 @@
     <string name="favorite_added">Favorite added.</string>
     <string name="new_location_toast">New location. Touch to refresh.</string>
     <string name="no_results">No Results</string>
+    <string name="world_explored">Planetary exploration completed</string>
     <string name="module_label">+</string>
     <string name="module_short_name">+</string>
     <string name="place_label">Places</string>

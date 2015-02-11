@@ -346,8 +346,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			RouteTripStop rts = (RouteTripStop) poi;
 			return new CharSequence[] { //
 					context.getString(R.string.view_stop), //
-					TextUtils.isEmpty(rts.route.shortName) ? context.getString(R.string.view_stop_route) : context.getString(
-							R.string.view_stop_route_and_route, rts.route.shortName), //
+					TextUtils.isEmpty(rts.getRoute().getShortName()) ? context.getString(R.string.view_stop_route) : context.getString(
+							R.string.view_stop_route_and_route, rts.getRoute().getShortName()), //
 					FavoriteManager.isFavorite(context, poi.getUUID()) ? context.getString(R.string.remove_fav) : context.getString(R.string.add_fav) //
 			};
 		case POI.ITEM_ACTION_TYPE_APP:
@@ -423,8 +423,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	public static Integer getColor(Context context, POI poi, Integer defaultColor) {
 		if (poi != null) {
 			if (poi instanceof RouteTripStop) {
-				if (((RouteTripStop) poi).route.hasColor()) {
-					return ((RouteTripStop) poi).route.getColorInt();
+				if (((RouteTripStop) poi).getRoute().hasColor()) {
+					return ((RouteTripStop) poi).getRoute().getColorInt();
 				}
 			} else if (poi instanceof Module) {
 				return ((Module) poi).getColorInt();
@@ -454,7 +454,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		switch (itemClicked) {
 		case 1:
 			RouteTripStop rts = (RouteTripStop) poi;
-			((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts.getAuthority(), rts.route.id, rts.trip.id, rts.stop.id, rts.route));
+			((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts.getAuthority(), rts.getRoute().getId(), rts.getTrip().getId(),
+					rts.getStop().getId(), rts.getRoute()));
 			return true; // HANDLED
 		case 2:
 			return addRemoteFavorite(activity, FavoriteManager.isFavorite(activity, poi.getUUID()), listener);

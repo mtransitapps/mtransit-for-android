@@ -47,9 +47,7 @@ public class Favorite {
 		return id;
 	}
 
-
 	public String getFkId() {
 		return fkId;
 	}
-
 }

@@ -471,17 +471,17 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	private static int currentDbVersion = -1;
 
 	private PlaceDbHelper getDBHelper(Context context) {
-		if (dbHelper == null) {
+		if (dbHelper == null) { // initialize
 			dbHelper = getNewDbHelper(context);
 			currentDbVersion = getCurrentDbVersion();
-		} else {
+		} else { // reset
 			try {
 				if (currentDbVersion != getCurrentDbVersion()) {
 					dbHelper.close();
 					dbHelper = null;
 					return getDBHelper(context);
 				}
-			} catch (Exception e) {
+			} catch (Exception e) { // reset
 				MTLog.d(this, e, "Can't check DB version!");
 			}
 		}
@@ -569,5 +569,4 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		public static final String T_PLACE_K_LANG = POIColumns.getFkColumnName("lang");
 		public static final String T_PLACE_K_READ_AT_IN_MS = POIColumns.getFkColumnName("read_at_in_ms");
 	}
-
 }

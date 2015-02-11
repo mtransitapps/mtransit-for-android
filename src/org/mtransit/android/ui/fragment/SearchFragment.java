@@ -112,9 +112,10 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	private LoadTypeFilterTask loadTypeFilterTask;
 
 	private class LoadTypeFilterTask extends MTAsyncTask<Void, Void, Boolean> {
+
 		@Override
 		public String getLogTag() {
-			return TAG + ">loadTypeFilterTask";
+			return SearchFragment.class.getSimpleName() + ">loadTypeFilterTask";
 		}
 
 		@Override
@@ -408,7 +409,6 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 	}
 
-
 	private Handler handler = new Handler();
 
 	private RestartSearchLater restartSearchLater = null;
@@ -434,7 +434,6 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			this.restartSearchLater = null;
 		}
 	}
-
 
 	private void switchView(View view) {
 		if (view == null) {
@@ -639,7 +638,6 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			}
 			return new TypeFilter(dst.getId(), dst.getPoiShortNameResId(), dst.getMenuResId());
 		}
-
 	}
 
 	private static class TypeFiltersAdapter extends MTArrayAdapter<TypeFilter> {

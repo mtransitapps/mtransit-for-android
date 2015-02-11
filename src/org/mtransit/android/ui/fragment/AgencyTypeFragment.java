@@ -2,6 +2,7 @@ package org.mtransit.android.ui.fragment;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -27,6 +28,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -577,20 +579,56 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		if (!hasTypeAgencies()) {
 			return;
 		}
+		if (Math.abs(this.lastPageSelected - position) > 1) {
+			return;
+		}
 		this.selectedPosition = position;
 		this.selectionOffset = positionOffset;
-		this.abBgColor = getNewABBgColor(getActivity());
-		if (this.abBgColor != null) {
-			View view = getView();
-			if (view != null) {
-				View tabs = view.findViewById(R.id.tabs);
-				if (tabs != null) {
-					tabs.setBackgroundColor(this.abBgColor);
+		restartUpdateABColorLater();
+	}
+
+	private Handler handler = new Handler();
+
+	private Runnable updateABColorLater = new Runnable() {
+
+		@Override
+		public void run() {
+			AgencyTypeFragment.this.abBgColor = getNewABBgColor(getActivity());
+			if (AgencyTypeFragment.this.abBgColor != null) {
+				View view = getView();
+				if (view != null) {
+					View tabs = view.findViewById(R.id.tabs);
+					if (tabs != null) {
+						tabs.setBackgroundColor(AgencyTypeFragment.this.abBgColor);
+					}
 				}
+				getAbController().setABBgColor(AgencyTypeFragment.this, getABBgColor(getActivity()), false);
+				getAbController().updateABBgColor();
+				cancelUpdateABColorLater();
 			}
-			getAbController().setABBgColor(this, getABBgColor(getActivity()), false);
-			getAbController().updateABBgColor();
 		}
+	};
+
+	private boolean updateABColorLaterScheduled = false;
+
+	private void restartUpdateABColorLater() {
+		if (!this.updateABColorLaterScheduled) {
+			this.handler.postDelayed(this.updateABColorLater, TimeUnit.MILLISECONDS.toMillis(50));
+			this.updateABColorLaterScheduled = true;
+		}
+	}
+
+	private void cancelUpdateABColorLater() {
+		if (this.updateABColorLater != null) {
+			this.handler.removeCallbacks(this.updateABColorLater);
+		}
+		this.updateABColorLaterScheduled = false;
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		cancelUpdateABColorLater();
 	}
 
 	private Integer abBgColor = null;

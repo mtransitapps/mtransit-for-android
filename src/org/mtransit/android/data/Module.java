@@ -36,20 +36,34 @@ public class Module extends DefaultPOI {
 
 	public Module(String authority, String pkg, int targetTypeId) {
 		super(authority, DST_ID, POI.ITEM_VIEW_TYPE_MODULE, POI.ITEM_STATUS_TYPE_APP, POI.ITEM_ACTION_TYPE_APP);
-		this.pkg = pkg;
-		this.targetTypeId = targetTypeId;
+		setPkg(pkg);
+		setTargetTypeId(targetTypeId);
 	}
 
 	public String getPkg() {
 		return pkg;
 	}
 
+	private void setPkg(String pkg) {
+		this.pkg = pkg;
+		resetUUID();
+	}
+
 	public int getTargetTypeId() {
 		return targetTypeId;
 	}
 
+	private void setTargetTypeId(int targetTypeId) {
+		this.targetTypeId = targetTypeId;
+	}
+
+	private void setColor(String color) {
+		this.color = color;
+		this.colorInt = null; // reset
+	}
+
 	public String getColor() {
-		return color;
+		return this.color;
 	}
 
 	private Integer colorInt = null;
@@ -62,13 +76,25 @@ public class Module extends DefaultPOI {
 	}
 
 	public String getLocation() {
-		return location;
+		return this.location;
+	}
+
+	private void setLocation(String location) {
+		this.location = location;
+	}
+
+	public String getNameFr() {
+		return nameFr;
+	}
+
+	private void setNameFr(String nameFr) {
+		this.nameFr = nameFr;
 	}
 
 	@Override
 	public String getName() {
-		if (LocaleUtils.isFR() && !TextUtils.isEmpty(this.nameFr)) {
-			return this.nameFr;
+		if (LocaleUtils.isFR() && !TextUtils.isEmpty(getNameFr())) {
+			return getNameFr();
 		}
 		return super.getName();
 	}
@@ -77,7 +103,7 @@ public class Module extends DefaultPOI {
 	public String toString() {
 		return new StringBuilder().append(Module.class.getSimpleName()).append(":[") //
 				.append("authority:").append(getAuthority()).append(',') //
-				.append("pkg:").append(this.pkg).append(',') //
+				.append("pkg:").append(getPkg()).append(',') //
 				.append("id:").append(getId()).append(',') //
 				.append(']').toString();
 	}
@@ -102,9 +128,19 @@ public class Module extends DefaultPOI {
 		return true; // required for distance sort
 	}
 
+	private String uuid = null;
+
 	@Override
 	public String getUUID() {
-		return POI.POIUtils.getUUID(getAuthority(), this.pkg);
+		if (this.uuid == null) {
+			this.uuid = POI.POIUtils.getUUID(getAuthority(), getPkg());
+		}
+		return this.uuid;
+	}
+
+	@Override
+	public void resetUUID() {
+		this.uuid = null;
 	}
 
 	private static final String JSON_PKG = "pkg";
@@ -117,16 +153,16 @@ public class Module extends DefaultPOI {
 	public JSONObject toJSON() {
 		try {
 			JSONObject json = new JSONObject();
-			json.put(JSON_PKG, this.pkg);
-			json.put(JSON_TARGET_TYPE_ID, this.targetTypeId);
-			if (!TextUtils.isEmpty(this.color)) {
-				json.put(JSON_COLOR, this.color);
+			json.put(JSON_PKG, getPkg());
+			json.put(JSON_TARGET_TYPE_ID, getTargetTypeId());
+			if (!TextUtils.isEmpty(getColor())) {
+				json.put(JSON_COLOR, getColor());
 			}
-			if (!TextUtils.isEmpty(this.location)) {
-				json.put(JSON_LOCATION, this.location);
+			if (!TextUtils.isEmpty(getLocation())) {
+				json.put(JSON_LOCATION, getLocation());
 			}
-			if (!TextUtils.isEmpty(this.nameFr)) {
-				json.put(JSON_NAME_FR, this.nameFr);
+			if (!TextUtils.isEmpty(getNameFr())) {
+				json.put(JSON_NAME_FR, getNameFr());
 			}
 			DefaultPOI.toJSON(this, json);
 			return json;
@@ -150,15 +186,15 @@ public class Module extends DefaultPOI {
 			);
 			String optColor = json.optString(JSON_COLOR);
 			if (!TextUtils.isEmpty(optColor)) {
-				module.color = optColor;
+				module.setColor(optColor);
 			}
 			String optLocation = json.optString(JSON_LOCATION);
 			if (!TextUtils.isEmpty(optLocation)) {
-				module.location = optLocation;
+				module.setLocation(optLocation);
 			}
 			String optNameFr = json.optString(JSON_NAME_FR);
 			if (!TextUtils.isEmpty(optNameFr)) {
-				module.nameFr = optNameFr;
+				module.setNameFr(optNameFr);
 			}
 			DefaultPOI.fromJSON(json, module);
 			return module;
@@ -180,15 +216,15 @@ public class Module extends DefaultPOI {
 			module.setLng(json.getDouble(JSON_LNG));
 			String optColor = json.optString(JSON_COLOR);
 			if (!TextUtils.isEmpty(optColor)) {
-				module.color = optColor;
+				module.setColor(optColor);
 			}
 			String optLocation = json.optString(JSON_LOCATION);
 			if (!TextUtils.isEmpty(optLocation)) {
-				module.location = optLocation;
+				module.setLocation(optLocation);
 			}
 			String optNameFr = json.optString(JSON_NAME_FR);
 			if (!TextUtils.isEmpty(optNameFr)) {
-				module.nameFr = optNameFr;
+				module.setNameFr(optNameFr);
 			}
 			return module;
 		} catch (JSONException jsone) {
@@ -200,11 +236,11 @@ public class Module extends DefaultPOI {
 	@Override
 	public ContentValues toContentValues() {
 		ContentValues values = super.toContentValues();
-		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_PKG, this.pkg);
-		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_TARGET_TYPE_ID, this.targetTypeId);
-		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_COLOR, this.color);
-		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_LOCATION, this.location);
-		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_NAME_FR, this.nameFr);
+		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_PKG, getPkg());
+		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_TARGET_TYPE_ID, getTargetTypeId());
+		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_COLOR, getColor());
+		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_LOCATION, getLocation());
+		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_NAME_FR, getNameFr());
 		return values;
 	}
 
@@ -217,11 +253,10 @@ public class Module extends DefaultPOI {
 		String pkg = c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_PKG));
 		int targetTypeId = c.getInt(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_TARGET_TYPE_ID));
 		Module module = new Module(authority, pkg, targetTypeId);
-		module.color = c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_COLOR));
-		module.location = c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_LOCATION));
-		module.nameFr = c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_NAME_FR));
+		module.setColor(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_COLOR)));
+		module.setLocation(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_LOCATION)));
+		module.setNameFr(c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_NAME_FR)));
 		DefaultPOI.fromCursor(c, module);
 		return module;
 	}
-
 }

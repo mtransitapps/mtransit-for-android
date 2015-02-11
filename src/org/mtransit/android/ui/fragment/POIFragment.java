@@ -673,23 +673,24 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	@Override
 	public void onUserLocationChanged(Location newLocation) {
-		if (newLocation != null) {
-			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
-				this.userLocation = newLocation;
-				this.locationDeclination = SensorUtils.getLocationDeclination(newLocation);
-				if (!this.compassUpdatesEnabled) {
-					SensorUtils.registerCompassListener(getActivity(), this);
-					this.compassUpdatesEnabled = true;
-				}
-				POIManager poim = getPoimOrNull();
-				if (poim != null) {
-					LocationUtils.updateDistanceWithString(getActivity(), poim, newLocation);
-					POIViewController.updatePOIDistanceAndCompass(getPOIView(getView()), poim, this);
-				}
-				updateMapPosition(true);
-				if (this.adapter != null) {
-					this.adapter.setLocation(newLocation);
-				}
+		if (newLocation == null) {
+			return;
+		}
+		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
+			this.userLocation = newLocation;
+			this.locationDeclination = SensorUtils.getLocationDeclination(newLocation);
+			if (!this.compassUpdatesEnabled) {
+				SensorUtils.registerCompassListener(getActivity(), this);
+				this.compassUpdatesEnabled = true;
+			}
+			POIManager poim = getPoimOrNull();
+			if (poim != null) {
+				LocationUtils.updateDistanceWithString(getActivity(), poim, newLocation);
+				POIViewController.updatePOIDistanceAndCompass(getPOIView(getView()), poim, this);
+			}
+			updateMapPosition(true);
+			if (this.adapter != null) {
+				this.adapter.setLocation(newLocation);
 			}
 		}
 		if (this.locationChandedListener != null) {
@@ -892,7 +893,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	@Override
 	public boolean hasLastCompassInDegree() {
-		return lastCompassInDegree > 0;
+		return lastCompassInDegree >= 0;
 	}
 
 	private float locationDeclination;

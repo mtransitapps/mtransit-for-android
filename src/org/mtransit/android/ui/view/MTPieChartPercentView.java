@@ -49,9 +49,6 @@ public class MTPieChartPercentView extends MTView {
 	}
 
 	private void init() {
-		if (Constants.LOG_VIEW_LIFECYCLE) {
-			MTLog.v(this, "init()");
-		}
 		this.value1Paint = new Paint();
 		this.value1Paint.setStyle(Paint.Style.FILL);
 		this.value1Paint.setColor(Color.BLACK);
@@ -87,7 +84,6 @@ public class MTPieChartPercentView extends MTView {
 			this.value2PaintBg.setColor(value2ColorBg);
 		}
 	}
-
 
 	public void setValues(int value1, int value2) {
 		this.value1 = value1;
@@ -126,9 +122,6 @@ public class MTPieChartPercentView extends MTView {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		if (Constants.LOG_VIEW_LIFECYCLE) {
-			MTLog.v(TAG, "onMeasure(%s,%s)", widthMeasureSpec, heightMeasureSpec);
-		}
 		int width = MeasureSpec.getSize(widthMeasureSpec);
 		int height = MeasureSpec.getSize(heightMeasureSpec);
 		setMeasuredDimension(width, height);

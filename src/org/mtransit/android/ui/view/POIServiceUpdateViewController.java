@@ -133,5 +133,4 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		TextView titleTv;
 		TextView messagesTv;
 	}
-
 }

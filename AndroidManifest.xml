@@ -91,7 +91,7 @@
             android:name=".ui.PreferencesActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
-        <!-- GOOGLE MOBILE ADS (AD MOB) -->
+        <!-- GOOGLE MOBILE ADS (AD MOB) SCREEN -->
         <activity
             android:name="com.google.android.gms.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"

@@ -65,7 +65,6 @@ public class MTCompassView extends MTView {
 		this.compassPaint.setColor(color);
 	}
 
-
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
@@ -77,9 +76,6 @@ public class MTCompassView extends MTView {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		if (Constants.LOG_VIEW_LIFECYCLE) {
-			MTLog.v(TAG, "onMeasure(%s,%s)", widthMeasureSpec, heightMeasureSpec);
-		}
 		int width = MeasureSpec.getSize(widthMeasureSpec);
 		int height = MeasureSpec.getSize(heightMeasureSpec);
 		setMeasuredDimension(width, height);
@@ -157,5 +153,4 @@ public class MTCompassView extends MTView {
 	public boolean isHeadingSet() {
 		return this.headingInDegree >= 0;
 	}
-
 }

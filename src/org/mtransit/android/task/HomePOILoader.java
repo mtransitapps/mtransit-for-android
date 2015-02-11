@@ -91,7 +91,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 			if (!favoriteUUIDs.contains(poim.poi.getUUID())) {
 				if (poim.poi instanceof RouteTripStop) {
 					RouteTripStop rts = (RouteTripStop) poim.poi;
-					String routeTripId = rts.route.id + "-" + rts.trip.id;
+					String routeTripId = rts.getRoute().getId() + "-" + rts.getTrip().getId();
 					if (routeTripKept.contains(routeTripId)) {
 						it.remove();
 						continue;
@@ -107,7 +107,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 			}
 			if (poim.poi instanceof RouteTripStop) {
 				RouteTripStop rts = (RouteTripStop) poim.poi;
-				String routeTripId = rts.route.id + "-" + rts.trip.id;
+				String routeTripId = rts.getRoute().getId() + "-" + rts.getTrip().getId();
 				routeTripKept.add(routeTripId);
 			}
 			lastKeptDistance = poim.getDistance();

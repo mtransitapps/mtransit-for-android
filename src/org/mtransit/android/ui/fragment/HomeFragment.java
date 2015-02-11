@@ -192,7 +192,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.findNearbyLocationTask.execute(this.nearbyLocation);
 	}
 
-
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -232,7 +231,12 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	@Override
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+		boolean scrollToTop = this.adapter.getPoisCount() == 0;
 		this.adapter.setPois(data);
+		View view = getView();
+		if (scrollToTop && view != null && view.findViewById(R.id.list) != null) {
+			((AbsListView) view.findViewById(R.id.list)).setSelection(0);
+		}
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		switchView(getView());
 	}
@@ -321,13 +325,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
-		View view = getView();
-		if (view != null) {
-			switchView(view);
-			if (view.findViewById(R.id.list) != null) {
-				view.findViewById(R.id.list).scrollTo(0, 0);
-			}
-		}
+		switchView(getView());
 		if (this.nearbyLocation != null) {
 			LoaderUtils.restartLoader(getLoaderManager(), POIS_LOADER, null, this);
 		}
@@ -474,5 +472,4 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	public CharSequence getABSubtitle(Context context) {
 		return this.nearbyLocationAddress;
 	}
-
 }

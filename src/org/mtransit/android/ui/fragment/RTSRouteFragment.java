@@ -404,7 +404,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 				}
 				if (this.routeTrips != null) {
 					for (int i = 0; i < this.routeTrips.size(); i++) {
-						if (this.routeTrips.get(i).id == this.tripId) {
+						if (this.routeTrips.get(i).getId() == this.tripId) {
 							return i;
 						}
 					}
@@ -606,8 +606,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		return hasRoute();
 	}
 
-
-
 	@Override
 	public CharSequence getABTitle(Context context) {
 		Route route = getRouteOrNull();
@@ -616,18 +614,18 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 		SpannableStringBuilder ssb = new SpannableStringBuilder();
 		int startShortName = 0, endShortName = 0;
-		if (!TextUtils.isEmpty(route.shortName)) {
+		if (!TextUtils.isEmpty(route.getShortName())) {
 			startShortName = ssb.length();
-			ssb.append(route.shortName);
+			ssb.append(route.getShortName());
 			endShortName = ssb.length();
 		}
 		int startLongName = 0, endLongName = 0;
-		if (!TextUtils.isEmpty(route.longName)) {
+		if (!TextUtils.isEmpty(route.getLongName())) {
 			if (ssb.length() > 0) {
 				ssb.append(StringUtils.SPACE_CAR).append(StringUtils.SPACE_CAR);
 			}
 			startLongName = ssb.length();
-			ssb.append(route.longName);
+			ssb.append(route.getLongName());
 			endLongName = ssb.length();
 		}
 		if (startShortName < endShortName) {
@@ -639,7 +637,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 		return ssb;
 	}
-
 
 	@Override
 	public Integer getABBgColor(Context context) {
@@ -735,7 +732,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		public void setOptRoute(Route optRoute) {
 			this.optRoute = optRoute;
 			if (this.optRoute != null) {
-				setRouteId(this.optRoute.id);
+				setRouteId(this.optRoute.getId());
 			}
 		}
 
@@ -745,7 +742,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 		public void setRouteId(Long routeId) {
 			this.routeId = routeId;
-			if (this.routeId != null && this.optRoute != null && this.optRoute.id != routeId) {
+			if (this.routeId != null && this.optRoute != null && this.optRoute.getId() != routeId) {
 				this.optRoute = null;
 			}
 		}
@@ -762,11 +759,9 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			this.routeTrips = routeTrips;
 		}
 
-
 		public Trip getTrip(int position) {
 			return this.routeTrips == null || this.routeTrips.size() == 0 ? null : this.routeTrips.get(position);
 		}
-
 
 		public void setLastVisibleFragmentPosition(int lastVisibleFragmentPosition) {
 			this.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
@@ -795,9 +790,8 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			if (trip == null) {
 				return null;
 			}
-			return RTSTripStopsFragment.newInstance(position, this.lastVisibleFragmentPosition, this.authority, this.routeId, trip.id, this.stopId,
+			return RTSTripStopsFragment.newInstance(position, this.lastVisibleFragmentPosition, this.authority, this.routeId, trip.getId(), this.stopId,
 					this.showingListInsteadOfMap, this.optRoute);
 		}
-
 	}
 }

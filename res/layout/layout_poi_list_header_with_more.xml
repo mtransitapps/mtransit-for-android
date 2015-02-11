@@ -5,7 +5,6 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
-    android:paddingRight="2dp"
     android:paddingTop="4dp" >
     <FrameLayout
         android:id="@+id/moreBtn"

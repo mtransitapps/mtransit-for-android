@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="56dp"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
-    android:paddingRight="2dp"
     android:paddingTop="4dp" >
     <FrameLayout
         android:id="@+id/moreBtn"

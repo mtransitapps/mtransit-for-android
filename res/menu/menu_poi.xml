@@ -13,6 +13,5 @@
         android:id="@+id/menu_show_directions"
         android:icon="@drawable/ic_menu_direction_holo_dark"
         android:title="@string/menu_action_show_directions"
-        android:visible="true"
         app:showAsAction="ifRoom"/>
 </menu>

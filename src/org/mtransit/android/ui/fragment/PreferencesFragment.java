@@ -106,5 +106,4 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 		super.onDestroy();
 		VendingUtils.destroyBilling(this);
 	}
-
 }

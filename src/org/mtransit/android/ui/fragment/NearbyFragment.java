@@ -562,10 +562,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		return nearbyLocation;
 	}
 
-	public Location getUserLocation() {
-		return userLocation;
-	}
-
 	private void switchView(View view) {
 		if (view == null) {
 			return;

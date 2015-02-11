@@ -93,14 +93,12 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	private boolean fragmentVisible = false;
 	private POIArrayAdapter adapter;
 	private String emptyText = null;
+	private String authority;
 
 	@Override
 	public String getAgencyAuthority() {
 		return this.authority;
 	}
-
-	private String authority;
-
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -580,10 +578,10 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	public boolean onMarkerClick(Marker marker) {
 		return false; // not handled
 	}
+
 	private boolean mapLayoutReady = false;
 
 	private ViewTreeObserver.OnGlobalLayoutListener mapViewOnGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-
 		@Override
 		public void onGlobalLayout() {
 			if (AgencyPOIsFragment.this.mapView != null) {
@@ -593,7 +591,6 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 			}
 		}
 	};
-
 
 	@Override
 	public void onMapLoaded() {
@@ -661,9 +658,9 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		if (this.listMapToggleMenuItem == null) {
 			return;
 		}
-		this.listMapToggleMenuItem
-				.setIcon(isShowingListInsteadOfMap() ? R.drawable.ic_action_action_map_holo_dark : R.drawable.ic_action_action_list_holo_dark);
-		this.listMapToggleMenuItem.setTitle(isShowingListInsteadOfMap() ? R.string.menu_action_map : R.string.menu_action_list);
+		boolean showingListInsteadOfMap = isShowingListInsteadOfMap();
+		this.listMapToggleMenuItem.setIcon(showingListInsteadOfMap ? R.drawable.ic_action_action_map_holo_dark : R.drawable.ic_action_action_list_holo_dark);
+		this.listMapToggleMenuItem.setTitle(showingListInsteadOfMap ? R.string.menu_action_map : R.string.menu_action_list);
 		this.listMapToggleMenuItem.setVisible(true);
 	}
 
@@ -799,5 +796,4 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		}
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
-
 }

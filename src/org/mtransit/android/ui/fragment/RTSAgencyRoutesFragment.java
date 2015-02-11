@@ -217,7 +217,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		Route selectedRoute = this.adapter == null ? null : this.adapter.getItem(position);
 		if (selectedRoute != null) {
-			((MainActivity) getActivity()).addFragmentToStack(RTSRouteFragment.newInstance(this.authority, selectedRoute.id, null, null, selectedRoute));
+			((MainActivity) getActivity()).addFragmentToStack(RTSRouteFragment.newInstance(this.authority, selectedRoute.getId(), null, null, selectedRoute));
 		}
 	}
 
@@ -516,7 +516,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			if (route == null) {
 				holder.routeFL.setVisibility(View.GONE);
 			} else {
-				if (TextUtils.isEmpty(route.shortName)) {
+				if (TextUtils.isEmpty(route.getShortName())) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
 					JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getRTSAgencyRouteLogo(getContext(), this.authority);
 					if (rtsRouteLogo != null) {
@@ -527,7 +527,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 					}
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
-					SpannableStringBuilder ssb = new SpannableStringBuilder(route.shortName);
+					SpannableStringBuilder ssb = new SpannableStringBuilder(route.getShortName());
 					if (ssb.length() > 3) {
 						SpanUtils.set(ssb, SpanUtils.FIFTY_PERCENT_SIZE_SPAN);
 						holder.routeShortNameTv.setSingleLine(false);
@@ -540,10 +540,10 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
 				if (holder.routeLongNameTv != null) {
-					if (TextUtils.isEmpty(route.longName)) {
+					if (TextUtils.isEmpty(route.getLongName())) {
 						holder.routeLongNameTv.setVisibility(View.GONE);
 					} else {
-						holder.routeLongNameTv.setText(route.longName);
+						holder.routeLongNameTv.setText(route.getLongName());
 						holder.routeLongNameTv.setVisibility(View.VISIBLE);
 					}
 				}

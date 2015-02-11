@@ -30,7 +30,6 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		return TAG;
 	}
 
-
 	private WeakReference<MainActivity> mainActivityWR;
 
 	private boolean fragmentReady = false;
@@ -50,7 +49,6 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	private boolean fragmentDisplayHomeAsUpEnabled = ABFragment.DEFAULT_DISPLAY_HOME_AS_UP_ENABLED;
 
 	private boolean fragmentShowSearchMenuItem = ABFragment.DEFAULT_SHOW_SEARCH_MENU_ITEM;
-
 
 	private UpOnClickListener upOnClickListener;
 
@@ -148,7 +146,6 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		return mainActivity != null && mainActivity.isCurrentFragmentVisible(source);
 	}
 
-
 	public void setABReady(Fragment source, boolean ready, boolean update) {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
@@ -229,7 +226,6 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			updateABDrawerClosed();
 		}
 	}
-
 
 	public void setABShowSearchMenuItem(Fragment source, boolean showSearchMenuItem, boolean update) {
 		if (!isCurrentFragmentVisible(source)) {
@@ -325,7 +321,6 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			}
 		}
 	}
-
 
 	private UpOnClickListener getUpOnClickListener(MainActivity mainActivity) {
 		if (this.upOnClickListener == null) {

@@ -65,7 +65,6 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		return view;
 	}
 
-
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -242,5 +241,4 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public CharSequence getABTitle(Context context) {
 		return context.getString(R.string.favorites);
 	}
-
 }

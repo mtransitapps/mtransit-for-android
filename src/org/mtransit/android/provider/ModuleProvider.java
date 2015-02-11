@@ -56,7 +56,6 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return getLogTag();
 	}
 
-
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
@@ -129,18 +128,18 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	private ModuleDbHelper getDBHelper(Context context) {
-		if (dbHelper == null) {
+		if (dbHelper == null) { // initialize
 			dbHelper = getNewDbHelper(context);
 			currentDbVersion = getCurrentDbVersion();
-		} else {
+		} else { // reset
 			try {
 				if (currentDbVersion != getCurrentDbVersion()) {
 					dbHelper.close();
 					dbHelper = null;
 					return getDBHelper(context);
 				}
-			} catch (Exception e) {
-				MTLog.d(this, e, "Can't check DB version!");
+			} catch (Exception e) { // reset
+				MTLog.w(this, e, "Can't check DB version!");
 			}
 		}
 		return dbHelper;
@@ -259,12 +258,12 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	public void updateModuleDataIfRequired() {
 		long lastUpdateInMs = PreferenceUtils.getPrefLcl(getContext(), PREF_KEY_LAST_UPDATE_MS, 0l);
 		long nowInMs = TimeUtils.currentTimeMillis();
-		if (lastUpdateInMs + getMODULE_MAX_VALIDITY_IN_MS() < nowInMs) {
+		if (lastUpdateInMs + getMODULE_MAX_VALIDITY_IN_MS() < nowInMs) { // too old to display?
 			deleteAllModuleData();
 			updateAllModuleDataFromWWW(lastUpdateInMs);
 			return;
 		}
-		if (lastUpdateInMs + getMODULE_VALIDITY_IN_MS() < nowInMs) {
+		if (lastUpdateInMs + getMODULE_VALIDITY_IN_MS() < nowInMs) { // try to refresh?
 			updateAllModuleDataFromWWW(lastUpdateInMs);
 		}
 	}
@@ -287,10 +286,10 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		if (PreferenceUtils.getPrefLcl(getContext(), PREF_KEY_LAST_UPDATE_MS, 0l) > oldLastUpdatedInMs) {
 			return; // too late, another thread already updated
 		}
-		loadDataFromWWW(0); // 0 = 1st try
+		loadDataFromWWW();
 	}
 
-	private HashSet<Module> loadDataFromWWW(int tried) {
+	private HashSet<Module> loadDataFromWWW() {
 		try {
 			long newLastUpdateInMs = TimeUtils.currentTimeMillis();
 			int fileResId = R.raw.modules;
@@ -406,7 +405,6 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	public UriMatcher getAgencyUriMatcher() {
 		return getURIMATCHER(getContext());
 	}
-
 
 	@Override
 	public int getStatusType() {
@@ -558,5 +556,4 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		public static final String T_MODULE_K_LOCATION = POIColumns.getFkColumnName("location");
 		public static final String T_MODULE_K_NAME_FR = POIColumns.getFkColumnName("name_fr");
 	}
-
 }

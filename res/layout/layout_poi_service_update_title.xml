@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="56dp"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
-    android:paddingRight="2dp"
     android:paddingTop="4dp" >
     <TextView
         android:id="@+id/service_update_title"
@@ -26,5 +25,4 @@
         android:text="@string/information"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/ic_menu_holo_light_text" />
-    <!-- android:layout_toLeftOf="@id/fullScheduleBtn" -->
 </RelativeLayout>

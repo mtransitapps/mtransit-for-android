@@ -276,7 +276,6 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		}
 	}
 
-
 	public void addFragmentToStack(ABFragment newFragment) {
 		showNewFragment(newFragment, true);
 	}
@@ -285,7 +284,6 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	public void onUserLocationChanged(Location newLocation) {
 		MTActivityWithLocation.broadcastUserLocationChanged(this, getSupportFragmentManager(), newLocation);
 	}
-
 
 	public boolean isCurrentFragmentVisible(Fragment fragment) {
 		if (fragment == null) {
@@ -300,7 +298,6 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	private Fragment getCurrentFragment() {
 		return getSupportFragmentManager().findFragmentById(R.id.content_frame);
 	}
-
 
 	@Override
 	public void onBackStackChanged() {
@@ -363,16 +360,13 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		this.backStackEntryCount++;
 	}
 
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		if (this.abController != null) {
 			this.abController.onCreateOptionsMenu(menu, getMenuInflater());
 		}
-
 		return true;
-
 	}
 
 	@Override

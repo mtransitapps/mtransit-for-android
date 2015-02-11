@@ -52,6 +52,9 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	private static final String T_MODULE_STATUS_SQL_CREATE = StatusDbHelper.getSqlCreate(T_MODULE_STATUS);
 	private static final String T_MODULE_STATUS_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_MODULE_STATUS);
 
+	/**
+	 * Override if multiple {@link ModuleDbHelper} in same app.
+	 */
 	public static int getDbVersion() {
 		return DB_VERSION;
 	}
@@ -84,5 +87,4 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 		db.execSQL(T_MODULE_STATUS_SQL_CREATE);
 		PreferenceUtils.savePrefLcl(this.context, PREF_KEY_LAST_UPDATE_MS, 0l, true);
 	}
-
 }

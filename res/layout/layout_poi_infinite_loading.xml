@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:focusable="false"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:padding="@dimen/poi_padding" >
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/android:progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:indeterminate="true"
+        android:visibility="gone" />
+    <TextView
+        android:id="@+id/worldExploredTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:fontFamily="sans-serif-light"
+        android:text="@string/world_explored"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:visibility="gone" />
+</RelativeLayout>

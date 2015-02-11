@@ -42,14 +42,12 @@ public class StatusLoader implements MTLog.Loggable {
 
 	private ThreadPoolExecutor fetchStatusExecutor;
 
-
 	private static final int CORE_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES > 1 ? RuntimeUtils.NUMBER_OF_CORES / 2 : 1;
 
 	private static final int MAX_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES > 1 ? RuntimeUtils.NUMBER_OF_CORES / 2 : 1;
 	public ThreadPoolExecutor getFetchStatusExecutor() {
 		if (this.fetchStatusExecutor == null) {
-			this.fetchStatusExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS,
-					new LIFOBlockingDeque<Runnable>());
+			this.fetchStatusExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS, new LIFOBlockingDeque<Runnable>());
 		}
 		return fetchStatusExecutor;
 	}
@@ -82,6 +80,8 @@ public class StatusLoader implements MTLog.Loggable {
 	}
 
 	private static class StatusFetcherCallable extends MTAsyncTask<Void, Void, POIStatus> {
+
+		private static final String TAG = StatusLoader.class.getSimpleName() + '>' + StatusFetcherCallable.class.getSimpleName();
 
 		@Override
 		public String getLogTag() {
@@ -145,7 +145,6 @@ public class StatusLoader implements MTLog.Loggable {
 			}
 			return DataSourceManager.findStatus(context, this.statusProvider.getAuthority(), this.statusFilter);
 		}
-
 	}
 
 	public static class LIFOBlockingDeque<E> extends LinkedBlockingDeque<E> implements MTLog.Loggable {
@@ -183,5 +182,4 @@ public class StatusLoader implements MTLog.Loggable {
 	public static interface StatusLoaderListener {
 		public void onStatusLoaded(POIStatus status);
 	}
-
 }

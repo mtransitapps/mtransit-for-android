@@ -35,16 +35,12 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 	}
 
 	private WeakReference<MainActivity> mainActivityWR;
-
 	private DrawerLayout drawerLayout;
 	private ABDrawerToggle drawerToggle;
-
 	private View leftDrawer;
 	private ListView drawerListView;
 	private MenuAdapter drawerListViewAdapter;
-
 	private int currentSelectedItemPosition = -1;
-
 	private String currentSelectedScreenItemId = null;
 
 	public NavigationDrawerController(MainActivity mainActivity) {
@@ -307,7 +303,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 	public void onRestoreState(Bundle savedInstanceState) {
 		Integer newSavedRootScreen = BundleUtils.getInt(EXTRA_SELECTED_ROOT_SCREEN_POSITION, savedInstanceState);
 		if (newSavedRootScreen != null && !newSavedRootScreen.equals(this.currentSelectedItemPosition)) {
-			this.currentSelectedItemPosition = newSavedRootScreen.intValue();
+			this.currentSelectedItemPosition = newSavedRootScreen;
 		}
 		String newRootScreenId = BundleUtils.getString(EXTRA_SELECTED_ROOT_SCREEN_ID);
 		if (!TextUtils.isEmpty(newRootScreenId) && !newRootScreenId.equals(this.currentSelectedScreenItemId)) {
@@ -363,7 +359,6 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 				}
 			}
 		}
-
 	}
 
 }

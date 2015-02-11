@@ -57,5 +57,4 @@ public class FavoriteDbHelper extends MTSQLiteOpenHelper {
 	public static String getDbName() {
 		return DB_NAME;
 	}
-
 }

@@ -118,6 +118,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private boolean showTypeHeaderNearby = false; // show nearby header instead of default type header
 
+	private boolean infiniteLoading = false; // infinite loading
+
+	private InfiniteLoadingListener infiniteLoadingListener;
+
 	private ViewGroup manualLayout;
 
 	private ScrollView manualScrollView;
@@ -174,7 +178,19 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		this.showTypeHeaderNearby = showTypeHeaderNearby;
 	}
 
-	private static final int VIEW_TYPE_COUNT = 8;
+	public void setInfiniteLoading(boolean infiniteLoading) {
+		this.infiniteLoading = infiniteLoading;
+	}
+
+	public void setInfiniteLoadingListener(InfiniteLoadingListener infiniteLoadingListener) {
+		this.infiniteLoadingListener = infiniteLoadingListener;
+	}
+
+	public static interface InfiniteLoadingListener {
+		boolean isLoadingMore();
+	}
+
+	private static final int VIEW_TYPE_COUNT = 9;
 
 	@Override
 	public int getViewTypeCount() {
@@ -189,6 +205,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (poim == null) {
 			if (this.showBrowseHeaderSection && position == 0) {
 				return 0;
+			}
+			if (this.infiniteLoading && position + 1 == getCount()) {
+				return 8;
 			}
 			if (this.showTypeHeader != TYPE_HEADER_NONE) {
 				if (this.poisByType != null) {
@@ -229,21 +248,32 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
+	private int count = -1;
+
 	@Override
 	public int getCount() {
-		int count = 0;
+		if (this.count < 0) {
+			initCount();
+		}
+		return this.count;
+	}
+
+	private void initCount() {
+		this.count = 0;
 		if (this.poisByType != null) {
 			if (this.showBrowseHeaderSection) {
-				count++;
+				this.count++;
 			}
 			for (Integer type : this.poisByType.keySet()) {
 				if (this.showTypeHeader != TYPE_HEADER_NONE) {
-					count++;
+					this.count++;
 				}
-				count += this.poisByType.get(type).size();
+				this.count += this.poisByType.get(type).size();
 			}
 		}
-		return count;
+		if (this.infiniteLoading) {
+			this.count++;
+		}
 	}
 
 	@Override
@@ -324,6 +354,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			if (this.showBrowseHeaderSection && position == 0) {
 				return getBrowseHeaderSectionView(convertView, parent);
 			}
+			if (this.infiniteLoading && position + 1 == getCount()) {
+				return getInfiniteLoadingView(convertView, parent);
+			}
 			if (this.showTypeHeader != TYPE_HEADER_NONE) {
 				Integer typeId = getItemTypeHeader(position);
 				if (typeId != null) {
@@ -349,23 +382,43 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
-	private ArrayList<DataSourceType> allAgencyTypes = null;
+	private View getInfiniteLoadingView(View convertView, ViewGroup parent) {
+		if (convertView == null) {
+			convertView = this.layoutInflater.inflate(R.layout.layout_poi_infinite_loading, parent, false);
+			InfiniteLoadingViewHolder holder = new InfiniteLoadingViewHolder();
+			holder.progressBar = convertView.findViewById(R.id.progress_bar);
+			holder.worldExplored = convertView.findViewById(R.id.worldExploredTv);
+			convertView.setTag(holder);
+		}
+		InfiniteLoadingViewHolder holder = (InfiniteLoadingViewHolder) convertView.getTag();
+		if (this.infiniteLoadingListener != null) {
+			if (this.infiniteLoadingListener.isLoadingMore()) {
+				holder.worldExplored.setVisibility(View.GONE);
+				holder.progressBar.setVisibility(View.VISIBLE);
+			} else {
+				holder.progressBar.setVisibility(View.GONE);
+				holder.worldExplored.setVisibility(View.VISIBLE);
+			}
+			convertView.setVisibility(View.VISIBLE);
+		} else {
+			convertView.setVisibility(View.GONE);
+		}
+		return convertView;
+	}
 
 	private View getBrowseHeaderSectionView(View convertView, ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header, parent, false);
-		}
-		if (this.allAgencyTypes == null) {
 			LinearLayout gridLL = (LinearLayout) convertView.findViewById(R.id.gridLL);
 			gridLL.removeAllViews();
 			Activity activity = this.activityWR == null ? null : this.activityWR.get();
-			this.allAgencyTypes = DataSourceProvider.get(activity).getAvailableAgencyTypes();
-			if (this.allAgencyTypes == null || this.allAgencyTypes.size() <= 1) {
+			ArrayList<DataSourceType> allAgencyTypes = DataSourceProvider.get(activity).getAvailableAgencyTypes();
+			if (allAgencyTypes == null || allAgencyTypes.size() <= 1) {
 				gridLL.setVisibility(View.GONE);
 			} else {
 				int availableButtons = 0;
 				View gridLine = null;
-				for (final DataSourceType dst : this.allAgencyTypes) {
+				for (final DataSourceType dst : allAgencyTypes) {
 					if (availableButtons == 0 && dst.getId() == DataSourceType.TYPE_MODULE.getId()) {
 						continue;
 					}
@@ -528,33 +581,82 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public void setPois(ArrayList<POIManager> pois) {
 		this.lastNotifyDataSetChanged = -1; // last notify was with old data
-		this.allAgencyTypes = null;
-		this.poisByType = null;
+		if (this.poisByType != null) {
+			this.poisByType.clear();
+		}
+		this.poiUUID.clear();
 		if (pois != null) {
-			this.poisByType = new LinkedHashMap<Integer, ArrayList<POIManager>>();
+			if (this.poisByType == null) {
+				this.poisByType = new LinkedHashMap<Integer, ArrayList<POIManager>>();
+			}
 			for (POIManager poim : pois) {
 				if (!this.poisByType.containsKey(poim.poi.getDataSourceTypeId())) {
 					this.poisByType.put(poim.poi.getDataSourceTypeId(), new ArrayList<POIManager>());
 				}
 				this.poisByType.get(poim.poi.getDataSourceTypeId()).add(poim);
+				this.poiUUID.add(poim.poi.getUUID());
 			}
 		}
+		initCount();
+		initPoisCount();
 		refreshFavorites();
 		updateClosestPoi();
+	}
+
+	private HashSet<String> poiUUID = new HashSet<String>();
+
+	public void appendPois(ArrayList<POIManager> pois) {
+		boolean dataSetChanged = false;
+		if (pois != null) {
+			if (this.poisByType == null) {
+				this.poisByType = new LinkedHashMap<Integer, ArrayList<POIManager>>();
+			}
+			for (POIManager poim : pois) {
+				if (!this.poisByType.containsKey(poim.poi.getDataSourceTypeId())) {
+					this.poisByType.put(poim.poi.getDataSourceTypeId(), new ArrayList<POIManager>());
+				}
+				if (!this.poiUUID.contains(poim.poi.getUUID())) {
+					this.poisByType.get(poim.poi.getDataSourceTypeId()).add(poim);
+					this.poiUUID.add(poim.poi.getUUID());
+					dataSetChanged = true;
+				}
+			}
+		}
+		if (dataSetChanged) {
+			this.lastNotifyDataSetChanged = -1; // last notify was with old data
+			initCount();
+			initPoisCount();
+			notifyDataSetChanged();
+			refreshFavorites();
+			updateClosestPoi();
+		}
+	}
+
+	private void resetCounts() {
+		this.count = -1;
+		this.poisCount = -1;
 	}
 
 	public boolean isInitialized() {
 		return this.poisByType != null;
 	}
 
+	private int poisCount = -1;
+
 	public int getPoisCount() {
-		int count = 0;
+		if (this.poisCount < 0) {
+			initPoisCount();
+		}
+		return this.poisCount;
+	}
+
+	private void initPoisCount() {
+		this.poisCount = 0;
 		if (this.poisByType != null) {
 			for (Integer type : this.poisByType.keySet()) {
-				count += this.poisByType.get(type).size();
+				this.poisCount += this.poisByType.get(type).size();
 			}
 		}
-		return count;
 	}
 
 	public boolean hasPois() {
@@ -617,7 +719,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 				@Override
 				public String getLogTag() {
-					return POIArrayAdapter.this.getLogTag();
+					return POIArrayAdapter.class.getSimpleName() + ">updateDistanceWithStringTask";
 				}
 
 				@Override
@@ -644,7 +746,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
-	// do we really ever want to set distance strings synchronously?
 	@Deprecated
 	public void updateDistancesNowSync(Location currentLocation) {
 		if (this.poisByType != null && currentLocation != null) {
@@ -677,7 +778,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	@Override
 	public void onStatusLoaded(POIStatus status) {
 		if (this.showStatus) {
-			// needs to force data set changed or schedule might never be shown
 			if (this.poiStatusViewHoldersWR != null && this.poiStatusViewHoldersWR.containsKey(status.getTargetUUID())) {
 				updatePOIStatus(this.poiStatusViewHoldersWR.get(status.getTargetUUID()), status);
 			}
@@ -749,7 +849,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public void initManual() {
 		if (this.manualLayout != null && hasPois()) {
-			this.manualLayout.removeAllViews();
+			this.manualLayout.removeAllViews(); // clear the previous list
 			for (int i = 0; i < getPoisCount(); i++) {
 				if (this.manualLayout.getChildCount() > 0) {
 					this.manualLayout.addView(this.layoutInflater.inflate(R.layout.list_view_divider, this.manualLayout, false));
@@ -870,14 +970,20 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	public void clear() {
 		if (this.poisByType != null) {
 			this.poisByType.clear();
-			this.poisByType = null;
+			this.poisByType = null; // not initialized
+		}
+		resetCounts();
+		if (this.poiUUID != null) {
+			this.poiUUID.clear();
 		}
 		if (this.closestPoiUuids != null) {
 			this.closestPoiUuids.clear();
 			this.closestPoiUuids = null;
 		}
 		disableTimeChangeddReceiver();
-		this.compassImgsWR.clear();
+		if (this.compassImgsWR != null) {
+			this.compassImgsWR.clear();
+		}
 		this.lastCompassChanged = -1;
 		this.lastCompassInDegree = -1;
 		this.accelerometerValues = new float[3];
@@ -904,9 +1010,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			this.poisByType.clear();
 			this.poisByType = null;
 		}
-		this.compassImgsWR.clear();
+		resetCounts();
+		if (this.poiUUID != null) {
+			this.poiUUID.clear();
+		}
+		if (this.compassImgsWR != null) {
+			this.compassImgsWR.clear();
+		}
 		this.poiStatusViewHoldersWR.clear();
-		this.allAgencyTypes = null;
 	}
 
 	@Override
@@ -930,11 +1041,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (!this.compassUpdatesEnabled || this.location == null || this.lastCompassInDegree < 0) {
 			return;
 		}
-		if (!this.compassUpdatesEnabled) {
-			return;
-		}
-		if (this.compassImgsWR.size() == 0) {
-			notifyDataSetChanged(true); // weak reference list not set
+		if (this.compassImgsWR == null) {
 			return;
 		}
 		for (WeakHashMap.Entry<MTCompassView, View> compassAndDistance : this.compassImgsWR.entrySet()) {
@@ -1341,14 +1448,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private void updateRTSExtra(POIManager poim, RouteTripStopViewHolder holder) {
 		if (poim.poi instanceof RouteTripStop) {
 			RouteTripStop rts = (RouteTripStop) poim.poi;
-			if (!this.showExtra || rts.route == null) {
+			if (!this.showExtra || rts.getRoute() == null) {
 				holder.rtsExtraV.setVisibility(View.GONE);
 				holder.routeFL.setVisibility(View.GONE);
 				holder.tripHeadingBg.setVisibility(View.GONE);
 			} else {
 				final String authority = rts.getAuthority();
-				final Route route = rts.route;
-				if (TextUtils.isEmpty(rts.route.shortName)) {
+				final Route route = rts.getRoute();
+				if (TextUtils.isEmpty(route.getShortName())) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
 					JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getRTSAgencyRouteLogo(getContext(), poim.poi.getAuthority());
 					if (rtsRouteLogo != null) {
@@ -1359,7 +1466,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					}
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
-					SpannableStringBuilder ssb = new SpannableStringBuilder(rts.route.shortName);
+					SpannableStringBuilder ssb = new SpannableStringBuilder(route.getShortName());
 					if (ssb.length() > 3) {
 						SpanUtils.set(ssb, SpanUtils.FIFTY_PERCENT_SIZE_SPAN);
 						holder.routeShortNameTv.setSingleLine(false);
@@ -1374,23 +1481,23 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				holder.routeFL.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setVisibility(View.VISIBLE);
 				final Long tripId;
-				if (rts.trip == null) {
+				if (rts.getTrip() == null) {
 					holder.tripHeadingBg.setVisibility(View.GONE);
 					tripId = null;
 				} else {
-					tripId = rts.trip.id;
-					holder.tripHeadingTv.setText(rts.trip.getHeading(getContext()).toUpperCase(Locale.getDefault()));
+					tripId = rts.getTrip().getId();
+					holder.tripHeadingTv.setText(rts.getTrip().getHeading(getContext()).toUpperCase(Locale.getDefault()));
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}
 				holder.rtsExtraV.setBackgroundColor(poim.getColor(getContext()));
-				final Integer stopId = rts.stop == null ? null : rts.stop.id;
+				final Integer stopId = rts.getStop() == null ? null : rts.getStop().getId();
 				holder.rtsExtraV.setOnClickListener(new View.OnClickListener() {
 
 					@Override
 					public void onClick(View v) {
 						Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
 						if (activity != null && activity instanceof MainActivity) {
-							((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(authority, route.id, tripId, stopId, route));
+							((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(authority, route.getId(), tripId, stopId, route));
 						} else {
 							MTLog.w(POIArrayAdapter.this, "No activity available to open RTS fragment!");
 						}
@@ -1605,7 +1712,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		this.refreshFavoritesTask = new MTAsyncTask<Integer, Void, ArrayList<Favorite>>() {
 			@Override
 			public String getLogTag() {
-				return POIArrayAdapter.this.getLogTag() + ">refreshFavoritesTask";
+				return POIArrayAdapter.class.getSimpleName() + ">refreshFavoritesTask";
 			}
 
 			@Override
@@ -1651,6 +1758,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				this.favoriteUpdateListener.onFavoriteUpdated();
 			}
 		}
+	}
+
+	public static class InfiniteLoadingViewHolder {
+		View progressBar;
+		View worldExplored;
 	}
 
 	public static class ModuleViewHolder extends CommonViewHolder {

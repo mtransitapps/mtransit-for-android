@@ -17,8 +17,6 @@ import android.view.View;
 
 public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.Trackable, DataSourceProvider.ModulesUpdateListener {
 
-
-
 	public static final boolean DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT = false;
 
 	public static final boolean DEFAULT_DISPLAY_HOME_AS_UP_ENABLED = true;
@@ -36,7 +34,6 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 	public CharSequence getABSubtitle(Context context) {
 		return null;
 	}
-
 
 	private Integer defaultABBgColor = null;
 

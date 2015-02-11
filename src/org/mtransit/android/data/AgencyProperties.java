@@ -9,6 +9,7 @@ import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
 
 import android.text.TextUtils;
+
 public class AgencyProperties implements MTLog.Loggable {
 
 	private static final String TAG = AgencyProperties.class.getSimpleName();
@@ -24,11 +25,8 @@ public class AgencyProperties implements MTLog.Loggable {
 	private DataSourceType type;
 	private String shortName;
 	private String longName;
-
 	private Integer colorInt = null;
-
 	private Area area;
-
 	private boolean isRTS = false;
 
 	public AgencyProperties(String id, DataSourceType type, String shortName, String longName, String color, Area area, boolean isRTS) {
@@ -36,9 +34,9 @@ public class AgencyProperties implements MTLog.Loggable {
 		this.type = type;
 		this.shortName = shortName;
 		this.longName = longName;
-		setColor(color);
 		this.area = area;
 		this.isRTS = isRTS;
+		setColor(color);
 	}
 
 	public void setColor(String color) {
@@ -69,7 +67,6 @@ public class AgencyProperties implements MTLog.Loggable {
 	public String getShortName() {
 		return shortName;
 	}
-
 
 	@Override
 	public String toString() {

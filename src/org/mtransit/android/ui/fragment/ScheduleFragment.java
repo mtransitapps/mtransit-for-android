@@ -66,8 +66,8 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	private DayPagerAdapter adapter;
 	private int lastPageSelected = -1;
 	private String uuid;
-
 	private RouteTripStop rts;
+
 	private boolean hasRts() {
 		if (this.rts == null) {
 			initRtsAsync();
@@ -141,6 +141,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			this.adapter.setOptRts(this.rts);
 		}
 	}
+
 	private String authority;
 
 	private AgencyProperties agency;
@@ -182,6 +183,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			}
 		}
 	};
+
 	private void applyNewAgency() {
 		if (this.agency == null) {
 			return;
@@ -392,7 +394,6 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 	}
 
-
 	private void switchView(View view) {
 		if (view == null) {
 			return;
@@ -468,11 +469,11 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 		StringBuilder sb = new StringBuilder(agency.getShortName());
 		sb.append(" -");
-		if (!TextUtils.isEmpty(rts.route.shortName)) {
-			sb.append(" ").append(rts.route.shortName);
+		if (!TextUtils.isEmpty(rts.getRoute().getShortName())) {
+			sb.append(" ").append(rts.getRoute().getShortName());
 		}
-		if (!TextUtils.isEmpty(rts.route.longName)) {
-			sb.append(" ").append(rts.route.longName);
+		if (!TextUtils.isEmpty(rts.getRoute().getLongName())) {
+			sb.append(" ").append(rts.getRoute().getLongName());
 		}
 		return sb.toString();
 	}
@@ -480,9 +481,8 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public Integer getABBgColor(Context context) {
 		RouteTripStop rts = getRtsOrNull();
-		return POIManager.getRouteColor(context, rts == null ? null : rts.route, this.authority, super.getABBgColor(context));
+		return POIManager.getRouteColor(context, rts == null ? null : rts.getRoute(), this.authority, super.getABBgColor(context));
 	}
-
 
 	private static class DayPagerAdapter extends FragmentStatePagerAdapter implements MTLog.Loggable {
 
@@ -560,7 +560,5 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		public int getCount() {
 			return COUNT;
 		}
-
 	}
-
 }

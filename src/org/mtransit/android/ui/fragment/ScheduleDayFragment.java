@@ -88,6 +88,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	private long dayStartsAtInMs = -1l;
 	private Calendar dayStartsAtCal = null;
 	private Date dayStartsAtDate;
+
 	private void resetDayStarts() {
 		this.dayStartsAtCal = null;
 		this.dayStartsAtDate = null;
@@ -218,7 +219,6 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		setupView(view);
 		return view;
 	}
-
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
@@ -827,6 +827,8 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return convertView;
 		}
 
+		private static final String P2 = ")";
+		private static final String P1 = " (";
 
 		private void updateTimeView(int position, View convertView) {
 			TimeViewHolder holder = (TimeViewHolder) convertView.getTag();
@@ -838,14 +840,14 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 				if (timestamp.hasLocalTimeZone() && !this.deviceTimeZone.equals(TimeZone.getTimeZone(timestamp.getLocalTimeZone()))) {
 					String localTime = TimeUtils.formatTime(context, timestamp.t, timestamp.getLocalTimeZone());
 					if (!localTime.equalsIgnoreCase(userTime)) {
-						timeSb.append(" (").append(context.getString(R.string.local_time_and_time, localTime)).append(")");
+						timeSb.append(P1).append(context.getString(R.string.local_time_and_time, localTime)).append(P2);
 					}
 				}
 				if (timestamp.hasHeadsign()) {
 					String timestampHeading = timestamp.getHeading(context);
-					String tripHeading = this.optRts == null ? null : this.optRts.trip.getHeading(context);
+					String tripHeading = this.optRts == null ? null : this.optRts.getTrip().getHeading(context);
 					if (!StringUtils.equals(timestampHeading, tripHeading)) {
-						timeSb.append(" (").append(timestampHeading).append(")");
+						timeSb.append(P1).append(timestampHeading).append(P2);
 					}
 				}
 				holder.timeTv.setText(timeSb);
@@ -880,7 +882,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			Integer hourOfTheDay = getItemHourSeparator(position);
 			Context context = this.activityWR == null ? null : this.activityWR.get();
 			if (hourOfTheDay != null && context != null) {
-				holder.hourTv.setText(getHourFormatter(context).formatThreadSafe(this.hours.get(hourOfTheDay.intValue())));
+				holder.hourTv.setText(getHourFormatter(context).formatThreadSafe(this.hours.get(hourOfTheDay)));
 			} else {
 				holder.hourTv.setText(null);
 			}
@@ -902,6 +904,5 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		public static class HourSperatorViewHolder {
 			TextView hourTv;
 		}
-
 	}
 }

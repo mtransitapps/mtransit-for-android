@@ -53,9 +53,6 @@ public class MTJPathsView extends MTView {
 	}
 
 	private void init() {
-		if (Constants.LOG_VIEW_LIFECYCLE) {
-			MTLog.v(this, "init()");
-		}
 	}
 
 	public void setColor(int color) {
@@ -81,7 +78,6 @@ public class MTJPathsView extends MTView {
 			invalidate();
 		}
 	}
-
 
 	@Override
 	protected void onDraw(Canvas canvas) {
@@ -177,5 +173,4 @@ public class MTJPathsView extends MTView {
 		newPaint.setAntiAlias(true);
 		return newPaint;
 	}
-
 }

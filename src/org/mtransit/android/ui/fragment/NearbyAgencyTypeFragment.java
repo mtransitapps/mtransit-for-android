@@ -32,7 +32,7 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 
 public class NearbyAgencyTypeFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
-		NearbyFragment.NearbyLocationListener, DataSourceProvider.ModulesUpdateListener {
+		NearbyFragment.NearbyLocationListener, DataSourceProvider.ModulesUpdateListener, POIArrayAdapter.InfiniteLoadingListener {
 
 	private static final String TAG = NearbyAgencyTypeFragment.class.getSimpleName();
 
@@ -63,8 +63,8 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	}
 
 	private POIArrayAdapter adapter;
-	private LocationUtils.AroundDiff ad = LocationUtils.getNewDefaultAroundDiff();
-	private Double lastAroundDiff = null;
+	private LocationUtils.AroundDiff ad = null;
+	private Double lastEmptyAroundDiff = null;
 	private Location nearbyLocation;
 	private Location userLocation;
 	private ListViewSwipeRefreshLayout swipeRefreshLayout;
@@ -176,7 +176,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		}
 		if (this.nearbyLocation != null && this.typeId != null) {
 			this.typeAgenciesAuthority = NearbyPOIListLoader.findTypeAgenciesAuthority(getActivity(), this.typeId, this.nearbyLocation.getLatitude(),
-					this.nearbyLocation.getLongitude(), this.ad.aroundDiff, this.lastAroundDiff);
+					this.nearbyLocation.getLongitude(), this.ad.aroundDiff, this.lastEmptyAroundDiff);
 		}
 		return this.typeAgenciesAuthority != null;
 	}
@@ -232,6 +232,37 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 
 	private void initAdapters(Activity activity) {
 		this.adapter = new POIArrayAdapter(activity);
+		this.adapter.setInfiniteLoading(true);
+		this.adapter.setInfiniteLoadingListener(this);
+	}
+
+	private void doLoadMore() {
+		this.minSize *= 2;
+		this.maxSize *= 2;
+		this.minCoverageInMeters *= 2;
+		LocationUtils.incAroundDiff(this.ad);
+		LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
+	}
+
+	@Override
+	public boolean isLoadingMore() {
+		if (this.nearbyLocation == null) {
+			return false;
+		}
+		if (this.minSize < 0 || this.maxSize < 0 || this.minCoverageInMeters < 0f) {
+			return false;
+		}
+		if (LocationUtils.searchComplete(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff)) {
+			return false;
+		}
+		if (this.sizeCovered < this.minSize) {
+			return true; // already loading
+		}
+		if (this.distanceCoveredInMeters < this.minCoverageInMeters) {
+			return true; // already loading
+		}
+		doLoadMore();
+		return true; // now loading
 	}
 
 	public void setNearbyFragment(NearbyFragment nearbyFragment) {
@@ -370,18 +401,34 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			}
 		}
 		this.nearbyLocation = newNearbyLocation;
+		if (this.nearbyLocation == null) {
+			this.sizeCovered = 0;
+			this.distanceCoveredInMeters = 0f;
+			this.minSize = -1;
+			this.maxSize = -1;
+			this.minCoverageInMeters = -1f;
+			this.ad = null;
+			this.lastEmptyAroundDiff = null;
+		} else if (this.minSize < 0 || this.maxSize < 0 || this.minCoverageInMeters < 0f) {
+			this.sizeCovered = 0;
+			this.distanceCoveredInMeters = 0f;
+			this.minSize = LocationUtils.MIN_NEARBY_LIST;
+			this.maxSize = LocationUtils.MAX_NEARBY_LIST;
+			this.ad = LocationUtils.getNewDefaultAroundDiff();
+			this.lastEmptyAroundDiff = null;
+			this.minCoverageInMeters = LocationUtils.getAroundCoveredDistanceInMeters(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(),
+					this.ad.aroundDiff);
+			if (this.minCoverageInMeters < LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS) {
+				this.minCoverageInMeters = LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS;
+			}
+			if (this.minCoverageInMeters < this.nearbyLocation.getAccuracy()) {
+				this.minCoverageInMeters = this.nearbyLocation.getAccuracy();
+			}
+		}
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
-		View view = getView();
 		switchView(view);
-		if (view != null) {
-			if (view.findViewById(R.id.list) != null) {
-				view.findViewById(R.id.list).scrollTo(0, 0);
-			}
-		}
-		this.ad = LocationUtils.getNewDefaultAroundDiff();
-		this.lastAroundDiff = null;
 		resetTypeAgenciesAuthority();
 		if (this.nearbyLocation != null && hasTypeAgenciesAuthority()) {
 			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
@@ -396,13 +443,13 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		if (!isResumed()) {
 			return;
 		}
-		if (this.adapter != null && this.nearbyLocation != null && this.typeId != null) {
+		if (this.adapter != null && this.nearbyLocation != null && this.typeId != null && this.ad != null) {
 			FragmentActivity activity = getActivity();
 			if (activity == null) {
 				return;
 			}
 			ArrayList<String> newTypeAgenciesAuthority = NearbyPOIListLoader.findTypeAgenciesAuthority(activity, this.typeId,
-					this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff, this.lastAroundDiff);
+					this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff, this.lastEmptyAroundDiff);
 			if (CollectionUtils.getSize(this.typeAgenciesAuthority) != CollectionUtils.getSize(newTypeAgenciesAuthority)) {
 				useNewNearbyLocation(this.nearbyLocation, true); // force
 			}
@@ -488,6 +535,16 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 
 	private static final int NEARBY_POIS_LOADER = 0;
 
+	private int sizeCovered = 0;
+
+	private float distanceCoveredInMeters = 0f;
+
+	private int maxSize = -1;
+
+	private int minSize = -1;
+
+	private float minCoverageInMeters = -1f;
+
 	@Override
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
@@ -495,16 +552,8 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			if (this.nearbyLocation == null || this.typeId == null || getTypeAgenciesAuthorityOrNull() == null) {
 				return null;
 			}
-			float minDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(),
-					LocationUtils.MIN_AROUND_DIFF);
-			if (minDistanceInMeters < LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS) {
-				minDistanceInMeters = LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS;
-			}
-			if (minDistanceInMeters < this.nearbyLocation.getAccuracy()) {
-				minDistanceInMeters = this.nearbyLocation.getAccuracy();
-			}
 			return new NearbyPOIListLoader(getActivity(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff,
-					minDistanceInMeters, LocationUtils.MAX_NEARBY_LIST, false, getTypeAgenciesAuthorityOrNull());
+					this.minCoverageInMeters, this.maxSize, false, getTypeAgenciesAuthorityOrNull());
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -521,26 +570,32 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	@Override
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
 		int dataSize = CollectionUtils.getSize(data);
-		if (dataSize < LocationUtils.MIN_NEARBY_LIST
-				&& !LocationUtils.searchComplete(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff)) {
+		if (dataSize < this.minSize && !LocationUtils.searchComplete(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff)) {
 			// try with larger around location
 			if (dataSize == 0) {
-				this.lastAroundDiff = this.ad.aroundDiff;
+				this.lastEmptyAroundDiff = this.ad.aroundDiff;
 			} else {
-				this.lastAroundDiff = null;
+				this.lastEmptyAroundDiff = null;
 			}
 			LocationUtils.incAroundDiff(this.ad);
 			resetTypeAgenciesAuthority();
 			initTypeAgenciesAuthoritySync();
 			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
 		} else {
-			this.adapter.setPois(data);
+			this.distanceCoveredInMeters = this.minCoverageInMeters;
+			this.sizeCovered = data == null ? 0 : data.size();
+			boolean scrollToTop = this.adapter.getPoisCount() == 0;
+			this.adapter.appendPois(data);
+			View view = getView();
+			if (scrollToTop && view != null && view.findViewById(R.id.list) != null) {
+				((AbsListView) view.findViewById(R.id.list)).setSelection(0);
+			}
 			if (this.fragmentVisible) {
 				this.adapter.updateDistanceNowAsync(this.userLocation);
 			} else {
 				this.adapter.onPause();
 			}
-			switchView(getView());
+			switchView(view);
 		}
 	}
 }
