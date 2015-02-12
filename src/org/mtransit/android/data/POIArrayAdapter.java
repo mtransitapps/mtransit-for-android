@@ -461,6 +461,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		CommonViewHolder holder = (CommonViewHolder) convertView.getTag();
 		POIManager poim = getItem(position);
 		updateCommonView(holder, poim);
+		updatePOIStatus(holder.statusViewHolder, poim);
 	}
 
 	@Override
