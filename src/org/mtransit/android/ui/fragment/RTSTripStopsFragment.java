@@ -474,7 +474,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
 				view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 			}
-			this.mapViewController.showMap();
+			this.mapViewController.showMap(view);
 		}
 	}
 

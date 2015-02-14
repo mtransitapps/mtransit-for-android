@@ -2,15 +2,12 @@ package org.mtransit.android.util;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ResourceUtils;
-import org.mtransit.android.commons.task.MTAsyncTask;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-
-import com.google.android.gms.maps.MapsInitializer;
 
 public final class MapUtils implements MTLog.Loggable {
 
@@ -72,21 +69,5 @@ public final class MapUtils implements MTLog.Loggable {
 		}
 		return mapWithoutButtonsCameraPaddingInPx;
 	}
-
-	public static void initMapAsync(final Context context) {
-		new MTAsyncTask<Void, Void, Void>() {
-			@Override
-			public String getLogTag() {
-				return TAG + ">initMapAsync";
-			}
-
-			@Override
-			protected Void doInBackgroundMT(Void... params) {
-				MapsInitializer.initialize(context);
-				return null;
-			}
-		}.execute();
-	}
-
 
 }

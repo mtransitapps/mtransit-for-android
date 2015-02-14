@@ -256,7 +256,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		this.isFavorite = null; // reset
 		View view = getView();
 		this.mapViewController.notifyMarkerChanged(this);
-		this.mapViewController.showMap();
+		this.mapViewController.showMap(view);
 		POIViewController.updateView(getActivity(), getPOIView(view), this.poim, this);
 		AgencyProperties agency = getAgencyOrNull();
 		if (agency != null) {
@@ -681,7 +681,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		POIManager poim = getPoimOrNull();
 		if (poim != null) {
 			this.mapViewController.notifyMarkerChanged(this);
-			this.mapViewController.showMap();
+			this.mapViewController.showMap(view);
 			POIViewController.updateView(getActivity(), getPOIView(view), poim, this);
 			AgencyProperties agency = getAgencyOrNull();
 			if (agency != null) {

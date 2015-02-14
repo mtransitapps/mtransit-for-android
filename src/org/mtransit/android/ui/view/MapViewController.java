@@ -30,6 +30,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -71,11 +72,12 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 	@Override
 	public void onGlobalLayout() {
 		this.waitingForGlobalLayout = false;
-		if (this.mapView != null) {
-			SupportFactory.get().removeOnGlobalLayoutListener(this.mapView.getViewTreeObserver(), this);
+		MapView mapView = getMapViewOrNull();
+		if (mapView != null) {
+			SupportFactory.get().removeOnGlobalLayoutListener(mapView.getViewTreeObserver(), this);
 			this.mapLayoutReady = true;
 			setupInitialCamera();
-			showMapInternal();
+			showMapInternal(null);
 		}
 	}
 
@@ -85,7 +87,7 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 		if (this.initialMapCameraSetup) {
 			return;
 		}
-		if (!this.mapLayoutReady || this.mapView == null || this.googleMap == null) {
+		if (!this.mapLayoutReady || !hasMapView() || !hasGoogleMap()) {
 			return;
 		}
 		if (!this.mapVisible) {
@@ -140,83 +142,140 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 
 	public void onCreate(Bundle savedInstanceState) {
 		restoreInstanceState(savedInstanceState);
+		this.lastSavedInstanceState = savedInstanceState;
 	}
 
-	private void restoreInstanceState(Bundle... bundles) {
-		CameraPosition newLastCameraPosition = BundleUtils.getParcelable(EXTRA_LAST_CAMERA_POSITION, bundles);
+	private void restoreInstanceState(Bundle savedInstanceState) {
+		CameraPosition newLastCameraPosition = BundleUtils.getParcelable(EXTRA_LAST_CAMERA_POSITION, savedInstanceState);
 		if (newLastCameraPosition != null) {
 			this.lastCameraPosition = newLastCameraPosition;
 		}
-		String newLastSelectedUUID = BundleUtils.getString(EXTRA_LAST_SELECTED_UUID, bundles);
+		String newLastSelectedUUID = BundleUtils.getString(EXTRA_LAST_SELECTED_UUID, savedInstanceState);
 		if (!TextUtils.isEmpty(newLastSelectedUUID)) {
 			this.lastSelectedUUID = newLastSelectedUUID;
 		}
 	}
 
 	public void onCreateView(View view, Bundle savedInstanceState) {
+		this.lastSavedInstanceState = savedInstanceState;
 	}
 
 	public void onViewCreated(View view, Bundle savedInstanceState) {
+		this.lastSavedInstanceState = savedInstanceState;
+	}
+
+	private Bundle lastSavedInstanceState = null;
+
+	private boolean hasMapView() {
+		return this.mapView != null;
+	}
+
+	private MapView getMapViewOrNull() {
+		return this.mapView;
+	}
+
+	private MapView getMapViewOrNull(View view) {
+		if (this.mapView == null) {
+			initMapViewSync(view);
+		}
+		return this.mapView;
+	}
+
+	private void initMapViewSync(View view) {
+		if (view == null) {
+			return;
+		}
+		if (this.mapView != null) {
+			return;
+		}
+		MapsInitializer.initialize(view.getContext());
 		this.mapView = (MapView) view.findViewById(R.id.map);
-		this.mapView.onCreate(savedInstanceState);
-		this.mapView.getMapAsync(this);
+		if (this.mapView != null) {
+			this.mapView.onCreate(this.lastSavedInstanceState);
+			if (this.needToResumeMap) {
+				this.mapView.onResume();
+				this.needToResumeMap = false;
+			}
+			this.lastSavedInstanceState = null;
+			this.mapView.getMapAsync(this);
+		}
+	}
+
+	private void destroyMapView() {
+		if (this.mapView != null) {
+			this.mapView.onDestroy();
+			this.mapView = null;
+		}
 	}
 
 	public void onActivityCreated(Bundle savedInstanceState) {
 	}
+	private boolean hasGoogleMap() {
+		return this.googleMap != null;
+	}
+
+	private void destroyGoogleMap() {
+		this.googleMap = null;
+	}
+
+	private GoogleMap getGoogleMapOrNull() {
+		return this.googleMap;
+	}
 
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
-		this.googleMap = googleMap;
-		setupGoogleMap();
+		setupGoogleMap(googleMap);
 	}
 
-	private void setupGoogleMap() {
-		if (this.googleMap != null) {
-			this.googleMap.setMyLocationEnabled(this.myLocationEnabled);
-			this.googleMap.setTrafficEnabled(this.trafficEnabled);
-			this.googleMap.setIndoorEnabled(this.indoorEnabled);
-			this.googleMap.getUiSettings().setMyLocationButtonEnabled(this.myLocationButtonEnabled);
-			this.googleMap.getUiSettings().setIndoorLevelPickerEnabled(this.indoorLevelPickerEnabled);
-			this.googleMap.setOnMapLoadedCallback(this);
-			this.googleMap.setOnMyLocationButtonClickListener(this);
-			this.googleMap.setOnInfoWindowClickListener(this);
-			this.googleMap.setOnMarkerClickListener(this);
-			this.googleMap.setLocationSource(this);
-			this.googleMap.setOnCameraChangeListener(this);
-			if (this.paddingTopSp > 0) {
-				Context context = getActivityOrNull();
-				int paddingTop = (int) ResourceUtils.convertSPtoPX(context, this.paddingTopSp); // action bar
-				this.googleMap.setPadding(0, paddingTop, 0, 0);
-			}
-			initMapMarkers();
+	private void setupGoogleMap(GoogleMap googleMap) {
+		if (googleMap == null) {
+			return;
 		}
+		this.googleMap = googleMap;
+		this.googleMap.setMyLocationEnabled(this.myLocationEnabled);
+		this.googleMap.setTrafficEnabled(this.trafficEnabled);
+		this.googleMap.setIndoorEnabled(this.indoorEnabled);
+		this.googleMap.getUiSettings().setMyLocationButtonEnabled(this.myLocationButtonEnabled);
+		this.googleMap.getUiSettings().setIndoorLevelPickerEnabled(this.indoorLevelPickerEnabled);
+		this.googleMap.setOnMapLoadedCallback(this);
+		this.googleMap.setOnMyLocationButtonClickListener(this);
+		this.googleMap.setOnInfoWindowClickListener(this);
+		this.googleMap.setOnMarkerClickListener(this);
+		this.googleMap.setLocationSource(this);
+		this.googleMap.setOnCameraChangeListener(this);
+		if (this.paddingTopSp > 0) {
+			Context context = getActivityOrNull();
+			int paddingTop = (int) ResourceUtils.convertSPtoPX(context, this.paddingTopSp); // action bar
+			this.googleMap.setPadding(0, paddingTop, 0, 0);
+		}
+		initMapMarkers();
 	}
 
-	public boolean showMap() {
+	public boolean showMap(View view) {
 		this.mapVisible = true;
-		return showMapInternal();
+		return showMapInternal(view);
 	}
 
-	private boolean showMapInternal() {
-		if (this.mapView == null) {
+	private boolean showMapInternal(View optView) {
+		MapView mapView = getMapViewOrNull(optView);
+		if (mapView == null) {
 			return false; // not shown
 		}
 		if (!this.mapVisible) {
 			return false; // not shown
 		}
 		if (this.mapLayoutReady) {
-			if (this.mapView.getVisibility() != View.VISIBLE) {
-				this.mapView.setVisibility(View.VISIBLE);
+			if (mapView.getVisibility() != View.VISIBLE) {
+				mapView.setVisibility(View.VISIBLE);
 			}
 			return true; // shown
 		}
-		if (this.mapView.getVisibility() != View.VISIBLE) {
-			this.mapView.setVisibility(View.VISIBLE);
+		if (mapView.getVisibility() != View.VISIBLE) {
+			mapView.setVisibility(View.VISIBLE);
 		}
 		if (!this.waitingForGlobalLayout) {
-			if (this.mapView.getViewTreeObserver().isAlive()) {
-				this.mapView.getViewTreeObserver().addOnGlobalLayoutListener(this);
+			if (mapView.getViewTreeObserver().isAlive()) {
+				mapView.getViewTreeObserver().addOnGlobalLayoutListener(this);
 				this.waitingForGlobalLayout = true;
 			}
 		}
@@ -225,9 +284,10 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 
 	public void hideMap() {
 		this.mapVisible = false;
-		if (this.mapView != null) {
-			if (this.mapView.getVisibility() != View.GONE) {
-				this.mapView.setVisibility(View.GONE); // hide
+		MapView mapView = getMapViewOrNull();
+		if (mapView != null) {
+			if (mapView.getVisibility() != View.GONE) {
+				mapView.setVisibility(View.GONE); // hide
 			}
 		}
 	}
@@ -341,7 +401,8 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 	}
 
 	private boolean updateMapCamera(boolean anim, CameraUpdate cameraUpdate) {
-		if (this.googleMap == null) {
+		GoogleMap googleMap = getGoogleMapOrNull();
+		if (googleMap == null) {
 			return false;
 		}
 		if (!this.mapLayoutReady) {
@@ -349,9 +410,9 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 		}
 		try {
 			if (anim) {
-				this.googleMap.animateCamera(cameraUpdate);
+				googleMap.animateCamera(cameraUpdate);
 			} else {
-				this.googleMap.moveCamera(cameraUpdate);
+				googleMap.moveCamera(cameraUpdate);
 			}
 			return true;
 		} catch (IllegalStateException ise) {
@@ -367,7 +428,7 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 		if (CollectionUtils.getSize(this.markers) > 0) {
 			return;
 		}
-		if (this.googleMap == null) {
+		if (!hasGoogleMap()) {
 			return;
 		}
 		MapMarkerProvider markerProvider = this.markerProviderWR == null ? null : this.markerProviderWR.get();
@@ -402,19 +463,20 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 			@Override
 			protected void onPostExecute(HashMap<String, MarkerOptions> uuidMarkerOptions) {
 				super.onPostExecute(uuidMarkerOptions);
-				if (MapViewController.this.googleMap == null) {
+				GoogleMap googleMap = getGoogleMapOrNull();
+				if (googleMap == null) {
 					return;
 				}
 				if (uuidMarkerOptions != null) {
 					for (HashMap.Entry<String, MarkerOptions> uuidMarkerOption : uuidMarkerOptions.entrySet()) {
-						Marker poiMarker = MapViewController.this.googleMap.addMarker(uuidMarkerOption.getValue());
+						Marker poiMarker = googleMap.addMarker(uuidMarkerOption.getValue());
 						MapViewController.this.markers.put(uuidMarkerOption.getKey(), poiMarker);
 						MapViewController.this.markersIdToUUID.put(poiMarker.getId(), uuidMarkerOption.getKey());
 					}
 				}
 				selectLastSelectedMarker();
 				setupInitialCamera();
-				showMapInternal();
+				showMapInternal(null);
 			}
 		}.execute();
 	}
@@ -482,13 +544,18 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 		}
 	}
 
+	private boolean needToResumeMap = false;
+
 	public boolean onResume() {
-		if (this.mapView == null) {
+		this.needToResumeMap = true;
+		MapView mapView = getMapViewOrNull();
+		if (mapView == null) {
 			return false;
 		}
-		this.mapView.onResume();
+		mapView.onResume();
+		this.needToResumeMap = false;
 		setupInitialCamera();
-		showMapInternal();
+		showMapInternal(null);
 		return true; // resumed
 	}
 
@@ -533,17 +600,21 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 	}
 
 	public void onPause() {
-		if (this.mapView != null) {
-			this.mapView.onPause();
+		this.needToResumeMap = false;
+		MapView mapView = getMapViewOrNull();
+		if (mapView != null) {
+			mapView.onPause();
 		}
-		if (this.googleMap != null) {
-			this.lastCameraPosition = this.googleMap.getCameraPosition();
+		GoogleMap googleMap = getGoogleMapOrNull();
+		if (googleMap != null) {
+			this.lastCameraPosition = googleMap.getCameraPosition();
 		}
 	}
 
 	public void onSaveInstanceState(Bundle outState) {
-		if (this.mapView != null) {
-			this.mapView.onSaveInstanceState(outState);
+		MapView mapView = getMapViewOrNull();
+		if (mapView != null) {
+			mapView.onSaveInstanceState(outState);
 		}
 		if (this.lastCameraPosition != null) {
 			outState.putParcelable(EXTRA_LAST_CAMERA_POSITION, this.lastCameraPosition);
@@ -569,18 +640,16 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 	}
 
 	public void onLowMemory() {
-		if (this.mapView != null) {
-			this.mapView.onLowMemory();
+		MapView mapView = getMapViewOrNull();
+		if (mapView != null) {
+			mapView.onLowMemory();
 		}
 	}
 
 	public void onDestroyView() {
-		if (this.mapView != null) {
-			this.mapView.onDestroy();
-			this.mapView = null;
-		}
+		destroyMapView();
 		this.mapVisible = false;
-		this.googleMap = null;
+		destroyGoogleMap();
 		this.mapLayoutReady = false;
 		this.waitingForGlobalLayout = false;
 		this.initialMapCameraSetup = false;

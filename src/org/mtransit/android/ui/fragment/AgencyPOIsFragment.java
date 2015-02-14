@@ -482,7 +482,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 			if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
 				view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 			}
-			this.mapViewController.showMap();
+			this.mapViewController.showMap(view);
 		}
 	}
 

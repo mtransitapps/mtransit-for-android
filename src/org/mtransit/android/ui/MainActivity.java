@@ -9,7 +9,6 @@ import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.SearchFragment;
 import org.mtransit.android.util.AdsUtils;
 import org.mtransit.android.util.AnalyticsUtils;
-import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.VendingUtils;
 
 import android.app.SearchManager;
@@ -66,7 +65,6 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		this.navigationDrawerController.setup(savedInstanceState);
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
 		DataSourceProvider.addModulesUpdateListerner(this);
-		MapUtils.initMapAsync(this);
 	}
 
 	private boolean modulesUpdated = false;
