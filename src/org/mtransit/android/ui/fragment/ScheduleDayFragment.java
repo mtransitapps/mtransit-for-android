@@ -317,6 +317,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return;
 		}
 		inflateList(view);
+		switchView(view);
 		linkAdapterWithListView(view);
 	}
 
@@ -343,7 +344,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (this.fragmentPosition < 0 || this.fragmentPosition == this.lastVisibleFragmentPosition) {
+		if (this.fragmentPosition >= 0 && this.fragmentPosition == this.lastVisibleFragmentPosition) {
 			onFragmentVisible();
 		} // ELSE would be call later
 		if (this.adapter != null) {

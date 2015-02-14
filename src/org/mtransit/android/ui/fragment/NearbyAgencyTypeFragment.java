@@ -198,6 +198,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		this.swipeRefreshLayout.setColorSchemeColors(ThemeUtils.resolveColorAttribute(getActivity(), R.attr.colorAccent));
 		setSwipeRefreshLayoutEnabled(this.swipeRefreshLayoutEnabled);
 		inflateList(view);
+		switchView(view);
 		linkAdapterWithListView(view);
 		NearbyFragment nearbyFragment = this.nearbyFragmentWR == null ? null : this.nearbyFragmentWR.get();
 		if (nearbyFragment != null) {
@@ -382,7 +383,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 				}
 			});
 		}
-		if (this.fragmentPosition < 0 || this.fragmentPosition == this.lastVisibleFragmentPosition) {
+		if (this.fragmentPosition >= 0 && this.fragmentPosition == this.lastVisibleFragmentPosition) {
 			onFragmentVisible();
 		} // ELSE would be call later
 		this.adapter.setActivity(getActivity());

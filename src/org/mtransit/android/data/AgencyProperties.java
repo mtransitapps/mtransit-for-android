@@ -103,7 +103,6 @@ public class AgencyProperties implements MTLog.Loggable {
 	}
 
 	private static class AgencyPropertiesShortNameComparator implements Comparator<AgencyProperties> {
-
 		@Override
 		public int compare(AgencyProperties lap, AgencyProperties rap) {
 			String lShortName = lap.getShortName();

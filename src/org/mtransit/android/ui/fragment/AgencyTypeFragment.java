@@ -188,6 +188,9 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		if (view == null) {
 			return;
 		}
+		if (!hasTypeAgencies()) {
+			return;
+		}
 		if (this.adapter == null || !this.adapter.isInitialized()) {
 			return;
 		}
@@ -250,8 +253,6 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			resetType();
 			resetTypeAgencies();
 		}
-		this.adapter.setAgencies(getTypeAgenciesOrNull());
-		notifyTabDataChanged(getView());
 	}
 
 	private Integer typeId = null;
@@ -412,7 +413,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	}
 
 	private void initAdapters(Activity activity) {
-		this.adapter = new AgencyPagerAdapter(activity, this, getTypeAgenciesOrNull());
+		this.adapter = new AgencyPagerAdapter(activity, this, null);
 	}
 
 	private static class LoadLastPageSelectedFromUserPreference extends MTAsyncTask<Void, Void, Integer> {
@@ -474,9 +475,9 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 				agencyTypeFragment.lastPageSelected = 0;
 			} else {
 				agencyTypeFragment.lastPageSelected = lastPageSelected;
-				View view = agencyTypeFragment.getView();
-				agencyTypeFragment.showSelectedTab(view);
 			}
+			View view = agencyTypeFragment.getView();
+			agencyTypeFragment.showSelectedTab(view);
 			agencyTypeFragment.onPageSelected(agencyTypeFragment.lastPageSelected); // tell current page it's selected
 		}
 	}
@@ -603,7 +604,6 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	private Handler handler = new Handler();
 
-
 	private Runnable updateABColorLater = new Runnable() {
 		@Override
 		public void run() {
@@ -698,7 +698,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	@Override
 	public boolean isABReady() {
-		return hasType() && hasTypeAgencies();
+		return hasType();
 	}
 
 	@Override
@@ -761,7 +761,6 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 				MTLog.w(this, e, "Error while destroying fragment at position '%s'!", position);
 			}
 		}
-
 
 		private ArrayList<String> agenciesAuthority = new ArrayList<String>();
 

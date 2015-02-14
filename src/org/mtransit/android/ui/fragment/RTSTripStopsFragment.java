@@ -238,6 +238,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		}
 		if (this.showingListInsteadOfMap) { // list
 			inflateList(view); // inflate ASAP for view state restore
+			switchView(view);
 		}
 	}
 

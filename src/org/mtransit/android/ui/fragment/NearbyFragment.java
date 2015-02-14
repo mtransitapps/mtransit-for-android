@@ -137,11 +137,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 	private void initAdapters(Activity activity) {
 		this.adapter = new AgencyTypePagerAdapter(activity, this, null, false);
-		ArrayList<DataSourceType> newAgencyTypes = filterAgencyTypes(DataSourceProvider.get(activity).getAvailableAgencyTypes());
-		if (CollectionUtils.getSize(newAgencyTypes) == 0) {
-			return;
-		}
-		this.adapter.setAvailableAgencyTypes(newAgencyTypes);
 		this.adapter.setSwipeRefreshLayoutEnabled(!isFixedOn());
 	}
 
@@ -197,6 +192,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				this.modulesUpdated = false; // nothing to do
 				return;
 			}
+			resetAvailableTypes();
 			MainActivity mainActivity = (MainActivity) activity;
 			if (mainActivity != null) {
 				if (mainActivity.isMTResumed()) {
@@ -339,6 +335,78 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		this.findNearbyLocationTask.execute(this.nearbyLocation);
 	}
 
+	private ArrayList<DataSourceType> availableTypes = null;
+
+	private ArrayList<DataSourceType> getAvailableTypesOrNull() {
+		if (!hasAvailableTypes()) {
+			return null;
+		}
+		return this.availableTypes;
+	}
+
+	private boolean hasAvailableTypes() {
+		if (this.availableTypes == null) {
+			initAvailableTypesAsync();
+			return false;
+		}
+		return true;
+	}
+
+	private void initAvailableTypesAsync() {
+		if (this.loadAvailableTypesTask != null && this.loadAvailableTypesTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+			return;
+		}
+		this.loadAvailableTypesTask = new LoadAvailableTypesTask();
+		this.loadAvailableTypesTask.execute();
+	}
+
+	private LoadAvailableTypesTask loadAvailableTypesTask = null;
+
+	private class LoadAvailableTypesTask extends MTAsyncTask<Object, Void, Boolean> {
+
+		@Override
+		public String getLogTag() {
+			return NearbyFragment.this.getLogTag() + ">" + LoadAvailableTypesTask.class.getSimpleName();
+		}
+
+		@Override
+		protected Boolean doInBackgroundMT(Object... params) {
+			return initAvailableTypesSync();
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			super.onPostExecute(result);
+			if (result) {
+				applyNewAvailableTypes();
+			}
+		}
+	};
+
+	private boolean initAvailableTypesSync() {
+		if (this.availableTypes != null) {
+			return false;
+		}
+		this.availableTypes = filterAgencyTypes(DataSourceProvider.get(getActivity()).getAvailableAgencyTypes());
+		return this.availableTypes != null;
+	}
+
+	private void applyNewAvailableTypes() {
+		if (this.availableTypes == null) {
+			return;
+		}
+		if (this.adapter != null) {
+			this.adapter.setAvailableAgencyTypes(this.availableTypes);
+			View view = getView();
+			notifyTabDataChanged(view);
+			showSelectedTab(view);
+		}
+	}
+
+	private void resetAvailableTypes() {
+		this.availableTypes = null; // reset
+	}
+
 	private ArrayList<DataSourceType> filterAgencyTypes(ArrayList<DataSourceType> availableAgencyTypes) {
 		if (availableAgencyTypes != null) {
 			Iterator<DataSourceType> it = availableAgencyTypes.iterator();
@@ -413,12 +481,9 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				nearbyFragment.lastPageSelected = 0;
 			} else {
 				nearbyFragment.lastPageSelected = lastPageSelected;
-				View view = nearbyFragment.getView();
-				if (view != null) {
-					ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-					viewPager.setCurrentItem(nearbyFragment.lastPageSelected);
-				}
 			}
+			View view = nearbyFragment.getView();
+			nearbyFragment.showSelectedTab(view);
 			nearbyFragment.onPageSelected(nearbyFragment.lastPageSelected); // tell current page it's selected
 		}
 	}
@@ -468,11 +533,14 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		if (view == null) {
 			return;
 		}
+		if (!hasAvailableTypes()) {
+			return;
+		}
 		if (this.adapter == null || !this.adapter.isInitialized()) {
 			return;
 		}
 		if (this.lastPageSelected < 0) {
-			new LoadLastPageSelectedFromUserPreference(getActivity(), this, this.selectedTypeId, this.adapter.getAvailableAgencyTypes()).execute();
+			new LoadLastPageSelectedFromUserPreference(getActivity(), this, this.selectedTypeId, getAvailableTypesOrNull()).execute();
 			return;
 		}
 		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
@@ -834,6 +902,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 					this.typeIds.add(type.getId());
 				}
 			}
+			notifyDataSetChanged();
 		}
 
 		public boolean isInitialized() {

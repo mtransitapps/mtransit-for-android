@@ -246,6 +246,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			return;
 		}
 		inflateList(view);
+		switchView(view);
 		linkAdapterWithListView(view);
 		Spinner typeFiltersSpinner = (Spinner) view.findViewById(R.id.typeFilters);
 		typeFiltersSpinner.setAdapter(this.typeFiltersAdapter);

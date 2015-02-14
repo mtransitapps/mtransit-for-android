@@ -207,6 +207,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		}
 		if (isShowingListInsteadOfMap()) { // showing list
 			inflateList(view);
+			switchView(view);
 		}
 	}
 
@@ -334,7 +335,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (this.fragmentPosition < 0 || this.fragmentPosition == this.lastVisibleFragmentPosition) {
+		if (this.fragmentPosition >= 0 && this.fragmentPosition == this.lastVisibleFragmentPosition) {
 			onFragmentVisible();
 		} // ELSE would be call later
 		if (this.adapter != null) {

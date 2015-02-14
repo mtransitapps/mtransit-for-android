@@ -392,6 +392,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.swipeRefreshLayout.setColorSchemeColors(ThemeUtils.resolveColorAttribute(getActivity(), R.attr.colorAccent));
 		this.swipeRefreshLayout.setOnRefreshListener(this);
 		inflateList(view);
+		switchView(view);
 		linkAdapterWithListView(view);
 	}
 

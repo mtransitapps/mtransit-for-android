@@ -158,8 +158,8 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 			return;
 		}
 		inflateList(view);
-		linkAdapterWithListView(view);
 		switchView(view);
+		linkAdapterWithListView(view);
 	}
 
 	private void linkAdapterWithListView(View view) {

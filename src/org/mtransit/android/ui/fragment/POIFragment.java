@@ -306,6 +306,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 		restoreInstanceState(savedInstanceState, getArguments());
+		this.mapViewController.onCreate(savedInstanceState);
 	}
 
 	@Override
@@ -487,6 +488,10 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			moreBtn.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
+					POIManager poim = getPoimOrNull();
+					if (poim == null) {
+						return;
+					}
 					Integer optTypeId = null;
 					AgencyProperties agency = getAgencyOrNull();
 					if (agency != null) {
