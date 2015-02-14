@@ -9,14 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.view.View;
 
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.model.LatLngBounds;
 
 public final class MapUtils implements MTLog.Loggable {
 
@@ -83,7 +77,7 @@ public final class MapUtils implements MTLog.Loggable {
 		new MTAsyncTask<Void, Void, Void>() {
 			@Override
 			public String getLogTag() {
-				return TAG;
+				return TAG + ">initMapAsync";
 			}
 
 			@Override
@@ -94,37 +88,5 @@ public final class MapUtils implements MTLog.Loggable {
 		}.execute();
 	}
 
-	public static boolean updateMapPosition(Context optContext, GoogleMap map, MapView optMapView, boolean anim, LatLngBounds llb, int cameraPaddingInPx) {
-		if (map == null) {
-			return false;
-		}
-		try {
-			if (!anim) {
-				if (optMapView != null) {
-					if (optMapView.getVisibility() == View.VISIBLE) {
-						optMapView.setVisibility(View.INVISIBLE);
-					}
-				}
-			}
-			CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(llb, cameraPaddingInPx);
-			if (anim) {
-				map.animateCamera(cameraUpdate);
-			} else {
-				map.moveCamera(cameraUpdate);
-			}
-			if (optMapView != null) {
-				if (optMapView.getVisibility() != View.VISIBLE) {
-					optMapView.setVisibility(View.VISIBLE);
-				}
-			}
-			return true;
-		} catch (IllegalStateException ise) {
-			MTLog.w(TAG, "Error while initializing map position: %s", ise);
-			return false;
-		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error while initializing map position!");
-			return false;
-		}
-	}
 
 }

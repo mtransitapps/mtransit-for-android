@@ -53,7 +53,6 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		this.tag = TAG + "-" + tag;
 	}
 
-
 	private static final String EXTRA_AGENCY_AUTHORITY = "extra_agency_authority";
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
@@ -78,7 +77,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	private int fragmentPosition = -1;
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
-	private RTSRouteArrayAdapter adapter;
+	private RTSAgencyRouteArrayAdapter adapter;
 	private String emptyText = null;
 
 	private String authority;
@@ -146,7 +145,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		this.adapter.setAuthority(this.authority);
 	}
 	private void initAdapters(Activity activity) {
-		this.adapter = new RTSRouteArrayAdapter(activity, this.authority, isShowingListInsteadOfGrid());
+		this.adapter = new RTSAgencyRouteArrayAdapter(activity, this.authority, isShowingListInsteadOfGrid());
 	}
 
 	private void setupView(View view) {
@@ -154,9 +153,19 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			return;
 		}
 		AbsListView absListView = (AbsListView) view.findViewById(isShowingListInsteadOfGrid() ? R.id.list : R.id.grid);
-		absListView.setAdapter(this.adapter);
+		linkAdapterWithListView(absListView);
 		absListView.setOnItemClickListener(this);
 		switchView(view);
+	}
+
+	private void linkAdapterWithListView(View view) {
+		if (view == null || this.adapter == null) {
+			return;
+		}
+		View listView = view.findViewById(isShowingListInsteadOfGrid() ? R.id.list : R.id.grid);
+		if (listView != null) {
+			((AbsListView) listView).setAdapter(this.adapter);
+		}
 	}
 
 	private Boolean showingListInsteadOfGrid = null;
@@ -265,6 +274,9 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		if (this.fragmentVisible) {
 			return; // already visible
 		}
+		if (!isResumed()) {
+			return;
+		}
 		this.fragmentVisible = true;
 		switchView(getView());
 		if (this.adapter == null || !this.adapter.isInitialized()) {
@@ -350,7 +362,6 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		view.findViewById(isShowingListInsteadOfGrid() ? R.id.list : R.id.grid).setVisibility(View.VISIBLE); // show
 	}
 
-
 	private void showLoading(View view) {
 		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
 			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
@@ -360,9 +371,6 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		}
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
-		}
-		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
-			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
 		}
 		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}
@@ -416,7 +424,6 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		this.listGridToggleMenuItem.setVisible(true);
 	}
 
-
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (!this.fragmentVisible) {
@@ -430,9 +437,9 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		return super.onOptionsItemSelected(item);
 	}
 
-	private static class RTSRouteArrayAdapter extends MTArrayAdapter<Route> implements MTLog.Loggable {
+	private static class RTSAgencyRouteArrayAdapter extends MTArrayAdapter<Route> implements MTLog.Loggable {
 
-		private static final String TAG = RTSRouteArrayAdapter.class.getSimpleName();
+		private static final String TAG = RTSAgencyRouteArrayAdapter.class.getSimpleName();
 
 		@Override
 		public String getLogTag() {
@@ -444,7 +451,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		private String authority;
 		private boolean showingListInsteadOfGrid;
 
-		public RTSRouteArrayAdapter(Context context, String authority, boolean showingListInsteadOfGrid) {
+		public RTSAgencyRouteArrayAdapter(Context context, String authority, boolean showingListInsteadOfGrid) {
 			super(context, -1);
 			this.layoutInflater = LayoutInflater.from(context);
 			this.authority = authority;

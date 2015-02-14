@@ -5,6 +5,7 @@
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:clipChildren="false"
     android:minHeight="?android:attr/listPreferredItemHeight" >
+    <!-- FAVORITE -->
     <ImageView
         android:id="@+id/fav"
         android:layout_width="?android:attr/listPreferredItemHeight"
@@ -30,6 +31,7 @@
         android:orientation="vertical"
         android:paddingLeft="4dp"
         android:paddingRight="4dp" >
+        <!-- NAME -->
         <TextView
             android:id="@+id/name"
             android:layout_width="match_parent"
@@ -41,6 +43,7 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="?android:attr/textColorPrimary"
             android:textStyle="normal" />
+        <!-- DISTANCE & COMPASS -->
         <include
             android:layout_width="wrap_content"
             android:layout_height="match_parent"

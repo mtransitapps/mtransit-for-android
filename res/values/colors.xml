@@ -1,5 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!--
+	100% — FF
+	95% — F2
+	90% — E6
+	85% — D9
+	80% — CC
+	75% — BF
+	70% — B3
+	65% — A6
+	60% — 99
+	55% — 8C
+	50% — 80
+	45% — 73
+	40% — 66
+	35% — 59
+	30% — 4D
+	25% — 40
+	20% — 33
+	15% — 26
+	10% — 1A
+	5% — 0D
+	0% — 00
+    -->
     <color name="mt_blue_malibu" tools:ignore="UnusedResources">#6699FF</color> <!-- dark blue -->
     <color name="mt_blue_smalt" tools:ignore="UnusedResources">#003399</color> <!-- light blue -->
     <color name="mt_bg_dark" tools:ignore="UnusedResources">#230913</color>

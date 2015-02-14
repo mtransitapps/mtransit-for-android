@@ -1,26 +1,23 @@
 package org.mtransit.android.ui.fragment;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.HashSet;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
-import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
-import org.mtransit.android.commons.api.SupportFactory;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.AgencyPOIsLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
-import org.mtransit.android.util.MapUtils;
+import org.mtransit.android.ui.view.MapViewController;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -33,25 +30,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
-import android.view.ViewTreeObserver;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.LocationSource;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-
 public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
-		MTActivityWithLocation.UserLocationListener, LocationSource, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMyLocationButtonClickListener,
-		GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnCameraChangeListener, OnMapReadyCallback {
+		MTActivityWithLocation.UserLocationListener, MapViewController.MapMarkerProvider {
 
 	private static final String TAG = AgencyPOIsFragment.class.getSimpleName();
 
@@ -94,6 +77,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	private POIArrayAdapter adapter;
 	private String emptyText = null;
 	private String authority;
+	private MapViewController mapViewController = new MapViewController(TAG, this, true, true, false, false, false, 0, false, true);
 
 	@Override
 	public String getAgencyAuthority() {
@@ -104,23 +88,35 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		initAdapters(activity);
+		this.mapViewController.onAttach(activity);
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		this.mapViewController.onDetach();
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
+		this.mapViewController.onCreate(savedInstanceState);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_agency_pois, container, false);
-		setupView(view);
-		if (!isShowingListInsteadOfMap()) { // showing map
-			initMapView(view, savedInstanceState);
-		}
+		this.mapViewController.onCreateView(view, savedInstanceState);
 		return view;
+	}
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		setupView(view);
+		this.mapViewController.onViewCreated(view, savedInstanceState);
 	}
 
 	@Override
@@ -137,7 +133,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		if (this.showingListInsteadOfMap != null) {
 			outState.putBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, this.showingListInsteadOfMap);
 		}
-		saveMapViewInstance(outState);
+		this.mapViewController.onSaveInstanceState(outState);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -167,10 +163,32 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 			}
 		}
 		this.adapter.setTag(this.authority);
+		this.mapViewController.setTag(getLogTag());
 	}
 
 	private void initAdapters(Activity activity) {
 		this.adapter = new POIArrayAdapter(activity);
+	}
+
+	@Override
+	public POIManager getClosestPOI() {
+		return this.adapter == null ? null : this.adapter.getClosestPOI();
+	}
+
+	@Override
+	public POIManager getPOI(String uuid) {
+		return this.adapter == null ? null : this.adapter.getItem(uuid);
+	}
+
+	@Override
+	public Collection<POIManager> getPOIs() {
+		HashSet<POIManager> pois = new HashSet<POIManager>();
+		if (this.adapter != null && this.adapter.hasPois()) {
+			for (int i = 0; i < this.adapter.getPoisCount(); i++) {
+				pois.add(this.adapter.getItem(i));
+			}
+		}
+		return pois;
 	}
 
 	private void linkAdapterWithListView(View view) {
@@ -228,7 +246,9 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		if (this.adapter != null) {
 			this.adapter.onPause();
 		}
-		pauseMapView();
+		if (!isShowingListInsteadOfMap()) { // map
+			this.mapViewController.onPause();
+		}
 	}
 
 	@Override
@@ -240,14 +260,19 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		if (this.fragmentVisible) {
 			return; // already visible
 		}
+		if (!isResumed()) {
+			return;
+		}
 		this.fragmentVisible = true;
+		if (!isShowingListInsteadOfMap()) { // map
+			this.mapViewController.onResume();
+		}
 		switchView(getView());
 		if (!this.adapter.isInitialized()) {
 			LoaderUtils.restartLoader(getLoaderManager(), POIS_LOADER, null, this);
 		} else {
 			this.adapter.onResume(getActivity(), this.userLocation);
 		}
-		resumeMapView();
 		checkIfShowingListInsteadOfMapChanged();
 		getActivity().supportInvalidateOptionsMenu(); // initialize action bar list/map switch icon
 		updateListMapToggleMenuItem();
@@ -275,44 +300,29 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
+		this.mapViewController.clearMarkers();
 	}
 
 	@Override
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
-		this.mapMarkers = null; // force refresh
 		this.adapter.setPois(data);
+		this.mapViewController.notifyMarkerChanged(this);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
-		if (!isShowingListInsteadOfMap()) { // showing map
-			initMapMarkers(null);
-		}
 		switchView(getView());
 	}
 
 	@Override
 	public void onUserLocationChanged(Location newLocation) {
-		if (newLocation != null) {
-			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
-				this.userLocation = newLocation;
-				if (this.adapter != null) {
-					this.adapter.setLocation(newLocation);
-				}
-			}
-			if (this.locationChandedListener != null) {
-				this.locationChandedListener.onLocationChanged(newLocation);
+		if (newLocation == null) {
+			return;
+		}
+		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
+			this.userLocation = newLocation;
+			if (this.adapter != null) {
+				this.adapter.setLocation(newLocation);
 			}
 		}
-	}
-
-	private LocationSource.OnLocationChangedListener locationChandedListener;
-
-	@Override
-	public void activate(LocationSource.OnLocationChangedListener locationChandedListener) {
-		this.locationChandedListener = locationChandedListener;
-	}
-
-	@Override
-	public void deactivate() {
-		this.locationChandedListener = null;
+		this.mapViewController.onUserLocationChanged(newLocation);
 	}
 
 	@Override
@@ -333,16 +343,15 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	}
 
 	@Override
+	public void onLowMemory() {
+		super.onLowMemory();
+		this.mapViewController.onLowMemory();
+	}
+
+	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		destroyMapView();
-		if (this.mapMarkers != null) {
-			this.mapMarkers.clear();
-			this.mapMarkers = null;
-		}
-		this.map = null;
-		this.mapMarkersShown = false;
-		this.mapLayoutReady = false;
+		this.mapViewController.onDestroyView();
 	}
 
 	@Override
@@ -351,287 +360,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		if (this.adapter != null) {
 			this.adapter.onDestroy();
 		}
-	}
-
-	private MapView mapView = null;
-
-	private MapView getMapView(View view) {
-		if (this.mapView == null) {
-			initMapView(view, null);
-		}
-		return this.mapView;
-	}
-
-	private void pauseMapView() {
-		if (this.mapView != null) {
-			this.mapView.onPause();
-		}
-	}
-
-	private void resumeMapView() {
-		if (this.mapView != null) {
-			this.mapView.onResume();
-		}
-	}
-
-	private void saveMapViewInstance(Bundle outState) {
-		if (this.mapView != null) {
-			this.mapView.onSaveInstanceState(outState);
-		}
-	}
-
-	private void destroyMapView() {
-		if (this.mapView != null) {
-			this.mapView.onDestroy();
-			this.mapView = null;
-		}
-	}
-
-	private void initMapView(View view, Bundle savedInstanceState) {
-		if (view != null) {
-			this.mapView = (MapView) view.findViewById(R.id.map);
-			if (this.mapView != null) {
-				this.mapView.onCreate(savedInstanceState);
-				if (this.fragmentVisible) {
-					this.mapView.onResume();
-				}
-				initMap(this.mapView);
-			}
-		}
-	}
-
-	private GoogleMap map = null;
-
-	private GoogleMap getMap(MapView mapView) {
-		if (this.map == null) {
-			initMap(mapView);
-		}
-		return this.map;
-	}
-
-	private void initMap(MapView mapView) {
-		if (mapView != null) {
-			mapView.getMapAsync(this);
-		}
-	}
-
-	@Override
-	public void onMapReady(GoogleMap map) {
-		this.map = map;
-		setupMap();
-	}
-
-	private void setupMap() {
-		if (this.map != null) {
-			this.map.setOnMapLoadedCallback(this);
-			this.map.setOnMyLocationButtonClickListener(this);
-			this.map.setOnInfoWindowClickListener(this);
-			this.map.setOnMarkerClickListener(this);
-			this.map.setMyLocationEnabled(true);
-			this.map.setLocationSource(this);
-			this.map.setOnCameraChangeListener(this);
-			this.map.getUiSettings().setMyLocationButtonEnabled(true);
-			this.map.getUiSettings().setIndoorLevelPickerEnabled(false);
-			this.map.setTrafficEnabled(false);
-			this.map.setIndoorEnabled(false);
-			initMapMarkers(null);
-		}
-	}
-
-	@Override
-	public void onCameraChange(CameraPosition position) {
-		this.showingMyLocation = this.showingMyLocation == null;
-	}
-
-	private Boolean showingMyLocation = false;
-
-	@Override
-	public boolean onMyLocationButtonClick() {
-		if (this.showingMyLocation != null && this.showingMyLocation) {
-			this.mapMarkersShown = false;
-			updateMapPosition(true);
-			this.showingMyLocation = false;
-			return true; // handled
-		}
-		if (this.userLocation == null) {
-			return false; // not handled
-		}
-		LatLngBounds.Builder llb = LatLngBounds.builder();
-		llb.include(new LatLng(this.userLocation.getLatitude(), this.userLocation.getLongitude()));
-		if (this.adapter != null && this.adapter.hasClosestPOI()) {
-			POIManager poim = this.adapter.getClosestPOI();
-			if (poim != null) {
-				LatLng poiLatLng = new LatLng(poim.getLat(), poim.getLng());
-				llb.include(poiLatLng);
-				Marker poiMarker = this.mapMarkers == null ? null : this.mapMarkers.get(poim.poi.getUUID());
-				if (poiMarker != null) {
-					poiMarker.showInfoWindow();
-				}
-			}
-		}
-		MapView mapView = getMapView(getView());
-		GoogleMap map = getMap(mapView);
-		MTLog.d(this, "onMyLocationButtonClick() > map: %s", map);
-		boolean success = MapUtils
-				.updateMapPosition(getActivity(), map, mapView, true, llb.build(), MapUtils.getMapWithButtonsCameraPaddingInPx(getActivity()));
-		this.showingMyLocation = null;
-		return success; // handled or not
-	}
-
-	private HashMap<String, Marker> mapMarkers = null;
-
-	private HashMap<String, String> mapMarkersIdToUUID = new HashMap<String, String>();
-
-	private boolean mapMarkersShown = false;
-
-	private void initMapMarkers(final String optSelectedItemUuid) {
-		if (this.mapMarkers != null) {
-			return;
-		}
-		if (this.adapter == null) {
-			return;
-		}
-		GoogleMap map = getMap(getMapView(getView()));
-		if (map == null) {
-			return;
-		}
-		this.mapMarkers = new HashMap<String, Marker>();
-		this.mapMarkersShown = false;
-		new MTAsyncTask<Void, Void, HashMap<String, MarkerOptions>>() {
-
-			private final String TAG = AgencyPOIsFragment.class.getSimpleName() + ">initMapMarkers";
-
-			@Override
-			public String getLogTag() {
-				return TAG;
-			}
-
-			@Override
-			protected HashMap<String, MarkerOptions> doInBackgroundMT(Void... params) {
-				HashMap<String, MarkerOptions> result = new HashMap<String, MarkerOptions>();
-				if (AgencyPOIsFragment.this.adapter != null) {
-					for (int i = 0; i < AgencyPOIsFragment.this.adapter.getPoisCount(); i++) {
-						POIManager poim = AgencyPOIsFragment.this.adapter.getItem(i);
-						if (poim != null) {
-							LatLng poiLatLng = new LatLng(poim.poi.getLat(), poim.poi.getLng());
-							MarkerOptions poiMarkerOptions = new MarkerOptions() //
-									.title(poim.poi.getName()) //
-									.position(poiLatLng) //
-									.icon(getBitmapDescriptor(poim));
-							result.put(poim.poi.getUUID(), poiMarkerOptions);
-						}
-					}
-				}
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(HashMap<String, MarkerOptions> result) {
-				super.onPostExecute(result);
-				GoogleMap map = getMap(getMapView(getView()));
-				if (map != null) {
-					if (result != null) {
-						for (HashMap.Entry<String, MarkerOptions> uuidMarkerOptions : result.entrySet()) {
-							Marker poiMarker = map.addMarker(uuidMarkerOptions.getValue());
-							if (optSelectedItemUuid != null && optSelectedItemUuid.equals(uuidMarkerOptions.getKey())) {
-								poiMarker.showInfoWindow();
-							}
-							AgencyPOIsFragment.this.mapMarkers.put(uuidMarkerOptions.getKey(), poiMarker);
-							AgencyPOIsFragment.this.mapMarkersIdToUUID.put(poiMarker.getId(), uuidMarkerOptions.getKey());
-						}
-						updateMapPosition(false);
-					}
-				}
-			}
-		}.execute();
-	}
-
-	@Override
-	public void onInfoWindowClick(Marker marker) {
-		new MTAsyncTask<Marker, Void, POIManager>() {
-
-			@Override
-			public String getLogTag() {
-				return AgencyPOIsFragment.class.getSimpleName() + ">onInfoWindowClick";
-			}
-
-			@Override
-			protected POIManager doInBackgroundMT(Marker... params) {
-				Marker marker = params == null || params.length == 0 ? null : params[0];
-				String uuid = marker == null ? null : AgencyPOIsFragment.this.mapMarkersIdToUUID.get(marker.getId());
-				if (TextUtils.isEmpty(uuid)) {
-					return null;
-				}
-				return AgencyPOIsFragment.this.adapter.getItem(uuid);
-			}
-
-			@Override
-			protected void onPostExecute(POIManager poim) {
-				if (poim != null) {
-					poim.onActionItemClick(getActivity(), null);
-				}
-			}
-		}.execute(marker);
-	}
-
-	@Override
-	public boolean onMarkerClick(Marker marker) {
-		return false; // not handled
-	}
-
-	private boolean mapLayoutReady = false;
-
-	private ViewTreeObserver.OnGlobalLayoutListener mapViewOnGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-		@Override
-		public void onGlobalLayout() {
-			if (AgencyPOIsFragment.this.mapView != null) {
-				SupportFactory.get().removeOnGlobalLayoutListener(AgencyPOIsFragment.this.mapView.getViewTreeObserver(), this);
-				AgencyPOIsFragment.this.mapLayoutReady = true;
-				updateMapPosition(false);
-			}
-		}
-	};
-
-	@Override
-	public void onMapLoaded() {
-		updateMapPosition(false);
-	}
-
-	private void updateMapPosition(boolean anim) {
-		if (!this.mapLayoutReady) {
-			return;
-		}
-		if (this.mapMarkersShown) {
-			return;
-		}
-		if (this.mapMarkers == null || this.mapMarkers.size() == 0) {
-			return;
-		}
-		LatLngBounds.Builder llb = LatLngBounds.builder();
-		for (Marker mapMarker : this.mapMarkers.values()) {
-			llb.include(mapMarker.getPosition());
-		}
-		MapView mapView = getMapView(getView());
-		GoogleMap map = getMap(mapView);
-		this.mapMarkersShown = MapUtils.updateMapPosition(getActivity(), map, mapView, anim, llb.build(),
-				MapUtils.getMapWithButtonsCameraPaddingInPx(getActivity()));
-	}
-
-	private BitmapDescriptor getBitmapDescriptor(POIManager optPoim) {
-		try {
-			int markerColor = MapUtils.DEFAULT_MARKET_COLOR;
-			if (optPoim != null) {
-				markerColor = optPoim.getColor(getActivity());
-			}
-			if (markerColor == Color.BLACK) {
-				markerColor = Color.DKGRAY;
-			}
-			int bitmapResId = R.drawable.ic_place_white_slim;
-			return BitmapDescriptorFactory.fromBitmap(ColorUtils.colorizeBitmapResource(getActivity(), markerColor, bitmapResId));
-		} catch (Exception e) {
-			MTLog.w(this, e, "Error while setting custom marker color!");
-			return BitmapDescriptorFactory.defaultMarker();
-		}
+		this.mapViewController.onDestroy();
 	}
 
 	private MenuItem listMapToggleMenuItem;
@@ -702,11 +431,14 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 					this.showingListInsteadOfMap, false);
 		}
 		if (this.adapter != null) {
-			setupView(getView());
-			switchView(getView());
-			if (!this.showingListInsteadOfMap) {
-				initMapMarkers(null);
+			View view = getView();
+			setupView(view);
+			if (!this.showingListInsteadOfMap) { // map
+				this.mapViewController.onResume();
+			} else { // list
+				this.mapViewController.onPause();
 			}
+			switchView(view);
 		}
 		updateListMapToggleMenuItem();
 	}
@@ -742,21 +474,14 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
 		if (isShowingListInsteadOfMap()) { // list
-			view.findViewById(R.id.map).setVisibility(View.GONE); // hide
+			this.mapViewController.hideMap();
 			inflateList(view);
 			view.findViewById(R.id.list).setVisibility(View.VISIBLE); // show
 		} else { // map
 			if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
 				view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 			}
-			if (this.mapLayoutReady) {
-				view.findViewById(R.id.map).setVisibility(View.VISIBLE);
-			} else {
-				view.findViewById(R.id.map).setVisibility(View.INVISIBLE); // show when ready
-				if (view.findViewById(R.id.map).getViewTreeObserver().isAlive()) {
-					view.findViewById(R.id.map).getViewTreeObserver().addOnGlobalLayoutListener(this.mapViewOnGlobalLayoutListener);
-				}
-			}
+			this.mapViewController.showMap();
 		}
 	}
 
@@ -772,11 +497,9 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
 			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 		}
+		this.mapViewController.hideMap();
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
-		}
-		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
-			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
 		}
 		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}
@@ -785,6 +508,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
 			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 		}
+		this.mapViewController.hideMap();
 		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
 			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
 		}

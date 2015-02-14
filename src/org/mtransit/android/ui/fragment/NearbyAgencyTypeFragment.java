@@ -153,7 +153,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 
 		@Override
 		public String getLogTag() {
-			return NearbyAgencyTypeFragment.class.getSimpleName() + ">" + LoadTypeAgenciesAuthorityAsyncTask.class.getSimpleName();
+			return NearbyAgencyTypeFragment.this.getLogTag() + ">" + LoadTypeAgenciesAuthorityAsyncTask.class.getSimpleName();
 		}
 
 		@Override
@@ -198,10 +198,20 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		this.swipeRefreshLayout.setColorSchemeColors(ThemeUtils.resolveColorAttribute(getActivity(), R.attr.colorAccent));
 		setSwipeRefreshLayoutEnabled(this.swipeRefreshLayoutEnabled);
 		inflateList(view);
-		this.adapter.setListView((AbsListView) view.findViewById(R.id.list));
+		linkAdapterWithListView(view);
 		NearbyFragment nearbyFragment = this.nearbyFragmentWR == null ? null : this.nearbyFragmentWR.get();
 		if (nearbyFragment != null) {
 			this.swipeRefreshLayout.setOnRefreshListener(nearbyFragment);
+		}
+	}
+
+	private void linkAdapterWithListView(View view) {
+		if (view == null || this.adapter == null) {
+			return;
+		}
+		View listView = view.findViewById(R.id.list);
+		if (listView != null) {
+			this.adapter.setListView((AbsListView) listView);
 		}
 	}
 
@@ -322,6 +332,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	private void onFragmentVisible() {
 		if (this.fragmentVisible) {
 			return; // already visible
+		}
+		if (!isResumed()) {
+			return;
 		}
 		this.fragmentVisible = true;
 		switchView(getView());
@@ -512,10 +525,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
-			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
-			this.swipeRefreshLayout.setLoadingViewWR(view.findViewById(R.id.loading));
-		}
+		this.swipeRefreshLayout.setLoadingViewWR(view.findViewById(R.id.loading));
 		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}
 

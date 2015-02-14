@@ -77,19 +77,23 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private void initRtsAsync() {
-		if (this.loadRtsTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadRtsTask != null && this.loadRtsTask.getStatus() == MTAsyncTask.Status.RUNNING) {
 			return;
 		}
 		if (TextUtils.isEmpty(this.uuid) || TextUtils.isEmpty(this.authority)) {
 			return;
 		}
+		this.loadRtsTask = new LoadRtsTask();
 		this.loadRtsTask.execute();
 	}
 
-	private MTAsyncTask<Void, Void, Boolean> loadRtsTask = new MTAsyncTask<Void, Void, Boolean>() {
+	private LoadRtsTask loadRtsTask = null;
+
+	private class LoadRtsTask extends MTAsyncTask<Void, Void, Boolean> {
+
 		@Override
 		public String getLogTag() {
-			return TAG + ">loadRtsTask";
+			return ScheduleFragment.this.getLogTag() + ">" + LoadRtsTask.class.getSimpleName();
 		}
 
 		@Override
@@ -155,19 +159,23 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private void initAgencyAsync() {
-		if (this.loadAgencyTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadAgencyTask != null && this.loadAgencyTask.getStatus() == MTAsyncTask.Status.RUNNING) {
 			return;
 		}
 		if (TextUtils.isEmpty(this.authority)) {
 			return;
 		}
+		this.loadAgencyTask = new LoadAgencyTask();
 		this.loadAgencyTask.execute();
 	}
 
-	private MTAsyncTask<Void, Void, Boolean> loadAgencyTask = new MTAsyncTask<Void, Void, Boolean>() {
+	private LoadAgencyTask loadAgencyTask = null;
+
+	private class LoadAgencyTask extends MTAsyncTask<Void, Void, Boolean> {
+
 		@Override
 		public String getLogTag() {
-			return TAG + ">loadAgencyTask";
+			return ScheduleFragment.this.getLogTag() + ">" + LoadAgencyTask.class.getSimpleName();
 		}
 
 		@Override
@@ -300,35 +308,11 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	public void onPageScrollStateChanged(int state) {
 		switch (state) {
 		case ViewPager.SCROLL_STATE_IDLE:
-			resumeAllVisibleAwareChildFragment();
+			setFragmentVisibleAtPosition(this.lastPageSelected); // resume
 			break;
 		case ViewPager.SCROLL_STATE_DRAGGING:
-			pauseAllVisibleAwareChildFragments();
+			setFragmentVisibleAtPosition(-1); // pause
 			break;
-		}
-	}
-
-	private void resumeAllVisibleAwareChildFragment() {
-		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
-		if (fragments != null) {
-			for (Fragment fragment : fragments) {
-				if (fragment instanceof VisibilityAwareFragment) {
-					VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
-					visibilityAwareFragment.setFragmentVisibleAtPosition(this.lastPageSelected); // resume
-				}
-			}
-		}
-	}
-
-	private void pauseAllVisibleAwareChildFragments() {
-		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
-		if (fragments != null) {
-			for (Fragment fragment : fragments) {
-				if (fragment instanceof VisibilityAwareFragment) {
-					VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
-					visibilityAwareFragment.setFragmentVisibleAtPosition(-1); // pause
-				}
-			}
 		}
 	}
 
@@ -336,6 +320,14 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	public void onPageSelected(int position) {
 		StatusLoader.get().clearAllTasks();
 		ServiceUpdateLoader.get().clearAllTasks();
+		setFragmentVisibleAtPosition(position);
+		this.lastPageSelected = position;
+		if (this.adapter != null) {
+			this.adapter.setLastVisibleFragmentPosition(this.lastPageSelected);
+		}
+	}
+
+	private void setFragmentVisibleAtPosition(int position) {
 		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
@@ -344,10 +336,6 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 					visibilityAwareFragment.setFragmentVisibleAtPosition(position);
 				}
 			}
-		}
-		this.lastPageSelected = position;
-		if (this.adapter != null) {
-			this.adapter.setLastVisibleFragmentPosition(this.lastPageSelected);
 		}
 	}
 
@@ -426,9 +414,6 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
-		}
-		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
-			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
 		}
 		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}

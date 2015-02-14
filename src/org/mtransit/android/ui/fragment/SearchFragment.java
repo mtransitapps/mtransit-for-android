@@ -115,7 +115,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 		@Override
 		public String getLogTag() {
-			return SearchFragment.class.getSimpleName() + ">loadTypeFilterTask";
+			return SearchFragment.this.getLogTag() + ">" + LoadTypeFilterTask.class.getSimpleName();
 		}
 
 		@Override
@@ -246,10 +246,19 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			return;
 		}
 		inflateList(view);
-		AbsListView list = (AbsListView) view.findViewById(R.id.list);
-		this.adapter.setListView(list);
+		linkAdapterWithListView(view);
 		Spinner typeFiltersSpinner = (Spinner) view.findViewById(R.id.typeFilters);
 		typeFiltersSpinner.setAdapter(this.typeFiltersAdapter);
+	}
+
+	private void linkAdapterWithListView(View view) {
+		if (view == null || this.adapter == null) {
+			return;
+		}
+		View listView = view.findViewById(R.id.list);
+		if (listView != null) {
+			this.adapter.setListView((AbsListView) listView);
+		}
 	}
 
 	@Override
@@ -481,9 +490,6 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
-		}
-		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
-			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
 		}
 		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}

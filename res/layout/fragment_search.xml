@@ -19,19 +19,21 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" >
-        <ViewStub
-            android:id="@+id/loading_stub"
+        <!-- LOADING -->
+        <include
+            android:id="@+id/loading"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:inflatedId="@+id/loading"
-            android:layout="@layout/layout_loading_large"
+            layout="@layout/layout_loading_large"
             android:visibility="visible" />
+        <!-- LIST -->
         <ViewStub
             android:id="@+id/list_stub"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout="@layout/layout_poi_list"
             android:visibility="gone" />
+        <!-- EMPTY -->
         <ViewStub
             android:id="@+id/empty_stub"
             android:layout_width="match_parent"

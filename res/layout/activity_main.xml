@@ -16,12 +16,11 @@
             android:layout_height="match_parent"
             android:layout_above="@id/ad_layout"
             android:visibility="gone" />
-        <ViewStub
-            android:id="@+id/content_frame_loading_stub"
+        <include
+            android:id="@+id/content_frame_loading"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:inflatedId="@+id/content_frame_loading"
-            android:layout="@layout/layout_loading_large"
+            layout="@layout/layout_loading_large"
             android:visibility="visible" />
         <include
             android:id="@+id/ab_toolbar_transparent"

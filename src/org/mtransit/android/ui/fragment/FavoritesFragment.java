@@ -68,8 +68,9 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	@Override
 	public void onResume() {
 		super.onResume();
+		View view = getView();
 		if (this.modulesUpdated) {
-			getView().post(new Runnable() {
+			view.post(new Runnable() {
 				@Override
 				public void run() {
 					if (FavoritesFragment.this.modulesUpdated) {
@@ -78,8 +79,8 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 				}
 			});
 		}
-		switchView(getView());
-		if (this.adapter.isInitialized()) {
+		switchView(view);
+		if (this.adapter != null && this.adapter.isInitialized()) {
 			this.adapter.onResume(getActivity(), this.userLocation);
 		} else {
 			LoaderUtils.restartLoader(getLoaderManager(), FAVORITES_LOADER, null, this);
@@ -157,8 +158,18 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 			return;
 		}
 		inflateList(view);
-		this.adapter.setListView((AbsListView) view.findViewById(R.id.list));
+		linkAdapterWithListView(view);
 		switchView(view);
+	}
+
+	private void linkAdapterWithListView(View view) {
+		if (view == null || this.adapter == null) {
+			return;
+		}
+		View listView = view.findViewById(R.id.list);
+		if (listView != null) {
+			this.adapter.setListView((AbsListView) listView);
+		}
 	}
 
 	@Override
@@ -214,9 +225,6 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		}
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
-		}
-		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
-			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
 		}
 		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}

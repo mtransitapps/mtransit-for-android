@@ -135,19 +135,23 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	}
 
 	private void initRtsAsync() {
-		if (this.loadRtsTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadRtsTask != null && this.loadRtsTask.getStatus() == MTAsyncTask.Status.RUNNING) {
 			return;
 		}
 		if (TextUtils.isEmpty(this.uuid) || TextUtils.isEmpty(this.authority)) {
 			return;
 		}
+		this.loadRtsTask = new LoadRtsTask();
 		this.loadRtsTask.execute();
 	}
 
-	private MTAsyncTask<Void, Void, Boolean> loadRtsTask = new MTAsyncTask<Void, Void, Boolean>() {
+	private LoadRtsTask loadRtsTask = null;
+
+	private class LoadRtsTask extends MTAsyncTask<Void, Void, Boolean> {
+
 		@Override
 		public String getLogTag() {
-			return TAG + ">loadRtsTask";
+			return ScheduleDayFragment.this.getLogTag() + ">" + LoadRtsTask.class.getSimpleName();
 		}
 
 		@Override
@@ -313,7 +317,17 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return;
 		}
 		inflateList(view);
-		((AbsListView) view.findViewById(R.id.list)).setAdapter(this.adapter);
+		linkAdapterWithListView(view);
+	}
+
+	private void linkAdapterWithListView(View view) {
+		if (view == null || this.adapter == null) {
+			return;
+		}
+		View listView = view.findViewById(R.id.list);
+		if (listView != null) {
+			((AbsListView) listView).setAdapter(this.adapter);
+		}
 	}
 
 	@Override
@@ -383,6 +397,9 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	private void onFragmentVisible() {
 		if (this.fragmentVisible) {
 			return; // already visible
+		}
+		if (!isResumed()) {
+			return;
 		}
 		this.fragmentVisible = true;
 		switchView(getView());
@@ -501,9 +518,6 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		}
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
-		}
-		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
-			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
 		}
 		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}

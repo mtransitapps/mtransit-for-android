@@ -6,19 +6,21 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:paddingTop="@dimen/action_bar_size_static" >
-    <ViewStub
-        android:id="@+id/loading_stub"
+    <!-- LOADING -->
+    <include
+        android:id="@+id/loading"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:inflatedId="@+id/loading"
-        android:layout="@layout/layout_loading_large"
+        layout="@layout/layout_loading_large"
         android:visibility="visible" />
+    <!-- VIEWPAGER -->
     <android.support.v4.view.ViewPager
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
         tools:context="org.mtransit.android.MainActivity" />
+    <!-- EMPTY -->
     <ViewStub
         android:id="@+id/empty_stub"
         android:layout_width="match_parent"

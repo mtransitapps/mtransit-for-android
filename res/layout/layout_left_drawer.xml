@@ -23,12 +23,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/menu_bg" >
-        <ViewStub
-            android:id="@+id/left_drawer_loading_stub"
+        <include
+            android:id="@+id/left_drawer_loading"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:inflatedId="@+id/left_drawer_loading"
-            android:layout="@layout/layout_loading_large"
+            layout="@layout/layout_loading_large"
             android:visibility="visible" />
         <ListView
             android:id="@+id/left_drawer_list"

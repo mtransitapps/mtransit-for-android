@@ -1,29 +1,24 @@
 package org.mtransit.android.ui.fragment;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.HashSet;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
-import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.api.SupportFactory;
-import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteTripStop;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
-import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.RTSTripStopsLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
-import org.mtransit.android.util.MapUtils;
+import org.mtransit.android.ui.view.MapViewController;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -34,31 +29,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
-import android.view.ViewTreeObserver;
 import android.widget.AbsListView;
-import android.widget.TextView;
-
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.LocationSource;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
-		MTActivityWithLocation.UserLocationListener, LocationSource, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMyLocationButtonClickListener,
-		GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnCameraChangeListener, OnMapReadyCallback {
+		MTActivityWithLocation.UserLocationListener, MapViewController.MapMarkerProvider {
 
 	private static final String TAG = RTSTripStopsFragment.class.getSimpleName();
 
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return TAG + "-" + this.tripId;
 	}
 
 	private static final String EXTRA_AGENCY_AUTHORITY = "extra_agency_authority";
@@ -71,14 +51,13 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private static final String EXTRA_CLOSEST_POI_SHOWN = "extra_closest_poi_shown";
 
 	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String authority, long routeId, long tripId,
-			Integer optStopId, boolean showingListInsteadOfMap, Route optRoute) {
+			Integer optStopId, boolean showingListInsteadOfMap) {
 		RTSTripStopsFragment f = new RTSTripStopsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, authority);
 		f.authority = authority;
 		args.putLong(EXTRA_ROUTE_ID, routeId);
 		f.routeId = routeId;
-		f.route = optRoute;
 		args.putLong(EXTRA_TRIP_ID, tripId);
 		f.tripId = tripId;
 		if (fragmentPosition >= 0) {
@@ -109,29 +88,41 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private int fragmentPosition = -1;
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
-	private String emptyText = null;
+	private MapViewController mapViewController = new MapViewController(getLogTag(), this, true, true, false, false, false, 0, false, true);
 
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		initAdapters(activity);
+		this.mapViewController.onAttach(activity);
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		this.mapViewController.onDetach();
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
+		this.mapViewController.onCreate(savedInstanceState);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_rts_trip_stops, container, false);
-		setupView(view);
-		if (!this.showingListInsteadOfMap) { // showing map
-			initMapView(view, savedInstanceState);
-		}
+		this.mapViewController.onCreateView(view, savedInstanceState);
 		return view;
+	}
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		setupView(view);
+		this.mapViewController.onViewCreated(view, savedInstanceState);
 	}
 
 	@Override
@@ -156,7 +147,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (this.showingListInsteadOfMap != null) {
 			outState.putBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, this.showingListInsteadOfMap);
 		}
-		saveMapViewInstance(outState);
+		this.mapViewController.onSaveInstanceState(outState);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -164,7 +155,6 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		String newAuthority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, bundles);
 		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
-			resetRoute();
 		}
 		Long newTripId = BundleUtils.getLong(EXTRA_TRIP_ID, bundles);
 		if (newTripId != null && !newTripId.equals(this.tripId)) {
@@ -173,7 +163,6 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		Long newRouteId = BundleUtils.getLong(EXTRA_ROUTE_ID, bundles);
 		if (newRouteId != null && !newRouteId.equals(this.routeId)) {
 			this.routeId = newRouteId;
-			resetRoute();
 		}
 		Integer newStopId = BundleUtils.getInt(EXTRA_TRIP_STOP_ID, bundles);
 		if (newStopId != null && !newStopId.equals(this.stopId)) {
@@ -204,80 +193,33 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			}
 		}
 		this.adapter.setTag(this.authority + "-" + this.tripId);
-	}
-
-	private Route route;
-
-	private boolean hasRoute() {
-		if (this.route == null) {
-			initRouteAsync();
-			return false;
-		}
-		return true;
-	}
-
-	private Route getRouteOrNull() {
-		if (!hasRoute()) {
-			return null;
-		}
-		return this.route;
-	}
-
-	private void initRouteAsync() {
-		if (this.loadRouteTask.getStatus() == MTAsyncTask.Status.RUNNING) {
-			return;
-		}
-		if (this.routeId == null || TextUtils.isEmpty(this.authority)) {
-			return;
-		}
-		this.loadRouteTask.execute();
-	}
-
-	private MTAsyncTask<Void, Void, Boolean> loadRouteTask = new MTAsyncTask<Void, Void, Boolean>() {
-		@Override
-		public String getLogTag() {
-			return TAG + ">initRouteAsync";
-		}
-
-		@Override
-		protected Boolean doInBackgroundMT(Void... params) {
-			return initRouteSync();
-		}
-
-		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
-			if (result) {
-				applyNewRoute();
-			}
-		}
-
-	};
-
-	private void applyNewRoute() {
-		if (this.route == null) {
-			return;
-		}
-		initMapMarkers(null);
-	}
-
-	private boolean initRouteSync() {
-		if (this.route != null) {
-			return false;
-		}
-		if (this.routeId != null && !TextUtils.isEmpty(this.authority)) {
-			this.route = DataSourceManager.findRTSRoute(getActivity(), this.authority, this.routeId);
-		}
-		return this.route != null;
-	}
-
-	private void resetRoute() {
-		this.route = null; // reset
+		this.mapViewController.setTag(getLogTag());
 	}
 
 	private void initAdapters(Activity activity) {
 		this.adapter = new POIArrayAdapter(activity);
 		this.adapter.setShowExtra(false);
+	}
+
+	@Override
+	public POIManager getClosestPOI() {
+		return this.adapter == null ? null : this.adapter.getClosestPOI();
+	}
+
+	@Override
+	public POIManager getPOI(String uuid) {
+		return this.adapter == null ? null : this.adapter.getItem(uuid);
+	}
+
+	@Override
+	public Collection<POIManager> getPOIs() {
+		HashSet<POIManager> pois = new HashSet<POIManager>();
+		if (this.adapter != null && this.adapter.hasPois()) {
+			for (int i = 0; i < this.adapter.getPoisCount(); i++) {
+				pois.add(this.adapter.getItem(i));
+			}
+		}
+		return pois;
 	}
 
 	private void linkAdapterWithListView(View view) {
@@ -294,7 +236,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (view == null) {
 			return;
 		}
-		if (this.showingListInsteadOfMap) { // showing list
+		if (this.showingListInsteadOfMap) { // list
 			inflateList(view); // inflate ASAP for view state restore
 		}
 	}
@@ -335,7 +277,9 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (this.adapter != null) {
 			this.adapter.onPause();
 		}
-		pauseMapView();
+		if (!this.showingListInsteadOfMap) { // map
+			this.mapViewController.onPause();
+		}
 	}
 
 	@Override
@@ -347,17 +291,18 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (this.fragmentVisible) {
 			return; // already visible
 		}
+		if (!isResumed()) {
+			return;
+		}
 		this.fragmentVisible = true;
+		if (!this.showingListInsteadOfMap) { // map
+			this.mapViewController.onResume();
+		}
 		switchView(getView());
 		if (this.adapter == null || !this.adapter.isInitialized()) {
 			LoaderUtils.restartLoader(getLoaderManager(), POIS_LOADER, null, this);
 		} else {
 			this.adapter.onResume(getActivity(), this.userLocation);
-		}
-		resumeMapView();
-		Activity activity = getActivity();
-		if (activity != null && activity instanceof MTActivityWithLocation) {
-			onUserLocationChanged(((MTActivityWithLocation) activity).getUserLocation()); // user location was unknown yet or discarded while not visible
 		}
 		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
 	}
@@ -383,6 +328,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
+		this.mapViewController.clearMarkers(); // force refresh
 	}
 
 	@Override
@@ -400,8 +346,8 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			this.stopId = -1; // can only be used once
 			this.closestPOIShow = true; // only the 1rst time
 		}
-		this.mapMarkers = null; // force refresh
 		this.adapter.setPois(data);
+		this.mapViewController.notifyMarkerChanged(this);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		View view = getView();
 		if (this.showingListInsteadOfMap) { // list
@@ -412,298 +358,10 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 					((AbsListView) view.findViewById(R.id.list)).setSelection(selectedPosition - 1); // show 1 more stop on top of the list
 				}
 			}
-		} else { // map
-			String selectedUuid = currentSelectedItemIndexUuid == null ? null : currentSelectedItemIndexUuid.second;
-			initMapMarkers(selectedUuid);
 		}
 		switchView(view);
 	}
 
-	private MapView mapView = null;
-
-	private MapView getMapView(View view) {
-		if (this.mapView == null) {
-			initMapView(view, null);
-		}
-		return this.mapView;
-	}
-
-	private void pauseMapView() {
-		if (this.mapView != null) {
-			this.mapView.onPause();
-		}
-	}
-
-	private void resumeMapView() {
-		if (this.mapView != null) {
-			this.mapView.onResume();
-		}
-	}
-
-	private void saveMapViewInstance(Bundle outState) {
-		if (this.mapView != null) {
-			this.mapView.onSaveInstanceState(outState);
-		}
-	}
-
-	private void destroyMapView() {
-		if (this.mapView != null) {
-			this.mapView.onDestroy();
-			this.mapView = null;
-		}
-	}
-
-	private void initMapView(View view, Bundle savedInstanceState) {
-		if (view != null) {
-			this.mapView = (MapView) view.findViewById(R.id.map);
-			if (this.mapView != null) {
-				this.mapView.onCreate(savedInstanceState);
-				if (this.fragmentVisible) {
-					this.mapView.onResume();
-				}
-				initMap(this.mapView);
-			}
-		}
-	}
-
-	private boolean mapLayoutReady = false;
-
-	private ViewTreeObserver.OnGlobalLayoutListener mapViewOnGlobalLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
-		@Override
-		public void onGlobalLayout() {
-			if (RTSTripStopsFragment.this.mapView != null) {
-				SupportFactory.get().removeOnGlobalLayoutListener(RTSTripStopsFragment.this.mapView.getViewTreeObserver(), this);
-				RTSTripStopsFragment.this.mapLayoutReady = true;
-				updateMapPosition(false);
-			}
-		}
-	};
-
-	private void updateMapPosition(boolean anim) {
-		if (!this.mapLayoutReady) {
-			return;
-		}
-		if (this.mapMarkersShown) {
-			return;
-		}
-		if (this.mapMarkers == null || this.mapMarkers.size() == 0) {
-			return;
-		}
-		LatLngBounds.Builder llb = LatLngBounds.builder();
-		for (Marker mapMarker : this.mapMarkers.values()) {
-			llb.include(mapMarker.getPosition());
-		}
-		MapView mapView = getMapView(getView());
-		GoogleMap map = getMap(mapView);
-		this.mapMarkersShown = MapUtils.updateMapPosition(getActivity(), map, mapView, anim, llb.build(),
-				MapUtils.getMapWithButtonsCameraPaddingInPx(getActivity()));
-	}
-
-	private GoogleMap map = null;
-
-	private GoogleMap getMap(MapView mapView) {
-		if (this.map == null) {
-			initMap(mapView);
-		}
-		return this.map;
-	}
-
-	private void initMap(MapView mapView) {
-		if (mapView != null) {
-			mapView.getMapAsync(this);
-		}
-	}
-
-	@Override
-	public void onMapReady(GoogleMap map) {
-		this.map = map;
-		setupMap();
-	}
-
-	private void setupMap() {
-		if (this.map != null) {
-			this.map.setOnMapLoadedCallback(this);
-			this.map.setOnMyLocationButtonClickListener(this);
-			this.map.setOnInfoWindowClickListener(this);
-			this.map.setOnMarkerClickListener(this);
-			this.map.setOnCameraChangeListener(this);
-			this.map.setLocationSource(this);
-			this.map.setMyLocationEnabled(true);
-			this.map.getUiSettings().setMyLocationButtonEnabled(true);
-			this.map.getUiSettings().setIndoorLevelPickerEnabled(false);
-			this.map.setTrafficEnabled(false);
-			this.map.setIndoorEnabled(false);
-			initMapMarkers(null);
-		}
-	}
-
-	@Override
-	public void onCameraChange(CameraPosition position) {
-		this.showingMyLocation = this.showingMyLocation == null;
-	}
-
-	private Boolean showingMyLocation = false;
-
-	@Override
-	public boolean onMyLocationButtonClick() {
-		if (this.showingMyLocation != null && this.showingMyLocation) {
-			this.mapMarkersShown = false;
-			updateMapPosition(true);
-			this.showingMyLocation = false;
-			return true; // handled
-		}
-		if (this.userLocation == null) {
-			return false; // not handled
-		}
-		LatLngBounds.Builder llb = LatLngBounds.builder();
-		llb.include(new LatLng(this.userLocation.getLatitude(), this.userLocation.getLongitude()));
-		if (this.adapter != null && this.adapter.hasClosestPOI()) {
-			POIManager poim = this.adapter.getClosestPOI();
-			if (poim != null) {
-				LatLng poiLatLng = new LatLng(poim.getLat(), poim.getLng());
-				llb.include(poiLatLng);
-				Marker poiMarker = this.mapMarkers == null ? null : this.mapMarkers.get(poim.poi.getUUID());
-				if (poiMarker != null) {
-					poiMarker.showInfoWindow();
-				}
-			}
-		}
-		MapView mapView = getMapView(getView());
-		GoogleMap map = getMap(mapView);
-		boolean success = MapUtils
-				.updateMapPosition(getActivity(), map, mapView, true, llb.build(), MapUtils.getMapWithButtonsCameraPaddingInPx(getActivity()));
-		this.showingMyLocation = null;
-		return success; // handled or not
-	}
-
-	@Override
-	public void onMapLoaded() {
-		updateMapPosition(false);
-	}
-
-	private HashMap<String, Marker> mapMarkers = null;
-
-	private HashMap<String, String> mapMarkersIdToUUID = new HashMap<String, String>();
-
-	private boolean mapMarkersShown = false;
-
-	private void initMapMarkers(final String optSelectedItemUuid) {
-		if (this.mapMarkers != null) {
-			return;
-		}
-		if (!hasRoute()) {
-			return;
-		}
-		GoogleMap map = getMap(getMapView(getView()));
-		if (map == null) {
-			return;
-		}
-		this.mapMarkers = new HashMap<String, Marker>();
-		this.mapMarkersShown = false;
-		new MTAsyncTask<Void, Void, HashMap<String, MarkerOptions>>() {
-
-			private final String TAG = RTSTripStopsFragment.class.getSimpleName() + ">initMapMarkers";
-
-			@Override
-			public String getLogTag() {
-				return TAG;
-			}
-
-			@Override
-			protected HashMap<String, MarkerOptions> doInBackgroundMT(Void... params) {
-				Route route = getRouteOrNull();
-				HashMap<String, MarkerOptions> result = new HashMap<String, MarkerOptions>();
-				if (RTSTripStopsFragment.this.adapter != null) {
-					for (int i = 0; i < RTSTripStopsFragment.this.adapter.getPoisCount(); i++) {
-						POIManager poim = RTSTripStopsFragment.this.adapter.getItem(i);
-						if (poim != null) {
-							LatLng poiLatLng = new LatLng(poim.poi.getLat(), poim.poi.getLng());
-							MarkerOptions poiMarkerOptions = new MarkerOptions() //
-									.title(poim.poi.getName()) //
-									.position(poiLatLng) //
-									.icon(getBitmapDescriptor(route));
-							result.put(poim.poi.getUUID(), poiMarkerOptions);
-						}
-					}
-				}
-				return result;
-			}
-
-			@Override
-			protected void onPostExecute(HashMap<String, MarkerOptions> result) {
-				super.onPostExecute(result);
-				GoogleMap map = getMap(getMapView(getView()));
-				if (map != null) {
-					if (result != null) {
-						for (HashMap.Entry<String, MarkerOptions> uuidMarkerOptions : result.entrySet()) {
-							Marker poiMarker = map.addMarker(uuidMarkerOptions.getValue());
-							if (optSelectedItemUuid != null && optSelectedItemUuid.equals(uuidMarkerOptions.getKey())) {
-								poiMarker.showInfoWindow();
-							}
-							RTSTripStopsFragment.this.mapMarkers.put(uuidMarkerOptions.getKey(), poiMarker);
-							RTSTripStopsFragment.this.mapMarkersIdToUUID.put(poiMarker.getId(), uuidMarkerOptions.getKey());
-						}
-						updateMapPosition(false);
-					}
-				}
-			}
-		}.execute();
-	}
-
-	@Override
-	public void onInfoWindowClick(Marker marker) {
-		new MTAsyncTask<Marker, Void, POIManager>() {
-
-			@Override
-			public String getLogTag() {
-				return RTSTripStopsFragment.class.getSimpleName() + ">onInfoWindowClick";
-			}
-
-			@Override
-			protected POIManager doInBackgroundMT(Marker... params) {
-				Marker marker = params == null || params.length == 0 ? null : params[0];
-				String uuid = marker == null ? null : RTSTripStopsFragment.this.mapMarkersIdToUUID.get(marker.getId());
-				if (TextUtils.isEmpty(uuid)) {
-					return null;
-				}
-				return RTSTripStopsFragment.this.adapter.getItem(uuid);
-			}
-
-			@Override
-			protected void onPostExecute(POIManager poim) {
-				if (poim != null) {
-					poim.onActionItemClick(getActivity(), null);
-				}
-			}
-		}.execute(marker);
-	}
-
-	@Override
-	public boolean onMarkerClick(Marker marker) {
-		return false; // not handled
-	}
-
-	private BitmapDescriptor mapMarkerBitmap = null;
-
-	private BitmapDescriptor getBitmapDescriptor(Route route) {
-		if (this.mapMarkerBitmap == null) {
-			try {
-				int markerColor = POIManager.getRouteColor(getActivity(), route, this.authority, MapUtils.DEFAULT_MARKET_COLOR);
-				if (markerColor == Color.BLACK) {
-					markerColor = Color.DKGRAY;
-				}
-				int bitmapResId = R.drawable.ic_place_white_slim;
-				this.mapMarkerBitmap = BitmapDescriptorFactory.fromBitmap(ColorUtils.colorizeBitmapResource(getActivity(), markerColor, bitmapResId));
-			} catch (Exception e) {
-				MTLog.w(this, e, "Error while setting custom marker color!");
-				this.mapMarkerBitmap = null;
-			}
-			if (this.mapMarkerBitmap == null) {
-				return BitmapDescriptorFactory.defaultMarker();
-			}
-		}
-		return this.mapMarkerBitmap;
-	}
 
 	private Pair<Integer, String> findStopIndexUuid(int stopId, ArrayList<POIManager> pois) {
 		for (int i = 0; i < pois.size(); i++) {
@@ -736,29 +394,16 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 
 	@Override
 	public void onUserLocationChanged(Location newLocation) {
-		if (newLocation != null) {
-			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
-				this.userLocation = newLocation;
-				if (this.adapter != null) {
-					this.adapter.setLocation(newLocation);
-				}
+		if (newLocation == null) {
+			return;
+		}
+		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
+			this.userLocation = newLocation;
+			if (this.adapter != null) {
+				this.adapter.setLocation(newLocation);
 			}
 		}
-		if (this.locationChandedListener != null) {
-			this.locationChandedListener.onLocationChanged(newLocation);
-		}
-	}
-
-	private LocationSource.OnLocationChangedListener locationChandedListener;
-
-	@Override
-	public void activate(LocationSource.OnLocationChangedListener locationChandedListener) {
-		this.locationChandedListener = locationChandedListener;
-	}
-
-	@Override
-	public void deactivate() {
-		this.locationChandedListener = null;
+		this.mapViewController.onUserLocationChanged(newLocation);
 	}
 
 	@Override
@@ -771,7 +416,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (this.fragmentPosition < 0 || this.fragmentPosition == this.lastVisibleFragmentPosition) {
+		if (this.fragmentPosition >= 0 && this.fragmentPosition == this.lastVisibleFragmentPosition) {
 			onFragmentVisible();
 		} // ELSE would be call later
 		if (this.adapter != null) {
@@ -782,25 +427,13 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	@Override
 	public void onLowMemory() {
 		super.onLowMemory();
-		if (!this.showingListInsteadOfMap) { // showing map
-			if (getMapView(getView()) != null) {
-				getMapView(getView()).onLowMemory();
-			}
-		}
+		this.mapViewController.onLowMemory();
 	}
 
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		destroyMapView();
-		this.map = null;
-		if (this.mapMarkers != null) {
-			this.mapMarkers.clear();
-			this.mapMarkers = null;
-		}
-		this.mapMarkerBitmap = null;
-		this.mapMarkersShown = false;
-		this.mapLayoutReady = false;
+		this.mapViewController.onDestroyView();
 	}
 
 	@Override
@@ -809,6 +442,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (this.adapter != null) {
 			this.adapter.onDestroy();
 		}
+		this.mapViewController.onDestroy();
 	}
 
 	private void switchView(View view) {
@@ -832,21 +466,14 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
 		if (this.showingListInsteadOfMap) { // list
-			view.findViewById(R.id.map).setVisibility(View.GONE); // hide
+			this.mapViewController.hideMap();
 			inflateList(view);
 			view.findViewById(R.id.list).setVisibility(View.VISIBLE); // show
 		} else { // map
 			if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
 				view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 			}
-			if (this.mapLayoutReady) {
-				view.findViewById(R.id.map).setVisibility(View.VISIBLE);
-			} else {
-				view.findViewById(R.id.map).setVisibility(View.INVISIBLE); // show when ready
-				if (view.findViewById(R.id.map).getViewTreeObserver().isAlive()) {
-					view.findViewById(R.id.map).getViewTreeObserver().addOnGlobalLayoutListener(this.mapViewOnGlobalLayoutListener);
-				}
-			}
+			this.mapViewController.showMap();
 		}
 	}
 
@@ -861,14 +488,9 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
 			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 		}
-		if (view.findViewById(R.id.map) != null) { // IF inflated/present DO
-			view.findViewById(R.id.map).setVisibility(View.GONE); // hide
-		}
+		this.mapViewController.hideMap();
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
-		}
-		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
-			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
 		}
 		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}
@@ -877,17 +499,12 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
 			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 		}
-		if (view.findViewById(R.id.map) != null) { // IF inflated/present DO
-			view.findViewById(R.id.map).setVisibility(View.GONE); // hide
-		}
+		this.mapViewController.hideMap();
 		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
 			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
 		}
 		if (view.findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
 			((ViewStub) view.findViewById(R.id.empty_stub)).inflate(); // inflate
-		}
-		if (!TextUtils.isEmpty(this.emptyText)) {
-			((TextView) view.findViewById(R.id.empty_text)).setText(this.emptyText);
 		}
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
@@ -900,11 +517,14 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		}
 		this.showingListInsteadOfMap = newShowingListInsteadOfMap; // switching
 		if (this.adapter != null) {
-			setupView(getView());
-			switchView(getView());
-			if (!this.showingListInsteadOfMap) {
-				initMapMarkers(null);
+			View view = getView();
+			setupView(view);
+			if (!this.showingListInsteadOfMap) { // map
+				this.mapViewController.onResume();
+			} else { // list
+				this.mapViewController.onPause();
 			}
+			switchView(view);
 		}
 	}
 }

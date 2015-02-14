@@ -21,7 +21,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewStub;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -194,9 +193,6 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		this.drawerListView.setVisibility(View.GONE);
 		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 		if (mainActivity != null) {
-			if (mainActivity.findViewById(R.id.left_drawer_loading) == null) { // IF NOT present/inflated DO
-				((ViewStub) mainActivity.findViewById(R.id.left_drawer_loading_stub)).inflate(); // inflate
-			}
 			mainActivity.findViewById(R.id.left_drawer_loading).setVisibility(View.VISIBLE);
 		}
 	}

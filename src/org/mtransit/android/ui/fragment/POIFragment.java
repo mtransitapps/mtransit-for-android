@@ -8,15 +8,12 @@ import java.util.Iterator;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
-import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.SensorUtils;
 import org.mtransit.android.commons.TimeUtils;
-import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
@@ -33,6 +30,7 @@ import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
@@ -57,24 +55,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
-import android.view.ViewTreeObserver;
 import android.widget.AbsListView;
 import android.widget.ScrollView;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.LocationSource;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-
 public class POIFragment extends ABFragment implements POIViewController.POIDataProvider, MTActivityWithLocation.UserLocationListener, SensorEventListener,
 		SensorUtils.CompassListener, SensorUtils.SensorTaskCompleted, FavoriteManager.FavoriteUpdateListener,
-		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, TimeUtils.TimeChangedReceiver.TimeChangedListener, LocationSource, OnMapReadyCallback {
+		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, TimeUtils.TimeChangedReceiver.TimeChangedListener, MapViewController.MapMarkerProvider {
 
 	private static final String TAG = POIFragment.class.getSimpleName();
 
@@ -118,6 +104,8 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	private AgencyProperties agency;
 
+	private MapViewController mapViewController = new MapViewController(TAG, this, true, false, false, false, false, 32, true, false);
+
 	private boolean hasAgency() {
 		if (this.agency == null) {
 			initAgencyAsync();
@@ -127,19 +115,23 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	}
 
 	private void initAgencyAsync() {
-		if (this.loadAgencyTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadAgencyTask != null && this.loadAgencyTask.getStatus() == MTAsyncTask.Status.RUNNING) {
 			return;
 		}
 		if (TextUtils.isEmpty(this.authority)) {
 			return;
 		}
+		this.loadAgencyTask = new LoadAgencyTask();
 		this.loadAgencyTask.execute();
 	}
 
-	private MTAsyncTask<Void, Void, Boolean> loadAgencyTask = new MTAsyncTask<Void, Void, Boolean>() {
+	private LoadAgencyTask loadAgencyTask = null;
+
+	private class LoadAgencyTask extends MTAsyncTask<Void, Void, Boolean> {
+
 		@Override
 		public String getLogTag() {
-			return TAG + ">loadAgencyTask";
+			return POIFragment.this.getLogTag() + ">" + LoadAgencyTask.class.getSimpleName();
 		}
 
 		@Override
@@ -202,19 +194,23 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	}
 
 	private void initPoimAsync() {
-		if (this.loadPoimTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadPoimTask != null && this.loadPoimTask.getStatus() == MTAsyncTask.Status.RUNNING) {
 			return;
 		}
 		if (TextUtils.isEmpty(this.uuid) || TextUtils.isEmpty(this.authority)) {
 			return;
 		}
+		this.loadPoimTask = new LoadPoimTask();
 		this.loadPoimTask.execute();
 	}
 
-	private MTAsyncTask<Void, Void, Boolean> loadPoimTask = new MTAsyncTask<Void, Void, Boolean>() {
+	private LoadPoimTask loadPoimTask = null;
+
+	private class LoadPoimTask extends MTAsyncTask<Void, Void, Boolean> {
+
 		@Override
 		public String getLogTag() {
-			return TAG + ">loadPoimTask";
+			return POIFragment.this.getLogTag() + ">" + LoadPoimTask.class.getSimpleName();
 		}
 
 		@Override
@@ -258,8 +254,9 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			this.adapter.clear();
 		}
 		this.isFavorite = null; // reset
-		updateMapPosition(false);
 		View view = getView();
+		this.mapViewController.notifyMarkerChanged(this);
+		this.mapViewController.showMap();
 		POIViewController.updateView(getActivity(), getPOIView(view), this.poim, this);
 		AgencyProperties agency = getAgencyOrNull();
 		if (agency != null) {
@@ -272,6 +269,21 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		setupNearbyList();
 	}
 
+	@Override
+	public POIManager getClosestPOI() {
+		return this.poim;
+	}
+
+	@Override
+	public POIManager getPOI(String uuid) {
+		return this.poim != null && this.poim.poi.getUUID().equals(uuid) ? this.poim : null;
+	}
+
+	@Override
+	public Collection<POIManager> getPOIs() {
+		return Arrays.asList(this.poim);
+	}
+
 	private void resetPoim() {
 		this.poim = null;
 	}
@@ -280,6 +292,13 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		initAdapters(activity);
+		this.mapViewController.onAttach(activity);
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		this.mapViewController.onDetach();
 	}
 
 	@Override
@@ -293,9 +312,15 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_poi, container, false);
-		setupView(view);
-		initMapView(view, savedInstanceState);
+		this.mapViewController.onCreateView(view, savedInstanceState);
 		return view;
+	}
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		setupView(view);
+		this.mapViewController.onViewCreated(view, savedInstanceState);
 	}
 
 	@Override
@@ -306,9 +331,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		if (!TextUtils.isEmpty(this.authority)) {
 			outState.putString(EXTRA_AUTHORITY, this.authority);
 		}
-		if (this.mapView != null) {
-			this.mapView.onSaveInstanceState(outState);
-		}
+		this.mapViewController.onSaveInstanceState(outState);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -370,13 +393,13 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	@Override
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
-		if (CollectionUtils.getSize(data) < LocationUtils.MIN_NEARBY_LIST
+		POIManager poim = getPoimOrNull();
+		if (CollectionUtils.getSize(data) < LocationUtils.MIN_NEARBY_LIST && poim != null
 				&& !LocationUtils.searchComplete(poim.poi.getLat(), poim.poi.getLng(), this.ad.aroundDiff)) {
 			LocationUtils.incAroundDiff(this.ad);
 			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
 			return;
 		}
-		POIManager poim = getPoimOrNull();
 		if (poim != null && data != null) {
 			Iterator<POIManager> it = data.iterator();
 			while (it.hasNext()) {
@@ -418,135 +441,6 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	}
 
 
-	private MapView mapView = null;
-	private Marker poiMarker = null;
-
-	private MapView getMapView(View view) {
-		if (this.mapView == null) {
-			initMapView(view, null);
-		}
-		return this.mapView;
-	}
-
-	private void initMapView(View view, Bundle savedInstanceState) {
-		if (view != null) {
-			this.mapView = (MapView) view.findViewById(R.id.map);
-			if (this.mapView != null) {
-				this.mapView.onCreate(savedInstanceState);
-				if (this.isResumed()) {
-					this.mapView.onResume();
-				}
-				initMap(this.mapView);
-				if (this.mapView.getViewTreeObserver().isAlive()) {
-					this.mapView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-
-						@Override
-						public void onGlobalLayout() {
-							if (POIFragment.this.mapView != null) {
-								SupportFactory.get().removeOnGlobalLayoutListener(POIFragment.this.mapView.getViewTreeObserver(), this);
-								updateMapPosition(false);
-							}
-						}
-
-					});
-				}
-			}
-		}
-	}
-
-	private void updateMapPosition(boolean anim) {
-		POIManager poim = getPoimOrNull();
-		if (poim == null) {
-			return;
-		}
-		MapView mapView = getMapView(getView());
-		GoogleMap map = getMap(mapView);
-		if (map == null) {
-			return;
-		}
-		Context context = getActivity();
-		if (context == null) {
-			return;
-		}
-		LatLng poiLatLng = new LatLng(poim.poi.getLat(), poim.poi.getLng());
-		BitmapDescriptor bitmapDescriptor = getBitmapDescriptor(context);
-		if (this.poiMarker == null) {
-			MarkerOptions newMarkerOptions = new MarkerOptions() //
-					.position(poiLatLng);
-			if (bitmapDescriptor != null) {
-				newMarkerOptions.icon(bitmapDescriptor);
-			}
-			this.poiMarker = map.addMarker(newMarkerOptions); //
-		} else {
-			this.poiMarker.setVisible(false);
-			this.poiMarker.setPosition(poiLatLng);
-			if (bitmapDescriptor != null) {
-				this.poiMarker.setIcon(bitmapDescriptor);
-			}
-			this.poiMarker.setVisible(true);
-		}
-		LatLngBounds.Builder llb = LatLngBounds.builder().include(poiLatLng);
-		if (this.userLocation != null) {
-			llb.include(new LatLng(this.userLocation.getLatitude(), this.userLocation.getLongitude()));
-		}
-		MapUtils.updateMapPosition(context, map, mapView, anim, llb.build(), MapUtils.getMapWithoutButtonsCameraPaddingInPx(context));
-	}
-	private BitmapDescriptor getBitmapDescriptor(Context context) {
-		try {
-			if (context == null) {
-				return BitmapDescriptorFactory.defaultMarker();
-			}
-			int markerColor = MapUtils.DEFAULT_MARKET_COLOR;
-			POIManager poim = getPoimOrNull();
-			if (poim != null) {
-				markerColor = poim.getColor(context);
-			}
-			if (markerColor == Color.BLACK) {
-				markerColor = Color.DKGRAY;
-			}
-			int bitmapResId = R.drawable.ic_place_white_slim;
-			return BitmapDescriptorFactory.fromBitmap(ColorUtils.colorizeBitmapResource(context, markerColor, bitmapResId));
-		} catch (Exception e) {
-			return BitmapDescriptorFactory.defaultMarker();
-		}
-	}
-
-	private GoogleMap map = null;
-
-	private GoogleMap getMap(MapView mapView) {
-		if (this.map == null) {
-			initMap(mapView);
-		}
-		return this.map;
-	}
-
-	private void initMap(MapView mapView) {
-		if (mapView != null) {
-			mapView.getMapAsync(this);
-		}
-	}
-
-	@Override
-	public void onMapReady(GoogleMap map) {
-		this.map = map;
-		setupMap();
-	}
-
-	private void setupMap() {
-		if (this.map != null) {
-			this.map.setMyLocationEnabled(true);
-			this.map.setLocationSource(this);
-			this.map.getUiSettings().setMyLocationButtonEnabled(false);
-			this.map.getUiSettings().setIndoorLevelPickerEnabled(false);
-			this.map.setTrafficEnabled(false);
-			this.map.setIndoorEnabled(false);
-			int paddingTop = (int) ResourceUtils.convertSPtoPX(getActivity(), 32); // action bar
-			this.map.setPadding(0, paddingTop, 0, 0);
-			updateMapPosition(false);
-		}
-	}
-
-
 	private void setupView(View view) {
 		if (view == null) {
 			return;
@@ -571,8 +465,9 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 					@Override
 					public void onClick(View v) {
 						RouteTripStop optRts = null;
-						if (POIFragment.this.poim != null && POIFragment.this.poim.poi instanceof RouteTripStop) {
-							optRts = (RouteTripStop) POIFragment.this.poim.poi;
+						POIManager poim = getPoimOrNull();
+						if (poim != null && poim.poi instanceof RouteTripStop) {
+							optRts = (RouteTripStop) poim.poi;
 						}
 						((MainActivity) getActivity()).addFragmentToStack(ScheduleFragment.newInstance(POIFragment.this.uuid, POIFragment.this.authority,
 								POIFragment.this.agency, optRts));
@@ -597,8 +492,8 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 					if (agency != null) {
 						optTypeId = agency.getType().getId();
 					}
-					((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newFixedOnInstance(optTypeId, POIFragment.this.poim.getLat(),
-							POIFragment.this.poim.getLng(), POIFragment.this.poim.poi.getName(), POIFragment.this.poim.getColor(POIFragment.this.getActivity())));
+					((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newFixedOnInstance(optTypeId, poim.getLat(), poim.getLng(),
+							poim.poi.getName(), poim.getColor(POIFragment.this.getActivity())));
 				}
 			});
 			moreBtn.setVisibility(View.VISIBLE);
@@ -688,29 +583,12 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 				LocationUtils.updateDistanceWithString(getActivity(), poim, newLocation);
 				POIViewController.updatePOIDistanceAndCompass(getPOIView(getView()), poim, this);
 			}
-			updateMapPosition(true);
+			this.mapViewController.onUserLocationChanged(this.userLocation);
 			if (this.adapter != null) {
 				this.adapter.setLocation(newLocation);
 			}
-		}
-		if (this.locationChandedListener != null) {
-			this.locationChandedListener.onLocationChanged(newLocation);
-		}
-	}
 
-	private LocationSource.OnLocationChangedListener locationChandedListener;
-
-	@Override
-	public void activate(LocationSource.OnLocationChangedListener locationChandedListener) {
-		this.locationChandedListener = locationChandedListener;
-		if (this.userLocation != null && this.locationChandedListener != null) {
-			this.locationChandedListener.onLocationChanged(this.userLocation);
 		}
-	}
-
-	@Override
-	public void deactivate() {
-		this.locationChandedListener = null;
 	}
 
 	private boolean compassUpdatesEnabled = false;
@@ -779,8 +657,9 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	@Override
 	public void onResume() {
 		super.onResume();
+		View view = getView();
 		if (this.modulesUpdated) {
-			getView().post(new Runnable() {
+			view.post(new Runnable() {
 				@Override
 				public void run() {
 					if (POIFragment.this.modulesUpdated) {
@@ -790,15 +669,14 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			});
 		}
 		this.isFavorite = null; // force refresh
-		if (this.mapView != null) {
-			this.mapView.onResume();
-		}
+		this.mapViewController.onResume();
 		if (this.adapter != null) {
 			this.adapter.onResume(getActivity(), this.userLocation);
 		}
 		POIManager poim = getPoimOrNull();
 		if (poim != null) {
-			View view = getView();
+			this.mapViewController.notifyMarkerChanged(this);
+			this.mapViewController.showMap();
 			POIViewController.updateView(getActivity(), getPOIView(view), poim, this);
 			AgencyProperties agency = getAgencyOrNull();
 			if (agency != null) {
@@ -820,9 +698,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 			this.compassUpdatesEnabled = false;
 		}
 		disableTimeChangeddReceiver();
-		if (this.mapView != null) {
-			this.mapView.onPause();
-		}
+		this.mapViewController.onPause();
 		if (this.adapter != null) {
 			this.adapter.onPause();
 		}
@@ -1028,20 +904,13 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	@Override
 	public void onLowMemory() {
 		super.onLowMemory();
-		if (getMapView(getView()) != null) {
-			getMapView(getView()).onLowMemory();
-		}
+		this.mapViewController.onLowMemory();
 	}
 
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		if (this.mapView != null) {
-			this.mapView.onDestroy();
-			this.mapView = null;
-		}
-		this.map = null;
-		this.poiMarker = null;
+		this.mapViewController.onDestroyView();
 	}
 
 	@Override

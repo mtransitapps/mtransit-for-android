@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical" >
+        <!-- ROUTE -->
         <FrameLayout
             android:id="@+id/route"
             android:layout_width="match_parent"
@@ -40,6 +41,7 @@
                 android:padding="4dp"
                 android:visibility="gone" />
         </FrameLayout>
+        <!-- TRIP HEADING -->
         <FrameLayout
             android:id="@+id/trip_heading_bg"
             android:layout_width="match_parent"

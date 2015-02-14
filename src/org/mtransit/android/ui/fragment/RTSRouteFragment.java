@@ -118,8 +118,9 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public void onResume() {
 		super.onResume();
+		View view = getView();
 		if (this.modulesUpdated) {
-			getView().post(new Runnable() {
+			view.post(new Runnable() {
 				@Override
 				public void run() {
 					if (RTSRouteFragment.this.modulesUpdated) {
@@ -128,7 +129,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 				}
 			});
 		}
-		switchView(getView());
+		switchView(view);
 		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
 	}
 
@@ -155,7 +156,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		this.adapter.setAuthority(this.authority);
 		this.adapter.setRouteId(this.routeId);
 		this.adapter.setStopId(this.stopId);
-		this.adapter.setRouteTrips(getRouteTripsOrNull());
 	}
 
 	private ArrayList<Trip> routeTrips;
@@ -176,19 +176,23 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private void initRouteTripsAsync() {
-		if (this.loadRouteTripsTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadRouteTripsTask != null && this.loadRouteTripsTask.getStatus() == MTAsyncTask.Status.RUNNING) {
 			return;
 		}
 		if (this.routeId == null || TextUtils.isEmpty(this.authority)) {
 			return;
 		}
+		this.loadRouteTripsTask = new LoadRouteTripsTask();
 		this.loadRouteTripsTask.execute(this.authority, this.routeId);
 	}
 
-	private MTAsyncTask<Object, Void, Boolean> loadRouteTripsTask = new MTAsyncTask<Object, Void, Boolean>() {
+	private LoadRouteTripsTask loadRouteTripsTask = null;
+
+	private class LoadRouteTripsTask extends MTAsyncTask<Object, Void, Boolean> {
+
 		@Override
 		public String getLogTag() {
-			return TAG + ">initRouteTripsAsync";
+			return RTSRouteFragment.this.getLogTag() + ">" + LoadRouteTripsTask.class.getSimpleName();
 		}
 
 		@Override
@@ -221,8 +225,9 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 		if (this.adapter != null) {
 			this.adapter.setRouteTrips(this.routeTrips);
-			setupAdapters(getView());
-			switchView(getView());
+			View view = getView();
+			notifyTabDataChanged(view);
+			showSelectedTab(view);
 		}
 	}
 
@@ -248,19 +253,23 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private void initRouteAsync() {
-		if (this.loadRouteTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadRouteTask != null && this.loadRouteTask.getStatus() == MTAsyncTask.Status.RUNNING) {
 			return;
 		}
 		if (this.routeId == null || TextUtils.isEmpty(this.authority)) {
 			return;
 		}
+		this.loadRouteTask = new LoadRouteTask();
 		this.loadRouteTask.execute(this.authority, this.routeId);
 	}
 
-	private MTAsyncTask<Object, Void, Boolean> loadRouteTask = new MTAsyncTask<Object, Void, Boolean>() {
+	private LoadRouteTask loadRouteTask = null;
+
+	private class LoadRouteTask extends MTAsyncTask<Object, Void, Boolean> {
+
 		@Override
 		public String getLogTag() {
-			return TAG + ">initRouteAsync";
+			return RTSRouteFragment.this.getLogTag() + ">" + LoadRouteTask.class.getSimpleName();
 		}
 
 		@Override
@@ -295,20 +304,10 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		getAbController().setABTitle(this, getABTitle(getActivity()), false);
 		getAbController().setABReady(this, isABReady(), true);
 		setupTabTheme(getView());
-		if (this.adapter != null) {
-			this.adapter.setOptRoute(this.route);
-		}
 	}
 
 	private void resetRoute() {
 		this.route = null; // reset
-	}
-
-	private boolean isRouteEqual(Route otherRoute) {
-		if (this.route == null) {
-			return otherRoute == null;
-		}
-		return this.route.equals(otherRoute);
 	}
 
 	@Override
@@ -349,7 +348,8 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 				this.modulesUpdated = false; // processed
 				return;
 			}
-			if (isRouteEqual(newRoute)) {
+			boolean sameRoute = this.route == null ? newRoute == null : this.route.equals(newRoute);
+			if (sameRoute) {
 				this.modulesUpdated = false; // nothing to do
 				return;
 			}
@@ -361,7 +361,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private void initAdapters(Activity activity) {
-		this.adapter = new RouteTripPagerAdapter(activity, this, null, this.authority, this.routeId, getRouteOrNull(), this.stopId, isShowingListInsteadOfMap());
+		this.adapter = new RouteTripPagerAdapter(activity, this, null, this.authority, this.routeId, null, this.stopId, isShowingListInsteadOfMap());
 	}
 
 	private static class LoadLastPageSelectedFromUserPreference extends MTAsyncTask<Void, Void, Integer> {
@@ -428,12 +428,9 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 				rtsRouteFragment.lastPageSelected = 0;
 			} else {
 				rtsRouteFragment.lastPageSelected = lastPageSelected;
-				View view = rtsRouteFragment.getView();
-				if (view != null) {
-					ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-					viewPager.setCurrentItem(rtsRouteFragment.lastPageSelected);
-				}
 			}
+			View view = rtsRouteFragment.getView();
+			rtsRouteFragment.showSelectedTab(view);
 			rtsRouteFragment.onPageSelected(rtsRouteFragment.lastPageSelected); // tell current page it's selected
 		}
 	}
@@ -447,25 +444,45 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		tabs.setOnPageChangeListener(this);
 		setupTabTheme(view);
 		setupAdapters(view);
-		switchView(view);
 	}
 
 	private void setupAdapters(View view) {
 		if (view == null) {
 			return;
 		}
-		if (!hasRouteTrips()) {
+		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		viewPager.setAdapter(this.adapter);
+		notifyTabDataChanged(view);
+		showSelectedTab(view);
+	}
+
+	private void notifyTabDataChanged(View view) {
+		if (view == null) {
 			return;
 		}
 		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-		viewPager.setAdapter(this.adapter);
 		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
-		tabs.setViewPager(viewPager);
-		if (this.lastPageSelected >= 0) {
-			viewPager.setCurrentItem(this.lastPageSelected);
-		} else {
-			new LoadLastPageSelectedFromUserPreference(getActivity(), this, this.authority, this.routeId, this.tripId, getRouteTripsOrNull()).execute();
+		tabs.setViewPager(viewPager); // not linked to adapter changes
+	}
+
+	private void showSelectedTab(View view) {
+		if (view == null) {
+			return;
 		}
+		if (!hasRouteTrips()) {
+			return;
+		}
+		if (this.adapter == null || !this.adapter.isInitialized()) {
+			return;
+		}
+		if (this.lastPageSelected < 0) {
+			new LoadLastPageSelectedFromUserPreference(getActivity(), this, this.authority, this.routeId, this.tripId, getRouteTripsOrNull()).execute();
+			return;
+		}
+		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		viewPager.setCurrentItem(this.lastPageSelected);
+		MTLog.d(this, "showSelectedTab() > switchView()");
+		switchView(view);
 	}
 
 	private void setupTabTheme(View view) {
@@ -520,9 +537,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
-			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
-		}
 		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}
 
@@ -554,15 +568,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 				PreferenceUtils.savePrefLcl(getActivity(), routePref, this.tripId, false);
 			}
 		}
-		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
-		if (fragments != null) {
-			for (Fragment fragment : fragments) {
-				if (fragment instanceof VisibilityAwareFragment) {
-					VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
-					visibilityAwareFragment.setFragmentVisibleAtPosition(position);
-				}
-			}
-		}
+		setFragmentVisibleAtPosition(position);
 		this.lastPageSelected = position;
 		if (this.adapter != null) {
 			this.adapter.setLastVisibleFragmentPosition(this.lastPageSelected);
@@ -577,27 +583,23 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	public void onPageScrollStateChanged(int state) {
 		switch (state) {
 		case ViewPager.SCROLL_STATE_IDLE:
-			java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
-			if (fragments != null) {
-				for (Fragment fragment : fragments) {
-					if (fragment instanceof VisibilityAwareFragment) {
-						VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
-						visibilityAwareFragment.setFragmentVisibleAtPosition(this.lastPageSelected); // resume
-					}
-				}
-			}
+			setFragmentVisibleAtPosition(this.lastPageSelected); // resume
 			break;
 		case ViewPager.SCROLL_STATE_DRAGGING:
-			java.util.List<Fragment> fragments2 = getChildFragmentManager().getFragments();
-			if (fragments2 != null) {
-				for (Fragment fragment : fragments2) {
-					if (fragment instanceof VisibilityAwareFragment) {
-						VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
-						visibilityAwareFragment.setFragmentVisibleAtPosition(-1); // pause
-					}
+			setFragmentVisibleAtPosition(-1); // pause
+			break;
+		}
+	}
+
+	private void setFragmentVisibleAtPosition(int position) {
+		java.util.List<Fragment> fragments2 = getChildFragmentManager().getFragments();
+		if (fragments2 != null) {
+			for (Fragment fragment : fragments2) {
+				if (fragment instanceof VisibilityAwareFragment) {
+					VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
+					visibilityAwareFragment.setFragmentVisibleAtPosition(position);
 				}
 			}
-			break;
 		}
 	}
 
@@ -702,7 +704,14 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		return super.onOptionsItemSelected(item);
 	}
 
-	private static class RouteTripPagerAdapter extends FragmentStatePagerAdapter {
+	private static class RouteTripPagerAdapter extends FragmentStatePagerAdapter implements MTLog.Loggable {
+
+		private static final String TAG = RTSRouteFragment.class.getSimpleName() + ">" + RouteTripPagerAdapter.class.getSimpleName();
+
+		@Override
+		public String getLogTag() {
+			return TAG;
+		}
 
 		private ArrayList<Trip> routeTrips;
 		private WeakReference<Context> contextWR;
@@ -711,7 +720,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		private int stopId = -1;
 		private boolean showingListInsteadOfMap;
 		private Long routeId;
-		private Route optRoute;
 
 		public RouteTripPagerAdapter(Context context, RTSRouteFragment fragment, ArrayList<Trip> routeTrips, String authority, Long routeId, Route optRoute,
 				int stopId, boolean showingListInsteadOfMap) {
@@ -722,18 +730,10 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			this.stopId = stopId;
 			this.showingListInsteadOfMap = showingListInsteadOfMap;
 			this.routeId = routeId;
-			this.optRoute = optRoute;
 		}
 
 		public boolean isInitialized() {
 			return CollectionUtils.getSize(this.routeTrips) > 0;
-		}
-
-		public void setOptRoute(Route optRoute) {
-			this.optRoute = optRoute;
-			if (this.optRoute != null) {
-				setRouteId(this.optRoute.getId());
-			}
 		}
 
 		public void setAuthority(String authority) {
@@ -742,9 +742,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 		public void setRouteId(Long routeId) {
 			this.routeId = routeId;
-			if (this.routeId != null && this.optRoute != null && this.optRoute.getId() != routeId) {
-				this.optRoute = null;
-			}
 		}
 
 		public void setStopId(int stopId) {
@@ -757,6 +754,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 		public void setRouteTrips(ArrayList<Trip> routeTrips) {
 			this.routeTrips = routeTrips;
+			notifyDataSetChanged();
 		}
 
 		public Trip getTrip(int position) {
@@ -791,7 +789,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 				return null;
 			}
 			return RTSTripStopsFragment.newInstance(position, this.lastVisibleFragmentPosition, this.authority, this.routeId, trip.getId(), this.stopId,
-					this.showingListInsteadOfMap, this.optRoute);
+					this.showingListInsteadOfMap);
 		}
 	}
 }

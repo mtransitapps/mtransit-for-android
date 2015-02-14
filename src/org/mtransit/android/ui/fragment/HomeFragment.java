@@ -392,7 +392,17 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.swipeRefreshLayout.setColorSchemeColors(ThemeUtils.resolveColorAttribute(getActivity(), R.attr.colorAccent));
 		this.swipeRefreshLayout.setOnRefreshListener(this);
 		inflateList(view);
-		this.adapter.setListView((AbsListView) view.findViewById(R.id.list));
+		linkAdapterWithListView(view);
+	}
+
+	private void linkAdapterWithListView(View view) {
+		if (view == null || this.adapter == null) {
+			return;
+		}
+		View listView = view.findViewById(R.id.list);
+		if (listView != null) {
+			this.adapter.setListView((AbsListView) listView);
+		}
 	}
 
 	private void switchView(View view) {
@@ -435,11 +445,8 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		if (view.findViewById(R.id.loading) == null) { // IF NOT present/inflated DO
-			((ViewStub) view.findViewById(R.id.loading_stub)).inflate(); // inflate
-			if (this.swipeRefreshLayout != null) {
-				this.swipeRefreshLayout.setLoadingViewWR(view.findViewById(R.id.loading));
-			}
+		if (this.swipeRefreshLayout != null) {
+			this.swipeRefreshLayout.setLoadingViewWR(view.findViewById(R.id.loading));
 		}
 		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}
