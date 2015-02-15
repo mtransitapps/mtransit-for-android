@@ -2,7 +2,6 @@ package org.mtransit.android.ui.fragment;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.ThemeUtils;
-import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;

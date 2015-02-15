@@ -7,16 +7,15 @@ import java.util.HashSet;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
-import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.RouteTripStop;
-import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.RTSTripStopsLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.MapViewController;
+import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
 import android.location.Location;
@@ -299,9 +298,10 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (!this.showingListInsteadOfMap) { // map
 			this.mapViewController.onResume();
 		}
-		switchView(getView());
+		View view = getView();
+		switchView(view);
 		if (this.adapter == null || !this.adapter.isInitialized()) {
-			LoaderUtils.restartLoader(getLoaderManager(), POIS_LOADER, null, this);
+			LoaderUtils.restartLoader(this, POIS_LOADER, null, this);
 		} else {
 			this.adapter.onResume(getActivity(), this.userLocation);
 		}
@@ -460,21 +460,21 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	}
 
 	private void showListOrMap(View view) {
-		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
-			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
-		}
-		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
-			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
-		}
 		if (this.showingListInsteadOfMap) { // list
 			this.mapViewController.hideMap();
 			inflateList(view);
 			view.findViewById(R.id.list).setVisibility(View.VISIBLE); // show
 		} else { // map
+			this.mapViewController.showMap(view);
 			if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
 				view.findViewById(R.id.list).setVisibility(View.GONE); // hide
 			}
-			this.mapViewController.showMap(view);
+		}
+		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
+			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
+		}
+		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
+			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
 	}
 

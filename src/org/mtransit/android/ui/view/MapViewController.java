@@ -176,19 +176,69 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 
 	private MapView getMapViewOrNull(View view) {
 		if (this.mapView == null) {
-			initMapViewSync(view);
+			initMapViewAsync(view);
 		}
 		return this.mapView;
 	}
 
-	private void initMapViewSync(View view) {
+	private void initMapViewAsync(View view) {
+		if (this.initMapViewTask != null && this.initMapViewTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+			return;
+		}
 		if (view == null) {
 			return;
 		}
+		this.initMapViewTask = new InitMapViewTask(view);
+		this.initMapViewTask.execute(view);
+	}
+
+	private InitMapViewTask initMapViewTask = null;
+
+	private class InitMapViewTask extends MTAsyncTask<Object, Void, Boolean> {
+
+		@Override
+		public String getLogTag() {
+			return MapViewController.this.getLogTag() + ">" + InitMapViewTask.class.getSimpleName();
+		}
+
+		private WeakReference<View> viewWR;
+
+		public InitMapViewTask(View view) {
+			this.viewWR = new WeakReference<View>(view);
+		}
+
+		@Override
+		protected Boolean doInBackgroundMT(Object... params) {
+			View view = this.viewWR == null ? null : this.viewWR.get();
+			if (view == null) {
+				return false;
+			}
+			try {
+				MapsInitializer.initialize(view.getContext());
+				return true;
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while initializing map!");
+				return false;
+			}
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			super.onPostExecute(result);
+			if (result) {
+				View view = this.viewWR == null ? null : this.viewWR.get();
+				applyNewMapView(view);
+			}
+		}
+	};
+
+	private void applyNewMapView(View view) {
 		if (this.mapView != null) {
 			return;
 		}
-		MapsInitializer.initialize(view.getContext());
+		if (view == null) {
+			return;
+		}
 		this.mapView = (MapView) view.findViewById(R.id.map);
 		if (this.mapView != null) {
 			this.mapView.onCreate(this.lastSavedInstanceState);
@@ -248,7 +298,7 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 			int paddingTop = (int) ResourceUtils.convertSPtoPX(context, this.paddingTopSp); // action bar
 			this.googleMap.setPadding(0, paddingTop, 0, 0);
 		}
-		initMapMarkers();
+		showMapInternal(null);
 	}
 
 	public boolean showMap(View view) {
@@ -264,14 +314,15 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 		if (!this.mapVisible) {
 			return false; // not shown
 		}
-		if (this.mapLayoutReady) {
+		if (this.mapLayoutReady && this.initialMapCameraSetup) {
 			if (mapView.getVisibility() != View.VISIBLE) {
 				mapView.setVisibility(View.VISIBLE);
 			}
+			initMapMarkers();
 			return true; // shown
 		}
-		if (mapView.getVisibility() != View.VISIBLE) {
-			mapView.setVisibility(View.VISIBLE);
+		if (mapView.getVisibility() == View.GONE) {
+			mapView.setVisibility(View.INVISIBLE);
 		}
 		if (!this.waitingForGlobalLayout) {
 			if (mapView.getViewTreeObserver().isAlive()) {
@@ -286,8 +337,8 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 		this.mapVisible = false;
 		MapView mapView = getMapViewOrNull();
 		if (mapView != null) {
-			if (mapView.getVisibility() != View.GONE) {
-				mapView.setVisibility(View.GONE); // hide
+			if (mapView.getVisibility() == View.VISIBLE) {
+				mapView.setVisibility(View.INVISIBLE); // hide
 			}
 		}
 	}
@@ -322,6 +373,7 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 
 			@Override
 			protected void onPostExecute(POIManager poim) {
+				super.onPostExecute(poim);
 				if (poim == null) {
 					return;
 				}
@@ -378,12 +430,27 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 	}
 
 	private boolean showMarkers(boolean anim, boolean includeUserLocation) {
-		if (CollectionUtils.getSize(this.markers) == 0) {
-			return false; // not shown
+		if (!this.mapLayoutReady) {
+			return false;
 		}
 		LatLngBounds.Builder llb = LatLngBounds.builder();
-		for (Marker mapMarker : this.markers.values()) {
-			llb.include(mapMarker.getPosition());
+		boolean markersFound = false;
+		if (CollectionUtils.getSize(this.markers) > 0) {
+			for (Marker mapMarker : this.markers.values()) {
+				llb.include(mapMarker.getPosition());
+				markersFound = true;
+			}
+		} else {
+			MapMarkerProvider markerProvider = this.markerProviderWR == null ? null : this.markerProviderWR.get();
+			if (markerProvider != null) {
+				for (POIManager poim : markerProvider.getPOIs()) {
+					llb.include(new LatLng(poim.getLat(), poim.getLng()));
+					markersFound = true;
+				}
+			}
+		}
+		if (!markersFound) {
+			return false; // not shown
 		}
 		if (includeUserLocation) {
 			if (this.userLocation != null) {
@@ -424,7 +491,7 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 		}
 	}
 
-	public void initMapMarkers() {
+	private void initMapMarkers() {
 		if (CollectionUtils.getSize(this.markers) > 0) {
 			return;
 		}
@@ -580,10 +647,6 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 		return success;
 	}
 
-	public void onDetach() {
-		clearActivity();
-	}
-
 	private void setActivity(Activity activity) {
 		this.activityWR = new WeakReference<Activity>(activity);
 	}
@@ -630,7 +693,6 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 		}
 		setMarkerProvider(markerProvider);
 		clearMarkers();
-		initMapMarkers();
 	}
 
 	public void clearMarkers() {
@@ -646,13 +708,19 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 		}
 	}
 
+	public void onDetach() {
+		clearActivity();
+	}
+
 	public void onDestroyView() {
 		destroyMapView();
 		this.mapVisible = false;
-		destroyGoogleMap();
-		this.mapLayoutReady = false;
 		this.waitingForGlobalLayout = false;
+		this.mapLayoutReady = false;
+		destroyGoogleMap();
 		this.initialMapCameraSetup = false;
+		this.initMapViewTask = null;
+		this.lastSavedInstanceState = null;
 		if (this.markerProviderWR != null) {
 			this.markerProviderWR.clear();
 		}
@@ -660,6 +728,7 @@ public class MapViewController implements GoogleMap.OnCameraChangeListener, Goog
 	}
 
 	public void onDestroy() {
+		clearActivity();
 	}
 
 	public static interface MapMarkerProvider {

@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.KeyboardUtils;
-import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.StringUtils;
@@ -20,6 +19,7 @@ import org.mtransit.android.task.POISearchLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTSearchView;
+import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -427,7 +427,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		@Override
 		public void run() {
 			if (getTypeFilterOrNull() != null) {
-				LoaderUtils.restartLoader(SearchFragment.this.getLoaderManager(), POI_SEARCH_LOADER, null, SearchFragment.this);
+				LoaderUtils.restartLoader(SearchFragment.this, POI_SEARCH_LOADER, null, SearchFragment.this);
 				cancelRestartSearchLater();
 			}
 		}

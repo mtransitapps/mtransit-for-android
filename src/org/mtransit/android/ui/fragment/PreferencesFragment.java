@@ -3,7 +3,6 @@ package org.mtransit.android.ui.fragment;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
-import org.mtransit.android.commons.ui.fragment.MTPreferenceFragment;
 import org.mtransit.android.util.VendingUtils;
 
 import android.content.Context;

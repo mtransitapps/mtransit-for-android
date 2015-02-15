@@ -8,7 +8,6 @@ import java.util.HashSet;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.provider.POIFilter;
-import org.mtransit.android.commons.task.MTAsyncTaskLoaderV4;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.Favorite;

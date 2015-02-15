@@ -9,7 +9,6 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.Constants;
-import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SensorUtils;
@@ -34,6 +33,7 @@ import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
+import org.mtransit.android.util.LoaderUtils;
 import org.mtransit.android.util.MapUtils;
 
 import android.app.Activity;
@@ -358,7 +358,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		}
 		hideNearbyList(true);
 		if (hasPoim()) {
-			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
+			LoaderUtils.restartLoader(this, NEARBY_POIS_LOADER, null, this);
 		}
 	}
 
@@ -398,7 +398,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 		if (CollectionUtils.getSize(data) < LocationUtils.MIN_NEARBY_LIST && poim != null
 				&& !LocationUtils.searchComplete(poim.poi.getLat(), poim.poi.getLng(), this.ad.aroundDiff)) {
 			LocationUtils.incAroundDiff(this.ad);
-			LoaderUtils.restartLoader(getLoaderManager(), NEARBY_POIS_LOADER, null, this);
+			LoaderUtils.restartLoader(this, NEARBY_POIS_LOADER, null, this);
 			return;
 		}
 		if (poim != null && data != null) {
@@ -921,6 +921,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		this.mapViewController.onDestroy();
 		if (this.adapter != null) {
 			this.adapter.onDestroy();
 			this.adapter = null;

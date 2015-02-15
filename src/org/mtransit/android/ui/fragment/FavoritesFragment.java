@@ -3,7 +3,6 @@ package org.mtransit.android.ui.fragment;
 import java.util.ArrayList;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.data.POIArrayAdapter;
@@ -11,6 +10,7 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.FavoritesLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -83,7 +83,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		if (this.adapter != null && this.adapter.isInitialized()) {
 			this.adapter.onResume(getActivity(), this.userLocation);
 		} else {
-			LoaderUtils.restartLoader(getLoaderManager(), FAVORITES_LOADER, null, this);
+			LoaderUtils.restartLoader(this, FAVORITES_LOADER, null, this);
 		}
 		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
 	}
@@ -174,7 +174,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 
 	@Override
 	public void onFavoriteUpdated() {
-		LoaderUtils.restartLoader(getLoaderManager(), FAVORITES_LOADER, null, this);
+		LoaderUtils.restartLoader(this, FAVORITES_LOADER, null, this);
 	}
 
 	private boolean modulesUpdated = false;
@@ -185,7 +185,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		if (!isResumed()) {
 			return;
 		}
-		LoaderUtils.restartLoader(getLoaderManager(), FAVORITES_LOADER, null, this);
+		LoaderUtils.restartLoader(this, FAVORITES_LOADER, null, this);
 		this.modulesUpdated = false; // processed
 	}
 

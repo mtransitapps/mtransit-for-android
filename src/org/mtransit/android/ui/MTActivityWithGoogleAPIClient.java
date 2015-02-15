@@ -4,7 +4,7 @@ import java.lang.ref.WeakReference;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.task.MTAsyncTask;
-import org.mtransit.android.commons.ui.fragment.MTDialogFragmentV4;
+import org.mtransit.android.ui.fragment.MTDialogFragmentV4;
 
 import android.app.Activity;
 import android.app.Dialog;

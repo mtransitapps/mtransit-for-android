@@ -3,7 +3,6 @@ package org.mtransit.android.ui.fragment;
 import java.util.ArrayList;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
@@ -17,6 +16,7 @@ import org.mtransit.android.task.HomePOILoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
+import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -327,7 +327,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 		switchView(getView());
 		if (this.nearbyLocation != null) {
-			LoaderUtils.restartLoader(getLoaderManager(), POIS_LOADER, null, this);
+			LoaderUtils.restartLoader(this, POIS_LOADER, null, this);
 		}
 		hideLocationToast();
 		setSwipeRefreshLayoutRefreshing(false);

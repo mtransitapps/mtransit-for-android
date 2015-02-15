@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.data.Route;
-import org.mtransit.android.commons.task.MTAsyncTaskLoaderV4;
 import org.mtransit.android.data.DataSourceManager;
 
 import android.content.Context;

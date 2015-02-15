@@ -4,12 +4,10 @@ import java.util.ArrayList;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
-import org.mtransit.android.commons.LoaderUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.data.Route;
-import org.mtransit.android.commons.ui.fragment.MTFragmentV4;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.JPaths;
@@ -17,6 +15,7 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.RTSAgencyRoutesLoader;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTJPathsView;
+import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -280,7 +279,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		this.fragmentVisible = true;
 		switchView(getView());
 		if (this.adapter == null || !this.adapter.isInitialized()) {
-			LoaderUtils.restartLoader(getLoaderManager(), ROUTES_LOADER, null, this);
+			LoaderUtils.restartLoader(this, ROUTES_LOADER, null, this);
 		}
 		checkIfShowingListInsteadOfGridChanged();
 		getActivity().supportInvalidateOptionsMenu(); // initialize action bar list/grid switch icon

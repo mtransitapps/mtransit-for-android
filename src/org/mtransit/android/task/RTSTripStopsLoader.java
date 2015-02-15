@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.mtransit.android.commons.provider.GTFSRouteTripStopProvider;
 import org.mtransit.android.commons.provider.POIFilter;
-import org.mtransit.android.commons.task.MTAsyncTaskLoaderV4;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 

@@ -5,20 +5,7 @@
     android:id="@+id/viewFlipper"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-    <!-- LOADING -->
-    <include
-        android:id="@+id/loading"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        layout="@layout/layout_loading_large"
-        android:visibility="visible" />
-    <!-- LIST -->
-    <ViewStub
-        android:id="@+id/list_stub"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout="@layout/layout_poi_list"
-        android:visibility="gone" />
+    <!-- MAP -->
     <com.google.android.gms.maps.MapView
         android:id="@+id/map"
         android:layout_width="match_parent"
@@ -32,7 +19,21 @@
         app:uiZoomControls="true"
         app:uiZoomGestures="true"
         tools:visibility="visible" />
+    <!-- LIST -->
+    <ViewStub
+        android:id="@+id/list_stub"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout="@layout/layout_poi_list"
+        android:visibility="gone" />
     <include layout="@layout/layout_shadow" />
+    <!-- LOADING -->
+    <include
+        android:id="@+id/loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/layout_loading_large"
+        android:visibility="visible" />
     <!-- EMPTY -->
     <ViewStub
         android:id="@+id/empty_stub"
