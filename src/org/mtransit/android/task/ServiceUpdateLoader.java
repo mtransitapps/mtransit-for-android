@@ -2,7 +2,6 @@ package org.mtransit.android.task;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -81,7 +80,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		return true;
 	}
 
-	private static class ServiceUpdateFetcherCallable extends MTAsyncTask<Void, Void, Collection<ServiceUpdate>> {
+	private static class ServiceUpdateFetcherCallable extends MTAsyncTask<Void, Void, ArrayList<ServiceUpdate>> {
 
 		private static final String TAG = ServiceUpdateLoader.TAG + '>' + ServiceUpdateFetcherCallable.class.getSimpleName();
 
@@ -106,7 +105,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Override
-		protected Collection<ServiceUpdate> doInBackgroundMT(Void... params) {
+		protected ArrayList<ServiceUpdate> doInBackgroundMT(Void... params) {
 			try {
 				return call();
 			} catch (Exception e) {
@@ -116,7 +115,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Override
-		protected void onPostExecute(Collection<ServiceUpdate> result) {
+		protected void onPostExecute(ArrayList<ServiceUpdate> result) {
 			if (result == null) {
 				return;
 			}
@@ -131,7 +130,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 			listener.onServiceUpdatesLoaded(poim.poi.getUUID(), poim.getServiceUpdatesOrNull());
 		}
 
-		public Collection<ServiceUpdate> call() throws Exception {
+		public ArrayList<ServiceUpdate> call() throws Exception {
 			Context context = this.contextWR == null ? null : this.contextWR.get();
 			if (context == null) {
 				return null;
