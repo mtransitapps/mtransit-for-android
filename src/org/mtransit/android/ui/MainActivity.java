@@ -9,6 +9,7 @@ import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.SearchFragment;
 import org.mtransit.android.util.AdsUtils;
 import org.mtransit.android.util.AnalyticsUtils;
+import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.VendingUtils;
 
 import android.app.SearchManager;
@@ -24,6 +25,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 
 public class MainActivity extends MTActivityWithLocation implements FragmentManager.OnBackStackChangedListener, AnalyticsUtils.Trackable,
 		VendingUtils.OnVendingResultListener, DataSourceProvider.ModulesUpdateListener {
@@ -65,6 +67,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		this.navigationDrawerController.setup(savedInstanceState);
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
 		DataSourceProvider.addModulesUpdateListerner(this);
+		MapUtils.fixScreenFlickering((FrameLayout) findViewById(R.id.content_frame));
 	}
 
 	private boolean modulesUpdated = false;

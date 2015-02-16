@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.view.ViewGroup;
 
 public final class MapUtils implements MTLog.Loggable {
 
@@ -68,6 +69,14 @@ public final class MapUtils implements MTLog.Loggable {
 			mapWithoutButtonsCameraPaddingInPx = (int) ResourceUtils.convertSPtoPX(context, MAP_WITHOUT_BUTTONS_CAMERA_PADDING_IN_SP);
 		}
 		return mapWithoutButtonsCameraPaddingInPx;
+	}
+
+	public static void fixScreenFlickering(ViewGroup viewGroup) {
+		// https://code.google.com/p/gmaps-api-issues/issues/detail?id=4639
+		if (viewGroup == null) {
+			return;
+		}
+		viewGroup.requestTransparentRegion(viewGroup);
 	}
 
 }
