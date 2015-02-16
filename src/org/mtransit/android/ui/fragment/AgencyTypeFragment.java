@@ -200,6 +200,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		viewPager.setCurrentItem(this.lastPageSelected);
+		this.selectedPosition = this.lastPageSelected; // set selected position before update tabs color
+		updateABColorNow(view);
 		switchView(view);
 	}
 
@@ -367,14 +369,11 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 		if (this.adapter != null) {
 			this.adapter.setAgencies(this.typeAgencies);
+			this.abBgColor = null; // reset
+			this.abColorizer = null; // reset
 			View view = getView();
 			notifyTabDataChanged(view);
 			showSelectedTab(view);
-			this.abBgColor = null; // reset
-			this.abColorizer = null; // reset
-			getAbController().setABBgColor(this, getABBgColor(getActivity()), false);
-			getAbController().updateABBgColor();
-			getAbController().setABReady(this, isABReady(), true);
 		}
 	}
 
@@ -607,21 +606,24 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	private Runnable updateABColorLater = new Runnable() {
 		@Override
 		public void run() {
-			AgencyTypeFragment.this.abBgColor = getNewABBgColor(getActivity());
-			if (AgencyTypeFragment.this.abBgColor != null) {
-				View view = getView();
-				if (view != null) {
-					View tabs = view.findViewById(R.id.tabs);
-					if (tabs != null) {
-						tabs.setBackgroundColor(AgencyTypeFragment.this.abBgColor);
-					}
-				}
-				getAbController().setABBgColor(AgencyTypeFragment.this, getABBgColor(getActivity()), false);
-				getAbController().updateABBgColor();
-				cancelUpdateABColorLater();
-			}
+			updateABColorNow(getView());
 		}
 	};
+
+	private void updateABColorNow(View view) {
+		this.abBgColor = getNewABBgColor(getActivity());
+		if (this.abBgColor != null) {
+			if (view != null) {
+				View tabs = view.findViewById(R.id.tabs);
+				if (tabs != null) {
+					tabs.setBackgroundColor(this.abBgColor);
+				}
+			}
+			getAbController().setABBgColor(this, getABBgColor(getActivity()), false);
+			getAbController().updateABBgColor();
+			cancelUpdateABColorLater();
+		}
+	}
 
 	private boolean updateABColorLaterScheduled = false;
 

@@ -489,9 +489,9 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (view == null) {
 			return;
 		}
-		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
 		Integer abBgColor = getABBgColor(getActivity());
 		if (abBgColor != null) {
+			SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
 			tabs.setBackgroundColor(abBgColor);
 		}
 	}
