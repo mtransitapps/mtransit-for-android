@@ -4,7 +4,7 @@
     <string name="home">Accueil</string>
     <string name="favorites">Favoris</string>
     <string name="nearby">À Proximité</string>
-    <string name="maps">Carte</string>
+    <string name="map">Carte</string>
     <string name="settings">Paramètres</string>
     <string name="menu_action_nearby">Nearby</string>
     <string name="menu_action_search">Recherche</string>

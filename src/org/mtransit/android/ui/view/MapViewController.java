@@ -791,7 +791,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return TAG;
 		}
 
-		public Set<HashMap.Entry<String, String>> entrySet() {
+		public java.util.Set<HashMap.Entry<String, String>> entrySet() {
 			return this.uuidsAndAuthority.entrySet();
 		}
 		public HashMap<String, String> getMap() {
