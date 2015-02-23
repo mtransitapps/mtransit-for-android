@@ -173,14 +173,11 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 				String authority;
 				Integer color;
 				Integer secondaryColor;
-				int nbUseless = 0;
 				for (POIManager poim : poims) {
 					position = new LatLng(poim.poi.getLat(), poim.poi.getLng());
 					if (!this.latLngBounds.contains(position)) {
-						nbUseless++;
 						continue;
 					} else if (this.loadedLatLngBounds != null && this.loadedLatLngBounds.contains(position)) {
-						nbUseless++;
 						continue;
 					}
 					name = poim.poi.getName();
