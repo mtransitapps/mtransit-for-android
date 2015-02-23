@@ -129,17 +129,25 @@ public class AgencyProperties implements MTLog.Loggable {
 		if (area == null) {
 			return false;
 		}
-		return lat > area.southwest.latitude && lat < area.northeast.latitude && lng > area.southwest.longitude && lng < area.northeast.longitude;
+		double minLat = Math.min(area.southwest.latitude, area.northeast.latitude);
+		double maxLat = Math.max(area.southwest.latitude, area.northeast.latitude);
+		double minLng = Math.min(area.southwest.longitude, area.northeast.longitude);
+		double maxLng = Math.max(area.southwest.longitude, area.northeast.longitude);
+		return LocationUtils.isInside(lat, lng, minLat, maxLat, minLng, maxLng);
 	}
 
 	public static boolean areCompletelyOverlapping(LatLngBounds area1, Area area2) {
-		if (area1.southwest.latitude > area2.minLat && area1.northeast.latitude < area2.maxLat) {
-			if (area2.minLng > area1.southwest.longitude && area2.maxLng < area1.northeast.longitude) {
+		double area1MinLat = Math.min(area1.southwest.latitude, area1.northeast.latitude);
+		double area1MaxLat = Math.max(area1.southwest.latitude, area1.northeast.latitude);
+		double area1MinLng = Math.min(area1.southwest.longitude, area1.northeast.longitude);
+		double area1MaxLng = Math.max(area1.southwest.longitude, area1.northeast.longitude);
+		if (area1MinLat > area2.minLat && area1MaxLat < area2.maxLat) {
+			if (area2.minLng > area1MinLng && area2.maxLng < area1MaxLng) {
 				return true; // area 1 wider than area 2 but area 2 higher than area 1
 			}
 		}
-		if (area2.minLat > area1.southwest.latitude && area2.maxLat < area1.northeast.latitude) {
-			if (area1.southwest.longitude > area2.minLng && area1.northeast.latitude < area2.maxLng) {
+		if (area2.minLat > area1MinLat && area2.maxLat < area1MaxLat) {
+			if (area1MinLng > area2.minLng && area1MaxLng < area2.maxLng) {
 				return true; // area 2 wider than area 1 but area 1 higher than area 2
 			}
 		}

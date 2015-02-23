@@ -161,12 +161,10 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 			return;
 		}
 		if (hasFilterTypeIds()) {
-			this.loadedLatLngBounds = null;
-			this.mapViewController.clearMarkers();
-			this.mapViewController.showMap(getView());
 			resetTypeFilterIds();
 			initFilterTypeIdsAsync();
 		}
+		this.modulesUpdated = false; // processed
 	}
 
 	private Location userLocation;
@@ -377,6 +375,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 		if (hasChanged) { // old setting not valid anymore
 			saveMapFilterTypeIdsSetting(false); // asynchronous
+			this.includedTypeId = null;
 		}
 		return this.filterTypeIds != null;
 	}
