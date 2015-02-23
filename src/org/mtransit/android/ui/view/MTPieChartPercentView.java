@@ -1,7 +1,5 @@
 package org.mtransit.android.ui.view;
 
-import org.mtransit.android.commons.Constants;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ui.view.MTView;
 
 import android.content.Context;

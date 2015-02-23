@@ -25,10 +25,10 @@ import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.PickPOIDialogFragment;
 import org.mtransit.android.ui.view.map.ClusteringSettings;
 import org.mtransit.android.ui.view.map.ExtendedGoogleMap;
-import org.mtransit.android.ui.view.map.ExtendedMapFactory;
 import org.mtransit.android.ui.view.map.ExtendedMarkerOptions;
 import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.MTClusterOptionsProvider;
+import org.mtransit.android.ui.view.map.impl.ExtendedMapFactory;
 import org.mtransit.android.util.MapUtils;
 
 import android.app.Activity;
