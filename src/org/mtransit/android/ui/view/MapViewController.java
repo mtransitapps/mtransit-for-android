@@ -1021,6 +1021,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 		setMarkerProvider(markerProvider);
 		clearMarkers();
+	}
+
 
 	private void clearMarkers() {
 		clearClusterManagerItems();
