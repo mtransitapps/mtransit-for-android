@@ -880,6 +880,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		protected void onPostExecute(Collection<POIMarker> result) {
 			super.onPostExecute(result);
 			if (result == null) {
+				return;
+			}
 			if (MapViewController.this.extendedGoogleMap == null) {
 				return;
 			}
