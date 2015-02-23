@@ -3,6 +3,7 @@ package org.mtransit.android.ui.fragment;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.mtransit.android.R;
@@ -332,7 +333,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (this.filterTypeIds != null) {
 			return false;
 		}
-		ArrayList<DataSourceType> availableTypes = DataSourceProvider.get(getActivity()).getAvailableAgencyTypes();
+		ArrayList<DataSourceType> availableTypes = filterTypes(DataSourceProvider.get(getActivity()).getAvailableAgencyTypes());
 		Set<String> filterTypeIdStrings = PreferenceUtils.getPrefLcl(getActivity(), PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS,
 				PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT);
 		this.filterTypeIds = new HashSet<Integer>();
@@ -348,36 +349,43 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 					hasChanged = true;
 					continue;
 				}
-				if (!type.isMapScreen()) {
-					hasChanged = true;
-					continue;
-				}
 				this.filterTypeIds.add(type.getId());
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while parsing filter type ID '%s'!", typeIdString);
 				hasChanged = true;
 			}
 		}
-		if (this.includedTypeId != null && !this.filterTypeIds.contains(this.includedTypeId)) {
-			try {
-				DataSourceType type = DataSourceType.parseId(this.includedTypeId);
-				if (type == null) {
-				} else if (!availableTypes.contains(type)) {
-				} else if (!type.isMapScreen()) {
-				} else {
-					this.filterTypeIds.add(type.getId());
+		if (this.includedTypeId != null) {
+			if (this.filterTypeIds.size() > 0 && !this.filterTypeIds.contains(this.includedTypeId)) {
+				try {
+					DataSourceType type = DataSourceType.parseId(this.includedTypeId);
+					if (type == null) {
+					} else if (!availableTypes.contains(type)) {
+					} else {
+						this.filterTypeIds.add(type.getId());
+						hasChanged = true;
+					}
+				} catch (Exception e) {
+					MTLog.w(this, e, "Error while parsing filter type ID '%s'!", this.includedTypeId);
 					hasChanged = true;
 				}
-			} catch (Exception e) {
-				MTLog.w(this, e, "Error while parsing filter type ID '%s'!", this.includedTypeId);
-				hasChanged = true;
 			}
+			this.includedTypeId = null; // only once
 		}
 		if (hasChanged) { // old setting not valid anymore
 			saveMapFilterTypeIdsSetting(false); // asynchronous
-			this.includedTypeId = null;
 		}
 		return this.filterTypeIds != null;
+	}
+
+	private ArrayList<DataSourceType> filterTypes(ArrayList<DataSourceType> availableTypes) {
+		Iterator<DataSourceType> it = availableTypes.iterator();
+		while (it.hasNext()) {
+			if (!it.next().isMapScreen()) {
+				it.remove();
+			}
+		}
+		return availableTypes;
 	}
 
 	private void saveMapFilterTypeIdsSetting(boolean sync) {
@@ -421,11 +429,8 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 			ArrayList<Boolean> checked = new ArrayList<Boolean>();
 			final ArrayList<Integer> typeIds = new ArrayList<Integer>();
 			final HashSet<Integer> selectedItems = new HashSet<Integer>();
-			ArrayList<DataSourceType> availableAgencyTypes = DataSourceProvider.get(getActivity()).getAvailableAgencyTypes();
+			ArrayList<DataSourceType> availableAgencyTypes = filterTypes(DataSourceProvider.get(getActivity()).getAvailableAgencyTypes());
 			for (DataSourceType type : availableAgencyTypes) {
-				if (!type.isMapScreen()) {
-					continue; // skip
-				}
 				typeIds.add(type.getId());
 				typeNames.add(getString(type.getPoiShortNameResId()));
 				checked.add(filterTypeIds.size() == 0 || filterTypeIds.contains(type.getId()));
@@ -537,6 +542,9 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	private void applyNewFilter(ArrayList<Integer> typeIds, HashSet<Integer> selectedItems) {
 		boolean filterChanged = false;
+		if (this.filterTypeIds == null) {
+			return;
+		}
 		if (selectedItems.size() == 0 || selectedItems.size() == typeIds.size()) {
 			if (this.filterTypeIds.size() > 0) {
 				this.filterTypeIds.clear();
