@@ -39,6 +39,7 @@ import org.mtransit.android.util.MapUtils;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -57,6 +58,8 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.ScrollView;
+
+import com.google.android.gms.maps.model.LatLngBounds;
 
 public class POIFragment extends ABFragment implements POIViewController.POIDataProvider, MTActivityWithLocation.UserLocationListener, SensorEventListener,
 		SensorUtils.CompassListener, SensorUtils.SensorTaskCompleted, FavoriteManager.FavoriteUpdateListener,
@@ -104,7 +107,7 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	private AgencyProperties agency;
 
-	private MapViewController mapViewController = new MapViewController(TAG, this, true, false, false, false, false, 32, true, false);
+	private MapViewController mapViewController = new MapViewController(TAG, this, true, false, false, false, false, 32, true, false, true, true, false);
 
 	private boolean hasAgency() {
 		if (this.agency == null) {
@@ -281,7 +284,25 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	@Override
 	public Collection<POIManager> getPOIs() {
+		if (this.poim == null) {
+			return null;
+		}
 		return Arrays.asList(this.poim);
+	}
+
+	@Override
+	public Collection<MapViewController.POIMarker> getPOMarkers() {
+		return null;
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		this.mapViewController.onConfigurationChanged(newConfig);
+	}
+
+	@Override
+	public void onCameraChange(LatLngBounds latLngBounds) {
 	}
 
 	private void resetPoim() {

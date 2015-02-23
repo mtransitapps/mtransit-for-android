@@ -18,6 +18,7 @@ import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -29,6 +30,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
+
+import com.google.android.gms.maps.model.LatLngBounds;
 
 public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		MTActivityWithLocation.UserLocationListener, MapViewController.MapMarkerProvider {
@@ -87,7 +90,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private int fragmentPosition = -1;
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
-	private MapViewController mapViewController = new MapViewController(getLogTag(), this, true, true, false, false, false, 0, false, true);
+	private MapViewController mapViewController = new MapViewController(getLogTag(), this, true, true, false, false, false, 0, false, true, false, true, false);
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -212,6 +215,9 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 
 	@Override
 	public Collection<POIManager> getPOIs() {
+		if (this.adapter == null || !this.adapter.isInitialized()) {
+			return null;
+		}
 		HashSet<POIManager> pois = new HashSet<POIManager>();
 		if (this.adapter != null && this.adapter.hasPois()) {
 			for (int i = 0; i < this.adapter.getPoisCount(); i++) {
@@ -219,6 +225,21 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			}
 		}
 		return pois;
+	}
+
+	@Override
+	public Collection<MapViewController.POIMarker> getPOMarkers() {
+		return null;
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		this.mapViewController.onConfigurationChanged(newConfig);
+	}
+
+	@Override
+	public void onCameraChange(LatLngBounds latLngBounds) {
 	}
 
 	private void linkAdapterWithListView(View view) {
@@ -329,7 +350,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
-		this.mapViewController.clearMarkers(); // force refresh
+		this.mapViewController.notifyMarkerChanged(this);
 	}
 
 	@Override

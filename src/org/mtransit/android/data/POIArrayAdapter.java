@@ -270,9 +270,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				}
 				this.count += this.poisByType.get(type).size();
 			}
-		}
-		if (this.infiniteLoading) {
-			this.count++;
+			if (this.infiniteLoading) {
+				this.count++;
+			}
 		}
 	}
 
@@ -475,8 +475,20 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return true; // handled
 	}
 
+	public static interface OnClickHandledListener {
+		public void onLeaving();
+	}
+
+	private WeakReference<OnClickHandledListener> onClickHandledListenerWR;
+
+	public void setOnClickHandledListener(OnClickHandledListener onClickHandledListener) {
+		this.onClickHandledListenerWR = new WeakReference<POIArrayAdapter.OnClickHandledListener>(onClickHandledListener);
+	}
+
 	public static interface OnPOISelectedListener {
 		public boolean onPOISelected(POIManager poim);
+
+		public boolean onPOILongSelected(POIManager poim);
 	}
 
 	private WeakReference<OnPOISelectedListener> onPoiSelectedListenerWR;
@@ -503,8 +515,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				if (poim != null) {
 					OnPOISelectedListener listerner = POIArrayAdapter.this.onPoiSelectedListenerWR == null ? null
 							: POIArrayAdapter.this.onPoiSelectedListenerWR.get();
-					if (listerner == null || !listerner.onPOISelected(poim)) {
-						showPoiViewerScreen(poim);
+					boolean handled = listerner != null && listerner.onPOISelected(poim);
+					if (!handled) {
+						handled = showPoiViewerScreen(poim);
 					}
 				}
 			}
@@ -529,8 +542,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				if (poim != null) {
 					OnPOISelectedListener listerner = POIArrayAdapter.this.onPoiSelectedListenerWR == null ? null
 							: POIArrayAdapter.this.onPoiSelectedListenerWR.get();
-					if (listerner == null || !listerner.onPOISelected(poim)) {
-						showPoiMenu(poim);
+					boolean handled = listerner != null && listerner.onPOILongSelected(poim);
+					if (!handled) {
+						handled = showPoiMenu(poim);
 					}
 				}
 			}
@@ -553,26 +567,27 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return true;
 	}
 
-	public void showPoiViewerScreen(POIManager poim) {
+	public boolean showPoiViewerScreen(POIManager poim) {
 		if (poim == null) {
-			return;
+			return false;
 		}
 		Activity activity = this.activityWR == null ? null : this.activityWR.get();
 		if (activity == null) {
-			return;
+			return false;
 		}
-		poim.onActionItemClick(activity, this.favoriteUpdateListener);
+		OnClickHandledListener listener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
+		return poim.onActionItemClick(activity, this.favoriteUpdateListener, listener);
 	}
 
-	public void showPoiMenu(POIManager poim) {
+	public boolean showPoiMenu(POIManager poim) {
 		if (poim == null) {
-			return;
+			return false;
 		}
 		Activity activity = this.activityWR == null ? null : this.activityWR.get();
 		if (activity == null) {
-			return;
 		}
-		poim.onActionItemLongClick(activity, this.favoriteUpdateListener);
+		OnClickHandledListener listener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
+		return poim.onActionItemLongClick(activity, this.favoriteUpdateListener, listener);
 	}
 
 	@Override
@@ -779,8 +794,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	@Override
 	public void onStatusLoaded(POIStatus status) {
 		if (this.showStatus) {
-			if (this.poiStatusViewHoldersWR != null && this.poiStatusViewHoldersWR.containsKey(status.getTargetUUID())) {
-				updatePOIStatus(this.poiStatusViewHoldersWR.get(status.getTargetUUID()), status);
+			CommonStatusViewHolder statusViewHolder = this.poiStatusViewHoldersWR.get(status.getTargetUUID());
+			if (statusViewHolder != null && status.getTargetUUID().equals(statusViewHolder.uuid)) {
+				updatePOIStatus(statusViewHolder, status);
+			} else {
+				notifyDataSetChanged(false);
 			}
 		}
 	}
@@ -788,8 +806,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	@Override
 	public void onServiceUpdatesLoaded(String targetUUID, ArrayList<ServiceUpdate> serviceUpdates) {
 		if (this.showServiceUpdate) {
-			if (this.poiStatusViewHoldersWR != null && this.poiStatusViewHoldersWR.containsKey(targetUUID)) {
-				updateServiceUpdate(this.poiStatusViewHoldersWR.get(targetUUID), ServiceUpdate.isSeverityWarning(serviceUpdates));
+			CommonStatusViewHolder statusViewHolder = this.poiStatusViewHoldersWR.get(targetUUID);
+			if (statusViewHolder != null && targetUUID.equals(statusViewHolder.uuid)) {
+				updateServiceUpdate(statusViewHolder, ServiceUpdate.isSeverityWarning(serviceUpdates));
+			} else {
+				notifyDataSetChanged(false);
 			}
 		}
 	}
@@ -857,11 +878,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				}
 				View view = getView(i, null, this.manualLayout);
 				FrameLayout frameLayout = new FrameLayout(getContext());
-				frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+				frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 				frameLayout.addView(view);
 				View selectorView = new View(getContext());
 				SupportFactory.get().setBackground(selectorView, ThemeUtils.obtainStyledDrawable(getContext(), R.attr.selectableItemBackground));
-				selectorView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+				selectorView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
 				frameLayout.addView(selectorView);
 				final int position = i;
 				frameLayout.setOnClickListener(new View.OnClickListener() {
@@ -1019,6 +1040,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			this.compassImgsWR.clear();
 		}
 		this.poiStatusViewHoldersWR.clear();
+		if (this.onClickHandledListenerWR != null) {
+			this.onClickHandledListenerWR.clear();
+		}
+		if (this.onPoiSelectedListenerWR != null) {
+			this.onPoiSelectedListenerWR.clear();
+		}
 	}
 
 	@Override
@@ -1083,8 +1110,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	private void onTypeHeaderButtonClick(int buttonId, DataSourceType type) {
-		TypeHeaderButtonsClickListener listener = POIArrayAdapter.this.typeHeaderButtonsClickListenerWR == null ? null
-				: POIArrayAdapter.this.typeHeaderButtonsClickListenerWR.get();
+		TypeHeaderButtonsClickListener listener = this.typeHeaderButtonsClickListenerWR == null ? null : this.typeHeaderButtonsClickListenerWR.get();
 		if (listener != null && listener.onTypeHeaderButtonClick(buttonId, type)) {
 			return;
 		}
@@ -1093,6 +1119,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			if (type != null) {
 				Activity activity = this.activityWR == null ? null : this.activityWR.get();
 				if (activity != null) {
+					leaving();
 					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(type.getId(), type));
 				}
 			}
@@ -1101,6 +1128,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			if (type != null) {
 				Activity activity = this.activityWR == null ? null : this.activityWR.get();
 				if (activity != null) {
+					leaving();
 					((MainActivity) activity).addFragmentToStack(NearbyFragment.newNearbyInstance(null, type.getId()));
 				}
 			}
@@ -1109,12 +1137,20 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			if (type != null) {
 				Activity activity = this.activityWR == null ? null : this.activityWR.get();
 				if (activity != null) {
+					leaving();
 					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(type.getId(), type));
 				}
 			}
 			break;
 		default:
 			MTLog.w(this, "Unexected type header button %s'' click", type);
+		}
+	}
+
+	private void leaving() {
+		OnClickHandledListener onClickHandledListener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
+		if (onClickHandledListener != null) {
+			onClickHandledListener.onLeaving();
 		}
 	}
 
@@ -1173,7 +1209,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			BasicPOIViewHolder holder = new BasicPOIViewHolder();
 			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
 			holder.statusViewHolder = initPOIStatusViewHolder(poim.getStatusType(), convertView);
-			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
 			convertView.setTag(holder);
 		}
 		updateBasicPOIView(poim, convertView);
@@ -1233,7 +1268,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private WeakHashMap<MTCompassView, View> compassImgsWR = new WeakHashMap<MTCompassView, View>();
 
 	private void initCommonViewHolder(CommonViewHolder holder, View convertView, String poiUUID) {
-		holder.uuid = poiUUID;
 		holder.view = convertView;
 		holder.nameTv = (TextView) convertView.findViewById(R.id.name);
 		holder.favImg = (ImageView) convertView.findViewById(R.id.fav);
@@ -1355,7 +1389,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
 			initModuleExtra(convertView, holder);
 			holder.statusViewHolder = initPOIStatusViewHolder(poim.getStatusType(), convertView);
-			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
 			convertView.setTag(holder);
 		}
 		updateModuleView(poim, convertView);
@@ -1413,7 +1446,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
 			initRTSExtra(convertView, holder);
 			holder.statusViewHolder = initPOIStatusViewHolder(poim.getStatusType(), convertView);
-			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
 			convertView.setTag(holder);
 		}
 		updateRouteTripStopView(poim, convertView);
@@ -1498,6 +1530,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					public void onClick(View v) {
 						Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
 						if (activity != null && activity instanceof MainActivity) {
+							leaving();
 							((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(authority, route.getId(), tripId, stopId, route));
 						} else {
 							MTLog.w(POIArrayAdapter.this, "No activity available to open RTS fragment!");
@@ -1625,11 +1658,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (poim == null || poim.poi == null || holder == null) {
 			return;
 		}
-		if (holder.uuid != null) {
-			this.poiStatusViewHoldersWR.remove(holder.uuid);
-		}
 		final POI poi = poim.poi;
 		holder.uuid = poi.getUUID();
+		if (holder.statusViewHolder != null) {
+			holder.statusViewHolder.uuid = holder.uuid;
+		}
 		if (holder.uuid != null) {
 			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
 		}
@@ -1808,6 +1841,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	public static class CommonStatusViewHolder {
+		String uuid;
 		View statusV;
 		ImageView warningImg;
 	}

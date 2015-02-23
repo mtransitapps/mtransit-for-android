@@ -166,5 +166,4 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 			return DataSourceManager.findSearchSuggest(this.context, this.agency.getAuthority(), this.query);
 		}
 	}
-
 }

@@ -13,6 +13,7 @@ import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 import org.mtransit.android.ui.fragment.FavoritesFragment;
 import org.mtransit.android.ui.fragment.HomeFragment;
+import org.mtransit.android.ui.fragment.MapFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
 
 import android.app.Activity;
@@ -35,7 +36,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		return TAG;
 	}
 
-	private static final int VIEW_TYPE_STATIC_MAIN_TEXT_WITH_ICON = 0; // Favorite, Nearby, Direction, Search, Maps...
+	private static final int VIEW_TYPE_STATIC_MAIN_TEXT_WITH_ICON = 0; // Favorite, Nearby, Direction, Search, Map...
 	private static final int VIEW_TYPE_DYNAMIC_AGENCY_TYPE = 2; // Bike, Bus, Subway, Train...
 	private static final int VIEW_TYPE_SECONDARY = 3; // Settings, Help, Send Feedback...
 	private static final int VIEW_TYPE_STATIC_SEPARATORS = 4; // -----
@@ -45,9 +46,10 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 	private static final int ITEM_INDEX_HOME = 0;
 	private static final int ITEM_INDEX_FAVORITE = 1;
 	private static final int ITEM_INDEX_NEARBY = 2;
+	private static final int ITEM_INDEX_MAP = 3;
 
 
-	private static final int ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR = 3;
+	private static final int ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR = 4;
 
 	private static final int STATIC_ITEMS_BEFORE_DYNAMIC = ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR + 1;
 
@@ -419,9 +421,9 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 			// } else if (position == ITEM_INDEX_SEARCH) {
 			// holder.nameTv.setText(R.string.search);
 			// holder.icon.setImageResource(R.drawable.ic_menu_search);
-			// } else if (position == ITEM_INDEX_MAPS) {
-			// holder.nameTv.setText(R.string.maps);
-			// holder.icon.setImageResource(R.drawable.ic_menu_maps);
+		} else if (position == ITEM_INDEX_MAP) {
+			holder.nameTv.setText(R.string.map);
+			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_action_map_holo_light, 0, 0, 0);
 		} else {
 			holder.nameTv.setText(null);
 			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
@@ -463,8 +465,8 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 			// return SearchFragment.newInstance();
 			// } else if (position == MenuAdapter.ITEM_INDEX_DIRECTIONS) {
 			// return DirectionsFragment.newInstance();
-			// } else if (position == MenuAdapter.ITEM_INDEX_MAPS) {
-			// return MapsFragment.newInstance();
+		} else if (position == MenuAdapter.ITEM_INDEX_MAP) {
+			return MapFragment.newInstance();
 		}
 		DataSourceType type = getAgencyTypeAt(position);
 		if (type != null) {

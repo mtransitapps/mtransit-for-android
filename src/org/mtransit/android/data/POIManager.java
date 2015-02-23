@@ -8,8 +8,8 @@ import java.util.Comparator;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
-import org.mtransit.android.commons.LocationUtils.LocationPOI;
 import org.mtransit.android.commons.ComparatorUtils;
+import org.mtransit.android.commons.LocationUtils.LocationPOI;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.SpanUtils;
@@ -370,37 +370,49 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	}
 
-	public boolean onActionsItemClick(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener) {
+	public boolean onActionsItemClick(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
+			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
-			return onActionsItemClickFavoritable(activity, itemClicked, listener);
+			return onActionsItemClickFavoritable(activity, itemClicked, listener, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
-			return onActionsItemClickRTS(activity, itemClicked, listener);
+			return onActionsItemClickRTS(activity, itemClicked, listener, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_APP:
-			return onActionsItemClickApp(activity, itemClicked, listener);
+			return onActionsItemClickApp(activity, itemClicked, listener, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_PLACE:
-			return onActionsItemClickPlace(activity, itemClicked, listener);
+			return onActionsItemClickPlace(activity, itemClicked, listener, onClickHandledListener);
 		default:
 			MTLog.w(this, "unexpected action type '%s'!", this.poi.getActionsType());
 			return false; // NOT HANDLED
 		}
 	}
 
-	private boolean onActionsItemClickApp(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener) {
+	private boolean onActionsItemClickApp(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
+			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
 		case 0:
+			if (onClickHandledListener != null) {
+				onClickHandledListener.onLeaving();
+			}
 			StoreUtils.viewAppPage(activity, ((Module) poi).getPkg());
 			return true; // HANDLED
 		case 1:
+			if (onClickHandledListener != null) {
+				onClickHandledListener.onLeaving();
+			}
 			PackageManagerUtils.uninstallApp(activity, ((Module) poi).getPkg());
 			return true; // HANDLED
 		}
 		return false; // NOT HANDLED
 	}
 
-	private boolean onActionsItemClickPlace(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener) {
+	private boolean onActionsItemClickPlace(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
+			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
 		case 0:
+			if (onClickHandledListener != null) {
+				onClickHandledListener.onLeaving();
+			}
 			((MainActivity) activity)
 					.addFragmentToStack(NearbyFragment.newFixedOnInstance(null, poi.getLat(), poi.getLng(), poi.getName(), getColor(activity)));
 			return true; // HANDLED
@@ -450,12 +462,16 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return defaultColor;
 	}
 
-	private boolean onActionsItemClickRTS(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener) {
+	private boolean onActionsItemClickRTS(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
+			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
 		case 1:
+			if (onClickHandledListener != null) {
+				onClickHandledListener.onLeaving();
+			}
 			RouteTripStop rts = (RouteTripStop) poi;
-			((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts.getAuthority(), rts.getRoute().getId(), rts.getTrip().getId(),
-					rts.getStop().getId(), rts.getRoute()));
+			((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts.getAuthority(), rts.getRoute().getId(), rts.getTrip().getId(), rts
+					.getStop().getId(), rts.getRoute()));
 			return true; // HANDLED
 		case 2:
 			return addRemoteFavorite(activity, FavoriteManager.isFavorite(activity, poi.getUUID()), listener);
@@ -463,7 +479,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return false; // NOT HANDLED
 	}
 
-	private boolean onActionsItemClickFavoritable(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener) {
+	private boolean onActionsItemClickFavoritable(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
+			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
 		case 1:
 			return addRemoteFavorite(activity, FavoriteManager.isFavorite(activity, poi.getUUID()), listener);
@@ -493,43 +510,56 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 	}
 
-	private boolean showPoiViewerScreen(Activity activity) {
+	private boolean showPoiViewerScreen(Activity activity, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false; // show long-click menu
 		}
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_APP:
+			if (onClickHandledListener != null) {
+				onClickHandledListener.onLeaving();
+			}
 			StoreUtils.viewAppPage(activity, ((Module) poi).getPkg());
 			return true; // handled
 		case POI.ITEM_ACTION_TYPE_PLACE:
+			if (onClickHandledListener != null) {
+				onClickHandledListener.onLeaving();
+			}
 			((MainActivity) activity).addFragmentToStack(NearbyFragment.newFixedOnInstance(null, poi.getLat(), poi.getLng(), poi.getName(), null));
 			return true; // nearby screen shown
 		}
 		if (activity instanceof MainActivity) {
+			if (onClickHandledListener != null) {
+				onClickHandledListener.onLeaving();
+			}
 			((MainActivity) activity).addFragmentToStack(POIFragment.newInstance(this.poi.getUUID(), this.poi.getAuthority(), null, this));
 			return true; // HANDLED
 		}
 		return false; // NOT HANDLED
 	}
 
-	public void onActionItemLongClick(Activity activity, FavoriteManager.FavoriteUpdateListener favoriteUpdateListener) {
+	public boolean onActionItemLongClick(Activity activity, FavoriteManager.FavoriteUpdateListener favoriteUpdateListener,
+			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
-			return;
+			return false;
 		}
-		showPoiMenu(activity, favoriteUpdateListener);
+		return showPoiMenu(activity, favoriteUpdateListener, onClickHandledListener);
 	}
 
-	public void onActionItemClick(Activity activity, FavoriteManager.FavoriteUpdateListener favoriteUpdateListener) {
+	public boolean onActionItemClick(Activity activity, FavoriteManager.FavoriteUpdateListener favoriteUpdateListener,
+			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
-			return;
+			return false;
 		}
-		boolean poiScreenShow = showPoiViewerScreen(activity);
+		boolean poiScreenShow = showPoiViewerScreen(activity, onClickHandledListener);
 		if (!poiScreenShow) {
-			showPoiMenu(activity, favoriteUpdateListener);
+			poiScreenShow = showPoiMenu(activity, favoriteUpdateListener, onClickHandledListener);
 		}
+		return poiScreenShow;
 	}
 
-	private boolean showPoiMenu(final Activity activity, final FavoriteManager.FavoriteUpdateListener favoriteUpdateListener) {
+	private boolean showPoiMenu(final Activity activity, final FavoriteManager.FavoriteUpdateListener favoriteUpdateListener,
+			final POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false;
 		}
@@ -541,12 +571,13 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 					.setItems(getActionsItems(activity, activity.getString(R.string.view_details)), new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int item) {
-							if (onActionsItemClick(activity, item, favoriteUpdateListener)) {
+							boolean handled = onActionsItemClick(activity, item, favoriteUpdateListener, onClickHandledListener);
+							if (handled) {
 								return;
 							}
 							switch (item) {
 							case 0:
-								showPoiViewerScreen(activity);
+								showPoiViewerScreen(activity, onClickHandledListener);
 								break;
 							default:
 								MTLog.w(POIManager.this, "Unexpected action item '%s'!", item);
@@ -578,16 +609,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	@Override
 	public Double getLat() {
 		return this.poi.getLat();
-	}
-
-	@Override
-	public void setLat(Double lat) {
-		this.poi.setLat(lat);
-	}
-
-	@Override
-	public void setLng(Double lng) {
-		this.poi.setLng(lng);
 	}
 
 	@Override

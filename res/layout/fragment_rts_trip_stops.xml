@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        app:mapType="terrain"
+        app:mapType="normal"
         app:uiCompass="true"
         app:uiRotateGestures="true"
         app:uiScrollGestures="true"

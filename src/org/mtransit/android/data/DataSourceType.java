@@ -15,37 +15,37 @@ public enum DataSourceType {
 			R.string.agency_type_light_rail_short_name, R.string.agency_type_light_rail_all, //
 			R.string.agency_type_light_rail_stations_short_name, R.string.agency_type_light_rail_nearby, //
 			R.drawable.ic_menu_train_holo_light, R.drawable.ic_menu_train_holo_dark, //
-			true, true, true, true), //
+			true, true, true, true, true), //
 	TYPE_SUBWAY(1, // GTFS - Metro
 			R.string.agency_type_subway_short_name, R.string.agency_type_subway_all, //
 			R.string.agency_type_subway_stations_short_name, R.string.agency_type_subway_nearby, //
 			R.drawable.ic_menu_subway_holo_light, R.drawable.ic_menu_subway_holo_dark, //
-			true, true, true, true), //
+			true, true, true, true, true), //
 	TYPE_RAIL(2, // GTFS - Train
 			R.string.agency_type_rail_short_name, R.string.agency_type_rail_all, //
 			R.string.agency_type_rail_stations_short_name, R.string.agency_type_rail_nearby, //
 			R.drawable.ic_menu_train_holo_light, R.drawable.ic_menu_train_holo_dark, //
-			true, true, true, true), //
+			true, true, true, true, true), //
 	TYPE_BUS(3, // GTFS - Bus
 			R.string.agency_type_bus_short_name, R.string.agency_type_bus_all, //
 			R.string.agency_type_bus_stops_short_name, R.string.agency_type_bus_nearby, //
 			R.drawable.ic_menu_bus_holo_light, R.drawable.ic_menu_bus_holo_dark, //
-			true, true, true, true), //
+			true, true, true, true, true), //
 	TYPE_BIKE(100, // like Bixi, Velib
 			R.string.agency_type_bike_short_name, R.string.agency_type_bike_all, //
 			R.string.agency_type_bike_stations_short_name, R.string.agency_type_bike_nearby, //
 			R.drawable.ic_menu_bike_holo_light, R.drawable.ic_menu_bike_holo_dark, //
-			true, true, true, true), //
+			true, true, true, true, true), //
 	TYPE_PLACE(666, //
 			R.string.agency_type_place_short_name, R.string.agency_type_place_all, //
 			R.string.agency_type_place_app_short_name, R.string.agency_type_place_nearby, //
 			R.drawable.ic_menu_place_holo_light, R.drawable.ic_menu_place_holo_dark, //
-			false, false, false, true), //
+			false, false, false, false, true), //
 	TYPE_MODULE(999, //
 			R.string.agency_type_module_short_name, R.string.agency_type_module_all, //
 			R.string.agency_type_module_app_short_name, R.string.agency_type_module_nearby, //
 			R.drawable.ic_menu_play_store_holo_light, R.drawable.ic_menu_play_store_holo_dark, //
-			true, true, true, false), //
+			true, true, true, false, false), //
 	;
 
 	private static final String TAG = DataSourceType.class.getSimpleName();
@@ -70,10 +70,12 @@ public enum DataSourceType {
 
 	private boolean nearbyScreen;
 
+	private boolean mapScreen;
+
 	private boolean searchable;
 
 	DataSourceType(int id, int shortNameResId, int allStringResId, int poiShortNameResId, int nearbyNameResId, int menuResId, int abIconResId,
-			boolean menuList, boolean homeScreen, boolean nearbyScreen, boolean searchable) {
+			boolean menuList, boolean homeScreen, boolean nearbyScreen, boolean mapScreen, boolean searchable) {
 		this.id = id;
 		this.shortNameResId = shortNameResId;
 		this.allStringResId = allStringResId;
@@ -84,6 +86,7 @@ public enum DataSourceType {
 		this.menuList = menuList;
 		this.homeScreen = homeScreen;
 		this.nearbyScreen = nearbyScreen;
+		this.mapScreen = mapScreen;
 		this.searchable = searchable;
 	}
 
@@ -125,6 +128,10 @@ public enum DataSourceType {
 
 	public boolean isNearbyScreen() {
 		return this.nearbyScreen;
+	}
+
+	public boolean isMapScreen() {
+		return this.mapScreen;
 	}
 
 	public boolean isSearchable() {

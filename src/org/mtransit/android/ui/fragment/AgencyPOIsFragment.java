@@ -17,6 +17,7 @@ import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -31,6 +32,8 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.TextView;
+
+import com.google.android.gms.maps.model.LatLngBounds;
 
 public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		MTActivityWithLocation.UserLocationListener, MapViewController.MapMarkerProvider {
@@ -76,7 +79,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	private POIArrayAdapter adapter;
 	private String emptyText = null;
 	private String authority;
-	private MapViewController mapViewController = new MapViewController(TAG, this, true, true, false, false, false, 0, false, true);
+	private MapViewController mapViewController = new MapViewController(TAG, this, true, true, false, false, false, 0, false, true, true, true, false);
 
 	@Override
 	public String getAgencyAuthority() {
@@ -190,6 +193,21 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		return pois;
 	}
 
+	@Override
+	public Collection<MapViewController.POIMarker> getPOMarkers() {
+		return null;
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		this.mapViewController.onConfigurationChanged(newConfig);
+	}
+
+	@Override
+	public void onCameraChange(LatLngBounds latLngBounds) {
+	}
+
 	private void linkAdapterWithListView(View view) {
 		if (view == null || this.adapter == null) {
 			return;
@@ -300,7 +318,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
-		this.mapViewController.clearMarkers();
+		this.mapViewController.notifyMarkerChanged(this);
 	}
 
 	@Override

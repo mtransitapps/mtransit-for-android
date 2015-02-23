@@ -4,6 +4,7 @@
     <string name="home">Accueil</string>
     <string name="favorites">Favoris</string>
     <string name="nearby">À Proximité</string>
+    <string name="maps">Carte</string>
     <string name="settings">Paramètres</string>
     <string name="menu_action_nearby">Nearby</string>
     <string name="menu_action_search">Recherche</string>
@@ -63,6 +64,7 @@
     <string name="menu_action_list">Liste</string>
     <string name="menu_action_grid">Grille</string>
     <string name="menu_action_map">Carte</string>
+    <string name="menu_action_filter">Filtrer</string>
     <string name="menu_action_show_directions">Itinéraires</string>
     <string name="menu_action_add_favorite">Ajouter aux favoris</string>
     <string name="menu_action_remove_favorite">Supprimer des favoris</string>

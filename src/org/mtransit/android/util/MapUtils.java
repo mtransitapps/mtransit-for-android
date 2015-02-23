@@ -1,13 +1,20 @@
 package org.mtransit.android.util;
 
+import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ResourceUtils;
+
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
+import android.util.LruCache;
+import android.util.Pair;
 import android.view.ViewGroup;
 
 public final class MapUtils implements MTLog.Loggable {
@@ -77,6 +84,23 @@ public final class MapUtils implements MTLog.Loggable {
 			return;
 		}
 		viewGroup.requestTransparentRegion(viewGroup);
+	}
+
+	private static LruCache<Pair<Integer, Integer>, BitmapDescriptor> cache = new LruCache<Pair<Integer, Integer>, BitmapDescriptor>(128);
+
+	public static BitmapDescriptor getIcon(Context context, int iconResId, int color) {
+		Pair<Integer, Integer> key = new Pair<Integer, Integer>(iconResId, color);
+		if (color == Color.BLACK) {
+			color = Color.DKGRAY; // black is too dark to colorize bitmap;
+		}
+		BitmapDescriptor cachedBitmap = cache.get(key);
+		if (cachedBitmap != null) {
+			return cachedBitmap;
+		}
+		Bitmap newBase = ColorUtils.colorizeBitmapResource(context, color, iconResId);
+		BitmapDescriptor newBitmapDescriptor = BitmapDescriptorFactory.fromBitmap(newBase);
+		cache.put(key, newBitmapDescriptor);
+		return newBitmapDescriptor;
 	}
 
 }

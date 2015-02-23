@@ -28,6 +28,9 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,6 +84,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
 		restoreInstanceState(savedInstanceState, getArguments());
 	}
 
@@ -347,6 +351,22 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 				this.swipeRefreshLayout.setRefreshing(false);
 			}
 		}
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		super.onCreateOptionsMenu(menu, inflater);
+		inflater.inflate(R.menu.menu_home, menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_show_map:
+			((MainActivity) getActivity()).addFragmentToStack(MapFragment.newInstance());
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
