@@ -174,7 +174,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 				Integer color;
 				Integer secondaryColor;
 				for (POIManager poim : poims) {
-					position = new LatLng(poim.poi.getLat(), poim.poi.getLng());
+					position = MapViewController.POIMarker.getLatLng(poim);
 					if (!this.latLngBounds.contains(position)) {
 						continue;
 					} else if (this.loadedLatLngBounds != null && this.loadedLatLngBounds.contains(position)) {

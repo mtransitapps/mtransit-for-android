@@ -1,10 +1,10 @@
 package org.mtransit.android.task;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
@@ -43,12 +43,12 @@ public class POIsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 				if (authorityUUIDs != null && authorityUUIDs.size() > 0) {
 					ArrayList<POIManager> agencyPOIs = DataSourceManager.findPOIs(getContext(), authority, new POIFilter(authorityUUIDs));
 					if (agencyPOIs != null) {
-						Collections.sort(agencyPOIs, POIManager.POI_ALPHA_COMPARATOR);
 						this.pois.addAll(agencyPOIs);
 					}
 				}
 			}
 		}
+		CollectionUtils.sort(this.pois, POIManager.POI_ALPHA_COMPARATOR);
 		return this.pois;
 	}
 

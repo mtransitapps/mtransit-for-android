@@ -1,7 +1,6 @@
 package org.mtransit.android.task;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -45,7 +44,7 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 				if (authorityUUIDs != null && authorityUUIDs.size() > 0) {
 					ArrayList<POIManager> agencyPOIs = DataSourceManager.findPOIs(getContext(), authority, new POIFilter(authorityUUIDs));
 					if (agencyPOIs != null) {
-						Collections.sort(agencyPOIs, POIManager.POI_ALPHA_COMPARATOR);
+						CollectionUtils.sort(agencyPOIs, POIManager.POI_ALPHA_COMPARATOR);
 						this.pois.addAll(agencyPOIs);
 					}
 				}

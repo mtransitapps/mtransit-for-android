@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -684,6 +685,16 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			this.uuidsAndAuthority.put(uuid, authority);
 		}
 
+		private static final String AROUND_TRUNC = "%.12g";
+
+		private static double truncAround(double loc) {
+			return Double.parseDouble(String.format(Locale.US, AROUND_TRUNC, loc));
+		}
+
+		public static LatLng getLatLng(POIManager poim) {
+			return new LatLng(POIMarker.truncAround(poim.poi.getLat()), POIMarker.truncAround(poim.poi.getLng()));
+		}
+
 		public String getTitle() {
 			StringBuilder sb = new StringBuilder();
 			CollectionUtils.sort(this.names, MARKER_NAME_COMPARATOR);
@@ -882,7 +893,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			Integer secondaryColor;
 			AgencyProperties agency;
 			for (POIManager poim : pois) {
-				position = new LatLng(poim.poi.getLat(), poim.poi.getLng());
+				position = POIMarker.getLatLng(poim);
 				name = poim.poi.getName();
 				extra = null;
 				agency = DataSourceProvider.get(getActivityOrNull()).getAgency(getActivityOrNull(), poim.poi.getAuthority());
