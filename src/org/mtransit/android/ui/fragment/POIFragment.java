@@ -59,11 +59,13 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.ScrollView;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
-public class POIFragment extends ABFragment implements POIViewController.POIDataProvider, MTActivityWithLocation.UserLocationListener, SensorEventListener,
-		SensorUtils.CompassListener, SensorUtils.SensorTaskCompleted, FavoriteManager.FavoriteUpdateListener,
-		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, TimeUtils.TimeChangedReceiver.TimeChangedListener, MapViewController.MapMarkerProvider {
+public class POIFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, POIViewController.POIDataProvider,
+		MTActivityWithLocation.UserLocationListener, SensorEventListener, SensorUtils.CompassListener, SensorUtils.SensorTaskCompleted,
+		FavoriteManager.FavoriteUpdateListener, TimeUtils.TimeChangedReceiver.TimeChangedListener, MapViewController.MapMarkerProvider,
+		MapViewController.MapListener {
 
 	private static final String TAG = POIFragment.class.getSimpleName();
 
@@ -107,7 +109,8 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	private AgencyProperties agency;
 
-	private MapViewController mapViewController = new MapViewController(TAG, this, true, false, false, false, false, 32, true, false, true, true, false);
+	private MapViewController mapViewController = new MapViewController(TAG, this, this, false, true, false, false, false, false, 32, true, false, true, true,
+			false);
 
 	private boolean hasAgency() {
 		if (this.agency == null) {
@@ -303,6 +306,15 @@ public class POIFragment extends ABFragment implements POIViewController.POIData
 
 	@Override
 	public void onCameraChange(LatLngBounds latLngBounds) {
+	}
+
+	@Override
+	public void onMapClick(LatLng position) {
+		POIManager poim = getPoimOrNull();
+		if (poim != null) {
+			((MainActivity) getActivity()).addFragmentToStack(MapFragment.newInstance(LocationUtils.getNewLocation(poim.getLat(), poim.getLng()),
+					poim.poi.getUUID(), poim.poi.getDataSourceTypeId()));
+		}
 	}
 
 	private void resetPoim() {

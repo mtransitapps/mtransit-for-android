@@ -363,7 +363,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_show_map:
-			((MainActivity) getActivity()).addFragmentToStack(MapFragment.newInstance());
+			((MainActivity) getActivity()).addFragmentToStack(MapFragment.newInstance(null, null, null));
 			return true;
 		}
 		return super.onOptionsItemSelected(item);

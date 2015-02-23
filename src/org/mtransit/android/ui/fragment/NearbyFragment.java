@@ -799,6 +799,13 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				return true; // handled
 			}
 			break;
+		case R.id.menu_show_map:
+			Location fixedOnLocation = null;
+			if (this.fixedOnLat != null && this.fixedOnLng != null) {
+				fixedOnLocation = LocationUtils.getNewLocation(this.fixedOnLat, this.fixedOnLng);
+			}
+			((MainActivity) getActivity()).addFragmentToStack(MapFragment.newInstance(fixedOnLocation, null, this.selectedTypeId));
+			return true; // handled
 		}
 		return super.onOptionsItemSelected(item);
 	}

@@ -33,10 +33,11 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
-		MTActivityWithLocation.UserLocationListener, MapViewController.MapMarkerProvider {
+		MTActivityWithLocation.UserLocationListener, MapViewController.MapMarkerProvider, MapViewController.MapListener {
 
 	private static final String TAG = AgencyPOIsFragment.class.getSimpleName();
 
@@ -79,7 +80,8 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	private POIArrayAdapter adapter;
 	private String emptyText = null;
 	private String authority;
-	private MapViewController mapViewController = new MapViewController(TAG, this, true, true, false, false, false, 0, false, true, true, true, false);
+	private MapViewController mapViewController = new MapViewController(TAG, this, this, true, true, true, false, false, false, 0, false, true, false, true,
+			false);
 
 	@Override
 	public String getAgencyAuthority() {
@@ -184,6 +186,9 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 
 	@Override
 	public Collection<POIManager> getPOIs() {
+		if (this.adapter == null || !this.adapter.isInitialized()) {
+			return null;
+		}
 		HashSet<POIManager> pois = new HashSet<POIManager>();
 		if (this.adapter != null && this.adapter.hasPois()) {
 			for (int i = 0; i < this.adapter.getPoisCount(); i++) {
@@ -202,6 +207,10 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		this.mapViewController.onConfigurationChanged(newConfig);
+	}
+
+	@Override
+	public void onMapClick(LatLng position) {
 	}
 
 	@Override

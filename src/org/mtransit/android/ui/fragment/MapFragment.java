@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
@@ -13,11 +14,9 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
-import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.MapPOILoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.MapViewController;
-import org.mtransit.android.ui.view.MapViewController.POIMarker;
 import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
@@ -30,6 +29,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,10 +37,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 public class MapFragment extends ABFragment implements LoaderManager.LoaderCallbacks<Collection<MapViewController.POIMarker>>,
-		MTActivityWithLocation.UserLocationListener, MapViewController.MapMarkerProvider {
+		MTActivityWithLocation.UserLocationListener, MapViewController.MapListener {
 
 	private static final String TAG = MapFragment.class.getSimpleName();
 
@@ -56,11 +57,29 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 		return TRACKING_SCREEN_NAME;
 	}
 
-	public static MapFragment newInstance() {
-		return new MapFragment();
+	private static final String EXTRA_INITIAL_LOCATION = "extra_initial_location";
+	private static final String EXTRA_SELECTED_UUID = "extra_selected_uuid";
+	private static final String EXTRA_INCLUDE_TYPE_ID = "extra_include_type_id";
+
+	public static MapFragment newInstance(Location optInitialLocation, String optSelectedUUID, Integer optIncludeTypeId) {
+		MapFragment f = new MapFragment();
+		Bundle args = new Bundle();
+		if (optInitialLocation != null) {
+			args.putParcelable(EXTRA_INITIAL_LOCATION, optInitialLocation);
+		}
+		if (!TextUtils.isEmpty(optSelectedUUID)) {
+			args.putString(EXTRA_SELECTED_UUID, optSelectedUUID);
+		}
+		if (optIncludeTypeId != null) {
+			args.putInt(EXTRA_INCLUDE_TYPE_ID, optIncludeTypeId);
+			f.includedTypeId = optIncludeTypeId;
+		}
+		f.setArguments(args);
+		return f;
 	}
 
-	private MapViewController mapViewController = new MapViewController(TAG, null, true, true, false, false, false, 64, false, true, true, false, true);
+	private MapViewController mapViewController = new MapViewController(TAG, null, this, true, true, true, false, false, false, 64, false, true, true, false,
+			true);
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -98,6 +117,18 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 	}
 
 	private void restoreInstanceState(Bundle... bundles) {
+		Location newInitialLocation = BundleUtils.getParcelable(EXTRA_INITIAL_LOCATION, bundles);
+		if (newInitialLocation != null) {
+			this.mapViewController.setInitialLocation(newInitialLocation);
+		}
+		String newSelectedUUID = BundleUtils.getString(EXTRA_SELECTED_UUID, bundles);
+		if (!TextUtils.isEmpty(newSelectedUUID)) {
+			this.mapViewController.setInitialSelectedUUID(newSelectedUUID);
+		}
+		Integer newIncludedTypeId = BundleUtils.getInt(EXTRA_INCLUDE_TYPE_ID, bundles);
+		if (newIncludedTypeId != null) {
+			this.includedTypeId = newIncludedTypeId;
+		}
 		this.mapViewController.setTag(getLogTag());
 	}
 
@@ -131,9 +162,9 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 		if (hasFilterTypeIds()) {
 			this.loadedLatLngBounds = null;
-			this.mapViewController.notifyMarkerChanged(this);
+			this.mapViewController.clearMarkers();
 			this.mapViewController.showMap(getView());
-			this.filterTypeIds = null; // reset
+			resetTypeFilterIds();
 			initFilterTypeIdsAsync();
 		}
 	}
@@ -186,11 +217,6 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 	}
 
-	@Override
-	public Collection<POIMarker> getPOMarkers() {
-		return null;
-	}
-
 	private LatLngBounds loadingLatLngBounds;
 	private LatLngBounds loadedLatLngBounds;
 
@@ -198,6 +224,10 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		this.mapViewController.onConfigurationChanged(newConfig);
+	}
+
+	@Override
+	public void onMapClick(LatLng position) {
 	}
 
 	@Override
@@ -242,27 +272,17 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 	}
 
 	@Override
-	public POIManager getClosestPOI() {
-		return null;
-	}
-
-	@Override
-	public POIManager getPOI(String uuid) {
-		return null;
-	}
-
-	@Override
-	public Collection<POIManager> getPOIs() {
-		return null;
-	}
-
-	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.menu_map, menu);
 	}
 
+	private Integer includedTypeId = null;
 	private Set<Integer> filterTypeIds = null;
+
+	private void resetTypeFilterIds() {
+		this.filterTypeIds = null; // reset
+	}
 
 	private Set<Integer> getFilterTypeIdsOrNull() {
 		if (!hasFilterTypeIds()) {
@@ -340,6 +360,21 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 				hasChanged = true;
 			}
 		}
+		if (this.includedTypeId != null && !this.filterTypeIds.contains(this.includedTypeId)) {
+			try {
+				DataSourceType type = DataSourceType.parseId(this.includedTypeId);
+				if (type == null) {
+				} else if (!availableTypes.contains(type)) {
+				} else if (!type.isMapScreen()) {
+				} else {
+					this.filterTypeIds.add(type.getId());
+					hasChanged = true;
+				}
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while parsing filter type ID '%s'!", this.includedTypeId);
+				hasChanged = true;
+			}
+		}
 		if (hasChanged) { // old setting not valid anymore
 			saveMapFilterTypeIdsSetting(false); // asynchronous
 		}
@@ -368,7 +403,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 			this.loadingLatLngBounds = this.loadedLatLngBounds; // use the loaded area
 		}
 		this.loadedLatLngBounds = null; // loaded with wrong filter
-		this.mapViewController.notifyMarkerChanged(this);
+		this.mapViewController.clearMarkers();
 		this.mapViewController.showMap(getView());
 		if (this.loadingLatLngBounds != null) {
 			LoaderUtils.restartLoader(this, POIS_LOADER, null, this);

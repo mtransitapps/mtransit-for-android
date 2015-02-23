@@ -31,10 +31,11 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
-		MTActivityWithLocation.UserLocationListener, MapViewController.MapMarkerProvider {
+		MTActivityWithLocation.UserLocationListener, MapViewController.MapMarkerProvider, MapViewController.MapListener {
 
 	private static final String TAG = RTSTripStopsFragment.class.getSimpleName();
 
@@ -90,7 +91,8 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private int fragmentPosition = -1;
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
-	private MapViewController mapViewController = new MapViewController(getLogTag(), this, true, true, false, false, false, 0, false, true, false, true, false);
+	private MapViewController mapViewController = new MapViewController(getLogTag(), this, this, true, true, true, false, false, false, 0, false, true, false,
+			true, false);
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -240,6 +242,10 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 
 	@Override
 	public void onCameraChange(LatLngBounds latLngBounds) {
+	}
+
+	@Override
+	public void onMapClick(LatLng position) {
 	}
 
 	private void linkAdapterWithListView(View view) {
