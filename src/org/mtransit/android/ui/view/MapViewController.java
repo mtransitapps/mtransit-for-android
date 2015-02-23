@@ -859,6 +859,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				name = poim.poi.getName();
 				extra = null;
 				agency = DataSourceProvider.get(getActivityOrNull()).getAgency(getActivityOrNull(), poim.poi.getAuthority());
+				if (agency == null) {
+					continue;
+				}
 				if (MapViewController.this.markerLabelShowExtra && poim.poi instanceof RouteTripStop) {
 					extra = ((RouteTripStop) poim.poi).getRoute().getShortestName();
 				}

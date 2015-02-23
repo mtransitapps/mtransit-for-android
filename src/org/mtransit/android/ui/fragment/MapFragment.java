@@ -25,6 +25,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -497,7 +498,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	@Override
 	public Integer getABBgColor(Context context) {
-		return android.R.color.transparent;
+		return Color.TRANSPARENT;
 	}
 
 	private void applyNewFilter(ArrayList<Integer> typeIds, HashSet<Integer> selectedItems) {
