@@ -685,7 +685,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			this.uuidsAndAuthority.put(uuid, authority);
 		}
 
-		private static final String AROUND_TRUNC = "%.12g";
+		private static final String AROUND_TRUNC = "%.6g";
 
 		private static double truncAround(double loc) {
 			return Double.parseDouble(String.format(Locale.US, AROUND_TRUNC, loc));
