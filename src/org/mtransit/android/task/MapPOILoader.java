@@ -73,6 +73,9 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 			if (!agency.isInArea(this.latLngBounds)) {
 				continue;
 			}
+			if (agency.isEntirelyInside(this.loadedLatLngBounds)) {
+				continue;
+			}
 			if (CollectionUtils.getSize(this.filterTypeIds) > 0 && !this.filterTypeIds.contains(type.getId())) {
 				continue;
 			}

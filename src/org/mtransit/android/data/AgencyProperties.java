@@ -9,6 +9,7 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 import android.text.TextUtils;
@@ -88,6 +89,13 @@ public class AgencyProperties implements MTLog.Loggable {
 
 	public boolean isInArea(Area area) {
 		return Area.areOverlapping(area, this.area);
+	}
+
+	public boolean isEntirelyInside(LatLngBounds area) {
+		if (area == null) {
+			return false;
+		}
+		return area.contains(new LatLng(this.area.minLat, this.area.minLng)) && area.contains(new LatLng(this.area.maxLat, this.area.maxLng));
 	}
 
 	public boolean isInArea(LatLngBounds area) {
