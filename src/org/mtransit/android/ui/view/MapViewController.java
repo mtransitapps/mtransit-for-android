@@ -30,6 +30,7 @@ import org.mtransit.android.ui.view.map.ExtendedMarkerOptions;
 import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.MTClusterOptionsProvider;
 import org.mtransit.android.ui.view.map.impl.ExtendedMapFactory;
+import org.mtransit.android.ui.view.map.utils.LatLngUtils;
 import org.mtransit.android.util.MapUtils;
 
 import android.app.Activity;
@@ -515,8 +516,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return false; // not handled
 		}
 		LatLngBounds.Builder llb = LatLngBounds.builder();
-		llb.include(new LatLng(this.userLocation.getLatitude(), this.userLocation.getLongitude()));
-		llb.include(new LatLng(poim.getLat(), poim.getLng()));
+		llb.include(LatLngUtils.fromLocation(this.userLocation));
+		llb.include(POIMarker.getLatLng(poim));
 		Context context = getActivityOrNull();
 		boolean success = updateMapCamera(true, CameraUpdateFactory.newLatLngBounds(llb.build(), MapUtils.getMapWithButtonsCameraPaddingInPx(context)));
 		this.showingMyLocation = null;
@@ -534,7 +535,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 		if (includeUserLocation) {
 			if (this.userLocation != null) {
-				llb.include(new LatLng(this.userLocation.getLatitude(), this.userLocation.getLongitude()));
+				llb.include(LatLngUtils.fromLocation(this.userLocation));
 			}
 		}
 		Context context = getActivityOrNull();
@@ -569,7 +570,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		Collection<POIManager> pois = markerProvider.getPOIs();
 		if (pois != null) {
 			for (POIManager poim : pois) {
-				llb.include(new LatLng(poim.getLat(), poim.getLng()));
+				llb.include(POIMarker.getLatLng(poim));
 			}
 			return true;
 		}
@@ -583,8 +584,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (this.userLocation == null) {
 			return false;
 		}
-		LatLng userPosition = new LatLng(this.userLocation.getLatitude(), this.userLocation.getLongitude());
-		return updateMapCamera(anim, CameraUpdateFactory.newLatLngZoom(userPosition, USER_LOCATION_ZOOM));
+		return updateMapCamera(anim, CameraUpdateFactory.newLatLngZoom(LatLngUtils.fromLocation(this.userLocation), USER_LOCATION_ZOOM));
 	}
 
 	private static final float USER_LOCATION_ZOOM = 17f;
@@ -676,7 +676,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		private POIMarkerIds uuidsAndAuthority = new POIMarkerIds();
 
 		public POIMarker(LatLng position, String name, String agency, String extra, Integer color, Integer secondaryColor, String uuid, String authority) {
-			this.position = position;
+			addPosition(position);
 			addName(name);
 			addAgency(agency);
 			addExtras(extra);
@@ -692,6 +692,10 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 
 		public static LatLng getLatLng(POIManager poim) {
+			return new LatLng(poim.poi.getLat(), poim.poi.getLng());
+		}
+
+		public static LatLng getLatLngTrunc(POIManager poim) {
 			return new LatLng(POIMarker.truncAround(poim.poi.getLat()), POIMarker.truncAround(poim.poi.getLng()));
 		}
 
@@ -752,6 +756,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 
 		public void merge(POIMarker poiMarker) {
+			addPosition(poiMarker.position);
 			for (String name : poiMarker.names) {
 				addName(name);
 			}
@@ -774,7 +779,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			this.uuidsAndAuthority.merge(poiMarker.uuidsAndAuthority);
 		}
 
-		public void merge(String name, String agency, String extra, Integer color, Integer secondaryColor, String uuid, String authority) {
+		public void merge(LatLng position, String name, String agency, String extra, Integer color, Integer secondaryColor, String uuid, String authority) {
+			addPosition(position);
 			addName(name);
 			addAgency(agency);
 			addExtras(extra);
@@ -789,6 +795,17 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				}
 			}
 			this.uuidsAndAuthority.put(uuid, authority);
+		}
+
+		private void addPosition(LatLng position) {
+			if (this.position == null) {
+				this.position = position;
+			} else {
+				this.position = new LatLng( //
+						(this.position.latitude + position.latitude) / 2d, //
+						(this.position.longitude + position.longitude) / 2d);
+
+			}
 		}
 
 		private void addExtras(String extra) {
@@ -884,6 +901,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			}
 			HashMap<LatLng, POIMarker> clusterItems = new HashMap<LatLng, POIMarker>();
 			LatLng position;
+			LatLng positionTrunc;
 			String name;
 			String agencyShortName;
 			String extra;
@@ -894,6 +912,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			AgencyProperties agency;
 			for (POIManager poim : pois) {
 				position = POIMarker.getLatLng(poim);
+				positionTrunc = POIMarker.getLatLngTrunc(poim);
 				name = poim.poi.getName();
 				extra = null;
 				agency = DataSourceProvider.get(getActivityOrNull()).getAgency(getActivityOrNull(), poim.poi.getAuthority());
@@ -908,10 +927,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				authority = poim.poi.getAuthority();
 				color = POIManager.getColor(getActivityOrNull(), poim.poi, null);
 				secondaryColor = agency.getColorInt();
-				if (clusterItems.containsKey(position)) {
-					clusterItems.get(position).merge(name, agencyShortName, extra, color, secondaryColor, uuid, authority);
+				if (clusterItems.containsKey(positionTrunc)) {
 				} else {
-					clusterItems.put(position, new POIMarker(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority));
+					clusterItems.put(positionTrunc, new POIMarker(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority));
 				}
 			}
 			return clusterItems.values();
@@ -1064,7 +1082,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return;
 		}
 		this.lastCameraPosition = CameraPosition.builder() //
-				.target(new LatLng(initialLocation.getLatitude(), initialLocation.getLongitude())) //
+				.target(LatLngUtils.fromLocation(initialLocation)) //
 				.zoom(USER_LOCATION_ZOOM) //
 				.build();
 	}

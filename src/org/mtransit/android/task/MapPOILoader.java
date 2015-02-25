@@ -170,6 +170,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 			String agencyShortName = this.agency.getShortName();
 			if (poims != null) {
 				LatLng position;
+				LatLng positionTrunc;
 				String name;
 				String extra;
 				String uuid;
@@ -178,6 +179,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 				Integer secondaryColor;
 				for (POIManager poim : poims) {
 					position = MapViewController.POIMarker.getLatLng(poim);
+					positionTrunc = MapViewController.POIMarker.getLatLngTrunc(poim);
 					if (!this.latLngBounds.contains(position)) {
 						continue;
 					} else if (this.loadedLatLngBounds != null && this.loadedLatLngBounds.contains(position)) {
@@ -192,10 +194,10 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 					authority = poim.poi.getAuthority();
 					color = POIManager.getColor(this.context, poim.poi, null);
 					secondaryColor = agency.getColorInt();
-					if (clusterItems.containsKey(position)) {
-						clusterItems.get(position).merge(name, agencyShortName, extra, color, secondaryColor, uuid, authority);
+					if (clusterItems.containsKey(positionTrunc)) {
+						clusterItems.get(positionTrunc).merge(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority);
 					} else {
-						clusterItems.put(position, new MapViewController.POIMarker(position, name, agencyShortName, extra, color, secondaryColor, uuid,
+						clusterItems.put(positionTrunc, new MapViewController.POIMarker(position, name, agencyShortName, extra, color, secondaryColor, uuid,
 								authority));
 					}
 				}
