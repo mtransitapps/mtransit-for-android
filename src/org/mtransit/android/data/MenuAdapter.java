@@ -15,6 +15,7 @@ import org.mtransit.android.ui.fragment.FavoritesFragment;
 import org.mtransit.android.ui.fragment.HomeFragment;
 import org.mtransit.android.ui.fragment.MapFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
+import org.mtransit.android.ui.fragment.NewsFragment;
 
 import android.app.Activity;
 import android.content.Context;
@@ -47,9 +48,9 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 	private static final int ITEM_INDEX_FAVORITE = 1;
 	private static final int ITEM_INDEX_NEARBY = 2;
 	private static final int ITEM_INDEX_MAP = 3;
+	private static final int ITEM_INDEX_NEWS = 4;
 
-
-	private static final int ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR = 4;
+	private static final int ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR = 5;
 
 	private static final int STATIC_ITEMS_BEFORE_DYNAMIC = ITEM_INDEX_DYNAMIC_HEADER_SEPARATOR + 1;
 
@@ -424,6 +425,9 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		} else if (position == ITEM_INDEX_MAP) {
 			holder.nameTv.setText(R.string.map);
 			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_action_map_holo_light, 0, 0, 0);
+		} else if (position == ITEM_INDEX_NEWS) {
+			holder.nameTv.setText(R.string.news);
+			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_rss_holo_light, 0, 0, 0);
 		} else {
 			holder.nameTv.setText(null);
 			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
@@ -467,6 +471,8 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 			// return DirectionsFragment.newInstance();
 		} else if (position == MenuAdapter.ITEM_INDEX_MAP) {
 			return MapFragment.newInstance(null, null, null);
+		} else if (position == MenuAdapter.ITEM_INDEX_NEWS) {
+			return NewsFragment.newInstance(null);
 		}
 		DataSourceType type = getAgencyTypeAt(position);
 		if (type != null) {

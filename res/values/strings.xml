@@ -5,6 +5,7 @@
     <string name="favorites">Favorites</string>
     <string name="nearby">Nearby</string>
     <string name="map">Map</string>
+    <string name="news">News</string>
     <string name="settings">Settings</string>
     <string name="menu_action_nearby">Nearby</string>
     <string name="menu_action_search">Search</string>
@@ -46,6 +47,8 @@
     <string name="rate_on_store">Rate on Google Play</string>
     <string name="uninstall">Uninstall</string>
     <string name="view_details">View Details</string>
+    <string name="news_shared_on_and_author_and_source">%1$s on %2$s</string>
+    <string name="no_news">No news.</string>
     <string name="no_favorites">No favorites.</string>
     <string name="favorite_removed">Favorite removed.</string>
     <string name="favorite_added">Favorite added.</string>

@@ -5,6 +5,7 @@
     <string name="favorites">Favoris</string>
     <string name="nearby">À Proximité</string>
     <string name="map">Carte</string>
+    <string name="news">Nouvelles</string>
     <string name="settings">Paramètres</string>
     <string name="menu_action_nearby">Nearby</string>
     <string name="menu_action_search">Recherche</string>
@@ -46,6 +47,8 @@
     <string name="rate_on_store">Noter on Google Play</string>
     <string name="uninstall">Désinstaller</string>
     <string name="view_details">Voire Détails</string>
+    <string name="news_shared_on_and_author_and_source">%1$s sur %2$s</string>
+    <string name="no_news">Pas de nouvelles.</string>
     <string name="no_favorites">Aucun favori.</string>
     <string name="favorite_removed">Favori supprimé.</string>
     <string name="favorite_added">Favori ajouté.</string>

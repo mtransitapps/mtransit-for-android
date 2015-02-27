@@ -10,6 +10,7 @@ import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
+import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
@@ -19,6 +20,7 @@ import org.mtransit.android.commons.data.ScheduleTimestampsFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.GTFSRouteTripStopProvider;
+import org.mtransit.android.commons.provider.NewsProvider;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.provider.POIProvider;
 import org.mtransit.android.commons.provider.ScheduleTimestampsProvider;
@@ -77,6 +79,33 @@ public final class DataSourceManager implements MTLog.Loggable {
 			if (cursor.moveToFirst()) {
 				do {
 					result.add(ServiceUpdate.fromCursor(cursor));
+				} while (cursor.moveToNext());
+			}
+		}
+		return result;
+	}
+
+	public static ArrayList<News> findNews(Context context, String authority, NewsProvider.NewsFilter newsFilter) {
+		Cursor cursor = null;
+		try {
+			String newsFilterJSONString = newsFilter == null ? null : newsFilter.toJSONString();
+			Uri uri = Uri.withAppendedPath(getUri(authority), NewsProvider.NEWS_CONTENT_DIRECTORY);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, newsFilterJSONString, null, null);
+			return getNews(cursor);
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error!");
+			return null;
+		} finally {
+			SqlUtils.closeQuietly(cursor);
+		}
+	}
+
+	private static ArrayList<News> getNews(Cursor cursor) {
+		ArrayList<News> result = new ArrayList<News>();
+		if (cursor != null && cursor.getCount() > 0) {
+			if (cursor.moveToFirst()) {
+				do {
+					result.add(News.fromCursor(cursor));
 				} while (cursor.moveToNext());
 			}
 		}
