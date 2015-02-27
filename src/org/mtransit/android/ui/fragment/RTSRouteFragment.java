@@ -207,7 +207,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 				applyNewRouteTrips();
 			}
 		}
-	};
+	}
 
 	private boolean initRouteTripsSync() {
 		if (this.routeTrips != null) {
@@ -284,7 +284,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 				applyNewRoute();
 			}
 		}
-	};
+	}
 
 	private boolean initRouteSync() {
 		if (this.route != null) {
@@ -348,7 +348,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 				this.modulesUpdated = false; // processed
 				return;
 			}
-			boolean sameRoute = this.route == null ? newRoute == null : this.route.equals(newRoute);
+			boolean sameRoute = newRoute.equals(this.route);
 			if (sameRoute) {
 				this.modulesUpdated = false; // nothing to do
 				return;

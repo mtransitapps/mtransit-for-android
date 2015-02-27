@@ -153,13 +153,11 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 				return;
 			}
 			MainActivity mainActivity = (MainActivity) activity;
-			if (mainActivity != null) {
-				if (mainActivity.isMTResumed()) {
-					NavigationDrawerController navigationController = mainActivity.getNavigationDrawerController();
-					if (navigationController != null) {
-						navigationController.forceReset();
-						this.modulesUpdated = false; // processed
-					}
+			if (mainActivity.isMTResumed()) {
+				NavigationDrawerController navigationController = mainActivity.getNavigationDrawerController();
+				if (navigationController != null) {
+					navigationController.forceReset();
+					this.modulesUpdated = false; // processed
 				}
 			}
 		}
@@ -330,7 +328,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 				applyNewType();
 			}
 		}
-	};
+	}
 
 	private LoadTypeAgenciesTask loadTypeAgenciesTask = null;
 
@@ -353,7 +351,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 				applyNewTypeAgencies();
 			}
 		}
-	};
+	}
 
 	private void applyNewType() {
 		if (this.type == null) {

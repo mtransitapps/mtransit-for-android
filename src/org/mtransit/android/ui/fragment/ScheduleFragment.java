@@ -108,7 +108,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 				applyNewRts();
 			}
 		}
-	};
+	}
 
 	private void resetRts() {
 		this.rts = null;
@@ -190,7 +190,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 				applyNewAgency();
 			}
 		}
-	};
+	}
 
 	private void applyNewAgency() {
 		if (this.agency == null) {
@@ -436,8 +436,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 	@Override
 	public boolean isABReady() {
-		boolean ready = hasAgency() && hasRts();
-		return ready;
+		return hasAgency() && hasRts();
 	}
 
 	@Override

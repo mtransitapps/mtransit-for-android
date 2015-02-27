@@ -45,11 +45,11 @@ public class POIViewController implements MTLog.Loggable {
 
 	public static int getLayoutResId(POIManager poim) {
 		if (poim == null) {
-			MTLog.w(TAG, "getLayoutResId() > Unknown view type for poim %s!", poim);
+			MTLog.w(TAG, "getLayoutResId() > Unknown view type for poim null!");
 			return getBasicPOILayout(-1);
 		}
 		if (poim.poi == null) {
-			MTLog.w(TAG, "getLayoutResId() > Unknown view type for poi %s!", poim.poi);
+			MTLog.w(TAG, "getLayoutResId() > Unknown view type for poi null!");
 			return getBasicPOILayout(poim.getStatusType());
 		}
 		switch (poim.poi.getType()) {

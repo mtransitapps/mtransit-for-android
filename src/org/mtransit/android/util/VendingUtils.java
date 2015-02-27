@@ -73,7 +73,6 @@ public final class VendingUtils implements MTLog.Loggable {
 	private static void initBilling(Context context) {
 		mHelper = new IabHelper(context, context.getString(R.string.google_play_license_key));
 		mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
-
 			@Override
 			public void onIabSetupFinished(IabResult result) {
 				if (!result.isSuccess()) {
@@ -82,7 +81,6 @@ public final class VendingUtils implements MTLog.Loggable {
 				}
 				if (mHelper == null) return;
 				mHelper.queryInventoryAsync(new IabHelper.QueryInventoryFinishedListener() {
-
 					@Override
 					public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
 						if (mHelper == null) return;
@@ -152,7 +150,7 @@ public final class VendingUtils implements MTLog.Loggable {
 		if (mHelper != null && mHelper.subscriptionsSupported()) {
 			String payload = "";
 			mHelper.launchPurchaseFlow(activity, sku, IabHelper.ITEM_TYPE_SUBS, RC_REQUEST, new IabHelper.OnIabPurchaseFinishedListener() {
-
+				@Override
 				public void onIabPurchaseFinished(IabResult result, Purchase purchase) {
 					Context context = contextWR == null ? null : contextWR.get();
 					if (mHelper == null) return;

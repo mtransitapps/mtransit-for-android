@@ -513,11 +513,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			@Override
 			protected void onPostExecute(POIManager poim) {
 				if (poim != null) {
-					OnPOISelectedListener listerner = POIArrayAdapter.this.onPoiSelectedListenerWR == null ? null
+					OnPOISelectedListener listener = POIArrayAdapter.this.onPoiSelectedListenerWR == null ? null
 							: POIArrayAdapter.this.onPoiSelectedListenerWR.get();
-					boolean handled = listerner != null && listerner.onPOISelected(poim);
+					boolean handled = listener != null && listener.onPOISelected(poim);
 					if (!handled) {
-						handled = showPoiViewerScreen(poim);
+						showPoiViewerScreen(poim);
 					}
 				}
 			}
@@ -540,11 +540,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			@Override
 			protected void onPostExecute(POIManager poim) {
 				if (poim != null) {
-					OnPOISelectedListener listerner = POIArrayAdapter.this.onPoiSelectedListenerWR == null ? null
+					OnPOISelectedListener listener = POIArrayAdapter.this.onPoiSelectedListenerWR == null ? null
 							: POIArrayAdapter.this.onPoiSelectedListenerWR.get();
-					boolean handled = listerner != null && listerner.onPOILongSelected(poim);
+					boolean handled = listener != null && listener.onPOILongSelected(poim);
 					if (!handled) {
-						handled = showPoiMenu(poim);
+						showPoiMenu(poim);
 					}
 				}
 			}
@@ -831,16 +831,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	public void notifyDataSetChanged(boolean force, long minAdapterThresoldInMs) {
 		long now = TimeUtils.currentTimeMillis();
-		long adapterThreasold = Math.max(minAdapterThresoldInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
-		if (this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && (force || (now - this.lastNotifyDataSetChanged) > adapterThreasold)) {
+		long adapterThreshold = Math.max(minAdapterThresoldInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
+		if (this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && (force || (now - this.lastNotifyDataSetChanged) > adapterThreshold)) {
 			notifyDataSetChanged();
 			notifyDataSetChangedManual();
 			this.lastNotifyDataSetChanged = now;
 			this.handler.removeCallbacks(this.notifyDataSetChangedLater);
 		} else {
 			// IF we really needed to show new data AND list wasn't not idle DO try again later
-			if (force && this.scrollState != AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
-				this.handler.postDelayed(this.notifyDataSetChangedLater, adapterThreasold);
+			if (force) {
+				this.handler.postDelayed(this.notifyDataSetChangedLater, adapterThreshold);
 			}
 		}
 	}

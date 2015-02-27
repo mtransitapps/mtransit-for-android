@@ -66,8 +66,7 @@ public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MT
 		if (emptyView != null && emptyView.getVisibility() == View.VISIBLE) {
 			return canViewScrollUp(emptyView);
 		}
-		boolean canChildScrollUp = super.canChildScrollUp();
-		return canChildScrollUp;
+		return super.canChildScrollUp();
 	}
 
 	private static boolean canListViewScrollUp(AbsListView listView) {

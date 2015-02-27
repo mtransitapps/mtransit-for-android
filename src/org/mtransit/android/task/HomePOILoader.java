@@ -116,7 +116,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
 	private static ArrayList<POIManager> findAllNearby(Context context, DataSourceType type, double typeLat, double typeLng, float typeMinCoverageInMeters,
 			int nbMaxByType) {
-		ArrayList<POIManager> typePOIs = new ArrayList<POIManager>();
+		ArrayList<POIManager> typePOIs;
 		LocationUtils.AroundDiff typeAd = LocationUtils.getNewDefaultAroundDiff();
 		Double lastTypeAroundDiff = null;
 		int typeMaxSize = LocationUtils.MAX_NEARBY_LIST;

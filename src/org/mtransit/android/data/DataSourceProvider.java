@@ -643,23 +643,23 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private static WeakHashMap<ModulesUpdateListener, Object> modulesUpdateListeners = new WeakHashMap<ModulesUpdateListener, Object>();
 
-	public static void addModulesUpdateListerner(ModulesUpdateListener listener) {
+	public static void addModulesUpdateListener(ModulesUpdateListener listener) {
 		try {
 			if (!modulesUpdateListeners.containsKey(listener)) {
 				modulesUpdateListeners.put(listener, null);
 			}
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "addModulesUpdateListerner() > error while adding listerner '%s'!", listener);
+			MTLog.w(TAG, e, "addModulesUpdateListener() > error while adding listener '%s'!", listener);
 		}
 	}
 
-	public static void removeModulesUpdateListerner(ModulesUpdateListener listener) {
+	public static void removeModulesUpdateListener(ModulesUpdateListener listener) {
 		try {
 			if (modulesUpdateListeners.containsKey(listener)) {
 				modulesUpdateListeners.remove(listener);
 			}
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "removeModulesUpdateListerner() > error while removing listerner '%s'!", listener);
+			MTLog.w(TAG, e, "removeModulesUpdateListener() > error while removing listener '%s'!", listener);
 		}
 	}
 

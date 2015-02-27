@@ -91,7 +91,7 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
-		DataSourceProvider.addModulesUpdateListerner(this);
+		DataSourceProvider.addModulesUpdateListener(this);
 	}
 
 	private void restoreInstanceState(Bundle... bundles) {
@@ -283,5 +283,6 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 			this.adapter.onDestroy();
 			this.adapter = null;
 		}
+		DataSourceProvider.removeModulesUpdateListener(this);
 	}
 }

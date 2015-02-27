@@ -130,7 +130,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 				applyNewTypeFilter();
 			}
 		}
-	};
+	}
 
 	private boolean initTypeFilterSync() {
 		if (this.typeFilter != null) {

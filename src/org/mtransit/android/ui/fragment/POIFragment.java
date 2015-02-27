@@ -152,7 +152,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 				applyNewAgency();
 			}
 		}
-	};
+	}
 
 	private AgencyProperties getAgencyOrNull() {
 		if (!hasAgency()) {
@@ -231,7 +231,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 				applyNewPoim();
 			}
 		}
-	};
+	}
 
 	private POIManager getPoimOrNull() {
 		if (!hasPoim()) {
@@ -684,7 +684,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		POIManager newPoim = DataSourceManager.findPOI(activity, this.authority, new POIFilter(Arrays.asList(new String[] { this.uuid })));
 		if (newPoim == null) {
 			if (activity.isMTResumed()) {
-				((MainActivity) activity).popFragmentFromStack(this); // close this fragment
+				activity.popFragmentFromStack(this); // close this fragment
 				this.modulesUpdated = false; // processed
 			}
 		} else {

@@ -13,6 +13,7 @@ class ClusterRefresher {
 	private Set<ClusterMarker> refreshQueue = new HashSet<ClusterMarker>();
 	private boolean refreshPending;
 	private Handler refresher = new Handler(new Callback() {
+		@Override
 		public boolean handleMessage(Message msg) {
 			refreshAll();
 			return true;

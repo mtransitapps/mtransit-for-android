@@ -28,7 +28,7 @@ public final class AdsUtils implements MTLog.Loggable {
 		return TAG;
 	}
 
-	public static boolean AD_ENABLED = true;
+	private static boolean AD_ENABLED = true;
 
 	private static final boolean DEBUG = false;
 
@@ -296,7 +296,7 @@ public final class AdsUtils implements MTLog.Loggable {
 		if (nbAgencies == null) {
 			nbAgencies = DataSourceProvider.get(context).getAllAgenciesCount();
 		}
-		if (nbAgencies != null && nbAgencies <= MIN_AGENCIES_FOR_ADS) {
+		if (nbAgencies <= MIN_AGENCIES_FOR_ADS) {
 			return false;
 		}
 		if (showingAds == null) {

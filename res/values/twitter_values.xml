@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,UnusedResources">
     <integer name="twitter_db_version">1</integer>
     <string name="twitter_authority">org.mtransit.android.news.twitter</string>
-    <string name="twitter_target_for_poi_authority"></string>
+    <string name="twitter_target_for_poi_authority" />
     <string name="twitter_color">000000</string>
     <string-array name="twitter_screen_names">
         <item>montransit</item>

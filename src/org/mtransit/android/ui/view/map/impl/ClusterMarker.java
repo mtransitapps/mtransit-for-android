@@ -153,8 +153,7 @@ class ClusterMarker implements IMarker {
 		for (DelegatingMarker m : markers) {
 			builder.include(m.getPosition());
 		}
-		LatLng position = builder.build().getCenter();
-		return position;
+		return builder.build().getCenter();
 	}
 
 	@Override

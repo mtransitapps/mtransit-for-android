@@ -185,7 +185,6 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 
 	public DelegatingMarker mapToDelegatingMarker(com.google.android.gms.maps.model.Marker marker) {
 		LazyMarker lazy = createdMarkers.get(marker);
-		DelegatingMarker delegating = markers.get(lazy);
-		return delegating;
+		return markers.get(lazy);
 	}
 }

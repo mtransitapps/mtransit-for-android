@@ -260,7 +260,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				applyNewMapView(view);
 			}
 		}
-	};
+	}
 
 	private void applyNewMapView(View view) {
 		if (this.mapView != null) {

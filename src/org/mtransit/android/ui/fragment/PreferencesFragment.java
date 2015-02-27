@@ -27,7 +27,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
-		((Preference) findPreference(SUPPORT_SUBSCRIPTIONS_PREF)).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+		findPreference(SUPPORT_SUBSCRIPTIONS_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
 				Boolean hasSubscription = VendingUtils.isHasSubscription(PreferencesFragment.this.getActivity());
@@ -44,7 +44,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 
 	@Override
 	public void onVendingResult(Boolean hasSubscription) {
-		Preference supportSubsPref = (Preference) findPreference(SUPPORT_SUBSCRIPTIONS_PREF);
+		Preference supportSubsPref = findPreference(SUPPORT_SUBSCRIPTIONS_PREF);
 		if (hasSubscription == null) {
 			supportSubsPref.setTitle(R.string.ellipsis);
 			supportSubsPref.setSummary(R.string.ellipsis);

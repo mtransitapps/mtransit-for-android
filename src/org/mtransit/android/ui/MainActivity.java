@@ -67,7 +67,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		this.navigationDrawerController = new NavigationDrawerController(this);
 		this.navigationDrawerController.setup(savedInstanceState);
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
-		DataSourceProvider.addModulesUpdateListerner(this);
+		DataSourceProvider.addModulesUpdateListener(this);
 		MapUtils.fixScreenFlickering((FrameLayout) findViewById(R.id.content_frame));
 	}
 
@@ -198,7 +198,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		super.onDestroy();
 		AdsUtils.destroyAd(this);
 		VendingUtils.destroyBilling(this);
-		DataSourceProvider.removeModulesUpdateListerner(this);
+		DataSourceProvider.removeModulesUpdateListener(this);
 		if (this.abController != null) {
 			this.abController.destroy();
 			this.abController = null;

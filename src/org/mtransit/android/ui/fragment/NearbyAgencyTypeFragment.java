@@ -83,7 +83,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
-		DataSourceProvider.addModulesUpdateListerner(this);
+		DataSourceProvider.addModulesUpdateListener(this);
 	}
 
 	@Override
@@ -167,7 +167,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 				applyNewTypeAgenciesAuthority();
 			}
 		}
-	};
+	}
 
 	private boolean initTypeAgenciesAuthoritySync() {
 		if (this.typeAgenciesAuthority != null) {
@@ -391,7 +391,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		DataSourceProvider.removeModulesUpdateListerner(this);
+		DataSourceProvider.removeModulesUpdateListener(this);
 		if (this.adapter != null) {
 			this.adapter.onDestroy();
 			this.adapter = null;

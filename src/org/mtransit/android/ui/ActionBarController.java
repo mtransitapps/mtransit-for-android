@@ -338,9 +338,6 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	public void onRestoreState(Bundle savedInstanceState) {
-		if (savedInstanceState == null) {
-			return;
-		}
 	}
 
 	public void destroy() {

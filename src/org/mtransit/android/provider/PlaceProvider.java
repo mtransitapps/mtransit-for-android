@@ -18,7 +18,6 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.FileUtils;
 import org.mtransit.android.commons.LocaleUtils;
-import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SqlUtils;
@@ -176,8 +175,6 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		}
 		String url;
 		if (POIFilter.isAreaFilter(poiFilter)) {
-			int radiusInMeters = (int) LocationUtils.getAroundCoveredDistanceInMeters(poiFilter.getLat(), poiFilter.getLng(), poiFilter.getAroundDiff());
-			url = getTextSearchUrlString(getContext(), poiFilter.getLat(), poiFilter.getLng(), radiusInMeters, null);
 			return ContentProviderConstants.EMPTY_CURSOR; // empty cursor = processed
 		} else if (POIFilter.isSearchKeywords(poiFilter)) {
 			Double lat = poiFilter.getExtraDouble("lat", null);

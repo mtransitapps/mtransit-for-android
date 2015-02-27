@@ -165,7 +165,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 				applyNewRts();
 			}
 		}
-	};
+	}
 
 	private void resetRts() {
 		this.rts = null;

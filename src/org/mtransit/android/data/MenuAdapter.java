@@ -76,7 +76,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 	public MenuAdapter(Context context, MenuUpdateListener listener) {
 		setContext(context);
 		this.listener = listener;
-		DataSourceProvider.addModulesUpdateListerner(this);
+		DataSourceProvider.addModulesUpdateListener(this);
 	}
 
 	public void setContext(Context context) {
@@ -117,6 +117,10 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 
 	private int getAllAgencyTypesCount() {
 		return getAllAgencyTypes().size();
+	}
+
+	public void onDestroy() {
+		DataSourceProvider.removeModulesUpdateListener(this);
 	}
 
 	private boolean resumed = false;
@@ -373,8 +377,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 	}
 
 	private int getSecondaryIndexItemAt(int position) {
-		final int secondaryPosition = position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size();
-		return secondaryPosition;
+		return position - STATIC_ITEMS_BEFORE_DYNAMIC - getAllAgencyTypes().size();
 	}
 
 	public View getSecondarView(int position, View convertView, ViewGroup parent) {

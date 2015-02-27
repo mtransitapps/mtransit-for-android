@@ -17,7 +17,6 @@
         android:textColor="?android:attr/textColorSecondary"
         android:textStyle="normal"
         android:visibility="gone"
-        tools:text="@string/default_distance"
         tools:visibility="visible" />
     <!-- COMPASS -->
     <org.mtransit.android.ui.view.MTCompassView

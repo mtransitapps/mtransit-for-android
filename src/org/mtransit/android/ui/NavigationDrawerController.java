@@ -322,6 +322,10 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 			this.mainActivityWR.clear();
 			this.mainActivityWR = null;
 		}
+		if (this.drawerListViewAdapter != null) {
+			this.drawerListViewAdapter.onDestroy();
+			this.drawerListViewAdapter = null;
+		}
 		this.currentSelectedItemPosition = -1;
 		this.currentSelectedScreenItemId = null;
 		this.leftDrawer = null;
@@ -356,5 +360,4 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 			}
 		}
 	}
-
 }

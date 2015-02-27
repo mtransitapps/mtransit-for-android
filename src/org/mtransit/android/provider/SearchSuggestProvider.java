@@ -17,6 +17,7 @@ import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.UriMatcher;
@@ -26,6 +27,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
+@SuppressLint("Registered")
 public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 
 	private static final String TAG = SearchSuggestProvider.class.getSimpleName();
@@ -60,7 +62,7 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		Cursor cursor = null;
-		String query = null;
+		String query;
 		try {
 			switch (URI_MATCHER.match(uri)) {
 			case ContentProviderConstants.SEARCH_SUGGEST_EMPTY:

@@ -194,13 +194,11 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			}
 			resetAvailableTypes();
 			MainActivity mainActivity = (MainActivity) activity;
-			if (mainActivity != null) {
-				if (mainActivity.isMTResumed()) {
-					NavigationDrawerController navigationController = mainActivity.getNavigationDrawerController();
-					if (navigationController != null) {
-						navigationController.forceReset();
-						this.modulesUpdated = false; // processed
-					}
+			if (mainActivity.isMTResumed()) {
+				NavigationDrawerController navigationController = mainActivity.getNavigationDrawerController();
+				if (navigationController != null) {
+					navigationController.forceReset();
+					this.modulesUpdated = false; // processed
 				}
 			}
 		} else {
@@ -313,8 +311,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 					return null;
 				}
 				Address address = LocationUtils.getLocationAddress(activity, nearbyLocation);
-				String locationString = LocationUtils.getLocationString(activity, null, address, nearbyLocation.getAccuracy());
-				return locationString;
+				return LocationUtils.getLocationString(activity, null, address, nearbyLocation.getAccuracy());
 			}
 
 			@Override
@@ -381,7 +378,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				applyNewAvailableTypes();
 			}
 		}
-	};
+	}
 
 	private boolean initAvailableTypesSync() {
 		if (this.availableTypes != null) {

@@ -112,9 +112,6 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 	}
 
 	private void setupView(View view) {
-		if (view == null) {
-			return;
-		}
 	}
 
 	private void restoreInstanceState(Bundle... bundles) {
@@ -327,7 +324,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 				applyNewFilterTypeIds();
 			}
 		}
-	};
+	}
 
 	private boolean initFilterTypeIdsSync() {
 		if (this.filterTypeIds != null) {
@@ -444,7 +441,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 			}
 			new AlertDialog.Builder(getActivity()) //
 					.setTitle(R.string.menu_action_filter) //
-					.setMultiChoiceItems(typeNames.toArray(new CharSequence[] {}), checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
+					.setMultiChoiceItems(typeNames.toArray(new CharSequence[typeNames.size()]), checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which, boolean isChecked) {
 							if (isChecked) {
