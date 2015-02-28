@@ -231,9 +231,6 @@ public final class AdsUtils implements MTLog.Loggable {
 		if (!AD_ENABLED) {
 			return;
 		}
-		if (!isShowingAds(activity)) {
-			return;
-		}
 		View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
 		if (adLayout != null) {
 			AdView adView = (AdView) adLayout.findViewById(R.id.ad);
@@ -243,11 +240,8 @@ public final class AdsUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static void resumeAd(Activity activity) {
+	private static void resumeAd(Activity activity) {
 		if (!AD_ENABLED) {
-			return;
-		}
-		if (!isShowingAds(activity)) {
 			return;
 		}
 		View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
@@ -263,21 +257,18 @@ public final class AdsUtils implements MTLog.Loggable {
 		if (!AD_ENABLED) {
 			return;
 		}
-		if (!isShowingAds(activity)) {
-			return;
-		}
 		View adLayout = activity == null ? null : activity.findViewById(R.id.ad_layout);
 		if (adLayout != null) {
 			AdView adView = (AdView) adLayout.findViewById(R.id.ad);
 			if (adView != null) {
 				adView.destroy();
-				adLoaded = null;
-				if (setupAdTask != null) {
-					setupAdTask.cancel(true);
-				}
-				setupAdTask = null;
 			}
 		}
+		adLoaded = null;
+		if (setupAdTask != null) {
+			setupAdTask.cancel(true);
+		}
+		setupAdTask = null;
 	}
 
 	private static final int MIN_AGENCIES_FOR_ADS = 2;
