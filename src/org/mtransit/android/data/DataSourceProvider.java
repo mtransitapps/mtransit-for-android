@@ -216,7 +216,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 							nbServiceUpdateProviders++;
 						}
 						if (newsProviderMetaData.equals(provider.metaData.getString(newsProviderMetaData))) {
-							if (instance.getServiceUpdateProvider(provider.authority) == null) {
+							if (instance.getNewsProvider(provider.authority) == null) {
 								return true;
 							}
 							nbNewsProviders++;
@@ -312,40 +312,46 @@ public class DataSourceProvider implements MTLog.Loggable {
 		if (context == null) {
 			return;
 		}
-		if (this.allAgenciesAuthority != null) {
-			this.allAgencies = new ArrayList<AgencyProperties>();
-			this.allAgenciesByAuthority = new HashMap<String, AgencyProperties>();
-			this.allAgenciesByTypeId = new SparseArray<ArrayList<AgencyProperties>>();
-			this.rtsAgencyRouteLogoByAuthority = new HashMap<String, JPaths>();
-			for (String authority : this.allAgenciesAuthority) {
-				String label = DataSourceManager.findAgencyLabel(context, authority);
-				String color = DataSourceManager.findAgencyColor(context, authority);
-				String shortName = DataSourceManager.findAgencyShortName(context, authority);
-				LocationUtils.Area area = DataSourceManager.findAgencyArea(context, authority);
-				boolean isRTS = this.agenciesAuthorityIsRts.get(authority);
-				JPaths jPath = isRTS ? DataSourceManager.findAgencyRTSRouteLogo(context, authority) : null;
-				Integer typeId = this.agenciesAuthorityTypeId.get(authority);
-				if (typeId != null && typeId >= 0) {
-					DataSourceType type = DataSourceType.parseId(typeId);
-					if (type != null) {
-						addNewAgency(new AgencyProperties(authority, type, shortName, label, color, area, isRTS));
-						if (jPath != null) {
-							this.rtsAgencyRouteLogoByAuthority.put(authority, jPath);
+		try {
+			if (this.allAgenciesAuthority != null) {
+				this.allAgencies = new ArrayList<AgencyProperties>();
+				this.allAgenciesByAuthority = new HashMap<String, AgencyProperties>();
+				this.allAgenciesByTypeId = new SparseArray<ArrayList<AgencyProperties>>();
+				this.rtsAgencyRouteLogoByAuthority = new HashMap<String, JPaths>();
+				for (String authority : this.allAgenciesAuthority) {
+					String label = DataSourceManager.findAgencyLabel(context, authority);
+					String color = DataSourceManager.findAgencyColor(context, authority);
+					String shortName = DataSourceManager.findAgencyShortName(context, authority);
+					LocationUtils.Area area = DataSourceManager.findAgencyArea(context, authority);
+					boolean isRTS = this.agenciesAuthorityIsRts.get(authority);
+					JPaths jPath = isRTS ? DataSourceManager.findAgencyRTSRouteLogo(context, authority) : null;
+					Integer typeId = this.agenciesAuthorityTypeId.get(authority);
+					if (typeId != null && typeId >= 0) {
+						DataSourceType type = DataSourceType.parseId(typeId);
+						if (type != null) {
+							addNewAgency(new AgencyProperties(authority, type, shortName, label, color, area, isRTS));
+							if (jPath != null) {
+								this.rtsAgencyRouteLogoByAuthority.put(authority, jPath);
+							}
 						}
 					} else {
-						MTLog.w(this, "Invalid type, skipping agency provider.");
+						MTLog.w(this, "Invalid type ID '%s', skipping agency provider.", typeId);
 					}
-				} else {
-					MTLog.w(this, "Invalid type ID '%s', skipping agency provider.", typeId);
+				}
+				CollectionUtils.sort(this.allAgencies, AgencyProperties.SHORT_NAME_COMPARATOR);
+				if (this.allAgenciesByTypeId != null) {
+					for (int i = 0; i < this.allAgenciesByTypeId.size(); i++) {
+						int typeId = this.allAgenciesByTypeId.keyAt(i);
+						CollectionUtils.sort(this.allAgenciesByTypeId.get(typeId), AgencyProperties.SHORT_NAME_COMPARATOR);
+					}
 				}
 			}
-			CollectionUtils.sort(this.allAgencies, AgencyProperties.SHORT_NAME_COMPARATOR);
-			if (this.allAgenciesByTypeId != null) {
-				for (int i = 0; i < this.allAgenciesByTypeId.size(); i++) {
-					int typeId = this.allAgenciesByTypeId.keyAt(i);
-					CollectionUtils.sort(this.allAgenciesByTypeId.get(typeId), AgencyProperties.SHORT_NAME_COMPARATOR);
-				}
-			}
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while initializing agencies properties!");
+			this.allAgencies = null;
+			this.allAgenciesByAuthority = null;
+			this.allAgenciesByTypeId = null;
+			this.rtsAgencyRouteLogoByAuthority = null;
 		}
 	}
 
@@ -530,63 +536,69 @@ public class DataSourceProvider implements MTLog.Loggable {
 	}
 
 	private synchronized void init(Context context) {
-		String agencyProviderMetaData = getAgencyProviderMetaData(context);
-		String agencyProviderTypeMetaData = context.getString(R.string.agency_provider_type);
-		String rtsProviderMetaData = context.getString(R.string.rts_provider);
-		String scheduleProviderMetaData = getScheduleProviderMetaData(context);
-		String statusProviderMetaData = getStatusProviderMetaData(context);
-		String serviceUpdateProviderMetaData = getServiceUpdateProviderMetaData(context);
-		String newsProviderMetaData = getNewsProviderMetaData(context);
-		String statusProviderTargetMetaData = context.getString(R.string.status_provider_target);
-		String scheduleProviderTargetMetaData = context.getString(R.string.schedule_provider_target);
-		String serviceUpdateProviderTargetMetaData = context.getString(R.string.service_update_provider_target);
-		String newsProviderTargetMetaData = context.getString(R.string.news_provider_target);
-		PackageManager pm = context.getPackageManager();
-		for (PackageInfo packageInfo : pm.getInstalledPackages(PackageManager.GET_PROVIDERS | PackageManager.GET_META_DATA)) {
-			ProviderInfo[] providers = packageInfo.providers;
-			if (providers != null) {
-				for (ProviderInfo provider : providers) {
-					if (provider.metaData != null) {
-						if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
-							int agencyTypeId = provider.metaData.getInt(agencyProviderTypeMetaData, -1);
-							if (agencyTypeId >= 0) {
-								DataSourceType newAgencyType = DataSourceType.parseId(agencyTypeId);
-								if (newAgencyType != null) {
-									if (!this.allAgencyTypes.contains(newAgencyType)) {
-										this.allAgencyTypes.add(newAgencyType);
+		try {
+			String agencyProviderMetaData = getAgencyProviderMetaData(context);
+			String agencyProviderTypeMetaData = context.getString(R.string.agency_provider_type);
+			String rtsProviderMetaData = context.getString(R.string.rts_provider);
+			String scheduleProviderMetaData = getScheduleProviderMetaData(context);
+			String statusProviderMetaData = getStatusProviderMetaData(context);
+			String serviceUpdateProviderMetaData = getServiceUpdateProviderMetaData(context);
+			String newsProviderMetaData = getNewsProviderMetaData(context);
+			String statusProviderTargetMetaData = context.getString(R.string.status_provider_target);
+			String scheduleProviderTargetMetaData = context.getString(R.string.schedule_provider_target);
+			String serviceUpdateProviderTargetMetaData = context.getString(R.string.service_update_provider_target);
+			String newsProviderTargetMetaData = context.getString(R.string.news_provider_target);
+			PackageManager pm = context.getPackageManager();
+			for (PackageInfo packageInfo : pm.getInstalledPackages(PackageManager.GET_PROVIDERS | PackageManager.GET_META_DATA)) {
+				ProviderInfo[] providers = packageInfo.providers;
+				if (providers != null) {
+					for (ProviderInfo provider : providers) {
+						if (provider.metaData != null) {
+							if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
+								int agencyTypeId = provider.metaData.getInt(agencyProviderTypeMetaData, -1);
+								if (agencyTypeId >= 0) {
+									DataSourceType newAgencyType = DataSourceType.parseId(agencyTypeId);
+									if (newAgencyType != null) {
+										if (!this.allAgencyTypes.contains(newAgencyType)) {
+											this.allAgencyTypes.add(newAgencyType);
+										}
 									}
+									this.agenciesAuthorityTypeId.put(provider.authority, agencyTypeId);
 								}
-								this.agenciesAuthorityTypeId.put(provider.authority, agencyTypeId);
+								boolean isRTS = rtsProviderMetaData.equals(provider.metaData.getString(rtsProviderMetaData));
+								this.agenciesAuthorityIsRts.put(provider.authority, isRTS);
+								this.allAgenciesAuthority.add(provider.authority);
 							}
-							boolean isRTS = rtsProviderMetaData.equals(provider.metaData.getString(rtsProviderMetaData));
-							this.agenciesAuthorityIsRts.put(provider.authority, isRTS);
-							this.allAgenciesAuthority.add(provider.authority);
-						}
-						if (statusProviderMetaData.equals(provider.metaData.getString(statusProviderMetaData))) {
-							String targetAuthority = provider.metaData.getString(statusProviderTargetMetaData);
-							StatusProviderProperties newStatusProvider = new StatusProviderProperties(provider.authority, targetAuthority);
-							addNewStatusProvider(newStatusProvider);
-						}
-						if (scheduleProviderMetaData.equals(provider.metaData.getString(scheduleProviderMetaData))) {
-							String targetAuthority = provider.metaData.getString(scheduleProviderTargetMetaData);
-							ScheduleProviderProperties newScheduleProvider = new ScheduleProviderProperties(provider.authority, targetAuthority);
-							addNewScheduleProvider(newScheduleProvider);
-						}
-						if (serviceUpdateProviderMetaData.equals(provider.metaData.getString(serviceUpdateProviderMetaData))) {
-							String targetAuthority = provider.metaData.getString(serviceUpdateProviderTargetMetaData);
-							ServiceUpdateProviderProperties newServiceUpdateProvider = new ServiceUpdateProviderProperties(provider.authority, targetAuthority);
-							addNewServiceUpdateProvider(newServiceUpdateProvider);
-						}
-						if (newsProviderMetaData.equals(provider.metaData.getString(newsProviderMetaData))) {
-							String targetAuthority = provider.metaData.getString(newsProviderTargetMetaData);
-							NewsProviderProperties newNewsProvider = new NewsProviderProperties(provider.authority, targetAuthority);
-							addNewNewsProvider(newNewsProvider);
+							if (statusProviderMetaData.equals(provider.metaData.getString(statusProviderMetaData))) {
+								String targetAuthority = provider.metaData.getString(statusProviderTargetMetaData);
+								StatusProviderProperties newStatusProvider = new StatusProviderProperties(provider.authority, targetAuthority);
+								addNewStatusProvider(newStatusProvider);
+							}
+							if (scheduleProviderMetaData.equals(provider.metaData.getString(scheduleProviderMetaData))) {
+								String targetAuthority = provider.metaData.getString(scheduleProviderTargetMetaData);
+								ScheduleProviderProperties newScheduleProvider = new ScheduleProviderProperties(provider.authority, targetAuthority);
+								addNewScheduleProvider(newScheduleProvider);
+							}
+							if (serviceUpdateProviderMetaData.equals(provider.metaData.getString(serviceUpdateProviderMetaData))) {
+								String targetAuthority = provider.metaData.getString(serviceUpdateProviderTargetMetaData);
+								ServiceUpdateProviderProperties newServiceUpdateProvider = new ServiceUpdateProviderProperties(provider.authority,
+										targetAuthority);
+								addNewServiceUpdateProvider(newServiceUpdateProvider);
+							}
+							if (newsProviderMetaData.equals(provider.metaData.getString(newsProviderMetaData))) {
+								String targetAuthority = provider.metaData.getString(newsProviderTargetMetaData);
+								NewsProviderProperties newNewsProvider = new NewsProviderProperties(provider.authority, targetAuthority);
+								addNewNewsProvider(newNewsProvider);
+							}
 						}
 					}
 				}
 			}
+			CollectionUtils.sort(this.allAgencyTypes, new DataSourceType.DataSourceTypeShortNameComparator(context));
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while initializing properties!");
+			destroy();
 		}
-		CollectionUtils.sort(this.allAgencyTypes, new DataSourceType.DataSourceTypeShortNameComparator(context));
 	}
 
 
@@ -691,7 +703,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private static class TriggerModulesUpdatedTask extends MTAsyncTask<Void, ModulesUpdateListener, Void> {
 
-		private static final String TAG = TriggerModulesUpdatedTask.class.getSimpleName();
+		private static final String TAG = DataSourceProvider.class.getSimpleName() + ">" + TriggerModulesUpdatedTask.class.getSimpleName();
 
 		@Override
 		public String getLogTag() {
