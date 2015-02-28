@@ -8,6 +8,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
@@ -65,7 +66,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		if (this.pois == null) {
 			this.pois = new ArrayList<POIManager>();
 		}
-		if (this.agenciesAuthority == null || this.agenciesAuthority.length == 0) {
+		if (ArrayUtils.getSize(this.agenciesAuthority) == 0) {
 			return this.pois;
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,

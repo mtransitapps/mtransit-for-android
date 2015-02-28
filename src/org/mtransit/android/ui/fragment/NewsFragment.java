@@ -25,12 +25,12 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.TextView;
 
 public class NewsFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<News>>, SwipeRefreshLayout.OnRefreshListener {
@@ -202,6 +202,8 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		View listView = view.findViewById(R.id.list);
 		if (listView != null) {
 			((AbsListView) listView).setAdapter(this.adapter);
+			((AbsListView) listView).setOnItemClickListener(this.adapter);
+			((AbsListView) listView).setOnItemLongClickListener(this.adapter);
 		}
 	}
 
@@ -275,7 +277,8 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		return context.getString(R.string.news);
 	}
 
-	private static class NewsAdapter extends MTArrayAdapter<News> implements TimeUtils.TimeChangedReceiver.TimeChangedListener {
+	private static class NewsAdapter extends MTArrayAdapter<News> implements TimeUtils.TimeChangedReceiver.TimeChangedListener,
+			AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
 		private static final String TAG = NewsAdapter.class.getSimpleName();
 
@@ -340,6 +343,32 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 
 		@Override
+		public void clear() {
+			if (this.news != null) {
+				this.news.clear();
+				this.news = null; // not initialized
+			}
+			super.clear();
+		}
+
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			News news = getItem(position);
+			if (news != null) {
+				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(news.getWebURL()));
+				Activity activity = getActivityOrNull();
+				if (activity != null) {
+					activity.startActivity(intent);
+				}
+			}
+		}
+
+		@Override
+		public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+			return false;
+		}
+
+		@Override
 		public int getCount() {
 			return CollectionUtils.getSize(this.news);
 		}
@@ -394,7 +423,6 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			});
 			holder.dateTv.setText(TimeUtils.formatRelativeTime(getContext(), news.getCreatedAtInMs()));
 			holder.newsTv.setText(Html.fromHtml(news.getTextHTML()));
-			holder.newsTv.setMovementMethod(LinkMovementMethod.getInstance());
 			holder.newsTv.setLinkTextColor(news.getColorInt());
 			return convertView;
 		}

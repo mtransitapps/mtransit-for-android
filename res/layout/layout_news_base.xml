@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:minHeight="?android:attr/listPreferredItemHeightLarge"
     android:padding="8dp" >
     <TextView
         android:id="@+id/date"
@@ -23,13 +23,14 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@id/date"
+        android:background="?android:attr/selectableItemBackground"
         android:ellipsize="marquee"
         android:fontFamily="sans-serif-condensed"
         android:maxLines="1"
         android:padding="1dp"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorPrimary"
+        android:textColor="?android:attr/textColorSecondary"
         android:textStyle="bold" />
     <!-- NAME -->
     <TextView
@@ -40,11 +41,10 @@
         android:layout_below="@id/author"
         android:ellipsize="end"
         android:fontFamily="sans-serif-condensed"
-        android:gravity="top|left"
         android:maxLines="7"
         android:minLines="2"
         android:singleLine="false"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?android:attr/textColorSecondary"
+        android:textColor="?android:attr/textColorPrimary"
         android:textStyle="normal" />
 </RelativeLayout>

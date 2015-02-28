@@ -57,8 +57,7 @@ public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
 				new LinkedBlockingDeque<Runnable>(newsProviders.size()));
 		ArrayList<Future<ArrayList<News>>> taskList = new ArrayList<Future<ArrayList<News>>>();
 		for (NewsProviderProperties newsProvider : newsProviders) {
-			FindNewsTask task = new FindNewsTask(getContext(), newsProvider.getAuthority());
-			taskList.add(executor.submit(task));
+			taskList.add(executor.submit(new FindNewsTask(getContext(), newsProvider.getAuthority())));
 		}
 		HashSet<String> newsUUIDs = new HashSet<String>();
 		for (Future<ArrayList<News>> future : taskList) {
