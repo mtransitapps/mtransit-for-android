@@ -394,7 +394,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			StoreUtils.viewAppPage(activity, ((Module) poi).getPkg());
+			StoreUtils.viewAppPage(activity, ((Module) poi).getPkg(), activity.getString(R.string.google_play));
 			return true; // HANDLED
 		case 1:
 			if (onClickHandledListener != null) {
@@ -519,7 +519,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			StoreUtils.viewAppPage(activity, ((Module) poi).getPkg());
+			StoreUtils.viewAppPage(activity, ((Module) poi).getPkg(), activity.getString(R.string.google_play));
 			return true; // handled
 		case POI.ITEM_ACTION_TYPE_PLACE:
 			if (onClickHandledListener != null) {

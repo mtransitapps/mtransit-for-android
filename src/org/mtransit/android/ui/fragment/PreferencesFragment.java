@@ -5,6 +5,7 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.util.VendingUtils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -30,12 +31,16 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 		findPreference(SUPPORT_SUBSCRIPTIONS_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				Boolean hasSubscription = VendingUtils.isHasSubscription(PreferencesFragment.this.getActivity());
+				Activity activity = getActivity();
+				if (activity == null) {
+					return false;
+				}
+				Boolean hasSubscription = VendingUtils.isHasSubscription(activity);
 				if (hasSubscription == null) {
 				} else if (hasSubscription) {
-					StoreUtils.viewAppPage(getActivity(), getActivity().getPackageName());
+					StoreUtils.viewAppPage(activity, activity.getPackageName(), activity.getString(R.string.google_play));
 				} else {
-					VendingUtils.purchase(getActivity(), VendingUtils.MONTHLY_SUBSCRIPTION_SKU);
+					VendingUtils.purchase(activity, VendingUtils.MONTHLY_SUBSCRIPTION_SKU);
 				}
 				return false;
 			}
