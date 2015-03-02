@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/poi_item_bg"
     android:paddingTop="@dimen/action_bar_size_static" >
     <ScrollView
         android:id="@+id/scrollview"
@@ -25,6 +26,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentTop="true"
+                    android:background="?android:attr/selectableItemBackground"
                     android:fontFamily="sans-serif-condensed"
                     android:padding="1dp"
                     android:singleLine="true"

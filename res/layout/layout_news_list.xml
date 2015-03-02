@@ -9,4 +9,4 @@
     android:scrollbarStyle="insideOverlay"
     android:visibility="visible"
     tools:context=".ui.MainActivity"
-    tools:listitem="@layout/layout_news_basic" />
+    tools:listitem="@layout/layout_news_base" />

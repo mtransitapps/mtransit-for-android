@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/poi_item_bg"
     android:minHeight="?android:attr/listPreferredItemHeightLarge"
     android:padding="16dp" >
     <TextView
@@ -38,11 +39,11 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_below="@id/author"
-        android:paddingTop="8dp"
         android:ellipsize="end"
         android:fontFamily="sans-serif-condensed"
         android:maxLines="7"
         android:minLines="2"
+        android:paddingTop="8dp"
         android:singleLine="false"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="?android:attr/textColorPrimary"

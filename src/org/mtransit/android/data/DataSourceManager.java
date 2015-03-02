@@ -96,7 +96,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			String newsFilterJSONString = newsFilter == null ? null : newsFilter.toJSONString();
 			Uri uri = Uri.withAppendedPath(getUri(authority), NewsProvider.NEWS_CONTENT_DIRECTORY);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, newsFilterJSONString, null, null);
-			return getNews(cursor);
+			return getNews(cursor, authority);
 		} catch (Exception e) {
 			MTLog.w(TAG, e, "Error!");
 			return null;
@@ -105,12 +105,12 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
-	private static ArrayList<News> getNews(Cursor cursor) {
+	private static ArrayList<News> getNews(Cursor cursor, String authority) {
 		ArrayList<News> result = new ArrayList<News>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
-					result.add(News.fromCursor(cursor));
+					result.add(News.fromCursorStatic(cursor, authority));
 				} while (cursor.moveToNext());
 			}
 		}

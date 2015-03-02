@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
@@ -75,6 +76,27 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	private void initAdapters(Activity activity) {
 		this.adapter = new NewsAdapter(activity);
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		restoreInstanceState(savedInstanceState, getArguments());
+	}
+
+	private void restoreInstanceState(Bundle... bundles) {
+		String newTargetUUID = BundleUtils.getString(EXTRA_FILTER_TARGET_UUID, bundles);
+		if (!TextUtils.isEmpty(newTargetUUID) && !newTargetUUID.equals(this.targetUUID)) {
+			this.targetUUID = newTargetUUID;
+		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		if (!TextUtils.isEmpty(this.targetUUID)) {
+			outState.putString(EXTRA_FILTER_TARGET_UUID, this.targetUUID);
+		}
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override

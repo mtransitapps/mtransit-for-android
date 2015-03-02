@@ -2,12 +2,8 @@ package org.mtransit.android.util;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.ColorUtils;
-import org.mtransit.android.commons.LinkUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ResourceUtils;
-
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
 import android.app.Activity;
 import android.content.Context;
@@ -18,6 +14,9 @@ import android.net.Uri;
 import android.util.LruCache;
 import android.util.Pair;
 import android.view.ViewGroup;
+
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
 public final class MapUtils implements MTLog.Loggable {
 
@@ -106,5 +105,4 @@ public final class MapUtils implements MTLog.Loggable {
 		cache.put(key, newBitmapDescriptor);
 		return newBitmapDescriptor;
 	}
-
 }

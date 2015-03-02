@@ -3,26 +3,28 @@ package org.mtransit.android.ui.fragment;
 import java.util.Arrays;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ColorUtils;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.provider.NewsProvider;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.util.LinkUtils;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeChangedReceiver.TimeChangedListener {
+public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeChangedReceiver.TimeChangedListener, LinkUtils.OnUrlClickListener {
 
 	private static final String TAG = NewsDetailsFragment.class.getSimpleName();
 
@@ -42,14 +44,14 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 	}
 
 	private static final String EXTRA_AUTHORITY = "extra_agency_authority";
-	private static final String EXTRA_POI_UUID = "extra_poi_uuid";
+	private static final String EXTRA_NEWS_UUID = "extra_news_uuid";
 
 	public static NewsDetailsFragment newInstance(String uuid, String authority, News optNews) {
 		NewsDetailsFragment f = new NewsDetailsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
 		f.authority = authority;
-		args.putString(EXTRA_POI_UUID, uuid);
+		args.putString(EXTRA_NEWS_UUID, uuid);
 		f.uuid = uuid;
 		f.news = optNews;
 		f.setArguments(args);
@@ -59,6 +61,35 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 	private String authority;
 	private String uuid;
 	private News news;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		restoreInstanceState(savedInstanceState, getArguments());
+	}
+
+	private void restoreInstanceState(Bundle... bundles) {
+		String newAuthority = BundleUtils.getString(EXTRA_AUTHORITY, bundles);
+		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
+			this.authority = newAuthority;
+		}
+		String newUUID = BundleUtils.getString(EXTRA_NEWS_UUID, bundles);
+		if (!TextUtils.isEmpty(newUUID) && !newUUID.equals(this.uuid)) {
+			this.uuid = newUUID;
+			resetNews();
+		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		if (!TextUtils.isEmpty(this.uuid)) {
+			outState.putString(EXTRA_NEWS_UUID, this.uuid);
+		}
+		if (!TextUtils.isEmpty(this.authority)) {
+			outState.putString(EXTRA_AUTHORITY, this.authority);
+		}
+		super.onSaveInstanceState(outState);
+	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -116,6 +147,10 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 		}
 	}
 
+	private void resetNews() {
+		this.news = null;
+	}
+
 	private News getNewsOrNull() {
 		if (!hasNews()) {
 			return null;
@@ -151,7 +186,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 			if (view != null) {
 				TextView newsTv = (TextView) view.findViewById(R.id.newsText);
 				newsTv.setText(Html.fromHtml(this.news.getTextHTML()));
-				newsTv.setMovementMethod(LinkMovementMethod.getInstance());
+				newsTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptop.getInstance(this));
 				if (news.hasColor()) {
 					newsTv.setLinkTextColor(news.getColorInt());
 				} else {
@@ -159,8 +194,21 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 				}
 				TextView dateTv = (TextView) view.findViewById(R.id.date);
 				dateTv.setText(TimeUtils.formatRelativeTime(getActivity(), news.getCreatedAtInMs()));
+				final String newWebURL = news.getWebURL();
+				dateTv.setOnClickListener(new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						LinkUtils.open(getActivity(), newWebURL, getString(R.string.web_browser), true);
+					}
+				});
 			}
 		}
+	}
+
+	@Override
+	public boolean onURLClick(String url) {
+		return LinkUtils.open(getActivity(), url, getString(R.string.web_browser), true);
 	}
 
 	@Override

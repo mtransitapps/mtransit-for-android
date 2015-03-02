@@ -92,6 +92,10 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 		}
 	}
 
+	public boolean onBackPressed() {
+		return false; // not processed
+	}
+
 	@Override
 	public void onPause() {
 		super.onPause();

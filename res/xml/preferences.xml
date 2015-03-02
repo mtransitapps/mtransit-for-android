@@ -13,6 +13,14 @@
             android:key="pUnits"
             android:summary="@string/unit_pref_summary"
             android:title="@string/unit_pref_title" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:enabled="true"
+            android:key="pUseInternalWebBrowser"
+            android:summary="@string/use_internal_web_browser_pref_summary"
+            android:summaryOff="@string/use_internal_web_browser_pref_summary_off"
+            android:summaryOn="@string/use_internal_web_browser_pref_summary_on"
+            android:title="@string/use_internal_web_browser_pref_title" />
     </PreferenceCategory>
     <!-- SUPPORT -->
     <PreferenceCategory

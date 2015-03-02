@@ -68,6 +68,7 @@
     <string name="menu_action_list">Liste</string>
     <string name="menu_action_grid">Grille</string>
     <string name="menu_action_map">Carte</string>
+    <string name="menu_action_www">Ouvrir Navigateur</string>
     <string name="menu_action_filter">Filtrer</string>
     <string name="menu_action_show_directions">Itinéraires</string>
     <string name="menu_action_add_favorite">Ajouter aux favoris</string>
@@ -84,6 +85,10 @@
     <string name="unit_pref_dialog_title">Unités</string>
     <string name="unit_pref_meter">Métrique (km/m)</string>
     <string name="unit_pref_imperial">Impérial (mi/ft)</string>
+    <string name="use_internal_web_browser_pref_title">Utiliser Navigateur Interne</string>
+    <string name="use_internal_web_browser_pref_summary">Ouvrir les liens dans le navigateur interne au lieu du navigateur par défaut</string>
+    <string name="use_internal_web_browser_pref_summary_on">Ouvrir les liens dans le navigateur interne</string>
+    <string name="use_internal_web_browser_pref_summary_off">Ouvrir les liens dans le navigateur par défaut</string>
     <string name="support_pref_cat_title">Supporter</string>
     <string name="support_subs_pref_title">Supporter MonTransit</string>
     <string name="support_subs_pref_summary">Cacher les publicités et supporter le développement de MonTransit.</string>

@@ -333,6 +333,10 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		if (this.navigationDrawerController != null && this.navigationDrawerController.onBackPressed()) {
 			return;
 		}
+		Fragment currentFragment = getCurrentFragment();
+		if (currentFragment != null && currentFragment instanceof ABFragment && ((ABFragment) currentFragment).onBackPressed()) {
+			return;
+		}
 		super.onBackPressed();
 	}
 

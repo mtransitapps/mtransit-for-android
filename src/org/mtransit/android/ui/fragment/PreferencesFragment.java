@@ -69,6 +69,8 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (PreferenceUtils.PREFS_UNITS.equals(key)) {
 			setUnitSummary(getActivity());
+		} else if (PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER.equals(key)) {
+			setUseInternalWebBrowserSummary(getActivity());
 		}
 	}
 
@@ -90,12 +92,30 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 		}
 	}
 
+	private void setUseInternalWebBrowserSummary(Context context) {
+		if (context == null) {
+			return;
+		}
+		Preference useIntenalWebBrowserPref = findPreference(PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER);
+		if (useIntenalWebBrowserPref == null) {
+			return;
+		}
+		boolean useInternalWebBrowser = PreferenceUtils.getPrefDefault(context, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER,
+				PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT);
+		if (useInternalWebBrowser) {
+			useIntenalWebBrowserPref.setSummary(R.string.use_internal_web_browser_pref_summary_on);
+		} else {
+			useIntenalWebBrowserPref.setSummary(R.string.use_internal_web_browser_pref_summary_off);
+		}
+	}
+
 	@Override
 	public void onResume() {
 		super.onResume();
 		VendingUtils.onResume(getActivity(), this);
 		PreferenceUtils.getPrefDefault(getActivity()).registerOnSharedPreferenceChangeListener(this);
 		setUnitSummary(getActivity());
+		setUseInternalWebBrowserSummary(getActivity());
 	}
 
 	@Override
