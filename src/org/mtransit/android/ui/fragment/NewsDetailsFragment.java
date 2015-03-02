@@ -3,6 +3,7 @@ package org.mtransit.android.ui.fragment;
 import java.util.Arrays;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.provider.NewsProvider;
@@ -153,6 +154,8 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 				newsTv.setMovementMethod(LinkMovementMethod.getInstance());
 				if (news.hasColor()) {
 					newsTv.setLinkTextColor(news.getColorInt());
+				} else {
+					newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(getActivity()));
 				}
 				TextView dateTv = (TextView) view.findViewById(R.id.date);
 				dateTv.setText(TimeUtils.formatRelativeTime(getActivity(), news.getCreatedAtInMs()));
