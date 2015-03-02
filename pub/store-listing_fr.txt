@@ -6,18 +6,16 @@ Bus Métro Train Vélo
 Hors-Ligne & Temps-Réel
 ----------
 What's new in this version?:
-BETA : Merci de votre patience pendant que les dernières fonctionnalités sont ajoutées et les derniers problèmes sont corrigés.
-
 Correction de problèmes & Amélioration des performances.
+
+BETA : Merci de votre patience pendant que les dernières fonctionnalités sont ajoutées et les derniers problèmes sont corrigés.
 ----------
 Full description:
-BETA : Merci de votre patience pendant que les dernières fonctionnalités sont ajoutées et les derniers problèmes corrigés.
-
-Transport Montréal dans votre poche.
-
 Information sur les bus, métros, trains et vélos de la région de Montréal, QC, Canada.
 
 Horaires et alertes en temps réel (pour certaines agences).
+
+BETA : Merci de votre patience pendant que les dernières fonctionnalités sont ajoutées et les derniers problèmes corrigés.
 
 Agences de transport disponible sur Google Play (gratuit) :
 - Bus CIT Chambly-Richelieu-Carignan (Blus) : http://goo.gl/bB3uXn

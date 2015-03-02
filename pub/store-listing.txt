@@ -1,23 +1,21 @@
 Title: MonTransit BETA
 ----------
 Short description:
-Montreal Transit in your pocket (BETA)
-Bike Bus Subway Train
-Offline & Real-Time
+Montreal Transit in your pocket.
+Bike, Bus, Subway, Train.
+Offline & Real-Time.
 ----------
 What's new in this version?:
-BETA: Thanks for your patience while the last features are being added and the last bugs are being fixed.
-
 Bug fixes & performance improvements.
+
+BETA: Thanks for your patience while the last features are being added and the last bugs are being fixed.
 ----------
 Full description:
-BETA: Thanks for your patience while the last features are being added and the last bugs are being fixed.
-
-Montreal Transit in your pocket.
-
 Information about bikes, buses, subways and trains for the greater Montreal, QC, Canada.
 
 Real-time schedule and alerts (for some agencies).
+
+BETA: Thanks for your patience while the last features are being added and the last bugs are being fixed.
 
 Transit agencies available on Google Play (free):
 - AMT Express Bus (Montreal): http://goo.gl/bQmUrH
