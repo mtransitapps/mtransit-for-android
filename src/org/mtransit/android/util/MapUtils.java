@@ -1,5 +1,6 @@
 package org.mtransit.android.util;
 
+import org.mtransit.android.R;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.LinkUtils;
 import org.mtransit.android.commons.MTLog;
