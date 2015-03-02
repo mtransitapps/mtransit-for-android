@@ -30,6 +30,7 @@ Agences de transport disponible sur Google Play (gratuit) :
 - Bus CIT Sud-Ouest : http://goo.gl/0lKFAF
 - Bus CIT Vallée du Richelieu : http://goo.gl/561ksW
 - Bus CRT Lanaudière : http://goo.gl/u4wWcI
+- Bus CTJM Joliette: http://goo.gl/SzLhWp
 - Bus Express AMT (Montréal) : http://goo.gl/bQmUrH
 - Bus MRC Deux-Montagnes (L'Express d'Oka) : http://goo.gl/ciI3YT
 - Bus MRC L'Assomption (RTCR) : http://goo.gl/PCpIIT

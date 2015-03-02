@@ -33,6 +33,7 @@ Transit agencies available on Google Play (free):
 - CIT Sud-Ouest Bus: http://goo.gl/0lKFAF
 - CIT Vallée du Richelieu Bus: http://goo.gl/561ksW
 - CRT Lanaudière Bus: http://goo.gl/u4wWcI
+- CTJM Joliette Bus: http://goo.gl/SzLhWp
 - MRC Deux-Montagnes (Oka Express) Bus: http://goo.gl/ciI3YT
 - MRC L'Assomption (RTCR) Bus: http://goo.gl/PCpIIT
 - MRC Les Moulins (Urbis) Bus: http://goo.gl/TZTNvl

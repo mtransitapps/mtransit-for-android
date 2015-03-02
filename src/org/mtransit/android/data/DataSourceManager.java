@@ -85,6 +85,11 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
+	public static News findANews(Context context, String authority, NewsProvider.NewsFilter newsFilter) {
+		ArrayList<News> news = findNews(context, authority, newsFilter);
+		return news == null || news.size() == 0 ? null : news.get(0);
+	}
+
 	public static ArrayList<News> findNews(Context context, String authority, NewsProvider.NewsFilter newsFilter) {
 		Cursor cursor = null;
 		try {
@@ -176,7 +181,6 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 		return result;
 	}
-
 
 	public static void ping(Context context, String authority) {
 		Cursor cursor = null;

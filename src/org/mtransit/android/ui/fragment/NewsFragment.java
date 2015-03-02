@@ -5,20 +5,20 @@ import java.util.ArrayList;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
+import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.task.NewsLoader;
+import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -355,10 +355,9 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			News news = getItem(position);
 			if (news != null) {
-				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(news.getWebURL()));
 				Activity activity = getActivityOrNull();
 				if (activity != null) {
-					activity.startActivity(intent);
+					((MainActivity) activity).addFragmentToStack(NewsDetailsFragment.newInstance(news.getUUID(), news.getAuthority(), news));
 				}
 			}
 		}
@@ -408,22 +407,18 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			NewsViewHolder holder = (NewsViewHolder) convertView.getTag();
 			News news = getItem(position);
 			holder.authorTv.setText(getContext().getString(R.string.news_shared_on_and_author_and_source, news.getAuthorOneLine(), news.getSourceLabel()));
-			holder.authorTv.setTextColor(news.getColorInt());
-			final String authorProfileURL = news.getAuthorProfileURL();
-			holder.authorTv.setOnClickListener(new View.OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(authorProfileURL));
-					Activity activity = getActivityOrNull();
-					if (activity != null) {
-						activity.startActivity(intent);
-					}
-				}
-			});
+			if (news.hasColor()) {
+				holder.authorTv.setTextColor(news.getColorInt());
+			} else {
+				holder.authorTv.setTextColor(ColorUtils.getTextColorSecondary(getContext()));
+			}
 			holder.dateTv.setText(TimeUtils.formatRelativeTime(getContext(), news.getCreatedAtInMs()));
 			holder.newsTv.setText(Html.fromHtml(news.getTextHTML()));
-			holder.newsTv.setLinkTextColor(news.getColorInt());
+			if (news.hasColor()) {
+				holder.newsTv.setLinkTextColor(news.getColorInt());
+			} else {
+				holder.newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(getContext()));
+			}
 			return convertView;
 		}
 
