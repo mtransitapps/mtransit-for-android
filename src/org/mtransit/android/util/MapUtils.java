@@ -1,6 +1,7 @@
 package org.mtransit.android.util;
 
 import org.mtransit.android.commons.ColorUtils;
+import org.mtransit.android.commons.LinkUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ResourceUtils;
 
@@ -45,15 +46,17 @@ public final class MapUtils implements MTLog.Loggable {
 		startMapIntent(activity, gmmIntentUri);
 	}
 
+	private static final String GOOGLE_MAPS_PKG = "com.google.android.apps.maps";
+
 	private static void startMapIntent(Activity activity, Uri gmmIntentUri) {
 		Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-		mapIntent.setPackage("com.google.android.apps.maps");
+		mapIntent.setPackage(GOOGLE_MAPS_PKG);
+		String label = activity.getString(R.string.google_maps);
 		if (mapIntent.resolveActivity(activity.getPackageManager()) == null) {
 			mapIntent.setPackage(null); // clear Google Maps targeting
+			label = activity.getString(R.string.map);
 		}
-		if (mapIntent.resolveActivity(activity.getPackageManager()) != null) {
-			activity.startActivity(mapIntent);
-		}
+		LinkUtils.open(activity, mapIntent, label, false);
 	}
 
 	private static final int MAP_WITH_BUTTONS_CAMERA_PADDING_IN_SP = 64;
