@@ -5,7 +5,6 @@ import java.util.Arrays;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ColorUtils;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.provider.NewsProvider;
