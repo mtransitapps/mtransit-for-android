@@ -100,7 +100,6 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 				if (!agency.isInArea(area)) {
 					it.remove();
 				} else if (optLastArea != null && agency.isEntirelyInside(optLastArea)) {
-					it.remove();
 				}
 			}
 		}
@@ -117,7 +116,6 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 				if (!agency.isInArea(area)) {
 					it.remove();
 				} else if (optLastArea != null && agency.isEntirelyInside(optLastArea)) {
-					it.remove();
 				}
 			}
 		}
