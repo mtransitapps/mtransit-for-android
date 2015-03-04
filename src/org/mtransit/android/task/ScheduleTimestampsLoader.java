@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ScheduleTimestamps;
-import org.mtransit.android.commons.data.ScheduleTimestampsFilter;
+import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.ScheduleProviderProperties;
@@ -40,7 +40,7 @@ public class ScheduleTimestampsLoader extends MTAsyncTaskLoaderV4<ArrayList<Sche
 		}
 		this.timestamps = new ArrayList<Schedule.Timestamp>();
 		long endsAtInMs = this.startsAtInMs + TimeUnit.DAYS.toMillis(1);
-		ScheduleTimestampsFilter scheduleFilter = new ScheduleTimestampsFilter(this.rts, this.startsAtInMs, endsAtInMs);
+		ScheduleTimestampsProviderContract.Filter scheduleFilter = new ScheduleTimestampsProviderContract.Filter(this.rts, this.startsAtInMs, endsAtInMs);
 		Collection<ScheduleProviderProperties> scheduleProviders = DataSourceProvider.get(getContext()).getTargetAuthorityScheduleProviders(
 				this.rts.getAuthority());
 		if (scheduleProviders != null) {

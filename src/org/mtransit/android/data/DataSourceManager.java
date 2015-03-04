@@ -16,7 +16,6 @@ import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ScheduleTimestamps;
-import org.mtransit.android.commons.data.ScheduleTimestampsFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.AgencyProviderContract;
@@ -118,7 +117,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static ScheduleTimestamps findScheduleTimestamps(Context context, String authority, ScheduleTimestampsFilter scheduleTimestampsFilter) {
+	public static ScheduleTimestamps findScheduleTimestamps(Context context, String authority,
+			ScheduleTimestampsProviderContract.Filter scheduleTimestampsFilter) {
 		Cursor cursor = null;
 		try {
 			String scheduleTimestampsFilterJSONString = scheduleTimestampsFilter == null ? null : scheduleTimestampsFilter.toJSONString();
