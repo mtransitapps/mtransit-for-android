@@ -4,7 +4,7 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.provider.MTSQLiteOpenHelper;
 import org.mtransit.android.commons.provider.POIDbHelper;
-import org.mtransit.android.commons.provider.StatusDbHelper;
+import org.mtransit.android.commons.provider.StatusProvider;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -48,8 +48,8 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	);
 	private static final String T_MODULE_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_MODULE);
 
-	public static final String T_MODULE_STATUS = StatusDbHelper.T_STATUS;
-	private static final String T_MODULE_STATUS_SQL_CREATE = StatusDbHelper.getSqlCreate(T_MODULE_STATUS);
+	public static final String T_MODULE_STATUS = StatusProvider.StatusDbHelper.T_STATUS;
+	private static final String T_MODULE_STATUS_SQL_CREATE = StatusProvider.StatusDbHelper.getSqlCreate(T_MODULE_STATUS);
 	private static final String T_MODULE_STATUS_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_MODULE_STATUS);
 
 	/**

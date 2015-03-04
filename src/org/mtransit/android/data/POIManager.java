@@ -25,7 +25,7 @@ import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
-import org.mtransit.android.commons.provider.StatusFilter;
+import org.mtransit.android.commons.provider.StatusProviderContract;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
@@ -219,7 +219,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		long findStatusTimestampMs = TimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindStatusTimestampMs != findStatusTimestampMs) { // IF not same minute as last findStatus() call DO
-			StatusFilter filter = getFilter();
+			StatusProviderContract.Filter filter = getFilter();
 			if (filter != null) {
 				filter.setInFocus(this.inFocus);
 				StatusLoader.StatusLoaderListener listener = this.statusLoaderListenerWR == null ? null : this.statusLoaderListenerWR.get();
@@ -236,7 +236,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		this.scheduleMaxDataRequests = scheduleMaxDataRequests;
 	}
 
-	private StatusFilter getFilter() {
+	private StatusProviderContract.Filter getFilter() {
 		switch (getStatusType()) {
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
 			if (this.poi instanceof RouteTripStop) {

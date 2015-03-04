@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.data.POIStatus;
-import org.mtransit.android.commons.provider.StatusFilter;
+import org.mtransit.android.commons.provider.StatusProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
@@ -63,7 +63,8 @@ public class StatusLoader implements MTLog.Loggable {
 		}
 	}
 
-	public boolean findStatus(Context context, POIManager poim, StatusFilter statusFilter, StatusLoader.StatusLoaderListener listener, boolean skipIfBusy) {
+	public boolean findStatus(Context context, POIManager poim, StatusProviderContract.Filter statusFilter, StatusLoader.StatusLoaderListener listener,
+			boolean skipIfBusy) {
 		if (skipIfBusy && isBusy()) {
 			return false;
 		}
@@ -92,10 +93,10 @@ public class StatusLoader implements MTLog.Loggable {
 		private StatusProviderProperties statusProvider;
 		private WeakReference<POIManager> poiWR;
 		private StatusLoader.StatusLoaderListener listener;
-		private StatusFilter statusFilter;
+		private StatusProviderContract.Filter statusFilter;
 
 		public StatusFetcherCallable(Context context, StatusLoader.StatusLoaderListener listener, StatusProviderProperties statusProvider, POIManager poim,
-				StatusFilter statusFilter) {
+				StatusProviderContract.Filter statusFilter) {
 			this.contextWR = new WeakReference<Context>(context);
 			this.listener = listener;
 			this.statusProvider = statusProvider;

@@ -29,7 +29,6 @@ import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.provider.POIProvider;
 import org.mtransit.android.commons.provider.POIProvider.POIColumns;
 import org.mtransit.android.commons.provider.POIProviderContract;
-import org.mtransit.android.commons.provider.StatusFilter;
 import org.mtransit.android.commons.provider.StatusProvider;
 import org.mtransit.android.commons.provider.StatusProviderContract;
 import org.mtransit.android.data.Module;
@@ -339,7 +338,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@Override
-	public POIStatus getNewStatus(StatusFilter filter) {
+	public POIStatus getNewStatus(StatusProviderContract.Filter filter) {
 		if (!(filter instanceof AppStatus.AppStatusFilter)) {
 			return null;
 		}
@@ -359,7 +358,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@Override
-	public POIStatus getCachedStatus(StatusFilter statusFilter) {
+	public POIStatus getCachedStatus(StatusProviderContract.Filter statusFilter) {
 		return StatusProvider.getCachedStatusS(this, statusFilter.getTargetUUID());
 	}
 

@@ -28,7 +28,6 @@ import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.provider.ProviderContract;
 import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract;
 import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
-import org.mtransit.android.commons.provider.StatusFilter;
 import org.mtransit.android.commons.provider.StatusProviderContract;
 
 import android.app.SearchManager;
@@ -145,7 +144,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static POIStatus findStatus(Context context, String authority, StatusFilter statusFilter) {
+	public static POIStatus findStatus(Context context, String authority, StatusProviderContract.Filter statusFilter) {
 		Cursor cursor = null;
 		try {
 			String statusFilterJSONString = statusFilter == null ? null : statusFilter.toJSONStringStatic(statusFilter);
