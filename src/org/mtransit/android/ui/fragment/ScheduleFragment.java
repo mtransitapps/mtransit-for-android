@@ -366,7 +366,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			if (activity == null) {
 				return;
 			}
-			POIFilter poiFilter = new POIFilter(Arrays.asList(new String[] { this.uuid }));
+			POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewUUIDsFilter(this.uuid);
 			POIManager newPoim = DataSourceManager.findPOI(activity, this.authority, poiFilter);
 			if (newPoim == null || !(newPoim.poi instanceof RouteTripStop)) {
 				((MainActivity) activity).popFragmentFromStack(this); // close this fragment
