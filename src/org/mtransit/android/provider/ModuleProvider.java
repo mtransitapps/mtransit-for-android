@@ -24,10 +24,7 @@ import org.mtransit.android.commons.data.POI.POIUtils;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.provider.AgencyProvider;
 import org.mtransit.android.commons.provider.ContentProviderConstants;
-import org.mtransit.android.commons.provider.POIDbHelper;
-import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.provider.POIProvider;
-import org.mtransit.android.commons.provider.POIProvider.POIColumns;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.provider.StatusProvider;
 import org.mtransit.android.commons.provider.StatusProviderContract;
@@ -236,13 +233,13 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@Override
-	public Cursor getPOI(POIFilter poiFilter) {
+	public Cursor getPOI(POIProviderContract.Filter poiFilter) {
 		updateModuleDataIfRequired();
 		return getPOIFromDB(poiFilter);
 	}
 
 	@Override
-	public Cursor getPOIFromDB(POIFilter poiFilter) {
+	public Cursor getPOIFromDB(POIProviderContract.Filter poiFilter) {
 		return POIProvider.getDefaultPOIFromDB(poiFilter, this);
 	}
 
@@ -322,7 +319,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			db.beginTransaction(); // start the transaction
 			if (defaultPOIs != null) {
 				for (DefaultPOI defaultPOI : defaultPOIs) {
-					long rowId = db.insert(provider.getPOITable(), POIDbHelper.T_POI_K_ID, defaultPOI.toContentValues());
+					long rowId = db.insert(provider.getPOITable(), POIProvider.POIDbHelper.T_POI_K_ID, defaultPOI.toContentValues());
 					if (rowId > 0) {
 						affectedRows++;
 					}
@@ -506,20 +503,25 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	public static HashMap<String, String> getNewPoiProjectionMap(String authority) {
 		HashMap<String, String> poiProjectionMap = new HashMap<String, String>();
-		poiProjectionMap.put(POIColumns.T_POI_K_UUID_META, SqlUtils.concatenate("'" + POIUtils.UID_SEPARATOR + "'", //
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_UUID_META, SqlUtils.concatenate("'" + POIUtils.UID_SEPARATOR + "'", //
 				"'" + authority + "'", //
 				ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_PKG //
-		) + " AS " + POIColumns.T_POI_K_UUID_META);
-		poiProjectionMap.put(POIColumns.T_POI_K_DST_ID_META, Module.DST_ID + " AS " + POIColumns.T_POI_K_DST_ID_META);
-		poiProjectionMap.put(POIColumns.T_POI_K_ID, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_ID + " AS " + POIColumns.T_POI_K_ID);
-		poiProjectionMap.put(POIColumns.T_POI_K_NAME, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_NAME + " AS " + POIColumns.T_POI_K_NAME);
-		poiProjectionMap.put(POIColumns.T_POI_K_LAT, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_LAT + " AS " + POIColumns.T_POI_K_LAT);
-		poiProjectionMap.put(POIColumns.T_POI_K_LNG, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_LNG + " AS " + POIColumns.T_POI_K_LNG);
-		poiProjectionMap.put(POIColumns.T_POI_K_TYPE, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_TYPE + " AS " + POIColumns.T_POI_K_TYPE);
-		poiProjectionMap.put(POIColumns.T_POI_K_STATUS_TYPE, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_STATUS_TYPE + " AS "
-				+ POIColumns.T_POI_K_STATUS_TYPE);
-		poiProjectionMap.put(POIColumns.T_POI_K_ACTIONS_TYPE, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_ACTIONS_TYPE + " AS "
-				+ POIColumns.T_POI_K_ACTIONS_TYPE);
+		) + " AS " + POIProviderContract.Columns.T_POI_K_UUID_META);
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_DST_ID_META, Module.DST_ID + " AS " + POIProviderContract.Columns.T_POI_K_DST_ID_META);
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_ID, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_ID + " AS "
+				+ POIProviderContract.Columns.T_POI_K_ID);
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_NAME, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_NAME + " AS "
+				+ POIProviderContract.Columns.T_POI_K_NAME);
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_LAT, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_LAT + " AS "
+				+ POIProviderContract.Columns.T_POI_K_LAT);
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_LNG, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_LNG + " AS "
+				+ POIProviderContract.Columns.T_POI_K_LNG);
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_TYPE, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_TYPE + " AS "
+				+ POIProviderContract.Columns.T_POI_K_TYPE);
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_STATUS_TYPE, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_STATUS_TYPE
+				+ " AS " + POIProviderContract.Columns.T_POI_K_STATUS_TYPE);
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_ACTIONS_TYPE, POIProvider.POIDbHelper.T_POI + "."
+				+ POIProvider.POIDbHelper.T_POI_K_ACTIONS_TYPE + " AS " + POIProviderContract.Columns.T_POI_K_ACTIONS_TYPE);
 		poiProjectionMap.put(ModuleColumns.T_MODULE_K_PKG, ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_PKG + " AS "
 				+ ModuleColumns.T_MODULE_K_PKG);
 		poiProjectionMap.put(ModuleColumns.T_MODULE_K_TARGET_TYPE_ID, ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_TARGET_TYPE_ID + " AS "
@@ -549,10 +551,10 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	public static class ModuleColumns {
-		public static final String T_MODULE_K_PKG = POIColumns.getFkColumnName("pkg");
-		public static final String T_MODULE_K_TARGET_TYPE_ID = POIColumns.getFkColumnName("targetTypeId");
-		public static final String T_MODULE_K_COLOR = POIColumns.getFkColumnName("color");
-		public static final String T_MODULE_K_LOCATION = POIColumns.getFkColumnName("location");
-		public static final String T_MODULE_K_NAME_FR = POIColumns.getFkColumnName("name_fr");
+		public static final String T_MODULE_K_PKG = POIProviderContract.Columns.getFkColumnName("pkg");
+		public static final String T_MODULE_K_TARGET_TYPE_ID = POIProviderContract.Columns.getFkColumnName("targetTypeId");
+		public static final String T_MODULE_K_COLOR = POIProviderContract.Columns.getFkColumnName("color");
+		public static final String T_MODULE_K_LOCATION = POIProviderContract.Columns.getFkColumnName("location");
+		public static final String T_MODULE_K_NAME_FR = POIProviderContract.Columns.getFkColumnName("name_fr");
 	}
 }

@@ -13,7 +13,7 @@ import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
-import org.mtransit.android.commons.provider.POIFilter;
+import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTCallable;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
@@ -164,7 +164,8 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 					this.loadedLatLngBounds.southwest.longitude);
 			Double optLoadedMaxLng = this.loadedLatLngBounds == null ? null : Math.max(this.loadedLatLngBounds.northeast.longitude,
 					this.loadedLatLngBounds.southwest.longitude);
-			POIFilter poiFilter = new POIFilter(minLat, maxLat, minLng, maxLng, optLoadedMinLat, optLoadedMaxLat, optLoadedMinLng, optLoadedMaxLng);
+			POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewAreaFilter(minLat, maxLat, minLng, maxLng, optLoadedMinLat,
+					optLoadedMaxLat, optLoadedMinLng, optLoadedMaxLng);
 			HashMap<LatLng, MapViewController.POIMarker> clusterItems = new HashMap<LatLng, MapViewController.POIMarker>();
 			ArrayList<POIManager> poims = DataSourceManager.findPOIs(this.context, this.agency.getAuthority(), poiFilter);
 			String agencyShortName = this.agency.getShortName();

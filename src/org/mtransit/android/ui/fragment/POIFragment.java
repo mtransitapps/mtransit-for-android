@@ -17,7 +17,7 @@ import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
-import org.mtransit.android.commons.provider.POIFilter;
+import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
@@ -245,7 +245,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			return false;
 		}
 		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
-			this.poim = DataSourceManager.findPOI(getActivity(), this.authority, new POIFilter(Arrays.asList(new String[] { this.uuid })));
+			this.poim = DataSourceManager.findPOI(getActivity(), this.authority, POIProviderContract.Filter.getNewUUIDsFilter(this.uuid));
 		}
 		return this.poim != null;
 	}
@@ -681,7 +681,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (activity == null) {
 			return;
 		}
-		POIManager newPoim = DataSourceManager.findPOI(activity, this.authority, new POIFilter(Arrays.asList(new String[] { this.uuid })));
+		POIManager newPoim = DataSourceManager.findPOI(activity, this.authority, POIProviderContract.Filter.getNewUUIDsFilter(this.uuid));
 		if (newPoim == null) {
 			if (activity.isMTResumed()) {
 				activity.popFragmentFromStack(this); // close this fragment

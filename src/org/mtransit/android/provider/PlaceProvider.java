@@ -27,10 +27,7 @@ import org.mtransit.android.commons.data.POI.POIUtils;
 import org.mtransit.android.commons.provider.AgencyProvider;
 import org.mtransit.android.commons.provider.ContentProviderConstants;
 import org.mtransit.android.commons.provider.MTSQLiteOpenHelper;
-import org.mtransit.android.commons.provider.POIDbHelper;
-import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.provider.POIProvider;
-import org.mtransit.android.commons.provider.POIProvider.POIColumns;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.Place;
 
@@ -106,7 +103,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		return PlaceDbHelper.T_PLACE;
 	}
 
-	private static final String[] PROJECTION_PLACE = new String[] { POIColumns.T_POI_K_SCORE_META_OPT, //
+	private static final String[] PROJECTION_PLACE = new String[] { POIProviderContract.Columns.T_POI_K_SCORE_META_OPT, //
 			PlaceColumns.T_PLACE_K_PROVIDER_ID, PlaceColumns.T_PLACE_K_LANG, PlaceColumns.T_PLACE_K_READ_AT_IN_MS };
 
 	public static final String[] PROJECTION_PLACE_POI = ArrayUtils.addAll(POIProvider.PROJECTION_POI, PROJECTION_PLACE);
@@ -169,21 +166,21 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	}
 
 	@Override
-	public Cursor getPOI(POIFilter poiFilter) {
+	public Cursor getPOI(POIProviderContract.Filter poiFilter) {
 		if (poiFilter == null) {
 			return null;
 		}
 		String url;
-		if (POIFilter.isAreaFilter(poiFilter)) {
+		if (POIProviderContract.Filter.isAreaFilter(poiFilter)) {
 			return ContentProviderConstants.EMPTY_CURSOR; // empty cursor = processed
-		} else if (POIFilter.isSearchKeywords(poiFilter)) {
+		} else if (POIProviderContract.Filter.isSearchKeywords(poiFilter)) {
 			Double lat = poiFilter.getExtraDouble("lat", null);
 			Double lng = poiFilter.getExtraDouble("lng", null);
 			url = getTextSearchUrlString(getContext(), lat, lng, null, poiFilter.getSearchKeywords());
 			return getTextSearchResults(url);
-		} else if (POIFilter.isUUIDFilter(poiFilter)) {
+		} else if (POIProviderContract.Filter.isUUIDFilter(poiFilter)) {
 			return ContentProviderConstants.EMPTY_CURSOR; // empty cursor = processed
-		} else if (POIFilter.isSQLSelection(poiFilter)) {
+		} else if (POIProviderContract.Filter.isSQLSelection(poiFilter)) {
 			return ContentProviderConstants.EMPTY_CURSOR; // empty cursor = processed
 		} else {
 			MTLog.w(this, "Unexpected POI filter '%s'!", poiFilter);
@@ -283,7 +280,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	}
 
 	@Override
-	public Cursor getPOIFromDB(POIFilter poiFilter) {
+	public Cursor getPOIFromDB(POIProviderContract.Filter poiFilter) {
 		return null;
 	}
 
@@ -436,20 +433,25 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 
 	public static HashMap<String, String> getNewPoiProjectionMap(String authority) {
 		HashMap<String, String> poiProjectionMap = new HashMap<String, String>();
-		poiProjectionMap.put(POIColumns.T_POI_K_UUID_META, SqlUtils.concatenate("'" + POIUtils.UID_SEPARATOR + "'", //
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_UUID_META, SqlUtils.concatenate("'" + POIUtils.UID_SEPARATOR + "'", //
 				"'" + authority + "'", //
 				PlaceDbHelper.T_PLACE + "." + PlaceDbHelper.T_PLACE_K_PROVIDER_ID //
-		) + " AS " + POIColumns.T_POI_K_UUID_META);
-		poiProjectionMap.put(POIColumns.T_POI_K_DST_ID_META, Place.DST_ID + " AS " + POIColumns.T_POI_K_DST_ID_META);
-		poiProjectionMap.put(POIColumns.T_POI_K_ID, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_ID + " AS " + POIColumns.T_POI_K_ID);
-		poiProjectionMap.put(POIColumns.T_POI_K_NAME, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_NAME + " AS " + POIColumns.T_POI_K_NAME);
-		poiProjectionMap.put(POIColumns.T_POI_K_LAT, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_LAT + " AS " + POIColumns.T_POI_K_LAT);
-		poiProjectionMap.put(POIColumns.T_POI_K_LNG, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_LNG + " AS " + POIColumns.T_POI_K_LNG);
-		poiProjectionMap.put(POIColumns.T_POI_K_TYPE, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_TYPE + " AS " + POIColumns.T_POI_K_TYPE);
-		poiProjectionMap.put(POIColumns.T_POI_K_STATUS_TYPE, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_STATUS_TYPE + " AS "
-				+ POIColumns.T_POI_K_STATUS_TYPE);
-		poiProjectionMap.put(POIColumns.T_POI_K_ACTIONS_TYPE, POIDbHelper.T_POI + "." + POIDbHelper.T_POI_K_ACTIONS_TYPE + " AS "
-				+ POIColumns.T_POI_K_ACTIONS_TYPE);
+		) + " AS " + POIProviderContract.Columns.T_POI_K_UUID_META);
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_DST_ID_META, Place.DST_ID + " AS " + POIProviderContract.Columns.T_POI_K_DST_ID_META);
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_ID, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_ID + " AS "
+				+ POIProviderContract.Columns.T_POI_K_ID);
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_NAME, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_NAME + " AS "
+				+ POIProviderContract.Columns.T_POI_K_NAME);
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_LAT, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_LAT + " AS "
+				+ POIProviderContract.Columns.T_POI_K_LAT);
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_LNG, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_LNG + " AS "
+				+ POIProviderContract.Columns.T_POI_K_LNG);
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_TYPE, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_TYPE + " AS "
+				+ POIProviderContract.Columns.T_POI_K_TYPE);
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_STATUS_TYPE, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_STATUS_TYPE
+				+ " AS " + POIProviderContract.Columns.T_POI_K_STATUS_TYPE);
+		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_ACTIONS_TYPE, POIProvider.POIDbHelper.T_POI + "."
+				+ POIProvider.POIDbHelper.T_POI_K_ACTIONS_TYPE + " AS " + POIProviderContract.Columns.T_POI_K_ACTIONS_TYPE);
 		poiProjectionMap.put(PlaceColumns.T_PLACE_K_PROVIDER_ID, PlaceDbHelper.T_PLACE + "." + PlaceDbHelper.T_PLACE_K_PROVIDER_ID + " AS "
 				+ PlaceColumns.T_PLACE_K_PROVIDER_ID);
 		poiProjectionMap.put(PlaceColumns.T_PLACE_K_LANG, PlaceDbHelper.T_PLACE + "." + PlaceDbHelper.T_PLACE_K_LANG + " AS " + PlaceColumns.T_PLACE_K_LANG);
@@ -523,11 +525,11 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		 */
 		public static final int DB_VERSION = 2;
 
-		public static final String T_PLACE = POIDbHelper.T_POI;
-		public static final String T_PLACE_K_PROVIDER_ID = POIDbHelper.getFkColumnName("provider_id");
-		public static final String T_PLACE_K_LANG = POIDbHelper.getFkColumnName("lang");
-		public static final String T_PLACE_K_READ_AT_IN_MS = POIDbHelper.getFkColumnName("read_at_in_ms");
-		private static final String T_PLACE_SQL_CREATE = POIDbHelper.getSqlCreate(T_PLACE, //
+		public static final String T_PLACE = POIProvider.POIDbHelper.T_POI;
+		public static final String T_PLACE_K_PROVIDER_ID = POIProvider.POIDbHelper.getFkColumnName("provider_id");
+		public static final String T_PLACE_K_LANG = POIProvider.POIDbHelper.getFkColumnName("lang");
+		public static final String T_PLACE_K_READ_AT_IN_MS = POIProvider.POIDbHelper.getFkColumnName("read_at_in_ms");
+		private static final String T_PLACE_SQL_CREATE = POIProvider.POIDbHelper.getSqlCreate(T_PLACE, //
 				T_PLACE_K_PROVIDER_ID + SqlUtils.TXT, //
 				T_PLACE_K_LANG + SqlUtils.TXT, //
 				T_PLACE_K_READ_AT_IN_MS + SqlUtils.INT //
@@ -562,8 +564,8 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	}
 
 	public static class PlaceColumns {
-		public static final String T_PLACE_K_PROVIDER_ID = POIColumns.getFkColumnName("provider_id");
-		public static final String T_PLACE_K_LANG = POIColumns.getFkColumnName("lang");
-		public static final String T_PLACE_K_READ_AT_IN_MS = POIColumns.getFkColumnName("read_at_in_ms");
+		public static final String T_PLACE_K_PROVIDER_ID = POIProviderContract.Columns.getFkColumnName("provider_id");
+		public static final String T_PLACE_K_LANG = POIProviderContract.Columns.getFkColumnName("lang");
+		public static final String T_PLACE_K_READ_AT_IN_MS = POIProviderContract.Columns.getFkColumnName("read_at_in_ms");
 	}
 }

@@ -22,7 +22,6 @@ import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.AgencyProviderContract;
 import org.mtransit.android.commons.provider.GTFSRouteTripStopProviderContract;
 import org.mtransit.android.commons.provider.NewsProviderContract;
-import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.provider.POIProvider;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.provider.ProviderContract;
@@ -330,15 +329,15 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static POIManager findPOI(Context context, String authority, POIFilter poiFilter) {
+	public static POIManager findPOI(Context context, String authority, POIProviderContract.Filter poiFilter) {
 		ArrayList<POIManager> pois = findPOIs(context, authority, poiFilter);
 		return pois == null || pois.size() == 0 ? null : pois.get(0);
 	}
 
-	public static ArrayList<POIManager> findPOIs(Context context, String authority, POIFilter poiFilter) {
+	public static ArrayList<POIManager> findPOIs(Context context, String authority, POIProviderContract.Filter poiFilter) {
 		Cursor cursor = null;
 		try {
-			String filterJsonString = POIFilter.toJSON(poiFilter).toString();
+			String filterJsonString = POIProviderContract.Filter.toJSON(poiFilter).toString();
 			Uri uri = getPOIUri(authority);
 			cursor = queryContentResolver(context.getContentResolver(), uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, null);
 			return getPOIs(cursor, authority);

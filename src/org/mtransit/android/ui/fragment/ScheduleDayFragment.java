@@ -2,7 +2,6 @@ package org.mtransit.android.ui.fragment;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -15,7 +14,7 @@ import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
-import org.mtransit.android.commons.provider.POIFilter;
+import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTBaseAdapter;
 import org.mtransit.android.data.DataSourceManager;
@@ -183,7 +182,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return false;
 		}
 		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
-			POIManager poim = DataSourceManager.findPOI(getActivity(), this.authority, new POIFilter(Arrays.asList(new String[] { this.uuid })));
+			POIManager poim = DataSourceManager.findPOI(getActivity(), this.authority, POIProviderContract.Filter.getNewUUIDsFilter(this.uuid));
 			if (poim != null && poim.poi instanceof RouteTripStop) {
 				this.rts = (RouteTripStop) poim.poi;
 			}

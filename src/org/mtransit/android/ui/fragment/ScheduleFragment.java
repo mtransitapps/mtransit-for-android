@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.fragment;
 
-import java.util.Arrays;
 import java.util.Calendar;
 
 import org.mtransit.android.R;
@@ -8,7 +7,7 @@ import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
-import org.mtransit.android.commons.provider.POIFilter;
+import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
@@ -126,7 +125,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			return false;
 		}
 		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
-			POIManager poim = DataSourceManager.findPOI(getActivity(), this.authority, new POIFilter(Arrays.asList(new String[] { this.uuid })));
+			POIManager poim = DataSourceManager.findPOI(getActivity(), this.authority, POIProviderContract.Filter.getNewUUIDsFilter(this.uuid));
 			if (poim != null && poim.poi instanceof RouteTripStop) {
 				this.rts = (RouteTripStop) poim.poi;
 			}

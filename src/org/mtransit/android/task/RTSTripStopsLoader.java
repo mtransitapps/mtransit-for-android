@@ -3,7 +3,6 @@ package org.mtransit.android.task;
 import java.util.ArrayList;
 
 import org.mtransit.android.commons.provider.GTFSRouteTripStopProviderContract;
-import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
@@ -35,7 +34,8 @@ public class RTSTripStopsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager
 			return this.pois;
 		}
 		this.pois = new ArrayList<POIManager>();
-		POIFilter poiFilter = new POIFilter(GTFSRouteTripStopProviderContract.RouteTripStopColumns.T_TRIP_K_ID + "=" + this.tripId);
+		POIProviderContract.Filter poiFilter = POIProviderContract.Filter
+				.getNewSqlSelectionFilter(GTFSRouteTripStopProviderContract.RouteTripStopColumns.T_TRIP_K_ID + "=" + this.tripId);
 		poiFilter.addExtra(POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER, GTFSRouteTripStopProviderContract.RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE
 				+ " ASC");
 		this.pois = DataSourceManager.findPOIs(getContext(), this.authority, poiFilter);
@@ -66,5 +66,4 @@ public class RTSTripStopsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager
 			super.deliverResult(data);
 		}
 	}
-
 }

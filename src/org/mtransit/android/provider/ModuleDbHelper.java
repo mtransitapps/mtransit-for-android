@@ -3,7 +3,7 @@ package org.mtransit.android.provider;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.provider.MTSQLiteOpenHelper;
-import org.mtransit.android.commons.provider.POIDbHelper;
+import org.mtransit.android.commons.provider.POIProvider;
 import org.mtransit.android.commons.provider.StatusProvider;
 
 import android.content.Context;
@@ -33,13 +33,13 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	 */
 	protected static final String PREF_KEY_LAST_UPDATE_MS = "pModuleLastUpdate";
 
-	public static final String T_MODULE = POIDbHelper.T_POI;
-	public static final String T_MODULE_K_PKG = POIDbHelper.getFkColumnName("pkg");
-	public static final String T_MODULE_K_TARGET_TYPE_ID = POIDbHelper.getFkColumnName("targetTypeId");
-	public static final String T_MODULE_K_COLOR = POIDbHelper.getFkColumnName("color");
-	public static final String T_MODULE_K_LOCATION = POIDbHelper.getFkColumnName("location");
-	public static final String T_MODULE_K_NAME_FR = POIDbHelper.getFkColumnName("name_fr");
-	private static final String T_MODULE_SQL_CREATE = POIDbHelper.getSqlCreate(T_MODULE, //
+	public static final String T_MODULE = POIProvider.POIDbHelper.T_POI;
+	public static final String T_MODULE_K_PKG = POIProvider.POIDbHelper.getFkColumnName("pkg");
+	public static final String T_MODULE_K_TARGET_TYPE_ID = POIProvider.POIDbHelper.getFkColumnName("targetTypeId");
+	public static final String T_MODULE_K_COLOR = POIProvider.POIDbHelper.getFkColumnName("color");
+	public static final String T_MODULE_K_LOCATION = POIProvider.POIDbHelper.getFkColumnName("location");
+	public static final String T_MODULE_K_NAME_FR = POIProvider.POIDbHelper.getFkColumnName("name_fr");
+	private static final String T_MODULE_SQL_CREATE = POIProvider.POIDbHelper.getSqlCreate(T_MODULE, //
 			T_MODULE_K_PKG + SqlUtils.TXT, //
 			T_MODULE_K_TARGET_TYPE_ID + SqlUtils.INT, //
 			T_MODULE_K_COLOR + SqlUtils.TXT, //

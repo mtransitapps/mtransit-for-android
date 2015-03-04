@@ -3,8 +3,7 @@ package org.mtransit.android.task;
 import java.util.ArrayList;
 
 import org.mtransit.android.commons.CollectionUtils;
-import org.mtransit.android.commons.StringUtils;
-import org.mtransit.android.commons.provider.POIFilter;
+import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 
@@ -33,7 +32,7 @@ public class AgencyPOIsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>>
 			return this.pois;
 		}
 		this.pois = new ArrayList<POIManager>();
-		this.pois = DataSourceManager.findPOIs(getContext(), this.authority, new POIFilter(StringUtils.EMPTY));
+		this.pois = DataSourceManager.findPOIs(getContext(), this.authority, POIProviderContract.Filter.getNewEmptyFilter());
 		CollectionUtils.sort(this.pois, POIManager.POI_ALPHA_COMPARATOR);
 		return pois;
 	}

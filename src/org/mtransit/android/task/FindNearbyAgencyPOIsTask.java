@@ -3,7 +3,7 @@ package org.mtransit.android.task;
 import java.util.ArrayList;
 
 import org.mtransit.android.commons.LocationUtils;
-import org.mtransit.android.commons.provider.POIFilter;
+import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTCallable;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
@@ -42,7 +42,7 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> 
 
 	@Override
 	public ArrayList<POIManager> callMT() throws Exception {
-		POIFilter poiFilter = new POIFilter(this.lat, this.lng, this.aroundDiff);
+		POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewAroundFilter(this.lat, this.lng, this.aroundDiff);
 		if (this.hideDecentOnly) {
 			poiFilter.addExtra("decentOnly", true);
 		}

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.mtransit.android.commons.CollectionUtils;
-import org.mtransit.android.commons.provider.POIFilter;
+import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 
@@ -41,7 +41,8 @@ public class POIsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 			for (String authority : authorityToUUIDs.keySet()) {
 				HashSet<String> authorityUUIDs = authorityToUUIDs.get(authority);
 				if (authorityUUIDs != null && authorityUUIDs.size() > 0) {
-					ArrayList<POIManager> agencyPOIs = DataSourceManager.findPOIs(getContext(), authority, new POIFilter(authorityUUIDs));
+					ArrayList<POIManager> agencyPOIs = DataSourceManager.findPOIs(getContext(), authority,
+							POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs));
 					if (agencyPOIs != null) {
 						this.pois.addAll(agencyPOIs);
 					}
