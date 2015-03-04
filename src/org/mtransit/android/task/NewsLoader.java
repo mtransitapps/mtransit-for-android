@@ -12,7 +12,7 @@ import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.data.News;
-import org.mtransit.android.commons.provider.NewsProvider;
+import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.commons.task.MTCallable;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
@@ -123,7 +123,7 @@ public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
 
 		@Override
 		public ArrayList<News> callMT() throws Exception {
-			NewsProvider.NewsFilter newsFilter = new NewsProvider.NewsFilter();
+			NewsProviderContract.Filter newsFilter = new NewsProviderContract.Filter();
 			return DataSourceManager.findNews(this.context, this.authority, newsFilter);
 		}
 	}

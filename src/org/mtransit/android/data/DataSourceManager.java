@@ -21,7 +21,6 @@ import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.AgencyProviderContract;
 import org.mtransit.android.commons.provider.GTFSRouteTripStopProvider;
-import org.mtransit.android.commons.provider.NewsProvider;
 import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.provider.POIProvider;
@@ -90,12 +89,12 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static News findANews(Context context, String authority, NewsProvider.NewsFilter newsFilter) {
+	public static News findANews(Context context, String authority, NewsProviderContract.Filter newsFilter) {
 		ArrayList<News> news = findNews(context, authority, newsFilter);
 		return news == null || news.size() == 0 ? null : news.get(0);
 	}
 
-	public static ArrayList<News> findNews(Context context, String authority, NewsProvider.NewsFilter newsFilter) {
+	public static ArrayList<News> findNews(Context context, String authority, NewsProviderContract.Filter newsFilter) {
 		Cursor cursor = null;
 		try {
 			String newsFilterJSONString = newsFilter == null ? null : newsFilter.toJSONString();

@@ -7,7 +7,7 @@ import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
-import org.mtransit.android.commons.provider.NewsProvider;
+import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.ui.MainActivity;
@@ -162,7 +162,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 			return false;
 		}
 		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
-			this.news = DataSourceManager.findANews(getActivity(), this.authority, new NewsProvider.NewsFilter(Arrays.asList(new String[] { this.uuid })));
+			this.news = DataSourceManager.findANews(getActivity(), this.authority, new NewsProviderContract.Filter(Arrays.asList(new String[] { this.uuid })));
 		}
 		return this.news != null;
 	}
@@ -267,7 +267,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 		if (activity == null) {
 			return;
 		}
-		News newNews = DataSourceManager.findANews(getActivity(), this.authority, new NewsProvider.NewsFilter(Arrays.asList(new String[] { this.uuid })));
+		News newNews = DataSourceManager.findANews(getActivity(), this.authority, new NewsProviderContract.Filter(Arrays.asList(new String[] { this.uuid })));
 		if (newNews == null) {
 			if (activity.isMTResumed()) {
 				activity.popFragmentFromStack(this); // close this fragment
