@@ -19,14 +19,19 @@ import org.mtransit.android.commons.data.ScheduleTimestamps;
 import org.mtransit.android.commons.data.ScheduleTimestampsFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.data.Trip;
+import org.mtransit.android.commons.provider.AgencyProviderContract;
 import org.mtransit.android.commons.provider.GTFSRouteTripStopProvider;
 import org.mtransit.android.commons.provider.NewsProvider;
+import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.commons.provider.POIFilter;
 import org.mtransit.android.commons.provider.POIProvider;
-import org.mtransit.android.commons.provider.ScheduleTimestampsProvider;
+import org.mtransit.android.commons.provider.POIProviderContract;
+import org.mtransit.android.commons.provider.ProviderContract;
+import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract;
 import org.mtransit.android.commons.provider.ServiceUpdateProvider;
+import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.provider.StatusFilter;
-import org.mtransit.android.commons.provider.StatusProvider;
+import org.mtransit.android.commons.provider.StatusProviderContract;
 
 import android.app.SearchManager;
 import android.content.ContentResolver;
@@ -62,7 +67,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		Cursor cursor = null;
 		try {
 			String serviceUpdateFilterJSONString = serviceUpdateFilter == null ? null : serviceUpdateFilter.toJSONString();
-			Uri uri = Uri.withAppendedPath(getUri(authority), ServiceUpdateProvider.SERVICE_UPDATE_CONTENT_DIRECTORY);
+			Uri uri = Uri.withAppendedPath(getUri(authority), ServiceUpdateProviderContract.SERVICE_UPDATE_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, serviceUpdateFilterJSONString, null, null);
 			return getServiceUpdates(cursor);
 		} catch (Exception e) {
@@ -94,7 +99,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		Cursor cursor = null;
 		try {
 			String newsFilterJSONString = newsFilter == null ? null : newsFilter.toJSONString();
-			Uri uri = Uri.withAppendedPath(getUri(authority), NewsProvider.NEWS_CONTENT_DIRECTORY);
+			Uri uri = Uri.withAppendedPath(getUri(authority), NewsProviderContract.NEWS_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, newsFilterJSONString, null, null);
 			return getNews(cursor, authority);
 		} catch (Exception e) {
@@ -121,7 +126,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		Cursor cursor = null;
 		try {
 			String scheduleTimestampsFilterJSONString = scheduleTimestampsFilter == null ? null : scheduleTimestampsFilter.toJSONString();
-			Uri uri = Uri.withAppendedPath(getUri(authority), ScheduleTimestampsProvider.SCHEDULE_TIMESTAMPS_CONTENT_DIRECTORY);
+			Uri uri = Uri.withAppendedPath(getUri(authority), ScheduleTimestampsProviderContract.SCHEDULE_TIMESTAMPS_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, scheduleTimestampsFilterJSONString, null, null);
 			return getScheduleTimestamp(cursor);
 		} catch (Exception e) {
@@ -146,7 +151,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		Cursor cursor = null;
 		try {
 			String statusFilterJSONString = statusFilter == null ? null : statusFilter.toJSONStringStatic(statusFilter);
-			Uri uri = Uri.withAppendedPath(getUri(authority), StatusProvider.STATUS_CONTENT_DIRECTORY);
+			Uri uri = Uri.withAppendedPath(getUri(authority), StatusProviderContract.STATUS_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, statusFilterJSONString, null, null);
 			return getPOIStatus(cursor);
 		} catch (Exception e) {
@@ -185,7 +190,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	public static void ping(Context context, String authority) {
 		Cursor cursor = null;
 		try {
-			Uri uri = Uri.withAppendedPath(getUri(authority), "ping");
+			Uri uri = Uri.withAppendedPath(getUri(authority), ProviderContract.PING_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
 		} catch (Exception e) {
 			MTLog.w(TAG, e, "Error!");
@@ -194,72 +199,19 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
-	public static String findAgencyLabel(Context context, String authority) {
-		String result = null;
+	public static AgencyProperties findAgencyProperties(Context context, String authority, DataSourceType dst, boolean isRTS) {
+		AgencyProperties result = null;
 		Cursor cursor = null;
 		try {
-			Uri uri = Uri.withAppendedPath(getUri(authority), "label");
+			Uri uri = Uri.withAppendedPath(getUri(authority), AgencyProviderContract.ALL_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
-					result = cursor.getString(0);
-				}
-			}
-		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error!");
-		} finally {
-			SqlUtils.closeQuietly(cursor);
-		}
-		return result;
-	}
-
-	public static String findAgencyColor(Context context, String authority) {
-		String result = null;
-		Cursor cursor = null;
-		try {
-			Uri uri = Uri.withAppendedPath(getUri(authority), "color");
-			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
-			if (cursor != null && cursor.getCount() > 0) {
-				if (cursor.moveToFirst()) {
-					result = cursor.getString(0);
-				}
-			}
-		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error!");
-		} finally {
-			SqlUtils.closeQuietly(cursor);
-		}
-		return result;
-	}
-
-	public static String findAgencyShortName(Context context, String authority) {
-		String result = null;
-		Cursor cursor = null;
-		try {
-			Uri uri = Uri.withAppendedPath(getUri(authority), "shortName");
-			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
-			if (cursor != null && cursor.getCount() > 0) {
-				if (cursor.moveToFirst()) {
-					result = cursor.getString(0);
-				}
-			}
-		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error!");
-		} finally {
-			SqlUtils.closeQuietly(cursor);
-		}
-		return result;
-	}
-
-	public static Area findAgencyArea(Context context, String authority) {
-		Area result = null;
-		Cursor cursor = null;
-		try {
-			Uri uri = Uri.withAppendedPath(getUri(authority), "area");
-			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
-			if (cursor != null && cursor.getCount() > 0) {
-				if (cursor.moveToFirst()) {
-					result = Area.fromCursor(cursor);
+					String shortName = cursor.getString(cursor.getColumnIndexOrThrow(AgencyProviderContract.SHORT_NAME_PATH));
+					String longName = cursor.getString(cursor.getColumnIndexOrThrow(AgencyProviderContract.LABEL_PATH));
+					String color = cursor.getString(cursor.getColumnIndexOrThrow(AgencyProviderContract.COLOR_PATH));
+					Area area = Area.fromCursor(cursor);
+					result = new AgencyProperties(authority, dst, shortName, longName, color, area, isRTS);
 				}
 			}
 		} catch (Exception e) {
@@ -274,7 +226,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		JPaths result = null;
 		Cursor cursor = null;
 		try {
-			Uri uri = Uri.withAppendedPath(Uri.withAppendedPath(getUri(authority), "route"), "logo");
+			Uri uri = Uri.withAppendedPath(getUri(authority), GTFSRouteTripStopProvider.ROUTE_LOGO_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
@@ -445,15 +397,15 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	private static Uri getPOIUri(String authority) {
-		return Uri.withAppendedPath(getUri(authority), POIProvider.POI_CONTENT_DIRECTORY);
+		return Uri.withAppendedPath(getUri(authority), POIProviderContract.POI_PATH);
 	}
 
 	private static Uri getRTSRoutesUri(String authority) {
-		return Uri.withAppendedPath(getUri(authority), "route");
+		return Uri.withAppendedPath(getUri(authority), GTFSRouteTripStopProvider.ROUTE_PATH);
 	}
 
 	private static Uri getRTSTripsUri(String authority) {
-		return Uri.withAppendedPath(getUri(authority), "trip");
+		return Uri.withAppendedPath(getUri(authority), GTFSRouteTripStopProvider.TRIP_PATH);
 	}
 
 }

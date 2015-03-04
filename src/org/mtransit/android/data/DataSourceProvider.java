@@ -8,7 +8,6 @@ import java.util.WeakHashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
-import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
@@ -273,8 +272,6 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private HashMap<String, HashSet<NewsProviderProperties>> newsProvidersByTargetAuthority = new HashMap<String, HashSet<NewsProviderProperties>>();
 
-	private HashMap<String, JPaths> rtsAgencyRouteLogoByAuthority = null;
-
 	private HashMap<String, Integer> allAgenciesColorInts = new HashMap<String, Integer>();
 
 	private DataSourceProvider() {
@@ -317,22 +314,13 @@ public class DataSourceProvider implements MTLog.Loggable {
 				this.allAgencies = new ArrayList<AgencyProperties>();
 				this.allAgenciesByAuthority = new HashMap<String, AgencyProperties>();
 				this.allAgenciesByTypeId = new SparseArray<ArrayList<AgencyProperties>>();
-				this.rtsAgencyRouteLogoByAuthority = new HashMap<String, JPaths>();
 				for (String authority : this.allAgenciesAuthority) {
-					String label = DataSourceManager.findAgencyLabel(context, authority);
-					String color = DataSourceManager.findAgencyColor(context, authority);
-					String shortName = DataSourceManager.findAgencyShortName(context, authority);
-					LocationUtils.Area area = DataSourceManager.findAgencyArea(context, authority);
 					boolean isRTS = this.agenciesAuthorityIsRts.get(authority);
-					JPaths jPath = isRTS ? DataSourceManager.findAgencyRTSRouteLogo(context, authority) : null;
 					Integer typeId = this.agenciesAuthorityTypeId.get(authority);
 					if (typeId != null && typeId >= 0) {
 						DataSourceType type = DataSourceType.parseId(typeId);
 						if (type != null) {
-							addNewAgency(new AgencyProperties(authority, type, shortName, label, color, area, isRTS));
-							if (jPath != null) {
-								this.rtsAgencyRouteLogoByAuthority.put(authority, jPath);
-							}
+							addNewAgency(DataSourceManager.findAgencyProperties(context, authority, type, isRTS));
 						}
 					} else {
 						MTLog.w(this, "Invalid type ID '%s', skipping agency provider.", typeId);
@@ -351,7 +339,6 @@ public class DataSourceProvider implements MTLog.Loggable {
 			this.allAgencies = null;
 			this.allAgenciesByAuthority = null;
 			this.allAgenciesByTypeId = null;
-			this.rtsAgencyRouteLogoByAuthority = null;
 		}
 	}
 
@@ -378,16 +365,6 @@ public class DataSourceProvider implements MTLog.Loggable {
 			return null;
 		}
 		return new ArrayList<AgencyProperties>(agencies); // copy
-	}
-
-	public JPaths getRTSAgencyRouteLogo(Context context, String authority) {
-		if (!isAgencyPropertiesSet()) {
-			initAgencyProperties(context);
-		}
-		if (this.rtsAgencyRouteLogoByAuthority == null) {
-			return null;
-		}
-		return this.rtsAgencyRouteLogoByAuthority.get(authority);
 	}
 
 	public Integer getAgencyColorInt(Context context, String authority) {
@@ -489,10 +466,6 @@ public class DataSourceProvider implements MTLog.Loggable {
 		if (this.allAgenciesByAuthority != null) {
 			this.allAgenciesByAuthority.clear();
 			this.allAgenciesByAuthority = null;
-		}
-		if (this.rtsAgencyRouteLogoByAuthority != null) {
-			this.rtsAgencyRouteLogoByAuthority.clear();
-			this.rtsAgencyRouteLogoByAuthority = null;
 		}
 		if (this.allStatusProviders != null) {
 			this.allStatusProviders.clear();

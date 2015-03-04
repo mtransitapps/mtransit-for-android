@@ -79,6 +79,10 @@ public class MTJPathsView extends MTView {
 		}
 	}
 
+	public boolean hasPaths() {
+		return this.jPaths != null;
+	}
+
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);

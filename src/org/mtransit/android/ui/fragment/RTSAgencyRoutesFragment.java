@@ -524,23 +524,23 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			} else {
 				if (TextUtils.isEmpty(route.getShortName())) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
-					JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getRTSAgencyRouteLogo(getContext(), this.authority);
-					if (rtsRouteLogo != null) {
-						holder.routeTypeImg.setJSON(rtsRouteLogo);
+					if (holder.routeTypeImg.hasPaths() && this.authority.equals(holder.routeTypeImg.getTag())) {
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
-						holder.routeTypeImg.setVisibility(View.GONE);
+						JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getAgency(getContext(), this.authority).getLogo(getContext());
+						if (rtsRouteLogo != null) {
+							holder.routeTypeImg.setJSON(rtsRouteLogo);
+							holder.routeTypeImg.setTag(this.authority);
+							holder.routeTypeImg.setVisibility(View.VISIBLE);
+						} else {
+							holder.routeTypeImg.setVisibility(View.GONE);
+						}
 					}
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
 					SpannableStringBuilder ssb = new SpannableStringBuilder(route.getShortName());
 					if (ssb.length() > 3) {
-						SpanUtils.set(ssb, SpanUtils.FIFTY_PERCENT_SIZE_SPAN);
-						holder.routeShortNameTv.setSingleLine(false);
-						holder.routeShortNameTv.setMaxLines(2);
-					} else {
-						holder.routeShortNameTv.setSingleLine(true);
-						holder.routeShortNameTv.setMaxLines(1);
+						SpanUtils.set(ssb, ssb.length() > 10 ? SpanUtils.TWENTY_FIVE_PERCENT_SIZE_SPAN : SpanUtils.FIFTY_PERCENT_SIZE_SPAN);
 					}
 					holder.routeShortNameTv.setText(ssb);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);

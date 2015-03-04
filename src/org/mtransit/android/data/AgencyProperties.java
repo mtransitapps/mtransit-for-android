@@ -12,6 +12,7 @@ import org.mtransit.android.commons.MTLog;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 public class AgencyProperties implements MTLog.Loggable {
@@ -41,6 +42,19 @@ public class AgencyProperties implements MTLog.Loggable {
 		this.area = area;
 		this.isRTS = isRTS;
 		setColor(color);
+	}
+
+	private JPaths logo = null;
+	private boolean logoLoaded = false;
+
+	public JPaths getLogo(Context context) {
+		if (!logoLoaded) {
+			if (this.isRTS) {
+				logo = DataSourceManager.findAgencyRTSRouteLogo(context, getAuthority());
+			}
+			logoLoaded = true;
+		}
+		return logo;
 	}
 
 	public void setColor(String color) {

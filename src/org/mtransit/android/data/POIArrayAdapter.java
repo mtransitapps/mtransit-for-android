@@ -513,8 +513,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			@Override
 			protected void onPostExecute(POIManager poim) {
 				if (poim != null) {
-					OnPOISelectedListener listener = POIArrayAdapter.this.onPoiSelectedListenerWR == null ? null
-							: POIArrayAdapter.this.onPoiSelectedListenerWR.get();
+					OnPOISelectedListener listener = POIArrayAdapter.this.onPoiSelectedListenerWR == null ? null : POIArrayAdapter.this.onPoiSelectedListenerWR
+							.get();
 					boolean handled = listener != null && listener.onPOISelected(poim);
 					if (!handled) {
 						showPoiViewerScreen(poim);
@@ -540,8 +540,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			@Override
 			protected void onPostExecute(POIManager poim) {
 				if (poim != null) {
-					OnPOISelectedListener listener = POIArrayAdapter.this.onPoiSelectedListenerWR == null ? null
-							: POIArrayAdapter.this.onPoiSelectedListenerWR.get();
+					OnPOISelectedListener listener = POIArrayAdapter.this.onPoiSelectedListenerWR == null ? null : POIArrayAdapter.this.onPoiSelectedListenerWR
+							.get();
 					boolean handled = listener != null && listener.onPOILongSelected(poim);
 					if (!handled) {
 						showPoiMenu(poim);
@@ -1490,23 +1490,23 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				final Route route = rts.getRoute();
 				if (TextUtils.isEmpty(route.getShortName())) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
-					JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getRTSAgencyRouteLogo(getContext(), poim.poi.getAuthority());
-					if (rtsRouteLogo != null) {
-						holder.routeTypeImg.setJSON(rtsRouteLogo);
+					if (holder.routeTypeImg.hasPaths() && poim.poi.getAuthority().equals(holder.routeTypeImg.getTag())) {
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
-						holder.routeTypeImg.setVisibility(View.GONE);
+						JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getAgency(getContext(), poim.poi.getAuthority()).getLogo(getContext());
+						if (rtsRouteLogo != null) {
+							holder.routeTypeImg.setJSON(rtsRouteLogo);
+							holder.routeTypeImg.setTag(poim.poi.getAuthority());
+							holder.routeTypeImg.setVisibility(View.VISIBLE);
+						} else {
+							holder.routeTypeImg.setVisibility(View.GONE);
+						}
 					}
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
 					SpannableStringBuilder ssb = new SpannableStringBuilder(route.getShortName());
 					if (ssb.length() > 3) {
-						SpanUtils.set(ssb, SpanUtils.FIFTY_PERCENT_SIZE_SPAN);
-						holder.routeShortNameTv.setSingleLine(false);
-						holder.routeShortNameTv.setMaxLines(2);
-					} else {
-						holder.routeShortNameTv.setSingleLine(true);
-						holder.routeShortNameTv.setMaxLines(1);
+						SpanUtils.set(ssb, ssb.length() > 10 ? SpanUtils.TWENTY_FIVE_PERCENT_SIZE_SPAN : SpanUtils.FIFTY_PERCENT_SIZE_SPAN);
 					}
 					holder.routeShortNameTv.setText(ssb);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
