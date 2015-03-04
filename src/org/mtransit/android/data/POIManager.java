@@ -24,7 +24,7 @@ import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
-import org.mtransit.android.commons.provider.ServiceUpdateProvider;
+import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.provider.StatusFilter;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
@@ -323,7 +323,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		long findServiceUpdateTimestampMs = TimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
-			ServiceUpdateProvider.ServiceUpdateFilter filter = new ServiceUpdateProvider.ServiceUpdateFilter(this.poi);
+			ServiceUpdateProviderContract.Filter filter = new ServiceUpdateProviderContract.Filter(this.poi);
 			filter.setInFocus(this.inFocus);
 			ServiceUpdateLoader.ServiceUpdateLoaderListener listener = this.serviceUpdateLoaderListenerWR == null ? null : this.serviceUpdateLoaderListenerWR
 					.get();

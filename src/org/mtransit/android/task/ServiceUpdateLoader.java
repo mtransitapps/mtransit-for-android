@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.data.ServiceUpdate;
-import org.mtransit.android.commons.provider.ServiceUpdateProvider.ServiceUpdateFilter;
+import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
@@ -64,7 +64,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 	}
 
-	public boolean findServiceUpdate(Context context, POIManager poim, ServiceUpdateFilter serviceUpdateFilter,
+	public boolean findServiceUpdate(Context context, POIManager poim, ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 			ServiceUpdateLoader.ServiceUpdateLoaderListener listener, boolean skipIfBusy) {
 		if (skipIfBusy && isBusy()) {
 			return false;
@@ -93,10 +93,10 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		private ServiceUpdateProviderProperties serviceUpdateProvider;
 		private WeakReference<POIManager> poiWR;
 		private ServiceUpdateLoader.ServiceUpdateLoaderListener listener;
-		private ServiceUpdateFilter serviceUpdateFilter;
+		private ServiceUpdateProviderContract.Filter serviceUpdateFilter;
 
 		public ServiceUpdateFetcherCallable(Context context, ServiceUpdateLoader.ServiceUpdateLoaderListener listener,
-				ServiceUpdateProviderProperties serviceUpdateProvider, POIManager poim, ServiceUpdateFilter serviceUpdateFilter) {
+				ServiceUpdateProviderProperties serviceUpdateProvider, POIManager poim, ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
 			this.contextWR = new WeakReference<Context>(context);
 			this.listener = listener;
 			this.serviceUpdateProvider = serviceUpdateProvider;
@@ -182,5 +182,4 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	public static interface ServiceUpdateLoaderListener {
 		public void onServiceUpdatesLoaded(String targetUUID, ArrayList<ServiceUpdate> serviceUpdates);
 	}
-
 }

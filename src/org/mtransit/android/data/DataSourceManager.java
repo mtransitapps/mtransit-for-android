@@ -27,7 +27,6 @@ import org.mtransit.android.commons.provider.POIProvider;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.provider.ProviderContract;
 import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract;
-import org.mtransit.android.commons.provider.ServiceUpdateProvider;
 import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.provider.StatusFilter;
 import org.mtransit.android.commons.provider.StatusProviderContract;
@@ -62,7 +61,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	private DataSourceManager() {
 	}
 
-	public static ArrayList<ServiceUpdate> findServiceUpdates(Context context, String authority, ServiceUpdateProvider.ServiceUpdateFilter serviceUpdateFilter) {
+	public static ArrayList<ServiceUpdate> findServiceUpdates(Context context, String authority, ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
 		Cursor cursor = null;
 		try {
 			String serviceUpdateFilterJSONString = serviceUpdateFilter == null ? null : serviceUpdateFilter.toJSONString();
