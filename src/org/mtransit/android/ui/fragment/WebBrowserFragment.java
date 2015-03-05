@@ -235,19 +235,27 @@ public class WebBrowserFragment extends ABFragment {
 		@Override
 		public void onProgressChanged(WebView view, int newProgress) {
 			super.onProgressChanged(view, newProgress);
-			WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
-			if (webBrowserFragment != null) {
-				webBrowserFragment.onProgressChanged(newProgress);
+			try {
+				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
+				if (webBrowserFragment != null) {
+					webBrowserFragment.onProgressChanged(newProgress);
+				}
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error during on progress changed!");
 			}
 		}
 
 		@Override
 		public void onReceivedTitle(WebView webView, String title) {
 			super.onReceivedTitle(webView, title);
-			WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
-			if (webBrowserFragment != null) {
-				webBrowserFragment.onTitleChanged(title);
-				webBrowserFragment.onURLChanged(webView.getUrl());
+			try {
+				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
+				if (webBrowserFragment != null) {
+					webBrowserFragment.onTitleChanged(title);
+					webBrowserFragment.onURLChanged(webView.getUrl());
+				}
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error during on received title!");
 			}
 		}
 	}
@@ -273,9 +281,13 @@ public class WebBrowserFragment extends ABFragment {
 
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
-			WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
-			if (webBrowserFragment != null) {
-				webBrowserFragment.onURLChanged(url);
+			try {
+				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
+				if (webBrowserFragment != null) {
+					webBrowserFragment.onURLChanged(url);
+				}
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error during should override URL loading!");
 			}
 			return super.shouldOverrideUrlLoading(view, url);
 		}
@@ -283,20 +295,28 @@ public class WebBrowserFragment extends ABFragment {
 		@Override
 		public void onPageStarted(WebView webView, String url, Bitmap favicon) {
 			super.onPageStarted(webView, url, favicon);
-			WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
-			if (webBrowserFragment != null) {
-				webBrowserFragment.onTitleChanged(webView.getTitle());
-				webBrowserFragment.onURLChanged(url);
+			try {
+				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
+				if (webBrowserFragment != null) {
+					webBrowserFragment.onTitleChanged(webView.getTitle());
+					webBrowserFragment.onURLChanged(url);
+				}
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error during on page started!");
 			}
 		}
 
 		@Override
 		public void onPageFinished(WebView webView, String url) {
 			super.onPageFinished(webView, url);
-			WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
-			if (webBrowserFragment != null) {
-				webBrowserFragment.onTitleChanged(webView.getTitle());
-				webBrowserFragment.onURLChanged(url);
+			try {
+				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
+				if (webBrowserFragment != null) {
+					webBrowserFragment.onTitleChanged(webView.getTitle());
+					webBrowserFragment.onURLChanged(url);
+				}
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error during on page finished!");
 			}
 		}
 	}
