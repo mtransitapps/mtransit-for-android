@@ -38,10 +38,10 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 		this.pois = new ArrayList<POIManager>();
 		ArrayList<Favorite> favorites = FavoriteManager.findFavorites(getContext());
 		HashMap<String, HashSet<String>> authorityToUUIDs = splitByAgency(favorites);
-		if (authorityToUUIDs != null && authorityToUUIDs.size() > 0) {
+		if (CollectionUtils.getSize(authorityToUUIDs) > 0) {
 			for (String authority : authorityToUUIDs.keySet()) {
 				HashSet<String> authorityUUIDs = authorityToUUIDs.get(authority);
-				if (authorityUUIDs != null && authorityUUIDs.size() > 0) {
+				if (CollectionUtils.getSize(authorityUUIDs) > 0) {
 					ArrayList<POIManager> agencyPOIs = DataSourceManager.findPOIs(getContext(), authority,
 							POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs));
 					if (agencyPOIs != null) {
@@ -55,7 +55,7 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 		return this.pois;
 	}
 
-	private HashMap<String, HashSet<String>> splitByAgency(ArrayList<Favorite> favorites) {
+	public static HashMap<String, HashSet<String>> splitByAgency(ArrayList<Favorite> favorites) {
 		HashMap<String, HashSet<String>> authorityToUUIDs = new HashMap<String, HashSet<String>>();
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {

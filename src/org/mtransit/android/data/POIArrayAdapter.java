@@ -204,10 +204,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		POIManager poim = getItem(position);
 		if (poim == null) {
 			if (this.showBrowseHeaderSection && position == 0) {
-				return 0;
+				return 0; // BROWSE SECTION
 			}
 			if (this.infiniteLoading && position + 1 == getCount()) {
-				return 8;
+				return 8; // LOADING FOOTER
 			}
 			if (this.showTypeHeader != TYPE_HEADER_NONE) {
 				if (this.poisByType != null) {
@@ -596,33 +596,23 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	public void setPois(ArrayList<POIManager> pois) {
-		this.lastNotifyDataSetChanged = -1; // last notify was with old data
 		if (this.poisByType != null) {
 			this.poisByType.clear();
 		}
 		this.poiUUID.clear();
-		if (pois != null) {
-			if (this.poisByType == null) {
-				this.poisByType = new LinkedHashMap<Integer, ArrayList<POIManager>>();
-			}
-			for (POIManager poim : pois) {
-				if (!this.poisByType.containsKey(poim.poi.getDataSourceTypeId())) {
-					this.poisByType.put(poim.poi.getDataSourceTypeId(), new ArrayList<POIManager>());
-				}
-				this.poisByType.get(poim.poi.getDataSourceTypeId()).add(poim);
-				this.poiUUID.add(poim.poi.getUUID());
-			}
-		}
-		initCount();
-		initPoisCount();
-		refreshFavorites();
-		updateClosestPoi();
+		append(pois, true);
 	}
 
 	private HashSet<String> poiUUID = new HashSet<String>();
 
 	public void appendPois(ArrayList<POIManager> pois) {
-		boolean dataSetChanged = false;
+		boolean dataSetChanged = append(pois, false);
+		if (dataSetChanged) {
+			notifyDataSetChanged();
+		}
+	}
+
+	private boolean append(ArrayList<POIManager> pois, boolean dataSetChanged) {
 		if (pois != null) {
 			if (this.poisByType == null) {
 				this.poisByType = new LinkedHashMap<Integer, ArrayList<POIManager>>();
@@ -642,10 +632,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			this.lastNotifyDataSetChanged = -1; // last notify was with old data
 			initCount();
 			initPoisCount();
-			notifyDataSetChanged();
 			refreshFavorites();
 			updateClosestPoi();
 		}
+		return dataSetChanged;
 	}
 
 	private void resetCounts() {
@@ -684,8 +674,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			this.closestPoiUuids = null;
 			return;
 		}
+		this.closestPoiUuids = new HashSet<String>();
 		if (this.poisByType != null) {
-			this.closestPoiUuids = new HashSet<String>();
 			for (Integer type : this.poisByType.keySet()) {
 				ArrayList<POIManager> orderedPoims = new ArrayList<POIManager>(this.poisByType.get(type));
 				CollectionUtils.sort(orderedPoims, LocationUtils.POI_DISTANCE_COMPARATOR);
@@ -730,7 +720,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (this.updateDistanceWithStringTask != null) {
 			this.updateDistanceWithStringTask.cancel(true);
 		}
-		if (this.poisByType != null && currentLocation != null) {
+		if (currentLocation != null && getPoisCount() > 0) {
 			this.updateDistanceWithStringTask = new MTAsyncTask<Location, Void, Void>() {
 
 				@Override
@@ -764,9 +754,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	@Deprecated
 	public void updateDistancesNowSync(Location currentLocation) {
-		if (this.poisByType != null && currentLocation != null) {
-			for (ArrayList<POIManager> pois : this.poisByType.values()) {
-				LocationUtils.updateDistanceWithString(getContext(), pois, currentLocation, null);
+		if (currentLocation != null) {
+			if (this.poisByType != null) {
+				for (ArrayList<POIManager> pois : this.poisByType.values()) {
+					LocationUtils.updateDistanceWithString(getContext(), pois, currentLocation, null);
+				}
 			}
 			updateClosestPoi();
 		}
@@ -1050,7 +1042,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	@Override
 	public void updateCompass(float orientation, boolean force) {
-		if (this.poisByType == null) {
+		if (getPoisCount() == 0) {
 			return;
 		}
 		long now = TimeUtils.currentTimeMillis();
@@ -1217,6 +1209,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private CommonStatusViewHolder initPOIStatusViewHolder(int status, View convertView) {
 		switch (status) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			return null;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
 			return initAvailabilityPercentViewHolder(convertView);
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
@@ -1255,6 +1249,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private int getBasicPOILayout(int status) {
 		int layoutRes = R.layout.layout_poi_basic;
 		switch (status) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			break;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
 			layoutRes = R.layout.layout_poi_basic_with_availability_percent;
 			break;
@@ -1372,6 +1368,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private int getRTSLayout(int status) {
 		int layoutRes = R.layout.layout_poi_rts;
 		switch (status) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			break;
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
 			layoutRes = R.layout.layout_poi_rts_with_schedule;
 			break;
@@ -1429,6 +1427,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private int getModuleLayout(int status) {
 		int layoutRes = R.layout.layout_poi_module;
 		switch (status) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			break;
 		case POI.ITEM_STATUS_TYPE_APP:
 			layoutRes = R.layout.layout_poi_module_with_app_status;
 			break;
@@ -1868,5 +1868,4 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 		public boolean onTypeHeaderButtonClick(int buttonId, DataSourceType type);
 	}
-
 }
