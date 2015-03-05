@@ -3,6 +3,7 @@ package org.mtransit.android.task;
 import java.util.ArrayList;
 
 import org.mtransit.android.commons.LocationUtils;
+import org.mtransit.android.commons.provider.GTFSRouteTripStopProviderContract;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTCallable;
 import org.mtransit.android.data.DataSourceManager;
@@ -24,18 +25,18 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> 
 	private double lat;
 	private double lng;
 	private double aroundDiff;
-	private boolean hideDecentOnly;
+	private boolean hideDescentOnly;
 	private int maxSize;
 	private float minCoverageInMeters;
 
-	public FindNearbyAgencyPOIsTask(Context context, String authority, double lat, double lng, double aroundDiff, boolean hideDecentOnly,
+	public FindNearbyAgencyPOIsTask(Context context, String authority, double lat, double lng, double aroundDiff, boolean hideDescentOnly,
 			float minCoverageInMeters, int maxSize) {
 		this.context = context;
 		this.authority = authority;
 		this.lat = lat;
 		this.lng = lng;
 		this.aroundDiff = aroundDiff;
-		this.hideDecentOnly = hideDecentOnly;
+		this.hideDescentOnly = hideDescentOnly;
 		this.minCoverageInMeters = minCoverageInMeters;
 		this.maxSize = maxSize;
 	}
@@ -43,8 +44,8 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> 
 	@Override
 	public ArrayList<POIManager> callMT() throws Exception {
 		POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewAroundFilter(this.lat, this.lng, this.aroundDiff);
-		if (this.hideDecentOnly) {
-			poiFilter.addExtra("decentOnly", true);
+		if (this.hideDescentOnly) {
+			poiFilter.addExtra(GTFSRouteTripStopProviderContract.POI_FILTER_EXTRA_DESCENT_ONLY, true);
 		}
 		ArrayList<POIManager> pois = DataSourceManager.findPOIs(this.context, this.authority, poiFilter);
 		LocationUtils.updateDistance(pois, this.lat, this.lng);

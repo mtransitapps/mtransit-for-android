@@ -32,18 +32,11 @@ public class FavoriteProvider extends MTContentProvider {
 	private static final int FAVORITE = 100;
 	private static final int FAVORITE_ID = 101;
 
-	private static final HashMap<String, String> FAVORITE_PROJECTION_MAP;
-	static {
-		HashMap<String, String> map;
-		map = new HashMap<String, String>();
-		map.put(FavoriteColumns.T_FAVORITE_K_ID, FavoriteDbHelper.T_FAVORITE + "." + FavoriteDbHelper.T_FAVORITE_K_ID + " AS "
-				+ FavoriteColumns.T_FAVORITE_K_ID);
-		map.put(FavoriteColumns.T_FAVORITE_K_TYPE, FavoriteDbHelper.T_FAVORITE + "." + FavoriteDbHelper.T_FAVORITE_K_TYPE + " AS "
-				+ FavoriteColumns.T_FAVORITE_K_TYPE);
-		map.put(FavoriteColumns.T_FAVORITE_K_FK_ID, FavoriteDbHelper.T_FAVORITE + "." + FavoriteDbHelper.T_FAVORITE_K_FK_ID + " AS "
-				+ FavoriteColumns.T_FAVORITE_K_FK_ID);
-		FAVORITE_PROJECTION_MAP = map;
-	}
+	private static final HashMap<String, String> FAVORITE_PROJECTION_MAP = SqlUtils.ProjectionMapBuilder.getNew() //
+			.appendTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_ID, FavoriteColumns.T_FAVORITE_K_ID) //
+			.appendTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_TYPE, FavoriteColumns.T_FAVORITE_K_TYPE) //
+			.appendTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FK_ID, FavoriteColumns.T_FAVORITE_K_FK_ID) //
+			.build();
 
 	public static final String[] PROJECTION_FAVORITE = new String[] { FavoriteColumns.T_FAVORITE_K_ID, FavoriteColumns.T_FAVORITE_K_TYPE,
 			FavoriteColumns.T_FAVORITE_K_FK_ID };

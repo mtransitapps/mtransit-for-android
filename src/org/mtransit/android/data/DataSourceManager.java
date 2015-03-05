@@ -164,6 +164,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 			if (cursor.moveToFirst()) {
 				int status = POIStatus.getTypeFromCursor(cursor);
 				switch (status) {
+				case POI.ITEM_STATUS_TYPE_NONE:
+					result = null;
+					break;
 				case POI.ITEM_STATUS_TYPE_SCHEDULE:
 					result = Schedule.fromCursor(cursor);
 					break;

@@ -41,15 +41,15 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 
 	private float minCoverageInMeters;
 
-	private boolean hideDecentOnly;
+	private boolean hideDescentOnly;
 
-	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, float minCoverageInMeters, int maxSize, boolean hideDecentOnly,
+	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, float minCoverageInMeters, int maxSize, boolean hideDescentOnly,
 			ArrayList<String> agenciesAuthority) {
-		this(context, lat, lng, aroundDiff, minCoverageInMeters, maxSize, hideDecentOnly, agenciesAuthority == null ? null : agenciesAuthority
+		this(context, lat, lng, aroundDiff, minCoverageInMeters, maxSize, hideDescentOnly, agenciesAuthority == null ? null : agenciesAuthority
 				.toArray(new String[agenciesAuthority.size()]));
 	}
 
-	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, float minCoverageInMeters, int maxSize, boolean hideDecentOnly,
+	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, float minCoverageInMeters, int maxSize, boolean hideDescentOnly,
 			String... agenciesAuthority) {
 		super(context);
 		this.agenciesAuthority = agenciesAuthority;
@@ -58,7 +58,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		this.aroundDiff = aroundDiff;
 		this.minCoverageInMeters = minCoverageInMeters;
 		this.maxSize = maxSize;
-		this.hideDecentOnly = hideDecentOnly;
+		this.hideDescentOnly = hideDescentOnly;
 	}
 
 	@Override
@@ -74,7 +74,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
 		for (String agencyAuthority : this.agenciesAuthority) {
 			FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(getContext(), agencyAuthority, this.lat, this.lng, this.aroundDiff,
-					this.hideDecentOnly, this.minCoverageInMeters, this.maxSize);
+					this.hideDescentOnly, this.minCoverageInMeters, this.maxSize);
 			taskList.add(executor.submit(task));
 		}
 		for (Future<ArrayList<POIManager>> future : taskList) {

@@ -23,10 +23,11 @@ public class FavoriteDbHelper extends MTSQLiteOpenHelper {
 	public static final String T_FAVORITE_K_TYPE = "type";
 	public static final String T_FAVORITE_K_FK_ID = "fk_id";
 
-	public static final String T_FAVORITE_SQL_CREATE = SqlUtils.CREATE_TABLE_IF_NOT_EXIST + T_FAVORITE + " (" //
-			+ T_FAVORITE_K_ID + SqlUtils.INT_PK + ", "//
-			+ T_FAVORITE_K_TYPE + SqlUtils.INT + ", " //
-			+ T_FAVORITE_K_FK_ID + SqlUtils.TXT + ")";
+	public static final String T_FAVORITE_SQL_CREATE = SqlUtils.SQLCreateBuilder.getNew(T_FAVORITE) //
+			.appendColumn(T_FAVORITE_K_ID, SqlUtils.INT_PK) //
+			.appendColumn(T_FAVORITE_K_TYPE, SqlUtils.INT) //
+			.appendColumn(T_FAVORITE_K_FK_ID, SqlUtils.TXT) //
+			.build();
 	public static final String T_FAVORITE_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_FAVORITE);
 
 	public static final int DB_VERSION = 1;

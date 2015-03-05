@@ -13,6 +13,7 @@ import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
+import org.mtransit.android.commons.provider.GTFSRouteTripStopProviderContract;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTCallable;
 import org.mtransit.android.data.AgencyProperties;
@@ -293,7 +294,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 				return null;
 			}
 			POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewSearchFilter(this.query);
-			poiFilter.addExtra("decentOnly", true);
+			poiFilter.addExtra(GTFSRouteTripStopProviderContract.POI_FILTER_EXTRA_DESCENT_ONLY, true);
 			if (this.userLocation != null) {
 				poiFilter.addExtra("lat", this.userLocation.getLatitude());
 				poiFilter.addExtra("lng", this.userLocation.getLongitude());

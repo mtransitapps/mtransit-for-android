@@ -39,17 +39,17 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	public static final String T_MODULE_K_COLOR = POIProvider.POIDbHelper.getFkColumnName("color");
 	public static final String T_MODULE_K_LOCATION = POIProvider.POIDbHelper.getFkColumnName("location");
 	public static final String T_MODULE_K_NAME_FR = POIProvider.POIDbHelper.getFkColumnName("name_fr");
-	private static final String T_MODULE_SQL_CREATE = POIProvider.POIDbHelper.getSqlCreate(T_MODULE, //
-			T_MODULE_K_PKG + SqlUtils.TXT, //
-			T_MODULE_K_TARGET_TYPE_ID + SqlUtils.INT, //
-			T_MODULE_K_COLOR + SqlUtils.TXT, //
-			T_MODULE_K_LOCATION + SqlUtils.TXT, //
-			T_MODULE_K_NAME_FR + SqlUtils.TXT //
-	);
+	private static final String T_MODULE_SQL_CREATE = POIProvider.POIDbHelper.getSqlCreateBuilder(T_MODULE) //
+			.appendColumn(T_MODULE_K_PKG, SqlUtils.TXT) //
+			.appendColumn(T_MODULE_K_TARGET_TYPE_ID, SqlUtils.INT) //
+			.appendColumn(T_MODULE_K_COLOR, SqlUtils.TXT) //
+			.appendColumn(T_MODULE_K_LOCATION, SqlUtils.TXT) //
+			.appendColumn(T_MODULE_K_NAME_FR, SqlUtils.TXT) //
+			.build();
 	private static final String T_MODULE_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_MODULE);
 
 	public static final String T_MODULE_STATUS = StatusProvider.StatusDbHelper.T_STATUS;
-	private static final String T_MODULE_STATUS_SQL_CREATE = StatusProvider.StatusDbHelper.getSqlCreate(T_MODULE_STATUS);
+	private static final String T_MODULE_STATUS_SQL_CREATE = StatusProvider.StatusDbHelper.getSqlCreateBuilder(T_MODULE_STATUS).build();
 	private static final String T_MODULE_STATUS_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_MODULE_STATUS);
 
 	/**

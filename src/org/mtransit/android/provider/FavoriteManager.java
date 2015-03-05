@@ -86,19 +86,12 @@ public class FavoriteManager implements MTLog.Loggable {
 		ArrayList<Favorite> result = new ArrayList<Favorite>();
 		Cursor cursor = null;
 		try {
-			StringBuilder selectionSb = new StringBuilder();
+			String selection = null;
 			if (ArrayUtils.getSize(types) > 0) {
-				selectionSb.append(FavoriteColumns.T_FAVORITE_K_TYPE).append(" IN (");
-				for (int i = 0; i < types.length; i++) {
-					if (i > 0) {
-						selectionSb.append(",");
-					}
-					selectionSb.append(types[i]);
-				}
-				selectionSb.append(")");
+				selection = SqlUtils.getWhereIn(FavoriteColumns.T_FAVORITE_K_TYPE, ArrayUtils.asArrayList(types));
 			}
 			cursor = DataSourceManager.queryContentResolver(context.getContentResolver(), getFavoriteContentUri(context), FavoriteProvider.PROJECTION_FAVORITE,
-					selectionSb.toString(), null, null);
+					selection, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					do {

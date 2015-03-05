@@ -30,6 +30,8 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	public static Integer getLayoutResId(POIManager poim) {
 		if (poim != null) {
 			switch (poim.getStatusType()) {
+			case POI.ITEM_STATUS_TYPE_NONE:
+				return null;
 			case POI.ITEM_STATUS_TYPE_APP:
 				return R.layout.layout_poi_detail_status_app;
 			case POI.ITEM_STATUS_TYPE_SCHEDULE:
@@ -44,6 +46,8 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 
 	public static void initViewHolder(AgencyProperties agency, POIManager poim, View view) {
 		switch (poim.getStatusType()) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			break;
 		case POI.ITEM_STATUS_TYPE_APP:
 			initAppStatusViewHolder(poim, view);
 			break;
@@ -102,6 +106,9 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			return;
 		}
 		switch (status.getType()) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			setStatusView(statusViewHolder, false);
+			break;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
 			updateAvailabilityPercentView(context, statusViewHolder, status);
 			break;
@@ -136,6 +143,9 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			return;
 		}
 		switch (poim.getStatusType()) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			setStatusView(statusViewHolder, false);
+			break;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
 			updateAvailabilityPercentView(context, statusViewHolder, poim, dataProvider);
 			break;

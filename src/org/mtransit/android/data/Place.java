@@ -76,7 +76,7 @@ public class Place extends DefaultPOI {
 
 	@Override
 	public int getStatusType() {
-		return -1;
+		return POI.ITEM_STATUS_TYPE_NONE;
 	}
 
 	@Override

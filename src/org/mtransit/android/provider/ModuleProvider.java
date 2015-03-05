@@ -502,37 +502,29 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	public static HashMap<String, String> getNewPoiProjectionMap(String authority) {
-		HashMap<String, String> poiProjectionMap = new HashMap<String, String>();
-		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_UUID_META, SqlUtils.concatenate("'" + POIUtils.UID_SEPARATOR + "'", //
-				"'" + authority + "'", //
-				ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_PKG //
-		) + " AS " + POIProviderContract.Columns.T_POI_K_UUID_META);
-		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_DST_ID_META, Module.DST_ID + " AS " + POIProviderContract.Columns.T_POI_K_DST_ID_META);
-		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_ID, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_ID + " AS "
-				+ POIProviderContract.Columns.T_POI_K_ID);
-		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_NAME, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_NAME + " AS "
-				+ POIProviderContract.Columns.T_POI_K_NAME);
-		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_LAT, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_LAT + " AS "
-				+ POIProviderContract.Columns.T_POI_K_LAT);
-		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_LNG, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_LNG + " AS "
-				+ POIProviderContract.Columns.T_POI_K_LNG);
-		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_TYPE, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_TYPE + " AS "
-				+ POIProviderContract.Columns.T_POI_K_TYPE);
-		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_STATUS_TYPE, POIProvider.POIDbHelper.T_POI + "." + POIProvider.POIDbHelper.T_POI_K_STATUS_TYPE
-				+ " AS " + POIProviderContract.Columns.T_POI_K_STATUS_TYPE);
-		poiProjectionMap.put(POIProviderContract.Columns.T_POI_K_ACTIONS_TYPE, POIProvider.POIDbHelper.T_POI + "."
-				+ POIProvider.POIDbHelper.T_POI_K_ACTIONS_TYPE + " AS " + POIProviderContract.Columns.T_POI_K_ACTIONS_TYPE);
-		poiProjectionMap.put(ModuleColumns.T_MODULE_K_PKG, ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_PKG + " AS "
-				+ ModuleColumns.T_MODULE_K_PKG);
-		poiProjectionMap.put(ModuleColumns.T_MODULE_K_TARGET_TYPE_ID, ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_TARGET_TYPE_ID + " AS "
-				+ ModuleColumns.T_MODULE_K_TARGET_TYPE_ID);
-		poiProjectionMap.put(ModuleColumns.T_MODULE_K_COLOR, ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_COLOR + " AS "
-				+ ModuleColumns.T_MODULE_K_COLOR);
-		poiProjectionMap.put(ModuleColumns.T_MODULE_K_LOCATION, ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_LOCATION + " AS "
-				+ ModuleColumns.T_MODULE_K_LOCATION);
-		poiProjectionMap.put(ModuleColumns.T_MODULE_K_NAME_FR, ModuleDbHelper.T_MODULE + "." + ModuleDbHelper.T_MODULE_K_NAME_FR + " AS "
-				+ ModuleColumns.T_MODULE_K_NAME_FR);
-		return poiProjectionMap;
+		// @formatter:off
+		return SqlUtils.ProjectionMapBuilder.getNew()
+				.appendValue(SqlUtils.concatenate(//
+						SqlUtils.escapeString(POIUtils.UID_SEPARATOR), //
+						SqlUtils.escapeString(authority), //
+						SqlUtils.getTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_PKG) //
+						), POIProviderContract.Columns.T_POI_K_UUID_META) //
+				.appendValue(Module.DST_ID, POIProviderContract.Columns.T_POI_K_DST_ID_META) //
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ID, POIProviderContract.Columns.T_POI_K_ID) //
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_NAME, POIProviderContract.Columns.T_POI_K_NAME) //
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_LAT, POIProviderContract.Columns.T_POI_K_LAT) //
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_LNG, POIProviderContract.Columns.T_POI_K_LNG) //
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_TYPE, POIProviderContract.Columns.T_POI_K_TYPE) //
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_STATUS_TYPE, POIProviderContract.Columns.T_POI_K_STATUS_TYPE) //
+				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ACTIONS_TYPE, POIProviderContract.Columns.T_POI_K_ACTIONS_TYPE) //
+				//
+				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_PKG, ModuleColumns.T_MODULE_K_PKG) //
+				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_TARGET_TYPE_ID, ModuleColumns.T_MODULE_K_TARGET_TYPE_ID) //
+				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_COLOR, ModuleColumns.T_MODULE_K_COLOR) //
+				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_LOCATION, ModuleColumns.T_MODULE_K_LOCATION) //
+				.appendTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_NAME_FR, ModuleColumns.T_MODULE_K_NAME_FR) //
+				.build();
+		// @formatter:on
 	}
 
 	public static final String[] PROJECTION_MODULE = new String[] { ModuleColumns.T_MODULE_K_PKG, ModuleColumns.T_MODULE_K_TARGET_TYPE_ID,

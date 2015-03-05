@@ -73,7 +73,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return defaultPoiTextColorSpan;
 	}
 
-
 	public static final POIAlphaComparator POI_ALPHA_COMPARATOR = new POIAlphaComparator();
 
 	private static int defaultDistanceAndCompassColor = -1;
@@ -174,6 +173,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			return false; // no change
 		}
 		switch (getStatusType()) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			return false; // no change
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
 			if (!(newStatus instanceof Schedule)) {
 				MTLog.w(this, "setStatus() > Unexpected schedule status '%s'!", newStatus);
@@ -238,6 +239,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	private StatusProviderContract.Filter getFilter() {
 		switch (getStatusType()) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			return null;
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
 			if (this.poi instanceof RouteTripStop) {
 				RouteTripStop rts = (RouteTripStop) this.poi;
@@ -337,6 +340,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	public CharSequence[] getActionsItems(Context context, CharSequence defaultAction) {
 		switch (this.poi.getActionsType()) {
+		case POI.ITEM_ACTION_TYPE_NONE:
+			return new CharSequence[] { defaultAction };
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
 			return new CharSequence[] { //
 			defaultAction, //
@@ -373,6 +378,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	public boolean onActionsItemClick(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
 			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (this.poi.getActionsType()) {
+		case POI.ITEM_ACTION_TYPE_NONE:
+			return false; // NOT HANDLED
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
 			return onActionsItemClickFavoritable(activity, itemClicked, listener, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
@@ -501,6 +508,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
 		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
 			return true;
+		case POI.ITEM_ACTION_TYPE_NONE:
 		case POI.ITEM_ACTION_TYPE_APP:
 		case POI.ITEM_ACTION_TYPE_PLACE:
 			return false;
@@ -515,6 +523,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			return false; // show long-click menu
 		}
 		switch (this.poi.getActionsType()) {
+		case POI.ITEM_ACTION_TYPE_NONE:
+			return false; // NOT HANDLED
 		case POI.ITEM_ACTION_TYPE_APP:
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();

@@ -1549,6 +1549,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			return;
 		}
 		switch (status.getType()) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
+			break;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
 			updateAvailabilityPercent(statusViewHolder, status);
 			break;
@@ -1572,6 +1575,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			return;
 		}
 		switch (poim.getStatusType()) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
+			break;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
 			updateAvailabilityPercent(statusViewHolder, poim);
 			break;

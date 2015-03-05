@@ -68,6 +68,8 @@ public class POIViewController implements MTLog.Loggable {
 	private static int getRTSLayout(int status) {
 		int layoutRes = R.layout.layout_poi_rts;
 		switch (status) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			break;
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
 			layoutRes = R.layout.layout_poi_rts_with_schedule;
 			break;
@@ -81,6 +83,8 @@ public class POIViewController implements MTLog.Loggable {
 	private static int getBasicPOILayout(int status) {
 		int layoutRes = R.layout.layout_poi_basic;
 		switch (status) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			break;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
 			layoutRes = R.layout.layout_poi_basic_with_availability_percent;
 			break;
@@ -94,6 +98,8 @@ public class POIViewController implements MTLog.Loggable {
 	private static int getModuleLayout(int status) {
 		int layoutRes = R.layout.layout_poi_module;
 		switch (status) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			break;
 		case POI.ITEM_STATUS_TYPE_APP:
 			layoutRes = R.layout.layout_poi_module_with_app_status;
 			break;
@@ -158,6 +164,8 @@ public class POIViewController implements MTLog.Loggable {
 	private static CommonStatusViewHolder initPOIStatusViewHolder(int status, View view) {
 		CommonStatusViewHolder statusViewHolder = null;
 		switch (status) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			break;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
 			statusViewHolder = initAvailabilityPercentViewHolder(view);
 			break;
@@ -311,6 +319,9 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		switch (status.getType()) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
+			break;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
 			updateAvailabilityPercent(context, statusViewHolder, status);
 			break;
@@ -345,6 +356,9 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		switch (poim.getStatusType()) {
+		case POI.ITEM_STATUS_TYPE_NONE:
+			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
+			break;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
 			updateAvailabilityPercent(context, statusViewHolder, poim, dataProvider);
 			break;
