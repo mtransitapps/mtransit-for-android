@@ -320,7 +320,11 @@ public class DataSourceProvider implements MTLog.Loggable {
 					if (typeId != null && typeId >= 0) {
 						DataSourceType type = DataSourceType.parseId(typeId);
 						if (type != null) {
-							addNewAgency(DataSourceManager.findAgencyProperties(context, authority, type, isRTS));
+							AgencyProperties agency = DataSourceManager.findAgencyProperties(context, authority, type, isRTS);
+							if (isRTS) {
+								agency.setLogo(DataSourceManager.findAgencyRTSRouteLogo(context, authority));
+							}
+							addNewAgency(agency);
 						}
 					} else {
 						MTLog.w(this, "Invalid type ID '%s', skipping agency provider.", typeId);

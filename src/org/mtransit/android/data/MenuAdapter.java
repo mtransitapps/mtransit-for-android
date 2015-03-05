@@ -475,7 +475,7 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 		} else if (position == MenuAdapter.ITEM_INDEX_MAP) {
 			return MapFragment.newInstance(null, null, null);
 		} else if (position == MenuAdapter.ITEM_INDEX_NEWS) {
-			return NewsFragment.newInstance(null);
+			return NewsFragment.newInstance(null, null, null, null, null);
 		}
 		DataSourceType type = getAgencyTypeAt(position);
 		if (type != null) {

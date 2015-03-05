@@ -3,9 +3,11 @@ package org.mtransit.android.ui.fragment;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.Constants;
@@ -13,15 +15,18 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SensorUtils;
 import org.mtransit.android.commons.TimeUtils;
+import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
+import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.data.NewsProviderProperties;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ScheduleProviderProperties;
@@ -30,6 +35,7 @@ import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MapViewController;
+import org.mtransit.android.ui.view.POINewsViewController;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
@@ -245,7 +251,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			return false;
 		}
 		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
-			this.poim = DataSourceManager.findPOI(getActivity(), this.authority, POIProviderContract.Filter.getNewUUIDsFilter(this.uuid));
+			this.poim = DataSourceManager.findPOI(getActivity(), this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
 		}
 		return this.poim != null;
 	}
@@ -269,10 +275,95 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), agency, this.poim, this);
 		}
 		POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(view), this.poim, this);
+		POINewsViewController.updateView(getActivity(), getPOINewsView(view), getNewsOrNull());
 		setupRTSFullScheduleBtn(view);
+		setupMoreNewsButton(view);
 		setupMoreNearbyButton(view);
 		getActivity().supportInvalidateOptionsMenu(); // add/remove star from action bar
 		setupNearbyList();
+	}
+
+	private News news;
+
+	private News getNewsOrNull() {
+		if (!hasNews()) {
+			return null;
+		}
+		return this.news;
+	}
+
+	private boolean hasNews() {
+		if (this.news == null) {
+			initNewsAsync();
+			return false;
+		}
+		return true;
+	}
+
+	private void initNewsAsync() {
+		if (this.loadNewsTask != null && this.loadNewsTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+			return;
+		}
+		if (!hasPoim()) {
+			return;
+		}
+		this.loadNewsTask = new LoadNewsTask();
+		this.loadNewsTask.execute();
+	}
+
+	private LoadNewsTask loadNewsTask = null;
+
+	private class LoadNewsTask extends MTAsyncTask<Void, Void, Boolean> {
+
+		@Override
+		public String getLogTag() {
+			return POIFragment.this.getLogTag() + ">" + LoadNewsTask.class.getSimpleName();
+		}
+
+		@Override
+		protected Boolean doInBackgroundMT(Void... params) {
+			return initNewsSync();
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			super.onPostExecute(result);
+			if (result) {
+				applyNewNews();
+			}
+		}
+	}
+
+	private boolean initNewsSync() {
+		if (this.news != null) {
+			return false;
+		}
+		POIManager poim = getPoimOrNull();
+		if (poim != null) {
+			HashSet<NewsProviderProperties> poiNewsProviders = DataSourceProvider.get(getActivity()).getTargetAuthorityNewsProviders(poim.poi.getAuthority());
+			if (poiNewsProviders != null) {
+				ArrayList<News> allNews = new ArrayList<News>();
+				for (NewsProviderProperties poiNewsProvider : poiNewsProviders) {
+					allNews.addAll(DataSourceManager.findNews(getActivity(), poiNewsProvider.getAuthority(),
+							NewsProviderContract.Filter.getNewTargetFilter(poim.poi)));
+				}
+				if (allNews.size() > 0) {
+					CollectionUtils.sort(allNews, News.NEWS_COMPARATOR);
+					this.news = allNews.get(0);
+					if (TimeUtils.currentTimeMillis() - this.news.getCreatedAtInMs() > NewsProviderContract.NOTEWORTHY_IN_MS) {
+						this.news = null;
+					}
+				}
+			}
+		}
+		return this.news != null;
+	}
+
+	private void applyNewNews() {
+		if (this.news == null) {
+			return;
+		}
+		POINewsViewController.updateView(getActivity(), getPOINewsView(getView()), this.news);
 	}
 
 	@Override
@@ -504,11 +595,35 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 							optRts = (RouteTripStop) poim.poi;
 						}
 						((MainActivity) getActivity()).addFragmentToStack(ScheduleFragment.newInstance(POIFragment.this.uuid, POIFragment.this.authority,
-								POIFragment.this.agency, optRts));
+								optRts, poim.getColor(getActivity())));
 					}
 				});
 				rtsScheduleBtn.setVisibility(View.VISIBLE);
 			}
+		}
+	}
+
+	private void setupMoreNewsButton(View view) {
+		if (view == null) {
+			return;
+		}
+		View newsView = view.findViewById(R.id.poi_news);
+		View moreBtn = newsView == null ? null : newsView.findViewById(R.id.moreBtn);
+		if (moreBtn != null) {
+			moreBtn.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					POIManager poim = getPoimOrNull();
+					if (poim == null) {
+						return;
+					}
+					Integer colorInt = poim.getColor(getActivity());
+					String subtitle = POIManager.getOneLineDescription(getActivity(), poim.poi);
+					((MainActivity) getActivity()).addFragmentToStack(NewsFragment.newInstance(colorInt, subtitle,
+							ArrayUtils.asArrayList(poim.poi.getAuthority()), null, NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()));
+				}
+			});
+			moreBtn.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -569,6 +684,31 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		return view.findViewById(R.id.poi_service_update);
 	}
 
+	private View getPOINewsView(View view) {
+		if (view == null) {
+			return null;
+		}
+		if (view.findViewById(R.id.poi_news) == null) { // IF NOT present/inflated DO
+			Integer layoutResId = POINewsViewController.getLayoutResId();
+			if (layoutResId != null) {
+				((ViewStub) view.findViewById(R.id.poi_news_stub)).setLayoutResource(layoutResId);
+				((ViewStub) view.findViewById(R.id.poi_news_stub)).inflate(); // inflate
+				view.findViewById(R.id.the_poi).setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						News news = getNewsOrNull();
+						if (news != null) {
+							Activity activity = getActivity();
+							if (activity != null) {
+								((MainActivity) activity).addFragmentToStack(NewsDetailsFragment.newInstance(news.getUUID(), news.getAuthority(), news));
+							}
+						}
+					}
+				});
+			}
+		}
+		return view.findViewById(R.id.poi_news);
+	}
 
 	private View getPOIView(View view) {
 		POIManager poim = getPoimOrNull();
@@ -681,7 +821,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (activity == null) {
 			return;
 		}
-		POIManager newPoim = DataSourceManager.findPOI(activity, this.authority, POIProviderContract.Filter.getNewUUIDsFilter(this.uuid));
+		POIManager newPoim = DataSourceManager.findPOI(activity, this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
 		if (newPoim == null) {
 			if (activity.isMTResumed()) {
 				activity.popFragmentFromStack(this); // close this fragment
@@ -721,6 +861,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 				POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), agency, poim, this);
 			}
 			POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(view), poim, this);
+			POINewsViewController.updateView(getActivity(), getPOINewsView(view), getNewsOrNull());
 			setupRTSFullScheduleBtn(view);
 			setupMoreNearbyButton(view);
 			setupNearbyList();
@@ -760,9 +901,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	private void resetNowToTheMinute() {
 		this.nowToTheMinute = TimeUtils.currentTimeToTheMinuteMillis();
+		View view = getView();
 		POIManager poim = getPoimOrNull();
 		if (poim != null) {
-			View view = getView();
 			View poiView = getPOIView(view);
 			POIViewController.updatePOIStatus(getActivity(), poiView, poim, this);
 			POIViewController.updatePOIServiceUpdate(getActivity(), poiView, poim, this);
@@ -771,6 +912,10 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 				POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), agency, poim, this);
 			}
 			POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(view), poim, this);
+		}
+		News news = getNewsOrNull();
+		if (news != null) {
+			POINewsViewController.updateView(getActivity(), getPOINewsView(view), news);
 		}
 	}
 

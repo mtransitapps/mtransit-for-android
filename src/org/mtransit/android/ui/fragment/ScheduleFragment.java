@@ -9,9 +9,7 @@ import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
-import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
@@ -48,16 +46,20 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 	private static final String EXTRA_AUTHORITY = "extra_agency_authority";
 	private static final String EXTRA_POI_UUID = "extra_poi_uuid";
+	private static final String EXTRA_COLOR_INT = "extra_color_int";
 
-	public static ScheduleFragment newInstance(String uuid, String authority, AgencyProperties optAgency, RouteTripStop optRts) {
+	public static ScheduleFragment newInstance(String uuid, String authority, RouteTripStop optRts, Integer optColorInt) {
 		ScheduleFragment f = new ScheduleFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
 		f.authority = authority;
-		f.agency = optAgency;
 		args.putString(EXTRA_POI_UUID, uuid);
 		f.uuid = uuid;
 		f.rts = optRts;
+		if (optColorInt != null) {
+			args.putInt(EXTRA_COLOR_INT, optColorInt);
+			f.colorInt = optColorInt;
+		}
 		f.setArguments(args);
 		return f;
 	}
@@ -66,6 +68,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	private int lastPageSelected = -1;
 	private String uuid;
 	private RouteTripStop rts;
+	private Integer colorInt;
 
 	private boolean hasRts() {
 		if (this.rts == null) {
@@ -125,7 +128,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			return false;
 		}
 		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
-			POIManager poim = DataSourceManager.findPOI(getActivity(), this.authority, POIProviderContract.Filter.getNewUUIDsFilter(this.uuid));
+			POIManager poim = DataSourceManager.findPOI(getActivity(), this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
 			if (poim != null && poim.poi instanceof RouteTripStop) {
 				this.rts = (RouteTripStop) poim.poi;
 			}
@@ -147,78 +150,6 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 	private String authority;
 
-	private AgencyProperties agency;
-
-	private boolean hasAgency() {
-		if (this.agency == null) {
-			initAgencyAsync();
-			return false;
-		}
-		return true;
-	}
-
-	private void initAgencyAsync() {
-		if (this.loadAgencyTask != null && this.loadAgencyTask.getStatus() == MTAsyncTask.Status.RUNNING) {
-			return;
-		}
-		if (TextUtils.isEmpty(this.authority)) {
-			return;
-		}
-		this.loadAgencyTask = new LoadAgencyTask();
-		this.loadAgencyTask.execute();
-	}
-
-	private LoadAgencyTask loadAgencyTask = null;
-
-	private class LoadAgencyTask extends MTAsyncTask<Void, Void, Boolean> {
-
-		@Override
-		public String getLogTag() {
-			return ScheduleFragment.this.getLogTag() + ">" + LoadAgencyTask.class.getSimpleName();
-		}
-
-		@Override
-		protected Boolean doInBackgroundMT(Void... params) {
-			return initAgencySync();
-		}
-
-		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
-			if (result) {
-				applyNewAgency();
-			}
-		}
-	}
-
-	private void applyNewAgency() {
-		if (this.agency == null) {
-			return;
-		}
-		getAbController().setABSubtitle(this, getABSubtitle(getActivity()), false);
-		getAbController().setABReady(this, isABReady(), true);
-	}
-
-	private AgencyProperties getAgencyOrNull() {
-		if (!hasAgency()) {
-			return null;
-		}
-		return this.agency;
-	}
-
-	private boolean initAgencySync() {
-		if (this.agency != null) {
-			return false;
-		}
-		if (!TextUtils.isEmpty(this.authority)) {
-			this.agency = DataSourceProvider.get(getActivity()).getAgency(getActivity(), this.authority);
-		}
-		return this.agency != null;
-	}
-
-	private void resetAgency() {
-		this.agency = null;
-	}
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -249,6 +180,9 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (!TextUtils.isEmpty(this.uuid)) {
 			outState.putString(EXTRA_POI_UUID, this.uuid);
 		}
+		if (this.colorInt != null) {
+			outState.putInt(EXTRA_COLOR_INT, this.colorInt);
+		}
 		super.onSaveInstanceState(outState);
 	}
 
@@ -257,12 +191,15 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
 			resetRts();
-			resetAgency();
 		}
 		String newUuid = BundleUtils.getString(EXTRA_POI_UUID, bundles);
 		if (!TextUtils.isEmpty(newUuid) && !newUuid.equals(this.uuid)) {
 			this.uuid = newUuid;
 			resetRts();
+		}
+		Integer newColorInt = BundleUtils.getInt(EXTRA_COLOR_INT, bundles);
+		if (newColorInt != null) {
+			this.colorInt = newColorInt;
 		}
 		this.adapter.setUuid(this.uuid);
 		this.adapter.setAuthority(this.authority);
@@ -366,7 +303,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			if (activity == null) {
 				return;
 			}
-			POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewUUIDsFilter(this.uuid);
+			POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewUUIDFilter(this.uuid);
 			POIManager newPoim = DataSourceManager.findPOI(activity, this.authority, poiFilter);
 			if (newPoim == null || !(newPoim.poi instanceof RouteTripStop)) {
 				((MainActivity) activity).popFragmentFromStack(this); // close this fragment
@@ -435,7 +372,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 	@Override
 	public boolean isABReady() {
-		return hasAgency() && hasRts();
+		return hasRts();
 	}
 
 	@Override
@@ -446,25 +383,15 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public CharSequence getABSubtitle(Context context) {
 		RouteTripStop rts = getRtsOrNull();
-		AgencyProperties agency = getAgencyOrNull();
-		if (agency == null || rts == null) {
-			return super.getABSubtitle(context);
-		}
-		StringBuilder sb = new StringBuilder(agency.getShortName());
-		sb.append(" -");
-		if (!TextUtils.isEmpty(rts.getRoute().getShortName())) {
-			sb.append(" ").append(rts.getRoute().getShortName());
-		}
-		if (!TextUtils.isEmpty(rts.getRoute().getLongName())) {
-			sb.append(" ").append(rts.getRoute().getLongName());
-		}
-		return sb.toString();
+		return POIManager.getOneLineDescription(getActivity(), rts);
 	}
 
 	@Override
 	public Integer getABBgColor(Context context) {
-		RouteTripStop rts = getRtsOrNull();
-		return POIManager.getRouteColor(context, rts == null ? null : rts.getRoute(), this.authority, super.getABBgColor(context));
+		if (this.colorInt != null) {
+			return this.colorInt;
+		}
+		return super.getABBgColor(context);
 	}
 
 	private static class DayPagerAdapter extends FragmentStatePagerAdapter implements MTLog.Loggable {

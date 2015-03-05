@@ -50,6 +50,7 @@
     <string name="view_details">View Details</string>
     <string name="news_shared_on_and_author_and_source">%1$s on %2$s</string>
     <string name="no_news">No news.</string>
+    <string name="latest_news">Latest news</string>
     <string name="no_favorites">No favorites.</string>
     <string name="favorite_removed">Favorite removed.</string>
     <string name="favorite_added">Favorite added.</string>

@@ -40,6 +40,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inflatedId="@+id/poi_service_update" />
+            <ViewStub
+                android:id="@+id/poi_news_stub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inflatedId="@+id/poi_news" />
             <include
                 android:id="@+id/poi_nearby_pois_title"
                 layout="@layout/layout_poi_nearby_pois_title"

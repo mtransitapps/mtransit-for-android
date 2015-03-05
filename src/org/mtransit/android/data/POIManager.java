@@ -14,6 +14,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StoreUtils;
+import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
@@ -467,6 +468,35 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			return agencyColorInt;
 		}
 		return defaultColor;
+	}
+
+	public static String getOneLineDescription(Context context, POI poi) {
+		StringBuilder sb = new StringBuilder();
+		if (poi != null) {
+			sb.append(poi.getName());
+			if (poi instanceof RouteTripStop) {
+				RouteTripStop rts = (RouteTripStop) poi;
+				if (!TextUtils.isEmpty(rts.getRoute().getShortName())) {
+					if (sb.length() > 0) {
+						sb.append(StringUtils.SPACE_STRING).append("-").append(StringUtils.SPACE_STRING);
+					}
+					sb.append(rts.getRoute().getShortName());
+				} else if (!TextUtils.isEmpty(rts.getRoute().getLongName())) {
+					if (sb.length() > 0) {
+						sb.append(StringUtils.SPACE_STRING).append("-").append(StringUtils.SPACE_STRING);
+					}
+					sb.append(rts.getRoute().getLongName());
+				}
+			}
+			AgencyProperties agency = DataSourceProvider.get(context).getAgency(context, poi.getAuthority());
+			if (agency != null) {
+				if (sb.length() > 0) {
+					sb.append(StringUtils.SPACE_STRING).append("-").append(StringUtils.SPACE_STRING);
+				}
+				sb.append(agency.getShortName());
+			}
+		}
+		return sb.toString();
 	}
 
 	private boolean onActionsItemClickRTS(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,

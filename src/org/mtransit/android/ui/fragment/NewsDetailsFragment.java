@@ -1,7 +1,5 @@
 package org.mtransit.android.ui.fragment;
 
-import java.util.Arrays;
-
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ColorUtils;
@@ -162,7 +160,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 			return false;
 		}
 		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
-			this.news = DataSourceManager.findANews(getActivity(), this.authority, new NewsProviderContract.Filter(Arrays.asList(new String[] { this.uuid })));
+			this.news = DataSourceManager.findANews(getActivity(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
 		}
 		return this.news != null;
 	}
@@ -267,7 +265,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 		if (activity == null) {
 			return;
 		}
-		News newNews = DataSourceManager.findANews(getActivity(), this.authority, new NewsProviderContract.Filter(Arrays.asList(new String[] { this.uuid })));
+		News newNews = DataSourceManager.findANews(getActivity(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
 		if (newNews == null) {
 			if (activity.isMTResumed()) {
 				activity.popFragmentFromStack(this); // close this fragment

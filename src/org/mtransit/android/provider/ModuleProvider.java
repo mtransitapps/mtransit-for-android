@@ -336,7 +336,8 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@Override
 	public POIStatus getNewStatus(StatusProviderContract.Filter filter) {
-		if (!(filter instanceof AppStatus.AppStatusFilter)) {
+		if (filter == null || !(filter instanceof AppStatus.AppStatusFilter)) {
+			MTLog.w(this, "getNewStatus() > Can't find new schecule whithout AppStatusFilter!");
 			return null;
 		}
 		AppStatus.AppStatusFilter moduleStatusFilter = (AppStatus.AppStatusFilter) filter;
@@ -388,11 +389,11 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	public boolean isAgencySetupRequired() {
 		boolean setupRequired = false;
 		if (currentDbVersion > 0 && currentDbVersion != getCurrentDbVersion()) {
-			setupRequired = true;
+			setupRequired = true; // live update required => update
 		} else if (!SqlUtils.isDbExist(getContext(), getDbName())) {
-			setupRequired = true;
+			setupRequired = true; // not deployed => initialization
 		} else if (SqlUtils.getCurrentDbVersion(getContext(), getDbName()) != getCurrentDbVersion()) {
-			setupRequired = true;
+			setupRequired = true; // update required => update
 		}
 		return setupRequired;
 	}

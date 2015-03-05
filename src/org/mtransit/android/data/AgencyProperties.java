@@ -45,16 +45,13 @@ public class AgencyProperties implements MTLog.Loggable {
 	}
 
 	private JPaths logo = null;
-	private boolean logoLoaded = false;
 
 	public JPaths getLogo(Context context) {
-		if (!logoLoaded) {
-			if (this.isRTS) {
-				logo = DataSourceManager.findAgencyRTSRouteLogo(context, getAuthority());
-			}
-			logoLoaded = true;
-		}
 		return logo;
+	}
+
+	public void setLogo(JPaths logo) {
+		this.logo = logo;
 	}
 
 	public void setColor(String color) {

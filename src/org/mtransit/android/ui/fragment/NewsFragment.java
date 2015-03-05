@@ -50,20 +50,45 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		return TRACKING_SCREEN_NAME;
 	}
 
-	private static final String EXTRA_FILTER_TARGET_UUID = "extra_filter_target_uuid";
+	private static final String EXTRA_COLOR_INT = "extra_color_int";
+	private static final String EXTRA_SUB_TITLE = "extra_subtitle";
+	private static final String EXTRA_FILTER_TARGET_AUTHORITIES = "extra_filter_target_authorities";
+	private static final String EXTRA_FILTER_TARGETS = "extra_filter_targets";
+	private static final String EXTRA_FILTER_UUIDS = "extra_filter_uuids";
 
-	public static NewsFragment newInstance(String optFilterTargetUUID) {
+	public static NewsFragment newInstance(Integer optColorInt, String optSubtitle, ArrayList<String> optTargetAuthorities, ArrayList<String> optFilterUUIDs,
+			ArrayList<String> optFilterTargets) {
 		NewsFragment f = new NewsFragment();
 		Bundle args = new Bundle();
-		if (!TextUtils.isEmpty(optFilterTargetUUID)) {
-			args.putString(EXTRA_FILTER_TARGET_UUID, optFilterTargetUUID);
-			f.targetUUID = optFilterTargetUUID;
+		if (optColorInt != null) {
+			args.putInt(EXTRA_COLOR_INT, optColorInt);
+			f.colorInt = optColorInt;
+		}
+		if (!TextUtils.isEmpty(optSubtitle)) {
+			args.putString(EXTRA_SUB_TITLE, optSubtitle);
+			f.subTitle = optSubtitle;
+		}
+		if (CollectionUtils.getSize(optTargetAuthorities) > 0) {
+			args.putStringArrayList(EXTRA_FILTER_TARGET_AUTHORITIES, optTargetAuthorities);
+			f.targetAuthorities = optTargetAuthorities;
+		}
+		if (CollectionUtils.getSize(optFilterUUIDs) > 0) {
+			args.putStringArrayList(EXTRA_FILTER_UUIDS, optFilterUUIDs);
+			f.filterUUIDs = optFilterUUIDs;
+		}
+		if (CollectionUtils.getSize(optFilterTargets) > 0) {
+			args.putStringArrayList(EXTRA_FILTER_TARGETS, optFilterTargets);
+			f.filterTargets = optFilterTargets;
 		}
 		f.setArguments(args);
 		return f;
 	}
 
-	private String targetUUID;
+	private Integer colorInt;
+	private String subTitle;
+	private ArrayList<String> targetAuthorities;
+	private ArrayList<String> filterUUIDs;
+	private ArrayList<String> filterTargets;
 	private CharSequence emptyText = null;
 	private NewsAdapter adapter;
 	private ListViewSwipeRefreshLayout swipeRefreshLayout;
@@ -85,16 +110,44 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	private void restoreInstanceState(Bundle... bundles) {
-		String newTargetUUID = BundleUtils.getString(EXTRA_FILTER_TARGET_UUID, bundles);
-		if (!TextUtils.isEmpty(newTargetUUID) && !newTargetUUID.equals(this.targetUUID)) {
-			this.targetUUID = newTargetUUID;
+		Integer newColorInt = BundleUtils.getInt(EXTRA_COLOR_INT, bundles);
+		if (newColorInt != null) {
+			this.colorInt = newColorInt;
+		}
+		String newSubtitle = BundleUtils.getString(EXTRA_SUB_TITLE, bundles);
+		if (!TextUtils.isEmpty(newSubtitle)) {
+			this.subTitle = newSubtitle;
+		}
+		ArrayList<String> newTargetAuthorities = BundleUtils.getStringArrayList(EXTRA_FILTER_TARGET_AUTHORITIES, bundles);
+		if (CollectionUtils.getSize(newTargetAuthorities) > 0) {
+			this.targetAuthorities = newTargetAuthorities;
+		}
+		ArrayList<String> newFilterUUIDs = BundleUtils.getStringArrayList(EXTRA_FILTER_UUIDS, bundles);
+		if (CollectionUtils.getSize(newFilterUUIDs) > 0) {
+			this.filterUUIDs = newFilterUUIDs;
+		}
+		ArrayList<String> newFilterTargets = BundleUtils.getStringArrayList(EXTRA_FILTER_TARGETS, bundles);
+		if (CollectionUtils.getSize(newFilterTargets) > 0) {
+			this.filterTargets = newFilterTargets;
 		}
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		if (!TextUtils.isEmpty(this.targetUUID)) {
-			outState.putString(EXTRA_FILTER_TARGET_UUID, this.targetUUID);
+		if (this.colorInt != null) {
+			outState.putInt(EXTRA_COLOR_INT, this.colorInt);
+		}
+		if (!TextUtils.isEmpty(this.subTitle)) {
+			outState.putString(EXTRA_SUB_TITLE, this.subTitle);
+		}
+		if (CollectionUtils.getSize(this.targetAuthorities) > 0) {
+			outState.putStringArrayList(EXTRA_FILTER_TARGET_AUTHORITIES, this.targetAuthorities);
+		}
+		if (CollectionUtils.getSize(this.filterUUIDs) > 0) {
+			outState.putStringArrayList(EXTRA_FILTER_UUIDS, this.filterUUIDs);
+		}
+		if (CollectionUtils.getSize(this.filterTargets) > 0) {
+			outState.putStringArrayList(EXTRA_FILTER_TARGETS, this.filterTargets);
 		}
 		super.onSaveInstanceState(outState);
 	}
@@ -157,7 +210,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	public Loader<ArrayList<News>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case NEWS_LOADER:
-			return new NewsLoader(getActivity(), this.targetUUID);
+			return new NewsLoader(getActivity(), this.targetAuthorities, this.filterUUIDs, this.filterTargets);
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -297,6 +350,22 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public CharSequence getABTitle(Context context) {
 		return context.getString(R.string.news);
+	}
+
+	@Override
+	public CharSequence getABSubtitle(Context context) {
+		if (!TextUtils.isEmpty(this.subTitle)) {
+			return this.subTitle;
+		}
+		return super.getABSubtitle(context);
+	}
+
+	@Override
+	public Integer getABBgColor(Context context) {
+		if (this.colorInt != null) {
+			return this.colorInt;
+		}
+		return super.getABBgColor(context);
 	}
 
 	private static class NewsAdapter extends MTArrayAdapter<News> implements TimeUtils.TimeChangedReceiver.TimeChangedListener,

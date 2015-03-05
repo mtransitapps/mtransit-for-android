@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,UnusedResources">
-    <integer name="twitter_db_version">1</integer>
+    <integer name="twitter_db_version">2</integer>
     <string name="twitter_authority">org.mtransit.android.news.twitter</string>
     <string name="twitter_target_for_poi_authority" />
     <string name="twitter_color"></string>
@@ -9,5 +9,8 @@
     </string-array>
     <string-array name="twitter_screen_names_colors">
         <item>@string/twitter_color</item>
+    </string-array>
+    <string-array name="twitter_screen_names_target">
+        <item>@string/twitter_target_for_poi_authority</item>
     </string-array>
 </resources>
