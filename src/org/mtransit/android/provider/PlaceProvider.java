@@ -18,7 +18,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.FileUtils;
 import org.mtransit.android.commons.LocaleUtils;
-import org.mtransit.android.commons.LocationUtils.Area;
+import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.TimeUtils;
@@ -285,8 +285,8 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	}
 
 	@Override
-	public Area getAgencyArea(Context context) {
-		return new Area(-90.0, +90.0, -180.0, +180.0); // the entire world
+	public LocationUtils.Area getAgencyArea(Context context) {
+		return LocationUtils.THE_WORLD;
 	}
 
 	private static String authority = null;
