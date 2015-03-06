@@ -3,7 +3,7 @@ package org.mtransit.android.task;
 import java.util.ArrayList;
 
 import org.mtransit.android.commons.SqlUtils;
-import org.mtransit.android.commons.provider.GTFSRouteTripStopProviderContract;
+import org.mtransit.android.commons.provider.GTFSProviderContract;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
@@ -36,9 +36,9 @@ public class RTSTripStopsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager
 		}
 		this.pois = new ArrayList<POIManager>();
 		POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewSqlSelectionFilter(SqlUtils.getWhereEquals(
-				GTFSRouteTripStopProviderContract.RouteTripStopColumns.T_TRIP_K_ID, this.tripId));
+				GTFSProviderContract.RouteTripStopColumns.T_TRIP_K_ID, this.tripId));
 		poiFilter.addExtra(POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER, //
-				SqlUtils.getSortOrderAscending(GTFSRouteTripStopProviderContract.RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE));
+				SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE));
 		this.pois = DataSourceManager.findPOIs(getContext(), this.authority, poiFilter);
 		return pois;
 	}

@@ -3,7 +3,7 @@ package org.mtransit.android.task;
 import java.util.ArrayList;
 
 import org.mtransit.android.commons.LocationUtils;
-import org.mtransit.android.commons.provider.GTFSRouteTripStopProviderContract;
+import org.mtransit.android.commons.provider.GTFSProviderContract;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTCallable;
 import org.mtransit.android.data.DataSourceManager;
@@ -45,7 +45,7 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> 
 	public ArrayList<POIManager> callMT() throws Exception {
 		POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewAroundFilter(this.lat, this.lng, this.aroundDiff);
 		if (this.hideDescentOnly) {
-			poiFilter.addExtra(GTFSRouteTripStopProviderContract.POI_FILTER_EXTRA_DESCENT_ONLY, true);
+			poiFilter.addExtra(GTFSProviderContract.POI_FILTER_EXTRA_DESCENT_ONLY, true);
 		}
 		ArrayList<POIManager> pois = DataSourceManager.findPOIs(this.context, this.authority, poiFilter);
 		LocationUtils.updateDistance(pois, this.lat, this.lng);

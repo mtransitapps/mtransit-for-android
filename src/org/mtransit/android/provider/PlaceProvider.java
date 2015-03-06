@@ -79,11 +79,6 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	}
 
 	@Override
-	public Context getContentProviderContext() {
-		return getContext();
-	}
-
-	@Override
 	public Cursor getSearchSuggest(String query) {
 		return null; // TODO implement Place/Query auto-complete
 	}

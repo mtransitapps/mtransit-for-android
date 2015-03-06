@@ -19,7 +19,7 @@ import org.mtransit.android.commons.data.ScheduleTimestamps;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.AgencyProviderContract;
-import org.mtransit.android.commons.provider.GTFSRouteTripStopProviderContract;
+import org.mtransit.android.commons.provider.GTFSProviderContract;
 import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.commons.provider.POIProvider;
 import org.mtransit.android.commons.provider.POIProviderContract;
@@ -225,7 +225,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		JPaths result = null;
 		Cursor cursor = null;
 		try {
-			Uri uri = Uri.withAppendedPath(getUri(authority), GTFSRouteTripStopProviderContract.ROUTE_LOGO_PATH);
+			Uri uri = Uri.withAppendedPath(getUri(authority), GTFSProviderContract.ROUTE_LOGO_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
@@ -244,8 +244,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 		Cursor cursor = null;
 		try {
 			Uri uri = getRTSTripsUri(authority);
-			String selection = GTFSRouteTripStopProviderContract.TripColumns.T_TRIP_K_ID + "=" + tripId;
-			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSRouteTripStopProviderContract.PROJECTION_TRIP, selection, null, null);
+			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.TripColumns.T_TRIP_K_ID, tripId);
+			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_TRIP, selection, null, null);
 			ArrayList<Trip> rtsTrips = getRTSTrips(cursor);
 			return rtsTrips == null || rtsTrips.size() == 0 ? null : rtsTrips.get(0);
 		} catch (Exception e) {
@@ -260,8 +260,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 		Cursor cursor = null;
 		try {
 			Uri uri = getRTSTripsUri(authority);
-			String selection = GTFSRouteTripStopProviderContract.TripColumns.T_TRIP_K_ROUTE_ID + "=" + routeId;
-			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSRouteTripStopProviderContract.PROJECTION_TRIP, selection, null, null);
+			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.TripColumns.T_TRIP_K_ROUTE_ID, routeId);
+			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_TRIP, selection, null, null);
 			return getRTSTrips(cursor);
 		} catch (Exception e) {
 			MTLog.w(TAG, e, "Error!");
@@ -288,8 +288,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 		Cursor cursor = null;
 		try {
 			Uri uri = getRTSRoutesUri(authority);
-			String selection = GTFSRouteTripStopProviderContract.RouteColumns.T_ROUTE_K_ID + "=" + routeId;
-			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSRouteTripStopProviderContract.PROJECTION_ROUTE, selection, null, null);
+			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.RouteColumns.T_ROUTE_K_ID, routeId);
+			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_ROUTE, selection, null, null);
 			ArrayList<Route> rtsRoutes = getRTSRoutes(cursor);
 			return rtsRoutes == null || rtsRoutes.size() == 0 ? null : rtsRoutes.get(0);
 		} catch (Exception e) {
@@ -309,7 +309,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		Cursor cursor = null;
 		try {
 			Uri uri = getRTSRoutesUri(authority);
-			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSRouteTripStopProviderContract.PROJECTION_ROUTE, null, null, null);
+			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_ROUTE, null, null, null);
 			return getRTSRoutes(cursor);
 		} catch (Exception e) {
 			MTLog.w(TAG, e, "Error!");
@@ -400,10 +400,10 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	private static Uri getRTSRoutesUri(String authority) {
-		return Uri.withAppendedPath(getUri(authority), GTFSRouteTripStopProviderContract.ROUTE_PATH);
+		return Uri.withAppendedPath(getUri(authority), GTFSProviderContract.ROUTE_PATH);
 	}
 
 	private static Uri getRTSTripsUri(String authority) {
-		return Uri.withAppendedPath(getUri(authority), GTFSRouteTripStopProviderContract.TRIP_PATH);
+		return Uri.withAppendedPath(getUri(authority), GTFSProviderContract.TRIP_PATH);
 	}
 }
