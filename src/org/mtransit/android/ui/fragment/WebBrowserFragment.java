@@ -5,6 +5,7 @@ import java.lang.ref.WeakReference;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.util.LinkUtils;
 
 import android.content.Context;
@@ -166,6 +167,15 @@ public class WebBrowserFragment extends ABFragment {
 		}
 	}
 
+	public boolean shouldOverrideUrlLoading(WebView webView, String url) {
+		if (StoreUtils.isStoreIntent(url)) {
+			LinkUtils.open(getActivity(), url, getString(R.string.google_play), false);
+			return true;
+		}
+		onURLChanged(url);
+		return false;
+	}
+
 	public void onTitleChanged(String title) {
 		this.pageTitle = title;
 		getAbController().setABTitle(this, getABTitle(getActivity()), true);
@@ -233,8 +243,8 @@ public class WebBrowserFragment extends ABFragment {
 		}
 
 		@Override
-		public void onProgressChanged(WebView view, int newProgress) {
-			super.onProgressChanged(view, newProgress);
+		public void onProgressChanged(WebView webView, int newProgress) {
+			super.onProgressChanged(webView, newProgress);
 			try {
 				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
 				if (webBrowserFragment != null) {
@@ -280,16 +290,16 @@ public class WebBrowserFragment extends ABFragment {
 		}
 
 		@Override
-		public boolean shouldOverrideUrlLoading(WebView view, String url) {
+		public boolean shouldOverrideUrlLoading(WebView webView, String url) {
 			try {
 				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
-				if (webBrowserFragment != null) {
-					webBrowserFragment.onURLChanged(url);
+				if (webBrowserFragment != null && webBrowserFragment.shouldOverrideUrlLoading(webView, url)) {
+					return true;
 				}
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error during should override URL loading!");
 			}
-			return super.shouldOverrideUrlLoading(view, url);
+			return super.shouldOverrideUrlLoading(webView, url);
 		}
 
 		@Override
