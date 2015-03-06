@@ -348,10 +348,13 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 							NewsProviderContract.Filter.getNewTargetFilter(poim.poi)));
 				}
 				if (allNews.size() > 0) {
-					CollectionUtils.sort(allNews, News.NEWS_COMPARATOR);
-					this.news = allNews.get(0);
-					if (TimeUtils.currentTimeMillis() - this.news.getCreatedAtInMs() > NewsProviderContract.NOTEWORTHY_IN_MS) {
-						this.news = null;
+					long nowInMs = TimeUtils.currentTimeMillis();
+					CollectionUtils.sort(allNews, News.NEWS_SEVERITY_COMPARATOR);
+					for (News news : allNews) {
+						if (nowInMs - news.getCreatedAtInMs() <= news.getNoteworthyInMs()) {
+							this.news = news;
+							break;
+						}
 					}
 				}
 			}

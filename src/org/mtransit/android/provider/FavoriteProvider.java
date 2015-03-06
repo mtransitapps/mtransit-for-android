@@ -120,15 +120,15 @@ public class FavoriteProvider extends MTContentProvider {
 			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 			switch (getURIMATCHER(getContext()).match(uri)) {
 			case FAVORITE:
-				MTLog.v(this, "query>FAVORITE");
 				qb.setTables(FavoriteDbHelper.T_FAVORITE);
 				qb.setProjectionMap(FAVORITE_PROJECTION_MAP);
 				break;
 			case FAVORITE_ID:
-				MTLog.v(this, "query>FAVORITE_ID");
 				qb.setTables(FavoriteDbHelper.T_FAVORITE);
 				qb.setProjectionMap(FAVORITE_PROJECTION_MAP);
-				selection = FavoriteDbHelper.T_FAVORITE + "." + FavoriteDbHelper.T_FAVORITE_K_ID + "=" + uri.getPathSegments().get(1);
+				selection = SqlUtils.getWhereEquals( //
+						SqlUtils.getTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_ID), //
+						uri.getPathSegments().get(1));
 				break;
 			default:
 				throw new IllegalArgumentException(String.format("Unknown URI (query): '%s'", uri));
@@ -182,7 +182,9 @@ public class FavoriteProvider extends MTContentProvider {
 				affectedRows = db.delete(FavoriteDbHelper.T_FAVORITE, selection, selectionArgs);
 				break;
 			case FAVORITE_ID:
-				selection = FavoriteDbHelper.T_FAVORITE + "." + FavoriteDbHelper.T_FAVORITE_K_ID + "=" + uri.getPathSegments().get(1);
+				selection = SqlUtils.getWhereEquals( //
+						SqlUtils.getTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_ID), //
+						uri.getPathSegments().get(1));
 				db = getDBHelper(getContext()).getWritableDatabase();
 				affectedRows = db.delete(FavoriteDbHelper.T_FAVORITE, selection, null);
 				break;
@@ -220,7 +222,6 @@ public class FavoriteProvider extends MTContentProvider {
 			long newRowId;
 			switch (getURIMATCHER(getContext()).match(uri)) {
 			case FAVORITE:
-				MTLog.v(this, "insert>FAVORITE");
 				db = getDBHelper(getContext()).getWritableDatabase();
 				newRowId = db.insert(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FK_ID, values);
 				if (newRowId > 0) {

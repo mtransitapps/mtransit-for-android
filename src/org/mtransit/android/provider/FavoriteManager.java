@@ -31,14 +31,11 @@ public class FavoriteManager implements MTLog.Loggable {
 	}
 
 	public static Favorite findFavorite(Context context, String fkId) {
-		MTLog.v(TAG, "findFavorite(%s)", fkId);
 		Favorite favorite = null;
 		Cursor cursor = null;
 		try {
 			Uri uri = getFavoriteContentUri(context);
-			String selection = new StringBuilder() //
-					.append(FavoriteColumns.T_FAVORITE_K_FK_ID).append("='").append(fkId).append("'") //
-					.toString();
+			String selection = SqlUtils.getWhereEqualsString(FavoriteColumns.T_FAVORITE_K_FK_ID, fkId);
 			cursor = DataSourceManager.queryContentResolver(context.getContentResolver(), uri, FavoriteProvider.PROJECTION_FAVORITE, selection, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
@@ -140,9 +137,7 @@ public class FavoriteManager implements MTLog.Loggable {
 	}
 
 	public static boolean deleteFavorite(Context context, int id) {
-		String selection = new StringBuilder() //
-				.append(FavoriteColumns.T_FAVORITE_K_ID).append("=").append(id) //
-				.toString();
+		String selection = SqlUtils.getWhereEquals(FavoriteColumns.T_FAVORITE_K_ID, id);
 		int deletedRows = context.getContentResolver().delete(getFavoriteContentUri(context), selection, null);
 		return deletedRows > 0;
 	}

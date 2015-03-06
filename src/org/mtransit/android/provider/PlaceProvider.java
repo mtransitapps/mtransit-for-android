@@ -342,11 +342,11 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	public boolean isAgencySetupRequired() {
 		boolean setupRequired = false;
 		if (currentDbVersion > 0 && currentDbVersion != getCurrentDbVersion()) {
-			setupRequired = true;
+			setupRequired = true; // live update required => update
 		} else if (!SqlUtils.isDbExist(getContext(), getDbName())) {
-			setupRequired = true;
+			setupRequired = true; // not deployed => initialization
 		} else if (SqlUtils.getCurrentDbVersion(getContext(), getDbName()) != getCurrentDbVersion()) {
-			setupRequired = true;
+			setupRequired = true; // update required => update
 		}
 		return setupRequired;
 	}
