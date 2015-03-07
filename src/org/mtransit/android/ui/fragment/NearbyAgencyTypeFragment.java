@@ -563,7 +563,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 				return null;
 			}
 			return new NearbyPOIListLoader(getActivity(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff,
-					this.minCoverageInMeters, this.maxSize, false, getTypeAgenciesAuthorityOrNull());
+					this.minCoverageInMeters, this.maxSize, false, true, getTypeAgenciesAuthorityOrNull());
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
