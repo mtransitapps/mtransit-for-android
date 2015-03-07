@@ -157,6 +157,9 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	private MTAsyncTask<Location, Void, String> findNearbyLocationTask;
 
 	private void findNearbyLocation() {
+		if (!TextUtils.isEmpty(this.nearbyLocationAddress)) {
+			return;
+		}
 		if (this.findNearbyLocationTask != null) {
 			this.findNearbyLocationTask.cancel(true);
 		}
@@ -243,6 +246,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		switchView(getView());
+		findNearbyLocation();
 	}
 
 	@Override
@@ -338,7 +342,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.nearbyLocationAddress = null;
 		getAbController().setABSubtitle(this, getABSubtitle(getActivity()), false);
 		getAbController().setABReady(this, isABReady(), true);
-		findNearbyLocation();
 	}
 
 	public void setSwipeRefreshLayoutRefreshing(boolean refreshing) {

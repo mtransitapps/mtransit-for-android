@@ -43,14 +43,16 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 
 	private boolean hideDescentOnly;
 
+	private boolean avoidLoading;
+
 	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, float minCoverageInMeters, int maxSize, boolean hideDescentOnly,
-			ArrayList<String> agenciesAuthority) {
-		this(context, lat, lng, aroundDiff, minCoverageInMeters, maxSize, hideDescentOnly, agenciesAuthority == null ? null : agenciesAuthority
+			boolean avoidLoading, ArrayList<String> agenciesAuthority) {
+		this(context, lat, lng, aroundDiff, minCoverageInMeters, maxSize, hideDescentOnly, avoidLoading, agenciesAuthority == null ? null : agenciesAuthority
 				.toArray(new String[agenciesAuthority.size()]));
 	}
 
 	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, float minCoverageInMeters, int maxSize, boolean hideDescentOnly,
-			String... agenciesAuthority) {
+			boolean avoidLoading, String... agenciesAuthority) {
 		super(context);
 		this.agenciesAuthority = agenciesAuthority;
 		this.lat = lat;
@@ -59,6 +61,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		this.minCoverageInMeters = minCoverageInMeters;
 		this.maxSize = maxSize;
 		this.hideDescentOnly = hideDescentOnly;
+		this.avoidLoading = avoidLoading;
 	}
 
 	@Override
@@ -74,7 +77,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
 		for (String agencyAuthority : this.agenciesAuthority) {
 			FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(getContext(), agencyAuthority, this.lat, this.lng, this.aroundDiff,
-					this.hideDescentOnly, this.minCoverageInMeters, this.maxSize);
+					this.hideDescentOnly, this.avoidLoading, this.minCoverageInMeters, this.maxSize);
 			taskList.add(executor.submit(task));
 		}
 		for (Future<ArrayList<POIManager>> future : taskList) {

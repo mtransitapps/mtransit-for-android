@@ -505,7 +505,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 				return null;
 			}
 			return new NearbyPOIListLoader(context, poim.poi.getLat(), poim.poi.getLng(), this.ad.aroundDiff,
-					LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS, LocationUtils.MAX_POI_NEARBY_POIS_LIST, false, this.authority);
+					LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS, LocationUtils.MAX_POI_NEARBY_POIS_LIST, false, true, this.authority);
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;

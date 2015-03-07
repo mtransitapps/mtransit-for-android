@@ -238,23 +238,25 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return POIProvider.getDefaultPOIFromDB(poiFilter, this);
 	}
 
-	public long getMODULE_MAX_VALIDITY_IN_MS() {
+	@Override
+	public long getPOIMaxValidityInMs() {
 		return MODULE_MAX_VALIDITY_IN_MS;
 	}
 
-	public long getMODULE_VALIDITY_IN_MS() {
+	@Override
+	public long getPOIValidityInMs() {
 		return MODULE_VALIDITY_IN_MS;
 	}
 
 	public void updateModuleDataIfRequired() {
 		long lastUpdateInMs = PreferenceUtils.getPrefLcl(getContext(), PREF_KEY_LAST_UPDATE_MS, 0l);
 		long nowInMs = TimeUtils.currentTimeMillis();
-		if (lastUpdateInMs + getMODULE_MAX_VALIDITY_IN_MS() < nowInMs) { // too old to display?
+		if (lastUpdateInMs + getPOIMaxValidityInMs() < nowInMs) { // too old to display?
 			deleteAllModuleData();
 			updateAllModuleDataFromWWW(lastUpdateInMs);
 			return;
 		}
-		if (lastUpdateInMs + getMODULE_VALIDITY_IN_MS() < nowInMs) { // try to refresh?
+		if (lastUpdateInMs + getPOIValidityInMs() < nowInMs) { // try to refresh?
 			updateAllModuleDataFromWWW(lastUpdateInMs);
 		}
 	}

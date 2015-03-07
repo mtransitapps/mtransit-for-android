@@ -26,17 +26,19 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> 
 	private double lng;
 	private double aroundDiff;
 	private boolean hideDescentOnly;
+	private boolean avoidLoading;
 	private int maxSize;
 	private float minCoverageInMeters;
 
 	public FindNearbyAgencyPOIsTask(Context context, String authority, double lat, double lng, double aroundDiff, boolean hideDescentOnly,
-			float minCoverageInMeters, int maxSize) {
+			boolean avoidLoading, float minCoverageInMeters, int maxSize) {
 		this.context = context;
 		this.authority = authority;
 		this.lat = lat;
 		this.lng = lng;
 		this.aroundDiff = aroundDiff;
 		this.hideDescentOnly = hideDescentOnly;
+		this.avoidLoading = avoidLoading;
 		this.minCoverageInMeters = minCoverageInMeters;
 		this.maxSize = maxSize;
 	}
@@ -46,6 +48,9 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> 
 		POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewAroundFilter(this.lat, this.lng, this.aroundDiff);
 		if (this.hideDescentOnly) {
 			poiFilter.addExtra(GTFSProviderContract.POI_FILTER_EXTRA_DESCENT_ONLY, true);
+		}
+		if (this.avoidLoading) {
+			poiFilter.addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true);
 		}
 		ArrayList<POIManager> pois = DataSourceManager.findPOIs(this.context, this.authority, poiFilter);
 		LocationUtils.updateDistance(pois, this.lat, this.lng);

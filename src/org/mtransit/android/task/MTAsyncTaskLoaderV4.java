@@ -18,14 +18,14 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	public MTAsyncTaskLoaderV4(Context context) {
 		super(context);
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "%s()", getLogTag());
 		}
 	}
 
 	@Override
 	public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "dump(%s,%s,%s,%s)", prefix, fd, writer, args);
 		}
 		super.dump(prefix, fd, writer, args);
@@ -33,7 +33,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	public D loadInBackground() {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "loadInBackground()");
 		}
 		return loadInBackgroundMT();
@@ -46,7 +46,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	public void onCanceled(D data) {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "onCanceled(%s)", data);
 		}
 		super.onCanceled(data);
@@ -54,7 +54,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	protected void onReset() {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "onReset()");
 		}
 		super.onReset();
@@ -62,7 +62,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	public void setUpdateThrottle(long delayMS) {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "setUpdateThrottle(%s)", delayMS);
 		}
 		super.setUpdateThrottle(delayMS);
@@ -70,7 +70,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	public void deliverResult(D data) {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "deliverResult(%s)", data);
 		}
 		super.deliverResult(data);
@@ -78,7 +78,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	protected void onStartLoading() {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "onStartLoading()");
 		}
 		super.onStartLoading();
@@ -86,7 +86,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	protected void onStopLoading() {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "onStopLoading()");
 		}
 		super.onStopLoading();
@@ -96,7 +96,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	public void abandon() {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "abandon()");
 		}
 		super.abandon();
@@ -105,7 +105,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 	@Override
 	public boolean cancelLoad() {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "cancelLoad()");
 		}
 		return super.cancelLoad();
@@ -114,7 +114,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 	@Override
 	public void commitContentChanged() {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "commitContentChanged()");
 		}
 		super.commitContentChanged();
@@ -122,7 +122,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	public String dataToString(D data) {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "dataToString(%s)", data);
 		}
 		return super.dataToString(data);
@@ -130,7 +130,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	public void forceLoad() {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "forceLoad()");
 		}
 		super.forceLoad();
@@ -138,7 +138,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	public boolean isAbandoned() {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "isAbandoned()");
 		}
 		return super.isAbandoned();
@@ -146,7 +146,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	public boolean isReset() {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "isReset()");
 		}
 		return super.isReset();
@@ -154,7 +154,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	public boolean isStarted() {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "isStarted()");
 		}
 		return super.isStarted();
@@ -162,7 +162,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	public void onContentChanged() {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "onContentChanged()");
 		}
 		super.onContentChanged();
@@ -170,7 +170,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	public void registerListener(int id, OnLoadCompleteListener<D> listener) {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "registerListener(%s,%s)", id, listener);
 		}
 		super.registerListener(id, listener);
@@ -178,7 +178,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	public void reset() {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "reset()");
 		}
 		super.reset();
@@ -187,7 +187,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 	@Override
 	public void rollbackContentChanged() {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "rollbackContentChanged()");
 		}
 		super.rollbackContentChanged();
@@ -195,7 +195,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	public void stopLoading() {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "stopLoading()");
 		}
 		super.stopLoading();
@@ -203,7 +203,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	public boolean takeContentChanged() {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "takeContentChanged()");
 		}
 		return super.takeContentChanged();
@@ -211,7 +211,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 
 	@Override
 	public void unregisterListener(OnLoadCompleteListener<D> listener) {
-		if (Constants.LOG_LIFECYCLE) {
+		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "unregisterListener(%s)", listener);
 		}
 		super.unregisterListener(listener);

@@ -151,7 +151,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 				new LinkedBlockingDeque<Runnable>(typeAgencies.size()));
 		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
 		for (AgencyProperties agency : typeAgencies) {
-			FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(context, agency.getAuthority(), typeLat, typeLng, typeAd.aroundDiff, true,
+			FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(context, agency.getAuthority(), typeLat, typeLng, typeAd.aroundDiff, true, true,
 					typeMinCoverageInMeters, typeMaxSize);
 			taskList.add(executor.submit(task));
 		}

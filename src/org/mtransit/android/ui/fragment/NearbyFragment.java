@@ -3,6 +3,7 @@ package org.mtransit.android.ui.fragment;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -293,6 +294,9 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void findNearbyLocation() {
+		if (!TextUtils.isEmpty(this.nearbyLocationAddress)) {
+			return;
+		}
 		if (this.findNearbyLocationTask != null) {
 			this.findNearbyLocationTask.cancel(true);
 		}
@@ -628,8 +632,15 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		broadcastNearbyLocationChanged(this.nearbyLocation);
 		setSwipeRefreshLayoutRefreshing(false);
 		this.nearbyLocationAddress = null;
+		getAbController().setABSubtitle(this, getABSubtitle(getActivity()), false);
 		getAbController().setABReady(this, isABReady(), true);
-		findNearbyLocation();
+		getView().postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+				findNearbyLocation();
+			}
+		}, TimeUnit.SECONDS.toMillis(1));
 	}
 
 	private void broadcastNearbyLocationChanged(Location location) {
