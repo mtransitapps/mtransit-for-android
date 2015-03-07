@@ -14,7 +14,6 @@ import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -115,7 +114,6 @@ public class FavoriteProvider extends MTContentProvider {
 
 	@Override
 	public Cursor queryMT(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		SQLiteDatabase db = null;
 		try {
 			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 			switch (getURIMATCHER(getContext()).match(uri)) {
@@ -136,8 +134,7 @@ public class FavoriteProvider extends MTContentProvider {
 			if (TextUtils.isEmpty(sortOrder)) {
 				sortOrder = getSortOrder(uri);
 			}
-			db = getDBHelper(getContext()).getReadableDatabase();
-			Cursor cursor = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder, null);
+			Cursor cursor = qb.query(getDBHelper(getContext()).getReadableDatabase(), projection, selection, selectionArgs, null, null, sortOrder, null);
 			if (cursor != null) {
 				cursor.setNotificationUri(getContext().getContentResolver(), uri);
 			}
@@ -145,8 +142,6 @@ public class FavoriteProvider extends MTContentProvider {
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while resolving query '%s'!", uri);
 			return null;
-		} finally {
-			SqlUtils.closeQuietly(db);
 		}
 	}
 
@@ -174,19 +169,16 @@ public class FavoriteProvider extends MTContentProvider {
 	@Override
 	public int deleteMT(Uri uri, String selection, String[] selectionArgs) {
 		int affectedRows = 0;
-		SQLiteDatabase db = null;
 		try {
 			switch (getURIMATCHER(getContext()).match(uri)) {
 			case FAVORITE:
-				db = getDBHelper(getContext()).getWritableDatabase();
-				affectedRows = db.delete(FavoriteDbHelper.T_FAVORITE, selection, selectionArgs);
+				affectedRows = getDBHelper(getContext()).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE, selection, selectionArgs);
 				break;
 			case FAVORITE_ID:
 				selection = SqlUtils.getWhereEquals( //
 						SqlUtils.getTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_ID), //
 						uri.getPathSegments().get(1));
-				db = getDBHelper(getContext()).getWritableDatabase();
-				affectedRows = db.delete(FavoriteDbHelper.T_FAVORITE, selection, null);
+				affectedRows = getDBHelper(getContext()).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE, selection, null);
 				break;
 			default:
 				throw new IllegalArgumentException(String.format("Unknown URI (delete): '%s'", uri));
@@ -196,8 +188,6 @@ public class FavoriteProvider extends MTContentProvider {
 			}
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while processing delete query %s!", uri);
-		} finally {
-			SqlUtils.closeQuietly(db);
 		}
 		return affectedRows;
 	}
@@ -216,14 +206,12 @@ public class FavoriteProvider extends MTContentProvider {
 
 	@Override
 	public Uri insertMT(Uri uri, ContentValues values) {
-		SQLiteDatabase db = null;
 		try {
 			Uri insertUri = null;
 			long newRowId;
 			switch (getURIMATCHER(getContext()).match(uri)) {
 			case FAVORITE:
-				db = getDBHelper(getContext()).getWritableDatabase();
-				newRowId = db.insert(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FK_ID, values);
+				newRowId = getDBHelper(getContext()).getWritableDatabase().insert(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FK_ID, values);
 				if (newRowId > 0) {
 					insertUri = ContentUris.withAppendedId(getFavoriteContentUri(getContext()), newRowId);
 				}
@@ -240,8 +228,6 @@ public class FavoriteProvider extends MTContentProvider {
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while resolving insert query '%s'!", uri);
 			return null;
-		} finally {
-			SqlUtils.closeQuietly(db);
 		}
 	}
 

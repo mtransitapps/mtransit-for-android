@@ -263,14 +263,10 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	private int deleteAllModuleData() {
 		int affectedRows = 0;
-		SQLiteDatabase db = null;
 		try {
-			db = getDBHelper(getContext()).getWritableDatabase();
-			affectedRows = db.delete(ModuleDbHelper.T_MODULE, null, null);
+			affectedRows = getDBHelper(getContext()).getWritableDatabase().delete(ModuleDbHelper.T_MODULE, null, null);
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while deleting all module data!");
-		} finally {
-			SqlUtils.closeQuietly(db);
 		}
 		return affectedRows;
 	}
@@ -326,7 +322,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		} catch (Exception e) {
 			MTLog.w(TAG, e, "ERROR while applying batch update to the database!");
 		} finally {
-			SqlUtils.endTransactionAndCloseQuietly(db);
+			SqlUtils.endTransaction(db);
 		}
 		return affectedRows;
 	}
