@@ -1506,7 +1506,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					holder.routeTypeImg.setVisibility(View.GONE);
 					SpannableStringBuilder ssb = new SpannableStringBuilder(route.getShortName());
 					if (ssb.length() > 3) {
-						SpanUtils.set(ssb, ssb.length() > 10 ? SpanUtils.TWENTY_FIVE_PERCENT_SIZE_SPAN : SpanUtils.FIFTY_PERCENT_SIZE_SPAN);
+						SpanUtils.set(ssb, ssb.length() > 7 ? SpanUtils.TWENTY_FIVE_PERCENT_SIZE_SPAN : SpanUtils.FIFTY_PERCENT_SIZE_SPAN);
 					}
 					holder.routeShortNameTv.setText(ssb);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
