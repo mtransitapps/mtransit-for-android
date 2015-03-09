@@ -6,7 +6,6 @@ import java.util.Iterator;
 
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.LocationUtils;
-import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -31,10 +30,10 @@ public class AgencyProperties implements MTLog.Loggable {
 	private String shortName;
 	private String longName;
 	private Integer colorInt = null;
-	private Area area;
+	private LocationUtils.Area area;
 	private boolean isRTS = false;
 
-	public AgencyProperties(String id, DataSourceType type, String shortName, String longName, String color, Area area, boolean isRTS) {
+	public AgencyProperties(String id, DataSourceType type, String shortName, String longName, String color, LocationUtils.Area area, boolean isRTS) {
 		this.id = id;
 		this.type = type;
 		this.shortName = shortName;
@@ -98,8 +97,8 @@ public class AgencyProperties implements MTLog.Loggable {
 		return id;
 	}
 
-	public boolean isInArea(Area area) {
-		return Area.areOverlapping(area, this.area);
+	public boolean isInArea(LocationUtils.Area area) {
+		return LocationUtils.Area.areOverlapping(area, this.area);
 	}
 
 	public boolean isEntirelyInside(LatLngBounds area) {
@@ -113,7 +112,7 @@ public class AgencyProperties implements MTLog.Loggable {
 		return areOverlapping(area, this.area);
 	}
 
-	public static boolean areOverlapping(LatLngBounds area1, Area area2) {
+	private static boolean areOverlapping(LatLngBounds area1, LocationUtils.Area area2) {
 		if (area1 == null || area2 == null) {
 			return false; // no data to compare
 		}
@@ -155,25 +154,25 @@ public class AgencyProperties implements MTLog.Loggable {
 		return LocationUtils.isInside(lat, lng, minLat, maxLat, minLng, maxLng);
 	}
 
-	public static boolean areCompletelyOverlapping(LatLngBounds area1, Area area2) {
+	private static boolean areCompletelyOverlapping(LatLngBounds area1, LocationUtils.Area area2) {
 		double area1MinLat = Math.min(area1.southwest.latitude, area1.northeast.latitude);
 		double area1MaxLat = Math.max(area1.southwest.latitude, area1.northeast.latitude);
 		double area1MinLng = Math.min(area1.southwest.longitude, area1.northeast.longitude);
 		double area1MaxLng = Math.max(area1.southwest.longitude, area1.northeast.longitude);
-		if (area1MinLat > area2.minLat && area1MaxLat < area2.maxLat) {
-			if (area2.minLng > area1MinLng && area2.maxLng < area1MaxLng) {
+		if (area1MinLat >= area2.minLat && area1MaxLat <= area2.maxLat) {
+			if (area2.minLng >= area1MinLng && area2.maxLng <= area1MaxLng) {
 				return true; // area 1 wider than area 2 but area 2 higher than area 1
 			}
 		}
-		if (area2.minLat > area1MinLat && area2.maxLat < area1MaxLat) {
-			if (area1MinLng > area2.minLng && area1MaxLng < area2.maxLng) {
+		if (area2.minLat >= area1MinLat && area2.maxLat <= area1MaxLat) {
+			if (area1MinLng >= area2.minLng && area1MaxLng <= area2.maxLng) {
 				return true; // area 2 wider than area 1 but area 1 higher than area 2
 			}
 		}
 		return false;
 	}
 
-	public boolean isEntirelyInside(Area otherArea) {
+	public boolean isEntirelyInside(LocationUtils.Area otherArea) {
 		return this.area == null || this.area.isEntirelyInside(otherArea);
 	}
 
