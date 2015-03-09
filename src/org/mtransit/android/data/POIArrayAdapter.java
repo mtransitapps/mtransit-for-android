@@ -195,15 +195,19 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private static final int VIEW_TYPE_COUNT = 9;
 
+	/**
+	 * @see #getItemViewType(int)
+	 */
 	@Override
 	public int getViewTypeCount() {
-		// RETURN MUST MATCH getItemViewType(position) !
-		return VIEW_TYPE_COUNT; // see getItemViewType()
+		return VIEW_TYPE_COUNT;
 	}
 
+	/**
+	 * @see #getViewTypeCount()
+	 */
 	@Override
 	public int getItemViewType(int position) {
-		// RETURN MUST MATCH getViewTypeCount() !
 		POIManager poim = getItem(position);
 		if (poim == null) {
 			if (this.showBrowseHeaderSection && position == 0) {
@@ -412,13 +416,18 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return convertView;
 	}
 
+	private int nbAgencyTypes = -1;
+
 	private View getBrowseHeaderSectionView(View convertView, ViewGroup parent) {
-		if (convertView == null) {
-			convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header, parent, false);
+		Activity activity = this.activityWR == null ? null : this.activityWR.get();
+		if (convertView == null || this.nbAgencyTypes != DataSourceProvider.get(activity).getAllAgenciesCount()) {
+			if (convertView == null) {
+				convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header, parent, false);
+			}
 			LinearLayout gridLL = (LinearLayout) convertView.findViewById(R.id.gridLL);
 			gridLL.removeAllViews();
-			Activity activity = this.activityWR == null ? null : this.activityWR.get();
 			ArrayList<DataSourceType> allAgencyTypes = DataSourceProvider.get(activity).getAvailableAgencyTypes();
+			this.nbAgencyTypes = CollectionUtils.getSize(allAgencyTypes);
 			if (allAgencyTypes == null || allAgencyTypes.size() <= 1) {
 				gridLL.setVisibility(View.GONE);
 			} else {
@@ -1171,7 +1180,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 		if (holder.allBtn != null) {
 			holder.allBtn.setOnClickListener(new View.OnClickListener() {
-
 				@Override
 				public void onClick(View v) {
 					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_ALL, type);
@@ -1180,7 +1188,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 		if (holder.nearbyBtn != null) {
 			holder.nearbyBtn.setOnClickListener(new View.OnClickListener() {
-
 				@Override
 				public void onClick(View v) {
 					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_NEARBY, type);
@@ -1189,7 +1196,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 		if (holder.moreBtn != null) {
 			holder.moreBtn.setOnClickListener(new View.OnClickListener() {
-
 				@Override
 				public void onClick(View v) {
 					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_MORE, type);

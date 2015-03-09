@@ -311,7 +311,6 @@ public final class AdsUtils implements MTLog.Loggable {
 				hideAds(activity);
 				pauseAd(activity);
 			}
-			destroyAd(activity);
 		}
 	}
 

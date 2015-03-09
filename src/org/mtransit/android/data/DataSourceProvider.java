@@ -716,7 +716,11 @@ public class DataSourceProvider implements MTLog.Loggable {
 		@Override
 		protected void onProgressUpdate(ModulesUpdateListener... values) {
 			if (values != null && values.length > 0) {
-				values[0].onModulesUpdated();
+				try {
+					values[0].onModulesUpdated();
+				} catch (Throwable t) {
+					MTLog.w(this, t, "Error while broadcasting module updated for %!", values[0]);
+				}
 			}
 		}
 	}
