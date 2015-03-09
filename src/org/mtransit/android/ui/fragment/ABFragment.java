@@ -37,7 +37,7 @@ public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.
 	private Integer defaultABBgColor = null;
 
 	public Integer getABBgColor(Context context) {
-		if (this.defaultABBgColor == null) {
+		if (this.defaultABBgColor == null && context != null) {
 			this.defaultABBgColor = ThemeUtils.resolveColorAttribute(context, R.attr.colorPrimary);
 		}
 		return this.defaultABBgColor;

@@ -226,7 +226,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	private void initABColorizer(Context context) {
 		ArrayList<AgencyProperties> agencies = getTypeAgenciesOrNull();
-		if (CollectionUtils.getSize(agencies) > 0) {
+		if (context != null && CollectionUtils.getSize(agencies) > 0) {
 			int defaultColor = ThemeUtils.resolveColorAttribute(context, R.attr.colorPrimary);
 			this.abColorizer = new ActionBarController.SimpleActionBarColorizer();
 			int[] agencyColors = new int[agencies.size()];
@@ -703,6 +703,9 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	@Override
 	public CharSequence getABTitle(Context context) {
+		if (context == null) {
+			return super.getABTitle(context);
+		}
 		DataSourceType type = getTypeOrNull();
 		if (type == null) {
 			return context.getString(R.string.ellipsis);
