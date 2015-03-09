@@ -15,6 +15,7 @@ import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
+import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.JPaths;
 import org.mtransit.android.data.POIManager;
@@ -259,7 +260,8 @@ public class POIViewController implements MTLog.Loggable {
 					if (holder.routeTypeImg.hasPaths() && poim.poi.getAuthority().equals(holder.routeTypeImg.getTag())) {
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
-						JPaths rtsRouteLogo = DataSourceProvider.get(context).getAgency(context, poim.poi.getAuthority()).getLogo(context);
+						AgencyProperties agency = DataSourceProvider.get(context).getAgency(context, poim.poi.getAuthority());
+						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo(context);
 						if (rtsRouteLogo != null) {
 							holder.routeTypeImg.setJSON(rtsRouteLogo);
 							holder.routeTypeImg.setTag(poim.poi.getAuthority());

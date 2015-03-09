@@ -9,6 +9,7 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
+import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.JPaths;
 import org.mtransit.android.data.POIManager;
@@ -527,7 +528,8 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 					if (holder.routeTypeImg.hasPaths() && this.authority.equals(holder.routeTypeImg.getTag())) {
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
-						JPaths rtsRouteLogo = DataSourceProvider.get(getContext()).getAgency(getContext(), this.authority).getLogo(getContext());
+						AgencyProperties agency = DataSourceProvider.get(getContext()).getAgency(getContext(), this.authority);
+						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo(getContext());
 						if (rtsRouteLogo != null) {
 							holder.routeTypeImg.setJSON(rtsRouteLogo);
 							holder.routeTypeImg.setTag(this.authority);
