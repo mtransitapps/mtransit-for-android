@@ -7,7 +7,7 @@ Offline & Real-Time.
 ----------
 What's new in this version?:
 Bug fixes & performance improvements.
-News from Twitter.
+Agency news below next departures in stop/station screen.
 
 BETA: Thanks for your patience while the last features are being added and the last bugs are being fixed.
 ----------

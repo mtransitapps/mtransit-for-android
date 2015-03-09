@@ -7,7 +7,7 @@ Hors-Ligne & Temps-Réel
 ----------
 What's new in this version?:
 Correction de problèmes & Amélioration des performances.
-Nouvelles de Twitter.
+Nouvelles de l'agence de transport en dessous des prochains départs dans l'écran arrêt/gare/station.
 
 BETA : Merci de votre patience pendant que les dernières fonctionnalités sont ajoutées et les derniers problèmes sont corrigés.
 ----------
