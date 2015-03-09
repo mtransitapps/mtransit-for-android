@@ -592,13 +592,13 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 					@Override
 					public void onClick(View v) {
-						RouteTripStop optRts = null;
 						POIManager poim = getPoimOrNull();
-						if (poim != null && poim.poi instanceof RouteTripStop) {
-							optRts = (RouteTripStop) poim.poi;
+						if (poim == null || !(poim.poi instanceof RouteTripStop)) {
+							MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RTS)");
+							return;
 						}
 						((MainActivity) getActivity()).addFragmentToStack(ScheduleFragment.newInstance(POIFragment.this.uuid, POIFragment.this.authority,
-								optRts, poim.getColor(getActivity())));
+								(RouteTripStop) poim.poi, poim.getColor(getActivity())));
 					}
 				});
 				rtsScheduleBtn.setVisibility(View.VISIBLE);
