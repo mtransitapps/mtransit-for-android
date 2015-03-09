@@ -37,10 +37,10 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.PopupWindow;
-import android.widget.TextView;
 
 public class HomeFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
-		FavoriteManager.FavoriteUpdateListener, SwipeRefreshLayout.OnRefreshListener, POIArrayAdapter.TypeHeaderButtonsClickListener {
+		FavoriteManager.FavoriteUpdateListener, SwipeRefreshLayout.OnRefreshListener, POIArrayAdapter.TypeHeaderButtonsClickListener,
+		POIArrayAdapter.InfiniteLoadingListener {
 
 	private static final String TAG = HomeFragment.class.getSimpleName();
 
@@ -69,7 +69,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	private POIArrayAdapter adapter;
-	private CharSequence emptyText = null;
 	private Location userLocation;
 	private Location nearbyLocation;
 	private String nearbyLocationAddress;
@@ -207,6 +206,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			this.adapter.onDestroy();
 			this.adapter = null;
 		}
+		this.loadFinished = false;
 		if (this.findNearbyLocationTask != null) {
 			this.findNearbyLocationTask.cancel(true);
 			this.findNearbyLocationTask = null;
@@ -222,7 +222,9 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			if (this.nearbyLocation == null) {
 				return null;
 			}
-			return new HomePOILoader(getActivity(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.nearbyLocation.getAccuracy());
+			this.loadFinished = false;
+			return new HomePOILoader(this, getActivity(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(),
+					this.nearbyLocation.getAccuracy());
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -234,19 +236,28 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
+		this.loadFinished = false;
+	}
+
+	public void onLoadPartial(ArrayList<POIManager> data) {
+		addPOIs(data);
 	}
 
 	@Override
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+		this.loadFinished = true;
+		addPOIs(data);
+		this.adapter.updateDistanceNowAsync(this.userLocation);
+		findNearbyLocation();
+	}
+
+	private void addPOIs(ArrayList<POIManager> data) {
 		boolean scrollToTop = this.adapter.getPoisCount() == 0;
-		this.adapter.setPois(data);
+		this.adapter.appendPois(data);
 		View view = getView();
 		if (scrollToTop && view != null && view.findViewById(R.id.list) != null) {
 			((AbsListView) view.findViewById(R.id.list)).setSelection(0);
 		}
-		this.adapter.updateDistanceNowAsync(this.userLocation);
-		switchView(getView());
-		findNearbyLocation();
 	}
 
 	@Override
@@ -333,6 +344,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
+		this.loadFinished = false;
 		switchView(getView());
 		if (this.nearbyLocation != null) {
 			LoaderUtils.restartLoader(this, POIS_LOADER, null, this);
@@ -395,7 +407,21 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.adapter.setShowBrowseHeaderSection(true);
 		this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);
 		this.adapter.setShowTypeHeaderNearby(true);
+		this.adapter.setInfiniteLoading(true);
+		this.adapter.setInfiniteLoadingListener(this);
 		this.adapter.setOnTypeHeaderButtonsClickListener(this);
+	}
+
+	private boolean loadFinished = false;
+
+	@Override
+	public boolean isLoadingMore() {
+		return this.adapter == null || this.adapter.getPoisCount() == 0 || !this.loadFinished;
+	}
+
+	@Override
+	public boolean showingDone() {
+		return false;
 	}
 
 	@Override
@@ -433,13 +459,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (view == null) {
 			return;
 		}
-		if (this.adapter == null || !this.adapter.isInitialized()) {
-			showLoading(view);
-		} else if (this.adapter.getPoisCount() == 0) {
-			showEmpty(view);
-		} else {
-			showList(view);
-		}
+		showList(view);
 	}
 
 	private void showList(View view) {
@@ -460,38 +480,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 				this.swipeRefreshLayout.setListViewWR((AbsListView) view.findViewById(R.id.list));
 			}
 		}
-	}
-
-	private void showLoading(View view) {
-		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
-			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
-		}
-		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
-			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
-		}
-		if (this.swipeRefreshLayout != null) {
-			this.swipeRefreshLayout.setLoadingViewWR(view.findViewById(R.id.loading));
-		}
-		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
-	}
-
-	private void showEmpty(View view) {
-		if (view.findViewById(R.id.list) != null) { // IF inflated/present DO
-			view.findViewById(R.id.list).setVisibility(View.GONE); // hide
-		}
-		if (view.findViewById(R.id.loading) != null) { // IF inflated/present DO
-			view.findViewById(R.id.loading).setVisibility(View.GONE); // hide
-		}
-		if (view.findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
-			((ViewStub) view.findViewById(R.id.empty_stub)).inflate(); // inflate
-			if (this.swipeRefreshLayout != null) {
-				this.swipeRefreshLayout.setEmptyViewWR(view.findViewById(R.id.empty));
-			}
-		}
-		if (!TextUtils.isEmpty(this.emptyText)) {
-			((TextView) view.findViewById(R.id.empty_text)).setText(this.emptyText);
-		}
-		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package org.mtransit.android.task;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -19,7 +20,9 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
+import org.mtransit.android.ui.fragment.HomeFragment;
 
+import android.app.Activity;
 import android.content.Context;
 
 public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
@@ -41,11 +44,14 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
 	private ArrayList<POIManager> pois;
 
-	public HomePOILoader(Context context, double lat, double lng, float accuracyInMeters) {
+	private WeakReference<HomeFragment> homeFragmentWR;
+
+	public HomePOILoader(HomeFragment homeFragment, Context context, double lat, double lng, float accuracyInMeters) {
 		super(context);
 		this.lat = lat;
 		this.lng = lng;
 		this.accuracyInMeters = accuracyInMeters;
+		this.homeFragmentWR = new WeakReference<HomeFragment>(homeFragment);
 	}
 
 	@Override
@@ -74,10 +80,29 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 				ArrayList<POIManager> typePOIs = findAllNearby(getContext(), type, this.lat, this.lng, minDistanceInMeters, this.nbMaxByType);
 				filterTypePOIs(favoriteUUIDs, typePOIs, minDistanceInMeters);
 				CollectionUtils.sort(typePOIs, POIManager.POI_ALPHA_COMPARATOR);
+				deliverPartialResult(typePOIs);
 				this.pois.addAll(typePOIs);
 			}
 		}
 		return this.pois;
+	}
+
+	private void deliverPartialResult(final ArrayList<POIManager> typePOIs) {
+		HomeFragment homeFragment = this.homeFragmentWR == null ? null : this.homeFragmentWR.get();
+		if (homeFragment != null) {
+			Activity activity = homeFragment.getActivity();
+			if (activity != null) {
+				activity.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						HomeFragment homeFragment = HomePOILoader.this.homeFragmentWR == null ? null : HomePOILoader.this.homeFragmentWR.get();
+						if (homeFragment != null) {
+							homeFragment.onLoadPartial(typePOIs);
+						}
+					}
+				});
+			}
+		}
 	}
 
 	private void filterTypePOIs(HashSet<String> favoriteUUIDs, ArrayList<POIManager> typePOIs, float minDistanceInMeters) {

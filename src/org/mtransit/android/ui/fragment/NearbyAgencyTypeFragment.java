@@ -255,6 +255,11 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	}
 
 	@Override
+	public boolean showingDone() {
+		return true;
+	}
+
+	@Override
 	public boolean isLoadingMore() {
 		if (this.nearbyLocation == null) {
 			return false;

@@ -187,7 +187,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	public static interface InfiniteLoadingListener {
+
 		boolean isLoadingMore();
+
+		boolean showingDone();
 	}
 
 	private static final int VIEW_TYPE_COUNT = 9;
@@ -260,29 +263,29 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private void initCount() {
 		this.count = 0;
+		if (this.showBrowseHeaderSection) {
+			this.count++;
+		}
 		if (this.poisByType != null) {
-			if (this.showBrowseHeaderSection) {
-				this.count++;
-			}
 			for (Integer type : this.poisByType.keySet()) {
 				if (this.showTypeHeader != TYPE_HEADER_NONE) {
 					this.count++;
 				}
 				this.count += this.poisByType.get(type).size();
 			}
-			if (this.infiniteLoading) {
-				this.count++;
-			}
+		}
+		if (this.infiniteLoading) {
+			this.count++;
 		}
 	}
 
 	@Override
 	public int getPosition(POIManager item) {
 		int position = 0;
+		if (this.showBrowseHeaderSection) {
+			position++;
+		}
 		if (this.poisByType != null) {
-			if (this.showBrowseHeaderSection) {
-				position++;
-			}
 			for (Integer type : this.poisByType.keySet()) {
 				if (this.showTypeHeader != TYPE_HEADER_NONE) {
 					position++;
@@ -299,11 +302,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	@Override
 	public POIManager getItem(int position) {
+		int index = 0;
+		if (this.showBrowseHeaderSection) {
+			index++;
+		}
 		if (this.poisByType != null) {
-			int index = 0;
-			if (this.showBrowseHeaderSection) {
-				index++;
-			}
 			for (Integer type : this.poisByType.keySet()) {
 				if (this.showTypeHeader != TYPE_HEADER_NONE) {
 					index++;
@@ -331,11 +334,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	public Integer getItemTypeHeader(int position) {
+		int index = 0;
+		if (this.showBrowseHeaderSection) {
+			index++;
+		}
 		if (this.showTypeHeader != TYPE_HEADER_NONE && this.poisByType != null) {
-			int index = 0;
-			if (this.showBrowseHeaderSection) {
-				index++;
-			}
 			for (Integer type : this.poisByType.keySet()) {
 				if (index == position) {
 					return type;
@@ -395,11 +398,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			if (this.infiniteLoadingListener.isLoadingMore()) {
 				holder.worldExplored.setVisibility(View.GONE);
 				holder.progressBar.setVisibility(View.VISIBLE);
-			} else {
+				convertView.setVisibility(View.VISIBLE);
+			} else if (this.infiniteLoadingListener.showingDone()) {
 				holder.progressBar.setVisibility(View.GONE);
 				holder.worldExplored.setVisibility(View.VISIBLE);
+				convertView.setVisibility(View.VISIBLE);
+			} else {
+				convertView.setVisibility(View.GONE);
 			}
-			convertView.setVisibility(View.VISIBLE);
 		} else {
 			convertView.setVisibility(View.GONE);
 		}
