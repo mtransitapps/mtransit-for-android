@@ -866,6 +866,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(view), poim, this);
 			POINewsViewController.updateView(getActivity(), getPOINewsView(view), getNewsOrNull());
 			setupRTSFullScheduleBtn(view);
+			setupMoreNewsButton(view);
 			setupMoreNearbyButton(view);
 			setupNearbyList();
 		}

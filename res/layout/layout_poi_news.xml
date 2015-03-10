@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
-    <include
-        layout="@layout/layout_poi_news_title" />
+    <include layout="@layout/layout_poi_news_title" />
     <FrameLayout
         android:id="@+id/the_poi"
         android:layout_width="match_parent"
