@@ -252,6 +252,9 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	private void addPOIs(ArrayList<POIManager> data) {
+		if (this.adapter == null) {
+			return; // too late
+		}
 		boolean scrollToTop = this.adapter.getPoisCount() == 0;
 		this.adapter.appendPois(data);
 		View view = getView();
