@@ -421,8 +421,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			((MainActivity) activity)
-					.addFragmentToStack(NearbyFragment.newFixedOnInstance(null, poi.getLat(), poi.getLng(), poi.getName(), getColor(activity)));
+			((MainActivity) activity).addFragmentToStack(NearbyFragment.newFixedOnInstance(null, poi.getLat(), poi.getLng(),
+					getOneLineDescription(activity, poi), getColor(activity)));
 			return true; // HANDLED
 		}
 		return false; // NOT HANDLED

@@ -639,6 +639,10 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			moreBtn.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
+					Activity activity = getActivity();
+					if (activity == null) {
+						return;
+					}
 					POIManager poim = getPoimOrNull();
 					if (poim == null) {
 						return;
@@ -648,8 +652,8 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 					if (agency != null) {
 						optTypeId = agency.getType().getId();
 					}
-					((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newFixedOnInstance(optTypeId, poim.getLat(), poim.getLng(),
-							poim.poi.getName(), poim.getColor(POIFragment.this.getActivity())));
+					((MainActivity) activity).addFragmentToStack(NearbyFragment.newFixedOnInstance(optTypeId, poim.getLat(), poim.getLng(),
+							POIManager.getOneLineDescription(activity, poim.poi), poim.getColor(activity)));
 				}
 			});
 			moreBtn.setVisibility(View.VISIBLE);
