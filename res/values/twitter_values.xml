@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,UnusedResources">
-    <integer name="twitter_db_version">3</integer>
+    <integer name="twitter_db_version">4</integer>
     <string name="twitter_authority">org.mtransit.android.news.twitter</string>
     <string name="twitter_target_for_poi_authority" />
     <string name="twitter_color"></string>
     <string-array name="twitter_screen_names">
         <item>montransit</item>
+    </string-array>
+    <string-array name="twitter_screen_names_lang">
+        <item>@string/news_provider_language_unknown_show_all</item>
     </string-array>
     <string-array name="twitter_screen_names_colors">
         <item>@string/twitter_color</item>
