@@ -105,8 +105,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		args.putString(EXTRA_POI_UUID, uuid);
 		f.uuid = uuid;
 		f.poim = optPoim;
-		f.poim.setInFocus(true);
-		f.poim.resetLastFindTimestamps();
+		f.setPOIProperties();
 		f.setArguments(args);
 		return f;
 	}
@@ -256,12 +255,19 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		return this.poim != null;
 	}
 
+	private void setPOIProperties() {
+		if (this.poim != null) {
+			this.poim.setInFocus(true);
+			this.poim.setScheduleMaxDataRequests(Schedule.ScheduleStatusFilter.DATA_REQUEST_MONTH);
+			this.poim.resetLastFindTimestamps();
+		}
+	}
+
 	private void applyNewPoim() {
 		if (this.poim == null) {
 			return;
 		}
-		this.poim.setInFocus(true);
-		this.poim.setScheduleMaxDataRequests(Schedule.ScheduleStatusFilter.DATA_REQUEST_MONTH);
+		setPOIProperties();
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
