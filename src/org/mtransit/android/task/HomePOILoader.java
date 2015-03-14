@@ -35,7 +35,8 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 	}
 
 	private static final int NB_MAX_BY_TYPE = 2;
-	private static final int NB_MAX_BY_TYPE_ONE_TYPE = 4;
+	private static final int NB_MAX_BY_TYPE_ONE_TYPE = 6;
+	private static final int NB_MAX_BY_TYPE_TWO_TYPES = 4;
 	private int nbMaxByType = NB_MAX_BY_TYPE;
 
 	private double lat;
@@ -65,6 +66,8 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 		if (availableAgencyTypes != null) {
 			if (availableAgencyTypes.size() <= 2) {
 				this.nbMaxByType = NB_MAX_BY_TYPE_ONE_TYPE;
+			} else if (availableAgencyTypes.size() <= 3) {
+				this.nbMaxByType = NB_MAX_BY_TYPE_TWO_TYPES;
 			}
 			float minDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(this.lat, this.lng, LocationUtils.MIN_AROUND_DIFF);
 			if (minDistanceInMeters < LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS) {
