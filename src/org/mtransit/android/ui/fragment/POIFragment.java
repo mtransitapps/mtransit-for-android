@@ -39,6 +39,7 @@ import org.mtransit.android.ui.view.POINewsViewController;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
+import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.LoaderUtils;
 import org.mtransit.android.util.MapUtils;
 
@@ -748,6 +749,11 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		View view = getView();
 		POIViewController.updateServiceUpdatesView(getPOIView(view), serviceUpdates, this);
 		POIServiceUpdateViewController.updateServiceUpdate(getActivity(), getPOIServiceUpdateView(view), serviceUpdates, this);
+	}
+
+	@Override
+	public boolean onURLClick(String url) {
+		return LinkUtils.open(getActivity(), url, getString(R.string.web_browser), true);
 	}
 
 	private Location userLocation;
