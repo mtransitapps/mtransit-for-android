@@ -23,6 +23,7 @@ import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.RTSRouteFragment;
+import org.mtransit.android.util.LinkUtils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -572,7 +573,8 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	public static interface POIDataProvider extends StatusLoader.StatusLoaderListener, ServiceUpdateLoader.ServiceUpdateLoaderListener {
+	public static interface POIDataProvider extends StatusLoader.StatusLoaderListener, ServiceUpdateLoader.ServiceUpdateLoaderListener,
+			LinkUtils.OnUrlClickListener {
 
 		public boolean isShowingStatus();
 
