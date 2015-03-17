@@ -7,6 +7,7 @@ import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.MenuAdapter;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
@@ -103,8 +104,7 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 				super.onProgressUpdate(itemIds);
 				selectItemId(itemIds == null || itemIds.length == 0 ? null : itemIds[0]);
 			}
-
-		}.execute(savedInstanceState);
+		}.executeOnExecutor(TaskUtils.THREAD_POOL_EXECUTOR, savedInstanceState);
 	}
 
 	private boolean menuUpdated = false;

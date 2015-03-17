@@ -28,6 +28,7 @@ import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
@@ -537,7 +538,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					}
 				}
 			}
-		}.execute(position);
+		}.executeOnExecutor(TaskUtils.THREAD_POOL_EXECUTOR, position);
 	}
 
 	public void showPoiMenu(int position) {
@@ -564,7 +565,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					}
 				}
 			}
-		}.execute(position);
+		}.executeOnExecutor(TaskUtils.THREAD_POOL_EXECUTOR, position);
 	}
 
 
@@ -766,7 +767,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					notifyDataSetChanged(true);
 				}
 			};
-			this.updateDistanceWithStringTask.execute(currentLocation);
+			TaskUtils.execute(this.updateDistanceWithStringTask, currentLocation);
 		}
 	}
 
@@ -1783,7 +1784,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				setFavorites(result);
 			}
 		};
-		this.refreshFavoritesTask.execute(typesFilter);
+		TaskUtils.execute(this.refreshFavoritesTask, typesFilter);
 	}
 
 	private void setFavorites(ArrayList<Favorite> favorites) {

@@ -2,6 +2,7 @@ package org.mtransit.android.util;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.TaskUtils;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -83,7 +84,7 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 				}
 				return null;
 			}
-		}.execute(context);
+		}.executeOnExecutor(TaskUtils.THREAD_POOL_EXECUTOR, context);
 	}
 
 	public static void trackScreenView(Context context, Trackable page) {
@@ -108,7 +109,7 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 				}
 				return null;
 			}
-		}.execute(context, page.getScreenName());
+		}.executeOnExecutor(TaskUtils.THREAD_POOL_EXECUTOR, context, page.getScreenName());
 	}
 
 	public static void dispatch(Context context) {

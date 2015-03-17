@@ -10,6 +10,7 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
@@ -106,7 +107,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			this.loadTypeFilterTask.cancel(true);
 		}
 		this.loadTypeFilterTask = new LoadTypeFilterTask();
-		this.loadTypeFilterTask.execute();
+		TaskUtils.execute(this.loadTypeFilterTask);
 	}
 
 	private LoadTypeFilterTask loadTypeFilterTask;

@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.ui.fragment.MTDialogFragmentV4;
 
 import android.app.Activity;
@@ -94,7 +95,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActionBarActivity 
 	protected void onStart() {
 		super.onStart();
 		if (!this.resolvingError) {
-			new StartGoogleApiClientTask(this).execute();
+			TaskUtils.execute(new StartGoogleApiClientTask(this));
 		}
 	}
 
@@ -130,7 +131,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActionBarActivity 
 	@Override
 	protected void onStop() {
 		super.onStop();
-		new StopGoogleApiClientTask(this).execute();
+		TaskUtils.execute(new StopGoogleApiClientTask(this));
 	}
 
 	private static class StopGoogleApiClientTask extends MTAsyncTask<Void, Void, Void> {
@@ -242,7 +243,5 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActionBarActivity 
 		public void onDismiss(DialogInterface dialog) {
 			((MainActivity) getActivity()).onDialogDismissed();
 		}
-
 	}
-
 }

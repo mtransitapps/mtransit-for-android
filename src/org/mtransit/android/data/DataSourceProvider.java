@@ -10,6 +10,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
 
 import android.content.Context;
@@ -673,7 +674,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 			}
 			WeakHashMap<ModulesUpdateListener, Object> listenersCopy = new WeakHashMap<ModulesUpdateListener, Object>(modulesUpdateListeners);
 			triggerModulesUpdatedTask = new TriggerModulesUpdatedTask(listenersCopy);
-			triggerModulesUpdatedTask.execute();
+			TaskUtils.execute(triggerModulesUpdatedTask);
 			triggerModulesUpdated = false; // processed
 		} else {
 			triggerModulesUpdated = false; // processed

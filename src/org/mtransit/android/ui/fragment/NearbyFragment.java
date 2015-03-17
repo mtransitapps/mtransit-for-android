@@ -14,6 +14,7 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.task.ServiceUpdateLoader;
@@ -333,7 +334,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			}
 
 		};
-		this.findNearbyLocationTask.execute(this.nearbyLocation);
+		TaskUtils.execute(this.findNearbyLocationTask, this.nearbyLocation);
 	}
 
 	private ArrayList<DataSourceType> availableTypes = null;
@@ -358,7 +359,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			return;
 		}
 		this.loadAvailableTypesTask = new LoadAvailableTypesTask();
-		this.loadAvailableTypesTask.execute();
+		TaskUtils.execute(this.loadAvailableTypesTask);
 	}
 
 	private LoadAvailableTypesTask loadAvailableTypesTask = null;
@@ -541,7 +542,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			return;
 		}
 		if (this.lastPageSelected < 0) {
-			new LoadLastPageSelectedFromUserPreference(getActivity(), this, this.selectedTypeId, getAvailableTypesOrNull()).execute();
+			TaskUtils.execute(new LoadLastPageSelectedFromUserPreference(getActivity(), this, this.selectedTypeId, getAvailableTypesOrNull()));
 			return;
 		}
 		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);

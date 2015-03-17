@@ -23,6 +23,7 @@ import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
@@ -134,7 +135,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			return;
 		}
 		this.loadAgencyTask = new LoadAgencyTask();
-		this.loadAgencyTask.execute();
+		TaskUtils.execute(this.loadAgencyTask);
 	}
 
 	private LoadAgencyTask loadAgencyTask = null;
@@ -213,7 +214,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			return;
 		}
 		this.loadPoimTask = new LoadPoimTask();
-		this.loadPoimTask.execute();
+		TaskUtils.execute(this.loadPoimTask);
 	}
 
 	private LoadPoimTask loadPoimTask = null;
@@ -315,7 +316,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			return;
 		}
 		this.loadNewsTask = new LoadNewsTask();
-		this.loadNewsTask.execute();
+		TaskUtils.execute(this.loadNewsTask);
 	}
 
 	private LoadNewsTask loadNewsTask = null;

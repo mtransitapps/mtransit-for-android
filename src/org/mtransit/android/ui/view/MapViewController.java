@@ -21,6 +21,7 @@ import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
@@ -223,7 +224,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return;
 		}
 		this.initMapViewTask = new InitMapViewTask(view);
-		this.initMapViewTask.execute(view);
+		TaskUtils.execute(this.initMapViewTask);
 	}
 
 	private InitMapViewTask initMapViewTask = null;
@@ -695,7 +696,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (this.extendedGoogleMap == null) {
 			return;
 		}
-		new LoadClusterItemsTask().execute();
+		TaskUtils.execute(new LoadClusterItemsTask());
 	}
 
 	private static final MarkerNameComparator MARKER_NAME_COMPARATOR = new MarkerNameComparator();

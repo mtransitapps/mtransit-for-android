@@ -10,6 +10,7 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
@@ -143,7 +144,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			return;
 		}
 		this.loadTypeAgenciesAuthorityAsyncTask = new LoadTypeAgenciesAuthorityAsyncTask();
-		this.loadTypeAgenciesAuthorityAsyncTask.execute();
+		TaskUtils.execute(this.loadTypeAgenciesAuthorityAsyncTask);
 	}
 
 	private LoadTypeAgenciesAuthorityAsyncTask loadTypeAgenciesAuthorityAsyncTask = null;

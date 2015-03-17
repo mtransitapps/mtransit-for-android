@@ -16,6 +16,7 @@ import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ui.widget.MTBaseAdapter;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
@@ -140,7 +141,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return;
 		}
 		this.loadRtsTask = new LoadRtsTask();
-		this.loadRtsTask.execute();
+		TaskUtils.execute(this.loadRtsTask);
 	}
 
 	private LoadRtsTask loadRtsTask = null;

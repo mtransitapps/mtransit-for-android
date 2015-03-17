@@ -13,6 +13,7 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
@@ -193,7 +194,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			return;
 		}
 		if (this.lastPageSelected < 0) {
-			new LoadLastPageSelectedFromUserPreference(getActivity(), this, this.typeId, getTypeAgenciesOrNull()).execute();
+			TaskUtils.execute(new LoadLastPageSelectedFromUserPreference(getActivity(), this, this.typeId, getTypeAgenciesOrNull()));
 			return;
 		}
 		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
@@ -293,7 +294,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			return;
 		}
 		this.loadTypeTask = new LoadTypeTask();
-		this.loadTypeTask.execute();
+		TaskUtils.execute(this.loadTypeTask);
 	}
 
 	private void initTypeAgenciesAsync() {
@@ -304,7 +305,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			return;
 		}
 		this.loadTypeAgenciesTask = new LoadTypeAgenciesTask();
-		this.loadTypeAgenciesTask.execute();
+		TaskUtils.execute(this.loadTypeAgenciesTask);
 	}
 
 	private LoadTypeTask loadTypeTask = null;

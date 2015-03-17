@@ -7,6 +7,7 @@ import java.util.HashSet;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.ui.MTActivityWithLocation;
 
@@ -49,7 +50,7 @@ public final class AdsUtils implements MTLog.Loggable {
 		}
 		if (setupAdTask == null) {
 			setupAdTask = new SetupAdTask(activity);
-			setupAdTask.execute();
+			TaskUtils.execute(setupAdTask);
 		}
 	}
 

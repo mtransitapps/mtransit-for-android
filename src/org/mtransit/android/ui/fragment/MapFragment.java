@@ -13,6 +13,7 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.task.MapPOILoader;
@@ -300,7 +301,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 			return;
 		}
 		this.loadFilterTypeIdsTask = new LoadFilterTypeIdsTask();
-		this.loadFilterTypeIdsTask.execute();
+		TaskUtils.execute(this.loadFilterTypeIdsTask);
 	}
 
 	private LoadFilterTypeIdsTask loadFilterTypeIdsTask = null;

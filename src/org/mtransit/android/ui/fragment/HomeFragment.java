@@ -8,6 +8,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
@@ -195,7 +196,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			}
 
 		};
-		this.findNearbyLocationTask.execute(this.nearbyLocation);
+		TaskUtils.execute(this.findNearbyLocationTask, this.nearbyLocation);
 	}
 
 	@Override

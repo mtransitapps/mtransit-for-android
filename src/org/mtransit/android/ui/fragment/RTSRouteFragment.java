@@ -14,6 +14,7 @@ import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
@@ -183,7 +184,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			return;
 		}
 		this.loadRouteTripsTask = new LoadRouteTripsTask();
-		this.loadRouteTripsTask.execute(this.authority, this.routeId);
+		TaskUtils.execute(this.loadRouteTripsTask, this.authority, this.routeId);
 	}
 
 	private LoadRouteTripsTask loadRouteTripsTask = null;
@@ -260,7 +261,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			return;
 		}
 		this.loadRouteTask = new LoadRouteTask();
-		this.loadRouteTask.execute(this.authority, this.routeId);
+		TaskUtils.execute(this.loadRouteTask, this.authority, this.routeId);
 	}
 
 	private LoadRouteTask loadRouteTask = null;
@@ -476,7 +477,8 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			return;
 		}
 		if (this.lastPageSelected < 0) {
-			new LoadLastPageSelectedFromUserPreference(getActivity(), this, this.authority, this.routeId, this.tripId, getRouteTripsOrNull()).execute();
+			TaskUtils.execute( //
+					new LoadLastPageSelectedFromUserPreference(getActivity(), this, this.authority, this.routeId, this.tripId, getRouteTripsOrNull()));
 			return;
 		}
 		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);

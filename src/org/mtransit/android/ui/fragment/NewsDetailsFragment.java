@@ -7,6 +7,7 @@ import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.util.LinkUtils;
@@ -118,7 +119,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 			return;
 		}
 		this.loadNewsTask = new LoadNewsTask();
-		this.loadNewsTask.execute();
+		TaskUtils.execute(this.loadNewsTask);
 	}
 
 	private LoadNewsTask loadNewsTask = null;

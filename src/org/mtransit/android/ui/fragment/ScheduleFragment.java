@@ -9,6 +9,7 @@ import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
@@ -86,7 +87,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			return;
 		}
 		this.loadRtsTask = new LoadRtsTask();
-		this.loadRtsTask.execute();
+		TaskUtils.execute(this.loadRtsTask);
 	}
 
 	private LoadRtsTask loadRtsTask = null;
