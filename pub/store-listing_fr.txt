@@ -19,7 +19,7 @@ Horaires et alertes en temps réel (pour certaines agences).
 BETA : Merci de votre patience pendant que les dernières fonctionnalités sont ajoutées et les derniers problèmes corrigés.
 
 Agences de transport disponible sur Google Play (gratuit) :
-- Autobus :
+<b>Autobus :</b>
  - AMT Express (Montréal) : http://goo.gl/bQmUrH
  - CIT Chambly-Richelieu-Carignan (Blus) : http://goo.gl/bB3uXn
  - CIT Haut-St-Laurent : http://goo.gl/63tdvt
@@ -39,11 +39,11 @@ Agences de transport disponible sur Google Play (gratuit) :
  - STL (Laval) : http://goo.gl/oVpn75
  - STM (Montréal) : http://goo.gl/YPJzF5
  - Ville de Ste-Julie : http://goo.gl/lpqCFM
-- Métros :
+<b>Métros :</b>
  - STM (Montréal) : http://goo.gl/kpn9tP
-- Trains :
+<b>Trains :</b>
  - AMT (Montréal) : http://goo.gl/nvQd13
-- Vélos :
+<b>Vélos :</b>
  - BIXI (Montréal) : http://goo.gl/omUanh
 
 Cette application est gratuite et ouverte :

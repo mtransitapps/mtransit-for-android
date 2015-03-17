@@ -19,9 +19,9 @@ Real-time schedule and alerts (for some agencies).
 BETA: Thanks for your patience while the last features are being added and the last bugs are being fixed.
 
 Transit agencies available on Google Play (free):
-- Bikes:
+<b>Bikes:</b>
  - BIXI Bikes (Montreal): http://goo.gl/omUanh
-- Buses:
+<b>Buses:</b>
  - AMT Express (Montreal): http://goo.gl/bQmUrH
  - CIT Chambly-Richelieu-Carignan (Blus): http://goo.gl/bB3uXn
  - CIT Haut-St-Laurent: http://goo.gl/63tdvt
@@ -41,9 +41,9 @@ Transit agencies available on Google Play (free):
  - Ste-Julie: http://goo.gl/lpqCFM
  - STL (Laval): http://goo.gl/oVpn75
  - STM (Montreal): http://goo.gl/YPJzF5
-- Subways:
+<b>Subways:</b>
  - STM (Montreal): http://goo.gl/kpn9tP
-- Trains:
+<b>Trains:</b>
  - AMT (Montreal): http://goo.gl/nvQd13
 
 This app is free and open-source:
