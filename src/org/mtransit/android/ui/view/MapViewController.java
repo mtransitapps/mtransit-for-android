@@ -15,6 +15,7 @@ import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.RouteTripStop;
@@ -43,6 +44,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.ImageView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -75,6 +77,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	private WeakReference<Activity> activityWR;
 	private MapView mapView;
 	private View loadingMapView;
+	private ImageView typeSwitchView;
 	private ExtendedGoogleMap extendedGoogleMap;
 	private Boolean showingMyLocation = false;
 	private boolean mapLayoutReady = false;
@@ -271,7 +274,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 		this.mapView = (MapView) view.findViewById(R.id.map);
 		this.loadingMapView = view.findViewById(R.id.map_loading);
-		hideShowLoading();
+		this.typeSwitchView = (ImageView) view.findViewById(R.id.map_type_switch);
 		if (this.mapView != null) {
 			this.mapView.onCreate(this.lastSavedInstanceState);
 			if (this.needToResumeMap) {
@@ -281,6 +284,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			this.lastSavedInstanceState = null;
 			this.mapView.getMapAsync(this);
 		}
+		hideShowLoading();
+		initTypeSwitch();
 	}
 
 	private void destroyMapView() {
@@ -316,6 +321,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return;
 		}
 		this.extendedGoogleMap = ExtendedMapFactory.create(googleMap, getActivityOrNull());
+		this.extendedGoogleMap.setMapType(getMapType());
 		this.extendedGoogleMap.setMyLocationEnabled(this.myLocationEnabled);
 		this.extendedGoogleMap.setTrafficEnabled(this.trafficEnabled);
 		this.extendedGoogleMap.setIndoorEnabled(this.indoorEnabled);
@@ -360,6 +366,51 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (this.loadingMapView != null && this.loadingMapView.getVisibility() != View.GONE) {
 			this.loadingMapView.setVisibility(View.GONE);
 		}
+	}
+
+	private void initTypeSwitch() {
+		if (this.typeSwitchView == null) {
+			return;
+		}
+		setTypeSwitchImg(getMapType());
+		this.typeSwitchView.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				switchMapType();
+			}
+		});
+		this.typeSwitchView.setVisibility(View.VISIBLE);
+	}
+
+	private void setTypeSwitchImg(int mapType) {
+		if (this.typeSwitchView != null) {
+			this.typeSwitchView.setImageResource(mapType == MapUtils.MAP_TYPE_NORMAL ? R.drawable.ic_map_satellite : R.drawable.ic_map_normal);
+		}
+	}
+
+	private int mapType = -1;
+
+	private int getMapType() {
+		if (this.mapType < 0) {
+			this.mapType = PreferenceUtils.getPrefLcl(getActivityOrNull(), PreferenceUtils.PREFS_LCL_MAP_TYPE, MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT);
+		}
+		return this.mapType;
+	}
+
+	private void setMapType(int newMapType) {
+		this.mapType = newMapType;
+		ExtendedGoogleMap map = getGoogleMapOrNull();
+		if (map != null) {
+			map.setMapType(this.mapType);
+		}
+		PreferenceUtils.savePrefLcl(getActivityOrNull(), PreferenceUtils.PREFS_LCL_MAP_TYPE, this.mapType, false); // asynchronous
+	}
+
+	private void switchMapType() {
+		int newMapType = getMapType() == MapUtils.MAP_TYPE_NORMAL ? MapUtils.MAP_TYPE_SATELLITE : MapUtils.MAP_TYPE_NORMAL; // switch
+		setTypeSwitchImg(newMapType);
+		setMapType(newMapType);
 	}
 
 	public boolean showMap(View view) {
