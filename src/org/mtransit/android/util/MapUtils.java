@@ -15,6 +15,7 @@ import android.util.LruCache;
 import android.util.Pair;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
@@ -26,6 +27,12 @@ public final class MapUtils implements MTLog.Loggable {
 	public String getLogTag() {
 		return TAG;
 	}
+
+	public static final int MAP_TYPE_NORMAL = GoogleMap.MAP_TYPE_NORMAL;
+	public static final int MAP_TYPE_SATELLITE = GoogleMap.MAP_TYPE_HYBRID;
+
+	public static final String PREFS_LCL_MAP_TYPE = "pMapType";
+	public static final int PREFS_LCL_MAP_TYPE_DEFAULT = MAP_TYPE_NORMAL;
 
 	public static final int DEFAULT_MARKET_COLOR = Color.WHITE;
 

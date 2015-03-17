@@ -17,6 +17,7 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.ResourceUtils;
+import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.task.MTAsyncTask;
@@ -297,6 +298,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	public void onActivityCreated(Bundle savedInstanceState) {
 	}
+
 	private boolean hasGoogleMap() {
 		return this.extendedGoogleMap != null;
 	}
@@ -321,7 +323,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return;
 		}
 		this.extendedGoogleMap = ExtendedMapFactory.create(googleMap, getActivityOrNull());
-		this.extendedGoogleMap.setMapType(getMapType());
+		applyMapType();
 		this.extendedGoogleMap.setMyLocationEnabled(this.myLocationEnabled);
 		this.extendedGoogleMap.setTrafficEnabled(this.trafficEnabled);
 		this.extendedGoogleMap.setIndoorEnabled(this.indoorEnabled);
@@ -368,11 +370,23 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 	}
 
+	private void hideTypeSwitch() {
+		if (this.typeSwitchView != null) {
+			this.typeSwitchView.setVisibility(View.GONE);
+		}
+	}
+
+	private void showTypeSwitch() {
+		if (this.typeSwitchView != null) {
+			this.typeSwitchView.setVisibility(View.VISIBLE);
+		}
+	}
+
 	private void initTypeSwitch() {
 		if (this.typeSwitchView == null) {
 			return;
 		}
-		setTypeSwitchImg(getMapType());
+		setTypeSwitchImg();
 		this.typeSwitchView.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -383,34 +397,42 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.typeSwitchView.setVisibility(View.VISIBLE);
 	}
 
-	private void setTypeSwitchImg(int mapType) {
-		if (this.typeSwitchView != null) {
-			this.typeSwitchView.setImageResource(mapType == MapUtils.MAP_TYPE_NORMAL ? R.drawable.ic_map_satellite : R.drawable.ic_map_normal);
-		}
-	}
-
 	private int mapType = -1;
+
+	private void resetMapType() {
+		this.mapType = -1;
+	}
 
 	private int getMapType() {
 		if (this.mapType < 0) {
-			this.mapType = PreferenceUtils.getPrefLcl(getActivityOrNull(), PreferenceUtils.PREFS_LCL_MAP_TYPE, MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT);
+			this.mapType = PreferenceUtils.getPrefLcl(getActivityOrNull(), MapUtils.PREFS_LCL_MAP_TYPE, MapUtils.PREFS_LCL_MAP_TYPE_DEFAULT);
 		}
 		return this.mapType;
 	}
 
-	private void setMapType(int newMapType) {
-		this.mapType = newMapType;
-		ExtendedGoogleMap map = getGoogleMapOrNull();
-		if (map != null) {
-			map.setMapType(this.mapType);
-		}
-		PreferenceUtils.savePrefLcl(getActivityOrNull(), PreferenceUtils.PREFS_LCL_MAP_TYPE, this.mapType, false); // asynchronous
-	}
-
 	private void switchMapType() {
 		int newMapType = getMapType() == MapUtils.MAP_TYPE_NORMAL ? MapUtils.MAP_TYPE_SATELLITE : MapUtils.MAP_TYPE_NORMAL; // switch
-		setTypeSwitchImg(newMapType);
 		setMapType(newMapType);
+	}
+
+	private void setMapType(int newMapType) {
+		this.mapType = newMapType;
+		setTypeSwitchImg();
+		applyMapType();
+		PreferenceUtils.savePrefLcl(getActivityOrNull(), MapUtils.PREFS_LCL_MAP_TYPE, this.mapType, false); // asynchronous
+	}
+
+	private void applyMapType() {
+		ExtendedGoogleMap map = getGoogleMapOrNull();
+		if (map != null) {
+			map.setMapType(getMapType());
+		}
+	}
+
+	private void setTypeSwitchImg() {
+		if (this.typeSwitchView != null) {
+			this.typeSwitchView.setImageResource(getMapType() == MapUtils.MAP_TYPE_NORMAL ? R.drawable.ic_map_satellite : R.drawable.ic_map_normal);
+		}
 	}
 
 	public boolean showMap(View view) {
@@ -427,6 +449,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return false; // not shown
 		}
 		hideShowLoading();
+		showTypeSwitch();
 		if (this.mapLayoutReady) {
 			if (!this.initialMapCameraSetup) {
 				setupInitialCamera();
@@ -457,6 +480,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				mapView.setVisibility(View.INVISIBLE); // hide
 			}
 		}
+		hideTypeSwitch();
 	}
 
 	@Override
@@ -718,6 +742,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		public String getLogTag() {
 			return TAG;
 		}
+
 		private LatLng position;
 		private ArrayList<String> names = new ArrayList<String>();
 		private ArrayList<String> agencies = new ArrayList<String>();
@@ -750,12 +775,14 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return new LatLng(POIMarker.truncAround(poim.poi.getLat()), POIMarker.truncAround(poim.poi.getLng()));
 		}
 
+		private static final String SLASH = " / ";
+
 		public String getTitle() {
 			StringBuilder sb = new StringBuilder();
 			CollectionUtils.sort(this.names, MARKER_NAME_COMPARATOR);
 			for (String name : this.names) {
 				if (sb.length() > 0) {
-					sb.append(" / ");
+					sb.append(SLASH);
 				}
 				if (sb.length() == 0 || !sb.toString().contains(name)) {
 					sb.append(name);
@@ -764,6 +791,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return sb.toString();
 		}
 
+		private static final String P1 = "(";
+		private static final String P2 = ")";
+
 		public String getSnippet() {
 			StringBuilder sb = new StringBuilder();
 			boolean hasExtras = false;
@@ -771,7 +801,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			for (int e = 0; e < this.extras.size(); e++) {
 				String extra = this.extras.get(e);
 				if (hasExtras) {
-					sb.append(" / ");
+					sb.append(SLASH);
 				}
 				if (!hasExtras || !sb.toString().contains(extra)) {
 					sb.append(extra);
@@ -782,10 +812,11 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			CollectionUtils.sort(this.agencies, MARKER_NAME_COMPARATOR);
 			for (int a = 0; a < this.agencies.size(); a++) {
 				String agency = this.agencies.get(a);
+				// if (sb.length() > 0) {
 				if (hasAgencies) {
-					sb.append(" / ");
+					sb.append(SLASH);
 				} else if (hasExtras) {
-					sb.append(" (");
+					sb.append(StringUtils.SPACE_CAR).append(P1);
 				}
 				if (!hasAgencies || !sb.toString().contains(agency)) {
 					sb.append(agency);
@@ -793,7 +824,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				}
 			}
 			if (hasExtras && hasAgencies) {
-				sb.append(")");
+				sb.append(P2);
 			}
 			return sb.toString();
 		}
@@ -855,7 +886,6 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				this.position = new LatLng( //
 						(this.position.latitude + position.latitude) / 2d, //
 						(this.position.longitude + position.longitude) / 2d);
-
 			}
 		}
 
@@ -979,6 +1009,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				color = POIManager.getColor(getActivityOrNull(), poim.poi, null);
 				secondaryColor = agency.getColorInt();
 				if (clusterItems.containsKey(positionTrunc)) {
+					clusterItems.get(positionTrunc).merge(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority);
 				} else {
 					clusterItems.put(positionTrunc, new POIMarker(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority));
 				}
@@ -1079,9 +1110,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		mapView.onResume();
 		this.needToResumeMap = false;
 		showMapInternal(null);
+		setMapType(getMapType());
 		return true; // resumed
 	}
-
 
 	private boolean showLastCameraPosition() {
 		if (this.lastCameraPosition == null) {
@@ -1119,6 +1150,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (googleMap != null) {
 			this.lastCameraPosition = googleMap.getCameraPosition();
 		}
+		resetMapType();
 	}
 
 	public void setInitialSelectedUUID(String uuid) {

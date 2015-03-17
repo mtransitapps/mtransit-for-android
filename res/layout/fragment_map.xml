@@ -17,19 +17,7 @@
         app:uiZoomControls="true"
         app:uiZoomGestures="true"
         tools:visibility="visible" />
-    <ImageButton
-        android:id="@+id/map_type_switch"
-        android:layout_width="?android:attr/listPreferredItemHeightSmall"
-        android:layout_height="?android:attr/listPreferredItemHeightSmall"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginBottom="32dp"
-        android:layout_marginLeft="8dp"
-        android:alpha="0.75"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_map_satellite"
-        android:visibility="gone"
-        tools:visibility="visible" />
+    <include layout="@layout/view_map_type_switch" />
     <include
         android:id="@+id/map_loading"
         android:layout_width="match_parent"

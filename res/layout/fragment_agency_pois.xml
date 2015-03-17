@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/viewFlipper"
@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        app:mapType="normal"
+        app:mapType="none"
         app:uiCompass="true"
         app:uiRotateGestures="true"
         app:uiScrollGestures="true"
@@ -19,6 +19,7 @@
         app:uiZoomControls="true"
         app:uiZoomGestures="true"
         tools:visibility="visible" />
+    <include layout="@layout/view_map_type_switch" />
     <!-- LIST -->
     <ViewStub
         android:id="@+id/list_stub"
@@ -42,4 +43,4 @@
         android:inflatedId="@+id/empty"
         android:layout="@layout/layout_empty"
         android:visibility="gone" />
-</FrameLayout>
+</RelativeLayout>
