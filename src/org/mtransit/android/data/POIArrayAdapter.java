@@ -3,6 +3,7 @@ package org.mtransit.android.data;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.WeakHashMap;
@@ -747,7 +748,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				protected Void doInBackgroundMT(Location... params) {
 					android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
 					if (POIArrayAdapter.this.poisByType != null) {
-						for (ArrayList<POIManager> pois : POIArrayAdapter.this.poisByType.values()) {
+						Iterator<ArrayList<POIManager>> it = POIArrayAdapter.this.poisByType.values().iterator();
+						while (it.hasNext()) {
+							ArrayList<POIManager> pois = it.next();
 							LocationUtils.updateDistanceWithString(POIArrayAdapter.this.getContext(), pois, params[0], this);
 						}
 					}
@@ -771,7 +774,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	public void updateDistancesNowSync(Location currentLocation) {
 		if (currentLocation != null) {
 			if (this.poisByType != null) {
-				for (ArrayList<POIManager> pois : this.poisByType.values()) {
+				Iterator<ArrayList<POIManager>> it = this.poisByType.values().iterator();
+				while (it.hasNext()) {
+					ArrayList<POIManager> pois = it.next();
 					LocationUtils.updateDistanceWithString(getContext(), pois, currentLocation, null);
 				}
 			}
