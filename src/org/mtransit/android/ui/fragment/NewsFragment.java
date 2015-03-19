@@ -24,7 +24,6 @@ import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -504,7 +503,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 				holder.authorTv.setTextColor(ColorUtils.getTextColorSecondary(getContext()));
 			}
 			holder.dateTv.setText(TimeUtils.formatRelativeTime(getContext(), news.getCreatedAtInMs()));
-			holder.newsTv.setText(Html.fromHtml(news.getTextHTML()));
+			holder.newsTv.setText(news.getText());
 			if (news.hasColor()) {
 				holder.newsTv.setLinkTextColor(news.getColorInt());
 			} else {

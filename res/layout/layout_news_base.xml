@@ -41,7 +41,7 @@
         android:layout_below="@id/author"
         android:ellipsize="end"
         android:fontFamily="sans-serif-condensed"
-        android:maxLines="7"
+        android:maxLines="5"
         android:minLines="2"
         android:paddingTop="8dp"
         android:singleLine="false"
