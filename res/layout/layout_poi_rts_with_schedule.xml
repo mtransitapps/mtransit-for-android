@@ -14,8 +14,9 @@
         android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="true"
         android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/poi_status_inner_padding"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_action_warning_outline_disabled_holo_dark"
+        android:src="@drawable/warning_light"
         android:visibility="gone"
         tools:visibility="visible" />
     <include
