@@ -174,6 +174,10 @@ public class WebBrowserFragment extends ABFragment {
 			LinkUtils.open(getActivity(), url, getString(R.string.google_play), false);
 			return true;
 		}
+		if (LinkUtils.isEmailIntent(url)) {
+			LinkUtils.open(getActivity(), url, getString(R.string.email), false);
+			return true;
+		}
 		onURLChanged(url);
 		return false;
 	}

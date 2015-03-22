@@ -114,6 +114,21 @@ public final class LinkUtils implements MTLog.Loggable {
 		}
 	}
 
+	private static final String EMAIL_SCHEME = "mailto";
+
+	public static boolean isEmailIntent(String url) {
+		return isEmailIntent(Uri.parse(url));
+	}
+
+	public static boolean isEmailIntent(Uri uri) {
+		if (uri != null) {
+			if (EMAIL_SCHEME.equals(uri.getScheme())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public static interface OnUrlClickListener {
 		boolean onURLClick(String url);
 	}
