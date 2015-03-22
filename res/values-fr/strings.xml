@@ -44,6 +44,7 @@
     <string name="agency_type_module_app_short_name">+</string>
     <string name="agency_type_module_nearby">+</string>
     <string name="email">Courriel</string>
+    <string name="file">Fichier</string>
     <string name="google_maps">Google Maps</string>
     <string name="download_on_store">Télécharger sur Google Play</string>
     <string name="rate_on_store">Noter on Google Play</string>

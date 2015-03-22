@@ -178,6 +178,10 @@ public class WebBrowserFragment extends ABFragment {
 			LinkUtils.open(getActivity(), url, getString(R.string.email), false);
 			return true;
 		}
+		if (LinkUtils.isPDFIntent(url)) {
+			LinkUtils.open(getActivity(), url, getString(R.string.file), false);
+			return true;
+		}
 		onURLChanged(url);
 		return false;
 	}

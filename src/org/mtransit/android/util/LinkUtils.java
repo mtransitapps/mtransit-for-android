@@ -1,6 +1,7 @@
 package org.mtransit.android.util;
 
 import java.lang.ref.WeakReference;
+import java.util.Locale;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
@@ -127,6 +128,21 @@ public final class LinkUtils implements MTLog.Loggable {
 			}
 		}
 		return false;
+	}
+
+	private static final String EXT_PDF = ".pdf";
+
+	public static boolean isPDFIntent(String url) {
+		if (url != null) {
+			if (url.toLowerCase(Locale.ENGLISH).endsWith(EXT_PDF)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean isPDFIntent(Uri uri) {
+		return isPDFIntent(uri == null ? null : uri.toString());
 	}
 
 	public static interface OnUrlClickListener {
