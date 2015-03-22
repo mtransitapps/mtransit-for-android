@@ -8,6 +8,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.util.LinkUtils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -110,6 +111,7 @@ public class WebBrowserFragment extends ABFragment {
 		return view;
 	}
 
+	@SuppressLint("SetJavaScriptEnabled")
 	private void setupView(View view) {
 		if (view == null) {
 			return;
