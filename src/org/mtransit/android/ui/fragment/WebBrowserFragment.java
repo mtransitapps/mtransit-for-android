@@ -5,7 +5,7 @@ import java.lang.ref.WeakReference;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.StoreUtils;
+import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.util.LinkUtils;
 
 import android.annotation.SuppressLint;
@@ -170,16 +170,7 @@ public class WebBrowserFragment extends ABFragment {
 	}
 
 	public boolean shouldOverrideUrlLoading(WebView webView, String url) {
-		if (StoreUtils.isStoreIntent(url)) {
-			LinkUtils.open(getActivity(), url, getString(R.string.google_play), false);
-			return true;
-		}
-		if (LinkUtils.isEmailIntent(url)) {
-			LinkUtils.open(getActivity(), url, getString(R.string.email), false);
-			return true;
-		}
-		if (LinkUtils.isPDFIntent(url)) {
-			LinkUtils.open(getActivity(), url, getString(R.string.file), false);
+		if (LinkUtils.intercept(getActivity(), url)) {
 			return true;
 		}
 		onURLChanged(url);
@@ -188,12 +179,18 @@ public class WebBrowserFragment extends ABFragment {
 
 	public void onTitleChanged(String title) {
 		this.pageTitle = title;
-		getAbController().setABTitle(this, getABTitle(getActivity()), true);
+		ActionBarController abController = getAbController();
+		if (abController != null) {
+			abController.setABTitle(this, getABTitle(getActivity()), true);
+		}
 	}
 
 	public void onURLChanged(String url) {
 		this.currentUrl = url;
-		getAbController().setABSubtitle(this, getABSubtitle(getActivity()), true);
+		ActionBarController abController = getAbController();
+		if (abController != null) {
+			abController.setABSubtitle(this, getABSubtitle(getActivity()), true);
+		}
 	}
 
 	@Override

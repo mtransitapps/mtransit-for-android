@@ -38,6 +38,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
                     android:layout_below="@id/date"
+                    android:autoLink="all"
                     android:ellipsize="end"
                     android:fontFamily="sans-serif-condensed"
                     android:minLines="2"

@@ -7,7 +7,6 @@ import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
 
 import android.content.Context;
-import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
 
@@ -64,7 +63,7 @@ public class POINewsViewController implements MTLog.Loggable {
 					holder.authorTv.setTextColor(ColorUtils.getTextColorSecondary(context));
 				}
 				holder.dateTv.setText(TimeUtils.formatRelativeTime(context, news.getCreatedAtInMs()));
-				holder.newsTv.setText(Html.fromHtml(news.getTextHTML()));
+				holder.newsTv.setText(news.getText());
 				if (news.hasColor()) {
 					holder.newsTv.setLinkTextColor(news.getColorInt());
 				} else {

@@ -2,9 +2,12 @@ package org.mtransit.android.util;
 
 import java.lang.ref.WeakReference;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
+import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.WebBrowserFragment;
 
@@ -33,6 +36,9 @@ public final class LinkUtils implements MTLog.Loggable {
 		if (TextUtils.isEmpty(url)) {
 			return false;
 		}
+		if (intercept(activity, url)) {
+			return true;
+		}
 		if (www) {
 			boolean useInternalWebBrowser = PreferenceUtils.getPrefDefault(activity, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER,
 					PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT);
@@ -44,12 +50,81 @@ public final class LinkUtils implements MTLog.Loggable {
 		return org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), label);
 	}
 
+	public static boolean intercept(Activity activity, String url) {
+		if (StoreUtils.isStoreIntent(url)) {
+			org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), activity.getString(R.string.google_play));
+			return true; // intercepted
+		}
+		if (LinkUtils.isEmailIntent(url)) {
+			org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), activity.getString(R.string.email));
+			return true; // intercepted
+		}
+		if (LinkUtils.isPDFIntent(url)) {
+			org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), activity.getString(R.string.file));
+			return true; // intercepted
+		}
+		if (LinkUtils.isYouTubeIntent(url)) {
+			org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), activity.getString(R.string.video));
+			return true; // intercepted
+		}
+		return false; // not intercepted
+	}
+
 	public static boolean open(Activity activity, Uri uri, String label, boolean www) {
 		return org.mtransit.android.commons.LinkUtils.open(activity, uri, label);
 	}
 
 	public static boolean open(Activity activity, Intent intent, String label, boolean www) {
 		return org.mtransit.android.commons.LinkUtils.open(activity, intent, label);
+	}
+
+	private static final String EMAIL_SCHEME = "mailto";
+
+	public static boolean isEmailIntent(String url) {
+		return isEmailIntent(Uri.parse(url));
+	}
+
+	public static boolean isEmailIntent(Uri uri) {
+		if (uri != null) {
+			if (EMAIL_SCHEME.equals(uri.getScheme())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static final String EXT_PDF = ".pdf";
+
+	public static boolean isPDFIntent(String url) {
+		if (url != null) {
+			if (url.toLowerCase(Locale.ENGLISH).endsWith(EXT_PDF)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean isPDFIntent(Uri uri) {
+		return isPDFIntent(uri == null ? null : uri.toString());
+	}
+
+	public static boolean isYouTubeIntent(String url) {
+		return isYouTubeIntent(Uri.parse(url));
+	}
+
+	private static final String HTTP_SCHEME = "http";
+	private static final String HTTPS_SCHEME = "https";
+	private static final Pattern YOUTUBE_WWW_AUTHORITY_REGEX = Pattern.compile("(youtube\\.com|youtu\\.be)");
+
+	public static boolean isYouTubeIntent(Uri uri) {
+		if (uri != null) {
+			if (HTTPS_SCHEME.equals(uri.getScheme()) || HTTP_SCHEME.equals(uri.getScheme())) {
+				if (YOUTUBE_WWW_AUTHORITY_REGEX.matcher(uri.getAuthority()).find()) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public static class LinkMovementMethodInterceptop extends LinkMovementMethod implements MTLog.Loggable {
@@ -113,36 +188,6 @@ public final class LinkUtils implements MTLog.Loggable {
 			}
 			return super.onTouchEvent(widget, buffer, event);
 		}
-	}
-
-	private static final String EMAIL_SCHEME = "mailto";
-
-	public static boolean isEmailIntent(String url) {
-		return isEmailIntent(Uri.parse(url));
-	}
-
-	public static boolean isEmailIntent(Uri uri) {
-		if (uri != null) {
-			if (EMAIL_SCHEME.equals(uri.getScheme())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private static final String EXT_PDF = ".pdf";
-
-	public static boolean isPDFIntent(String url) {
-		if (url != null) {
-			if (url.toLowerCase(Locale.ENGLISH).endsWith(EXT_PDF)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public static boolean isPDFIntent(Uri uri) {
-		return isPDFIntent(uri == null ? null : uri.toString());
 	}
 
 	public static interface OnUrlClickListener {

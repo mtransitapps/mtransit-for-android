@@ -3,11 +3,11 @@ package org.mtransit.android.ui.fragment;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ColorUtils;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
-import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.util.LinkUtils;
@@ -192,7 +192,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 				}
 				TextView dateTv = (TextView) view.findViewById(R.id.date);
 				dateTv.setText(TimeUtils.formatRelativeTime(getActivity(), news.getCreatedAtInMs()));
-				final String newWebURL = news.getWebURL();
+				final String newWebURL = TextUtils.isEmpty(news.getWebURL()) ? news.getAuthorProfileURL() : news.getWebURL();
 				dateTv.setOnClickListener(new View.OnClickListener() {
 
 					@Override
