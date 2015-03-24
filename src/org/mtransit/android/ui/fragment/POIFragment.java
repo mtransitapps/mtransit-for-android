@@ -352,8 +352,11 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			if (poiNewsProviders != null) {
 				ArrayList<News> allNews = new ArrayList<News>();
 				for (NewsProviderProperties poiNewsProvider : poiNewsProviders) {
-					allNews.addAll(DataSourceManager.findNews(getActivity(), poiNewsProvider.getAuthority(),
-							NewsProviderContract.Filter.getNewTargetFilter(poim.poi)));
+					ArrayList<News> providerNews = DataSourceManager.findNews(getActivity(), poiNewsProvider.getAuthority(),
+							NewsProviderContract.Filter.getNewTargetFilter(poim.poi));
+					if (providerNews != null) {
+						allNews.addAll(providerNews);
+					}
 				}
 				if (allNews.size() > 0) {
 					long nowInMs = TimeUtils.currentTimeMillis();
