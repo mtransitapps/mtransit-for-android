@@ -12,7 +12,6 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.util.LinkUtils;
 
 import android.content.Context;
-import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.View;
@@ -111,7 +110,7 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 					serviceMessageDisplayed++;
 				}
 			}
-			serviceUpdatesListViewHolder.messagesTv.setText(Html.fromHtml(ssb.toString()));
+			serviceUpdatesListViewHolder.messagesTv.setText(LinkUtils.linkifyHtml(ssb.toString()));
 			serviceUpdatesListViewHolder.messagesTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptop.getInstance(dataProvider));
 		}
 		if (serviceMessageDisplayed == 0) {

@@ -14,12 +14,16 @@ import org.mtransit.android.ui.fragment.WebBrowserFragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.text.Html;
 import android.text.Layout;
 import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
+import android.text.util.Linkify;
 import android.view.MotionEvent;
 import android.widget.TextView;
 
@@ -30,6 +34,22 @@ public final class LinkUtils implements MTLog.Loggable {
 	@Override
 	public String getLogTag() {
 		return TAG;
+	}
+
+	public static CharSequence linkifyHtml(String html) {
+		try {
+			Spanned text = Html.fromHtml(html);
+			URLSpan[] currentSpans = text.getSpans(0, text.length(), URLSpan.class);
+			SpannableString buffer = new SpannableString(text);
+			Linkify.addLinks(buffer, Linkify.ALL);
+			for (URLSpan span : currentSpans) {
+				buffer.setSpan(span, text.getSpanStart(span), text.getSpanEnd(span), 0);
+			}
+			return buffer;
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error while linkify-ing '%s'!", html);
+			return html;
+		}
 	}
 
 	public static boolean open(Activity activity, String url, String label, boolean www) {
