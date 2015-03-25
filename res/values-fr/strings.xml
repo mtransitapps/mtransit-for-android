@@ -44,6 +44,7 @@
     <string name="agency_type_module_app_short_name">+</string>
     <string name="agency_type_module_nearby">+</string>
     <string name="email">Courriel</string>
+    <string name="tel">Numéro de Téléphone</string>
     <string name="file">Fichier</string>
     <string name="video">Vidéo</string>
     <string name="google_maps">Google Maps</string>

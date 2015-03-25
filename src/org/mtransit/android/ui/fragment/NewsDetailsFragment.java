@@ -182,7 +182,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 			View view = getView();
 			if (view != null) {
 				TextView newsTv = (TextView) view.findViewById(R.id.newsText);
-				newsTv.setText(LinkUtils.linkifyHtml(this.news.getTextHTML()));
+				newsTv.setText(LinkUtils.linkifyHtml(this.news.getTextHTML(), true));
 				newsTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptop.getInstance(this));
 				if (news.hasColor()) {
 					newsTv.setLinkTextColor(news.getColorInt());

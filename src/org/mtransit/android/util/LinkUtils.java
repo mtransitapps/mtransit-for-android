@@ -19,6 +19,7 @@ import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
@@ -36,19 +37,19 @@ public final class LinkUtils implements MTLog.Loggable {
 		return TAG;
 	}
 
-	public static CharSequence linkifyHtml(String html) {
+	public static CharSequence linkifyHtml(String originalText, boolean isHTML) {
 		try {
-			Spanned text = Html.fromHtml(html);
+			Spanned text = isHTML ? Html.fromHtml(originalText) : new SpannedString(originalText);
 			URLSpan[] currentSpans = text.getSpans(0, text.length(), URLSpan.class);
 			SpannableString buffer = new SpannableString(text);
-			Linkify.addLinks(buffer, Linkify.ALL);
+			Linkify.addLinks(buffer, isHTML ? Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS | Linkify.MAP_ADDRESSES : Linkify.ALL);
 			for (URLSpan span : currentSpans) {
 				buffer.setSpan(span, text.getSpanStart(span), text.getSpanEnd(span), 0);
 			}
 			return buffer;
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error while linkify-ing '%s'!", html);
-			return html;
+			MTLog.w(TAG, e, "Error while linkify-ing '%s'!", originalText);
+			return originalText;
 		}
 	}
 
@@ -79,6 +80,10 @@ public final class LinkUtils implements MTLog.Loggable {
 			org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), activity.getString(R.string.email));
 			return true; // intercepted
 		}
+		if (LinkUtils.isPhoneNumberIntent(url)) {
+			org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), activity.getString(R.string.tel));
+			return true; // intercepted
+		}
 		if (LinkUtils.isPDFIntent(url)) {
 			org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), activity.getString(R.string.file));
 			return true; // intercepted
@@ -107,6 +112,21 @@ public final class LinkUtils implements MTLog.Loggable {
 	public static boolean isEmailIntent(Uri uri) {
 		if (uri != null) {
 			if (EMAIL_SCHEME.equals(uri.getScheme())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static final String TEL_SCHEME = "tel";
+
+	public static boolean isPhoneNumberIntent(String url) {
+		return isPhoneNumberIntent(Uri.parse(url));
+	}
+
+	public static boolean isPhoneNumberIntent(Uri uri) {
+		if (uri != null) {
+			if (TEL_SCHEME.equals(uri.getScheme())) {
 				return true;
 			}
 		}
