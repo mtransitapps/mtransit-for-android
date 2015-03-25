@@ -39,6 +39,10 @@ import org.mtransit.android.ui.fragment.NearbyFragment;
 import org.mtransit.android.ui.fragment.RTSRouteFragment;
 import org.mtransit.android.ui.view.MTCompassView;
 import org.mtransit.android.ui.view.MTJPathsView;
+import org.mtransit.android.ui.view.MTOnClickListener;
+import org.mtransit.android.ui.view.MTOnItemClickListener;
+import org.mtransit.android.ui.view.MTOnItemLongClickListener;
+import org.mtransit.android.ui.view.MTOnLongClickListener;
 import org.mtransit.android.ui.view.MTPieChartPercentView;
 
 import android.app.Activity;
@@ -430,7 +434,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			gridLL.removeAllViews();
 			ArrayList<DataSourceType> allAgencyTypes = DataSourceProvider.get(activity).getAvailableAgencyTypes();
 			this.nbAgencyTypes = CollectionUtils.getSize(allAgencyTypes);
-			if (allAgencyTypes == null || allAgencyTypes.size() <= 1) {
+			if (allAgencyTypes == null || allAgencyTypes.size() < 2) {
 				gridLL.setVisibility(View.GONE);
 			} else {
 				int availableButtons = 0;
@@ -483,13 +487,22 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		showPoiViewerScreen(position);
+		MTOnItemClickListener.onItemClickS(parent, view, position, id, new MTOnItemClickListener() {
+			@Override
+			public void onItemClickMT(AdapterView<?> parent, View view, int position, long id) {
+				showPoiViewerScreen(position);
+			}
+		});
 	}
 
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-		showPoiMenu(position);
-		return true; // handled
+		return MTOnItemLongClickListener.onItemLongClickS(parent, view, position, id, new MTOnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClickMT(AdapterView<?> parent, View view, int position, long id) {
+				return showPoiMenu(position);
+			}
+		});
 	}
 
 	public static interface OnClickHandledListener {
@@ -514,60 +527,31 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		this.onPoiSelectedListenerWR = new WeakReference<POIArrayAdapter.OnPOISelectedListener>(onPoiSelectedListener);
 	}
 
-	public void showPoiViewerScreen(int position) {
-		new MTAsyncTask<Integer, Void, POIManager>() {
-
-			@Override
-			public String getLogTag() {
-				return POIArrayAdapter.class.getSimpleName() + ">showPoiViewerScreen";
+	public boolean showPoiViewerScreen(int position) {
+		boolean handled = false;
+		POIManager poim = getItem(position);
+		if (poim != null) {
+			OnPOISelectedListener listener = this.onPoiSelectedListenerWR == null ? null : this.onPoiSelectedListenerWR.get();
+			handled = listener != null && listener.onPOISelected(poim);
+			if (!handled) {
+				handled = showPoiViewerScreen(poim);
 			}
-
-			@Override
-			protected POIManager doInBackgroundMT(Integer... params) {
-				return getItem(params[0]);
-			}
-
-			@Override
-			protected void onPostExecute(POIManager poim) {
-				if (poim != null) {
-					OnPOISelectedListener listener = POIArrayAdapter.this.onPoiSelectedListenerWR == null ? null : POIArrayAdapter.this.onPoiSelectedListenerWR
-							.get();
-					boolean handled = listener != null && listener.onPOISelected(poim);
-					if (!handled) {
-						showPoiViewerScreen(poim);
-					}
-				}
-			}
-		}.executeOnExecutor(TaskUtils.THREAD_POOL_EXECUTOR, position);
+		}
+		return handled;
 	}
 
-	public void showPoiMenu(int position) {
-		new MTAsyncTask<Integer, Void, POIManager>() {
-
-			@Override
-			public String getLogTag() {
-				return POIArrayAdapter.class.getSimpleName() + ">showPoiMenu";
+	public boolean showPoiMenu(int position) {
+		boolean handled = false;
+		POIManager poim = getItem(position);
+		if (poim != null) {
+			OnPOISelectedListener listener = this.onPoiSelectedListenerWR == null ? null : this.onPoiSelectedListenerWR.get();
+			handled = listener != null && listener.onPOILongSelected(poim);
+			if (!handled) {
+				handled = showPoiMenu(poim);
 			}
-
-			@Override
-			protected POIManager doInBackgroundMT(Integer... params) {
-				return getItem(params[0]);
-			}
-
-			@Override
-			protected void onPostExecute(POIManager poim) {
-				if (poim != null) {
-					OnPOISelectedListener listener = POIArrayAdapter.this.onPoiSelectedListenerWR == null ? null : POIArrayAdapter.this.onPoiSelectedListenerWR
-							.get();
-					boolean handled = listener != null && listener.onPOILongSelected(poim);
-					if (!handled) {
-						showPoiMenu(poim);
-					}
-				}
-			}
-		}.executeOnExecutor(TaskUtils.THREAD_POOL_EXECUTOR, position);
+		}
+		return handled;
 	}
-
 
 	@Override
 	public boolean areAllItemsEnabled() {
@@ -895,20 +879,19 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				frameLayout.addView(view);
 				View selectorView = new View(getContext());
 				SupportFactory.get().setBackground(selectorView, ThemeUtils.obtainStyledDrawable(getContext(), R.attr.selectableItemBackground));
-				selectorView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+				selectorView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 				frameLayout.addView(selectorView);
 				final int position = i;
-				frameLayout.setOnClickListener(new View.OnClickListener() {
+				frameLayout.setOnClickListener(new MTOnClickListener() {
 					@Override
-					public void onClick(View v) {
+					public void onClickMT(View view) {
 						showPoiViewerScreen(position);
 					}
 				});
-				frameLayout.setOnLongClickListener(new View.OnLongClickListener() {
+				frameLayout.setOnLongClickListener(new MTOnLongClickListener() {
 					@Override
-					public boolean onLongClick(View v) {
-						showPoiMenu(position);
-						return true; // handled
+					public boolean onLongClickkMT(View view) {
+						return showPoiMenu(position);
 					}
 				});
 				this.manualLayout.addView(frameLayout);
