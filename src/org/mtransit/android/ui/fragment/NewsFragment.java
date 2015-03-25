@@ -442,14 +442,21 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 
 		@Override
-		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-			News news = getItem(position);
-			if (news != null) {
-				Activity activity = getActivityOrNull();
-				if (activity != null) {
+		public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+			view.post(new Runnable() {
+				@Override
+				public void run() {
+					News news = getItem(position);
+					if (news == null) {
+						return;
+					}
+					Activity activity = getActivityOrNull();
+					if (activity == null) {
+						return;
+					}
 					((MainActivity) activity).addFragmentToStack(NewsDetailsFragment.newInstance(news.getUUID(), news.getAuthority(), news));
 				}
-			}
+			});
 		}
 
 		@Override
