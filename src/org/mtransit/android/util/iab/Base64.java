@@ -125,6 +125,7 @@ public class Base64 {
 		return new String(outBuff, 0, outLen);
 	}
 
+	@SuppressWarnings("all")
 	public static byte[] encode(byte[] source, int off, int len, byte[] alphabet, int maxLineLength) {
 		int lenDiv3 = (len + 2) / 3; // ceil(len / 3)
 		int len43 = lenDiv3 * 4;

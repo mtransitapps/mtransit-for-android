@@ -48,7 +48,8 @@ android {
         }
     }
     lintOptions {
-        abortOnError false
+        abortOnError true
+        disable 'InvalidPackage', 'ClickableViewAccessibility', 'MergeRootFrame', 'Overdraw', 'UselessParent', 'IconDensities'
     }
     sourceSets {
         main {
