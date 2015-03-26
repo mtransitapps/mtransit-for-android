@@ -17,6 +17,7 @@ public abstract class MTOnClickListener implements View.OnClickListener {
 		}
 		if (view == null) {
 			listener.onClickMT(view);
+			return;
 		}
 		view.post(new Runnable() {
 			@Override
