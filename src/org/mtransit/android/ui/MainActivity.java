@@ -196,7 +196,6 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		AdsUtils.destroyAd(this);
 		VendingUtils.destroyBilling(this);
 		DataSourceProvider.removeModulesUpdateListener(this);
 		if (this.abController != null) {
@@ -212,6 +211,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 			this.fragmentsToPopWR = null;
 		}
 		DataSourceProvider.destroy();
+		AdsUtils.destroyAd(this);
 	}
 
 	@Override

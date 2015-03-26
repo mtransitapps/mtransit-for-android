@@ -10,6 +10,7 @@ import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.util.LinkUtils;
 
 import android.content.BroadcastReceiver;
@@ -192,10 +193,9 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 				TextView dateTv = (TextView) view.findViewById(R.id.date);
 				dateTv.setText(TimeUtils.formatRelativeTime(getActivity(), news.getCreatedAtInMs()));
 				final String newWebURL = TextUtils.isEmpty(news.getWebURL()) ? news.getAuthorProfileURL() : news.getWebURL();
-				dateTv.setOnClickListener(new View.OnClickListener() {
-
+				dateTv.setOnClickListener(new MTOnClickListener() {
 					@Override
-					public void onClick(View v) {
+					public void onClickMT(View view) {
 						LinkUtils.open(getActivity(), newWebURL, getString(R.string.web_browser), true);
 					}
 				});

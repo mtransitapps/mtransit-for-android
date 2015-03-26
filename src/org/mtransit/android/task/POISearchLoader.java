@@ -22,7 +22,7 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
-import org.mtransit.android.ui.fragment.SearchFragment.TypeFilter;
+import org.mtransit.android.ui.fragment.SearchFragment;
 
 import android.content.Context;
 import android.location.Location;
@@ -41,11 +41,11 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 
 	private String query;
 
-	private TypeFilter typeFilter;
+	private SearchFragment.TypeFilter typeFilter;
 
 	private Location userLocation;
 
-	public POISearchLoader(Context context, String query, TypeFilter typeFilter, Location userLocation) {
+	public POISearchLoader(Context context, String query, SearchFragment.TypeFilter typeFilter, Location userLocation) {
 		super(context);
 		this.query = query;
 		this.typeFilter = typeFilter;
@@ -66,7 +66,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 		POISearchComparator poiSearchComparator = new POISearchComparator(favoriteUUIDs);
 		boolean keepAll;
 		ArrayList<DataSourceType> agencyTypes;
-		if (this.typeFilter == null || this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
+		if (this.typeFilter == null || this.typeFilter.getDataSourceTypeId() == SearchFragment.TypeFilter.ALL.getDataSourceTypeId()) {
 			agencyTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
 			keepAll = false;
 		} else {
@@ -80,8 +80,8 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 				if (!agencyType.isSearchable()) {
 					continue;
 				}
-				FindSearchTypeTask task = new FindSearchTypeTask(getContext(), agencyType, this.query, keepAll, this.userLocation, poiSearchComparator);
-				taskList.add(getFetchSearchTypeExecutor().submit(task));
+				taskList.add(getFetchSearchTypeExecutor().submit(
+						new FindSearchTypeTask(getContext(), agencyType, this.query, keepAll, this.userLocation, poiSearchComparator)));
 			}
 		}
 		for (Future<ArrayList<POIManager>> future : taskList) {

@@ -16,6 +16,7 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.RTSAgencyRoutesLoader;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTJPathsView;
+import org.mtransit.android.ui.view.MTOnItemClickListener;
 import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
@@ -224,10 +225,24 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		Route selectedRoute = this.adapter == null ? null : this.adapter.getItem(position);
-		if (selectedRoute != null) {
-			((MainActivity) getActivity()).addFragmentToStack(RTSRouteFragment.newInstance(this.authority, selectedRoute.getId(), null, null, selectedRoute));
-		}
+		MTOnItemClickListener.onItemClickS(parent, view, position, id, new MTOnItemClickListener() {
+			@Override
+			public void onItemClickMT(AdapterView<?> parent, View view, int position, long id) {
+				Activity activity = getActivity();
+				if (activity == null) {
+					return;
+				}
+				if (TextUtils.isEmpty(RTSAgencyRoutesFragment.this.authority)) {
+					return;
+				}
+				Route selectedRoute = RTSAgencyRoutesFragment.this.adapter == null ? null : RTSAgencyRoutesFragment.this.adapter.getItem(position);
+				if (selectedRoute == null) {
+					return;
+				}
+				((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(RTSAgencyRoutesFragment.this.authority, selectedRoute.getId(), null,
+						null, selectedRoute));
+			}
+		});
 	}
 
 	@Override

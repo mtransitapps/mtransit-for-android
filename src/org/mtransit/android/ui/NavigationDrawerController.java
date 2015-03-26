@@ -12,6 +12,7 @@ import org.mtransit.android.data.MenuAdapter;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.fragment.ABFragment;
+import org.mtransit.android.ui.view.MTOnItemClickListener;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -146,7 +147,12 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		selectItem(position, true);
+		MTOnItemClickListener.onItemClickS(parent, view, position, id, new MTOnItemClickListener() {
+			@Override
+			public void onItemClickMT(AdapterView<?> parent, View view, int position, long id) {
+				selectItem(position, true);
+			}
+		});
 	}
 
 	private void selectItem(int position, boolean clearStack) {

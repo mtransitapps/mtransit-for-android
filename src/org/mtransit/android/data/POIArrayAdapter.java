@@ -459,10 +459,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					} else {
 						btnTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
 					}
-					btn.setOnClickListener(new View.OnClickListener() {
-
+					btn.setOnClickListener(new MTOnClickListener() {
 						@Override
-						public void onClick(View v) {
+						public void onClickMT(View view) {
 							onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_ALL, dst);
 						}
 					});
@@ -1168,25 +1167,25 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getMenuResId(), 0, 0, 0);
 		}
 		if (holder.allBtn != null) {
-			holder.allBtn.setOnClickListener(new View.OnClickListener() {
+			holder.allBtn.setOnClickListener(new MTOnClickListener() {
 				@Override
-				public void onClick(View v) {
+				public void onClickMT(View view) {
 					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_ALL, type);
 				}
 			});
 		}
 		if (holder.nearbyBtn != null) {
-			holder.nearbyBtn.setOnClickListener(new View.OnClickListener() {
+			holder.nearbyBtn.setOnClickListener(new MTOnClickListener() {
 				@Override
-				public void onClick(View v) {
+				public void onClickMT(View view) {
 					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_NEARBY, type);
 				}
 			});
 		}
 		if (holder.moreBtn != null) {
-			holder.moreBtn.setOnClickListener(new View.OnClickListener() {
+			holder.moreBtn.setOnClickListener(new MTOnClickListener() {
 				@Override
-				public void onClick(View v) {
+				public void onClickMT(View view) {
 					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_MORE, type);
 				}
 			});
@@ -1526,17 +1525,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				}
 				holder.rtsExtraV.setBackgroundColor(poim.getColor(getContext()));
 				final Integer stopId = rts.getStop() == null ? null : rts.getStop().getId();
-				holder.rtsExtraV.setOnClickListener(new View.OnClickListener() {
-
+				holder.rtsExtraV.setOnClickListener(new MTOnClickListener() {
 					@Override
-					public void onClick(View v) {
+					public void onClickMT(View view) {
 						Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
-						if (activity != null && activity instanceof MainActivity) {
-							leaving();
-							((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(authority, route.getId(), tripId, stopId, route));
-						} else {
+						if (activity == null || !(activity instanceof MainActivity)) {
 							MTLog.w(POIArrayAdapter.this, "No activity available to open RTS fragment!");
+							return;
 						}
+						leaving();
+						((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(authority, route.getId(), tripId, stopId, route));
 					}
 				});
 			}

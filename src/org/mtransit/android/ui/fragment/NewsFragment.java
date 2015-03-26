@@ -14,6 +14,7 @@ import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.task.NewsLoader;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.view.MTOnItemClickListener;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 import org.mtransit.android.util.LoaderUtils;
 
@@ -277,7 +278,6 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (listView != null) {
 			((AbsListView) listView).setAdapter(this.adapter);
 			((AbsListView) listView).setOnItemClickListener(this.adapter);
-			((AbsListView) listView).setOnItemLongClickListener(this.adapter);
 		}
 	}
 
@@ -367,8 +367,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		return super.getABBgColor(context);
 	}
 
-	private static class NewsAdapter extends MTArrayAdapter<News> implements TimeUtils.TimeChangedReceiver.TimeChangedListener,
-			AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+	private static class NewsAdapter extends MTArrayAdapter<News> implements TimeUtils.TimeChangedReceiver.TimeChangedListener, AdapterView.OnItemClickListener {
 
 		private static final String TAG = NewsAdapter.class.getSimpleName();
 
@@ -443,9 +442,9 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-			view.post(new Runnable() {
+			MTOnItemClickListener.onItemClickS(parent, view, position, id, new MTOnItemClickListener() {
 				@Override
-				public void run() {
+				public void onItemClickMT(AdapterView<?> parent, View view, int position, long id) {
 					News news = getItem(position);
 					if (news == null) {
 						return;
@@ -457,11 +456,6 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 					((MainActivity) activity).addFragmentToStack(NewsDetailsFragment.newInstance(news.getUUID(), news.getAuthority(), news));
 				}
 			});
-		}
-
-		@Override
-		public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-			return false;
 		}
 
 		@Override

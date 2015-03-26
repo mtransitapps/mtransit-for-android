@@ -293,13 +293,17 @@ public class POIViewController implements MTLog.Loggable {
 				}
 				holder.rtsExtraV.setBackgroundColor(poim.getColor(context));
 				final Integer stopId = rts.getStop() == null ? null : rts.getStop().getId();
-				holder.rtsExtraV.setOnClickListener(new View.OnClickListener() {
+				holder.rtsExtraV.setOnClickListener(new MTOnClickListener() {
 					@Override
-					public void onClick(View v) {
-						if (dataProvider != null) {
-							MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
-							mainActivity.addFragmentToStack(RTSRouteFragment.newInstance(authority, route.getId(), tripId, stopId, route));
+					public void onClickMT(View view) {
+						if (dataProvider == null) {
+							return;
 						}
+						MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
+						if (mainActivity == null) {
+							return;
+						}
+						mainActivity.addFragmentToStack(RTSRouteFragment.newInstance(authority, route.getId(), tripId, stopId, route));
 					}
 				});
 			}

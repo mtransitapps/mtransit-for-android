@@ -5,6 +5,7 @@ import java.lang.ref.WeakReference;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.fragment.ABFragment;
+import org.mtransit.android.ui.view.MTOnClickListener;
 
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
@@ -379,7 +380,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		return false; // not handled
 	}
 
-	private static class UpOnClickListener implements View.OnClickListener {
+	private static class UpOnClickListener extends MTOnClickListener {
 
 		private WeakReference<MainActivity> mainActivityWR;
 
@@ -388,7 +389,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 
 		@Override
-		public void onClick(View v) {
+		public void onClickMT(View view) {
 			MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 			if (mainActivity != null) {
 				mainActivity.onUpIconClick();
@@ -397,9 +398,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	public static interface ActionBarColorizer {
-
 		int getBgColor(int position);
-
 	}
 
 	public static class SimpleActionBarColorizer implements ActionBarColorizer {
@@ -415,5 +414,4 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			bgColors = colors;
 		}
 	}
-
 }

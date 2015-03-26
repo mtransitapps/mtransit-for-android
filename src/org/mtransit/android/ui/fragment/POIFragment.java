@@ -14,6 +14,7 @@ import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SensorUtils;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.data.POIStatus;
@@ -23,7 +24,6 @@ import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
-import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
@@ -35,6 +35,7 @@ import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.POINewsViewController;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
@@ -599,10 +600,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			if (CollectionUtils.getSize(scheduleProviders) == 0) {
 				rtsScheduleBtn.setVisibility(View.GONE);
 			} else {
-				rtsScheduleBtn.setOnClickListener(new View.OnClickListener() {
-
+				rtsScheduleBtn.setOnClickListener(new MTOnClickListener() {
 					@Override
-					public void onClick(View v) {
+					public void onClickMT(View view) {
 						POIManager poim = getPoimOrNull();
 						if (poim == null || !(poim.poi instanceof RouteTripStop)) {
 							MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RTS)");
@@ -624,9 +624,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		View newsView = view.findViewById(R.id.poi_news);
 		View moreBtn = newsView == null ? null : newsView.findViewById(R.id.moreBtn);
 		if (moreBtn != null) {
-			moreBtn.setOnClickListener(new View.OnClickListener() {
+			moreBtn.setOnClickListener(new MTOnClickListener() {
 				@Override
-				public void onClick(View v) {
+				public void onClickMT(View view) {
 					POIManager poim = getPoimOrNull();
 					if (poim == null) {
 						return;
@@ -647,9 +647,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 		View moreBtn = view.findViewById(R.id.poi_nearby_pois_title).findViewById(R.id.moreBtn);
 		if (moreBtn != null) {
-			moreBtn.setOnClickListener(new View.OnClickListener() {
+			moreBtn.setOnClickListener(new MTOnClickListener() {
 				@Override
-				public void onClick(View v) {
+				public void onClickMT(View view) {
 					Activity activity = getActivity();
 					if (activity == null) {
 						return;
@@ -711,9 +711,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			if (layoutResId != null) {
 				((ViewStub) view.findViewById(R.id.poi_news_stub)).setLayoutResource(layoutResId);
 				((ViewStub) view.findViewById(R.id.poi_news_stub)).inflate(); // inflate
-				view.findViewById(R.id.the_poi_news).setOnClickListener(new View.OnClickListener() {
+				view.findViewById(R.id.the_poi_news).setOnClickListener(new MTOnClickListener() {
 					@Override
-					public void onClick(View view) {
+					public void onClickMT(View view) {
 						view.post(new Runnable() {
 							@Override
 							public void run() {

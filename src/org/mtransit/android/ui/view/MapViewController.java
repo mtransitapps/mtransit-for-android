@@ -388,10 +388,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return;
 		}
 		setTypeSwitchImg();
-		this.typeSwitchView.setOnClickListener(new View.OnClickListener() {
-
+		this.typeSwitchView.setOnClickListener(new MTOnClickListener() {
 			@Override
-			public void onClick(View v) {
+			public void onClickMT(View view) {
 				switchMapType();
 			}
 		});
@@ -927,6 +926,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		public java.util.Set<HashMap.Entry<String, String>> entrySet() {
 			return this.uuidsAndAuthority.entrySet();
 		}
+
 		public HashMap<String, String> getMap() {
 			return this.uuidsAndAuthority;
 		}
