@@ -348,27 +348,34 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			return false;
 		}
 		POIManager poim = getPoimOrNull();
-		if (poim != null) {
-			HashSet<NewsProviderProperties> poiNewsProviders = DataSourceProvider.get(getActivity()).getTargetAuthorityNewsProviders(poim.poi.getAuthority());
-			if (poiNewsProviders != null) {
-				ArrayList<News> allNews = new ArrayList<News>();
-				for (NewsProviderProperties poiNewsProvider : poiNewsProviders) {
-					ArrayList<News> providerNews = DataSourceManager.findNews(getActivity(), poiNewsProvider.getAuthority(),
-							NewsProviderContract.Filter.getNewTargetFilter(poim.poi));
-					if (providerNews != null) {
-						allNews.addAll(providerNews);
-					}
-				}
-				if (allNews.size() > 0) {
-					long nowInMs = TimeUtils.currentTimeMillis();
-					CollectionUtils.sort(allNews, News.NEWS_SEVERITY_COMPARATOR);
-					for (News news : allNews) {
-						if (nowInMs - news.getCreatedAtInMs() <= news.getNoteworthyInMs()) {
-							this.news = news;
-							break;
-						}
-					}
-				}
+		if (poim == null) {
+			return false;
+		}
+		Context context = getActivity();
+		if (context == null) {
+			return false;
+		}
+		HashSet<NewsProviderProperties> poiNewsProviders = DataSourceProvider.get(context).getTargetAuthorityNewsProviders(poim.poi.getAuthority());
+		if (CollectionUtils.getSize(poiNewsProviders) == 0) {
+			return false;
+		}
+		ArrayList<News> allNews = new ArrayList<News>();
+		for (NewsProviderProperties poiNewsProvider : poiNewsProviders) {
+			ArrayList<News> providerNews = DataSourceManager.findNews(context, poiNewsProvider.getAuthority(),
+					NewsProviderContract.Filter.getNewTargetFilter(poim.poi));
+			if (providerNews != null) {
+				allNews.addAll(providerNews);
+			}
+		}
+		if (CollectionUtils.getSize(allNews) == 0) {
+			return false;
+		}
+		long nowInMs = TimeUtils.currentTimeMillis();
+		CollectionUtils.sort(allNews, News.NEWS_SEVERITY_COMPARATOR);
+		for (News news : allNews) {
+			if (nowInMs - news.getCreatedAtInMs() <= news.getNoteworthyInMs()) {
+				this.news = news;
+				break;
 			}
 		}
 		return this.news != null;
