@@ -723,20 +723,15 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 				view.findViewById(R.id.the_poi_news).setOnClickListener(new MTOnClickListener() {
 					@Override
 					public void onClickMT(View view) {
-						view.post(new Runnable() {
-							@Override
-							public void run() {
-								News news = getNewsOrNull();
-								if (news == null) {
-									return;
-								}
-								Activity activity = getActivity();
-								if (activity == null) {
-									return;
-								}
-								((MainActivity) activity).addFragmentToStack(NewsDetailsFragment.newInstance(news.getUUID(), news.getAuthority(), news));
-							}
-						});
+						News news = getNewsOrNull();
+						if (news == null) {
+							return;
+						}
+						Activity activity = getActivity();
+						if (activity == null) {
+							return;
+						}
+						((MainActivity) activity).addFragmentToStack(NewsDetailsFragment.newInstance(news.getUUID(), news.getAuthority(), news));
 					}
 				});
 			}
