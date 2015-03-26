@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.ArrayUtils;
@@ -359,10 +360,12 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (CollectionUtils.getSize(poiNewsProviders) == 0) {
 			return false;
 		}
+		long nowInMs = TimeUtils.currentTimeMillis();
+		long minCreatedAtInMs = nowInMs - TimeUnit.DAYS.toMillis(7);
 		ArrayList<News> allNews = new ArrayList<News>();
 		for (NewsProviderProperties poiNewsProvider : poiNewsProviders) {
 			ArrayList<News> providerNews = DataSourceManager.findNews(context, poiNewsProvider.getAuthority(),
-					NewsProviderContract.Filter.getNewTargetFilter(poim.poi));
+					NewsProviderContract.Filter.getNewTargetFilter(poim.poi).setMinCreatedAtInMs(minCreatedAtInMs));
 			if (providerNews != null) {
 				allNews.addAll(providerNews);
 			}
@@ -370,7 +373,6 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (CollectionUtils.getSize(allNews) == 0) {
 			return false;
 		}
-		long nowInMs = TimeUtils.currentTimeMillis();
 		CollectionUtils.sort(allNews, News.NEWS_SEVERITY_COMPARATOR);
 		for (News news : allNews) {
 			if (nowInMs - news.getCreatedAtInMs() <= news.getNoteworthyInMs()) {
