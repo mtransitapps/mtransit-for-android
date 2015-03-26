@@ -262,7 +262,12 @@ public final class AdsUtils implements MTLog.Loggable {
 		if (adLayout != null) {
 			AdView adView = (AdView) adLayout.findViewById(R.id.ad);
 			if (adView != null) {
-				adView.destroy();
+				try {
+					adView.removeAllViews();
+					adView.destroy();
+				} catch (Throwable t) {
+					MTLog.w(TAG, t, "Error while destroying ad view!");
+				}
 			}
 		}
 		adLoaded = null;
