@@ -16,6 +16,8 @@ Information about bikes, buses, subways and trains for the greater Montreal, QC,
 
 Real-time schedule and alerts (for some agencies).
 
+News from agencies websites, blogs, Twitter, YouTube…
+
 BETA: Thanks for your patience while the last features are being added and the last bugs are being fixed.
 
 Transit agencies available on Google Play (free):

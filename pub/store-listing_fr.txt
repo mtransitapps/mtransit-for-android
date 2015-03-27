@@ -16,6 +16,8 @@ Information sur les autobus, métros, trains et vélos de la région de Montréa
 
 Horaires et alertes en temps réel (pour certaines agences).
 
+Nouvelles des agences de transport provenant des sites Internet, blogues, Twitter, YouTube…
+
 BETA : Merci de votre patience pendant que les dernières fonctionnalités sont ajoutées et les derniers problèmes corrigés.
 
 Agences de transport disponible sur Google Play (gratuit) :
