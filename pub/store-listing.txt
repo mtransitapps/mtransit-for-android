@@ -1,4 +1,4 @@
-Title: MonTransit BETA
+Title: MonTransit
 ----------
 Short description:
 Montreal Transit in your pocket.
@@ -7,18 +7,24 @@ Offline & Real-Time.
 ----------
 What's new in this version?:
 Bug fixes & performance improvements.
-Agency news below next departures in stop/station screen.
-
-BETA: Thanks for your patience while the last features are being added and the last bugs are being fixed.
+Agency news below next departures / availability.
 ----------
 Full description:
-Information about bikes, buses, subways and trains for the greater Montreal, QC, Canada.
+<b>MonTransit effortlessly brings the most relevant transit information to you</b>, including buses, subways and trains schedules (offline & real-time), bike stations availability, service alerts and the latest news from agencies web sites, blogs, Twitter, YouTube…
 
-Real-time schedule and alerts (for some agencies).
+On the home screen, you can see all nearby buses, subways and trains next departures as well as nearby bike stations availability in a predictable user interface.
+You can access the information any way you want by using the sliding menu (click on the ☰ icon in the upper left corner of the screen or swipe from the left edge of any screen).
+For example, you can use the Map screen to discover new bus stops, subway stations, train stations or bike stations or you can search for a place by clicking on the 🔍 icon in the upper right corner of any screen.
 
-News from agencies websites, blogs, Twitter, YouTube…
+No Internet? GPS turned off? WiFi disabled? No problem, MonTransit offers multiple ways to find the information you're looking for:
+- you can access your ★ favorites or browse all transit information by using the sliding menu (click on the ☰ icon in the upper left corner of the screen or swipe from the left edge of any screen)
+- you can enter a route number # or name, stop code # or name, street names... by clicking on the search 🔍 icon in the upper right corner of any screen 
+- all buses, subways and trains schedule are available offline
 
-BETA: Thanks for your patience while the last features are being added and the last bugs are being fixed.
+MonTransit lets you install the transit agencies that you want (you don't have to switch between cities & you can access all the information any time, anywhere).
+The buses, subways and trains information are kept up-to-date through Google Play Store auto-updates without using your device's battery or mobile Internet data plan (3G/4G/LTE).
+
+MonTransit is currently available for the greater Montreal in Quebec, Canada.
 
 Transit agencies available on Google Play (free):
 <b>Bikes:</b>
@@ -48,6 +54,18 @@ Transit agencies available on Google Play (free):
 <b>Trains:</b>
  - AMT (Montreal): http://goo.gl/nvQd13
 
+All the features are available for free (no paywall) but you can support the project (and hide ads) by paying a Google Play subscription (1 month free, cancel any time).
+
+You are our customers and only source of revenues.
+Thank You.
+
+Social: 
+- Facebook: https://facebook.com/MonTransit
+- Google+: http://gplus.to/MonTransit
+- Twitter: https://twitter.com/montransit
+
+Learn more about the BETA program here: http://goo.gl/IoV6Zn
+
 This app is free and open-source:
 https://github.com/mtransitapps/mtransit-for-android
 
@@ -56,6 +74,10 @@ Permissions:
 - Location: required to show nearby transit information & show distance & compass
 - Photo/Media/Files: required by Google Maps
 - Other: required by Google Analytics & Google Mobile Ads (AdMob) & Google Maps
+
+Made with ♥ in Montreal.
+
+Aka: Mon Transit, MyTransit, My Transit, MonTransport, Mon Transport
 ----------
 Application type: Applications
 ----------

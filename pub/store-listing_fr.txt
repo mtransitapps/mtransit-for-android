@@ -1,4 +1,4 @@
-Title: MonTransit BETA
+Title: MonTransit
 ----------
 Short description:
 Transport Montréal dans votre poche
@@ -7,18 +7,24 @@ Hors-Ligne & Temps-Réel
 ----------
 What's new in this version?:
 Correction de problèmes & Amélioration des performances.
-Nouvelles de l'agence de transport en dessous des prochains départs dans l'écran arrêt/gare/station.
-
-BETA : Merci de votre patience pendant que les dernières fonctionnalités sont ajoutées et les derniers problèmes sont corrigés.
+Nouvelles de l'agence de transport en dessous des prochains départs / disponibilité.
 ----------
 Full description:
-Information sur les autobus, métros, trains et vélos de la région de Montréal, QC, Canada.
+<b>MonTransit vous donne accès sans effort aux informations de transport en commun les plus pertinentes</b>, incluant les horaires (hors-ligne & temps-réel) des autobus, métros et trains, la disponibilités des stations vélos, messages d'alertes et les dernières nouvelles des agences de tranport provenant de leurs sites Internet, blogues, Twitter, YouTube…
 
-Horaires et alertes en temps réel (pour certaines agences).
+Sur l'écran d'accueil, vous pouvez voir les prochains départs de tous les autobus, métros et trains ainsi que la disponibilité des stations de vélo à proximité dans une interface prévisible.
+Vous pouvez naviguez l'information comme vous le souhaitez en utilisant le menu coullissant (cliquez sur l'icône ☰ dans le coin supérieur gauche de l'écran).
+Par exemple, vous pouvez utiliser l'écran Carte pour découvrir les transports disponibles à proximité ou vous pouvez chercher un lieu en cliquant sur l'icône 🔍 recherche
 
-Nouvelles des agences de transport provenant des sites Internet, blogues, Twitter, YouTube…
+Pas d'accès Internet ? GPS désactivé ? WiFi éteint ? Pas de problème, MonTransit offre de multiples façons de trouver l'information que vous cherchez :
+- vous pouvez accéder à vos favoris ★ ou parcourir toutes les informations de transport en utilisant le menu coulissant (cliquez sur l'icône ☰ dans le coin supérieur gauche de l'écran)
+- vous pouvez entrer le numéro # ou le nom d'une ligne, le code # ou le nom d'un arrêt ou d'une station, les noms de rues ... en cliquant sur l'icône 🔍 recherche
+- toutes les horaires des autobus, métros et trains sont disponibles hors-ligne
 
-BETA : Merci de votre patience pendant que les dernières fonctionnalités sont ajoutées et les derniers problèmes corrigés.
+MonTransit vous permet d'installer les agences de transports que vous voulez (vous n'avez pas à passer d'une ville à une autre & vous pouvez accèder à toutes les informations n'importe quand, n'importe où).
+Les informations des autobus, métros et trains sont mises à jours via le Google Play Store sans utiliser votre batterie ou les données de votre forfait (3G/4G/LTE).
+
+MonTransit est actuellement disponible dans la région de Montréal au Québec, Canada.
 
 Agences de transport disponible sur Google Play (gratuit) :
 <b>Autobus :</b>
@@ -47,6 +53,18 @@ Agences de transport disponible sur Google Play (gratuit) :
  - AMT (Montréal) : http://goo.gl/nvQd13
 <b>Vélos :</b>
  - BIXI (Montréal) : http://goo.gl/omUanh
+
+Toutes les fonctionnalités sont disponibles gratuitement mais vous pouvez soutenis le projet (et cacher les publicités) en payant un abonnement Google Play (1 mois gratuit, annulable en tout temps).
+
+Vous êtes nos clients et seule source de revenus.
+Merci.
+
+Réseaux sociaux :
+- Facebook: https://facebook.com/MonTransit
+- Google+: http://gplus.to/MonTransit
+- Twitter: https://twitter.com/montransit
+
+Pour en savoir plus sur notre programme BETA, cliquez ici : http://goo.gl/IoV6Zn
 
 Cette application est gratuite et ouverte :
 https://github.com/mtransitapps/mtransit-for-android
