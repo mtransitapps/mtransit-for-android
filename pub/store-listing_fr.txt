@@ -74,3 +74,5 @@ Autorisations :
 - Position: requis pour afficher les informations de transport à proximité ainsi que la distances et la boussole
 - Photos/Contenus multimédias/Fichiers: requis par Google Maps
 - Autres: requis par Google Analytics & Google Mobile Ads (AdMob) & Google Maps
+----------
+Promo Video: https://www.youtube.com/watch?v=B_wH1FH5IX8
