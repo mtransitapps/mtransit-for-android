@@ -434,13 +434,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			gridLL.removeAllViews();
 			ArrayList<DataSourceType> allAgencyTypes = DataSourceProvider.get(activity).getAvailableAgencyTypes();
 			this.nbAgencyTypes = CollectionUtils.getSize(allAgencyTypes);
-			if (allAgencyTypes == null || allAgencyTypes.size() < 2) {
+			if (allAgencyTypes == null) {
 				gridLL.setVisibility(View.GONE);
 			} else {
 				int availableButtons = 0;
 				View gridLine = null;
+				View btn = null;
+				TextView btnTv = null;
 				for (final DataSourceType dst : allAgencyTypes) {
-					if (availableButtons == 0 && dst.getId() == DataSourceType.TYPE_MODULE.getId()) {
+					if (dst.getId() == DataSourceType.TYPE_MODULE.getId() && availableButtons == 0 && allAgencyTypes.size() > 2) {
 						continue;
 					}
 					if (dst.getId() == DataSourceType.TYPE_PLACE.getId()) {
@@ -451,8 +453,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 						gridLL.addView(gridLine);
 						availableButtons = 2;
 					}
-					View btn = gridLine.findViewById(availableButtons == 2 ? R.id.btn1 : R.id.btn2);
-					TextView btnTv = (TextView) gridLine.findViewById(availableButtons == 2 ? R.id.btn1Tv : R.id.btn2Tv);
+					btn = gridLine.findViewById(availableButtons == 2 ? R.id.btn1 : R.id.btn2);
+					btnTv = (TextView) gridLine.findViewById(availableButtons == 2 ? R.id.btn1Tv : R.id.btn2Tv);
 					btnTv.setText(dst.getAllStringResId());
 					if (dst.getAbIconResId() != -1) {
 						btnTv.setCompoundDrawablesWithIntrinsicBounds(dst.getAbIconResId(), 0, 0, 0);
@@ -467,6 +469,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					});
 					btn.setVisibility(View.VISIBLE);
 					availableButtons--;
+				}
+				if (gridLine != null && availableButtons == 1) {
+					gridLine.findViewById(R.id.btn2).setVisibility(View.GONE);
 				}
 				gridLL.setVisibility(View.VISIBLE);
 			}
