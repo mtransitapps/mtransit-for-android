@@ -32,3 +32,9 @@ Learn more about the BETA program [here](https://github.com/mtransitapps/mtransi
 ## License
 
 * [Apache Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
+
+## Other
+
+[![Build Status](https://travis-ci.org/mtransitapps/gradle-project.svg)](https://travis-ci.org/mtransitapps/gradle-project)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/3792/badge.svg)](https://scan.coverity.com/projects/3792)
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mtransitapps/mtransit-for-android/trend.png)](https://bitdeli.com/free)
