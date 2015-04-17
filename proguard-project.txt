@@ -19,6 +19,19 @@
 #   public *;
 #}
 
+# MT - START
+-dontobfuscate
+-keep class org.mtransit.**  { *; }
+# MT - END
+
+# SUPPORT V7 APPCOMPAT - START
+-keep public class android.support.v7.widget.** { *; }
+-keep public class android.support.v7.internal.widget.** { *; }
+-keep public class * extends android.support.v4.view.ActionProvider {
+    public <init>(android.content.Context);
+}
+# SUPPORT V7 APPCOMPAT - END
+
 # GOOGLE PLAY SERVICES - START
 -keep class * extends java.util.ListResourceBundle {
     protected Object[][] getContents();
@@ -51,6 +64,13 @@
 # GOOGLE PLAY IN-APP BILLING - START
 -keep class com.android.vending.billing.**
 # GOOGLE PLAY IN-APP BILLING - END
+
+# TWITTER4J - START
+-keep class twitter4j.**  { *; }
+-dontwarn com.google.code.**
+-dontwarn oauth.signpost.**
+-dontwarn twitter4j.**
+# TWITTER4J - END
 
 # FIX SAMSUNG/WIKO MESS - START
 # https://code.google.com/p/android/issues/detail?id=78377
