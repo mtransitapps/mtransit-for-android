@@ -56,6 +56,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
@@ -277,19 +278,22 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 		this.isFavorite = null; // reset
 		View view = getView();
+		FragmentActivity activity = getActivity();
 		this.mapViewController.notifyMarkerChanged(this);
 		this.mapViewController.showMap(view);
-		POIViewController.updateView(getActivity(), getPOIView(view), this.poim, this);
+		POIViewController.updateView(activity, getPOIView(view), this.poim, this);
 		AgencyProperties agency = getAgencyOrNull();
 		if (agency != null) {
-			POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), agency, this.poim, this);
+			POIStatusDetailViewController.updateView(activity, getPOIStatusView(view), agency, this.poim, this);
 		}
-		POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(view), this.poim, this);
-		POINewsViewController.updateView(getActivity(), getPOINewsView(view), getNewsOrNull());
+		POIServiceUpdateViewController.updateView(activity, getPOIServiceUpdateView(view), this.poim, this);
+		POINewsViewController.updateView(activity, getPOINewsView(view), getNewsOrNull());
 		setupRTSFullScheduleBtn(view);
 		setupMoreNewsButton(view);
 		setupMoreNearbyButton(view);
-		getActivity().supportInvalidateOptionsMenu(); // add/remove star from action bar
+		if (activity != null) {
+			activity.supportInvalidateOptionsMenu(); // add/remove star from action bar
+		}
 		setupNearbyList();
 	}
 

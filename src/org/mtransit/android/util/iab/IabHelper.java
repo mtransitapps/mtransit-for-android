@@ -150,7 +150,11 @@ public class IabHelper implements MTLog.Loggable {
 	public void dispose() {
 		mSetupDone = false;
 		if (mServiceConn != null) {
-			if (mContext != null) mContext.unbindService(mServiceConn);
+			try {
+				if (mContext != null) mContext.unbindService(mServiceConn);
+			} catch (Exception e) { // fix crash in production
+				MTLog.w(this, e, "Error while unbinding service!");
+			}
 		}
 		mDisposed = true;
 		mContext = null;
