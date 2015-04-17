@@ -51,3 +51,8 @@
 # GOOGLE PLAY IN-APP BILLING - START
 -keep class com.android.vending.billing.**
 # GOOGLE PLAY IN-APP BILLING - END
+
+# FIX SAMSUNG/WIKO MESS - START
+# https://code.google.com/p/android/issues/detail?id=78377
+-keep class !android.support.v7.internal.view.menu.**,** {*;}
+# FIX SAMSUNG/WIKO MESS - END
