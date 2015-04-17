@@ -42,6 +42,8 @@ android {
             versionNameSuffix "_DEBUG"
         }
         release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
             if (keysFile.exists()) {
                 signingConfig signingConfigs.release
             }
