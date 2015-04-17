@@ -969,6 +969,10 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 		@Override
 		protected Collection<POIMarker> doInBackgroundMT(Void... params) {
+			Activity activity = getActivityOrNull();
+			if (activity == null) {
+				return null;
+			}
 			MapMarkerProvider markerProvider = MapViewController.this.markerProviderWR == null ? null : MapViewController.this.markerProviderWR.get();
 			if (markerProvider == null) {
 				return null;
@@ -997,7 +1001,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				positionTrunc = POIMarker.getLatLngTrunc(poim);
 				name = poim.poi.getName();
 				extra = null;
-				agency = DataSourceProvider.get(getActivityOrNull()).getAgency(getActivityOrNull(), poim.poi.getAuthority());
+				agency = DataSourceProvider.get(activity).getAgency(activity, poim.poi.getAuthority());
 				if (agency == null) {
 					continue;
 				}
@@ -1007,7 +1011,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				agencyShortName = MapViewController.this.markerLabelShowExtra ? agency.getShortName() : null;
 				uuid = poim.poi.getUUID();
 				authority = poim.poi.getAuthority();
-				color = POIManager.getColor(getActivityOrNull(), poim.poi, null);
+				color = POIManager.getColor(activity, poim.poi, null);
 				secondaryColor = agency.getColorInt();
 				if (clusterItems.containsKey(positionTrunc)) {
 					clusterItems.get(positionTrunc).merge(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority);
