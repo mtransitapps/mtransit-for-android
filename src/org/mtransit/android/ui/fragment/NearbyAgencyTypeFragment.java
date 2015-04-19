@@ -63,7 +63,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	}
 
 	private POIArrayAdapter adapter;
-	private LocationUtils.AroundDiff ad = null;
+	private LocationUtils.AroundDiff ad = LocationUtils.getNewDefaultAroundDiff();
 	private Double lastEmptyAroundDiff = null;
 	private Location nearbyLocation;
 	private Location userLocation;
