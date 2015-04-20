@@ -736,12 +736,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				@Override
 				protected Void doInBackgroundMT(Location... params) {
 					android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-					if (POIArrayAdapter.this.poisByType != null) {
-						Iterator<ArrayList<POIManager>> it = POIArrayAdapter.this.poisByType.values().iterator();
-						while (it.hasNext()) {
-							ArrayList<POIManager> pois = it.next();
-							LocationUtils.updateDistanceWithString(POIArrayAdapter.this.getContext(), pois, params[0], this);
+					try {
+						if (POIArrayAdapter.this.poisByType != null) {
+							Iterator<ArrayList<POIManager>> it = POIArrayAdapter.this.poisByType.values().iterator();
+							while (it.hasNext()) {
+								LocationUtils.updateDistanceWithString(POIArrayAdapter.this.getContext(), it.next(), params[0], this);
+							}
 						}
+					} catch (Exception e) {
+						MTLog.w(POIArrayAdapter.this, e, "Error while update POIs distance strings!");
 					}
 					return null;
 				}

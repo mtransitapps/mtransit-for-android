@@ -289,6 +289,7 @@ public class POIViewController implements MTLog.Loggable {
 				} else {
 					tripId = rts.getTrip().getId();
 					holder.tripHeadingTv.setText(rts.getTrip().getHeading(context).toUpperCase(Locale.getDefault()));
+					holder.tripHeadingTv.setSelected(true); // marquee forever
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}
 				holder.rtsExtraV.setBackgroundColor(poim.getColor(context));
