@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-public class PreferencesActivity extends MTActionBarActivity {
+public class PreferencesActivity extends MTAppCompatActivity {
 
 	private static final String TAG = PreferencesActivity.class.getSimpleName();
 

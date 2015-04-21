@@ -5,14 +5,14 @@ import org.mtransit.android.commons.MTLog;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 /**
  * NO LOGIC HERE, just logs.
  */
-public abstract class MTActionBarActivity extends ActionBarActivity implements MTLog.Loggable {
+public abstract class MTAppCompatActivity extends AppCompatActivity implements MTLog.Loggable {
 
 	// INHERITED FROM FRAGMENT ACTIVITY
 
@@ -144,6 +144,10 @@ public abstract class MTActionBarActivity extends ActionBarActivity implements M
 		return super.onCreateOptionsMenu(menu);
 	}
 
+	/**
+	 * @deprecated menu items are always visible in the action bar so {@link #onCreateOptionsMenu(Menu)} is always called before anyway
+	 */
+	@Deprecated
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -175,5 +179,4 @@ public abstract class MTActionBarActivity extends ActionBarActivity implements M
 		}
 		super.startSearch(initialQuery, selectInitialQuery, appSearchData, globalSearch);
 	}
-
 }
