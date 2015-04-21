@@ -7,7 +7,6 @@ Hors-Ligne & Temps-Réel
 ----------
 What's new in this version?:
 Correction de problèmes & Amélioration des performances.
-Nouvelles de l'agence de transport en dessous des prochains départs / disponibilité.
 ----------
 Full description:
 <b>MonTransit vous donne accès sans effort aux informations de transport en commun les plus pertinentes</b>, incluant les horaires (hors-ligne & temps-réel) des autobus, métros et trains, la disponibilités des stations vélos, messages d'alertes et les dernières nouvelles des agences de tranport provenant de leurs sites Internet, blogues, Twitter, YouTube…

@@ -7,7 +7,6 @@ Offline & Real-Time.
 ----------
 What's new in this version?:
 Bug fixes & performance improvements.
-Agency news below next departures / availability.
 ----------
 Full description:
 <b>MonTransit effortlessly brings the most relevant transit information to you</b>, including buses, subways and trains schedules (offline & real-time), bike stations availability, service alerts and the latest news from agencies web sites, blogs, Twitter, YouTube…
