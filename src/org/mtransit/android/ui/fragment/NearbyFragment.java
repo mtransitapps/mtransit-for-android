@@ -288,19 +288,15 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		super.onDestroy();
 		this.userLocation = null;
 		this.nearbyLocation = null;
-		if (this.findNearbyLocationTask != null) {
-			this.findNearbyLocationTask.cancel(true);
-			this.findNearbyLocationTask = null;
-		}
+		TaskUtils.cancelQuietly(this.findNearbyLocationTask, true);
+		TaskUtils.cancelQuietly(this.loadAvailableTypesTask, true);
 	}
 
 	private void findNearbyLocation() {
 		if (!TextUtils.isEmpty(this.nearbyLocationAddress)) {
 			return;
 		}
-		if (this.findNearbyLocationTask != null) {
-			this.findNearbyLocationTask.cancel(true);
-		}
+		TaskUtils.cancelQuietly(this.findNearbyLocationTask, true);
 		this.findNearbyLocationTask = new MTAsyncTask<Location, Void, String>() {
 
 			@Override

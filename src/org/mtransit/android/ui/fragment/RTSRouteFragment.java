@@ -301,8 +301,12 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (this.route == null) {
 			return;
 		}
-		getAbController().setABBgColor(this, getABBgColor(getActivity()), false);
-		getAbController().setABTitle(this, getABTitle(getActivity()), false);
+		Context context = getActivity();
+		if (context == null) {
+			return;
+		}
+		getAbController().setABBgColor(this, getABBgColor(context), false);
+		getAbController().setABTitle(this, getABTitle(context), false);
 		getAbController().setABReady(this, isABReady(), true);
 		setupTabTheme(getView());
 	}
@@ -704,6 +708,13 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			return true; // handled
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		TaskUtils.cancelQuietly(this.loadRouteTask, true);
+		TaskUtils.cancelQuietly(this.loadRouteTripsTask, true);
 	}
 
 	private static class RouteTripPagerAdapter extends FragmentStatePagerAdapter implements MTLog.Loggable {

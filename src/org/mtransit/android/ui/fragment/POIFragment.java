@@ -1143,5 +1143,8 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			this.adapter.onDestroy();
 			this.adapter = null;
 		}
+		TaskUtils.cancelQuietly(this.loadAgencyTask, true);
+		TaskUtils.cancelQuietly(this.loadPoimTask, true);
+		TaskUtils.cancelQuietly(this.loadNewsTask, true);
 	}
 }

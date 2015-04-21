@@ -160,9 +160,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (!TextUtils.isEmpty(this.nearbyLocationAddress)) {
 			return;
 		}
-		if (this.findNearbyLocationTask != null) {
-			this.findNearbyLocationTask.cancel(true);
-		}
+		TaskUtils.cancelQuietly(this.findNearbyLocationTask, true);
 		this.findNearbyLocationTask = new MTAsyncTask<Location, Void, String>() {
 
 			@Override
@@ -208,10 +206,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			this.adapter = null;
 		}
 		this.loadFinished = false;
-		if (this.findNearbyLocationTask != null) {
-			this.findNearbyLocationTask.cancel(true);
-			this.findNearbyLocationTask = null;
-		}
+		TaskUtils.cancelQuietly(this.findNearbyLocationTask, true);
 	}
 
 	private static final int POIS_LOADER = 0;

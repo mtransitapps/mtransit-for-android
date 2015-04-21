@@ -395,6 +395,12 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		return super.getABBgColor(context);
 	}
 
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		TaskUtils.cancelQuietly(this.loadRtsTask, true);
+	}
+
 	private static class DayPagerAdapter extends FragmentStatePagerAdapter implements MTLog.Loggable {
 
 		private static final String TAG = ScheduleFragment.class.getSimpleName() + ">" + DayPagerAdapter.class.getSimpleName();

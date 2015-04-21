@@ -402,6 +402,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			this.adapter.onDestroy();
 			this.adapter = null;
 		}
+		TaskUtils.cancelQuietly(this.loadTypeAgenciesAuthorityAsyncTask, true);
 	}
 
 	@Override
@@ -426,7 +427,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			this.minSize = -1;
 			this.maxSize = -1;
 			this.minCoverageInMeters = -1f;
-			this.ad = null;
+			this.ad = LocationUtils.getNewDefaultAroundDiff();
 			this.lastEmptyAroundDiff = null;
 		} else if (this.minSize < 0 || this.maxSize < 0 || this.minCoverageInMeters < 0f) {
 			this.sizeCovered = 0;

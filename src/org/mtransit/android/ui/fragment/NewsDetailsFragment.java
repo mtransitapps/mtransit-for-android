@@ -313,4 +313,10 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 	public boolean isABReady() {
 		return hasNews();
 	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		TaskUtils.cancelQuietly(this.loadNewsTask, true);
+	}
 }

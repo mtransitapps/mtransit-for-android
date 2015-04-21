@@ -1218,7 +1218,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.mapLayoutReady = false;
 		destroyGoogleMap();
 		this.initialMapCameraSetup = false;
-		this.initMapViewTask = null;
+		TaskUtils.cancelQuietly(this.initMapViewTask, true);
 		this.lastSavedInstanceState = null;
 		clearMarkers();
 	}

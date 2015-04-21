@@ -103,9 +103,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		if (this.typeIdFilter == null) {
 			this.typeIdFilter = TypeFilter.ALL.getDataSourceTypeId(); // default
 		}
-		if (this.loadTypeFilterTask != null) {
-			this.loadTypeFilterTask.cancel(true);
-		}
+		TaskUtils.cancelQuietly(this.loadTypeFilterTask, true);
 		this.loadTypeFilterTask = new LoadTypeFilterTask();
 		TaskUtils.execute(this.loadTypeFilterTask);
 	}
@@ -576,6 +574,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		cancelRestartSearchLater();
 		this.searchView = null;
 		this.handler = null;
+		TaskUtils.cancelQuietly(this.loadTypeFilterTask, true);
 	}
 
 	public static class TypeFilter implements MTLog.Loggable {

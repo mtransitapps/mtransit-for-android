@@ -644,6 +644,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	public void onDestroy() {
 		super.onDestroy();
 		cancelUpdateABColorLater();
+		TaskUtils.cancelQuietly(this.loadTypeAgenciesTask, true);
+		TaskUtils.cancelQuietly(this.loadTypeTask, true);
 	}
 
 	private Integer abBgColor = null;

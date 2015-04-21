@@ -535,6 +535,12 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		TaskUtils.cancelQuietly(this.loadRtsTask, true);
+	}
+
 	private static class TimeAdapter extends MTBaseAdapter implements TimeUtils.TimeChangedReceiver.TimeChangedListener {
 
 		private static final String TAG = ScheduleDayFragment.class.getSimpleName() + ">" + TimeAdapter.class.getSimpleName();

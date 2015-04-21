@@ -271,9 +271,7 @@ public final class AdsUtils implements MTLog.Loggable {
 			}
 		}
 		adLoaded = null;
-		if (setupAdTask != null) {
-			setupAdTask.cancel(true);
-		}
+		TaskUtils.cancelQuietly(setupAdTask, true);
 		setupAdTask = null;
 	}
 

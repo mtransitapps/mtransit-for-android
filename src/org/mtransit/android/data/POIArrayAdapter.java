@@ -722,9 +722,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private MTAsyncTask<Location, Void, Void> updateDistanceWithStringTask;
 
 	private void updateDistances(Location currentLocation) {
-		if (this.updateDistanceWithStringTask != null) {
-			this.updateDistanceWithStringTask.cancel(true);
-		}
+		TaskUtils.cancelQuietly(this.updateDistanceWithStringTask, true);
 		if (currentLocation != null && getPoisCount() > 0) {
 			this.updateDistanceWithStringTask = new MTAsyncTask<Location, Void, Void>() {
 
@@ -740,6 +738,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 						if (POIArrayAdapter.this.poisByType != null) {
 							Iterator<ArrayList<POIManager>> it = POIArrayAdapter.this.poisByType.values().iterator();
 							while (it.hasNext()) {
+								if (isCancelled()) {
+									break;
+								}
 								LocationUtils.updateDistanceWithString(POIArrayAdapter.this.getContext(), it.next(), params[0], this);
 							}
 						}
@@ -966,10 +967,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			this.compassUpdatesEnabled = false;
 		}
 		this.handler.removeCallbacks(this.notifyDataSetChangedLater);
-		if (this.refreshFavoritesTask != null) {
-			this.refreshFavoritesTask.cancel(true);
-			this.refreshFavoritesTask = null;
-		}
+		TaskUtils.cancelQuietly(this.refreshFavoritesTask, true);
 		disableTimeChangeddReceiver();
 	}
 
@@ -1016,14 +1014,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		this.lastNotifyDataSetChanged = -1l;
 		this.handler.removeCallbacks(this.notifyDataSetChangedLater);
 		this.poiStatusViewHoldersWR.clear();
-		if (this.refreshFavoritesTask != null) {
-			this.refreshFavoritesTask.cancel(true);
-			this.refreshFavoritesTask = null;
-		}
-		if (this.updateDistanceWithStringTask != null) {
-			this.updateDistanceWithStringTask.cancel(true);
-			this.updateDistanceWithStringTask = null;
-		}
+		TaskUtils.cancelQuietly(this.refreshFavoritesTask, true);
+		TaskUtils.cancelQuietly(this.updateDistanceWithStringTask, true);
 		this.location = null;
 		this.locationDeclination = 0f;
 		super.clear();

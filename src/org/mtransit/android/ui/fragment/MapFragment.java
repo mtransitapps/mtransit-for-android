@@ -499,6 +499,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 	public void onDestroy() {
 		super.onDestroy();
 		this.mapViewController.onDestroy();
+		TaskUtils.cancelQuietly(this.loadFilterTypeIdsTask, true);
 	}
 
 	@Override
