@@ -1341,14 +1341,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (status != null && status instanceof AvailabilityPercent) {
 			AvailabilityPercent availabilityPercent = (AvailabilityPercent) status;
 			if (!availabilityPercent.isStatusOK()) {
+				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.GONE);
 				availabilityPercentStatusViewHolder.textTv.setText(availabilityPercent.getStatusMsg(getContext()));
 				availabilityPercentStatusViewHolder.textTv.setVisibility(View.VISIBLE);
-				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.GONE);
 			} else if (availabilityPercent.isShowingLowerValue()) {
+				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.GONE);
 				availabilityPercentStatusViewHolder.textTv.setText(availabilityPercent.getLowerValueText(getContext()));
 				availabilityPercentStatusViewHolder.textTv.setVisibility(View.VISIBLE);
-				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.GONE);
 			} else {
+				availabilityPercentStatusViewHolder.textTv.setVisibility(View.GONE);
 				availabilityPercentStatusViewHolder.piePercentV.setValueColors( //
 						availabilityPercent.getValue1Color(), //
 						availabilityPercent.getValue1ColorBg(), //
@@ -1357,7 +1358,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 						);
 				availabilityPercentStatusViewHolder.piePercentV.setValues(availabilityPercent.getValue1(), availabilityPercent.getValue2());
 				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.VISIBLE);
-				availabilityPercentStatusViewHolder.textTv.setVisibility(View.GONE);
 			}
 			statusViewHolder.statusV.setVisibility(View.VISIBLE);
 		} else {

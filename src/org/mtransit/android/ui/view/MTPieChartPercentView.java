@@ -18,6 +18,9 @@ public class MTPieChartPercentView extends MTView {
 		return TAG;
 	}
 
+	private static final float DEGREE_90 = 90.0f;
+	private static final float DEGREE_360 = 360.0f;
+
 	private RectF bounds;
 
 	private int value1 = -1;
@@ -27,9 +30,9 @@ public class MTPieChartPercentView extends MTView {
 	private Paint value2Paint;
 	private Paint value2PaintBg;
 	private float value1StartAngle;
-	private float value1EndAngle;
+	private float value1SweepAngle;
 	private float value2StartAngle;
-	private float value2EndAngle;
+	private float value2SweepAngle;
 
 	public MTPieChartPercentView(Context context) {
 		super(context);
@@ -84,9 +87,23 @@ public class MTPieChartPercentView extends MTView {
 	}
 
 	public void setValues(int value1, int value2) {
+		if (this.value1 == value1 && this.value2 == value2) {
+			return; // no change
+		}
 		this.value1 = value1;
 		this.value2 = value2;
 		resetValuesAngles();
+	}
+
+	private void resetValuesAngles() {
+		int total = getTotal();
+		float value1EndingAngle = DEGREE_90 + (this.value1 * DEGREE_360 / total);
+		float value2EndingAngle = value1EndingAngle + (this.value2 * DEGREE_360 / total);
+		this.value1StartAngle = DEGREE_360 - value1EndingAngle;
+		this.value1SweepAngle = value1EndingAngle - DEGREE_90;
+		this.value2StartAngle = DEGREE_360 - value2EndingAngle;
+		this.value2SweepAngle = value2EndingAngle - value1EndingAngle;
+		invalidate();
 	}
 
 	public int getTotal() {
@@ -99,23 +116,12 @@ public class MTPieChartPercentView extends MTView {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		if (getTotal() > 0) {
-			canvas.drawArc(this.bounds, 360 - value1EndAngle, value1EndAngle - value1StartAngle, true, this.value1Paint);
-			canvas.drawArc(this.bounds, 360 - value1EndAngle, value1EndAngle - value1StartAngle, false, this.value1PaintBg);
-			canvas.drawArc(this.bounds, 360 - value2EndAngle, value2EndAngle - value2StartAngle, true, this.value2Paint);
-			canvas.drawArc(this.bounds, 360 - value2EndAngle, value2EndAngle - value2StartAngle, false, this.value2PaintBg);
+		if (getTotal() >= 0) {
+			canvas.drawArc(this.bounds, this.value1StartAngle, this.value1SweepAngle, true, this.value1Paint);
+			canvas.drawArc(this.bounds, this.value1StartAngle, this.value1SweepAngle, false, this.value1PaintBg);
+			canvas.drawArc(this.bounds, this.value2StartAngle, this.value2SweepAngle, true, this.value2Paint);
+			canvas.drawArc(this.bounds, this.value2StartAngle, this.value2SweepAngle, false, this.value2PaintBg);
 		}
-	}
-
-	public void resetValuesAngles() {
-		int total = getTotal();
-		float value1Percent = this.value1 * 360.0f / total;
-		float value2Percent = this.value2 * 360.0f / total;
-		this.value1StartAngle = 90f; // 90° => orientation
-		this.value1EndAngle = this.value1StartAngle + value1Percent;
-		this.value2StartAngle = this.value1EndAngle;
-		this.value2EndAngle = this.value2StartAngle + value2Percent;
-
 	}
 
 	@Override
@@ -128,14 +134,12 @@ public class MTPieChartPercentView extends MTView {
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		super.onSizeChanged(w, h, oldw, oldh);
-
 		float innerCircleDiameter = Math.min(w, h);
 		float left = w > innerCircleDiameter ? (w - innerCircleDiameter) / 2 : 0;
 		float top = h > innerCircleDiameter ? (h - innerCircleDiameter) / 2 : 0;
 		float right = left + innerCircleDiameter;
 		float bottom = top + innerCircleDiameter;
-
 		this.bounds = new RectF(left, top, right, bottom);
-		resetValuesAngles();
+		invalidate();
 	}
 }
