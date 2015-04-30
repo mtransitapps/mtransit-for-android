@@ -15,10 +15,10 @@
     <string name="more">More</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
-    <string name="agency_type_light_rail_short_name">Tram</string>
-    <string name="agency_type_light_rail_all">Trams</string>
-    <string name="agency_type_light_rail_stations_short_name">Tram Stations</string>
-    <string name="agency_type_light_rail_nearby">Nearby Stations</string>
+    <string name="agency_type_light_rail_short_name">Streetcar</string>
+    <string name="agency_type_light_rail_all">Streetcars</string>
+    <string name="agency_type_light_rail_stations_short_name">Streetcars Stops</string>
+    <string name="agency_type_light_rail_nearby">Nearby Stops</string>
     <string name="agency_type_subway_short_name">Subway</string>
     <string name="agency_type_subway_all">Subways</string>
     <string name="agency_type_subway_stations_short_name">Subway Stations</string>
