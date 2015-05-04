@@ -14,7 +14,7 @@ public enum DataSourceType {
 	TYPE_LIGHT_RAIL(0, // GTFS - Tram, Streetcar
 			R.string.agency_type_light_rail_short_name, R.string.agency_type_light_rail_all, //
 			R.string.agency_type_light_rail_stations_short_name, R.string.agency_type_light_rail_nearby, //
-			R.drawable.ic_menu_train_holo_light, R.drawable.ic_menu_train_holo_dark, //
+			R.drawable.ic_menu_light_rail_holo_light, R.drawable.ic_menu_light_rail_holo_dark, //
 			true, true, true, true, true), //
 	TYPE_SUBWAY(1, // GTFS - Metro
 			R.string.agency_type_subway_short_name, R.string.agency_type_subway_all, //
