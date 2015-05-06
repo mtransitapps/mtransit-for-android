@@ -27,8 +27,7 @@
     <!-- USES SDK (compatibility) -->
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="22"
-        tools:ignore="GradleOverrides" />
+        android:targetSdkVersion="22" />
     <!-- USES FEATURE (not required) -->
     <uses-feature
         android:name="android.hardware.location"

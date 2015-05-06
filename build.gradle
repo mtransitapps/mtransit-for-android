@@ -17,9 +17,6 @@ android {
     releaseVersionProps.load(new FileInputStream(file("version.properties")))
 
     defaultConfig {
-        applicationId "org.mtransit.android"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode releaseVersionProps['version.code'] as Integer
         versionName releaseVersionProps['version.name']
     }
