@@ -610,8 +610,9 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private void initHours() {
 			resetHours();
+			Calendar cal;
 			for (int hourOfTheDay = 0; hourOfTheDay < HOUR_SEPARATORS_COUNT; hourOfTheDay++) {
-				Calendar cal = (Calendar) this.dayStartsAt.clone();
+				cal = (Calendar) this.dayStartsAt.clone();
 				cal.set(Calendar.HOUR_OF_DAY, hourOfTheDay);
 				this.hours.add(cal.getTime());
 				this.hourToTimes.put(hourOfTheDay, new ArrayList<Schedule.Timestamp>());
@@ -752,14 +753,18 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return null;
 		}
 
+		private Calendar todayStartsAt = TimeUtils.getBeginningOfTodayCal();
+		private Calendar todayEndsAt = null;
+
 		public int compareToToday() {
-			Calendar todayStartsAt = TimeUtils.getBeginningOfTodayCal();
-			if (this.dayStartsAt.before(todayStartsAt)) {
+			if (this.dayStartsAt.before(this.todayStartsAt)) {
 				return -1; // past
 			}
-			Calendar todayEndsAt = TimeUtils.getBeginningOfTomorrowCal();
-			todayEndsAt.add(Calendar.MILLISECOND, -1);
-			if (this.dayStartsAt.after(todayEndsAt)) {
+			if (this.todayEndsAt == null) {
+				this.todayEndsAt = TimeUtils.getBeginningOfTomorrowCal();
+				this.todayEndsAt.add(Calendar.MILLISECOND, -1);
+			}
+			if (this.dayStartsAt.after(this.todayEndsAt)) {
 				return +1; // future
 			}
 			return 0; // today
@@ -772,13 +777,16 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			}
 			Schedule.Timestamp time = (Schedule.Timestamp) item;
 			Date date = new Date(time.t);
+			Date thatDate;
+			Date nextDate;
+			int nextHourOfTheDay;
 			for (int hourOfTheDay = 0; hourOfTheDay < HOUR_SEPARATORS_COUNT; hourOfTheDay++) {
 				index++; // separator
 				if (this.hourToTimes.get(hourOfTheDay).size() > 0) {
-					Date thatDate = this.hours.get(hourOfTheDay);
+					thatDate = this.hours.get(hourOfTheDay);
 					if (date.after(thatDate)) {
-						int nextHourOfTheDay = hourOfTheDay + 1;
-						Date nextDate = nextHourOfTheDay < this.hours.size() ? this.hours.get(nextHourOfTheDay) : null;
+						nextHourOfTheDay = hourOfTheDay + 1;
+						nextDate = nextHourOfTheDay < this.hours.size() ? this.hours.get(nextHourOfTheDay) : null;
 						if (nextDate == null || date.before(nextDate)) {
 							for (Schedule.Timestamp hourTime : this.hourToTimes.get(hourOfTheDay)) {
 								if (time.t == hourTime.t) {
@@ -857,8 +865,9 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			if (timestamp != null && context != null) {
 				String userTime = TimeUtils.formatTime(context, timestamp.t);
 				StringBuilder timeSb = new StringBuilder(userTime);
-				if (timestamp.hasLocalTimeZone() && !this.deviceTimeZone.equals(TimeZone.getTimeZone(timestamp.getLocalTimeZone()))) {
-					String localTime = TimeUtils.formatTime(context, timestamp.t, timestamp.getLocalTimeZone());
+				TimeZone timestampTZ = TimeZone.getTimeZone(timestamp.getLocalTimeZone());
+				if (timestamp.hasLocalTimeZone() && !this.deviceTimeZone.equals(timestampTZ)) {
+					String localTime = TimeUtils.formatTime(context, timestamp.t, timestampTZ);
 					if (!localTime.equalsIgnoreCase(userTime)) {
 						timeSb.append(P1).append(context.getString(R.string.local_time_and_time, localTime)).append(P2);
 					}
