@@ -61,8 +61,13 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 		if (this.useLocation && !this.locationUpdatesEnabled) {
 			GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
 			if (googleApiClient != null && googleApiClient.isConnected()) {
-				LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, this.locationRequest, this);
-				this.locationUpdatesEnabled = true;
+				try {
+					LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, this.locationRequest, this);
+					this.locationUpdatesEnabled = true;
+				} catch (IllegalStateException ise) { // wrong thread?
+					MTLog.w(this, ise, "Error while enabling location updates!");
+					this.locationUpdatesEnabled = false;
+				}
 				Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
 				onLocationChanged(lastLocation);
 			}
