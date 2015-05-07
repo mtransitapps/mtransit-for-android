@@ -15,6 +15,10 @@
     <string name="more">Plus</string>
     <string name="drawer_open">Ouvrir le tiroir de navigation</string>
     <string name="drawer_close">Fermer le tiroir de navigation</string>
+    <string name="agency_type_ferry_short_name">Bateau</string>
+    <string name="agency_type_ferry_all">Bateaux</string>
+    <string name="agency_type_ferry_stations_short_name">Gares de Bateaux</string>
+    <string name="agency_type_ferry_nearby">Gares Proches</string>
     <string name="agency_type_light_rail_short_name">Tram</string>
     <string name="agency_type_light_rail_all">Trams</string>
     <string name="agency_type_light_rail_stations_short_name">Stations de Tram</string>

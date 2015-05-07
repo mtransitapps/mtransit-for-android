@@ -31,6 +31,11 @@ public enum DataSourceType {
 			R.string.agency_type_bus_stops_short_name, R.string.agency_type_bus_nearby, //
 			R.drawable.ic_menu_bus_holo_light, R.drawable.ic_menu_bus_holo_dark, //
 			true, true, true, true, true), //
+	TYPE_FERRY(4, // GTFS - Boat
+			R.string.agency_type_ferry_short_name, R.string.agency_type_ferry_all, //
+			R.string.agency_type_ferry_stations_short_name, R.string.agency_type_ferry_nearby, //
+			R.drawable.ic_menu_ferry_holo_light, R.drawable.ic_menu_ferry_holo_dark, //
+			true, true, true, true, true), //
 	TYPE_BIKE(100, // like Bixi, Velib
 			R.string.agency_type_bike_short_name, R.string.agency_type_bike_all, //
 			R.string.agency_type_bike_stations_short_name, R.string.agency_type_bike_nearby, //
@@ -148,6 +153,8 @@ public enum DataSourceType {
 			return TYPE_RAIL;
 		case 3:
 			return TYPE_BUS;
+		case 4:
+			return TYPE_FERRY;
 		case 100:
 			return TYPE_BIKE;
 		case 666:

@@ -23,6 +23,8 @@
 	5% — 0D
 	0% — 00
     -->
+    <!-- light icons: #333 @ 60% -->
+    <!-- dark icons: #FFF @ 100% -->
     <color name="mt_blue_malibu" tools:ignore="UnusedResources">#6699FF</color> <!-- dark blue -->
     <color name="mt_blue_smalt" tools:ignore="UnusedResources">#003399</color> <!-- light blue -->
     <color name="mt_bg_dark" tools:ignore="UnusedResources">#230913</color>
