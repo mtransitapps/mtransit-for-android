@@ -138,7 +138,7 @@ public class IabHelper implements MTLog.Loggable {
 		};
 		Intent serviceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
 		serviceIntent.setPackage("com.android.vending");
-		if (!mContext.getPackageManager().queryIntentServices(serviceIntent, 0).isEmpty()) {
+		if (mContext != null && !mContext.getPackageManager().queryIntentServices(serviceIntent, 0).isEmpty()) {
 			mContext.bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
 		} else {
 			if (listener != null) {
@@ -485,6 +485,9 @@ public class IabHelper implements MTLog.Loggable {
 	int queryPurchases(Inventory inv, String itemType) throws JSONException, RemoteException {
 		boolean verificationFailed = false;
 		String continueToken = null;
+		if (mContext == null || mService == null) {
+			return IABHELPER_VERIFICATION_FAILED;
+		}
 		do {
 			Bundle ownedItems = mService.getPurchases(3, mContext.getPackageName(), itemType, continueToken);
 			int response = getResponseCodeFromBundle(ownedItems);
