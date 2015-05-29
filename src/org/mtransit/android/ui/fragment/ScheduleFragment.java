@@ -213,13 +213,14 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		this.adapter = new DayPagerAdapter(this, TimeUtils.getBeginningOfTodayInMs(), null, null, null);
 	}
 
+	@SuppressWarnings("deprecation")
 	private void setupView(View view) {
 		if (view == null) {
 			return;
 		}
 		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		viewPager.setOffscreenPageLimit(2);
-		viewPager.setOnPageChangeListener(this);
+		viewPager.setOnPageChangeListener(this); // TODO upgrade to #ViewPager#addOnPageChangeListener()
 		setupAdapter(view);
 	}
 

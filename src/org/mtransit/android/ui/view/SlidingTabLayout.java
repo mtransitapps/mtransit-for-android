@@ -139,12 +139,13 @@ public class SlidingTabLayout extends HorizontalScrollView {
 	 * Sets the associated view pager. Note that the assumption here is that the pager content (number of tabs and tab titles) does not change after this call
 	 * has been made.
 	 */
+	@SuppressWarnings("deprecation")
 	public void setViewPager(ViewPager viewPager) {
 		mTabStrip.removeAllViews();
 
 		mViewPager = viewPager;
 		if (viewPager != null) {
-			viewPager.setOnPageChangeListener(new InternalViewPagerListener());
+			viewPager.setOnPageChangeListener(new InternalViewPagerListener()); // TODO upgrade to #ViewPager#addOnPageChangeListener()
 			populateTabStrip();
 		}
 	}
