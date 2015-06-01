@@ -1,72 +1,55 @@
 Title: MonTransit
 ----------
 Short description:
-Montreal Transit in your pocket.
-Bike, Bus, Subway, Train.
-Offline & Real-Time.
+Transit information in your pocket
+Bike, Bus, Subway, Train…
+Offline & Real-Time
 ----------
 What's new in this version?:
+Now available for all* transit agencies in Canada (from St John's in Newfoundland and Labrador to Courtenay in British Columbia).
 Bug fixes & performance improvements.
+
+*: all transit agencies with open data
 ----------
 Full description:
-<b>MonTransit effortlessly brings the most relevant transit information to you</b>, including buses, subways and trains schedules (offline & real-time), bike stations availability, service alerts and the latest news from agencies web sites, blogs, Twitter, YouTube…
+<b>MonTransit effortlessly brings the most relevant transit information to you</b>, including buses, ferries, subways, streetcars & trains schedules (offline & real-time), bike stations availability, service alerts & the latest news from agencies web sites, blogs, Twitter, YouTube…
 
-On the home screen, you can see all nearby buses, subways and trains next departures as well as nearby bike stations availability in a predictable user interface.
+On the home screen, you can see all nearby route trips next departures as well as nearby bike stations availability in a predictable user interface.
 You can access the information any way you want by using the sliding menu (click on the ☰ icon in the upper left corner of the screen or swipe from the left edge of any screen).
 For example, you can use the Map screen to discover new bus stops, subway stations, train stations or bike stations or you can search for a place by clicking on the 🔍 icon in the upper right corner of any screen.
 
 No Internet? GPS turned off? WiFi disabled? No problem, MonTransit offers multiple ways to find the information you're looking for:
 - you can access your ★ favorites or browse all transit information by using the sliding menu (click on the ☰ icon in the upper left corner of the screen or swipe from the left edge of any screen)
-- you can enter a route number # or name, stop code # or name, street names... by clicking on the search 🔍 icon in the upper right corner of any screen 
-- all buses, subways and trains schedule are available offline
+- you can enter a route number # or name, stop code # or name, street names... by clicking on the search 🔍 icon in the upper right corner of any screen
+- all buses, ferries, subways, streetcars & trains schedule are available offline
 
 MonTransit lets you install the transit agencies that you want (you don't have to switch between cities & you can access all the information any time, anywhere).
-The buses, subways and trains information are kept up-to-date through Google Play Store auto-updates without using your device's battery or mobile Internet data plan (3G/4G/LTE).
+The buses, ferries, subways, streetcars & trains information are kept up-to-date through Google Play Store auto-updates without using your device's battery or mobile Internet data plan (3G/4G/LTE).
 
-MonTransit is currently available for the greater Montreal in Quebec, Canada.
-
-Transit agencies available on Google Play (free):
-<b>Bikes:</b>
- - BIXI Bikes (Montreal): http://goo.gl/omUanh
-<b>Buses:</b>
- - AMT Express (Montreal): http://goo.gl/bQmUrH
- - CIT Chambly-Richelieu-Carignan (Blus): http://goo.gl/bB3uXn
- - CIT Haut-St-Laurent: http://goo.gl/63tdvt
- - CIT Laurentides: http://goo.gl/2X5O0v
- - CIT La Presqu'Île: http://goo.gl/BGW1tZ
- - CIT Le Richelain: http://goo.gl/C4RvHu
- - CIT Roussillon: http://goo.gl/AHZMf9
- - CIT Sorel-Varennes: http://goo.gl/DXSj7G
- - CIT Sud-Ouest: http://goo.gl/0lKFAF
- - CIT Vallée du Richelieu: http://goo.gl/561ksW
- - CRT Lanaudière: http://goo.gl/u4wWcI
- - CTJM Joliette: http://goo.gl/SzLhWp
- - MRC Deux-Montagnes (Oka Express): http://goo.gl/ciI3YT
- - MRC L'Assomption (RTCR): http://goo.gl/PCpIIT
- - MRC Les Moulins (Urbis): http://goo.gl/TZTNvl
- - RTL (Longueuil): http://goo.gl/dU2es1
- - Ste-Julie: http://goo.gl/lpqCFM
- - STL (Laval): http://goo.gl/oVpn75
- - STM (Montreal): http://goo.gl/YPJzF5
-<b>Subways:</b>
- - STM (Montreal): http://goo.gl/kpn9tP
-<b>Trains:</b>
- - AMT (Montreal): http://goo.gl/nvQd13
+MonTransit is currently available in Canada:
+- <b>AB:</b> Calgary…
+- <b>BC:</b> BC Transit, TransLink…
+- <b>MB:</b> Winnipeg…
+- <b>NL:</b> Metrobus…
+- <b>NS:</b> Halifax…
+- <b>ON:</b> GO Transit, GRT, HSR, MiWay, OC Transpo, TTC, YRT Viva…
+- <b>QC:</b> AMT, BIXI, RTC, RTL, STM, STL, STS, CIT, MRC…
+- <b>SK:</b> Regina…
 
 All the features are available for free (no paywall) but you can support the project (and hide ads) by paying a Google Play subscription (1 month free, cancel any time).
 
-You are our customers and only source of revenues.
+You are our customers & only source of revenues.
 Thank You.
 
-Social: 
+Social:
 - Facebook: https://facebook.com/MonTransit
 - Google+: http://gplus.to/MonTransit
 - Twitter: https://twitter.com/montransit
 
-Learn more about the BETA program here: http://goo.gl/IoV6Zn
-
-This app is free and open-source:
+This app is free & open-source:
 https://github.com/mtransitapps/mtransit-for-android
+
+More information: https://goo.gl/z2e6HP
 
 Permissions:
 - In-app purchases: required for donations (hide ads & support MonTransit)
@@ -74,11 +57,11 @@ Permissions:
 - Photo/Media/Files: required by Google Maps
 - Other: required by Google Analytics & Google Mobile Ads (AdMob) & Google Maps
 
-Made with ♥ in Montreal.
+Made with ♥ in Montreal, Canada.
 
-Aka: Mon Transit, MyTransit, My Transit, MonTransport, Mon Transport
+AKA: Mon Transit, MyTransit, My Transit, MonTransport, Mon Transport
 ----------
-Promo Video: https://www.youtube.com/watch?v=as9USxVhf_k
+Promo Video:
 ----------
 Application type: Applications
 ----------

@@ -1,57 +1,40 @@
 Title: MonTransit
 ----------
 Short description:
-Transport Montréal dans votre poche
-Bus Métro Train Vélo
+Info de transport dans votre poche
+Bus Métro Train Vélo…
 Hors-Ligne & Temps-Réel
 ----------
 What's new in this version?:
+Maintenant disponible pour toutes* les agences de transport au Canada (de Saint-Jean de Terre-Neuve-et-Labrador à Courtenay en Colombie-Britannique).
 Correction de problèmes & Amélioration des performances.
+
+*: toutes les agences de transport avec des données ouvertes
 ----------
 Full description:
-<b>MonTransit vous donne accès sans effort aux informations de transport en commun les plus pertinentes</b>, incluant les horaires (hors-ligne & temps-réel) des autobus, métros et trains, la disponibilités des stations vélos, messages d'alertes et les dernières nouvelles des agences de tranport provenant de leurs sites Internet, blogues, Twitter, YouTube…
+<b>MonTransit vous donne accès sans effort aux informations de transport en commun les plus pertinentes</b>, incluant les horaires (hors-ligne & temps-réel) des autobus, métros, trains, tramways et traversiers, la disponibilités des stations vélos, messages d'alertes et les dernières nouvelles des agences de tranport provenant de leurs sites Internet, blogues, Twitter, YouTube…
 
-Sur l'écran d'accueil, vous pouvez voir les prochains départs de tous les autobus, métros et trains ainsi que la disponibilité des stations de vélo à proximité dans une interface prévisible.
+Sur l'écran d'accueil, vous pouvez voir les prochains départs des trajets des lignes et la disponibilité des stations de vélo à proximité dans une interface prévisible.
 Vous pouvez naviguez l'information comme vous le souhaitez en utilisant le menu coullissant (cliquez sur l'icône ☰ dans le coin supérieur gauche de l'écran).
 Par exemple, vous pouvez utiliser l'écran Carte pour découvrir les transports disponibles à proximité ou vous pouvez chercher un lieu en cliquant sur l'icône 🔍 recherche
 
 Pas d'accès Internet ? GPS désactivé ? WiFi éteint ? Pas de problème, MonTransit offre de multiples façons de trouver l'information que vous cherchez :
 - vous pouvez accéder à vos favoris ★ ou parcourir toutes les informations de transport en utilisant le menu coulissant (cliquez sur l'icône ☰ dans le coin supérieur gauche de l'écran)
 - vous pouvez entrer le numéro # ou le nom d'une ligne, le code # ou le nom d'un arrêt ou d'une station, les noms de rues ... en cliquant sur l'icône 🔍 recherche
-- toutes les horaires des autobus, métros et trains sont disponibles hors-ligne
+- toutes les horaires des autobus, métros, trains, tramways et traversiers sont disponibles hors-ligne
 
 MonTransit vous permet d'installer les agences de transports que vous voulez (vous n'avez pas à passer d'une ville à une autre & vous pouvez accèder à toutes les informations n'importe quand, n'importe où).
-Les informations des autobus, métros et trains sont mises à jours via le Google Play Store sans utiliser votre batterie ou les données de votre forfait (3G/4G/LTE).
+Les informations des autobus, métros, trains, tramways et traversiers sont mises à jours via le Google Play Store sans utiliser votre batterie ou les données de votre forfait (3G/4G/LTE).
 
-MonTransit est actuellement disponible dans la région de Montréal au Québec, Canada.
-
-Agences de transport disponible sur Google Play (gratuit) :
-<b>Autobus :</b>
- - AMT Express (Montréal) : http://goo.gl/bQmUrH
- - CIT Chambly-Richelieu-Carignan (Blus) : http://goo.gl/bB3uXn
- - CIT Haut-St-Laurent : http://goo.gl/63tdvt
- - CIT Laurentides : http://goo.gl/2X5O0v
- - CIT La Presqu'Île : http://goo.gl/BGW1tZ
- - CIT Le Richelain : http://goo.gl/C4RvHu
- - CIT Roussillon : http://goo.gl/AHZMf9
- - CIT Sorel-Varennes : http://goo.gl/DXSj7G
- - CIT Sud-Ouest : http://goo.gl/0lKFAF
- - CIT Vallée du Richelieu : http://goo.gl/561ksW
- - CRT Lanaudière : http://goo.gl/u4wWcI
- - CTJM Joliette: http://goo.gl/SzLhWp
- - MRC Deux-Montagnes (L'Express d'Oka) : http://goo.gl/ciI3YT
- - MRC L'Assomption (RTCR) : http://goo.gl/PCpIIT
- - MRC Les Moulins (Urbis) : http://goo.gl/TZTNvl
- - RTL (Longueuil) : http://goo.gl/dU2es1
- - STL (Laval) : http://goo.gl/oVpn75
- - STM (Montréal) : http://goo.gl/YPJzF5
- - Ville de Ste-Julie : http://goo.gl/lpqCFM
-<b>Métros :</b>
- - STM (Montréal) : http://goo.gl/kpn9tP
-<b>Trains :</b>
- - AMT (Montréal) : http://goo.gl/nvQd13
-<b>Vélos :</b>
- - BIXI (Montréal) : http://goo.gl/omUanh
+MonTransit est actuellement disponible au Canada:
+- <b>AB:</b> Calgary…
+- <b>BC:</b> BC Transit, TransLink…
+- <b>MB:</b> Winnipeg…
+- <b>NL:</b> Metrobus…
+- <b>NS:</b> Halifax…
+- <b>ON:</b> GO Transit, GRT, HSR, MiWay, OC Transpo, TTC, YRT Viva…
+- <b>QC:</b> AMT, BIXI, RTC, RTL, STM, STL, STS, CIT, MRC…
+- <b>SK:</b> Regina…
 
 Toutes les fonctionnalités sont disponibles gratuitement mais vous pouvez soutenir le projet (et cacher les publicités) en payant un abonnement Google Play (1 mois gratuit, annulable en tout temps).
 
@@ -59,19 +42,23 @@ Vous êtes nos clients et seule source de revenus.
 Merci.
 
 Réseaux sociaux :
-- Facebook: https://facebook.com/MonTransit
-- Google+: http://gplus.to/MonTransit
-- Twitter: https://twitter.com/montransit
-
-Pour en savoir plus sur notre programme BETA, cliquez ici : http://goo.gl/IoV6Zn
+- Facebook : https://facebook.com/MonTransit
+- Google+ : http://gplus.to/MonTransit
+- Twitter : https://twitter.com/montransit
 
 Cette application est gratuite et ouverte :
 https://github.com/mtransitapps/mtransit-for-android
 
+Plus d'information (en anglais) : https://goo.gl/z2e6HP
+
 Autorisations :
-- Achats via l'application: requis pour les dons (cacher pubs & supporter MonTransit)
-- Position: requis pour afficher les informations de transport à proximité ainsi que la distances et la boussole
-- Photos/Contenus multimédias/Fichiers: requis par Google Maps
-- Autres: requis par Google Analytics & Google Mobile Ads (AdMob) & Google Maps
+- Achats via l'application : requis pour les dons (cacher pubs & supporter MonTransit)
+- Position : requis pour afficher les informations de transport à proximité ainsi que la distances et la boussole
+- Photos/Contenus multimédias/Fichiers : requis par Google Maps
+- Autres : requis par Google Analytics & Google Mobile Ads (AdMob) & Google Maps
+
+Fait avec ♥ à Montréal au Québec.
+
+Alias : Mon Transit, MyTransit, My Transit, MonTransport, Mon Transport
 ----------
-Promo Video: https://www.youtube.com/watch?v=B_wH1FH5IX8
+Promo Video:
