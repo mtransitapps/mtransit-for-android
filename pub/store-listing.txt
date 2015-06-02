@@ -51,13 +51,13 @@ https://github.com/mtransitapps/mtransit-for-android
 
 More information: https://goo.gl/z2e6HP
 
+Made with ♥ in Montreal, Canada.
+
 Permissions:
 - In-app purchases: required for donations (hide ads & support MonTransit)
 - Location: required to show nearby transit information & show distance & compass
 - Photo/Media/Files: required by Google Maps
 - Other: required by Google Analytics & Google Mobile Ads (AdMob) & Google Maps
-
-Made with ♥ in Montreal, Canada.
 
 AKA: Mon Transit, MyTransit, My Transit, MonTransport, Mon Transport
 ----------

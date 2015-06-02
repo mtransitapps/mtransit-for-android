@@ -12,10 +12,10 @@ Correction de problèmes & Amélioration des performances.
 *: toutes les agences de transport avec des données ouvertes
 ----------
 Full description:
-<b>MonTransit vous donne accès sans effort aux informations de transport en commun les plus pertinentes</b>, incluant les horaires (hors-ligne & temps-réel) des autobus, métros, trains, tramways et traversiers, la disponibilités des stations vélos, messages d'alertes et les dernières nouvelles des agences de tranport provenant de leurs sites Internet, blogues, Twitter, YouTube…
+<b>MonTransit vous donne accès sans effort aux informations de transport en commun les plus pertinentes</b>, incluant les horaires (hors-ligne & temps-réel) des autobus, métros, trains, tramways et traversiers, la disponibilités des stations vélos, messages d'alertes et les dernières nouvelles des agences de transport provenant de leurs sites Internet, blogues, Twitter, YouTube…
 
 Sur l'écran d'accueil, vous pouvez voir les prochains départs des trajets des lignes et la disponibilité des stations de vélo à proximité dans une interface prévisible.
-Vous pouvez naviguez l'information comme vous le souhaitez en utilisant le menu coullissant (cliquez sur l'icône ☰ dans le coin supérieur gauche de l'écran).
+Vous pouvez naviguez l'information comme vous le souhaitez en utilisant le menu coulissant (cliquez sur l'icône ☰ dans le coin supérieur gauche de l'écran).
 Par exemple, vous pouvez utiliser l'écran Carte pour découvrir les transports disponibles à proximité ou vous pouvez chercher un lieu en cliquant sur l'icône 🔍 recherche
 
 Pas d'accès Internet ? GPS désactivé ? WiFi éteint ? Pas de problème, MonTransit offre de multiples façons de trouver l'information que vous cherchez :
@@ -51,13 +51,13 @@ https://github.com/mtransitapps/mtransit-for-android
 
 Plus d'information (en anglais) : https://goo.gl/z2e6HP
 
+Fait avec ♥ à Montréal, Canada.
+
 Autorisations :
 - Achats via l'application : requis pour les dons (cacher pubs & supporter MonTransit)
 - Position : requis pour afficher les informations de transport à proximité ainsi que la distances et la boussole
 - Photos/Contenus multimédias/Fichiers : requis par Google Maps
 - Autres : requis par Google Analytics & Google Mobile Ads (AdMob) & Google Maps
-
-Fait avec ♥ à Montréal au Québec.
 
 Alias : Mon Transit, MyTransit, My Transit, MonTransport, Mon Transport
 ----------
