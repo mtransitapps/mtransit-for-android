@@ -82,8 +82,8 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	@Override
 	public String getLogTag() {
-		if (this.poim != null && this.poim.poi != null) {
-			return TAG + "-" + this.poim.poi.getUUID();
+		if (!TextUtils.isEmpty(this.uuid)) {
+			return TAG + "-" + this.uuid;
 		}
 		return TAG;
 	}
@@ -263,7 +263,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 	private void setPOIProperties() {
 		if (this.poim != null) {
 			this.poim.setInFocus(true);
-			this.poim.setScheduleMaxDataRequests(Schedule.ScheduleStatusFilter.DATA_REQUEST_MONTH);
+			this.poim.setScheduleMaxDataRequests(Schedule.ScheduleStatusFilter.DATA_REQUEST_MONTHS);
 			this.poim.resetLastFindTimestamps();
 		}
 	}
