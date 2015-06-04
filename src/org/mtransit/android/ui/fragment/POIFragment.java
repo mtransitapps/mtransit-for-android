@@ -430,8 +430,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 	@Override
 	public void onMapClick(LatLng position) {
 		POIManager poim = getPoimOrNull();
-		if (poim != null) {
-			((MainActivity) getActivity()).addFragmentToStack(MapFragment.newInstance(LocationUtils.getNewLocation(poim.getLat(), poim.getLng()),
+		FragmentActivity activity = getActivity();
+		if (poim != null && activity != null) {
+			((MainActivity) activity).addFragmentToStack(MapFragment.newInstance(LocationUtils.getNewLocation(poim.getLat(), poim.getLng()),
 					poim.poi.getUUID(), poim.poi.getDataSourceTypeId()));
 		}
 	}
