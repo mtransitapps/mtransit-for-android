@@ -13,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -241,7 +242,10 @@ public abstract class MTActivityWithGoogleAPIClient extends MTAppCompatActivity 
 
 		@Override
 		public void onDismiss(DialogInterface dialog) {
-			((MainActivity) getActivity()).onDialogDismissed();
+			FragmentActivity activity = getActivity();
+			if (activity != null && activity instanceof MainActivity) {
+				((MainActivity) activity).onDialogDismissed();
+			}
 		}
 	}
 }
