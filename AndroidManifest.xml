@@ -108,6 +108,18 @@
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="@string/google_maps_api_key" />
+        <!-- GOOGLE ANALYTICS -->
+        <service
+            android:name="com.google.android.gms.analytics.AnalyticsService"
+            android:enabled="true"
+            android:exported="false" />
+        <receiver
+            android:name="com.google.android.gms.analytics.AnalyticsReceiver"
+            android:enabled="true" >
+            <intent-filter>
+                <action android:name="com.google.android.gms.analytics.ANALYTICS_DISPATCH" />
+            </intent-filter>
+        </receiver>
         <!-- GOOGLE PLAY STORE CAMPAIGN MEASUREMENT -->
         <service android:name="com.google.android.gms.analytics.CampaignTrackingService" />
         <receiver
