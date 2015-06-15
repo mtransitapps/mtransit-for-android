@@ -1,6 +1,7 @@
 [
 {"name":"AMT Express Bus (Agence Métropolitaine de Transport)","name_fr":"AMT - Bus Express (Agence Métropolitaine de Transport)","location":"Montréal, Brossard, QC, Canada","targetTypeId":"3","color":"20558A","lat":"45.468545","lng":"-73.516740","pkg":"org.mtransit.android.ca_montreal_amt_bus"},
 {"name":"AMT Trains (Agence Métropolitaine de Transport)","name_fr":"AMT - Trains (Agence Métropolitaine de Transport)","location":"Montréal, Deux-Montagnes, Vaudreuil, Hudson, St-Jérôme, Mont-St-Hilaire, Candiac, Mascouche, QC, Canada","targetTypeId":"2","color":"20558A","lat":"45.4999926193","lng":"-73.5666664467","pkg":"org.mtransit.android.ca_montreal_amt_train"},
+{"name":"Barrie Transit","name_fr":"","location":"Barrie, ON, Canada","targetTypeId":"3","color":"336699","lat":"44.387776","lng":"-79.690981","pkg":"org.mtransit.android.ca_barrie_transit_bus"},
 {"name":"Bike Share Toronto","name_fr":"","location":"Toronto, ON, Canada","targetTypeId":"100","color":"107054","lat":"43.651890","lng":"-79.383337","pkg":"org.mtransit.android.ca_toronto_share_bike"},
 {"name":"BIXI Montréal","name_fr":"BIXI Montréal","location":"Montréal, Westmount, Longueuil, QC, Canada","targetTypeId":"100","color":"D42B1E","lat":"45.542771","lng":"-73.581281","pkg":"org.mtransit.android.ca_montreal_bixi_bike"},
 {"name":"Brampton Transit (City of Brampton)","name_fr":"","location":"Brampton, ON, Canada","targetTypeId":"3","color":"DB3935","lat":"43.706969","lng":"-79.724756","pkg":"org.mtransit.android.ca_brampton_transit_bus"},
