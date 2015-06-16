@@ -505,6 +505,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 	}
 
+	private static final float MARKER_ZOOM_INC = 2.0f;
+
 	@Override
 	public boolean onMarkerClick(IMarker imarker) {
 		if (imarker != null && !imarker.isCluster() && imarker.getData() != null && imarker.getData() instanceof POIMarkerIds) {
@@ -515,7 +517,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				this.lastSelectedUUID = uuid;
 			}
 		} else if (imarker != null && imarker.isCluster()) {
-			float zoom = this.extendedGoogleMap.getCameraPosition().zoom + 1f;
+			float zoom = this.extendedGoogleMap.getCameraPosition().zoom + MARKER_ZOOM_INC;
 			return updateMapCamera(true, CameraUpdateFactory.newLatLngZoom(imarker.getPosition(), zoom));
 		}
 		return false; // not handled
