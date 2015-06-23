@@ -405,7 +405,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	}
 
 	private Pair<Integer, String> findClosestPOIIndexUuid(ArrayList<POIManager> pois) {
-		if (this.userLocation != null) {
+		if (this.userLocation != null && CollectionUtils.getSize(pois) > 0) {
 			LocationUtils.updateDistance(pois, this.userLocation.getLatitude(), this.userLocation.getLongitude());
 			ArrayList<POIManager> sortedPOIs = new ArrayList<POIManager>(pois);
 			CollectionUtils.sort(sortedPOIs, LocationUtils.POI_DISTANCE_COMPARATOR);
