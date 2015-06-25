@@ -100,7 +100,9 @@ public class MenuAdapter extends MTBaseAdapter implements ListAdapter, DataSourc
 
 	private void initAllAgencyTypes() {
 		Context context = this.contextWR == null ? null : this.contextWR.get();
-		this.allAgencyTypes = filterAgencyTypes(DataSourceProvider.get(context).getAvailableAgencyTypes());
+		if (context != null) {
+			this.allAgencyTypes = filterAgencyTypes(DataSourceProvider.get(context).getAvailableAgencyTypes());
+		}
 	}
 
 	private ArrayList<DataSourceType> filterAgencyTypes(ArrayList<DataSourceType> availableAgencyTypes) {
