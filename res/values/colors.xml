@@ -11,6 +11,7 @@
 	65% — A6
 	60% — 99
 	55% — 8C
+	54% — 8A
 	50% — 80
 	45% — 73
 	40% — 66
@@ -31,10 +32,7 @@
     <color name="mt_bg_light" tools:ignore="UnusedResources">#58454F</color>
     <color name="window_background">@color/platform_background_holo_light_gradient_start_color</color>
     <color name="menu_bg">@color/window_background</color>
-    <color name="menu_item_bg">@android:color/white</color>
-    <color name="menu_secondary_item_bg">@color/window_background</color>
-    <color name="menu_item_text_color">#333333</color>
     <color name="poi_item_bg">@android:color/white</color>
     <color name="button_bg">@color/primary_material_dark</color>
-    <color name="ic_menu_holo_light_text">#CC333333</color>
+    <color name="ic_grey600">#8A000000</color>
 </resources>

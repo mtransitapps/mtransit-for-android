@@ -232,8 +232,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		CharSequence line1CS = null;
 		if (dataProvider != null && status != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
-			long nowToTheMinute = dataProvider.getNowToTheMinute();
-			line1CS = schedule.getSchedule(context, nowToTheMinute, TimeUnit.HOURS.toMillis(1), TimeUnit.HOURS.toMillis(12), 10, 50);
+			line1CS = schedule.getSchedule(context, dataProvider.getNowToTheMinute(), TimeUnit.HOURS.toMillis(1), TimeUnit.HOURS.toMillis(12), 10, 50);
 		}
 		ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
 		scheduleStatusViewHolder.nextDeparturesTimesTv.setText(line1CS);

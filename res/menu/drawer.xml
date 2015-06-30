@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <group
+        android:id="@+id/drawer_main"
+        android:checkableBehavior="single" >
+        <item
+            android:id="@id/nav_home"
+            android:icon="@drawable/ic_pin_drop_black_24dp"
+            android:title="@string/home"/>
+        <item
+            android:id="@id/nav_favorites"
+            android:icon="@drawable/ic_grade_black_24dp"
+            android:title="@string/favorites"/>
+        <item
+            android:id="@id/nav_nearby"
+            android:icon="@drawable/ic_my_location_black_24dp"
+            android:title="@string/nearby"/>
+        <item
+            android:id="@id/nav_map"
+            android:icon="@drawable/ic_map_black_24dp"
+            android:title="@string/map"/>
+        <item
+            android:id="@id/nav_news"
+            android:icon="@drawable/ic_rss_black_24dp"
+            android:title="@string/news"/>
+    </group>
+    <group
+        android:id="@+id/drawer_modules"
+        android:checkableBehavior="single" >
+        <item
+            android:id="@id/nav_bike"
+            android:icon="@drawable/ic_directions_bike_black_24dp"
+            android:title="@string/agency_type_bike_all"
+            android:visible="false"/>
+        <item
+            android:id="@id/nav_bus"
+            android:icon="@drawable/ic_directions_bus_black_24dp"
+            android:title="@string/agency_type_bus_all"
+            android:visible="false"/>
+        <item
+            android:id="@id/nav_ferry"
+            android:icon="@drawable/ic_directions_boat_black_24dp"
+            android:title="@string/agency_type_ferry_all"
+            android:visible="false"/>
+        <item
+            android:id="@id/nav_light_rail"
+            android:icon="@drawable/ic_directions_light_rail_black_24dp"
+            android:title="@string/agency_type_light_rail_all"
+            android:visible="false"/>
+        <item
+            android:id="@id/nav_subway"
+            android:icon="@drawable/ic_directions_subway_black_24dp"
+            android:title="@string/agency_type_subway_all"
+            android:visible="false"/>
+        <item
+            android:id="@id/nav_rail"
+            android:icon="@drawable/ic_directions_railway_black_24dp"
+            android:title="@string/agency_type_rail_all"
+            android:visible="false"/>
+        <item
+            android:id="@id/nav_module"
+            android:icon="@drawable/ic_shop_black_24dp"
+            android:title="@string/agency_type_module_all"
+            android:visible="false"/>
+    </group>
+    <group
+        android:id="@+id/drawer_secondary"
+        android:checkableBehavior="none" >
+        <item
+            android:id="@id/nav_settings"
+            android:icon="@drawable/ic_settings_black_24dp"
+            android:title="@string/settings"/>
+    </group>
+</menu>

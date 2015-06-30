@@ -1,32 +1,43 @@
 package org.mtransit.android.ui;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.data.MenuAdapter;
+import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.fragment.ABFragment;
-import org.mtransit.android.ui.view.MTOnItemClickListener;
+import org.mtransit.android.ui.fragment.AgencyTypeFragment;
+import org.mtransit.android.ui.fragment.FavoritesFragment;
+import org.mtransit.android.ui.fragment.HomeFragment;
+import org.mtransit.android.ui.fragment.MapFragment;
+import org.mtransit.android.ui.fragment.NearbyFragment;
+import org.mtransit.android.ui.fragment.NewsFragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.text.TextUtils;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
-public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.MenuUpdateListener, ListView.OnItemClickListener {
+public class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNavigationItemSelectedListener, DataSourceProvider.ModulesUpdateListener {
 
 	private static final String TAG = "Stack-" + NavigationDrawerController.class.getSimpleName();
 
@@ -35,30 +46,37 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		return TAG;
 	}
 
+	private static final String ITEM_ID_AGENCYTYPE_START_WITH = "agencytype-";
+	private static final String ITEM_ID_STATIC_START_WITH = "static-";
+	private static final int ITEM_INDEX_HOME = 0;
+	private static final int ITEM_INDEX_FAVORITE = 1;
+	private static final int ITEM_INDEX_NEARBY = 2;
+	private static final int ITEM_INDEX_MAP = 3;
+	private static final int ITEM_INDEX_NEWS = 4;
+	private static final int ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT = R.id.nav_home;
+	public static final String ITEM_ID_SELECTED_SCREEN_DEFAULT = ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME;
+
 	private WeakReference<MainActivity> mainActivityWR;
 	private DrawerLayout drawerLayout;
 	private ABDrawerToggle drawerToggle;
-	private View leftDrawer;
-	private ListView drawerListView;
-	private MenuAdapter drawerListViewAdapter;
-	private int currentSelectedItemPosition = -1;
+	private NavigationView navigationView;
+	private Integer currentSelectedScreenItemNavId = null;
 	private String currentSelectedScreenItemId = null;
 
 	public NavigationDrawerController(MainActivity mainActivity) {
 		this.mainActivityWR = new WeakReference<MainActivity>(mainActivity);
+		DataSourceProvider.addModulesUpdateListener(this);
 	}
 
 	public void setup(Bundle savedInstanceState) {
 		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 		if (mainActivity != null) {
-			this.leftDrawer = mainActivity.findViewById(R.id.left_drawer);
-			this.drawerListView = (ListView) mainActivity.findViewById(R.id.left_drawer_list);
-			this.drawerListView.setOnItemClickListener(this);
-			showDrawerLoading();
+			this.navigationView = (NavigationView) mainActivity.findViewById(R.id.nav_view);
+			this.navigationView.setNavigationItemSelectedListener(this);
 			this.drawerLayout = (DrawerLayout) mainActivity.findViewById(R.id.drawer_layout);
 			this.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 			this.drawerToggle = new ABDrawerToggle(mainActivity, this.drawerLayout);
-			this.drawerLayout.setDrawerListener(drawerToggle);
+			this.drawerLayout.setDrawerListener(this.drawerToggle);
 			finishSetupAsync(savedInstanceState);
 		}
 	}
@@ -76,27 +94,28 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 			@Override
 			protected String doInBackgroundMT(Bundle... params) {
 				Context context = NavigationDrawerController.this.mainActivityWR == null ? null : NavigationDrawerController.this.mainActivityWR.get();
-				NavigationDrawerController.this.drawerListViewAdapter = new MenuAdapter(context, NavigationDrawerController.this);
 				String itemId = null;
 				if (context != null && !isCurrentSelectedSet()) {
-					itemId = PreferenceUtils.getPrefLcl(context, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
+					itemId = PreferenceUtils.getPrefLcl(context, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT);
 					publishProgress(itemId);
 				}
-				NavigationDrawerController.this.drawerListViewAdapter.init();
 				return itemId;
 			}
 
 			@Override
 			protected void onPostExecute(String itemId) {
-				NavigationDrawerController.this.drawerListView.setAdapter(NavigationDrawerController.this.drawerListViewAdapter);
-				showDrawerLoaded();
+				setVisibleMenuItems();
 				selectItemId(itemId);
+				if (!hasUserLearnedDrawer()) {
+					openDrawer();
+					setUserLearnedDrawer();
+				}
 			}
 
 			public void selectItemId(String itemId) {
 				if (!TextUtils.isEmpty(itemId)) {
-					int screenItemPosition = NavigationDrawerController.this.drawerListViewAdapter.getScreenItemPosition(itemId);
-					selectItem(screenItemPosition, false);
+					Integer navItemId = getScreenNavItemId(itemId);
+					selectItem(navItemId, false);
 				}
 			}
 
@@ -108,12 +127,87 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		}.executeOnExecutor(TaskUtils.THREAD_POOL_EXECUTOR, savedInstanceState);
 	}
 
+	private Boolean userLearnedDrawer = null;
+
+	private boolean hasUserLearnedDrawer() {
+		if (this.userLearnedDrawer == null) {
+			MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+			if (mainActivity != null) {
+				this.userLearnedDrawer = PreferenceUtils.getPrefDefault(mainActivity, PreferenceUtils.PREF_USER_LEARNED_DRAWER,
+						PreferenceUtils.PREF_USER_LEARNED_DRAWER_DEFAULT);
+			}
+		}
+		return this.userLearnedDrawer == null ? false : this.userLearnedDrawer;
+	}
+
+	protected void setUserLearnedDrawer() {
+		this.userLearnedDrawer = true;
+		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		if (mainActivity != null) {
+			PreferenceUtils.savePrefDefault(mainActivity, PreferenceUtils.PREF_USER_LEARNED_DRAWER, this.userLearnedDrawer, false); // asynchronous
+		}
+	}
+
+	private ArrayList<DataSourceType> allAgencyTypes = null;
+
+	private ArrayList<DataSourceType> getAllAgencyTypes() {
+		if (this.allAgencyTypes == null) {
+			initAllAgencyTypes();
+		}
+		return this.allAgencyTypes;
+	}
+
+	private void initAllAgencyTypes() {
+		Context context = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		if (context != null) {
+			this.allAgencyTypes = filterAgencyTypes(DataSourceProvider.get(context).getAvailableAgencyTypes());
+		}
+	}
+
+	private ArrayList<DataSourceType> filterAgencyTypes(ArrayList<DataSourceType> availableAgencyTypes) {
+		if (availableAgencyTypes != null) {
+			Iterator<DataSourceType> it = availableAgencyTypes.iterator();
+			while (it.hasNext()) {
+				if (!it.next().isMenuList()) {
+					it.remove();
+				}
+			}
+		}
+		return availableAgencyTypes;
+	}
+
+	private void setVisibleMenuItems() {
+		if (this.navigationView == null) {
+			MTLog.w(this, "setVisibleMenuItems() > skip (no navigation view)");
+			return;
+		}
+		ArrayList<DataSourceType> allAgencyTypes = getAllAgencyTypes();
+		for (DataSourceType dst : DataSourceType.values()) {
+			if (allAgencyTypes != null && allAgencyTypes.contains(dst)) {
+				continue;
+			}
+			if (!dst.isMenuList()) {
+				continue;
+			}
+			if (this.navigationView.getMenu().findItem(dst.getNavResId()) == null) {
+				continue;
+			}
+			this.navigationView.getMenu().findItem(dst.getNavResId()).setVisible(false);
+		}
+		for (DataSourceType dst : allAgencyTypes) {
+			if (this.navigationView.getMenu().findItem(dst.getNavResId()) == null) {
+				MenuItem newMenuItem = this.navigationView.getMenu().add(R.id.drawer_modules, dst.getNavResId(), Menu.NONE, dst.getAllStringResId());
+				newMenuItem.setIcon(dst.getBlackIconResId());
+			}
+			this.navigationView.getMenu().findItem(dst.getNavResId()).setVisible(true);
+		}
+	}
+
 	private boolean menuUpdated = false;
 
-	@Override
-	public void onMenuUpdated() {
+	private void onMenuUpdated() {
 		this.menuUpdated = true;
-		if (this.drawerListViewAdapter == null) {
+		if (this.navigationView == null) {
 			return;
 		}
 		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
@@ -123,48 +217,119 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 		if (!mainActivity.isMTResumed()) {
 			return;
 		}
-		String itemId = PreferenceUtils.getPrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, MenuAdapter.ITEM_ID_SELECTED_SCREEN_DEFAULT);
-		int newSelectedItemPosition = this.drawerListViewAdapter.getScreenItemPosition(itemId);
-		if (this.currentSelectedItemPosition == newSelectedItemPosition && this.currentSelectedScreenItemId != null
-				&& this.currentSelectedScreenItemId.equals(itemId)) {
-			this.currentSelectedItemPosition = newSelectedItemPosition;
+		String itemId = PreferenceUtils.getPrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT);
+		Integer newSelectedNavItemId = getScreenNavItemId(itemId);
+		if (this.currentSelectedScreenItemNavId != null && this.currentSelectedScreenItemNavId.equals(newSelectedNavItemId)
+				&& this.currentSelectedScreenItemId != null && this.currentSelectedScreenItemId.equals(itemId)) {
+			this.currentSelectedScreenItemNavId = newSelectedNavItemId;
 			setCurrentSelectedItemChecked(mainActivity.getBackStackEntryCount() == 0);
 			return;
 		}
-		selectItem(newSelectedItemPosition, false);
+		selectItem(newSelectedNavItemId, false);
 		this.menuUpdated = false; // processed
 	}
 
+	public String getScreenItemId(Integer navItemId) {
+		if (navItemId == null) {
+			return null;
+		}
+		switch (navItemId) {
+		case R.id.nav_home:
+			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME;
+		case R.id.nav_favorites:
+			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_FAVORITE;
+		case R.id.nav_nearby:
+			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEARBY;
+		case R.id.nav_map:
+			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_MAP;
+		case R.id.nav_news:
+			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEWS;
+		case R.id.nav_light_rail:
+			return ITEM_ID_AGENCYTYPE_START_WITH + DataSourceType.TYPE_LIGHT_RAIL.getId();
+		case R.id.nav_subway:
+			return ITEM_ID_AGENCYTYPE_START_WITH + DataSourceType.TYPE_SUBWAY.getId();
+		case R.id.nav_rail:
+			return ITEM_ID_AGENCYTYPE_START_WITH + DataSourceType.TYPE_RAIL.getId();
+		case R.id.nav_bus:
+			return ITEM_ID_AGENCYTYPE_START_WITH + DataSourceType.TYPE_BUS.getId();
+		case R.id.nav_ferry:
+			return ITEM_ID_AGENCYTYPE_START_WITH + DataSourceType.TYPE_FERRY.getId();
+		case R.id.nav_bike:
+			return ITEM_ID_AGENCYTYPE_START_WITH + DataSourceType.TYPE_BIKE.getId();
+		case R.id.nav_module:
+			return ITEM_ID_AGENCYTYPE_START_WITH + DataSourceType.TYPE_MODULE.getId();
+		case R.id.nav_settings:
+			return null;
+		default:
+			MTLog.w(this, "Unexpected screen nav item ID '%s'!", navItemId);
+			return null;
+		}
+	}
+
+	private Integer getScreenNavItemId(String itemId) {
+		if (TextUtils.isEmpty(itemId)) {
+			return ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT;
+		}
+		if (itemId.startsWith(ITEM_ID_STATIC_START_WITH)) {
+			try {
+				switch (Integer.parseInt(itemId.substring(ITEM_ID_STATIC_START_WITH.length()))) {
+				case ITEM_INDEX_HOME:
+					return R.id.nav_home;
+				case ITEM_INDEX_FAVORITE:
+					return R.id.nav_favorites;
+				case ITEM_INDEX_NEARBY:
+					return R.id.nav_nearby;
+				case ITEM_INDEX_MAP:
+					return R.id.nav_map;
+				case ITEM_INDEX_NEWS:
+					return R.id.nav_news;
+				default:
+					MTLog.w(this, "Unexpected static screen item ID '%s'!", itemId);
+					return ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT;
+				}
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while finding static screen item ID '%s'!", itemId);
+				return ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT;
+			}
+		} else if (itemId.startsWith(ITEM_ID_AGENCYTYPE_START_WITH)) {
+			try {
+				int typeId = Integer.parseInt(itemId.substring(ITEM_ID_AGENCYTYPE_START_WITH.length()));
+				return DataSourceType.parseId(typeId).getNavResId();
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while finding agency type screen item ID '%s'!", itemId);
+				return ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT;
+			}
+		}
+		MTLog.w(this, "Unknown item ID'%s'!", itemId);
+		return ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT;
+	}
+
 	public void forceReset() {
-		if (this.currentSelectedItemPosition < 0) {
+		if (this.currentSelectedScreenItemNavId == null) {
 			return;
 		}
-		int saveCurrentSelectedItemPosition = this.currentSelectedItemPosition;
-		this.currentSelectedItemPosition = -1;
+		Integer saveCurrentSelectedScreenItemNavId = this.currentSelectedScreenItemNavId;
+		this.currentSelectedScreenItemNavId = null;
 		this.currentSelectedScreenItemId = null;
-		selectItem(saveCurrentSelectedItemPosition, true);
+		selectItem(saveCurrentSelectedScreenItemNavId, true);
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		MTOnItemClickListener.onItemClickS(parent, view, position, id, new MTOnItemClickListener() {
-			@Override
-			public void onItemClickMT(AdapterView<?> parent, View view, int position, long id) {
-				selectItem(position, true);
-			}
-		});
+	public boolean onNavigationItemSelected(MenuItem menuItem) {
+		closeDrawer();
+		selectItem(menuItem.getItemId(), true);
+		return true; // processed
 	}
 
-	private void selectItem(int position, boolean clearStack) {
-		if (position < 0) {
+	private void selectItem(Integer navItemId, boolean clearStack) {
+		if (navItemId == null) {
 			return;
 		}
 		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 		if (mainActivity == null) {
 			return;
 		}
-		if (position == this.currentSelectedItemPosition) {
-			closeDrawer();
+		if (navItemId.equals(this.currentSelectedScreenItemNavId)) {
 			if (clearStack) {
 				mainActivity.clearFragmentBackStackImmediate();
 			}
@@ -174,49 +339,95 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 			mainActivity.showContentFrameAsLoaded();
 			return;
 		}
-		if (!this.drawerListViewAdapter.isRootScreen(position)) {
-			this.drawerListViewAdapter.startNewScreen(mainActivity, position);
+		if (!isRootScreen(navItemId)) {
+			startNewScreen(mainActivity, navItemId);
 			setCurrentSelectedItemChecked(true); // keep current position
 			return;
 		}
-		ABFragment newFragment = this.drawerListViewAdapter.getNewStaticFragmentAt(position);
+		ABFragment newFragment = getNewStaticFragmentAt(navItemId);
 		if (newFragment == null) {
 			return;
 		}
-		this.currentSelectedItemPosition = position;
-		this.currentSelectedScreenItemId = this.drawerListViewAdapter.getScreenItemId(position);
-		closeDrawer();
+		this.currentSelectedScreenItemNavId = navItemId;
+		this.currentSelectedScreenItemId = getScreenItemId(navItemId);
 		mainActivity.clearFragmentBackStackImmediate(); // root screen
 		StatusLoader.get().clearAllTasks();
 		ServiceUpdateLoader.get().clearAllTasks();
 		mainActivity.showNewFragment(newFragment, false);
-		if (this.drawerListViewAdapter.isRootScreen(position)) {
+		if (isRootScreen(navItemId)) {
 			PreferenceUtils.savePrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId, false);
 		}
 	}
 
-	private void showDrawerLoading() {
-		this.drawerListView.setVisibility(View.GONE);
-		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
-		if (mainActivity != null) {
-			mainActivity.findViewById(R.id.left_drawer_loading).setVisibility(View.VISIBLE);
+	private ABFragment getNewStaticFragmentAt(Integer navItemId) {
+		if (navItemId == null) {
+			MTLog.w(this, "getNewStaticFragmentAt() > skip (nav item ID null)");
+			return null;
+		}
+		switch (navItemId) {
+		case R.id.nav_home:
+			return HomeFragment.newInstance(null);
+		case R.id.nav_favorites:
+			return FavoritesFragment.newInstance();
+		case R.id.nav_nearby:
+			return NearbyFragment.newNearbyInstance(null, null);
+		case R.id.nav_map:
+			return MapFragment.newInstance(null, null, null);
+		case R.id.nav_news:
+			return NewsFragment.newInstance(null, null, null, null, null);
+		}
+		DataSourceType dst = DataSourceType.parseNavResId(navItemId);
+		if (dst != null) {
+			return AgencyTypeFragment.newInstance(dst.getId(), dst);
+		}
+		MTLog.w(this, "getNewStaticFragmentAt() > Unexpected screen nav item ID: %s", navItemId);
+		return null;
+	}
+
+	private void startNewScreen(Activity activity, Integer navItemId) {
+		if (navItemId == null) {
+			MTLog.w(this, "startNewScreen() > skip (nav item ID null)");
+			return;
+		}
+		if (activity == null) {
+			MTLog.w(this, "startNewScreen() > skip (activity null)");
+			return;
+		}
+		switch (navItemId) {
+		case R.id.nav_settings:
+			activity.startActivity(PreferencesActivity.newInstance(activity));
+		default:
+			MTLog.w(this, "startNewScreen() > Unexptected screen nav item ID: %s", navItemId);
+		}
+	}
+
+	private boolean isRootScreen(Integer navItemId) {
+		if (navItemId == null) {
+			MTLog.w(this, "isRootScreen() > null (return false)");
+			return false;
+		}
+		switch (navItemId) {
+		case R.id.nav_settings:
+			return false;
+		default:
+			return true;
 		}
 	}
 
 	public void openDrawer() {
-		if (this.drawerLayout != null && this.leftDrawer != null) {
-			this.drawerLayout.openDrawer(this.leftDrawer);
+		if (this.drawerLayout != null && this.navigationView != null) {
+			this.drawerLayout.openDrawer(this.navigationView);
 		}
 	}
 
 	public void closeDrawer() {
-		if (this.drawerLayout != null && this.leftDrawer != null) {
-			this.drawerLayout.closeDrawer(this.leftDrawer);
+		if (this.drawerLayout != null && this.navigationView != null) {
+			this.drawerLayout.closeDrawer(this.navigationView);
 		}
 	}
 
 	public boolean isDrawerOpen() {
-		return this.drawerLayout != null && this.leftDrawer != null && this.drawerLayout.isDrawerOpen(this.leftDrawer);
+		return this.drawerLayout != null && this.navigationView != null && this.drawerLayout.isDrawerOpen(this.navigationView);
 	}
 
 	public boolean onBackPressed() {
@@ -262,40 +473,92 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 
 
 	private boolean isCurrentSelectedSet() {
-		return this.currentSelectedItemPosition >= 0 && !TextUtils.isEmpty(this.currentSelectedScreenItemId);
+		return this.currentSelectedScreenItemNavId != null && !TextUtils.isEmpty(this.currentSelectedScreenItemId);
 	}
 
 	public void setCurrentSelectedItemChecked(boolean checked) {
-		if (this.drawerListView != null && this.currentSelectedItemPosition >= 0) {
-			this.drawerListView.setItemChecked(this.currentSelectedItemPosition, checked);
+		if (this.navigationView != null && this.currentSelectedScreenItemNavId != null) {
+			if (checked) { // unchecked all others (not automatic because multiple groups not handled by navigation view)
+				this.navigationView.getMenu().findItem(this.currentSelectedScreenItemNavId).setCheckable(true);
+				this.navigationView.getMenu().findItem(this.currentSelectedScreenItemNavId).setChecked(true);
+				uncheckOtherMenuItems();
+			} else {
+				this.navigationView.getMenu().findItem(this.currentSelectedScreenItemNavId).setCheckable(false);
+			}
 		}
+	}
+
+	private void uncheckOtherMenuItems() {
+		this.navigationView.getMenu().findItem(R.id.nav_home).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_home);
+		this.navigationView.getMenu().findItem(R.id.nav_favorites).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_favorites);
+		this.navigationView.getMenu().findItem(R.id.nav_nearby).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_nearby);
+		this.navigationView.getMenu().findItem(R.id.nav_map).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_map);
+		this.navigationView.getMenu().findItem(R.id.nav_news).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_news);
+		for (DataSourceType dst : DataSourceType.values()) {
+			if (dst.getNavResId() == this.currentSelectedScreenItemNavId) {
+				continue;
+			}
+			if (!dst.isMenuList()) {
+				continue;
+			}
+			this.navigationView.getMenu().findItem(dst.getNavResId()).setCheckable(false);
+		}
+		this.navigationView.getMenu().findItem(R.id.nav_settings).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_settings);
 	}
 
 	public void onBackStackChanged(int backStackEntryCount) {
 		setCurrentSelectedItemChecked(backStackEntryCount == 0);
 	}
 
+	private boolean modulesUpdated = false;
+
+	@Override
+	public void onModulesUpdated() {
+		this.modulesUpdated = true;
+		if (!this.resumed) {
+			return;
+		}
+		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		ArrayList<DataSourceType> newAllAgencyTypes = filterAgencyTypes(DataSourceProvider.get(mainActivity).getAvailableAgencyTypes());
+		if (CollectionUtils.getSize(this.allAgencyTypes) != CollectionUtils.getSize(newAllAgencyTypes)) {
+			this.allAgencyTypes = newAllAgencyTypes; // force reset
+			setVisibleMenuItems();
+			onMenuUpdated();
+			this.modulesUpdated = false; // processed
+		} else {
+			this.modulesUpdated = false; // nothing to do
+		}
+	}
+
+	private boolean resumed = false;
+
 	public void onResume() {
+		this.resumed = true;
 		if (this.menuUpdated) {
 			onMenuUpdated();
 		}
-		if (this.drawerListViewAdapter != null) {
-			this.drawerListViewAdapter.onResume();
+		if (this.modulesUpdated) {
+			new Handler().post(new Runnable() {
+				@Override
+				public void run() {
+					if (NavigationDrawerController.this.modulesUpdated) {
+						onModulesUpdated();
+					}
+				}
+			});
 		}
 	}
 
 	public void onPause() {
-		if (this.drawerListViewAdapter != null) {
-			this.drawerListViewAdapter.onPause();
-		}
+		this.resumed = false;
 	}
 
-	private static final String EXTRA_SELECTED_ROOT_SCREEN_POSITION = "extra_selected_root_screen";
 	private static final String EXTRA_SELECTED_ROOT_SCREEN_ID = "extra_selected_root_screen_id";
+	private static final String EXTRA_SELECTED_ROOT_SCREEN_NAV_ITEM_ID = "extra_selected_root_screen_nav_item_id";
 
 	public void onSaveState(Bundle outState) {
-		if (this.currentSelectedItemPosition >= 0) {
-			outState.putInt(EXTRA_SELECTED_ROOT_SCREEN_POSITION, this.currentSelectedItemPosition);
+		if (this.currentSelectedScreenItemNavId != null) {
+			outState.putInt(EXTRA_SELECTED_ROOT_SCREEN_NAV_ITEM_ID, this.currentSelectedScreenItemNavId);
 		}
 		if (!TextUtils.isEmpty(this.currentSelectedScreenItemId)) {
 			outState.putString(EXTRA_SELECTED_ROOT_SCREEN_ID, this.currentSelectedScreenItemId);
@@ -303,39 +566,25 @@ public class NavigationDrawerController implements MTLog.Loggable, MenuAdapter.M
 	}
 
 	public void onRestoreState(Bundle savedInstanceState) {
-		Integer newSavedRootScreen = BundleUtils.getInt(EXTRA_SELECTED_ROOT_SCREEN_POSITION, savedInstanceState);
-		if (newSavedRootScreen != null && !newSavedRootScreen.equals(this.currentSelectedItemPosition)) {
-			this.currentSelectedItemPosition = newSavedRootScreen;
+		Integer newSavedRootScreenNavItem = BundleUtils.getInt(EXTRA_SELECTED_ROOT_SCREEN_NAV_ITEM_ID, savedInstanceState);
+		if (newSavedRootScreenNavItem != null && !newSavedRootScreenNavItem.equals(this.currentSelectedScreenItemNavId)) {
+			this.currentSelectedScreenItemNavId = newSavedRootScreenNavItem;
 		}
-		String newRootScreenId = BundleUtils.getString(EXTRA_SELECTED_ROOT_SCREEN_ID);
+		String newRootScreenId = BundleUtils.getString(EXTRA_SELECTED_ROOT_SCREEN_ID, savedInstanceState);
 		if (!TextUtils.isEmpty(newRootScreenId) && !newRootScreenId.equals(this.currentSelectedScreenItemId)) {
 			this.currentSelectedScreenItemId = newRootScreenId;
 		}
 	}
 
-	private void showDrawerLoaded() {
-		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
-		if (mainActivity != null) {
-			if (mainActivity.findViewById(R.id.left_drawer_loading) != null) {
-				mainActivity.findViewById(R.id.left_drawer_loading).setVisibility(View.GONE);
-			}
-		}
-		this.drawerListView.setVisibility(View.VISIBLE);
-	}
-
 	public void destroy() {
+		DataSourceProvider.removeModulesUpdateListener(this);
 		if (this.mainActivityWR != null) {
 			this.mainActivityWR.clear();
 			this.mainActivityWR = null;
 		}
-		if (this.drawerListViewAdapter != null) {
-			this.drawerListViewAdapter.onDestroy();
-			this.drawerListViewAdapter = null;
-		}
-		this.currentSelectedItemPosition = -1;
+		this.currentSelectedScreenItemNavId = null;
 		this.currentSelectedScreenItemId = null;
-		this.leftDrawer = null;
-		this.drawerListView = null;
+		this.navigationView = null;
 		this.drawerToggle = null;
 	}
 

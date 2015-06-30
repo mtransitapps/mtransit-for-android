@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
-    android:paddingTop="4dp" >
+    android:paddingTop="@dimen/title_top_padding" >
     <FrameLayout
         android:id="@+id/moreBtn"
         android:layout_width="wrap_content"
@@ -14,18 +14,15 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="false"
         android:background="?android:attr/selectableItemBackground"
-        android:paddingBottom="8dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:paddingTop="8dp" >
+        android:padding="@dimen/button_padding" >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="@color/button_bg"
+            android:background="@drawable/button_rect_bg"
             android:fontFamily="sans-serif-condensed"
             android:includeFontPadding="false"
-            android:padding="8dp"
+            android:padding="@dimen/button_text_padding"
             android:text="@string/more"
             android:textAllCaps="true"
             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -40,14 +37,16 @@
         android:layout_centerVertical="false"
         android:layout_gravity="center_vertical"
         android:layout_toLeftOf="@id/moreBtn"
-        android:drawablePadding="8dp"
+        android:drawableLeft="@drawable/ic_shop_grey600_24dp"
+        android:drawablePadding="@dimen/title_drawable_padding"
         android:ellipsize="end"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
-        android:paddingBottom="8dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
+        android:paddingBottom="@dimen/title_padding_bottom"
+        android:paddingLeft="@dimen/title_padding_left"
+        android:paddingRight="@dimen/title_padding_right"
+        android:paddingTop="@dimen/title_padding_top"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/ic_menu_holo_light_text" />
+        android:textColor="@color/ic_grey600" />
 </RelativeLayout>

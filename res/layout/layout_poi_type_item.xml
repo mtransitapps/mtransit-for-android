@@ -4,13 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center_vertical"
-    android:drawablePadding="8dp"
+    android:drawablePadding="@dimen/title_drawable_padding"
     android:ellipsize="end"
     android:fontFamily="sans-serif-light"
     android:gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp"
+    android:paddingLeft="@dimen/title_padding_left"
+    android:paddingRight="@dimen/title_padding_right"
     android:singleLine="true"
     android:textAppearance="?android:attr/textAppearanceMedium"
-    android:textColor="@color/ic_menu_holo_light_text" />
+    android:textColor="@color/ic_grey600" />

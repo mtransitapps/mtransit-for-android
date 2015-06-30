@@ -9,4 +9,14 @@
     <dimen name="poi_inner_padding">8dp</dimen>
     <dimen name="poi_status_inner_padding">8dp</dimen>
     <dimen name="action_bar_size_static">56dp</dimen>
+    <dimen name="title_padding_bottom">12dp</dimen>
+    <dimen name="title_padding_left">8dp</dimen>
+    <dimen name="title_padding_right">8dp</dimen>
+    <dimen name="title_padding_top">0dp</dimen>
+    <dimen name="title_drawable_padding">12dp</dimen>
+    <dimen name="title_top_padding">4dp</dimen>
+    <dimen name="button_padding">8dp</dimen>
+    <dimen name="button_text_padding">8dp</dimen>
+    <dimen name="button_drawable_padding">8dp</dimen>
+    <dimen name="button_padding_half">4dp</dimen>
 </resources>

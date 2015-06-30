@@ -34,7 +34,6 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		ServiceUpdatesListViewHolder serviceUpdatesListViewHolder = new ServiceUpdatesListViewHolder();
 		serviceUpdatesListViewHolder.layout = view;
 		serviceUpdatesListViewHolder.messagesTv = (TextView) view.findViewById(R.id.service_udapte_text);
-		serviceUpdatesListViewHolder.titleTv = (TextView) view.findViewById(R.id.service_update_title);
 		view.setTag(serviceUpdatesListViewHolder);
 	}
 
@@ -116,20 +115,12 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		if (serviceMessageDisplayed == 0) {
 			serviceUpdatesListViewHolder.layout.setVisibility(View.GONE);
 		} else {
-			if (isWarning) {
-				serviceUpdatesListViewHolder.titleTv.setText(R.string.warning);
-				serviceUpdatesListViewHolder.titleTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_action_warning_outline_holo_light, 0, 0, 0);
-			} else {
-				serviceUpdatesListViewHolder.titleTv.setText(R.string.information);
-				serviceUpdatesListViewHolder.titleTv.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_action_info_outline_holo_light, 0, 0, 0);
-			}
 			serviceUpdatesListViewHolder.layout.setVisibility(View.VISIBLE);
 		}
 	}
 
 	private static class ServiceUpdatesListViewHolder {
 		View layout;
-		TextView titleTv;
 		TextView messagesTv;
 	}
 }

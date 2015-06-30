@@ -11,22 +11,22 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StringUtils;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.task.MTAsyncTask;
-import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
-import org.mtransit.android.ui.view.SlidingTabLayout;
 
 import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -444,9 +444,11 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (view == null) {
 			return;
 		}
-		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
-		tabs.setCustomTabView(R.layout.layout_tab_indicator, R.id.tab_title);
-		tabs.setOnPageChangeListener(this);
+		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		viewPager.addOnPageChangeListener(this);
+		TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
+		viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
+		tabs.setOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
 		setupTabTheme(view);
 		setupAdapters(view);
 	}
@@ -465,9 +467,8 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (view == null) {
 			return;
 		}
-		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
-		tabs.setViewPager(viewPager); // not linked to adapter changes
+		TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
+		tabs.setTabsFromPagerAdapter(this.adapter);
 	}
 
 	private void showSelectedTab(View view) {
@@ -497,7 +498,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 		Integer abBgColor = getABBgColor(getActivity());
 		if (abBgColor != null) {
-			SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
+			TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
 			tabs.setBackgroundColor(abBgColor);
 		}
 	}

@@ -22,7 +22,6 @@ import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.NavigationDrawerController;
-import org.mtransit.android.ui.view.SlidingTabLayout;
 import org.mtransit.android.util.MapUtils;
 
 import android.app.Activity;
@@ -31,6 +30,7 @@ import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -263,20 +263,23 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	@Override
 	public void onResume() {
 		super.onResume();
+		View view = getView();
 		if (this.modulesUpdated) {
-			getView().post(new Runnable() {
-				@Override
-				public void run() {
-					if (NearbyFragment.this.modulesUpdated) {
-						onModulesUpdated();
+			if (view != null) {
+				view.post(new Runnable() {
+					@Override
+					public void run() {
+						if (NearbyFragment.this.modulesUpdated) {
+							onModulesUpdated();
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 		if (this.lastPageSelected >= 0) {
 			onPageSelected(this.lastPageSelected); // tell current page it's selected
 		}
-		switchView(getView());
+		switchView(view);
 		if (isFixedOn()) {
 			setNewNearbyLocation(LocationUtils.getNewLocation(this.fixedOnLat, this.fixedOnLng));
 		}
@@ -492,9 +495,10 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		viewPager.setOffscreenPageLimit(3);
-		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
-		tabs.setCustomTabView(R.layout.layout_tab_indicator, R.id.tab_title);
-		tabs.setOnPageChangeListener(this);
+		viewPager.addOnPageChangeListener(this);
+		TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
+		viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
+		tabs.setOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
 		setupTabTheme(view);
 		setupAdapters(view);
 		setSwipeRefreshLayoutEnabled(!isFixedOn());
@@ -522,9 +526,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		if (view == null) {
 			return;
 		}
-		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
-		tabs.setViewPager(viewPager); // not linked to adapter changes
+		TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
+		tabs.setTabsFromPagerAdapter(this.adapter);
 	}
 
 	private void showSelectedTab(View view) {
@@ -631,13 +634,15 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		this.nearbyLocationAddress = null;
 		getAbController().setABSubtitle(this, getABSubtitle(getActivity()), false);
 		getAbController().setABReady(this, isABReady(), true);
-		getView().postDelayed(new Runnable() {
-
-			@Override
-			public void run() {
-				findNearbyLocation();
-			}
-		}, TimeUnit.SECONDS.toMillis(1));
+		View view = getView();
+		if (view != null) {
+			view.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					findNearbyLocation();
+				}
+			}, TimeUnit.SECONDS.toMillis(1));
+		}
 	}
 
 	private void broadcastNearbyLocationChanged(Location location) {
@@ -838,8 +843,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		return this.nearbyLocationAddress;
 	}
 
-	public static interface NearbyLocationListener extends MTActivityWithLocation.UserLocationListener {
-		public void onNearbyLocationChanged(Location location);
+	public interface NearbyLocationListener extends MTActivityWithLocation.UserLocationListener {
+		void onNearbyLocationChanged(Location location);
 	}
 
 	private static class AgencyTypePagerAdapter extends FragmentStatePagerAdapter implements MTLog.Loggable {

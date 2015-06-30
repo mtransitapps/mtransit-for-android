@@ -12,7 +12,7 @@
         android:gravity="center_horizontal"
         android:text="@string/ellipsis"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/ic_menu_holo_light_text" />
+        android:textColor="@color/ic_grey600" />
     <FrameLayout
         android:id="@+id/viewFlipper"
         android:layout_width="match_parent"

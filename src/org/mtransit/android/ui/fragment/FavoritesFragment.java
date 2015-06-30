@@ -70,14 +70,16 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		super.onResume();
 		View view = getView();
 		if (this.modulesUpdated) {
-			view.post(new Runnable() {
-				@Override
-				public void run() {
-					if (FavoritesFragment.this.modulesUpdated) {
-						onModulesUpdated();
+			if (view != null) {
+				view.post(new Runnable() {
+					@Override
+					public void run() {
+						if (FavoritesFragment.this.modulesUpdated) {
+							onModulesUpdated();
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 		switchView(view);
 		if (this.adapter != null && this.adapter.isInitialized()) {

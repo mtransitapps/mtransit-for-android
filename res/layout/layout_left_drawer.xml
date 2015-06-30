@@ -4,20 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:drawableLeft="@mipmap/ic_launcher"
-        android:drawablePadding="8dp"
-        android:fontFamily="sans-serif"
-        android:gravity="center_vertical"
-        android:minHeight="@dimen/action_bar_size_static"
-        android:paddingLeft="8dp"
-        android:paddingRight="16dp"
-        android:text="@string/app_name"
-        android:textAppearance="?android:attr/textAppearanceLargeInverse"
-        android:textStyle="normal" />
+    <include layout="@layout/layout_drawer_header"/>
     <FrameLayout
         android:id="@+id/viewFlipper"
         android:layout_width="match_parent"
@@ -25,9 +12,9 @@
         android:background="@color/menu_bg" >
         <include
             android:id="@+id/left_drawer_loading"
+            layout="@layout/layout_loading_large"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            layout="@layout/layout_loading_large"
             android:visibility="visible" />
         <ListView
             android:id="@+id/left_drawer_list"

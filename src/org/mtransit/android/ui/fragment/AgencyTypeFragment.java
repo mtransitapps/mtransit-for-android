@@ -23,7 +23,6 @@ import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.NavigationDrawerController;
-import org.mtransit.android.ui.view.SlidingTabLayout;
 
 import android.app.Activity;
 import android.content.Context;
@@ -31,6 +30,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -178,9 +178,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		if (view == null) {
 			return;
 		}
-		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
-		tabs.setViewPager(viewPager); // not linked to adapter changes
+		TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
+		tabs.setTabsFromPagerAdapter(this.adapter);
 	}
 
 	private void showSelectedTab(View view) {
@@ -210,9 +209,10 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		viewPager.setOffscreenPageLimit(3);
-		SlidingTabLayout tabs = (SlidingTabLayout) view.findViewById(R.id.tabs);
-		tabs.setCustomTabView(R.layout.layout_tab_indicator, R.id.tab_title);
-		tabs.setOnPageChangeListener(this);
+		viewPager.addOnPageChangeListener(this);
+		TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
+		viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
+		tabs.setOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
 		setupAdapter(view);
 	}
 
@@ -227,7 +227,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	private void initABColorizer(Context context) {
 		ArrayList<AgencyProperties> agencies = getTypeAgenciesOrNull();
-		if (context != null && CollectionUtils.getSize(agencies) > 0) {
+		if (context != null && agencies != null && agencies.size() > 0) {
 			int defaultColor = ThemeUtils.resolveColorAttribute(context, R.attr.colorPrimary);
 			this.abColorizer = new ActionBarController.SimpleActionBarColorizer();
 			int[] agencyColors = new int[agencies.size()];
@@ -485,14 +485,16 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		super.onResume();
 		View view = getView();
 		if (this.modulesUpdated) {
-			view.post(new Runnable() {
-				@Override
-				public void run() {
-					if (AgencyTypeFragment.this.modulesUpdated) {
-						onModulesUpdated();
+			if (view != null) {
+				view.post(new Runnable() {
+					@Override
+					public void run() {
+						if (AgencyTypeFragment.this.modulesUpdated) {
+							onModulesUpdated();
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 		if (this.lastPageSelected >= 0) {
 			onPageSelected(this.lastPageSelected); // tell current page it's selected
@@ -707,7 +709,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	@Override
 	public CharSequence getABTitle(Context context) {
 		if (context == null) {
-			return super.getABTitle(context);
+			return super.getABTitle(null);
 		}
 		DataSourceType type = getTypeOrNull();
 		if (type == null) {
@@ -843,8 +845,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 	}
 
-	public static interface AgencyFragment extends VisibilityAwareFragment {
-		public String getAgencyAuthority();
+	public interface AgencyFragment extends VisibilityAwareFragment {
+		String getAgencyAuthority();
 	}
-
 }
