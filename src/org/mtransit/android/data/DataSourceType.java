@@ -181,7 +181,11 @@ public enum DataSourceType {
 		return searchable;
 	}
 
-	public static DataSourceType parseId(int id) {
+	public static DataSourceType parseId(Integer id) {
+		if (id == null) {
+			MTLog.w(TAG, "ID 'null' doesn't match any type!");
+			return null;
+		}
 		switch (id) {
 		case 0:
 			return TYPE_LIGHT_RAIL;

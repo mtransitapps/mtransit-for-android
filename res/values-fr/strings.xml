@@ -86,8 +86,6 @@
     <string name="availability">Disponibilité</string>
     <string name="full_schedule">Horaires Complets</string>
     <string name="local_time_and_time">%s heure locale</string>
-    <string name="information">Information</string>
-    <string name="warning">Avertissement</string>
     <string name="display_pref_cat_title">Affichage</string>
     <string name="unit_pref_title">Unités</string>
     <string name="unit_pref_summary">Métrique (km/m) ou impérial (mi/ft).</string>

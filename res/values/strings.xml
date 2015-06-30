@@ -86,8 +86,6 @@
     <string name="availability">Availability</string>
     <string name="full_schedule">Full Schedules</string>
     <string name="local_time_and_time">%s local time</string>
-    <string name="information">Information</string>
-    <string name="warning">Warning</string>
     <string name="display_pref_cat_title">Display</string>
     <string name="unit_pref_title">Units</string>
     <string name="unit_pref_summary">Metric(km/m) or Imperial(mi/ft).</string>

@@ -194,12 +194,14 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			}
 			this.navigationView.getMenu().findItem(dst.getNavResId()).setVisible(false);
 		}
-		for (DataSourceType dst : allAgencyTypes) {
-			if (this.navigationView.getMenu().findItem(dst.getNavResId()) == null) {
-				MenuItem newMenuItem = this.navigationView.getMenu().add(R.id.drawer_modules, dst.getNavResId(), Menu.NONE, dst.getAllStringResId());
-				newMenuItem.setIcon(dst.getBlackIconResId());
+		if (allAgencyTypes != null) {
+			for (DataSourceType dst : allAgencyTypes) {
+				if (this.navigationView.getMenu().findItem(dst.getNavResId()) == null) {
+					MenuItem newMenuItem = this.navigationView.getMenu().add(R.id.drawer_modules, dst.getNavResId(), Menu.NONE, dst.getAllStringResId());
+					newMenuItem.setIcon(dst.getBlackIconResId());
+				}
+				this.navigationView.getMenu().findItem(dst.getNavResId()).setVisible(true);
 			}
-			this.navigationView.getMenu().findItem(dst.getNavResId()).setVisible(true);
 		}
 	}
 
@@ -293,8 +295,10 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			}
 		} else if (itemId.startsWith(ITEM_ID_AGENCYTYPE_START_WITH)) {
 			try {
-				int typeId = Integer.parseInt(itemId.substring(ITEM_ID_AGENCYTYPE_START_WITH.length()));
-				return DataSourceType.parseId(typeId).getNavResId();
+				DataSourceType dst = DataSourceType.parseId(Integer.parseInt(itemId.substring(ITEM_ID_AGENCYTYPE_START_WITH.length())));
+				if (dst != null) {
+					return dst.getNavResId();
+				}
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while finding agency type screen item ID '%s'!", itemId);
 				return ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT;
