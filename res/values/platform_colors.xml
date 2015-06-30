@@ -6,7 +6,6 @@
     <color name="platform_background_holo_light_gradient_start_color">#FFE8E8E8</color>
     <color name="platform_background_holo_light_gradient_end_color">#FFFFFFFF</color>
     <!-- FROM @android:drawable/list_divider_holo_light (API Level 19) -->
-    <color name="platform_list_divider_holo_light">#1A000000</color>
     <!-- FROM @android:color/primary_material_light (API Level 21) -->
     <color name="platform_primary_material_light">#ffbdbdbd</color>
     <!-- FROM @android:color/primary_material_dark (API Level 21) -->
