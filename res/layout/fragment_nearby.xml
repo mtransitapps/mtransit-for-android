@@ -13,9 +13,11 @@
         android:layout_height="wrap_content"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:visibility="gone"
+        app:tabContentStart="@dimen/tab_content_start"
         app:tabGravity="fill"
         app:tabIndicatorColor="@android:color/white"
-        app:tabMode="scrollable" />
+        app:tabMode="scrollable"
+        app:tabTextAppearance="@style/MTTabTextStyle" />
     <!-- LOADING -->
     <include
         android:id="@+id/loading"
