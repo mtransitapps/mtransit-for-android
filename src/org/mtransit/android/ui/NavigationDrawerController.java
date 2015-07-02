@@ -297,7 +297,10 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			try {
 				DataSourceType dst = DataSourceType.parseId(Integer.parseInt(itemId.substring(ITEM_ID_AGENCYTYPE_START_WITH.length())));
 				if (dst != null) {
-					return dst.getNavResId();
+					ArrayList<DataSourceType> allAgencyTypes = getAllAgencyTypes();
+					if (allAgencyTypes != null && allAgencyTypes.contains(dst)) {
+						return dst.getNavResId();
+					}
 				}
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while finding agency type screen item ID '%s'!", itemId);
