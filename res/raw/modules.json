@@ -5,6 +5,7 @@
 {"name":"Bike Share Toronto","name_fr":"","location":"Toronto, ON, Canada","targetTypeId":"100","color":"107054","lat":"43.651890","lng":"-79.383337","pkg":"org.mtransit.android.ca_toronto_share_bike"},
 {"name":"BIXI Montréal","name_fr":"BIXI Montréal","location":"Montréal, Westmount, Longueuil, QC, Canada","targetTypeId":"100","color":"D42B1E","lat":"45.542771","lng":"-73.581281","pkg":"org.mtransit.android.ca_montreal_bixi_bike"},
 {"name":"Brampton Transit (City of Brampton)","name_fr":"","location":"Brampton, ON, Canada","targetTypeId":"3","color":"DB3935","lat":"43.706969","lng":"-79.724756","pkg":"org.mtransit.android.ca_brampton_transit_bus"},
+{"name":"Brandon Transit (City of Brandon)","name_fr":"","location":"Brandon, MB, Canada","targetTypeId":"3","color":"00B8F1","lat":"49.826616","lng":"-99.927767","pkg":"org.mtransit.android.ca_brandon_transit_bus"},
 {"name":"Burlington Transit (City of Burlington)","name_fr":"","location":"Burlington, ON, Canada","targetTypeId":"3","color":"006184","lat":"43.326095","lng":"-79.798886","pkg":"org.mtransit.android.ca_burlington_transit_bus"},
 {"name":"Calgary Transit Buses","name_fr":"","location":"Calgary, AB, Canada","targetTypeId":"3","color":"B83A3F","lat":"51.046293","lng":"-114.059151","pkg":"org.mtransit.android.ca_calgary_transit_bus"},
 {"name":"Calgary Transit C-Trains (CTrain)","name_fr":"","location":"Calgary, AB, Canada","targetTypeId":"2","color":"B83A3F","lat":"51.046803","lng":"-114.072417","pkg":"org.mtransit.android.ca_calgary_transit_train"},
