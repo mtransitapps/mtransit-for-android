@@ -190,7 +190,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 			ProviderInfo[] providers = packageInfo.providers;
 			if (providers != null) {
 				for (ProviderInfo provider : providers) {
-					if (provider.metaData != null) {
+					if (provider != null && provider.metaData != null) {
 						if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
 							if (!instance.hasAgency(provider.authority)) {
 								return true;
