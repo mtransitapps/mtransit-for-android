@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 dependencies {
     compile project(':commons-android')
     compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.android.support:design:22.2.0'
+    compile 'com.android.support:design:22.2.1'
     compile 'com.google.android.gms:play-services-ads:7.3.0'
     compile 'com.google.android.gms:play-services-base:7.3.0'
     compile 'com.google.android.gms:play-services-location:7.3.0'
