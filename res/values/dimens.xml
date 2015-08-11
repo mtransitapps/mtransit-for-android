@@ -18,4 +18,5 @@
     <dimen name="button_drawable_padding">8dp</dimen>
     <dimen name="button_padding_half">4dp</dimen>
     <dimen name="tab_content_start">20dp</dimen>
+    <dimen name="route_short_name_text_size">34dp</dimen>
 </resources>

@@ -6,7 +6,6 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
-import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.data.AgencyProperties;
@@ -556,9 +555,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
 					SpannableStringBuilder ssb = new SpannableStringBuilder(route.getShortName());
-					if (ssb.length() > 3) {
-						SpanUtils.set(ssb, ssb.length() > 7 ? SpanUtils.TWENTY_FIVE_PERCENT_SIZE_SPAN : SpanUtils.FIFTY_PERCENT_SIZE_SPAN);
-					}
+					Route.setShortNameSize(ssb);
 					holder.routeShortNameTv.setText(ssb);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}

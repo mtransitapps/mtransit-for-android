@@ -14,7 +14,7 @@
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@android:color/white"
-        android:textSize="34dp"
+        android:textSize="@dimen/route_short_name_text_size"
         android:textStyle="bold"
         android:visibility="gone"
         tools:ignore="SpUsage"

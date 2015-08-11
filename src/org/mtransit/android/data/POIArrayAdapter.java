@@ -15,7 +15,6 @@ import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SensorUtils;
-import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.api.SupportFactory;
@@ -1506,9 +1505,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
 					SpannableStringBuilder ssb = new SpannableStringBuilder(route.getShortName());
-					if (ssb.length() > 3) {
-						SpanUtils.set(ssb, ssb.length() > 7 ? SpanUtils.TWENTY_FIVE_PERCENT_SIZE_SPAN : SpanUtils.FIFTY_PERCENT_SIZE_SPAN);
-					}
+					Route.setShortNameSize(ssb);
 					holder.routeShortNameTv.setText(ssb);
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
