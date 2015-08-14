@@ -403,6 +403,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		switch (navItemId) {
 		case R.id.nav_settings:
 			activity.startActivity(PreferencesActivity.newInstance(activity));
+			break;
 		default:
 			MTLog.w(this, "startNewScreen() > Unexptected screen nav item ID: %s", navItemId);
 		}
