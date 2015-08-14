@@ -13,7 +13,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="true"
         android:layout_centerVertical="true"
-        android:padding="3dp"
+        android:padding="@dimen/poi_fav_padding"
         android:scaleType="fitCenter"
         android:src="@drawable/star_on_light"
         android:visibility="gone"

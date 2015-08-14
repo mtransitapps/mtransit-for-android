@@ -17,7 +17,7 @@
         android:layout_width="@dimen/poi_img_width"
         android:layout_height="@dimen/poi_img_height"
         android:layout_gravity="center_horizontal"
-        android:padding="8dp"
+        android:padding="@dimen/poi_img_padding"
         android:visibility="gone"
         tools:visibility="visible" />
     <TextView
