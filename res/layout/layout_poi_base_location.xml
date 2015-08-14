@@ -8,8 +8,8 @@
     <!-- FAVORITE -->
     <ImageView
         android:id="@+id/fav"
-        android:layout_width="?android:attr/listPreferredItemHeight"
-        android:layout_height="match_parent"
+        android:layout_width="@dimen/poi_img_width"
+        android:layout_height="@dimen/poi_img_height"
         android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="true"
         android:layout_centerVertical="true"
