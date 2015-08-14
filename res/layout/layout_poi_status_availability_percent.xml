@@ -9,19 +9,15 @@
     android:layout_centerVertical="true"
     android:minWidth="?android:attr/listPreferredItemHeight"
     android:orientation="vertical"
-    android:paddingLeft="1dp"
-    android:paddingRight="1dp"
     android:visibility="invisible"
     tools:visibility="visible" >
     <!-- PIE CHART % -->
     <org.mtransit.android.ui.view.MTPieChartPercentView
         android:id="@+id/pie"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="?android:attr/listPreferredItemHeight"
+        android:layout_height="match_parent"
         android:layout_gravity="center_horizontal"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
-        android:layout_marginTop="0dp"
+        android:padding="8dp"
         android:visibility="gone"
         tools:visibility="visible" />
     <TextView
