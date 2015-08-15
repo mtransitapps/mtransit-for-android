@@ -22,12 +22,13 @@
         android:minWidth="?android:attr/listPreferredItemHeight" />
     <include
         android:id="@+id/module_extra"
+        android:layout_marginRight="@dimen/poi_extra_margin_right"
         layout="@layout/layout_poi_module_extras" />
     <include
         android:id="@+id/poi"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/poi_inner_padding"
+        android:layout_marginLeft="@dimen/poi_margin_left"
         android:layout_toLeftOf="@id/status"
         android:layout_toRightOf="@id/module_extra"
         layout="@layout/layout_poi_base_location" />

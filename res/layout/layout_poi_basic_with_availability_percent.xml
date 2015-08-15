@@ -24,7 +24,7 @@
         android:id="@+id/poi"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/poi_inner_padding"
+        android:layout_marginLeft="@dimen/poi_margin_left"
         android:layout_toLeftOf="@id/status"
         layout="@layout/layout_poi_base_distance_and_compass" />
 </RelativeLayout>
