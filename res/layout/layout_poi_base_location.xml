@@ -24,8 +24,8 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:orientation="vertical"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp" >
+        android:paddingLeft="@dimen/poi_place_left_padding"
+        android:paddingRight="@dimen/poi_place_right_padding" >
         <!-- NAME -->
         <TextView
             android:id="@+id/name"

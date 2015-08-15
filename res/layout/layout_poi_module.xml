@@ -6,11 +6,14 @@
     android:background="@color/poi_item_bg"
     android:clipChildren="false"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:padding="@dimen/poi_padding" >
+    android:paddingBottom="@dimen/poi_padding_bottom"
+    android:paddingLeft="@dimen/poi_padding_left_extra"
+    android:paddingRight="@dimen/poi_padding_right"
+    android:paddingTop="@dimen/poi_padding_top" >
     <include
         android:id="@+id/poi"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/poi_inner_padding"
-        layout="@layout/layout_poi_base_distance_and_compass" />
+        layout="@layout/layout_poi_base_location" />
 </RelativeLayout>

@@ -3,10 +3,11 @@
     android:id="@+id/name"
     style="?android:attr/listSeparatorTextViewStyle"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/header_height"
     android:drawablePadding="@dimen/title_drawable_padding"
     android:ellipsize="end"
     android:fontFamily="sans-serif"
     android:paddingLeft="@dimen/title_padding_left"
     android:paddingRight="@dimen/title_padding_right"
+    android:paddingTop="@dimen/title_top_padding"
     android:textColor="@color/ic_grey600" />

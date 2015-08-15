@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/poi_item_bg"
-        android:minHeight="?android:attr/listPreferredItemHeight"
+        android:minHeight="?android:attr/listPreferredItemHeightLarge"
         android:scrollbars="none" >
         <TextView
             android:id="@+id/next_departures_times"
@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:ellipsize="marquee"
-            android:minHeight="?android:attr/listPreferredItemHeightSmall"
+            android:minHeight="?android:attr/listPreferredItemHeight"
             android:padding="8dp"
             android:scrollHorizontally="true"
             android:singleLine="true"

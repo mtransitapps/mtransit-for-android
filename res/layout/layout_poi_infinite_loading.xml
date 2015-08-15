@@ -5,7 +5,10 @@
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:focusable="false"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:padding="@dimen/poi_padding" >
+    android:paddingBottom="@dimen/poi_padding_bottom"
+    android:paddingLeft="@dimen/poi_padding_left_no_extra"
+    android:paddingRight="@dimen/poi_padding_right"
+    android:paddingTop="@dimen/poi_padding_top" >
     <ProgressBar
         android:id="@+id/progress_bar"
         style="?android:attr/android:progressBarStyle"

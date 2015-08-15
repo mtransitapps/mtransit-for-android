@@ -2,9 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="56dp"
+    android:layout_height="@dimen/header_height"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
-    android:paddingTop="4dp" >
+    android:paddingTop="@dimen/title_top_padding" >
     <FrameLayout
         android:id="@+id/fullScheduleBtn"
         android:layout_width="wrap_content"
