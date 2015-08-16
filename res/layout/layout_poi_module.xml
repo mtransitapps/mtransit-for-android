@@ -11,7 +11,7 @@
     android:paddingRight="@dimen/poi_padding_right"
     android:paddingTop="@dimen/poi_padding_top" >
     <include
-        android:id="@+id/module_extra"
+        android:id="@+id/extra"
         android:layout_marginRight="@dimen/poi_extra_margin_right"
         layout="@layout/layout_poi_module_extras" />
     <include
@@ -19,6 +19,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/poi_margin_left"
-        android:layout_toRightOf="@id/module_extra"
+        android:layout_toRightOf="@id/extra"
         layout="@layout/layout_poi_base_location" />
 </RelativeLayout>

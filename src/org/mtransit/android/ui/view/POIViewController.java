@@ -154,7 +154,7 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static void initRTSExtra(View view, RouteTripStopViewHolder holder) {
-		holder.rtsExtraV = view.findViewById(R.id.rts_extra);
+		holder.rtsExtraV = view.findViewById(R.id.extra);
 		holder.routeFL = view.findViewById(R.id.route);
 		holder.routeShortNameTv = (TextView) view.findViewById(R.id.route_short_name);
 		holder.routeTypeImg = (MTJPathsView) view.findViewById(R.id.route_type_img);
@@ -249,9 +249,15 @@ public class POIViewController implements MTLog.Loggable {
 		if (poim.poi instanceof RouteTripStop) {
 			RouteTripStop rts = (RouteTripStop) poim.poi;
 			if (dataProvider != null && dataProvider.isShowingExtra() && rts.getRoute() == null) {
-				holder.rtsExtraV.setVisibility(View.GONE);
-				holder.routeFL.setVisibility(View.GONE);
-				holder.tripHeadingBg.setVisibility(View.GONE);
+				if (holder.rtsExtraV != null) {
+					holder.rtsExtraV.setVisibility(View.GONE);
+				}
+				if (holder.routeFL != null) {
+					holder.routeFL.setVisibility(View.GONE);
+				}
+				if (holder.tripHeadingBg != null) {
+					holder.tripHeadingBg.setVisibility(View.GONE);
+				}
 			} else {
 				final String authority = rts.getAuthority();
 				final Route route = rts.getRoute();

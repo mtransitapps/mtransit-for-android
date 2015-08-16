@@ -2,7 +2,7 @@
 <!-- ROUTE TRIP -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rts_extra"
+    android:id="@+id/extra"
     android:layout_width="?android:attr/listPreferredItemHeight"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:layout_alignParentLeft="true" >

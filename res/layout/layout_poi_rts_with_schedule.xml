@@ -33,7 +33,7 @@
         layout="@layout/layout_poi_status_schedule"
         android:minWidth="?android:attr/listPreferredItemHeight" />
     <include
-        android:id="@+id/rts_extra"
+        android:id="@+id/extra"
         android:layout_marginRight="@dimen/poi_extra_margin_right"
         layout="@layout/layout_poi_rts_extras" />
     <include
@@ -42,6 +42,6 @@
         android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/poi_margin_left"
         android:layout_toLeftOf="@id/status"
-        android:layout_toRightOf="@id/rts_extra"
+        android:layout_toRightOf="@id/extra"
         layout="@layout/layout_poi_base_distance_and_compass" />
 </RelativeLayout>

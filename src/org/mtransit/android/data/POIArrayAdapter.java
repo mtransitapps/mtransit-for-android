@@ -1370,7 +1370,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		case POI.ITEM_STATUS_TYPE_NONE:
 			break;
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			layoutRes = R.layout.layout_poi_rts_with_schedule;
+			if (this.showExtra) {
+				layoutRes = R.layout.layout_poi_rts_with_schedule;
+			} else {
+				layoutRes = R.layout.layout_poi_basic_with_schedule;
+			}
 			break;
 		default:
 			MTLog.w(this, "Unexpected status '%s' (rts view w/o status)!", status);
@@ -1393,7 +1397,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	private void initModuleExtra(View convertView, ModuleViewHolder holder) {
-		holder.moduleTypeImg = (ImageView) convertView.findViewById(R.id.module_extra);
+		holder.moduleExtraTypeImg = (ImageView) convertView.findViewById(R.id.extra);
 	}
 
 	private View updateModuleView(POIManager poim, View convertView) {
@@ -1410,16 +1414,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private void updateModuleExtra(POIManager poim, ModuleViewHolder holder) {
 		if (this.showExtra && poim.poi != null && poim.poi instanceof Module) {
 			Module module = (Module) poim.poi;
-			holder.moduleTypeImg.setBackgroundColor(poim.getColor(getContext()));
+			holder.moduleExtraTypeImg.setBackgroundColor(poim.getColor(getContext()));
 			DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
 			if (moduleType != null) {
-				holder.moduleTypeImg.setImageResource(moduleType.getWhiteIconResId());
+				holder.moduleExtraTypeImg.setImageResource(moduleType.getWhiteIconResId());
 			} else {
-				holder.moduleTypeImg.setImageResource(0);
+				holder.moduleExtraTypeImg.setImageResource(0);
 			}
-			holder.moduleTypeImg.setVisibility(View.VISIBLE);
+			holder.moduleExtraTypeImg.setVisibility(View.VISIBLE);
 		} else {
-			holder.moduleTypeImg.setVisibility(View.GONE);
+			holder.moduleExtraTypeImg.setVisibility(View.GONE);
 		}
 	}
 
@@ -1452,7 +1456,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	private void initRTSExtra(View convertView, RouteTripStopViewHolder holder) {
-		holder.rtsExtraV = convertView.findViewById(R.id.rts_extra);
+		holder.rtsExtraV = convertView.findViewById(R.id.extra);
 		holder.routeFL = convertView.findViewById(R.id.route);
 		holder.routeShortNameTv = (TextView) convertView.findViewById(R.id.route_short_name);
 		holder.routeTypeImg = (MTJPathsView) convertView.findViewById(R.id.route_type_img);
@@ -1481,9 +1485,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (poim.poi instanceof RouteTripStop) {
 			RouteTripStop rts = (RouteTripStop) poim.poi;
 			if (!this.showExtra || rts.getRoute() == null) {
-				holder.rtsExtraV.setVisibility(View.GONE);
-				holder.routeFL.setVisibility(View.GONE);
-				holder.tripHeadingBg.setVisibility(View.GONE);
+				if (holder.rtsExtraV != null) {
+					holder.rtsExtraV.setVisibility(View.GONE);
+				}
+				if (holder.routeFL != null) {
+					holder.routeFL.setVisibility(View.GONE);
+				}
+				if (holder.tripHeadingBg != null) {
+					holder.tripHeadingBg.setVisibility(View.GONE);
+				}
 			} else {
 				final String authority = rts.getAuthority();
 				final Route route = rts.getRoute();
@@ -1803,7 +1813,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	public static class ModuleViewHolder extends CommonViewHolder {
-		ImageView moduleTypeImg;
+		ImageView moduleExtraTypeImg;
 	}
 
 	public static class RouteTripStopViewHolder extends CommonViewHolder {
