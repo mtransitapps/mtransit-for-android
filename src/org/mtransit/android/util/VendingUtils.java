@@ -205,46 +205,46 @@ public final class VendingUtils implements MTLog.Loggable {
 	}
 
 	public static void logInventory(Activity activity) {
-		MTLog.v(TAG, "logInventory(%s)", activity);
+		MTLog.i(TAG, "logInventory(%s)", activity);
 		try {
-			MTLog.d(TAG, "logInventory() > mHelper: %s", mHelper);
+			MTLog.i(TAG, "logInventory() > mHelper: %s", mHelper);
 			if (mHelper != null && mHelper.subscriptionsSupported()) {
-				MTLog.d(TAG, "logInventory() > Query inventory...");
+				MTLog.i(TAG, "logInventory() > Query inventory...");
 				mHelper.queryInventoryAsync(new IabHelper.QueryInventoryFinishedListener() {
 					@Override
 					public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
-						MTLog.v(TAG, "onQueryInventoryFinished(%s,%s)", result, inventory);
-						MTLog.d(TAG, "Query inventory finished.");
+						MTLog.i(TAG, "onQueryInventoryFinished(%s,%s)", result, inventory);
+						MTLog.i(TAG, "Query inventory finished.");
 						if (result == null || result.isFailure() || inventory == null) {
 							MTLog.w(TAG, "Failed to query inventory: %s (%s)", result, inventory);
 							return;
 						}
-						MTLog.d(TAG, "Query inventory was successful.");
-						MTLog.d(TAG, "all sku...");
+						MTLog.i(TAG, "Query inventory was successful.");
+						MTLog.i(TAG, "all sku...");
 						for (String sku : inventory.getAllSkus()) {
 							if (!inventory.hasDetails(sku)) {
-								MTLog.d(TAG, "Skip sku %s (no details)", sku);
+								MTLog.i(TAG, "Skip sku %s (no details)", sku);
 								continue;
 							}
 							SkuDetails skuDetails = inventory.getSkuDetails(sku);
-							MTLog.d(TAG, "sku: %s: %s", sku, skuDetails);
+							MTLog.i(TAG, "sku: %s: %s", sku, skuDetails);
 						}
-						MTLog.d(TAG, "all sku... DONE");
-						MTLog.d(TAG, "all owned sku...");
+						MTLog.i(TAG, "all sku... DONE");
+						MTLog.i(TAG, "all owned sku...");
 						for (String sku : inventory.getAllOwnedSkus()) {
 							if (!inventory.hasDetails(sku)) {
-								MTLog.d(TAG, "Skip sku %s (no details)", sku);
+								MTLog.i(TAG, "Skip sku %s (no details)", sku);
 								continue;
 							}
 							SkuDetails skuDetails = inventory.getSkuDetails(sku);
-							MTLog.d(TAG, "sku: %s: %s", sku, skuDetails);
+							MTLog.i(TAG, "sku: %s: %s", sku, skuDetails);
 						}
-						MTLog.d(TAG, "all owned sku... DONE");
-						MTLog.d(TAG, "all purchase...");
+						MTLog.i(TAG, "all owned sku... DONE");
+						MTLog.i(TAG, "all purchase...");
 						for (Purchase purchase : inventory.getAllPurchases()) {
-							MTLog.d(TAG, "purchase: %s", purchase);
+							MTLog.i(TAG, "purchase: %s", purchase);
 						}
-						MTLog.d(TAG, "all purchase... DONE");
+						MTLog.i(TAG, "all purchase... DONE");
 					}
 				});
 			}
