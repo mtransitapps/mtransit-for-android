@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 // based on the Google IAB sample (Apache License, Version 2.0)
 public class Inventory {
@@ -34,11 +35,11 @@ public class Inventory {
 		if (mPurchaseMap.containsKey(sku)) mPurchaseMap.remove(sku);
 	}
 
-	List<String> getAllOwnedSkus() {
+	public List<String> getAllOwnedSkus() {
 		return new ArrayList<String>(mPurchaseMap.keySet());
 	}
 
-	List<String> getAllOwnedSkus(String itemType) {
+	public List<String> getAllOwnedSkus(String itemType) {
 		List<String> result = new ArrayList<String>();
 		for (Purchase p : mPurchaseMap.values()) {
 			if (p.getItemType().equals(itemType)) result.add(p.getSku());
@@ -46,15 +47,19 @@ public class Inventory {
 		return result;
 	}
 
-	List<Purchase> getAllPurchases() {
+	public List<Purchase> getAllPurchases() {
 		return new ArrayList<Purchase>(mPurchaseMap.values());
 	}
 
-	void addSkuDetails(SkuDetails d) {
+	public Set<String> getAllSkus() {
+		return mSkuMap.keySet();
+	}
+
+	public void addSkuDetails(SkuDetails d) {
 		mSkuMap.put(d.getSku(), d);
 	}
 
-	void addPurchase(Purchase p) {
+	public void addPurchase(Purchase p) {
 		mPurchaseMap.put(p.getSku(), p);
 	}
 }

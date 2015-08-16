@@ -33,7 +33,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 			public boolean onPreferenceClick(Preference preference) {
 				Activity activity = getActivity();
 				if (activity == null) {
-					return false;
+					return false; // not handled
 				}
 				Boolean hasSubscription = VendingUtils.isHasSubscription(activity);
 				if (hasSubscription == null) {
@@ -42,7 +42,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 				} else {
 					VendingUtils.purchase(activity, VendingUtils.MONTHLY_SUBSCRIPTION_SKU);
 				}
-				return false;
+				return true; // handled
 			}
 		});
 	}
@@ -71,6 +71,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 			setUnitSummary(getActivity());
 		} else if (PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER.equals(key)) {
 			setUseInternalWebBrowserSummary(getActivity());
+			VendingUtils.logInventory(getActivity());
 		}
 	}
 
