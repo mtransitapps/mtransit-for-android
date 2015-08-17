@@ -5,13 +5,13 @@ import org.mtransit.android.commons.MTLog;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,9 +20,9 @@ import android.view.ViewGroup;
 /**
  * NO LOGIC HERE, just logs.
  */
-public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog.Loggable {
+public abstract class MTDialogFragment extends DialogFragment implements MTLog.Loggable {
 
-	public MTDialogFragmentV4() {
+	public MTDialogFragment() {
 		super();
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "%s()", getLogTag());

@@ -105,4 +105,10 @@
     <string name="support_subs_user_canceled_message">Maybe another time.</string>
     <string name="support_subs_authenticity_check_fail_message">Cannot verify authenticity!</string>
     <string name="support_subs_purchase_successful_message">Thank You :)</string>
+    <string name="support_subs_pick_price">Pick your price ;)</string>
+    <string name="support_subs_try_cancel">(1 month free, cancel anytime)</string>
+    <string name="support_subs_buy_with_play">Buy with Google Play</string>
+    <string name="support_every_week">week</string>
+    <string name="support_every_month">month</string>
+    <string name="support_every_year">year</string>
 </resources>

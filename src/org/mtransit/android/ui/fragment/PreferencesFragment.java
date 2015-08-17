@@ -40,7 +40,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 				} else if (hasSubscription) {
 					StoreUtils.viewAppPage(activity, activity.getPackageName(), activity.getString(R.string.google_play));
 				} else {
-					VendingUtils.purchase(activity, VendingUtils.MONTHLY_SUBSCRIPTION_SKU);
+					VendingUtils.purchase(activity);
 				}
 				return true; // handled
 			}

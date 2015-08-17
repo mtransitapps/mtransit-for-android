@@ -1,7 +1,7 @@
 package org.mtransit.android.util;
 
 import java.lang.ref.WeakReference;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.WeakHashMap;
@@ -10,6 +10,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.ToastUtils;
+import org.mtransit.android.ui.fragment.PurchaseDialogFragment;
 import org.mtransit.android.util.iab.IabHelper;
 import org.mtransit.android.util.iab.IabResult;
 import org.mtransit.android.util.iab.Inventory;
@@ -31,52 +32,30 @@ public final class VendingUtils implements MTLog.Loggable {
 	}
 
 	private static final boolean FORCE_HAS_SUBSCRIPTION = false;
+
 	private static final boolean FORCE_DO_NOT_HAVE_SUBSCRIPTION = false;
 
-	public static final String MONTHLY_SUBSCRIPTION_SKU = "monthly_subscription";
-
-	public static final HashSet<String> AVAILABLE_SUBSCRIPTIONS;
+	public static final ArrayList<String> AVAILABLE_SUBSCRIPTIONS;
 	static {
-		HashSet<String> set = new HashSet<String>();
-		set.add("f_weekly_subscription_1");
-		set.add("f_weekly_subscription_2");
-		set.add("f_weekly_subscription_3");
-		set.add("f_weekly_subscription_4");
-		set.add("f_weekly_subscription_5");
-		set.add("f_weekly_subscription_6");
-		set.add("f_weekly_subscription_7");
-		set.add("f_weekly_subscription_8");
-		set.add("f_weekly_subscription_9");
-		set.add("f_weekly_subscription_10");
-		set.add("f_monthly_subscription_1");
-		set.add("f_monthly_subscription_2");
-		set.add("f_monthly_subscription_3");
-		set.add("f_monthly_subscription_4");
-		set.add("f_monthly_subscription_5");
-		set.add("f_monthly_subscription_6");
-		set.add("f_monthly_subscription_7");
-		set.add("f_monthly_subscription_8");
-		set.add("f_monthly_subscription_9");
-		set.add("f_monthly_subscription_10");
-		set.add("f_yearly_subscription_1");
-		set.add("f_yearly_subscription_2");
-		set.add("f_yearly_subscription_3");
-		set.add("f_yearly_subscription_4");
-		set.add("f_yearly_subscription_5");
-		set.add("f_yearly_subscription_6");
-		set.add("f_yearly_subscription_7");
-		set.add("f_yearly_subscription_8");
-		set.add("f_yearly_subscription_9");
-		set.add("f_yearly_subscription_10");
-		AVAILABLE_SUBSCRIPTIONS = set;
+		ArrayList<String> list = new ArrayList<String>();
+		list.add("f_weekly_subscription_1");
+		list.add("f_weekly_subscription_5");
+		list.add("f_weekly_subscription_10");
+		list.add("f_monthly_subscription_1");
+		list.add("f_monthly_subscription_5");
+		list.add("f_monthly_subscription_10");
+		list.add("f_yearly_subscription_1");
+		list.add("f_yearly_subscription_5");
+		list.add("f_yearly_subscription_10");
+		AVAILABLE_SUBSCRIPTIONS = list;
 	}
 
-	public static final HashSet<String> ALL_VALID_SUBSCRIPTIONS;
+	public static final ArrayList<String> ALL_VALID_SUBSCRIPTIONS;
 	static {
-		HashSet<String> set = new HashSet<String>();
-		set.add("weekly_subscription");
-		set.add("monthly_subscription");
-		set.add("yearly_subscription");
+		ArrayList<String> set = new ArrayList<String>();
+		set.add("weekly_subscription"); // Inactive
+		set.add("monthly_subscription"); // Active - offered by default for months
+		set.add("yearly_subscription"); // Active - never offered
 		set.addAll(AVAILABLE_SUBSCRIPTIONS);
 		ALL_VALID_SUBSCRIPTIONS = set;
 	}
@@ -204,13 +183,28 @@ public final class VendingUtils implements MTLog.Loggable {
 		}
 	}
 
+	public static void purchase(Activity activity) {
+		PurchaseDialogFragment.newInstance().show(activity.getFragmentManager(), "dialog");
+	}
+
+	public static void getInventory(IabHelper.QueryInventoryFinishedListener listener) {
+		try {
+			if (mHelper != null && mHelper.subscriptionsSupported()) {
+				mHelper.queryInventoryAsync(true, AVAILABLE_SUBSCRIPTIONS, listener);
+			}
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error while gettting inventory!");
+		}
+	}
+
+	@Deprecated
 	public static void logInventory(Activity activity) {
 		MTLog.i(TAG, "logInventory(%s)", activity);
 		try {
 			MTLog.i(TAG, "logInventory() > mHelper: %s", mHelper);
 			if (mHelper != null && mHelper.subscriptionsSupported()) {
 				MTLog.i(TAG, "logInventory() > Query inventory...");
-				mHelper.queryInventoryAsync(new IabHelper.QueryInventoryFinishedListener() {
+				mHelper.queryInventoryAsync(true, AVAILABLE_SUBSCRIPTIONS, new IabHelper.QueryInventoryFinishedListener() {
 					@Override
 					public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
 						MTLog.i(TAG, "onQueryInventoryFinished(%s,%s)", result, inventory);
