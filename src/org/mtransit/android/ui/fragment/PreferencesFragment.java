@@ -71,7 +71,6 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 			setUnitSummary(getActivity());
 		} else if (PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER.equals(key)) {
 			setUseInternalWebBrowserSummary(getActivity());
-			VendingUtils.logInventory(getActivity());
 		}
 	}
 
