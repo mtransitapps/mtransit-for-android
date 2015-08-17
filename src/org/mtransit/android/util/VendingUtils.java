@@ -2,11 +2,13 @@ package org.mtransit.android.util;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.WeakHashMap;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.ToastUtils;
@@ -35,18 +37,47 @@ public final class VendingUtils implements MTLog.Loggable {
 
 	private static final boolean FORCE_DO_NOT_HAVE_SUBSCRIPTION = false;
 
+	public static final String SKU_SUBSCRIPTION = "_subscription_";
+
+	public static final String SKU_STARTS_WITH_F = "f_";
+
+	private static final String WEEKLY = "weekly";
+	private static final String MONTHLY = "monthly";
+	private static final String YEARLY = "yearly";
+
+	public static final ArrayList<String> SORTED_PERIOD_CAT = ArrayUtils.asArrayList(new String[] { WEEKLY, MONTHLY, YEARLY });
+
+	public static final HashMap<String, Integer> PERIOD_RES_ID;
+	static {
+		HashMap<String, Integer> map = new HashMap<String, Integer>();
+		map.put(WEEKLY, R.string.support_every_week);
+		map.put(MONTHLY, R.string.support_every_month);
+		map.put(YEARLY, R.string.support_every_year);
+		PERIOD_RES_ID = map;
+	}
+
+	public static final String DEFAULT_PRICE_CAT = "1";
+
+	public static final String DEFAULT_PERIOD_CAT = MONTHLY;
+
 	public static final ArrayList<String> AVAILABLE_SUBSCRIPTIONS;
 	static {
 		ArrayList<String> list = new ArrayList<String>();
-		list.add("f_weekly_subscription_1");
-		list.add("f_weekly_subscription_5");
-		list.add("f_weekly_subscription_10");
-		list.add("f_monthly_subscription_1");
-		list.add("f_monthly_subscription_5");
-		list.add("f_monthly_subscription_10");
-		list.add("f_yearly_subscription_1");
-		list.add("f_yearly_subscription_5");
-		list.add("f_yearly_subscription_10");
+		list.add(SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "1");
+		list.add(SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "3");
+		list.add(SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "5");
+		list.add(SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "7");
+		list.add(SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "10");
+		list.add(SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "1");
+		list.add(SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "3");
+		list.add(SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "5");
+		list.add(SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "7");
+		list.add(SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "10");
+		list.add(SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "1");
+		list.add(SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "3");
+		list.add(SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "5");
+		list.add(SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "7");
+		list.add(SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "10");
 		AVAILABLE_SUBSCRIPTIONS = list;
 	}
 

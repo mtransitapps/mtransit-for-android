@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.util.VendingUtils;
@@ -112,7 +111,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 				ToastUtils.makeTextAndShowCentered(getActivity(), R.string.support_subs_default_failure_message);
 				return;
 			}
-			String sku = "f_" + periodCat + "_subscription_" + priceCat;
+			String sku = VendingUtils.SKU_STARTS_WITH_F + periodCat + VendingUtils.SKU_SUBSCRIPTION + priceCat;
 			if (!VendingUtils.AVAILABLE_SUBSCRIPTIONS.contains(sku)) {
 				MTLog.w(this, "onClick() > skip (unexpected sku: %s)", sku);
 				ToastUtils.makeTextAndShowCentered(getActivity(), R.string.support_subs_default_failure_message);
@@ -162,25 +161,6 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 		}
 	}
 
-	private static final String WEEKLY = "weekly";
-	private static final String MONTHLY = "monthly";
-	private static final String YEARLY = "yearly";
-
-	private static final ArrayList<String> SORTED_PERIOD_CAT = ArrayUtils.asArrayList(new String[] { WEEKLY, MONTHLY, YEARLY });
-
-	private static final HashMap<String, Integer> PERIOD_RES_ID;
-	static {
-		HashMap<String, Integer> map = new HashMap<String, Integer>();
-		map.put(WEEKLY, R.string.support_every_week);
-		map.put(MONTHLY, R.string.support_every_month);
-		map.put(YEARLY, R.string.support_every_year);
-		PERIOD_RES_ID = map;
-	}
-
-	private static final String DEFAULT_PRICE_CAT = "1";
-
-	private static final String DEFAULT_PERIOD_CAT = MONTHLY;
-
 	private ArrayList<String> prices = new ArrayList<String>();
 	private HashMap<String, String> priceSToPriceCat = new HashMap<String, String>();
 	private ArrayList<String> periods = new ArrayList<String>();
@@ -200,33 +180,34 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 		String defaultPriceS = null;
 		String defaultPeriodS = null;
 		for (String sku : inventory.getAllSkus()) {
-			if (!sku.startsWith("f_")) {
+			if (!sku.startsWith(VendingUtils.SKU_STARTS_WITH_F)) {
 				continue;
 			}
 			if (!inventory.hasDetails(sku)) {
 				continue;
 			}
 			SkuDetails skuDetails = inventory.getSkuDetails(sku);
-			String periodCat = sku.substring("f_".length(), sku.indexOf("_subscription_", "f_".length()));
-			if (!PERIOD_RES_ID.containsKey(periodCat)) {
+			String periodCat = sku.substring(VendingUtils.SKU_STARTS_WITH_F.length(),
+					sku.indexOf(VendingUtils.SKU_SUBSCRIPTION, VendingUtils.SKU_STARTS_WITH_F.length()));
+			if (!VendingUtils.PERIOD_RES_ID.containsKey(periodCat)) {
 				MTLog.w(this, "Skip sku %s (unknown periodCat: %s)", sku, periodCat);
 				continue;
 			}
-			String priceCat = sku.substring(sku.indexOf("_subscription_") + "_subscription_".length());
+			String priceCat = sku.substring(sku.indexOf(VendingUtils.SKU_SUBSCRIPTION) + VendingUtils.SKU_SUBSCRIPTION.length());
 			String priceS = skuDetails.getPrice();
 			this.priceSToPriceCat.put(priceS, priceCat);
 			if (!this.prices.contains(priceS)) {
 				this.prices.add(priceS);
 			}
-			String periodS = getString(PERIOD_RES_ID.get(periodCat));
+			String periodS = getString(VendingUtils.PERIOD_RES_ID.get(periodCat));
 			if (!this.periods.contains(periodS)) {
 				this.periods.add(periodS);
 			}
 			this.periodSToPeriodCat.put(periodS, periodCat);
-			if (DEFAULT_PRICE_CAT.equals(priceCat)) {
+			if (VendingUtils.DEFAULT_PRICE_CAT.equals(priceCat)) {
 				defaultPriceS = priceS;
 			}
-			if (DEFAULT_PERIOD_CAT.equals(periodCat)) {
+			if (VendingUtils.DEFAULT_PERIOD_CAT.equals(periodCat)) {
 				defaultPeriodS = periodS;
 			}
 		}
@@ -235,9 +216,9 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 			public int compare(String lPeriodS, String rPeriodS) {
 				try {
 					String lPriceCat = PurchaseDialogFragment.this.periodSToPeriodCat.get(lPeriodS);
-					int lIndexOf = SORTED_PERIOD_CAT.indexOf(lPriceCat);
+					int lIndexOf = VendingUtils.SORTED_PERIOD_CAT.indexOf(lPriceCat);
 					String rPriceCat = PurchaseDialogFragment.this.periodSToPeriodCat.get(rPeriodS);
-					int rIndexOf = SORTED_PERIOD_CAT.indexOf(rPriceCat);
+					int rIndexOf = VendingUtils.SORTED_PERIOD_CAT.indexOf(rPriceCat);
 					return lIndexOf - rIndexOf;
 				} catch (Exception e) {
 					MTLog.w(TAG, e, "Error while sorting periods!");
