@@ -5,6 +5,7 @@ dependencies {
     compile rootProject.ext.supportLibs.appCompat
     compile rootProject.ext.supportLibs.design
     compile rootProject.ext.gpsLibs.ads
+    compile rootProject.ext.gpsLibs.analytics
     compile rootProject.ext.gpsLibs.base
     compile rootProject.ext.gpsLibs.location
     compile rootProject.ext.gpsLibs.maps
