@@ -397,7 +397,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
-	public static interface ActionBarColorizer {
+	public interface ActionBarColorizer {
 		int getBgColor(int position);
 	}
 

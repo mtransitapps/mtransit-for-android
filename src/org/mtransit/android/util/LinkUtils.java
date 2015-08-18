@@ -230,7 +230,7 @@ public final class LinkUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static interface OnUrlClickListener {
+	public interface OnUrlClickListener {
 		boolean onURLClick(String url);
 	}
 }

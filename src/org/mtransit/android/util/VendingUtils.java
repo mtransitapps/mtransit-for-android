@@ -343,7 +343,7 @@ public final class VendingUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static interface OnVendingResultListener {
+	public interface OnVendingResultListener {
 		public void onVendingResult(Boolean hasSubscription);
 	}
 

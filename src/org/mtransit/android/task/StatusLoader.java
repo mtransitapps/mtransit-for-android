@@ -180,7 +180,7 @@ public class StatusLoader implements MTLog.Loggable {
 		}
 	}
 
-	public static interface StatusLoaderListener {
-		public void onStatusLoaded(POIStatus status);
+	public interface StatusLoaderListener {
+		void onStatusLoaded(POIStatus status);
 	}
 }

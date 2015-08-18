@@ -123,7 +123,7 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static interface Trackable {
+	public interface Trackable {
 		public String getScreenName();
 	}
 }

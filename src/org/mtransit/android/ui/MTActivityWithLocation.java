@@ -146,7 +146,7 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 		}
 	}
 
-	public static interface UserLocationListener {
-		public void onUserLocationChanged(Location location);
+	public interface UserLocationListener {
+		void onUserLocationChanged(Location location);
 	}
 }

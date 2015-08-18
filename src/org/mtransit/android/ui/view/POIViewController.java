@@ -581,34 +581,34 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	public static interface POIDataProvider extends StatusLoader.StatusLoaderListener, ServiceUpdateLoader.ServiceUpdateLoaderListener,
+	public interface POIDataProvider extends StatusLoader.StatusLoaderListener, ServiceUpdateLoader.ServiceUpdateLoaderListener,
 			LinkUtils.OnUrlClickListener {
 
-		public boolean isShowingStatus();
+		boolean isShowingStatus();
 
-		public Activity getActivity();
+		Activity getActivity();
 
-		public boolean isShowingExtra();
+		boolean isShowingExtra();
 
-		public long getNowToTheMinute();
+		long getNowToTheMinute();
 
-		public boolean isClosestPOI(String uuid);
+		boolean isClosestPOI(String uuid);
 
-		public boolean isFavorite(String uuid);
+		boolean isFavorite(String uuid);
 
-		public boolean isShowingFavorite();
+		boolean isShowingFavorite();
 
-		public float getLocationDeclination();
+		float getLocationDeclination();
 
-		public int getLastCompassInDegree();
+		int getLastCompassInDegree();
 
-		public Location getLocation();
+		Location getLocation();
 
-		public boolean hasLastCompassInDegree();
+		boolean hasLastCompassInDegree();
 
-		public boolean hasLocation();
+		boolean hasLocation();
 
-		public boolean isShowingServiceUpdates();
+		boolean isShowingServiceUpdates();
 	}
 
 	private static class CommonViewHolder {

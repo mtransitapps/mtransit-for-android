@@ -17,7 +17,7 @@ public abstract class MTOnItemClickListener implements AdapterView.OnItemClickLi
 			return;
 		}
 		if (view == null) {
-			listener.onItemClickMT(parent, view, position, id);
+			listener.onItemClickMT(parent, null, position, id);
 			return;
 		}
 		view.post(new Runnable() {

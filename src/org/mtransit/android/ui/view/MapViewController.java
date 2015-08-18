@@ -1239,21 +1239,21 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 	}
 
-	public static interface MapMarkerProvider {
+	public interface MapMarkerProvider {
 
-		public Collection<POIMarker> getPOMarkers();
+		Collection<POIMarker> getPOMarkers();
 
-		public Collection<POIManager> getPOIs();
+		Collection<POIManager> getPOIs();
 
-		public POIManager getClosestPOI();
+		POIManager getClosestPOI();
 
-		public POIManager getPOI(String uuid);
+		POIManager getPOI(String uuid);
 	}
 
-	public static interface MapListener {
+	public interface MapListener {
 
-		public void onMapClick(LatLng position);
+		void onMapClick(LatLng position);
 
-		public void onCameraChange(LatLngBounds latLngBounds);
+		void onCameraChange(LatLngBounds latLngBounds);
 	}
 }

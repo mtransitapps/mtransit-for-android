@@ -610,8 +610,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 		}
 	}
 
-	public static interface ModulesUpdateListener {
-		public void onModulesUpdated();
+	public interface ModulesUpdateListener {
+		void onModulesUpdated();
 	}
 
 	private static class TriggerModulesUpdatedTask extends MTAsyncTask<Void, ModulesUpdateListener, Void> {

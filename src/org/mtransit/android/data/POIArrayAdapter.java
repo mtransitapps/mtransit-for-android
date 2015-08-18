@@ -191,7 +191,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		this.infiniteLoadingListener = infiniteLoadingListener;
 	}
 
-	public static interface InfiniteLoadingListener {
+	public interface InfiniteLoadingListener {
 
 		boolean isLoadingMore();
 
@@ -438,8 +438,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			} else {
 				int availableButtons = 0;
 				View gridLine = null;
-				View btn = null;
-				TextView btnTv = null;
+				View btn;
+				TextView btnTv;
 				for (final DataSourceType dst : allAgencyTypes) {
 					if (dst.getId() == DataSourceType.TYPE_MODULE.getId() && availableButtons == 0 && allAgencyTypes.size() > 2) {
 						continue;
@@ -508,8 +508,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		});
 	}
 
-	public static interface OnClickHandledListener {
-		public void onLeaving();
+	public interface OnClickHandledListener {
+		void onLeaving();
 	}
 
 	private WeakReference<OnClickHandledListener> onClickHandledListenerWR;
@@ -518,10 +518,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		this.onClickHandledListenerWR = new WeakReference<POIArrayAdapter.OnClickHandledListener>(onClickHandledListener);
 	}
 
-	public static interface OnPOISelectedListener {
-		public boolean onPOISelected(POIManager poim);
+	public interface OnPOISelectedListener {
+		boolean onPOISelected(POIManager poim);
 
-		public boolean onPOILongSelected(POIManager poim);
+		boolean onPOILongSelected(POIManager poim);
 	}
 
 	private WeakReference<OnPOISelectedListener> onPoiSelectedListenerWR;
@@ -1867,12 +1867,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		View moreBtn;
 	}
 
-	public static interface TypeHeaderButtonsClickListener {
+	public interface TypeHeaderButtonsClickListener {
 
-		public static final int BUTTON_MORE = 0;
-		public static final int BUTTON_NEARBY = 1;
-		public static final int BUTTON_ALL = 2;
+		int BUTTON_MORE = 0;
+		int BUTTON_NEARBY = 1;
+		int BUTTON_ALL = 2;
 
-		public boolean onTypeHeaderButtonClick(int buttonId, DataSourceType type);
+		boolean onTypeHeaderButtonClick(int buttonId, DataSourceType type);
 	}
 }
