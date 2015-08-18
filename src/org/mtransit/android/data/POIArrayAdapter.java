@@ -15,6 +15,7 @@ import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SensorUtils;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.api.SupportFactory;
@@ -27,7 +28,6 @@ import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.task.MTAsyncTask;
-import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
@@ -589,6 +589,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 		Activity activity = this.activityWR == null ? null : this.activityWR.get();
 		if (activity == null) {
+			return false;
 		}
 		OnClickHandledListener listener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
 		return poim.onActionItemLongClick(activity, this.favoriteUpdateListener, listener);
