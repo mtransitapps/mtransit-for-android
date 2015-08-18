@@ -4,6 +4,7 @@ import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -130,12 +131,21 @@ public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Log
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onAttach(Activity activity) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onAttach(%s)", activity);
 		}
 		super.onAttach(activity);
+	}
+
+	@Override
+	public void onAttach(Context context) {
+		if (Constants.LOG_LIFECYCLE) {
+			MTLog.v(this, "onAttach(%s)", context);
+		}
+		super.onAttach(context);
 	}
 
 	@Override
@@ -186,12 +196,21 @@ public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Log
 		super.onDetach();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onInflate(Activity activity, AttributeSet attrs, Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onInflate(%s,%s,%s)", activity, attrs, savedInstanceState);
 		}
 		super.onInflate(activity, attrs, savedInstanceState);
+	}
+
+	@Override
+	public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+		if (Constants.LOG_LIFECYCLE) {
+			MTLog.v(this, "onInflate(%s,%s,%s)", context, attrs, savedInstanceState);
+		}
+		super.onInflate(context, attrs, savedInstanceState);
 	}
 
 	@Override

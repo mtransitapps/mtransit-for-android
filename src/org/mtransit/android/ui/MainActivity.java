@@ -114,7 +114,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 
 	private boolean processIntent(Intent intent) {
 		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-			onSearchRequested(intent.getStringExtra(SearchManager.QUERY));
+			onSearchQueryRequested(intent.getStringExtra(SearchManager.QUERY));
 			return true; // intent processed
 		}
 		return false; // intent not processed
@@ -122,11 +122,11 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 
 	@Override
 	public boolean onSearchRequested() {
-		onSearchRequested(null);
+		onSearchQueryRequested(null);
 		return true; // processed
 	}
 
-	public void onSearchRequested(String query) {
+	public void onSearchQueryRequested(String query) {
 		Fragment f = getCurrentFragment();
 		if (f != null && f instanceof SearchFragment) {
 			((SearchFragment) f).setSearchQuery(query, false);

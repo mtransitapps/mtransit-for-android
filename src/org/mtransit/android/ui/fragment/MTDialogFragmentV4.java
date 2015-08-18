@@ -5,6 +5,7 @@ import org.mtransit.android.commons.MTLog;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -142,12 +143,21 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 		super.onDetach();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onInflate(Activity activity, AttributeSet attrs, Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onInflate(%s,%s,%s)", activity, attrs, savedInstanceState);
 		}
 		super.onInflate(activity, attrs, savedInstanceState);
+	}
+
+	@Override
+	public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+		if (Constants.LOG_LIFECYCLE) {
+			MTLog.v(this, "onInflate(%s,%s,%s)", context, attrs, savedInstanceState);
+		}
+		super.onInflate(context, attrs, savedInstanceState);
 	}
 
 	@Override

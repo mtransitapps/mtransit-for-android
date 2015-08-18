@@ -44,7 +44,7 @@ public class MTSearchView extends SearchView implements MTLog.Loggable, View.OnF
 	public boolean onQueryTextChange(String newText) {
 		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 		if (mainActivity != null) {
-			mainActivity.onSearchRequested(newText);
+			mainActivity.onSearchQueryRequested(newText);
 		}
 		return true; // handled
 	}
@@ -53,7 +53,7 @@ public class MTSearchView extends SearchView implements MTLog.Loggable, View.OnF
 	public boolean onQueryTextSubmit(String query) {
 		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 		if (mainActivity != null) {
-			mainActivity.onSearchRequested(query);
+			mainActivity.onSearchQueryRequested(query);
 			KeyboardUtils.hideKeyboard(mainActivity, this);
 		}
 		return true; // handled
