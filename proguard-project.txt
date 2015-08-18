@@ -49,6 +49,8 @@
 -keepnames class * implements android.os.Parcelable {
     public static final ** CREATOR;
 }
+
+-dontwarn android.app.Notification
 # GOOGLE PLAY SERVICES - END
 
 # GOOGLE MOBILE ADS (ADMOB) - START
