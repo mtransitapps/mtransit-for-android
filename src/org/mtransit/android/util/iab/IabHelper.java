@@ -211,7 +211,7 @@ public class IabHelper implements MTLog.Loggable {
 			Bundle buyIntentBundle = mService.getBuyIntent(3, mContext.getPackageName(), sku, itemType, extraData);
 			int response = getResponseCodeFromBundle(buyIntentBundle);
 			if (response != BILLING_RESPONSE_RESULT_OK) {
-				MTLog.e(this, "In-app billing error: Unable to buy item, Error response: " + getResponseDesc(response));
+				MTLog.e(this, "In-app billing error: Unable to buy item, Error response: %s", getResponseDesc(response));
 				flagEndAsync();
 				result = new IabResult(response, "Unable to buy item");
 				if (listener != null) listener.onIabPurchaseFinished(result, null);
@@ -263,8 +263,8 @@ public class IabHelper implements MTLog.Loggable {
 				purchase = new Purchase(mPurchasingItemType, purchaseData, dataSignature);
 				String sku = purchase.getSku();
 				if (!Security.verifyPurchase(mSignatureBase64, purchaseData, dataSignature)) {
-					MTLog.e(this, "In-app billing error: Purchase signature verification FAILED for sku " + sku);
-					result = new IabResult(IABHELPER_VERIFICATION_FAILED, "Signature verification failed for sku " + sku);
+					MTLog.e(this, "In-app billing error: Purchase signature verification FAILED for sku %s", sku);
+					result = new IabResult(IABHELPER_VERIFICATION_FAILED, String.format("Signature verification failed for sku %s", sku));
 					if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, purchase);
 					return true;
 				}
@@ -286,16 +286,11 @@ public class IabHelper implements MTLog.Loggable {
 			result = new IabResult(IABHELPER_USER_CANCELLED, "User canceled.");
 			if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, null);
 		} else {
-			MTLog.e(this, "In-app billing error: Purchase failed. Result code: " + Integer.toString(resultCode) + ". Response: "
-					+ getResponseDesc(responseCode));
+			MTLog.e(this, "In-app billing error: Purchase failed. Result code: %s. Response: %s", Integer.toString(resultCode), getResponseDesc(responseCode));
 			result = new IabResult(IABHELPER_UNKNOWN_PURCHASE_RESPONSE, "Unknown purchase response.");
 			if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, null);
 		}
 		return true;
-	}
-
-	public Inventory queryInventory(boolean querySkuDetails, List<String> moreSkus) throws IabException {
-		return queryInventory(querySkuDetails, moreSkus, null);
 	}
 
 	public Inventory queryInventory(boolean querySkuDetails, List<String> moreItemSkus, List<String> moreSubsSkus) throws IabException {
@@ -319,7 +314,7 @@ public class IabHelper implements MTLog.Loggable {
 					throw new IabException(r, "Error refreshing inventory (querying owned subscriptions).");
 				}
 				if (querySkuDetails) {
-					r = querySkuDetails(ITEM_TYPE_SUBS, inv, moreItemSkus);
+					r = querySkuDetails(ITEM_TYPE_SUBS, inv, moreSubsSkus);
 					if (r != BILLING_RESPONSE_RESULT_OK) {
 						throw new IabException(r, "Error refreshing inventory (querying prices of subscriptions).");
 					}
@@ -337,7 +332,8 @@ public class IabHelper implements MTLog.Loggable {
 		public void onQueryInventoryFinished(IabResult result, Inventory inv);
 	}
 
-	public void queryInventoryAsync(final boolean querySkuDetails, final List<String> moreSkus, final QueryInventoryFinishedListener listener) {
+	public void queryInventoryAsync(final boolean querySkuDetails, final List<String> moreItemSkus, final List<String> moreSubsSkus,
+			final QueryInventoryFinishedListener listener) {
 		final Handler handler = new Handler();
 		checkNotDisposed();
 		checkSetupDone("queryInventory");
@@ -348,13 +344,11 @@ public class IabHelper implements MTLog.Loggable {
 				IabResult result = new IabResult(BILLING_RESPONSE_RESULT_OK, "Inventory refresh successful.");
 				Inventory inv = null;
 				try {
-					inv = queryInventory(querySkuDetails, moreSkus);
+					inv = queryInventory(querySkuDetails, moreItemSkus, moreSubsSkus);
 				} catch (IabException ex) {
 					result = ex.getResult();
 				}
-
 				flagEndAsync();
-
 				final IabResult result_f = result;
 				final Inventory inv_f = inv;
 				if (!mDisposed && listener != null) {
@@ -370,11 +364,11 @@ public class IabHelper implements MTLog.Loggable {
 	}
 
 	public void queryInventoryAsync(QueryInventoryFinishedListener listener) {
-		queryInventoryAsync(true, null, listener);
+		queryInventoryAsync(true, null, null, listener);
 	}
 
 	public void queryInventoryAsync(boolean querySkuDetails, QueryInventoryFinishedListener listener) {
-		queryInventoryAsync(querySkuDetails, null, listener);
+		queryInventoryAsync(querySkuDetails, null, null, listener);
 	}
 
 	void consume(Purchase itemInfo) throws IabException {
@@ -439,8 +433,8 @@ public class IabHelper implements MTLog.Loggable {
 
 	void checkSetupDone(String operation) {
 		if (!mSetupDone) {
-			MTLog.e(this, "In-app billing error: Illegal state for operation (" + operation + "): IAB helper is not set up.");
-			throw new IllegalStateException("IAB helper is not set up. Can't perform operation: " + operation);
+			MTLog.e(this, "In-app billing error: Illegal state for operation (%s): IAB helper is not set up.", operation);
+			throw new IllegalStateException(String.format("IAB helper is not set up. Can't perform operation: %s", operation));
 		}
 	}
 
@@ -473,8 +467,8 @@ public class IabHelper implements MTLog.Loggable {
 
 	void flagStartAsync(String operation) {
 		if (mAsyncInProgress)
-			throw new IllegalStateException("Can't start async operation (" + operation + ") because another async operation(" + mAsyncOperation
-					+ ") is in progress.");
+			throw new IllegalStateException(String.format("Can't start async operation (%s) because another async operation (%s) is in progress.", operation,
+					mAsyncOperation));
 		mAsyncOperation = operation;
 		mAsyncInProgress = true;
 	}
@@ -535,22 +529,24 @@ public class IabHelper implements MTLog.Loggable {
 		if (skuList.size() == 0) {
 			return BILLING_RESPONSE_RESULT_OK;
 		}
-		Bundle querySkus = new Bundle();
-		querySkus.putStringArrayList(GET_SKU_DETAILS_ITEM_LIST, skuList);
-		Bundle skuDetails = mService.getSkuDetails(3, mContext.getPackageName(), itemType, querySkus);
-		if (!skuDetails.containsKey(RESPONSE_GET_SKU_DETAILS_LIST)) {
-			int response = getResponseCodeFromBundle(skuDetails);
-			if (response != BILLING_RESPONSE_RESULT_OK) {
-				return response;
-			} else {
-				MTLog.e(this, "In-app billing error: getSkuDetails() returned a bundle with neither an error nor a detail list.");
-				return IABHELPER_BAD_RESPONSE;
+		for (int i = 0; i < skuList.size(); i += 20) {
+			Bundle querySkus = new Bundle();
+			querySkus.putStringArrayList(GET_SKU_DETAILS_ITEM_LIST, new ArrayList<String>(skuList.subList(i, skuList.size() - i >= 20 ? 20 : skuList.size())));
+			Bundle skuDetails = mService.getSkuDetails(3, mContext.getPackageName(), itemType, querySkus);
+			if (!skuDetails.containsKey(RESPONSE_GET_SKU_DETAILS_LIST)) {
+				int response = getResponseCodeFromBundle(skuDetails);
+				if (response != BILLING_RESPONSE_RESULT_OK) {
+					return response;
+				} else {
+					MTLog.e(this, "In-app billing error: getSkuDetails() returned a bundle with neither an error nor a detail list.");
+					return IABHELPER_BAD_RESPONSE;
+				}
 			}
-		}
-		ArrayList<String> responseList = skuDetails.getStringArrayList(RESPONSE_GET_SKU_DETAILS_LIST);
-		for (String thisResponse : responseList) {
-			SkuDetails d = new SkuDetails(itemType, thisResponse);
-			inv.addSkuDetails(d);
+			ArrayList<String> responseList = skuDetails.getStringArrayList(RESPONSE_GET_SKU_DETAILS_LIST);
+			for (String thisResponse : responseList) {
+				SkuDetails d = new SkuDetails(itemType, thisResponse);
+				inv.addSkuDetails(d);
+			}
 		}
 		return BILLING_RESPONSE_RESULT_OK;
 	}
@@ -591,5 +587,4 @@ public class IabHelper implements MTLog.Loggable {
 			}
 		})).start();
 	}
-
 }

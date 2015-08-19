@@ -64,17 +64,23 @@ public final class VendingUtils implements MTLog.Loggable {
 	static {
 		ArrayList<String> list = new ArrayList<String>();
 		list.add(SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "1");
+		list.add(SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "2");
 		list.add(SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "3");
+		list.add(SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "4");
 		list.add(SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "5");
 		list.add(SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "7");
 		list.add(SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "10");
 		list.add(SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "1");
+		list.add(SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "2");
 		list.add(SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "3");
+		list.add(SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "4");
 		list.add(SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "5");
 		list.add(SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "7");
 		list.add(SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "10");
 		list.add(SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "1");
+		list.add(SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "2");
 		list.add(SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "3");
+		list.add(SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "4");
 		list.add(SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "5");
 		list.add(SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "7");
 		list.add(SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "10");
@@ -221,7 +227,7 @@ public final class VendingUtils implements MTLog.Loggable {
 	public static void getInventory(IabHelper.QueryInventoryFinishedListener listener) {
 		try {
 			if (mHelper != null && mHelper.subscriptionsSupported()) {
-				mHelper.queryInventoryAsync(true, AVAILABLE_SUBSCRIPTIONS, listener);
+				mHelper.queryInventoryAsync(true, null, AVAILABLE_SUBSCRIPTIONS, listener);
 			}
 		} catch (Exception e) {
 			MTLog.w(TAG, e, "Error while gettting inventory!");
@@ -235,7 +241,7 @@ public final class VendingUtils implements MTLog.Loggable {
 			MTLog.i(TAG, "logInventory() > mHelper: %s", mHelper);
 			if (mHelper != null && mHelper.subscriptionsSupported()) {
 				MTLog.i(TAG, "logInventory() > Query inventory...");
-				mHelper.queryInventoryAsync(true, AVAILABLE_SUBSCRIPTIONS, new IabHelper.QueryInventoryFinishedListener() {
+				mHelper.queryInventoryAsync(true, null, AVAILABLE_SUBSCRIPTIONS, new IabHelper.QueryInventoryFinishedListener() {
 					@Override
 					public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
 						MTLog.i(TAG, "onQueryInventoryFinished(%s,%s)", result, inventory);
