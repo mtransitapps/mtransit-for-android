@@ -517,8 +517,10 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				this.lastSelectedUUID = uuid;
 			}
 		} else if (imarker != null && imarker.isCluster()) {
-			float zoom = this.extendedGoogleMap.getCameraPosition().zoom + MARKER_ZOOM_INC;
-			return updateMapCamera(true, CameraUpdateFactory.newLatLngZoom(imarker.getPosition(), zoom));
+			if (this.extendedGoogleMap != null) {
+				float zoom = this.extendedGoogleMap.getCameraPosition().zoom + MARKER_ZOOM_INC;
+				return updateMapCamera(true, CameraUpdateFactory.newLatLngZoom(imarker.getPosition(), zoom));
+			}
 		}
 		return false; // not handled
 	}
