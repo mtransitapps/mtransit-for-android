@@ -10,13 +10,13 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.StringUtils;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
-import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ui.widget.MTBaseAdapter;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
@@ -30,6 +30,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -864,7 +865,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			Context context = this.activityWR == null ? null : this.activityWR.get();
 			if (timestamp != null && context != null) {
 				String userTime = TimeUtils.formatTime(context, timestamp.t);
-				StringBuilder timeSb = new StringBuilder(userTime);
+				SpannableStringBuilder timeSb = new SpannableStringBuilder(userTime);
 				TimeZone timestampTZ = TimeZone.getTimeZone(timestamp.getLocalTimeZone());
 				if (timestamp.hasLocalTimeZone() && !this.deviceTimeZone.equals(timestampTZ)) {
 					String localTime = TimeUtils.formatTime(context, timestamp.t, timestampTZ);
@@ -879,6 +880,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 						timeSb.append(P1).append(timestampHeading).append(P2);
 					}
 				}
+				TimeUtils.cleanTimes(timeSb);
 				holder.timeTv.setText(timeSb);
 				if (this.nextTimeInMs != null && TimeUtils.isSameDay(getNowToTheMinute(), this.nextTimeInMs.t) && this.nextTimeInMs.t == timestamp.t) { // now
 					holder.timeTv.setTextColor(Schedule.getDefaultNowTextColor(context));
