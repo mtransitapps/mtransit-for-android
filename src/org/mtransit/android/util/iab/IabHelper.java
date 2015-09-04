@@ -19,6 +19,7 @@ import com.android.vending.billing.IInAppBillingService;
 import org.json.JSONException;
 import org.mtransit.android.commons.MTLog;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -333,8 +334,9 @@ public class IabHelper implements MTLog.Loggable {
 	}
 
 	public void queryInventoryAsync(final boolean querySkuDetails, final List<String> moreItemSkus, final List<String> moreSubsSkus,
-			final QueryInventoryFinishedListener listener) {
+			QueryInventoryFinishedListener listenerHR) {
 		final Handler handler = new Handler();
+		final WeakReference<QueryInventoryFinishedListener> listenerWR = new WeakReference<QueryInventoryFinishedListener>(listenerHR);
 		checkNotDisposed();
 		checkSetupDone("queryInventory");
 		flagStartAsync("refresh inventory");
@@ -351,11 +353,14 @@ public class IabHelper implements MTLog.Loggable {
 				flagEndAsync();
 				final IabResult result_f = result;
 				final Inventory inv_f = inv;
-				if (!mDisposed && listener != null) {
+				if (!mDisposed) {
 					handler.post(new Runnable() {
 						@Override
 						public void run() {
-							listener.onQueryInventoryFinished(result_f, inv_f);
+							QueryInventoryFinishedListener listener = listenerWR == null ? null : listenerWR.get();
+							if (listener != null) {
+								listener.onQueryInventoryFinished(result_f, inv_f);
+							}
 						}
 					});
 				}
@@ -516,6 +521,8 @@ public class IabHelper implements MTLog.Loggable {
 		return verificationFailed ? IABHELPER_VERIFICATION_FAILED : BILLING_RESPONSE_RESULT_OK;
 	}
 
+	private static final int MAX_SKU_PER_REQUEST = 20;
+
 	int querySkuDetails(String itemType, Inventory inv, List<String> moreSkus) throws RemoteException, JSONException {
 		ArrayList<String> skuList = new ArrayList<String>();
 		skuList.addAll(inv.getAllOwnedSkus(itemType));
@@ -529,9 +536,10 @@ public class IabHelper implements MTLog.Loggable {
 		if (skuList.size() == 0) {
 			return BILLING_RESPONSE_RESULT_OK;
 		}
-		for (int i = 0; i < skuList.size(); i += 20) {
+		for (int start = 0; start < skuList.size(); start += MAX_SKU_PER_REQUEST) {
+			int end = skuList.size() - start >= MAX_SKU_PER_REQUEST ? MAX_SKU_PER_REQUEST : skuList.size();
 			Bundle querySkus = new Bundle();
-			querySkus.putStringArrayList(GET_SKU_DETAILS_ITEM_LIST, new ArrayList<String>(skuList.subList(i, skuList.size() - i >= 20 ? 20 : skuList.size())));
+			querySkus.putStringArrayList(GET_SKU_DETAILS_ITEM_LIST, new ArrayList<String>(skuList.subList(start, end)));
 			Bundle skuDetails = mService.getSkuDetails(3, mContext.getPackageName(), itemType, querySkus);
 			if (!skuDetails.containsKey(RESPONSE_GET_SKU_DETAILS_LIST)) {
 				int response = getResponseCodeFromBundle(skuDetails);

@@ -14,6 +14,7 @@ import org.mtransit.android.util.iab.IabResult;
 import org.mtransit.android.util.iab.Inventory;
 import org.mtransit.android.util.iab.SkuDetails;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -76,11 +77,12 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 	}
 
 	private void onBuyBtnClick() {
+		Activity activity = getActivity();
 		try {
 			View view = getView();
-			if (view == null) {
-				MTLog.w(this, "onBuyBtnClick() > skip (no view)");
-				ToastUtils.makeTextAndShowCentered(getActivity(), R.string.support_subs_default_failure_message);
+			if (view == null || activity == null) {
+				MTLog.w(this, "onBuyBtnClick() > skip (no view or no activity)");
+				ToastUtils.makeTextAndShowCentered(activity, R.string.support_subs_default_failure_message);
 				return;
 			}
 			Spinner periodSpinner = (Spinner) view.findViewById(R.id.period);
@@ -88,13 +90,13 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 			String periodS = this.periods.get(periodPosition);
 			if (TextUtils.isEmpty(periodS)) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected period position: %s)", periodPosition);
-				ToastUtils.makeTextAndShowCentered(getActivity(), R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShowCentered(activity, R.string.support_subs_default_failure_message);
 				return;
 			}
 			String periodCat = this.periodSToPeriodCat.get(periodS);
 			if (TextUtils.isEmpty(periodCat)) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected period string: %s)", periodS);
-				ToastUtils.makeTextAndShowCentered(getActivity(), R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShowCentered(activity, R.string.support_subs_default_failure_message);
 				return;
 			}
 			Spinner priceSpinner = (Spinner) view.findViewById(R.id.price);
@@ -102,29 +104,29 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 			String priceS = this.prices.get(pricePosition);
 			if (TextUtils.isEmpty(priceS)) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected price position: %s)", pricePosition);
-				ToastUtils.makeTextAndShowCentered(getActivity(), R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShowCentered(activity, R.string.support_subs_default_failure_message);
 				return;
 			}
 			String priceCat = this.priceSToPriceCat.get(priceS);
 			if (TextUtils.isEmpty(priceCat)) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected price string: %s)", priceS);
-				ToastUtils.makeTextAndShowCentered(getActivity(), R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShowCentered(activity, R.string.support_subs_default_failure_message);
 				return;
 			}
 			String sku = VendingUtils.SKU_STARTS_WITH_F + periodCat + VendingUtils.SKU_SUBSCRIPTION + priceCat;
 			if (!VendingUtils.AVAILABLE_SUBSCRIPTIONS.contains(sku)) {
 				MTLog.w(this, "onClick() > skip (unexpected sku: %s)", sku);
-				ToastUtils.makeTextAndShowCentered(getActivity(), R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShowCentered(activity, R.string.support_subs_default_failure_message);
 				return;
 			}
-			VendingUtils.purchase(getActivity(), sku);
+			VendingUtils.purchase(activity, sku);
 			Dialog dialog = getDialog();
 			if (dialog != null) {
-				getDialog().dismiss();
+				dialog.dismiss();
 			}
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while handling buy button!");
-			ToastUtils.makeTextAndShowCentered(getActivity(), R.string.support_subs_default_failure_message);
+			ToastUtils.makeTextAndShowCentered(activity, R.string.support_subs_default_failure_message);
 		}
 	}
 
@@ -168,6 +170,11 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 
 	@Override
 	public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
+		View view = getView();
+		Activity activity = getActivity();
+		if (view == null || activity == null) {
+			return;
+		}
 		if (result == null || result.isFailure() || inventory == null) {
 			MTLog.w(this, "Failed to query inventory: %s (%s)", result, inventory);
 			ToastUtils.makeTextAndShowCentered(getActivity(), R.string.support_subs_default_failure_message);
@@ -199,7 +206,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 			if (!this.prices.contains(priceS)) {
 				this.prices.add(priceS);
 			}
-			String periodS = getString(VendingUtils.PERIOD_RES_ID.get(periodCat));
+			String periodS = activity.getString(VendingUtils.PERIOD_RES_ID.get(periodCat));
 			if (!this.periods.contains(periodS)) {
 				this.periods.add(periodS);
 			}
@@ -241,7 +248,6 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 				}
 			}
 		});
-		View view = getView();
 		Spinner priceSpinner = (Spinner) view.findViewById(R.id.price);
 		priceSpinner.setAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, this.prices));
 		if (defaultPriceS != null) {
