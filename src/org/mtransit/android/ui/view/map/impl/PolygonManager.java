@@ -1,23 +1,23 @@
 package org.mtransit.android.ui.view.map.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.mtransit.android.ui.view.map.Polygon;
 import org.mtransit.android.ui.view.map.PolygonOptions;
+
+import android.support.v4.util.ArrayMap;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class PolygonManager {
 
 	private final IGoogleMap factory;
 
-	private final Map<com.google.android.gms.maps.model.Polygon, Polygon> polygons;
+	private final ArrayMap<com.google.android.gms.maps.model.Polygon, Polygon> polygons;
 
 	public PolygonManager(IGoogleMap factory) {
 		this.factory = factory;
-		this.polygons = new HashMap<com.google.android.gms.maps.model.Polygon, Polygon>();
+		this.polygons = new ArrayMap<com.google.android.gms.maps.model.Polygon, Polygon>();
 	}
 
 	public Polygon addPolygon(PolygonOptions polygonOptions) {

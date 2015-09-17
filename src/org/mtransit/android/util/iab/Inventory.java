@@ -1,16 +1,16 @@
 package org.mtransit.android.util.iab;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+
+import android.support.v4.util.ArrayMap;
 
 // based on the Google IAB sample (Apache License, Version 2.0)
 public class Inventory {
 
-	Map<String, SkuDetails> mSkuMap = new HashMap<String, SkuDetails>();
-	Map<String, Purchase> mPurchaseMap = new HashMap<String, Purchase>();
+	ArrayMap<String, SkuDetails> mSkuMap = new ArrayMap<String, SkuDetails>();
+	ArrayMap<String, Purchase> mPurchaseMap = new ArrayMap<String, Purchase>();
 
 	Inventory() {
 	}

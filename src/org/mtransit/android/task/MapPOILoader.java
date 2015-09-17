@@ -2,7 +2,6 @@ package org.mtransit.android.task;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -23,6 +22,7 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.ui.view.MapViewController;
 
 import android.content.Context;
+import android.support.v4.util.ArrayMap;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -64,7 +64,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,
 				new LinkedBlockingDeque<Runnable>(agencies.size()));
-		ArrayList<Future<HashMap<LatLng, MapViewController.POIMarker>>> taskList = new ArrayList<Future<HashMap<LatLng, MapViewController.POIMarker>>>();
+		ArrayList<Future<ArrayMap<LatLng, MapViewController.POIMarker>>> taskList = new ArrayList<Future<ArrayMap<LatLng, MapViewController.POIMarker>>>();
 		for (AgencyProperties agency : agencies) {
 			DataSourceType type = agency.getType();
 			if (!type.isMapScreen()) {
@@ -82,12 +82,12 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 			FindAgencyPOIsTask task = new FindAgencyPOIsTask(getContext(), agency, this.latLngBounds, this.loadedLatLngBounds);
 			taskList.add(executor.submit(task));
 		}
-		HashMap<LatLng, MapViewController.POIMarker> positionToPoiMarkers = new HashMap<LatLng, MapViewController.POIMarker>();
-		for (Future<HashMap<LatLng, MapViewController.POIMarker>> future : taskList) {
+		ArrayMap<LatLng, MapViewController.POIMarker> positionToPoiMarkers = new ArrayMap<LatLng, MapViewController.POIMarker>();
+		for (Future<ArrayMap<LatLng, MapViewController.POIMarker>> future : taskList) {
 			try {
-				HashMap<LatLng, MapViewController.POIMarker> agencyPOIs = future.get();
+				ArrayMap<LatLng, MapViewController.POIMarker> agencyPOIs = future.get();
 				if (agencyPOIs != null) {
-					for (HashMap.Entry<LatLng, MapViewController.POIMarker> agencyMarker : agencyPOIs.entrySet()) {
+					for (ArrayMap.Entry<LatLng, MapViewController.POIMarker> agencyMarker : agencyPOIs.entrySet()) {
 						if (positionToPoiMarkers.containsKey(agencyMarker.getKey())) {
 							positionToPoiMarkers.get(agencyMarker.getKey()).merge(agencyMarker.getValue());
 						} else {
@@ -129,7 +129,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 		}
 	}
 
-	private static class FindAgencyPOIsTask extends MTCallable<HashMap<LatLng, MapViewController.POIMarker>> {
+	private static class FindAgencyPOIsTask extends MTCallable<ArrayMap<LatLng, MapViewController.POIMarker>> {
 
 		private static final String TAG = MapPOILoader.class.getSimpleName() + ">" + FindAgencyPOIsTask.class.getSimpleName();
 
@@ -151,7 +151,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 		}
 
 		@Override
-		public HashMap<LatLng, MapViewController.POIMarker> callMT() throws Exception {
+		public ArrayMap<LatLng, MapViewController.POIMarker> callMT() throws Exception {
 			double minLat = Math.min(this.latLngBounds.northeast.latitude, this.latLngBounds.southwest.latitude);
 			double maxLat = Math.max(this.latLngBounds.northeast.latitude, this.latLngBounds.southwest.latitude);
 			double minLng = Math.min(this.latLngBounds.northeast.longitude, this.latLngBounds.southwest.longitude);
@@ -166,7 +166,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 					this.loadedLatLngBounds.southwest.longitude);
 			POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewAreaFilter(minLat, maxLat, minLng, maxLng, optLoadedMinLat,
 					optLoadedMaxLat, optLoadedMinLng, optLoadedMaxLng);
-			HashMap<LatLng, MapViewController.POIMarker> clusterItems = new HashMap<LatLng, MapViewController.POIMarker>();
+			ArrayMap<LatLng, MapViewController.POIMarker> clusterItems = new ArrayMap<LatLng, MapViewController.POIMarker>();
 			ArrayList<POIManager> poims = DataSourceManager.findPOIs(this.context, this.agency.getAuthority(), poiFilter);
 			String agencyShortName = this.agency.getShortName();
 			if (poims != null) {

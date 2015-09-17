@@ -1,5 +1,7 @@
 package org.mtransit.android.ui.view.map.impl;
 
+import android.support.v4.util.ArrayMap;
+
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -7,9 +9,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.map.ClusterOptions;
@@ -28,8 +28,6 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 		return TAG;
 	}
 
-	private static boolean GOOGLE_PLAY_SERVICES_4_0 = true;
-
 	private static final boolean DEBUG_GRID = false;
 	private DebugHelper debugHelper;
 
@@ -38,12 +36,12 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 	private boolean addMarkersDynamically;
 	private double baseClusterSize;
 	private IGoogleMap map;
-	private Map<DelegatingMarker, ClusterMarker> markers;
+	private ArrayMap<DelegatingMarker, ClusterMarker> markers;
 	private double clusterSize;
 	private int oldZoom, zoom;
 	private int[] visibleClusters = new int[4];
 
-	private Map<ClusterKey, ClusterMarker> clusters = new HashMap<ClusterKey, ClusterMarker>();
+	private ArrayMap<ClusterKey, ClusterMarker> clusters = new ArrayMap<ClusterKey, ClusterMarker>();
 
 	private ClusterRefresher refresher;
 	private ClusterOptionsProvider clusterOptionsProvider;
@@ -53,7 +51,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 		this.addMarkersDynamically = settings.isAddMarkersDynamically();
 		this.baseClusterSize = settings.getClusterSize();
 		this.map = map;
-		this.markers = new HashMap<DelegatingMarker, ClusterMarker>();
+		this.markers = new ArrayMap<DelegatingMarker, ClusterMarker>();
 		this.refresher = refresher;
 		this.zoom = Math.round(map.getCameraPosition().zoom);
 		this.clusterSize = calculateClusterSize(zoom);
@@ -300,7 +298,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 	}
 
 	private void splitClusters() {
-		Map<ClusterKey, ClusterMarker> newClusters = new HashMap<ClusterKey, ClusterMarker>();
+		ArrayMap<ClusterKey, ClusterMarker> newClusters = new ArrayMap<ClusterKey, ClusterMarker>();
 		for (ClusterMarker cluster : clusters.values()) {
 			List<DelegatingMarker> ms = cluster.getMarkersInternal();
 			if (ms.isEmpty()) {
@@ -340,8 +338,8 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 	}
 
 	private void joinClusters() {
-		Map<ClusterKey, ClusterMarker> newClusters = new HashMap<ClusterKey, ClusterMarker>();
-		Map<ClusterKey, List<ClusterMarker>> oldClusters = new HashMap<ClusterKey, List<ClusterMarker>>();
+		ArrayMap<ClusterKey, ClusterMarker> newClusters = new ArrayMap<ClusterKey, ClusterMarker>();
+		ArrayMap<ClusterKey, List<ClusterMarker>> oldClusters = new ArrayMap<ClusterKey, List<ClusterMarker>>();
 		for (ClusterMarker cluster : clusters.values()) {
 			List<DelegatingMarker> ms = cluster.getMarkersInternal();
 			if (ms.isEmpty()) {
@@ -427,14 +425,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 		markerOptions.position(position);
 		ClusterOptions opts = clusterOptionsProvider.getClusterOptions(markers);
 		markerOptions.icon(opts.getIcon());
-		if (GOOGLE_PLAY_SERVICES_4_0) {
-			try {
-				markerOptions.alpha(opts.getAlpha());
-			} catch (NoSuchMethodError error) {
-				// not the cutest way to handle backward compatibility
-				GOOGLE_PLAY_SERVICES_4_0 = false;
-			}
-		}
+		markerOptions.alpha(opts.getAlpha());
 		markerOptions.anchor(opts.getAnchorU(), opts.getAnchorV());
 		markerOptions.flat(opts.isFlat());
 		markerOptions.infoWindowAnchor(opts.getInfoWindowAnchorU(), opts.getInfoWindowAnchorV());

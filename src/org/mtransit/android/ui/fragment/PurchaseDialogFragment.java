@@ -3,7 +3,6 @@ package org.mtransit.android.ui.fragment;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
@@ -18,6 +17,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -164,9 +164,9 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 	}
 
 	private ArrayList<String> prices = new ArrayList<String>();
-	private HashMap<String, String> priceSToPriceCat = new HashMap<String, String>();
+	private ArrayMap<String, String> priceSToPriceCat = new ArrayMap<String, String>();
 	private ArrayList<String> periods = new ArrayList<String>();
-	private HashMap<String, String> periodSToPeriodCat = new HashMap<String, String>();
+	private ArrayMap<String, String> periodSToPeriodCat = new ArrayMap<String, String>();
 
 	@Override
 	public void onQueryInventoryFinished(IabResult result, Inventory inventory) {

@@ -4,13 +4,12 @@ import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
 import android.os.SystemClock;
+import android.support.v4.util.ArrayMap;
 import android.view.animation.Interpolator;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.mtransit.android.ui.view.map.AnimationSettings;
 import org.mtransit.android.ui.view.map.IMarker;
@@ -27,7 +26,7 @@ class MarkerAnimator {
 		}
 	});
 
-	private Map<DelegatingMarker, AnimationData> queue = new HashMap<DelegatingMarker, AnimationData>();
+	private ArrayMap<DelegatingMarker, AnimationData> queue = new ArrayMap<DelegatingMarker, AnimationData>();
 
 	private void calculatePositions() {
 		long now = SystemClock.uptimeMillis();

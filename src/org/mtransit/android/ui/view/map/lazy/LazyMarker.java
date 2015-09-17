@@ -23,8 +23,6 @@ public class LazyMarker implements MTLog.Loggable {
 		return TAG;
 	}
 
-	private static boolean GOOGLE_PLAY_SERVICES_4_0 = true;
-
 	public interface OnMarkerCreateListener {
 		void onMarkerCreate(LazyMarker marker);
 	}
@@ -331,15 +329,7 @@ public class LazyMarker implements MTLog.Loggable {
 
 	private static MarkerOptions copy(MarkerOptions options) {
 		MarkerOptions copy = new MarkerOptions();
-		if (GOOGLE_PLAY_SERVICES_4_0) {
-			try {
-				copy.alpha(options.getAlpha());
-			} catch (NoSuchMethodError error) {
-				MTLog.w(TAG, error, "No such method error!");
-				// not the cutest way to handle backward compatibility
-				GOOGLE_PLAY_SERVICES_4_0 = false;
-			}
-		}
+		copy.alpha(options.getAlpha());
 		copy.anchor(options.getAnchorU(), options.getAnchorV());
 		copy.draggable(options.isDraggable());
 		copy.flat(options.isFlat());

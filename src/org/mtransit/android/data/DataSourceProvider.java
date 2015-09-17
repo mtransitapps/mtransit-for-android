@@ -1,7 +1,6 @@
 package org.mtransit.android.data;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.WeakHashMap;
@@ -18,6 +17,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.os.AsyncTask;
+import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 import android.util.SparseArray;
 
@@ -237,9 +237,9 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private HashSet<String> allAgenciesAuthority = new HashSet<String>();
 
-	private HashMap<String, Integer> agenciesAuthorityTypeId = new HashMap<String, Integer>();
+	private ArrayMap<String, Integer> agenciesAuthorityTypeId = new ArrayMap<String, Integer>();
 
-	private HashMap<String, Boolean> agenciesAuthorityIsRts = new HashMap<String, Boolean>();
+	private ArrayMap<String, Boolean> agenciesAuthorityIsRts = new ArrayMap<String, Boolean>();
 
 	private ArrayList<DataSourceType> allAgencyTypes = new ArrayList<DataSourceType>();
 
@@ -253,27 +253,27 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private ArrayList<NewsProviderProperties> allNewsProviders = new ArrayList<NewsProviderProperties>();
 
-	private HashMap<String, AgencyProperties> allAgenciesByAuthority = null;
+	private ArrayMap<String, AgencyProperties> allAgenciesByAuthority = null;
 
-	private HashMap<String, StatusProviderProperties> allStatusProvidersByAuthority = new HashMap<String, StatusProviderProperties>();
+	private ArrayMap<String, StatusProviderProperties> allStatusProvidersByAuthority = new ArrayMap<String, StatusProviderProperties>();
 
-	private HashMap<String, ScheduleProviderProperties> allScheduleProvidersByAuthority = new HashMap<String, ScheduleProviderProperties>();
+	private ArrayMap<String, ScheduleProviderProperties> allScheduleProvidersByAuthority = new ArrayMap<String, ScheduleProviderProperties>();
 
-	private HashMap<String, ServiceUpdateProviderProperties> allServiceUpdateProvidersByAuthority = new HashMap<String, ServiceUpdateProviderProperties>();
+	private ArrayMap<String, ServiceUpdateProviderProperties> allServiceUpdateProvidersByAuthority = new ArrayMap<String, ServiceUpdateProviderProperties>();
 
-	private HashMap<String, NewsProviderProperties> allNewsProvidersByAuthority = new HashMap<String, NewsProviderProperties>();
+	private ArrayMap<String, NewsProviderProperties> allNewsProvidersByAuthority = new ArrayMap<String, NewsProviderProperties>();
 
 	private SparseArray<ArrayList<AgencyProperties>> allAgenciesByTypeId = null;
 
-	private HashMap<String, HashSet<StatusProviderProperties>> statusProvidersByTargetAuthority = new HashMap<String, HashSet<StatusProviderProperties>>();
+	private ArrayMap<String, HashSet<StatusProviderProperties>> statusProvidersByTargetAuthority = new ArrayMap<String, HashSet<StatusProviderProperties>>();
 
-	private HashMap<String, HashSet<ScheduleProviderProperties>> scheduleProvidersByTargetAuthority = new HashMap<String, HashSet<ScheduleProviderProperties>>();
+	private ArrayMap<String, HashSet<ScheduleProviderProperties>> scheduleProvidersByTargetAuthority = new ArrayMap<String, HashSet<ScheduleProviderProperties>>();
 
-	private HashMap<String, HashSet<ServiceUpdateProviderProperties>> serviceUpdateProvidersByTargetAuthority = new HashMap<String, HashSet<ServiceUpdateProviderProperties>>();
+	private ArrayMap<String, HashSet<ServiceUpdateProviderProperties>> serviceUpdateProvidersByTargetAuthority = new ArrayMap<String, HashSet<ServiceUpdateProviderProperties>>();
 
-	private HashMap<String, HashSet<NewsProviderProperties>> newsProvidersByTargetAuthority = new HashMap<String, HashSet<NewsProviderProperties>>();
+	private ArrayMap<String, HashSet<NewsProviderProperties>> newsProvidersByTargetAuthority = new ArrayMap<String, HashSet<NewsProviderProperties>>();
 
-	private HashMap<String, Integer> allAgenciesColorInts = new HashMap<String, Integer>();
+	private ArrayMap<String, Integer> allAgenciesColorInts = new ArrayMap<String, Integer>();
 
 	private DataSourceProvider() {
 	}
@@ -310,7 +310,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 		try {
 			if (CollectionUtils.getSize(this.allAgenciesAuthority) > 0) {
 				ArrayList<AgencyProperties> allAgencies = new ArrayList<AgencyProperties>();
-				HashMap<String, AgencyProperties> allAgenciesByAuthority = new HashMap<String, AgencyProperties>();
+				ArrayMap<String, AgencyProperties> allAgenciesByAuthority = new ArrayMap<String, AgencyProperties>();
 				SparseArray<ArrayList<AgencyProperties>> allAgenciesByTypeId = new SparseArray<ArrayList<AgencyProperties>>();
 				for (String authority : this.allAgenciesAuthority) {
 					boolean isRTS = this.agenciesAuthorityIsRts.get(authority);

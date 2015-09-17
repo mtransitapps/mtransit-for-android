@@ -1,7 +1,6 @@
 package org.mtransit.android.task;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
 import org.mtransit.android.commons.CollectionUtils;
@@ -10,6 +9,7 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
+import android.support.v4.util.ArrayMap;
 
 public class POIsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
@@ -36,7 +36,7 @@ public class POIsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 			return this.pois;
 		}
 		this.pois = new ArrayList<POIManager>();
-		HashMap<String, HashSet<String>> authorityToUUIDs = splitByAgency(this.uuids, this.authorities);
+		ArrayMap<String, HashSet<String>> authorityToUUIDs = splitByAgency(this.uuids, this.authorities);
 		if (authorityToUUIDs != null && authorityToUUIDs.size() > 0) {
 			for (String authority : authorityToUUIDs.keySet()) {
 				HashSet<String> authorityUUIDs = authorityToUUIDs.get(authority);
@@ -53,8 +53,8 @@ public class POIsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 		return this.pois;
 	}
 
-	private HashMap<String, HashSet<String>> splitByAgency(ArrayList<String> uuids, ArrayList<String> authorities) {
-		HashMap<String, HashSet<String>> authorityToUUIDs = new HashMap<String, HashSet<String>>();
+	private ArrayMap<String, HashSet<String>> splitByAgency(ArrayList<String> uuids, ArrayList<String> authorities) {
+		ArrayMap<String, HashSet<String>> authorityToUUIDs = new ArrayMap<String, HashSet<String>>();
 		if (uuids != null) {
 			for (int i = 0; i < uuids.size(); i++) {
 				String uuid = uuids.get(i);

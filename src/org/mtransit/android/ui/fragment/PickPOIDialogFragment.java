@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -21,6 +20,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.util.ArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,11 +41,11 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 	private static final String EXTRA_POI_UUIDS = "extra_poi_uuids";
 	private static final String EXTRA_POI_AUTHORITIES = "extra_poi_authorities";
 
-	public static PickPOIDialogFragment newInstance(HashMap<String, String> uuidsAndAuthorities) {
+	public static PickPOIDialogFragment newInstance(ArrayMap<String, String> uuidsAndAuthorities) {
 		ArrayList<String> uuids = new ArrayList<String>();
 		ArrayList<String> authorities = new ArrayList<String>();
 		if (uuidsAndAuthorities != null) {
-			for (HashMap.Entry<String, String> uuidAndAuthority : uuidsAndAuthorities.entrySet()) {
+			for (ArrayMap.Entry<String, String> uuidAndAuthority : uuidsAndAuthorities.entrySet()) {
 				uuids.add(uuidAndAuthority.getKey());
 				authorities.add(uuidAndAuthority.getValue());
 			}

@@ -2,7 +2,6 @@ package org.mtransit.android.util;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.WeakHashMap;
@@ -26,6 +25,7 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.util.ArrayMap;
 import android.widget.Toast;
 
 public final class VendingUtils implements MTLog.Loggable {
@@ -51,9 +51,9 @@ public final class VendingUtils implements MTLog.Loggable {
 
 	public static final ArrayList<String> SORTED_PERIOD_CAT = ArrayUtils.asArrayList(new String[] { WEEKLY, MONTHLY, YEARLY });
 
-	public static final HashMap<String, Integer> PERIOD_RES_ID;
+	public static final ArrayMap<String, Integer> PERIOD_RES_ID;
 	static {
-		HashMap<String, Integer> map = new HashMap<String, Integer>();
+		ArrayMap<String, Integer> map = new ArrayMap<String, Integer>();
 		map.put(WEEKLY, R.string.support_every_week);
 		map.put(MONTHLY, R.string.support_every_month);
 		map.put(YEARLY, R.string.support_every_year);

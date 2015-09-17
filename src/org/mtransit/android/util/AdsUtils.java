@@ -1,13 +1,13 @@
 package org.mtransit.android.util;
 
 import java.lang.ref.WeakReference;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.ArrayList;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.TaskUtils;
+import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.ui.MTActivityWithLocation;
 
@@ -38,8 +38,8 @@ public final class AdsUtils implements MTLog.Loggable {
 
 	private static Boolean adLoaded = null;
 
-	private static final HashSet<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] { "transit", "transport", "bus", "subway", "metro", "taxi",
-			"bike", "sharing", "velo", "train", "ferries", "boat", "trail", "lrt", "streetcar", "traversier", "tram", "tramway" }));
+	private static final ArrayList<String> KEYWORDS = ArrayUtils.asArrayList(new String[] { "transit", "transport", "bus", "subway", "metro", "taxi", "bike",
+			"sharing", "velo", "train", "ferries", "boat", "trail", "lrt", "streetcar", "traversier", "tram", "tramway" });
 
 	private static void setupAd(Activity activity) {
 		if (!AD_ENABLED) {

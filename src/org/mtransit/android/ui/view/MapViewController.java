@@ -4,7 +4,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,6 +42,8 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.util.ArrayMap;
+import android.support.v4.util.SimpleArrayMap;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -511,7 +512,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	public boolean onMarkerClick(IMarker imarker) {
 		if (imarker != null && !imarker.isCluster() && imarker.getData() != null && imarker.getData() instanceof POIMarkerIds) {
 			POIMarkerIds poiMarkerIds = imarker.getData();
-			HashMap.Entry<String, String> uuidAndAuthority = poiMarkerIds.entrySet().iterator().next();
+			ArrayMap.Entry<String, String> uuidAndAuthority = poiMarkerIds.entrySet().iterator().next();
 			String uuid = uuidAndAuthority.getKey();
 			if (!TextUtils.isEmpty(uuid)) {
 				this.lastSelectedUUID = uuid;
@@ -927,11 +928,11 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return TAG;
 		}
 
-		public java.util.Set<HashMap.Entry<String, String>> entrySet() {
+		public java.util.Set<ArrayMap.Entry<String, String>> entrySet() {
 			return this.uuidsAndAuthority.entrySet();
 		}
 
-		public HashMap<String, String> getMap() {
+		public ArrayMap<String, String> getMap() {
 			return this.uuidsAndAuthority;
 		}
 
@@ -939,13 +940,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return this.uuidsAndAuthority.containsKey(uuid);
 		}
 
-		private HashMap<String, String> uuidsAndAuthority = new HashMap<String, String>();
+		private ArrayMap<String, String> uuidsAndAuthority = new ArrayMap<String, String>();
 
 		public void put(String uuid, String authority) {
 			this.uuidsAndAuthority.put(uuid, authority);
 		}
 
-		public void putAll(HashMap<String, String> newUuidsAndAuthority) {
+		public void putAll(SimpleArrayMap<String, String> newUuidsAndAuthority) {
 			if (newUuidsAndAuthority != null) {
 				this.uuidsAndAuthority.putAll(newUuidsAndAuthority);
 			}
@@ -989,7 +990,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			if (pois == null) {
 				return null;
 			}
-			HashMap<LatLng, POIMarker> clusterItems = new HashMap<LatLng, POIMarker>();
+			ArrayMap<LatLng, POIMarker> clusterItems = new ArrayMap<LatLng, POIMarker>();
 			LatLng position;
 			LatLng positionTrunc;
 			String name;

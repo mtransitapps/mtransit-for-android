@@ -6,7 +6,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -39,6 +38,7 @@ import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
 public class PlaceProvider extends AgencyProvider implements POIProviderContract {
@@ -84,7 +84,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	}
 
 	@Override
-	public HashMap<String, String> getSearchSuggestProjectionMap() {
+	public ArrayMap<String, String> getSearchSuggestProjectionMap() {
 		return null; // TODO implement Place/Query auto-complete
 	}
 
@@ -370,10 +370,10 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		// do nothing
 	}
 
-	private static HashMap<String, String> poiProjectionMap;
+	private static ArrayMap<String, String> poiProjectionMap;
 
 	@Override
-	public HashMap<String, String> getPOIProjectionMap() {
+	public ArrayMap<String, String> getPOIProjectionMap() {
 		if (poiProjectionMap == null) {
 			poiProjectionMap = getNewPoiProjectionMap(getAUTHORITY(getContext()));
 		}
@@ -440,7 +440,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		return 0;
 	}
 
-	public static HashMap<String, String> getNewPoiProjectionMap(String authority) {
+	public static ArrayMap<String, String> getNewPoiProjectionMap(String authority) {
 		// @formatter:off
 		return SqlUtils.ProjectionMapBuilder.getNew() //
 				.appendValue(SqlUtils.concatenate( //

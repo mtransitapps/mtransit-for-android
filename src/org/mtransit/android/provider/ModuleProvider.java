@@ -1,7 +1,6 @@
 package org.mtransit.android.provider;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
@@ -37,6 +36,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.support.v4.util.ArrayMap;
 
 public class ModuleProvider extends AgencyProvider implements POIProviderContract, StatusProviderContract {
 
@@ -218,7 +218,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@Override
-	public HashMap<String, String> getSearchSuggestProjectionMap() {
+	public ArrayMap<String, String> getSearchSuggestProjectionMap() {
 		return null; // no search suggest for modules
 	}
 
@@ -485,17 +485,17 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS;
 	}
 
-	private static HashMap<String, String> poiProjectionMap;
+	private static ArrayMap<String, String> poiProjectionMap;
 
 	@Override
-	public HashMap<String, String> getPOIProjectionMap() {
+	public ArrayMap<String, String> getPOIProjectionMap() {
 		if (poiProjectionMap == null) {
 			poiProjectionMap = getNewPoiProjectionMap(getAUTHORITY(getContext()));
 		}
 		return poiProjectionMap;
 	}
 
-	public static HashMap<String, String> getNewPoiProjectionMap(String authority) {
+	public static ArrayMap<String, String> getNewPoiProjectionMap(String authority) {
 		// @formatter:off
 		return SqlUtils.ProjectionMapBuilder.getNew()
 				.appendValue(SqlUtils.concatenate(//

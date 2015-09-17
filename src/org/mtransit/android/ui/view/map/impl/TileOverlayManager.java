@@ -1,23 +1,23 @@
 package org.mtransit.android.ui.view.map.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.mtransit.android.ui.view.map.TileOverlay;
 import org.mtransit.android.ui.view.map.TileOverlayOptions;
+
+import android.support.v4.util.ArrayMap;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class TileOverlayManager {
 
 	private final IGoogleMap factory;
 
-	private final Map<com.google.android.gms.maps.model.TileOverlay, TileOverlay> tileOverlays;
+	private final ArrayMap<com.google.android.gms.maps.model.TileOverlay, TileOverlay> tileOverlays;
 
 	public TileOverlayManager(IGoogleMap factory) {
 		this.factory = factory;
-		this.tileOverlays = new HashMap<com.google.android.gms.maps.model.TileOverlay, TileOverlay>();
+		this.tileOverlays = new ArrayMap<com.google.android.gms.maps.model.TileOverlay, TileOverlay>();
 	}
 
 	public TileOverlay addTileOverlay(TileOverlayOptions tileOverlayOptions) {

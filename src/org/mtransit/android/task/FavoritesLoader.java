@@ -1,7 +1,6 @@
 package org.mtransit.android.task;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
 import org.mtransit.android.commons.CollectionUtils;
@@ -14,6 +13,7 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
 
 import android.content.Context;
+import android.support.v4.util.ArrayMap;
 
 public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
@@ -37,7 +37,7 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 		}
 		this.pois = new ArrayList<POIManager>();
 		ArrayList<Favorite> favorites = FavoriteManager.findFavorites(getContext());
-		HashMap<String, HashSet<String>> authorityToUUIDs = splitByAgency(favorites);
+		ArrayMap<String, HashSet<String>> authorityToUUIDs = splitByAgency(favorites);
 		if (CollectionUtils.getSize(authorityToUUIDs) > 0) {
 			for (String authority : authorityToUUIDs.keySet()) {
 				HashSet<String> authorityUUIDs = authorityToUUIDs.get(authority);
@@ -55,8 +55,8 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 		return this.pois;
 	}
 
-	public static HashMap<String, HashSet<String>> splitByAgency(ArrayList<Favorite> favorites) {
-		HashMap<String, HashSet<String>> authorityToUUIDs = new HashMap<String, HashSet<String>>();
+	public static ArrayMap<String, HashSet<String>> splitByAgency(ArrayList<Favorite> favorites) {
+		ArrayMap<String, HashSet<String>> authorityToUUIDs = new ArrayMap<String, HashSet<String>>();
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {
 				String uuid = favorite.getFkId();
