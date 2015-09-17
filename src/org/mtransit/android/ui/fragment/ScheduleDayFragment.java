@@ -873,6 +873,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 						timeSb.append(P1).append(context.getString(R.string.local_time_and_time, localTime)).append(P2);
 					}
 				}
+				String timeOnly = timeSb.toString();
 				if (timestamp.hasHeadsign()) {
 					String timestampHeading = timestamp.getHeading(context);
 					String tripHeading = this.optRts == null ? null : this.optRts.getTrip().getHeading(context);
@@ -880,7 +881,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 						timeSb.append(P1).append(timestampHeading).append(P2);
 					}
 				}
-				TimeUtils.cleanTimes(timeSb);
+				TimeUtils.cleanTimes(timeOnly, timeSb);
 				holder.timeTv.setText(timeSb);
 				if (this.nextTimeInMs != null && TimeUtils.isSameDay(getNowToTheMinute(), this.nextTimeInMs.t) && this.nextTimeInMs.t == timestamp.t) { // now
 					holder.timeTv.setTextColor(Schedule.getDefaultNowTextColor(context));
