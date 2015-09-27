@@ -25,6 +25,9 @@
 # MT - END
 
 # SUPPORT V7 APPCOMPAT - START
+-keep class android.support.v4.app.** { *; }
+-keep class android.support.v7.app.** { *; }
+-keep interface android.support.v4.app.** { *; }
 -keep public class android.support.v7.widget.** { *; }
 -keep public class android.support.v7.internal.widget.** { *; }
 -keep public class * extends android.support.v4.view.ActionProvider {
@@ -36,37 +39,41 @@
 -keep class * extends java.util.ListResourceBundle {
     protected java.lang.Object[][] getContents();
 }
-
 # Keep SafeParcelable value, needed for reflection. This is required to support backwards
 # compatibility of some classes.
 -keep public class com.google.android.gms.common.internal.safeparcel.SafeParcelable {
     public static final *** NULL;
 }
-
 # Keep the names of classes/members we need for client functionality.
 -keepnames @com.google.android.gms.common.annotation.KeepName class *
 -keepclassmembernames class * {
     @com.google.android.gms.common.annotation.KeepName *;
 }
-
 # Needed for Parcelable/SafeParcelable Creators to not get stripped
 -keepnames class * implements android.os.Parcelable {
     public static final ** CREATOR;
 }
-
 # Needed when building against the Marshmallow SDK
 -dontwarn org.apache.http.**
+# Needed when building against the Marshmallow SDK (?)
+-dontwarn android.net.http.AndroidHttpClient
+-dontwarn com.google.android.gms.internal.**
 # GOOGLE PLAY SERVICES - END
 
 # GOOGLE MOBILE ADS (ADMOB) - START
 -keep public class com.google.android.gms.ads.** {
    public *;
 }
-
 -keep public class com.google.ads.** {
    public *;
 }
 # GOOGLE MOBILE ADS (ADMOB) - END
+
+# GOOGLE ANALYTICS - START
+-keep public class com.google.android.gms.analytics.** {
+    public *;
+}
+# GOOGLE ANALYTICS - END
 
 # GOOGLE PLAY IN-APP BILLING - START
 -keep class com.android.vending.billing.**
