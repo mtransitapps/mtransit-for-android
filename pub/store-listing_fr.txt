@@ -6,7 +6,7 @@ Bus Métro Train Vélo…
 Hors-Ligne & Temps-Réel
 ----------
 What's new in this version?:
-Maintenant disponible pour toutes* les agences de transport au Canada (de Saint-Jean de Terre-Neuve-et-Labrador à Courtenay en Colombie-Britannique).
+Maintenant disponible pour toutes* les agences de transport au Canada (de Saint-Jean de Terre-Neuve-et-Labrador à Whitehorse, Yukon).
 Correction de problèmes & Amélioration des performances.
 
 *: toutes les agences de transport avec des données ouvertes

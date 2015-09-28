@@ -6,7 +6,7 @@ Bike, Bus, Subway, Train…
 Offline & Real-Time
 ----------
 What's new in this version?:
-Now available for all* transit agencies in Canada (from St John's in Newfoundland and Labrador to Courtenay in British Columbia).
+Now available for all* transit agencies in Canada (from St John's in Newfoundland and Labrador to Whitehorse, Yukon).
 Bug fixes & performance improvements.
 
 *: all transit agencies with open data
