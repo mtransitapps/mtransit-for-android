@@ -167,6 +167,6 @@ public class FavoriteManager implements MTLog.Loggable {
 	}
 
 	public interface FavoriteUpdateListener {
-		public void onFavoriteUpdated();
+		void onFavoriteUpdated();
 	}
 }

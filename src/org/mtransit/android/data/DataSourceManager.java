@@ -3,6 +3,7 @@ package org.mtransit.android.data;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import org.json.JSONObject;
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SqlUtils;
@@ -340,7 +341,12 @@ public final class DataSourceManager implements MTLog.Loggable {
 	public static ArrayList<POIManager> findPOIs(Context context, String authority, POIProviderContract.Filter poiFilter) {
 		Cursor cursor = null;
 		try {
-			String filterJsonString = POIProviderContract.Filter.toJSON(poiFilter).toString();
+			JSONObject filterJSON = POIProviderContract.Filter.toJSON(poiFilter);
+			if (filterJSON == null) {
+				MTLog.w(TAG, "Invalid POI filter!");
+				return null;
+			}
+			String filterJsonString = filterJSON.toString();
 			Uri uri = getPOIUri(authority);
 			cursor = queryContentResolver(context.getContentResolver(), uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, null);
 			return getPOIs(cursor, authority);

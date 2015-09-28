@@ -3,8 +3,8 @@ package org.mtransit.android.ui;
 import java.lang.ref.WeakReference;
 
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.TaskUtils;
+import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.ui.fragment.MTDialogFragmentV4;
 
 import android.app.Activity;
@@ -211,11 +211,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTAppCompatActivity 
 	}
 
 	private void showErrorDialog(int errorCode) {
-		ErrorDialogFragment dialogFragment = new ErrorDialogFragment();
-		Bundle args = new Bundle();
-		args.putInt(DIALOG_ERROR, errorCode);
-		dialogFragment.setArguments(args);
-		dialogFragment.show(getSupportFragmentManager(), "errordialog");
+		MainActivity.showNewDialog(getSupportFragmentManager(), ErrorDialogFragment.newInstance(errorCode));
 	}
 
 	public void onDialogDismissed() {
@@ -231,6 +227,14 @@ public abstract class MTActivityWithGoogleAPIClient extends MTAppCompatActivity 
 			return TAG;
 		}
 
+		public static ErrorDialogFragment newInstance(int errorCode) {
+			ErrorDialogFragment dialogFragment = new ErrorDialogFragment();
+			Bundle args = new Bundle();
+			args.putInt(DIALOG_ERROR, errorCode);
+			dialogFragment.setArguments(args);
+			return dialogFragment;
+		}
+
 		public ErrorDialogFragment() {
 		}
 
@@ -243,8 +247,8 @@ public abstract class MTActivityWithGoogleAPIClient extends MTAppCompatActivity 
 		@Override
 		public void onDismiss(DialogInterface dialog) {
 			FragmentActivity activity = getActivity();
-			if (activity != null && activity instanceof MainActivity) {
-				((MainActivity) activity).onDialogDismissed();
+			if (activity != null && activity instanceof MTActivityWithGoogleAPIClient) {
+				((MTActivityWithGoogleAPIClient) activity).onDialogDismissed();
 			}
 		}
 	}

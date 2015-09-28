@@ -165,14 +165,16 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		super.onResume();
 		View view = getView();
 		if (this.modulesUpdated) {
-			view.post(new Runnable() {
-				@Override
-				public void run() {
-					if (NewsFragment.this.modulesUpdated) {
-						onModulesUpdated();
+			if (view != null) {
+				view.post(new Runnable() {
+					@Override
+					public void run() {
+						if (NewsFragment.this.modulesUpdated) {
+							onModulesUpdated();
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 		if (!this.adapter.isInitialized()) {
 			LoaderUtils.restartLoader(this, NEWS_LOADER, null, this);

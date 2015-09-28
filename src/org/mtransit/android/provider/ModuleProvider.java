@@ -75,7 +75,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
-	public static UriMatcher getURIMATCHER(Context context) {
+	private static UriMatcher getURIMATCHER(Context context) {
 		if (uriMatcher == null) {
 			uriMatcher = getNewUriMatcher(getAUTHORITY(context));
 		}
@@ -94,7 +94,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
-	public static String getAUTHORITY(Context context) {
+	private static String getAUTHORITY(Context context) {
 		if (authority == null) {
 			authority = context.getResources().getString(R.string.module_authority);
 		}
@@ -106,7 +106,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
-	public static Uri getAUTHORITYURI(Context context) {
+	private static Uri getAUTHORITYURI(Context context) {
 		if (authorityUri == null) {
 			authorityUri = UriUtils.newContentUri(getAUTHORITY(context));
 		}

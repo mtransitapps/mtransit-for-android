@@ -100,7 +100,9 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 			for (Future<HashSet<String>> future : taskList) {
 				try {
 					HashSet<String> agencySuggestions = future.get();
-					suggestions.addAll(agencySuggestions);
+					if (agencySuggestions != null) {
+						suggestions.addAll(agencySuggestions);
+					}
 				} catch (Exception e) {
 					MTLog.w(this, e, "Error while loading in background!");
 				}

@@ -271,8 +271,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 
 	private static final String DIALOG_TAG = "dialog";
 
-	public void showNewDialog(DialogFragment newDialog) {
-		FragmentManager fm = getSupportFragmentManager();
+	public static void showNewDialog(FragmentManager fm, DialogFragment newDialog) {
 		FragmentTransaction ft = fm.beginTransaction();
 		Fragment prev = fm.findFragmentByTag(DIALOG_TAG);
 		if (prev != null) {

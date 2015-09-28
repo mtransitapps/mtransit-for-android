@@ -79,11 +79,11 @@ public class FavoriteProvider extends MTContentProvider {
 		return dbHelper;
 	}
 
-	public FavoriteDbHelper getNewDbHelper(Context context) {
+	private FavoriteDbHelper getNewDbHelper(Context context) {
 		return new FavoriteDbHelper(context.getApplicationContext());
 	}
 
-	public int getCurrentDbVersion() {
+	private int getCurrentDbVersion() {
 		return FavoriteDbHelper.getDbVersion();
 	}
 
@@ -94,7 +94,7 @@ public class FavoriteProvider extends MTContentProvider {
 		return authorityUri;
 	}
 
-	public static UriMatcher getURIMATCHER(Context context) {
+	private static UriMatcher getURIMATCHER(Context context) {
 		if (uriMatcher == null) {
 			uriMatcher = getNewUriMatcher(getAUTHORITY(context));
 		}
@@ -104,7 +104,7 @@ public class FavoriteProvider extends MTContentProvider {
 	/**
 	 * Override if multiple {@link FavoriteProvider} implementations in same app.
 	 */
-	public static String getAUTHORITY(Context context) {
+	private static String getAUTHORITY(Context context) {
 		if (authority == null) {
 			authority = context.getResources().getString(R.string.favorite_authority);
 		}

@@ -378,19 +378,22 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	@Override
 	public void onResume() {
 		super.onResume();
+		View view = getView();
 		if (this.modulesUpdated) {
-			getView().post(new Runnable() {
-				@Override
-				public void run() {
-					if (NearbyAgencyTypeFragment.this.modulesUpdated) {
-						onModulesUpdated();
+			if (view != null) {
+				view.post(new Runnable() {
+					@Override
+					public void run() {
+						if (NearbyAgencyTypeFragment.this.modulesUpdated) {
+							onModulesUpdated();
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 		if (this.fragmentPosition >= 0 && this.fragmentPosition == this.lastVisibleFragmentPosition) {
 			onFragmentVisible();
-		} // ELSE would be call later
+		} // ELSE will be called later
 		this.adapter.setActivity(getActivity());
 	}
 
@@ -588,7 +591,6 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
 		int dataSize = CollectionUtils.getSize(data);
 		if (dataSize < this.minSize && !LocationUtils.searchComplete(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff)) {
-			// try with larger around location
 			if (dataSize == 0) {
 				this.lastEmptyAroundDiff = this.ad.aroundDiff;
 			} else {

@@ -38,7 +38,7 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 		this.pois = new ArrayList<POIManager>();
 		ArrayList<Favorite> favorites = FavoriteManager.findFavorites(getContext());
 		ArrayMap<String, HashSet<String>> authorityToUUIDs = splitByAgency(favorites);
-		if (CollectionUtils.getSize(authorityToUUIDs) > 0) {
+		if (authorityToUUIDs != null && authorityToUUIDs.size() > 0) {
 			for (String authority : authorityToUUIDs.keySet()) {
 				HashSet<String> authorityUUIDs = authorityToUUIDs.get(authority);
 				if (CollectionUtils.getSize(authorityUUIDs) > 0) {

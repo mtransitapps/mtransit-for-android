@@ -105,7 +105,6 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 	}
 
-
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -358,8 +357,11 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		if (this.type == null) {
 			return;
 		}
-		getAbController().setABTitle(this, getABTitle(getActivity()), false);
-		getAbController().setABReady(this, isABReady(), true);
+		ActionBarController actionBarController = getAbController();
+		if (actionBarController != null) {
+			actionBarController.setABTitle(this, getABTitle(getActivity()), false);
+			actionBarController.setABReady(this, isABReady(), true);
+		}
 	}
 
 	private void applyNewTypeAgencies() {

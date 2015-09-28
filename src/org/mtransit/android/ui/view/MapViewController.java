@@ -279,7 +279,12 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.loadingMapView = view.findViewById(R.id.map_loading);
 		this.typeSwitchView = (ImageView) view.findViewById(R.id.map_type_switch);
 		if (this.mapView != null) {
-			this.mapView.onCreate(this.lastSavedInstanceState);
+			try {
+				this.mapView.onCreate(this.lastSavedInstanceState);
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while creating map view with '%s' (trying again)", this.lastSavedInstanceState);
+				this.mapView.onCreate(null);
+			}
 			if (this.needToResumeMap) {
 				this.mapView.onResume();
 				this.needToResumeMap = false;
@@ -499,9 +504,12 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	@Override
 	public void onInfoWindowClick(IMarker imarker) {
 		if (imarker != null && imarker.getData() != null && imarker.getData() instanceof POIMarkerIds) {
-			final POIMarkerIds poiMarkerIds = imarker.getData();
+			POIMarkerIds poiMarkerIds = imarker.getData();
 			if (poiMarkerIds.size() >= 1) {
-				((MainActivity) getActivityOrNull()).showNewDialog(PickPOIDialogFragment.newInstance(poiMarkerIds.getMap()));
+				Activity activity = getActivityOrNull();
+				if (activity != null && activity instanceof MainActivity) {
+					MainActivity.showNewDialog(((MainActivity) activity).getSupportFragmentManager(), PickPOIDialogFragment.newInstance(poiMarkerIds.getMap()));
+				}
 			}
 		}
 	}
@@ -630,7 +638,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private boolean includeMarkersInLatLngBounds(LatLngBounds.Builder llb) {
 		java.util.List<IMarker> markers = this.extendedGoogleMap == null ? null : this.extendedGoogleMap.getMarkers();
-		if (CollectionUtils.getSize(markers) > 0) {
+		if (markers != null && markers.size() > 0) {
 			for (IMarker imarker : markers) {
 				llb.include(imarker.getPosition());
 			}

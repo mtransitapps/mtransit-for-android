@@ -136,14 +136,16 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 		super.onResume();
 		View view = getView();
 		if (this.modulesUpdated) {
-			view.post(new Runnable() {
-				@Override
-				public void run() {
-					if (MapFragment.this.modulesUpdated) {
-						onModulesUpdated();
+			if (view != null) {
+				view.post(new Runnable() {
+					@Override
+					public void run() {
+						if (MapFragment.this.modulesUpdated) {
+							onModulesUpdated();
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 		this.mapViewController.onResume();
 		hasFilterTypeIds(); // triggers markers loading if necessary
@@ -513,7 +515,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 		StringBuilder sb = new StringBuilder(context.getString(R.string.map));
 		sb.append(" (");
 		Set<Integer> filterTypeIds = getFilterTypeIdsOrNull();
-		if (CollectionUtils.getSize(filterTypeIds) > 0) {
+		if (filterTypeIds != null && filterTypeIds.size() > 0) {
 			boolean hasType = false;
 			for (Integer typeId : filterTypeIds) {
 				if (typeId != null) {

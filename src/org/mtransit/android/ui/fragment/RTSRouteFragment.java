@@ -121,14 +121,16 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		super.onResume();
 		View view = getView();
 		if (this.modulesUpdated) {
-			view.post(new Runnable() {
-				@Override
-				public void run() {
-					if (RTSRouteFragment.this.modulesUpdated) {
-						onModulesUpdated();
+			if (view != null) {
+				view.post(new Runnable() {
+					@Override
+					public void run() {
+						if (RTSRouteFragment.this.modulesUpdated) {
+							onModulesUpdated();
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 		switchView(view);
 		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());

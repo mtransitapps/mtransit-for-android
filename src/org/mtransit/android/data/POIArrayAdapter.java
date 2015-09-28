@@ -425,13 +425,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private View getBrowseHeaderSectionView(View convertView, ViewGroup parent) {
 		Activity activity = this.activityWR == null ? null : this.activityWR.get();
-		if (convertView == null || this.nbAgencyTypes != DataSourceProvider.get(activity).getAllAgenciesCount()) {
+		DataSourceProvider dataSourceProvider = DataSourceProvider.get(activity);
+		int agenciesCount = dataSourceProvider == null ? 0 : dataSourceProvider.getAllAgenciesCount();
+		if (convertView == null || this.nbAgencyTypes != agenciesCount) {
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header, parent, false);
 			}
 			LinearLayout gridLL = (LinearLayout) convertView.findViewById(R.id.gridLL);
 			gridLL.removeAllViews();
-			ArrayList<DataSourceType> allAgencyTypes = DataSourceProvider.get(activity).getAvailableAgencyTypes();
+			ArrayList<DataSourceType> allAgencyTypes = dataSourceProvider == null ? null : dataSourceProvider.getAvailableAgencyTypes();
 			this.nbAgencyTypes = CollectionUtils.getSize(allAgencyTypes);
 			if (allAgencyTypes == null) {
 				gridLL.setVisibility(View.GONE);
@@ -564,11 +566,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	@Override
 	public boolean isEnabled(int position) {
-		Integer type = getItemTypeHeader(position);
-		if (type != null) {
-			return false;
-		}
-		return true;
+		return getItemTypeHeader(position) == null; // is NOT separator
 	}
 
 	public boolean showPoiViewerScreen(POIManager poim) {
@@ -843,7 +841,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			this.lastNotifyDataSetChanged = now;
 			this.handler.removeCallbacks(this.notifyDataSetChangedLater);
 		} else {
-			// IF we really needed to show new data AND list wasn't not idle DO try again later
 			if (force) {
 				this.handler.postDelayed(this.notifyDataSetChangedLater, adapterThreshold);
 			}
@@ -1684,9 +1681,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			holder.compassV.setLatLng(poim.getLat(), poim.getLng());
 			this.compassImgsWR.put(holder.compassV, holder.distanceTv);
 		}
-		// name
 		holder.nameTv.setText(poi.getName());
-		// distance
 		if (holder.distanceTv != null) {
 			if (!TextUtils.isEmpty(poim.getDistanceString())) {
 				if (!poim.getDistanceString().equals(holder.distanceTv.getText())) {
@@ -1698,7 +1693,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				holder.distanceTv.setText(null);
 			}
 		}
-		// compass (if distance available)
 		if (holder.compassV != null) {
 			if (holder.distanceTv != null && holder.distanceTv.getVisibility() == View.VISIBLE) {
 				if (this.location != null && this.lastCompassInDegree >= 0 && this.location.getAccuracy() <= poim.getDistance()) {
@@ -1712,7 +1706,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				holder.compassV.setVisibility(View.GONE);
 			}
 		}
-		// location
 		if (holder.locationTv != null) {
 			if (TextUtils.isEmpty(poim.getLocation())) {
 				holder.locationTv.setVisibility(View.GONE);
@@ -1722,13 +1715,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				holder.locationTv.setVisibility(View.VISIBLE);
 			}
 		}
-		// favorite
 		if (this.showFavorite && this.favUUIDs != null && this.favUUIDs.contains(poi.getUUID())) {
 			holder.favImg.setVisibility(View.VISIBLE);
 		} else {
 			holder.favImg.setVisibility(View.GONE);
 		}
-		// closest POI
 		int index;
 		if (this.closestPoiUuids != null && this.closestPoiUuids.contains(poi.getUUID())) {
 			index = 0;

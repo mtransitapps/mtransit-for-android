@@ -83,7 +83,9 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		for (Future<ArrayList<POIManager>> future : taskList) {
 			try {
 				ArrayList<POIManager> agencyNearbyStops = future.get();
-				this.pois.addAll(agencyNearbyStops);
+				if (agencyNearbyStops != null) {
+					this.pois.addAll(agencyNearbyStops);
+				}
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while loading in background!");
 			}
@@ -141,8 +143,6 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		this.pois = data;
 		if (isStarted()) {
 			super.deliverResult(data);
-		} else {
-			MTLog.d(this, "deliverResult() > loader NOT started, not delivering result");
 		}
 	}
 
@@ -173,5 +173,4 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		super.onReset();
 		onStopLoading();
 	}
-
 }

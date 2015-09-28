@@ -144,7 +144,6 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 			}
 			return DataSourceManager.findServiceUpdates(context, this.serviceUpdateProvider.getAuthority(), this.serviceUpdateFilter);
 		}
-
 	}
 
 	public static class LIFOBlockingDeque<E> extends LinkedBlockingDeque<E> implements MTLog.Loggable {

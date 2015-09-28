@@ -137,17 +137,20 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public void onResume() {
 		super.onResume();
+		View view = getView();
 		if (this.modulesUpdated) {
-			getView().post(new Runnable() {
-				@Override
-				public void run() {
-					if (HomeFragment.this.modulesUpdated) {
-						onModulesUpdated();
+			if (view != null) {
+				view.post(new Runnable() {
+					@Override
+					public void run() {
+						if (HomeFragment.this.modulesUpdated) {
+							onModulesUpdated();
+						}
 					}
-				}
-			});
+				});
+			}
 		}
-		switchView(getView());
+		switchView(view);
 		if (this.adapter != null) {
 			this.adapter.onResume(getActivity(), this.userLocation);
 		}

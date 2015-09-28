@@ -38,8 +38,8 @@ public final class AdsUtils implements MTLog.Loggable {
 
 	private static Boolean adLoaded = null;
 
-	private static final ArrayList<String> KEYWORDS = ArrayUtils.asArrayList(new String[] { "transit", "transport", "bus", "subway", "metro", "taxi", "bike",
-			"sharing", "velo", "train", "ferries", "boat", "trail", "lrt", "streetcar", "traversier", "tram", "tramway" });
+	private static final ArrayList<String> KEYWORDS = ArrayUtils.asArrayList("transit", "transport", "bus", "subway", "metro", "taxi", "bike", "sharing",
+			"velo", "train", "ferries", "boat", "trail", "lrt", "streetcar", "traversier", "tram", "tramway");
 
 	private static void setupAd(Activity activity) {
 		if (!AD_ENABLED) {

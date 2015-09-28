@@ -97,7 +97,7 @@ public class IabHelper implements MTLog.Loggable {
 	}
 
 	public interface OnIabSetupFinishedListener {
-		public void onIabSetupFinished(IabResult result);
+		void onIabSetupFinished(IabResult result);
 	}
 
 	public void startSetup(final OnIabSetupFinishedListener listener) {
@@ -154,7 +154,7 @@ public class IabHelper implements MTLog.Loggable {
 		mSetupDone = false;
 		if (mServiceConn != null) {
 			try {
-				if (mContext != null) mContext.unbindService(mServiceConn);
+				if (mContext != null && mService != null) mContext.unbindService(mServiceConn);
 			} catch (Exception e) { // fix crash in production
 				MTLog.w(this, e, "Error while unbinding service!");
 			}
@@ -176,7 +176,7 @@ public class IabHelper implements MTLog.Loggable {
 	}
 
 	public interface OnIabPurchaseFinishedListener {
-		public void onIabPurchaseFinished(IabResult result, Purchase info);
+		void onIabPurchaseFinished(IabResult result, Purchase info);
 	}
 
 	OnIabPurchaseFinishedListener mPurchaseListener;
@@ -222,8 +222,7 @@ public class IabHelper implements MTLog.Loggable {
 			mRequestCode = requestCode;
 			mPurchaseListener = listener;
 			mPurchasingItemType = itemType;
-			act.startIntentSenderForResult(pendingIntent.getIntentSender(), requestCode, new Intent(), Integer.valueOf(0), Integer.valueOf(0),
-					Integer.valueOf(0));
+			act.startIntentSenderForResult(pendingIntent == null ? null : pendingIntent.getIntentSender(), requestCode, new Intent(), 0, 0, 0);
 		} catch (SendIntentException e) {
 			MTLog.e(this, e, "In-app billing error: SendIntentException while launching purchase flow for sku " + sku);
 			flagEndAsync();
@@ -259,7 +258,7 @@ public class IabHelper implements MTLog.Loggable {
 				if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, null);
 				return true;
 			}
-			Purchase purchase = null;
+			Purchase purchase;
 			try {
 				purchase = new Purchase(mPurchasingItemType, purchaseData, dataSignature);
 				String sku = purchase.getSku();
@@ -330,13 +329,14 @@ public class IabHelper implements MTLog.Loggable {
 	}
 
 	public interface QueryInventoryFinishedListener {
-		public void onQueryInventoryFinished(IabResult result, Inventory inv);
+		void onQueryInventoryFinished(IabResult result, Inventory inv);
 	}
 
 	public void queryInventoryAsync(final boolean querySkuDetails, final List<String> moreItemSkus, final List<String> moreSubsSkus,
 			QueryInventoryFinishedListener listenerHR) {
 		final Handler handler = new Handler();
-		final WeakReference<QueryInventoryFinishedListener> listenerWR = new WeakReference<QueryInventoryFinishedListener>(listenerHR);
+		final WeakReference<QueryInventoryFinishedListener> listenerWR = listenerHR == null ? null : new WeakReference<QueryInventoryFinishedListener>(
+				listenerHR);
 		checkNotDisposed();
 		checkSetupDone("queryInventory");
 		flagStartAsync("refresh inventory");
@@ -380,30 +380,30 @@ public class IabHelper implements MTLog.Loggable {
 		checkNotDisposed();
 		checkSetupDone("consume");
 		if (!itemInfo.mItemType.equals(ITEM_TYPE_INAPP)) {
-			throw new IabException(IABHELPER_INVALID_CONSUMPTION, "Items of type '" + itemInfo.mItemType + "' can't be consumed.");
+			throw new IabException(IABHELPER_INVALID_CONSUMPTION, String.format("Items of type '%s' can't be consumed.", itemInfo.mItemType));
 		}
 		try {
 			String token = itemInfo.getToken();
 			String sku = itemInfo.getSku();
 			if (token == null || token.equals("")) {
-				MTLog.e(this, "In-app billing error: Can't consume " + sku + ". No token.");
-				throw new IabException(IABHELPER_MISSING_TOKEN, "PurchaseInfo is missing token for sku: " + sku + " " + itemInfo);
+				MTLog.e(this, "In-app billing error: Can't consume %s. No token.", sku);
+				throw new IabException(IABHELPER_MISSING_TOKEN, String.format("PurchaseInfo is missing token for sku: %s %s", sku, itemInfo));
 			}
 			int response = mService.consumePurchase(3, mContext.getPackageName(), token);
 			if (response != BILLING_RESPONSE_RESULT_OK) {
-				throw new IabException(response, "Error consuming sku " + sku);
+				throw new IabException(response, String.format("Error consuming sku %s", sku));
 			}
 		} catch (RemoteException e) {
-			throw new IabException(IABHELPER_REMOTE_EXCEPTION, "Remote exception while consuming. PurchaseInfo: " + itemInfo, e);
+			throw new IabException(IABHELPER_REMOTE_EXCEPTION, String.format("Remote exception while consuming. PurchaseInfo: %s", itemInfo), e);
 		}
 	}
 
 	public interface OnConsumeFinishedListener {
-		public void onConsumeFinished(Purchase purchase, IabResult result);
+		void onConsumeFinished(Purchase purchase, IabResult result);
 	}
 
 	public interface OnConsumeMultiFinishedListener {
-		public void onConsumeMultiFinished(List<Purchase> purchases, List<IabResult> results);
+		void onConsumeMultiFinished(List<Purchase> purchases, List<IabResult> results);
 	}
 
 	public void consumeAsync(Purchase purchase, OnConsumeFinishedListener listener) {
@@ -447,7 +447,7 @@ public class IabHelper implements MTLog.Loggable {
 		Object o = b.get(RESPONSE_CODE);
 		if (o == null) {
 			return BILLING_RESPONSE_RESULT_OK;
-		} else if (o instanceof Integer) return ((Integer) o).intValue();
+		} else if (o instanceof Integer) return ((Integer) o);
 		else if (o instanceof Long) return (int) ((Long) o).longValue();
 		else {
 			MTLog.e(this, "In-app billing error: Unexpected type for bundle response code.");
@@ -461,7 +461,7 @@ public class IabHelper implements MTLog.Loggable {
 		if (o == null) {
 			MTLog.e(this, "In-app billing error: Intent with no response code, assuming OK (known issue)");
 			return BILLING_RESPONSE_RESULT_OK;
-		} else if (o instanceof Integer) return ((Integer) o).intValue();
+		} else if (o instanceof Integer) return ((Integer) o);
 		else if (o instanceof Long) return (int) ((Long) o).longValue();
 		else {
 			MTLog.e(this, "In-app billing error: Unexpected type for intent response code: %s", o.getClass().getName());
@@ -502,18 +502,20 @@ public class IabHelper implements MTLog.Loggable {
 			}
 			ArrayList<String> purchaseDataList = ownedItems.getStringArrayList(RESPONSE_INAPP_PURCHASE_DATA_LIST);
 			ArrayList<String> signatureList = ownedItems.getStringArrayList(RESPONSE_INAPP_SIGNATURE_LIST);
-			for (int i = 0; i < purchaseDataList.size(); ++i) {
-				String purchaseData = purchaseDataList.get(i);
-				String signature = signatureList.get(i);
-				if (Security.verifyPurchase(mSignatureBase64, purchaseData, signature)) {
-					Purchase purchase = new Purchase(itemType, purchaseData, signature);
-					if (TextUtils.isEmpty(purchase.getToken())) {
-						MTLog.w(this, "In-app billing warning: BUG: empty/null token!");
+			if (purchaseDataList != null) {
+				for (int i = 0; i < purchaseDataList.size(); ++i) {
+					String purchaseData = purchaseDataList.get(i);
+					String signature = signatureList == null ? null : signatureList.get(i);
+					if (Security.verifyPurchase(mSignatureBase64, purchaseData, signature)) {
+						Purchase purchase = new Purchase(itemType, purchaseData, signature);
+						if (TextUtils.isEmpty(purchase.getToken())) {
+							MTLog.w(this, "In-app billing warning: BUG: empty/null token!");
+						}
+						inv.addPurchase(purchase);
+					} else {
+						MTLog.w(this, "In-app billing warning: Purchase signature verification **FAILED**. Not adding item.");
+						verificationFailed = true;
 					}
-					inv.addPurchase(purchase);
-				} else {
-					MTLog.w(this, "In-app billing warning: Purchase signature verification **FAILED**. Not adding item.");
-					verificationFailed = true;
 				}
 			}
 			continueToken = ownedItems.getString(INAPP_CONTINUATION_TOKEN);
@@ -551,9 +553,11 @@ public class IabHelper implements MTLog.Loggable {
 				}
 			}
 			ArrayList<String> responseList = skuDetails.getStringArrayList(RESPONSE_GET_SKU_DETAILS_LIST);
-			for (String thisResponse : responseList) {
-				SkuDetails d = new SkuDetails(itemType, thisResponse);
-				inv.addSkuDetails(d);
+			if (responseList != null) {
+				for (String thisResponse : responseList) {
+					SkuDetails d = new SkuDetails(itemType, thisResponse);
+					inv.addSkuDetails(d);
+				}
 			}
 		}
 		return BILLING_RESPONSE_RESULT_OK;

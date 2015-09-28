@@ -172,7 +172,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 			Double lastTypeAroundDiff, int typeMaxSize, float typeMinCoverageInMeters, Collection<AgencyProperties> typeAgencies) {
 		ArrayList<POIManager> typePOIs = new ArrayList<POIManager>();
 		NearbyPOIListLoader.filterAgencies(typeAgencies, typeLat, typeLng, typeAd, lastTypeAroundDiff);
-		if (CollectionUtils.getSize(typeAgencies) == 0) {
+		if (typeAgencies == null || typeAgencies.size() == 0) {
 			return typePOIs;
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,
@@ -186,7 +186,9 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 		for (Future<ArrayList<POIManager>> future : taskList) {
 			try {
 				ArrayList<POIManager> agencyNearbyStops = future.get();
-				typePOIs.addAll(agencyNearbyStops);
+				if (agencyNearbyStops != null) {
+					typePOIs.addAll(agencyNearbyStops);
+				}
 			} catch (Exception e) {
 				MTLog.w(TAG, e, "Error while loading in background!");
 			}

@@ -18,7 +18,7 @@ public abstract class MTOnItemLongClickListener implements AdapterView.OnItemLon
 			return false; // not handled
 		}
 		if (view == null) {
-			return listener.onItemLongClickMT(parent, view, position, id);
+			return listener.onItemLongClickMT(parent, null, position, id);
 		}
 		view.post(new Runnable() {
 			@Override

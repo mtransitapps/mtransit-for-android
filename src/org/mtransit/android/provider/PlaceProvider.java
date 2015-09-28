@@ -55,7 +55,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	/**
 	 * Override if multiple {@link PlaceProvider} implementations in same app.
 	 */
-	public static UriMatcher getURIMATCHER(Context context) {
+	private static UriMatcher getURIMATCHER(Context context) {
 		if (uriMatcher == null) {
 			uriMatcher = getNewUriMatcher(getAUTHORITY(context));
 		}

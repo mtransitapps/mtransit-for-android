@@ -98,9 +98,6 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 	}
 
 	private void setupView(View view) {
-		if (view == null) {
-			return;
-		}
 	}
 
 	private boolean hasNews() {
@@ -240,14 +237,16 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 		super.onResume();
 		View view = getView();
 		if (this.modulesUpdated) {
-			view.post(new Runnable() {
-				@Override
-				public void run() {
-					if (NewsDetailsFragment.this.modulesUpdated) {
-						onModulesUpdated();
+			if (view != null) {
+				view.post(new Runnable() {
+					@Override
+					public void run() {
+						if (NewsDetailsFragment.this.modulesUpdated) {
+							onModulesUpdated();
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 		updateNewsView();
 		enableTimeChangedReceiver();

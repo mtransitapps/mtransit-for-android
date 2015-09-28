@@ -1,8 +1,8 @@
 package org.mtransit.android.ui.fragment;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
@@ -409,7 +409,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (this.poim == null) {
 			return null;
 		}
-		return Arrays.asList(this.poim);
+		return Collections.singletonList(this.poim);
 	}
 
 	@Override
@@ -622,8 +622,13 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 							MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RTS)");
 							return;
 						}
-						((MainActivity) getActivity()).addFragmentToStack(ScheduleFragment.newInstance(POIFragment.this.uuid, POIFragment.this.authority,
-								(RouteTripStop) poim.poi, poim.getColor(getActivity())));
+						FragmentActivity activity = getActivity();
+						if (activity == null) {
+							MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
+							return;
+						}
+						((MainActivity) activity).addFragmentToStack(ScheduleFragment.newInstance(POIFragment.this.uuid, POIFragment.this.authority,
+								(RouteTripStop) poim.poi, poim.getColor(activity)));
 					}
 				});
 				rtsScheduleBtn.setVisibility(View.VISIBLE);
@@ -645,10 +650,15 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 					if (poim == null) {
 						return;
 					}
-					Integer colorInt = poim.getColor(getActivity());
-					String subtitle = POIManager.getOneLineDescription(getActivity(), poim.poi);
-					((MainActivity) getActivity()).addFragmentToStack(NewsFragment.newInstance(colorInt, subtitle,
-							ArrayUtils.asArrayList(poim.poi.getAuthority()), null, NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()));
+					FragmentActivity activity = getActivity();
+					if (activity == null) {
+						MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
+						return;
+					}
+					Integer colorInt = poim.getColor(activity);
+					String subtitle = POIManager.getOneLineDescription(activity, poim.poi);
+					((MainActivity) activity).addFragmentToStack(NewsFragment.newInstance(colorInt, subtitle, ArrayUtils.asArrayList(poim.poi.getAuthority()),
+							null, NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()));
 				}
 			});
 			moreBtn.setVisibility(View.VISIBLE);
@@ -876,14 +886,16 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		super.onResume();
 		View view = getView();
 		if (this.modulesUpdated) {
-			view.post(new Runnable() {
-				@Override
-				public void run() {
-					if (POIFragment.this.modulesUpdated) {
-						onModulesUpdated();
+			if (view != null) {
+				view.post(new Runnable() {
+					@Override
+					public void run() {
+						if (POIFragment.this.modulesUpdated) {
+							onModulesUpdated();
+						}
 					}
-				}
-			});
+				});
+			}
 		}
 		this.isFavorite = null; // force refresh
 		this.mapViewController.onResume();

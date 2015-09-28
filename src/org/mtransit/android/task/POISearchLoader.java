@@ -188,7 +188,9 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			for (Future<ArrayList<POIManager>> future : taskList) {
 				try {
 					ArrayList<POIManager> agencyPOIs = future.get();
-					typePois.addAll(agencyPOIs);
+					if (agencyPOIs != null) {
+						typePois.addAll(agencyPOIs);
+					}
 				} catch (Exception e) {
 					MTLog.w(this, e, "Error while loading in background!");
 				}

@@ -476,7 +476,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		if (this.drawerToggle != null && this.drawerToggle.onOptionsItemSelected(item)) {
 			return true; // processed
 		}
-		return false;
+		return false; // not processed
 	}
 
 

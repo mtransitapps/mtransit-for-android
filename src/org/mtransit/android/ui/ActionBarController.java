@@ -358,6 +358,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	private MenuItem searchMenuItem;
+
 	public void updateSearchMenuItemVisibility() {
 		if (this.searchMenuItem != null) {
 			this.searchMenuItem.setVisible(this.fragmentShowSearchMenuItem);

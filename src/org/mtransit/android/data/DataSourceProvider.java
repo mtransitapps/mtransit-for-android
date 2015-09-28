@@ -342,10 +342,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 					}
 				}
 				CollectionUtils.sort(allAgencies, AgencyProperties.SHORT_NAME_COMPARATOR);
-				if (allAgenciesByTypeId != null) {
-					for (int i = 0; i < allAgenciesByTypeId.size(); i++) {
-						CollectionUtils.sort(allAgenciesByTypeId.get(allAgenciesByTypeId.keyAt(i)), AgencyProperties.SHORT_NAME_COMPARATOR);
-					}
+				for (int i = 0; i < allAgenciesByTypeId.size(); i++) {
+					CollectionUtils.sort(allAgenciesByTypeId.get(allAgenciesByTypeId.keyAt(i)), AgencyProperties.SHORT_NAME_COMPARATOR);
 				}
 				this.allAgencies = allAgencies;
 				this.allAgenciesByAuthority = allAgenciesByAuthority;

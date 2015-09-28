@@ -49,7 +49,7 @@ public final class VendingUtils implements MTLog.Loggable {
 	private static final String MONTHLY = "monthly";
 	private static final String YEARLY = "yearly";
 
-	public static final ArrayList<String> SORTED_PERIOD_CAT = ArrayUtils.asArrayList(new String[] { WEEKLY, MONTHLY, YEARLY });
+	public static final ArrayList<String> SORTED_PERIOD_CAT = ArrayUtils.asArrayList(WEEKLY, MONTHLY, YEARLY);
 
 	public static final ArrayMap<String, Integer> PERIOD_RES_ID;
 	static {
@@ -368,7 +368,7 @@ public final class VendingUtils implements MTLog.Loggable {
 	}
 
 	public interface OnVendingResultListener {
-		public void onVendingResult(Boolean hasSubscription);
+		void onVendingResult(Boolean hasSubscription);
 	}
 
 }

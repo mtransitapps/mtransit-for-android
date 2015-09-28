@@ -16,7 +16,7 @@ public abstract class MTOnLongClickListener implements View.OnLongClickListener 
 			return false; // not handled
 		}
 		if (view == null) {
-			return listener.onLongClickkMT(view);
+			return listener.onLongClickkMT(null);
 		}
 		view.post(new Runnable() {
 			@Override
