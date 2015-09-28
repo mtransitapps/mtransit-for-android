@@ -12,7 +12,6 @@
     android:paddingTop="@dimen/poi_padding_top" >
     <include
         android:id="@+id/extra"
-        android:layout_marginRight="@dimen/poi_extra_margin_right"
         layout="@layout/layout_poi_module_extras" />
     <include
         android:id="@+id/poi"

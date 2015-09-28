@@ -27,7 +27,8 @@
     <!-- USES SDK (compatibility) -->
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="22" />
+        android:targetSdkVersion="22"
+        tools:ignore="OldTargetApi" />
     <!-- USES FEATURE (not required) -->
     <uses-feature
         android:name="android.hardware.location"

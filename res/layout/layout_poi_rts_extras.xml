@@ -5,7 +5,8 @@
     android:id="@+id/extra"
     android:layout_width="?android:attr/listPreferredItemHeight"
     android:layout_height="?android:attr/listPreferredItemHeight"
-    android:layout_alignParentLeft="true" >
+    android:layout_alignParentLeft="true"
+    android:layout_marginRight="@dimen/poi_extra_margin_right" >
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

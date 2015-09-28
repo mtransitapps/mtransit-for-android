@@ -34,7 +34,6 @@
         android:minWidth="?android:attr/listPreferredItemHeight" />
     <include
         android:id="@+id/extra"
-        android:layout_marginRight="@dimen/poi_extra_margin_right"
         layout="@layout/layout_poi_rts_extras" />
     <include
         android:id="@+id/poi"
