@@ -18,8 +18,6 @@
     <color name="platform_accent_material_light">@color/platform_material_deep_teal_500</color>
     <!-- FROM @android:color/accent_material_light (API Level 21) -->
     <color name="platform_material_deep_teal_500">#ff009688</color>
-    <!-- FROM @android:color/background_material_dark (API Level 21) -->
-    <color name="platform_background_material_dark">#ff303030</color>
     <!-- FROM @android:color/background_material_light (API Level 21) -->
-    <color name="platform_background_material_light">#ffeeeeee</color>
+    <color name="platform_background_material_light_old">#ffeeeeee</color>
 </resources>

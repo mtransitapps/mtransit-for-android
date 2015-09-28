@@ -9,6 +9,9 @@
     <style name="MTTheme" parent="MTBaseTheme">
         <item name="android:windowContentOverlay">@null</item>
         <item name="windowActionBarOverlay">true</item>
+        <!-- default background color (#fffafafa) is too light, using old default background color (#ffeeeeee) -->
+        <item name="android:colorBackground">@color/platform_background_material_light_old</item>
+        <item name="android:windowBackground">@color/platform_background_material_light_old</item>
     </style>
     <style name="MTTabTextStyle" parent="TextAppearance.Design.Tab">
         <item name="android:textStyle">bold</item>
