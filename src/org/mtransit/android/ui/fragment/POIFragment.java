@@ -555,12 +555,17 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			return;
 		}
 		if (poim != null && data != null) {
+			int i = 0;
 			Iterator<POIManager> it = data.iterator();
 			while (it.hasNext()) {
 				if (it.next().poi.getUUID().equals(poim.poi.getUUID())) {
 					it.remove();
-					break;
+					continue;
 				}
+				if (i >= LocationUtils.MAX_POI_NEARBY_POIS_LIST) {
+					it.remove();
+				}
+				i++;
 			}
 		}
 		this.adapter.setPois(data);
@@ -575,18 +580,20 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	private void hideNearbyList(boolean invisibleInsteadOfGone) {
 		View view = getView();
-		if (view != null) {
-			view.findViewById(R.id.poi_nearby_pois_title).setVisibility(invisibleInsteadOfGone ? View.INVISIBLE : View.GONE);
-			view.findViewById(R.id.poi_nearby_pois_list).setVisibility(invisibleInsteadOfGone ? View.INVISIBLE : View.GONE);
+		if (view == null) {
+			return;
 		}
+		view.findViewById(R.id.poi_nearby_pois_title).setVisibility(invisibleInsteadOfGone ? View.INVISIBLE : View.GONE);
+		view.findViewById(R.id.poi_nearby_pois_list).setVisibility(invisibleInsteadOfGone ? View.INVISIBLE : View.GONE);
 	}
 
 	private void showNearbyList() {
 		View view = getView();
-		if (view != null) {
-			view.findViewById(R.id.poi_nearby_pois_title).setVisibility(View.VISIBLE);
-			view.findViewById(R.id.poi_nearby_pois_list).setVisibility(View.VISIBLE);
+		if (view == null) {
+			return;
 		}
+		view.findViewById(R.id.poi_nearby_pois_title).setVisibility(View.VISIBLE);
+		view.findViewById(R.id.poi_nearby_pois_list).setVisibility(View.VISIBLE);
 	}
 
 	private void initAdapters(Activity activity) {
