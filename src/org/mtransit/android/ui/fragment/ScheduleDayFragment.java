@@ -9,12 +9,12 @@ import java.util.TimeZone;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
+import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTBaseAdapter;
@@ -877,7 +877,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 				if (timestamp.hasHeadsign()) {
 					String timestampHeading = timestamp.getHeading(context);
 					String tripHeading = this.optRts == null ? null : this.optRts.getTrip().getHeading(context);
-					if (!StringUtils.equals(timestampHeading, tripHeading)) {
+					if (!Trip.isSameHeadsign(timestampHeading, tripHeading)) {
 						timeSb.append(P1).append(timestampHeading).append(P2);
 					}
 				}
