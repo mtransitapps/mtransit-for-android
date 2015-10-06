@@ -92,9 +92,9 @@
     <string name="unit_pref_dialog_title">Units</string>
     <string name="unit_pref_meter">Metric (km/m)</string>
     <string name="unit_pref_imperial">Imperial (mi/ft)</string>
-    <string name="use_internal_web_browser_pref_title">Use Interal Web Browser</string>
-    <string name="use_internal_web_browser_pref_summary">Open links in the interal web browser instead of the default web browser</string>
-    <string name="use_internal_web_browser_pref_summary_on">Open links in the interal web browser</string>
+    <string name="use_internal_web_browser_pref_title">Use Internal Web Browser</string>
+    <string name="use_internal_web_browser_pref_summary">Open links in the internal web browser instead of the default web browser</string>
+    <string name="use_internal_web_browser_pref_summary_on">Open links in the internal web browser</string>
     <string name="use_internal_web_browser_pref_summary_off">Open links in the default web browser</string>
     <string name="support_pref_cat_title">Support</string>
     <string name="support_subs_pref_title">Support MonTransit</string>
