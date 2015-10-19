@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.view;
 
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import org.mtransit.android.R;
@@ -8,13 +9,17 @@ import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
+import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
-import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.text.TextUtils;
+import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -44,7 +49,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		return null;
 	}
 
-	public static void initViewHolder(AgencyProperties agency, POIManager poim, View view) {
+	public static void initViewHolder(POIManager poim, View view) {
 		switch (poim.getStatusType()) {
 		case POI.ITEM_STATUS_TYPE_NONE:
 			break;
@@ -55,7 +60,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			initScheduleViewHolder(poim, view);
 			break;
 		case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-			initAvailabilityPercentViewHolder(agency, poim, view);
+			initAvailabilityPercentViewHolder(poim, view);
 			break;
 		default:
 			MTLog.w(TAG, "initViewHolder() > Unknow view status type for poi %s!", poim);
@@ -69,7 +74,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		view.setTag(appStatusViewHolder);
 	}
 
-	private static void initAvailabilityPercentViewHolder(AgencyProperties agency, POIManager poim, View view) {
+	private static void initAvailabilityPercentViewHolder(POIManager poim, View view) {
 		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = new AvailabilityPercentStatusViewHolder();
 		initCommonStatusViewHolderHolder(availabilityPercentStatusViewHolder, view);
 		availabilityPercentStatusViewHolder.textTv1 = (TextView) view.findViewById(R.id.progress_text1);
@@ -84,21 +89,21 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	private static void initScheduleViewHolder(POIManager poim, View view) {
 		ScheduleStatusViewHolder scheduleStatusViewHolder = new ScheduleStatusViewHolder();
 		initCommonStatusViewHolderHolder(scheduleStatusViewHolder, view);
-		scheduleStatusViewHolder.nextDeparturesTimesTv = (TextView) view.findViewById(R.id.next_departures_times);
+		scheduleStatusViewHolder.nextDeparturesLL = (LinearLayout) view.findViewById(R.id.next_departures_layout);
 		view.setTag(scheduleStatusViewHolder);
 	}
 
 
-	public static void updatePOIStatus(Context context, View view, POIStatus status, POIViewController.POIDataProvider dataProvider) {
+	public static void updatePOIStatus(Context context, View view, POIStatus status, POIViewController.POIDataProvider dataProvider, POIManager optPOI) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof CommonStatusViewHolder)) {
 			return;
 		}
 		CommonStatusViewHolder holder = (CommonStatusViewHolder) view.getTag();
-		updatePOIStatus(context, holder, status, dataProvider);
+		updatePOIStatus(context, holder, status, dataProvider, optPOI);
 	}
 
 	private static void updatePOIStatus(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status,
-			POIViewController.POIDataProvider dataProvider) {
+			POIViewController.POIDataProvider dataProvider, POIManager optPOI) {
 		if (dataProvider == null || !dataProvider.isShowingStatus() || status == null || statusViewHolder == null) {
 			if (statusViewHolder != null) {
 				setStatusView(statusViewHolder, false);
@@ -113,7 +118,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			updateAvailabilityPercentView(context, statusViewHolder, status);
 			break;
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			updateScheduleView(context, statusViewHolder, status, dataProvider);
+			updateScheduleView(context, statusViewHolder, status, dataProvider, optPOI);
 			break;
 		case POI.ITEM_STATUS_TYPE_APP:
 			updateAppStatusView(context, statusViewHolder, status);
@@ -124,12 +129,12 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 	}
 
-	public static void updateView(Context context, View view, AgencyProperties agency, POIManager poim, POIViewController.POIDataProvider dataProvider) {
+	public static void updateView(Context context, View view, POIManager poim, POIViewController.POIDataProvider dataProvider) {
 		if (view == null) {
 			return;
 		}
 		if (view.getTag() == null || !(view.getTag() instanceof CommonStatusViewHolder)) {
-			initViewHolder(agency, poim, view);
+			initViewHolder(poim, view);
 		}
 		CommonStatusViewHolder holder = (CommonStatusViewHolder) view.getTag();
 		updateView(context, holder, poim, dataProvider);
@@ -221,22 +226,44 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			POIViewController.POIDataProvider dataProvider) {
 		if (dataProvider != null && dataProvider.isShowingStatus() && poim != null && statusViewHolder instanceof ScheduleStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
-			updateScheduleView(context, statusViewHolder, poim.getStatus(context), dataProvider);
+			updateScheduleView(context, statusViewHolder, poim.getStatus(context), dataProvider, poim);
 		} else {
 			setStatusView(statusViewHolder, false);
 		}
 	}
 
 	private static void updateScheduleView(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status,
-			POIViewController.POIDataProvider dataProvider) {
-		CharSequence line1CS = null;
+			POIViewController.POIDataProvider dataProvider, POIManager optPOI) {
+		ArrayList<Pair<CharSequence, CharSequence>> nextDeparturesList = null;
 		if (dataProvider != null && status != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
-			line1CS = schedule.getSchedule(context, dataProvider.getNowToTheMinute(), TimeUnit.HOURS.toMillis(1), TimeUnit.HOURS.toMillis(12), 10, 50);
+			String defaultHeadSign = (optPOI != null && optPOI.poi != null && optPOI.poi instanceof RouteTripStop) ? ((RouteTripStop) optPOI.poi).getTrip()
+					.getHeading(context) : null;
+			nextDeparturesList = schedule.getScheduleList(context, dataProvider.getNowToTheMinute(), TimeUnit.HOURS.toMillis(1), TimeUnit.HOURS.toMillis(12),
+					10, 20, defaultHeadSign);
 		}
 		ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
-		scheduleStatusViewHolder.nextDeparturesTimesTv.setText(line1CS);
-		setStatusView(statusViewHolder, line1CS != null && line1CS.length() > 0);
+		LayoutInflater layoutInflater = LayoutInflater.from(context);
+		scheduleStatusViewHolder.nextDeparturesLL.removeAllViews();
+		scheduleStatusViewHolder.nextDeparturesLL.addView(layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_space,
+				scheduleStatusViewHolder.nextDeparturesLL, false));
+		if (nextDeparturesList != null) {
+			for (Pair<CharSequence, CharSequence> nextDeparture : nextDeparturesList) {
+				View view = layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_departure, scheduleStatusViewHolder.nextDeparturesLL, false);
+				((TextView) view.findViewById(R.id.next_departure_time)).setText(nextDeparture.first);
+				TextView headSignTv = (TextView) view.findViewById(R.id.next_departures_head_sign);
+				if (TextUtils.isEmpty(nextDeparture.second)) {
+					headSignTv.setText(null);
+					headSignTv.setVisibility(View.INVISIBLE);
+				} else {
+					headSignTv.setText(nextDeparture.second);
+					headSignTv.setVisibility(View.VISIBLE);
+				}
+				scheduleStatusViewHolder.nextDeparturesLL.addView(view);
+			}
+		}
+		scheduleStatusViewHolder.nextDeparturesLL.setVisibility(View.VISIBLE);
+		setStatusView(statusViewHolder, nextDeparturesList != null && nextDeparturesList.size() > 0);
 	}
 
 	private static void setStatusView(CommonStatusViewHolder statusViewHolder, boolean loaded) {
@@ -280,6 +307,6 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static class ScheduleStatusViewHolder extends CommonStatusViewHolder {
-		TextView nextDeparturesTimesTv;
+		LinearLayout nextDeparturesLL;
 	}
 }

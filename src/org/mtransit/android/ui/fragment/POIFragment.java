@@ -187,7 +187,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 		POIManager poim = getPoimOrNull();
 		if (poim != null) {
-			POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(getView()), this.agency, poim, this);
+			POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(getView()), poim, this);
 		}
 		getAbController().setABTitle(this, getABTitle(getActivity()), false);
 		getAbController().setABReady(this, isABReady(), true);
@@ -282,10 +282,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		this.mapViewController.notifyMarkerChanged(this);
 		this.mapViewController.showMap(view);
 		POIViewController.updateView(activity, getPOIView(view), this.poim, this);
-		AgencyProperties agency = getAgencyOrNull();
-		if (agency != null) {
-			POIStatusDetailViewController.updateView(activity, getPOIStatusView(view), agency, this.poim, this);
-		}
+		POIStatusDetailViewController.updateView(activity, getPOIStatusView(view), this.poim, this);
 		POIServiceUpdateViewController.updateView(activity, getPOIServiceUpdateView(view), this.poim, this);
 		POINewsViewController.updateView(activity, getPOINewsView(view), getNewsOrNull());
 		setupRTSFullScheduleBtn(view);
@@ -297,9 +294,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		setupNearbyList();
 	}
 
-	private News news;
+	private ArrayList<News> news;
 
-	private News getNewsOrNull() {
+	private ArrayList<News> getNewsOrNull() {
 		if (!hasNews()) {
 			return null;
 		}
@@ -360,9 +357,10 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (context == null) {
 			return false;
 		}
+		this.news = new ArrayList<News>();
 		HashSet<NewsProviderProperties> poiNewsProviders = DataSourceProvider.get(context).getTargetAuthorityNewsProviders(poim.poi.getAuthority());
 		if (CollectionUtils.getSize(poiNewsProviders) == 0) {
-			return false;
+			return true; // no news, need to apply
 		}
 		long nowInMs = TimeUtils.currentTimeMillis();
 		long minCreatedAtInMs = nowInMs - TimeUnit.DAYS.toMillis(7);
@@ -375,16 +373,16 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			}
 		}
 		if (CollectionUtils.getSize(allNews) == 0) {
-			return false;
+			return true; // no news, need to apply
 		}
 		CollectionUtils.sort(allNews, News.NEWS_SEVERITY_COMPARATOR);
 		for (News news : allNews) {
 			if (nowInMs - news.getCreatedAtInMs() <= news.getNoteworthyInMs()) {
-				this.news = news;
+				this.news.add(0, news);
 				break;
 			}
 		}
-		return this.news != null;
+		return true; // need to apply
 	}
 
 	private void applyNewNews() {
@@ -745,15 +743,19 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 				view.findViewById(R.id.the_poi_news).setOnClickListener(new MTOnClickListener() {
 					@Override
 					public void onClickMT(View view) {
-						News news = getNewsOrNull();
-						if (news == null) {
+						ArrayList<News> news = getNewsOrNull();
+						if (news == null || news.size() == 0) {
+							return;
+						}
+						News lastNews = news.get(0);
+						if (lastNews == null) {
 							return;
 						}
 						Activity activity = getActivity();
 						if (activity == null) {
 							return;
 						}
-						((MainActivity) activity).addFragmentToStack(NewsDetailsFragment.newInstance(news.getUUID(), news.getAuthority(), news));
+						((MainActivity) activity).addFragmentToStack(NewsDetailsFragment.newInstance(lastNews.getUUID(), lastNews.getAuthority(), lastNews));
 					}
 				});
 			}
@@ -778,7 +780,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 	public void onStatusLoaded(POIStatus status) {
 		View view = getView();
 		POIViewController.updatePOIStatus(getActivity(), getPOIView(view), status, this);
-		POIStatusDetailViewController.updatePOIStatus(getActivity(), getPOIStatusView(view), status, this);
+		POIStatusDetailViewController.updatePOIStatus(getActivity(), getPOIStatusView(view), status, this, getPoimOrNull());
 	}
 
 	@Override
@@ -914,10 +916,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			this.mapViewController.notifyMarkerChanged(this);
 			this.mapViewController.showMap(view);
 			POIViewController.updateView(getActivity(), getPOIView(view), poim, this);
-			AgencyProperties agency = getAgencyOrNull();
-			if (agency != null) {
-				POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), agency, poim, this);
-			}
+			POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), poim, this);
 			POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(view), poim, this);
 			POINewsViewController.updateView(getActivity(), getPOINewsView(view), getNewsOrNull());
 			setupRTSFullScheduleBtn(view);
@@ -966,13 +965,10 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			View poiView = getPOIView(view);
 			POIViewController.updatePOIStatus(getActivity(), poiView, poim, this);
 			POIViewController.updatePOIServiceUpdate(getActivity(), poiView, poim, this);
-			AgencyProperties agency = getAgencyOrNull();
-			if (agency != null) {
-				POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), agency, poim, this);
-			}
+			POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), poim, this);
 			POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(view), poim, this);
 		}
-		News news = getNewsOrNull();
+		ArrayList<News> news = getNewsOrNull();
 		if (news != null) {
 			POINewsViewController.updateView(getActivity(), getPOINewsView(view), news);
 		}
