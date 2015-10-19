@@ -1,5 +1,7 @@
 package org.mtransit.android.ui.view;
 
+import java.util.ArrayList;
+
 import org.mtransit.android.R;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
@@ -23,7 +25,7 @@ public class POINewsViewController implements MTLog.Loggable {
 		return R.layout.layout_poi_news;
 	}
 
-	public static void initViewHolder(News news, View convertView) {
+	public static void initViewHolder(View convertView) {
 		NewsViewHolder holder = new NewsViewHolder();
 		holder.layout = convertView;
 		holder.newsTv = (TextView) convertView.findViewById(R.id.newsText);
@@ -32,12 +34,16 @@ public class POINewsViewController implements MTLog.Loggable {
 		convertView.setTag(holder);
 	}
 
+	public static void updateView(Context context, View view, ArrayList<News> news) {
+		updateView(context, view, news == null || news.size() == 0 ? null : news.get(0));
+	}
+
 	public static void updateView(Context context, View view, News news) {
 		if (view == null) {
 			return;
 		}
 		if (view.getTag() == null || !(view.getTag() instanceof NewsViewHolder)) {
-			initViewHolder(news, view);
+			initViewHolder(view);
 		}
 		NewsViewHolder newsViewHolder = (NewsViewHolder) view.getTag();
 		updateView(context, newsViewHolder, news);
