@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="bottom"
+    android:layout_height="?android:attr/listPreferredItemHeightLarge"
     android:clipChildren="false"
     android:paddingRight="8dp" >
     <TextView
@@ -12,8 +11,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:layout_marginBottom="12dp"
-        android:layout_marginTop="12dp"
         android:gravity="center_vertical"
         android:includeFontPadding="false"
         android:singleLine="true"
@@ -35,7 +32,6 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/next_departure_time"
         android:layout_alignParentBottom="true"
-        android:layout_alignRight="@id/next_departure_time"
         android:ellipsize="end"
         android:fontFamily="sans-serif-condensed"
         android:gravity="top"
