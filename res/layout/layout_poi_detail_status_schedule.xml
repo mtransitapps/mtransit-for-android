@@ -10,14 +10,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/poi_item_bg"
-        android:minHeight="?android:attr/listPreferredItemHeightLarge"
         android:scrollbars="none" >
         <LinearLayout
             android:id="@+id/next_departures_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:gravity="bottom"
             android:orientation="horizontal"
             android:scrollHorizontally="true" />
     </HorizontalScrollView>

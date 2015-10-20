@@ -32,4 +32,5 @@
     <dimen name="button_padding_half">4dp</dimen>
     <dimen name="tab_content_start">20dp</dimen>
     <dimen name="route_short_name_text_size" tools:ignore="SpUsage">34dp</dimen>
+    <dimen name="trip_head_sign_text_size" tools:ignore="SpUsage">14dp</dimen>
 </resources>

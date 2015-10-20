@@ -3,6 +3,7 @@ package org.mtransit.android.ui.fragment;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -12,6 +13,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -152,6 +154,7 @@ public abstract class MTDialogFragment extends DialogFragment implements MTLog.L
 		super.onInflate(activity, attrs, savedInstanceState);
 	}
 
+	@TargetApi(Build.VERSION_CODES.M)
 	@Override
 	public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -216,6 +219,7 @@ public abstract class MTDialogFragment extends DialogFragment implements MTLog.L
 		super.onViewCreated(view, savedInstanceState);
 	}
 
+	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public void onViewStateRestored(Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {

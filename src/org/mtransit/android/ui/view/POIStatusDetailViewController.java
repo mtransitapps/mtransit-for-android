@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
@@ -15,7 +16,9 @@ import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.RelativeSizeSpan;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -247,9 +250,14 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		scheduleStatusViewHolder.nextDeparturesLL.removeAllViews();
 		scheduleStatusViewHolder.nextDeparturesLL.addView(layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_space,
 				scheduleStatusViewHolder.nextDeparturesLL, false));
+		SpannableStringBuilder baselineSSB = new SpannableStringBuilder(" ");
+		SpanUtils.set(baselineSSB, SpanUtils.getLargeTextAppearance(context));
+		SpanUtils.set(baselineSSB, SpanUtils.BOLD_STYLE_SPAN);
+		SpanUtils.set(baselineSSB, new RelativeSizeSpan(2.00f));
 		if (nextDeparturesList != null) {
 			for (Pair<CharSequence, CharSequence> nextDeparture : nextDeparturesList) {
 				View view = layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_departure, scheduleStatusViewHolder.nextDeparturesLL, false);
+				((TextView) view.findViewById(R.id.next_departure_time_baseline)).setText(baselineSSB);
 				((TextView) view.findViewById(R.id.next_departure_time)).setText(nextDeparture.first);
 				TextView headSignTv = (TextView) view.findViewById(R.id.next_departures_head_sign);
 				if (TextUtils.isEmpty(nextDeparture.second)) {
