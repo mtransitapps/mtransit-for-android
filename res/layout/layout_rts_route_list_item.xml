@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/poi_extra_height"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:orientation="horizontal" >
+    android:orientation="horizontal"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp" >
     <FrameLayout
         android:layout_width="@dimen/poi_extra_width"
         android:layout_height="match_parent"
@@ -44,7 +46,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:ellipsize="marquee"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
