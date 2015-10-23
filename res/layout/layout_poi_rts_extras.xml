@@ -3,8 +3,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/extra"
-    android:layout_width="?android:attr/listPreferredItemHeight"
-    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_width="@dimen/poi_extra_width"
+    android:layout_height="@dimen/poi_extra_height"
     android:layout_alignParentLeft="true"
     android:layout_marginRight="@dimen/poi_extra_margin_right" >
     <LinearLayout
@@ -41,7 +41,8 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:padding="4dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                tools:visibility="visible" />
         </FrameLayout>
         <!-- TRIP HEADING -->
         <FrameLayout
@@ -67,7 +68,7 @@
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/trip_head_sign_text_size"
                 android:textStyle="bold"
-                tools:visibility="visible" />
+                tools:ignore="SpUsage" />
         </FrameLayout>
     </LinearLayout>
     <View

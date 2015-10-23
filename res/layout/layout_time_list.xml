@@ -8,7 +8,7 @@
     android:divider="@null"
     android:dividerHeight="0dp"
     android:fastScrollAlwaysVisible="false"
-    android:fastScrollEnabled="true"
+    android:fastScrollEnabled="false"
     android:listSelector="@android:color/transparent"
     android:paddingBottom="0dp"
     android:paddingLeft="0dp"

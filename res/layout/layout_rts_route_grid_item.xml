@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/route"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight" >
+    android:layout_height="@dimen/poi_extra_height" >
     <!-- ROUTE SHORT NAME -->
     <TextView
         android:id="@+id/route_short_name"
@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:fontFamily="sans-serif-condensed"
+        android:includeFontPadding="false"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@android:color/white"

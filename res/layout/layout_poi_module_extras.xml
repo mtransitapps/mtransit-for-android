@@ -2,8 +2,8 @@
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/module_type_img"
-    android:layout_width="?android:attr/listPreferredItemHeight"
-    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_width="@dimen/poi_extra_width"
+    android:layout_height="@dimen/poi_extra_height"
     android:layout_alignParentLeft="true"
     android:layout_marginRight="@dimen/poi_extra_margin_right"
     android:scaleType="center" />

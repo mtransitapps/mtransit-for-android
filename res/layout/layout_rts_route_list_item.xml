@@ -3,15 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/route"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_height="@dimen/poi_extra_height"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:orientation="horizontal" >
     <FrameLayout
-        android:layout_width="?android:attr/listPreferredItemHeight"
+        android:layout_width="@dimen/poi_extra_width"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="4dp"
         android:gravity="center" >
         <!-- ROUTE SHORT NAME -->
         <TextView
@@ -20,6 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:fontFamily="sans-serif-condensed"
+            android:includeFontPadding="false"
             android:singleLine="true"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@android:color/white"
@@ -35,7 +34,8 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:padding="4dp"
-            android:visibility="gone" />
+            android:visibility="gone"
+            tools:visibility="visible" />
     </FrameLayout>
     <!-- ROUTE LONG NAME -->
     <TextView
@@ -43,14 +43,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="12dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:ellipsize="marquee"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
         android:includeFontPadding="true"
-        android:paddingLeft="0dp"
-        android:paddingRight="0dp"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@android:color/white"

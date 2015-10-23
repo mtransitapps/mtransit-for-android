@@ -46,5 +46,6 @@
         android:textColor="?android:attr/textColorTertiary"
         android:textSize="@dimen/trip_head_sign_text_size"
         android:visibility="invisible"
+        tools:ignore="SpUsage"
         tools:visibility="visible" />
 </RelativeLayout>
