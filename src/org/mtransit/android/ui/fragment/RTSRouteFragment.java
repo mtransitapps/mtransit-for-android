@@ -33,6 +33,8 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -617,6 +619,10 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		return hasRoute();
 	}
 
+	private static final TypefaceSpan TITLE_RSN_FONT = SpanUtils.getNewSansSerifCondensedTypefaceSpan();
+	private static final StyleSpan TITLE_RSN_STYLE = SpanUtils.getNewBoldStyleSpan();
+	private static final TypefaceSpan TITLE_RLN_FONT = SpanUtils.getNewSansSerifLightTypefaceSpan();
+
 	@Override
 	public CharSequence getABTitle(Context context) {
 		Route route = getRouteOrNull();
@@ -640,11 +646,11 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			endLongName = ssb.length();
 		}
 		if (startShortName < endShortName) {
-			SpanUtils.set(ssb, SpanUtils.SANS_SERIF_CONDENSED_TYPEFACE_SPAN, startShortName, endShortName);
-			SpanUtils.set(ssb, SpanUtils.BOLD_STYLE_SPAN, startShortName, endShortName);
+			ssb = SpanUtils.set(ssb, startShortName, endShortName, //
+					TITLE_RSN_FONT, TITLE_RSN_STYLE);
 		}
 		if (startLongName < endLongName) {
-			SpanUtils.set(ssb, SpanUtils.SANS_SERIF_LIGHT_TYPEFACE_SPAN, startLongName, endLongName);
+			ssb = SpanUtils.set(ssb, startLongName, endLongName, TITLE_RLN_FONT);
 		}
 		return ssb;
 	}

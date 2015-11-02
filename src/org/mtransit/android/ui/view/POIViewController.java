@@ -28,7 +28,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.location.Location;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
@@ -278,9 +277,7 @@ public class POIViewController implements MTLog.Loggable {
 					}
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
-					SpannableStringBuilder ssb = new SpannableStringBuilder(route.getShortName());
-					Route.setShortNameSize(ssb);
-					holder.routeShortNameTv.setText(ssb);
+					holder.routeShortNameTv.setText(Route.setShortNameSize(route.getShortName()));
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);
@@ -581,8 +578,7 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	public interface POIDataProvider extends StatusLoader.StatusLoaderListener, ServiceUpdateLoader.ServiceUpdateLoaderListener,
-			LinkUtils.OnUrlClickListener {
+	public interface POIDataProvider extends StatusLoader.StatusLoaderListener, ServiceUpdateLoader.ServiceUpdateLoaderListener, LinkUtils.OnUrlClickListener {
 
 		boolean isShowingStatus();
 

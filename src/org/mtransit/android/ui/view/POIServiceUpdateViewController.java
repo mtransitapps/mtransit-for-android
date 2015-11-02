@@ -12,7 +12,6 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.util.LinkUtils;
 
 import android.content.Context;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -84,7 +83,7 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		int serviceMessageDisplayed = 0;
 		boolean isWarning = false;
 		if (dataProvider != null && CollectionUtils.getSize(serviceUpdates) != 0) {
-			SpannableStringBuilder ssb = new SpannableStringBuilder();
+			StringBuilder ssb = new StringBuilder();
 			if (serviceUpdates != null) {
 				for (ServiceUpdate serviceUpdate : serviceUpdates) {
 					if (serviceUpdate.getSeverity() == ServiceUpdate.SEVERITY_NONE) {

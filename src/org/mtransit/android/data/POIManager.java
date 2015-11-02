@@ -12,7 +12,6 @@ import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.LocationUtils.LocationPOI;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
-import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TimeUtils;
@@ -42,7 +41,6 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
 
 public class POIManager implements LocationPOI, MTLog.Loggable {
 
@@ -63,15 +61,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			defaultPoiTextColor = ColorUtils.getTextColorPrimary(context);
 		}
 		return defaultPoiTextColor;
-	}
-
-	private static ForegroundColorSpan defaultPoiTextColorSpan = null;
-
-	public static ForegroundColorSpan getDefaultPOITextColorSpan(Context context) {
-		if (defaultPoiTextColorSpan == null) {
-			defaultPoiTextColorSpan = SpanUtils.getTextColor(getDefaultPOITextColor(context));
-		}
-		return defaultPoiTextColorSpan;
 	}
 
 	public static final POIAlphaComparator POI_ALPHA_COMPARATOR = new POIAlphaComparator();

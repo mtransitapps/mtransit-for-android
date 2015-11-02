@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SpanUtils;
+import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
@@ -19,6 +20,8 @@ import android.graphics.PorterDuff;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
+import android.text.style.TextAppearanceSpan;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -250,10 +253,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		scheduleStatusViewHolder.nextDeparturesLL.removeAllViews();
 		scheduleStatusViewHolder.nextDeparturesLL.addView(layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_space,
 				scheduleStatusViewHolder.nextDeparturesLL, false));
-		SpannableStringBuilder baselineSSB = new SpannableStringBuilder(" ");
-		SpanUtils.set(baselineSSB, SpanUtils.getLargeTextAppearance(context));
-		SpanUtils.set(baselineSSB, SpanUtils.BOLD_STYLE_SPAN);
-		SpanUtils.set(baselineSSB, new RelativeSizeSpan(2.00f));
+		SpannableStringBuilder baselineSSB = getScheduleSpace(context);
 		if (nextDeparturesList != null) {
 			for (Pair<CharSequence, CharSequence> nextDeparture : nextDeparturesList) {
 				View view = layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_departure, scheduleStatusViewHolder.nextDeparturesLL, false);
@@ -272,6 +272,28 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 		scheduleStatusViewHolder.nextDeparturesLL.setVisibility(View.VISIBLE);
 		setStatusView(statusViewHolder, nextDeparturesList != null && nextDeparturesList.size() > 0);
+	}
+
+	private static final RelativeSizeSpan SCHEDULE_SPACE_SIZE = SpanUtils.getNew200PercentSizeSpan();
+	private static final StyleSpan SCHEDULE_SPACE_STYLE = SpanUtils.getNewBoldStyleSpan();
+
+	private static TextAppearanceSpan scheduleSpaceTextAppearance = null;
+
+	private static TextAppearanceSpan getScheduleSpaceTextAppearance(Context context) {
+		if (scheduleSpaceTextAppearance == null) {
+			scheduleSpaceTextAppearance = SpanUtils.getNewLargeTextAppearance(context);
+		}
+		return scheduleSpaceTextAppearance;
+	}
+
+	private static SpannableStringBuilder baselineSSB;
+
+	private static SpannableStringBuilder getScheduleSpace(Context context) {
+		if (baselineSSB == null) {
+			baselineSSB = SpanUtils.setAll(new SpannableStringBuilder(StringUtils.SPACE_STRING), //
+					getScheduleSpaceTextAppearance(context), SCHEDULE_SPACE_STYLE, SCHEDULE_SPACE_SIZE);
+		}
+		return baselineSSB;
 	}
 
 	private static void setStatusView(CommonStatusViewHolder statusViewHolder, boolean loaded) {

@@ -24,7 +24,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -554,9 +553,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 					}
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
-					SpannableStringBuilder ssb = new SpannableStringBuilder(route.getShortName());
-					Route.setShortNameSize(ssb);
-					holder.routeShortNameTv.setText(ssb);
+					holder.routeShortNameTv.setText(Route.setShortNameSize(route.getShortName()));
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
 				if (holder.routeLongNameTv != null) {
