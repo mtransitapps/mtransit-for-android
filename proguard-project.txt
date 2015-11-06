@@ -58,6 +58,8 @@
 # Needed when building against the Marshmallow SDK (?)
 -dontwarn android.net.http.AndroidHttpClient
 -dontwarn com.google.android.gms.internal.**
+# Needed when building against pre-Marshmallow SDK.
+-dontwarn android.security.NetworkSecurityPolicy
 # GOOGLE PLAY SERVICES - END
 
 # GOOGLE MOBILE ADS (ADMOB) - START
@@ -66,6 +68,12 @@
 }
 -keep public class com.google.ads.** {
    public *;
+}
+-keep class com.google.ads.mediation.admob.AdMobAdapter {
+    *;
+}
+-keep class com.google.ads.mediation.AdUrlAdapter {
+    *;
 }
 # GOOGLE MOBILE ADS (ADMOB) - END
 
