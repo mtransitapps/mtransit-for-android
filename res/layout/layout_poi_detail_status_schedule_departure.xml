@@ -37,7 +37,6 @@
         android:fontFamily="sans-serif-condensed"
         android:gravity="top"
         android:includeFontPadding="false"
-        android:maxLines="1"
         android:paddingBottom="4dp"
         android:paddingLeft="2dp"
         android:paddingRight="2dp"

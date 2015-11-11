@@ -40,7 +40,6 @@
                     android:layout_below="@id/date"
                     android:ellipsize="end"
                     android:fontFamily="sans-serif-condensed"
-                    android:minLines="2"
                     android:paddingTop="8dp"
                     android:singleLine="false"
                     android:textAppearance="?android:attr/textAppearanceMedium"

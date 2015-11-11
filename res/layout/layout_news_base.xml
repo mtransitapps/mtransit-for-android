@@ -42,7 +42,6 @@
         android:ellipsize="end"
         android:fontFamily="sans-serif-condensed"
         android:maxLines="5"
-        android:minLines="2"
         android:paddingTop="2dp"
         android:singleLine="false"
         android:textAppearance="?android:attr/textAppearanceMedium"

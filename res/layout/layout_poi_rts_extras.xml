@@ -61,7 +61,6 @@
                 android:layout_marginRight="2dp"
                 android:ellipsize="marquee"
                 android:fontFamily="sans-serif-condensed"
-                android:includeFontPadding="true"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceSmallInverse"
