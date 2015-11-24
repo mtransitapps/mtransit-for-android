@@ -81,7 +81,7 @@
 -keep public class com.facebook.ads.** {
    public *;
 }
--keep com.google.ads.mediation.facebook.FacebookAdapter {
+-keep class com.google.ads.mediation.facebook.FacebookAdapter {
     *;
 }
 # FACEBOOK AUDIENCE NETWORK - END
