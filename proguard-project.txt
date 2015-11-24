@@ -77,6 +77,15 @@
 }
 # GOOGLE MOBILE ADS (ADMOB) - END
 
+# FACEBOOK AUDIENCE NETWORK - START
+-keep public class com.facebook.ads.** {
+   public *;
+}
+-keep com.google.ads.mediation.facebook.FacebookAdapter {
+    *;
+}
+# FACEBOOK AUDIENCE NETWORK - END
+
 # GOOGLE ANALYTICS - START
 -keep public class com.google.android.gms.analytics.** {
     public *;

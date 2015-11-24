@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!-- INTERNET: required to get up-to-date information -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- ACCESS_NETWORK_STATE: required for Google Analytics & Google Mobile Ads (AdMob) & Google Maps -->
+    <!-- ACCESS_NETWORK_STATE: required for Google Analytics & Google Mobile Ads (AdMob) & Google Maps & Facebook Audience Network -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- WRITE_EXTERNAL_STORAGE: required by Google Maps -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
