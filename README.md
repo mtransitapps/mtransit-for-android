@@ -4,7 +4,7 @@
 
 ## Download on Google Play
 
-[![Google Play](https://developer.android.com/images/brand/en_app_rgb_wo_60.png)](https://play.google.com/store/apps/details?id=org.mtransit.android)
+[![Google Play](https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png)](https://play.google.com/store/apps/details?id=org.mtransit.android)
 
 ## Screenshots
 
