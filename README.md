@@ -4,7 +4,7 @@
 
 ## Download on Google Play
 
-[![Google Play](https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png)](https://play.google.com/store/apps/details?id=org.mtransit.android)
+<a href="https://play.google.com/store/apps/details?id=org.mtransit.android"><img width="25%" height="25%" src="https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png"/></a>
 
 ## Screenshots
 
