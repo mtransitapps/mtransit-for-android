@@ -17,6 +17,7 @@ Full description:
 - bike stations availability,
 - service alerts & the latest news from agencies web sites, blogs, Twitter, YouTube…
 
+
 On the home screen, you can see all nearby route trips next departures as well as nearby bike stations availability in a predictable user interface.
 You can access the information any way you want by using the sliding menu (click on the ☰ icon in the upper left corner of the screen or swipe from the left edge of any screen).
 For example, you can use the Map screen to discover new bus stops, subway stations, train stations or bike stations or you can search for a place by clicking on the 🔍 icon in the upper right corner of any screen.
