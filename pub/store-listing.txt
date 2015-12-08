@@ -6,13 +6,16 @@ Bike, Bus, Subway, Train…
 Offline & Real-Time
 ----------
 What's new in this version?:
-Now available for all* transit agencies in Canada (from St John's in Newfoundland and Labrador to Whitehorse, Yukon).
+Now compatible with almost all* transit agencies in Canada.
 Bug fixes & performance improvements.
 
 *: all transit agencies with open data
 ----------
 Full description:
-<b>MonTransit effortlessly brings the most relevant transit information to you</b>, including buses, ferries, subways, streetcars & trains schedules (offline & real-time), bike stations availability, service alerts & the latest news from agencies web sites, blogs, Twitter, YouTube…
+<b>MonTransit effortlessly brings the most relevant transit information to you: </b>
+- including buses, ferries, subways, streetcars & trains schedules (offline & real-time),
+- bike stations availability,
+- service alerts & the latest news from agencies web sites, blogs, Twitter, YouTube…
 
 On the home screen, you can see all nearby route trips next departures as well as nearby bike stations availability in a predictable user interface.
 You can access the information any way you want by using the sliding menu (click on the ☰ icon in the upper left corner of the screen or swipe from the left edge of any screen).

@@ -6,13 +6,16 @@ Bus Métro Train Vélo…
 Hors-Ligne & Temps-Réel
 ----------
 What's new in this version?:
-Maintenant disponible pour toutes* les agences de transport au Canada (de Saint-Jean de Terre-Neuve-et-Labrador à Whitehorse, Yukon).
-Correction de problèmes & Amélioration des performances.
+Maintenant disponible pour presque toutes* les agences de transport au Canada.
+Correction de problèmes & amélioration des performances.
 
 *: toutes les agences de transport avec des données ouvertes
 ----------
 Full description:
-<b>MonTransit vous donne accès sans effort aux informations de transport en commun les plus pertinentes</b>, incluant les horaires (hors-ligne & temps-réel) des autobus, métros, trains, tramways et traversiers, la disponibilités des stations vélos, messages d'alertes et les dernières nouvelles des agences de transport provenant de leurs sites Internet, blogues, Twitter, YouTube…
+<b>MonTransit vous donne accès sans effort aux informations de transport en commun les plus pertinentes : </b>
+- incluant les horaires (hors-ligne & temps-réel) des autobus, métros, trains, tramways et traversiers,
+- la disponibilités des stations vélos
+- les messages d'alertes et les dernières nouvelles des agences de transport provenant de leurs sites Internet, blogues, Twitter, YouTube…
 
 Sur l'écran d'accueil, vous pouvez voir les prochains départs des trajets des lignes et la disponibilité des stations de vélo à proximité dans une interface prévisible.
 Vous pouvez naviguez l'information comme vous le souhaitez en utilisant le menu coulissant (cliquez sur l'icône ☰ dans le coin supérieur gauche de l'écran).
