@@ -6,14 +6,12 @@ Bus Métro Train Vélo…
 Hors-Ligne & Temps-Réel
 ----------
 What's new in this version?:
-Maintenant compatible avec presque toutes* les agences de transport au Canada.
+Maintenant compatible avec (presque) toutes les agences de transport au Canada.
 Correction de problèmes & amélioration des performances.
-
-*: toutes les agences de transport avec des données ouvertes
 ----------
 Full description:
-<b>MonTransit vous donne accès aux informations de transport en commun les plus pertinentes : </b>
-- incluant les horaires (hors-ligne & temps-réel) des autobus, métros, trains, tramways et traversiers,
+<b>MonTransit vous donne accès aux informations de transport en commun les plus pertinentes, incluant : </b>
+- les horaires (hors-ligne & temps-réel) des autobus, métros, trains, tramways et traversiers,
 - la disponibilité des stations vélos
 - les messages d'alertes et les dernières nouvelles des agences de transport provenant de leurs sites Internet, blogues, Twitter, YouTube…
 

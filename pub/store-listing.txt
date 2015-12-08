@@ -6,14 +6,12 @@ Bike, Bus, Subway, Train…
 Offline & Real-Time
 ----------
 What's new in this version?:
-Now compatible with almost all* transit agencies in Canada.
+Now compatible with (almost) all transit agencies in Canada.
 Bug fixes & performance improvements.
-
-*: all transit agencies with open data
 ----------
 Full description:
-<b>MonTransit effortlessly brings the most relevant transit information to you: </b>
-- including buses, ferries, subways, streetcars & trains schedules (offline & real-time),
+<b>MonTransit effortlessly brings the most relevant transit information to you, including: </b>
+- buses, ferries, subways, streetcars & trains schedules (offline & real-time),
 - bike stations availability,
 - service alerts & the latest news from agencies web sites, blogs, Twitter, YouTube…
 
