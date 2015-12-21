@@ -1,7 +1,8 @@
 package org.mtransit.android.ui.view.map;
 
+import java.util.List;
+
 import android.graphics.Bitmap;
-import android.location.Location;
 import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -10,8 +11,6 @@ import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-
-import java.util.List;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 public interface ExtendedGoogleMap {
@@ -68,8 +67,6 @@ public interface ExtendedGoogleMap {
 
 	float getMinZoomLevelNotClustered(IMarker marker);
 
-	Location getMyLocation();
-
 	Projection getProjection();
 
 	UiSettings getUiSettings();
@@ -113,8 +110,6 @@ public interface ExtendedGoogleMap {
 	void setOnMarkerDragListener(OnMarkerDragListener onMarkerDragListener);
 
 	void setOnMyLocationButtonClickListener(OnMyLocationButtonClickListener listener);
-
-	void setOnMyLocationChangeListener(OnMyLocationChangeListener onMyLocationChangeListener);
 
 	void setPadding(int left, int top, int right, int bottom);
 
@@ -189,12 +184,6 @@ public interface ExtendedGoogleMap {
 
 		@Override
 		boolean onMyLocationButtonClick();
-	}
-
-	interface OnMyLocationChangeListener extends com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener {
-
-		@Override
-		void onMyLocationChange(Location location);
 	}
 
 	interface SnapshotReadyCallback extends com.google.android.gms.maps.GoogleMap.SnapshotReadyCallback {

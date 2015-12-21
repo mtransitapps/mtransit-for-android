@@ -3,7 +3,6 @@ package org.mtransit.android.ui.view.map.impl;
 import org.mtransit.android.commons.MTLog;
 
 import android.graphics.Bitmap;
-import android.location.Location;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.GoogleMap;
@@ -17,7 +16,6 @@ import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.GoogleMap.SnapshotReadyCallback;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.UiSettings;
@@ -119,11 +117,6 @@ class GoogleMapWrapper implements IGoogleMap, MTLog.Loggable {
 	@Override
 	public final float getMinZoomLevel() {
 		return map.getMinZoomLevel();
-	}
-
-	@Override
-	public final Location getMyLocation() {
-		return map.getMyLocation();
 	}
 
 	@Override
@@ -229,11 +222,6 @@ class GoogleMapWrapper implements IGoogleMap, MTLog.Loggable {
 	@Override
 	public void setOnMyLocationButtonClickListener(OnMyLocationButtonClickListener listener) {
 		map.setOnMyLocationButtonClickListener(listener);
-	}
-
-	@Override
-	public final void setOnMyLocationChangeListener(OnMyLocationChangeListener listener) {
-		map.setOnMyLocationChangeListener(listener);
 	}
 
 	@Override

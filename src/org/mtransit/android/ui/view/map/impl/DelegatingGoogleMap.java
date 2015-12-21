@@ -1,16 +1,5 @@
 package org.mtransit.android.ui.view.map.impl;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.location.Location;
-import android.view.View;
-
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.LocationSource;
-import com.google.android.gms.maps.Projection;
-import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.CameraPosition;
-
 import java.util.List;
 
 import org.mtransit.android.commons.MTLog;
@@ -29,6 +18,16 @@ import org.mtransit.android.ui.view.map.Polyline;
 import org.mtransit.android.ui.view.map.PolylineOptions;
 import org.mtransit.android.ui.view.map.TileOverlay;
 import org.mtransit.android.ui.view.map.TileOverlayOptions;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.view.View;
+
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.LocationSource;
+import com.google.android.gms.maps.Projection;
+import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.CameraPosition;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
@@ -178,11 +177,6 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 	}
 
 	@Override
-	public Location getMyLocation() {
-		return real.getMyLocation();
-	}
-
-	@Override
 	public Projection getProjection() {
 		return real.getProjection().getProjection();
 	}
@@ -301,11 +295,6 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 	@Override
 	public void setOnMyLocationButtonClickListener(OnMyLocationButtonClickListener listener) {
 		real.setOnMyLocationButtonClickListener(listener);
-	}
-
-	@Override
-	public void setOnMyLocationChangeListener(OnMyLocationChangeListener onMyLocationChangeListener) {
-		real.setOnMyLocationChangeListener(onMyLocationChangeListener);
 	}
 
 	@Override

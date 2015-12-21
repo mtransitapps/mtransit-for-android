@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.view.map.impl;
 
 import android.graphics.Bitmap;
-import android.location.Location;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.GoogleMap;
@@ -14,7 +13,6 @@ import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationButtonClickListener;
-import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -62,8 +60,6 @@ interface IGoogleMap {
 
 	float getMinZoomLevel();
 
-	Location getMyLocation();
-
 	IProjection getProjection();
 
 	UiSettings getUiSettings();
@@ -105,8 +101,6 @@ interface IGoogleMap {
 	void setOnMarkerDragListener(OnMarkerDragListener listener);
 
 	void setOnMyLocationButtonClickListener(OnMyLocationButtonClickListener listener);
-
-	void setOnMyLocationChangeListener(OnMyLocationChangeListener listener);
 
 	void setPadding(int left, int top, int right, int bottom);
 

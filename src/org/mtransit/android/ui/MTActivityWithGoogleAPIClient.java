@@ -16,7 +16,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 public abstract class MTActivityWithGoogleAPIClient extends MTAppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
@@ -214,7 +214,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTAppCompatActivity 
 		MainActivity.showNewDialog(getSupportFragmentManager(), ErrorDialogFragment.newInstance(errorCode));
 	}
 
-	public void onDialogDismissed() {
+	private void onDialogDismissed() {
 		this.resolvingError = false;
 	}
 
@@ -241,7 +241,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTAppCompatActivity 
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			int errorCode = getArguments().getInt(DIALOG_ERROR);
-			return GooglePlayServicesUtil.getErrorDialog(errorCode, getActivity(), REQUEST_RESOLVE_ERROR);
+			return GoogleApiAvailability.getInstance().getErrorDialog(getActivity(), errorCode, REQUEST_RESOLVE_ERROR);
 		}
 
 		@Override

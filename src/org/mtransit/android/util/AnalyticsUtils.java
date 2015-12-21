@@ -10,7 +10,6 @@ import android.text.TextUtils;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Logger.LogLevel;
 import com.google.android.gms.analytics.Tracker;
 
 public final class AnalyticsUtils implements MTLog.Loggable {
@@ -58,7 +57,8 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 			tracker.enableExceptionReporting(TRACKING_EXCEPTION_REPORTING);
 			GoogleAnalytics.getInstance(context).setLocalDispatchPeriod(TRACKING_LOCAL_DISPATCH_PERIOD_IN_SEC);
 			if (DEBUG) {
-				GoogleAnalytics.getInstance(context).getLogger().setLogLevel(LogLevel.VERBOSE);
+				// adb shell setprop log.tag.GAv4 DEBUG
+				// adb logcat -v time -s GAv4
 				if (LOCAL_ONLY) {
 					GoogleAnalytics.getInstance(context).setDryRun(true);
 				}
@@ -101,7 +101,7 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 						Tracker gaTracker = getTracker(context);
 						if (gaTracker != null) {
 							gaTracker.setScreenName(pageScreenName);
-							gaTracker.send(new HitBuilders.AppViewBuilder().build());
+							gaTracker.send(new HitBuilders.ScreenViewBuilder().build());
 						}
 					}
 				} catch (Exception e) {
