@@ -6,7 +6,7 @@ Bike, Bus, Subway, Train…
 Offline & Real-Time
 ----------
 What's new in this version?:
-Now compatible with (almost) all transit agencies in Canada.
+Now compatible with (almost) all transit agencies in Canada and the northern United States (Alaska).
 Bug fixes & performance improvements.
 ----------
 Full description:
