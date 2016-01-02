@@ -6,7 +6,7 @@ Bike, Bus, Subway, Train…
 Offline & Real-Time
 ----------
 What's new in this version?:
-Now compatible with (almost) all transit agencies in Canada and the northern United States (Alaska).
+Now compatible with (almost) all transit agencies in Canada and the northern United States (AK).
 Bug fixes & performance improvements.
 ----------
 Full description:
@@ -39,6 +39,8 @@ MonTransit is currently available in Canada:
 - <b>QC:</b> AMT, BIXI, RTC, RTL, STM, STL, STO, STS, CIT, MRC…
 - <b>SK:</b> Regina, Saskatoon…
 - <b>YK:</b> Whitehorse…
+MonTransit is currently available in the northern United States:
+- <b>AK:</b> People Mover…
 
 All the features are available for free (no paywall) but you can support the project (and hide ads) by paying a Google Play subscription (1 month free, cancel any time).
 
@@ -55,7 +57,7 @@ https://github.com/mtransitapps/mtransit-for-android
 
 More information: https://goo.gl/z2e6HP
 
-Made with ♥ in Montreal, Canada.
+Made with ♥ in Montreal, Canada in North America.
 
 Permissions:
 - In-app purchases: required for donations (hide ads & support MonTransit)
@@ -77,6 +79,7 @@ Website: https://github.com/mtransitapps/mtransit-for-android
 ----------
 Email: mtransit.apps+GooglePlay@gmail.com
 ----------
-Phone: 
+Phone:
 ----------
 Privacy Policy:
+----------
