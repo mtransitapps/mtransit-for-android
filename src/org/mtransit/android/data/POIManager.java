@@ -311,7 +311,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return false;
 	}
 
-
 	private long lastFindServiceUpdateTimestampMs = -1;
 
 	private boolean findServiceUpdates(Context context, boolean skipIfBusy) {
@@ -600,6 +599,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 							}
 						}
 					}).show();
+		}
 		if (listener != null) {
 			listener.onFavoriteUpdated();
 		}
