@@ -16,7 +16,9 @@ import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.JPaths;
+import org.mtransit.android.data.Module;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
@@ -53,6 +55,8 @@ public class POIViewController implements MTLog.Loggable {
 			return getBasicPOILayout(poim.getStatusType());
 		}
 		switch (poim.poi.getType()) {
+		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
+			return R.layout.layout_poi_basic;
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			return getModuleLayout(poim.getStatusType());
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
@@ -113,6 +117,9 @@ public class POIViewController implements MTLog.Loggable {
 	public static void initViewHolder(POIManager poim, View view) {
 		CommonViewHolder holder;
 		switch (poim.poi.getType()) {
+		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
+			holder = initTextMessageViewHolder(poim, view);
+			break;
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			holder = initModuleViewHolder(poim, view);
 			break;
@@ -139,7 +146,13 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static CommonViewHolder initModuleViewHolder(POIManager poim, View view) {
-		return new ModuleViewHolder();
+		ModuleViewHolder holder = new ModuleViewHolder();
+		holder.moduleExtraTypeImg = (ImageView) view.findViewById(R.id.extra);
+		return holder;
+	}
+
+	private static CommonViewHolder initTextMessageViewHolder(POIManager poim, View view) {
+		return new TextMessageViewHolder();
 	}
 
 	private static CommonViewHolder initBasicViewHolder(POIManager poim, View view) {
@@ -236,11 +249,30 @@ public class POIViewController implements MTLog.Loggable {
 			updateRTSExtra(context, poim, (RouteTripStopViewHolder) holder, dataProvider);
 			break;
 		case POI.ITEM_VIEW_TYPE_MODULE:
+			updateModuleExtra(context, poim, (ModuleViewHolder) holder, dataProvider);
+			break;
+		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 			break;
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 			break;
 		default:
 			MTLog.w(TAG, "updateView() > Unknow view type for poi %s!", poim);
+		}
+	}
+
+	private static void updateModuleExtra(Context context, POIManager poim, ModuleViewHolder holder, final POIDataProvider dataProvider) {
+		if (poim.poi != null && poim.poi instanceof Module) {
+			Module module = (Module) poim.poi;
+			holder.moduleExtraTypeImg.setBackgroundColor(poim.getColor(context));
+			DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
+			if (moduleType != null) {
+				holder.moduleExtraTypeImg.setImageResource(moduleType.getWhiteIconResId());
+			} else {
+				holder.moduleExtraTypeImg.setImageResource(0);
+			}
+			holder.moduleExtraTypeImg.setVisibility(View.VISIBLE);
+		} else {
+			holder.moduleExtraTypeImg.setVisibility(View.GONE);
 		}
 	}
 
@@ -616,7 +648,11 @@ public class POIViewController implements MTLog.Loggable {
 		ServiceUpdateViewHolder serviceUpdateViewHolder;
 	}
 
+	private static class TextMessageViewHolder extends CommonViewHolder {
+	}
+
 	private static class ModuleViewHolder extends CommonViewHolder {
+		ImageView moduleExtraTypeImg;
 	}
 
 	private static class RouteTripStopViewHolder extends CommonViewHolder {

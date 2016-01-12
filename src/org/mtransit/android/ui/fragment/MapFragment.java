@@ -464,7 +464,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 						public void onClick(DialogInterface dialog, int which) {
 							dialog.dismiss();
 						}
-					}).setCancelable(true).create().show();
+					}).setCancelable(true).show();
 
 			return true; // handled
 		}

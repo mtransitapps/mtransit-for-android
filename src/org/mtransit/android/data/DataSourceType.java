@@ -79,6 +79,8 @@ public enum DataSourceType {
 
 	private static final String TAG = DataSourceType.class.getSimpleName();
 
+	public static final int MAX_ID = 1000;
+
 	private int id;
 
 	private int shortNameResId;
@@ -109,6 +111,9 @@ public enum DataSourceType {
 
 	DataSourceType(int id, int shortNameResId, int allStringResId, int poiShortNameResId, int nearbyNameResId, int blackIconResId, int grey600IconResId,
 			int whiteIconResId, int navResId, boolean menuList, boolean homeScreen, boolean nearbyScreen, boolean mapScreen, boolean searchable) {
+		if (id >= MAX_ID) {
+			throw new UnsupportedOperationException(String.format("Data source type ID '%s' must be lower than '%s'!", id, MAX_ID));
+		}
 		this.id = id;
 		this.shortNameResId = shortNameResId;
 		this.allStringResId = allStringResId;

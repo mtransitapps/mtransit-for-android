@@ -1,5 +1,11 @@
 package org.mtransit.android.data;
 
+import java.util.Comparator;
+import java.util.HashMap;
+
+import org.mtransit.android.commons.StringUtils;
+import org.mtransit.android.provider.FavoriteManager;
+import org.mtransit.android.provider.FavoriteProvider;
 import org.mtransit.android.provider.FavoriteProvider.FavoriteColumns;
 
 import android.content.ContentValues;
@@ -12,13 +18,15 @@ public class Favorite {
 	private int id = -1;
 	private String fkId;
 	private int type;
+	private int folder_id;
 
-	public Favorite() {
+	private Favorite() {
 	}
 
-	public Favorite(String fkId) {
+	public Favorite(String fkId, int folderId) {
 		this.type = KEY_TYPE_VALUE_AUTHORITY_POI;
 		this.fkId = fkId;
+		this.folder_id = folderId;
 	}
 
 	public static Favorite fromCursor(Cursor c) {
@@ -26,6 +34,12 @@ public class Favorite {
 		favorite.id = c.getInt(c.getColumnIndexOrThrow(FavoriteColumns.T_FAVORITE_K_ID));
 		favorite.type = c.getInt(c.getColumnIndexOrThrow(FavoriteColumns.T_FAVORITE_K_TYPE));
 		favorite.fkId = c.getString(c.getColumnIndexOrThrow(FavoriteColumns.T_FAVORITE_K_FK_ID));
+		int folderIdColumnInx = c.getColumnIndex(FavoriteColumns.T_FAVORITE_K_FOLDER_ID);
+		if (folderIdColumnInx >= 0) {
+			favorite.folder_id = c.getInt(folderIdColumnInx);
+		} else {
+			favorite.folder_id = FavoriteManager.DEFAULT_FOLDER_ID;
+		}
 		return favorite;
 	}
 
@@ -36,6 +50,7 @@ public class Favorite {
 		} // ELSE IF no ID yet, let SQLite choose the ID
 		values.put(FavoriteColumns.T_FAVORITE_K_TYPE, favorite.type);
 		values.put(FavoriteColumns.T_FAVORITE_K_FK_ID, favorite.fkId);
+		values.put(FavoriteColumns.T_FAVORITE_K_FOLDER_ID, favorite.folder_id);
 		return values;
 	}
 
@@ -49,5 +64,99 @@ public class Favorite {
 
 	public String getFkId() {
 		return fkId;
+	}
+	public int getFolderId() {
+		return folder_id;
+	}
+
+	public static class FavoriteFolderNameComparator implements Comparator<POIManager> {
+
+		private HashMap<Integer, Favorite.Folder> favoriteFolders;
+
+		public FavoriteFolderNameComparator(HashMap<Integer, Favorite.Folder> favoriteFolders) {
+			this.favoriteFolders = favoriteFolders;
+		}
+
+		@Override
+		public int compare(POIManager lPoim, POIManager rPoim) {
+			String lFavoriteFolderName = StringUtils.EMPTY;
+			if (FavoriteManager.isFavoriteDataSourceId(lPoim.poi.getDataSourceTypeId())) {
+				int favoriteFolderId = FavoriteManager.extractFavoriteFolderId(lPoim.poi.getDataSourceTypeId());
+				if (this.favoriteFolders != null && this.favoriteFolders.containsKey(favoriteFolderId)) {
+					lFavoriteFolderName = this.favoriteFolders.get(favoriteFolderId).getName();
+				}
+			}
+			String rFavoriteFolderName = StringUtils.EMPTY;
+			if (FavoriteManager.isFavoriteDataSourceId(rPoim.poi.getDataSourceTypeId())) {
+				int favoriteFolderId = FavoriteManager.extractFavoriteFolderId(rPoim.poi.getDataSourceTypeId());
+				if (this.favoriteFolders != null && this.favoriteFolders.containsKey(favoriteFolderId)) {
+					rFavoriteFolderName = this.favoriteFolders.get(favoriteFolderId).getName();
+				}
+			}
+			return lFavoriteFolderName.compareTo(rFavoriteFolderName);
+		}
+	}
+
+	public static class Folder {
+
+		public static FavoriteFolderNameComparator NAME_COMPARATOR = new FavoriteFolderNameComparator();
+
+		private int id = -1;
+		private String name;
+
+		private Folder() {
+		}
+
+		public Folder(String name) {
+			this.name = name;
+		}
+
+		public Folder(int id, String name) {
+			this.id = id;
+			this.name = name;
+		}
+
+		public static Favorite.Folder fromCursor(Cursor c) {
+			Favorite.Folder favoriteFolder = new Favorite.Folder();
+			favoriteFolder.id = c.getInt(c.getColumnIndexOrThrow(FavoriteProvider.FavoriteFolderColumns.T_FAVORITE_FOLDER_K_ID));
+			favoriteFolder.name = c.getString(c.getColumnIndexOrThrow(FavoriteProvider.FavoriteFolderColumns.T_FAVORITE_FOLDER_K_NAME));
+			return favoriteFolder;
+		}
+
+		public static ContentValues toContentValues(Favorite.Folder favoriteFolder) {
+			ContentValues values = new ContentValues();
+			if (favoriteFolder.getId() >= 0) {
+				values.put(FavoriteProvider.FavoriteFolderColumns.T_FAVORITE_FOLDER_K_ID, favoriteFolder.id);
+			} // ELSE IF no ID yet, let SQLite choose the ID
+			values.put(FavoriteProvider.FavoriteFolderColumns.T_FAVORITE_FOLDER_K_NAME, favoriteFolder.name);
+			return values;
+		}
+
+		public ContentValues toContentValues() {
+			return toContentValues(this);
+		}
+
+		public int getId() {
+			return id;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		@Override
+		public String toString() {
+			return "Favorite." + Favorite.Folder.class.getSimpleName() + "[" + this.id + "," + this.name + "]";
+		}
+
+		private static class FavoriteFolderNameComparator implements Comparator<Favorite.Folder> {
+
+			@Override
+			public int compare(Favorite.Folder lFolder, Favorite.Folder rFolder) {
+				String lFolderName = lFolder == null ? StringUtils.EMPTY : lFolder.getName();
+				String rFolderName = rFolder == null ? StringUtils.EMPTY : rFolder.getName();
+				return lFolderName.compareTo(rFolderName);
+			}
+		}
 	}
 }

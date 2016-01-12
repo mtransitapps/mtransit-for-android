@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/header_height"
+    android:layout_gravity="center_vertical"
+    android:minHeight="?android:attr/listPreferredItemHeightSmall"
+    android:paddingRight="@dimen/title_right_padding"
+    android:paddingTop="@dimen/title_top_padding" >
+    <FrameLayout
+        android:id="@+id/deleteBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="false"
+        android:background="?android:attr/selectableItemBackground"
+        android:padding="@dimen/button_padding" >
+        <TextView
+            android:id="@+id/deleteBtnTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/button_rect_bg"
+            android:fontFamily="sans-serif-condensed"
+            android:includeFontPadding="false"
+            android:padding="@dimen/button_text_padding"
+            android:text="@string/delete"
+            android:textAllCaps="true"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/platform_background_holo_light" />
+    </FrameLayout>
+    <FrameLayout
+        android:id="@+id/renameBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerVertical="false"
+        android:layout_toLeftOf="@id/deleteBtn"
+        android:background="?android:attr/selectableItemBackground"
+        android:padding="@dimen/button_padding" >
+        <TextView
+            android:id="@+id/renameBtnTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/button_rect_bg"
+            android:fontFamily="sans-serif-condensed"
+            android:includeFontPadding="false"
+            android:padding="@dimen/button_text_padding"
+            android:text="@string/rename"
+            android:textAllCaps="true"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/platform_background_holo_light" />
+    </FrameLayout>
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="false"
+        android:layout_gravity="center_vertical"
+        android:layout_toLeftOf="@id/renameBtn"
+        android:drawableLeft="@drawable/ic_folder_special_grey600_24dp"
+        android:drawablePadding="@dimen/title_drawable_padding"
+        android:ellipsize="end"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center_vertical"
+        android:paddingBottom="@dimen/title_padding_bottom"
+        android:paddingLeft="@dimen/title_padding_left"
+        android:paddingRight="@dimen/title_padding_right"
+        android:paddingTop="@dimen/title_padding_top"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/ic_grey600" />
+</RelativeLayout>

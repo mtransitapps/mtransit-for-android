@@ -6,7 +6,7 @@
     <item
         android:id="@+id/menu_add_remove_favorite"
         android:icon="@drawable/ic_action_toggle_star_outline_material_dark"
-        android:title="@string/menu_action_add_favorite"
+        android:title="@string/menu_action_edit_favorite"
         android:visible="false"
         app:showAsAction="ifRoom"/>
     <item

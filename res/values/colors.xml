@@ -26,8 +26,8 @@
     -->
     <!-- light icons: #333 @ 60% -->
     <!-- dark icons: #FFF @ 100% -->
-    <color name="mt_blue_malibu" tools:ignore="UnusedResources">#6699FF</color> <!-- dark blue -->
-    <color name="mt_blue_smalt" tools:ignore="UnusedResources">#003399</color> <!-- light blue -->
+    <color name="mt_blue_malibu" tools:ignore="UnusedResources">#6699FF</color> <!-- light blue -->
+    <color name="mt_blue_smalt" tools:ignore="UnusedResources">#003399</color> <!-- dark blue -->
     <color name="mt_bg_dark" tools:ignore="UnusedResources">#230913</color>
     <color name="mt_bg_light" tools:ignore="UnusedResources">#58454F</color>
     <color name="window_background">@color/platform_background_holo_light_gradient_start_color</color>

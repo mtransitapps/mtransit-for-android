@@ -1,15 +1,19 @@
 package org.mtransit.android.task;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
+import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
+import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.Favorite;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.data.TextMessage;
 import org.mtransit.android.provider.FavoriteManager;
 
 import android.content.Context;
@@ -37,6 +41,13 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 		}
 		this.pois = new ArrayList<POIManager>();
 		ArrayList<Favorite> favorites = FavoriteManager.findFavorites(getContext());
+		HashSet<Integer> favoriteFolderIds = new HashSet<Integer>();
+		HashMap<String, Integer> uuidToFavoriteFolderId = new HashMap<String, Integer>();
+		if (favorites != null) {
+			for (Favorite favorite : favorites) {
+				uuidToFavoriteFolderId.put(favorite.getFkId(), favorite.getFolderId());
+			}
+		}
 		ArrayMap<String, HashSet<String>> authorityToUUIDs = splitByAgency(favorites);
 		if (authorityToUUIDs != null && authorityToUUIDs.size() > 0) {
 			for (String authority : authorityToUUIDs.keySet()) {
@@ -52,6 +63,25 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			}
 		}
 		CollectionUtils.sort(this.pois, new DataSourceType.POIManagerTypeShortNameComparator(getContext()));
+		for (POIManager poim : this.pois) {
+			Integer favoriteFolderId = uuidToFavoriteFolderId.get(poim.poi.getUUID());
+			if (favoriteFolderId != null && favoriteFolderId > FavoriteManager.DEFAULT_FOLDER_ID) {
+				poim.poi.setDataSourceTypeId(FavoriteManager.generateFavoriteFolderId(favoriteFolderId));
+				favoriteFolderIds.add(favoriteFolderId);
+			}
+		}
+		HashMap<Integer, Favorite.Folder> favoriteFoders = FavoriteManager.findFolders(getContext());
+		if (favoriteFoders != null) {
+			long textMessageId = TimeUtils.currentTimeMillis();
+			for (Favorite.Folder favoriteFolder : favoriteFoders.values()) {
+				if (favoriteFolder.getId() > FavoriteManager.DEFAULT_FOLDER_ID && !favoriteFolderIds.contains(favoriteFolder.getId())) {
+					TextMessage textMessage = new TextMessage(textMessageId++, getContext().getString(R.string.favorite_folder_empty));
+					textMessage.setDataSourceTypeId(FavoriteManager.generateFavoriteFolderId(favoriteFolder.getId()));
+					this.pois.add(new POIManager(textMessage));
+				}
+			}
+		}
+		CollectionUtils.sort(this.pois, new Favorite.FavoriteFolderNameComparator(favoriteFoders));
 		return this.pois;
 	}
 

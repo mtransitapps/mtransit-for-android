@@ -10,43 +10,38 @@
         android:id="@+id/scrollview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
-        <LinearLayout
+        <RelativeLayout
+            android:id="@+id/this_news"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
-            <RelativeLayout
-                android:id="@+id/this_news"
+            android:minHeight="?android:attr/listPreferredItemHeightLarge"
+            android:padding="16dp" >
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:fontFamily="sans-serif-condensed"
+                android:padding="1dp"
+                android:singleLine="true"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?android:attr/textColorTertiary" />
+            <TextView
+                android:id="@+id/newsText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="?android:attr/listPreferredItemHeightLarge"
-                android:padding="16dp" >
-                <TextView
-                    android:id="@+id/date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentTop="true"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:fontFamily="sans-serif-condensed"
-                    android:padding="1dp"
-                    android:singleLine="true"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="?android:attr/textColorTertiary" />
-                <TextView
-                    android:id="@+id/newsText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_below="@id/date"
-                    android:ellipsize="end"
-                    android:fontFamily="sans-serif-condensed"
-                    android:paddingTop="8dp"
-                    android:singleLine="false"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:textStyle="normal" />
-            </RelativeLayout>
-        </LinearLayout>
+                android:layout_alignParentBottom="true"
+                android:layout_below="@id/date"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-condensed"
+                android:paddingTop="8dp"
+                android:singleLine="false"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textStyle="normal" />
+        </RelativeLayout>
     </ScrollView>
     <include layout="@layout/layout_shadow" />
 </FrameLayout>

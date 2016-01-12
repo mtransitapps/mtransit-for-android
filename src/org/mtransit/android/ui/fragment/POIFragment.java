@@ -3,6 +3,7 @@ package org.mtransit.android.ui.fragment;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +29,7 @@ import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.data.Favorite;
 import org.mtransit.android.data.NewsProviderProperties;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
@@ -276,7 +278,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
-		this.isFavorite = null; // reset
+		resetFavorite();
 		View view = getView();
 		FragmentActivity activity = getActivity();
 		this.mapViewController.notifyMarkerChanged(this);
@@ -906,7 +908,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 				});
 			}
 		}
-		this.isFavorite = null; // force refresh
+		resetFavorite(); // force refresh
+		resetFavoriteFolders();
+		getFavoriteFolderId();
 		this.mapViewController.onResume();
 		if (this.adapter != null) {
 			this.adapter.onResume(getActivity(), this.userLocation);
@@ -1022,16 +1026,98 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		return false;
 	}
 
-	private Boolean isFavorite = null;
+	private HashMap<Integer, Favorite.Folder> favoriteFolders = null;
 
-	public boolean isFavorite() {
-		if (this.isFavorite == null) {
-			POIManager poim = getPoimOrNull();
-			if (poim != null) {
-				this.isFavorite = FavoriteManager.isFavorite(getActivity(), poim.poi.getUUID());
+	private boolean hasFavoriteFolders() {
+		if (this.favoriteFolders == null) {
+			initFavoriteFoldersAsync();
+			return false;
+		}
+		return true;
+	}
+
+	private void initFavoriteFoldersAsync() {
+		if (this.loadFavoriteFoldersTask != null && this.loadFavoriteFoldersTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+			return;
+		}
+		this.loadFavoriteFoldersTask = new LoadFavoriteFoldersTask();
+		TaskUtils.execute(this.loadFavoriteFoldersTask);
+	}
+
+	private LoadFavoriteFoldersTask loadFavoriteFoldersTask = null;
+
+	private class LoadFavoriteFoldersTask extends MTAsyncTask<Void, Void, Boolean> {
+		@Override
+		public String getLogTag() {
+			return POIFragment.this.getLogTag() + ">" + LoadFavoriteFoldersTask.class.getSimpleName();
+		}
+
+		@Override
+		protected Boolean doInBackgroundMT(Void... params) {
+			return initFavoriteFoldersSync();
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			super.onPostExecute(result);
+			if (result) {
+				applyNewFavoriteFolders();
 			}
 		}
-		return isFavorite == null ? false : isFavorite;
+	}
+
+	private void resetFavoriteFolders() {
+		this.favoriteFolders = null;
+	}
+
+	private HashMap<Integer, Favorite.Folder> getFavoriteFoldersOrNull() {
+		if (!hasFavoriteFolders()) {
+			return null;
+		}
+		return this.favoriteFolders;
+	}
+
+	private boolean initFavoriteFoldersSync() {
+		if (this.favoriteFolders != null) {
+			return false;
+		}
+		this.favoriteFolders = FavoriteManager.findFolders(getContext());
+		return this.favoriteFolders != null;
+	}
+
+	private void applyNewFavoriteFolders() {
+		if (this.favoriteFolders == null) {
+			return;
+		}
+		if (this.adapter != null) {
+			this.adapter.setFavoriteFolders(this.favoriteFolders);
+		}
+	}
+
+	private Integer favoriteFolderId = null;
+
+	public Integer getFavoriteFolderId() {
+		if (this.favoriteFolderId == null) {
+			POIManager poim = getPoimOrNull();
+			if (poim != null) {
+				this.favoriteFolderId = FavoriteManager.findFavoriteFolderId(getActivity(), poim.poi.getUUID());
+			}
+		}
+		return this.favoriteFolderId;
+	}
+
+	public boolean isFavorite() {
+		if (this.favoriteFolderId == null) {
+			POIManager poim = getPoimOrNull();
+			if (poim != null) {
+				this.favoriteFolderId = FavoriteManager.findFavoriteFolderId(getActivity(), poim.poi.getUUID());
+			}
+		}
+		return getFavoriteFolderId() == null ? false : getFavoriteFolderId() >= 0;
+	}
+
+	private void resetFavorite() {
+		this.favoriteFolderId = null;
 	}
 
 	@Override
@@ -1071,6 +1157,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		inflater.inflate(R.menu.menu_poi, menu);
 		this.addRemoveFavoriteMenuItem = menu.findItem(R.id.menu_add_remove_favorite);
 		updateFavMenuItem();
+		getFavoriteFoldersOrNull(); // load favorite folders
 	}
 
 	private void updateFavMenuItem() {
@@ -1082,7 +1169,11 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			boolean isFav = isFavorite();
 			this.addRemoveFavoriteMenuItem.setIcon(isFav ? R.drawable.ic_action_toggle_star_material_dark
 					: R.drawable.ic_action_toggle_star_outline_material_dark);
-			this.addRemoveFavoriteMenuItem.setTitle(isFav ? R.string.menu_action_remove_favorite : R.string.menu_action_add_favorite);
+			this.addRemoveFavoriteMenuItem.setTitle(isFav ? //
+			(FavoriteManager.hasFavoriteFolders(getFavoriteFoldersOrNull()) ? //
+			R.string.menu_action_edit_favorite
+					: R.string.menu_action_remove_favorite)
+					: R.string.menu_action_add_favorite);
 			this.addRemoveFavoriteMenuItem.setVisible(true);
 		} else {
 			this.addRemoveFavoriteMenuItem.setVisible(false);
@@ -1095,8 +1186,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		case R.id.menu_add_remove_favorite:
 			POIManager poim = getPoimOrNull();
 			if (poim != null && poim.isFavoritable()) {
-				poim.addRemoteFavorite(getActivity(), isFavorite(), this);
-				return true; // handled
+				return poim.addRemoveFavorite(getActivity(), getFavoriteFolderId(), getFavoriteFoldersOrNull(), this);
 			}
 			break;
 		case R.id.menu_show_directions:
@@ -1112,7 +1202,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	@Override
 	public void onFavoriteUpdated() {
-		this.isFavorite = null; // reset
+		resetFavorite();
 		updateFavMenuItem();
 		POIManager poim = getPoimOrNull();
 		if (poim != null) {

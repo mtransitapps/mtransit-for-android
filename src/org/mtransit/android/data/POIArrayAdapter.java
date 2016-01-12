@@ -2,6 +2,7 @@ package org.mtransit.android.data;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -18,6 +19,7 @@ import org.mtransit.android.commons.SensorUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.TimeUtils;
+import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
@@ -45,7 +47,9 @@ import org.mtransit.android.ui.view.MTOnLongClickListener;
 import org.mtransit.android.ui.view.MTPieChartPercentView;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -61,6 +65,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -95,6 +100,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private LinkedHashMap<Integer, ArrayList<POIManager>> poisByType;
 
 	private HashSet<String> favUUIDs;
+
+	private HashMap<String, Integer> favUUIDsFolderIds;
 
 	private WeakReference<Activity> activityWR;
 
@@ -197,7 +204,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		boolean showingDone();
 	}
 
-	private static final int VIEW_TYPE_COUNT = 9;
+	private static final int VIEW_TYPE_COUNT = 11;
 
 	/**
 	 * @see #getItemViewType(int)
@@ -218,13 +225,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				return 0; // BROWSE SECTION
 			}
 			if (this.infiniteLoading && position + 1 == getCount()) {
-				return 8; // LOADING FOOTER
+				return 9; // LOADING FOOTER
 			}
 			if (this.showTypeHeader != TYPE_HEADER_NONE) {
 				if (this.poisByType != null) {
-					Integer type = getItemTypeHeader(position);
-					if (type != null) {
-						return 7; // TYPE HEADER
+					Integer typeId = getItemTypeHeader(position);
+					if (typeId != null) {
+						if (FavoriteManager.isFavoriteDataSourceId(typeId)) {
+							return 10; // TYPE FAVORITE FOLDER
+						}
+						return 8; // TYPE HEADER
 					}
 				}
 			}
@@ -234,6 +244,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		int type = poim.poi.getType();
 		int statusType = poim.getStatusType();
 		switch (type) {
+		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
+			return 7; // TEXT MESSAGE
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			switch (statusType) {
 			case POI.ITEM_STATUS_TYPE_SCHEDULE:
@@ -371,6 +383,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			if (this.showTypeHeader != TYPE_HEADER_NONE) {
 				Integer typeId = getItemTypeHeader(position);
 				if (typeId != null) {
+					if (FavoriteManager.isFavoriteDataSourceId(typeId)) {
+						int favoriteFolderId = FavoriteManager.extractFavoriteFolderId(typeId);
+						if (this.favoriteFolders != null && this.favoriteFolders.containsKey(favoriteFolderId)) {
+							return getFavoriteFolderHeaderView(this.favoriteFolders.get(favoriteFolderId), convertView, parent);
+						}
+					}
 					DataSourceType dst = DataSourceType.parseId(typeId);
 					if (dst != null) {
 						return getTypeHeaderView(dst, convertView, parent);
@@ -381,6 +399,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			return null; // CRASH!!!
 		}
 		switch (poim.poi.getType()) {
+		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
+			return getTextMessageView(poim, convertView, parent);
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			return getModuleView(poim, convertView, parent);
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
@@ -577,7 +597,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			return false;
 		}
 		OnClickHandledListener listener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
-		return poim.onActionItemClick(activity, this.favoriteUpdateListener, listener);
+		return poim.onActionItemClick(activity, this.favoriteFolders, this.favoriteUpdateListener, listener);
 	}
 
 	public boolean showPoiMenu(POIManager poim) {
@@ -589,12 +609,18 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			return false;
 		}
 		OnClickHandledListener listener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
-		return poim.onActionItemLongClick(activity, this.favoriteUpdateListener, listener);
+		return poim.onActionItemLongClick(activity, this.favoriteFolders, this.favoriteUpdateListener, listener);
 	}
 
 	@Override
 	public void onFavoriteUpdated() {
 		refreshFavorites();
+	}
+
+	private HashMap<Integer, Favorite.Folder> favoriteFolders = null;
+
+	public void setFavoriteFolders(HashMap<Integer, Favorite.Folder> favoriteFolders) {
+		this.favoriteFolders = favoriteFolders;
 	}
 
 	public void setPois(ArrayList<POIManager> pois) {
@@ -680,16 +706,18 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (this.poisByType != null) {
 			for (Integer type : this.poisByType.keySet()) {
 				ArrayList<POIManager> orderedPoims = new ArrayList<POIManager>(this.poisByType.get(type));
-				CollectionUtils.sort(orderedPoims, LocationUtils.POI_DISTANCE_COMPARATOR);
-				POIManager theClosestOne = orderedPoims.get(0);
-				float theClosestDistance = theClosestOne.getDistance();
-				if (theClosestDistance > 0) {
-					for (POIManager poim : orderedPoims) {
-						if (poim.getDistance() <= theClosestDistance) {
-							this.closestPoiUuids.add(poim.poi.getUUID());
-							continue;
+				if (orderedPoims.size() > 0) {
+					CollectionUtils.sort(orderedPoims, LocationUtils.POI_DISTANCE_COMPARATOR);
+					POIManager theClosestOne = orderedPoims.get(0);
+					float theClosestDistance = theClosestOne.getDistance();
+					if (theClosestDistance > 0) {
+						for (POIManager poim : orderedPoims) {
+							if (poim.getDistance() <= theClosestDistance) {
+								this.closestPoiUuids.add(poim.poi.getUUID());
+								continue;
+							}
+							break;
 						}
-						break;
 					}
 				}
 			}
@@ -1189,6 +1217,89 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return convertView;
 	}
 
+	private View getFavoriteFolderHeaderView(final Favorite.Folder favoriteFolder, View convertView, ViewGroup parent) {
+		if (convertView == null) {
+			convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_header_with_delete, parent, false);
+			FavoriteFolderHeaderViewHolder holder = new FavoriteFolderHeaderViewHolder();
+			holder.nameTv = (TextView) convertView.findViewById(R.id.name);
+			holder.renameBtn = convertView.findViewById(R.id.renameBtn);
+			holder.deleteBtn = convertView.findViewById(R.id.deleteBtn);
+			convertView.setTag(holder);
+		}
+		FavoriteFolderHeaderViewHolder holder = (FavoriteFolderHeaderViewHolder) convertView.getTag();
+		holder.nameTv.setText(favoriteFolder == null ? null : favoriteFolder.getName());
+		if (holder.renameBtn != null) {
+			holder.renameBtn.setOnClickListener(new MTOnClickListener() {
+				@Override
+				public void onClickMT(View view) {
+					View editView = POIArrayAdapter.this.layoutInflater.inflate(R.layout.layout_favorites_folder_edit, null);
+					final EditText newFolderNameTv = (EditText) editView.findViewById(R.id.folder_name);
+					newFolderNameTv.setText(favoriteFolder.getName());
+					new AlertDialog.Builder(getContext()).setView(editView)
+							.setPositiveButton(R.string.favorite_folder_edit, new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int id) {
+									String newFolderName = newFolderNameTv.getText().toString();
+									if (TextUtils.isEmpty(newFolderName)) {
+										ToastUtils.makeTextAndShowCentered(getContext(), R.string.favorite_folder_new_invalid_name);
+										return;
+									}
+									FavoriteManager.updateFolder(getContext(), favoriteFolder.getId(), newFolderName);
+									if (POIArrayAdapter.this.favoriteUpdateListener != null) {
+										POIArrayAdapter.this.favoriteUpdateListener.onFavoriteUpdated();
+									}
+								}
+							}).setNegativeButton(R.string.favorite_folder_new_cancel, new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int id) {
+									if (dialog != null) {
+										dialog.cancel();
+									}
+								}
+							}).show();
+				}
+			});
+		}
+		if (holder.deleteBtn != null) {
+			holder.deleteBtn.setOnClickListener(new MTOnClickListener() {
+				@Override
+				public void onClickMT(View view) {
+					new AlertDialog.Builder(POIArrayAdapter.this.getContext()) //
+							.setTitle(
+									POIArrayAdapter.this.getContext().getString(R.string.favorite_folder_deletion_confirmation_title_and_name,
+											favoriteFolder.getName())) //
+							.setMessage(
+									POIArrayAdapter.this.getContext().getString(R.string.favorite_folder_deletion_confirmation_text_and_name,
+											favoriteFolder.getName())) //
+							.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									boolean succcess = FavoriteManager.deleteFolder(POIArrayAdapter.this.getContext(), favoriteFolder.getId());
+									if (succcess) {
+										ToastUtils.makeTextAndShowCentered(getContext(),
+												getContext().getString(R.string.favorite_folder_deleted_and_folder_name, favoriteFolder.getName()));
+									} else {
+										ToastUtils.makeTextAndShowCentered(getContext(),
+												getContext().getString(R.string.favorite_folder_deletion_error_and_folder_name, favoriteFolder.getName()));
+									}
+									if (POIArrayAdapter.this.favoriteUpdateListener != null) {
+										POIArrayAdapter.this.favoriteUpdateListener.onFavoriteUpdated();
+									}
+								}
+							}) //
+							.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int id) {
+									if (dialog != null) {
+										dialog.cancel();
+									}
+								}
+							}) //
+							.show();
+				}
+			});
+		}
+		return convertView;
+	}
+
 	private WeakHashMap<String, CommonStatusViewHolder> poiStatusViewHoldersWR = new WeakHashMap<String, CommonStatusViewHolder>();
 
 	private View getBasicPOIView(POIManager poim, View convertView, ViewGroup parent) {
@@ -1378,6 +1489,26 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			break;
 		}
 		return layoutRes;
+	}
+
+	private View getTextMessageView(POIManager poim, View convertView, ViewGroup parent) {
+		if (convertView == null) {
+			convertView = this.layoutInflater.inflate(R.layout.layout_poi_basic, parent, false);
+			TextViewViewHolder holder = new TextViewViewHolder();
+			initCommonViewHolder(holder, convertView, poim.poi.getUUID());
+			convertView.setTag(holder);
+		}
+		updateTextMessageView(poim, convertView);
+		return convertView;
+	}
+
+	private View updateTextMessageView(POIManager poim, View convertView) {
+		if (convertView == null || poim == null) {
+			return convertView;
+		}
+		TextViewViewHolder holder = (TextViewViewHolder) convertView.getTag();
+		updateCommonView(holder, poim);
+		return convertView;
 	}
 
 	private View getModuleView(POIManager poim, View convertView, ViewGroup parent) {
@@ -1741,7 +1872,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private MTAsyncTask<Integer, Void, ArrayList<Favorite>> refreshFavoritesTask;
 
-	public void refreshFavorites(Integer... typesFilter) {
+	public void refreshFavorites() {
 		if (this.refreshFavoritesTask != null && this.refreshFavoritesTask.getStatus() == MTAsyncTask.Status.RUNNING) {
 			return; // skipped, last refresh still in progress so probably good enough
 		}
@@ -1753,7 +1884,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 			@Override
 			protected ArrayList<Favorite> doInBackgroundMT(Integer... params) {
-				return FavoriteManager.findFavorites(POIArrayAdapter.this.getContext(), params);
+				return FavoriteManager.findFavorites(POIArrayAdapter.this.getContext());
 			}
 
 			@Override
@@ -1761,7 +1892,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				setFavorites(result);
 			}
 		};
-		TaskUtils.execute(this.refreshFavoritesTask, typesFilter);
+		TaskUtils.execute(this.refreshFavoritesTask);
 	}
 
 	private void setFavorites(ArrayList<Favorite> favorites) {
@@ -1775,17 +1906,41 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			updatedFav = true; // different size => different favorites
 		}
 		HashSet<String> newFavUUIDs = new HashSet<String>();
+		HashMap<String, Integer> newfavUUIDsFolderIds = new HashMap<String, Integer>();
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {
 				String uid = favorite.getFkId();
-				if (!newFav && this.favUUIDs != null && !this.favUUIDs.contains(uid)) {
+				if (!newFav && //
+						(this.favUUIDs != null && !this.favUUIDs.contains(uid)) || //
+						(this.favUUIDsFolderIds != null && this.favUUIDsFolderIds.containsKey(uid) && this.favUUIDsFolderIds.get(uid) != favorite.getFolderId())) {
 					newFav = true;
 					updatedFav = true;
 				}
 				newFavUUIDs.add(uid);
+				newfavUUIDsFolderIds.put(uid, favorite.getFolderId());
+			}
+		}
+		if (!newFav) {
+			if (this.favUUIDsFolderIds == null) {
+				newFav = true; // favorite never set before
+				updatedFav = false; // never set before so not updated
+			} else {
+				HashSet<Integer> oldFolderIds = new HashSet<Integer>();
+				for (Integer folderId : this.favUUIDsFolderIds.values()) {
+					oldFolderIds.add(folderId);
+				}
+				HashSet<Integer> newFolderIds = new HashSet<Integer>();
+				for (Integer folderId : newfavUUIDsFolderIds.values()) {
+					newFolderIds.add(folderId);
+				}
+				if (CollectionUtils.getSize(oldFolderIds) != CollectionUtils.getSize(newFolderIds)) {
+					newFav = true; // different size => different favorites
+					updatedFav = true; // different size => different favorites
+				}
 			}
 		}
 		this.favUUIDs = newFavUUIDs;
+		this.favUUIDsFolderIds = newfavUUIDsFolderIds;
 		if (newFav) {
 			notifyDataSetChanged(true);
 		}
@@ -1817,6 +1972,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	public static class BasicPOIViewHolder extends CommonViewHolder {
 	}
 
+	public static class TextViewViewHolder extends CommonViewHolder {
+	}
+
 	public static class CommonViewHolder {
 		String uuid;
 		View view;
@@ -1846,6 +2004,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		String uuid;
 		View statusV;
 		ImageView warningImg;
+	}
+
+	public static class FavoriteFolderHeaderViewHolder {
+		TextView nameTv;
+		View deleteBtn;
+		View renameBtn;
 	}
 
 	public static class TypeHeaderViewHolder {
