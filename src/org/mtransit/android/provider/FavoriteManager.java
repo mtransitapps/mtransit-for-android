@@ -267,16 +267,13 @@ public class FavoriteManager implements MTLog.Loggable {
 							}
 							int selectedFavoriteFolderId = itemsListId.get(FavoriteManager.this.selectedWhich);
 							if (selectedFavoriteFolderId == newFolderId) { // create new folder
-								showAddFolderDialog(context, activity.getLayoutInflater(), listener, fkId);
+								showAddFolderDialog(context, activity.getLayoutInflater(), listener, fkId, favoriteFolderId);
 							} else if (selectedFavoriteFolderId == removeFavoriteId) { // delete favorite
-								deleteFavorite(context, fkId, favoriteFolderId);
+								deleteFavorite(context, fkId, favoriteFolderId, listener);
 							} else if (favoriteFolderId >= 0) { // move favorite
-								updateFavoriteFolder(context, fkId, selectedFavoriteFolderId);
+								updateFavoriteFolder(context, fkId, selectedFavoriteFolderId, listener);
 							} else { // add new favorite
-								addFavorite(context, fkId, selectedFavoriteFolderId);
-							}
-							if (listener != null) {
-								listener.onFavoriteUpdated();
+								addFavorite(context, fkId, selectedFavoriteFolderId, listener);
 							}
 							if (dialog != null) {
 								dialog.dismiss();
@@ -290,23 +287,20 @@ public class FavoriteManager implements MTLog.Loggable {
 						}
 					}).show();
 		} else {
-			addOrDeleteFavorite(context, isFavorite, fkId, DEFAULT_FOLDER_ID);
-		}
-		if (listener != null) {
-			listener.onFavoriteUpdated();
+			addOrDeleteFavorite(context, isFavorite, fkId, DEFAULT_FOLDER_ID, listener);
 		}
 		return true; // HANDLED
 	}
 
-	private static void addOrDeleteFavorite(Context context, boolean isFavorite, String fkId, int folderId) {
+	private static void addOrDeleteFavorite(Context context, boolean isFavorite, String fkId, int folderId, FavoriteUpdateListener listener) {
 		if (isFavorite) { // WAS FAVORITE => TRY TO DELETE
-			deleteFavorite(context, fkId, folderId);
+			deleteFavorite(context, fkId, folderId, listener);
 		} else { // WAS NOT FAVORITE => TRY TO ADD
-			addFavorite(context, fkId, folderId);
+			addFavorite(context, fkId, folderId, listener);
 		}
 	}
 
-	public static void addFavorite(Context context, String fkId, int folderId) {
+	public static void addFavorite(Context context, String fkId, int folderId, FavoriteUpdateListener listener) {
 		Favorite newFavorite = new Favorite(fkId, folderId);
 		boolean success = addFavorite(context, newFavorite) != null;
 		if (success) {
@@ -315,6 +309,10 @@ public class FavoriteManager implements MTLog.Loggable {
 				ToastUtils.makeTextAndShowCentered(context, R.string.favorite_added);
 			} else {
 				ToastUtils.makeTextAndShowCentered(context, context.getString(R.string.favorite_added_to_folder_and_folder, favoriteFolder.getName()));
+			}
+			if (listener != null) {
+				MTLog.d(TAG, "addFavorite() > onFavoriteUpdated()");
+				listener.onFavoriteUpdated();
 			}
 		} else {
 			MTLog.w(TAG, "Favorite not added!");
@@ -329,10 +327,12 @@ public class FavoriteManager implements MTLog.Loggable {
 		return findFavorite(context, uri, null);
 	}
 
-	public static void deleteFavorite(Context context, String fkId, int folderId) {
+	public static void deleteFavorite(Context context, String fkId, int folderId, FavoriteUpdateListener listener) {
 		Favorite findFavorite = findFavorite(context, fkId);
-		boolean success = findFavorite == null || // already deleted
-				deleteFavorite(context, findFavorite.getId());
+		if (findFavorite == null) {
+			return; // already deleted
+		}
+		boolean success = deleteFavorite(context, findFavorite.getId());
 		if (success) {
 			Favorite.Folder favoriteFolder = folderId == DEFAULT_FOLDER_ID ? null : get(context).getFolder(folderId);
 			if (favoriteFolder == null) {
@@ -340,6 +340,8 @@ public class FavoriteManager implements MTLog.Loggable {
 			} else {
 				ToastUtils.makeTextAndShowCentered(context, context.getString(R.string.favorite_removed_to_folder_and_folder, favoriteFolder.getName()));
 			}
+			if (listener != null) {
+				listener.onFavoriteUpdated();
 		} else {
 			MTLog.w(TAG, "Favorite not deleted!");
 		}
@@ -380,18 +382,20 @@ public class FavoriteManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static void showAddFolderDialog(final Context context, LayoutInflater inflater, final FavoriteUpdateListener listener, final String optUpdatedFkId) {
+	public static void showAddFolderDialog(final Context context, LayoutInflater inflater, final FavoriteUpdateListener listener, final String optUpdatedFkId,
+			final Integer optFavoriteFolderId) {
 		View view = inflater.inflate(R.layout.layout_favorites_folder_edit, null);
 		final EditText newFolderNameTv = (EditText) view.findViewById(R.id.folder_name);
 		new AlertDialog.Builder(context).setView(view).setPositiveButton(R.string.favorite_folder_new_create, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int id) {
 				String newFolderName = newFolderNameTv.getText().toString();
-				Favorite.Folder createdFolder = addFolder(context, newFolderName, listener);
+				Favorite.Folder createdFolder = addFolder(context, newFolderName, TextUtils.isEmpty(optUpdatedFkId) ? listener : null);
 				if (createdFolder != null && !TextUtils.isEmpty(optUpdatedFkId)) {
-					addFavorite(context, optUpdatedFkId, createdFolder.getId());
-					if (listener != null) {
-						listener.onFavoriteUpdated();
+					if (optFavoriteFolderId != null && optFavoriteFolderId >= 0) { // move favorite
+						updateFavoriteFolder(context, optUpdatedFkId, createdFolder.getId(), listener);
+					} else { // add new favorite
+						addFavorite(context, optUpdatedFkId, createdFolder.getId(), listener);
 					}
 				}
 			}
@@ -477,17 +481,17 @@ public class FavoriteManager implements MTLog.Loggable {
 		int deletedRows = context.getContentResolver().delete(getFolderContentUri(context), selection, null);
 		if (deletedRows > 0) {
 			ToastUtils.makeTextAndShowCentered(context, context.getString(R.string.favorite_folder_deleted_and_folder_name, favoriteFolder.getName()));
+			if (listener != null) {
+				listener.onFavoriteUpdated();
+			}
+			get(context).removeFolder(favoriteFolder);
 		} else {
 			ToastUtils.makeTextAndShowCentered(context, context.getString(R.string.favorite_folder_deletion_error_and_folder_name, favoriteFolder.getName()));
 		}
-		if (listener != null) {
-			listener.onFavoriteUpdated();
-		}
-		get(context).removeFolder(favoriteFolder);
 		return deletedRows > 0;
 	}
 
-	private static boolean updateFavoriteFolder(Context context, String favoriteFkId, int folderId) {
+	private static boolean updateFavoriteFolder(Context context, String favoriteFkId, int folderId, FavoriteUpdateListener listener) {
 		String selectionF = SqlUtils.getWhereEqualsString(FavoriteColumns.T_FAVORITE_K_FK_ID, favoriteFkId);
 		ContentValues updateValues = new ContentValues();
 		updateValues.put(FavoriteColumns.T_FAVORITE_K_FOLDER_ID, folderId);
@@ -498,6 +502,9 @@ public class FavoriteManager implements MTLog.Loggable {
 				ToastUtils.makeTextAndShowCentered(context, R.string.favorite_moved);
 			} else {
 				ToastUtils.makeTextAndShowCentered(context, context.getString(R.string.favorite_moved_to_folder_and_folder, favoriteFolder.getName()));
+			}
+			if (listener != null) {
+				listener.onFavoriteUpdated();
 			}
 		} else {
 			MTLog.w(TAG, "Favorite not moved!");
@@ -536,14 +543,14 @@ public class FavoriteManager implements MTLog.Loggable {
 		int updatedRows = context.getContentResolver().update(getFolderContentUri(context), updateValues, selectionF, null);
 		if (updatedRows > 0) {
 			ToastUtils.makeTextAndShowCentered(context, context.getString(R.string.favorite_folder_edited_and_folder, newFolderName));
+			if (listener != null) {
+				listener.onFavoriteUpdated();
+			}
+			get(context).removeFolder(folderId);
+			get(context).addFolder(new Favorite.Folder(folderId, newFolderName));
 		} else {
 			MTLog.w(TAG, "Favorite folder not updated!");
 		}
-		if (listener != null) {
-			listener.onFavoriteUpdated();
-		}
-		get(context).removeFolder(folderId);
-		get(context).addFolder(new Favorite.Folder(folderId, newFolderName));
 		return updatedRows > 0;
 	}
 

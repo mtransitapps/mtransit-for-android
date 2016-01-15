@@ -1848,9 +1848,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {
 				String uid = favorite.getFkId();
-				if (!newFav && //
+				if (!newFav && ( //
 						(this.favUUIDs != null && !this.favUUIDs.contains(uid)) || //
-						(this.favUUIDsFolderIds != null && this.favUUIDsFolderIds.containsKey(uid) && this.favUUIDsFolderIds.get(uid) != favorite.getFolderId())) {
+						(this.favUUIDsFolderIds != null && this.favUUIDsFolderIds.containsKey(uid) && this.favUUIDsFolderIds.get(uid) != favorite.getFolderId()) //
+						)) {
 					newFav = true;
 					updatedFav = true;
 				}

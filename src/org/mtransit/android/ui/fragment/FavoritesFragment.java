@@ -149,7 +149,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_add_favorite_folder:
-			FavoriteManager.showAddFolderDialog(getContext(), getActivity().getLayoutInflater(), this, null);
+			FavoriteManager.showAddFolderDialog(getContext(), getActivity().getLayoutInflater(), this, null, null);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);

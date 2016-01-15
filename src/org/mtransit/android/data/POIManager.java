@@ -595,6 +595,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			return false;
 		}
 		switch (this.poi.getType()) {
+		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
+			return false; // no menu
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 		case POI.ITEM_VIEW_TYPE_MODULE:

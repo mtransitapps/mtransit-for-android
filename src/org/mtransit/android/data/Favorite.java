@@ -97,6 +97,11 @@ public class Favorite {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return Favorite.class.getSimpleName() + "[" + this.id + "," + this.fkId + "," + this.folder_id + "]";
+	}
+
 	public static class Folder {
 
 		public static FavoriteFolderNameComparator NAME_COMPARATOR = new FavoriteFolderNameComparator();
