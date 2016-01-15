@@ -342,6 +342,7 @@ public class FavoriteManager implements MTLog.Loggable {
 			}
 			if (listener != null) {
 				listener.onFavoriteUpdated();
+			}
 		} else {
 			MTLog.w(TAG, "Favorite not deleted!");
 		}
