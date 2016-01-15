@@ -242,6 +242,7 @@ public class FavoriteManager implements MTLog.Loggable {
 			itemsListId.add(newFolderId);
 			itemsList.add(context.getString(R.string.favorite_folder_new));
 			i++;
+			final int removeFavoriteId = newFolderId - 1;
 			if (favoriteFolderId >= 0) {
 				itemsListId.add(removeFavoriteId);
 				itemsList.add(context.getString(R.string.favorite_remove));
