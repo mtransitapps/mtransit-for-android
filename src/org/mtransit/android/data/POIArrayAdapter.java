@@ -19,7 +19,6 @@ import org.mtransit.android.commons.SensorUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.TimeUtils;
-import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
@@ -47,9 +46,7 @@ import org.mtransit.android.ui.view.MTOnLongClickListener;
 import org.mtransit.android.ui.view.MTPieChartPercentView;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -65,7 +62,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -385,8 +381,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				if (typeId != null) {
 					if (FavoriteManager.isFavoriteDataSourceId(typeId)) {
 						int favoriteFolderId = FavoriteManager.extractFavoriteFolderId(typeId);
-						if (this.favoriteFolders != null && this.favoriteFolders.containsKey(favoriteFolderId)) {
-							return getFavoriteFolderHeaderView(this.favoriteFolders.get(favoriteFolderId), convertView, parent);
+						if (FavoriteManager.get(getContext()).hasFavoriteFolder(favoriteFolderId)) {
+							return getFavoriteFolderHeaderView(FavoriteManager.get(getContext()).getFolder(favoriteFolderId), convertView, parent);
 						}
 					}
 					DataSourceType dst = DataSourceType.parseId(typeId);
@@ -597,7 +593,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			return false;
 		}
 		OnClickHandledListener listener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
-		return poim.onActionItemClick(activity, this.favoriteFolders, this.favoriteUpdateListener, listener);
+		return poim.onActionItemClick(activity, FavoriteManager.get(getContext()).getFavoriteFolders(), this.favoriteUpdateListener, listener);
 	}
 
 	public boolean showPoiMenu(POIManager poim) {
@@ -609,18 +605,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			return false;
 		}
 		OnClickHandledListener listener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
-		return poim.onActionItemLongClick(activity, this.favoriteFolders, this.favoriteUpdateListener, listener);
+		return poim.onActionItemLongClick(activity, FavoriteManager.get(getContext()).getFavoriteFolders(), this.favoriteUpdateListener, listener);
 	}
 
 	@Override
 	public void onFavoriteUpdated() {
 		refreshFavorites();
-	}
-
-	private HashMap<Integer, Favorite.Folder> favoriteFolders = null;
-
-	public void setFavoriteFolders(HashMap<Integer, Favorite.Folder> favoriteFolders) {
-		this.favoriteFolders = favoriteFolders;
 	}
 
 	public void setPois(ArrayList<POIManager> pois) {
@@ -1232,30 +1222,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			holder.renameBtn.setOnClickListener(new MTOnClickListener() {
 				@Override
 				public void onClickMT(View view) {
-					View editView = POIArrayAdapter.this.layoutInflater.inflate(R.layout.layout_favorites_folder_edit, null);
-					final EditText newFolderNameTv = (EditText) editView.findViewById(R.id.folder_name);
-					newFolderNameTv.setText(favoriteFolder.getName());
-					new AlertDialog.Builder(getContext()).setView(editView)
-							.setPositiveButton(R.string.favorite_folder_edit, new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int id) {
-									String newFolderName = newFolderNameTv.getText().toString();
-									if (TextUtils.isEmpty(newFolderName)) {
-										ToastUtils.makeTextAndShowCentered(getContext(), R.string.favorite_folder_new_invalid_name);
-										return;
-									}
-									FavoriteManager.updateFolder(getContext(), favoriteFolder.getId(), newFolderName);
-									if (POIArrayAdapter.this.favoriteUpdateListener != null) {
-										POIArrayAdapter.this.favoriteUpdateListener.onFavoriteUpdated();
-									}
-								}
-							}).setNegativeButton(R.string.favorite_folder_new_cancel, new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog, int id) {
-									if (dialog != null) {
-										dialog.cancel();
-									}
-								}
-							}).show();
+					FavoriteManager.showUpdateFolderDialog(getContext(), POIArrayAdapter.this.layoutInflater, favoriteFolder,
+							POIArrayAdapter.this.favoriteUpdateListener);
 				}
 			});
 		}
@@ -1263,37 +1231,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			holder.deleteBtn.setOnClickListener(new MTOnClickListener() {
 				@Override
 				public void onClickMT(View view) {
-					new AlertDialog.Builder(POIArrayAdapter.this.getContext()) //
-							.setTitle(
-									POIArrayAdapter.this.getContext().getString(R.string.favorite_folder_deletion_confirmation_title_and_name,
-											favoriteFolder.getName())) //
-							.setMessage(
-									POIArrayAdapter.this.getContext().getString(R.string.favorite_folder_deletion_confirmation_text_and_name,
-											favoriteFolder.getName())) //
-							.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which) {
-									boolean succcess = FavoriteManager.deleteFolder(POIArrayAdapter.this.getContext(), favoriteFolder.getId());
-									if (succcess) {
-										ToastUtils.makeTextAndShowCentered(getContext(),
-												getContext().getString(R.string.favorite_folder_deleted_and_folder_name, favoriteFolder.getName()));
-									} else {
-										ToastUtils.makeTextAndShowCentered(getContext(),
-												getContext().getString(R.string.favorite_folder_deletion_error_and_folder_name, favoriteFolder.getName()));
-									}
-									if (POIArrayAdapter.this.favoriteUpdateListener != null) {
-										POIArrayAdapter.this.favoriteUpdateListener.onFavoriteUpdated();
-									}
-								}
-							}) //
-							.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog, int id) {
-									if (dialog != null) {
-										dialog.cancel();
-									}
-								}
-							}) //
-							.show();
+					FavoriteManager.showDeleteFolderDialog(POIArrayAdapter.this.getContext(), favoriteFolder, POIArrayAdapter.this.favoriteUpdateListener);
 				}
 			});
 		}

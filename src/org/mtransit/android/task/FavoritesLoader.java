@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.POI;
@@ -13,7 +12,6 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.Favorite;
 import org.mtransit.android.data.POIManager;
-import org.mtransit.android.data.TextMessage;
 import org.mtransit.android.provider.FavoriteManager;
 
 import android.content.Context;
@@ -75,9 +73,7 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			long textMessageId = TimeUtils.currentTimeMillis();
 			for (Favorite.Folder favoriteFolder : favoriteFoders.values()) {
 				if (favoriteFolder.getId() > FavoriteManager.DEFAULT_FOLDER_ID && !favoriteFolderIds.contains(favoriteFolder.getId())) {
-					TextMessage textMessage = new TextMessage(textMessageId++, getContext().getString(R.string.favorite_folder_empty));
-					textMessage.setDataSourceTypeId(FavoriteManager.generateFavoriteFolderId(favoriteFolder.getId()));
-					this.pois.add(new POIManager(textMessage));
+					this.pois.add(FavoriteManager.getNewEmptyFolder(getContext(), textMessageId++, favoriteFolder.getId()));
 				}
 			}
 		}

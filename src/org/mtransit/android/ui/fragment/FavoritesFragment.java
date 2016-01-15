@@ -1,15 +1,10 @@
 package org.mtransit.android.ui.fragment;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.commons.ToastUtils;
-import org.mtransit.android.commons.task.MTAsyncTask;
-import org.mtransit.android.data.Favorite;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
@@ -18,9 +13,7 @@ import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -34,7 +27,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
-import android.widget.EditText;
 import android.widget.TextView;
 
 public class FavoritesFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
@@ -102,7 +94,6 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		if (this.adapter != null && this.adapter.isInitialized()) {
 			this.adapter.onResume(getActivity(), this.userLocation);
 		} else {
-			resetFavoriteFolders();
 			LoaderUtils.restartLoader(this, FAVORITES_LOADER, null, this);
 		}
 		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
@@ -114,7 +105,6 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case FAVORITES_LOADER:
-			getFavoriteFoldersOrNull(); // load favorite folder if not loaded yet
 			return new FavoritesLoader(getActivity());
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
@@ -135,74 +125,6 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		switchView(getView());
-	}
-
-	private HashMap<Integer, Favorite.Folder> favoriteFolders = null;
-
-	private boolean hasFavoriteFolders() {
-		if (this.favoriteFolders == null) {
-			initFavoriteFoldersAsync();
-			return false;
-		}
-		return true;
-	}
-
-	private void initFavoriteFoldersAsync() {
-		if (this.loadFavoriteFoldersTask != null && this.loadFavoriteFoldersTask.getStatus() == MTAsyncTask.Status.RUNNING) {
-			return;
-		}
-		this.loadFavoriteFoldersTask = new LoadFavoriteFoldersTask();
-		TaskUtils.execute(this.loadFavoriteFoldersTask);
-	}
-
-	private LoadFavoriteFoldersTask loadFavoriteFoldersTask = null;
-
-	private class LoadFavoriteFoldersTask extends MTAsyncTask<Void, Void, Boolean> {
-		@Override
-		public String getLogTag() {
-			return FavoritesFragment.this.getLogTag() + ">" + LoadFavoriteFoldersTask.class.getSimpleName();
-		}
-
-		@Override
-		protected Boolean doInBackgroundMT(Void... params) {
-			return initFavoriteFoldersSync();
-		}
-
-		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
-			if (result) {
-				applyNewFavoriteFolders();
-			}
-		}
-	}
-
-	private void resetFavoriteFolders() {
-		this.favoriteFolders = null;
-	}
-
-	private HashMap<Integer, Favorite.Folder> getFavoriteFoldersOrNull() {
-		if (!hasFavoriteFolders()) {
-			return null;
-		}
-		return this.favoriteFolders;
-	}
-
-	private boolean initFavoriteFoldersSync() {
-		if (this.favoriteFolders != null) {
-			return false;
-		}
-		this.favoriteFolders = FavoriteManager.findFolders(getContext());
-		return this.favoriteFolders != null;
-	}
-
-	private void applyNewFavoriteFolders() {
-		if (this.favoriteFolders == null) {
-			return;
-		}
-		if (this.adapter != null) {
-			this.adapter.setFavoriteFolders(this.favoriteFolders);
-		}
 	}
 
 	@Override
@@ -227,34 +149,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_add_favorite_folder:
-			LayoutInflater inflater = getActivity().getLayoutInflater();
-			View view = inflater.inflate(R.layout.layout_favorites_folder_edit, null);
-			final EditText newFolderNameTv = (EditText) view.findViewById(R.id.folder_name);
-			new AlertDialog.Builder(getActivity()).setView(view).setPositiveButton(R.string.favorite_folder_new_create, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int id) {
-					String newFolderName = newFolderNameTv.getText().toString();
-					if (TextUtils.isEmpty(newFolderName)) {
-						ToastUtils.makeTextAndShowCentered(getContext(), R.string.favorite_folder_new_invalid_name);
-						return;
-					}
-					Favorite.Folder createdFolder = FavoriteManager.addFolder(getContext(), new Favorite.Folder(newFolderName));
-					if (createdFolder == null) {
-						ToastUtils.makeTextAndShowCentered(getContext(),
-								getContext().getString(R.string.favorite_folder_new_creation_error_and_folder_name, newFolderName));
-					} else {
-						onFavoriteUpdated();
-						ToastUtils.makeTextAndShowCentered(getContext(),
-								getContext().getString(R.string.favorite_folder_new_created_and_folder_name, newFolderName));
-					}
-				}
-			}).setNegativeButton(R.string.favorite_folder_new_cancel, new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					if (dialog != null) {
-						dialog.cancel();
-					}
-				}
-			}).show();
+			FavoriteManager.showAddFolderDialog(getContext(), getActivity().getLayoutInflater(), this, null);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -306,7 +201,6 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 
 	@Override
 	public void onFavoriteUpdated() {
-		resetFavoriteFolders();
 		LoaderUtils.restartLoader(this, FAVORITES_LOADER, null, this);
 	}
 

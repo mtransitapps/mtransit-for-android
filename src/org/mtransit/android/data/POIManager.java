@@ -336,26 +336,26 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
 			return new CharSequence[] { //
 			defaultAction, //
-					FavoriteManager.isFavorite(context, poi.getUUID()) ? //
-					FavoriteManager.hasFavoriteFolders(favoriteFolders) ? //
+					FavoriteManager.isFavorite(context, this.poi.getUUID()) ? //
+					FavoriteManager.get(context).isUsingFavoriteFolders() ? //
 					context.getString(R.string.edit_fav)
 							: context.getString(R.string.remove_fav)
 							: context.getString(R.string.add_fav) //
 			};
 		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
-			RouteTripStop rts = (RouteTripStop) poi;
+			RouteTripStop rts = (RouteTripStop) this.poi;
 			return new CharSequence[] { //
 					context.getString(R.string.view_stop), //
 					TextUtils.isEmpty(rts.getRoute().getShortName()) ? context.getString(R.string.view_stop_route) : context.getString(
 							R.string.view_stop_route_and_route, rts.getRoute().getShortName()), //
-					FavoriteManager.isFavorite(context, poi.getUUID()) ? //
-					FavoriteManager.hasFavoriteFolders(favoriteFolders) ? //
+					FavoriteManager.isFavorite(context, this.poi.getUUID()) ? //
+					FavoriteManager.get(context).isUsingFavoriteFolders() ? //
 					context.getString(R.string.edit_fav)
 							: context.getString(R.string.remove_fav)
 							: context.getString(R.string.add_fav) //
 			};
 		case POI.ITEM_ACTION_TYPE_APP:
-			if (PackageManagerUtils.isAppInstalled(context, ((Module) poi).getPkg())) {
+			if (PackageManagerUtils.isAppInstalled(context, ((Module) this.poi).getPkg())) {
 				return new CharSequence[] { //
 						context.getString(R.string.rate_on_store), //
 						context.getString(R.string.uninstall), //
@@ -380,9 +380,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_ACTION_TYPE_NONE:
 			return false; // NOT HANDLED
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
-			return onActionsItemClickFavoritable(activity, itemClicked, favoriteFolders, listener, onClickHandledListener);
+			return onActionsItemClickFavoritable(activity, itemClicked, listener, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
-			return onActionsItemClickRTS(activity, itemClicked, favoriteFolders, listener, onClickHandledListener);
+			return onActionsItemClickRTS(activity, itemClicked, listener, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_APP:
 			return onActionsItemClickApp(activity, itemClicked, listener, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_PLACE:
@@ -497,8 +497,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return sb.toString();
 	}
 
-	private boolean onActionsItemClickRTS(Activity activity, int itemClicked, HashMap<Integer, Favorite.Folder> favoriteFolders,
-			FavoriteManager.FavoriteUpdateListener listener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	private boolean onActionsItemClickRTS(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
+			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
 		case 1:
 			if (onClickHandledListener != null) {
@@ -509,102 +509,20 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 					.getStop().getId(), rts.getRoute()));
 			return true; // HANDLED
 		case 2:
-			return addRemoveFavorite(activity, FavoriteManager.findFavoriteFolderId(activity, poi.getUUID()), favoriteFolders, listener);
+			return FavoriteManager.get(activity).addRemoveFavorite(activity, this.poi.getUUID(), listener);
 		}
 		return false; // NOT HANDLED
 	}
 
-	private boolean onActionsItemClickFavoritable(Activity activity, int itemClicked, HashMap<Integer, Favorite.Folder> favoriteFolders,
-			FavoriteManager.FavoriteUpdateListener listener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	private boolean onActionsItemClickFavoritable(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
+			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
 		case 1:
-			return addRemoveFavorite(activity, FavoriteManager.findFavoriteFolderId(activity, poi.getUUID()), favoriteFolders, listener);
+			return FavoriteManager.get(activity).addRemoveFavorite(activity, this.poi.getUUID(), listener);
 		}
 		return false; // NOT HANDLED
 	}
 
-	private int initialWhich;
-	private int selectedWhich;
-
-	public boolean addRemoveFavorite(final Activity activity, final int favorteFolderId, final HashMap<Integer, Favorite.Folder> favoriteFolders,
-			final FavoriteManager.FavoriteUpdateListener listener) {
-		boolean isFavorite = favorteFolderId >= 0;
-		if (!FavoriteManager.hasFavoriteFolders(favoriteFolders)) {
-			FavoriteManager.addOrDeleteFavorite(activity, isFavorite, this.poi.getUUID(), FavoriteManager.DEFAULT_FOLDER_ID, null);
-		} else { // show folder selector
-			int checkedItem = -1;
-			ArrayList<String> itemsList = new ArrayList<String>();
-			final ArrayList<Integer> itemsListId = new ArrayList<Integer>();
-			int i = 0;
-			itemsListId.add(FavoriteManager.DEFAULT_FOLDER_ID);
-			itemsList.add(activity.getString(R.string.favorite_folder_default));
-			if (favorteFolderId >= 0 && favorteFolderId == FavoriteManager.DEFAULT_FOLDER_ID) {
-				checkedItem = i;
-			}
-			i++;
-			ArrayList<Favorite.Folder> favoriteFoldersList = new ArrayList<Favorite.Folder>(favoriteFolders.values());
-			CollectionUtils.sort(favoriteFoldersList, Favorite.Folder.NAME_COMPARATOR);
-			for (Favorite.Folder favoriteFolder : favoriteFoldersList) {
-				if (favoriteFolder.getId() == FavoriteManager.DEFAULT_FOLDER_ID) {
-					continue;
-				}
-				itemsListId.add(favoriteFolder.getId());
-				itemsList.add(favoriteFolder.getName());
-				if (favorteFolderId >= 0 && favorteFolderId == favoriteFolder.getId()) {
-					checkedItem = i;
-				}
-				i++;
-			}
-			if (favorteFolderId >= 0) {
-				itemsListId.add(Integer.MAX_VALUE);
-				itemsList.add(activity.getString(R.string.menu_action_remove_favorite));
-				i++;
-			}
-			this.initialWhich = checkedItem;
-			if (checkedItem < 0) {
-				checkedItem = 0; // (default choice when adding favorite)
-			}
-			this.selectedWhich = checkedItem;
-			new AlertDialog.Builder(activity) //
-					.setTitle(R.string.favorite_folder_pick) //
-					.setSingleChoiceItems(itemsList.toArray(new String[] {}), checkedItem, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							POIManager.this.selectedWhich = which;
-						}
-					}).setPositiveButton(R.string.favorite_folder_pick_ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							if (POIManager.this.selectedWhich < 0 || POIManager.this.selectedWhich == POIManager.this.initialWhich) {
-								return;
-							}
-							int favoriteFolderId = itemsListId.get(POIManager.this.selectedWhich);
-							if (favoriteFolderId == Integer.MAX_VALUE) { // delete favorite
-								FavoriteManager.deleteFavorite(activity, POIManager.this.poi.getUUID(), favorteFolderId, favoriteFolders);
-							} else if (favorteFolderId >= 0) { // move favorite
-								FavoriteManager.updateFavoriteFolder(activity, POIManager.this.poi.getUUID(), favoriteFolderId, favoriteFolders);
-							} else { // add new favorite
-								FavoriteManager.addFavorite(activity, POIManager.this.poi.getUUID(), favoriteFolderId, favoriteFolders);
-							}
-							if (listener != null) {
-								listener.onFavoriteUpdated();
-							}
-							if (dialog != null) {
-								dialog.dismiss();
-							}
-						}
-					}).setNegativeButton(R.string.favorite_folder_pick_cancel, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							if (dialog != null) {
-								dialog.cancel();
-							}
-						}
-					}).show();
-		}
-		if (listener != null) {
-			listener.onFavoriteUpdated();
-		}
-		return true; // HANDLED
-	}
 
 	public boolean isFavoritable() {
 		switch (this.poi.getActionsType()) {
