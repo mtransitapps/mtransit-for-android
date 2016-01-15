@@ -6,7 +6,8 @@ Bike, Bus, Subway, Train…
 Offline & Real-Time
 ----------
 What's new in this version?:
-Now compatible with (almost) all transit agencies in Canada and the northern United States (AK).
+Compatible with (almost) all transit agencies in Canada and the northern United States (AK).
+Now with favorite folders.
 Bug fixes & performance improvements.
 ----------
 Full description:

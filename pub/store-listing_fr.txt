@@ -6,7 +6,8 @@ Bus Métro Train Vélo…
 Hors-Ligne & Temps-Réel
 ----------
 What's new in this version?:
-Maintenant compatible avec (presque) toutes les agences de transport au Canada et dans le nord des États-Unis (AK).
+Compatible avec (presque) toutes les agences de transport au Canada et dans le nord des États-Unis (AK).
+Maintenant avec des dossiers pour les favoris.
 Correction de problèmes & amélioration des performances.
 ----------
 Full description:
