@@ -20,7 +20,7 @@
     <string name="drawer_close">Close navigation drawer</string>
     <string name="agency_type_ferry_short_name">Ferry</string>
     <string name="agency_type_ferry_all">Ferries</string>
-    <string name="agency_type_ferry_stations_short_name">Streetcars Stations</string>
+    <string name="agency_type_ferry_stations_short_name">Ferries Stations</string>
     <string name="agency_type_ferry_nearby">Nearby Stations</string>
     <string name="agency_type_light_rail_short_name">Streetcar</string>
     <string name="agency_type_light_rail_all">Streetcars</string>
