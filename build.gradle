@@ -9,7 +9,7 @@ dependencies {
     compile rootProject.ext.gpsLibs.location
     compile rootProject.ext.gpsLibs.maps
     compile rootProject.ext.fbLibs.audienceNetwork
-    compile fileTree(include: ['google-mobile-ads-mediation-facebook-adapter.jar'], dir: 'libs')
+    compile fileTree(include: ['google-mobile-ads-mediation-facebook-adapter.jar'], dir: 'libs') // 1.2.0
 }
 
 android {

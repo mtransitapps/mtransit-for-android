@@ -76,7 +76,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			this.drawerLayout = (DrawerLayout) mainActivity.findViewById(R.id.drawer_layout);
 			this.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 			this.drawerToggle = new ABDrawerToggle(mainActivity, this.drawerLayout);
-			this.drawerLayout.setDrawerListener(this.drawerToggle);
+			this.drawerLayout.addDrawerListener(this.drawerToggle);
 			finishSetupAsync(savedInstanceState);
 		}
 	}
@@ -593,6 +593,12 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		this.currentSelectedScreenItemNavId = null;
 		this.currentSelectedScreenItemId = null;
 		this.navigationView = null;
+		if (this.drawerLayout != null) {
+			if (this.drawerToggle != null) {
+				this.drawerLayout.removeDrawerListener(this.drawerToggle);
+			}
+			this.drawerLayout = null;
+		}
 		this.drawerToggle = null;
 	}
 
