@@ -518,16 +518,13 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
 		viewPager.setAdapter(this.adapter);
+		TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
+		tabs.setupWithViewPager(viewPager);
 		notifyTabDataChanged(view);
 		showSelectedTab(view);
 	}
 
 	private void notifyTabDataChanged(View view) {
-		if (view == null) {
-			return;
-		}
-		TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
-		tabs.setTabsFromPagerAdapter(this.adapter);
 	}
 
 	private void showSelectedTab(View view) {
