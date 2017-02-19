@@ -1,4 +1,5 @@
 [
+{"name":"Airdrie Transit","name_fr":"","location":"Airdrie, AB, Canada","targetTypeId":"3","color":"0099CC","lat":"51.286644","lng":"-113.983500","pkg":"org.mtransit.android.ca_airdrie_transit_bus"},
 {"name":"AMT Express Bus (Agence Métropolitaine de Transport)","name_fr":"AMT - Bus Express (Agence Métropolitaine de Transport)","location":"Montréal, Brossard, QC, Canada","targetTypeId":"3","color":"20558A","lat":"45.468545","lng":"-73.516740","pkg":"org.mtransit.android.ca_montreal_amt_bus"},
 {"name":"AMT Trains (Agence Métropolitaine de Transport)","name_fr":"AMT - Trains (Agence Métropolitaine de Transport)","location":"Montréal, Deux-Montagnes, Vaudreuil, Hudson, St-Jérôme, Mont-St-Hilaire, Candiac, Mascouche, QC, Canada","targetTypeId":"2","color":"20558A","lat":"45.4999926193","lng":"-73.5666664467","pkg":"org.mtransit.android.ca_montreal_amt_train"},
 {"name":"Barrie Transit","name_fr":"","location":"Barrie, ON, Canada","targetTypeId":"3","color":"336699","lat":"44.387776","lng":"-79.690981","pkg":"org.mtransit.android.ca_barrie_transit_bus"},
