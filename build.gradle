@@ -9,49 +9,63 @@ dependencies {
     compile rootProject.ext.gpsLibs.location
     compile rootProject.ext.gpsLibs.maps
     compile rootProject.ext.fbLibs.audienceNetwork
-    compile fileTree(include: ['google-mobile-ads-mediation-facebook-adapter.jar'], dir: 'libs')
+    compile fileTree(include: ['google-mobile-ads-mediation-facebook-adapter.jar'], dir: 'libs') // 1.2.0
 }
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
-    Properties releaseVersionProps = new Properties()
-    releaseVersionProps.load(new FileInputStream(file("version.properties")))
+    Properties projectNameProperties = new Properties()
+    projectNameProperties.load(new FileInputStream(file("project_name.properties")))
+
+    def projectName = projectNameProperties["project.name"];
+
+    Properties versionProperties = new Properties()
+    versionProperties.load(new FileInputStream(file("version.properties")))
+
+    Properties keysProperties = new Properties()
+    keysProperties.load(new FileInputStream(file("../keys.properties")))
 
     defaultConfig {
-        versionCode releaseVersionProps['version.code'] as Integer
-        versionName releaseVersionProps['version.name']
+        versionCode versionProperties['version.code'] as Integer
+        versionName versionProperties['version.name']
+        setProperty("archivesBaseName", "${projectName}_v${versionName}_r${versionCode}")
+        resConfigs "en", "fr"
     }
 
-    Properties releaseKeyProps = new Properties()
-    def keysFile = file("../keys.properties")
-    if (keysFile.exists()) {
-        releaseKeyProps.load(new FileInputStream(file("../keys.properties")))
-	    signingConfigs {
-	        release {
-	            storeFile file(releaseKeyProps['key.store'])
-	            storePassword releaseKeyProps['key.store.password']
-	            keyAlias releaseKeyProps['key.alias']
-	            keyPassword releaseKeyProps['key.alias.password']
-	        }
-	    }
+    signingConfigs {
+        release {
+            storeFile file(keysProperties['key.store'])
+            storePassword keysProperties['key.store.password']
+            keyAlias keysProperties['key.alias']
+            keyPassword keysProperties['key.alias.password']
+        }
     }
     buildTypes {
         debug {
+            shrinkResources false
+            minifyEnabled false
+            useProguard false
             versionNameSuffix "_DEBUG"
         }
         release {
+            shrinkResources true
             minifyEnabled true
+            useProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
-            if (keysFile.exists()) {
-                signingConfig signingConfigs.release
-            }
+            signingConfig signingConfigs.release
         }
     }
     lintOptions {
         abortOnError true
-        disable 'InvalidPackage', 'ClickableViewAccessibility', 'MergeRootFrame', 'Overdraw', 'UselessParent', 'IconDensities'
+        disable 'InvalidPackage', //
+                'ClickableViewAccessibility', //
+                'MergeRootFrame', //
+                'Overdraw', //
+                'UselessParent', //
+                'IconDensities',  //
+                'RtlHardcoded'
     }
     sourceSets {
         main {
@@ -66,5 +80,30 @@ android {
 
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
+    }
+
+    def publish = project.tasks.create("copyReleaseApkToOutputDirs")
+    publish.description "Copies release APK to output directory"
+    android.applicationVariants.all { variant ->
+        if (variant.buildType.name == "release") {
+            Properties customLocalProperties = new Properties()
+            customLocalProperties.load(new FileInputStream(file("../custom_local.properties")))
+            def outputDir = customLocalProperties['output.dir']
+            def outputCloudDir = customLocalProperties['output.cloud.dir']
+            variant.outputs.each { output ->
+                if (output.outputFile != null && output.outputFile.name.endsWith('.apk')) {
+                    def copyToOutputDirTask = project.tasks.create("copyToOutputDir${variant.name}Apk", Copy)
+                    def copyToOutputCloudDirTask = project.tasks.create("copyToOutputCloudDir${variant.name}Apk", Copy)
+                    copyToOutputDirTask.from(output.outputFile)
+                    copyToOutputCloudDirTask.from(output.outputFile)
+                    copyToOutputDirTask.into(outputDir)
+                    copyToOutputCloudDirTask.into(outputCloudDir)
+                    copyToOutputDirTask.dependsOn variant.assemble
+                    copyToOutputCloudDirTask.dependsOn variant.assemble
+                    publish.dependsOn copyToOutputDirTask
+                    publish.dependsOn copyToOutputCloudDirTask
+                }
+            }
+        }
     }
 }
