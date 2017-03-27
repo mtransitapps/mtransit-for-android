@@ -59,7 +59,9 @@ android {
             minifyEnabled true
             useProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
-            signingConfig signingConfigs.release
+            if (keysPropertiesFile.exists()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
     lintOptions {
