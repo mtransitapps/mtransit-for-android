@@ -16,6 +16,7 @@
         app:tabContentStart="@dimen/tab_content_start"
         app:tabGravity="fill"
         app:tabIndicatorColor="@android:color/white"
+        app:tabMinWidth="0dp"
         app:tabMode="scrollable"
         app:tabTextAppearance="@style/MTTabTextStyle" />
     <!-- LOADING -->
