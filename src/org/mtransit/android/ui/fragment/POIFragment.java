@@ -908,6 +908,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 		resetFavorite(); // force refresh
 		getFavoriteFolderId();
+		enableTimeChangedReceiver();
 		this.mapViewController.onResume();
 		if (this.adapter != null) {
 			this.adapter.onResume(getActivity(), this.userLocation);
@@ -935,18 +936,18 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			SensorUtils.unregisterSensorListener(getActivity(), this);
 			this.compassUpdatesEnabled = false;
 		}
-		disableTimeChangeddReceiver();
+		disableTimeChangedReceiver();
 		this.mapViewController.onPause();
 		if (this.adapter != null) {
 			this.adapter.onPause();
 		}
 	}
 
-	private long nowToTheMinute = -1l;
+	private long nowToTheMinute = -1L;
 
 	@Override
 	public long getNowToTheMinute() {
-		if (this.nowToTheMinute < 0) {
+		if (this.nowToTheMinute < 0L) {
 			resetNowToTheMinute();
 			enableTimeChangedReceiver();
 		}
@@ -984,11 +985,11 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 	}
 
-	private void disableTimeChangeddReceiver() {
+	private void disableTimeChangedReceiver() {
 		if (this.timeChangedReceiverEnabled) {
 			getActivity().unregisterReceiver(this.timeChangedReceiver);
 			this.timeChangedReceiverEnabled = false;
-			this.nowToTheMinute = -1l;
+			this.nowToTheMinute = -1L;
 		}
 	}
 
