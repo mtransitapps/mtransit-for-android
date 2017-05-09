@@ -1,0 +1,58 @@
+{
+  "project_info": {
+    "project_number": "INSERT_PROJECT_NUMBER",
+    "firebase_url": "INSERT_FIREBASE_URL",
+    "project_id": "INSERT_PROJECT_ID",
+    "storage_bucket": "INSERT_STORAGE_BUCKET"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "INSERT_MOBILE_SDK_APP_ID",
+        "android_client_info": {
+          "package_name": "org.mtransit.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "INSERT_CLIENT_ID",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.mtransit.android",
+            "certificate_hash": "INSERT_CERTIFICATE_HASH"
+          }
+        },
+        {
+          "client_id": "INSERT_CLIENT_ID",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "INSERT_CURRENT_KEY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "INSERT_TRACKING_ID"
+          }
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "INSERT_CLIENT_ID",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
