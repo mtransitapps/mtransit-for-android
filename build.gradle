@@ -12,7 +12,7 @@ dependencies {
     compile rootProject.ext.gpsLibs.firebase_analytics
     compile rootProject.ext.gpsLibs.firebase_crash
     compile rootProject.ext.fbLibs.audienceNetwork
-    compile fileTree(include: ['google-mobile-ads-mediation-facebook-adapter.jar'], dir: 'libs') // 1.2.0
+    compile rootProject.ext.fbLibs.audienceNetworkMediation
 }
 
 android {
