@@ -5,7 +5,7 @@
     tools:context="org.mtransit.android.MainActivity" >
     <item
         android:id="@+id/menu_nearby"
-        android:icon="@drawable/ic_menu_nearby_holo_dark"
+        android:icon="@drawable/ic_action_nearby_dark"
         android:orderInCategory="499"
         android:title="@string/menu_action_nearby"
         app:showAsAction="ifRoom"/>

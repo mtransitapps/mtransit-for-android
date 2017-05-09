@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <group
         android:id="@+id/drawer_main"
         android:checkableBehavior="single" >
@@ -31,37 +32,44 @@
             android:id="@id/nav_bike"
             android:icon="@drawable/ic_directions_bike_black_24dp"
             android:title="@string/agency_type_bike_all"
-            android:visible="false"/>
+            android:visible="false"
+            tools:visible="true" />
         <item
             android:id="@id/nav_bus"
             android:icon="@drawable/ic_directions_bus_black_24dp"
             android:title="@string/agency_type_bus_all"
-            android:visible="false"/>
+            android:visible="false"
+            tools:visible="true" />
         <item
             android:id="@id/nav_ferry"
             android:icon="@drawable/ic_directions_boat_black_24dp"
             android:title="@string/agency_type_ferry_all"
-            android:visible="false"/>
+            android:visible="false"
+            tools:visible="true" />
         <item
             android:id="@id/nav_light_rail"
             android:icon="@drawable/ic_directions_light_rail_black_24dp"
             android:title="@string/agency_type_light_rail_all"
-            android:visible="false"/>
+            android:visible="false"
+            tools:visible="true" />
         <item
             android:id="@id/nav_subway"
             android:icon="@drawable/ic_directions_subway_black_24dp"
             android:title="@string/agency_type_subway_all"
-            android:visible="false"/>
+            android:visible="false"
+            tools:visible="true" />
         <item
             android:id="@id/nav_rail"
             android:icon="@drawable/ic_directions_railway_black_24dp"
             android:title="@string/agency_type_rail_all"
-            android:visible="false"/>
+            android:visible="false"
+            tools:visible="true" />
         <item
             android:id="@id/nav_module"
             android:icon="@drawable/ic_shop_black_24dp"
             android:title="@string/agency_type_module_all"
-            android:visible="false"/>
+            android:visible="false"
+            tools:visible="true" />
     </group>
     <group
         android:id="@+id/drawer_secondary"

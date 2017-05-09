@@ -431,8 +431,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		if (this.listGridToggleMenuItem == null) {
 			return;
 		}
-		this.listGridToggleMenuItem.setIcon(isShowingListInsteadOfGrid() ? R.drawable.ic_action_action_grid_holo_dark
-				: R.drawable.ic_action_action_list_holo_dark);
+		this.listGridToggleMenuItem.setIcon(isShowingListInsteadOfGrid() ? R.drawable.ic_action_view_comfy_dark : R.drawable.ic_action_view_list_dark);
 		this.listGridToggleMenuItem.setTitle(isShowingListInsteadOfGrid() ? R.string.menu_action_grid : R.string.menu_action_list);
 		this.listGridToggleMenuItem.setVisible(true);
 	}

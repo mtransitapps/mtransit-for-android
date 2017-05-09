@@ -5,13 +5,14 @@
     tools:context="org.mtransit.android.MainActivity" >
     <item
         android:id="@+id/menu_show_directions"
-        android:icon="@drawable/ic_menu_direction_holo_dark"
+        android:icon="@drawable/ic_action_directions_dark"
         android:title="@string/menu_action_show_directions"
         android:visible="false"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom"
+        tools:visible="true" />
     <item
         android:id="@+id/menu_show_map"
-        android:icon="@drawable/ic_action_action_map_holo_dark"
+        android:icon="@drawable/ic_action_map_dark"
         android:title="@string/menu_action_map"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
 </menu>

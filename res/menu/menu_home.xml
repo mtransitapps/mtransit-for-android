@@ -5,7 +5,7 @@
     tools:context="org.mtransit.android.MainActivity" >
     <item
         android:id="@+id/menu_show_map"
-        android:icon="@drawable/ic_action_action_map_holo_dark"
+        android:icon="@drawable/ic_action_map_dark"
         android:title="@string/menu_action_map"
         app:showAsAction="ifRoom"/>
 </menu>

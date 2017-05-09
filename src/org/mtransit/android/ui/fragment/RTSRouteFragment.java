@@ -672,7 +672,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			return;
 		}
 		this.listMapToggleMenuItem
-				.setIcon(isShowingListInsteadOfMap() ? R.drawable.ic_action_action_map_holo_dark : R.drawable.ic_action_action_list_holo_dark);
+				.setIcon(isShowingListInsteadOfMap() ? R.drawable.ic_action_map_dark : R.drawable.ic_action_view_list_dark);
 		this.listMapToggleMenuItem.setTitle(isShowingListInsteadOfMap() ? R.string.menu_action_map : R.string.menu_action_list);
 		this.listMapToggleMenuItem.setVisible(true);
 	}

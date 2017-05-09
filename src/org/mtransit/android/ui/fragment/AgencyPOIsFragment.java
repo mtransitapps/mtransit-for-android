@@ -415,7 +415,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 			return;
 		}
 		boolean showingListInsteadOfMap = isShowingListInsteadOfMap();
-		this.listMapToggleMenuItem.setIcon(showingListInsteadOfMap ? R.drawable.ic_action_action_map_holo_dark : R.drawable.ic_action_action_list_holo_dark);
+		this.listMapToggleMenuItem.setIcon(showingListInsteadOfMap ? R.drawable.ic_action_map_dark : R.drawable.ic_action_view_list_dark);
 		this.listMapToggleMenuItem.setTitle(showingListInsteadOfMap ? R.string.menu_action_map : R.string.menu_action_list);
 		this.listMapToggleMenuItem.setVisible(true);
 	}

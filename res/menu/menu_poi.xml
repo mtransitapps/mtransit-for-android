@@ -5,13 +5,17 @@
     tools:context="org.mtransit.android.MainActivity" >
     <item
         android:id="@+id/menu_add_remove_favorite"
-        android:icon="@drawable/ic_action_toggle_star_outline_material_dark"
+        android:icon="@drawable/ic_action_star_border_dark"
         android:title="@string/menu_action_edit_favorite"
         android:visible="false"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom"
+        tools:icon="@drawable/ic_action_star_dark"
+        tools:title="@string/menu_action_remove_favorite"
+        tools:visible="true" />
     <item
         android:id="@+id/menu_show_directions"
-        android:icon="@drawable/ic_menu_direction_holo_dark"
+        android:icon="@drawable/ic_action_directions_dark"
         android:title="@string/menu_action_show_directions"
+        app:showAsAction="ifRoom" />
         app:showAsAction="ifRoom"/>
 </menu>

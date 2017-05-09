@@ -5,8 +5,11 @@
     tools:context="org.mtransit.android.MainActivity" >
     <item
         android:id="@+id/menu_toggle_list_grid"
-        android:icon="@drawable/ic_action_action_list_holo_dark"
-        android:title="@string/menu_action_list"
+        android:icon="@drawable/ic_action_view_comfy_dark"
+        android:title="@string/menu_action_grid"
         android:visible="false"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom"
+        tools:icon="@drawable/ic_action_view_list_dark"
+        tools:title="@string/menu_action_list"
+        tools:visible="true" />
 </menu>
