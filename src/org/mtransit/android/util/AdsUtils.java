@@ -10,6 +10,7 @@ import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.ui.MTApplication;
 
 import android.app.Activity;
 import android.content.Context;
@@ -19,6 +20,7 @@ import android.view.View;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 
 public final class AdsUtils implements MTLog.Loggable {
 
@@ -40,6 +42,18 @@ public final class AdsUtils implements MTLog.Loggable {
 
 	private static final ArrayList<String> KEYWORDS = ArrayUtils.asArrayList("transit", "transport", "bus", "subway", "metro", "taxi", "bike", "sharing",
 			"velo", "train", "ferries", "boat", "trail", "lrt", "streetcar", "traversier", "tram", "tramway");
+
+	public static void init(MTApplication application) {
+		MTLog.v(TAG, "init(%s)", application);
+		if (!AD_ENABLED) {
+			return;
+		}
+		try {
+			MobileAds.initialize(application.getApplicationContext(), application.getString(R.string.google_ads_app_id));
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error while initializing Ads!");
+		}
+	}
 
 	private static void setupAd(Activity activity) {
 		if (!AD_ENABLED) {

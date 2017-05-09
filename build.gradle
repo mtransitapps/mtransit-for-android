@@ -1,13 +1,16 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.firebase.firebase-crash'
 
 dependencies {
     compile project(':commons-android')
     compile rootProject.ext.supportLibs.appCompat
     compile rootProject.ext.supportLibs.design
-    compile rootProject.ext.gpsLibs.ads
     compile rootProject.ext.gpsLibs.analytics
     compile rootProject.ext.gpsLibs.location
     compile rootProject.ext.gpsLibs.maps
+    compile rootProject.ext.gpsLibs.firebase_ads
+    compile rootProject.ext.gpsLibs.firebase_analytics
+    compile rootProject.ext.gpsLibs.firebase_crash
     compile rootProject.ext.fbLibs.audienceNetwork
     compile fileTree(include: ['google-mobile-ads-mediation-facebook-adapter.jar'], dir: 'libs') // 1.2.0
 }
@@ -35,6 +38,10 @@ android {
         versionName versionProperties['version.name']
         setProperty("archivesBaseName", "${projectName}_v${versionName}_r${versionCode}")
         resConfigs "en", "fr"
+        // minSdkVersion 23 // DEBUG
+        // //noinspection OldTargetApi // DEBUG
+        // targetSdkVersion 22 // DEBUG
+        // maxSdkVersion 23 // DEBUG
     }
 
     signingConfigs {
@@ -54,19 +61,26 @@ android {
             useProguard false
             versionNameSuffix "_DEBUG"
         }
+        //noinspection GroovyMissingReturnStatement
         release {
             shrinkResources true
             minifyEnabled true
             useProguard true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             if (keysPropertiesFile.exists()) {
                 signingConfig signingConfigs.release
             }
         }
     }
+    //noinspection GroovyMissingReturnStatement
     lintOptions {
         abortOnError true
-        disable 'InvalidPackage', //
+        // abortOnError false // DEBUG
+        ignoreWarnings false
+        // ignoreWarnings true // DEBUG
+        quiet false
+        // quiet  true // DEBUG
+        warning 'InvalidPackage', //
                 'ClickableViewAccessibility', //
                 'MergeRootFrame', //
                 'Overdraw', //
@@ -117,3 +131,5 @@ android {
         }
     }
 }
+
+apply plugin: 'com.google.gms.google-services'

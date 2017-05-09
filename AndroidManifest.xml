@@ -57,6 +57,7 @@
         android:xlargeScreens="true" />
     <!-- APPLICATION -->
     <application
+        android:name=".ui.MTApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
