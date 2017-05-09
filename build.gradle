@@ -56,20 +56,25 @@ android {
     }
     buildTypes {
         debug {
-            shrinkResources false
-            minifyEnabled false
-            useProguard false
             versionNameSuffix "_DEBUG"
+
+            shrinkResources false
+            minifyEnabled true
+            useProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-rules.pro'
         }
         //noinspection GroovyMissingReturnStatement
         release {
-            shrinkResources true
-            minifyEnabled true
-            useProguard true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             if (keysPropertiesFile.exists()) {
                 signingConfig signingConfigs.release
             }
+
+            shrinkResources true
+            minifyEnabled true
+            useProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    'proguard-rules.pro'
         }
     }
     //noinspection GroovyMissingReturnStatement
