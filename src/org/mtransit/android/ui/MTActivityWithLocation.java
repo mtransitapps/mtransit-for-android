@@ -122,8 +122,7 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 		return this.userLocation;
 	}
 
-	public static void broadcastUserLocationChanged(MTLog.Loggable loggable, MTActivity activity, Location newLocation) {
-		java.util.Set<Fragment> fragments = activity.getFragments();
+	public static void broadcastUserLocationChanged(MTLog.Loggable loggable, java.util.Set<Fragment> fragments, Location newLocation) {
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment == null) {
