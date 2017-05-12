@@ -14,7 +14,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
-public abstract class ABFragment extends MTFragmentV4 implements AnalyticsUtils.Trackable, DataSourceProvider.ModulesUpdateListener {
+public abstract class ABFragment extends MTFragment implements AnalyticsUtils.Trackable, DataSourceProvider.ModulesUpdateListener {
 
 	public static final boolean DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT = false;
 
