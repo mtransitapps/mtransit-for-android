@@ -553,7 +553,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 			this.userLocation = newLocation;
-			MTActivityWithLocation.broadcastUserLocationChanged(this, getChildFragmentManager(), newLocation);
+			MTActivityWithLocation.broadcastUserLocationChanged(this, getChildFragments(), newLocation);
 		}
 		if (!isFixedOn()) {
 			if (this.nearbyLocation == null) {
@@ -643,7 +643,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void broadcastNearbyLocationChanged(Location location) {
-		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
+		java.util.Set<Fragment> fragments = getChildFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment != null && fragment instanceof NearbyFragment.NearbyLocationListener) {
@@ -734,7 +734,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void setFragmentVisibleAtPosition(int position) {
-		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
+		java.util.Set<Fragment> fragments = getChildFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof NearbyAgencyTypeFragment) {
@@ -751,7 +751,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void setSwipeRefreshLayoutRefreshing(boolean refreshing) {
-		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
+		java.util.Set<Fragment> fragments = getChildFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof NearbyAgencyTypeFragment) {
@@ -764,7 +764,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void setSwipeRefreshLayoutEnabled(boolean enabled) {
-		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
+		java.util.Set<Fragment> fragments = getChildFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof NearbyAgencyTypeFragment) {

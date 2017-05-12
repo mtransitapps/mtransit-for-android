@@ -266,7 +266,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private void setFragmentVisibleAtPosition(int position) {
-		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
+		java.util.Set<Fragment> fragments = getChildFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof VisibilityAwareFragment) {

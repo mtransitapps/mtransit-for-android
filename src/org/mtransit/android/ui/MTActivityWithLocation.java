@@ -8,7 +8,6 @@ import org.mtransit.android.ui.fragment.VisibilityAwareFragment;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -123,8 +122,8 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 		return this.userLocation;
 	}
 
-	public static void broadcastUserLocationChanged(MTLog.Loggable loggable, FragmentManager fm, Location newLocation) {
-		java.util.List<Fragment> fragments = fm.getFragments();
+	public static void broadcastUserLocationChanged(MTLog.Loggable loggable, MTActivity activity, Location newLocation) {
+		java.util.Set<Fragment> fragments = activity.getFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment == null) {

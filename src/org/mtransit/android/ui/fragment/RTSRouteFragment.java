@@ -507,7 +507,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public void onUserLocationChanged(Location newLocation) {
 		if (newLocation != null) {
-			MTActivityWithLocation.broadcastUserLocationChanged(this, getChildFragmentManager(), newLocation);
+			MTActivityWithLocation.broadcastUserLocationChanged(this, getChildFragments(), newLocation);
 		}
 	}
 
@@ -600,9 +600,9 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private void setFragmentVisibleAtPosition(int position) {
-		java.util.List<Fragment> fragments2 = getChildFragmentManager().getFragments();
-		if (fragments2 != null) {
-			for (Fragment fragment : fragments2) {
+		java.util.Set<Fragment> fragments = getChildFragments();
+		if (fragments != null) {
+			for (Fragment fragment : fragments) {
 				if (fragment instanceof VisibilityAwareFragment) {
 					VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
 					visibilityAwareFragment.setFragmentVisibleAtPosition(position);
@@ -696,7 +696,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (this.adapter != null) {
 			this.adapter.setShowingListInsteadOfMap(this.showingListInsteadOfMap);
 		}
-		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
+		java.util.Set<Fragment> fragments = getChildFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment != null && fragment instanceof RTSTripStopsFragment) {

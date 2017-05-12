@@ -95,7 +95,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.menu_agency_type, menu);
-		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
+		java.util.Set<Fragment> fragments = getChildFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment != null) {
@@ -112,7 +112,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newNearbyInstance(null, this.typeId));
 			return true; // handled
 		}
-		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
+		java.util.Set<Fragment> fragments = getChildFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment != null) {
@@ -505,7 +505,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	@Override
 	public void onUserLocationChanged(Location newLocation) {
 		if (newLocation != null) {
-			MTActivityWithLocation.broadcastUserLocationChanged(this, getChildFragmentManager(), newLocation);
+			MTActivityWithLocation.broadcastUserLocationChanged(this, getChildFragments(), newLocation);
 		}
 	}
 
@@ -689,7 +689,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	}
 
 	private void setFragmentVisibleAtPosition(int position) {
-		java.util.List<Fragment> fragments = getChildFragmentManager().getFragments();
+		java.util.Set<Fragment> fragments = getChildFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment instanceof VisibilityAwareFragment) {

@@ -298,7 +298,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 
 	@Override
 	public void onUserLocationChanged(Location newLocation) {
-		MTActivityWithLocation.broadcastUserLocationChanged(this, getSupportFragmentManager(), newLocation);
+		MTActivityWithLocation.broadcastUserLocationChanged(this, getFragments(), newLocation);
 	}
 
 	public boolean isCurrentFragmentVisible(Fragment fragment) {

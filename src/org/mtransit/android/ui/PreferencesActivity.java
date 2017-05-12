@@ -9,7 +9,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
-public class PreferencesActivity extends MTAppCompatActivity {
+public class PreferencesActivity extends MTActivity {
 
 	private static final String TAG = PreferencesActivity.class.getSimpleName();
 
