@@ -19,7 +19,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-public abstract class MTActivityWithGoogleAPIClient extends MTAppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
+public abstract class MTActivityWithGoogleAPIClient extends MTActivity implements GoogleApiClient.ConnectionCallbacks,
 		GoogleApiClient.OnConnectionFailedListener {
 
 	private static final int REQUEST_RESOLVE_ERROR = 1001;
