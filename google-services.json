@@ -24,6 +24,14 @@
         },
         {
           "client_id": "INSERT_CLIENT_ID",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.mtransit.android",
+            "certificate_hash": "INSERT_CERTIFICATE_HASH"
+          }
+        },
+        {
+          "client_id": "INSERT_CLIENT_ID",
           "client_type": 3
         }
       ],
