@@ -41,7 +41,7 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 		if (providers != null) {
 			String agencyProviderMetaData = DataSourceProvider.getAgencyProviderMetaData(context);
 			for (ProviderInfo provider : providers) {
-				if (provider.metaData != null) {
+				if (provider != null && provider.metaData != null) {
 					if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
 						DataSourceManager.ping(context, provider.authority);
 					}
