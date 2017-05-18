@@ -9,6 +9,7 @@ import java.util.TimeZone;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.TimeUtils;
@@ -32,6 +33,8 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,7 +88,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
 	private boolean scrolledToNow = false;
-	private long dayStartsAtInMs = -1l;
+	private long dayStartsAtInMs = -1L;
 	private Calendar dayStartsAtCal = null;
 	private Date dayStartsAtDate;
 
@@ -102,7 +105,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	}
 
 	private void initDayStartsAtCal() {
-		if (this.dayStartsAtInMs > 0l) {
+		if (this.dayStartsAtInMs > 0L) {
 			this.dayStartsAtCal = TimeUtils.getNewCalendar(this.dayStartsAtInMs);
 		}
 	}
@@ -232,7 +235,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		if (!TextUtils.isEmpty(this.uuid)) {
 			outState.putString(EXTRA_POI_UUID, this.uuid);
 		}
-		if (this.dayStartsAtInMs >= 0l) {
+		if (this.dayStartsAtInMs >= 0L) {
 			outState.putLong(EXTRA_DAY_START_AT_IN_MS, this.dayStartsAtInMs);
 		}
 		if (this.fragmentPosition >= 0) {
@@ -361,12 +364,9 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	@Override
 	public void setFragmentVisibleAtPosition(int visibleFragmentPosition) {
 		if (this.lastVisibleFragmentPosition == visibleFragmentPosition //
-				&& (//
+				&& ( //
 				(this.fragmentPosition == visibleFragmentPosition && this.fragmentVisible) //
-				|| //
-				(this.fragmentPosition != visibleFragmentPosition && !this.fragmentVisible) //
-				) //
-		) {
+						|| (this.fragmentPosition != visibleFragmentPosition && !this.fragmentVisible))) {
 			return;
 		}
 		this.lastVisibleFragmentPosition = visibleFragmentPosition;
@@ -420,7 +420,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		switch (id) {
 		case SCHEDULE_LOADER:
 			RouteTripStop rts = getRtsOrNull();
-			if (this.dayStartsAtInMs <= 0l || rts == null) {
+			if (this.dayStartsAtInMs <= 0L || rts == null) {
 				return null;
 			}
 			return new ScheduleTimestampsLoader(getActivity(), rts, this.dayStartsAtInMs);
@@ -674,7 +674,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return nextTimeInMs;
 		}
 
-		private long nowToTheMinute = -1l;
+		private long nowToTheMinute = -1L;
 
 		private boolean timeChangedReceiverEnabled = false;
 
@@ -713,7 +713,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 					activity.unregisterReceiver(this.timeChangedReceiver);
 				}
 				this.timeChangedReceiverEnabled = false;
-				this.nowToTheMinute = -1l;
+				this.nowToTheMinute = -1L;
 			}
 		}
 
@@ -882,20 +882,52 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 					}
 				}
 				TimeUtils.cleanTimes(timeOnly, timeSb);
-				holder.timeTv.setText(timeSb);
-				if (this.nextTimeInMs != null && TimeUtils.isSameDay(getNowToTheMinute(), this.nextTimeInMs.t) && this.nextTimeInMs.t == timestamp.t) { // now
-					holder.timeTv.setTextColor(Schedule.getDefaultNowTextColor(context));
-					holder.timeTv.setTypeface(Schedule.getDefaultNowTypeface());
+				if (this.nextTimeInMs != null  //
+						&& TimeUtils.isSameDay(getNowToTheMinute(), this.nextTimeInMs.t) //
+						&& this.nextTimeInMs.t == timestamp.t) { // now
+					SpanUtils.setAll(timeSb, getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_NOW_STYLE);
 				} else if (timestamp.t < getNowToTheMinute()) { // past
-					holder.timeTv.setTextColor(Schedule.getDefaultPastTextColor(context));
-					holder.timeTv.setTypeface(Schedule.getDefaultPastTypeface());
+					SpanUtils.setAll(timeSb, getScheduleListTimesPastTextColor(context), SCHEDULE_LIST_TIMES_PAST_STYLE);
 				} else { // future
-					holder.timeTv.setTextColor(Schedule.getDefaultFutureTextColor(context));
-					holder.timeTv.setTypeface(Schedule.getDefaultFutureTypeface());
+					SpanUtils.setAll(timeSb, getScheduleListTimesFutureTextColor(context), SCHEDULE_LIST_TIMES_FUTURE_STYLE);
 				}
+				holder.timeTv.setText(timeSb);
 			} else {
 				holder.timeTv.setText(null);
 			}
+		}
+
+		private static final StyleSpan SCHEDULE_LIST_TIMES_PAST_STYLE = SpanUtils.getNewNormalStyleSpan();
+
+		private static final StyleSpan SCHEDULE_LIST_TIMES_NOW_STYLE = SpanUtils.getNewBoldStyleSpan();
+
+		private static final StyleSpan SCHEDULE_LIST_TIMES_FUTURE_STYLE = SpanUtils.getNewNormalStyleSpan();
+
+		private static ForegroundColorSpan scheduleListTimesPastTextColor = null;
+
+		private static ForegroundColorSpan getScheduleListTimesPastTextColor(Context context) {
+			if (scheduleListTimesPastTextColor == null) {
+				scheduleListTimesPastTextColor = SpanUtils.getNewTextColor(Schedule.getDefaultPastTextColor(context));
+			}
+			return scheduleListTimesPastTextColor;
+		}
+
+		private static ForegroundColorSpan scheduleListTimesNowTextColor = null;
+
+		private static ForegroundColorSpan getScheduleListTimesNowTextColor(Context context) {
+			if (scheduleListTimesNowTextColor == null) {
+				scheduleListTimesNowTextColor = SpanUtils.getNewTextColor(Schedule.getDefaultNowTextColor(context));
+			}
+			return scheduleListTimesNowTextColor;
+		}
+
+		private static ForegroundColorSpan scheduleListTimesFutureTextColor = null;
+
+		private static ForegroundColorSpan getScheduleListTimesFutureTextColor(Context context) {
+			if (scheduleListTimesFutureTextColor == null) {
+				scheduleListTimesFutureTextColor = SpanUtils.getNewTextColor(Schedule.getDefaultFutureTextColor(context));
+			}
+			return scheduleListTimesFutureTextColor;
 		}
 
 		private View getHourSeparatorView(int position, View convertView, ViewGroup parent) {
