@@ -70,12 +70,14 @@ public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
 		for (Future<ArrayList<News>> future : taskList) {
 			try {
 				ArrayList<News> agencyNews = future.get();
-				for (News aNews : agencyNews) {
-					if (newsUUIDs.contains(aNews.getUUID())) {
-						continue;
+				if (agencyNews != null) {
+					for (News aNews : agencyNews) {
+						if (newsUUIDs.contains(aNews.getUUID())) {
+							continue;
+						}
+						this.news.add(aNews);
+						newsUUIDs.add(aNews.getUUID());
 					}
-					this.news.add(aNews);
-					newsUUIDs.add(aNews.getUUID());
 				}
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while loading in background!");
