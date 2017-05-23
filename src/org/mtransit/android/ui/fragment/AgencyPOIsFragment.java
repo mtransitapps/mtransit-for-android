@@ -9,6 +9,7 @@ import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.AgencyPOIsLoader;
@@ -18,11 +19,17 @@ import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
 import android.content.res.Configuration;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
+import android.util.StateSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,13 +38,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
-		MTActivityWithLocation.UserLocationListener, MapViewController.MapMarkerProvider, MapViewController.MapListener {
+		MTActivityWithLocation.UserLocationListener, MapViewController.MapMarkerProvider, MapViewController.MapListener,
+		CompoundButton.OnCheckedChangeListener {
 
 	private static final String TAG = AgencyPOIsFragment.class.getSimpleName();
 
@@ -47,11 +56,12 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	}
 
 	private static final String EXTRA_AGENCY_AUTHORITY = "extra_agency_authority";
+	private static final String EXTRA_COLOR_INT = "extra_color_int";
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 	private static final String EXTRA_SHOWING_LIST_INSTEAD_OF_MAP = "extra_showing_list_instead_of_map";
 
-	public static AgencyPOIsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String agencyAuthority,
+	public static AgencyPOIsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String agencyAuthority, Integer optColorInt,
 			Boolean optShowingListInsteadOfMap) {
 		AgencyPOIsFragment f = new AgencyPOIsFragment();
 		Bundle args = new Bundle();
@@ -64,6 +74,10 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		if (lastVisibleFragmentPosition >= 0) {
 			args.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, lastVisibleFragmentPosition);
 			f.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
+		}
+		if (optColorInt != null) {
+			args.putInt(EXTRA_COLOR_INT, optColorInt);
+			f.colorInt = optColorInt;
 		}
 		if (optShowingListInsteadOfMap != null) {
 			args.putBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, optShowingListInsteadOfMap);
@@ -80,6 +94,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	private POIArrayAdapter adapter;
 	private String emptyText = null;
 	private String authority;
+	private Integer colorInt;
 	private MapViewController mapViewController = new MapViewController(TAG, this, this, true, true, true, false, false, false, 0, false, true, false, true,
 			false);
 
@@ -134,6 +149,9 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		if (this.lastVisibleFragmentPosition >= 0) {
 			outState.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, this.lastVisibleFragmentPosition);
 		}
+		if (this.colorInt != null) {
+			outState.putInt(EXTRA_COLOR_INT, this.colorInt);
+		}
 		if (this.showingListInsteadOfMap != null) {
 			outState.putBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, this.showingListInsteadOfMap);
 		}
@@ -157,6 +175,10 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 			} else {
 				this.fragmentPosition = -1;
 			}
+		}
+		Integer newColorInt = BundleUtils.getInt(EXTRA_COLOR_INT, bundles);
+		if (newColorInt != null) {
+			this.colorInt = newColorInt;
 		}
 		Integer lastVisibleFragmentPosition = BundleUtils.getInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, bundles);
 		if (lastVisibleFragmentPosition != null) {
@@ -391,20 +413,52 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	}
 
 	private MenuItem listMapToggleMenuItem;
+	private SwitchCompat listMapSwitchMenuItem;
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
-		if (menu.findItem(R.id.menu_toggle_list_map) == null) {
-			inflater.inflate(R.menu.menu_agency_pois, menu);
-			this.listMapToggleMenuItem = menu.findItem(R.id.menu_toggle_list_map);
-			if (!this.fragmentVisible) {
-				this.listMapToggleMenuItem.setVisible(false);
+		if (this.fragmentVisible) {
+			if (menu.findItem(R.id.menu_toggle_list_map) == null) {
+				inflater.inflate(R.menu.menu_agency_pois, menu);
 			}
-		} else {
 			this.listMapToggleMenuItem = menu.findItem(R.id.menu_toggle_list_map);
+			this.listMapSwitchMenuItem = (SwitchCompat) this.listMapToggleMenuItem.getActionView().findViewById(R.id.action_bar_switch_list_map);
+			this.listMapSwitchMenuItem.setThumbDrawable(getListMapToggleSelector());
+		} else {
+			if (this.listMapSwitchMenuItem != null) {
+				this.listMapSwitchMenuItem.setOnCheckedChangeListener(null);
+				this.listMapSwitchMenuItem.setVisibility(View.GONE);
+				this.listMapSwitchMenuItem = null;
+			}
+			if (this.listMapToggleMenuItem != null) {
+				this.listMapToggleMenuItem.setVisible(false);
+				this.listMapSwitchMenuItem = null;
+			}
 		}
 		updateListMapToggleMenuItem();
+	}
+
+	private StateListDrawable listMapToggleSelector = null;
+
+	@NonNull
+	private StateListDrawable getListMapToggleSelector() {
+		if (listMapToggleSelector == null) {
+			listMapToggleSelector = new StateListDrawable();
+			LayerDrawable listLayerDrawable = (LayerDrawable) SupportFactory.get().getResourcesDrawable(getResources(), R.drawable.switch_thumb_list, null);
+			GradientDrawable listOvalShape = (GradientDrawable) listLayerDrawable.findDrawableByLayerId(R.id.switch_list_oval_shape);
+			if (this.colorInt != null) {
+				listOvalShape.setColor(this.colorInt);
+			}
+			listMapToggleSelector.addState(new int[]{android.R.attr.state_checked}, listLayerDrawable);
+			LayerDrawable mapLayerDrawable = (LayerDrawable) SupportFactory.get().getResourcesDrawable(getResources(), R.drawable.switch_thumb_map, null);
+			GradientDrawable mapOvalShape = (GradientDrawable) mapLayerDrawable.findDrawableByLayerId(R.id.switch_map_oval_shape);
+			if (this.colorInt != null) {
+				mapOvalShape.setColor(this.colorInt);
+			}
+			listMapToggleSelector.addState(StateSet.WILD_CARD, mapLayerDrawable);
+		}
+		return this.listMapToggleSelector;
 	}
 
 	private void updateListMapToggleMenuItem() {
@@ -414,9 +468,13 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 		if (this.listMapToggleMenuItem == null) {
 			return;
 		}
+		if (this.listMapSwitchMenuItem == null) {
+			return;
+		}
 		boolean showingListInsteadOfMap = isShowingListInsteadOfMap();
-		this.listMapToggleMenuItem.setIcon(showingListInsteadOfMap ? R.drawable.ic_action_map_dark : R.drawable.ic_action_view_list_dark);
-		this.listMapToggleMenuItem.setTitle(showingListInsteadOfMap ? R.string.menu_action_map : R.string.menu_action_list);
+		this.listMapSwitchMenuItem.setChecked(showingListInsteadOfMap);
+		this.listMapSwitchMenuItem.setOnCheckedChangeListener(this);
+		this.listMapSwitchMenuItem.setVisibility(View.VISIBLE);
 		this.listMapToggleMenuItem.setVisible(true);
 	}
 
@@ -481,6 +539,16 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 			return true; // handled
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		if (!this.fragmentVisible) {
+			return;
+		}
+		if (buttonView.getId() == R.id.action_bar_switch_list_map) {
+			setShowingListInsteadOfMap(isChecked);
+		}
 	}
 
 	private void switchView(View view) {

@@ -6,6 +6,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.data.AgencyProperties;
@@ -21,10 +22,16 @@ import org.mtransit.android.util.LoaderUtils;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.SwitchCompat;
 import android.text.TextUtils;
+import android.util.StateSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,10 +41,11 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<ArrayList<Route>>,
-		AdapterView.OnItemClickListener {
+		AdapterView.OnItemClickListener, CompoundButton.OnCheckedChangeListener {
 
 	private static final String TAG = RTSAgencyRoutesFragment.class.getSimpleName();
 
@@ -53,14 +61,19 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	}
 
 	private static final String EXTRA_AGENCY_AUTHORITY = "extra_agency_authority";
+	private static final String EXTRA_COLOR_INT = "extra_color_int";
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 
-	public static RTSAgencyRoutesFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String agencyAuthority) {
+	public static RTSAgencyRoutesFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String agencyAuthority, Integer optColorInt) {
 		RTSAgencyRoutesFragment f = new RTSAgencyRoutesFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, agencyAuthority);
 		f.authority = agencyAuthority;
+		if (optColorInt != null) {
+			args.putInt(EXTRA_COLOR_INT, optColorInt);
+			f.colorInt = optColorInt;
+		}
 		if (fragmentPosition >= 0) {
 			args.putInt(EXTRA_FRAGMENT_POSITION, fragmentPosition);
 			f.fragmentPosition = fragmentPosition;
@@ -80,6 +93,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	private String emptyText = null;
 
 	private String authority;
+	private Integer colorInt;
 
 	@Override
 	public String getAgencyAuthority() {
@@ -111,6 +125,9 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		if (!TextUtils.isEmpty(this.authority)) {
 			outState.putString(EXTRA_AGENCY_AUTHORITY, this.authority);
 		}
+		if (this.colorInt != null) {
+			outState.putInt(EXTRA_COLOR_INT, this.colorInt);
+		}
 		if (this.fragmentPosition >= 0) {
 			outState.putInt(EXTRA_FRAGMENT_POSITION, this.fragmentPosition);
 		}
@@ -124,6 +141,10 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		String newAuthority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, bundles);
 		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
+		}
+		Integer newColorInt = BundleUtils.getInt(EXTRA_COLOR_INT, bundles);
+		if (newColorInt != null) {
+			this.colorInt = newColorInt;
 		}
 		Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, bundles);
 		if (fragmentPosition != null) {
@@ -412,16 +433,47 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
-		if (menu.findItem(R.id.menu_toggle_list_grid) == null) {
-			inflater.inflate(R.menu.menu_rts_agency_routes, menu);
-			this.listGridToggleMenuItem = menu.findItem(R.id.menu_toggle_list_grid);
-			if (!this.fragmentVisible) {
-				this.listGridToggleMenuItem.setVisible(false);
+		if (this.fragmentVisible) {
+			if (menu.findItem(R.id.menu_toggle_list_grid) == null) {
+				inflater.inflate(R.menu.menu_rts_agency_routes, menu);
 			}
-		} else {
 			this.listGridToggleMenuItem = menu.findItem(R.id.menu_toggle_list_grid);
+			this.listGridSwitchMenuItem = (SwitchCompat) this.listGridToggleMenuItem.getActionView().findViewById(R.id.action_bar_switch_list_grid);
+			this.listGridSwitchMenuItem.setThumbDrawable(getListGridToggleSelector());
+		} else {
+			if (this.listGridSwitchMenuItem != null) {
+				this.listGridSwitchMenuItem.setOnCheckedChangeListener(null);
+				this.listGridSwitchMenuItem.setVisibility(View.GONE);
+				this.listGridSwitchMenuItem = null;
+			}
+			if (this.listGridToggleMenuItem != null) {
+				this.listGridToggleMenuItem.setVisible(false);
+				this.listGridToggleMenuItem = null;
+			}
 		}
 		updateListGridToggleMenuItem();
+	}
+
+	private StateListDrawable listGridToggleSelector = null;
+
+	@NonNull
+	private StateListDrawable getListGridToggleSelector() {
+		if (listGridToggleSelector == null) {
+			listGridToggleSelector = new StateListDrawable();
+			LayerDrawable listLayerDrawable = (LayerDrawable) SupportFactory.get().getResourcesDrawable(getResources(), R.drawable.switch_thumb_list, null);
+			GradientDrawable listOvalShape = (GradientDrawable) listLayerDrawable.findDrawableByLayerId(R.id.switch_list_oval_shape);
+			if (this.colorInt != null) {
+				listOvalShape.setColor(this.colorInt);
+			}
+			listGridToggleSelector.addState(new int[]{android.R.attr.state_checked}, listLayerDrawable);
+			LayerDrawable gridLayerDrawable = (LayerDrawable) SupportFactory.get().getResourcesDrawable(getResources(), R.drawable.switch_thumb_grid, null);
+			GradientDrawable gridOvalShape = (GradientDrawable) gridLayerDrawable.findDrawableByLayerId(R.id.switch_grid_oval_shape);
+			if (this.colorInt != null) {
+				gridOvalShape.setColor(this.colorInt);
+			}
+			listGridToggleSelector.addState(StateSet.WILD_CARD, gridLayerDrawable);
+		}
+		return this.listGridToggleSelector;
 	}
 
 	private void updateListGridToggleMenuItem() {
@@ -431,8 +483,12 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		if (this.listGridToggleMenuItem == null) {
 			return;
 		}
-		this.listGridToggleMenuItem.setIcon(isShowingListInsteadOfGrid() ? R.drawable.ic_action_view_comfy_dark : R.drawable.ic_action_view_list_dark);
-		this.listGridToggleMenuItem.setTitle(isShowingListInsteadOfGrid() ? R.string.menu_action_grid : R.string.menu_action_list);
+		if (this.listGridSwitchMenuItem == null) {
+			return;
+		}
+		this.listGridSwitchMenuItem.setChecked(isShowingListInsteadOfGrid());
+		this.listGridSwitchMenuItem.setOnCheckedChangeListener(this);
+		this.listGridSwitchMenuItem.setVisibility(View.VISIBLE);
 		this.listGridToggleMenuItem.setVisible(true);
 	}
 
@@ -447,6 +503,16 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			return true; // handled
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		if (!this.fragmentVisible) {
+			return;
+		}
+		if (buttonView.getId() == R.id.action_bar_switch_list_grid) {
+			setShowingListInsteadOfGrid(isChecked);
+		}
 	}
 
 	private static class RTSAgencyRouteArrayAdapter extends MTArrayAdapter<Route> implements MTLog.Loggable {

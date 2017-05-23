@@ -57,7 +57,7 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 	@Override
 	public void onCancel(DialogInterface dialog) {
 		if (Constants.LOG_LIFECYCLE) {
-			MTLog.v(this, "onCancel(%s,%s)", dialog);
+			MTLog.v(this, "onCancel(%s)", dialog);
 		}
 		super.onCancel(dialog);
 	}
@@ -65,7 +65,7 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 	@Override
 	public void onDismiss(DialogInterface dialog) {
 		if (Constants.LOG_LIFECYCLE) {
-			MTLog.v(this, "onDismiss(%s,%s)", dialog);
+			MTLog.v(this, "onDismiss(%s)", dialog);
 		}
 		super.onDismiss(dialog);
 	}

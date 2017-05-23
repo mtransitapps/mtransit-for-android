@@ -836,11 +836,14 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		public Fragment getItem(int position) {
 			AgencyProperties agency = getAgency(position);
 			if (agency != null && agency.isRTS()) {
-				RTSAgencyRoutesFragment f = RTSAgencyRoutesFragment.newInstance(position, this.lastVisibleFragmentPosition, agency.getAuthority());
+				Integer optColorInt = agency.hasColor() ? agency.getColorInt() : null;
+				RTSAgencyRoutesFragment f = RTSAgencyRoutesFragment.newInstance( //
+						position, this.lastVisibleFragmentPosition, agency.getAuthority(), optColorInt);
 				f.setLogTag(agency.getShortName());
 				return f;
 			}
-			return AgencyPOIsFragment.newInstance(position, this.lastVisibleFragmentPosition, getAgencyAuthority(position), null);
+			Integer optColorInt = agency == null || !agency.hasColor() ? null : agency.getColorInt();
+			return AgencyPOIsFragment.newInstance(position, this.lastVisibleFragmentPosition, getAgencyAuthority(position), optColorInt, null);
 		}
 	}
 

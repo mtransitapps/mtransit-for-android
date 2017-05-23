@@ -12,6 +12,7 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TaskUtils;
+import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.task.MTAsyncTask;
@@ -24,17 +25,23 @@ import org.mtransit.android.ui.MainActivity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.SwitchCompat;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
+import android.util.StateSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,8 +49,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.widget.CompoundButton;
 
-public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChangeListener, MTActivityWithLocation.UserLocationListener {
+public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChangeListener, MTActivityWithLocation.UserLocationListener,
+		CompoundButton.OnCheckedChangeListener {
 
 	private static final String TAG = RTSRouteFragment.class.getSimpleName();
 
@@ -94,7 +103,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	private RouteTripPagerAdapter adapter;
 	private String authority;
 	private Long routeId;
-	private long tripId = -1l;
+	private long tripId = -1L;
 	private int stopId = -1;
 
 	@Override
@@ -313,6 +322,9 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		getAbController().setABTitle(this, getABTitle(context), false);
 		getAbController().setABReady(this, isABReady(), true);
 		setupTabTheme(getView());
+		this.listMapToggleSelector = null; // force reset to use route color
+		getActivity().supportInvalidateOptionsMenu(); // initialize action bar list/map switch icon
+		updateListMapToggleMenuItem();
 	}
 
 	private void resetRoute() {
@@ -403,7 +415,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		protected Integer doInBackgroundMT(Void... params) {
 			try {
 				Context context = this.contextWR == null ? null : this.contextWR.get();
-				if (this.tripId < 0l) {
+				if (this.tripId < 0L) {
 					if (context != null) {
 						String routePref = PreferenceUtils.getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(this.authority, this.routeId);
 						this.tripId = PreferenceUtils.getPrefLcl(context, routePref, PreferenceUtils.PREFS_LCL_RTS_ROUTE_TRIP_ID_TAB_DEFAULT);
@@ -658,22 +670,51 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private MenuItem listMapToggleMenuItem;
+	private SwitchCompat listMapSwitchMenuItem;
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.menu_rts_route, menu);
 		this.listMapToggleMenuItem = menu.findItem(R.id.menu_toggle_list_map);
+		this.listMapSwitchMenuItem = (SwitchCompat) this.listMapToggleMenuItem.getActionView().findViewById(R.id.action_bar_switch_list_map);
+		this.listMapSwitchMenuItem.setThumbDrawable(getListMapToggleSelector());
+		this.listMapSwitchMenuItem.setOnCheckedChangeListener(this);
 		updateListMapToggleMenuItem();
+	}
+
+	private StateListDrawable listMapToggleSelector = null;
+
+	@NonNull
+	private StateListDrawable getListMapToggleSelector() {
+		if (listMapToggleSelector == null) {
+			Integer colorInt = POIManager.getRouteColor(getContext(), getRouteOrNull(), this.authority, null);
+			listMapToggleSelector = new StateListDrawable();
+			LayerDrawable listLayerDrawable = (LayerDrawable) SupportFactory.get().getResourcesDrawable(getResources(), R.drawable.switch_thumb_list, null);
+			GradientDrawable listOvalShape = (GradientDrawable) listLayerDrawable.findDrawableByLayerId(R.id.switch_list_oval_shape);
+			if (colorInt != null) {
+				listOvalShape.setColor(colorInt);
+			}
+			listMapToggleSelector.addState(new int[]{android.R.attr.state_checked}, listLayerDrawable);
+			LayerDrawable mapLayerDrawable = (LayerDrawable) SupportFactory.get().getResourcesDrawable(getResources(), R.drawable.switch_thumb_map, null);
+			GradientDrawable mapOvalShape = (GradientDrawable) mapLayerDrawable.findDrawableByLayerId(R.id.switch_map_oval_shape);
+			if (colorInt != null) {
+				mapOvalShape.setColor(colorInt);
+			}
+			listMapToggleSelector.addState(StateSet.WILD_CARD, mapLayerDrawable);
+		}
+		return this.listMapToggleSelector;
 	}
 
 	private void updateListMapToggleMenuItem() {
 		if (this.listMapToggleMenuItem == null) {
 			return;
 		}
-		this.listMapToggleMenuItem
-				.setIcon(isShowingListInsteadOfMap() ? R.drawable.ic_action_map_dark : R.drawable.ic_action_view_list_dark);
-		this.listMapToggleMenuItem.setTitle(isShowingListInsteadOfMap() ? R.string.menu_action_map : R.string.menu_action_list);
+		if (this.listMapSwitchMenuItem == null) {
+			return;
+		}
+		this.listMapSwitchMenuItem.setChecked(isShowingListInsteadOfMap());
+		this.listMapSwitchMenuItem.setVisibility(View.VISIBLE);
 		this.listMapToggleMenuItem.setVisible(true);
 	}
 
@@ -714,6 +755,13 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			return true; // handled
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		if (buttonView.getId() == R.id.action_bar_switch_list_map) {
+			setShowingListInsteadOfMap(isChecked);
+		}
 	}
 
 	@Override
