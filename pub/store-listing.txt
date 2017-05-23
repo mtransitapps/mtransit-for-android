@@ -50,7 +50,7 @@ Thank You.
 
 Social:
 - Facebook: https://facebook.com/MonTransit
-- Google+: http://gplus.to/MonTransit
+- Google+: https://plus.google.com/+MonTransit
 - Twitter: https://twitter.com/montransit
 
 This app is free & open-source:
@@ -82,5 +82,5 @@ Email: mtransit.apps+GooglePlay@gmail.com
 ----------
 Phone:
 ----------
-Privacy Policy:
+Privacy Policy: https://github.com/mtransitapps/mtransit-for-android/wiki/PrivacyPolicy
 ----------
