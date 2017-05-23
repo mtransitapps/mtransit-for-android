@@ -429,6 +429,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	}
 
 	private MenuItem listGridToggleMenuItem;
+	private SwitchCompat listGridSwitchMenuItem;
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
