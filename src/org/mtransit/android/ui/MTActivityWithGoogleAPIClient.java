@@ -83,11 +83,11 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActivity implement
 				}
 				break;
 			default:
-				MTLog.w(this, "Unexpected artivity result code '%s'.", resultCode);
+				MTLog.w(this, "Unexpected activity result code '%s'.", resultCode);
 			}
 			break;
 		default:
-			MTLog.w(this, "Unexpected artivity request code '%s'.", requestCode);
+			MTLog.w(this, "Unexpected activity request code '%s'.", requestCode);
 		}
 	}
 
@@ -95,8 +95,9 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActivity implement
 	protected void onStart() {
 		super.onStart();
 		if (!this.resolvingError) {
-			if (this.googleApiClient != null && !this.googleApiClient.isConnected()) {
-				this.googleApiClient.connect();
+			GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
+			if (googleApiClient != null && !googleApiClient.isConnected()) {
+				googleApiClient.connect();
 			}
 		}
 	}
@@ -104,10 +105,11 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActivity implement
 	@Override
 	protected void onStop() {
 		super.onStop();
-		if (this.googleApiClient != null) {
-			this.googleApiClient.unregisterConnectionCallbacks(this);
-			this.googleApiClient.unregisterConnectionFailedListener(this);
-			this.googleApiClient.disconnect();
+		GoogleApiClient googleApiClient = getGoogleApiClientOrNull();
+		if (googleApiClient != null) {
+			googleApiClient.unregisterConnectionCallbacks(this);
+			googleApiClient.unregisterConnectionFailedListener(this);
+			googleApiClient.disconnect();
 		}
 	}
 
