@@ -982,7 +982,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 		this.handler.removeCallbacks(this.notifyDataSetChangedLater);
 		TaskUtils.cancelQuietly(this.refreshFavoritesTask, true);
-		disableTimeChangeddReceiver();
+		disableTimeChangedReceiver();
 	}
 
 	@Override
@@ -1017,7 +1017,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			this.closestPoiUuids.clear();
 			this.closestPoiUuids = null;
 		}
-		disableTimeChangeddReceiver();
+		disableTimeChangedReceiver();
 		if (this.compassImgsWR != null) {
 			this.compassImgsWR.clear();
 		}
@@ -1036,7 +1036,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	public void onDestroy() {
-		disableTimeChangeddReceiver();
+		disableTimeChangedReceiver();
 		if (this.poisByType != null) {
 			this.poisByType.clear();
 			this.poisByType = null;
