@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="org.mtransit.android.MainActivity" >
+    tools:context="org.mtransit.android.MainActivity">
     <item
         android:id="@+id/menu_nearby"
         android:icon="@drawable/ic_action_nearby_dark"
         android:orderInCategory="499"
         android:title="@string/menu_action_nearby"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
 </menu>

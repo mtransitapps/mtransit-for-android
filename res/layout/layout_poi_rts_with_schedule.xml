@@ -9,7 +9,8 @@
     android:paddingBottom="@dimen/poi_padding_bottom"
     android:paddingLeft="@dimen/poi_padding_left_extra"
     android:paddingRight="@dimen/poi_padding_right"
-    android:paddingTop="@dimen/poi_padding_top" >
+    android:paddingTop="@dimen/poi_padding_top">
+
     <ImageView
         android:id="@+id/service_update_warning"
         android:layout_width="@dimen/poi_img_width"
@@ -22,25 +23,26 @@
         android:src="@drawable/warning_light"
         android:visibility="gone"
         tools:visibility="visible" />
+
     <include
         android:id="@+id/status"
+        layout="@layout/layout_poi_status_schedule"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="@dimen/poi_status_inner_padding"
-        layout="@layout/layout_poi_status_schedule"
         android:minWidth="?android:attr/listPreferredItemHeight" />
     <include
         android:id="@+id/extra"
         layout="@layout/layout_poi_rts_extras" />
     <include
         android:id="@+id/poi"
+        layout="@layout/layout_poi_base_distance_and_compass"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/poi_margin_left"
         android:layout_toLeftOf="@id/status"
-        android:layout_toRightOf="@id/extra"
-        layout="@layout/layout_poi_base_distance_and_compass" />
+        android:layout_toRightOf="@id/extra" />
 </RelativeLayout>

@@ -10,7 +10,7 @@
     android:minWidth="?android:attr/listPreferredItemHeight"
     android:orientation="vertical"
     android:visibility="invisible"
-    tools:visibility="visible" >
+    tools:visibility="visible">
     <!-- PIE CHART % -->
     <org.mtransit.android.ui.view.MTPieChartPercentView
         android:id="@+id/pie"
@@ -28,10 +28,11 @@
         android:layout_margin="0dp"
         android:ellipsize="marquee"
         android:fontFamily="sans-serif"
+        android:maxLines="1"
         android:padding="0dp"
-        android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textStyle="normal"
         android:visibility="gone"
+        tools:text="AVAILABILITY AVAILABILITY AVAILABILITY AVAILABILITY AVAILABILITY AVAILABILITY AVAILABILITY AVAILABILITY"
         tools:visibility="visible" />
 </LinearLayout>

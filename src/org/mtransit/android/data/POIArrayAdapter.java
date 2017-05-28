@@ -133,17 +133,17 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private ScrollView manualScrollView;
 
-	private long lastNotifyDataSetChanged = -1l;
+	private long lastNotifyDataSetChanged = -1L;
 
 	private int scrollState = AbsListView.OnScrollListener.SCROLL_STATE_IDLE;
 
-	private long nowToTheMinute = -1l;
+	private long nowToTheMinute = -1L;
 
 	private boolean timeChangedReceiverEnabled = false;
 
 	private boolean compassUpdatesEnabled = false;
 
-	private long lastCompassChanged = -1l;
+	private long lastCompassChanged = -1L;
 
 	private FavoriteManager.FavoriteUpdateListener favoriteUpdateListener = this;
 
@@ -532,7 +532,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private WeakReference<OnClickHandledListener> onClickHandledListenerWR;
 
 	public void setOnClickHandledListener(OnClickHandledListener onClickHandledListener) {
-		this.onClickHandledListenerWR = new WeakReference<POIArrayAdapter.OnClickHandledListener>(onClickHandledListener);
+		this.onClickHandledListenerWR = new WeakReference<OnClickHandledListener>(onClickHandledListener);
 	}
 
 	public interface OnPOISelectedListener {
@@ -544,7 +544,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private WeakReference<OnPOISelectedListener> onPoiSelectedListenerWR;
 
 	public void setOnPoiSelectedListener(OnPOISelectedListener onPoiSelectedListener) {
-		this.onPoiSelectedListenerWR = new WeakReference<POIArrayAdapter.OnPOISelectedListener>(onPoiSelectedListener);
+		this.onPoiSelectedListenerWR = new WeakReference<OnPOISelectedListener>(onPoiSelectedListener);
 	}
 
 	public boolean showPoiViewerScreen(int position) {
@@ -1025,7 +1025,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		this.lastCompassInDegree = -1;
 		this.accelerometerValues = new float[3];
 		this.magneticFieldValues = new float[3];
-		this.lastNotifyDataSetChanged = -1l;
+		this.lastNotifyDataSetChanged = -1L;
 		this.handler.removeCallbacks(this.notifyDataSetChangedLater);
 		this.poiStatusViewHoldersWR.clear();
 		TaskUtils.cancelQuietly(this.refreshFavoritesTask, true);
@@ -1107,7 +1107,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		case TYPE_HEADER_ALL_NEARBY:
 			return R.layout.layout_poi_list_header_with_all_nearby;
 		default:
-			MTLog.w(this, "Unexected header type '%s'!", this.showTypeHeader);
+			MTLog.w(this, "Unexpected header type '%s'!", this.showTypeHeader);
 			return R.layout.layout_poi_list_header;
 		}
 	}
@@ -1723,11 +1723,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
-	private void disableTimeChangeddReceiver() {
+	private void disableTimeChangedReceiver() {
 		if (this.timeChangedReceiverEnabled) {
 			getContext().unregisterReceiver(this.timeChangedReceiver);
 			this.timeChangedReceiverEnabled = false;
-			this.nowToTheMinute = -1l;
+			this.nowToTheMinute = -1L;
 		}
 	}
 

@@ -9,6 +9,7 @@ import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.SearchFragment;
 import org.mtransit.android.util.AdsUtils;
 import org.mtransit.android.util.AnalyticsUtils;
+import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.VendingUtils;
 
@@ -19,10 +20,8 @@ import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -65,7 +64,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		setContentView(R.layout.activity_main);
 		this.abController = new ActionBarController(this);
 		this.navigationDrawerController = new NavigationDrawerController(this);
-		this.navigationDrawerController.setup(savedInstanceState);
+		this.navigationDrawerController.onCreate(savedInstanceState);
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
 		DataSourceProvider.addModulesUpdateListener(this);
 		MapUtils.fixScreenFlickering((FrameLayout) findViewById(R.id.content_frame));
@@ -135,6 +134,13 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		}
 	}
 
+	@Override
+	protected void onStart() {
+		super.onStart();
+		if (this.navigationDrawerController != null) {
+			this.navigationDrawerController.onStart();
+		}
+	}
 
 	@Override
 	protected void onResume() {
@@ -184,6 +190,14 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		VendingUtils.onPause();
 		AdsUtils.pauseAd(this);
 		DataSourceProvider.onPause();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if (this.navigationDrawerController != null) {
+			this.navigationDrawerController.onStop();
+		}
 	}
 
 	@Override
@@ -237,49 +251,22 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	}
 
 	public void clearFragmentBackStackImmediate() {
-		clearFragmentBackStackImmediate(getSupportFragmentManager());
+		FragmentUtils.clearFragmentBackStackImmediate(this, null);
 	}
-
-	private void clearFragmentBackStackImmediate(FragmentManager fm) {
-		try {
-			fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-		} catch (Exception e) {
-			MTLog.w(this, e, "Error while clearing fragment stack!");
-		}
-	}
-
 
 	public void showNewFragment(ABFragment newFragment, boolean addToStack) {
-		FragmentManager fm = getSupportFragmentManager();
-		FragmentTransaction ft = fm.beginTransaction();
-		ft.replace(R.id.content_frame, newFragment);
+		FragmentUtils.replaceFragment(this, R.id.content_frame, newFragment, addToStack, null);
 		if (addToStack) {
-			ft.addToBackStack(null);
 			incBackEntryCount();
 		}
-		ft.commit();
 		showContentFrameAsLoaded();
 		if (this.abController != null) {
-			fm.executePendingTransactions();
+			FragmentUtils.executePendingTransactions(this, null);
 			this.abController.setAB(newFragment);
 			this.abController.updateABDrawerClosed();
 		}
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.setCurrentSelectedItemChecked(getBackStackEntryCount() == 0);
-		}
-	}
-
-	private static final String DIALOG_TAG = "dialog";
-
-	public static void showNewDialog(FragmentManager fm, DialogFragment newDialog) {
-		FragmentTransaction ft = fm.beginTransaction();
-		Fragment prev = fm.findFragmentByTag(DIALOG_TAG);
-		if (prev != null) {
-			ft.remove(prev);
-		}
-		ft.addToBackStack(null);
-		if (newDialog != null) {
-			newDialog.show(ft, DIALOG_TAG);
 		}
 	}
 
@@ -409,17 +396,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	private WeakHashMap<Fragment, Object> fragmentsToPopWR = new WeakHashMap<Fragment, Object>();
 
 	public void popFragmentFromStack(Fragment fragment) {
-		try {
-			if (fragment != null) {
-				FragmentManager fm = getSupportFragmentManager();
-				fm.popBackStack();
-			}
-		} catch (Exception e) {
-			MTLog.w(this, e, "Error while poping fragment '%s' from stack!", fragment);
-			if (this.fragmentsToPopWR != null) {
-				this.fragmentsToPopWR.put(fragment, null);
-			}
-		}
+		FragmentUtils.popFragmentFromStack(this, fragment, null);
 	}
 
 	private void popFragmentsToPop() {
@@ -436,12 +413,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	}
 
 	public boolean onUpIconClick() {
-		FragmentManager fm = getSupportFragmentManager();
-		if (fm.getBackStackEntryCount() > 0) {
-			fm.popBackStack();
-			return true; // handled
-		}
-		return false; // not handled
+		return FragmentUtils.popLatestEntryFromStack(this, null);
 	}
 
 	@Override

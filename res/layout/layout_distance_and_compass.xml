@@ -4,7 +4,7 @@
     android:id="@+id/distance_and_compass"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="horizontal" >
+    android:orientation="horizontal">
     <!-- DISTANCE -->
     <TextView
         android:id="@+id/distance"
@@ -12,11 +12,12 @@
         android:layout_height="match_parent"
         android:fontFamily="sans-serif"
         android:gravity="center_vertical"
-        android:singleLine="true"
+        android:maxLines="1"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="?android:attr/textColorSecondary"
         android:textStyle="normal"
         android:visibility="gone"
+        tools:text="000 m"
         tools:visibility="visible" />
     <!-- COMPASS -->
     <org.mtransit.android.ui.view.MTCompassView

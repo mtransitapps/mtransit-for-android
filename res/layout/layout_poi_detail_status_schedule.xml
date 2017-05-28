@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical" >
+    android:orientation="vertical">
+
     <include layout="@layout/layout_poi_detail_status_schedule_title" />
+
     <HorizontalScrollView
         android:id="@+id/next_departures_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/poi_item_bg"
         android:minHeight="?android:attr/listPreferredItemHeightLarge"
-        android:scrollbars="none" >
+        android:scrollbars="none">
         <LinearLayout
             android:id="@+id/next_departures_layout"
             android:layout_width="wrap_content"

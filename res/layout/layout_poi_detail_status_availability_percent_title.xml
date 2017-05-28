@@ -23,7 +23,7 @@
         android:paddingLeft="@dimen/title_padding_left"
         android:paddingRight="@dimen/title_padding_right"
         android:paddingTop="@dimen/title_padding_top"
-        android:singleLine="true"
+        android:maxLines="1"
         android:text="@string/availability"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/ic_grey600" />

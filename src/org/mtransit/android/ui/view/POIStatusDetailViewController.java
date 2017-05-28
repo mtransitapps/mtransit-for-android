@@ -17,6 +17,7 @@ import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
+import android.support.annotation.Nullable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.RelativeSizeSpan;
@@ -38,6 +39,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		return TAG;
 	}
 
+	@Nullable
 	public static Integer getLayoutResId(POIManager poim) {
 		if (poim != null) {
 			switch (poim.getStatusType()) {

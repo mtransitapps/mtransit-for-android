@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/poi_item_bg"
-    android:paddingTop="@dimen/action_bar_size_static" >
+    android:paddingTop="@dimen/action_bar_size_static">
+
     <ScrollView
         android:id="@+id/scrollview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content">
+
         <RelativeLayout
             android:id="@+id/this_news"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="?android:attr/listPreferredItemHeightLarge"
-            android:padding="16dp" >
+            android:padding="16dp">
+
             <TextView
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
@@ -24,10 +26,12 @@
                 android:layout_alignParentTop="true"
                 android:background="?android:attr/selectableItemBackground"
                 android:fontFamily="sans-serif-condensed"
+                android:maxLines="1"
                 android:padding="1dp"
-                android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="?android:attr/textColorTertiary" />
+                android:textColor="?android:attr/textColorTertiary"
+                tools:text="DATE" />
+
             <TextView
                 android:id="@+id/newsText"
                 android:layout_width="match_parent"
@@ -37,11 +41,12 @@
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-condensed"
                 android:paddingTop="8dp"
-                android:singleLine="false"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="?android:attr/textColorPrimary"
-                android:textStyle="normal" />
+                android:textStyle="normal"
+                tools:text="NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS" />
         </RelativeLayout>
     </ScrollView>
+
     <include layout="@layout/layout_shadow" />
 </FrameLayout>

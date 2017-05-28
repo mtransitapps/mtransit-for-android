@@ -29,6 +29,7 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.SpannableStringBuilder;
@@ -58,7 +59,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	private static final String EXTRA_DAY_START_AT_IN_MS = "extra_day_starts_at_ms";
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
-	private static final String EXTRA_SCOLLED_TO_NOW = "extra_scolled_to_now";
+	private static final String EXTRA_SCROLLED_TO_NOW = "extra_scrolled_to_now";
 
 	public static ScheduleDayFragment newInstance(String uuid, String authority, long dayStartsAtInMs, int fragmentPosition, int lastVisibleFragmentPosition,
 			RouteTripStop optRts) {
@@ -210,7 +211,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		initAdapters(activity);
+		initAdapters(getActivity());
 	}
 
 	@Override
@@ -244,7 +245,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		if (this.lastVisibleFragmentPosition >= 0) {
 			outState.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, this.lastVisibleFragmentPosition);
 		}
-		outState.putBoolean(EXTRA_SCOLLED_TO_NOW, this.scrolledToNow);
+		outState.putBoolean(EXTRA_SCROLLED_TO_NOW, this.scrolledToNow);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -280,7 +281,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 				this.lastVisibleFragmentPosition = -1;
 			}
 		}
-		Boolean newScrolledToNow = BundleUtils.getBoolean(EXTRA_SCOLLED_TO_NOW, bundles);
+		Boolean newScrolledToNow = BundleUtils.getBoolean(EXTRA_SCROLLED_TO_NOW, bundles);
 		if (newScrolledToNow != null) {
 			this.scrolledToNow = newScrolledToNow;
 		}
@@ -479,7 +480,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		return 0;
 	}
 
-	private void initAdapters(Activity activity) {
+	private void initAdapters(FragmentActivity activity) {
 		this.adapter = new TimeAdapter(activity, null, null);
 	}
 
@@ -569,7 +570,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private Calendar dayStartsAt;
 
-		private WeakReference<Activity> activityWR;
+		private WeakReference<FragmentActivity> activityWR;
 
 		private Schedule.Timestamp nextTimeInMs = null;
 
@@ -577,7 +578,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private TimeZone deviceTimeZone = TimeZone.getDefault();
 
-		public TimeAdapter(Activity activity, Calendar dayStartsAt, RouteTripStop optRts) {
+		public TimeAdapter(FragmentActivity activity, Calendar dayStartsAt, RouteTripStop optRts) {
 			super();
 			setActivity(activity);
 			this.layoutInflater = LayoutInflater.from(activity);
@@ -597,12 +598,12 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			this.optRts = optRts;
 		}
 
-		public void onResume(Activity activity) {
+		public void onResume(FragmentActivity activity) {
 			setActivity(activity);
 		}
 
-		public void setActivity(Activity activity) {
-			this.activityWR = new WeakReference<Activity>(activity);
+		public void setActivity(FragmentActivity activity) {
+			this.activityWR = new WeakReference<FragmentActivity>(activity);
 		}
 
 		public void onPause() {
@@ -698,7 +699,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private void enableTimeChangedReceiver() {
 			if (!this.timeChangedReceiverEnabled) {
-				Activity activity = this.activityWR == null ? null : this.activityWR.get();
+				FragmentActivity activity = this.activityWR == null ? null : this.activityWR.get();
 				if (activity != null) {
 					activity.registerReceiver(this.timeChangedReceiver, TimeUtils.TIME_CHANGED_INTENT_FILTER);
 				}
@@ -708,7 +709,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private void disableTimeChangeddReceiver() {
 			if (this.timeChangedReceiverEnabled) {
-				Activity activity = this.activityWR == null ? null : this.activityWR.get();
+				FragmentActivity activity = this.activityWR == null ? null : this.activityWR.get();
 				if (activity != null) {
 					activity.unregisterReceiver(this.timeChangedReceiver);
 				}

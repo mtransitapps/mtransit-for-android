@@ -2,12 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="org.mtransit.android.MainActivity" >
+    tools:context="org.mtransit.android.MainActivity">
     <item
         android:id="@+id/menu_search"
         android:icon="@drawable/ic_action_search_dark"
         android:orderInCategory="999"
         android:title="@string/menu_action_search"
         android:visible="true"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
 </menu>

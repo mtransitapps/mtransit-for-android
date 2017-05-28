@@ -19,10 +19,6 @@ import org.mtransit.android.util.iab.Purchase;
 import org.mtransit.android.util.iab.SkuDetails;
 
 import android.app.Activity;
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.util.ArrayMap;
@@ -225,22 +221,9 @@ public final class VendingUtils implements MTLog.Loggable {
 	}
 
 	public static void purchase(Activity activity) {
-		showNewDialog(activity.getFragmentManager(), PurchaseDialogFragment.newInstance());
+		FragmentUtils.replaceDialogFragment(activity, FragmentUtils.DIALOG_TAG, PurchaseDialogFragment.newInstance(), null);
 	}
 
-	private static final String DIALOG_TAG = "dialog";
-
-	private static void showNewDialog(FragmentManager fm, DialogFragment newDialog) {
-		FragmentTransaction ft = fm.beginTransaction();
-		Fragment prev = fm.findFragmentByTag(DIALOG_TAG);
-		if (prev != null) {
-			ft.remove(prev);
-		}
-		ft.addToBackStack(null);
-		if (newDialog != null) {
-			newDialog.show(ft, DIALOG_TAG);
-		}
-	}
 
 	public static void getInventory(IabHelper.QueryInventoryFinishedListener listener) {
 		try {

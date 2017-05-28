@@ -46,7 +46,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		return TAG;
 	}
 
-	private static final String ITEM_ID_AGENCYTYPE_START_WITH = "agencytype-";
+	private static final String ITEM_ID_AGENCY_TYPE_START_WITH = "agencytype-";
 	private static final String ITEM_ID_STATIC_START_WITH = "static-";
 	private static final int ITEM_INDEX_HOME = 0;
 	private static final int ITEM_INDEX_FAVORITE = 1;
@@ -68,63 +68,85 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		DataSourceProvider.addModulesUpdateListener(this);
 	}
 
-	public void setup(Bundle savedInstanceState) {
-		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
-		if (mainActivity != null) {
-			this.navigationView = (NavigationView) mainActivity.findViewById(R.id.nav_view);
-			this.navigationView.setNavigationItemSelectedListener(this);
-			this.drawerLayout = (DrawerLayout) mainActivity.findViewById(R.id.drawer_layout);
-			this.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-			this.drawerToggle = new ABDrawerToggle(mainActivity, this.drawerLayout);
-			this.drawerLayout.addDrawerListener(this.drawerToggle);
-			finishSetupAsync(savedInstanceState);
-		}
+	public void onCreate(Bundle savedInstanceState) {
 	}
 
-	private void finishSetupAsync(Bundle savedInstanceState) {
-		new MTAsyncTask<Bundle, String, String>() {
+	private void setup() {
+		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		if (mainActivity == null) {
+			return;
+		}
+		this.navigationView = (NavigationView) mainActivity.findViewById(R.id.nav_view);
+		this.navigationView.setNavigationItemSelectedListener(this);
+		this.drawerLayout = (DrawerLayout) mainActivity.findViewById(R.id.drawer_layout);
+		this.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+		this.drawerToggle = new ABDrawerToggle(mainActivity, this.drawerLayout);
+		this.drawerLayout.addDrawerListener(this.drawerToggle);
+		finishSetupAsync();
+	}
 
-			private final String TAG = NavigationDrawerController.TAG + ">finishSetupAsync()";
+	private void finishSetupAsync() {
+		if (this.finishSetupTask != null && this.finishSetupTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+			return;
+		}
+		this.finishSetupTask = new FinishSetupTask();
+		TaskUtils.execute(this.finishSetupTask);
+	}
 
-			@Override
-			public String getLogTag() {
-				return TAG;
+	private FinishSetupTask finishSetupTask = null;
+
+	private class FinishSetupTask extends MTAsyncTask<Void, String, String> {
+
+		private final String TAG = NavigationDrawerController.TAG + ">" + FinishSetupTask.class.getSimpleName();
+
+		@Override
+		public String getLogTag() {
+			return TAG;
+		}
+
+		@Override
+		protected String doInBackgroundMT(Void... params) {
+			Context context = NavigationDrawerController.this.mainActivityWR == null ? null : NavigationDrawerController.this.mainActivityWR.get();
+			if (context == null) {
+				return null;
 			}
-
-			@Override
-			protected String doInBackgroundMT(Bundle... params) {
-				Context context = NavigationDrawerController.this.mainActivityWR == null ? null : NavigationDrawerController.this.mainActivityWR.get();
-				String itemId = null;
-				if (context != null && !isCurrentSelectedSet()) {
-					itemId = PreferenceUtils.getPrefLcl(context, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT);
-					publishProgress(itemId);
-				}
-				return itemId;
+			if (isCurrentSelectedSet()) {
+				return null;
 			}
+			String itemId = PreferenceUtils.getPrefLcl(context, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT);
+			publishProgress(itemId);
+			return itemId;
+		}
 
-			@Override
-			protected void onPostExecute(String itemId) {
-				setVisibleMenuItems();
-				selectItemId(itemId);
-				if (!hasUserLearnedDrawer()) {
-					openDrawer();
-					setUserLearnedDrawer();
-				}
+		@Override
+		protected void onPostExecute(String itemId) {
+			if (isCancelled()) {
+				return;
 			}
+			setVisibleMenuItems();
+			selectItemId(itemId);
+			if (!hasUserLearnedDrawer()) {
+				openDrawer();
+				setUserLearnedDrawer();
+			}
+		}
 
-			public void selectItemId(String itemId) {
-				if (!TextUtils.isEmpty(itemId)) {
-					Integer navItemId = getScreenNavItemId(itemId);
-					selectItem(navItemId, false);
-				}
+		private void selectItemId(String itemId) {
+			if (TextUtils.isEmpty(itemId)) {
+				return;
 			}
+			Integer navItemId = getScreenNavItemId(itemId);
+			selectItem(navItemId, false);
+		}
 
-			@Override
-			protected void onProgressUpdate(String... itemIds) {
-				super.onProgressUpdate(itemIds);
-				selectItemId(itemIds == null || itemIds.length == 0 ? null : itemIds[0]);
+		@Override
+		protected void onProgressUpdate(String... itemIds) {
+			super.onProgressUpdate(itemIds);
+			if (isCancelled()) {
+				return;
 			}
-		}.executeOnExecutor(TaskUtils.THREAD_POOL_EXECUTOR, savedInstanceState);
+			selectItemId(itemIds == null || itemIds.length == 0 ? null : itemIds[0]);
+		}
 	}
 
 	private Boolean userLearnedDrawer = null;
@@ -133,7 +155,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		if (this.userLearnedDrawer == null) {
 			MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 			if (mainActivity != null) {
-				this.userLearnedDrawer = PreferenceUtils.getPrefDefault(mainActivity, PreferenceUtils.PREF_USER_LEARNED_DRAWER,
+				this.userLearnedDrawer = PreferenceUtils.getPrefDefault(mainActivity, PreferenceUtils.PREF_USER_LEARNED_DRAWER, //
 						PreferenceUtils.PREF_USER_LEARNED_DRAWER_DEFAULT);
 			}
 		}
@@ -247,19 +269,19 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		case R.id.nav_news:
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEWS;
 		case R.id.nav_light_rail:
-			return ITEM_ID_AGENCYTYPE_START_WITH + DataSourceType.TYPE_LIGHT_RAIL.getId();
+			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_LIGHT_RAIL.getId();
 		case R.id.nav_subway:
-			return ITEM_ID_AGENCYTYPE_START_WITH + DataSourceType.TYPE_SUBWAY.getId();
+			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_SUBWAY.getId();
 		case R.id.nav_rail:
-			return ITEM_ID_AGENCYTYPE_START_WITH + DataSourceType.TYPE_RAIL.getId();
+			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_RAIL.getId();
 		case R.id.nav_bus:
-			return ITEM_ID_AGENCYTYPE_START_WITH + DataSourceType.TYPE_BUS.getId();
+			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BUS.getId();
 		case R.id.nav_ferry:
-			return ITEM_ID_AGENCYTYPE_START_WITH + DataSourceType.TYPE_FERRY.getId();
+			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_FERRY.getId();
 		case R.id.nav_bike:
-			return ITEM_ID_AGENCYTYPE_START_WITH + DataSourceType.TYPE_BIKE.getId();
+			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BIKE.getId();
 		case R.id.nav_module:
-			return ITEM_ID_AGENCYTYPE_START_WITH + DataSourceType.TYPE_MODULE.getId();
+			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.getId();
 		case R.id.nav_settings:
 			return null;
 		default:
@@ -293,9 +315,9 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 				MTLog.w(this, e, "Error while finding static screen item ID '%s'!", itemId);
 				return ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT;
 			}
-		} else if (itemId.startsWith(ITEM_ID_AGENCYTYPE_START_WITH)) {
+		} else if (itemId.startsWith(ITEM_ID_AGENCY_TYPE_START_WITH)) {
 			try {
-				DataSourceType dst = DataSourceType.parseId(Integer.parseInt(itemId.substring(ITEM_ID_AGENCYTYPE_START_WITH.length())));
+				DataSourceType dst = DataSourceType.parseId(Integer.parseInt(itemId.substring(ITEM_ID_AGENCY_TYPE_START_WITH.length())));
 				if (dst != null) {
 					ArrayList<DataSourceType> allAgencyTypes = getAllAgencyTypes();
 					if (allAgencyTypes != null && allAgencyTypes.contains(dst)) {
@@ -538,6 +560,10 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		}
 	}
 
+	public void onStart() {
+		setup();
+	}
+
 	private boolean resumed = false;
 
 	public void onResume() {
@@ -559,6 +585,10 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 
 	public void onPause() {
 		this.resumed = false;
+	}
+
+	public void onStop() {
+		TaskUtils.cancelQuietly(this.finishSetupTask, true);
 	}
 
 	private static final String EXTRA_SELECTED_ROOT_SCREEN_ID = "extra_selected_root_screen_id";

@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.firebase.firebase-crash'
 
 dependencies {
+    // ALL
     compile project(':commons-android')
     compile rootProject.ext.supportLibs.appCompat
     compile rootProject.ext.supportLibs.design
@@ -13,6 +14,12 @@ dependencies {
     compile rootProject.ext.gpsLibs.firebase_crash
     compile rootProject.ext.fbLibs.audienceNetwork
     compile rootProject.ext.fbLibs.audienceNetworkMediation
+    // DEBUG
+    debugCompile rootProject.ext.squareLibs.leakcanary
+    // RELEASE
+    releaseCompile rootProject.ext.squareLibs.leakcanary_no_op
+    // TEST
+    testCompile rootProject.ext.squareLibs.leakcanary_no_op
 }
 
 android {

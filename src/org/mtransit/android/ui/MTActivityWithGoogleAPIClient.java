@@ -1,11 +1,9 @@
 package org.mtransit.android.ui;
 
-import java.lang.ref.WeakReference;
-
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.ui.fragment.MTDialogFragmentV4;
+import org.mtransit.android.util.FragmentUtils;
+
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -13,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -96,72 +95,19 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActivity implement
 	protected void onStart() {
 		super.onStart();
 		if (!this.resolvingError) {
-			TaskUtils.execute(new StartGoogleApiClientTask(this));
-		}
-	}
-
-	private static class StartGoogleApiClientTask extends MTAsyncTask<Void, Void, Void> {
-
-		private static final String TAG = MTActivityWithGoogleAPIClient.class.getSimpleName() + ">" + StartGoogleApiClientTask.class.getSimpleName();
-
-		@Override
-		public String getLogTag() {
-			return TAG;
-		}
-
-		private WeakReference<MTActivityWithGoogleAPIClient> activityWR;
-
-		public StartGoogleApiClientTask(MTActivityWithGoogleAPIClient activity) {
-			this.activityWR = new WeakReference<MTActivityWithGoogleAPIClient>(activity);
-		}
-
-		@Override
-		protected Void doInBackgroundMT(Void... params) {
-			MTActivityWithGoogleAPIClient activity = this.activityWR == null ? null : this.activityWR.get();
-			if (activity == null) {
-				return null;
+			if (this.googleApiClient != null && !this.googleApiClient.isConnected()) {
+				this.googleApiClient.connect();
 			}
-			GoogleApiClient googleApiClient = activity.getGoogleApiClientOrInit();
-			if (googleApiClient != null) {
-				googleApiClient.connect();
-			}
-			return null;
 		}
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-		TaskUtils.execute(new StopGoogleApiClientTask(this));
-	}
-
-	private static class StopGoogleApiClientTask extends MTAsyncTask<Void, Void, Void> {
-
-		private static final String TAG = MTActivityWithGoogleAPIClient.class.getSimpleName() + ">" + StopGoogleApiClientTask.class.getSimpleName();
-
-		@Override
-		public String getLogTag() {
-			return TAG;
-		}
-
-		private WeakReference<MTActivityWithGoogleAPIClient> activityWR;
-
-		public StopGoogleApiClientTask(MTActivityWithGoogleAPIClient activity) {
-			this.activityWR = new WeakReference<MTActivityWithGoogleAPIClient>(activity);
-		}
-
-		@Override
-		protected Void doInBackgroundMT(Void... params) {
-			MTActivityWithGoogleAPIClient activity = this.activityWR == null ? null : this.activityWR.get();
-			if (activity == null) {
-				return null;
-			}
-			activity.onBeforeClientDisconnected();
-			GoogleApiClient googleApiClient = activity.getGoogleApiClientOrNull();
-			if (googleApiClient != null) {
-				googleApiClient.disconnect();
-			}
-			return null;
+		if (this.googleApiClient != null) {
+			this.googleApiClient.unregisterConnectionCallbacks(this);
+			this.googleApiClient.unregisterConnectionFailedListener(this);
+			this.googleApiClient.disconnect();
 		}
 	}
 
@@ -170,11 +116,6 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActivity implement
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		if (this.googleApiClient != null) {
-			this.googleApiClient.unregisterConnectionCallbacks(this);
-			this.googleApiClient.unregisterConnectionFailedListener(this);
-			this.googleApiClient = null;
-		}
 	}
 
 	@Override
@@ -211,7 +152,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActivity implement
 	}
 
 	private void showErrorDialog(int errorCode) {
-		MainActivity.showNewDialog(getSupportFragmentManager(), ErrorDialogFragment.newInstance(errorCode));
+		FragmentUtils.replaceDialogFragment(this, FragmentUtils.DIALOG_TAG, ErrorDialogFragment.newInstance(errorCode), null);
 	}
 
 	private void onDialogDismissed() {
@@ -238,6 +179,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActivity implement
 		public ErrorDialogFragment() {
 		}
 
+		@NonNull
 		@Override
 		public Dialog onCreateDialog(Bundle savedInstanceState) {
 			int errorCode = getArguments().getInt(DIALOG_ERROR);

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:clipChildren="false"
-    android:minHeight="?android:attr/listPreferredItemHeight" >
+    android:minHeight="?android:attr/listPreferredItemHeight">
     <!-- FAVORITE -->
     <ImageView
         android:id="@+id/fav"
@@ -18,6 +18,7 @@
         android:src="@drawable/star_on_light"
         android:visibility="gone"
         tools:visibility="visible" />
+
     <LinearLayout
         android:id="@+id/place"
         android:layout_width="match_parent"
@@ -25,7 +26,7 @@
         android:layout_centerVertical="true"
         android:orientation="vertical"
         android:paddingLeft="@dimen/poi_place_left_padding"
-        android:paddingRight="@dimen/poi_place_right_padding" >
+        android:paddingRight="@dimen/poi_place_right_padding">
         <!-- NAME -->
         <TextView
             android:id="@+id/name"
@@ -35,15 +36,16 @@
             android:fontFamily="sans-serif"
             android:gravity="center_vertical|left"
             android:marqueeRepeatLimit="marquee_forever"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="?android:attr/textColorPrimary"
-            android:textStyle="normal" />
+            android:textStyle="normal"
+            tools:text="NAME NAME NAME NAME NAME NAME NAME NAME NAME NAME NAME NAME" />
         <!-- DISTANCE & COMPASS -->
         <include
+            layout="@layout/layout_distance_and_compass"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            layout="@layout/layout_distance_and_compass" />
+            android:layout_gravity="center_vertical" />
     </LinearLayout>
 </RelativeLayout>

@@ -10,7 +10,8 @@
     android:minWidth="?android:attr/listPreferredItemHeight"
     android:orientation="vertical"
     android:visibility="invisible"
-    tools:visibility="visible" >
+    tools:visibility="visible">
+
     <TextView
         android:id="@+id/data_next_line_1"
         android:layout_width="wrap_content"
@@ -18,11 +19,13 @@
         android:layout_gravity="center_horizontal"
         android:ellipsize="marquee"
         android:fontFamily="sans-serif"
-        android:singleLine="true"
+        android:maxLines="1"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="?android:attr/textColorSecondary"
         android:textStyle="normal"
-        android:visibility="visible" />
+        android:visibility="visible"
+        tools:text="NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT" />
+
     <TextView
         android:id="@+id/data_next_line_2"
         android:layout_width="wrap_content"
@@ -30,10 +33,11 @@
         android:layout_gravity="center_horizontal"
         android:ellipsize="marquee"
         android:fontFamily="sans-serif"
-        android:singleLine="true"
+        android:maxLines="1"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="?android:attr/textColorTertiary"
         android:textStyle="normal"
         android:visibility="gone"
+        tools:text="NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT"
         tools:visibility="visible" />
 </LinearLayout>

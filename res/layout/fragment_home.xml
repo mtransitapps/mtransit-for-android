@@ -4,25 +4,28 @@
     android:id="@+id/swiperefresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="@dimen/action_bar_size_static" >
+    android:paddingTop="@dimen/action_bar_size_static">
+
     <FrameLayout
         android:id="@+id/viewFlipper"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent">
         <!-- LOADING -->
         <include
             android:id="@+id/loading"
+            layout="@layout/layout_loading_large"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            layout="@layout/layout_loading_large"
-            android:visibility="visible" />
+            android:visibility="visible"
+            tools:visibility="gone" />
         <!-- LIST -->
         <ViewStub
             android:id="@+id/list_stub"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout="@layout/layout_poi_list"
-            android:visibility="gone" />
+            android:visibility="gone"
+            tools:visibility="visible" />
         <!-- EMPTY -->
         <ViewStub
             android:id="@+id/empty_stub"
@@ -31,6 +34,7 @@
             android:inflatedId="@+id/empty"
             android:layout="@layout/layout_empty"
             android:visibility="gone" />
+
         <include layout="@layout/layout_shadow" />
     </FrameLayout>
 </org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout>

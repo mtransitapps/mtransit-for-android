@@ -4,7 +4,7 @@ import org.mtransit.android.util.AnalyticsUtils;
 
 import android.os.Bundle;
 
-public class SplashScreenActivity extends MTAppCompatActivity implements AnalyticsUtils.Trackable {
+public class SplashScreenActivity extends MTActivity implements AnalyticsUtils.Trackable {
 
 	private static final String TAG = SplashScreenActivity.class.getSimpleName();
 

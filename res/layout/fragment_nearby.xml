@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingTop="@dimen/action_bar_size_static" >
+    android:paddingTop="@dimen/action_bar_size_static">
     <!-- TABS -->
     <android.support.design.widget.TabLayout
         android:id="@+id/tabs"
@@ -22,17 +22,19 @@
     <!-- LOADING -->
     <include
         android:id="@+id/loading"
+        layout="@layout/layout_loading_large"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        layout="@layout/layout_loading_large"
-        android:visibility="visible" />
+        android:visibility="visible"
+        tools:visibility="gone" />
     <!-- VIEWPAGER -->
     <android.support.v4.view.ViewPager
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
-        tools:context="org.mtransit.android.MainActivity" />
+        tools:context="org.mtransit.android.MainActivity"
+        tools:visibility="visible" />
     <!-- EMPTY -->
     <ViewStub
         android:id="@+id/empty_stub"

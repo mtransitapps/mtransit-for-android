@@ -4,7 +4,7 @@
     android:layout_width="wrap_content"
     android:layout_height="?android:attr/listPreferredItemHeightLarge"
     android:clipChildren="false"
-    android:paddingRight="8dp" >
+    android:paddingRight="8dp">
     <TextView
         android:id="@+id/next_departure_time_baseline"
         android:layout_width="wrap_content"
@@ -13,7 +13,7 @@
         android:layout_centerVertical="true"
         android:gravity="center_vertical"
         android:includeFontPadding="false"
-        android:singleLine="true"
+        android:maxLines="1"
         android:textAppearance="?android:attr/textAppearanceMedium" />
     <TextView
         android:id="@+id/next_departure_time"
@@ -22,8 +22,8 @@
         android:layout_alignBaseline="@id/next_departure_time_baseline"
         android:layout_alignParentRight="true"
         android:includeFontPadding="false"
+        android:maxLines="1"
         android:paddingRight="8dp"
-        android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="?android:attr/textColorSecondary" />
     <TextView
@@ -37,10 +37,10 @@
         android:fontFamily="sans-serif-condensed"
         android:gravity="top"
         android:includeFontPadding="false"
+        android:maxLines="1"
         android:paddingBottom="4dp"
         android:paddingLeft="2dp"
         android:paddingRight="2dp"
-        android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="?android:attr/textColorTertiary"
         android:textSize="@dimen/trip_head_sign_text_size"

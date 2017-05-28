@@ -33,6 +33,7 @@ import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.MTClusterOptionsProvider;
 import org.mtransit.android.ui.view.map.impl.ExtendedMapFactory;
 import org.mtransit.android.ui.view.map.utils.LatLngUtils;
+import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
 
 import android.app.Activity;
@@ -508,7 +509,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			if (poiMarkerIds.size() >= 1) {
 				Activity activity = getActivityOrNull();
 				if (activity != null && activity instanceof MainActivity) {
-					MainActivity.showNewDialog(((MainActivity) activity).getSupportFragmentManager(), PickPOIDialogFragment.newInstance(poiMarkerIds.getMap()));
+					FragmentUtils.replaceDialogFragment((MainActivity) activity, FragmentUtils.DIALOG_TAG, //
+							PickPOIDialogFragment.newInstance(poiMarkerIds.getMap()), //
+							null);
 				}
 			}
 		}

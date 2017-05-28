@@ -7,12 +7,13 @@
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:orientation="horizontal"
     android:paddingLeft="8dp"
-    android:paddingRight="8dp" >
+    android:paddingRight="8dp">
+
     <FrameLayout
         android:layout_width="@dimen/poi_extra_width"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:gravity="center" >
+        android:gravity="center">
         <!-- ROUTE SHORT NAME -->
         <TextView
             android:id="@+id/route_short_name"
@@ -21,13 +22,14 @@
             android:layout_gravity="center"
             android:fontFamily="sans-serif-condensed"
             android:includeFontPadding="false"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@android:color/white"
             android:textSize="@dimen/route_short_name_text_size"
             android:textStyle="bold"
             android:visibility="gone"
             tools:ignore="SpUsage"
+            tools:text="RSN"
             tools:visibility="visible" />
         <!-- ROUTE TYPE IMG -->
         <org.mtransit.android.ui.view.MTJPathsView
@@ -50,9 +52,10 @@
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
         android:includeFontPadding="true"
-        android:singleLine="true"
+        android:maxLines="1"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@android:color/white"
         android:visibility="gone"
+        tools:text="Route Long Name Route Long Name Route Long Name"
         tools:visibility="visible" />
 </LinearLayout>

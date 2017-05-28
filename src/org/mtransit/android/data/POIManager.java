@@ -27,7 +27,6 @@ import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.provider.StatusProviderContract;
-import org.mtransit.android.data.Favorite;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
@@ -332,7 +331,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	public CharSequence[] getActionsItems(Context context, CharSequence defaultAction, HashMap<Integer, Favorite.Folder> favoriteFolders) {
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_NONE:
-			return new CharSequence[] { defaultAction };
+			return new CharSequence[]{defaultAction};
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
 			return new CharSequence[] { //
 			defaultAction, //
@@ -344,7 +343,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			};
 		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
 			RouteTripStop rts = (RouteTripStop) this.poi;
-			return new CharSequence[] { //
+			return new CharSequence[]{ //
 					context.getString(R.string.view_stop), //
 					TextUtils.isEmpty(rts.getRoute().getShortName()) ? context.getString(R.string.view_stop_route) : context.getString(
 							R.string.view_stop_route_and_route, rts.getRoute().getShortName()), //
