@@ -33,6 +33,7 @@ import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.MTClusterOptionsProvider;
 import org.mtransit.android.ui.view.map.impl.ExtendedMapFactory;
 import org.mtransit.android.ui.view.map.utils.LatLngUtils;
+import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
 
@@ -954,7 +955,11 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		private ArrayMap<String, String> uuidsAndAuthority = new ArrayMap<String, String>();
 
 		public void put(String uuid, String authority) {
-			this.uuidsAndAuthority.put(uuid, authority);
+			try {
+				this.uuidsAndAuthority.put(uuid, authority);
+			} catch (Exception e) {
+				CrashUtils.w(this, e, "Error while adding POI marker ID %s:%s", uuid, authority);
+			}
 		}
 
 		public void putAll(SimpleArrayMap<String, String> newUuidsAndAuthority) {

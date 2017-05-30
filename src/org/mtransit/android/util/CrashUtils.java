@@ -38,6 +38,11 @@ public final class CrashUtils implements MTLog.Loggable {
 		}
 	}
 
+	public static void w(MTLog.Loggable loggable, Throwable t, String msg, Object... args) {
+		MTLog.w(loggable, t, msg, args);
+		report(t, String.format(msg, args));
+	}
+
 	public static void w(String tag, Throwable t, String msg, Object... args) {
 		MTLog.w(tag, t, msg, args);
 		report(t, String.format(msg, args));
