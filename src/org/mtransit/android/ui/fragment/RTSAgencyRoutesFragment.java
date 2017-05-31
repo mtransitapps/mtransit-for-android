@@ -212,7 +212,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	}
 
 	private boolean isShowingListInsteadOfGridPref() {
-		boolean showingListInsteadOfGridLastSet = PreferenceUtils.getPrefDefault(getActivity(),
+		boolean showingListInsteadOfGridLastSet = PreferenceUtils.getPrefDefault(getActivity(), //
 				PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET, PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT);
 		if (TextUtils.isEmpty(this.authority)) {
 			return showingListInsteadOfGridLastSet;
@@ -258,8 +258,9 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 				if (selectedRoute == null) {
 					return;
 				}
-				((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(RTSAgencyRoutesFragment.this.authority, selectedRoute.getId(), null,
-						null, selectedRoute));
+				((MainActivity) activity).addFragmentToStack(
+						RTSRouteFragment.newInstance(RTSAgencyRoutesFragment.this.authority, selectedRoute.getId(), null, null, selectedRoute),
+						RTSAgencyRoutesFragment.this);
 			}
 		});
 	}

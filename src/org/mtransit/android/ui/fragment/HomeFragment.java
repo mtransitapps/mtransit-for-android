@@ -276,7 +276,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (this.nearbyLocation == null) {
 			useNewNearbyLocation(newLocation);
 		} else {
-			if (this.adapter != null && this.adapter.isInitialized()
+			if (this.adapter != null && this.adapter.isInitialized() //
 					&& !LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)) {
 				showLocationToast();
 			} else {
@@ -380,7 +380,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_show_map:
-			((MainActivity) getActivity()).addFragmentToStack(MapFragment.newInstance(null, null, null));
+			((MainActivity) getActivity()).addFragmentToStack(MapFragment.newInstance(null, null, null), this);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -429,7 +429,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public boolean onTypeHeaderButtonClick(int buttonId, DataSourceType type) {
 		if (buttonId == POIArrayAdapter.TypeHeaderButtonsClickListener.BUTTON_MORE) {
-			((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newNearbyInstance(null, type.getId()));
+			((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newNearbyInstance(null, type.getId()), this);
 			return true; // handled
 		}
 		return false; // not handled

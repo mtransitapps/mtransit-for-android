@@ -20,6 +20,7 @@ import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.Menu;
@@ -126,11 +127,11 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	}
 
 	public void onSearchQueryRequested(String query) {
-		Fragment f = getCurrentFragment();
-		if (f != null && f instanceof SearchFragment) {
-			((SearchFragment) f).setSearchQuery(query, false);
+		Fragment currentFragment = getCurrentFragment();
+		if (currentFragment != null && currentFragment instanceof SearchFragment) {
+			((SearchFragment) currentFragment).setSearchQuery(query, false);
 		} else {
-			addFragmentToStack(SearchFragment.newInstance(query, null, null));
+			addFragmentToStack(SearchFragment.newInstance(query, null, null), currentFragment);
 		}
 	}
 
@@ -254,8 +255,8 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		FragmentUtils.clearFragmentBackStackImmediate(this, null);
 	}
 
-	public void showNewFragment(ABFragment newFragment, boolean addToStack) {
-		FragmentUtils.replaceFragment(this, R.id.content_frame, newFragment, addToStack, null);
+	public void showNewFragment(ABFragment newFragment, boolean addToStack, @Nullable Fragment optSource) {
+		FragmentUtils.replaceFragment(this, R.id.content_frame, newFragment, addToStack, optSource);
 		if (addToStack) {
 			incBackEntryCount();
 		}
@@ -280,7 +281,11 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	}
 
 	public void addFragmentToStack(ABFragment newFragment) {
-		showNewFragment(newFragment, true);
+		addFragmentToStack(newFragment, getCurrentFragment());
+	}
+
+	public void addFragmentToStack(ABFragment newFragment, @Nullable Fragment optSource) {
+		showNewFragment(newFragment, true, optSource);
 	}
 
 	@Override

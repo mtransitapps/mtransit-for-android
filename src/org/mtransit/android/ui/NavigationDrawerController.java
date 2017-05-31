@@ -382,7 +382,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		mainActivity.clearFragmentBackStackImmediate(); // root screen
 		StatusLoader.get().clearAllTasks();
 		ServiceUpdateLoader.get().clearAllTasks();
-		mainActivity.showNewFragment(newFragment, false);
+		mainActivity.showNewFragment(newFragment, false, null);
 		if (isRootScreen(navItemId)) {
 			PreferenceUtils.savePrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId, false);
 		}

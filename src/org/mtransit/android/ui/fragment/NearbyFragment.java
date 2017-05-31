@@ -448,7 +448,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				if (this.selectedTypeId == null) {
 					Context context = this.contextWR == null ? null : this.contextWR.get();
 					if (context != null) {
-						this.selectedTypeId = PreferenceUtils.getPrefLcl(context, PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE,
+						this.selectedTypeId = PreferenceUtils.getPrefLcl(context, PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE, //
 								PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE_DEFAULT);
 					} else {
 						this.selectedTypeId = PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE_DEFAULT;
@@ -559,7 +559,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			if (this.nearbyLocation == null) {
 				setNewNearbyLocation(newLocation);
 			} else {
-				if (this.adapter != null && this.adapter.isInitialized()
+				if (this.adapter != null && this.adapter.isInitialized() //
 						&& !LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)) {
 					showLocationToast();
 				} else {
@@ -811,7 +811,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			if (this.fixedOnLat != null && this.fixedOnLng != null) {
 				fixedOnLocation = LocationUtils.getNewLocation(this.fixedOnLat, this.fixedOnLng);
 			}
-			((MainActivity) getActivity()).addFragmentToStack(MapFragment.newInstance(fixedOnLocation, null, this.selectedTypeId));
+			((MainActivity) getActivity()).addFragmentToStack(MapFragment.newInstance(fixedOnLocation, null, this.selectedTypeId), this);
 			return true; // handled
 		}
 		return super.onOptionsItemSelected(item);

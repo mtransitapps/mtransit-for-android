@@ -56,6 +56,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -363,7 +364,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			return true; // no news, need to apply
 		}
 		long nowInMs = TimeUtils.currentTimeMillis();
-		long minCreatedAtInMs = nowInMs - TimeUnit.DAYS.toMillis(7);
+		long minCreatedAtInMs = nowInMs - TimeUnit.DAYS.toMillis(7L);
 		ArrayList<News> allNews = new ArrayList<News>();
 		for (NewsProviderProperties poiNewsProvider : poiNewsProviders) {
 			ArrayList<News> providerNews = DataSourceManager.findNews(context, poiNewsProvider.getAuthority(),
@@ -430,8 +431,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		POIManager poim = getPoimOrNull();
 		FragmentActivity activity = getActivity();
 		if (poim != null && activity != null) {
-			((MainActivity) activity).addFragmentToStack(MapFragment.newInstance(LocationUtils.getNewLocation(poim.getLat(), poim.getLng()),
-					poim.poi.getUUID(), poim.poi.getDataSourceTypeId()));
+			((MainActivity) activity).addFragmentToStack( //
+					MapFragment.newInstance(LocationUtils.getNewLocation(poim.getLat(), poim.getLng()), poim.poi.getUUID(), poim.poi.getDataSourceTypeId()),
+					this);
 		}
 	}
 
@@ -546,7 +548,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 	@Override
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
 		POIManager poim = getPoimOrNull();
-		if (CollectionUtils.getSize(data) < LocationUtils.MIN_NEARBY_LIST && poim != null
+		if (CollectionUtils.getSize(data) < LocationUtils.MIN_NEARBY_LIST && poim != null //
 				&& !LocationUtils.searchComplete(poim.poi.getLat(), poim.poi.getLng(), this.ad.aroundDiff)) {
 			LocationUtils.incAroundDiff(this.ad);
 			LoaderUtils.restartLoader(this, NEARBY_POIS_LOADER, null, this);
@@ -632,8 +634,10 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 							MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
 							return;
 						}
-						((MainActivity) activity).addFragmentToStack(ScheduleFragment.newInstance(POIFragment.this.uuid, POIFragment.this.authority,
-								(RouteTripStop) poim.poi, poim.getColor(activity)));
+						((MainActivity) activity).addFragmentToStack( //
+								ScheduleFragment.newInstance( //
+										POIFragment.this.uuid, POIFragment.this.authority, (RouteTripStop) poim.poi, poim.getColor(activity)), //
+								POIFragment.this);
 					}
 				});
 				rtsScheduleBtn.setVisibility(View.VISIBLE);
@@ -662,8 +666,11 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 					}
 					Integer colorInt = poim.getColor(activity);
 					String subtitle = POIManager.getOneLineDescription(activity, poim.poi);
-					((MainActivity) activity).addFragmentToStack(NewsFragment.newInstance(colorInt, subtitle, ArrayUtils.asArrayList(poim.poi.getAuthority()),
-							null, NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()));
+					((MainActivity) activity).addFragmentToStack( //
+							NewsFragment.newInstance( //
+									colorInt, subtitle, ArrayUtils.asArrayList(poim.poi.getAuthority()), null,
+									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()), //
+							POIFragment.this);
 				}
 			});
 			moreBtn.setVisibility(View.VISIBLE);
@@ -692,8 +699,10 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 					if (agency != null) {
 						optTypeId = agency.getType().getId();
 					}
-					((MainActivity) activity).addFragmentToStack(NearbyFragment.newFixedOnInstance(optTypeId, poim.getLat(), poim.getLng(),
-							POIManager.getOneLineDescription(activity, poim.poi), poim.getColor(activity)));
+					((MainActivity) activity).addFragmentToStack( //
+							NearbyFragment.newFixedOnInstance( //
+									optTypeId, poim.getLat(), poim.getLng(), POIManager.getOneLineDescription(activity, poim.poi), poim.getColor(activity)),
+							POIFragment.this);
 				}
 			});
 			moreBtn.setVisibility(View.VISIBLE);
@@ -755,7 +764,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 						if (activity == null) {
 							return;
 						}
-						((MainActivity) activity).addFragmentToStack(NewsDetailsFragment.newInstance(lastNews.getUUID(), lastNews.getAuthority(), lastNews));
+						((MainActivity) activity).addFragmentToStack( //
+								NewsDetailsFragment.newInstance(lastNews.getUUID(), lastNews.getAuthority(), lastNews), //
+								POIFragment.this);
 					}
 				});
 			}
@@ -842,8 +853,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		SensorUtils.checkForCompass(getActivity(), se, this.accelerometerValues, this.magneticFieldValues, this);
 	}
 
-
-	private long lastCompassChanged = -1l;
+	private long lastCompassChanged = -1L;
 
 	@Override
 	public void updateCompass(float orientation, boolean force) {
@@ -1043,7 +1053,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 				this.favoriteFolderId = FavoriteManager.findFavoriteFolderId(getActivity(), poim.poi.getUUID());
 			}
 		}
-		return getFavoriteFolderId() == null ? false : getFavoriteFolderId() >= 0;
+		return getFavoriteFolderId() != null && getFavoriteFolderId() >= 0;
 	}
 
 	private void resetFavorite() {

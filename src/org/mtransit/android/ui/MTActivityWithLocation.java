@@ -58,7 +58,7 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 
 	public void enableLocationUpdates() {
 		if (this.useLocation && !this.locationUpdatesEnabled) {
-			GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
+			GoogleApiClient googleApiClient = getGoogleApiClientOrNull();
 			if (googleApiClient != null && googleApiClient.isConnected()) {
 				try {
 					LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, this.locationRequest, this);
@@ -81,7 +81,7 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 
 	public void disableLocationUpdates() {
 		if (this.locationUpdatesEnabled) {
-			GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
+			GoogleApiClient googleApiClient = getGoogleApiClientOrNull();
 			if (googleApiClient != null && googleApiClient.isConnected()) {
 				LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
 				this.locationUpdatesEnabled = false;
@@ -113,7 +113,7 @@ public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClie
 		if (!this.locationUpdatesEnabled) {
 			return null;
 		}
-		GoogleApiClient googleApiClient = getGoogleApiClientOrInit();
+		GoogleApiClient googleApiClient = getGoogleApiClientOrNull();
 		if (googleApiClient == null) {
 			return null;
 		}

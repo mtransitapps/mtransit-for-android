@@ -43,7 +43,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActivity implement
 		return this.googleApiClient;
 	}
 
-	public GoogleApiClient getGoogleApiClientOrInit() {
+	private GoogleApiClient getGoogleApiClientOrInit() {
 		if (this.useGooglePlayServices && this.googleApiClient == null) {
 			initGoogleApiClient();
 		}
@@ -60,6 +60,10 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActivity implement
 				.addConnectionCallbacks(this)//
 				.addOnConnectionFailedListener(this);
 		this.googleApiClient = googleApiClientBuilder.build();
+	}
+
+	private void destroyGoogleApiClient() {
+		this.googleApiClient = null;
 	}
 
 	protected abstract void addGoogleAPIs(GoogleApiClient.Builder googleApiClientBuilder);
@@ -111,6 +115,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActivity implement
 			googleApiClient.unregisterConnectionFailedListener(this);
 			googleApiClient.disconnect();
 		}
+		destroyGoogleApiClient();
 	}
 
 	public abstract void onBeforeClientDisconnected();
