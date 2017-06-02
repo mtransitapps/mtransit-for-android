@@ -883,9 +883,10 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 					}
 				}
 				TimeUtils.cleanTimes(timeOnly, timeSb);
-				if (this.nextTimeInMs != null  //
-						&& TimeUtils.isSameDay(getNowToTheMinute(), this.nextTimeInMs.t) //
-						&& this.nextTimeInMs.t == timestamp.t) { // now
+				long nextTimeInMsT = this.nextTimeInMs == null ? -1L : this.nextTimeInMs.t;
+				if (nextTimeInMsT >= 0L  //
+						&& TimeUtils.isSameDay(getNowToTheMinute(), nextTimeInMsT) //
+						&& nextTimeInMsT == timestamp.t) { // now
 					SpanUtils.setAll(timeSb, getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_NOW_STYLE);
 				} else if (timestamp.t < getNowToTheMinute()) { // past
 					SpanUtils.setAll(timeSb, getScheduleListTimesPastTextColor(context), SCHEDULE_LIST_TIMES_PAST_STYLE);
