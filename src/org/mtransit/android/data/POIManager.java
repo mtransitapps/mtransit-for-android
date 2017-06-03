@@ -41,6 +41,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.support.annotation.ColorInt;
 import android.text.TextUtils;
 
 public class POIManager implements LocationPOI, MTLog.Loggable {
@@ -454,6 +455,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return defaultColor;
 	}
 
+	@ColorInt
 	public static Integer getRouteColor(Context context, Route route, String authority, Integer defaultColor) {
 		if (route != null) {
 			if (route.hasColor()) {
@@ -641,12 +643,12 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	@Override
-	public Double getLat() {
+	public double getLat() {
 		return this.poi.getLat();
 	}
 
 	@Override
-	public Double getLng() {
+	public double getLng() {
 		return this.poi.getLng();
 	}
 
