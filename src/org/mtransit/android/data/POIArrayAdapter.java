@@ -44,6 +44,7 @@ import org.mtransit.android.ui.view.MTOnItemClickListener;
 import org.mtransit.android.ui.view.MTOnItemLongClickListener;
 import org.mtransit.android.ui.view.MTOnLongClickListener;
 import org.mtransit.android.ui.view.MTPieChartPercentView;
+import org.mtransit.android.util.CrashUtils;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -53,6 +54,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -234,8 +237,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					}
 				}
 			}
-			MTLog.d(this, "Cannot find type for at position '%s'!", position);
-			return Adapter.IGNORE_ITEM_VIEW_TYPE;
+			CrashUtils.w(this, "Cannot find type for at position '%s'!", position);
+			return IGNORE_ITEM_VIEW_TYPE;
 		}
 		int type = poim.poi.getType();
 		int statusType = poim.getStatusType();
@@ -257,13 +260,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				return 4; // RTS
 			}
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
-		default:
 			switch (statusType) {
 			case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
 				return 1; // DEFAULT & AVAILABILITY %
 			default:
 				return 2; // DEFAULT
 			}
+		default:
+			CrashUtils.w(this, "Cannot find POI type for at position '%s'!", position);
+			return 2; // DEFAULT
 		}
 	}
 
@@ -366,8 +371,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return null;
 	}
 
+	@NonNull
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(int position, @Nullable View convertView, @Nullable ViewGroup parent) {
 		POIManager poim = getItem(position);
 		if (poim == null) {
 			if (this.showBrowseHeaderSection && position == 0) {
@@ -391,8 +397,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					}
 				}
 			}
-			MTLog.w(this, "getView() > Cannot create view for null poi at position '%s'!", position);
-			return null; // CRASH!!!
+			CrashUtils.w(this, "getView() > Cannot create view for null poi at position '%s'!", position);
+			return getInfiniteLoadingView(convertView, parent);
 		}
 		switch (poim.poi.getType()) {
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
@@ -404,12 +410,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 			return getBasicPOIView(poim, convertView, parent);
 		default:
-			MTLog.w(this, "getView() > Unknow view type at position %s!", position);
-			return null; // CRASH!!!
+			CrashUtils.w(this, "getView() > Unknown view type at position %s!", position);
+			return getBasicPOIView(poim, convertView, parent);
 		}
 	}
 
-	private View getInfiniteLoadingView(View convertView, ViewGroup parent) {
+	@NonNull
+	private View getInfiniteLoadingView(@Nullable View convertView, @Nullable ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_infinite_loading, parent, false);
 			InfiniteLoadingViewHolder holder = new InfiniteLoadingViewHolder();
@@ -438,7 +445,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private int nbAgencyTypes = -1;
 
-	private View getBrowseHeaderSectionView(View convertView, ViewGroup parent) {
+	private View getBrowseHeaderSectionView(@Nullable View convertView, @Nullable ViewGroup parent) {
 		Activity activity = this.activityWR == null ? null : this.activityWR.get();
 		DataSourceProvider dataSourceProvider = DataSourceProvider.get(activity);
 		int agenciesCount = dataSourceProvider == null ? 0 : dataSourceProvider.getAllAgenciesCount();
@@ -1163,7 +1170,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
-	private View getTypeHeaderView(final DataSourceType type, View convertView, ViewGroup parent) {
+	@NonNull
+	private View getTypeHeaderView(final DataSourceType type, @Nullable View convertView, @Nullable ViewGroup parent) {
 		if (convertView == null) {
 			int layoutRes = getTypeHeaderLayoutResId();
 			convertView = this.layoutInflater.inflate(layoutRes, parent, false);
@@ -1240,7 +1248,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private WeakHashMap<String, CommonStatusViewHolder> poiStatusViewHoldersWR = new WeakHashMap<String, CommonStatusViewHolder>();
 
-	private View getBasicPOIView(POIManager poim, View convertView, ViewGroup parent) {
+	@NonNull
+	private View getBasicPOIView(POIManager poim, @Nullable View convertView, @Nullable ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(getBasicPOILayout(poim.getStatusType()), parent, false);
 			BasicPOIViewHolder holder = new BasicPOIViewHolder();
@@ -1429,7 +1438,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return layoutRes;
 	}
 
-	private View getTextMessageView(POIManager poim, View convertView, ViewGroup parent) {
+	private View getTextMessageView(POIManager poim, @Nullable View convertView, @Nullable ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_basic, parent, false);
 			TextViewViewHolder holder = new TextViewViewHolder();
@@ -1449,7 +1458,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return convertView;
 	}
 
-	private View getModuleView(POIManager poim, View convertView, ViewGroup parent) {
+	@NonNull
+	private View getModuleView(POIManager poim, @Nullable View convertView, @Nullable ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(getModuleLayout(poim.getStatusType()), parent, false);
 			ModuleViewHolder holder = new ModuleViewHolder();
@@ -1508,7 +1518,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return layoutRes;
 	}
 
-	private View getRouteTripStopView(POIManager poim, View convertView, ViewGroup parent) {
+	@NonNull
+	private View getRouteTripStopView(POIManager poim, @Nullable View convertView, @Nullable ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(getRTSLayout(poim.getStatusType()), parent, false);
 			RouteTripStopViewHolder holder = new RouteTripStopViewHolder();

@@ -27,6 +27,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.SwitchCompat;
@@ -574,12 +575,14 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			return this.routes == null ? null : this.routes.get(position);
 		}
 
+		@NonNull
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(int position, @Nullable View convertView, @Nullable ViewGroup parent) {
 			return getRouteView(position, convertView, parent);
 		}
 
-		private View getRouteView(int position, View convertView, ViewGroup parent) {
+		@NonNull
+		private View getRouteView(int position, @Nullable View convertView, @Nullable ViewGroup parent) {
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(this.showingListInsteadOfGrid ? R.layout.layout_rts_route_list_item
 						: R.layout.layout_rts_route_grid_item, parent, false);
@@ -644,7 +647,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			}
 		}
 
-		public static class RouteViewHolder {
+		private static class RouteViewHolder {
 			TextView routeShortNameTv;
 			View routeFL;
 			MTJPathsView routeTypeImg;

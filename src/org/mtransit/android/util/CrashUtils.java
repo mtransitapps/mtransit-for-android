@@ -4,6 +4,8 @@ import org.mtransit.android.BuildConfig;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.MTApplication;
 
+import android.support.annotation.Nullable;
+
 import com.google.firebase.crash.FirebaseCrash;
 import com.squareup.leakcanary.LeakCanary;
 
@@ -29,13 +31,30 @@ public final class CrashUtils implements MTLog.Loggable {
 		}
 	}
 
-	private static void report(Throwable throwable, String message) {
+	private static void report(String message) {
+		report(null, message);
+	}
+
+	private static void report(@Nullable Throwable throwable, String message) {
 		try {
 			FirebaseCrash.log(message);
+			if (throwable == null) {
+				throwable = new Exception(message);
+			}
 			FirebaseCrash.report(throwable);
 		} catch (Exception e) {
 			MTLog.w(TAG, e, "Error while reporting message '%s'!", message);
 		}
+	}
+
+	public static void w(MTLog.Loggable loggable, String msg, Object... args) {
+		MTLog.w(loggable, msg, args);
+		report(String.format(msg, args));
+	}
+
+	public static void w(String tag, String msg, Object... args) {
+		MTLog.w(tag, msg, args);
+		report(String.format(msg, args));
 	}
 
 	public static void w(MTLog.Loggable loggable, Throwable t, String msg, Object... args) {

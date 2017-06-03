@@ -22,6 +22,8 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -487,8 +489,9 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			return 0;
 		}
 
+		@NonNull
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(int position, @Nullable View convertView, @Nullable ViewGroup parent) {
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_news_base, parent, false);
 				NewsViewHolder holder = new NewsViewHolder();

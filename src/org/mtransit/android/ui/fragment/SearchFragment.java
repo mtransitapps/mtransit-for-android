@@ -27,6 +27,8 @@ import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
@@ -687,17 +689,19 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			notifyDataSetChanged();
 		}
 
+		@NonNull
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(int position, @Nullable View convertView, @Nullable ViewGroup parent) {
 			return getTheView(position, convertView, parent);
 		}
 
 		@Override
-		public View getDropDownView(int position, View convertView, ViewGroup parent) {
+		public View getDropDownView(int position, @Nullable View convertView, @Nullable ViewGroup parent) {
 			return getTheView(position, convertView, parent);
 		}
 
-		private View getTheView(int position, View convertView, ViewGroup parent) {
+		@NonNull
+		private View getTheView(int position, @Nullable View convertView, @Nullable ViewGroup parent) {
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_poi_type_item, parent, false);
 				TypeViewHolder holder = new TypeViewHolder();
