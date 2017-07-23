@@ -35,7 +35,7 @@ public class RTSAgencyRoutesLoader extends MTAsyncTaskLoaderV4<ArrayList<Route>>
 		}
 		this.routes = new ArrayList<Route>();
 		this.routes = DataSourceManager.findAllRTSAgencyRoutes(getContext(), this.authority);
-		CollectionUtils.sort(this.routes, Route.SHORT_NAME_COMPATOR);
+		CollectionUtils.sort(this.routes, Route.SHORT_NAME_COMPARATOR);
 		return routes;
 	}
 
