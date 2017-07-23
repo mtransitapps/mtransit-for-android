@@ -1,5 +1,6 @@
 package org.mtransit.android.ui;
 
+import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.util.AnalyticsUtils;
 
 import android.os.Bundle;
@@ -23,6 +24,12 @@ public class SplashScreenActivity extends MTActivity implements AnalyticsUtils.T
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		int appOpenCounts = PreferenceUtils.getPrefDefault(this, //
+				PreferenceUtils.PREF_USER_APP_OPEN_COUNTS, //
+				PreferenceUtils.PREF_USER_APP_OPEN_COUNTS_DEFAULT);
+		appOpenCounts++;
+		PreferenceUtils.savePrefDefault(this, PreferenceUtils.PREF_USER_APP_OPEN_COUNTS, appOpenCounts, false); // asynchronous
+		AnalyticsUtils.trackUserProperty(this, AnalyticsUtils.USER_PROPERTY_OPEN_APP_COUNTS, String.valueOf(appOpenCounts));
 		AnalyticsUtils.trackScreenView(this, this);
 		showHomeActivity();
 	}

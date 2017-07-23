@@ -18,6 +18,8 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 
 	private static final String TAG = AnalyticsUtils.class.getSimpleName();
 
+	public static final String USER_PROPERTY_OPEN_APP_COUNTS = "mt_app_open_counts";
+
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -105,6 +107,20 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 				return null;
 			}
 		}.executeOnExecutor(TaskUtils.THREAD_POOL_EXECUTOR, context);
+	}
+
+	public static void trackUserProperty(Activity activity, String name, String value) {
+		if (!ANALYTICS_ENABLED) {
+			return;
+		}
+		try {
+			FirebaseAnalytics firebaseAnalytics = getFirebaseAnalytics(activity);
+			if (firebaseAnalytics != null) {
+				firebaseAnalytics.setUserProperty(name, value);
+			}
+		} catch (Exception e) {
+			MTLog.w(TAG, e, "Error while tracing user property (%s:%s)", name, value);
+		}
 	}
 
 	public static void trackScreenView(Activity activity, Trackable page) {
