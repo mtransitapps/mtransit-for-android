@@ -42,6 +42,7 @@ import org.mtransit.android.ui.view.POINewsViewController;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
+import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.LoaderUtils;
 import org.mtransit.android.util.MapUtils;
@@ -428,6 +429,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	@Override
 	public void onMapClick(LatLng position) {
+		if (!FragmentUtils.isFragmentReady(this)) {
+			return;
+		}
 		POIManager poim = getPoimOrNull();
 		FragmentActivity activity = getActivity();
 		if (poim != null && activity != null) {

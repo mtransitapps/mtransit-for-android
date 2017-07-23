@@ -294,17 +294,12 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	}
 
 	public boolean isCurrentFragmentVisible(Fragment fragment) {
-		if (fragment == null) {
-			return false;
-		}
-		if (fragment.isAdded() || fragment.isVisible() || fragment.isResumed() || fragment.equals(getCurrentFragment())) {
-			return true;
-		}
-		return false;
+		return FragmentUtils.isCurrentFragmentVisible(this, R.id.content_frame, fragment);
 	}
 
+	@Nullable
 	private Fragment getCurrentFragment() {
-		return getSupportFragmentManager().findFragmentById(R.id.content_frame);
+		return FragmentUtils.getFragment(this, R.id.content_frame);
 	}
 
 	@Override
