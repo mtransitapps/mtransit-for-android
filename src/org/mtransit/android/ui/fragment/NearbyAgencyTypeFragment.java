@@ -9,11 +9,11 @@ import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
@@ -22,6 +22,7 @@ import org.mtransit.android.util.LoaderUtils;
 import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -137,23 +138,28 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	}
 
 	private void initTypeAgenciesAuthorityAsync() {
-		if (this.loadTypeAgenciesAuthorityAsyncTask != null && this.loadTypeAgenciesAuthorityAsyncTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadTypeAgenciesAuthorityAsyncTask != null
+				&& this.loadTypeAgenciesAuthorityAsyncTask.getStatus() == LoadTypeAgenciesAuthorityAsyncTask.Status.RUNNING) {
 			return;
 		}
 		if (this.nearbyLocation == null || this.typeId == null) {
 			return;
 		}
-		this.loadTypeAgenciesAuthorityAsyncTask = new LoadTypeAgenciesAuthorityAsyncTask();
+		this.loadTypeAgenciesAuthorityAsyncTask = new LoadTypeAgenciesAuthorityAsyncTask(this);
 		TaskUtils.execute(this.loadTypeAgenciesAuthorityAsyncTask);
 	}
 
 	private LoadTypeAgenciesAuthorityAsyncTask loadTypeAgenciesAuthorityAsyncTask = null;
 
-	private class LoadTypeAgenciesAuthorityAsyncTask extends MTAsyncTask<Void, Void, Boolean> {
+	private class LoadTypeAgenciesAuthorityAsyncTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
 
 		@Override
 		public String getLogTag() {
 			return NearbyAgencyTypeFragment.this.getLogTag() + ">" + LoadTypeAgenciesAuthorityAsyncTask.class.getSimpleName();
+		}
+
+		public LoadTypeAgenciesAuthorityAsyncTask(Fragment fragment) {
+			super(fragment);
 		}
 
 		@Override
@@ -162,8 +168,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
+		protected void onPostExecuteFragmentReady(Boolean result) {
 			if (result) {
 				applyNewTypeAgenciesAuthority();
 			}
@@ -590,7 +595,8 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	@Override
 	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
 		int dataSize = CollectionUtils.getSize(data);
-		if (dataSize < this.minSize && !LocationUtils.searchComplete(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff)) {
+		if (dataSize < this.minSize //
+				&& !LocationUtils.searchComplete(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff)) {
 			if (dataSize == 0) {
 				this.lastEmptyAroundDiff = this.ad.aroundDiff;
 			} else {

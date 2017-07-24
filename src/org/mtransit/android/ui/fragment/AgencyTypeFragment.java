@@ -12,11 +12,11 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.ThemeUtils;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
+import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.ActionBarController;
@@ -30,6 +30,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.support.annotation.ColorInt;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -283,34 +284,38 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	}
 
 	private void initTypeAsync() {
-		if (this.loadTypeTask != null && this.loadTypeTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadTypeTask != null && this.loadTypeTask.getStatus() == LoadTypeTask.Status.RUNNING) {
 			return;
 		}
 		if (this.typeId == null) {
 			return;
 		}
-		this.loadTypeTask = new LoadTypeTask();
+		this.loadTypeTask = new LoadTypeTask(this);
 		TaskUtils.execute(this.loadTypeTask);
 	}
 
 	private void initTypeAgenciesAsync() {
-		if (this.loadTypeAgenciesTask != null && this.loadTypeAgenciesTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadTypeAgenciesTask != null && this.loadTypeAgenciesTask.getStatus() == LoadTypeAgenciesTask.Status.RUNNING) {
 			return;
 		}
 		if (this.typeId == null) {
 			return;
 		}
-		this.loadTypeAgenciesTask = new LoadTypeAgenciesTask();
+		this.loadTypeAgenciesTask = new LoadTypeAgenciesTask(this);
 		TaskUtils.execute(this.loadTypeAgenciesTask);
 	}
 
 	private LoadTypeTask loadTypeTask = null;
 
-	private class LoadTypeTask extends MTAsyncTask<Void, Void, Boolean> {
+	private class LoadTypeTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
 
 		@Override
 		public String getLogTag() {
 			return AgencyTypeFragment.this.getLogTag() + ">" + LoadTypeTask.class.getSimpleName();
+		}
+
+		public LoadTypeTask(Fragment fragment) {
+			super(fragment);
 		}
 
 		@Override
@@ -319,8 +324,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
+		protected void onPostExecuteFragmentReady(Boolean result) {
 			if (result) {
 				applyNewType();
 			}
@@ -329,11 +333,15 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	private LoadTypeAgenciesTask loadTypeAgenciesTask = null;
 
-	private class LoadTypeAgenciesTask extends MTAsyncTask<Void, Void, Boolean> {
+	private class LoadTypeAgenciesTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
 
 		@Override
 		public String getLogTag() {
 			return AgencyTypeFragment.this.getLogTag() + ">" + LoadTypeAgenciesTask.class.getSimpleName();
+		}
+
+		public LoadTypeAgenciesTask(Fragment fragment) {
+			super(fragment);
 		}
 
 		@Override
@@ -342,8 +350,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
+		protected void onPostExecuteFragmentReady(Boolean result) {
 			if (result) {
 				applyNewTypeAgencies();
 			}
@@ -413,7 +420,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		this.adapter = new AgencyPagerAdapter(activity, this, null);
 	}
 
-	private static class LoadLastPageSelectedFromUserPreference extends MTAsyncTask<Void, Void, Integer> {
+	private static class LoadLastPageSelectedFromUserPreference extends FragmentAsyncTaskV4<Void, Void, Integer> {
 
 		private final String TAG = AgencyTypeFragment.class.getSimpleName() + ">" + LoadLastPageSelectedFromUserPreference.class.getSimpleName();
 
@@ -429,6 +436,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 		public LoadLastPageSelectedFromUserPreference(Context context, AgencyTypeFragment agencyTypeFragment, Integer typeId,
 				ArrayList<AgencyProperties> newAgencies) {
+			super(agencyTypeFragment);
 			this.contextWR = new WeakReference<Context>(context);
 			this.agencyTypeFragmentWR = new WeakReference<AgencyTypeFragment>(agencyTypeFragment);
 			this.typeId = typeId;
@@ -460,7 +468,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 
 		@Override
-		protected void onPostExecute(Integer lastPageSelected) {
+		protected void onPostExecuteFragmentReady(Integer lastPageSelected) {
 			AgencyTypeFragment agencyTypeFragment = this.agencyTypeFragmentWR == null ? null : this.agencyTypeFragmentWR.get();
 			if (agencyTypeFragment == null) {
 				return; // too late
@@ -651,6 +659,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	private Integer abBgColor = null;
 
+	@ColorInt
 	@Override
 	public Integer getABBgColor(Context context) {
 		if (this.abBgColor == null) {

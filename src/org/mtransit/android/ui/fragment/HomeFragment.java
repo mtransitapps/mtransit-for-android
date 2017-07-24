@@ -8,11 +8,11 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.ToastUtils;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
+import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.HomePOILoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
@@ -24,6 +24,7 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -157,46 +158,50 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getLastLocation());
 	}
 
-	private MTAsyncTask<Location, Void, String> findNearbyLocationTask;
+	private FindNearbyLocationTask findNearbyLocationTask;
+
+	private class FindNearbyLocationTask extends FragmentAsyncTaskV4<Location, Void, String> {
+
+		@Override
+		public String getLogTag() {
+			return HomeFragment.this.getLogTag();
+		}
+
+		public FindNearbyLocationTask(Fragment fragment) {
+			super(fragment);
+		}
+
+		@Override
+		protected String doInBackgroundMT(Location... locations) {
+			Activity activity = getActivity();
+			Location nearbyLocation = locations[0];
+			if (activity == null || nearbyLocation == null) {
+				return null;
+			}
+			Address address = LocationUtils.getLocationAddress(activity, nearbyLocation);
+			return LocationUtils.getLocationString(activity, null, address, nearbyLocation.getAccuracy());
+		}
+
+		@Override
+		protected void onPostExecuteFragmentReady(String result) {
+			boolean refreshRequired = result != null && !result.equals(HomeFragment.this.nearbyLocationAddress);
+			HomeFragment.this.nearbyLocationAddress = result;
+			if (refreshRequired) {
+				Activity activity = getActivity();
+				if (activity != null) {
+					getAbController().setABSubtitle(HomeFragment.this, getABSubtitle(activity), false);
+					getAbController().setABReady(HomeFragment.this, isABReady(), true);
+				}
+			}
+		}
+	}
 
 	private void findNearbyLocation() {
 		if (!TextUtils.isEmpty(this.nearbyLocationAddress)) {
 			return;
 		}
 		TaskUtils.cancelQuietly(this.findNearbyLocationTask, true);
-		this.findNearbyLocationTask = new MTAsyncTask<Location, Void, String>() {
-
-			@Override
-			public String getLogTag() {
-				return HomeFragment.this.getLogTag();
-			}
-
-			@Override
-			protected String doInBackgroundMT(Location... locations) {
-				Activity activity = getActivity();
-				Location nearbyLocation = locations[0];
-				if (activity == null || nearbyLocation == null) {
-					return null;
-				}
-				Address address = LocationUtils.getLocationAddress(activity, nearbyLocation);
-				return LocationUtils.getLocationString(activity, null, address, nearbyLocation.getAccuracy());
-			}
-
-			@Override
-			protected void onPostExecute(String result) {
-				super.onPostExecute(result);
-				boolean refreshRequired = result != null && !result.equals(HomeFragment.this.nearbyLocationAddress);
-				HomeFragment.this.nearbyLocationAddress = result;
-				if (refreshRequired) {
-					Activity activity = getActivity();
-					if (activity != null) {
-						getAbController().setABSubtitle(HomeFragment.this, getABSubtitle(activity), false);
-						getAbController().setABReady(HomeFragment.this, isABReady(), true);
-					}
-				}
-			}
-
-		};
+		this.findNearbyLocationTask = new FindNearbyLocationTask(this);
 		TaskUtils.execute(this.findNearbyLocationTask, this.nearbyLocation);
 	}
 

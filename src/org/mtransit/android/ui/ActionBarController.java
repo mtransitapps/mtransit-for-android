@@ -7,12 +7,15 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.view.MTOnClickListener;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.ColorInt;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
@@ -39,6 +42,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
 	private CharSequence fragmentSubtitle;
 
+	@ColorInt
 	private Integer fragmentBgColor = null;
 
 	private View fragmentCustomView = null;
@@ -119,7 +123,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
-	public void setAB(ABFragment abf) {
+	public void setAB(@Nullable ABFragment abf) {
 		Context context = getContextOrNull();
 		if (abf != null && context != null) {
 			setAB(abf.getABTitle(context), abf.getABSubtitle(context), abf.getABBgColor(context), abf.getABCustomView(), abf.isABCustomViewFocusable(),
@@ -128,7 +132,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
-	private void setAB(CharSequence title, CharSequence subtitle, Integer bgColor, View customView, boolean customViewFocusable,
+	private void setAB(CharSequence title, CharSequence subtitle, @ColorInt Integer bgColor, View customView, boolean customViewFocusable,
 			boolean customViewRequestFocus, boolean themeDarkInsteadOfThemeLight, boolean displayHomeAsUpEnabled, boolean showSearchMenuItem,
 			boolean fragmentReady) {
 		this.fragmentTitle = title;
@@ -178,7 +182,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 
-	public void setABBgColor(Fragment source, Integer bgColor, boolean update) {
+	public void setABBgColor(Fragment source, @ColorInt Integer bgColor, boolean update) {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
@@ -297,7 +301,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
-	private void setBgColor(ActionBar ab, int colorInt) {
+	private void setBgColor(ActionBar ab, @ColorInt int colorInt) {
 		ColorDrawable bgDrawable = getBgDrawableOrNull(ab);
 		if (bgDrawable != null) {
 			bgDrawable.setColor(colorInt);

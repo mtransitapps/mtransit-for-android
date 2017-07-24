@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -39,6 +40,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActivity implement
 		this.resolvingError = savedInstanceState != null && savedInstanceState.getBoolean(STATE_RESOLVING_ERROR, false);
 	}
 
+	@Nullable
 	public GoogleApiClient getGoogleApiClientOrNull() {
 		return this.googleApiClient;
 	}
@@ -137,7 +139,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActivity implement
 	}
 
 	@Override
-	public void onConnectionFailed(ConnectionResult result) {
+	public void onConnectionFailed(@NonNull ConnectionResult result) {
 		if (this.resolvingError) {
 			return;
 		}

@@ -15,9 +15,9 @@ import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.Trip;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
@@ -30,6 +30,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -190,23 +191,27 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private void initRouteTripsAsync() {
-		if (this.loadRouteTripsTask != null && this.loadRouteTripsTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadRouteTripsTask != null && this.loadRouteTripsTask.getStatus() == LoadRouteTripsTask.Status.RUNNING) {
 			return;
 		}
 		if (this.routeId == null || TextUtils.isEmpty(this.authority)) {
 			return;
 		}
-		this.loadRouteTripsTask = new LoadRouteTripsTask();
+		this.loadRouteTripsTask = new LoadRouteTripsTask(this);
 		TaskUtils.execute(this.loadRouteTripsTask, this.authority, this.routeId);
 	}
 
 	private LoadRouteTripsTask loadRouteTripsTask = null;
 
-	private class LoadRouteTripsTask extends MTAsyncTask<Object, Void, Boolean> {
+	private class LoadRouteTripsTask extends FragmentAsyncTaskV4<Object, Void, Boolean> {
 
 		@Override
 		public String getLogTag() {
 			return RTSRouteFragment.this.getLogTag() + ">" + LoadRouteTripsTask.class.getSimpleName();
+		}
+
+		public LoadRouteTripsTask(Fragment fragment) {
+			super(fragment);
 		}
 
 		@Override
@@ -215,8 +220,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
+		protected void onPostExecuteFragmentReady(Boolean result) {
 			if (result) {
 				applyNewRouteTrips();
 			}
@@ -267,23 +271,27 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private void initRouteAsync() {
-		if (this.loadRouteTask != null && this.loadRouteTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadRouteTask != null && this.loadRouteTask.getStatus() == LoadRouteTask.Status.RUNNING) {
 			return;
 		}
 		if (this.routeId == null || TextUtils.isEmpty(this.authority)) {
 			return;
 		}
-		this.loadRouteTask = new LoadRouteTask();
+		this.loadRouteTask = new LoadRouteTask(this);
 		TaskUtils.execute(this.loadRouteTask, this.authority, this.routeId);
 	}
 
 	private LoadRouteTask loadRouteTask = null;
 
-	private class LoadRouteTask extends MTAsyncTask<Object, Void, Boolean> {
+	private class LoadRouteTask extends FragmentAsyncTaskV4<Object, Void, Boolean> {
 
 		@Override
 		public String getLogTag() {
 			return RTSRouteFragment.this.getLogTag() + ">" + LoadRouteTask.class.getSimpleName();
+		}
+
+		public LoadRouteTask(Fragment fragment) {
+			super(fragment);
 		}
 
 		@Override
@@ -292,8 +300,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
+		protected void onPostExecuteFragmentReady(Boolean result) {
 			if (result) {
 				applyNewRoute();
 			}
@@ -385,7 +392,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		this.adapter = new RouteTripPagerAdapter(activity, this, null, this.authority, this.routeId, null, this.stopId, isShowingListInsteadOfMap());
 	}
 
-	private static class LoadLastPageSelectedFromUserPreference extends MTAsyncTask<Void, Void, Integer> {
+	private static class LoadLastPageSelectedFromUserPreference extends FragmentAsyncTaskV4<Void, Void, Integer> {
 
 		private final String TAG = RTSRouteFragment.class.getSimpleName() + ">" + LoadLastPageSelectedFromUserPreference.class.getSimpleName();
 
@@ -403,6 +410,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 		public LoadLastPageSelectedFromUserPreference(Context context, RTSRouteFragment rtsRouteFragment, String authority, Long routeId, long tripId,
 				ArrayList<Trip> routeTrips) {
+			super(rtsRouteFragment);
 			this.contextWR = new WeakReference<Context>(context);
 			this.rtsRouteFragmentWR = new WeakReference<RTSRouteFragment>(rtsRouteFragment);
 			this.authority = authority;
@@ -437,7 +445,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 
 		@Override
-		protected void onPostExecute(Integer lastPageSelected) {
+		protected void onPostExecuteFragmentReady(Integer lastPageSelected) {
 			RTSRouteFragment rtsRouteFragment = this.rtsRouteFragmentWR == null ? null : this.rtsRouteFragmentWR.get();
 			if (rtsRouteFragment == null) {
 				return; // too late
@@ -664,6 +672,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		return ssb;
 	}
 
+	@ColorInt
 	@Override
 	public Integer getABBgColor(Context context) {
 		return POIManager.getRouteColor(context, getRouteOrNull(), this.authority, super.getABBgColor(context));

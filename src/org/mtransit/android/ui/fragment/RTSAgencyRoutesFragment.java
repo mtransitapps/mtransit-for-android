@@ -653,6 +653,5 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			MTJPathsView routeTypeImg;
 			TextView routeLongNameTv;
 		}
-
 	}
 }

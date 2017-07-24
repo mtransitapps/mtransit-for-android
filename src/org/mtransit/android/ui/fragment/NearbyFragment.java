@@ -13,10 +13,10 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.ToastUtils;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
+import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
@@ -108,7 +108,6 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	private Location nearbyLocation;
 	private String nearbyLocationAddress;
 	private Location userLocation;
-	private MTAsyncTask<Location, Void, String> findNearbyLocationTask;
 	private Integer selectedTypeId = null;
 	private Double fixedOnLat = null;
 	private Double fixedOnLng = null;
@@ -295,44 +294,50 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		TaskUtils.cancelQuietly(this.loadAvailableTypesTask, true);
 	}
 
+	private FindNearbyLocationTask findNearbyLocationTask;
+
+	private class FindNearbyLocationTask extends FragmentAsyncTaskV4<Location, Void, String> {
+
+		@Override
+		public String getLogTag() {
+			return NearbyFragment.this.getLogTag() + ">" + FindNearbyLocationTask.class.getSimpleName();
+		}
+
+		public FindNearbyLocationTask(Fragment fragment) {
+			super(fragment);
+		}
+
+		@Override
+		protected String doInBackgroundMT(Location... locations) {
+			Activity activity = getActivity();
+			Location nearbyLocation = locations[0];
+			if (activity == null || nearbyLocation == null) {
+				return null;
+			}
+			Address address = LocationUtils.getLocationAddress(activity, nearbyLocation);
+			return LocationUtils.getLocationString(activity, null, address, nearbyLocation.getAccuracy());
+		}
+
+		@Override
+		protected void onPostExecuteFragmentReady(String result) {
+			boolean refreshRequired = result != null && !result.equals(NearbyFragment.this.nearbyLocationAddress);
+			NearbyFragment.this.nearbyLocationAddress = result;
+			if (refreshRequired) {
+				FragmentActivity activity = NearbyFragment.this.getActivity();
+				if (activity != null) {
+					getAbController().setABSubtitle(NearbyFragment.this, getABSubtitle(activity), false);
+					getAbController().setABReady(NearbyFragment.this, isABReady(), true);
+				}
+			}
+		}
+	}
+
 	private void findNearbyLocation() {
 		if (!TextUtils.isEmpty(this.nearbyLocationAddress)) {
 			return;
 		}
 		TaskUtils.cancelQuietly(this.findNearbyLocationTask, true);
-		this.findNearbyLocationTask = new MTAsyncTask<Location, Void, String>() {
-
-			@Override
-			public String getLogTag() {
-				return TAG + ">findNearbyLocationTask";
-			}
-
-			@Override
-			protected String doInBackgroundMT(Location... locations) {
-				Activity activity = getActivity();
-				Location nearbyLocation = locations[0];
-				if (activity == null || nearbyLocation == null) {
-					return null;
-				}
-				Address address = LocationUtils.getLocationAddress(activity, nearbyLocation);
-				return LocationUtils.getLocationString(activity, null, address, nearbyLocation.getAccuracy());
-			}
-
-			@Override
-			protected void onPostExecute(String result) {
-				super.onPostExecute(result);
-				boolean refreshRequired = result != null && !result.equals(NearbyFragment.this.nearbyLocationAddress);
-				NearbyFragment.this.nearbyLocationAddress = result;
-				if (refreshRequired) {
-					FragmentActivity activity = NearbyFragment.this.getActivity();
-					if (activity != null) {
-						getAbController().setABSubtitle(NearbyFragment.this, getABSubtitle(activity), false);
-						getAbController().setABReady(NearbyFragment.this, isABReady(), true);
-					}
-				}
-			}
-
-		};
+		this.findNearbyLocationTask = new FindNearbyLocationTask(this);
 		TaskUtils.execute(this.findNearbyLocationTask, this.nearbyLocation);
 	}
 
@@ -354,20 +359,24 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void initAvailableTypesAsync() {
-		if (this.loadAvailableTypesTask != null && this.loadAvailableTypesTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadAvailableTypesTask != null && this.loadAvailableTypesTask.getStatus() == LoadAvailableTypesTask.Status.RUNNING) {
 			return;
 		}
-		this.loadAvailableTypesTask = new LoadAvailableTypesTask();
+		this.loadAvailableTypesTask = new LoadAvailableTypesTask(this);
 		TaskUtils.execute(this.loadAvailableTypesTask);
 	}
 
 	private LoadAvailableTypesTask loadAvailableTypesTask = null;
 
-	private class LoadAvailableTypesTask extends MTAsyncTask<Object, Void, Boolean> {
+	private class LoadAvailableTypesTask extends FragmentAsyncTaskV4<Object, Void, Boolean> {
 
 		@Override
 		public String getLogTag() {
 			return NearbyFragment.this.getLogTag() + ">" + LoadAvailableTypesTask.class.getSimpleName();
+		}
+
+		public LoadAvailableTypesTask(Fragment fragment) {
+			super(fragment);
 		}
 
 		@Override
@@ -376,8 +385,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
+		protected void onPostExecuteFragmentReady(Boolean result) {
 			if (result) {
 				applyNewAvailableTypes();
 			}
@@ -420,7 +428,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		return availableAgencyTypes;
 	}
 
-	private static class LoadLastPageSelectedFromUserPreference extends MTAsyncTask<Void, Void, Integer> {
+	private static class LoadLastPageSelectedFromUserPreference extends FragmentAsyncTaskV4<Void, Void, Integer> {
 
 		private final String TAG = NearbyFragment.class.getSimpleName() + ">" + LoadLastPageSelectedFromUserPreference.class.getSimpleName();
 
@@ -436,6 +444,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 		public LoadLastPageSelectedFromUserPreference(Context context, NearbyFragment nearbyFragment, Integer selectedTypeId,
 				ArrayList<DataSourceType> newAgencyTypes) {
+			super(nearbyFragment);
 			this.contextWR = new WeakReference<Context>(context);
 			this.nearbyFragmentWR = new WeakReference<NearbyFragment>(nearbyFragment);
 			this.selectedTypeId = selectedTypeId;
@@ -470,7 +479,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 
 		@Override
-		protected void onPostExecute(Integer lastPageSelected) {
+		protected void onPostExecuteFragmentReady(Integer lastPageSelected) {
 			NearbyFragment nearbyFragment = this.nearbyFragmentWR == null ? null : this.nearbyFragmentWR.get();
 			if (nearbyFragment == null) {
 				return; // too late

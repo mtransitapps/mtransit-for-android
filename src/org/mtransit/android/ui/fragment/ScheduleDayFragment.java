@@ -17,18 +17,20 @@ import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.POIProviderContract;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTBaseAdapter;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.ScheduleTimestampsLoader;
+import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -139,23 +141,27 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	}
 
 	private void initRtsAsync() {
-		if (this.loadRtsTask != null && this.loadRtsTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadRtsTask != null && this.loadRtsTask.getStatus() == LoadRtsTask.Status.RUNNING) {
 			return;
 		}
 		if (TextUtils.isEmpty(this.uuid) || TextUtils.isEmpty(this.authority)) {
 			return;
 		}
-		this.loadRtsTask = new LoadRtsTask();
+		this.loadRtsTask = new LoadRtsTask(this);
 		TaskUtils.execute(this.loadRtsTask);
 	}
 
 	private LoadRtsTask loadRtsTask = null;
 
-	private class LoadRtsTask extends MTAsyncTask<Void, Void, Boolean> {
+	private class LoadRtsTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
 
 		@Override
 		public String getLogTag() {
 			return ScheduleDayFragment.this.getLogTag() + ">" + LoadRtsTask.class.getSimpleName();
+		}
+
+		public LoadRtsTask(Fragment fragment) {
+			super(fragment);
 		}
 
 		@Override
@@ -164,8 +170,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
+		protected void onPostExecuteFragmentReady(Boolean result) {
 			if (result) {
 				applyNewRts();
 			}

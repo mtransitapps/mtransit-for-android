@@ -24,7 +24,6 @@ import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.commons.provider.POIProviderContract;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
@@ -33,6 +32,7 @@ import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ScheduleProviderProperties;
 import org.mtransit.android.provider.FavoriteManager;
+import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
@@ -58,6 +58,7 @@ import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -133,23 +134,27 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 	}
 
 	private void initAgencyAsync() {
-		if (this.loadAgencyTask != null && this.loadAgencyTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadAgencyTask != null && this.loadAgencyTask.getStatus() == LoadAgencyTask.Status.RUNNING) {
 			return;
 		}
 		if (TextUtils.isEmpty(this.authority)) {
 			return;
 		}
-		this.loadAgencyTask = new LoadAgencyTask();
+		this.loadAgencyTask = new LoadAgencyTask(this);
 		TaskUtils.execute(this.loadAgencyTask);
 	}
 
 	private LoadAgencyTask loadAgencyTask = null;
 
-	private class LoadAgencyTask extends MTAsyncTask<Void, Void, Boolean> {
+	private class LoadAgencyTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
 
 		@Override
 		public String getLogTag() {
 			return POIFragment.this.getLogTag() + ">" + LoadAgencyTask.class.getSimpleName();
+		}
+
+		public LoadAgencyTask(Fragment fragment) {
+			super(fragment);
 		}
 
 		@Override
@@ -158,8 +163,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
+		protected void onPostExecuteFragmentReady(Boolean result) {
 			if (result) {
 				applyNewAgency();
 			}
@@ -212,23 +216,27 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 	}
 
 	private void initPoimAsync() {
-		if (this.loadPoimTask != null && this.loadPoimTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadPoimTask != null && this.loadPoimTask.getStatus() == LoadPoimTask.Status.RUNNING) {
 			return;
 		}
 		if (TextUtils.isEmpty(this.uuid) || TextUtils.isEmpty(this.authority)) {
 			return;
 		}
-		this.loadPoimTask = new LoadPoimTask();
+		this.loadPoimTask = new LoadPoimTask(this);
 		TaskUtils.execute(this.loadPoimTask);
 	}
 
 	private LoadPoimTask loadPoimTask = null;
 
-	private class LoadPoimTask extends MTAsyncTask<Void, Void, Boolean> {
+	private class LoadPoimTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
 
 		@Override
 		public String getLogTag() {
 			return POIFragment.this.getLogTag() + ">" + LoadPoimTask.class.getSimpleName();
+		}
+
+		public LoadPoimTask(Fragment fragment) {
+			super(fragment);
 		}
 
 		@Override
@@ -237,8 +245,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
+		protected void onPostExecuteFragmentReady(Boolean result) {
 			if (result) {
 				applyNewPoim();
 			}
@@ -314,23 +321,27 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 	}
 
 	private void initNewsAsync() {
-		if (this.loadNewsTask != null && this.loadNewsTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadNewsTask != null && this.loadNewsTask.getStatus() == LoadNewsTask.Status.RUNNING) {
 			return;
 		}
 		if (!hasPoim()) {
 			return;
 		}
-		this.loadNewsTask = new LoadNewsTask();
+		this.loadNewsTask = new LoadNewsTask(this);
 		TaskUtils.execute(this.loadNewsTask);
 	}
 
 	private LoadNewsTask loadNewsTask = null;
 
-	private class LoadNewsTask extends MTAsyncTask<Void, Void, Boolean> {
+	private class LoadNewsTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
 
 		@Override
 		public String getLogTag() {
 			return POIFragment.this.getLogTag() + ">" + LoadNewsTask.class.getSimpleName();
+		}
+
+		public LoadNewsTask(Fragment fragment) {
+			super(fragment);
 		}
 
 		@Override
@@ -339,8 +350,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
+		protected void onPostExecuteFragmentReady(Boolean result) {
 			if (result) {
 				applyNewNews();
 			}

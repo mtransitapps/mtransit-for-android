@@ -11,10 +11,10 @@ import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
+import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.MapPOILoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.MapViewController;
@@ -28,6 +28,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
@@ -233,9 +234,11 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (latLngBounds == null) {
 			return;
 		}
-		boolean loaded = this.loadedLatLngBounds != null && this.loadedLatLngBounds.contains(latLngBounds.northeast)
+		boolean loaded = this.loadedLatLngBounds != null //
+				&& this.loadedLatLngBounds.contains(latLngBounds.northeast) //
 				&& this.loadedLatLngBounds.contains(latLngBounds.southwest);
-		boolean loading = this.loadingLatLngBounds != null && this.loadingLatLngBounds.contains(latLngBounds.northeast)
+		boolean loading = this.loadingLatLngBounds != null //
+				&& this.loadingLatLngBounds.contains(latLngBounds.northeast) //
 				&& this.loadingLatLngBounds.contains(latLngBounds.southwest);
 		if (!loaded && !loading) {
 			this.mapViewController.showLoading();
@@ -298,20 +301,24 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 	}
 
 	private void initFilterTypeIdsAsync() {
-		if (this.loadFilterTypeIdsTask != null && this.loadFilterTypeIdsTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadFilterTypeIdsTask != null && this.loadFilterTypeIdsTask.getStatus() == LoadFilterTypeIdsTask.Status.RUNNING) {
 			return;
 		}
-		this.loadFilterTypeIdsTask = new LoadFilterTypeIdsTask();
+		this.loadFilterTypeIdsTask = new LoadFilterTypeIdsTask(this);
 		TaskUtils.execute(this.loadFilterTypeIdsTask);
 	}
 
 	private LoadFilterTypeIdsTask loadFilterTypeIdsTask = null;
 
-	private class LoadFilterTypeIdsTask extends MTAsyncTask<Object, Void, Boolean> {
+	private class LoadFilterTypeIdsTask extends FragmentAsyncTaskV4<Object, Void, Boolean> {
 
 		@Override
 		public String getLogTag() {
 			return MapFragment.this.getLogTag() + ">" + LoadFilterTypeIdsTask.class.getSimpleName();
+		}
+
+		public LoadFilterTypeIdsTask(Fragment fragment) {
+			super(fragment);
 		}
 
 		@Override
@@ -320,8 +327,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
+		protected void onPostExecuteFragmentReady(Boolean result) {
 			if (result) {
 				applyNewFilterTypeIds();
 			}

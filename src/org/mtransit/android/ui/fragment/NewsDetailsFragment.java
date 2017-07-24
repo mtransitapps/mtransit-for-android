@@ -7,8 +7,8 @@ import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.provider.NewsProviderContract;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
+import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.util.LinkUtils;
@@ -16,6 +16,8 @@ import org.mtransit.android.util.LinkUtils;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -109,23 +111,27 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 	}
 
 	private void initNewsAsync() {
-		if (this.loadNewsTask != null && this.loadNewsTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadNewsTask != null && this.loadNewsTask.getStatus() == LoadNewsTask.Status.RUNNING) {
 			return;
 		}
 		if (TextUtils.isEmpty(this.uuid) || TextUtils.isEmpty(this.authority)) {
 			return;
 		}
-		this.loadNewsTask = new LoadNewsTask();
+		this.loadNewsTask = new LoadNewsTask(this);
 		TaskUtils.execute(this.loadNewsTask);
 	}
 
 	private LoadNewsTask loadNewsTask = null;
 
-	private class LoadNewsTask extends MTAsyncTask<Void, Void, Boolean> {
+	private class LoadNewsTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
 
 		@Override
 		public String getLogTag() {
 			return NewsDetailsFragment.this.getLogTag() + ">" + LoadNewsTask.class.getSimpleName();
+		}
+
+		public LoadNewsTask(Fragment fragment) {
+			super(fragment);
 		}
 
 		@Override
@@ -134,8 +140,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
+		protected void onPostExecuteFragmentReady(Boolean result) {
 			if (result) {
 				applyNewNews();
 			}
@@ -281,6 +286,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 		disableTimeChangeddReceiver();
 	}
 
+	@ColorInt
 	@Override
 	public Integer getABBgColor(Context context) {
 		News news = getNewsOrNull();

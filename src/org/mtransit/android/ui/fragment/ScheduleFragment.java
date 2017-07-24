@@ -8,10 +8,10 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.provider.POIProviderContract;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
@@ -19,6 +19,7 @@ import org.mtransit.android.ui.MainActivity;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -69,6 +70,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	private int lastPageSelected = -1;
 	private String uuid;
 	private RouteTripStop rts;
+	@ColorInt
 	private Integer colorInt;
 
 	private boolean hasRts() {
@@ -80,23 +82,27 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private void initRtsAsync() {
-		if (this.loadRtsTask != null && this.loadRtsTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadRtsTask != null && this.loadRtsTask.getStatus() == LoadRtsTask.Status.RUNNING) {
 			return;
 		}
 		if (TextUtils.isEmpty(this.uuid) || TextUtils.isEmpty(this.authority)) {
 			return;
 		}
-		this.loadRtsTask = new LoadRtsTask();
+		this.loadRtsTask = new LoadRtsTask(this);
 		TaskUtils.execute(this.loadRtsTask);
 	}
 
 	private LoadRtsTask loadRtsTask = null;
 
-	private class LoadRtsTask extends MTAsyncTask<Void, Void, Boolean> {
+	private class LoadRtsTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
 
 		@Override
 		public String getLogTag() {
 			return ScheduleFragment.this.getLogTag() + ">" + LoadRtsTask.class.getSimpleName();
+		}
+
+		public LoadRtsTask(Fragment fragment) {
+			super(fragment);
 		}
 
 		@Override
@@ -105,8 +111,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
+		protected void onPostExecuteFragmentReady(Boolean result) {
 			if (result) {
 				applyNewRts();
 			}
@@ -391,6 +396,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		return POIManager.getOneLineDescription(getActivity(), rts);
 	}
 
+	@ColorInt
 	@Override
 	public Integer getABBgColor(Context context) {
 		if (this.colorInt != null) {

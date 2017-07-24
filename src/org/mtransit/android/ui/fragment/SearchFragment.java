@@ -10,12 +10,12 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.POISearchLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
@@ -29,6 +29,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
@@ -100,24 +101,28 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	}
 
 	private void initTypeFilterAsync() {
-		if (this.loadTypeFilterTask != null && this.loadTypeFilterTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.loadTypeFilterTask != null && this.loadTypeFilterTask.getStatus() == FragmentAsyncTaskV4.Status.RUNNING) {
 			return;
 		}
 		if (this.typeIdFilter == null) {
 			this.typeIdFilter = TypeFilter.ALL.getDataSourceTypeId(); // default
 		}
 		TaskUtils.cancelQuietly(this.loadTypeFilterTask, true);
-		this.loadTypeFilterTask = new LoadTypeFilterTask();
+		this.loadTypeFilterTask = new LoadTypeFilterTask(this);
 		TaskUtils.execute(this.loadTypeFilterTask);
 	}
 
 	private LoadTypeFilterTask loadTypeFilterTask;
 
-	private class LoadTypeFilterTask extends MTAsyncTask<Void, Void, Boolean> {
+	private class LoadTypeFilterTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
 
 		@Override
 		public String getLogTag() {
 			return SearchFragment.this.getLogTag() + ">" + LoadTypeFilterTask.class.getSimpleName();
+		}
+
+		public LoadTypeFilterTask(Fragment fragment) {
+			super(fragment);
 		}
 
 		@Override
@@ -126,8 +131,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
+		protected void onPostExecuteFragmentReady(Boolean result) {
 			if (result) {
 				applyNewTypeFilter();
 			}

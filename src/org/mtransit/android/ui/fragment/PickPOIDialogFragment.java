@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.util.ArrayMap;
@@ -122,6 +123,7 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 		return view;
 	}
 
+	@NonNull
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		Dialog dialog = super.onCreateDialog(savedInstanceState);

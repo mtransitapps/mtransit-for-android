@@ -30,8 +30,8 @@ public final class FragmentUtils implements MTLog.Loggable {
 		return isFragmentReady(fragment) && fragment.equals(currentFragment);
 	}
 
-	public static boolean isFragmentReady(@NonNull android.support.v4.app.Fragment fragment) {
-		return fragment.isAdded() && !fragment.isDetached() && !fragment.isRemoving();
+	public static boolean isFragmentReady(@Nullable android.support.v4.app.Fragment fragment) {
+		return fragment != null && fragment.isAdded() && !fragment.isDetached() && !fragment.isRemoving();
 	}
 
 	public static boolean isFragmentReady(@Nullable android.support.v4.app.FragmentActivity fa, @NonNull @IdRes Integer fragmentResId) {
@@ -45,8 +45,8 @@ public final class FragmentUtils implements MTLog.Loggable {
 		return fm == null ? null : fm.findFragmentById(fragmentResId);
 	}
 
-	public static boolean isFragmentReady(@NonNull android.app.Fragment fragment) {
-		return fragment.isAdded() && !fragment.isDetached() && !fragment.isRemoving();
+	public static boolean isFragmentReady(@Nullable android.app.Fragment fragment) {
+		return fragment != null && fragment.isAdded() && !fragment.isDetached() && !fragment.isRemoving();
 	}
 
 	public static void replaceFragment(@Nullable android.support.v4.app.FragmentActivity fa, @IdRes int containerViewId,
