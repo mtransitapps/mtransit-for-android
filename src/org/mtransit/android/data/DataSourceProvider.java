@@ -17,6 +17,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.os.AsyncTask;
+import android.support.annotation.ColorInt;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 import android.util.SparseArray;
@@ -382,6 +383,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return new ArrayList<AgencyProperties>(agencies); // copy
 	}
 
+	@ColorInt
 	public Integer getAgencyColorInt(Context context, String authority) {
 		if (!isAgencyPropertiesSet()) {
 			initAgencyProperties(context);

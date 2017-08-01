@@ -249,7 +249,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	public void updateModuleDataIfRequired() {
-		long lastUpdateInMs = PreferenceUtils.getPrefLcl(getContext(), PREF_KEY_LAST_UPDATE_MS, 0l);
+		long lastUpdateInMs = PreferenceUtils.getPrefLcl(getContext(), PREF_KEY_LAST_UPDATE_MS, 0L);
 		long nowInMs = TimeUtils.currentTimeMillis();
 		if (lastUpdateInMs + getPOIMaxValidityInMs() < nowInMs) { // too old to display?
 			deleteAllModuleData();
@@ -272,7 +272,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	private synchronized void updateAllModuleDataFromWWW(long oldLastUpdatedInMs) {
-		if (PreferenceUtils.getPrefLcl(getContext(), PREF_KEY_LAST_UPDATE_MS, 0l) > oldLastUpdatedInMs) {
+		if (PreferenceUtils.getPrefLcl(getContext(), PREF_KEY_LAST_UPDATE_MS, 0L) > oldLastUpdatedInMs) {
 			return; // too late, another thread already updated
 		}
 		loadDataFromWWW();
