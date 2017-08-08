@@ -34,9 +34,11 @@
         android:layout_centerVertical="true"
         android:layout_marginRight="@dimen/poi_status_inner_padding"
         android:minWidth="?android:attr/listPreferredItemHeight" />
+
     <include
         android:id="@+id/extra"
         layout="@layout/layout_poi_rts_extras" />
+
     <include
         android:id="@+id/poi"
         layout="@layout/layout_poi_base_distance_and_compass"

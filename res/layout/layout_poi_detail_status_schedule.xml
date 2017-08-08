@@ -13,6 +13,7 @@
         android:background="@color/poi_item_bg"
         android:minHeight="?android:attr/listPreferredItemHeightLarge"
         android:scrollbars="none">
+
         <LinearLayout
             android:id="@+id/next_departures_layout"
             android:layout_width="wrap_content"

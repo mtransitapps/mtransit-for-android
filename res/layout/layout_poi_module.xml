@@ -9,9 +9,11 @@
     android:paddingLeft="@dimen/poi_padding_left_extra"
     android:paddingRight="@dimen/poi_padding_right"
     android:paddingTop="@dimen/poi_padding_top">
+
     <include
         android:id="@+id/extra"
         layout="@layout/layout_poi_module_extras" />
+
     <include
         android:id="@+id/poi"
         layout="@layout/layout_poi_base_location"

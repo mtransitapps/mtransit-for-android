@@ -5,6 +5,7 @@
     android:layout_height="?android:attr/listPreferredItemHeightLarge"
     android:clipChildren="false"
     android:paddingRight="8dp">
+
     <TextView
         android:id="@+id/next_departure_time_baseline"
         android:layout_width="wrap_content"
@@ -15,6 +16,7 @@
         android:includeFontPadding="false"
         android:maxLines="1"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
     <TextView
         android:id="@+id/next_departure_time"
         android:layout_width="wrap_content"
@@ -26,6 +28,7 @@
         android:paddingRight="8dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="?android:attr/textColorSecondary" />
+
     <TextView
         android:id="@+id/next_departures_head_sign"
         android:layout_width="wrap_content"
