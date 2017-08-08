@@ -321,6 +321,7 @@ public class POIViewController implements MTLog.Loggable {
 				} else {
 					tripId = rts.getTrip().getId();
 					holder.tripHeadingTv.setText(rts.getTrip().getHeading(context).toUpperCase(Locale.getDefault()));
+					holder.tripHeadingTv.setSingleLine(true); // marquee forever
 					holder.tripHeadingTv.setSelected(true); // marquee forever
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}
@@ -379,6 +380,7 @@ public class POIViewController implements MTLog.Loggable {
 
 	public static void updatePOIStatus(Context context, View view, POIManager poim, POIDataProvider dataProvider) {
 		if (view == null) {
+			MTLog.d(TAG, "updatePOIStatus() > SKIP (no view)");
 			return;
 		}
 		if (view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
@@ -449,8 +451,8 @@ public class POIViewController implements MTLog.Loggable {
 		CharSequence line2CS = null;
 		if (dataProvider != null && status != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
-			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getStatus(context, dataProvider.getNowToTheMinute(), TimeUnit.MINUTES.toMillis(30),
-					null, 10, null);
+			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getStatus( //
+					context, dataProvider.getNowToTheMinute(), TimeUnit.MINUTES.toMillis(30L), null, 10, null);
 			if (lines != null && lines.size() >= 1) {
 				line1CS = lines.get(0).first;
 				line2CS = lines.get(0).second;
@@ -491,7 +493,7 @@ public class POIViewController implements MTLog.Loggable {
 						availabilityPercent.getValue1ColorBg(), //
 						availabilityPercent.getValue2Color(), //
 						availabilityPercent.getValue2ColorBg() //
-						);
+				);
 				availabilityPercentStatusViewHolder.piePercentV.setValues(availabilityPercent.getValue1(), availabilityPercent.getValue2());
 				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.VISIBLE);
 			}
@@ -520,7 +522,8 @@ public class POIViewController implements MTLog.Loggable {
 		updatePOIServiceUpdate(context, holder.serviceUpdateViewHolder, poim, dataProvider);
 	}
 
-	private static void updatePOIServiceUpdate(Context context, ServiceUpdateViewHolder serviceUpdateViewHolder, POIManager poim, POIDataProvider dataProvider) {
+	private static void updatePOIServiceUpdate(Context context, ServiceUpdateViewHolder serviceUpdateViewHolder, POIManager poim,
+			POIDataProvider dataProvider) {
 		if (serviceUpdateViewHolder != null) {
 			if (dataProvider != null && dataProvider.isShowingServiceUpdates() && poim != null) {
 				poim.setServiceUpdateLoaderListener(dataProvider);
@@ -545,6 +548,7 @@ public class POIViewController implements MTLog.Loggable {
 
 	public static void updatePOIDistanceAndCompass(View view, POIManager poim, POIDataProvider dataProvider) {
 		if (view == null) {
+			MTLog.d(TAG, "updatePOIDistanceAndCompass() > skip (no view)");
 			return;
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
@@ -553,6 +557,7 @@ public class POIViewController implements MTLog.Loggable {
 
 	private static void updatePOIDistanceAndCompass(CommonViewHolder holder, POIManager poim, POIDataProvider dataProvider) {
 		if (poim == null || poim.poi == null || holder == null) {
+			MTLog.d(TAG, "updatePOIDistanceAndCompass() > skip (no poi or view holder)");
 			return;
 		}
 		holder.compassV.setLatLng(poim.getLat(), poim.getLng());
@@ -566,9 +571,12 @@ public class POIViewController implements MTLog.Loggable {
 			holder.distanceTv.setText(null);
 		}
 		if (holder.distanceTv.getVisibility() == View.VISIBLE) {
-			if (dataProvider != null && dataProvider.hasLocation() && dataProvider.hasLastCompassInDegree()
+			if (dataProvider != null  //
+					&& dataProvider.hasLocation() //
+					&& dataProvider.hasLastCompassInDegree() //
 					&& dataProvider.getLocation().getAccuracy() <= poim.getDistance()) {
-				holder.compassV.generateAndSetHeading(dataProvider.getLocation(), dataProvider.getLastCompassInDegree(), dataProvider.getLocationDeclination());
+				holder.compassV.generateAndSetHeading( //
+						dataProvider.getLocation(), dataProvider.getLastCompassInDegree(), dataProvider.getLocationDeclination());
 			} else {
 				holder.compassV.resetHeading();
 			}
@@ -585,6 +593,7 @@ public class POIViewController implements MTLog.Loggable {
 		}
 		POI poi = poim.poi;
 		holder.nameTv.setText(poi.getLabel());
+		holder.nameTv.setSingleLine(true); // marquee forever
 		holder.nameTv.setSelected(true); // marquee forever
 		updatePOIDistanceAndCompass(holder, poim, dataProvider);
 		if (dataProvider != null && dataProvider.isShowingFavorite() && dataProvider.isFavorite(poi.getUUID())) {
