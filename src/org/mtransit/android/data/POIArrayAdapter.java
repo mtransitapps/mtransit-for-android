@@ -625,7 +625,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			this.poisByType.clear();
 		}
 		this.poiUUID.clear();
-		append(pois, true);
+		boolean dataSetChanged = append(pois, true);
+		if (dataSetChanged) {
+			notifyDataSetChanged();
+		}
 	}
 
 	private HashSet<String> poiUUID = new HashSet<String>();
@@ -856,9 +859,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	};
 
-	public void notifyDataSetChanged(boolean force, long minAdapterThresoldInMs) {
+	public void notifyDataSetChanged(boolean force, long minAdapterThresholdInMs) {
 		long now = TimeUtils.currentTimeMillis();
-		long adapterThreshold = Math.max(minAdapterThresoldInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
+		long adapterThreshold = Math.max(minAdapterThresholdInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
 		if (this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && (force || (now - this.lastNotifyDataSetChanged) > adapterThreshold)) {
 			notifyDataSetChanged();
 			notifyDataSetChangedManual();
@@ -1409,7 +1412,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 						availabilityPercent.getValue1ColorBg(), //
 						availabilityPercent.getValue2Color(), //
 						availabilityPercent.getValue2ColorBg() //
-						);
+				);
 				availabilityPercentStatusViewHolder.piePercentV.setValues(availabilityPercent.getValue1(), availabilityPercent.getValue2());
 				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.VISIBLE);
 			}
