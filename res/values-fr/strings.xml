@@ -7,6 +7,9 @@
     <string name="map">Carte</string>
     <string name="news">Nouvelles</string>
     <string name="settings">Paramètres</string>
+    <string name="feedback_email">Envoyer un ommentaire</string>
+    <string name="rate_review">Noter l\'app</string>
+    <string name="support">Supporter MonTransit</string>
     <string name="menu_action_nearby">Nearby</string>
     <string name="menu_action_search">Recherche</string>
     <string name="search_hint">Recherche MonTransit</string>
@@ -126,6 +129,11 @@
     <string name="use_internal_web_browser_pref_summary">Ouvrir les liens dans le navigateur interne au lieu du navigateur par défaut</string>
     <string name="use_internal_web_browser_pref_summary_on">Ouvrir les liens dans le navigateur interne</string>
     <string name="use_internal_web_browser_pref_summary_off">Ouvrir les liens dans le navigateur par défaut</string>
+    <string name="feedback_pref_cat_title">Commentaires</string>
+    <string name="feedback_email_pref_title">Envoyer un commentaire</string>
+    <string name="feedback_email_pref_summary">Signaler un problème ou suggérer une nouvelle fonctionnalité.</string>
+    <string name="feedback_store_pref_title">Noter sur Google Play</string>
+    <string name="feedback_store_pref_summary">Laisser une note sur le Google Play Store</string>
     <string name="support_pref_cat_title">Supporter</string>
     <string name="support_subs_pref_title">Supporter MonTransit</string>
     <string name="support_subs_pref_summary">Cacher les publicités et supporter le développement de MonTransit.</string>

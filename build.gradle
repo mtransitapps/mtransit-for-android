@@ -29,7 +29,7 @@ android {
     Properties projectNameProperties = new Properties()
     projectNameProperties.load(new FileInputStream(file("project_name.properties")))
 
-    def projectName = projectNameProperties["project.name"];
+    def projectName = projectNameProperties["project.name"]
 
     Properties versionProperties = new Properties()
     versionProperties.load(new FileInputStream(file("version.properties")))

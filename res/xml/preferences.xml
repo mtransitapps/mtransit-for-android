@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- DISPLAY -->
     <PreferenceCategory
         android:key="pDisplay"
-        android:title="@string/display_pref_cat_title" >
+        android:title="@string/display_pref_cat_title">
         <!-- UNITS -->
         <ListPreference
             android:defaultValue="meter"
@@ -22,15 +23,33 @@
             android:summaryOn="@string/use_internal_web_browser_pref_summary_on"
             android:title="@string/use_internal_web_browser_pref_title" />
     </PreferenceCategory>
+    <!-- FEEDBACK -->
+    <PreferenceCategory
+        android:key="pFeedback"
+        android:title="@string/feedback_pref_cat_title">
+        <Preference
+            android:enabled="true"
+            android:key="pFeedbackEmail"
+            android:summary="@string/feedback_email_pref_summary"
+            android:title="@string/feedback_email_pref_title" />
+        <Preference
+            android:enabled="true"
+            android:key="pFeedbackStore"
+            android:summary="@string/feedback_store_pref_summary"
+            android:title="@string/feedback_store_pref_title" />
+    </PreferenceCategory>
     <!-- SUPPORT -->
     <PreferenceCategory
         android:key="pSupport"
-        android:title="@string/support_pref_cat_title" >
+        android:title="@string/support_pref_cat_title">
         <!-- SUBSCRIPTION -->
         <Preference
             android:enabled="false"
             android:key="pSupportSubs"
             android:summary="@string/ellipsis"
-            android:title="@string/ellipsis" />
+            android:title="@string/ellipsis"
+            tools:enabled="true"
+            tools:summary="@string/support_subs_pref_summary"
+            tools:title="@string/support_subs_pref_title" />
     </PreferenceCategory>
 </PreferenceScreen>

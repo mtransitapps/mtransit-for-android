@@ -89,12 +89,21 @@ public abstract class MTDialogFragment extends DialogFragment implements MTLog.L
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onAttach(Activity activity) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onAttach(%s)", activity);
 		}
 		super.onAttach(activity);
+	}
+
+	@Override
+	public void onAttach(Context context) {
+		if (Constants.LOG_LIFECYCLE) {
+			MTLog.v(this, "onAttach(%s)", context);
+		}
+		super.onAttach(context);
 	}
 
 	@Override

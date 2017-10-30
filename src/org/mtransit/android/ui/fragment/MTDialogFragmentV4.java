@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -30,6 +31,7 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 		}
 	}
 
+	@NonNull
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -87,12 +89,21 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onAttach(Activity activity) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onAttach(%s)", activity);
 		}
 		super.onAttach(activity);
+	}
+
+	@Override
+	public void onAttach(Context context) {
+		if (Constants.LOG_LIFECYCLE) {
+			MTLog.v(this, "onAttach(%s)", context);
+		}
+		super.onAttach(context);
 	}
 
 	@Override

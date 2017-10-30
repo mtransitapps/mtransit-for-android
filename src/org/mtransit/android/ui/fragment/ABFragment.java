@@ -11,6 +11,8 @@ import org.mtransit.android.util.AnalyticsUtils;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.ColorInt;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
@@ -34,8 +36,11 @@ public abstract class ABFragment extends MTFragment implements AnalyticsUtils.Tr
 		return null;
 	}
 
+	@ColorInt
+	@Nullable
 	private Integer defaultABBgColor = null;
 
+	@ColorInt
 	public Integer getABBgColor(Context context) {
 		if (this.defaultABBgColor == null && context != null) {
 			this.defaultABBgColor = ThemeUtils.resolveColorAttribute(context, R.attr.colorPrimary);

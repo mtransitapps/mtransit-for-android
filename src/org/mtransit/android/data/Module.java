@@ -11,6 +11,8 @@ import org.mtransit.android.provider.ModuleProvider;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.support.annotation.ColorInt;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 public class Module extends DefaultPOI {
@@ -66,8 +68,11 @@ public class Module extends DefaultPOI {
 		return this.color;
 	}
 
+	@ColorInt
+	@Nullable
 	private Integer colorInt = null;
 
+	@ColorInt
 	public int getColorInt() {
 		if (this.colorInt == null) {
 			this.colorInt = ColorUtils.parseColor(getColor());

@@ -289,7 +289,7 @@ public final class AdsUtils implements MTLog.Loggable {
 		setupAdTask = null;
 	}
 
-	private static final int MIN_AGENCIES_FOR_ADS = 2;
+	public static final int MIN_AGENCIES_FOR_ADS = 2;
 
 	private static Integer nbAgencies = null;
 

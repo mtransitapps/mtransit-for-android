@@ -18,6 +18,9 @@ public class MTApplication extends Application implements MTLog.Loggable {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		if (CrashUtils.isInAnalyzerProcess(this)) {
+			return;
+		}
 		CrashUtils.init(this);
 		AdsUtils.init(this);
 	}

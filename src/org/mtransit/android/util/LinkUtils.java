@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.ui.MainActivity;
@@ -14,6 +15,7 @@ import org.mtransit.android.ui.fragment.WebBrowserFragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.text.Html;
 import android.text.Layout;
 import android.text.Spannable;
@@ -61,8 +63,8 @@ public final class LinkUtils implements MTLog.Loggable {
 			return true;
 		}
 		if (www) {
-			boolean useInternalWebBrowser = PreferenceUtils.getPrefDefault(activity, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER,
-					PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT);
+			boolean useInternalWebBrowser = PreferenceUtils.getPrefDefault(activity, //
+					PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT);
 			if (useInternalWebBrowser) {
 				((MainActivity) activity).addFragmentToStack(WebBrowserFragment.newInstance(url));
 				return true;
@@ -101,6 +103,19 @@ public final class LinkUtils implements MTLog.Loggable {
 
 	public static boolean open(Activity activity, Intent intent, String label, boolean www) {
 		return org.mtransit.android.commons.LinkUtils.open(activity, intent, label);
+	}
+
+	public static void sendEmail(@NonNull Activity activity) {
+		Intent intent = new Intent(Intent.ACTION_SENDTO);
+		String email = activity.getString(R.string.send_feedback_email);
+		intent.setData(Uri.parse("mailto:" + email)); // only email apps should handle this
+		intent.putExtra(Intent.EXTRA_EMAIL, email);
+		intent.putExtra(Intent.EXTRA_SUBJECT, //
+				PackageManagerUtils.getAppName(activity) //
+						+ " v" + PackageManagerUtils.getAppVersionName(activity) //
+						+ " (" + PackageManagerUtils.getAppVersionCode(activity) + ")" //
+		);
+		open(activity, intent, activity.getString(R.string.email), false);
 	}
 
 	private static final String EMAIL_SCHEME = "mailto";

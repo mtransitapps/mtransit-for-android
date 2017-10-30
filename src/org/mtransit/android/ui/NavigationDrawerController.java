@@ -7,8 +7,10 @@ import java.util.Iterator;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceProvider;
@@ -22,6 +24,7 @@ import org.mtransit.android.ui.fragment.HomeFragment;
 import org.mtransit.android.ui.fragment.MapFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
 import org.mtransit.android.ui.fragment.NewsFragment;
+import org.mtransit.android.util.LinkUtils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -29,6 +32,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -171,8 +175,10 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		}
 	}
 
+	@Nullable
 	private ArrayList<DataSourceType> allAgencyTypes = null;
 
+	@Nullable
 	private ArrayList<DataSourceType> getAllAgencyTypes() {
 		if (this.allAgencyTypes == null) {
 			initAllAgencyTypes();
@@ -226,6 +232,9 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 				this.navigationView.getMenu().findItem(dst.getNavResId()).setVisible(true);
 			}
 		}
+		boolean hasAgencyInstalled = allAgencyTypes != null && allAgencyTypes.size() > 1; // include "+"
+		this.navigationView.getMenu().findItem(R.id.nav_rate_review).setVisible(hasAgencyInstalled);
+		this.navigationView.getMenu().findItem(R.id.nav_support).setVisible(hasAgencyInstalled);
 	}
 
 	private boolean menuUpdated = false;
@@ -284,6 +293,12 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		case R.id.nav_module:
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.getId();
 		case R.id.nav_settings:
+			return null;
+		case R.id.nav_send_feedback:
+			return null;
+		case R.id.nav_rate_review:
+			return null;
+		case R.id.nav_support:
 			return null;
 		default:
 			MTLog.w(this, "Unexpected screen nav item ID '%s'!", navItemId);
@@ -427,6 +442,15 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		case R.id.nav_settings:
 			activity.startActivity(PreferencesActivity.newInstance(activity));
 			break;
+		case R.id.nav_send_feedback:
+			LinkUtils.sendEmail(activity);
+			break;
+		case R.id.nav_rate_review:
+			StoreUtils.viewAppPage(activity, Constants.MAIN_APP_PACKAGE_NAME, activity.getString(R.string.google_play));
+			break;
+		case R.id.nav_support:
+			activity.startActivity(PreferencesActivity.newInstance(activity, true));
+			break;
 		default:
 			MTLog.w(this, "startNewScreen() > Unexptected screen nav item ID: %s", navItemId);
 		}
@@ -439,6 +463,12 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		}
 		switch (navItemId) {
 		case R.id.nav_settings:
+			return false;
+		case R.id.nav_send_feedback:
+			return false;
+		case R.id.nav_rate_review:
+			return false;
+		case R.id.nav_support:
 			return false;
 		default:
 			return true;

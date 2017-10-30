@@ -28,7 +28,8 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 				if (!reseted) {
 					ping(context, pkg);
 				}
-			} else if (Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(intent.getAction()) || Intent.ACTION_PACKAGE_REMOVED.equals(intent.getAction())) {
+			} else if (Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(intent.getAction()) //
+					|| Intent.ACTION_PACKAGE_REMOVED.equals(intent.getAction())) {
 				DataSourceProvider.resetIfNecessary(context);
 			}
 		} else {

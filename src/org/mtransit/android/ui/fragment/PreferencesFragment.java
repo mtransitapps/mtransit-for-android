@@ -1,8 +1,11 @@
 package org.mtransit.android.ui.fragment;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
+import org.mtransit.android.ui.PreferencesActivity;
+import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.VendingUtils;
 
 import android.app.Activity;
@@ -22,12 +25,37 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 		return TAG;
 	}
 
+	private static final String FEEDBACK_EMAIL_PREF = "pFeedbackEmail";
+	private static final String FEEDBACK_STORE_PREF = "pFeedbackStore";
+
 	private static final String SUPPORT_SUBSCRIPTIONS_PREF = "pSupportSubs";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
+		findPreference(FEEDBACK_EMAIL_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Activity activity = getActivity();
+				if (activity == null) {
+					return false; // not handled
+				}
+				LinkUtils.sendEmail(activity);
+				return true; // handled
+			}
+		});
+		findPreference(FEEDBACK_STORE_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Activity activity = getActivity();
+				if (activity == null) {
+					return false; // not handled
+				}
+				StoreUtils.viewAppPage(activity, Constants.MAIN_APP_PACKAGE_NAME, activity.getString(R.string.google_play));
+				return true; // handled
+			}
+		});
 		findPreference(SUPPORT_SUBSCRIPTIONS_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
@@ -96,16 +124,16 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 		if (context == null) {
 			return;
 		}
-		Preference useIntenalWebBrowserPref = findPreference(PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER);
-		if (useIntenalWebBrowserPref == null) {
+		Preference useInternalWebBrowserPref = findPreference(PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER);
+		if (useInternalWebBrowserPref == null) {
 			return;
 		}
-		boolean useInternalWebBrowser = PreferenceUtils.getPrefDefault(context, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER,
-				PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT);
+		boolean useInternalWebBrowser = PreferenceUtils.getPrefDefault(context, //
+				PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT);
 		if (useInternalWebBrowser) {
-			useIntenalWebBrowserPref.setSummary(R.string.use_internal_web_browser_pref_summary_on);
+			useInternalWebBrowserPref.setSummary(R.string.use_internal_web_browser_pref_summary_on);
 		} else {
-			useIntenalWebBrowserPref.setSummary(R.string.use_internal_web_browser_pref_summary_off);
+			useInternalWebBrowserPref.setSummary(R.string.use_internal_web_browser_pref_summary_off);
 		}
 	}
 
@@ -116,6 +144,13 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 		PreferenceUtils.getPrefDefault(getActivity()).registerOnSharedPreferenceChangeListener(this);
 		setUnitSummary(getActivity());
 		setUseInternalWebBrowserSummary(getActivity());
+		if (((PreferencesActivity) getActivity()).isShowSupport()) {
+			((PreferencesActivity) getActivity()).setShowSupport(false); // clear flag before showing dialog
+			Boolean hasSubscription = VendingUtils.isHasSubscription(getActivity());
+			if (hasSubscription != null && !hasSubscription) {
+				VendingUtils.purchase(getActivity());
+			}
+		}
 	}
 
 	@Override

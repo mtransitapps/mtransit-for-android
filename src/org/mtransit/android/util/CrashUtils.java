@@ -18,12 +18,20 @@ public final class CrashUtils implements MTLog.Loggable {
 		return TAG;
 	}
 
+	public static boolean isInAnalyzerProcess(MTApplication application) {
+		try {
+			if (BuildConfig.DEBUG) {
+				return LeakCanary.isInAnalyzerProcess(application);
+			}
+		} catch (Exception e) {
+			MTLog.w(TAG, "Error while initializing LeakCanary!", e);
+		}
+		return false;
+	}
+
 	public static void init(MTApplication application) {
 		if (BuildConfig.DEBUG) {
 			try {
-				if (LeakCanary.isInAnalyzerProcess(application)) {
-					return;
-				}
 				LeakCanary.install(application);
 			} catch (Exception e) {
 				MTLog.w(TAG, "Error while initializing LeakCanary!", e);

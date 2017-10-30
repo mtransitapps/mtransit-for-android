@@ -79,4 +79,28 @@
             android:icon="@drawable/ic_settings_black_24dp"
             android:title="@string/settings" />
     </group>
+    <group
+        android:id="@+id/drawer_tertiary"
+        android:checkableBehavior="none">
+        <item
+            android:id="@id/nav_send_feedback"
+            android:icon="@drawable/ic_email_black_24dp"
+            android:title="@string/feedback_email" />
+        <item
+            android:id="@id/nav_rate_review"
+            android:icon="@drawable/ic_rate_review_black_24dp"
+            android:title="@string/rate_review"
+            android:visible="false"
+            tools:visible="true" />
+    </group>
+    <group
+        android:id="@+id/drawer_quaternary"
+        android:checkableBehavior="none">
+        <item
+            android:id="@id/nav_support"
+            android:icon="@drawable/ic_attach_money_black_24dp"
+            android:title="@string/support"
+            android:visible="false"
+            tools:visible="true" />
+    </group>
 </menu>
