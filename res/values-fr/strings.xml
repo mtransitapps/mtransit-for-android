@@ -10,6 +10,7 @@
     <string name="feedback_email">Envoyer un ommentaire</string>
     <string name="rate_review">Noter l\'app</string>
     <string name="support">Supporter MonTransit</string>
+    <string name="send_feedback_email">mtransit.apps+InApp@gmail.com</string>
     <string name="menu_action_nearby">Nearby</string>
     <string name="menu_action_search">Recherche</string>
     <string name="search_hint">Recherche MonTransit</string>
