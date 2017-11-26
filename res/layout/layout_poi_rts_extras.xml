@@ -65,7 +65,7 @@
                 android:ellipsize="marquee"
                 android:fontFamily="sans-serif-condensed"
                 android:marqueeRepeatLimit="marquee_forever"
-                android:maxLines="1"
+                android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceSmallInverse"
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/trip_head_sign_text_size"

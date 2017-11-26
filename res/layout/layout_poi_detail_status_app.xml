@@ -17,7 +17,7 @@
         android:layout_gravity="center_horizontal"
         android:ellipsize="marquee"
         android:fontFamily="sans-serif"
-        android:maxLines="1"
+        android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textStyle="normal"
         android:visibility="visible"
