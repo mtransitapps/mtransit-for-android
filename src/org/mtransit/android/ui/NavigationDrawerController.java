@@ -94,13 +94,14 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		if (this.finishSetupTask != null && this.finishSetupTask.getStatus() == MTAsyncTask.Status.RUNNING) {
 			return;
 		}
-		this.finishSetupTask = new FinishSetupTask();
+		this.finishSetupTask = new FinishSetupTask(this);
 		TaskUtils.execute(this.finishSetupTask);
 	}
 
+	@Nullable
 	private FinishSetupTask finishSetupTask = null;
 
-	private class FinishSetupTask extends MTAsyncTask<Void, String, String> {
+	private static class FinishSetupTask extends MTAsyncTask<Void, String, String> {
 
 		private final String TAG = NavigationDrawerController.TAG + ">" + FinishSetupTask.class.getSimpleName();
 
@@ -109,13 +110,23 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			return TAG;
 		}
 
+		private final WeakReference<NavigationDrawerController> navigationDrawerControllerWR;
+
+		public FinishSetupTask(NavigationDrawerController navigationDrawerController) {
+			this.navigationDrawerControllerWR = new WeakReference<NavigationDrawerController>(navigationDrawerController);
+		}
+
 		@Override
 		protected String doInBackgroundMT(Void... params) {
-			Context context = NavigationDrawerController.this.mainActivityWR == null ? null : NavigationDrawerController.this.mainActivityWR.get();
+			NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
+			if (navigationDrawerController == null) {
+				return null;
+			}
+			Context context = navigationDrawerController.mainActivityWR == null ? null : navigationDrawerController.mainActivityWR.get();
 			if (context == null) {
 				return null;
 			}
-			if (isCurrentSelectedSet()) {
+			if (navigationDrawerController.isCurrentSelectedSet()) {
 				return null;
 			}
 			String itemId = PreferenceUtils.getPrefLcl(context, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT);
@@ -125,23 +136,31 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 
 		@Override
 		protected void onPostExecute(String itemId) {
+			NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
+			if (navigationDrawerController == null) {
+				return;
+			}
 			if (isCancelled()) {
 				return;
 			}
-			setVisibleMenuItems();
+			navigationDrawerController.setVisibleMenuItems();
 			selectItemId(itemId);
-			if (!hasUserLearnedDrawer()) {
-				openDrawer();
-				setUserLearnedDrawer();
+			if (!navigationDrawerController.hasUserLearnedDrawer()) {
+				navigationDrawerController.openDrawer();
+				navigationDrawerController.setUserLearnedDrawer();
 			}
 		}
 
-		private void selectItemId(String itemId) {
+		private void selectItemId(@Nullable String itemId) {
 			if (TextUtils.isEmpty(itemId)) {
 				return;
 			}
-			Integer navItemId = getScreenNavItemId(itemId);
-			selectItem(navItemId, false);
+			NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
+			if (navigationDrawerController == null) {
+				return;
+			}
+			Integer navItemId = navigationDrawerController.getScreenNavItemId(itemId);
+			navigationDrawerController.selectItem(navItemId, false);
 		}
 
 		@Override

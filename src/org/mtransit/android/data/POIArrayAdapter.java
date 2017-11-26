@@ -748,47 +748,64 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return getItem(closestPOIUUID);
 	}
 
-	private MTAsyncTask<Location, Void, Void> updateDistanceWithStringTask;
+	@Nullable
+	private UpdateDistanceWithStringTask updateDistanceWithStringTask;
 
 	private void updateDistances(Location currentLocation) {
 		TaskUtils.cancelQuietly(this.updateDistanceWithStringTask, true);
 		if (currentLocation != null && getPoisCount() > 0) {
-			this.updateDistanceWithStringTask = new MTAsyncTask<Location, Void, Void>() {
-
-				@Override
-				public String getLogTag() {
-					return POIArrayAdapter.class.getSimpleName() + ">updateDistanceWithStringTask";
-				}
-
-				@Override
-				protected Void doInBackgroundMT(Location... params) {
-					android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-					try {
-						if (POIArrayAdapter.this.poisByType != null) {
-							Iterator<ArrayList<POIManager>> it = POIArrayAdapter.this.poisByType.values().iterator();
-							while (it.hasNext()) {
-								if (isCancelled()) {
-									break;
-								}
-								LocationUtils.updateDistanceWithString(POIArrayAdapter.this.getContext(), it.next(), params[0], this);
-							}
-						}
-					} catch (Exception e) {
-						MTLog.w(POIArrayAdapter.this, e, "Error while update POIs distance strings!");
-					}
-					return null;
-				}
-
-				@Override
-				protected void onPostExecute(Void result) {
-					if (isCancelled()) {
-						return;
-					}
-					updateClosestPoi();
-					notifyDataSetChanged(true);
-				}
-			};
+			this.updateDistanceWithStringTask = new UpdateDistanceWithStringTask(this);
 			TaskUtils.execute(this.updateDistanceWithStringTask, currentLocation);
+		}
+	}
+
+	private static class UpdateDistanceWithStringTask extends MTAsyncTask<Location, Void, Void> {
+
+		private final WeakReference<POIArrayAdapter> poiArrayAdapterWR;
+
+		@Override
+		public String getLogTag() {
+			return POIArrayAdapter.class.getSimpleName() + ">" + UpdateDistanceWithStringTask.class.getSimpleName();
+		}
+
+		private UpdateDistanceWithStringTask(POIArrayAdapter poiArrayAdapter) {
+			this.poiArrayAdapterWR = new WeakReference<POIArrayAdapter>(poiArrayAdapter);
+		}
+
+		@Override
+		protected Void doInBackgroundMT(Location... params) {
+			android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+			POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
+			if (poiArrayAdapter == null) {
+				return null;
+			}
+			try {
+				if (poiArrayAdapter.poisByType != null) {
+					Iterator<ArrayList<POIManager>> it = poiArrayAdapter.poisByType.values().iterator();
+					while (it.hasNext()) {
+						if (isCancelled()) {
+							break;
+						}
+						LocationUtils.updateDistanceWithString(poiArrayAdapter.getContext(), it.next(), params[0], this);
+					}
+				}
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while update POIs distance strings!");
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
+			if (poiArrayAdapter == null) {
+				return;
+			}
+			if (isCancelled()) {
+				return;
+			}
+			poiArrayAdapter.updateClosestPoi();
+			poiArrayAdapter.notifyDataSetChanged(true);
 		}
 	}
 
@@ -1550,7 +1567,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		holder.tripHeadingBg = convertView.findViewById(R.id.trip_heading_bg);
 	}
 
-	@Nullable
+	@NonNull
 	private View updateRouteTripStopView(@NonNull POIManager poim, @NonNull View convertView) {
 		if (!(convertView.getTag() instanceof RouteTripStopViewHolder)) {
 			CrashUtils.w(this, "updateRouteTripStopView() > unexpected holder class '%s'! (%s)", convertView.getTag(), getLogTag());
@@ -1830,40 +1847,61 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
-	private MTAsyncTask<Integer, Void, ArrayList<Favorite>> refreshFavoritesTask;
+	@Nullable
+	private RefreshFavoritesTask refreshFavoritesTask;
 
 	private void refreshFavorites() {
 		if (this.refreshFavoritesTask != null && this.refreshFavoritesTask.getStatus() == MTAsyncTask.Status.RUNNING) {
 			return; // skipped, last refresh still in progress so probably good enough
 		}
-		this.refreshFavoritesTask = new MTAsyncTask<Integer, Void, ArrayList<Favorite>>() {
-			@Override
-			public String getLogTag() {
-				return POIArrayAdapter.class.getSimpleName() + ">refreshFavoritesTask";
-			}
-
-			@Override
-			protected ArrayList<Favorite> doInBackgroundMT(Integer... params) {
-				return FavoriteManager.findFavorites(POIArrayAdapter.this.getContext());
-			}
-
-			@Override
-			protected void onPostExecute(ArrayList<Favorite> result) {
-				setFavorites(result);
-			}
-		};
+		this.refreshFavoritesTask = new RefreshFavoritesTask(this);
 		TaskUtils.execute(this.refreshFavoritesTask);
 	}
 
-	private void setFavorites(ArrayList<Favorite> favorites) {
-		boolean newFav = false; // don't trigger update if favorites are the same
-		boolean updatedFav = false; // don't trigger it favorites are the same OR were not set
+	private static class RefreshFavoritesTask extends MTAsyncTask<Integer, Void, ArrayList<Favorite>> {
+
+		private final WeakReference<POIArrayAdapter> poiArrayAdapterWR;
+
+		@Override
+		public String getLogTag() {
+			return POIArrayAdapter.class.getSimpleName() + ">" + RefreshFavoritesTask.class.getSimpleName();
+		}
+
+		private RefreshFavoritesTask(POIArrayAdapter poiArrayAdapter) {
+			this.poiArrayAdapterWR = new WeakReference<POIArrayAdapter>(poiArrayAdapter);
+		}
+
+		@Override
+		protected ArrayList<Favorite> doInBackgroundMT(Integer... params) {
+			POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
+			if (poiArrayAdapter == null) {
+				return null;
+			}
+			return FavoriteManager.findFavorites(poiArrayAdapter.getContext());
+		}
+
+		@Override
+		protected void onPostExecute(@Nullable ArrayList<Favorite> result) {
+			POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
+			if (poiArrayAdapter == null) {
+				return;
+			}
+			poiArrayAdapter.setFavorites(result);
+		}
+	}
+
+	private void setFavorites(@Nullable ArrayList<Favorite> favorites) {
+		boolean newFav; // don't trigger update if favorites are the same
+		boolean updatedFav; // don't trigger if favorites are the same OR were not set
 		if (this.favUUIDs == null) {
 			newFav = true; // favorite never set before
 			updatedFav = false; // never set before so not updated
 		} else if (CollectionUtils.getSize(favorites) != CollectionUtils.getSize(this.favUUIDs)) {
 			newFav = true; // different size => different favorites
 			updatedFav = true; // different size => different favorites
+		} else {
+			newFav = false; // favorite set before to the same size
+			updatedFav = false; // already set with the same size
 		}
 		HashSet<String> newFavUUIDs = new HashSet<String>();
 		HashMap<String, Integer> newFavUUIDsFolderIds = new HashMap<String, Integer>();
@@ -1887,13 +1925,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				updatedFav = false; // never set before so not updated
 			} else {
 				HashSet<Integer> oldFolderIds = new HashSet<Integer>();
-				for (Integer folderId : this.favUUIDsFolderIds.values()) {
-					oldFolderIds.add(folderId);
-				}
+				oldFolderIds.addAll(this.favUUIDsFolderIds.values());
 				HashSet<Integer> newFolderIds = new HashSet<Integer>();
-				for (Integer folderId : newFavUUIDsFolderIds.values()) {
-					newFolderIds.add(folderId);
-				}
+				newFolderIds.addAll(newFavUUIDsFolderIds.values());
 				if (CollectionUtils.getSize(oldFolderIds) != CollectionUtils.getSize(newFolderIds)) {
 					newFav = true; // different size => different favorites
 					updatedFav = true; // different size => different favorites

@@ -17,10 +17,10 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.StringUtils;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.task.MTAsyncTask;
-import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
@@ -44,6 +44,8 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.SimpleArrayMap;
 import android.text.TextUtils;
@@ -226,28 +228,34 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (view == null) {
 			return;
 		}
-		this.initMapViewTask = new InitMapViewTask(view);
+		this.initMapViewTask = new InitMapViewTask(this, view);
 		TaskUtils.execute(this.initMapViewTask);
 	}
 
+	@Nullable
 	private InitMapViewTask initMapViewTask = null;
 
-	private class InitMapViewTask extends MTAsyncTask<Object, Void, Boolean> {
+	private static class InitMapViewTask extends MTAsyncTask<Object, Void, Boolean> {
 
 		@Override
 		public String getLogTag() {
-			return MapViewController.this.getLogTag() + ">" + InitMapViewTask.class.getSimpleName();
+			return MapViewController.class.getSimpleName() + ">" + InitMapViewTask.class.getSimpleName();
 		}
 
-		private WeakReference<View> viewWR;
+		@NonNull
+		private final WeakReference<MapViewController> mapViewControllerWR;
 
-		public InitMapViewTask(View view) {
+		@NonNull
+		private final WeakReference<View> viewWR;
+
+		InitMapViewTask(MapViewController mapViewController, View view) {
+			this.mapViewControllerWR = new WeakReference<MapViewController>(mapViewController);
 			this.viewWR = new WeakReference<View>(view);
 		}
 
 		@Override
 		protected Boolean doInBackgroundMT(Object... params) {
-			View view = this.viewWR == null ? null : this.viewWR.get();
+			View view = this.viewWR.get();
 			if (view == null) {
 				return false;
 			}
@@ -263,14 +271,18 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		@Override
 		protected void onPostExecute(Boolean result) {
 			super.onPostExecute(result);
+			MapViewController mapViewController = this.mapViewControllerWR.get();
+			if (mapViewController == null) {
+				return;
+			}
 			if (result) {
-				View view = this.viewWR == null ? null : this.viewWR.get();
-				applyNewMapView(view);
+				View view = this.viewWR.get();
+				mapViewController.applyNewMapView(view);
 			}
 		}
 	}
 
-	private void applyNewMapView(View view) {
+	private void applyNewMapView(@Nullable View view) {
 		if (this.mapView != null) {
 			return;
 		}
@@ -712,7 +724,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (this.extendedGoogleMap == null) {
 			return;
 		}
-		TaskUtils.execute(new LoadClusterItemsTask());
+		TaskUtils.execute(new LoadClusterItemsTask(this));
 	}
 
 	private static final MarkerNameComparator MARKER_NAME_COMPARATOR = new MarkerNameComparator();
@@ -979,22 +991,33 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 	}
 
-	private class LoadClusterItemsTask extends MTAsyncTask<Void, Void, Collection<POIMarker>> {
+	private static class LoadClusterItemsTask extends MTAsyncTask<Void, Void, Collection<POIMarker>> {
 
-		private final String TAG = MapViewController.this.getLogTag() + ">" + LoadClusterItemsTask.class.getSimpleName();
+		private final String TAG = MapViewController.class.getSimpleName() + ">" + LoadClusterItemsTask.class.getSimpleName();
+
+		@NonNull
+		private final WeakReference<MapViewController> mapViewControllerWR;
 
 		@Override
 		public String getLogTag() {
 			return TAG;
 		}
 
+		private LoadClusterItemsTask(MapViewController mapViewController) {
+			this.mapViewControllerWR = new WeakReference<MapViewController>(mapViewController);
+		}
+
 		@Override
 		protected Collection<POIMarker> doInBackgroundMT(Void... params) {
-			Activity activity = getActivityOrNull();
+			MapViewController mapViewController = this.mapViewControllerWR.get();
+			if (mapViewController == null) {
+				return null;
+			}
+			Activity activity = mapViewController.getActivityOrNull();
 			if (activity == null) {
 				return null;
 			}
-			MapMarkerProvider markerProvider = MapViewController.this.markerProviderWR == null ? null : MapViewController.this.markerProviderWR.get();
+			MapMarkerProvider markerProvider = mapViewController.markerProviderWR == null ? null : mapViewController.markerProviderWR.get();
 			if (markerProvider == null) {
 				return null;
 			}
@@ -1026,10 +1049,10 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				if (agency == null) {
 					continue;
 				}
-				if (MapViewController.this.markerLabelShowExtra && poim.poi instanceof RouteTripStop) {
+				if (mapViewController.markerLabelShowExtra && poim.poi instanceof RouteTripStop) {
 					extra = ((RouteTripStop) poim.poi).getRoute().getShortestName();
 				}
-				agencyShortName = MapViewController.this.markerLabelShowExtra ? agency.getShortName() : null;
+				agencyShortName = mapViewController.markerLabelShowExtra ? agency.getShortName() : null;
 				uuid = poim.poi.getUUID();
 				authority = poim.poi.getAuthority();
 				color = POIManager.getColor(activity, poim.poi, null);
@@ -1046,27 +1069,31 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		@Override
 		protected void onPostExecute(Collection<POIMarker> result) {
 			super.onPostExecute(result);
+			MapViewController mapViewController = this.mapViewControllerWR.get();
+			if (mapViewController == null) {
+				return;
+			}
 			if (result == null) {
 				return;
 			}
-			if (MapViewController.this.extendedGoogleMap == null) {
+			if (mapViewController.extendedGoogleMap == null) {
 				return;
 			}
 			ExtendedMarkerOptions options = new ExtendedMarkerOptions();
 			for (POIMarker poiMarker : result) {
 				options.position(poiMarker.position);
 				options.title(poiMarker.getTitle());
-				if (MapViewController.this.markerLabelShowExtra) {
+				if (mapViewController.markerLabelShowExtra) {
 					options.snippet(poiMarker.getSnippet());
 				}
-				options.icon(getActivityOrNull(), R.drawable.ic_place_white_slim, poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
+				options.icon(mapViewController.getActivityOrNull(), R.drawable.ic_place_white_slim, poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
 				options.data(poiMarker.getUuidsAndAuthority());
-				MapViewController.this.extendedGoogleMap.addMarker(options);
+				mapViewController.extendedGoogleMap.addMarker(options);
 			}
-			MapViewController.this.clusterManagerItemsLoaded = true;
-			hideLoading();
-			if (MapViewController.this.showAllMarkersWhenReady) {
-				showMarkers(false, MapViewController.this.followingUser);
+			mapViewController.clusterManagerItemsLoaded = true;
+			mapViewController.hideLoading();
+			if (mapViewController.showAllMarkersWhenReady) {
+				mapViewController.showMarkers(false, mapViewController.followingUser);
 			}
 		}
 	}

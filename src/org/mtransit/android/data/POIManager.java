@@ -42,6 +42,7 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.support.annotation.ColorInt;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 public class POIManager implements LocationPOI, MTLog.Loggable {
@@ -80,7 +81,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private CharSequence distanceString = null;
 	private float distance = -1;
 	private POIStatus status;
-	private ArrayList<ServiceUpdate> serviceUpdates;
+	@Nullable
+	private ArrayList<ServiceUpdate> serviceUpdates = null;
 	private boolean inFocus = false;
 
 	private long lastFindStatusTimestampMs = -1;
@@ -270,7 +272,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return CollectionUtils.getSize(this.serviceUpdates) != 0;
 	}
 
-	public void setServiceUpdates(Collection<ServiceUpdate> newServiceUpdates) {
+	public void setServiceUpdates(@Nullable Collection<ServiceUpdate> newServiceUpdates) {
 		if (this.serviceUpdates == null) {
 			this.serviceUpdates = new ArrayList<ServiceUpdate>();
 		} else {
@@ -334,44 +336,44 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_ACTION_TYPE_NONE:
 			return new CharSequence[]{defaultAction};
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
-			return new CharSequence[] { //
-			defaultAction, //
+			return new CharSequence[]{ //
+					defaultAction, //
 					FavoriteManager.isFavorite(context, this.poi.getUUID()) ? //
-					FavoriteManager.get(context).isUsingFavoriteFolders() ? //
-					context.getString(R.string.edit_fav)
-							: context.getString(R.string.remove_fav)
-							: context.getString(R.string.add_fav) //
+							FavoriteManager.get(context).isUsingFavoriteFolders() ? //
+									context.getString(R.string.edit_fav) : //
+									context.getString(R.string.remove_fav) : //
+							context.getString(R.string.add_fav) //
 			};
 		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
 			RouteTripStop rts = (RouteTripStop) this.poi;
 			return new CharSequence[]{ //
 					context.getString(R.string.view_stop), //
-					TextUtils.isEmpty(rts.getRoute().getShortName()) ? context.getString(R.string.view_stop_route) : context.getString(
-							R.string.view_stop_route_and_route, rts.getRoute().getShortName()), //
+					TextUtils.isEmpty(rts.getRoute().getShortName()) ? //
+							context.getString(R.string.view_stop_route) : //
+							context.getString(R.string.view_stop_route_and_route, rts.getRoute().getShortName()), //
 					FavoriteManager.isFavorite(context, this.poi.getUUID()) ? //
-					FavoriteManager.get(context).isUsingFavoriteFolders() ? //
-					context.getString(R.string.edit_fav)
-							: context.getString(R.string.remove_fav)
-							: context.getString(R.string.add_fav) //
+							FavoriteManager.get(context).isUsingFavoriteFolders() ? //
+									context.getString(R.string.edit_fav) : //
+									context.getString(R.string.remove_fav) : //
+							context.getString(R.string.add_fav) //
 			};
 		case POI.ITEM_ACTION_TYPE_APP:
 			if (PackageManagerUtils.isAppInstalled(context, ((Module) this.poi).getPkg())) {
-				return new CharSequence[] { //
+				return new CharSequence[]{ //
 						context.getString(R.string.rate_on_store), //
 						context.getString(R.string.uninstall), //
 				};
 			} else {
-				return new CharSequence[] { //
-				context.getString(R.string.download_on_store), //
+				return new CharSequence[]{ //
+						context.getString(R.string.download_on_store), //
 				};
 			}
 		case POI.ITEM_ACTION_TYPE_PLACE:
-			return new CharSequence[] { defaultAction };
+			return new CharSequence[]{defaultAction};
 		default:
 			MTLog.w(this, "unexpected action type '%s'!", this.poi.getActionsType());
-			return new CharSequence[] { defaultAction };
+			return new CharSequence[]{defaultAction};
 		}
-
 	}
 
 	public boolean onActionsItemClick(Activity activity, int itemClicked, HashMap<Integer, Favorite.Folder> favoriteFolders,
@@ -426,8 +428,10 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return false; // NOT HANDLED
 	}
 
+	@ColorInt
 	private Integer color = null;
 
+	@ColorInt
 	public int getColor(Context context) {
 		if (color == null) {
 			color = getColor(context, poi, null);
@@ -438,6 +442,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return color;
 	}
 
+	@ColorInt
 	public static Integer getColor(Context context, POI poi, Integer defaultColor) {
 		if (poi != null) {
 			if (poi instanceof RouteTripStop) {

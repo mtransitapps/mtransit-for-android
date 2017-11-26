@@ -18,6 +18,7 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ServiceUpdateProviderProperties;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 public class ServiceUpdateLoader implements MTLog.Loggable {
 
@@ -115,7 +116,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Override
-		protected void onPostExecute(ArrayList<ServiceUpdate> result) {
+		protected void onPostExecute(@Nullable ArrayList<ServiceUpdate> result) {
 			if (result == null) {
 				return;
 			}
