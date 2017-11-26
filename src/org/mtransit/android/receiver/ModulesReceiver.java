@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ProviderInfo;
+import android.support.annotation.NonNull;
 
 public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable {
 
@@ -20,7 +21,7 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 	}
 
 	@Override
-	public void onReceive(Context context, Intent intent) {
+	public void onReceive(@NonNull Context context, Intent intent) {
 		String pkg = intent.getData().getSchemeSpecificPart();
 		if (DataSourceProvider.isSet()) {
 			if (DataSourceProvider.isProvider(context, pkg)) {
@@ -37,7 +38,7 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 		}
 	}
 
-	private void ping(Context context, String pkg) {
+	private void ping(@NonNull Context context, String pkg) {
 		ProviderInfo[] providers = PackageManagerUtils.findContentProvidersWithMetaData(context, pkg);
 		if (providers != null) {
 			String agencyProviderMetaData = DataSourceProvider.getAgencyProviderMetaData(context);

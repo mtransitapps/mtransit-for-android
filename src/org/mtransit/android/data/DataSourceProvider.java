@@ -18,6 +18,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.os.AsyncTask;
 import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 import android.util.SparseArray;
@@ -76,52 +78,62 @@ public class DataSourceProvider implements MTLog.Loggable {
 		}
 	}
 
+	@Nullable
 	private static String agencyProviderMetaData;
 
-	public static String getAgencyProviderMetaData(Context context) {
+	@NonNull
+	public static String getAgencyProviderMetaData(@NonNull Context context) {
 		if (agencyProviderMetaData == null) {
-			agencyProviderMetaData = context == null ? null : context.getString(R.string.agency_provider);
+			agencyProviderMetaData = context.getString(R.string.agency_provider);
 		}
 		return agencyProviderMetaData;
 	}
 
+	@Nullable
 	private static String scheduleProviderMetaData;
 
-	public static String getScheduleProviderMetaData(Context context) {
+	@NonNull
+	private static String getScheduleProviderMetaData(@NonNull Context context) {
 		if (scheduleProviderMetaData == null) {
-			scheduleProviderMetaData = context == null ? null : context.getString(R.string.schedule_provider);
+			scheduleProviderMetaData = context.getString(R.string.schedule_provider);
 		}
 		return scheduleProviderMetaData;
 	}
 
+	@Nullable
 	private static String statusProviderMetaData;
 
-	public static String getStatusProviderMetaData(Context context) {
+	@NonNull
+	private static String getStatusProviderMetaData(@NonNull Context context) {
 		if (statusProviderMetaData == null) {
-			statusProviderMetaData = context == null ? null : context.getString(R.string.status_provider);
+			statusProviderMetaData = context.getString(R.string.status_provider);
 		}
 		return statusProviderMetaData;
 	}
 
+	@Nullable
 	private static String serviceUpdateProviderMetaData;
 
-	public static String getServiceUpdateProviderMetaData(Context context) {
+	@NonNull
+	private static String getServiceUpdateProviderMetaData(@NonNull Context context) {
 		if (serviceUpdateProviderMetaData == null) {
-			serviceUpdateProviderMetaData = context == null ? null : context.getString(R.string.service_update_provider);
+			serviceUpdateProviderMetaData = context.getString(R.string.service_update_provider);
 		}
 		return serviceUpdateProviderMetaData;
 	}
 
+	@Nullable
 	private static String newsProviderMetaData;
 
-	public static String getNewsProviderMetaData(Context context) {
+	@NonNull
+	private static String getNewsProviderMetaData(@NonNull Context context) {
 		if (newsProviderMetaData == null) {
-			newsProviderMetaData = context == null ? null : context.getString(R.string.news_provider);
+			newsProviderMetaData = context.getString(R.string.news_provider);
 		}
 		return newsProviderMetaData;
 	}
 
-	public static boolean isProvider(Context context, String pkg) {
+	public static boolean isProvider(@NonNull Context context, String pkg) {
 		if (TextUtils.isEmpty(pkg)) {
 			return false;
 		}
@@ -156,37 +168,28 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return false;
 	}
 
-	public static boolean resetIfNecessary(Context optContext) {
+	public static boolean resetIfNecessary(@NonNull Context context) {
 		if (instance != null) {
-			if (optContext == null) { // cannot compare w/o context
+			if (hasChanged(instance, context)) {
 				destroy();
 				triggerModulesUpdated();
 				return true;
-			} else {
-				if (hasChanged(instance, optContext)) {
-					destroy();
-					triggerModulesUpdated();
-					return true;
-				}
 			}
 		}
 		return false;
 	}
 
-	private synchronized static boolean hasChanged(DataSourceProvider current, Context optContext) {
+	private synchronized static boolean hasChanged(DataSourceProvider current, @NonNull Context context) {
 		if (current == null) {
 			return true;
 		}
-		if (optContext == null) {
-			return true;
-		}
-		String agencyProviderMetaData = getAgencyProviderMetaData(optContext);
-		String scheduleProviderMetaData = getScheduleProviderMetaData(optContext);
-		String statusProviderMetaData = getStatusProviderMetaData(optContext);
-		String serviceUpdateProviderMetaData = getServiceUpdateProviderMetaData(optContext);
-		String newsProviderMetaData = getNewsProviderMetaData(optContext);
+		String agencyProviderMetaData = getAgencyProviderMetaData(context);
+		String scheduleProviderMetaData = getScheduleProviderMetaData(context);
+		String statusProviderMetaData = getStatusProviderMetaData(context);
+		String serviceUpdateProviderMetaData = getServiceUpdateProviderMetaData(context);
+		String newsProviderMetaData = getNewsProviderMetaData(context);
 		int nbAgencyProviders = 0, nbScheduleProviders = 0, nbStatusProviders = 0, nbServiceUpdateProviders = 0, nbNewsProviders = 0;
-		PackageManager pm = optContext.getPackageManager();
+		PackageManager pm = context.getPackageManager();
 		for (PackageInfo packageInfo : pm.getInstalledPackages(PackageManager.GET_PROVIDERS | PackageManager.GET_META_DATA)) {
 			ProviderInfo[] providers = packageInfo.providers;
 			if (providers != null) {
@@ -391,15 +394,15 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return this.allAgenciesColorInts.get(authority);
 	}
 
-	public StatusProviderProperties getStatusProvider(String authority) {
+	private StatusProviderProperties getStatusProvider(String authority) {
 		return this.allStatusProvidersByAuthority.get(authority);
 	}
 
-	public ScheduleProviderProperties getScheduleProvider(String authority) {
+	private ScheduleProviderProperties getScheduleProvider(String authority) {
 		return this.allScheduleProvidersByAuthority.get(authority);
 	}
 
-	public ServiceUpdateProviderProperties getServiceUpdateProvider(String authority) {
+	private ServiceUpdateProviderProperties getServiceUpdateProvider(String authority) {
 		return this.allServiceUpdateProvidersByAuthority.get(authority);
 	}
 
@@ -407,7 +410,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return new ArrayList<NewsProviderProperties>(this.allNewsProviders); // copy
 	}
 
-	public NewsProviderProperties getNewsProvider(String authority) {
+	private NewsProviderProperties getNewsProvider(String authority) {
 		return this.allNewsProvidersByAuthority.get(authority);
 	}
 
@@ -475,7 +478,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 		this.allAgenciesColorInts.clear();
 	}
 
-	private synchronized void init(Context context) {
+	private synchronized void init(@NonNull Context context) {
 		try {
 			String agencyProviderMetaData = getAgencyProviderMetaData(context);
 			String agencyProviderTypeMetaData = context.getString(R.string.agency_provider_type);

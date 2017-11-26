@@ -33,6 +33,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
@@ -187,7 +188,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static void ping(Context context, String authority) {
+	public static void ping(@NonNull Context context, String authority) {
 		Cursor cursor = null;
 		try {
 			Uri uri = Uri.withAppendedPath(getUri(authority), ProviderContract.PING_PATH);
