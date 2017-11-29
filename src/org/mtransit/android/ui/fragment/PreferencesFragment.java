@@ -2,6 +2,7 @@ package org.mtransit.android.ui.fragment;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.Constants;
+import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.ui.PreferencesActivity;
@@ -29,6 +30,8 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 	private static final String FEEDBACK_STORE_PREF = "pFeedbackStore";
 
 	private static final String SUPPORT_SUBSCRIPTIONS_PREF = "pSupportSubs";
+
+	private static final String ABOUT_APP_VERSION_PREF = "pAboutAppVersion";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -144,6 +147,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 		PreferenceUtils.getPrefDefault(getActivity()).registerOnSharedPreferenceChangeListener(this);
 		setUnitSummary(getActivity());
 		setUseInternalWebBrowserSummary(getActivity());
+		setAppVersion(getActivity());
 		if (((PreferencesActivity) getActivity()).isShowSupport()) {
 			((PreferencesActivity) getActivity()).setShowSupport(false); // clear flag before showing dialog
 			Boolean hasSubscription = VendingUtils.isHasSubscription(getActivity());
@@ -151,6 +155,12 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 				VendingUtils.purchase(getActivity());
 			}
 		}
+	}
+
+	private void setAppVersion(Context context) {
+		findPreference(ABOUT_APP_VERSION_PREF).setSummary("" //
+				+ " v" + PackageManagerUtils.getAppVersionName(context) //
+				+ " (" + PackageManagerUtils.getAppVersionCode(context) + ")");
 	}
 
 	@Override

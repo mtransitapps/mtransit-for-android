@@ -52,4 +52,15 @@
             tools:summary="@string/support_subs_pref_summary"
             tools:title="@string/support_subs_pref_title" />
     </PreferenceCategory>
+    <!-- ABOUT -->
+    <PreferenceCategory
+        android:key="pAbout"
+        android:title="@string/about_pref_cat_title">
+        <!-- APP VERSION -->
+        <Preference
+            android:enabled="true"
+            android:key="pAboutAppVersion"
+            android:summary="@string/about_app_version_pref_summary"
+            android:title="@string/about_app_version_pref_title" />
+    </PreferenceCategory>
 </PreferenceScreen>

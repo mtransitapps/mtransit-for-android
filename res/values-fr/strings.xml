@@ -135,6 +135,9 @@
     <string name="feedback_email_pref_summary">Signaler un problème ou suggérer une nouvelle fonctionnalité.</string>
     <string name="feedback_store_pref_title">Noter sur Google Play</string>
     <string name="feedback_store_pref_summary">Laisser une note sur le Google Play Store</string>
+    <string name="about_pref_cat_title">À propos</string>
+    <string name="about_app_version_pref_title">Version de l\'application</string>
+    <string name="about_app_version_pref_summary">@string/ellipsis</string>
     <string name="support_pref_cat_title">Supporter</string>
     <string name="support_subs_pref_title">Supporter MonTransit</string>
     <string name="support_subs_pref_summary">Cacher les publicités et supporter le développement de MonTransit.</string>
