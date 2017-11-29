@@ -380,15 +380,17 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@Override
 	public boolean isAgencySetupRequired() {
-		boolean setupRequired = false;
 		if (currentDbVersion > 0 && currentDbVersion != getCurrentDbVersion()) {
-			setupRequired = true; // live update required => update
-		} else if (!SqlUtils.isDbExist(getContext(), getDbName())) {
-			setupRequired = true; // not deployed => initialization
-		} else if (SqlUtils.getCurrentDbVersion(getContext(), getDbName()) != getCurrentDbVersion()) {
-			setupRequired = true; // update required => update
+			return true; // live update required => update
 		}
-		return setupRequired;
+		if (!SqlUtils.isDbExist(getContext(), getDbName())) {
+			return true; // not deployed => initialization
+		}
+		//noinspection RedundantIfStatement
+		if (SqlUtils.getCurrentDbVersion(getContext(), getDbName()) != getCurrentDbVersion()) {
+			return true; // update required => update
+		}
+		return false;
 	}
 
 	@Override

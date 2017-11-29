@@ -174,7 +174,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			return;
 		}
 		AbsListView absListView = (AbsListView) view.findViewById(isShowingListInsteadOfGrid() ? R.id.list : R.id.grid);
-		linkAdapterWithListView(absListView);
+		linkAdapterWithListView(view);
 		absListView.setOnItemClickListener(this);
 		switchView(view);
 	}
@@ -319,7 +319,9 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			LoaderUtils.restartLoader(this, ROUTES_LOADER, null, this);
 		}
 		checkIfShowingListInsteadOfGridChanged();
-		getActivity().supportInvalidateOptionsMenu(); // initialize action bar list/grid switch icon
+		if (getActivity() != null) {
+			getActivity().invalidateOptionsMenu(); // initialize action bar list/grid switch icon
+		}
 		updateListGridToggleMenuItem();
 	}
 

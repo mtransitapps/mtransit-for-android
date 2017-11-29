@@ -183,7 +183,8 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 					positionTrunc = MapViewController.POIMarker.getLatLngTrunc(poim);
 					if (!this.latLngBounds.contains(position)) {
 						continue;
-					} else if (this.loadedLatLngBounds != null && this.loadedLatLngBounds.contains(position)) {
+					}
+					if (this.loadedLatLngBounds != null && this.loadedLatLngBounds.contains(position)) {
 						continue;
 					}
 					name = poim.poi.getName();
