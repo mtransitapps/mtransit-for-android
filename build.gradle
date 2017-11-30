@@ -4,23 +4,23 @@ apply plugin: "org.sonarqube"
 
 dependencies {
     // ALL
-    compile project(':commons-android')
-    compile rootProject.ext.supportLibs.appCompat
-    compile rootProject.ext.supportLibs.design
-    compile rootProject.ext.gpsLibs.analytics
-    compile rootProject.ext.gpsLibs.location
-    compile rootProject.ext.gpsLibs.maps
-    compile rootProject.ext.gpsLibs.firebase_ads
-    compile rootProject.ext.gpsLibs.firebase_analytics
-    compile rootProject.ext.gpsLibs.firebase_crash
-    compile rootProject.ext.fbLibs.audienceNetwork
-    compile rootProject.ext.fbLibs.audienceNetworkMediation
+    implementation project(':commons-android')
+    implementation rootProject.ext.supportLibs.appCompat
+    implementation rootProject.ext.supportLibs.design
+    implementation rootProject.ext.gpsLibs.analytics
+    implementation rootProject.ext.gpsLibs.location
+    implementation rootProject.ext.gpsLibs.maps
+    implementation rootProject.ext.gpsLibs.firebase_ads
+    implementation rootProject.ext.gpsLibs.firebase_analytics
+    implementation rootProject.ext.gpsLibs.firebase_crash
+    implementation rootProject.ext.fbLibs.audienceNetwork
+    implementation rootProject.ext.fbLibs.audienceNetworkMediation
     // DEBUG
-    debugCompile rootProject.ext.squareLibs.leakcanary
+    debugImplementation rootProject.ext.squareLibs.leakcanary
     // RELEASE
-    releaseCompile rootProject.ext.squareLibs.leakcanary_no_op
+    releaseImplementation rootProject.ext.squareLibs.leakcanary_no_op
     // TEST
-    testCompile rootProject.ext.squareLibs.leakcanary_no_op
+    testImplementation rootProject.ext.squareLibs.leakcanary_no_op
 }
 
 android {
