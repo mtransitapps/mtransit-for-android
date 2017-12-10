@@ -1,8 +1,8 @@
 package org.mtransit.android.data;
 
 import java.util.Comparator;
-import java.util.HashMap;
 
+import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.FavoriteProvider;
@@ -10,6 +10,7 @@ import org.mtransit.android.provider.FavoriteProvider.FavoriteColumns;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.util.SparseArray;
 
 public class Favorite {
 
@@ -71,9 +72,9 @@ public class Favorite {
 
 	public static class FavoriteFolderNameComparator implements Comparator<POIManager> {
 
-		private HashMap<Integer, Favorite.Folder> favoriteFolders;
+		private SparseArray<Favorite.Folder> favoriteFolders;
 
-		public FavoriteFolderNameComparator(HashMap<Integer, Favorite.Folder> favoriteFolders) {
+		public FavoriteFolderNameComparator(SparseArray<Folder> favoriteFolders) {
 			this.favoriteFolders = favoriteFolders;
 		}
 
@@ -82,14 +83,14 @@ public class Favorite {
 			String lFavoriteFolderName = StringUtils.EMPTY;
 			if (FavoriteManager.isFavoriteDataSourceId(lPoim.poi.getDataSourceTypeId())) {
 				int favoriteFolderId = FavoriteManager.extractFavoriteFolderId(lPoim.poi.getDataSourceTypeId());
-				if (this.favoriteFolders != null && this.favoriteFolders.containsKey(favoriteFolderId)) {
+				if (this.favoriteFolders != null && ArrayUtils.containsKey(this.favoriteFolders, favoriteFolderId)) {
 					lFavoriteFolderName = this.favoriteFolders.get(favoriteFolderId).getName();
 				}
 			}
 			String rFavoriteFolderName = StringUtils.EMPTY;
 			if (FavoriteManager.isFavoriteDataSourceId(rPoim.poi.getDataSourceTypeId())) {
 				int favoriteFolderId = FavoriteManager.extractFavoriteFolderId(rPoim.poi.getDataSourceTypeId());
-				if (this.favoriteFolders != null && this.favoriteFolders.containsKey(favoriteFolderId)) {
+				if (this.favoriteFolders != null && ArrayUtils.containsKey(this.favoriteFolders, favoriteFolderId)) {
 					rFavoriteFolderName = this.favoriteFolders.get(favoriteFolderId).getName();
 				}
 			}

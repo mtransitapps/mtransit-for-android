@@ -47,6 +47,9 @@ import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.LoaderUtils;
 import org.mtransit.android.util.MapUtils;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -57,8 +60,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -72,9 +75,6 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.ScrollView;
-
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 
 public class POIFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, POIViewController.POIDataProvider,
 		MTActivityWithLocation.UserLocationListener, SensorEventListener, SensorUtils.CompassListener, SensorUtils.SensorTaskCompleted,
@@ -104,7 +104,8 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 	private static final String EXTRA_AUTHORITY = "extra_agency_authority";
 	private static final String EXTRA_POI_UUID = "extra_poi_uuid";
 
-	public static POIFragment newInstance(String uuid, String authority, AgencyProperties optAgency, POIManager optPoim) {
+	public static POIFragment newInstance(@NonNull String uuid, @NonNull String authority, @Nullable AgencyProperties optAgency, @Nullable POIManager
+			optPoim) {
 		POIFragment f = new POIFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
@@ -122,8 +123,8 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	private AgencyProperties agency;
 
-	private MapViewController mapViewController = new MapViewController(TAG, this, this, false, true, false, false, false, false, 32, true, false, true, true,
-			false);
+	private MapViewController mapViewController =
+			new MapViewController(TAG, this, this, false, true, false, false, false, false, 32, true, false, true, true, false);
 
 	private boolean hasAgency() {
 		if (this.agency == null) {
@@ -146,26 +147,26 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	private LoadAgencyTask loadAgencyTask = null;
 
-	private class LoadAgencyTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
+	private static class LoadAgencyTask extends FragmentAsyncTaskV4<Void, Void, Boolean, POIFragment> {
 
 		@Override
 		public String getLogTag() {
-			return POIFragment.this.getLogTag() + ">" + LoadAgencyTask.class.getSimpleName();
+			return POIFragment.class.getSimpleName() + ">" + LoadAgencyTask.class.getSimpleName();
 		}
 
-		public LoadAgencyTask(Fragment fragment) {
-			super(fragment);
-		}
-
-		@Override
-		protected Boolean doInBackgroundMT(Void... params) {
-			return initAgencySync();
+		public LoadAgencyTask(POIFragment poiFragment) {
+			super(poiFragment);
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(Boolean result) {
-			if (result) {
-				applyNewAgency();
+		protected Boolean doInBackgroundWithFragment(@NonNull POIFragment poiFragment, Void... params) {
+			return poiFragment.initAgencySync();
+		}
+
+		@Override
+		protected void onPostExecuteFragmentReady(@NonNull POIFragment poiFragment, @Nullable Boolean result) {
+			if (Boolean.TRUE.equals(result)) {
+				poiFragment.applyNewAgency();
 			}
 		}
 	}
@@ -182,7 +183,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			return false;
 		}
 		if (!TextUtils.isEmpty(this.authority)) {
-			this.agency = DataSourceProvider.get(getActivity()).getAgency(getActivity(), this.authority);
+			this.agency = DataSourceProvider.get(getContext()).getAgency(getContext(), this.authority);
 		}
 		return this.agency != null;
 	}
@@ -193,9 +194,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 		POIManager poim = getPoimOrNull();
 		if (poim != null) {
-			POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(getView()), poim, this);
+			POIStatusDetailViewController.updateView(getContext(), getPOIStatusView(getView()), poim, this);
 		}
-		getAbController().setABTitle(this, getABTitle(getActivity()), false);
+		getAbController().setABTitle(this, getABTitle(getContext()), false);
 		getAbController().setABReady(this, isABReady(), true);
 	}
 
@@ -228,26 +229,26 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	private LoadPoimTask loadPoimTask = null;
 
-	private class LoadPoimTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
+	private static class LoadPoimTask extends FragmentAsyncTaskV4<Void, Void, Boolean, POIFragment> {
 
 		@Override
 		public String getLogTag() {
-			return POIFragment.this.getLogTag() + ">" + LoadPoimTask.class.getSimpleName();
+			return POIFragment.class.getSimpleName() + ">" + LoadPoimTask.class.getSimpleName();
 		}
 
-		public LoadPoimTask(Fragment fragment) {
-			super(fragment);
-		}
-
-		@Override
-		protected Boolean doInBackgroundMT(Void... params) {
-			return initPoimSync();
+		public LoadPoimTask(POIFragment poiFragment) {
+			super(poiFragment);
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(Boolean result) {
-			if (result) {
-				applyNewPoim();
+		protected Boolean doInBackgroundWithFragment(@NonNull POIFragment poiFragment, Void... params) {
+			return poiFragment.initPoimSync();
+		}
+
+		@Override
+		protected void onPostExecuteFragmentReady(@NonNull POIFragment poiFragment, @Nullable Boolean result) {
+			if (Boolean.TRUE.equals(result)) {
+				poiFragment.applyNewPoim();
 			}
 		}
 	}
@@ -264,7 +265,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			return false;
 		}
 		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
-			this.poim = DataSourceManager.findPOI(getActivity(), this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
+			this.poim = DataSourceManager.findPOI(getContext(), this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
 		}
 		return this.poim != null;
 	}
@@ -287,24 +288,25 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 		resetFavorite();
 		View view = getView();
-		FragmentActivity activity = getActivity();
 		this.mapViewController.notifyMarkerChanged(this);
 		this.mapViewController.showMap(view);
-		POIViewController.updateView(activity, getPOIView(view), this.poim, this);
-		POIStatusDetailViewController.updateView(activity, getPOIStatusView(view), this.poim, this);
-		POIServiceUpdateViewController.updateView(activity, getPOIServiceUpdateView(view), this.poim, this);
-		POINewsViewController.updateView(activity, getPOINewsView(view), getNewsOrNull());
+		POIViewController.updateView(getContext(), getPOIView(view), this.poim, this);
+		POIStatusDetailViewController.updateView(getContext(), getPOIStatusView(view), this.poim, this);
+		POIServiceUpdateViewController.updateView(getContext(), getPOIServiceUpdateView(view), this.poim, this);
+		POINewsViewController.updateView(getContext(), getPOINewsView(view), getNewsOrNull());
 		setupRTSFullScheduleBtn(view);
 		setupMoreNewsButton(view);
 		setupMoreNearbyButton(view);
-		if (activity != null) {
-			activity.supportInvalidateOptionsMenu(); // add/remove star from action bar
+		if (getActivity() != null) {
+			getActivity().invalidateOptionsMenu(); // add/remove star from action bar
 		}
 		setupNearbyList();
 	}
 
-	private ArrayList<News> news;
+	@Nullable
+	private ArrayList<News> news = null;
 
+	@Nullable
 	private ArrayList<News> getNewsOrNull() {
 		if (!hasNews()) {
 			return null;
@@ -333,26 +335,26 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	private LoadNewsTask loadNewsTask = null;
 
-	private class LoadNewsTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
+	private static class LoadNewsTask extends FragmentAsyncTaskV4<Void, Void, Boolean, POIFragment> {
 
 		@Override
 		public String getLogTag() {
-			return POIFragment.this.getLogTag() + ">" + LoadNewsTask.class.getSimpleName();
+			return POIFragment.class.getSimpleName() + ">" + LoadNewsTask.class.getSimpleName();
 		}
 
-		public LoadNewsTask(Fragment fragment) {
-			super(fragment);
-		}
-
-		@Override
-		protected Boolean doInBackgroundMT(Void... params) {
-			return initNewsSync();
+		public LoadNewsTask(POIFragment poiFragment) {
+			super(poiFragment);
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(Boolean result) {
-			if (result) {
-				applyNewNews();
+		protected Boolean doInBackgroundWithFragment(@NonNull POIFragment poiFragment, Void... params) {
+			return poiFragment.initNewsSync();
+		}
+
+		@Override
+		protected void onPostExecuteFragmentReady(@NonNull POIFragment poiFragment, @Nullable Boolean result) {
+			if (Boolean.TRUE.equals(result)) {
+				poiFragment.applyNewNews();
 			}
 		}
 	}
@@ -365,7 +367,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (poim == null) {
 			return false;
 		}
-		Context context = getActivity();
+		Context context = getContext();
 		if (context == null) {
 			return false;
 		}
@@ -401,7 +403,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (this.news == null) {
 			return;
 		}
-		POINewsViewController.updateView(getActivity(), getPOINewsView(getView()), this.news);
+		POINewsViewController.updateView(getContext(), getPOINewsView(getView()), this.news);
 	}
 
 	@Override
@@ -444,11 +446,11 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 		POIManager poim = getPoimOrNull();
 		FragmentActivity activity = getActivity();
-		if (poim != null && activity != null) {
-			((MainActivity) activity).addFragmentToStack( //
-					MapFragment.newInstance(LocationUtils.getNewLocation(poim.getLat(), poim.getLng()), poim.poi.getUUID(), poim.poi.getDataSourceTypeId()),
-					this);
+		if (activity == null) {
+			return;
 		}
+		((MainActivity) activity).addFragmentToStack( //
+				MapFragment.newInstance(LocationUtils.getNewLocation(poim.getLat(), poim.getLng()), poim.poi.getUUID(), poim.poi.getDataSourceTypeId()), this);
 	}
 
 	private void resetPoim() {
@@ -540,7 +542,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			if (TextUtils.isEmpty(this.authority) || poim == null) {
 				return null;
 			}
-			Context context = getActivity();
+			Context context = getContext();
 			if (context == null) {
 				return null;
 			}
@@ -630,8 +632,8 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 		View rtsScheduleBtn = view.findViewById(R.id.fullScheduleBtn);
 		if (rtsScheduleBtn != null) {
-			Collection<ScheduleProviderProperties> scheduleProviders = DataSourceProvider.get(getActivity())
-					.getTargetAuthorityScheduleProviders(this.authority);
+			Collection<ScheduleProviderProperties> scheduleProviders = //
+					DataSourceProvider.get(getContext()).getTargetAuthorityScheduleProviders(this.authority);
 			if (CollectionUtils.getSize(scheduleProviders) == 0) {
 				rtsScheduleBtn.setVisibility(View.GONE);
 			} else {
@@ -678,8 +680,8 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 						MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
 						return;
 					}
-					Integer colorInt = poim.getColor(activity);
-					String subtitle = POIManager.getOneLineDescription(activity, poim.poi);
+					Integer colorInt = poim.getColor(getContext());
+					String subtitle = POIManager.getOneLineDescription(getContext(), poim.poi);
 					((MainActivity) activity).addFragmentToStack( //
 							NewsFragment.newInstance( //
 									colorInt, subtitle, ArrayUtils.asArrayList(poim.poi.getAuthority()), null,
@@ -715,8 +717,8 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 					}
 					((MainActivity) activity).addFragmentToStack( //
 							NearbyFragment.newFixedOnInstance( //
-									optTypeId, poim.getLat(), poim.getLng(), POIManager.getOneLineDescription(activity, poim.poi), poim.getColor(activity)),
-							POIFragment.this);
+									optTypeId, poim.getLat(), poim.getLng(), POIManager.getOneLineDescription(getContext(), poim.poi),
+									poim.getColor(getContext())), POIFragment.this);
 				}
 			});
 			moreBtn.setVisibility(View.VISIBLE);
@@ -804,15 +806,15 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 	@Override
 	public void onStatusLoaded(POIStatus status) {
 		View view = getView();
-		POIViewController.updatePOIStatus(getActivity(), getPOIView(view), status, this);
-		POIStatusDetailViewController.updatePOIStatus(getActivity(), getPOIStatusView(view), status, this, getPoimOrNull());
+		POIViewController.updatePOIStatus(getContext(), getPOIView(view), status, this);
+		POIStatusDetailViewController.updatePOIStatus(getContext(), getPOIStatusView(view), status, this, getPoimOrNull());
 	}
 
 	@Override
 	public void onServiceUpdatesLoaded(String targetUUID, ArrayList<ServiceUpdate> serviceUpdates) {
 		View view = getView();
 		POIViewController.updateServiceUpdatesView(getPOIView(view), serviceUpdates, this);
-		POIServiceUpdateViewController.updateServiceUpdate(getActivity(), getPOIServiceUpdateView(view), serviceUpdates, this);
+		POIServiceUpdateViewController.updateServiceUpdate(getContext(), getPOIServiceUpdateView(view), serviceUpdates, this);
 	}
 
 	@Override
@@ -836,12 +838,12 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			this.userLocation = newLocation;
 			this.locationDeclination = SensorUtils.getLocationDeclination(newLocation);
 			if (!this.compassUpdatesEnabled) {
-				SensorUtils.registerCompassListener(getActivity(), this);
+				SensorUtils.registerCompassListener(getContext(), this);
 				this.compassUpdatesEnabled = true;
 			}
 			POIManager poim = getPoimOrNull();
 			if (poim != null) {
-				LocationUtils.updateDistanceWithString(getActivity(), poim, newLocation);
+				LocationUtils.updateDistanceWithString(getContext(), poim, newLocation);
 				POIViewController.updatePOIDistanceAndCompass(getPOIView(getView()), poim, this);
 			}
 			this.mapViewController.onUserLocationChanged(this.userLocation);
@@ -864,7 +866,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	@Override
 	public void onSensorChanged(SensorEvent se) {
-		SensorUtils.checkForCompass(getActivity(), se, this.accelerometerValues, this.magneticFieldValues, this);
+		SensorUtils.checkForCompass(getContext(), se, this.accelerometerValues, this.magneticFieldValues, this);
 	}
 
 	private long lastCompassChanged = -1L;
@@ -903,7 +905,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (activity == null) {
 			return;
 		}
-		POIManager newPoim = DataSourceManager.findPOI(activity, this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
+		POIManager newPoim = DataSourceManager.findPOI(getContext(), this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
 		if (newPoim == null) {
 			if (activity.isMTResumed()) {
 				activity.popFragmentFromStack(this); // close this fragment
@@ -941,23 +943,24 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (poim != null) {
 			this.mapViewController.notifyMarkerChanged(this);
 			this.mapViewController.showMap(view);
-			POIViewController.updateView(getActivity(), getPOIView(view), poim, this);
-			POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), poim, this);
-			POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(view), poim, this);
-			POINewsViewController.updateView(getActivity(), getPOINewsView(view), getNewsOrNull());
+			POIViewController.updateView(getContext(), getPOIView(view), poim, this);
+			POIStatusDetailViewController.updateView(getContext(), getPOIStatusView(view), poim, this);
+			POIServiceUpdateViewController.updateView(getContext(), getPOIServiceUpdateView(view), poim, this);
+			POINewsViewController.updateView(getContext(), getPOINewsView(view), getNewsOrNull());
 			setupRTSFullScheduleBtn(view);
 			setupMoreNewsButton(view);
 			setupMoreNearbyButton(view);
 			setupNearbyList();
+		if (getActivity() != null) {
+			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
 		}
-		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
 		if (this.compassUpdatesEnabled) {
-			SensorUtils.unregisterSensorListener(getActivity(), this);
+			SensorUtils.unregisterSensorListener(getContext(), this);
 			this.compassUpdatesEnabled = false;
 		}
 		disableTimeChangedReceiver();
@@ -989,14 +992,14 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		POIManager poim = getPoimOrNull();
 		if (poim != null) {
 			View poiView = getPOIView(view);
-			POIViewController.updatePOIStatus(getActivity(), poiView, poim, this);
-			POIViewController.updatePOIServiceUpdate(getActivity(), poiView, poim, this);
-			POIStatusDetailViewController.updateView(getActivity(), getPOIStatusView(view), poim, this);
-			POIServiceUpdateViewController.updateView(getActivity(), getPOIServiceUpdateView(view), poim, this);
+			POIViewController.updatePOIStatus(getContext(), poiView, poim, this);
+			POIViewController.updatePOIServiceUpdate(getContext(), poiView, poim, this);
+			POIStatusDetailViewController.updateView(getContext(), getPOIStatusView(view), poim, this);
+			POIServiceUpdateViewController.updateView(getContext(), getPOIServiceUpdateView(view), poim, this);
 		}
 		ArrayList<News> news = getNewsOrNull();
 		if (news != null) {
-			POINewsViewController.updateView(getActivity(), getPOINewsView(view), news);
+			POINewsViewController.updateView(getContext(), getPOINewsView(view), news);
 		}
 	}
 
@@ -1004,14 +1007,18 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	private void enableTimeChangedReceiver() {
 		if (!this.timeChangedReceiverEnabled) {
-			getActivity().registerReceiver(timeChangedReceiver, TimeUtils.TIME_CHANGED_INTENT_FILTER);
+			if (getContext() != null) {
+				getContext().registerReceiver(timeChangedReceiver, TimeUtils.TIME_CHANGED_INTENT_FILTER);
+			}
 			this.timeChangedReceiverEnabled = true;
 		}
 	}
 
 	private void disableTimeChangedReceiver() {
 		if (this.timeChangedReceiverEnabled) {
-			getActivity().unregisterReceiver(this.timeChangedReceiver);
+			if (getContext() != null) {
+				getContext().unregisterReceiver(this.timeChangedReceiver);
+			}
 			this.timeChangedReceiverEnabled = false;
 			this.nowToTheMinute = -1L;
 		}
@@ -1050,11 +1057,12 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	private Integer favoriteFolderId = null;
 
+	@Nullable
 	public Integer getFavoriteFolderId() {
 		if (this.favoriteFolderId == null) {
 			POIManager poim = getPoimOrNull();
 			if (poim != null) {
-				this.favoriteFolderId = FavoriteManager.findFavoriteFolderId(getActivity(), poim.poi.getUUID());
+				this.favoriteFolderId = FavoriteManager.findFavoriteFolderId(getContext(), poim.poi.getUUID());
 			}
 		}
 		return this.favoriteFolderId;
@@ -1064,7 +1072,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (this.favoriteFolderId == null) {
 			POIManager poim = getPoimOrNull();
 			if (poim != null) {
-				this.favoriteFolderId = FavoriteManager.findFavoriteFolderId(getActivity(), poim.poi.getUUID());
+				this.favoriteFolderId = FavoriteManager.findFavoriteFolderId(getContext(), poim.poi.getUUID());
 			}
 		}
 		return getFavoriteFolderId() != null && getFavoriteFolderId() >= 0;
@@ -1080,7 +1088,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (poim != null && poim.poi != null && poim.poi.getUUID().equals(uuid)) {
 			return isFavorite();
 		}
-		return FavoriteManager.isFavorite(getActivity(), uuid);
+		return FavoriteManager.isFavorite(getContext(), uuid);
 	}
 
 	@Override
@@ -1122,9 +1130,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			boolean isFav = isFavorite();
 			this.addRemoveFavoriteMenuItem.setIcon(isFav ? R.drawable.ic_action_star_dark : R.drawable.ic_action_star_border_dark);
 			this.addRemoveFavoriteMenuItem.setTitle(isFav ? //
-			FavoriteManager.get(getContext()).isUsingFavoriteFolders() ? //
-			R.string.menu_action_edit_favorite
-					: R.string.menu_action_remove_favorite
+					FavoriteManager.get(getContext()).isUsingFavoriteFolders() ? //
+							R.string.menu_action_edit_favorite //
+							: R.string.menu_action_remove_favorite //
 					: R.string.menu_action_add_favorite);
 			this.addRemoveFavoriteMenuItem.setVisible(true);
 		} else {
@@ -1138,7 +1146,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		case R.id.menu_add_remove_favorite:
 			POIManager poim = getPoimOrNull();
 			if (poim != null && poim.isFavoritable()) {
-				return FavoriteManager.get(getContext()).addRemoveFavorite(getActivity(), poim.poi.getUUID(), this);
+				return FavoriteManager.get(getContext()).addRemoveFavorite(getContext(), poim.poi.getUUID(), this);
 			}
 			break;
 		case R.id.menu_show_directions:
@@ -1158,7 +1166,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		updateFavMenuItem();
 		POIManager poim = getPoimOrNull();
 		if (poim != null) {
-			POIViewController.updateView(getActivity(), getPOIView(getView()), poim, this);
+			POIViewController.updateView(getContext(), getPOIView(getView()), poim, this);
 		}
 	}
 

@@ -30,7 +30,8 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -153,26 +154,26 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 	private LoadRtsTask loadRtsTask = null;
 
-	private class LoadRtsTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
+	private static class LoadRtsTask extends FragmentAsyncTaskV4<Void, Void, Boolean, ScheduleDayFragment> {
 
 		@Override
 		public String getLogTag() {
-			return ScheduleDayFragment.this.getLogTag() + ">" + LoadRtsTask.class.getSimpleName();
+			return ScheduleDayFragment.class.getSimpleName() + ">" + LoadRtsTask.class.getSimpleName();
 		}
 
-		public LoadRtsTask(Fragment fragment) {
-			super(fragment);
-		}
-
-		@Override
-		protected Boolean doInBackgroundMT(Void... params) {
-			return initRtsSync();
+		public LoadRtsTask(ScheduleDayFragment scheduleDayFragment) {
+			super(scheduleDayFragment);
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(Boolean result) {
-			if (result) {
-				applyNewRts();
+		protected Boolean doInBackgroundWithFragment(@NonNull ScheduleDayFragment scheduleDayFragment, Void... params) {
+			return scheduleDayFragment.initRtsSync();
+		}
+
+		@Override
+		protected void onPostExecuteFragmentReady(@NonNull ScheduleDayFragment scheduleDayFragment, @Nullable Boolean result) {
+			if (Boolean.TRUE.equals(result)) {
+				scheduleDayFragment.applyNewRts();
 			}
 		}
 	}
@@ -193,7 +194,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return false;
 		}
 		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
-			POIManager poim = DataSourceManager.findPOI(getActivity(), this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
+			POIManager poim = DataSourceManager.findPOI(getContext(), this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
 			if (poim != null && poim.poi instanceof RouteTripStop) {
 				this.rts = (RouteTripStop) poim.poi;
 			}
@@ -429,7 +430,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			if (this.dayStartsAtInMs <= 0L || rts == null) {
 				return null;
 			}
-			return new ScheduleTimestampsLoader(getActivity(), rts, this.dayStartsAtInMs);
+			return new ScheduleTimestampsLoader(getContext(), rts, this.dayStartsAtInMs);
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -851,7 +852,8 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			}
 		}
 
-		private View getTimeView(int position, View convertView, ViewGroup parent) {
+		@NonNull
+		private View getTimeView(int position, @Nullable View convertView, ViewGroup parent) {
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_time, parent, false);
 				TimeViewHolder holder = new TimeViewHolder();
@@ -865,7 +867,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		private static final String P2 = ")";
 		private static final String P1 = " (";
 
-		private void updateTimeView(int position, View convertView) {
+		private void updateTimeView(int position, @NonNull View convertView) {
 			TimeViewHolder holder = (TimeViewHolder) convertView.getTag();
 			Schedule.Timestamp timestamp = (Schedule.Timestamp) getItem(position);
 			Context context = this.activityWR == null ? null : this.activityWR.get();

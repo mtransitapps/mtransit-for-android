@@ -523,8 +523,9 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		// @formatter:on
 	}
 
-	public static final String[] PROJECTION_MODULE = new String[] { ModuleColumns.T_MODULE_K_PKG, ModuleColumns.T_MODULE_K_TARGET_TYPE_ID,
-			ModuleColumns.T_MODULE_K_COLOR, ModuleColumns.T_MODULE_K_LOCATION, ModuleColumns.T_MODULE_K_NAME_FR };
+	public static final String[] PROJECTION_MODULE =
+			new String[]{ModuleColumns.T_MODULE_K_PKG, ModuleColumns.T_MODULE_K_TARGET_TYPE_ID, ModuleColumns.T_MODULE_K_COLOR,
+					ModuleColumns.T_MODULE_K_LOCATION, ModuleColumns.T_MODULE_K_NAME_FR};
 
 	public static final String[] PROJECTION_MODULE_POI = ArrayUtils.addAll(POIProvider.PROJECTION_POI, PROJECTION_MODULE);
 

@@ -20,6 +20,9 @@ import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.util.LoaderUtils;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -28,7 +31,8 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
@@ -38,9 +42,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 
 public class MapFragment extends ABFragment implements LoaderManager.LoaderCallbacks<Collection<MapViewController.POIMarker>>,
 		MTActivityWithLocation.UserLocationListener, MapViewController.MapListener {
@@ -80,8 +81,8 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 		return f;
 	}
 
-	private MapViewController mapViewController = new MapViewController(TAG, null, this, true, true, true, false, false, false, 64, false, true, true, false,
-			true);
+	private MapViewController mapViewController =
+			new MapViewController(TAG, null, this, true, true, true, false, false, false, 64, false, true, true, false, true);
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -150,7 +151,9 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 		this.mapViewController.onResume();
 		hasFilterTypeIds(); // triggers markers loading if necessary
 		this.mapViewController.showMap(view);
-		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getLastLocation());
+		if (getActivity() != null) {
+			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getLastLocation());
+		}
 	}
 
 	private boolean modulesUpdated = false;
@@ -187,7 +190,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 	public Loader<Collection<MapViewController.POIMarker>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
-			return new MapPOILoader(getActivity(), getFilterTypeIdsOrNull(), this.loadingLatLngBounds, this.loadedLatLngBounds);
+			return new MapPOILoader(getContext(), getFilterTypeIdsOrNull(), this.loadingLatLngBounds, this.loadedLatLngBounds);
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -310,26 +313,26 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	private LoadFilterTypeIdsTask loadFilterTypeIdsTask = null;
 
-	private class LoadFilterTypeIdsTask extends FragmentAsyncTaskV4<Object, Void, Boolean> {
+	private static class LoadFilterTypeIdsTask extends FragmentAsyncTaskV4<Object, Void, Boolean, MapFragment> {
 
 		@Override
 		public String getLogTag() {
-			return MapFragment.this.getLogTag() + ">" + LoadFilterTypeIdsTask.class.getSimpleName();
+			return MapFragment.class.getSimpleName() + ">" + LoadFilterTypeIdsTask.class.getSimpleName();
 		}
 
-		public LoadFilterTypeIdsTask(Fragment fragment) {
-			super(fragment);
-		}
-
-		@Override
-		protected Boolean doInBackgroundMT(Object... params) {
-			return initFilterTypeIdsSync();
+		public LoadFilterTypeIdsTask(MapFragment mapFragment) {
+			super(mapFragment);
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(Boolean result) {
-			if (result) {
-				applyNewFilterTypeIds();
+		protected Boolean doInBackgroundWithFragment(@NonNull MapFragment mapFragment, Object... params) {
+			return mapFragment.initFilterTypeIdsSync();
+		}
+
+		@Override
+		protected void onPostExecuteFragmentReady(@NonNull MapFragment mapFragment, @Nullable Boolean result) {
+			if (Boolean.TRUE.equals(result)) {
+				mapFragment.applyNewFilterTypeIds();
 			}
 		}
 	}
@@ -338,9 +341,9 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (this.filterTypeIds != null) {
 			return false;
 		}
-		ArrayList<DataSourceType> availableTypes = filterTypes(DataSourceProvider.get(getActivity()).getAvailableAgencyTypes());
-		Set<String> filterTypeIdStrings = PreferenceUtils.getPrefLcl(getActivity(), PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS,
-				PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT);
+		ArrayList<DataSourceType> availableTypes = filterTypes(DataSourceProvider.get(getContext()).getAvailableAgencyTypes());
+		Set<String> filterTypeIdStrings = PreferenceUtils.getPrefLcl( //
+				getContext(), PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS, PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT);
 		this.filterTypeIds = new HashSet<Integer>();
 		boolean hasChanged = false;
 		for (String typeIdString : filterTypeIdStrings) {
@@ -402,7 +405,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 		for (Integer filterTypeId : filterTypeIds) {
 			newFilterTypeIdStrings.add(String.valueOf(filterTypeId));
 		}
-		PreferenceUtils.savePrefLcl(getActivity(), PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS, newFilterTypeIdStrings, sync);
+		PreferenceUtils.savePrefLcl(getContext(), PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS, newFilterTypeIdStrings, sync);
 	}
 
 	private void applyNewFilterTypeIds() {
@@ -410,7 +413,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 			return;
 		}
 		getLoaderManager().destroyLoader(POIS_LOADER); // cancel now
-		getAbController().setABTitle(this, getABTitle(getActivity()), true);
+		getAbController().setABTitle(this, getABTitle(getContext()), true);
 		if (this.loadingLatLngBounds == null) {
 			this.loadingLatLngBounds = this.loadedLatLngBounds; // use the loaded area
 		}
@@ -434,7 +437,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 			ArrayList<Boolean> checked = new ArrayList<Boolean>();
 			final ArrayList<Integer> typeIds = new ArrayList<Integer>();
 			final HashSet<Integer> selectedItems = new HashSet<Integer>();
-			ArrayList<DataSourceType> availableAgencyTypes = filterTypes(DataSourceProvider.get(getActivity()).getAvailableAgencyTypes());
+			ArrayList<DataSourceType> availableAgencyTypes = filterTypes(DataSourceProvider.get(getContext()).getAvailableAgencyTypes());
 			for (DataSourceType type : availableAgencyTypes) {
 				typeIds.add(type.getId());
 				typeNames.add(getString(type.getPoiShortNameResId()));
@@ -447,30 +450,37 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 					selectedItems.add(c);
 				}
 			}
-			new AlertDialog.Builder(getActivity()) //
+			new AlertDialog.Builder(getContext()) //
 					.setTitle(R.string.menu_action_filter) //
-					.setMultiChoiceItems(typeNames.toArray(new CharSequence[typeNames.size()]), checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-							if (isChecked) {
-								selectedItems.add(which);
-							} else {
-								selectedItems.remove(which);
-							}
-						}
-					}) //
+					.setMultiChoiceItems( //
+							typeNames.toArray(new CharSequence[typeNames.size()]), //
+							checkedItems, //
+							new DialogInterface.OnMultiChoiceClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+									if (isChecked) {
+										selectedItems.add(which);
+									} else {
+										selectedItems.remove(which);
+									}
+								}
+							} //
+					) //
 					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							applyNewFilter(typeIds, selectedItems);
 							dialog.dismiss();
 						}
-					}).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+					}) //
+					.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							dialog.dismiss();
 						}
-					}).setCancelable(true).show();
+					}) //
+					.setCancelable(true) //
+					.show();
 
 			return true; // handled
 		}

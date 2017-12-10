@@ -19,14 +19,15 @@ public class RTSTripStopsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager
 		return TAG;
 	}
 
-	private long tripId;
-	private ArrayList<POIManager> pois;
 	private String authority;
+	private long tripId;
 
-	public RTSTripStopsLoader(Context context, long tripId, String authority) {
+	private ArrayList<POIManager> pois;
+
+	public RTSTripStopsLoader(Context context, String authority, long tripId) {
 		super(context);
-		this.tripId = tripId;
 		this.authority = authority;
+		this.tripId = tripId;
 	}
 
 	@Override

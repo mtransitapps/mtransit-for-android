@@ -5,10 +5,10 @@ import java.util.Calendar;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.provider.POIProviderContract;
-import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.FragmentAsyncTaskV4;
@@ -20,6 +20,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -94,26 +96,26 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 	private LoadRtsTask loadRtsTask = null;
 
-	private class LoadRtsTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
+	private static class LoadRtsTask extends FragmentAsyncTaskV4<Void, Void, Boolean, ScheduleFragment> {
 
 		@Override
 		public String getLogTag() {
-			return ScheduleFragment.this.getLogTag() + ">" + LoadRtsTask.class.getSimpleName();
+			return ScheduleFragment.class.getSimpleName() + ">" + LoadRtsTask.class.getSimpleName();
 		}
 
-		public LoadRtsTask(Fragment fragment) {
-			super(fragment);
-		}
-
-		@Override
-		protected Boolean doInBackgroundMT(Void... params) {
-			return initRtsSync();
+		public LoadRtsTask(ScheduleFragment scheduleFragment) {
+			super(scheduleFragment);
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(Boolean result) {
-			if (result) {
-				applyNewRts();
+		protected Boolean doInBackgroundWithFragment(@NonNull ScheduleFragment scheduleFragment, Void... params) {
+			return scheduleFragment.initRtsSync();
+		}
+
+		@Override
+		protected void onPostExecuteFragmentReady(@NonNull ScheduleFragment scheduleFragment, @Nullable Boolean result) {
+			if (Boolean.TRUE.equals(result)) {
+				scheduleFragment.applyNewRts();
 			}
 		}
 	}
@@ -134,7 +136,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			return false;
 		}
 		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
-			POIManager poim = DataSourceManager.findPOI(getActivity(), this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
+			POIManager poim = DataSourceManager.findPOI(getContext(), this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
 			if (poim != null && poim.poi instanceof RouteTripStop) {
 				this.rts = (RouteTripStop) poim.poi;
 			}
@@ -146,8 +148,8 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (this.rts == null) {
 			return;
 		}
-		getAbController().setABBgColor(this, getABBgColor(getActivity()), false);
-		getAbController().setABSubtitle(this, getABSubtitle(getActivity()), false);
+		getAbController().setABBgColor(this, getABBgColor(getContext()), false);
+		getAbController().setABSubtitle(this, getABSubtitle(getContext()), false);
 		getAbController().setABReady(this, isABReady(), true);
 		if (this.adapter != null) {
 			this.adapter.setOptRts(this.rts);
@@ -393,7 +395,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public CharSequence getABSubtitle(Context context) {
 		RouteTripStop rts = getRtsOrNull();
-		return POIManager.getOneLineDescription(getActivity(), rts);
+		return POIManager.getOneLineDescription(getContext(), rts);
 	}
 
 	@ColorInt
@@ -470,13 +472,13 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 		@Override
 		public Fragment getItem(int position) {
-			return ScheduleDayFragment.newInstance(this.uuid, this.authority, getPageDayCal(position).getTimeInMillis(), position,
-					this.lastVisibleFragmentPosition, this.optRts);
+			return ScheduleDayFragment.newInstance( //
+					this.uuid, this.authority, getPageDayCal(position).getTimeInMillis(), position, this.lastVisibleFragmentPosition, this.optRts);
 		}
 
 		@Override
-		public int getItemPosition(Object object) {
-			if (object != null && object instanceof ScheduleDayFragment) {
+		public int getItemPosition(@NonNull Object object) {
+			if (object instanceof ScheduleDayFragment) {
 				ScheduleDayFragment f = (ScheduleDayFragment) object;
 				return f.getFragmentPosition();
 			}

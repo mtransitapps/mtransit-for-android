@@ -21,11 +21,11 @@ import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.ui.view.MapViewController;
 
-import android.content.Context;
-import android.support.v4.util.ArrayMap;
-
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+
+import android.content.Context;
+import android.support.v4.util.ArrayMap;
 
 public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewController.POIMarker>> {
 
@@ -156,16 +156,17 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 			double maxLat = Math.max(this.latLngBounds.northeast.latitude, this.latLngBounds.southwest.latitude);
 			double minLng = Math.min(this.latLngBounds.northeast.longitude, this.latLngBounds.southwest.longitude);
 			double maxLng = Math.max(this.latLngBounds.northeast.longitude, this.latLngBounds.southwest.longitude);
-			Double optLoadedMinLat = this.loadedLatLngBounds == null ? null : Math.min(this.loadedLatLngBounds.northeast.latitude,
-					this.loadedLatLngBounds.southwest.latitude);
-			Double optLoadedMaxLat = this.loadedLatLngBounds == null ? null : Math.max(this.loadedLatLngBounds.northeast.latitude,
-					this.loadedLatLngBounds.southwest.latitude);
-			Double optLoadedMinLng = this.loadedLatLngBounds == null ? null : Math.min(this.loadedLatLngBounds.northeast.longitude,
-					this.loadedLatLngBounds.southwest.longitude);
-			Double optLoadedMaxLng = this.loadedLatLngBounds == null ? null : Math.max(this.loadedLatLngBounds.northeast.longitude,
-					this.loadedLatLngBounds.southwest.longitude);
-			POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewAreaFilter(minLat, maxLat, minLng, maxLng, optLoadedMinLat,
-					optLoadedMaxLat, optLoadedMinLng, optLoadedMaxLng);
+			MTLog.d(this, "call() > maxLng: %s", maxLng);
+			Double optLoadedMinLat = this.loadedLatLngBounds == null ? null : //
+					Math.min(this.loadedLatLngBounds.northeast.latitude, this.loadedLatLngBounds.southwest.latitude);
+			Double optLoadedMaxLat = this.loadedLatLngBounds == null ? null : //
+					Math.max(this.loadedLatLngBounds.northeast.latitude, this.loadedLatLngBounds.southwest.latitude);
+			Double optLoadedMinLng = this.loadedLatLngBounds == null ? null : //
+					Math.min(this.loadedLatLngBounds.northeast.longitude, this.loadedLatLngBounds.southwest.longitude);
+			Double optLoadedMaxLng = this.loadedLatLngBounds == null ? null : //
+					Math.max(this.loadedLatLngBounds.northeast.longitude, this.loadedLatLngBounds.southwest.longitude);
+			POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewAreaFilter( //
+					minLat, maxLat, minLng, maxLng, optLoadedMinLat, optLoadedMaxLat, optLoadedMinLng, optLoadedMaxLng);
 			ArrayMap<LatLng, MapViewController.POIMarker> clusterItems = new ArrayMap<LatLng, MapViewController.POIMarker>();
 			ArrayList<POIManager> poims = DataSourceManager.findPOIs(this.context, this.agency.getAuthority(), poiFilter);
 			String agencyShortName = this.agency.getShortName();
@@ -199,8 +200,9 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 					if (clusterItems.containsKey(positionTrunc)) {
 						clusterItems.get(positionTrunc).merge(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority);
 					} else {
-						clusterItems.put(positionTrunc, new MapViewController.POIMarker(position, name, agencyShortName, extra, color, secondaryColor, uuid,
-								authority));
+						clusterItems.put( //
+								positionTrunc, //
+								new MapViewController.POIMarker(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority));
 					}
 				}
 			}

@@ -16,6 +16,7 @@ import org.mtransit.android.provider.FavoriteManager;
 
 import android.content.Context;
 import android.support.v4.util.ArrayMap;
+import android.util.SparseArray;
 
 public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
@@ -51,8 +52,8 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			for (String authority : authorityToUUIDs.keySet()) {
 				HashSet<String> authorityUUIDs = authorityToUUIDs.get(authority);
 				if (CollectionUtils.getSize(authorityUUIDs) > 0) {
-					ArrayList<POIManager> agencyPOIs = DataSourceManager.findPOIs(getContext(), authority,
-							POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs));
+					ArrayList<POIManager> agencyPOIs =
+							DataSourceManager.findPOIs(getContext(), authority, POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs));
 					if (agencyPOIs != null) {
 						CollectionUtils.sort(agencyPOIs, POIManager.POI_ALPHA_COMPARATOR);
 						this.pois.addAll(agencyPOIs);
@@ -68,10 +69,11 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 				favoriteFolderIds.add(favoriteFolderId);
 			}
 		}
-		HashMap<Integer, Favorite.Folder> favoriteFoders = FavoriteManager.findFolders(getContext());
+		SparseArray<Favorite.Folder> favoriteFoders = FavoriteManager.findFolders(getContext());
 		if (favoriteFoders != null) {
 			long textMessageId = TimeUtils.currentTimeMillis();
-			for (Favorite.Folder favoriteFolder : favoriteFoders.values()) {
+			for (int f = 0; f < favoriteFoders.size(); f++) {
+				Favorite.Folder favoriteFolder = favoriteFoders.get(favoriteFoders.keyAt(f));
 				if (favoriteFolder.getId() > FavoriteManager.DEFAULT_FOLDER_ID && !favoriteFolderIds.contains(favoriteFolder.getId())) {
 					this.pois.add(FavoriteManager.getNewEmptyFolder(getContext(), textMessageId++, favoriteFolder.getId()));
 				}

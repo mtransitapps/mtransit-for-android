@@ -29,7 +29,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
@@ -101,7 +100,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	}
 
 	private void initTypeFilterAsync() {
-		if (this.loadTypeFilterTask != null && this.loadTypeFilterTask.getStatus() == FragmentAsyncTaskV4.Status.RUNNING) {
+		if (this.loadTypeFilterTask != null && this.loadTypeFilterTask.getStatus() == LoadTypeFilterTask.Status.RUNNING) {
 			return;
 		}
 		if (this.typeIdFilter == null) {
@@ -114,26 +113,26 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 	private LoadTypeFilterTask loadTypeFilterTask;
 
-	private class LoadTypeFilterTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
+	private static class LoadTypeFilterTask extends FragmentAsyncTaskV4<Void, Void, Boolean, SearchFragment> {
 
 		@Override
 		public String getLogTag() {
-			return SearchFragment.this.getLogTag() + ">" + LoadTypeFilterTask.class.getSimpleName();
+			return SearchFragment.class.getSimpleName() + ">" + LoadTypeFilterTask.class.getSimpleName();
 		}
 
-		public LoadTypeFilterTask(Fragment fragment) {
-			super(fragment);
-		}
-
-		@Override
-		protected Boolean doInBackgroundMT(Void... params) {
-			return initTypeFilterSync();
+		public LoadTypeFilterTask(SearchFragment searchFragment) {
+			super(searchFragment);
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(Boolean result) {
-			if (result) {
-				applyNewTypeFilter();
+		protected Boolean doInBackgroundWithFragment(@NonNull SearchFragment searchFragment, Void... params) {
+			return searchFragment.initTypeFilterSync();
+		}
+
+		@Override
+		protected void onPostExecuteFragmentReady(@NonNull SearchFragment searchFragment, @Nullable Boolean result) {
+			if (Boolean.TRUE.equals(result)) {
+				searchFragment.applyNewTypeFilter();
 			}
 		}
 	}
@@ -335,7 +334,9 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		if (!this.adapter.isInitialized()) {
 			applyNewQuery();
 		}
-		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getLastLocation());
+		if (getActivity() != null) {
+			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getLastLocation());
+		}
 	}
 
 	@Override
@@ -370,7 +371,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		switch (id) {
 		case POI_SEARCH_LOADER:
 			TypeFilter typeFilter = getTypeFilterOrNull();
-			return new POISearchLoader(getActivity(), this.query, typeFilter, this.userLocation);
+			return new POISearchLoader(getContext(), this.query, typeFilter, this.userLocation);
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -695,17 +696,17 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 		@NonNull
 		@Override
-		public View getView(int position, @Nullable View convertView, @Nullable ViewGroup parent) {
+		public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 			return getTheView(position, convertView, parent);
 		}
 
 		@Override
-		public View getDropDownView(int position, @Nullable View convertView, @Nullable ViewGroup parent) {
+		public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 			return getTheView(position, convertView, parent);
 		}
 
 		@NonNull
-		private View getTheView(int position, @Nullable View convertView, @Nullable ViewGroup parent) {
+		private View getTheView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_poi_type_item, parent, false);
 				TypeViewHolder holder = new TypeViewHolder();

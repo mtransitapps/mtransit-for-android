@@ -5,13 +5,13 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.fragment.VisibilityAwareFragment;
 
-import android.location.Location;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+
+import android.location.Location;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
 
 public abstract class MTActivityWithLocation extends MTActivityWithGoogleAPIClient implements com.google.android.gms.location.LocationListener {
 

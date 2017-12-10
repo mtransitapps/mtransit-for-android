@@ -12,15 +12,15 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MTApplication;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.res.Configuration;
-import android.view.View;
-
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.res.Configuration;
+import android.view.View;
 
 public final class AdsUtils implements MTLog.Loggable {
 
@@ -40,8 +40,9 @@ public final class AdsUtils implements MTLog.Loggable {
 
 	private static Boolean adLoaded = null;
 
-	private static final ArrayList<String> KEYWORDS = ArrayUtils.asArrayList("transit", "transport", "bus", "subway", "metro", "taxi", "bike", "sharing",
-			"velo", "train", "ferries", "boat", "trail", "lrt", "streetcar", "traversier", "tram", "tramway");
+	private static final ArrayList<String> KEYWORDS = ArrayUtils
+			.asArrayList("transit", "transport", "bus", "subway", "metro", "taxi", "bike", "sharing", "velo", "train", "ferries", "boat", "trail", "lrt",
+					"streetcar", "traversier", "tram", "tramway");
 
 	public static void init(MTApplication application) {
 		MTLog.v(TAG, "init(%s)", application);

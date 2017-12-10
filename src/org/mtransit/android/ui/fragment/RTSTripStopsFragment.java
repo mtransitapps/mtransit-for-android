@@ -17,6 +17,9 @@ import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.util.LoaderUtils;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.location.Location;
@@ -31,9 +34,6 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-
 public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		MTActivityWithLocation.UserLocationListener, MapViewController.MapMarkerProvider, MapViewController.MapListener {
 
@@ -45,7 +45,6 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	}
 
 	private static final String EXTRA_AGENCY_AUTHORITY = "extra_agency_authority";
-	private static final String EXTRA_ROUTE_ID = "extra_route_id";
 	private static final String EXTRA_TRIP_ID = "extra_trip_id";
 	private static final String EXTRA_TRIP_STOP_ID = "extra_trip_stop_id";
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
@@ -53,14 +52,12 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private static final String EXTRA_SHOWING_LIST_INSTEAD_OF_MAP = "extra_showing_list_instead_of_map";
 	private static final String EXTRA_CLOSEST_POI_SHOWN = "extra_closest_poi_shown";
 
-	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String authority, long routeId, long tripId,
-			Integer optStopId, boolean showingListInsteadOfMap) {
+	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String authority, long tripId, Integer optStopId,
+			boolean showingListInsteadOfMap) {
 		RTSTripStopsFragment f = new RTSTripStopsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, authority);
 		f.authority = authority;
-		args.putLong(EXTRA_ROUTE_ID, routeId);
-		f.routeId = routeId;
 		args.putLong(EXTRA_TRIP_ID, tripId);
 		f.tripId = tripId;
 		if (fragmentPosition >= 0) {
@@ -81,7 +78,6 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		return f;
 	}
 
-	private Long routeId;
 	private Long tripId;
 	private int stopId = -1;
 	private boolean closestPOIShow = false;
@@ -91,8 +87,8 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private int fragmentPosition = -1;
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
-	private MapViewController mapViewController = new MapViewController(getLogTag(), this, this, true, true, true, false, false, false, 0, false, true, false,
-			true, false);
+	private MapViewController mapViewController =
+			new MapViewController(getLogTag(), this, this, true, true, true, false, false, false, 0, false, true, false, true, false);
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -134,9 +130,6 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		if (!TextUtils.isEmpty(this.authority)) {
 			outState.putString(EXTRA_AGENCY_AUTHORITY, this.authority);
 		}
-		if (this.routeId != null) {
-			outState.putLong(EXTRA_ROUTE_ID, this.routeId);
-		}
 		if (this.tripId != null) {
 			outState.putLong(EXTRA_TRIP_ID, this.tripId);
 		}
@@ -163,10 +156,6 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		Long newTripId = BundleUtils.getLong(EXTRA_TRIP_ID, bundles);
 		if (newTripId != null && !newTripId.equals(this.tripId)) {
 			this.tripId = newTripId;
-		}
-		Long newRouteId = BundleUtils.getLong(EXTRA_ROUTE_ID, bundles);
-		if (newRouteId != null && !newRouteId.equals(this.routeId)) {
-			this.routeId = newRouteId;
 		}
 		Integer newStopId = BundleUtils.getInt(EXTRA_TRIP_STOP_ID, bundles);
 		if (newStopId != null && !newStopId.equals(this.stopId)) {
@@ -277,12 +266,10 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	@Override
 	public void setFragmentVisibleAtPosition(int visibleFragmentPosition) {
 		if (this.lastVisibleFragmentPosition == visibleFragmentPosition //
-				&& (//
-				(this.fragmentPosition == visibleFragmentPosition && this.fragmentVisible) //
+				&& ((this.fragmentPosition == visibleFragmentPosition && this.fragmentVisible) //
 				|| //
-				(this.fragmentPosition != visibleFragmentPosition && !this.fragmentVisible) //
-				) //
-		) {
+				(this.fragmentPosition != visibleFragmentPosition && !this.fragmentVisible)) //
+				) {
 			return;
 		}
 		this.lastVisibleFragmentPosition = visibleFragmentPosition;
@@ -332,7 +319,9 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		} else {
 			this.adapter.onResume(getActivity(), this.userLocation);
 		}
-		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
+		if (getActivity() != null) {
+			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
+		}
 	}
 
 	private static final int POIS_LOADER = 0;
@@ -344,7 +333,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 			if (this.tripId == null || TextUtils.isEmpty(this.authority)) {
 				return null;
 			}
-			return new RTSTripStopsLoader(getActivity(), this.tripId, this.authority);
+			return new RTSTripStopsLoader(getContext(), this.authority, this.tripId);
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;

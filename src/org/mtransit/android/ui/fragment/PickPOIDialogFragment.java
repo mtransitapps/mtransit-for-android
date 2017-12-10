@@ -237,7 +237,9 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 		} else {
 			LoaderUtils.restartLoader(this, POIS_LOADER, null, this);
 		}
-		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
+		if (getActivity() != null) {
+			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
+		}
 	}
 
 	private static final int POIS_LOADER = 0;
@@ -246,7 +248,7 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
-			return new POIsLoader(getActivity(), this.uuids, this.authorities);
+			return new POIsLoader(getContext(), this.uuids, this.authorities);
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;

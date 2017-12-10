@@ -4,6 +4,9 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.fragment.MTDialogFragmentV4;
 import org.mtransit.android.util.FragmentUtils;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -15,10 +18,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.GoogleApiClient;
-
 public abstract class MTActivityWithGoogleAPIClient extends MTActivity implements GoogleApiClient.ConnectionCallbacks,
 		GoogleApiClient.OnConnectionFailedListener {
 
@@ -28,6 +27,7 @@ public abstract class MTActivityWithGoogleAPIClient extends MTActivity implement
 
 	private boolean resolvingError = false;
 	private boolean useGooglePlayServices = false;
+	@Nullable
 	private GoogleApiClient googleApiClient;
 
 	public MTActivityWithGoogleAPIClient(boolean useGooglePlayServices) {

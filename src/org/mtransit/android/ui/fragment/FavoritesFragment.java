@@ -96,7 +96,9 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		} else {
 			LoaderUtils.restartLoader(this, FAVORITES_LOADER, null, this);
 		}
-		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
+		if (getActivity() != null) {
+			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
+		}
 	}
 
 	private static final int FAVORITES_LOADER = 0;
@@ -105,7 +107,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case FAVORITES_LOADER:
-			return new FavoritesLoader(getActivity());
+			return new FavoritesLoader(getContext());
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -149,7 +151,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_add_favorite_folder:
-			FavoriteManager.showAddFolderDialog(getContext(), getActivity().getLayoutInflater(), this, null, null);
+			FavoriteManager.showAddFolderDialog(getContext(), this, null, null);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);

@@ -17,6 +17,9 @@ import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.util.LoaderUtils;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.drawable.GradientDrawable;
@@ -25,6 +28,7 @@ import android.graphics.drawable.StateListDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.SwitchCompat;
@@ -40,9 +44,6 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 
 public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		MTActivityWithLocation.UserLocationListener, MapViewController.MapMarkerProvider, MapViewController.MapListener,
@@ -61,8 +62,8 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 	private static final String EXTRA_SHOWING_LIST_INSTEAD_OF_MAP = "extra_showing_list_instead_of_map";
 
-	public static AgencyPOIsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String agencyAuthority, Integer optColorInt,
-			Boolean optShowingListInsteadOfMap) {
+	public static AgencyPOIsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, @NonNull String agencyAuthority,
+			@Nullable Integer optColorInt, @Nullable Boolean optShowingListInsteadOfMap) {
 		AgencyPOIsFragment f = new AgencyPOIsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, agencyAuthority);
@@ -95,8 +96,8 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	private String emptyText = null;
 	private String authority;
 	private Integer colorInt;
-	private MapViewController mapViewController = new MapViewController(TAG, this, this, true, true, true, false, false, false, 0, false, true, false, true,
-			false);
+	private MapViewController mapViewController =
+			new MapViewController(TAG, this, this, true, true, true, false, false, false, 0, false, true, false, true, false);
 
 	@Override
 	public String getAgencyAuthority() {
@@ -268,12 +269,10 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	@Override
 	public void setFragmentVisibleAtPosition(int visibleFragmentPosition) {
 		if (this.lastVisibleFragmentPosition == visibleFragmentPosition //
-				&& (//
-				(this.fragmentPosition == visibleFragmentPosition && this.fragmentVisible) //
+				&& ((this.fragmentPosition == visibleFragmentPosition && this.fragmentVisible) //
 				|| //
-				(this.fragmentPosition != visibleFragmentPosition && !this.fragmentVisible) //
-				) //
-		) {
+				(this.fragmentPosition != visibleFragmentPosition && !this.fragmentVisible)) //
+				) {
 			return;
 		}
 		this.lastVisibleFragmentPosition = visibleFragmentPosition;
@@ -323,9 +322,13 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 			this.adapter.onResume(getActivity(), this.userLocation);
 		}
 		checkIfShowingListInsteadOfMapChanged();
-		getActivity().supportInvalidateOptionsMenu(); // initialize action bar list/map switch icon
+		if (getActivity() != null) {
+			getActivity().invalidateOptionsMenu(); // initialize action bar list/map switch icon
+		}
 		updateListMapToggleMenuItem();
-		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
+		if (getActivity() != null) {
+			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
+		}
 	}
 
 	private static final int POIS_LOADER = 0;
@@ -482,7 +485,8 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 
 	private boolean isShowingListInsteadOfMap() {
 		if (this.showingListInsteadOfMap == null) {
-			boolean showingListInsteadOfMapLastSet = PreferenceUtils.getPrefDefault(getActivity(),
+			boolean showingListInsteadOfMapLastSet = PreferenceUtils.getPrefDefault( //
+					getContext(), //
 					PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET,
 					PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT);
 			this.showingListInsteadOfMap = TextUtils.isEmpty(this.authority) ? showingListInsteadOfMapLastSet : PreferenceUtils.getPrefDefault(getActivity(),

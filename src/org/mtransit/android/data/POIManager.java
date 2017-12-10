@@ -4,7 +4,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
@@ -44,6 +43,7 @@ import android.graphics.Color;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.SparseArray;
 
 public class POIManager implements LocationPOI, MTLog.Loggable {
 
@@ -321,8 +321,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
 			ServiceUpdateProviderContract.Filter filter = new ServiceUpdateProviderContract.Filter(this.poi);
 			filter.setInFocus(this.inFocus);
-			ServiceUpdateLoader.ServiceUpdateLoaderListener listener = this.serviceUpdateLoaderListenerWR == null ? null : this.serviceUpdateLoaderListenerWR
-					.get();
+			ServiceUpdateLoader.ServiceUpdateLoaderListener listener =
+					this.serviceUpdateLoaderListenerWR == null ? null : this.serviceUpdateLoaderListenerWR.get();
 			isNotSkipped = ServiceUpdateLoader.get().findServiceUpdate(context, this, filter, listener, skipIfBusy);
 			if (isNotSkipped) {
 				this.lastFindServiceUpdateTimestampMs = findServiceUpdateTimestampMs;
@@ -331,7 +331,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return isNotSkipped;
 	}
 
-	public CharSequence[] getActionsItems(Context context, CharSequence defaultAction, HashMap<Integer, Favorite.Folder> favoriteFolders) {
+	private CharSequence[] getActionsItems(Context context, CharSequence defaultAction, SparseArray<Favorite.Folder> favoriteFolders) {
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_NONE:
 			return new CharSequence[]{defaultAction};
@@ -376,7 +376,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 	}
 
-	public boolean onActionsItemClick(Activity activity, int itemClicked, HashMap<Integer, Favorite.Folder> favoriteFolders,
+	private boolean onActionsItemClick(@NonNull Activity activity, int itemClicked, SparseArray<Favorite.Folder> favoriteFolders,
 			FavoriteManager.FavoriteUpdateListener listener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_NONE:
@@ -414,15 +414,15 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return false; // NOT HANDLED
 	}
 
-	private boolean onActionsItemClickPlace(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
+	private boolean onActionsItemClickPlace(@NonNull Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
 			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
 		case 0:
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			((MainActivity) activity).addFragmentToStack(NearbyFragment.newFixedOnInstance(null, poi.getLat(), poi.getLng(),
-					getOneLineDescription(activity, poi), getColor(activity)));
+			((MainActivity) activity).addFragmentToStack(
+					NearbyFragment.newFixedOnInstance(null, poi.getLat(), poi.getLng(), getOneLineDescription(activity, poi), getColor(activity)));
 			return true; // HANDLED
 		}
 		return false; // NOT HANDLED
@@ -503,7 +503,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return sb.toString();
 	}
 
-	private boolean onActionsItemClickRTS(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
+	private boolean onActionsItemClickRTS(@NonNull Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
 			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
 		case 1:
@@ -511,8 +511,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				onClickHandledListener.onLeaving();
 			}
 			RouteTripStop rts = (RouteTripStop) poi;
-			((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts.getAuthority(), rts.getRoute().getId(), rts.getTrip().getId(), rts
-					.getStop().getId(), rts.getRoute()));
+			((MainActivity) activity).addFragmentToStack(
+					RTSRouteFragment.newInstance(rts.getAuthority(), rts.getRoute().getId(), rts.getTrip().getId(), rts.getStop().getId(), rts.getRoute()));
 			return true; // HANDLED
 		case 2:
 			return FavoriteManager.get(activity).addRemoveFavorite(activity, this.poi.getUUID(), listener);
@@ -575,7 +575,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return false; // NOT HANDLED
 	}
 
-	public boolean onActionItemLongClick(Activity activity, HashMap<Integer, Favorite.Folder> favoriteFolders,
+	public boolean onActionItemLongClick(Activity activity, SparseArray<Favorite.Folder> favoriteFolders,
 			FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false;
@@ -583,7 +583,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return showPoiMenu(activity, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
 	}
 
-	public boolean onActionItemClick(Activity activity, HashMap<Integer, Favorite.Folder> favoriteFolders,
+	public boolean onActionItemClick(Activity activity, SparseArray<Favorite.Folder> favoriteFolders,
 			FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false;
@@ -595,7 +595,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return poiScreenShow;
 	}
 
-	private boolean showPoiMenu(final Activity activity, final HashMap<Integer, Favorite.Folder> favoriteFolders,
+	private boolean showPoiMenu(final Activity activity, final SparseArray<Favorite.Folder> favoriteFolders,
 			final FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, final POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false;
@@ -606,24 +606,31 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 		case POI.ITEM_VIEW_TYPE_MODULE:
-			new AlertDialog.Builder(activity).setTitle(this.poi.getName())
-					.setItems(getActionsItems(activity, activity.getString(R.string.view_details), favoriteFolders), new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int item) {
-							boolean handled = onActionsItemClick(activity, item, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
-							if (handled) {
-								return;
-							}
-							switch (item) {
-							case 0:
-								showPoiViewerScreen(activity, onClickHandledListener);
-								break;
-							default:
-								MTLog.w(POIManager.this, "Unexpected action item '%s'!", item);
-								break;
-							}
-						}
-					}).show();
+			new AlertDialog.Builder(activity) //
+					.setTitle(this.poi.getName()) //
+					.setItems( //
+							getActionsItems( //
+									activity, //
+									activity.getString(R.string.view_details), //
+									favoriteFolders //
+							), //
+							new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int item) {
+									boolean handled = onActionsItemClick(activity, item, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
+									if (handled) {
+										return;
+									}
+									switch (item) {
+									case 0:
+										showPoiViewerScreen(activity, onClickHandledListener);
+										break;
+									default:
+										MTLog.w(POIManager.this, "Unexpected action item '%s'!", item);
+										break;
+									}
+								}
+							}).show();
 			return true;
 		default:
 			MTLog.w(this, "Unknow view type '%s' for poi '%s'!", this.poi.getType(), this);

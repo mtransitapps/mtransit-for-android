@@ -98,8 +98,8 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		return PlaceDbHelper.T_PLACE;
 	}
 
-	private static final String[] PROJECTION_PLACE = new String[] { POIProviderContract.Columns.T_POI_K_SCORE_META_OPT, //
-			PlaceColumns.T_PLACE_K_PROVIDER_ID, PlaceColumns.T_PLACE_K_LANG, PlaceColumns.T_PLACE_K_READ_AT_IN_MS };
+	private static final String[] PROJECTION_PLACE = new String[]{POIProviderContract.Columns.T_POI_K_SCORE_META_OPT, //
+			PlaceColumns.T_PLACE_K_PROVIDER_ID, PlaceColumns.T_PLACE_K_LANG, PlaceColumns.T_PLACE_K_READ_AT_IN_MS};
 
 	public static final String[] PROJECTION_PLACE_POI = ArrayUtils.addAll(POIProvider.PROJECTION_POI, PROJECTION_PLACE);
 
@@ -273,12 +273,12 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		}
 	}
 
-	private Cursor getTextSearchResults(ArrayList<Place> places) {
+	private Cursor getTextSearchResults(@Nullable ArrayList<Place> places) {
 		MatrixCursor cursor = new MatrixCursor(getPOIProjection());
 		if (places != null) {
 			for (Place place : places) {
-				cursor.addRow(new Object[] { //
-				place.getUUID(), place.getDataSourceTypeId(), place.getId(), place.getName(), place.getLat(), place.getLng(), //
+				cursor.addRow(new Object[]{ //
+						place.getUUID(), place.getDataSourceTypeId(), place.getId(), place.getName(), place.getLat(), place.getLng(), //
 						place.getType(), place.getStatusType(), place.getActionsType(), //
 						place.getScore(), //
 						place.getProviderId(), place.getLang(), place.getReadAtInMs() //

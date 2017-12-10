@@ -134,11 +134,10 @@ public class TextMessage extends DefaultPOI {
 
 	public static TextMessage fromSimpleJSONStatic(JSONObject json, String authority) {
 		try {
-			TextMessage textMessage = new TextMessage( //
+			return new TextMessage( //
 					json.getLong(JSON_MESSAGE_ID), //
 					json.getString(JSON_MESSAGE) //
 			);
-			return textMessage;
 		} catch (JSONException jsone) {
 			MTLog.w(TAG, jsone, "Error while parsing simple JSON '%s'!", json);
 			return null;

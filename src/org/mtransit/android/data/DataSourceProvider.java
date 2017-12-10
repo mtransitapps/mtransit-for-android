@@ -35,14 +35,14 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private static DataSourceProvider instance = null;
 
-	public static DataSourceProvider get(Context context) {
+	public static DataSourceProvider get(@Nullable Context context) {
 		if (instance == null) {
 			initInstance(context);
 		}
 		return instance;
 	}
 
-	private synchronized static void initInstance(Context context) {
+	private synchronized static void initInstance(@Nullable Context context) {
 		if (instance != null) {
 			return;
 		}
@@ -271,9 +271,11 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private ArrayMap<String, HashSet<StatusProviderProperties>> statusProvidersByTargetAuthority = new ArrayMap<String, HashSet<StatusProviderProperties>>();
 
-	private ArrayMap<String, HashSet<ScheduleProviderProperties>> scheduleProvidersByTargetAuthority = new ArrayMap<String, HashSet<ScheduleProviderProperties>>();
+	private ArrayMap<String, HashSet<ScheduleProviderProperties>> scheduleProvidersByTargetAuthority =
+			new ArrayMap<String, HashSet<ScheduleProviderProperties>>();
 
-	private ArrayMap<String, HashSet<ServiceUpdateProviderProperties>> serviceUpdateProvidersByTargetAuthority = new ArrayMap<String, HashSet<ServiceUpdateProviderProperties>>();
+	private ArrayMap<String, HashSet<ServiceUpdateProviderProperties>> serviceUpdateProvidersByTargetAuthority =
+			new ArrayMap<String, HashSet<ServiceUpdateProviderProperties>>();
 
 	private ArrayMap<String, HashSet<NewsProviderProperties>> newsProvidersByTargetAuthority = new ArrayMap<String, HashSet<NewsProviderProperties>>();
 
@@ -508,8 +510,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 									}
 									this.agenciesAuthorityTypeId.put(provider.authority, agencyTypeId);
 								}
-								this.agenciesAuthorityIsRts.put(provider.authority,
-										rtsProviderMetaData.equals(provider.metaData.getString(rtsProviderMetaData)));
+								this.agenciesAuthorityIsRts.put( //
+										provider.authority, rtsProviderMetaData.equals(provider.metaData.getString(rtsProviderMetaData)));
 								this.allAgenciesAuthority.add(provider.authority);
 							}
 							if (statusProviderMetaData.equals(provider.metaData.getString(statusProviderMetaData))) {
@@ -536,14 +538,14 @@ public class DataSourceProvider implements MTLog.Loggable {
 							}
 							if (serviceUpdateProviderMetaData.equals(provider.metaData.getString(serviceUpdateProviderMetaData))) {
 								String targetAuthority = provider.metaData.getString(serviceUpdateProviderTargetMetaData);
-								ServiceUpdateProviderProperties newServiceUpdateProvider = new ServiceUpdateProviderProperties(provider.authority,
-										targetAuthority);
+								ServiceUpdateProviderProperties newServiceUpdateProvider =
+										new ServiceUpdateProviderProperties(provider.authority, targetAuthority);
 								this.allServiceUpdateProviders.add(newServiceUpdateProvider);
 								this.allServiceUpdateProvidersByAuthority.put(newServiceUpdateProvider.getAuthority(), newServiceUpdateProvider);
 								String newServiceUpdateProviderTargetAuthority = newServiceUpdateProvider.getTargetAuthority();
 								if (!this.serviceUpdateProvidersByTargetAuthority.containsKey(newServiceUpdateProviderTargetAuthority)) {
-									this.serviceUpdateProvidersByTargetAuthority.put(newServiceUpdateProviderTargetAuthority,
-											new HashSet<ServiceUpdateProviderProperties>());
+									this.serviceUpdateProvidersByTargetAuthority.put( //
+											newServiceUpdateProviderTargetAuthority, new HashSet<ServiceUpdateProviderProperties>());
 								}
 								this.serviceUpdateProvidersByTargetAuthority.get(newServiceUpdateProviderTargetAuthority).add(newServiceUpdateProvider);
 							}

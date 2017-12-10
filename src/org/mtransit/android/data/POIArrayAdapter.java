@@ -376,7 +376,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	@NonNull
 	@Override
-	public View getView(int position, @Nullable View convertView, @Nullable ViewGroup parent) {
+	public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 		POIManager poim = getItem(position);
 		if (poim == null) {
 			if (this.showBrowseHeaderSection && position == 0) {
@@ -419,7 +419,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	@NonNull
-	private View getInfiniteLoadingView(@Nullable View convertView, @Nullable ViewGroup parent) {
+	private View getInfiniteLoadingView(@Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_infinite_loading, parent, false);
 			InfiniteLoadingViewHolder holder = new InfiniteLoadingViewHolder();
@@ -448,9 +448,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private int nbAgencyTypes = -1;
 
-	private View getBrowseHeaderSectionView(@Nullable View convertView, @Nullable ViewGroup parent) {
+	private View getBrowseHeaderSectionView(@Nullable View convertView, @NonNull ViewGroup parent) {
 		Activity activity = this.activityWR == null ? null : this.activityWR.get();
-		DataSourceProvider dataSourceProvider = DataSourceProvider.get(activity);
+		DataSourceProvider dataSourceProvider = DataSourceProvider.get(parent.getContext());
 		int agenciesCount = dataSourceProvider == null ? 0 : dataSourceProvider.getAllAgenciesCount();
 		if (convertView == null || this.nbAgencyTypes != agenciesCount) {
 			if (convertView == null) {
@@ -1199,7 +1199,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	@NonNull
-	private View getTypeHeaderView(final DataSourceType type, @Nullable View convertView, @Nullable ViewGroup parent) {
+	private View getTypeHeaderView(final DataSourceType type, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			int layoutRes = getTypeHeaderLayoutResId();
 			convertView = this.layoutInflater.inflate(layoutRes, parent, false);
@@ -1243,7 +1243,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return convertView;
 	}
 
-	private View getFavoriteFolderHeaderView(final Favorite.Folder favoriteFolder, View convertView, ViewGroup parent) {
+	private View getFavoriteFolderHeaderView(final Favorite.Folder favoriteFolder, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_header_with_delete, parent, false);
 			FavoriteFolderHeaderViewHolder holder = new FavoriteFolderHeaderViewHolder();
@@ -1277,7 +1277,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private WeakHashMap<String, CommonStatusViewHolder> poiStatusViewHoldersWR = new WeakHashMap<String, CommonStatusViewHolder>();
 
 	@NonNull
-	private View getBasicPOIView(@NonNull POIManager poim, @Nullable View convertView, @Nullable ViewGroup parent) {
+	private View getBasicPOIView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(getBasicPOILayout(poim.getStatusType()), parent, false);
 			BasicPOIViewHolder holder = new BasicPOIViewHolder();
@@ -1467,7 +1467,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	@NonNull
-	private View getTextMessageView(@NonNull POIManager poim, @Nullable View convertView, @Nullable ViewGroup parent) {
+	private View getTextMessageView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_basic, parent, false);
 			TextViewViewHolder holder = new TextViewViewHolder();
@@ -1486,7 +1486,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	@NonNull
-	private View getModuleView(@NonNull POIManager poim, @Nullable View convertView, @Nullable ViewGroup parent) {
+	private View getModuleView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(getModuleLayout(poim.getStatusType()), parent, false);
 			ModuleViewHolder holder = new ModuleViewHolder();
@@ -1545,7 +1545,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	@NonNull
-	private View getRouteTripStopView(@NonNull POIManager poim, @Nullable View convertView, @Nullable ViewGroup parent) {
+	private View getRouteTripStopView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(getRTSLayout(poim.getStatusType()), parent, false);
 			RouteTripStopViewHolder holder = new RouteTripStopViewHolder();
@@ -1908,12 +1908,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {
 				String uid = favorite.getFkId();
-				if (!newFav && ( //
-						(this.favUUIDs != null && !this.favUUIDs.contains(uid)) || //
-						(this.favUUIDsFolderIds != null && this.favUUIDsFolderIds.containsKey(uid) && this.favUUIDsFolderIds.get(uid) != favorite.getFolderId()) //
-						)) {
-					newFav = true;
-					updatedFav = true;
+				if (!newFav) {
+					if ((this.favUUIDs != null && !this.favUUIDs.contains(uid)) //
+							|| //
+							(this.favUUIDsFolderIds != null //
+									&& this.favUUIDsFolderIds.containsKey(uid) //
+									&& this.favUUIDsFolderIds.get(uid) != favorite.getFolderId()) //
+							) {
+						newFav = true;
+						updatedFav = true;
+					}
 				}
 				newFavUUIDs.add(uid);
 				newFavUUIDsFolderIds.put(uid, favorite.getFolderId());

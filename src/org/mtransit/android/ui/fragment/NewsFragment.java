@@ -58,8 +58,8 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	private static final String EXTRA_FILTER_TARGETS = "extra_filter_targets";
 	private static final String EXTRA_FILTER_UUIDS = "extra_filter_uuids";
 
-	public static NewsFragment newInstance(Integer optColorInt, String optSubtitle, ArrayList<String> optTargetAuthorities, ArrayList<String> optFilterUUIDs,
-			ArrayList<String> optFilterTargets) {
+	public static NewsFragment newInstance(@Nullable Integer optColorInt, @Nullable String optSubtitle, @Nullable ArrayList<String> optTargetAuthorities,
+			@Nullable ArrayList<String> optFilterUUIDs, @Nullable ArrayList<String> optFilterTargets) {
 		NewsFragment f = new NewsFragment();
 		Bundle args = new Bundle();
 		if (optColorInt != null) {
@@ -214,7 +214,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	public Loader<ArrayList<News>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case NEWS_LOADER:
-			return new NewsLoader(getActivity(), this.targetAuthorities, this.filterUUIDs, this.filterTargets);
+			return new NewsLoader(getContext(), this.targetAuthorities, this.filterUUIDs, this.filterTargets);
 		default:
 			MTLog.w(this, "Loader id '%s' unknown!", id);
 			return null;
@@ -267,7 +267,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			return;
 		}
 		this.swipeRefreshLayout = (ListViewSwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
-		this.swipeRefreshLayout.setColorSchemeColors(ThemeUtils.resolveColorAttribute(getActivity(), R.attr.colorAccent));
+		this.swipeRefreshLayout.setColorSchemeColors(ThemeUtils.resolveColorAttribute(getContext(), R.attr.colorAccent));
 		this.swipeRefreshLayout.setOnRefreshListener(this);
 		inflateList(view);
 		switchView(view);
@@ -371,7 +371,8 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		return super.getABBgColor(context);
 	}
 
-	private static class NewsAdapter extends MTArrayAdapter<News> implements TimeUtils.TimeChangedReceiver.TimeChangedListener, AdapterView.OnItemClickListener {
+	private static class NewsAdapter extends MTArrayAdapter<News> implements TimeUtils.TimeChangedReceiver.TimeChangedListener,
+			AdapterView.OnItemClickListener {
 
 		private static final String TAG = NewsAdapter.class.getSimpleName();
 
@@ -491,7 +492,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 
 		@NonNull
 		@Override
-		public View getView(int position, @Nullable View convertView, @Nullable ViewGroup parent) {
+		public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_news_base, parent, false);
 				NewsViewHolder holder = new NewsViewHolder();

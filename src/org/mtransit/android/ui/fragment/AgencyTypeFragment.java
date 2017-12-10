@@ -11,8 +11,8 @@ import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StringUtils;
-import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.TaskUtils;
+import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
@@ -23,6 +23,7 @@ import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.NavigationDrawerController;
+import org.mtransit.android.util.CrashUtils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -31,6 +32,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -110,7 +113,9 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_nearby:
-			((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newNearbyInstance(null, this.typeId), this);
+			if (getActivity() != null) {
+				((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newNearbyInstance(null, this.typeId), this);
+			}
 			return true; // handled
 		}
 		java.util.Set<Fragment> fragments = getChildFragments();
@@ -147,8 +152,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			if (activity == null) {
 				return;
 			}
-			ArrayList<AgencyProperties> newAvailableAgencies = this.typeId == null ? null : DataSourceProvider.get(activity).getTypeDataSources(activity,
-					this.typeId);
+			ArrayList<AgencyProperties> newAvailableAgencies =
+					this.typeId == null ? null : DataSourceProvider.get(getContext()).getTypeDataSources(activity, this.typeId);
 			if (CollectionUtils.getSize(newAvailableAgencies) == CollectionUtils.getSize(this.typeAgencies)) {
 				this.modulesUpdated = false; // nothing to update
 				return;
@@ -190,7 +195,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			return;
 		}
 		if (this.lastPageSelected < 0) {
-			TaskUtils.execute(new LoadLastPageSelectedFromUserPreference(getActivity(), this, this.typeId, getTypeAgenciesOrNull()));
+			TaskUtils.execute(new LoadLastPageSelectedFromUserPreference(this, this.typeId, getTypeAgenciesOrNull()));
 			return;
 		}
 		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
@@ -307,52 +312,52 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	private LoadTypeTask loadTypeTask = null;
 
-	private class LoadTypeTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
+	private static class LoadTypeTask extends FragmentAsyncTaskV4<Void, Void, Boolean, AgencyTypeFragment> {
 
 		@Override
 		public String getLogTag() {
-			return AgencyTypeFragment.this.getLogTag() + ">" + LoadTypeTask.class.getSimpleName();
+			return AgencyTypeFragment.class.getSimpleName() + ">" + LoadTypeTask.class.getSimpleName();
 		}
 
-		public LoadTypeTask(Fragment fragment) {
-			super(fragment);
-		}
-
-		@Override
-		protected Boolean doInBackgroundMT(Void... params) {
-			return initTypeSync();
+		public LoadTypeTask(AgencyTypeFragment agencyTypeFragment) {
+			super(agencyTypeFragment);
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(Boolean result) {
-			if (result) {
-				applyNewType();
+		protected Boolean doInBackgroundWithFragment(@NonNull AgencyTypeFragment agencyTypeFragment, Void... voids) {
+			return agencyTypeFragment.initTypeSync();
+		}
+
+		@Override
+		protected void onPostExecuteFragmentReady(@NonNull AgencyTypeFragment agencyTypeFragment, @Nullable Boolean result) {
+			if (Boolean.TRUE.equals(result)) {
+				agencyTypeFragment.applyNewType();
 			}
 		}
 	}
 
 	private LoadTypeAgenciesTask loadTypeAgenciesTask = null;
 
-	private class LoadTypeAgenciesTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
+	private static class LoadTypeAgenciesTask extends FragmentAsyncTaskV4<Void, Void, Boolean, AgencyTypeFragment> {
 
 		@Override
 		public String getLogTag() {
-			return AgencyTypeFragment.this.getLogTag() + ">" + LoadTypeAgenciesTask.class.getSimpleName();
+			return AgencyTypeFragment.class.getSimpleName() + ">" + LoadTypeAgenciesTask.class.getSimpleName();
 		}
 
-		public LoadTypeAgenciesTask(Fragment fragment) {
-			super(fragment);
-		}
-
-		@Override
-		protected Boolean doInBackgroundMT(Void... params) {
-			return initTypeAgenciesSync();
+		public LoadTypeAgenciesTask(AgencyTypeFragment agencyTypeFragment) {
+			super(agencyTypeFragment);
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(Boolean result) {
-			if (result) {
-				applyNewTypeAgencies();
+		protected Boolean doInBackgroundWithFragment(@NonNull AgencyTypeFragment agencyTypeFragment, Void... params) {
+			return agencyTypeFragment.initTypeAgenciesSync();
+		}
+
+		@Override
+		protected void onPostExecuteFragmentReady(@NonNull AgencyTypeFragment agencyTypeFragment, @Nullable Boolean result) {
+			if (Boolean.TRUE.equals(result)) {
+				agencyTypeFragment.applyNewTypeAgencies();
 			}
 		}
 	}
@@ -363,7 +368,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 		ActionBarController actionBarController = getAbController();
 		if (actionBarController != null) {
-			actionBarController.setABTitle(this, getABTitle(getActivity()), false);
+			actionBarController.setABTitle(this, getABTitle(getContext()), false);
 			actionBarController.setABReady(this, isABReady(), true);
 		}
 	}
@@ -397,7 +402,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			return false;
 		}
 		if (this.typeId != null) {
-			this.typeAgencies = DataSourceProvider.get(getActivity()).getTypeDataSources(getActivity(), this.typeId);
+			this.typeAgencies = DataSourceProvider.get(getContext()).getTypeDataSources(getContext(), this.typeId);
 		}
 		return this.typeAgencies != null;
 	}
@@ -420,7 +425,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		this.adapter = new AgencyPagerAdapter(activity, this, null);
 	}
 
-	private static class LoadLastPageSelectedFromUserPreference extends FragmentAsyncTaskV4<Void, Void, Integer> {
+	private static class LoadLastPageSelectedFromUserPreference extends FragmentAsyncTaskV4<Void, Void, Integer, AgencyTypeFragment> {
 
 		private final String TAG = AgencyTypeFragment.class.getSimpleName() + ">" + LoadLastPageSelectedFromUserPreference.class.getSimpleName();
 
@@ -429,25 +434,20 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			return TAG;
 		}
 
-		private WeakReference<Context> contextWR;
-		private WeakReference<AgencyTypeFragment> agencyTypeFragmentWR;
 		private Integer typeId;
 		private ArrayList<AgencyProperties> newAgencies;
 
-		public LoadLastPageSelectedFromUserPreference(Context context, AgencyTypeFragment agencyTypeFragment, Integer typeId,
-				ArrayList<AgencyProperties> newAgencies) {
+		public LoadLastPageSelectedFromUserPreference(AgencyTypeFragment agencyTypeFragment, Integer typeId, ArrayList<AgencyProperties> newAgencies) {
 			super(agencyTypeFragment);
-			this.contextWR = new WeakReference<Context>(context);
-			this.agencyTypeFragmentWR = new WeakReference<AgencyTypeFragment>(agencyTypeFragment);
 			this.typeId = typeId;
 			this.newAgencies = newAgencies;
 		}
 
 		@Override
-		protected Integer doInBackgroundMT(Void... params) {
+		protected Integer doInBackgroundWithFragment(@NonNull AgencyTypeFragment agencyTypeFragment, Void... params) {
 			try {
 				String agencyAuthority;
-				Context context = this.contextWR == null ? null : this.contextWR.get();
+				Context context = agencyTypeFragment.getContext();
 				if (context != null) {
 					String typePref = PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(this.typeId);
 					agencyAuthority = PreferenceUtils.getPrefLcl(context, typePref, PreferenceUtils.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT);
@@ -468,11 +468,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(Integer lastPageSelected) {
-			AgencyTypeFragment agencyTypeFragment = this.agencyTypeFragmentWR == null ? null : this.agencyTypeFragmentWR.get();
-			if (agencyTypeFragment == null) {
-				return; // too late
-			}
+		protected void onPostExecuteFragmentReady(@NonNull AgencyTypeFragment agencyTypeFragment, @Nullable Integer lastPageSelected) {
 			if (agencyTypeFragment.lastPageSelected >= 0) {
 				return; // user has manually move to another page before, too late
 			}
@@ -507,7 +503,9 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			onPageSelected(this.lastPageSelected); // tell current page it's selected
 		}
 		switchView(view);
-		onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
+		if (getActivity() != null) {
+			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
+		}
 	}
 
 	@Override
@@ -579,7 +577,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		if (this.typeId != null && this.adapter != null && this.adapter.isInitialized()) {
 			String agencyAuthority = this.adapter.getAgencyAuthority(position);
 			if (!TextUtils.isEmpty(agencyAuthority)) {
-				PreferenceUtils.savePrefLcl(getActivity(), PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(this.typeId), agencyAuthority, false);
+				PreferenceUtils.savePrefLcl(getContext(), PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(this.typeId), agencyAuthority, false);
 			}
 		}
 		setFragmentVisibleAtPosition(position);
@@ -619,7 +617,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	};
 
 	private void updateABColorNow(View view) {
-		this.abBgColor = getNewABBgColor(getActivity());
+		this.abBgColor = getNewABBgColor(getContext());
 		if (this.abBgColor != null) {
 			if (view != null) {
 				View tabs = view.findViewById(R.id.tabs);
@@ -627,7 +625,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 					tabs.setBackgroundColor(this.abBgColor);
 				}
 			}
-			getAbController().setABBgColor(this, getABBgColor(getActivity()), false);
+			getAbController().setABBgColor(this, getABBgColor(getContext()), false);
 			getAbController().updateABBgColor();
 			cancelUpdateABColorLater();
 		}
@@ -778,6 +776,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			}
 		}
 
+		@NonNull
 		private ArrayList<String> agenciesAuthority = new ArrayList<String>();
 
 		public void setAgencies(ArrayList<AgencyProperties> agencies) {
@@ -799,12 +798,13 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			return this.agencies.size() == 0 ? null : this.agencies.get(position);
 		}
 
+		@Nullable
 		public String getAgencyAuthority(int position) {
-			return this.agenciesAuthority == null || this.agenciesAuthority.size() <= position ? null : this.agenciesAuthority.get(position);
+			return this.agenciesAuthority.size() <= position ? null : this.agenciesAuthority.get(position);
 		}
 
 		@Override
-		public int getItemPosition(Object object) {
+		public int getItemPosition(@NonNull Object object) {
 			if (object instanceof AgencyFragment) {
 				return getAgencyItemPosition(((AgencyFragment) object).getAgencyAuthority());
 			} else {
@@ -813,7 +813,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 
 		private int getAgencyItemPosition(String agencyAuthority) {
-			int indexOf = this.agenciesAuthority == null ? -1 : this.agenciesAuthority.indexOf(agencyAuthority);
+			int indexOf = this.agenciesAuthority.indexOf(agencyAuthority);
 			if (indexOf < 0) {
 				return POSITION_NONE;
 			}
@@ -826,7 +826,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 		@Override
 		public int getCount() {
-			return this.agenciesAuthority == null ? 0 : this.agenciesAuthority.size();
+			return this.agenciesAuthority.size();
 		}
 
 		@Override
@@ -852,7 +852,12 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 				return f;
 			}
 			Integer optColorInt = agency == null || !agency.hasColor() ? null : agency.getColorInt();
-			return AgencyPOIsFragment.newInstance(position, this.lastVisibleFragmentPosition, getAgencyAuthority(position), optColorInt, null);
+			String agencyAuthority = getAgencyAuthority(position);
+			if (TextUtils.isEmpty(agencyAuthority)) {
+				CrashUtils.w(this, "No agency authority at position %d!", position);
+				return null;
+			}
+			return AgencyPOIsFragment.newInstance(position, this.lastVisibleFragmentPosition, agencyAuthority, optColorInt, null);
 		}
 	}
 

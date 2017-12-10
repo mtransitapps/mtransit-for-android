@@ -181,7 +181,7 @@ public class WebBrowserFragment extends ABFragment {
 		this.pageTitle = title;
 		ActionBarController abController = getAbController();
 		if (abController != null) {
-			abController.setABTitle(this, getABTitle(getActivity()), true);
+			abController.setABTitle(this, getABTitle(getContext()), true);
 		}
 	}
 
@@ -189,7 +189,7 @@ public class WebBrowserFragment extends ABFragment {
 		this.currentUrl = url;
 		ActionBarController abController = getAbController();
 		if (abController != null) {
-			abController.setABSubtitle(this, getABSubtitle(getActivity()), true);
+			abController.setABSubtitle(this, getABSubtitle(getContext()), true);
 		}
 	}
 

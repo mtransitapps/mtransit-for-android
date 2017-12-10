@@ -9,6 +9,8 @@ import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
 
 import android.content.Context;
+import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.TextView;
 
@@ -21,7 +23,9 @@ public class POINewsViewController implements MTLog.Loggable {
 		return TAG;
 	}
 
-	public static Integer getLayoutResId() {
+	@LayoutRes
+	@Nullable
+	public static int getLayoutResId() {
 		return R.layout.layout_poi_news;
 	}
 

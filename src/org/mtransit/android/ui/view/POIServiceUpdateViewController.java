@@ -12,6 +12,8 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.util.LinkUtils;
 
 import android.content.Context;
+import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -25,7 +27,9 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		return TAG;
 	}
 
-	public static Integer getLayoutResId() {
+	@LayoutRes
+	@Nullable
+	public static int getLayoutResId() {
 		return R.layout.layout_poi_service_update;
 	}
 
@@ -58,7 +62,8 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		updateServiceUpdatesView(context, serviceUpdatesListViewHolder, poim, dataProvider);
 	}
 
-	public static void updateServiceUpdate(Context context, View view, ArrayList<ServiceUpdate> serviceUpdates, POIViewController.POIDataProvider dataProvider) {
+	public static void updateServiceUpdate(Context context, View view, ArrayList<ServiceUpdate> serviceUpdates,
+			POIViewController.POIDataProvider dataProvider) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof ServiceUpdatesListViewHolder)) {
 			return;
 		}

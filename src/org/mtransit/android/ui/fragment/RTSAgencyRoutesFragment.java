@@ -189,6 +189,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		}
 	}
 
+	@Nullable
 	private Boolean showingListInsteadOfGrid = null;
 
 	private boolean isShowingListInsteadOfGrid() {
@@ -275,12 +276,10 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	@Override
 	public void setFragmentVisibleAtPosition(int visibleFragmentPosition) {
 		if (this.lastVisibleFragmentPosition == visibleFragmentPosition //
-				&& (//
-				(this.fragmentPosition == visibleFragmentPosition && this.fragmentVisible) //
+				&& ((this.fragmentPosition == visibleFragmentPosition && this.fragmentVisible) //
 				|| //
-				(this.fragmentPosition != visibleFragmentPosition && !this.fragmentVisible) //
-				) //
-		) {
+				(this.fragmentPosition != visibleFragmentPosition && !this.fragmentVisible)) //
+				) {
 			return;
 		}
 		this.lastVisibleFragmentPosition = visibleFragmentPosition;
@@ -331,10 +330,10 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	public Loader<ArrayList<Route>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case ROUTES_LOADER:
-			if (TextUtils.isEmpty(this.authority) || getActivity() == null) {
+			if (TextUtils.isEmpty(this.authority) || getContext() == null) {
 				return null;
 			}
-			return new RTSAgencyRoutesLoader(getActivity(), this.authority);
+			return new RTSAgencyRoutesLoader(getContext(), this.authority);
 		default:
 			MTLog.w(this, "Loader ID '%s' unknown!", id);
 			return null;
@@ -529,6 +528,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			return TAG;
 		}
 
+		@Nullable
 		private ArrayList<Route> routes = null;
 		private LayoutInflater layoutInflater;
 		private String authority;
@@ -549,7 +549,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 			this.authority = authority;
 		}
 
-		public void setRoutes(ArrayList<Route> routes) {
+		void setRoutes(@Nullable ArrayList<Route> routes) {
 			this.routes = routes;
 		}
 
@@ -579,12 +579,12 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 
 		@NonNull
 		@Override
-		public View getView(int position, @Nullable View convertView, @Nullable ViewGroup parent) {
+		public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 			return getRouteView(position, convertView, parent);
 		}
 
 		@NonNull
-		private View getRouteView(int position, @Nullable View convertView, @Nullable ViewGroup parent) {
+		private View getRouteView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(this.showingListInsteadOfGrid ? R.layout.layout_rts_route_list_item
 						: R.layout.layout_rts_route_grid_item, parent, false);

@@ -17,7 +17,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
-import android.support.v4.app.Fragment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,7 +47,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 	private static final String EXTRA_AUTHORITY = "extra_agency_authority";
 	private static final String EXTRA_NEWS_UUID = "extra_news_uuid";
 
-	public static NewsDetailsFragment newInstance(String uuid, String authority, News optNews) {
+	public static NewsDetailsFragment newInstance(String uuid, String authority, @Nullable News optNews) {
 		NewsDetailsFragment f = new NewsDetailsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
@@ -123,26 +124,26 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 
 	private LoadNewsTask loadNewsTask = null;
 
-	private class LoadNewsTask extends FragmentAsyncTaskV4<Void, Void, Boolean> {
+	private static class LoadNewsTask extends FragmentAsyncTaskV4<Void, Void, Boolean, NewsDetailsFragment> {
 
 		@Override
 		public String getLogTag() {
-			return NewsDetailsFragment.this.getLogTag() + ">" + LoadNewsTask.class.getSimpleName();
+			return NewsDetailsFragment.class.getSimpleName() + ">" + LoadNewsTask.class.getSimpleName();
 		}
 
-		public LoadNewsTask(Fragment fragment) {
-			super(fragment);
-		}
-
-		@Override
-		protected Boolean doInBackgroundMT(Void... params) {
-			return initNewsSync();
+		public LoadNewsTask(NewsDetailsFragment newsDetailsFragment) {
+			super(newsDetailsFragment);
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(Boolean result) {
-			if (result) {
-				applyNewNews();
+		protected Boolean doInBackgroundWithFragment(@NonNull NewsDetailsFragment newsDetailsFragment, Void... params) {
+			return newsDetailsFragment.initNewsSync();
+		}
+
+		@Override
+		protected void onPostExecuteFragmentReady(@NonNull NewsDetailsFragment newsDetailsFragment, @Nullable Boolean result) {
+			if (Boolean.TRUE.equals(result)) {
+				newsDetailsFragment.applyNewNews();
 			}
 		}
 	}
@@ -163,7 +164,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 			return false;
 		}
 		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
-			this.news = DataSourceManager.findANews(getActivity(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
+			this.news = DataSourceManager.findANews(getContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
 		}
 		return this.news != null;
 	}
@@ -173,9 +174,9 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 			return;
 		}
 		updateNewsView();
-		getAbController().setABBgColor(this, getABBgColor(getActivity()), false);
-		getAbController().setABTitle(this, getABTitle(getActivity()), false);
-		getAbController().setABSubtitle(this, getABSubtitle(getActivity()), false);
+		getAbController().setABBgColor(this, getABBgColor(getContext()), false);
+		getAbController().setABTitle(this, getABTitle(getContext()), false);
+		getAbController().setABSubtitle(this, getABSubtitle(getContext()), false);
 		getAbController().setABReady(this, isABReady(), true);
 	}
 
@@ -190,10 +191,10 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 				if (news.hasColor()) {
 					newsTv.setLinkTextColor(news.getColorInt());
 				} else {
-					newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(getActivity()));
+					newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(getContext()));
 				}
 				TextView dateTv = (TextView) view.findViewById(R.id.date);
-				dateTv.setText(TimeUtils.formatRelativeTime(getActivity(), news.getCreatedAtInMs()));
+				dateTv.setText(TimeUtils.formatRelativeTime(getContext(), news.getCreatedAtInMs()));
 				final String newWebURL = TextUtils.isEmpty(news.getWebURL()) ? news.getAuthorProfileURL() : news.getWebURL();
 				dateTv.setOnClickListener(new MTOnClickListener() {
 					@Override
@@ -225,14 +226,18 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 
 	private void enableTimeChangedReceiver() {
 		if (!this.timeChangedReceiverEnabled) {
-			getActivity().registerReceiver(timeChangedReceiver, TimeUtils.TIME_CHANGED_INTENT_FILTER);
+			if (getActivity() != null) {
+				getActivity().registerReceiver(timeChangedReceiver, TimeUtils.TIME_CHANGED_INTENT_FILTER);
+			}
 			this.timeChangedReceiverEnabled = true;
 		}
 	}
 
 	private void disableTimeChangeddReceiver() {
 		if (this.timeChangedReceiverEnabled) {
-			getActivity().unregisterReceiver(this.timeChangedReceiver);
+			if (getActivity() != null) {
+				getActivity().unregisterReceiver(this.timeChangedReceiver);
+			}
 			this.timeChangedReceiverEnabled = false;
 		}
 	}
@@ -269,7 +274,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 		if (activity == null) {
 			return;
 		}
-		News newNews = DataSourceManager.findANews(getActivity(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
+		News newNews = DataSourceManager.findANews(getContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
 		if (newNews == null) {
 			if (activity.isMTResumed()) {
 				activity.popFragmentFromStack(this); // close this fragment
