@@ -490,7 +490,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	}
 
 	@Override
-	public void onUserLocationChanged(Location newLocation) {
+	public void onUserLocationChanged(@Nullable Location newLocation) {
 		if (newLocation == null) {
 			return;
 		}

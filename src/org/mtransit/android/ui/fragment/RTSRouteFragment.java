@@ -517,7 +517,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	@Override
-	public void onUserLocationChanged(Location newLocation) {
+	public void onUserLocationChanged(@Nullable Location newLocation) {
 		if (newLocation != null) {
 			MTActivityWithLocation.broadcastUserLocationChanged(this, getChildFragments(), newLocation);
 		}

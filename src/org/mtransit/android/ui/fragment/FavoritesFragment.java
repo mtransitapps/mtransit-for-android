@@ -16,6 +16,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
@@ -130,7 +131,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	}
 
 	@Override
-	public void onUserLocationChanged(Location newLocation) {
+	public void onUserLocationChanged(@Nullable Location newLocation) {
 		if (newLocation != null) {
 			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 				this.userLocation = newLocation;

@@ -49,14 +49,12 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		return new Intent(context, MainActivity.class);
 	}
 
-	private static final boolean LOCATION_ENABLED = true;
-
 	private NavigationDrawerController navigationDrawerController;
 
 	private ActionBarController abController;
 
 	public MainActivity() {
-		super(LOCATION_ENABLED);
+		super();
 	}
 
 	@Override
@@ -289,7 +287,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	}
 
 	@Override
-	public void onUserLocationChanged(Location newLocation) {
+	public void onUserLocationChanged(@Nullable Location newLocation) {
 		MTActivityWithLocation.broadcastUserLocationChanged(this, getFragments(), newLocation);
 	}
 

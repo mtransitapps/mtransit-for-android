@@ -174,7 +174,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 	private Location userLocation;
 
 	@Override
-	public void onUserLocationChanged(Location newLocation) {
+	public void onUserLocationChanged(@Nullable Location newLocation) {
 		if (newLocation == null) {
 			return;
 		}

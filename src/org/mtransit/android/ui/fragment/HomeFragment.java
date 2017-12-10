@@ -271,7 +271,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public void onUserLocationChanged(Location newLocation) {
+	public void onUserLocationChanged(@Nullable Location newLocation) {
 		if (newLocation == null) {
 			return;
 		}

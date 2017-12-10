@@ -509,7 +509,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	}
 
 	@Override
-	public void onUserLocationChanged(Location newLocation) {
+	public void onUserLocationChanged(@Nullable Location newLocation) {
 		if (newLocation != null) {
 			MTActivityWithLocation.broadcastUserLocationChanged(this, getChildFragments(), newLocation);
 		}
