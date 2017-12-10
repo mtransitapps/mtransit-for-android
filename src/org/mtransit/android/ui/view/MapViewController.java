@@ -460,7 +460,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		return showMapInternal(view);
 	}
 
-	private boolean showMapInternal(View optView) {
+	private boolean showMapInternal(@Nullable View optView) {
 		MapView mapView = getMapViewOrNull(optView);
 		if (mapView == null) {
 			return false; // not shown
@@ -724,7 +724,11 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (this.extendedGoogleMap == null) {
 			return;
 		}
-		TaskUtils.execute(new LoadClusterItemsTask(this));
+		if (this.loadClusterItemsTask != null && this.loadClusterItemsTask.getStatus() == LoadClusterItemsTask.Status.RUNNING) {
+			return;
+		}
+		this.loadClusterItemsTask = new LoadClusterItemsTask(this);
+		TaskUtils.execute(this.loadClusterItemsTask);
 	}
 
 	private static final MarkerNameComparator MARKER_NAME_COMPARATOR = new MarkerNameComparator();
@@ -990,6 +994,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return this.uuidsAndAuthority.size();
 		}
 	}
+
+	@Nullable
+	private LoadClusterItemsTask loadClusterItemsTask = null;
 
 	private static class LoadClusterItemsTask extends MTAsyncTask<Void, Void, Collection<POIMarker>> {
 
