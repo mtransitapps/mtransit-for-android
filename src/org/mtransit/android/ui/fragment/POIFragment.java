@@ -445,6 +445,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			return;
 		}
 		POIManager poim = getPoimOrNull();
+		if (poim == null) {
+			return;
+		}
 		FragmentActivity activity = getActivity();
 		if (activity == null) {
 			return;
@@ -951,6 +954,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			setupMoreNewsButton(view);
 			setupMoreNearbyButton(view);
 			setupNearbyList();
+		}
 		if (getActivity() != null) {
 			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
 		}
