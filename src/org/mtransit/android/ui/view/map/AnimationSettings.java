@@ -43,13 +43,21 @@ public class AnimationSettings {
 		if (this == o) {
 			return true;
 		}
-		if (!(o instanceof AnimationSettings)) {
+		if (o == null || getClass() != o.getClass()) {
 			return false;
 		}
-		AnimationSettings other = (AnimationSettings) o;
-		if (duration != other.duration) {
+		AnimationSettings that = (AnimationSettings) o;
+		if (duration != that.duration) {
 			return false;
 		}
-		return interpolator.equals(other.interpolator);
+		return interpolator != null ? interpolator.equals(that.interpolator) : that.interpolator == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = 0;
+		result = 31 * result + ((int) (duration ^ (duration >>> 32)));
+		result = 31 * result + (interpolator != null ? interpolator.hashCode() : 0);
+		return result;
 	}
 }
