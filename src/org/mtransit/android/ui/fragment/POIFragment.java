@@ -206,6 +206,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	private String uuid;
 
+	@Nullable
 	private POIManager poim;
 
 	private boolean hasPoim() {
@@ -253,6 +254,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 	}
 
+	@Nullable
 	private POIManager getPoimOrNull() {
 		if (!hasPoim()) {
 			return null;
@@ -283,6 +285,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 			return;
 		}
 		setPOIProperties();
+		if (this.userLocation != null) {
+			LocationUtils.updateDistanceWithString(getContext(), this.poim, this.userLocation);
+		}
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
@@ -620,7 +625,6 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		this.adapter.setTag(getLogTag());
 	}
 
-
 	private void setupView(View view) {
 		if (view == null) {
 			return;
@@ -793,7 +797,8 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 		return view.findViewById(R.id.poi_news);
 	}
 
-	private View getPOIView(View view) {
+	@Nullable
+	private View getPOIView(@Nullable View view) {
 		POIManager poim = getPoimOrNull();
 		if (view == null || poim == null) {
 			return null;
@@ -807,7 +812,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 	}
 
 	@Override
-	public void onStatusLoaded(POIStatus status) {
+	public void onStatusLoaded(@NonNull POIStatus status) {
 		View view = getView();
 		POIViewController.updatePOIStatus(getContext(), getPOIView(view), status, this);
 		POIStatusDetailViewController.updatePOIStatus(getContext(), getPOIStatusView(view), status, this, getPoimOrNull());
