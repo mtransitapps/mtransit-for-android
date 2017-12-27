@@ -300,7 +300,7 @@ public class POIViewController implements MTLog.Loggable {
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
 						AgencyProperties agency = DataSourceProvider.get(context).getAgency(context, poim.poi.getAuthority());
-						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo(context);
+						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo();
 						if (rtsRouteLogo != null) {
 							holder.routeTypeImg.setJSON(rtsRouteLogo);
 							holder.routeTypeImg.setTag(poim.poi.getAuthority());

@@ -11,7 +11,7 @@ import org.mtransit.android.commons.MTLog;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
-import android.content.Context;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 public class AgencyProperties implements MTLog.Loggable {
@@ -43,13 +43,15 @@ public class AgencyProperties implements MTLog.Loggable {
 		setColor(color);
 	}
 
+	@Nullable
 	private JPaths logo = null;
 
-	public JPaths getLogo(Context context) {
+	@Nullable
+	public JPaths getLogo() {
 		return logo;
 	}
 
-	public void setLogo(JPaths logo) {
+	public void setLogo(@Nullable JPaths logo) {
 		this.logo = logo;
 	}
 
@@ -101,7 +103,7 @@ public class AgencyProperties implements MTLog.Loggable {
 		return LocationUtils.Area.areOverlapping(area, this.area);
 	}
 
-	public boolean isEntirelyInside(LatLngBounds area) {
+	public boolean isEntirelyInside(@Nullable LatLngBounds area) {
 		if (area == null) {
 			return false;
 		}
@@ -112,7 +114,7 @@ public class AgencyProperties implements MTLog.Loggable {
 		return areOverlapping(area, this.area);
 	}
 
-	private static boolean areOverlapping(LatLngBounds area1, LocationUtils.Area area2) {
+	private static boolean areOverlapping(@Nullable LatLngBounds area1, @Nullable LocationUtils.Area area2) {
 		if (area1 == null || area2 == null) {
 			return false; // no data to compare
 		}
@@ -159,15 +161,13 @@ public class AgencyProperties implements MTLog.Loggable {
 		double area1MaxLat = Math.max(area1.southwest.latitude, area1.northeast.latitude);
 		double area1MinLng = Math.min(area1.southwest.longitude, area1.northeast.longitude);
 		double area1MaxLng = Math.max(area1.southwest.longitude, area1.northeast.longitude);
-		if (area1MinLat >= area2.minLat && area1MaxLat <= area2.maxLat) {
-			if (area2.minLng >= area1MinLng && area2.maxLng <= area1MaxLng) {
-				return true; // area 1 wider than area 2 but area 2 higher than area 1
-			}
+		if (area1MinLat >= area2.minLat && area1MaxLat <= area2.maxLat //
+				&& area2.minLng >= area1MinLng && area2.maxLng <= area1MaxLng) {
+			return true; // area 1 wider than area 2 but area 2 higher than area 1
 		}
-		if (area2.minLat >= area1MinLat && area2.maxLat <= area1MaxLat) {
-			if (area1MinLng >= area2.minLng && area1MaxLng <= area2.maxLng) {
-				return true; // area 2 wider than area 1 but area 1 higher than area 2
-			}
+		if (area2.minLat >= area1MinLat && area2.maxLat <= area1MaxLat //
+				&& area1MinLng >= area2.minLng && area1MaxLng <= area2.maxLng) {
+			return true; // area 2 wider than area 1 but area 1 higher than area 2
 		}
 		return false;
 	}

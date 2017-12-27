@@ -614,7 +614,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
 						AgencyProperties agency = DataSourceProvider.get(getContext()).getAgency(getContext(), this.authority);
-						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo(getContext());
+						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo();
 						if (rtsRouteLogo != null) {
 							holder.routeTypeImg.setJSON(rtsRouteLogo);
 							holder.routeTypeImg.setTag(this.authority);

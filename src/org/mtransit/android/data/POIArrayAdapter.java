@@ -1608,7 +1608,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
 						AgencyProperties agency = DataSourceProvider.get(getContext()).getAgency(getContext(), poim.poi.getAuthority());
-						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo(getContext());
+						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo();
 						if (rtsRouteLogo != null) {
 							holder.routeTypeImg.setJSON(rtsRouteLogo);
 							holder.routeTypeImg.setTag(poim.poi.getAuthority());
