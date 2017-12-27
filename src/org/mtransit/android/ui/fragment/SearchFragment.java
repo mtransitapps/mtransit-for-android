@@ -393,7 +393,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	}
 
 	@Override
-	public void onUserLocationChanged(Location newLocation) {
+	public void onUserLocationChanged(@Nullable Location newLocation) {
 		if (newLocation != null) {
 			if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 				this.userLocation = newLocation;
@@ -621,20 +621,25 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 		@Override
 		public boolean equals(Object o) {
-			if (o == null || !(o instanceof TypeFilter)) {
+			if (this == o) {
+				return true;
+			}
+			if (o == null || getClass() != o.getClass()) {
 				return false;
 			}
-			TypeFilter other = (TypeFilter) o;
-			if (this.dataSourceTypeId != other.dataSourceTypeId) {
-				return false;
-			}
-			if (this.nameResId != other.nameResId) {
-				return false;
-			}
-			if (this.iconResId != other.iconResId) {
-				return false;
-			}
-			return true;
+			TypeFilter that = (TypeFilter) o;
+			return dataSourceTypeId == that.dataSourceTypeId //
+					&& nameResId == that.nameResId //
+					&& iconResId == that.iconResId;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = 0;
+			result = 31 * result + dataSourceTypeId;
+			result = 31 * result + nameResId;
+			result = 31 * result + iconResId;
+			return result;
 		}
 
 		public int getNameResId() {
