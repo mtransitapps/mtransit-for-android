@@ -49,38 +49,37 @@ public class ClusteringSettings {
 		return enabled;
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (!(o instanceof ClusteringSettings)) {
-			return false;
-		}
-		ClusteringSettings other = (ClusteringSettings) o;
-		if (enabled != other.enabled) {
-			return false;
-		}
-		if (addMarkersDynamically != other.addMarkersDynamically) {
-			return false;
-		}
-		if (!enabled && !other.enabled) {
-			return true;
-		}
-		if (clusterSize != other.clusterSize) {
-			return false;
-		}
-		if (!equals(clusterOptionsProvider, other.clusterOptionsProvider)) {
-			return false;
-		}
-		return true;
-	}
-
 	private static boolean equals(Object objLeft, Object objRight) {
 		if (objLeft == null) {
 			return objRight == null;
 		} else {
 			return objLeft.equals(objRight);
 		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		ClusteringSettings that = (ClusteringSettings) o;
+		return addMarkersDynamically == that.addMarkersDynamically //
+				&& Double.compare(that.clusterSize, clusterSize) == 0 //
+				&& enabled == that.enabled //
+				&& (clusterOptionsProvider != null ? clusterOptionsProvider.equals(that.clusterOptionsProvider) : that.clusterOptionsProvider == null);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = 0;
+		result = 31 * result + (addMarkersDynamically ? 1 : 0);
+		result = 31 * result + (clusterOptionsProvider != null ? clusterOptionsProvider.hashCode() : 0);
+		long temp = Double.doubleToLongBits(clusterSize);
+		result = 31 * result + (int) (temp ^ (temp >>> 32));
+		result = 31 * result + (enabled ? 1 : 0);
+		return result;
 	}
 }

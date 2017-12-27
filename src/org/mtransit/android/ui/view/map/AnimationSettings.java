@@ -47,10 +47,8 @@ public class AnimationSettings {
 			return false;
 		}
 		AnimationSettings that = (AnimationSettings) o;
-		if (duration != that.duration) {
-			return false;
-		}
-		return interpolator != null ? interpolator.equals(that.interpolator) : that.interpolator == null;
+		return duration == that.duration //
+				&& (interpolator != null ? interpolator.equals(that.interpolator) : that.interpolator == null);
 	}
 
 	@Override
