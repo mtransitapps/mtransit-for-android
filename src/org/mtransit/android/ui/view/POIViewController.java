@@ -30,6 +30,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.location.Location;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
@@ -45,11 +47,7 @@ public class POIViewController implements MTLog.Loggable {
 		return TAG;
 	}
 
-	public static int getLayoutResId(POIManager poim) {
-		if (poim == null) {
-			MTLog.w(TAG, "getLayoutResId() > Unknown view type for poim null!");
-			return getBasicPOILayout(-1);
-		}
+	public static int getLayoutResId(@NonNull POIManager poim) {
 		if (poim.poi == null) {
 			MTLog.w(TAG, "getLayoutResId() > Unknown view type for poi null!");
 			return getBasicPOILayout(poim.getStatusType());
@@ -114,7 +112,7 @@ public class POIViewController implements MTLog.Loggable {
 		return layoutRes;
 	}
 
-	public static void initViewHolder(POIManager poim, View view) {
+	public static void initViewHolder(@NonNull POIManager poim, @NonNull View view) {
 		CommonViewHolder holder;
 		switch (poim.poi.getType()) {
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
@@ -139,33 +137,33 @@ public class POIViewController implements MTLog.Loggable {
 		view.setTag(holder);
 	}
 
-	private static ServiceUpdateViewHolder initServiceUpdateViewHolder(View view) {
+	private static ServiceUpdateViewHolder initServiceUpdateViewHolder(@NonNull View view) {
 		ServiceUpdateViewHolder holder = new ServiceUpdateViewHolder();
 		holder.warningImg = (ImageView) view.findViewById(R.id.service_update_warning);
 		return holder;
 	}
 
-	private static CommonViewHolder initModuleViewHolder(POIManager poim, View view) {
+	private static CommonViewHolder initModuleViewHolder(@NonNull POIManager poim, @NonNull View view) {
 		ModuleViewHolder holder = new ModuleViewHolder();
 		holder.moduleExtraTypeImg = (ImageView) view.findViewById(R.id.extra);
 		return holder;
 	}
 
-	private static CommonViewHolder initTextMessageViewHolder(POIManager poim, View view) {
+	private static CommonViewHolder initTextMessageViewHolder(@NonNull POIManager poim, @NonNull View view) {
 		return new TextMessageViewHolder();
 	}
 
-	private static CommonViewHolder initBasicViewHolder(POIManager poim, View view) {
+	private static CommonViewHolder initBasicViewHolder(@NonNull POIManager poim, @NonNull View view) {
 		return new BasicPOIViewHolder();
 	}
 
-	private static CommonViewHolder initRTSViewHolder(POIManager poim, View view) {
+	private static CommonViewHolder initRTSViewHolder(@NonNull POIManager poim, @NonNull View view) {
 		RouteTripStopViewHolder holder = new RouteTripStopViewHolder();
 		initRTSExtra(view, holder);
 		return holder;
 	}
 
-	private static void initRTSExtra(View view, RouteTripStopViewHolder holder) {
+	private static void initRTSExtra(@NonNull View view, @NonNull RouteTripStopViewHolder holder) {
 		holder.rtsExtraV = view.findViewById(R.id.extra);
 		holder.routeFL = view.findViewById(R.id.route);
 		holder.routeShortNameTv = (TextView) view.findViewById(R.id.route_short_name);
@@ -174,7 +172,8 @@ public class POIViewController implements MTLog.Loggable {
 		holder.tripHeadingBg = view.findViewById(R.id.trip_heading_bg);
 	}
 
-	private static CommonStatusViewHolder initPOIStatusViewHolder(int status, View view) {
+	@Nullable
+	private static CommonStatusViewHolder initPOIStatusViewHolder(int status, @NonNull View view) {
 		CommonStatusViewHolder statusViewHolder = null;
 		switch (status) {
 		case POI.ITEM_STATUS_TYPE_NONE:
@@ -198,38 +197,40 @@ public class POIViewController implements MTLog.Loggable {
 		return statusViewHolder;
 	}
 
-	private static CommonStatusViewHolder initScheduleViewHolder(View view) {
+	private static CommonStatusViewHolder initScheduleViewHolder(@NonNull View view) {
 		ScheduleStatusViewHolder scheduleStatusViewHolder = new ScheduleStatusViewHolder();
 		scheduleStatusViewHolder.dataNextLine1Tv = (TextView) view.findViewById(R.id.data_next_line_1);
 		scheduleStatusViewHolder.dataNextLine2Tv = (TextView) view.findViewById(R.id.data_next_line_2);
 		return scheduleStatusViewHolder;
 	}
 
-	private static CommonStatusViewHolder initAppStatusViewHolder(View view) {
+	@NonNull
+	private static CommonStatusViewHolder initAppStatusViewHolder(@NonNull View view) {
 		AppStatusViewHolder appStatusViewHolder = new AppStatusViewHolder();
 		appStatusViewHolder.textTv = (TextView) view.findViewById(R.id.textTv);
 		return appStatusViewHolder;
 	}
 
-	private static CommonStatusViewHolder initAvailabilityPercentViewHolder(View view) {
+	@NonNull
+	private static CommonStatusViewHolder initAvailabilityPercentViewHolder(@NonNull View view) {
 		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = new AvailabilityPercentStatusViewHolder();
 		availabilityPercentStatusViewHolder.textTv = (TextView) view.findViewById(R.id.textTv);
 		availabilityPercentStatusViewHolder.piePercentV = (MTPieChartPercentView) view.findViewById(R.id.pie);
 		return availabilityPercentStatusViewHolder;
 	}
 
-	private static void initCommonStatusViewHolderHolder(CommonStatusViewHolder holder, View view) {
+	private static void initCommonStatusViewHolderHolder(@NonNull CommonStatusViewHolder holder, @NonNull View view) {
 		holder.statusV = view.findViewById(R.id.status);
 	}
 
-	private static void initCommonViewHolder(CommonViewHolder holder, View view, String poiUUID) {
+	private static void initCommonViewHolder(@NonNull CommonViewHolder holder, @NonNull View view, String poiUUID) {
 		holder.nameTv = (TextView) view.findViewById(R.id.name);
 		holder.favImg = (ImageView) view.findViewById(R.id.fav);
 		holder.distanceTv = (TextView) view.findViewById(R.id.distance);
 		holder.compassV = (MTCompassView) view.findViewById(R.id.compass);
 	}
 
-	public static void updateView(Context context, View view, POIManager poim, POIDataProvider dataProvider) {
+	public static void updateView(Context context, @Nullable View view, @Nullable POIManager poim, @NonNull POIDataProvider dataProvider) {
 		if (view == null || poim == null) {
 			return;
 		}
@@ -243,7 +244,7 @@ public class POIViewController implements MTLog.Loggable {
 		updatePOIServiceUpdate(context, holder.serviceUpdateViewHolder, poim, dataProvider);
 	}
 
-	private static void updateExtra(Context context, CommonViewHolder holder, POIManager poim, POIDataProvider dataProvider) {
+	private static void updateExtra(Context context, @NonNull CommonViewHolder holder, @NonNull POIManager poim, @NonNull POIDataProvider dataProvider) {
 		switch (poim.poi.getType()) {
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
 			updateRTSExtra(context, poim, (RouteTripStopViewHolder) holder, dataProvider);
@@ -256,11 +257,11 @@ public class POIViewController implements MTLog.Loggable {
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 			break;
 		default:
-			MTLog.w(TAG, "updateView() > Unknow view type for poi %s!", poim);
+			MTLog.w(TAG, "updateView() > Unknown view type for poi %s!", poim);
 		}
 	}
 
-	private static void updateModuleExtra(Context context, POIManager poim, ModuleViewHolder holder, final POIDataProvider dataProvider) {
+	private static void updateModuleExtra(Context context, @NonNull POIManager poim, @NonNull ModuleViewHolder holder, @NonNull POIDataProvider dataProvider) {
 		if (poim.poi != null && poim.poi instanceof Module) {
 			Module module = (Module) poim.poi;
 			holder.moduleExtraTypeImg.setBackgroundColor(poim.getColor(context));
@@ -276,10 +277,11 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateRTSExtra(Context context, POIManager poim, RouteTripStopViewHolder holder, final POIDataProvider dataProvider) {
+	private static void updateRTSExtra(Context context, @NonNull POIManager poim, @NonNull RouteTripStopViewHolder holder,
+			@NonNull final POIDataProvider dataProvider) {
 		if (poim.poi instanceof RouteTripStop) {
 			RouteTripStop rts = (RouteTripStop) poim.poi;
-			if (dataProvider != null && dataProvider.isShowingExtra() && rts.getRoute() == null) {
+			if (dataProvider.isShowingExtra() && rts.getRoute() == null) {
 				if (holder.rtsExtraV != null) {
 					holder.rtsExtraV.setVisibility(View.GONE);
 				}
@@ -330,9 +332,6 @@ public class POIViewController implements MTLog.Loggable {
 				holder.rtsExtraV.setOnClickListener(new MTOnClickListener() {
 					@Override
 					public void onClickMT(View view) {
-						if (dataProvider == null) {
-							return;
-						}
 						MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
 						if (mainActivity == null) {
 							return;
@@ -344,7 +343,7 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	public static void updatePOIStatus(Context context, View view, POIStatus status, POIDataProvider dataProvider) {
+	public static void updatePOIStatus(Context context, @Nullable View view, @NonNull POIStatus status, @NonNull POIDataProvider dataProvider) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
 			return;
 		}
@@ -352,11 +351,13 @@ public class POIViewController implements MTLog.Loggable {
 		updatePOIStatus(context, holder.statusViewHolder, status, dataProvider);
 	}
 
-	private static void updatePOIStatus(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status, POIDataProvider dataProvider) {
-		if (dataProvider == null || !dataProvider.isShowingStatus() || status == null || statusViewHolder == null) {
-			if (statusViewHolder != null) {
-				statusViewHolder.statusV.setVisibility(View.INVISIBLE);
-			}
+	private static void updatePOIStatus(Context context, @Nullable CommonStatusViewHolder statusViewHolder, @NonNull POIStatus status,
+			@NonNull POIDataProvider dataProvider) {
+		if (statusViewHolder == null) {
+			return;
+		}
+		if (!dataProvider.isShowingStatus()) {
+			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 			return;
 		}
 		switch (status.getType()) {
@@ -378,7 +379,7 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	public static void updatePOIStatus(Context context, View view, POIManager poim, POIDataProvider dataProvider) {
+	public static void updatePOIStatus(Context context, @Nullable View view, @NonNull POIManager poim, @NonNull POIDataProvider dataProvider) {
 		if (view == null) {
 			MTLog.d(TAG, "updatePOIStatus() > SKIP (no view)");
 			return;
@@ -390,11 +391,13 @@ public class POIViewController implements MTLog.Loggable {
 		updatePOIStatus(context, holder.statusViewHolder, poim, dataProvider);
 	}
 
-	private static void updatePOIStatus(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim, POIDataProvider dataProvider) {
-		if (dataProvider == null || !dataProvider.isShowingStatus() || poim == null || statusViewHolder == null) {
-			if (statusViewHolder != null) {
-				statusViewHolder.statusV.setVisibility(View.INVISIBLE);
-			}
+	private static void updatePOIStatus(Context context, @Nullable CommonStatusViewHolder statusViewHolder, @NonNull POIManager poim,
+			@NonNull POIDataProvider dataProvider) {
+		if (statusViewHolder == null) {
+			return;
+		}
+		if (!dataProvider.isShowingStatus()) {
+			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 			return;
 		}
 		switch (poim.getStatusType()) {
@@ -416,8 +419,9 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateAppStatus(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim, POIDataProvider dataProvider) {
-		if (dataProvider != null && dataProvider.isShowingStatus() && poim != null && statusViewHolder instanceof AppStatusViewHolder) {
+	private static void updateAppStatus(Context context, @NonNull CommonStatusViewHolder statusViewHolder, @NonNull POIManager poim,
+			@NonNull POIDataProvider dataProvider) {
+		if (dataProvider.isShowingStatus() && statusViewHolder instanceof AppStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
 			updateAppStatus(context, statusViewHolder, poim.getStatus(context));
 		} else {
@@ -425,7 +429,7 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateAppStatus(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status) {
+	private static void updateAppStatus(Context context, @NonNull CommonStatusViewHolder statusViewHolder, @Nullable POIStatus status) {
 		AppStatusViewHolder appStatusViewHolder = (AppStatusViewHolder) statusViewHolder;
 		if (status != null && status instanceof AppStatus) {
 			AppStatus appStatus = (AppStatus) status;
@@ -437,8 +441,9 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateRTSSchedule(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim, POIDataProvider dataProvider) {
-		if (dataProvider != null && dataProvider.isShowingStatus() && poim != null && statusViewHolder instanceof ScheduleStatusViewHolder) {
+	private static void updateRTSSchedule(Context context, @NonNull CommonStatusViewHolder statusViewHolder, @NonNull POIManager poim,
+			@NonNull POIDataProvider dataProvider) {
+		if (dataProvider.isShowingStatus() && statusViewHolder instanceof ScheduleStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
 			updateRTSSchedule(context, statusViewHolder, poim.getStatus(context), dataProvider);
 		} else {
@@ -446,10 +451,11 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateRTSSchedule(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status, POIDataProvider dataProvider) {
+	private static void updateRTSSchedule(Context context, @NonNull CommonStatusViewHolder statusViewHolder, @Nullable POIStatus status,
+			@NonNull POIDataProvider dataProvider) {
 		CharSequence line1CS = null;
 		CharSequence line2CS = null;
-		if (dataProvider != null && status != null && status instanceof Schedule) {
+		if (status != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
 			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getStatus( //
 					context, dataProvider.getNowToTheMinute(), TimeUnit.MINUTES.toMillis(30L), null, 10, null);
@@ -465,8 +471,9 @@ public class POIViewController implements MTLog.Loggable {
 		statusViewHolder.statusV.setVisibility(line1CS != null && line1CS.length() > 0 ? View.VISIBLE : View.INVISIBLE);
 	}
 
-	private static void updateAvailabilityPercent(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim, POIDataProvider dataProvider) {
-		if (dataProvider != null && dataProvider.isShowingStatus() && poim != null && statusViewHolder instanceof AvailabilityPercentStatusViewHolder) {
+	private static void updateAvailabilityPercent(Context context, @NonNull CommonStatusViewHolder statusViewHolder, @NonNull POIManager poim,
+			@NonNull POIDataProvider dataProvider) {
+		if (dataProvider.isShowingStatus() && statusViewHolder instanceof AvailabilityPercentStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
 			updateAvailabilityPercent(context, statusViewHolder, poim.getStatus(context));
 		} else {
@@ -474,7 +481,7 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateAvailabilityPercent(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status) {
+	private static void updateAvailabilityPercent(Context context, @NonNull CommonStatusViewHolder statusViewHolder, @Nullable POIStatus status) {
 		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = (AvailabilityPercentStatusViewHolder) statusViewHolder;
 		if (status != null && status instanceof AvailabilityPercent) {
 			AvailabilityPercent availabilityPercent = (AvailabilityPercent) status;
@@ -503,7 +510,7 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	public static void updateServiceUpdatesView(View view, ArrayList<ServiceUpdate> serviceUpdates, POIDataProvider dataProvider) {
+	public static void updateServiceUpdatesView(@Nullable View view, ArrayList<ServiceUpdate> serviceUpdates, @NonNull POIDataProvider dataProvider) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
 			return;
 		}
@@ -511,7 +518,7 @@ public class POIViewController implements MTLog.Loggable {
 		updateServiceUpdateViewHolder(holder.serviceUpdateViewHolder, ServiceUpdate.isSeverityWarning(serviceUpdates), dataProvider);
 	}
 
-	public static void updatePOIServiceUpdate(Context context, View view, POIManager poim, POIDataProvider dataProvider) {
+	public static void updatePOIServiceUpdate(Context context, @Nullable View view, @NonNull POIManager poim, @NonNull POIDataProvider dataProvider) {
 		if (view == null) {
 			return;
 		}
@@ -522,10 +529,10 @@ public class POIViewController implements MTLog.Loggable {
 		updatePOIServiceUpdate(context, holder.serviceUpdateViewHolder, poim, dataProvider);
 	}
 
-	private static void updatePOIServiceUpdate(Context context, ServiceUpdateViewHolder serviceUpdateViewHolder, POIManager poim,
-			POIDataProvider dataProvider) {
+	private static void updatePOIServiceUpdate(Context context, @Nullable ServiceUpdateViewHolder serviceUpdateViewHolder, @NonNull POIManager poim,
+			@NonNull POIDataProvider dataProvider) {
 		if (serviceUpdateViewHolder != null) {
-			if (dataProvider != null && dataProvider.isShowingServiceUpdates() && poim != null) {
+			if (dataProvider.isShowingServiceUpdates()) {
 				poim.setServiceUpdateLoaderListener(dataProvider);
 				updateServiceUpdateViewHolder(serviceUpdateViewHolder, poim.isServiceUpdateWarning(context), dataProvider);
 			} else {
@@ -534,19 +541,19 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateServiceUpdateViewHolder(ServiceUpdateViewHolder serviceUpdateViewHolder, Boolean isServiceUpdateWarning,
-			POIDataProvider dataProvider) {
+	private static void updateServiceUpdateViewHolder(@NonNull ServiceUpdateViewHolder serviceUpdateViewHolder, Boolean isServiceUpdateWarning,
+			@NonNull POIDataProvider dataProvider) {
 		if (serviceUpdateViewHolder.warningImg == null) {
 			return;
 		}
-		if (dataProvider != null && dataProvider.isShowingServiceUpdates() && isServiceUpdateWarning != null) {
+		if (dataProvider.isShowingServiceUpdates() && isServiceUpdateWarning != null) {
 			serviceUpdateViewHolder.warningImg.setVisibility(isServiceUpdateWarning ? View.VISIBLE : View.GONE);
 		} else {
 			serviceUpdateViewHolder.warningImg.setVisibility(View.GONE);
 		}
 	}
 
-	public static void updatePOIDistanceAndCompass(View view, POIManager poim, POIDataProvider dataProvider) {
+	public static void updatePOIDistanceAndCompass(@Nullable View view, POIManager poim, @NonNull POIDataProvider dataProvider) {
 		if (view == null) {
 			MTLog.d(TAG, "updatePOIDistanceAndCompass() > skip (no view)");
 			return;
@@ -555,7 +562,7 @@ public class POIViewController implements MTLog.Loggable {
 		updatePOIDistanceAndCompass(holder, poim, dataProvider);
 	}
 
-	private static void updatePOIDistanceAndCompass(CommonViewHolder holder, POIManager poim, POIDataProvider dataProvider) {
+	private static void updatePOIDistanceAndCompass(CommonViewHolder holder, POIManager poim, @NonNull POIDataProvider dataProvider) {
 		if (poim == null || poim.poi == null || holder == null) {
 			MTLog.d(TAG, "updatePOIDistanceAndCompass() > skip (no poi or view holder)");
 			return;
@@ -571,8 +578,7 @@ public class POIViewController implements MTLog.Loggable {
 			holder.distanceTv.setText(null);
 		}
 		if (holder.distanceTv.getVisibility() == View.VISIBLE) {
-			if (dataProvider != null  //
-					&& dataProvider.hasLocation() //
+			if (dataProvider.hasLocation() //
 					&& dataProvider.hasLastCompassInDegree() //
 					&& dataProvider.getLocation().getAccuracy() <= poim.getDistance()) {
 				holder.compassV.generateAndSetHeading( //
@@ -587,8 +593,8 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateCommonView(CommonViewHolder holder, POIManager poim, POIDataProvider dataProvider) {
-		if (poim == null || poim.poi == null || holder == null) {
+	private static void updateCommonView(@NonNull CommonViewHolder holder, @NonNull POIManager poim, @NonNull POIDataProvider dataProvider) {
+		if (poim.poi == null) {
 			return;
 		}
 		POI poi = poim.poi;
@@ -596,13 +602,13 @@ public class POIViewController implements MTLog.Loggable {
 		holder.nameTv.setSingleLine(true); // marquee forever
 		holder.nameTv.setSelected(true); // marquee forever
 		updatePOIDistanceAndCompass(holder, poim, dataProvider);
-		if (dataProvider != null && dataProvider.isShowingFavorite() && dataProvider.isFavorite(poi.getUUID())) {
+		if (dataProvider.isShowingFavorite() && dataProvider.isFavorite(poi.getUUID())) {
 			holder.favImg.setVisibility(View.VISIBLE);
 		} else {
 			holder.favImg.setVisibility(View.GONE);
 		}
 		int index;
-		if (dataProvider != null && dataProvider.isClosestPOI(poi.getUUID())) {
+		if (dataProvider.isClosestPOI(poi.getUUID())) {
 			index = 0;
 		} else {
 			index = -1;

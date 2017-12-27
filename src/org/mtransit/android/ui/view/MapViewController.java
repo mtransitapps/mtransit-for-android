@@ -1144,7 +1144,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.locationChandedListener = null;
 	}
 
-	public void onUserLocationChanged(Location newLocation) {
+	public void onUserLocationChanged(@Nullable Location newLocation) {
 		if (newLocation == null) {
 			return;
 		}
