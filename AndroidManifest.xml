@@ -125,7 +125,6 @@
             </intent-filter>
         </receiver>
         <!-- GOOGLE PLAY STORE CAMPAIGN MEASUREMENT -->
-        <service android:name="com.google.android.gms.analytics.CampaignTrackingService" />
         <receiver
             android:name="com.google.android.gms.analytics.CampaignTrackingReceiver"
             android:exported="true"

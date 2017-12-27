@@ -126,7 +126,7 @@ public abstract class MTActivityWithLocation extends MTActivity implements OnCom
 
 	public void onLocationChanged(@Nullable Location location) {
 		if (Constants.LOG_LOCATION) {
-			MTLog.v(this, "onLocationChanged(%s)", location);
+			MTLog.d(this, "onLocationChanged(%s)", location);
 		}
 		this.userLocation = location;
 		onUserLocationChanged(this.userLocation);
