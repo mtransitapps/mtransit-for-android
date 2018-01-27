@@ -43,7 +43,7 @@
         android:layout_centerVertical="false"
         android:layout_gravity="center_vertical"
         android:layout_toLeftOf="@id/moreBtn"
-        android:drawableLeft="@drawable/ic_rss_grey600_24dp"
+        android:drawableLeft="@drawable/ic_newspaper_grey600_24dp"
         android:drawablePadding="@dimen/title_drawable_padding"
         android:ellipsize="end"
         android:fontFamily="sans-serif-light"
