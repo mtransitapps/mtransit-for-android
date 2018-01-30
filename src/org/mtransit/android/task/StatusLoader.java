@@ -1,8 +1,10 @@
 package org.mtransit.android.task;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +20,8 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.StatusProviderProperties;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 public class StatusLoader implements MTLog.Loggable {
 
@@ -40,26 +44,41 @@ public class StatusLoader implements MTLog.Loggable {
 	private StatusLoader() {
 	}
 
-	private ThreadPoolExecutor fetchStatusExecutor;
+	@NonNull
+	private HashMap<String, ThreadPoolExecutor> fetchStatusExecutors = new HashMap<String, ThreadPoolExecutor>();
 
 	private static final int CORE_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES > 1 ? RuntimeUtils.NUMBER_OF_CORES / 2 : 1;
 
 	private static final int MAX_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES > 1 ? RuntimeUtils.NUMBER_OF_CORES / 2 : 1;
-	public ThreadPoolExecutor getFetchStatusExecutor() {
-		if (this.fetchStatusExecutor == null) {
-			this.fetchStatusExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS, new LIFOBlockingDeque<Runnable>());
+
+	@NonNull
+	public ThreadPoolExecutor getFetchStatusExecutor(String statusProviderAuthority) {
+		if (!this.fetchStatusExecutors.containsKey(statusProviderAuthority)) {
+			this.fetchStatusExecutors.put(statusProviderAuthority, //
+					new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS, new LIFOBlockingDeque<Runnable>()));
 		}
-		return fetchStatusExecutor;
+		return this.fetchStatusExecutors.get(statusProviderAuthority);
 	}
 
 	public boolean isBusy() {
-		return this.fetchStatusExecutor != null && this.fetchStatusExecutor.getActiveCount() > 0;
+		Iterator<Map.Entry<String, ThreadPoolExecutor>> it = this.fetchStatusExecutors.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<String, ThreadPoolExecutor> fetchStatusExecutor = it.next();
+			if (fetchStatusExecutor.getValue() != null && fetchStatusExecutor.getValue().getActiveCount() > 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void clearAllTasks() {
-		if (this.fetchStatusExecutor != null) {
-			this.fetchStatusExecutor.shutdown();
-			this.fetchStatusExecutor = null;
+		Iterator<Map.Entry<String, ThreadPoolExecutor>> it = this.fetchStatusExecutors.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<String, ThreadPoolExecutor> fetchStatusExecutor = it.next();
+			if (fetchStatusExecutor.getValue() != null) {
+				fetchStatusExecutor.getValue().shutdown();
+			}
+			it.remove();
 		}
 	}
 
@@ -74,7 +93,7 @@ public class StatusLoader implements MTLog.Loggable {
 			while (it.hasNext()) {
 				StatusProviderProperties provider = it.next();
 				StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter); // , null, timestamp);
-				task.executeOnExecutor(getFetchStatusExecutor());
+				task.executeOnExecutor(getFetchStatusExecutor(provider.getAuthority()));
 			}
 		}
 		return true;
@@ -115,7 +134,7 @@ public class StatusLoader implements MTLog.Loggable {
 		}
 
 		@Override
-		protected void onPostExecute(POIStatus result) {
+		protected void onPostExecute(@Nullable POIStatus result) {
 			if (result == null) {
 				return;
 			}
@@ -181,6 +200,6 @@ public class StatusLoader implements MTLog.Loggable {
 	}
 
 	public interface StatusLoaderListener {
-		void onStatusLoaded(POIStatus status);
+		void onStatusLoaded(@NonNull POIStatus status);
 	}
 }
