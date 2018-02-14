@@ -5,6 +5,7 @@
     <string name="favorites">Favorites</string>
     <string name="nearby">Nearby</string>
     <string name="map">Map</string>
+    <string name="trip_planner">Trip Planner</string>
     <string name="news">News</string>
     <string name="settings">Settings</string>
     <string name="feedback_email">Send Feedback</string>
@@ -113,7 +114,7 @@
     <string name="menu_action_www">Open Web Browser</string>
     <string name="menu_action_filter">Filter</string>
     <string name="menu_action_show_directions">Directions</string>
-    <string name="menu_action_add_favorite">Add to favroites</string>
+    <string name="menu_action_add_favorite">Add to favorites</string>
     <string name="menu_action_remove_favorite">Remove from favorites</string>
     <string name="menu_action_edit_favorite">Edit favorite</string>
     <string name="next_departures">Next Departures</string>

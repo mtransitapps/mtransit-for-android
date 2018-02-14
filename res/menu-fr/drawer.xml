@@ -21,6 +21,10 @@
             android:icon="@drawable/ic_map_black_24dp"
             android:title="@string/map" />
         <item
+            android:id="@id/nav_trip_planner"
+            android:icon="@drawable/ic_directions_black_24dp"
+            android:title="@string/trip_planner" />
+        <item
             android:id="@id/nav_news"
             android:icon="@drawable/ic_newspaper_black_24dp"
             android:title="@string/news" />

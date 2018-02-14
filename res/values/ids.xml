@@ -4,6 +4,7 @@
     <item name="nav_favorites" type="id"/>
     <item name="nav_nearby" type="id"/>
     <item name="nav_map" type="id"/>
+    <item name="nav_trip_planner" type="id"/>
     <item name="nav_news" type="id"/>
     <item name="nav_light_rail" type="id"/>
     <item name="nav_subway" type="id"/>

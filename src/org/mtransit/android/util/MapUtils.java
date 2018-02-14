@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.LruCache;
 import android.util.Pair;
 import android.view.ViewGroup;
@@ -42,20 +44,33 @@ public final class MapUtils implements MTLog.Loggable {
 	private static final String MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM = "dirflg";
 	private static final String MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM_PUBLIC_TRANSIT_VALUE = "r";
 
-	public static void showDirection(Activity activity, double lat, double lng, Double optStartLat, Double optStartLng, String optQuery) {
+	public static void showDirection(Activity activity, //
+			@Nullable Double optDestLat, @Nullable Double optDestLng, //
+			@Nullable Double optSrcLat, @Nullable Double optSrcLng, //
+			@Nullable String optQuery) {
 		Uri gmmIntentUri = Uri.parse(MAP_DIRECTION_URL_PART_1);
-		if (optStartLat != null && optStartLng != null) {
-			gmmIntentUri = gmmIntentUri.buildUpon().appendQueryParameter(MAP_DIRECTION_URL_SOURCE_ADDRESS_PARAM, optStartLat + "," + optStartLng).build();
+		if (optSrcLat != null && optSrcLng != null) {
+			gmmIntentUri = gmmIntentUri //
+					.buildUpon() //
+					.appendQueryParameter(MAP_DIRECTION_URL_SOURCE_ADDRESS_PARAM, optSrcLat + "," + optSrcLng) //
+					.build();
 		}
-		gmmIntentUri = gmmIntentUri.buildUpon().appendQueryParameter(MAP_DIRECTION_URL_DESTINATION_ADDRESS_PARAM, lat + "," + lng).build();
-		gmmIntentUri = gmmIntentUri.buildUpon()
-				.appendQueryParameter(MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM, MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM_PUBLIC_TRANSIT_VALUE).build();
+		if (optDestLat != null && optDestLng != null) {
+			gmmIntentUri = gmmIntentUri //
+					.buildUpon() //
+					.appendQueryParameter(MAP_DIRECTION_URL_DESTINATION_ADDRESS_PARAM, optDestLat + "," + optDestLng) //
+					.build();
+		}
+		gmmIntentUri = gmmIntentUri //
+				.buildUpon() //
+				.appendQueryParameter(MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM, MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM_PUBLIC_TRANSIT_VALUE) //
+				.build();
 		startMapIntent(activity, gmmIntentUri);
 	}
 
 	private static final String GOOGLE_MAPS_PKG = "com.google.android.apps.maps";
 
-	private static void startMapIntent(Activity activity, Uri gmmIntentUri) {
+	private static void startMapIntent(@NonNull Activity activity, Uri gmmIntentUri) {
 		Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
 		mapIntent.setPackage(GOOGLE_MAPS_PKG);
 		String label = activity.getString(R.string.google_maps);

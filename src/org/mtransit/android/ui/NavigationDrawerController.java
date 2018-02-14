@@ -25,10 +25,12 @@ import org.mtransit.android.ui.fragment.MapFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
 import org.mtransit.android.ui.fragment.NewsFragment;
 import org.mtransit.android.util.LinkUtils;
+import org.mtransit.android.util.MapUtils;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -57,7 +59,8 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	private static final int ITEM_INDEX_FAVORITE = 1;
 	private static final int ITEM_INDEX_NEARBY = 2;
 	private static final int ITEM_INDEX_MAP = 3;
-	private static final int ITEM_INDEX_NEWS = 4;
+	private static final int ITEM_INDEX_TRIP_PLANNER = 4;
+	private static final int ITEM_INDEX_NEWS = 5;
 	private static final int ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT = R.id.nav_home;
 	public static final String ITEM_ID_SELECTED_SCREEN_DEFAULT = ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME;
 
@@ -295,6 +298,8 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEARBY;
 		case R.id.nav_map:
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_MAP;
+		case R.id.nav_trip_planner:
+			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_TRIP_PLANNER;
 		case R.id.nav_news:
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEWS;
 		case R.id.nav_light_rail:
@@ -340,6 +345,8 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 					return R.id.nav_nearby;
 				case ITEM_INDEX_MAP:
 					return R.id.nav_map;
+				case ITEM_INDEX_TRIP_PLANNER:
+					return R.id.nav_trip_planner;
 				case ITEM_INDEX_NEWS:
 					return R.id.nav_news;
 				default:
@@ -458,6 +465,18 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			return;
 		}
 		switch (navItemId) {
+		case R.id.nav_trip_planner:
+			double optSrcLat = 0.0;
+			double optSrcLng = 0.0;
+			if (activity instanceof MainActivity) {
+				Location lastLocation = ((MainActivity) activity).getLastLocation();
+				if (lastLocation != null) {
+					optSrcLat = lastLocation.getLatitude();
+					optSrcLng = lastLocation.getLongitude();
+				}
+			}
+			MapUtils.showDirection(activity, null, null, optSrcLat, optSrcLng, null);
+			break;
 		case R.id.nav_settings:
 			activity.startActivity(PreferencesActivity.newInstance(activity));
 			break;
@@ -481,6 +500,8 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			return false;
 		}
 		switch (navItemId) {
+		case R.id.nav_trip_planner:
+			return false;
 		case R.id.nav_settings:
 			return false;
 		case R.id.nav_send_feedback:
