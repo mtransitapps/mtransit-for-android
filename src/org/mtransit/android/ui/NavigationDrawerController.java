@@ -299,7 +299,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		case R.id.nav_map:
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_MAP;
 		case R.id.nav_trip_planner:
-			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_TRIP_PLANNER;
+			return null; // NOT ROOT SCREEN // ITEM_ID_STATIC_START_WITH + ITEM_INDEX_TRIP_PLANNER;
 		case R.id.nav_news:
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEWS;
 		case R.id.nav_light_rail:
@@ -594,6 +594,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		this.navigationView.getMenu().findItem(R.id.nav_favorites).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_favorites);
 		this.navigationView.getMenu().findItem(R.id.nav_nearby).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_nearby);
 		this.navigationView.getMenu().findItem(R.id.nav_map).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_map);
+		this.navigationView.getMenu().findItem(R.id.nav_trip_planner).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_trip_planner);
 		this.navigationView.getMenu().findItem(R.id.nav_news).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_news);
 		for (DataSourceType dst : DataSourceType.values()) {
 			if (dst.getNavResId() == this.currentSelectedScreenItemNavId) {
@@ -605,6 +606,9 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			this.navigationView.getMenu().findItem(dst.getNavResId()).setCheckable(false);
 		}
 		this.navigationView.getMenu().findItem(R.id.nav_settings).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_settings);
+		this.navigationView.getMenu().findItem(R.id.nav_send_feedback).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_send_feedback);
+		this.navigationView.getMenu().findItem(R.id.nav_rate_review).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_rate_review);
+		this.navigationView.getMenu().findItem(R.id.nav_support).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_support);
 	}
 
 	public void onBackStackChanged(int backStackEntryCount) {
