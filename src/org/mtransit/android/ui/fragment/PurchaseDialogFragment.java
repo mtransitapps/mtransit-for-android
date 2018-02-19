@@ -6,6 +6,8 @@ import java.util.Comparator;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.PackageManagerUtils;
+import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.util.VendingUtils;
 import org.mtransit.android.util.iab.IabHelper;
@@ -15,8 +17,10 @@ import org.mtransit.android.util.iab.SkuDetails;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -24,11 +28,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 
 public class PurchaseDialogFragment extends MTDialogFragment implements IabHelper.QueryInventoryFinishedListener {
 
 	private static final String TAG = PurchaseDialogFragment.class.getSimpleName();
+
+	public static final String PAID_TASKS_PKG = "com.google.android.apps.paidtasks";
 
 	@Override
 	public String getLogTag() {
@@ -70,19 +77,51 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 		view.findViewById(R.id.buyBtn).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				onBuyBtnClick();
+				onBuyBtnClick(v.getContext());
 			}
 
 		});
+		view.findViewById(R.id.downloadOrOpenPaidTasksBtn).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onDownloadOrOpenPaidTasksBtnClick(v.getContext());
+			}
+		});
 	}
 
-	private void onBuyBtnClick() {
+	private void onDownloadOrOpenPaidTasksBtnClick(@NonNull Context context) {
+		Activity activity = getActivity();
+		try {
+			if (activity == null) {
+				MTLog.w(this, "onDownloadOrOpenPaidTasksBtnClick() > skip (no view or no activity)");
+				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
+				return;
+			}
+			if (PackageManagerUtils.isAppInstalled(context, PAID_TASKS_PKG)) {
+				ToastUtils.makeTextAndShowCentered(context, //
+						context.getString(R.string.opening_and_label, //
+								context.getString(R.string.support_paid_tasks_incentive_app_label)));
+				PackageManagerUtils.openApp(context, PAID_TASKS_PKG);
+			} else {
+				StoreUtils.viewAppPage(activity, PAID_TASKS_PKG, context.getString(R.string.google_play));
+			}
+			Dialog dialog = getDialog();
+			if (dialog != null) {
+				dialog.dismiss();
+			}
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while handling download or open paid tasks button!");
+			ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
+		}
+	}
+
+	private void onBuyBtnClick(@NonNull Context context) {
 		Activity activity = getActivity();
 		try {
 			View view = getView();
 			if (view == null || activity == null) {
 				MTLog.w(this, "onBuyBtnClick() > skip (no view or no activity)");
-				ToastUtils.makeTextAndShowCentered(activity, R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
 			Spinner periodSpinner = (Spinner) view.findViewById(R.id.period);
@@ -90,13 +129,13 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 			String periodS = this.periods.get(periodPosition);
 			if (TextUtils.isEmpty(periodS)) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected period position: %s)", periodPosition);
-				ToastUtils.makeTextAndShowCentered(activity, R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
 			String periodCat = this.periodSToPeriodCat.get(periodS);
 			if (TextUtils.isEmpty(periodCat)) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected period string: %s)", periodS);
-				ToastUtils.makeTextAndShowCentered(activity, R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
 			Spinner priceSpinner = (Spinner) view.findViewById(R.id.price);
@@ -104,19 +143,19 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 			String priceS = this.prices.get(pricePosition);
 			if (TextUtils.isEmpty(priceS)) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected price position: %s)", pricePosition);
-				ToastUtils.makeTextAndShowCentered(activity, R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
 			String priceCat = this.priceSToPriceCat.get(priceS);
 			if (TextUtils.isEmpty(priceCat)) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected price string: %s)", priceS);
-				ToastUtils.makeTextAndShowCentered(activity, R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
 			String sku = VendingUtils.SKU_STARTS_WITH_F + periodCat + VendingUtils.SKU_SUBSCRIPTION + priceCat;
 			if (!VendingUtils.AVAILABLE_SUBSCRIPTIONS.contains(sku)) {
 				MTLog.w(this, "onClick() > skip (unexpected sku: %s)", sku);
-				ToastUtils.makeTextAndShowCentered(activity, R.string.support_subs_default_failure_message);
+				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
 			VendingUtils.purchase(activity, sku);
@@ -126,7 +165,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 			}
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while handling buy button!");
-			ToastUtils.makeTextAndShowCentered(activity, R.string.support_subs_default_failure_message);
+			ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 		}
 	}
 
@@ -135,6 +174,13 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 		super.onResume();
 		VendingUtils.getInventory(this);
 		showLoading();
+		View view = getView();
+		if (view != null) {
+			((Button) view.findViewById(R.id.downloadOrOpenPaidTasksBtn)).setText( //
+					PackageManagerUtils.isAppInstalled(view.getContext(), PAID_TASKS_PKG) ? //
+					R.string.support_paid_tasks_incentive_open_btn
+							: R.string.support_paid_tasks_incentive_download_btn);
+		}
 	}
 
 	private void showLoading() {
@@ -146,6 +192,9 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 			view.findViewById(R.id.priceSelection).setVisibility(View.GONE);
 			view.findViewById(R.id.afterText).setVisibility(View.GONE);
 			view.findViewById(R.id.buyBtn).setVisibility(View.GONE);
+			view.findViewById(R.id.paidTasksDivider).setVisibility(View.GONE);
+			view.findViewById(R.id.paidTasksIncentive).setVisibility(View.GONE);
+			view.findViewById(R.id.downloadOrOpenPaidTasksBtn).setVisibility(View.GONE);
 			view.findViewById(R.id.loading).setVisibility(View.VISIBLE);
 		}
 	}
@@ -160,6 +209,9 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 			view.findViewById(R.id.priceSelection).setVisibility(View.VISIBLE);
 			view.findViewById(R.id.afterText).setVisibility(View.VISIBLE);
 			view.findViewById(R.id.buyBtn).setVisibility(View.VISIBLE);
+			view.findViewById(R.id.paidTasksDivider).setVisibility(View.VISIBLE);
+			view.findViewById(R.id.paidTasksIncentive).setVisibility(View.VISIBLE);
+			view.findViewById(R.id.downloadOrOpenPaidTasksBtn).setVisibility(View.VISIBLE);
 		}
 	}
 

@@ -90,5 +90,35 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/support_subs_buy_with_play" />
+
+        <View
+            android:id="@+id/paidTasksDivider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="@dimen/baseline_16"
+            android:layout_marginTop="@dimen/baseline_16"
+            android:background="@color/ic_grey600" />
+
+        <TextView
+            android:id="@+id/paidTasksIncentive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="false"
+            android:text="@string/support_paid_tasks_incentive"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textStyle="italic"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <Button
+            android:id="@+id/downloadOrOpenPaidTasksBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/support_paid_tasks_incentive_download_btn"
+            android:visibility="gone"
+            tools:text="@string/support_paid_tasks_incentive_open_btn"
+            tools:visibility="visible" />
+
     </LinearLayout>
 </ScrollView>

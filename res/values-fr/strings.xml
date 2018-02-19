@@ -155,4 +155,8 @@
     <string name="support_every_week">semaine</string>
     <string name="support_every_month">mois</string>
     <string name="support_every_year">an</string>
+    <string name="support_paid_tasks_incentive">Pas d\'argent ? Obtenez un avoir Google Play en répondant à de brèves enquêtes de Google.</string>
+    <string name="support_paid_tasks_incentive_open_btn">Ouvrir Google Opinion Rewards</string>
+    <string name="support_paid_tasks_incentive_download_btn">Télécharger Google Opinion Rewards</string>
+    <string name="support_paid_tasks_incentive_app_label">Google Opinion Rewards</string>
 </resources>
