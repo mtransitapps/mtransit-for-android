@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.firebase.firebase-crash'
+apply plugin: 'io.fabric'
 apply plugin: "org.sonarqube"
 
 dependencies {
@@ -12,7 +13,10 @@ dependencies {
     implementation rootProject.ext.gpsLibs.maps
     implementation rootProject.ext.gpsLibs.firebase_ads
     implementation rootProject.ext.gpsLibs.firebase_analytics
-    implementation rootProject.ext.gpsLibs.firebase_crash
+    implementation rootProject.ext.gpsLibs.firebase_core
+    implementation(rootProject.ext.gpsLibs.firebase_crashlytics_aar) {
+        transitive = true
+    }
     implementation rootProject.ext.fbLibs.audienceNetwork
     implementation rootProject.ext.fbLibs.audienceNetworkMediation
     // DEBUG

@@ -65,3 +65,9 @@
 }
 -dontwarn com.facebook.ads.internal.**
 # FACEBOOK AUDIENCE NETWORK - END
+
+# CRASHLYTICS - START
+-keepattributes *Annotation*
+-keepattributes SourceFile,LineNumberTable
+-keep public class * extends java.lang.Exception
+# CRASHLYTICS - END
