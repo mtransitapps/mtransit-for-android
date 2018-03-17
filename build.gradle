@@ -25,6 +25,8 @@ dependencies {
     releaseImplementation rootProject.ext.squareLibs.leakcanary_no_op
     // TEST
     testImplementation rootProject.ext.squareLibs.leakcanary_no_op
+    // DEBUG
+    // debugImplementation 'com.android.support:multidex:1.0.3' // DEBUG minSdkVersion < 21
 }
 
 android {
@@ -46,10 +48,15 @@ android {
     }
 
     defaultConfig {
+        applicationId "org.mtransit.android"
         versionCode versionProperties['version.code'] as Integer
         versionName versionProperties['version.name']
         setProperty("archivesBaseName", "${projectName}_v${versionName}_r${versionCode}")
         resConfigs "en", "fr"
+        minSdkVersion rootProject.ext.minSdkVersion
+        //noinspection OldTargetApi TODO targetSdkVersion rootProject.ext.targetSdkVersion
+        targetSdkVersion 22
+        // DEBUG
         // minSdkVersion 23 // DEBUG
         // //noinspection OldTargetApi // DEBUG
         // targetSdkVersion 22 // DEBUG

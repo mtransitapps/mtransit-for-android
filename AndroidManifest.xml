@@ -24,11 +24,6 @@
         android:description="@string/permission_description_read"
         android:label="@string/permission_label_read"
         android:protectionLevel="signature" />
-    <!-- USES SDK (compatibility) -->
-    <uses-sdk
-        android:minSdkVersion="14"
-        android:targetSdkVersion="22"
-        tools:ignore="GradleOverrides,OldTargetApi" />
     <!-- USES FEATURE (not required) -->
     <uses-feature
         android:name="android.hardware.location"
