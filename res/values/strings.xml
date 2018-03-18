@@ -59,7 +59,10 @@
     <string name="tel">Phone Number</string>
     <string name="file">File</string>
     <string name="video">Video</string>
+    <string name="facebook">Facebook</string>
     <string name="google_maps">Google Maps</string>
+    <string name="google_plus">Google+</string>
+    <string name="twitter">Twitter</string>
     <string name="download_on_store">Download on Google Play</string>
     <string name="rate_on_store">Rate on Google Play</string>
     <string name="uninstall">Uninstall</string>
@@ -136,6 +139,13 @@
     <string name="feedback_email_pref_summary">Report an issue or suggest a new feature.</string>
     <string name="feedback_store_pref_title">Review on Google Play</string>
     <string name="feedback_store_pref_summary">Leave a review on the Google Play Store</string>
+    <string name="social_pref_cat_title">Social</string>
+    <string name="social_facebook_pref_title">Like MonTransit on Facebook</string>
+    <string name="social_facebook_pref_summary">facebook.com/MonTransit</string>
+    <string name="social_google_plus_pref_title">Circle MonTransit on Google+</string>
+    <string name="social_google_plus_pref_summary">plus.google.com/+MonTransit</string>
+    <string name="social_twitter_pref_title">Follow MonTransit on Twitter</string>
+    <string name="social_twitter_pref_summary">twitter.com/MonTransit</string>
     <string name="about_pref_cat_title">About</string>
     <string name="about_app_version_pref_title">Application version</string>
     <string name="about_app_version_pref_summary">@string/ellipsis</string>
