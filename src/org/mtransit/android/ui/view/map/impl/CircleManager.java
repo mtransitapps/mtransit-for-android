@@ -20,12 +20,14 @@ class CircleManager {
 		this.circles = new ArrayMap<com.google.android.gms.maps.model.Circle, Circle>();
 	}
 
+	@Deprecated
 	public Circle addCircle(CircleOptions circleOptions) {
 		Circle circle = createCircle(circleOptions.real);
 		circle.setData(circleOptions.getData());
 		return circle;
 	}
 
+	@Deprecated
 	private Circle createCircle(com.google.android.gms.maps.model.CircleOptions circleOptions) {
 		com.google.android.gms.maps.model.Circle real = factory.addCircle(circleOptions);
 		Circle circle = new DelegatingCircle(real, this);

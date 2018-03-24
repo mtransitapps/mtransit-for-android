@@ -60,6 +60,7 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 		assignMapListeners();
 	}
 
+	@Deprecated
 	@Override
 	public Circle addCircle(CircleOptions circleOptions) {
 		return circleManager.addCircle(circleOptions);

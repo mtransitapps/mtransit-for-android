@@ -21,6 +21,7 @@ public interface ExtendedGoogleMap {
 	int MAP_TYPE_SATELLITE = com.google.android.gms.maps.GoogleMap.MAP_TYPE_SATELLITE;
 	int MAP_TYPE_TERRAIN = com.google.android.gms.maps.GoogleMap.MAP_TYPE_TERRAIN;
 
+	@Deprecated
 	Circle addCircle(CircleOptions circleOptions);
 
 	GroundOverlay addGroundOverlay(GroundOverlayOptions groundOverlayOptions);

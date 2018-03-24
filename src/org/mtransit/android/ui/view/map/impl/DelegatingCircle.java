@@ -6,6 +6,7 @@ import org.mtransit.android.ui.view.map.utils.LatLngUtils;
 import com.google.android.gms.maps.model.LatLng;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
+@Deprecated
 class DelegatingCircle implements Circle {
 
 	private com.google.android.gms.maps.model.Circle real;
@@ -128,14 +129,16 @@ class DelegatingCircle implements Circle {
 			return false;
 		}
 		DelegatingCircle other = (DelegatingCircle) o;
-		return real.equals(other.real);
+		// return real.equals(other.real); // method hidden in Google Maps SDK
+		return real == other.real;
 	}
 
-	@Override
-	public int hashCode() {
-		return real.hashCode();
-	}
-
+	// @Override
+	// public int hashCode() {
+	// // return real.hashCode(); // method hidden in Google Maps SDK
+	// return real;
+	// }
+	//
 	@Override
 	public String toString() {
 		return real.toString();
