@@ -17,6 +17,7 @@ import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
+import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
@@ -572,30 +573,29 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 
 	private float minCoverageInMeters = -1f;
 
+	@NonNull
 	@Override
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case NEARBY_POIS_LOADER:
 			if (this.nearbyLocation == null || this.typeId == null || getTypeAgenciesAuthorityOrNull() == null) {
+				CrashUtils.w(this, "onCreateLoader() > nearby location or type not available yet.");
 				return null;
 			}
 			return new NearbyPOIListLoader(getContext(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff,
 					this.minCoverageInMeters, this.maxSize, false, true, getTypeAgenciesAuthorityOrNull());
 		default:
-			MTLog.w(this, "Loader id '%s' unknown!", id);
+			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			return null;
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<ArrayList<POIManager>> loader) {
-		if (this.adapter != null) {
-			this.adapter.clear();
-		}
+	public void onLoaderReset(@NonNull Loader<ArrayList<POIManager>> loader) {
 	}
 
 	@Override
-	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
 		int dataSize = CollectionUtils.getSize(data);
 		if (dataSize < this.minSize //
 				&& !LocationUtils.searchComplete(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff)) {

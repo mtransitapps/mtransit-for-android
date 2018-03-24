@@ -12,6 +12,7 @@ import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.POIsLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
@@ -245,26 +246,24 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 
 	private static final int POIS_LOADER = 0;
 
+	@NonNull
 	@Override
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
 			return new POIsLoader(getContext(), this.uuids, this.authorities);
 		default:
-			MTLog.w(this, "Loader id '%s' unknown!", id);
+			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			return null;
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<ArrayList<POIManager>> loader) {
-		if (this.adapter != null) {
-			this.adapter.clear();
-		}
+	public void onLoaderReset(@NonNull Loader<ArrayList<POIManager>> loader) {
 	}
 
 	@Override
-	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		this.adapter.initManual();

@@ -23,6 +23,7 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.ScheduleTimestampsLoader;
+import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LoaderUtils;
 
@@ -422,31 +423,32 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 	private static final int SCHEDULE_LOADER = 0;
 
+	@NonNull
 	@Override
 	public Loader<ArrayList<Schedule.Timestamp>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case SCHEDULE_LOADER:
 			RouteTripStop rts = getRtsOrNull();
 			if (this.dayStartsAtInMs <= 0L || rts == null) {
+				CrashUtils.w(this, "onCreateLoader() > skip (start time or RTL not set)");
 				return null;
 			}
 			return new ScheduleTimestampsLoader(getContext(), rts, this.dayStartsAtInMs);
 		default:
-			MTLog.w(this, "Loader id '%s' unknown!", id);
+			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			return null;
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<ArrayList<Schedule.Timestamp>> loader) {
+	public void onLoaderReset(@NonNull Loader<ArrayList<Schedule.Timestamp>> loader) {
 		if (this.adapter != null) {
-			this.adapter.clearTimes();
 			this.adapter.onPause();
 		}
 	}
 
 	@Override
-	public void onLoadFinished(Loader<ArrayList<Schedule.Timestamp>> loader, ArrayList<Schedule.Timestamp> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<Schedule.Timestamp>> loader, ArrayList<Schedule.Timestamp> data) {
 		View view = getView();
 		if (view == null) {
 			return; // too late
@@ -613,7 +615,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		}
 
 		public void onPause() {
-			disableTimeChangeddReceiver();
+			disableTimeChangedReceiver();
 		}
 
 		private void initHours() {
@@ -713,7 +715,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			}
 		}
 
-		private void disableTimeChangeddReceiver() {
+		private void disableTimeChangedReceiver() {
 			if (this.timeChangedReceiverEnabled) {
 				FragmentActivity activity = this.activityWR == null ? null : this.activityWR.get();
 				if (activity != null) {
@@ -891,7 +893,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 				}
 				TimeUtils.cleanTimes(timeOnly, timeSb);
 				long nextTimeInMsT = this.nextTimeInMs == null ? -1L : this.nextTimeInMs.t;
-				if (nextTimeInMsT >= 0L  //
+				if (nextTimeInMsT >= 0L //
 						&& TimeUtils.isSameDay(getNowToTheMinute(), nextTimeInMsT) //
 						&& nextTimeInMsT == timestamp.t) { // now
 					SpanUtils.setAll(timeSb, getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_NOW_STYLE);

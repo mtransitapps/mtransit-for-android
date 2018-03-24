@@ -15,6 +15,7 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.AgencyPOIsLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.MapViewController;
+import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -333,30 +334,29 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 
 	private static final int POIS_LOADER = 0;
 
+	@NonNull
 	@Override
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
 			if (TextUtils.isEmpty(this.authority)) {
+				CrashUtils.w(this, "onCreateLoader() > skip (no authority)");
 				return null;
 			}
 			return new AgencyPOIsLoader(getActivity(), this.authority);
 		default:
-			MTLog.w(this, "Loader id '%s' unknown!", id);
+			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			return null;
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<ArrayList<POIManager>> loader) {
-		if (this.adapter != null) {
-			this.adapter.clear();
-		}
+	public void onLoaderReset(@NonNull Loader<ArrayList<POIManager>> loader) {
 		this.mapViewController.notifyMarkerChanged(this);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
 		this.adapter.setPois(data);
 		this.mapViewController.notifyMarkerChanged(this);
 		this.adapter.updateDistanceNowAsync(this.userLocation);

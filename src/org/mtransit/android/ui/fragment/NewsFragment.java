@@ -16,6 +16,7 @@ import org.mtransit.android.task.NewsLoader;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTOnItemClickListener;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
+import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
@@ -216,20 +217,17 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		case NEWS_LOADER:
 			return new NewsLoader(getContext(), this.targetAuthorities, this.filterUUIDs, this.filterTargets);
 		default:
-			MTLog.w(this, "Loader id '%s' unknown!", id);
+			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			return null;
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<ArrayList<News>> loader) {
-		if (this.adapter != null) {
-			this.adapter.clear();
-		}
+	public void onLoaderReset(@NonNull Loader<ArrayList<News>> loader) {
 	}
 
 	@Override
-	public void onLoadFinished(Loader<ArrayList<News>> loader, ArrayList<News> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<News>> loader, ArrayList<News> data) {
 		this.emptyText = getString(R.string.no_news);
 		this.adapter.setNews(data);
 		switchView(getView());

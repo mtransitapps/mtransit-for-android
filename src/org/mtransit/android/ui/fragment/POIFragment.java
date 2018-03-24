@@ -42,6 +42,7 @@ import org.mtransit.android.ui.view.POINewsViewController;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
+import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.LoaderUtils;
@@ -542,35 +543,35 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 	private static final int NEARBY_POIS_LOADER = 0;
 	private LocationUtils.AroundDiff ad = LocationUtils.getNewDefaultAroundDiff();
 
+	@NonNull
 	@Override
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case NEARBY_POIS_LOADER:
 			POIManager poim = getPoimOrNull();
 			if (TextUtils.isEmpty(this.authority) || poim == null) {
+				CrashUtils.w(this, "onCreateLoader() > agency or poi not available yet (agency:%s|poi:%s).", this.authority, poim);
 				return null;
 			}
 			Context context = getContext();
 			if (context == null) {
+				CrashUtils.w(this, "onCreateLoader() > skip (no context)");
 				return null;
 			}
 			return new NearbyPOIListLoader(context, poim.poi.getLat(), poim.poi.getLng(), this.ad.aroundDiff,
 					LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS, LocationUtils.MAX_POI_NEARBY_POIS_LIST, false, true, this.authority);
 		default:
-			MTLog.w(this, "Loader id '%s' unknown!", id);
+			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			return null;
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<ArrayList<POIManager>> loader) {
-		if (this.adapter != null) {
-			this.adapter.clear();
-		}
+	public void onLoaderReset(@NonNull Loader<ArrayList<POIManager>> loader) {
 	}
 
 	@Override
-	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
 		POIManager poim = getPoimOrNull();
 		if (CollectionUtils.getSize(data) < LocationUtils.MIN_NEARBY_LIST && poim != null //
 				&& !LocationUtils.searchComplete(poim.poi.getLat(), poim.poi.getLng(), this.ad.aroundDiff)) {

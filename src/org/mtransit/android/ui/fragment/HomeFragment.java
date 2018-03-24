@@ -17,6 +17,7 @@ import org.mtransit.android.task.HomePOILoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
+import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
@@ -222,27 +223,26 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	private static final int POIS_LOADER = 0;
 
+	@NonNull
 	@Override
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
 			if (this.nearbyLocation == null) {
+				CrashUtils.w(this, "onCreateLoader() > skip (no nearby location)");
 				return null;
 			}
 			this.loadFinished = false;
 			return new HomePOILoader(this, getContext(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(),
 					this.nearbyLocation.getAccuracy());
 		default:
-			MTLog.w(this, "Loader id '%s' unknown!", id);
+			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			return null;
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<ArrayList<POIManager>> loader) {
-		if (this.adapter != null) {
-			this.adapter.clear();
-		}
+	public void onLoaderReset(@NonNull Loader<ArrayList<POIManager>> loader) {
 		this.loadFinished = false;
 	}
 
@@ -251,7 +251,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
 		this.loadFinished = true;
 		addPOIs(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);

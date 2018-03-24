@@ -18,6 +18,7 @@ import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.MapPOILoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.MapViewController;
+import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -186,23 +187,24 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	private static final int POIS_LOADER = 0;
 
+	@NonNull
 	@Override
 	public Loader<Collection<MapViewController.POIMarker>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
 			return new MapPOILoader(getContext(), getFilterTypeIdsOrNull(), this.loadingLatLngBounds, this.loadedLatLngBounds);
 		default:
-			MTLog.w(this, "Loader id '%s' unknown!", id);
+			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			return null;
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Collection<MapViewController.POIMarker>> loader) {
+	public void onLoaderReset(@NonNull Loader<Collection<MapViewController.POIMarker>> loader) {
 	}
 
 	@Override
-	public void onLoadFinished(Loader<Collection<MapViewController.POIMarker>> loader, Collection<MapViewController.POIMarker> data) {
+	public void onLoadFinished(@NonNull Loader<Collection<MapViewController.POIMarker>> loader, Collection<MapViewController.POIMarker> data) {
 		if (this.loadingLatLngBounds == null) {
 			return;
 		}

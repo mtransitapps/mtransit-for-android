@@ -15,6 +15,7 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.RTSTripStopsLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.MapViewController;
+import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -24,6 +25,7 @@ import android.app.Activity;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -327,30 +329,29 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 
 	private static final int POIS_LOADER = 0;
 
+	@NonNull
 	@Override
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
 			if (this.tripId == null || TextUtils.isEmpty(this.authority)) {
+				CrashUtils.w(this, "onCreateLoader() > no trip '%s' or authority '%s' !", this.tripId, this.authority);
 				return null;
 			}
 			return new RTSTripStopsLoader(getContext(), this.authority, this.tripId);
 		default:
-			MTLog.w(this, "Loader id '%s' unknown!", id);
+			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			return null;
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<ArrayList<POIManager>> loader) {
-		if (this.adapter != null) {
-			this.adapter.clear();
-		}
+	public void onLoaderReset(@NonNull Loader<ArrayList<POIManager>> loader) {
 		this.mapViewController.notifyMarkerChanged(this);
 	}
 
 	@Override
-	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
 		Pair<Integer, String> currentSelectedItemIndexUuid = null;
 		if (this.stopId > 0 || !this.closestPOIShow) {
 			if (this.stopId > 0) {

@@ -10,12 +10,14 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.FavoritesLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -104,26 +106,24 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 
 	private static final int FAVORITES_LOADER = 0;
 
+	@NonNull
 	@Override
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case FAVORITES_LOADER:
 			return new FavoritesLoader(getContext());
 		default:
-			MTLog.w(this, "Loader id '%s' unknown!", id);
+			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			return null;
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<ArrayList<POIManager>> loader) {
-		if (this.adapter != null) {
-			this.adapter.clear();
-		}
+	public void onLoaderReset(@NonNull Loader<ArrayList<POIManager>> loader) {
 	}
 
 	@Override
-	public void onLoadFinished(Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
 		this.emptyText = getString(R.string.no_favorites);
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);

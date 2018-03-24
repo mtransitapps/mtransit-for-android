@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import com.crashlytics.android.Crashlytics;
 import com.squareup.leakcanary.LeakCanary;
 
+@SuppressWarnings("WeakerAccess")
 public final class CrashUtils implements MTLog.Loggable {
 
 	private static final String TAG = CrashUtils.class.getSimpleName();
@@ -39,7 +40,7 @@ public final class CrashUtils implements MTLog.Loggable {
 		}
 	}
 
-	private static void report(String message) {
+	public static void report(String message) {
 		report(null, message);
 	}
 

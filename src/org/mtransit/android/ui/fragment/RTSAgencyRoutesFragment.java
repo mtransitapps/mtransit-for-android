@@ -17,6 +17,7 @@ import org.mtransit.android.task.RTSAgencyRoutesLoader;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTJPathsView;
 import org.mtransit.android.ui.view.MTOnItemClickListener;
+import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
@@ -326,29 +327,28 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 
 	private static final int ROUTES_LOADER = 0;
 
+	@NonNull
 	@Override
 	public Loader<ArrayList<Route>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case ROUTES_LOADER:
 			if (TextUtils.isEmpty(this.authority) || getContext() == null) {
+				CrashUtils.w(this, "onCreateLoader() > skip (no authority or no activity)");
 				return null;
 			}
 			return new RTSAgencyRoutesLoader(getContext(), this.authority);
 		default:
-			MTLog.w(this, "Loader ID '%s' unknown!", id);
+			CrashUtils.w(this, "Loader ID '%s' unknown!", id);
 			return null;
 		}
 	}
 
 	@Override
-	public void onLoaderReset(Loader<ArrayList<Route>> loader) {
-		if (this.adapter != null) {
-			this.adapter.clear();
-		}
+	public void onLoaderReset(@NonNull Loader<ArrayList<Route>> loader) {
 	}
 
 	@Override
-	public void onLoadFinished(Loader<ArrayList<Route>> loader, ArrayList<Route> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<Route>> loader, ArrayList<Route> data) {
 		this.adapter.setRoutes(data);
 		switchView(getView());
 	}
