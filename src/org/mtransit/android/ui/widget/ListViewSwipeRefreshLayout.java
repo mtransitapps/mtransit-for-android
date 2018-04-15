@@ -5,7 +5,6 @@ import java.lang.ref.WeakReference;
 import org.mtransit.android.commons.MTLog;
 
 import android.content.Context;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
 import android.view.View;
@@ -70,24 +69,10 @@ public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MT
 	}
 
 	private static boolean canListViewScrollUp(AbsListView listView) {
-		if (android.os.Build.VERSION.SDK_INT >= 14) {
-			return ViewCompat.canScrollVertically(listView, -1);
-		} else {
-			return listView.getChildCount() > 0 && (listView.getFirstVisiblePosition() > 0 || listView.getChildAt(0).getTop() < listView.getPaddingTop());
-		}
+		return listView.canScrollVertically(-1);
 	}
 
 	public boolean canViewScrollUp(View view) {
-		if (android.os.Build.VERSION.SDK_INT < 14) {
-			if (view instanceof AbsListView) {
-				AbsListView absListView = (AbsListView) view;
-				return absListView.getChildCount() > 0
-						&& (absListView.getFirstVisiblePosition() > 0 || absListView.getChildAt(0).getTop() < absListView.getPaddingTop());
-			} else {
-				return view.getScrollY() > 0;
-			}
-		} else {
-			return ViewCompat.canScrollVertically(view, -1);
-		}
+		return view.canScrollVertically(-1);
 	}
 }
