@@ -568,6 +568,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<ArrayList<POIManager>> loader) {
+		if (this.adapter != null) {
+			this.adapter.clear();
+		}
 	}
 
 	@Override

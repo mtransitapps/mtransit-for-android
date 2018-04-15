@@ -211,6 +211,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	private static final int NEWS_LOADER = 0;
 
+	@NonNull
 	@Override
 	public Loader<ArrayList<News>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
@@ -224,6 +225,9 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<ArrayList<News>> loader) {
+		if (this.adapter != null) {
+			this.adapter.clear();
+		}
 	}
 
 	@Override

@@ -592,6 +592,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<ArrayList<POIManager>> loader) {
+		if (this.adapter != null) {
+			this.adapter.clear();
+		}
 	}
 
 	@Override

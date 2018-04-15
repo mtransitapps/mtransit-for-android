@@ -443,6 +443,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	@Override
 	public void onLoaderReset(@NonNull Loader<ArrayList<Schedule.Timestamp>> loader) {
 		if (this.adapter != null) {
+			this.adapter.clearTimes();
 			this.adapter.onPause();
 		}
 	}

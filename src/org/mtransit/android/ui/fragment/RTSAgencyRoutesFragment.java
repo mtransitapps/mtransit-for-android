@@ -345,6 +345,9 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<ArrayList<Route>> loader) {
+		if (this.adapter != null) {
+			this.adapter.clear();
+		}
 	}
 
 	@Override

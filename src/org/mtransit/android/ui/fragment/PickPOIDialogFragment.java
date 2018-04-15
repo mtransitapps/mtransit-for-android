@@ -260,6 +260,9 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<ArrayList<POIManager>> loader) {
+		if (this.adapter != null) {
+			this.adapter.clear();
+		}
 	}
 
 	@Override

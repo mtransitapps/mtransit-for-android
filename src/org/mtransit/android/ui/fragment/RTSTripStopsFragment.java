@@ -347,6 +347,9 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<ArrayList<POIManager>> loader) {
+		if (this.adapter != null) {
+			this.adapter.clear();
+		}
 		this.mapViewController.notifyMarkerChanged(this);
 	}
 

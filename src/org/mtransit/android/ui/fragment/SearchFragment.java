@@ -382,6 +382,9 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<ArrayList<POIManager>> loader) {
+		if (this.adapter != null) {
+			this.adapter.clear();
+		}
 	}
 
 	@Override

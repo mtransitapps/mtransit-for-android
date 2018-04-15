@@ -352,6 +352,9 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<ArrayList<POIManager>> loader) {
+		if (this.adapter != null) {
+			this.adapter.clear();
+		}
 		this.mapViewController.notifyMarkerChanged(this);
 	}
 

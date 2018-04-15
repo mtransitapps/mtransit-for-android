@@ -243,6 +243,9 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<ArrayList<POIManager>> loader) {
+		if (this.adapter != null) {
+			this.adapter.clear();
+		}
 		this.loadFinished = false;
 	}
 

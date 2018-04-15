@@ -120,6 +120,9 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<ArrayList<POIManager>> loader) {
+		if (this.adapter != null) {
+			this.adapter.clear();
+		}
 	}
 
 	@Override
