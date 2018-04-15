@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
+import android.support.annotation.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mtransit.android.R;
@@ -36,6 +37,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
 
 public class ModuleProvider extends AgencyProvider implements POIProviderContract, StatusProviderContract {
@@ -57,16 +59,17 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	 */
 	private static final String PREF_KEY_LAST_UPDATE_MS = ModuleDbHelper.PREF_KEY_LAST_UPDATE_MS;
 
-	private static final long MODULE_MAX_VALIDITY_IN_MS = TimeUnit.DAYS.toMillis(7);
-	private static final long MODULE_VALIDITY_IN_MS = TimeUnit.DAYS.toMillis(1);
+	private static final long MODULE_MAX_VALIDITY_IN_MS = TimeUnit.DAYS.toMillis(7L);
+	private static final long MODULE_VALIDITY_IN_MS = TimeUnit.DAYS.toMillis(1L);
 
-	private static final long MODULE_STATUS_MAX_VALIDITY_IN_MS = TimeUnit.MINUTES.toMillis(10);
-	private static final long MODULE_STATUS_VALIDITY_IN_MS = TimeUnit.SECONDS.toMillis(30);
-	private static final long MODULE_STATUS_VALIDITY_IN_FOCUS_IN_MS = TimeUnit.SECONDS.toMillis(15);
-	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS = TimeUnit.SECONDS.toMillis(20);
-	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_FOCUS_IN_MS = TimeUnit.SECONDS.toMillis(10);
+	private static final long MODULE_STATUS_MAX_VALIDITY_IN_MS = TimeUnit.MINUTES.toMillis(10L);
+	private static final long MODULE_STATUS_VALIDITY_IN_MS = TimeUnit.SECONDS.toMillis(30L);
+	private static final long MODULE_STATUS_VALIDITY_IN_FOCUS_IN_MS = TimeUnit.SECONDS.toMillis(15L);
+	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS = TimeUnit.SECONDS.toMillis(20L);
+	private static final long MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_FOCUS_IN_MS = TimeUnit.SECONDS.toMillis(10L);
 
-	private static ModuleDbHelper dbHelper;
+	@Nullable
+	private ModuleDbHelper dbHelper;
 
 	private static int currentDbVersion = -1;
 
@@ -94,7 +97,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
-	private static String getAUTHORITY(Context context) {
+	private static String getAUTHORITY(@NonNull Context context) {
 		if (authority == null) {
 			authority = context.getResources().getString(R.string.module_authority);
 		}
@@ -106,7 +109,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
-	private static Uri getAUTHORITYURI(Context context) {
+	private static Uri getAUTHORITYURI(@NonNull Context context) {
 		if (authorityUri == null) {
 			authorityUri = UriUtils.newContentUri(getAUTHORITY(context));
 		}
@@ -195,19 +198,19 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@Override
-	public int updateMT(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+	public int updateMT(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		MTLog.w(this, "The update method is not available.");
 		return 0;
 	}
 
 	@Override
-	public Uri insertMT(Uri uri, ContentValues values) {
+	public Uri insertMT(@NonNull Uri uri, ContentValues values) {
 		MTLog.w(this, "The insert method is not available.");
 		return null;
 	}
 
 	@Override
-	public int deleteMT(Uri uri, String selection, String[] selectionArgs) {
+	public int deleteMT(@NonNull Uri uri, String selection, String[] selectionArgs) {
 		MTLog.w(this, "The delete method is not available.");
 		return 0;
 	}
@@ -330,14 +333,14 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@Override
 	public POIStatus getNewStatus(StatusProviderContract.Filter filter) {
 		if (filter == null || !(filter instanceof AppStatus.AppStatusFilter)) {
-			MTLog.w(this, "getNewStatus() > Can't find new schecule whithout AppStatusFilter!");
+			MTLog.w(this, "getNewStatus() > Can't find new schedule without AppStatusFilter!");
 			return null;
 		}
 		AppStatus.AppStatusFilter moduleStatusFilter = (AppStatus.AppStatusFilter) filter;
 		return getNewModuleStatus(moduleStatusFilter);
 	}
 
-	public POIStatus getNewModuleStatus(AppStatus.AppStatusFilter filter) {
+	public POIStatus getNewModuleStatus(@NonNull AppStatus.AppStatusFilter filter) {
 		long newLastUpdateInMs = TimeUtils.currentTimeMillis();
 		boolean appInstalled = PackageManagerUtils.isAppInstalled(getContext(), filter.getPkg());
 		return new AppStatus(filter.getTargetUUID(), newLastUpdateInMs, getStatusMaxValidityInMs(), newLastUpdateInMs, appInstalled);
@@ -462,7 +465,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
-	public ModuleDbHelper getNewDbHelper(Context context) {
+	public ModuleDbHelper getNewDbHelper(@NonNull Context context) {
 		return new ModuleDbHelper(context.getApplicationContext());
 	}
 
@@ -500,7 +503,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	public static ArrayMap<String, String> getNewPoiProjectionMap(String authority) {
 		// @formatter:off
 		return SqlUtils.ProjectionMapBuilder.getNew()
-				.appendValue(SqlUtils.concatenate(//
+				.appendValue(SqlUtils.concatenate( //
 						SqlUtils.escapeString(POIUtils.UID_SEPARATOR), //
 						SqlUtils.escapeString(authority), //
 						SqlUtils.getTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_PKG) //
