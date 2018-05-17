@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- databases/favorite.db -->
+    <include
+        domain="database"
+        path="favorite.db" />
+    <!-- shared_prefs/org.mtransit.android_preferences.xml -->
+    <include
+        domain="sharedpref"
+        path="org.mtransit.android_preferences.xml" />
+    <!--COMMON-->
+    <!-- shared_prefs/lcl.xml -->
+    <include
+        domain="sharedpref"
+        path="lcl.xml" />
+</full-backup-content>
