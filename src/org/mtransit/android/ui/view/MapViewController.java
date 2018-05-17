@@ -1,5 +1,17 @@
 package org.mtransit.android.ui.view;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.LocationSource;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.VisibleRegion;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,18 +49,7 @@ import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
 
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.LocationSource;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.VisibleRegion;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -69,13 +70,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		ExtendedGoogleMap.OnMapLoadedCallback, ExtendedGoogleMap.OnMarkerClickListener, ExtendedGoogleMap.OnMyLocationButtonClickListener,
 		ExtendedGoogleMap.OnMapClickListener, LocationSource, OnMapReadyCallback, ViewTreeObserver.OnGlobalLayoutListener, MTLog.Loggable {
 
-	private static final String TAG = MapViewController.class.getSimpleName();
+	private static final String LOG_TAG = MapViewController.class.getSimpleName();
 
 	private String tag = null;
 
 	@Override
 	public String getLogTag() {
-		return TAG + "-" + this.tag;
+		return LOG_TAG + "-" + this.tag;
 	}
 
 	private static final String EXTRA_LAST_CAMERA_POSITION = "extra_last_camera_position";
@@ -89,7 +90,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	private Boolean showingMyLocation = false;
 	private boolean mapLayoutReady = false;
 	private boolean mapVisible = false;
-	private LocationSource.OnLocationChangedListener locationChandedListener;
+	private LocationSource.OnLocationChangedListener locationChangedListener;
 	private Location userLocation;
 	private boolean waitingForGlobalLayout = false;
 
@@ -143,6 +144,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	private CameraPosition lastCameraPosition;
 
 	private String lastSelectedUUID;
+
+	private boolean locationPermissionGranted = false;
 
 	public MapViewController(String tag, MapMarkerProvider markerProvider, MapListener mapListener, boolean mapToolbarEnabled, boolean myLocationEnabled,
 			boolean myLocationButtonEnabled, boolean indoorLevelPickerEnabled, boolean trafficEnabled, boolean indoorEnabled, int paddingTopSp,
@@ -345,10 +348,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 		this.extendedGoogleMap = ExtendedMapFactory.create(googleMap, getActivityOrNull());
 		applyMapType();
-		this.extendedGoogleMap.setMyLocationEnabled(this.myLocationEnabled);
+		setupGoogleMapMyLocation();
 		this.extendedGoogleMap.setTrafficEnabled(this.trafficEnabled);
 		this.extendedGoogleMap.setIndoorEnabled(this.indoorEnabled);
-		this.extendedGoogleMap.getUiSettings().setMyLocationButtonEnabled(this.myLocationButtonEnabled);
 		this.extendedGoogleMap.getUiSettings().setIndoorLevelPickerEnabled(this.indoorLevelPickerEnabled);
 		this.extendedGoogleMap.getUiSettings().setMapToolbarEnabled(this.mapToolbarEnabled);
 		this.extendedGoogleMap.setOnMapLoadedCallback(this);
@@ -369,6 +371,28 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			this.extendedGoogleMap.setPadding(0, paddingTop, 0, 0);
 		}
 		showMapInternal(null);
+	}
+
+	public void setLocationPermissionGranted(boolean locationPermissionGranted) {
+		if (this.locationPermissionGranted == locationPermissionGranted) {
+			return; // no change
+		}
+		this.locationPermissionGranted = locationPermissionGranted;
+		setupGoogleMapMyLocation();
+	}
+
+	@SuppressLint("MissingPermission")
+	private void setupGoogleMapMyLocation() {
+		if (this.extendedGoogleMap == null) {
+			return; // SKIP (map not ready)
+		}
+		if (this.locationPermissionGranted) {
+			this.extendedGoogleMap.setMyLocationEnabled(this.myLocationEnabled);
+			this.extendedGoogleMap.getUiSettings().setMyLocationButtonEnabled(this.myLocationButtonEnabled);
+		} else {
+			this.extendedGoogleMap.setMyLocationEnabled(false);
+			this.extendedGoogleMap.getUiSettings().setMyLocationButtonEnabled(false);
+		}
 	}
 
 	private void hideShowLoading() {
@@ -1118,43 +1142,47 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			}
 			options.icon(getActivityOrNull(), R.drawable.ic_place_white_slim, poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
 			options.data(poiMarker.getUuidsAndAuthority());
-			IMarker marker = MapViewController.this.extendedGoogleMap.addMarker(options);
+			IMarker marker = this.extendedGoogleMap.addMarker(options);
 			if (poiMarker.hasUUID(this.lastSelectedUUID)) {
 				marker.showInfoWindow();
 			}
 		}
-		MapViewController.this.clusterManagerItemsLoaded = true;
+		this.clusterManagerItemsLoaded = true;
 		hideLoading();
-		if (MapViewController.this.showAllMarkersWhenReady) {
-			showMarkers(false, MapViewController.this.followingUser);
+		if (this.showAllMarkersWhenReady) {
+			showMarkers(false, this.followingUser);
 		}
 	}
 
 
 	@Override
 	public void activate(OnLocationChangedListener onLocationChangedListener) {
-		this.locationChandedListener = onLocationChangedListener;
+		this.locationChangedListener = onLocationChangedListener;
 		if (this.userLocation != null) {
-			this.locationChandedListener.onLocationChanged(this.userLocation);
+			this.locationChangedListener.onLocationChanged(this.userLocation);
 		}
 	}
 
 	@Override
 	public void deactivate() {
-		this.locationChandedListener = null;
+		this.locationChangedListener = null;
 	}
 
 	public void onUserLocationChanged(@Nullable Location newLocation) {
 		if (newLocation == null) {
 			return;
 		}
+		boolean firstLocation = this.userLocation == null;
 		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 			this.userLocation = newLocation;
-			if (this.locationChandedListener != null) {
-				this.locationChandedListener.onLocationChanged(newLocation);
+			if (this.locationChangedListener != null) {
+				this.locationChangedListener.onLocationChanged(newLocation);
 			}
 			if (this.followingUser) {
 				showMarkers(true, true);
+			} else if (firstLocation) {
+				this.initialMapCameraSetup = false;
+				setupInitialCamera();
 			}
 		}
 	}
@@ -1189,6 +1217,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.activityWR = new WeakReference<Activity>(activity);
 	}
 
+	@Nullable
 	private Activity getActivityOrNull() {
 		return this.activityWR == null ? null : this.activityWR.get();
 	}
