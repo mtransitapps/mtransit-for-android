@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 import org.mtransit.android.R;
+import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
@@ -31,7 +32,9 @@ import org.mtransit.android.data.NewsProviderProperties;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ScheduleProviderProperties;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.FavoriteManager;
+import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
@@ -77,9 +80,17 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.ScrollView;
 
-public class POIFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, POIViewController.POIDataProvider,
-		MTActivityWithLocation.UserLocationListener, SensorEventListener, SensorUtils.CompassListener, SensorUtils.SensorTaskCompleted,
-		FavoriteManager.FavoriteUpdateListener, TimeUtils.TimeChangedReceiver.TimeChangedListener, MapViewController.MapMarkerProvider,
+public class POIFragment extends ABFragment implements
+		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
+		POIViewController.POIDataProvider,
+		MTActivityWithLocation.UserLocationListener,
+		SensorEventListener,
+		SensorUtils.CompassListener,
+		SensorUtils.SensorTaskCompleted,
+		FavoriteManager.FavoriteUpdateListener,
+		TimeUtils.TimeChangedReceiver.TimeChangedListener,
+		MapViewController.MapMarkerProvider,
+		IContext,
 		MapViewController.MapListener {
 
 	private static final String TAG = POIFragment.class.getSimpleName();
@@ -126,6 +137,14 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	private MapViewController mapViewController =
 			new MapViewController(TAG, this, this, false, true, false, false, false, false, 32, true, false, true, true, false);
+
+	@NonNull
+	private final LocationPermissionProvider locationPermissionProvider;
+
+	public POIFragment() {
+		super();
+		this.locationPermissionProvider = Injection.providesLocationPermissionProvider();
+	}
 
 	private boolean hasAgency() {
 		if (this.agency == null) {
@@ -443,6 +462,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	@Override
 	public void onCameraChange(LatLngBounds latLngBounds) {
+		// DO NOTHING
 	}
 
 	@Override
@@ -470,6 +490,7 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		initAdapters(activity);
+		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
 		this.mapViewController.onAttach(activity);
 	}
 
@@ -845,6 +866,9 @@ public class POIFragment extends ABFragment implements LoaderManager.LoaderCallb
 	public void onUserLocationChanged(@Nullable Location newLocation) {
 		if (newLocation == null) {
 			return;
+		}
+		if (this.userLocation == null) {
+			this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
 		}
 		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 			this.userLocation = newLocation;

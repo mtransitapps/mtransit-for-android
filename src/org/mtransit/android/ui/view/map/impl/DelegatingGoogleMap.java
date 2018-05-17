@@ -19,15 +19,17 @@ import org.mtransit.android.ui.view.map.PolylineOptions;
 import org.mtransit.android.ui.view.map.TileOverlay;
 import org.mtransit.android.ui.view.map.TileOverlayOptions;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.view.View;
-
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.support.annotation.RequiresPermission;
+import android.view.View;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
@@ -245,6 +247,10 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 		real.setMapType(mapType);
 	}
 
+	@SuppressLint("MissingPermission")
+	@RequiresPermission(
+			anyOf = {"android.permission.ACCESS_COARSE_LOCATION", "android.permission.ACCESS_FINE_LOCATION"}
+	)
 	@Override
 	public void setMyLocationEnabled(boolean myLocationEnabled) {
 		real.setMyLocationEnabled(myLocationEnabled);

@@ -2,7 +2,9 @@ package org.mtransit.android.ui.view.map.impl;
 
 import org.mtransit.android.commons.MTLog;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
+import android.support.annotation.RequiresPermission;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.GoogleMap;
@@ -179,11 +181,16 @@ class GoogleMapWrapper implements IGoogleMap, MTLog.Loggable {
 		map.setMapType(type);
 	}
 
+	@SuppressLint("MissingPermission")
+	@RequiresPermission(
+			anyOf = {"android.permission.ACCESS_COARSE_LOCATION", "android.permission.ACCESS_FINE_LOCATION"}
+	)
 	@Override
 	public final void setMyLocationEnabled(boolean enabled) {
 		map.setMyLocationEnabled(enabled);
 	}
 
+	@Deprecated
 	@Override
 	public final void setOnCameraChangeListener(OnCameraChangeListener listener) {
 		map.setOnCameraChangeListener(listener);

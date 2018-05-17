@@ -1,6 +1,7 @@
 package org.mtransit.android.ui.view.map.impl;
 
 import android.graphics.Bitmap;
+import android.support.annotation.RequiresPermission;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.GoogleMap;
@@ -84,8 +85,12 @@ interface IGoogleMap {
 
 	void setMapType(int type);
 
+	@RequiresPermission(
+			anyOf = {"android.permission.ACCESS_COARSE_LOCATION", "android.permission.ACCESS_FINE_LOCATION"}
+	)
 	void setMyLocationEnabled(boolean enabled);
 
+	@Deprecated
 	void setOnCameraChangeListener(OnCameraChangeListener listener);
 
 	void setOnInfoWindowClickListener(OnInfoWindowClickListener listener);

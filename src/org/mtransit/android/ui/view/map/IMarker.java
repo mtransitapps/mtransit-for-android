@@ -74,6 +74,7 @@ public interface IMarker {
 
 	void setFlat(boolean flat);
 
+	@Deprecated
 	void setIcon(BitmapDescriptor icon);
 
 	void setIcon(Context context, Integer iconResId, Integer color, Integer secondaryColor, Integer defaultColor);
@@ -97,4 +98,5 @@ public interface IMarker {
 	void setVisible(boolean visible);
 
 	void showInfoWindow();
+
 }

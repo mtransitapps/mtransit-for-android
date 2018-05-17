@@ -1,16 +1,17 @@
 package org.mtransit.android.ui.view.map;
 
-import java.util.List;
-
-import android.graphics.Bitmap;
-import android.view.View;
-
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+
+import java.util.List;
+
+import android.graphics.Bitmap;
+import android.support.annotation.RequiresPermission;
+import android.view.View;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 public interface ExtendedGoogleMap {
@@ -94,6 +95,9 @@ public interface ExtendedGoogleMap {
 
 	void setMapType(int mapType);
 
+	@RequiresPermission(
+			anyOf = {"android.permission.ACCESS_COARSE_LOCATION", "android.permission.ACCESS_FINE_LOCATION"}
+	)
 	void setMyLocationEnabled(boolean myLocationEnabled);
 
 	void setOnCameraChangeListener(OnCameraChangeListener onCameraChangeListener);

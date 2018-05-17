@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.mtransit.android.R;
+import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
@@ -14,6 +15,8 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
+import org.mtransit.android.di.Injection;
+import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.MapPOILoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
@@ -44,8 +47,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class MapFragment extends ABFragment implements LoaderManager.LoaderCallbacks<Collection<MapViewController.POIMarker>>,
-		MTActivityWithLocation.UserLocationListener, MapViewController.MapListener {
+public class MapFragment extends ABFragment implements
+		LoaderManager.LoaderCallbacks<Collection<MapViewController.POIMarker>>,
+		MTActivityWithLocation.UserLocationListener,
+		IContext,
+		MapViewController.MapListener {
 
 	private static final String TAG = MapFragment.class.getSimpleName();
 
@@ -85,9 +91,18 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 	private MapViewController mapViewController =
 			new MapViewController(TAG, null, this, true, true, true, false, false, false, 64, false, true, true, false, true);
 
+	@NonNull
+	private final LocationPermissionProvider locationPermissionProvider;
+
+	public MapFragment() {
+		super();
+		this.locationPermissionProvider = Injection.providesLocationPermissionProvider();
+	}
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
+		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
 		this.mapViewController.onAttach(activity);
 	}
 
@@ -179,6 +194,11 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 		if (newLocation == null) {
 			return;
 		}
+		if (this.userLocation == null) {
+			this.mapViewController.clearMarkers(); // previous marker for unspecific location
+			this.loadedLatLngBounds = null; // reset loaded marker area
+			this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
+		}
 		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 			this.userLocation = newLocation;
 		}
@@ -221,8 +241,10 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 		}
 	}
 
-	private LatLngBounds loadingLatLngBounds;
-	private LatLngBounds loadedLatLngBounds;
+	@Nullable
+	private LatLngBounds loadingLatLngBounds = null;
+	@Nullable
+	private LatLngBounds loadedLatLngBounds = null;
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
@@ -232,6 +254,7 @@ public class MapFragment extends ABFragment implements LoaderManager.LoaderCallb
 
 	@Override
 	public void onMapClick(LatLng position) {
+		// DO NOTHING
 	}
 
 	@Override

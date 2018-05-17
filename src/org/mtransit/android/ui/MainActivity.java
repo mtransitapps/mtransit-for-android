@@ -7,12 +7,14 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.SearchFragment;
+import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.util.AdsUtils;
 import org.mtransit.android.util.AnalyticsUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.VendingUtils;
 
+import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +22,7 @@ import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -28,8 +31,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 
-public class MainActivity extends MTActivityWithLocation implements FragmentManager.OnBackStackChangedListener, AnalyticsUtils.Trackable,
-		VendingUtils.OnVendingResultListener, DataSourceProvider.ModulesUpdateListener {
+public class MainActivity extends MTActivityWithLocation implements
+		FragmentManager.OnBackStackChangedListener,
+		AnalyticsUtils.Trackable,
+		VendingUtils.OnVendingResultListener,
+		IActivity,
+		DataSourceProvider.ModulesUpdateListener {
 
 	private static final String TAG = "Stack-" + MainActivity.class.getSimpleName();
 
@@ -153,7 +160,7 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		AnalyticsUtils.trackScreenView(this, this);
 		VendingUtils.onResume(this, this);
 		AdsUtils.adaptToScreenSize(this, getResources().getConfiguration());
-		onUserLocationChanged(getUserLocation());
+		onLastLocationChanged(getUserLocation());
 	}
 
 	@Override
@@ -287,8 +294,8 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	}
 
 	@Override
-	public void onUserLocationChanged(@Nullable Location newLocation) {
-		MTActivityWithLocation.broadcastUserLocationChanged(this, getFragments(), newLocation);
+	public void onLastLocationChanged(@Nullable Location lastLocation) {
+		MTActivityWithLocation.broadcastUserLocationChanged(this, getFragments(), lastLocation);
 	}
 
 	public boolean isCurrentFragmentVisible(Fragment fragment) {
@@ -339,7 +346,6 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 	public boolean isDrawerOpen() {
 		return this.navigationDrawerController != null && this.navigationDrawerController.isDrawerOpen();
 	}
-
 
 	private Integer backStackEntryCount = null;
 
@@ -425,4 +431,15 @@ public class MainActivity extends MTActivityWithLocation implements FragmentMana
 		return super.onOptionsItemSelected(item);
 	}
 
+	@NonNull
+	@Override
+	public Context getContext() {
+		return this;
+	}
+
+	@NonNull
+	@Override
+	public Activity getActivity() {
+		return this;
+	}
 }

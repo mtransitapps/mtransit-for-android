@@ -106,6 +106,10 @@
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="@string/google_maps_api_key" />
+        <!-- FIREBASE CRASHLYTICS -->
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
         <!-- GOOGLE ANALYTICS -->
         <service
             android:name="com.google.android.gms.analytics.AnalyticsService"

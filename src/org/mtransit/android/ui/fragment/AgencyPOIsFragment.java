@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.mtransit.android.R;
+import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
@@ -12,6 +13,8 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.di.Injection;
+import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.task.AgencyPOIsLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.MapViewController;
@@ -46,8 +49,13 @@ import android.widget.AbsListView;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
-public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
-		MTActivityWithLocation.UserLocationListener, MapViewController.MapMarkerProvider, MapViewController.MapListener,
+public class AgencyPOIsFragment extends MTFragmentV4 implements
+		AgencyTypeFragment.AgencyFragment,
+		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
+		MTActivityWithLocation.UserLocationListener,
+		MapViewController.MapMarkerProvider,
+		MapViewController.MapListener,
+		IContext,
 		CompoundButton.OnCheckedChangeListener {
 
 	private static final String TAG = AgencyPOIsFragment.class.getSimpleName();
@@ -100,6 +108,14 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	private MapViewController mapViewController =
 			new MapViewController(TAG, this, this, true, true, true, false, false, false, 0, false, true, false, true, false);
 
+	@NonNull
+	private final LocationPermissionProvider locationPermissionProvider;
+
+	public AgencyPOIsFragment() {
+		super();
+		this.locationPermissionProvider = Injection.providesLocationPermissionProvider();
+	}
+
 	@Override
 	public String getAgencyAuthority() {
 		return this.authority;
@@ -109,6 +125,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		initAdapters(activity);
+		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
 		this.mapViewController.onAttach(activity);
 	}
 
@@ -235,10 +252,12 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 
 	@Override
 	public void onMapClick(LatLng position) {
+		// DO NOTHING
 	}
 
 	@Override
 	public void onCameraChange(LatLngBounds latLngBounds) {
+		// DO NOTHING
 	}
 
 	private void linkAdapterWithListView(View view) {
@@ -370,6 +389,9 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements AgencyTypeFragme
 	public void onUserLocationChanged(@Nullable Location newLocation) {
 		if (newLocation == null) {
 			return;
+		}
+		if (this.userLocation == null) {
+			this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
 		}
 		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 			this.userLocation = newLocation;

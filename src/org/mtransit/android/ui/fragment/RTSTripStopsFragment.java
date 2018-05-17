@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.mtransit.android.R;
+import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
@@ -12,6 +13,8 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.di.Injection;
+import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.task.RTSTripStopsLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.MapViewController;
@@ -37,8 +40,13 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
 
-public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
-		MTActivityWithLocation.UserLocationListener, MapViewController.MapMarkerProvider, MapViewController.MapListener {
+public class RTSTripStopsFragment extends MTFragmentV4 implements
+		VisibilityAwareFragment,
+		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
+		MTActivityWithLocation.UserLocationListener,
+		MapViewController.MapMarkerProvider,
+		IContext,
+		MapViewController.MapListener {
 
 	private static final String TAG = RTSTripStopsFragment.class.getSimpleName();
 
@@ -93,10 +101,19 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	private MapViewController mapViewController =
 			new MapViewController(getLogTag(), this, this, true, true, true, false, false, false, 0, false, true, false, true, false);
 
+	@NonNull
+	private final LocationPermissionProvider locationPermissionProvider;
+
+	public RTSTripStopsFragment() {
+		super();
+		this.locationPermissionProvider = Injection.providesLocationPermissionProvider();
+	}
+
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		initAdapters(activity);
+		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
 		this.mapViewController.onAttach(activity);
 	}
 
@@ -234,10 +251,12 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 
 	@Override
 	public void onCameraChange(LatLngBounds latLngBounds) {
+		// DO NOTHING
 	}
 
 	@Override
 	public void onMapClick(LatLng position) {
+		// DO NOTHING
 	}
 
 	private void linkAdapterWithListView(View view) {
@@ -384,7 +403,6 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 		switchView(view);
 	}
 
-
 	private Pair<Integer, String> findStopIndexUuid(int stopId, ArrayList<POIManager> pois) {
 		for (int i = 0; i < pois.size(); i++) {
 			POIManager poim = pois.get(i);
@@ -418,6 +436,9 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements VisibilityAwar
 	public void onUserLocationChanged(@Nullable Location newLocation) {
 		if (newLocation == null) {
 			return;
+		}
+		if (this.userLocation == null) {
+			this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
 		}
 		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 			this.userLocation = newLocation;
