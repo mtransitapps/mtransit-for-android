@@ -16,6 +16,10 @@
         <item name="android:windowBackground">@color/window_background</item>
     </style>
 
+    <style name="MTTheme.Launcher" parent="MTTheme">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+    </style>
+
     <style name="MTTabTextStyle" parent="TextAppearance.Design.Tab">
         <item name="android:textStyle">bold</item>
     </style>

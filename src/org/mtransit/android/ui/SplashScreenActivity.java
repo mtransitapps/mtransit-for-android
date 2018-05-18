@@ -1,5 +1,6 @@
 package org.mtransit.android.ui;
 
+import org.mtransit.android.R;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.util.AnalyticsUtils;
 
@@ -23,6 +24,7 @@ public class SplashScreenActivity extends MTActivity implements AnalyticsUtils.T
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setTheme(R.style.MTTheme);
 		super.onCreate(savedInstanceState);
 		int appOpenCounts = PreferenceUtils.getPrefDefault(this, //
 				PreferenceUtils.PREF_USER_APP_OPEN_COUNTS, //
