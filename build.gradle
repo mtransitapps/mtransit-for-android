@@ -55,8 +55,7 @@ android {
         setProperty("archivesBaseName", "${projectName}_v${versionName}_r${versionCode}")
         resConfigs "en", "fr"
         minSdkVersion rootProject.ext.minSdkVersion
-        //noinspection OldTargetApi TODO targetSdkVersion rootProject.ext.targetSdkVersion
-        targetSdkVersion 22
+        targetSdkVersion rootProject.ext.targetSdkVersion
         // DEBUG
         // minSdkVersion 23 // DEBUG
         // //noinspection OldTargetApi // DEBUG
