@@ -9,7 +9,6 @@ dependencies {
     implementation rootProject.ext.supportLibs.appCompat
     implementation rootProject.ext.supportLibs.customTabs
     implementation rootProject.ext.supportLibs.design
-    implementation rootProject.ext.archLifecycleLibs.extensions
     implementation rootProject.ext.gpsLibs.analytics
     implementation rootProject.ext.gpsLibs.location
     implementation rootProject.ext.gpsLibs.maps
