@@ -8,6 +8,7 @@ import org.mtransit.android.commons.provider.StatusProvider;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
 
 public class ModuleDbHelper extends MTSQLiteOpenHelper {
 
@@ -26,7 +27,7 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	/**
 	 * Override if multiple {@link ModuleDbHelper} in same app.
 	 */
-	public static final int DB_VERSION = 60;
+	public static final int DB_VERSION = 61;
 
 	/**
 	 * Override if multiple {@link ModuleDbHelper} implementations in same app.
@@ -78,7 +79,7 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 		initAllDbTables(db);
 	}
 
-	public boolean isDbExist(Context context) {
+	public boolean isDbExist(@NonNull Context context) {
 		return SqlUtils.isDbExist(context, DB_NAME);
 	}
 
