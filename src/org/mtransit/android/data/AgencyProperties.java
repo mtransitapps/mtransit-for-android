@@ -3,6 +3,7 @@ package org.mtransit.android.data;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Locale;
 
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.LocationUtils;
@@ -31,7 +32,7 @@ public class AgencyProperties implements MTLog.Loggable {
 	private String longName;
 	private Integer colorInt = null;
 	private LocationUtils.Area area;
-	private boolean isRTS = false;
+	private boolean isRTS;
 
 	public AgencyProperties(String id, DataSourceType type, String shortName, String longName, String color, LocationUtils.Area area, boolean isRTS) {
 		this.id = id;
@@ -104,10 +105,9 @@ public class AgencyProperties implements MTLog.Loggable {
 	}
 
 	public boolean isEntirelyInside(@Nullable LatLngBounds area) {
-		if (area == null) {
-			return false;
-		}
-		return area.contains(new LatLng(this.area.minLat, this.area.minLng)) && area.contains(new LatLng(this.area.maxLat, this.area.maxLng));
+		return area != null //
+				&& area.contains(new LatLng(this.area.minLat, this.area.minLng)) //
+				&& area.contains(new LatLng(this.area.maxLat, this.area.maxLng));
 	}
 
 	public boolean isInArea(LatLngBounds area) {
@@ -139,6 +139,7 @@ public class AgencyProperties implements MTLog.Loggable {
 		if (isInside(area2.maxLat, area2.minLng, area1)) {
 			return true; // max lat, min lng
 		}
+		//noinspection SimplifiableIfStatement
 		if (isInside(area2.maxLat, area2.maxLng, area1)) {
 			return true; // max lat, max lng
 		}
@@ -165,6 +166,7 @@ public class AgencyProperties implements MTLog.Loggable {
 				&& area2.minLng >= area1MinLng && area2.maxLng <= area1MaxLng) {
 			return true; // area 1 wider than area 2 but area 2 higher than area 1
 		}
+		//noinspection RedundantIfStatement
 		if (area2.minLat >= area1MinLat && area2.maxLat <= area1MaxLat //
 				&& area1MinLng >= area2.minLng && area1MaxLng <= area2.maxLng) {
 			return true; // area 2 wider than area 1 but area 1 higher than area 2
@@ -197,7 +199,7 @@ public class AgencyProperties implements MTLog.Loggable {
 			} else if (rShortName == null) {
 				return +1;
 			}
-			return lShortName.compareTo(rShortName);
+			return lShortName.toLowerCase(Locale.getDefault()).compareTo(rShortName.toLowerCase(Locale.getDefault()));
 		}
 	}
 }

@@ -28,6 +28,9 @@ dependencies {
     testImplementation rootProject.ext.squareLibs.leakcanary_no_op
     // DEBUG
     // debugImplementation 'com.android.support:multidex:1.0.3' // DEBUG minSdkVersion < 21
+
+    testImplementation rootProject.ext.jUnitLibs.jUnit
+    testImplementation rootProject.ext.mockitoLibs.mockitoCore
 }
 
 android {
@@ -122,9 +125,30 @@ android {
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
         }
+        test {
+            java.srcDirs = ['srcTest']
+            resources.srcDirs = ['srcTest']
+        }
+        androidTest {
+            java.srcDirs = ['srcAndroidTest']
+            resources.srcDirs = ['srcAndroidTest']
+        }
 
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            returnDefaultValues = true
+            all {
+                jvmArgs '-noverify'
+                testLogging {
+                    events 'passed', 'skipped', 'failed'
+                }
+            }
+        }
     }
 
     def publish = project.tasks.create("copyReleaseApkToOutputDirs")
