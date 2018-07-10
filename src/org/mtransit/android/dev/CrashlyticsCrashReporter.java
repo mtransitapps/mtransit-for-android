@@ -35,16 +35,17 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 	}
 
 	@Override
-	public void reportNonFatal(@Nullable String msg) {
-		reportNonFatal(null, msg);
+	public void reportNonFatal(@Nullable String msg, Object... args) {
+		reportNonFatal(null, msg, args);
 	}
 
 	@Override
-	public void reportNonFatal(@Nullable Throwable throwable, @Nullable String message) {
+	public void reportNonFatal(@Nullable Throwable throwable, @Nullable String message, Object... args) {
 		try {
-			Crashlytics.log(message);
+			String fMessage = message == null ? null : String.format(message, args);
+			Crashlytics.log(fMessage);
 			if (throwable == null) {
-				throwable = new Exception(message);
+				throwable = new Exception(fMessage);
 			}
 			Crashlytics.logException(throwable);
 		} catch (Exception e) {
@@ -58,15 +59,17 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 	}
 
 	@Override
-	public void shouldNotHappen(@Nullable String msg) throws RuntimeException {
-		shouldNotHappen(null, msg);
+	public void shouldNotHappen(@Nullable String msg, Object... args) throws RuntimeException {
+		shouldNotHappen(null, msg, args);
 	}
 
 	@Override
-	public void shouldNotHappen(@Nullable Throwable throwable, @Nullable String msg) throws RuntimeException {
+	public void shouldNotHappen(@Nullable Throwable throwable, @Nullable String msg, Object... args) throws RuntimeException {
 		if (BuildConfig.DEBUG) {
 			if (msg == null) {
 				msg = "No error message";
+			} else {
+				msg = String.format(msg, args);
 			}
 			if (throwable == null) {
 				throwable = new Exception(msg);
@@ -84,7 +87,7 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 	@Override
 	public void w(String tag, String msg, Object... args) {
 		MTLog.w(tag, msg, args);
-		reportNonFatal(String.format(msg, args));
+		reportNonFatal(msg, args);
 	}
 
 	@Override
@@ -95,6 +98,6 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 	@Override
 	public void w(String tag, Throwable t, String msg, Object... args) {
 		MTLog.w(tag, t, msg, args);
-		reportNonFatal(t, String.format(msg, args));
+		reportNonFatal(t, msg, args);
 	}
 }

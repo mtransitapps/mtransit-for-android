@@ -33,6 +33,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return TAG;
 	}
 
+	@Nullable
 	private static DataSourceProvider instance = null;
 
 	public static DataSourceProvider get(@Nullable Context context) {
@@ -196,31 +197,31 @@ public class DataSourceProvider implements MTLog.Loggable {
 				for (ProviderInfo provider : providers) {
 					if (provider != null && provider.metaData != null) {
 						if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
-							if (!instance.hasAgency(provider.authority)) {
+							if (!current.hasAgency(provider.authority)) {
 								return true;
 							}
 							nbAgencyProviders++;
 						}
 						if (statusProviderMetaData.equals(provider.metaData.getString(statusProviderMetaData))) {
-							if (instance.getStatusProvider(provider.authority) == null) {
+							if (current.getStatusProvider(provider.authority) == null) {
 								return true;
 							}
 							nbStatusProviders++;
 						}
 						if (scheduleProviderMetaData.equals(provider.metaData.getString(scheduleProviderMetaData))) {
-							if (instance.getScheduleProvider(provider.authority) == null) {
+							if (current.getScheduleProvider(provider.authority) == null) {
 								return true;
 							}
 							nbScheduleProviders++;
 						}
 						if (serviceUpdateProviderMetaData.equals(provider.metaData.getString(serviceUpdateProviderMetaData))) {
-							if (instance.getServiceUpdateProvider(provider.authority) == null) {
+							if (current.getServiceUpdateProvider(provider.authority) == null) {
 								return true;
 							}
 							nbServiceUpdateProviders++;
 						}
 						if (newsProviderMetaData.equals(provider.metaData.getString(newsProviderMetaData))) {
-							if (instance.getNewsProvider(provider.authority) == null) {
+							if (current.getNewsProvider(provider.authority) == null) {
 								return true;
 							}
 							nbNewsProviders++;
@@ -229,24 +230,28 @@ public class DataSourceProvider implements MTLog.Loggable {
 				}
 			}
 		}
-		if (nbAgencyProviders != CollectionUtils.getSize(instance.allAgenciesAuthority) //
-				|| nbStatusProviders != CollectionUtils.getSize(instance.allStatusProviders) //
-				|| nbScheduleProviders != CollectionUtils.getSize(instance.allScheduleProviders) //
-				|| nbServiceUpdateProviders != CollectionUtils.getSize(instance.allServiceUpdateProviders) //
-				|| nbNewsProviders != CollectionUtils.getSize(instance.allNewsProviders)) {
+		if (nbAgencyProviders != CollectionUtils.getSize(current.allAgenciesAuthority) //
+				|| nbStatusProviders != CollectionUtils.getSize(current.allStatusProviders) //
+				|| nbScheduleProviders != CollectionUtils.getSize(current.allScheduleProviders) //
+				|| nbServiceUpdateProviders != CollectionUtils.getSize(current.allServiceUpdateProviders) //
+				|| nbNewsProviders != CollectionUtils.getSize(current.allNewsProviders)) {
 			return true;
 		}
 		return false;
 	}
 
+	@NonNull
 	private HashSet<String> allAgenciesAuthority = new HashSet<String>();
 
+	@NonNull
 	private ArrayMap<String, Integer> agenciesAuthorityTypeId = new ArrayMap<String, Integer>();
 
+	@NonNull
 	private ArrayMap<String, Boolean> agenciesAuthorityIsRts = new ArrayMap<String, Boolean>();
 
 	private ArrayList<DataSourceType> allAgencyTypes = new ArrayList<DataSourceType>();
 
+	@Nullable
 	private ArrayList<AgencyProperties> allAgencies = null;
 
 	private ArrayList<StatusProviderProperties> allStatusProviders = new ArrayList<StatusProviderProperties>();
@@ -257,6 +262,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private ArrayList<NewsProviderProperties> allNewsProviders = new ArrayList<NewsProviderProperties>();
 
+	@Nullable
 	private ArrayMap<String, AgencyProperties> allAgenciesByAuthority = null;
 
 	private ArrayMap<String, StatusProviderProperties> allStatusProvidersByAuthority = new ArrayMap<String, StatusProviderProperties>();
@@ -267,6 +273,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private ArrayMap<String, NewsProviderProperties> allNewsProvidersByAuthority = new ArrayMap<String, NewsProviderProperties>();
 
+	@Nullable
 	private SparseArray<ArrayList<AgencyProperties>> allAgenciesByTypeId = null;
 
 	private ArrayMap<String, HashSet<StatusProviderProperties>> statusProvidersByTargetAuthority = new ArrayMap<String, HashSet<StatusProviderProperties>>();
@@ -367,6 +374,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return this.allAgenciesAuthority.contains(authority);
 	}
 
+	@Nullable
 	public AgencyProperties getAgency(Context context, String authority) {
 		if (!isAgencyPropertiesSet()) {
 			initAgencyProperties(context);

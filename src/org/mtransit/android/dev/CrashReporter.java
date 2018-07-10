@@ -12,15 +12,15 @@ public interface CrashReporter {
 
 	void reportNonFatal(@Nullable Throwable throwable);
 
-	void reportNonFatal(@Nullable String msg);
+	void reportNonFatal(@Nullable String msg, Object... args);
 
-	void reportNonFatal(@Nullable Throwable throwable, @Nullable String msg);
+	void reportNonFatal(@Nullable Throwable throwable, @Nullable String msg, Object... args);
 
 	void shouldNotHappen(@Nullable Throwable throwable) throws RuntimeException;
 
-	void shouldNotHappen(@Nullable String msg) throws RuntimeException;
+	void shouldNotHappen(@Nullable String msg, Object... args) throws RuntimeException;
 
-	void shouldNotHappen(@Nullable Throwable throwable, @Nullable String msg) throws RuntimeException;
+	void shouldNotHappen(@Nullable Throwable throwable, @Nullable String msg, Object... args) throws RuntimeException;
 
 	void w(@NonNull MTLog.Loggable loggable, String msg, Object... args);
 
