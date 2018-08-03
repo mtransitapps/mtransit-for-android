@@ -89,7 +89,7 @@
 {"name":"Thunder Bay Transit","name_fr":"","location":"Thunder Bay, ON, Canada","targetTypeId":"3","color":"1FB25A","lat":"48.416896","lng":"-89.236989","pkg":"org.mtransit.android.ca_thunder_bay_transit_bus"},
 {"name":"Transit Windsor (City of Windsor)","name_fr":"","location":"Windsor, ON, Canada","targetTypeId":"3","color":"009AD6","lat":"42.286360","lng":"-82.968318","pkg":"org.mtransit.android.ca_windsor_transit_bus"},
 {"name":"Translink Buses","name_fr":"","location":"Vancouver, BC, Canada","targetTypeId":"3","color":"0761A5","lat":"49.282404","lng":"-123.118324","pkg":"org.mtransit.android.ca_vancouver_translink_bus"},
-{"name":"Translink SeaBuses","name_fr":"","location":"Vancouver, BC, Canada","targetTypeId":"4","color":"0761A5","lat":"49.297426","lng":"-123.093312","pkg":"org.mtransit.android.ca_vancouver_translink_ferry"},
+{"name":"Translink SeaBuses","name_fr":"","location":"Vancouver, BC, Canada","targetTypeId":"4","color":"0761A5","lat":"49.297426","lng":"-123.093312","pkg":"org.mtransit.android.ca_vancouver_translink_ferry2"},
 {"name":"Translink SkyTrains","name_fr":"","location":"Vancouver, BC, Canada","targetTypeId":"2","color":"0761A5","lat":"49.285687","lng":"-123.111793","pkg":"org.mtransit.android.ca_vancouver_translink_train"},
 {"name":"TTC Buses (Toronto Transit Commission)","name_fr":"","location":"Toronto, ON, Canada","targetTypeId":"3","color":"B80000","lat":"43.663338","lng":"-79.391858","pkg":"org.mtransit.android.ca_toronto_ttc_bus"},
 {"name":"TTC Streetcars (Toronto Transit Commission)","name_fr":"","location":"Toronto, ON, Canada","targetTypeId":"0","color":"B80000","lat":"43.651015","lng":"-79.386238","pkg":"org.mtransit.android.ca_toronto_ttc_light_rail"},
