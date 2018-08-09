@@ -75,6 +75,7 @@ public final class FakeLocation {
 		// location = LocationUtils.getNewLocation(43.117566, -79.247697, 77F); // DEBUG (St Catharines)
 		// location = LocationUtils.getNewLocation(43.014299, -79.263982, 77F); // DEBUG (Welland)
 		// location = LocationUtils.getNewLocation(43.078902, -79.078168, 77F); // DEBUG (Niagara Falls)
+		// return LocationUtils.getNewLocation(43.092208, -79.072202, 77F); // DEBUG (Niagara Falls WEGO)
 		// location = LocationUtils.getNewLocation(42.870485, -79.054661, 77F); // DEBUG (Fort Erie)
 		// location = LocationUtils.getNewLocation(46.466326, -80.972989, 77F); // DEBUG (Greater Sudbury)
 		// location = LocationUtils.getNewLocation(43.521473, -79.896475, 77F); // DEBUG (Milton)
@@ -113,6 +114,7 @@ public final class FakeLocation {
 		// location = LocationUtils.getNewLocation(50.022539, -125.243029, 77F); // DEBUG (Campbell River)
 		// return LocationUtils.getNewLocation(49.513780, -115.764318, 77F); // DEBUG (Cranbrook)
 		// return LocationUtils.getNewLocation(49.311674, -117.652269, 77F); // DEBUG (West Kootenay - Selkirk College, Castlegar)
+		// return LocationUtils.getNewLocation(48.784189, -123.706154, 77F); // DEBUG (Cowichan Valley, Duncan)
 		// location = LocationUtils.getNewLocation(60.720503, -135.052861, 77F); // DEBUG (Whitehorse)
 		//
 		// US
