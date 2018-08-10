@@ -644,7 +644,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return false; // not handled
 		}
 		LatLngBounds.Builder llb = LatLngBounds.builder();
-		llb.include(LatLngUtils.fromLocation(this.userLocation));
+		includeLocationAccuracyBounds(llb, this.userLocation);
 		llb.include(POIMarker.getLatLng(poim));
 		Context context = getActivityOrNull();
 		boolean success = updateMapCamera(true, CameraUpdateFactory.newLatLngBounds(llb.build(), MapUtils.getMapWithButtonsCameraPaddingInPx(context)));
@@ -662,9 +662,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return false; // not shown
 		}
 		if (includeUserLocation) {
-			if (this.userLocation != null) {
-				llb.include(LatLngUtils.fromLocation(this.userLocation));
-			}
+			includeLocationAccuracyBounds(llb, this.userLocation);
 		}
 		Context context = getActivityOrNull();
 		int paddingInPx;
@@ -674,6 +672,20 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			paddingInPx = MapUtils.getMapWithoutButtonsCameraPaddingInPx(context);
 		}
 		return updateMapCamera(anim, CameraUpdateFactory.newLatLngBounds(llb.build(), paddingInPx));
+	}
+
+	private static void includeLocationAccuracyBounds(@NonNull LatLngBounds.Builder llb, @Nullable Location location) {
+		if (location == null) {
+			return;
+		}
+		Location northEastBound = LocationUtils.computeOffset(location, location.getAccuracy(), LocationUtils.HEADING_NORTH_EAST);
+		llb.include(LatLngUtils.fromLocation(northEastBound));
+		Location southEastBound = LocationUtils.computeOffset(location, location.getAccuracy(), LocationUtils.HEADING_SOUTH_EAST);
+		llb.include(LatLngUtils.fromLocation(southEastBound));
+		Location southWestBound = LocationUtils.computeOffset(location, location.getAccuracy(), LocationUtils.HEADING_SOUTH_WEST);
+		llb.include(LatLngUtils.fromLocation(southWestBound));
+		Location northWestBound = LocationUtils.computeOffset(location, location.getAccuracy(), LocationUtils.HEADING_NORTH_WEST);
+		llb.include(LatLngUtils.fromLocation(northWestBound));
 	}
 
 	private boolean includeMarkersInLatLngBounds(LatLngBounds.Builder llb) {
@@ -712,7 +724,10 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (this.userLocation == null) {
 			return false;
 		}
-		return updateMapCamera(anim, CameraUpdateFactory.newLatLngZoom(LatLngUtils.fromLocation(this.userLocation), USER_LOCATION_ZOOM));
+		return updateMapCamera(anim, CameraUpdateFactory.newLatLngZoom( //
+				LatLngUtils.fromLocation(this.userLocation), //
+				USER_LOCATION_ZOOM) //
+		);
 	}
 
 	private static final float USER_LOCATION_ZOOM = 17f;
