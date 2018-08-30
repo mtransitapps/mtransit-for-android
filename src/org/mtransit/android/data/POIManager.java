@@ -578,8 +578,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			}
 			((MainActivity) activity).addFragmentToStack(POIFragment.newInstance(this.poi.getUUID(), this.poi.getAuthority(), null, this));
 			// reset to defaults so the POI is updated when coming back in the current screen
-			setInFocus(false);
-			setScheduleMaxDataRequests(Schedule.ScheduleStatusFilter.MAX_DATA_REQUESTS_DEFAULT);
 			resetLastFindTimestamps();
 			return true; // HANDLED
 		}
