@@ -208,7 +208,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@Nullable
 	public POIStatus getStatus(Context context) {
-		MTLog.i(this, "Finding status for POI in focus? %s (%s)", isInFocus(), this.poi);
+		MTLog.i(this, "Finding status for POI in focus? %s", isInFocus());
 		if (this.status == null || this.lastFindStatusTimestampMs < 0L || this.inFocus || !this.status.isUseful()) {
 			findStatus(context, false);
 		}
@@ -222,7 +222,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		if (this.lastFindStatusTimestampMs != findStatusTimestampMs) { // IF not same minute as last findStatus() call DO
 			StatusProviderContract.Filter filter = getFilter();
 			if (filter != null) {
-				MTLog.i(this, "Loading status for POI in focus? %s (%s)", isInFocus(), this.poi);
+				MTLog.i(this, "Loading status for POI in focus? %s", isInFocus());
 				filter.setInFocus(this.inFocus);
 				StatusLoader.StatusLoaderListener listener = this.statusLoaderListenerWR == null ? null : this.statusLoaderListenerWR.get();
 				isNotSkipped = StatusLoader.get().findStatus(context, this, filter, listener, skipIfBusy);

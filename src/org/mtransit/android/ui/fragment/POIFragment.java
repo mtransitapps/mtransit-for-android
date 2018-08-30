@@ -1028,7 +1028,7 @@ public class POIFragment extends ABFragment implements
 		this.nowToTheMinute = TimeUtils.currentTimeToTheMinuteMillis();
 		View view = getView();
 		POIManager poim = getPoimOrNull();
-		MTLog.i(this, "POI in focus? %s (%s)", poim == null || poim.getStatusOrNull() == null ? null : poim.isInFocus(), poim == null ? null : poim.poi);
+		MTLog.i(this, "POI in focus? %s", poim == null || poim.getStatusOrNull() == null ? null : poim.isInFocus());
 		if (poim != null) {
 			View poiView = getPOIView(view);
 			POIViewController.updatePOIStatus(getContext(), poiView, poim, this);
