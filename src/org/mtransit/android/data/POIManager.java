@@ -208,7 +208,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@Nullable
 	public POIStatus getStatus(Context context) {
-		MTLog.i(this, "Finding status for POI in focus? %s", isInFocus());
 		if (this.status == null || this.lastFindStatusTimestampMs < 0L || this.inFocus || !this.status.isUseful()) {
 			findStatus(context, false);
 		}
