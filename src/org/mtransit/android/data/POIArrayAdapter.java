@@ -1089,6 +1089,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (this.onPoiSelectedListenerWR != null) {
 			this.onPoiSelectedListenerWR.clear();
 		}
+		this.infiniteLoadingListener = null;
 	}
 
 	@Override
