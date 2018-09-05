@@ -1031,6 +1031,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		this.location = null; // clear current location to force refresh
 		setLocation(userLocation);
 		refreshFavorites();
+		enableTimeChangedReceiver(); // need to be enabled even if no schedule status displayed to keep others statuses up-to-date
 	}
 
 	public void setActivity(Activity activity) {
