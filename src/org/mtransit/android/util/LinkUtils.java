@@ -1,6 +1,7 @@
 package org.mtransit.android.util;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -9,6 +10,8 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
+import org.mtransit.android.data.AgencyProperties;
+import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.WebBrowserFragment;
 
@@ -32,11 +35,11 @@ import android.widget.TextView;
 
 public final class LinkUtils implements MTLog.Loggable {
 
-	private static final String TAG = LinkUtils.class.getSimpleName();
+	private static final String LOG_TAG = LinkUtils.class.getSimpleName();
 
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	public static CharSequence linkifyHtml(String originalText, boolean isHTML) {
@@ -50,7 +53,7 @@ public final class LinkUtils implements MTLog.Loggable {
 			}
 			return buffer;
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error while linkify-ing '%s'!", originalText);
+			MTLog.w(LOG_TAG, e, "Error while linkify-ing '%s'!", originalText);
 			return originalText;
 		}
 	}
@@ -97,24 +100,49 @@ public final class LinkUtils implements MTLog.Loggable {
 		return false; // not intercepted
 	}
 
-	public static boolean open(Activity activity, Uri uri, String label, boolean www) {
+	public static boolean open(@NonNull Activity activity, Uri uri, String label, boolean www) {
 		return org.mtransit.android.commons.LinkUtils.open(activity, uri, label);
 	}
 
-	public static boolean open(Activity activity, Intent intent, String label, boolean www) {
+	public static boolean open(@NonNull Activity activity, Intent intent, String label, boolean www) {
 		return org.mtransit.android.commons.LinkUtils.open(activity, intent, label);
 	}
 
 	public static void sendEmail(@NonNull Activity activity) {
 		Intent intent = new Intent(Intent.ACTION_SENDTO);
 		String email = activity.getString(R.string.send_feedback_email);
-		intent.setData(Uri.parse("mailto:" + email)); // only email apps should handle this
+		intent.setData(Uri.parse(EMAIL_SCHEME + ":" + email)); // only email apps should handle this
 		intent.putExtra(Intent.EXTRA_EMAIL, email);
-		intent.putExtra(Intent.EXTRA_SUBJECT, //
-				PackageManagerUtils.getAppName(activity) //
-						+ " v" + PackageManagerUtils.getAppVersionName(activity) //
-						+ " (" + PackageManagerUtils.getAppVersionCode(activity) + ")" //
-		);
+		StringBuilder subjectSb = new StringBuilder();
+		subjectSb //
+				.append(PackageManagerUtils.getAppName(activity)) //
+				.append(" v").append(PackageManagerUtils.getAppVersionName(activity)) //
+				.append(" (r").append(PackageManagerUtils.getAppVersionCode(activity)).append(")");
+		try {
+			if (DataSourceProvider.isSet()) {
+				DataSourceProvider dataSourceProvider = DataSourceProvider.get();
+				if (dataSourceProvider != null) {
+					ArrayList<AgencyProperties> allAgencies = dataSourceProvider.getAllAgencies(activity);
+					for (AgencyProperties agencyProperties : allAgencies) {
+						if (!agencyProperties.getType().isMapScreen()) {
+							continue;
+						}
+						subjectSb //
+								.append(" - ").append(agencyProperties.getShortName()) //
+								.append(" ").append(activity.getString(agencyProperties.getType().getShortNameResId()));
+						String pkg = dataSourceProvider.getAgencyPkg(agencyProperties.getAuthority());
+						if (!TextUtils.isEmpty(pkg)) {
+							subjectSb //
+									.append(" v").append(PackageManagerUtils.getAppVersionName(activity, pkg)) //
+									.append(" (r").append(PackageManagerUtils.getAppVersionCode(activity, pkg)).append(")");
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			CrashUtils.w(LOG_TAG, e, "Error while adding agencies to email subject!");
+		}
+		intent.putExtra(Intent.EXTRA_SUBJECT, subjectSb.toString());
 		open(activity, intent, activity.getString(R.string.email), false);
 	}
 

@@ -43,6 +43,11 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return instance;
 	}
 
+	@Nullable
+	public static DataSourceProvider get() {
+		return instance;
+	}
+
 	private synchronized static void initInstance(@Nullable Context context) {
 		if (instance != null) {
 			return;
@@ -247,6 +252,9 @@ public class DataSourceProvider implements MTLog.Loggable {
 	private ArrayMap<String, Integer> agenciesAuthorityTypeId = new ArrayMap<String, Integer>();
 
 	@NonNull
+	private ArrayMap<String, String> agenciesAuthorityPkg = new ArrayMap<String, String>();
+
+	@NonNull
 	private ArrayMap<String, Boolean> agenciesAuthorityIsRts = new ArrayMap<String, Boolean>();
 
 	private ArrayList<DataSourceType> allAgencyTypes = new ArrayList<DataSourceType>();
@@ -404,6 +412,11 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return this.allAgenciesColorInts.get(authority);
 	}
 
+	@Nullable
+	public String getAgencyPkg(String authority) {
+		return this.agenciesAuthorityPkg.get(authority);
+	}
+
 	private StatusProviderProperties getStatusProvider(String authority) {
 		return this.allStatusProvidersByAuthority.get(authority);
 	}
@@ -473,6 +486,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 		this.allAgenciesAuthority.clear();
 		this.agenciesAuthorityIsRts.clear();
 		this.agenciesAuthorityTypeId.clear();
+		this.agenciesAuthorityPkg.clear();
 		this.allStatusProviders.clear();
 		this.allStatusProvidersByAuthority.clear();
 		this.statusProvidersByTargetAuthority.clear();
@@ -508,6 +522,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 					for (ProviderInfo provider : providers) {
 						if (provider.metaData != null) {
 							if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
+								this.agenciesAuthorityPkg.put(provider.authority, provider.packageName);
 								int agencyTypeId = provider.metaData.getInt(agencyProviderTypeMetaData, -1);
 								if (agencyTypeId >= 0) {
 									DataSourceType newAgencyType = DataSourceType.parseId(agencyTypeId);
