@@ -46,9 +46,14 @@ android {
     versionProperties.load(new FileInputStream(file("version.properties")))
 
     Properties keysProperties = new Properties()
-    def keysPropertiesFile = file("../keys.properties")
+    def keysPropertiesFile = file("keys.properties")
     if (keysPropertiesFile.exists()) {
         keysProperties.load(new FileInputStream(keysPropertiesFile))
+    } else {
+        keysPropertiesFile = file("../keys.properties")
+        if (keysPropertiesFile.exists()) {
+            keysProperties.load(new FileInputStream(keysPropertiesFile))
+        }
     }
 
     defaultConfig {
