@@ -12,18 +12,34 @@ if [ $IS_CI = true ]; then
 fi
 DIRECTORY=$(basename ${PWD});
 CUSTOM_SETTINGS_GRADLE_FILE="../settings.gradle.all";
+SETTINGS_FILE_ARGS="";
+if [ -f $CUSTOM_SETTINGS_GRADLE_FILE ]; then
+	SETTINGS_FILE_ARGS=" -c $CUSTOM_SETTINGS_GRADLE_FILE"; #--settings-file
+fi
 ./keys_setup.sh;
 RESULT=$?;
 checkResult $RESULT;
-if [ -f $CUSTOM_SETTINGS_GRADLE_FILE ]; then
-	../gradlew -c $CUSTOM_SETTINGS_GRADLE_FILE :$DIRECTORY:clean :$DIRECTORY:assembleRelease :$DIRECTORY:copyReleaseApkToOutputDirs $GRADLE_ARGS;
+if [ $IS_CI = true ]; then
+	if [[ -z "${MT_SONAR_LOGIN}" ]]; then
+		echo "MT_SONAR_LOGIN environment variable is NOT defined!";
+		exit -1;
+	fi
+	../gradlew $SETTINGS_FILE_ARGS clean $GRADLE_ARGS;
 	RESULT=$?;
 	checkResult $RESULT;
-else
-	../gradlew :$DIRECTORY:clean :$DIRECTORY:assembleRelease :$DIRECTORY:copyReleaseApkToOutputDirs $GRADLE_ARGS;
+	../gradlew $SETTINGS_FILE_ARGS lint test $GRADLE_ARGS;
+	RESULT=$?;
+	checkResult $RESULT;
+	../gradlew $SETTINGS_FILE_ARGS :$DIRECTORY:sonarqube -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=mtransitapps-github -Dsonar.login=$MT_SONAR_LOGIN $GRADLE_ARGS
+	RESULT=$?;
+	checkResult $RESULT;
+	../gradlew $SETTINGS_FILE_ARGS build assemble $GRADLE_ARGS;
 	RESULT=$?;
 	checkResult $RESULT;
 fi
+../gradlew $SETTINGS_FILE_ARGS :$DIRECTORY:assembleRelease :$DIRECTORY:copyReleaseApkToOutputDirs $GRADLE_ARGS;
+RESULT=$?;
+checkResult $RESULT;
 ./keys_cleanup.sh;
 RESULT=$?;
 checkResult $RESULT;
