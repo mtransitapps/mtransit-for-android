@@ -9,27 +9,30 @@ if [[ ${#FILES[@]} -lt 1 ]]; then
 	exit -1;
 fi
 
-# for FILE in $FILES ; do
 for FILE in "${FILES[@]}" ; do
 	if [[ -z "${FILE}" ]]; then
 		echo "Ignoring empty '$FILE'.";
 		continue;
 	fi
+
 	FILE_ENC="enc/${FILE}";
-	git checkout -- $FILE;
+
+	git checkout -- ${FILE};
 	RESULT=$?;
-	if [ $RESULT -ne 0 ]; then
+	if [ ${RESULT} -ne 0 ]; then
 		echo "Resetting decrypted file '$FILE' using 'git checkout' did NOT work!";
-		rm $FILE; # deleting file
-		exit $RESULT;
+		rm ${FILE}; # deleting file
+		exit ${RESULT};
 	fi
-	git diff --name-status --exit-code $FILE;
+
+	git diff --name-status --exit-code ${FILE};
 	RESULT=$?;
-	if [ $RESULT -ne 0 ]; then
+	if [ ${RESULT} -ne 0 ]; then
 		echo "File '$FILE' NOT the same as clear file!";
-		exit $RESULT;
+		exit ${RESULT};
 	fi
-	echo "File '$FILE' cleaned succesfully."
+
+	echo "File '$FILE' cleaned successfully."
 done
 
 echo ">> Cleaning keys... DONE";
