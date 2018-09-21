@@ -5,6 +5,15 @@ echo ">> Building...";
 DIRECTORY=$(basename ${PWD});
 CUSTOM_SETTINGS_GRADLE_FILE="../settings.gradle.all";
 
+GIT_URL=$(git remote get-url origin); # git config --get remote.origin.url
+echo ">> Git URL: '$GIT_URL'.";
+GIT_PROJECT_NAME=$(basename -s .git ${GIT_URL});
+echo ">> Git project name: '$GIT_PROJECT_NAME'.";
+if [[ -z "${GIT_PROJECT_NAME}" ]]; then
+	echo "GIT_PROJECT_NAME not found!";
+	exit -1;
+fi
+
 IS_CI=false;
 if [[ ! -z "${CI}" ]]; then
 	IS_CI=true;
@@ -21,13 +30,17 @@ if [ -f ${CUSTOM_SETTINGS_GRADLE_FILE} ]; then
 	SETTINGS_FILE_ARGS=" -c $CUSTOM_SETTINGS_GRADLE_FILE"; #--settings-file
 fi
 
+echo ">> Setup-ing keys...";
 ./keys_setup.sh;
 RESULT=$?;
 checkResult ${RESULT};
+echo ">> Setup-ing keys... DONE";
 
+echo ">> Gradle cleaning...";
 ../gradlew ${SETTINGS_FILE_ARGS} clean ${GRADLE_ARGS};
 RESULT=$?;
 checkResult ${RESULT};
+echo ">> Gradle cleaning... DONE";
 
 if [ ${IS_CI} = true ]; then
 	if [[ -z "${MT_SONAR_LOGIN}" ]]; then
@@ -35,26 +48,44 @@ if [ ${IS_CI} = true ]; then
 		exit -1;
 	fi
 
-	../gradlew ${SETTINGS_FILE_ARGS} lint test ${GRADLE_ARGS};
+    echo ">> Running test...";
+	../gradlew ${SETTINGS_FILE_ARGS} :commons-android:test test ${GRADLE_ARGS};
 	RESULT=$?;
 	checkResult ${RESULT};
+    echo ">> Running test... DONE";
 
-	../gradlew ${SETTINGS_FILE_ARGS} :${DIRECTORY}:sonarqube -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=mtransitapps-github -Dsonar.login=${MT_SONAR_LOGIN} ${GRADLE_ARGS}
+    echo ">> Running lint...";
+	../gradlew ${SETTINGS_FILE_ARGS} lint ${GRADLE_ARGS};
 	RESULT=$?;
 	checkResult ${RESULT};
+    echo ">> Running lint... DONE";
 
+    echo ">> Running sonar...";
+	../gradlew ${SETTINGS_FILE_ARGS} :${DIRECTORY}:sonarqube \
+		-Dsonar.organization=mtransitapps-github -Dsonar.projectName=$GIT_PROJECT_NAME \
+		-Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${MT_SONAR_LOGIN} ${GRADLE_ARGS}
+	RESULT=$?;
+	checkResult ${RESULT};
+	echo ">> Running sonar... DONE";
+
+    echo ">> Running build & assemble...";
 	../gradlew ${SETTINGS_FILE_ARGS} build assemble ${GRADLE_ARGS};
 	RESULT=$?;
 	checkResult ${RESULT};
+	echo ">> Running build & assemble... DONE";
 fi
 
+echo ">> Running assemble release & copy-to-output dir...";
 ../gradlew ${SETTINGS_FILE_ARGS} :${DIRECTORY}:assembleRelease :${DIRECTORY}:copyReleaseApkToOutputDirs ${GRADLE_ARGS};
 RESULT=$?;
 checkResult ${RESULT};
+echo ">> Running assemble release & copy-to-output dir... DONE";
 
+echo ">> Cleaning keys...";
 ./keys_cleanup.sh;
 RESULT=$?;
 checkResult ${RESULT};
+echo ">> Cleaning keys... DONE";
 
 echo ">> Building... DONE";
 exit ${RESULT};
