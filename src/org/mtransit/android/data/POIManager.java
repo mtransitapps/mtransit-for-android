@@ -148,7 +148,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	public String getLocation() {
-		if (this.poi != null && this.poi instanceof Module) {
+		if (this.poi instanceof Module) {
 			return ((Module) this.poi).getLocation();
 		}
 		return null;
@@ -641,7 +641,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 							}).show();
 			return true;
 		default:
-			MTLog.w(this, "Unknow view type '%s' for poi '%s'!", this.poi.getType(), this);
+			MTLog.w(this, "Unknown view type '%s' for poi '%s'!", this.poi.getType(), this);
 			return false;
 		}
 	}

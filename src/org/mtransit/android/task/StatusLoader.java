@@ -45,7 +45,7 @@ public class StatusLoader implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private HashMap<String, ThreadPoolExecutor> fetchStatusExecutors = new HashMap<String, ThreadPoolExecutor>();
+	private HashMap<String, ThreadPoolExecutor> fetchStatusExecutors = new HashMap<>();
 
 	private static final int CORE_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES > 1 ? RuntimeUtils.NUMBER_OF_CORES / 2 : 1;
 
@@ -82,8 +82,8 @@ public class StatusLoader implements MTLog.Loggable {
 		}
 	}
 
-	public boolean findStatus(Context context, POIManager poim, StatusProviderContract.Filter statusFilter, StatusLoader.StatusLoaderListener listener,
-			boolean skipIfBusy) {
+	public boolean findStatus(@Nullable Context context, @NonNull POIManager poim, @NonNull StatusProviderContract.Filter statusFilter,
+			@Nullable StatusLoader.StatusLoaderListener listener, boolean skipIfBusy) {
 		if (skipIfBusy && isBusy()) {
 			return false;
 		}
@@ -92,6 +92,9 @@ public class StatusLoader implements MTLog.Loggable {
 			Iterator<StatusProviderProperties> it = providers.iterator();
 			while (it.hasNext()) {
 				StatusProviderProperties provider = it.next();
+				if (provider == null) {
+					continue;
+				}
 				StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter); // , null, timestamp);
 				task.executeOnExecutor(getFetchStatusExecutor(provider.getAuthority()));
 			}
@@ -108,18 +111,23 @@ public class StatusLoader implements MTLog.Loggable {
 			return TAG;
 		}
 
-		private WeakReference<Context> contextWR;
-		private StatusProviderProperties statusProvider;
-		private WeakReference<POIManager> poiWR;
-		private StatusLoader.StatusLoaderListener listener;
-		private StatusProviderContract.Filter statusFilter;
+		@NonNull
+		private final WeakReference<Context> contextWR;
+		@NonNull
+		private final StatusProviderProperties statusProvider;
+		@NonNull
+		private final WeakReference<POIManager> poiWR;
+		@NonNull
+		private final WeakReference<StatusLoader.StatusLoaderListener> listenerWR;
+		@NonNull
+		private final StatusProviderContract.Filter statusFilter;
 
-		public StatusFetcherCallable(Context context, StatusLoader.StatusLoaderListener listener, StatusProviderProperties statusProvider, POIManager poim,
-				StatusProviderContract.Filter statusFilter) {
-			this.contextWR = new WeakReference<Context>(context);
-			this.listener = listener;
+		StatusFetcherCallable(@Nullable Context context, @Nullable StatusLoader.StatusLoaderListener listener, @NonNull StatusProviderProperties statusProvider,
+				@Nullable POIManager poim, @NonNull StatusProviderContract.Filter statusFilter) {
+			this.contextWR = new WeakReference<>(context);
+			this.listenerWR = new WeakReference<>(listener);
 			this.statusProvider = statusProvider;
-			this.poiWR = new WeakReference<POIManager>(poim);
+			this.poiWR = new WeakReference<>(poim);
 			this.statusFilter = statusFilter;
 		}
 
@@ -138,29 +146,27 @@ public class StatusLoader implements MTLog.Loggable {
 			if (result == null) {
 				return;
 			}
-			POIManager poim = this.poiWR == null ? null : this.poiWR.get();
+			POIManager poim = this.poiWR.get();
 			if (poim == null) {
 				return;
 			}
 			boolean statusChanged = poim.setStatus(result);
 			if (statusChanged) {
-				if (this.listener == null) {
+				StatusLoader.StatusLoaderListener listener = this.listenerWR.get();
+				if (listener == null) {
 					return;
 				}
-				this.listener.onStatusLoaded(result);
+				listener.onStatusLoaded(result);
 			}
 		}
 
-		public POIStatus call() throws Exception {
-			Context context = this.contextWR == null ? null : this.contextWR.get();
+		public POIStatus call() {
+			Context context = this.contextWR.get();
 			if (context == null) {
 				return null;
 			}
-			POIManager poim = this.poiWR == null ? null : this.poiWR.get();
+			POIManager poim = this.poiWR.get();
 			if (poim == null) {
-				return null;
-			}
-			if (this.statusFilter == null) {
 				return null;
 			}
 			return DataSourceManager.findStatus(context, this.statusProvider.getAuthority(), this.statusFilter);
