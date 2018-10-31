@@ -38,7 +38,7 @@ public final class MapUtils implements MTLog.Loggable {
 
 	public static final int DEFAULT_MARKET_COLOR = Color.WHITE;
 
-	private static final String MAP_DIRECTION_URL_PART_1 = "http://maps.google.com/maps";
+	private static final String MAP_DIRECTION_URL_PART_1 = "https://maps.google.com/maps";
 	private static final String MAP_DIRECTION_URL_SOURCE_ADDRESS_PARAM = "saddr";
 	private static final String MAP_DIRECTION_URL_DESTINATION_ADDRESS_PARAM = "daddr";
 	private static final String MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM = "dirflg";
