@@ -75,9 +75,6 @@
 # skip Moat classes
 -keep class com.moat.** {*;}
 -dontwarn com.moat.**
-# skip Google Play Services classes
--dontwarn com.google.android.gms.plus.**
--dontwarn com.google.android.gms.measurement.**
 # INMOBI - END
 
 # CRASHLYTICS - START

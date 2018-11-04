@@ -12,7 +12,6 @@ dependencies {
     implementation rootProject.ext.supportLibs.recyclerView
     implementation rootProject.ext.supportLibs.supportV4
     implementation rootProject.ext.gpsLibs.analytics
-    implementation rootProject.ext.gpsLibs.basement
     implementation rootProject.ext.gpsLibs.location
     implementation rootProject.ext.gpsLibs.maps
     implementation rootProject.ext.gpsLibs.firebase_ads
