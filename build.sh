@@ -21,12 +21,12 @@ fi
 echo "$DIRECTORY/build.sh > IS_CI:'${IS_CI}'";
 
 GRADLE_ARGS="";
-if [ ${IS_CI} = true ]; then
+if [[ ${IS_CI} = true ]]; then
 	GRADLE_ARGS=" --console=plain";
 fi
 
 SETTINGS_FILE_ARGS="";
-if [ -f ${CUSTOM_SETTINGS_GRADLE_FILE} ]; then
+if [[ -f ${CUSTOM_SETTINGS_GRADLE_FILE} ]]; then
 	SETTINGS_FILE_ARGS=" -c $CUSTOM_SETTINGS_GRADLE_FILE"; #--settings-file
 fi
 
@@ -44,7 +44,7 @@ RESULT=$?;
 checkResult ${RESULT};
 echo ">> Gradle cleaning... DONE";
 
-if [ ${IS_CI} = true ]; then
+if [[ ${IS_CI} = true ]]; then
     echo ">> Running test...";
 	../gradlew ${SETTINGS_FILE_ARGS} :commons-android:test test ${GRADLE_ARGS};
 	RESULT=$?;

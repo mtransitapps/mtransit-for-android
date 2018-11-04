@@ -21,6 +21,8 @@ dependencies {
     }
     implementation rootProject.ext.fbLibs.audienceNetwork
     implementation rootProject.ext.fbLibs.audienceNetworkMediation
+    implementation rootProject.ext.inMobiLibs.inMobiAds
+    implementation rootProject.ext.inMobiLibs.inMobiAdsMediation
     // DEBUG
     debugImplementation rootProject.ext.squareLibs.leakcanary
     debugImplementation rootProject.ext.squareLibs.leakcanary_support_fragment
