@@ -11,6 +11,7 @@ dependencies {
     implementation rootProject.ext.supportLibs.design
     implementation rootProject.ext.supportLibs.supportV4
     implementation rootProject.ext.gpsLibs.analytics
+    implementation rootProject.ext.gpsLibs.basement
     implementation rootProject.ext.gpsLibs.location
     implementation rootProject.ext.gpsLibs.maps
     implementation rootProject.ext.gpsLibs.plus // required by InMobi
@@ -32,7 +33,7 @@ dependencies {
     releaseImplementation rootProject.ext.squareLibs.leakcanary_no_op
     // TEST
     testImplementation rootProject.ext.squareLibs.leakcanary_no_op
-    // DEBUG
+    // // DEBUG
     // debugImplementation 'com.android.support:multidex:1.0.3' // DEBUG minSdkVersion < 21
 
     testImplementation rootProject.ext.jUnitLibs.jUnit
