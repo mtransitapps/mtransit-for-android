@@ -68,6 +68,11 @@
 
 # INMOBI - START
 -keep class com.inmobi.** { *; }
+# skip the Picasso library classes
+-keep class com.squareup.picasso.** {*;}
+-dontwarn com.squareup.picasso.**
+-dontwarn com.squareup.okhttp.**
+# skip Moat classes
 -keep class com.moat.** {*;}
 -dontwarn com.moat.**
 # INMOBI - END
