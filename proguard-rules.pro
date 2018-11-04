@@ -66,6 +66,12 @@
 -dontwarn com.facebook.ads.internal.**
 # FACEBOOK AUDIENCE NETWORK - END
 
+# INMOBI - START
+-keep class com.inmobi.** { *; }
+-keep class com.moat.** {*;}
+-dontwarn com.moat.**
+# INMOBI - END
+
 # CRASHLYTICS - START
 -keepattributes *Annotation*
 -keepattributes SourceFile,LineNumberTable
