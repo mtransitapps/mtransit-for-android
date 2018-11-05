@@ -133,6 +133,10 @@
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
             android:value="false" />
+        <!-- USES LIBRARY -->
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
         <!-- GOOGLE ANALYTICS -->
         <service
             android:name="com.google.android.gms.analytics.AnalyticsService"
