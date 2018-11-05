@@ -6,7 +6,7 @@ apply plugin: "org.sonarqube"
 dependencies {
     // ALL
     implementation project(':commons-android') {
-        exclude group: ‘com.google.protobuf' module: 'protobuf-java’
+        exclude group: 'com.google.protobuf', module: 'protobuf-java'
     }
     implementation rootProject.ext.supportLibs.appCompat
     implementation rootProject.ext.supportLibs.customTabs
