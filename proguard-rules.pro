@@ -41,6 +41,14 @@
 -dontwarn org.apache.log4j.**
 -dontwarn org.slf4j.**
 
+# GOOGLE PROTOBUF - START
+-dontwarn com.google.protobuf.**
+# GOOGLE PROTOBUF - END
+
+# GOOGLE TRANSIT REALTIME - START
+-dontwarn com.google.transit.realtime.**
+# GOOGLE TRANSIT REALTIME - END
+
 # GOOGLE MOBILE ADS (ADMOB) - START
 -keep public class com.google.android.gms.ads.** {
    public *;
