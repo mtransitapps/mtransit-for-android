@@ -14,6 +14,7 @@ import org.mtransit.android.ui.MTApplication;
 
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 
@@ -178,6 +179,10 @@ public final class AdsUtils implements MTLog.Loggable {
 		public void onAdOpened() {
 			super.onAdOpened();
 		}
+	}
+
+	public static int getBannerHeightInDp() {
+		return AdSize.SMART_BANNER.getHeight();
 	}
 
 	public static void adaptToScreenSize(Activity activity, Configuration configuration) {
