@@ -584,7 +584,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void initLocationPopup() {
-		this.locationToast = ToastUtils.getNewTouchableToast(getContext(), R.string.new_location_toast);
+		this.locationToast = ToastUtils.getNewTouchableToast(getContext(), R.drawable.toast_frame_old, R.string.new_location_toast);
 		if (this.locationToast != null) {
 			this.locationToast.setTouchInterceptor(new View.OnTouchListener() {
 				@Override
