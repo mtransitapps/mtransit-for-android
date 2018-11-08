@@ -22,6 +22,7 @@ import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.NavigationDrawerController;
+import org.mtransit.android.util.AdsUtils;
 import org.mtransit.android.util.MapUtils;
 
 import android.app.Activity;
@@ -612,7 +613,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		if (!this.toastShown) {
 			PopupWindow locationToast = getLocationToast();
 			if (locationToast != null) {
-				this.toastShown = ToastUtils.showTouchableToast(getContext(), locationToast, getView());
+				int adHeightInDp = AdsUtils.getBannerHeightInDp();
+				this.toastShown = ToastUtils.showTouchableToast(getContext(), locationToast, getView(), adHeightInDp);
 			}
 		}
 	}

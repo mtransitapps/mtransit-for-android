@@ -17,6 +17,7 @@ import org.mtransit.android.task.HomePOILoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
+import org.mtransit.android.util.AdsUtils;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
@@ -334,7 +335,8 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (!this.toastShown) {
 			PopupWindow locationToast = getLocationToast();
 			if (locationToast != null) {
-				this.toastShown = ToastUtils.showTouchableToast(getContext(), locationToast, getView());
+				int adHeightInDp = AdsUtils.getBannerHeightInDp();
+				this.toastShown = ToastUtils.showTouchableToast(getContext(), locationToast, getView(), adHeightInDp);
 			}
 		}
 	}
