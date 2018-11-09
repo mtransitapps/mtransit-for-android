@@ -21,6 +21,7 @@ import com.google.android.gms.ads.MobileAds;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.support.annotation.Nullable;
 import android.view.View;
 
 public final class AdsUtils implements MTLog.Loggable {
@@ -181,8 +182,12 @@ public final class AdsUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static int getBannerHeightInDp() {
-		return AdSize.SMART_BANNER.getHeight();
+	public static int getBannerHeightInPx(@Nullable Context context) {
+		// return AdSize.SMART_BANNER.getHeight();
+		if (context == null) {
+			return 0;
+		}
+		return AdSize.SMART_BANNER.getHeightInPixels(context);
 	}
 
 	public static void adaptToScreenSize(Activity activity, Configuration configuration) {

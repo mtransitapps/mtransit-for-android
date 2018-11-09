@@ -613,8 +613,8 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		if (!this.toastShown) {
 			PopupWindow locationToast = getLocationToast();
 			if (locationToast != null) {
-				int adHeightInDp = AdsUtils.getBannerHeightInDp();
-				this.toastShown = ToastUtils.showTouchableToast(getContext(), locationToast, getView(), adHeightInDp);
+				int adHeightInPx = AdsUtils.getBannerHeightInPx(getContext());
+				this.toastShown = ToastUtils.showTouchableToastPx(getContext(), locationToast, getView(), adHeightInPx);
 			}
 		}
 	}
