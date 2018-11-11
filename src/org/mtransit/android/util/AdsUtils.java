@@ -37,9 +37,10 @@ public final class AdsUtils implements MTLog.Loggable {
 
 	private static final boolean DEBUG = false;
 
+	@Nullable
 	private static Boolean showingAds = null;
 
-
+	@Nullable
 	private static Boolean adLoaded = null;
 
 	private static final ArrayList<String> KEYWORDS = ArrayUtils
@@ -184,8 +185,14 @@ public final class AdsUtils implements MTLog.Loggable {
 
 	public static int getBannerHeightInPx(@Nullable Context context) {
 		// return AdSize.SMART_BANNER.getHeight();
+		if (adLoaded == null || !adLoaded) {
+			return 0; // ad not loaded
+		}
+		if (!isShowingAds(context)) {
+			return 0; // not showing ads (0 agency installed, paying user...)
+		}
 		if (context == null) {
-			return 0;
+			return 0; // can't measure w/o context
 		}
 		return AdSize.SMART_BANNER.getHeightInPixels(context);
 	}
@@ -309,7 +316,7 @@ public final class AdsUtils implements MTLog.Loggable {
 		refreshAdStatus(activity);
 	}
 
-	private static boolean isShowingAds(Context context) {
+	private static boolean isShowingAds(@Nullable Context context) {
 		if (!AD_ENABLED) {
 			return false;
 		}
