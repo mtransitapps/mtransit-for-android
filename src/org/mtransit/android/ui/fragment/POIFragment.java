@@ -404,11 +404,13 @@ public class POIFragment extends ABFragment implements
 		long nowInMs = TimeUtils.currentTimeMillis();
 		long minCreatedAtInMs = nowInMs - TimeUnit.DAYS.toMillis(7L);
 		ArrayList<News> allNews = new ArrayList<News>();
-		for (NewsProviderProperties poiNewsProvider : poiNewsProviders) {
-			ArrayList<News> providerNews = DataSourceManager.findNews(context, poiNewsProvider.getAuthority(),
-					NewsProviderContract.Filter.getNewTargetFilter(poim.poi).setMinCreatedAtInMs(minCreatedAtInMs));
-			if (providerNews != null) {
-				allNews.addAll(providerNews);
+		if (poiNewsProviders != null) {
+			for (NewsProviderProperties poiNewsProvider : poiNewsProviders) {
+				ArrayList<News> providerNews = DataSourceManager.findNews(context, poiNewsProvider.getAuthority(),
+						NewsProviderContract.Filter.getNewTargetFilter(poim.poi).setMinCreatedAtInMs(minCreatedAtInMs));
+				if (providerNews != null) {
+					allNews.addAll(providerNews);
+				}
 			}
 		}
 		if (CollectionUtils.getSize(allNews) == 0) {
@@ -416,7 +418,17 @@ public class POIFragment extends ABFragment implements
 		}
 		CollectionUtils.sort(allNews, News.NEWS_SEVERITY_COMPARATOR);
 		for (News news : allNews) {
-			if (nowInMs - news.getCreatedAtInMs() <= news.getNoteworthyInMs()) {
+			if (news.getCreatedAtInMs() + news.getNoteworthyInMs() < nowInMs) {
+				continue; // news too old to be worthy
+			}
+			this.news.add(0, news);
+			break;
+		}
+		if (this.news.size() == 0) {
+			for (News news : allNews) {
+				if (news.getCreatedAtInMs() + news.getNoteworthyInMs() * 2 < nowInMs) {
+					continue; // news too old to be worthy
+				}
 				this.news.add(0, news);
 				break;
 			}
