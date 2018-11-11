@@ -25,7 +25,7 @@ public final class ScreenWithLocationCommon implements MTLog.Loggable {
 
 	public static void showPermissionsRationale(@NonNull final MTLocationProvider.ScreenWithLocationView screenWithLocationView,
 			@NonNull final MTLocationProvider.OnPermissionsRationale listener) {
-		new AlertDialog.Builder(screenWithLocationView.getActivity())
+		new AlertDialog.Builder(screenWithLocationView.requireActivity())
 				.setTitle(R.string.location_permission_rationale_title)
 				.setMessage(R.string.location_permission_rationale_message)
 				.setPositiveButton(R.string.location_permission_rationale_ok, new DialogInterface.OnClickListener() {
@@ -48,7 +48,7 @@ public final class ScreenWithLocationCommon implements MTLog.Loggable {
 
 	public static void showPermissionsPermanentlyDenied(@NonNull final MTLocationProvider.ScreenWithLocationView screenWithLocationView,
 			@NonNull final MTLocationProvider.OnPermissionsPermanentlyDenied listener) {
-		new AlertDialog.Builder(screenWithLocationView.getActivity())
+		new AlertDialog.Builder(screenWithLocationView.requireActivity())
 				.setTitle(R.string.location_permission_rationale_title)
 				.setMessage(R.string.location_permission_rationale_message)
 				.setPositiveButton(R.string.location_permission_rationale_ok, new DialogInterface.OnClickListener() {
@@ -70,6 +70,6 @@ public final class ScreenWithLocationCommon implements MTLog.Loggable {
 	}
 
 	public static void showApplicationDetailsSettingsScreen(@NonNull MTLocationProvider.ScreenWithLocationView screenWithLocationView) {
-		PackageManagerUtils.showAppDetailsSettings(screenWithLocationView.getActivity(), screenWithLocationView.getActivity().getPackageName());
+		PackageManagerUtils.showAppDetailsSettings(screenWithLocationView.requireActivity(), screenWithLocationView.requireActivity().getPackageName());
 	}
 }

@@ -22,7 +22,7 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 
 	@Override
 	public void setup(IContext context, boolean enabled) {
-		Fabric.with(context.getContext(), new Crashlytics.Builder()
+		Fabric.with(context.requireContext(), new Crashlytics.Builder()
 				.core(new CrashlyticsCore.Builder()
 						.disabled(!enabled)
 						.build())

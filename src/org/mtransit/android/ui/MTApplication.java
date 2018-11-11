@@ -86,7 +86,19 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 
 	@NonNull
 	@Override
+	public Application requireApplication() throws IllegalStateException {
+		return this;
+	}
+
+	@NonNull
+	@Override
 	public Context getContext() {
+		return getApplicationContext();
+	}
+
+	@NonNull
+	@Override
+	public Context requireContext() throws IllegalStateException {
 		return getApplicationContext();
 	}
 }

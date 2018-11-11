@@ -17,7 +17,7 @@ public class LeakCanaryDetector implements LeakDetector, MTLog.Loggable {
 	@Override
 	public boolean isInAnalyzerProcess(IApplication application) {
 		try {
-			return LeakCanary.isInAnalyzerProcess(application.getContext());
+			return LeakCanary.isInAnalyzerProcess(application.requireContext());
 		} catch (Exception e) {
 			MTLog.w(this, "Error while initializing LeakCanary!", e);
 			return false;
@@ -27,7 +27,7 @@ public class LeakCanaryDetector implements LeakDetector, MTLog.Loggable {
 	@Override
 	public void setup(IApplication application) {
 		try {
-			LeakCanary.install(application.getApplication());
+			LeakCanary.install(application.requireApplication());
 		} catch (Exception e) {
 			MTLog.w(this, "Error while initializing LeakCanary!", e);
 		}

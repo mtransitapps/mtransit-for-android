@@ -133,7 +133,7 @@ public class MainActivity extends MTActivityWithLocation implements
 
 	public void onSearchQueryRequested(String query) {
 		Fragment currentFragment = getCurrentFragment();
-		if (currentFragment != null && currentFragment instanceof SearchFragment) {
+		if (currentFragment instanceof SearchFragment) {
 			((SearchFragment) currentFragment).setSearchQuery(query, false);
 		} else {
 			addFragmentToStack(SearchFragment.newInstance(query, null, null), currentFragment);
@@ -325,7 +325,7 @@ public class MainActivity extends MTActivityWithLocation implements
 			return;
 		}
 		Fragment currentFragment = getCurrentFragment();
-		if (currentFragment != null && currentFragment instanceof ABFragment && ((ABFragment) currentFragment).onBackPressed()) {
+		if (currentFragment instanceof ABFragment && ((ABFragment) currentFragment).onBackPressed()) {
 			return;
 		}
 		super.onBackPressed();
@@ -439,7 +439,19 @@ public class MainActivity extends MTActivityWithLocation implements
 
 	@NonNull
 	@Override
+	public Context requireContext() throws IllegalStateException {
+		return this;
+	}
+
+	@NonNull
+	@Override
 	public Activity getActivity() {
+		return this;
+	}
+
+	@NonNull
+	@Override
+	public Activity requireActivity() throws IllegalStateException {
 		return this;
 	}
 }

@@ -19,12 +19,12 @@ public abstract class PermissionProviderImpl implements PermissionProvider, MTLo
 
 	@Override
 	public boolean permissionsGranted(@NonNull IContext context) {
-		return ActivityCompat.checkSelfPermission(context.getContext(), getMainPermission()) == PackageManager.PERMISSION_GRANTED;
+		return ActivityCompat.checkSelfPermission(context.requireContext(), getMainPermission()) == PackageManager.PERMISSION_GRANTED;
 	}
 
 	@Override
 	public boolean shouldShowRequestPermissionRationale(@NonNull IActivity activity) {
-		return ActivityCompat.shouldShowRequestPermissionRationale(activity.getActivity(), getMainPermission());
+		return ActivityCompat.shouldShowRequestPermissionRationale(activity.requireActivity(), getMainPermission());
 	}
 
 	@Override
@@ -35,12 +35,12 @@ public abstract class PermissionProviderImpl implements PermissionProvider, MTLo
 	@Override
 	public void requestPermissions(@NonNull IActivity activity) {
 		this.requestedPermissions = true;
-		ActivityCompat.requestPermissions(activity.getActivity(), getAllPermissions(), RequestCodes.PERMISSIONS_LOCATION_RC);
+		ActivityCompat.requestPermissions(activity.requireActivity(), getAllPermissions(), RequestCodes.PERMISSIONS_LOCATION_RC);
 	}
 
 	@Override
 	public boolean handleRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults,
-												  @NonNull OnPermissionGrantedListener onPermissionGrantedListener) {
+			@NonNull OnPermissionGrantedListener onPermissionGrantedListener) {
 		if (requestCode == RequestCodes.PERMISSIONS_LOCATION_RC) {
 			if (grantResults.length > 0
 					&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {

@@ -63,8 +63,8 @@ public class GoogleLocationProvider
 	private final CrashReporter crashReporter;
 
 	public GoogleLocationProvider(@NonNull IApplication application,
-								  @NonNull LocationPermissionProvider permissionProvider,
-								  @NonNull CrashReporter crashReporter) {
+			@NonNull LocationPermissionProvider permissionProvider,
+			@NonNull CrashReporter crashReporter) {
 		this.application = application;
 		this.permissionProvider = permissionProvider;
 		this.crashReporter = crashReporter;
@@ -129,7 +129,7 @@ public class GoogleLocationProvider
 
 	@Override
 	public boolean handleRequestPermissionsResult(@NonNull final ScreenWithLocationView screenWithLocationView,
-												  final int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+			final int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		return this.permissionProvider.handleRequestPermissionsResult(requestCode, permissions, grantResults,
 				new PermissionProvider.OnPermissionGrantedListener() {
 					@Override
@@ -245,7 +245,7 @@ public class GoogleLocationProvider
 	@NonNull
 	private FusedLocationProviderClient getFusedLocationProviderClient() {
 		if (this.fusedLocationProviderClient == null) {
-			this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this.application.getApplication());
+			this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this.application.requireApplication());
 		}
 		return this.fusedLocationProviderClient;
 	}
