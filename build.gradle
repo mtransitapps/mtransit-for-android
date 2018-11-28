@@ -16,7 +16,7 @@ dependencies {
     implementation rootProject.ext.gpsLibs.basement // from commons-android
     implementation rootProject.ext.gpsLibs.location
     implementation rootProject.ext.gpsLibs.maps
-    implementation rootProject.ext.gpsLibs.firebase_ads
+    implementation rootProject.ext.gpsLibs.firebase_ads_lite
     implementation rootProject.ext.gpsLibs.firebase_analytics
     implementation rootProject.ext.gpsLibs.firebase_core
     implementation(rootProject.ext.gpsLibs.firebase_crashlytics_aar) {
@@ -24,6 +24,8 @@ dependencies {
     }
     implementation rootProject.ext.fbLibs.audienceNetwork
     implementation rootProject.ext.fbLibs.audienceNetworkMediation
+    implementation rootProject.ext.inMobiLibs.inMobiAds
+    implementation rootProject.ext.inMobiLibs.inMobiAdsMediation
     // DEBUG
     debugImplementation rootProject.ext.squareLibs.leakcanary
     debugImplementation rootProject.ext.squareLibs.leakcanary_support_fragment
