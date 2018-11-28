@@ -26,6 +26,7 @@ dependencies {
     implementation rootProject.ext.fbLibs.audienceNetworkMediation
     implementation rootProject.ext.inMobiLibs.inMobiAds
     implementation rootProject.ext.inMobiLibs.inMobiAdsMediation
+    implementation 'com.android.support:multidex:1.0.3'
     // DEBUG
     debugImplementation rootProject.ext.squareLibs.leakcanary
     debugImplementation rootProject.ext.squareLibs.leakcanary_support_fragment
