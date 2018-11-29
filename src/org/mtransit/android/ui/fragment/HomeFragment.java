@@ -211,6 +211,15 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		if (this.swipeRefreshLayout != null) {
+			this.swipeRefreshLayout.setOnRefreshListener(null);
+			this.swipeRefreshLayout = null;
+		}
+	}
+
+	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		this.userLocation = null;
@@ -452,12 +461,9 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		return false; // not handled
 	}
 
-	private void setupView(View view) {
-		if (view == null) {
-			return;
-		}
+	private void setupView(@NonNull View view) {
 		this.swipeRefreshLayout = (ListViewSwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
-		this.swipeRefreshLayout.setColorSchemeColors(ThemeUtils.resolveColorAttribute(getContext(), R.attr.colorAccent));
+		this.swipeRefreshLayout.setColorSchemeColors(ThemeUtils.resolveColorAttribute(view.getContext(), R.attr.colorAccent));
 		this.swipeRefreshLayout.setOnRefreshListener(this);
 		inflateList(view);
 		switchView(view);
