@@ -122,7 +122,7 @@
     <string name="menu_action_edit_favorite">Modifier favori</string>
     <string name="next_departures">Prochains Départs</string>
     <string name="availability">Disponibilité</string>
-    <string name="full_schedule">Horaires Complets</string>
+    <string name="full_schedule">Horaire Complet</string>
     <string name="local_time_and_time">%s heure locale</string>
     <string name="display_pref_cat_title">Affichage</string>
     <string name="unit_pref_title">Unités</string>

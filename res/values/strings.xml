@@ -122,7 +122,7 @@
     <string name="menu_action_edit_favorite">Edit favorite</string>
     <string name="next_departures">Next Departures</string>
     <string name="availability">Availability</string>
-    <string name="full_schedule">Full Schedules</string>
+    <string name="full_schedule">Full Schedule</string>
     <string name="local_time_and_time">%s local time</string>
     <string name="display_pref_cat_title">Display</string>
     <string name="unit_pref_title">Units</string>
