@@ -31,7 +31,7 @@
             android:textAllCaps="true"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/platform_background_holo_light"
-            tools:drawableLeft="@drawable/ic_shop_white_24dp"
+            tools:drawableLeft="@drawable/ic_directions_bus_white_24dp"
             tools:text="BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE" />
     </FrameLayout>
 
@@ -61,7 +61,7 @@
             android:textAllCaps="true"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/platform_background_holo_light"
-            tools:drawableLeft="@drawable/ic_shop_white_24dp"
+            tools:drawableLeft="@drawable/ic_directions_bus_white_24dp"
             tools:text="BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE" />
     </FrameLayout>
 </LinearLayout>

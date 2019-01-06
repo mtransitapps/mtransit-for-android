@@ -41,7 +41,6 @@
         android:layout_centerVertical="false"
         android:layout_gravity="center_vertical"
         android:layout_toLeftOf="@id/moreBtn"
-        android:drawableLeft="@drawable/ic_shop_grey600_24dp"
         android:drawablePadding="@dimen/title_drawable_padding"
         android:ellipsize="end"
         android:fontFamily="sans-serif-light"
@@ -53,5 +52,6 @@
         android:paddingTop="@dimen/title_padding_top"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/ic_grey600"
+        tools:drawableLeft="@drawable/ic_directions_bus_grey600_24dp"
         tools:text="TYPE TYPE TYPE TYPE TYPE TYPE TYPE TYPE " />
 </RelativeLayout>

@@ -8,6 +8,8 @@ import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.MTLog;
 
 import android.content.Context;
+import android.support.annotation.DrawableRes;
+import android.support.annotation.StringRes;
 
 public enum DataSourceType {
 
@@ -70,9 +72,9 @@ public enum DataSourceType {
 	TYPE_MODULE(999, //
 			R.string.agency_type_module_short_name, R.string.agency_type_module_all, //
 			R.string.agency_type_module_app_short_name, R.string.agency_type_module_nearby, //
-			R.drawable.ic_shop_black_24dp, //
-			R.drawable.ic_shop_grey600_24dp, //
-			R.drawable.ic_shop_white_24dp, //
+			R.drawable.ic_library_add_black_24dp, //
+			R.drawable.ic_library_add_grey600_24dp, //
+			R.drawable.ic_library_add_white_24dp, //
 			R.id.nav_module, //
 			true, true, true, false, false), //
 	;
@@ -83,34 +85,35 @@ public enum DataSourceType {
 
 	private int id;
 
+	@StringRes
 	private int shortNameResId;
-
+	@StringRes
 	private int allStringResId;
-
+	@StringRes
 	private int poiShortNameResId;
-
+	@StringRes
 	private int nearbyNameResId;
 
+	@DrawableRes
 	private int blackIconResId;
-
+	@DrawableRes
 	private int grey600IconResId;
-
+	@DrawableRes
 	private int whiteIconResId;
 
 	private int navResId;
 
 	private boolean menuList;
-
 	private boolean homeScreen;
-
 	private boolean nearbyScreen;
-
 	private boolean mapScreen;
-
 	private boolean searchable;
 
-	DataSourceType(int id, int shortNameResId, int allStringResId, int poiShortNameResId, int nearbyNameResId, int blackIconResId, int grey600IconResId,
-			int whiteIconResId, int navResId, boolean menuList, boolean homeScreen, boolean nearbyScreen, boolean mapScreen, boolean searchable) {
+	DataSourceType(int id,
+			@StringRes int shortNameResId, @StringRes int allStringResId, @StringRes int poiShortNameResId, @StringRes int nearbyNameResId,
+			@DrawableRes int blackIconResId, @DrawableRes int grey600IconResId, @DrawableRes int whiteIconResId,
+			int navResId,
+			boolean menuList, boolean homeScreen, boolean nearbyScreen, boolean mapScreen, boolean searchable) {
 		if (id >= MAX_ID) {
 			throw new UnsupportedOperationException(String.format("Data source type ID '%s' must be lower than '%s'!", id, MAX_ID));
 		}
@@ -134,30 +137,37 @@ public enum DataSourceType {
 		return id;
 	}
 
+	@StringRes
 	public int getShortNameResId() {
 		return shortNameResId;
 	}
 
+	@StringRes
 	public int getAllStringResId() {
 		return allStringResId;
 	}
 
+	@StringRes
 	public int getPoiShortNameResId() {
 		return poiShortNameResId;
 	}
 
+	@StringRes
 	public int getNearbyNameResId() {
 		return nearbyNameResId;
 	}
 
+	@DrawableRes
 	public int getBlackIconResId() {
 		return blackIconResId;
 	}
 
+	@DrawableRes
 	public int getGrey600IconResId() {
 		return grey600IconResId;
 	}
 
+	@DrawableRes
 	public int getWhiteIconResId() {
 		return whiteIconResId;
 	}
@@ -253,7 +263,7 @@ public enum DataSourceType {
 		private WeakReference<Context> contextWR;
 
 		public DataSourceTypeShortNameComparator(Context context) {
-			this.contextWR = new WeakReference<Context>(context);
+			this.contextWR = new WeakReference<>(context);
 		}
 
 		@Override
@@ -285,7 +295,7 @@ public enum DataSourceType {
 		private WeakReference<Context> contextWR;
 
 		public POIManagerTypeShortNameComparator(Context context) {
-			this.contextWR = new WeakReference<Context>(context);
+			this.contextWR = new WeakReference<>(context);
 		}
 
 		@Override

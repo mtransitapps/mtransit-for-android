@@ -70,7 +70,7 @@
             tools:visible="true" />
         <item
             android:id="@id/nav_module"
-            android:icon="@drawable/ic_shop_black_24dp"
+            android:icon="@drawable/ic_library_add_black_24dp"
             android:title="@string/agency_type_module_all"
             android:visible="false"
             tools:visible="true" />

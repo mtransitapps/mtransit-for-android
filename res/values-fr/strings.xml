@@ -52,9 +52,9 @@
     <string name="agency_type_place_app_short_name">Lieux</string>
     <string name="agency_type_place_nearby">Lieux Proches</string>
     <string name="agency_type_module_short_name">+</string>
-    <string name="agency_type_module_all">+</string>
-    <string name="agency_type_module_app_short_name">+</string>
-    <string name="agency_type_module_nearby">+</string>
+    <string name="agency_type_module_all">Agences</string>
+    <string name="agency_type_module_app_short_name">Agences</string>
+    <string name="agency_type_module_nearby">Agences Proches</string>
     <string name="email">Courriel</string>
     <string name="tel">Numéro de Téléphone</string>
     <string name="file">Fichier</string>

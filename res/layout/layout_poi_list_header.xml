@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/name"
     style="?android:attr/listSeparatorTextViewStyle"
     android:layout_width="match_parent"
@@ -11,3 +12,4 @@
     android:paddingRight="@dimen/title_padding_right"
     android:paddingTop="@dimen/title_top_padding"
     android:textColor="@color/ic_grey600" />
+    tools:text="TYPE TYPE TYPE TYPE TYPE TYPE TYPE TYPE " />
