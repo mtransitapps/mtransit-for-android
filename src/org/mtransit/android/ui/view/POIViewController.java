@@ -311,7 +311,7 @@ public class POIViewController implements MTLog.Loggable {
 					}
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
-					holder.routeShortNameTv.setText(Route.setShortNameSize(route.getShortName()));
+					holder.routeShortNameTv.setText(route.getShortName());
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);
