@@ -36,7 +36,7 @@
     <dimen name="switch_thumb_oval_padding">1dp</dimen>
     <dimen name="switch_thumb_bitmap_padding">4dp</dimen>
     <dimen name="tab_content_start">20dp</dimen>
-    <dimen name="route_short_name_min_text_size">@dimen/text_size_small</dimen>
+    <dimen name="route_short_name_min_text_size">@dimen/text_size_extra_extra_small</dimen>
     <dimen name="route_short_name_max_text_size">@dimen/text_size_extra_extra_extra_large</dimen>
     <dimen name="trip_head_sign_text_size" tools:ignore="SpUsage">14dp</dimen>
 </resources>
