@@ -39,6 +39,7 @@
     <color name="poi_item_bg">@android:color/white</color>
     <color name="button_bg">@color/primary_dark</color>
     <color name="switch_track_tint">#BFFFFFFF</color><!-- 75% -->
+    <color name="head_sign_shadow">#66000000</color><!-- 40% -->
     <color name="switch_thumb_tint">@color/primary_dark</color>
     <color name="switch_thumb_tint_border">#BFFFFFFF</color>
     <color name="ic_grey600">#8A000000</color>

@@ -41,4 +41,14 @@
     <dimen name="baseline_272">272dp</dimen>
     <dimen name="baseline_280">280dp</dimen>
     <dimen name="baseline_400">400dp</dimen>
+    <!-- TEXT SIZES -->
+    <dimen name="text_size_extra_extra_extra__small">2sp</dimen>
+    <dimen name="text_size_extra_extra_small">6sp</dimen>
+    <dimen name="text_size_extra_small">10sp</dimen>
+    <dimen name="text_size_small">14sp</dimen>
+    <dimen name="text_size_medium">18sp</dimen>
+    <dimen name="text_size_large">22sp</dimen>
+    <dimen name="text_size_extra_large">26sp</dimen>
+    <dimen name="text_size_extra_extra_large">30sp</dimen>
+    <dimen name="text_size_extra_extra_extra_large">34sp</dimen>
 </resources>

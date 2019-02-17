@@ -449,7 +449,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private int nbAgencyTypes = -1;
 
 	private View getBrowseHeaderSectionView(@Nullable View convertView, @NonNull ViewGroup parent) {
-		Activity activity = this.activityWR == null ? null : this.activityWR.get();
 		DataSourceProvider dataSourceProvider = DataSourceProvider.get(parent.getContext());
 		int agenciesCount = dataSourceProvider == null ? 0 : dataSourceProvider.getAllAgenciesCount();
 		if (convertView == null || this.nbAgencyTypes != agenciesCount) {
@@ -1621,7 +1620,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					}
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
-					holder.routeShortNameTv.setText(Route.setShortNameSize(route.getShortName()));
+					holder.routeShortNameTv.setText(route.getShortName());
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);

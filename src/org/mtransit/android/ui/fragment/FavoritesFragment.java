@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.LocationUtils;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;

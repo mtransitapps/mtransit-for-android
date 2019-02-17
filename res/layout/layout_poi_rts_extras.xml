@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/extra"
     android:layout_width="@dimen/poi_extra_width"
@@ -20,20 +21,23 @@
             android:layout_weight="1"
             android:gravity="center">
 
-            <TextView
+            <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/route_short_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:fontFamily="sans-serif-condensed"
+                android:gravity="center"
                 android:includeFontPadding="false"
                 android:maxLines="1"
+                android:padding="@dimen/baseline_1"
                 android:textAppearance="?android:attr/textAppearanceLargeInverse"
                 android:textColor="@android:color/white"
-                android:textSize="@dimen/route_short_name_text_size"
                 android:textStyle="bold"
                 android:visibility="gone"
-                tools:ignore="SpUsage"
+                app:autoSizeMaxTextSize="@dimen/route_short_name_max_text_size"
+                app:autoSizeMinTextSize="@dimen/route_short_name_min_text_size"
+                app:autoSizeTextType="uniform"
                 tools:text="RSN"
                 tools:visibility="visible" />
             <!-- ROUTE TYPE IMG -->
@@ -51,7 +55,7 @@
             android:id="@+id/trip_heading_bg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#66000000"
+            android:background="@color/head_sign_shadow"
             android:visibility="gone"
             tools:visibility="visible">
 
@@ -71,7 +75,7 @@
                 android:textSize="@dimen/trip_head_sign_text_size"
                 android:textStyle="bold"
                 tools:ignore="SpUsage"
-                tools:text="HEADING HEADING HEADING HEADING HEADING HEADING HEADING HEADING HEADING HEADING HEADING" />
+                tools:text="HEADING HEADING HEADING HEADING HEADING HEADING HEADING" />
         </FrameLayout>
     </LinearLayout>
 

@@ -27,27 +27,29 @@
         android:maxLines="1"
         android:paddingRight="8dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?android:attr/textColorSecondary" />
+        android:textColor="?android:attr/textColorSecondary"
+        tools:text="12:34 am" />
 
     <TextView
         android:id="@+id/next_departures_head_sign"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@id/next_departure_time"
-        android:layout_alignParentBottom="true"
         android:layout_alignRight="@id/next_departure_time"
+        android:layout_alignParentBottom="true"
         android:ellipsize="end"
         android:fontFamily="sans-serif-condensed"
         android:gravity="top"
         android:includeFontPadding="false"
         android:maxLines="1"
-        android:paddingBottom="4dp"
         android:paddingLeft="2dp"
         android:paddingRight="2dp"
+        android:paddingBottom="4dp"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="?android:attr/textColorTertiary"
         android:textSize="@dimen/trip_head_sign_text_size"
         android:visibility="invisible"
         tools:ignore="SpUsage"
+        tools:text="HEADING HEADING HEADING HEADING HEADING HEADING HEADING"
         tools:visibility="visible" />
 </RelativeLayout>
