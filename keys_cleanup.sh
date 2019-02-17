@@ -6,7 +6,7 @@ source keys_files.sh;
 
 if [[ ${#FILES[@]} -lt 1 ]]; then
 	echo "FILES environment variable is NOT defined (need at least 1 empty \"\")!";
-	exit -1;
+	exit 1;
 fi
 
 for FILE in "${FILES[@]}" ; do

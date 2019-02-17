@@ -11,7 +11,7 @@ GIT_PROJECT_NAME=$(basename -s .git ${GIT_URL});
 echo ">> Git project name: '$GIT_PROJECT_NAME'.";
 if [[ -z "${GIT_PROJECT_NAME}" ]]; then
 	echo "GIT_PROJECT_NAME not found!";
-	exit -1;
+	exit 1;
 fi
 
 IS_CI=false;
@@ -64,7 +64,7 @@ if [[ ${IS_CI} = true ]]; then
 	if contains ${GIT_PROJECT_NAME} ${SONAR_PROJECTS[@]}; then
 		if [[ -z "${MT_SONAR_LOGIN}" ]]; then
 			echo "MT_SONAR_LOGIN environment variable is NOT defined!";
-			exit -1;
+			exit 1;
 		fi
 		echo ">> Running sonar...";
 		../gradlew ${SETTINGS_FILE_ARGS} :${DIRECTORY}:sonarqube \

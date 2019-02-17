@@ -6,12 +6,12 @@ source keys_files.sh;
 
 if [[ ${#FILES[@]} -lt 1 ]]; then
 	echo "FILES environment variable is NOT defined (need at least 1 empty \"\")!";
-	exit -1;
+	exit 1;
 fi
 
 if [[ -z "${MT_ENCRYPT_KEY}" ]]; then
 	echo "MT_ENCRYPT_KEY environment variable is NOT defined!";
-	exit -1;
+	exit 1;
 fi
 
 for FILE in "${FILES[@]}" ; do
@@ -24,12 +24,12 @@ for FILE in "${FILES[@]}" ; do
 
 	if [ ! -f ${FILE} ]; then
 		echo "File '$FILE' does NOT exist!";
-		exit -1;
+		exit 1;
 	fi
 
 	if [ ! -f ${FILE_ENC} ]; then
 		echo "File '$FILE_ENC' does NOT exist!";
-		exit -1;
+		exit 1;
 	fi
 done
 
