@@ -35,6 +35,7 @@ Learn more about the BETA program [here](https://github.com/mtransitapps/mtransi
 
 ## Other
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/0341a9a6bd724240bea83045abe4efb3)](https://app.codacy.com/app/mmathieum/mtransit-for-android?utm_source=github.com&utm_medium=referral&utm_content=mtransitapps/mtransit-for-android&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.org/mtransitapps/gradle-project.svg)](https://travis-ci.org/mtransitapps/gradle-project)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/3792/badge.svg)](https://scan.coverity.com/projects/3792)
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mtransitapps/mtransit-for-android/trend.png)](https://bitdeli.com/free)
