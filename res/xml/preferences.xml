@@ -62,12 +62,6 @@
             android:key="pSocialFacebook"
             android:summary="@string/social_facebook_pref_summary"
             android:title="@string/social_facebook_pref_title" />
-        <!-- GOOGLE+ -->
-        <Preference
-            android:enabled="true"
-            android:key="pSocialGooglePlus"
-            android:summary="@string/social_google_plus_pref_summary"
-            android:title="@string/social_google_plus_pref_title" />
         <!-- TWITTER -->
         <Preference
             android:enabled="true"

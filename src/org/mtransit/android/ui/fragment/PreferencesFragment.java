@@ -34,11 +34,9 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 	private static final String ABOUT_APP_VERSION_PREF = "pAboutAppVersion";
 
 	private static final String SOCIAL_FACEBOOK_PREF = "pSocialFacebook";
-	private static final String SOCIAL_GOOGLE_PLUS_PREF = "pSocialGooglePlus";
 	private static final String SOCIAL_TWITTER_PREF = "pSocialTwitter";
 
 	private static final String TWITTER_PAGE_URL = "https://twitter.com/montransit";
-	private static final String GOOGLE_PLUS_PAGE_URL = "https://plus.google.com/+MonTransit";
 	private static final String FACEBOOK_PAGE_URL = "https://facebook.com/MonTransit";
 
 	@Override
@@ -92,17 +90,6 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 					return false; // not handled
 				}
 				LinkUtils.open(activity, FACEBOOK_PAGE_URL, activity.getString(R.string.facebook), false);
-				return true; // handled
-			}
-		});
-		findPreference(SOCIAL_GOOGLE_PLUS_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				Activity activity = getActivity();
-				if (activity == null) {
-					return false; // not handled
-				}
-				LinkUtils.open(activity, GOOGLE_PLUS_PAGE_URL, activity.getString(R.string.google_plus), false);
 				return true; // handled
 			}
 		});
