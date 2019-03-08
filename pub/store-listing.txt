@@ -50,7 +50,6 @@ Thank You.
 
 Social:
 - Facebook: https://facebook.com/MonTransit
-- Google+: https://plus.google.com/+MonTransit
 - Twitter: https://twitter.com/montransit
 
 This app is free & open-source:
