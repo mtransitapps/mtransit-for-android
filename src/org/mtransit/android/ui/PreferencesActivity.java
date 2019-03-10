@@ -1,12 +1,15 @@
 package org.mtransit.android.ui;
 
 import org.mtransit.android.R;
+import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.commons.BundleUtils;
-import org.mtransit.android.util.VendingUtils;
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.di.Injection;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
@@ -22,6 +25,7 @@ public class PreferencesActivity extends MTActivity {
 	}
 
 	private boolean showSupport = false;
+
 	public static Intent newInstance(Context context) {
 		return newInstance(context, false);
 	}
@@ -30,6 +34,14 @@ public class PreferencesActivity extends MTActivity {
 		Intent intent = new Intent(context, PreferencesActivity.class);
 		intent.putExtra(EXTRA_SUPPORT, support);
 		return intent;
+	}
+
+	@NonNull
+	private final IBillingManager billingManager;
+
+	public PreferencesActivity() {
+		super();
+		this.billingManager = Injection.providesBillingManager();
 	}
 
 	@Override
@@ -73,9 +85,13 @@ public class PreferencesActivity extends MTActivity {
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (!VendingUtils.onActivityResult(this, requestCode, resultCode, data)) {
-			super.onActivityResult(requestCode, resultCode, data);
-		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		this.billingManager.refreshPurchases();
 	}
 
 	@Override

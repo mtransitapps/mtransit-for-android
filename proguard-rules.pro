@@ -49,6 +49,10 @@
 -dontwarn com.google.transit.realtime.**
 # GOOGLE TRANSIT REALTIME - END
 
+# GOOGLE PLAY IN-APP BILLING - START
+-keep class com.android.vending.billing.**
+# GOOGLE PLAY IN-APP BILLING - END
+
 # GOOGLE MOBILE ADS (ADMOB) - START
 -keep public class com.google.android.gms.ads.** {
    public *;

@@ -1,29 +1,33 @@
 package org.mtransit.android.ui.fragment;
 
 import org.mtransit.android.R;
+import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.commons.Constants;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.PreferencesActivity;
+import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
-import org.mtransit.android.util.VendingUtils;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceFragment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 public class PreferencesFragment extends MTPreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener,
-		VendingUtils.OnVendingResultListener {
+		IBillingManager.OnBillingResultListener {
 
-	private static final String TAG = PreferenceFragment.class.getSimpleName();
+	private static final String LOG_TAG = PreferencesFragment.class.getSimpleName();
 
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private static final String FEEDBACK_EMAIL_PREF = "pFeedbackEmail";
@@ -38,6 +42,14 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 
 	private static final String TWITTER_PAGE_URL = "https://twitter.com/montransit";
 	private static final String FACEBOOK_PAGE_URL = "https://facebook.com/MonTransit";
+
+	@NonNull
+	private final IBillingManager billingManager;
+
+	public PreferencesFragment() {
+		super();
+		this.billingManager = Injection.providesBillingManager();
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -72,12 +84,13 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 				if (activity == null) {
 					return false; // not handled
 				}
-				Boolean hasSubscription = VendingUtils.isHasSubscription(activity);
+				Boolean hasSubscription = billingManager.hasSubscription();
 				if (hasSubscription == null) {
+					// DO NOTHING
 				} else if (hasSubscription) {
 					StoreUtils.viewAppPage(activity, activity.getPackageName(), activity.getString(R.string.google_play));
 				} else {
-					VendingUtils.purchase(activity);
+					FragmentUtils.replaceDialogFragment(activity, FragmentUtils.DIALOG_TAG, PurchaseDialogFragment.newInstance(), null);
 				}
 				return true; // handled
 			}
@@ -107,7 +120,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 	}
 
 	@Override
-	public void onVendingResult(Boolean hasSubscription) {
+	public void onBillingResult(@Nullable Boolean hasSubscription) {
 		Preference supportSubsPref = findPreference(SUPPORT_SUBSCRIPTIONS_PREF);
 		if (hasSubscription == null) {
 			supportSubsPref.setTitle(R.string.ellipsis);
@@ -171,16 +184,17 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 	@Override
 	public void onResume() {
 		super.onResume();
-		VendingUtils.onResume(getActivity(), this);
+		this.billingManager.addListener(this);
+		this.billingManager.refreshPurchases();
 		PreferenceUtils.getPrefDefault(getActivity()).registerOnSharedPreferenceChangeListener(this);
 		setUnitSummary(getActivity());
 		setUseInternalWebBrowserSummary(getActivity());
 		setAppVersion(getActivity());
 		if (((PreferencesActivity) getActivity()).isShowSupport()) {
 			((PreferencesActivity) getActivity()).setShowSupport(false); // clear flag before showing dialog
-			Boolean hasSubscription = VendingUtils.isHasSubscription(getActivity());
+			Boolean hasSubscription = this.billingManager.hasSubscription();
 			if (hasSubscription != null && !hasSubscription) {
-				VendingUtils.purchase(getActivity());
+				FragmentUtils.replaceDialogFragment(getActivity(), FragmentUtils.DIALOG_TAG, PurchaseDialogFragment.newInstance(), null);
 			}
 		}
 	}
@@ -195,12 +209,12 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 	public void onPause() {
 		super.onPause();
 		PreferenceUtils.getPrefDefault(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
-		VendingUtils.onPause();
+		this.billingManager.removeListener(this);
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		VendingUtils.destroyBilling(this);
+		this.billingManager.destroy();
 	}
 }

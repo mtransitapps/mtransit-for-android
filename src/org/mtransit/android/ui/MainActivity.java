@@ -3,8 +3,10 @@ package org.mtransit.android.ui;
 import java.util.WeakHashMap;
 
 import org.mtransit.android.R;
+import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.SearchFragment;
 import org.mtransit.android.ui.view.common.IActivity;
@@ -12,7 +14,6 @@ import org.mtransit.android.util.AdsUtils;
 import org.mtransit.android.util.AnalyticsUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
-import org.mtransit.android.util.VendingUtils;
 
 import android.app.Activity;
 import android.app.SearchManager;
@@ -34,7 +35,7 @@ import android.widget.FrameLayout;
 public class MainActivity extends MTActivityWithLocation implements
 		FragmentManager.OnBackStackChangedListener,
 		AnalyticsUtils.Trackable,
-		VendingUtils.OnVendingResultListener,
+		IBillingManager.OnBillingResultListener,
 		IActivity,
 		DataSourceProvider.ModulesUpdateListener {
 
@@ -60,8 +61,12 @@ public class MainActivity extends MTActivityWithLocation implements
 
 	private ActionBarController abController;
 
+	@NonNull
+	private final IBillingManager billingManager;
+
 	public MainActivity() {
 		super();
+		this.billingManager = Injection.providesBillingManager();
 	}
 
 	@Override
@@ -89,7 +94,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	}
 
 	@Override
-	public void onVendingResult(Boolean hasSubscription) {
+	public void onBillingResult(@Nullable Boolean hasSubscription) {
 		if (hasSubscription != null) {
 			AdsUtils.setShowingAds(!hasSubscription, this);
 		}
@@ -97,9 +102,7 @@ public class MainActivity extends MTActivityWithLocation implements
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (!VendingUtils.onActivityResult(this, requestCode, resultCode, data)) {
-			super.onActivityResult(requestCode, resultCode, data);
-		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	public ActionBarController getAbController() {
@@ -158,7 +161,8 @@ public class MainActivity extends MTActivityWithLocation implements
 			this.navigationDrawerController.onResume();
 		}
 		AnalyticsUtils.trackScreenView(this, this);
-		VendingUtils.onResume(this, this);
+		this.billingManager.addListener(this);
+		this.billingManager.refreshPurchases();
 		AdsUtils.adaptToScreenSize(this, getResources().getConfiguration());
 		onLastLocationChanged(getUserLocation());
 	}
@@ -193,7 +197,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onPause();
 		}
-		VendingUtils.onPause();
+		this.billingManager.removeListener(this);
 		AdsUtils.pauseAd(this);
 		DataSourceProvider.onPause();
 	}
@@ -216,7 +220,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		VendingUtils.destroyBilling(this);
+		this.billingManager.destroy();
 		DataSourceProvider.removeModulesUpdateListener(this);
 		if (this.abController != null) {
 			this.abController.destroy();
