@@ -1,5 +1,6 @@
 package org.mtransit.android.util;
 
+import android.support.annotation.NonNull;
 import org.mtransit.android.commons.MTLog;
 
 import android.support.annotation.Nullable;
@@ -32,7 +33,7 @@ public final class CrashUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static void w(MTLog.Loggable loggable, String msg, Object... args) {
+	public static void w(@NonNull MTLog.Loggable loggable, String msg, Object... args) {
 		w(loggable.getLogTag(), msg, args);
 	}
 
@@ -41,7 +42,7 @@ public final class CrashUtils implements MTLog.Loggable {
 		report(String.format(msg, args));
 	}
 
-	public static void w(MTLog.Loggable loggable, Throwable t, String msg, Object... args) {
+	public static void w(@NonNull MTLog.Loggable loggable, Throwable t, String msg, Object... args) {
 		w(loggable.getLogTag(), t, msg, args);
 	}
 

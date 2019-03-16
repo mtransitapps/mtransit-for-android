@@ -1,5 +1,7 @@
 package org.mtransit.android.di;
 
+import org.mtransit.android.ad.AdManager;
+import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.CrashlyticsCrashReporter;
@@ -35,10 +37,17 @@ public class Injection {
 	@Nullable
 	private static MTLocationProvider locationProvider;
 
+	@Nullable
+	private static IAdManager adManager;
+
 	@NonNull
-	public static IApplication providesApplication() {
+	private static IApplication providesApplication() {
 		if (application == null) {
-			application = MTApplication.getIApplication();
+			synchronized (Injection.class) {
+				if (application == null) {
+					application = MTApplication.getIApplication();
+				}
+			}
 		}
 		return application;
 	}
@@ -46,7 +55,11 @@ public class Injection {
 	@NonNull
 	public static LeakDetector providesLeakDetector() {
 		if (leakDetector == null) {
-			leakDetector = new LeakCanaryDetector();
+			synchronized (Injection.class) {
+				if (leakDetector == null) {
+					leakDetector = new LeakCanaryDetector();
+				}
+			}
 		}
 		return leakDetector;
 	}
@@ -54,7 +67,11 @@ public class Injection {
 	@NonNull
 	public static IStrictMode providesStrictMode() {
 		if (strictMode == null) {
-			strictMode = new StrictModeImpl();
+			synchronized (Injection.class) {
+				if (strictMode == null) {
+					strictMode = new StrictModeImpl();
+				}
+			}
 		}
 		return strictMode;
 	}
@@ -62,7 +79,11 @@ public class Injection {
 	@NonNull
 	public static CrashReporter providesCrashReporter() {
 		if (crashReporter == null) {
-			crashReporter = new CrashlyticsCrashReporter();
+			synchronized (Injection.class) {
+				if (crashReporter == null) {
+					crashReporter = new CrashlyticsCrashReporter();
+				}
+			}
 		}
 		return crashReporter;
 	}
@@ -70,7 +91,11 @@ public class Injection {
 	@NonNull
 	public static LocationPermissionProvider providesLocationPermissionProvider() {
 		if (locationPermissionProvider == null) {
-			locationPermissionProvider = new LocationPermissionProvider();
+			synchronized (Injection.class) {
+				if (locationPermissionProvider == null) {
+					locationPermissionProvider = new LocationPermissionProvider();
+				}
+			}
 		}
 		return locationPermissionProvider;
 	}
@@ -78,12 +103,31 @@ public class Injection {
 	@NonNull
 	public static MTLocationProvider providesLocationProvider() {
 		if (locationProvider == null) {
-			locationProvider = new GoogleLocationProvider(
-					providesApplication(),
-					providesLocationPermissionProvider(),
-					providesCrashReporter()
-			);
+			synchronized (Injection.class) {
+				if (locationProvider == null) {
+					locationProvider = new GoogleLocationProvider(
+							providesApplication(),
+							providesLocationPermissionProvider(),
+							providesCrashReporter()
+					);
+				}
+			}
 		}
 		return locationProvider;
+	}
+
+	@NonNull
+	public static IAdManager providesAdManager() {
+		if (adManager == null) {
+			synchronized (Injection.class) {
+				if (adManager == null) {
+					adManager = new AdManager(
+							providesCrashReporter(),
+							providesLocationProvider()
+					);
+				}
+			}
+		}
+		return adManager;
 	}
 }

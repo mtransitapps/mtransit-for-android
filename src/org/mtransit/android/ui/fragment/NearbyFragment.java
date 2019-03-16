@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 import org.mtransit.android.R;
+import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
@@ -16,15 +17,16 @@ import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.NavigationDrawerController;
-import org.mtransit.android.util.AdsUtils;
 import org.mtransit.android.util.MapUtils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.location.Address;
@@ -117,6 +119,14 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	private String fixedOnName = null;
 	private Integer fixedOnColor = null;
 	private Boolean isFixedOn = null;
+
+	@NonNull
+	private final IAdManager adManager;
+
+	public NearbyFragment() {
+		super();
+		this.adManager = Injection.providesAdManager();
+	}
 
 	private void resetIsFixedOn() {
 		this.isFixedOn = null;
@@ -499,10 +509,10 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		if (view == null) {
 			return;
 		}
-		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		ViewPager viewPager = view.findViewById(R.id.viewpager);
 		viewPager.setOffscreenPageLimit(3);
 		viewPager.addOnPageChangeListener(this);
-		TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
+		TabLayout tabs = view.findViewById(R.id.tabs);
 		viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
 		tabs.setOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
 		setupTabTheme(view);
@@ -522,9 +532,9 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		if (view == null) {
 			return;
 		}
-		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		ViewPager viewPager = view.findViewById(R.id.viewpager);
 		viewPager.setAdapter(this.adapter);
-		TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
+		TabLayout tabs = view.findViewById(R.id.tabs);
 		tabs.setupWithViewPager(viewPager);
 		notifyTabDataChanged(view);
 		showSelectedTab(view);
@@ -547,7 +557,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			TaskUtils.execute(new LoadLastPageSelectedFromUserPreference(this, this.selectedTypeId, getAvailableTypesOrNull()));
 			return;
 		}
-		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		ViewPager viewPager = view.findViewById(R.id.viewpager);
 		viewPager.setCurrentItem(this.lastPageSelected);
 		switchView(view);
 	}
@@ -588,6 +598,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		this.locationToast = ToastUtils.getNewTouchableToast(getContext(), R.drawable.toast_frame_old, R.string.new_location_toast);
 		if (this.locationToast != null) {
 			this.locationToast.setTouchInterceptor(new View.OnTouchListener() {
+				@SuppressLint("ClickableViewAccessibility")
 				@Override
 				public boolean onTouch(View v, MotionEvent me) {
 					if (me.getAction() == MotionEvent.ACTION_DOWN) {
@@ -613,7 +624,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		if (!this.toastShown) {
 			PopupWindow locationToast = getLocationToast();
 			if (locationToast != null) {
-				int adHeightInPx = AdsUtils.getBannerHeightInPx(getContext());
+				int adHeightInPx = this.adManager.getBannerHeightInPx(this);
 				this.toastShown = ToastUtils.showTouchableToastPx(getContext(), locationToast, getView(), adHeightInPx);
 			}
 		}
@@ -868,14 +879,14 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		private int lastVisibleFragmentPosition = -1;
 		private WeakReference<NearbyFragment> nearbyFragmentWR;
 		private int saveStateCount = -1;
-		private boolean swipeRefreshLayoutEnabled = true;
+		private boolean swipeRefreshLayoutEnabled;
 
 		public AgencyTypePagerAdapter(Context context, NearbyFragment nearbyFragment, ArrayList<DataSourceType> availableAgencyTypes,
-				boolean swipeRefreshLayoutEnabled) {
+									  boolean swipeRefreshLayoutEnabled) {
 			super(nearbyFragment.getChildFragmentManager());
-			this.contextWR = new WeakReference<Context>(context);
+			this.contextWR = new WeakReference<>(context);
 			setAvailableAgencyTypes(availableAgencyTypes);
-			this.nearbyFragmentWR = new WeakReference<NearbyFragment>(nearbyFragment);
+			this.nearbyFragmentWR = new WeakReference<>(nearbyFragment);
 			this.swipeRefreshLayoutEnabled = swipeRefreshLayoutEnabled;
 		}
 
@@ -915,7 +926,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			return availableAgencyTypes;
 		}
 
-		private ArrayList<Integer> typeIds = new ArrayList<Integer>();
+		private ArrayList<Integer> typeIds = new ArrayList<>();
 
 		public void setAvailableAgencyTypes(ArrayList<DataSourceType> availableAgencyTypes) {
 			this.availableAgencyTypes = availableAgencyTypes;

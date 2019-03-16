@@ -3,24 +3,25 @@ package org.mtransit.android.ui.fragment;
 import java.util.ArrayList;
 
 import org.mtransit.android.R;
+import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.commons.LocationUtils;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.dev.CrashReporter;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.HomePOILoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
-import org.mtransit.android.util.AdsUtils;
-import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.location.Address;
@@ -78,6 +79,17 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	private Location nearbyLocation;
 	private String nearbyLocationAddress;
 	private ListViewSwipeRefreshLayout swipeRefreshLayout;
+
+	@NonNull
+	private final CrashReporter crashReporter;
+	@NonNull
+	private final IAdManager adManager;
+
+	public HomeFragment() {
+		super();
+		this.crashReporter = Injection.providesCrashReporter();
+		this.adManager = Injection.providesAdManager();
+	}
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -239,14 +251,14 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		switch (id) {
 		case POIS_LOADER:
 			if (this.nearbyLocation == null) {
-				CrashUtils.w(this, "onCreateLoader() > skip (no nearby location)");
+				this.crashReporter.w(this, "onCreateLoader() > skip (no nearby location)");
 				return null;
 			}
 			this.loadFinished = false;
 			return new HomePOILoader(this, getContext(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(),
 					this.nearbyLocation.getAccuracy());
 		default:
-			CrashUtils.w(this, "Loader id '%s' unknown!", id);
+			this.crashReporter.w(this, "Loader id '%s' unknown!", id);
 			return null;
 		}
 	}
@@ -319,6 +331,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.locationToast = ToastUtils.getNewTouchableToast(getContext(), R.drawable.toast_frame_old, R.string.new_location_toast);
 		if (this.locationToast != null) {
 			this.locationToast.setTouchInterceptor(new View.OnTouchListener() {
+				@SuppressLint("ClickableViewAccessibility")
 				@Override
 				public boolean onTouch(View v, MotionEvent me) {
 					if (me.getAction() == MotionEvent.ACTION_DOWN) {
@@ -344,7 +357,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (!this.toastShown) {
 			PopupWindow locationToast = getLocationToast();
 			if (locationToast != null) {
-				int adHeightInPx = AdsUtils.getBannerHeightInPx(getContext());
+				int adHeightInPx = this.adManager.getBannerHeightInPx(this);
 				this.toastShown = ToastUtils.showTouchableToastPx(getContext(), locationToast, getView(), adHeightInPx);
 			}
 		}
@@ -462,7 +475,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	private void setupView(@NonNull View view) {
-		this.swipeRefreshLayout = (ListViewSwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
+		this.swipeRefreshLayout = view.findViewById(R.id.swiperefresh);
 		this.swipeRefreshLayout.setColorSchemeColors(ThemeUtils.resolveColorAttribute(view.getContext(), R.attr.colorAccent));
 		this.swipeRefreshLayout.setOnRefreshListener(this);
 		inflateList(view);
