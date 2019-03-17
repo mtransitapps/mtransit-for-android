@@ -71,9 +71,12 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			return;
 		}
 		try {
-			MobileAds.initialize(application.requireContext(), application.requireContext().getString(R.string.google_ads_app_id));
+			MobileAds.initialize(
+					application.requireApplication().getApplicationContext(),
+					application.requireContext().getString(R.string.google_ads_app_id)
+			);
 		} catch (Exception e) {
-			this.crashReporter.w(LOG_TAG, e, "Error while initializing Ads!");
+			this.crashReporter.w(this, e, "Error while initializing Ads!");
 		}
 	}
 
@@ -122,7 +125,10 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 		if (nbAgencies == null) {
 			DataSourceProvider dataSourceProvider = DataSourceProvider.get();
-			nbAgencies = dataSourceProvider == null ? -1 : dataSourceProvider.getAllAgenciesCount();
+			nbAgencies = dataSourceProvider == null ? null : dataSourceProvider.getAllAgenciesCount();
+		}
+		if (nbAgencies == null) {
+			return false;
 		}
 		if (nbAgencies <= MIN_AGENCIES_FOR_ADS) {
 			return false;
@@ -254,7 +260,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 					adView.removeAllViews();
 					adView.destroy();
 				} catch (Throwable t) {
-					this.crashReporter.w(LOG_TAG, t, "Error while destroying ad view!");
+					this.crashReporter.w(this, t, "Error while destroying ad view!");
 				}
 			}
 		}
@@ -328,7 +334,15 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 	}
 
-	private static class MTAdListener extends AdListener {
+	private static class MTAdListener extends AdListener implements MTLog.Loggable {
+
+		private static final String LOG_TAG = AdManager.class.getSimpleName() + ">" + MTAdListener.class.getSimpleName();
+
+		@NonNull
+		@Override
+		public String getLogTag() {
+			return LOG_TAG;
+		}
 
 		@NonNull
 		private final AdManager adManager;
@@ -348,19 +362,19 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			super.onAdFailedToLoad(errorCode);
 			switch (errorCode) {
 			case AdRequest.ERROR_CODE_INTERNAL_ERROR:
-				this.crashReporter.w(LOG_TAG, "Failed to received ad! Internal error code: '%s'.", errorCode);
+				this.crashReporter.w(this, "Failed to received ad! Internal error code: '%s'.", errorCode);
 				break;
 			case AdRequest.ERROR_CODE_INVALID_REQUEST:
-				this.crashReporter.w(LOG_TAG, "Failed to received ad! Invalid request error code: '%s'.", errorCode);
+				this.crashReporter.w(this, "Failed to received ad! Invalid request error code: '%s'.", errorCode);
 				break;
 			case AdRequest.ERROR_CODE_NETWORK_ERROR:
-				this.crashReporter.w(LOG_TAG, "Failed to received ad! Network error code: '%s'.", errorCode);
+				this.crashReporter.w(this, "Failed to received ad! Network error code: '%s'.", errorCode);
 				break;
 			case AdRequest.ERROR_CODE_NO_FILL:
-				this.crashReporter.w(LOG_TAG, "Failed to received ad! No fill error code: '%s'.", errorCode);
+				this.crashReporter.w(this, "Failed to received ad! No fill error code: '%s'.", errorCode);
 				break;
 			default:
-				this.crashReporter.w(LOG_TAG, "Failed to received ad! Error code: '%s'.", errorCode);
+				this.crashReporter.w(this, "Failed to received ad! Error code: '%s'.", errorCode);
 			}
 			this.adManager.adLoaded = null;
 			IActivity activity = this.activityWR.get();
@@ -394,6 +408,15 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		@Override
 		public void onAdOpened() {
 			super.onAdOpened();
+		}
+		@Override
+		public void onAdClicked() {
+			super.onAdClicked();
+		}
+
+		@Override
+		public void onAdImpression() {
+			super.onAdImpression();
 		}
 	}
 }

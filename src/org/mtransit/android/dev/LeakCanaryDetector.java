@@ -5,17 +5,20 @@ import com.squareup.leakcanary.LeakCanary;
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.commons.MTLog;
 
+import android.support.annotation.NonNull;
+
 public class LeakCanaryDetector implements LeakDetector, MTLog.Loggable {
 
 	private static final String LOG_TAG = LeakCanaryDetector.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return LOG_TAG;
 	}
 
 	@Override
-	public boolean isInAnalyzerProcess(IApplication application) {
+	public boolean isInAnalyzerProcess(@NonNull IApplication application) {
 		try {
 			return LeakCanary.isInAnalyzerProcess(application.requireContext());
 		} catch (Exception e) {
@@ -25,7 +28,7 @@ public class LeakCanaryDetector implements LeakDetector, MTLog.Loggable {
 	}
 
 	@Override
-	public void setup(IApplication application) {
+	public void setup(@NonNull IApplication application) {
 		try {
 			LeakCanary.install(application.requireApplication());
 		} catch (Exception e) {
