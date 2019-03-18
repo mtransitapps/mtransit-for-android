@@ -25,7 +25,6 @@ dependencies {
     implementation rootProject.ext.fbLibs.audienceNetworkMediation
     implementation rootProject.ext.inMobiLibs.inMobiAds
     implementation rootProject.ext.inMobiLibs.inMobiAdsMediation
-    debugImplementation 'com.android.support:multidex:1.0.3'
     // DEBUG
     debugImplementation rootProject.ext.squareLibs.leakcanary
     debugImplementation rootProject.ext.squareLibs.leakcanary_support_fragment
@@ -33,8 +32,8 @@ dependencies {
     releaseImplementation rootProject.ext.squareLibs.leakcanary_no_op
     // TEST
     testImplementation rootProject.ext.squareLibs.leakcanary_no_op
-    // // DEBUG
-    // debugImplementation 'com.android.support:multidex:1.0.3' // DEBUG minSdkVersion < 21
+    // DEBUG
+    debugImplementation 'com.android.support:multidex:1.0.3'
 
     testImplementation rootProject.ext.jUnitLibs.jUnit
     testImplementation rootProject.ext.mockitoLibs.mockitoCore
