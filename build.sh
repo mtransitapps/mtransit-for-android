@@ -46,7 +46,7 @@ echo ">> Gradle cleaning... DONE";
 
 if [[ ${IS_CI} = true ]]; then
     echo ">> Running test...";
-	../gradlew ${SETTINGS_FILE_ARGS} :commons-android:testDebug testDebug ${GRADLE_ARGS};
+	../gradlew ${SETTINGS_FILE_ARGS} :commons-android:testDebugUnitTest :app-android:testDebugUnitTest ${GRADLE_ARGS};
 	RESULT=$?;
 	checkResult ${RESULT};
     echo ">> Running test... DONE";
