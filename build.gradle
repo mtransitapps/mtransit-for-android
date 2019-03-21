@@ -114,11 +114,12 @@ android {
     //noinspection GroovyMissingReturnStatement
     lintOptions {
         abortOnError true
-        // abortOnError false // DEBUG
+        warningsAsErrors false
         ignoreWarnings false
-        // ignoreWarnings true // DEBUG
         quiet false
-        // quiet  true // DEBUG
+        checkDependencies true // also check leaf modules
+        // checkAllWarnings true // too slow for CI, can be enabled locally
+        ignoreTestSources true
         warning 'InvalidPackage', //
                 'ClickableViewAccessibility', //
                 'MergeRootFrame', //

@@ -52,7 +52,7 @@ if [[ ${IS_CI} = true ]]; then
     echo ">> Running test... DONE";
 
     echo ">> Running lint...";
-	../gradlew ${SETTINGS_FILE_ARGS} lint ${GRADLE_ARGS};
+	../gradlew ${SETTINGS_FILE_ARGS} :app-android:lintDebug ${GRADLE_ARGS};
 	RESULT=$?;
 	checkResult ${RESULT};
     echo ">> Running lint... DONE";
