@@ -78,7 +78,7 @@ if [[ ${IS_CI} = true ]]; then
 	fi
 
     echo ">> Running build & assemble...";
-	../gradlew ${SETTINGS_FILE_ARGS} build assemble ${GRADLE_ARGS};
+	../gradlew ${SETTINGS_FILE_ARGS} buildDebug assembleDebug ${GRADLE_ARGS};
 	RESULT=$?;
 	checkResult ${RESULT};
 	echo ">> Running build & assemble... DONE";
