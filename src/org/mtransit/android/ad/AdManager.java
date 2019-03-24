@@ -267,6 +267,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		setupAdTask = null;
 	}
 
+	@Nullable
 	private static SetupAdTask setupAdTask;
 
 	private static class SetupAdTask extends MTAsyncTask<Void, Void, Boolean> {
