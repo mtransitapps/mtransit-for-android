@@ -127,14 +127,12 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			DataSourceProvider dataSourceProvider = DataSourceProvider.get();
 			nbAgencies = dataSourceProvider == null ? null : dataSourceProvider.getAllAgenciesCount();
 		}
-		if (nbAgencies == null) {
-			return false;
+		if (nbAgencies == null // number of agency unknown
+				|| nbAgencies <= MIN_AGENCIES_FOR_ADS) { // no (real) agency installed
+			return false; // not showing ads
 		}
-		if (nbAgencies <= MIN_AGENCIES_FOR_ADS) {
-			return false;
-		}
-		if (showingAds == null) {
-			return false;
+		if (showingAds == null) { // paying status unknown
+			return false; // not showing ads
 		}
 		return showingAds;
 	}
@@ -325,7 +323,9 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 								adRequestBd.addTestDevice(deviceId);
 							}
 						}
-						adView.loadAd(adRequestBd.build());
+						AdRequest adRequest = adRequestBd.build();
+						MTLog.d(this, "onPostExecute() > request.isTestDevice(): %s", adRequest.isTestDevice(activity.requireContext()));
+						adView.loadAd(adRequest);
 					}
 				}
 			} else { // hide ads
