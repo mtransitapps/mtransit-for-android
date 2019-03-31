@@ -9,6 +9,8 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 public class RTSTripStopsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
@@ -22,9 +24,10 @@ public class RTSTripStopsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager
 	private String authority;
 	private long tripId;
 
+	@Nullable
 	private ArrayList<POIManager> pois;
 
-	public RTSTripStopsLoader(Context context, String authority, long tripId) {
+	public RTSTripStopsLoader(@NonNull Context context, String authority, long tripId) {
 		super(context);
 		this.authority = authority;
 		this.tripId = tripId;
@@ -35,7 +38,7 @@ public class RTSTripStopsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager
 		if (this.pois != null) {
 			return this.pois;
 		}
-		this.pois = new ArrayList<POIManager>();
+		this.pois = new ArrayList<>();
 		POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewSqlSelectionFilter(SqlUtils.getWhereEquals(
 				GTFSProviderContract.RouteTripStopColumns.T_TRIP_K_ID, this.tripId));
 		poiFilter.addExtra(POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER, //
@@ -62,7 +65,7 @@ public class RTSTripStopsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager
 	}
 
 	@Override
-	public void deliverResult(ArrayList<POIManager> data) {
+	public void deliverResult(@Nullable ArrayList<POIManager> data) {
 		this.pois = data;
 		if (isStarted()) {
 			super.deliverResult(data);

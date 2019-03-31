@@ -9,6 +9,8 @@ import org.mtransit.android.commons.MTLog;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.AsyncTaskLoader;
 
 /**
@@ -16,7 +18,7 @@ import android.support.v4.content.AsyncTaskLoader;
  */
 public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implements MTLog.Loggable {
 
-	public MTAsyncTaskLoaderV4(Context context) {
+	public MTAsyncTaskLoaderV4(@NonNull Context context) {
 		super(context);
 		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "%s()", getLogTag());
@@ -69,7 +71,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 	}
 
 	@Override
-	public void deliverResult(D data) {
+	public void deliverResult(@Nullable D data) {
 		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "deliverResult(%s)", data);
 		}

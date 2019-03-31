@@ -3,6 +3,7 @@ package org.mtransit.android.task;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.TimeUtils;
@@ -15,40 +16,43 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
 import android.util.SparseArray;
 
 public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
-	private static final String TAG = FavoritesLoader.class.getSimpleName();
+	private static final String LOG_TAG = FavoritesLoader.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
+	@Nullable
 	private ArrayList<POIManager> pois;
 
-	public FavoritesLoader(Context context) {
+	public FavoritesLoader(@NonNull Context context) {
 		super(context);
 	}
 
+	@NonNull
 	@Override
 	public ArrayList<POIManager> loadInBackgroundMT() {
 		if (this.pois != null) {
 			return this.pois;
 		}
-		this.pois = new ArrayList<POIManager>();
+		this.pois = new ArrayList<>();
 		ArrayList<Favorite> favorites = FavoriteManager.findFavorites(getContext());
-		HashSet<Integer> favoriteFolderIds = new HashSet<Integer>();
-		HashMap<String, Integer> uuidToFavoriteFolderId = new HashMap<String, Integer>();
-		if (favorites != null) {
-			for (Favorite favorite : favorites) {
-				uuidToFavoriteFolderId.put(favorite.getFkId(), favorite.getFolderId());
-			}
+		HashSet<Integer> favoriteFolderIds = new HashSet<>();
+		HashMap<String, Integer> uuidToFavoriteFolderId = new HashMap<>();
+		for (Favorite favorite : favorites) {
+			uuidToFavoriteFolderId.put(favorite.getFkId(), favorite.getFolderId());
 		}
 		ArrayMap<String, HashSet<String>> authorityToUUIDs = splitByAgency(favorites);
-		if (authorityToUUIDs != null && authorityToUUIDs.size() > 0) {
+		if (authorityToUUIDs.size() > 0) {
 			for (String authority : authorityToUUIDs.keySet()) {
 				HashSet<String> authorityUUIDs = authorityToUUIDs.get(authority);
 				if (CollectionUtils.getSize(authorityUUIDs) > 0) {
@@ -83,17 +87,18 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 		return this.pois;
 	}
 
-	public static ArrayMap<String, HashSet<String>> splitByAgency(ArrayList<Favorite> favorites) {
-		ArrayMap<String, HashSet<String>> authorityToUUIDs = new ArrayMap<String, HashSet<String>>();
-		if (favorites != null) {
-			for (Favorite favorite : favorites) {
-				String uuid = favorite.getFkId();
-				String authority = POI.POIUtils.extractAuthorityFromUUID(uuid);
-				if (!authorityToUUIDs.containsKey(authority)) {
-					authorityToUUIDs.put(authority, new HashSet<String>());
-				}
-				authorityToUUIDs.get(authority).add(uuid);
+	@NonNull
+	private static ArrayMap<String, HashSet<String>> splitByAgency(@NonNull List<Favorite> favorites) {
+		ArrayMap<String, HashSet<String>> authorityToUUIDs = new ArrayMap<>();
+		for (Favorite favorite : favorites) {
+			String uuid = favorite.getFkId();
+			String authority = POI.POIUtils.extractAuthorityFromUUID(uuid);
+			HashSet<String> uuids = authorityToUUIDs.get(authority);
+			if (uuids == null) {
+				uuids = new HashSet<>();
 			}
+			uuids.add(uuid);
+			authorityToUUIDs.put(authority, uuids);
 		}
 		return authorityToUUIDs;
 	}
@@ -116,11 +121,10 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 	}
 
 	@Override
-	public void deliverResult(ArrayList<POIManager> data) {
+	public void deliverResult(@Nullable ArrayList<POIManager> data) {
 		this.pois = data;
 		if (isStarted()) {
 			super.deliverResult(data);
 		}
 	}
-
 }

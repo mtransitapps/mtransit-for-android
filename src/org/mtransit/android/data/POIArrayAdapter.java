@@ -705,10 +705,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			this.closestPoiUuids = null;
 			return;
 		}
-		this.closestPoiUuids = new HashSet<String>();
+		this.closestPoiUuids = new HashSet<>();
 		if (this.poisByType != null) {
 			for (Integer type : this.poisByType.keySet()) {
-				ArrayList<POIManager> orderedPoims = new ArrayList<POIManager>(this.poisByType.get(type));
+				ArrayList<POIManager> poiManagers = this.poisByType.get(type);
+				if (poiManagers == null || poiManagers.size() == 0) {
+					continue;
+				}
+				ArrayList<POIManager> orderedPoims = new ArrayList<>(poiManagers);
 				if (orderedPoims.size() > 0) {
 					CollectionUtils.sort(orderedPoims, LocationUtils.POI_DISTANCE_COMPARATOR);
 					POIManager theClosestOne = orderedPoims.get(0);
@@ -1501,7 +1505,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	private void initModuleExtra(View convertView, ModuleViewHolder holder) {
-		holder.moduleExtraTypeImg = (ImageView) convertView.findViewById(R.id.extra);
+		holder.moduleExtraTypeImg = convertView.findViewById(R.id.extra);
 	}
 
 	@NonNull

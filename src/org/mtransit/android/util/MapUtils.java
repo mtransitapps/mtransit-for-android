@@ -87,9 +87,10 @@ public final class MapUtils implements MTLog.Loggable {
 
 	private static final int MAP_WITH_BUTTONS_CAMERA_PADDING_IN_SP = 64;
 
+	@Nullable
 	private static Integer mapWithButtonsCameraPaddingInPx = null;
 
-	public static int getMapWithButtonsCameraPaddingInPx(Context context) {
+	public static int getMapWithButtonsCameraPaddingInPx(@Nullable Context context) {
 		if (mapWithButtonsCameraPaddingInPx == null) {
 			mapWithButtonsCameraPaddingInPx = (int) ResourceUtils.convertSPtoPX(context, MAP_WITH_BUTTONS_CAMERA_PADDING_IN_SP);
 		}
@@ -98,9 +99,10 @@ public final class MapUtils implements MTLog.Loggable {
 
 	private static final int MAP_WITHOUT_BUTTONS_CAMERA_PADDING_IN_SP = 32;
 
+	@Nullable
 	private static Integer mapWithoutButtonsCameraPaddingInPx = null;
 
-	public static int getMapWithoutButtonsCameraPaddingInPx(Context context) {
+	public static int getMapWithoutButtonsCameraPaddingInPx(@Nullable Context context) {
 		if (mapWithoutButtonsCameraPaddingInPx == null) {
 			mapWithoutButtonsCameraPaddingInPx = (int) ResourceUtils.convertSPtoPX(context, MAP_WITHOUT_BUTTONS_CAMERA_PADDING_IN_SP);
 		}

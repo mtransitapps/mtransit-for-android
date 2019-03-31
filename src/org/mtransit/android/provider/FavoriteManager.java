@@ -190,8 +190,9 @@ public class FavoriteManager implements MTLog.Loggable {
 		return favoriteUUIDs;
 	}
 
-	public static ArrayList<Favorite> findFavorites(Context context) {
-		ArrayList<Favorite> result = new ArrayList<Favorite>();
+	@NonNull
+	public static ArrayList<Favorite> findFavorites(@NonNull Context context) {
+		ArrayList<Favorite> result = new ArrayList<>();
 		Cursor cursor = null;
 		try {
 			cursor = DataSourceManager.queryContentResolver( //

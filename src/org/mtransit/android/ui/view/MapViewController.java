@@ -72,8 +72,10 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private static final String LOG_TAG = MapViewController.class.getSimpleName();
 
-	private String tag = null;
+	@Nullable
+	private String tag;
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return LOG_TAG + "-" + this.tag;
@@ -82,15 +84,23 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	private static final String EXTRA_LAST_CAMERA_POSITION = "extra_last_camera_position";
 	private static final String EXTRA_LAST_SELECTED_UUID = "extra_last_selected_uuid";
 
+	@Nullable
 	private WeakReference<Activity> activityWR;
+	@Nullable
 	private MapView mapView;
+	@Nullable
 	private View loadingMapView;
+	@Nullable
 	private ImageView typeSwitchView;
+	@Nullable
 	private ExtendedGoogleMap extendedGoogleMap;
+	@Nullable
 	private Boolean showingMyLocation = false;
 	private boolean mapLayoutReady = false;
 	private boolean mapVisible = false;
+	@Nullable
 	private LocationSource.OnLocationChangedListener locationChangedListener;
+	@Nullable
 	private Location userLocation;
 	private boolean waitingForGlobalLayout = false;
 
@@ -134,8 +144,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	private boolean indoorLevelPickerEnabled;
 	private boolean trafficEnabled;
 	private boolean indoorEnabled;
-	private int paddingTopSp = -1;
-	private boolean followingUser = false;
+	private int paddingTopSp;
+	private boolean followingUser;
 	private boolean hasButtons;
 	private boolean clusteringEnabled;
 	private boolean showAllMarkersWhenReady;
@@ -168,11 +178,11 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	private void setMarkerProvider(MapMarkerProvider markerProvider) {
-		this.markerProviderWR = new WeakReference<MapMarkerProvider>(markerProvider);
+		this.markerProviderWR = new WeakReference<>(markerProvider);
 	}
 
 	private void setMapListener(MapListener mapListener) {
-		this.mapListenerWR = new WeakReference<MapListener>(mapListener);
+		this.mapListenerWR = new WeakReference<>(mapListener);
 	}
 
 	public void setTag(String tag) {
@@ -225,7 +235,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	private void initMapViewAsync(View view) {
-		if (this.initMapViewTask != null && this.initMapViewTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.initMapViewTask != null && this.initMapViewTask.getStatus() == InitMapViewTask.Status.RUNNING) {
 			return;
 		}
 		if (view == null) {
@@ -252,8 +262,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		private final WeakReference<View> viewWR;
 
 		InitMapViewTask(MapViewController mapViewController, View view) {
-			this.mapViewControllerWR = new WeakReference<MapViewController>(mapViewController);
-			this.viewWR = new WeakReference<View>(view);
+			this.mapViewControllerWR = new WeakReference<>(mapViewController);
+			this.viewWR = new WeakReference<>(view);
 		}
 
 		@Override
@@ -292,9 +302,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (view == null) {
 			return;
 		}
-		this.mapView = (MapView) view.findViewById(R.id.map);
+		this.mapView = view.findViewById(R.id.map);
 		this.loadingMapView = view.findViewById(R.id.map_loading);
-		this.typeSwitchView = (ImageView) view.findViewById(R.id.map_type_switch);
+		this.typeSwitchView = view.findViewById(R.id.map_type_switch);
 		if (this.mapView != null) {
 			try {
 				this.mapView.onCreate(this.lastSavedInstanceState);
@@ -622,7 +632,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	@Override
 	public boolean onMyLocationButtonClick() {
-		if (this.showingMyLocation != null && this.showingMyLocation) {
+		if (Boolean.TRUE.equals(this.showingMyLocation)) {
 			showMarkers(true, false);
 			this.showingMyLocation = false;
 			return true; // handled
@@ -656,6 +666,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (!this.mapLayoutReady) {
 			return false;
 		}
+		if (!this.mapVisible) {
+			return false;
+		}
 		LatLngBounds.Builder llb = LatLngBounds.builder();
 		boolean markersFound = includeMarkersInLatLngBounds(llb);
 		if (!markersFound) {
@@ -671,7 +684,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		} else {
 			paddingInPx = MapUtils.getMapWithoutButtonsCameraPaddingInPx(context);
 		}
-		return updateMapCamera(anim, CameraUpdateFactory.newLatLngBounds(llb.build(), paddingInPx));
+		try {
+			CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(llb.build(), paddingInPx);
+			return updateMapCamera(anim, cameraUpdate);
+		} catch (Exception e) {
+			CrashUtils.w(this, "Error while computing camera update to show markers!", e);
+			return false;
+		}
 	}
 
 	private static void includeLocationAccuracyBounds(@NonNull LatLngBounds.Builder llb, @Nullable Location location) {
@@ -688,7 +707,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		llb.include(LatLngUtils.fromLocation(northWestBound));
 	}
 
-	private boolean includeMarkersInLatLngBounds(LatLngBounds.Builder llb) {
+	private boolean includeMarkersInLatLngBounds(@NonNull LatLngBounds.Builder llb) {
 		java.util.List<IMarker> markers = this.extendedGoogleMap == null ? null : this.extendedGoogleMap.getMarkers();
 		if (markers != null && markers.size() > 0) {
 			for (IMarker imarker : markers) {
@@ -816,9 +835,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 
 		private LatLng position;
-		private ArrayList<String> names = new ArrayList<String>();
-		private ArrayList<String> agencies = new ArrayList<String>();
-		private ArrayList<String> extras = new ArrayList<String>();
+		private ArrayList<String> names = new ArrayList<>();
+		private ArrayList<String> agencies = new ArrayList<>();
+		private ArrayList<String> extras = new ArrayList<>();
 		private Integer color;
 		private Integer secondaryColor;
 		private POIMarkerIds uuidsAndAuthority = new POIMarkerIds();
@@ -1007,7 +1026,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return this.uuidsAndAuthority.containsKey(uuid);
 		}
 
-		private ArrayMap<String, String> uuidsAndAuthority = new ArrayMap<String, String>();
+		private ArrayMap<String, String> uuidsAndAuthority = new ArrayMap<>();
 
 		public void put(String uuid, String authority) {
 			try {
@@ -1039,18 +1058,18 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private static class LoadClusterItemsTask extends MTAsyncTask<Void, Void, Collection<POIMarker>> {
 
-		private final String TAG = MapViewController.class.getSimpleName() + ">" + LoadClusterItemsTask.class.getSimpleName();
+		private final String LOG_TAG = MapViewController.class.getSimpleName() + ">" + LoadClusterItemsTask.class.getSimpleName();
 
 		@NonNull
 		private final WeakReference<MapViewController> mapViewControllerWR;
 
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
 		private LoadClusterItemsTask(MapViewController mapViewController) {
-			this.mapViewControllerWR = new WeakReference<MapViewController>(mapViewController);
+			this.mapViewControllerWR = new WeakReference<>(mapViewController);
 		}
 
 		@Override
@@ -1075,7 +1094,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			if (pois == null) {
 				return null;
 			}
-			ArrayMap<LatLng, POIMarker> clusterItems = new ArrayMap<LatLng, POIMarker>();
+			ArrayMap<LatLng, POIMarker> clusterItems = new ArrayMap<>();
 			LatLng position;
 			LatLng positionTrunc;
 			String name;
@@ -1103,17 +1122,24 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				authority = poim.poi.getAuthority();
 				color = POIManager.getColor(activity, poim.poi, null);
 				secondaryColor = agency.getColorInt();
-				if (clusterItems.containsKey(positionTrunc)) {
-					clusterItems.get(positionTrunc).merge(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority);
+				POIMarker currentItem = clusterItems.get(positionTrunc);
+				if (currentItem == null) {
+					currentItem = new POIMarker(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority);
 				} else {
-					clusterItems.put(positionTrunc, new POIMarker(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority));
+					currentItem.merge(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority);
+				}
+				try {
+					clusterItems.put(positionTrunc, currentItem);
+				} catch (ClassCastException cce) {
+					CrashUtils.w(this, "ClassCastException while loading cluster items!", cce);
+					return null;
 				}
 			}
 			return clusterItems.values();
 		}
 
 		@Override
-		protected void onPostExecute(Collection<POIMarker> result) {
+		protected void onPostExecute(@Nullable Collection<POIMarker> result) {
 			super.onPostExecute(result);
 			MapViewController mapViewController = this.mapViewControllerWR.get();
 			if (mapViewController == null) {
@@ -1168,7 +1194,6 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			showMarkers(false, this.followingUser);
 		}
 	}
-
 
 	@Override
 	public void activate(OnLocationChangedListener onLocationChangedListener) {
@@ -1229,7 +1254,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	private void setActivity(Activity activity) {
-		this.activityWR = new WeakReference<Activity>(activity);
+		this.activityWR = new WeakReference<>(activity);
 	}
 
 	@Nullable
@@ -1318,6 +1343,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		destroyGoogleMap();
 		this.initialMapCameraSetup = false;
 		TaskUtils.cancelQuietly(this.initMapViewTask, true);
+		TaskUtils.cancelQuietly(this.loadClusterItemsTask, true);
 		this.lastSavedInstanceState = null;
 		clearMarkers();
 	}
