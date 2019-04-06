@@ -8,25 +8,25 @@ import android.support.annotation.Nullable;
 
 public interface CrashReporter {
 
-	void setup(IContext context, boolean enabled);
+	void setup(@NonNull IContext context, boolean enabled);
 
 	void reportNonFatal(@Nullable Throwable throwable);
 
-	void reportNonFatal(@Nullable String msg, Object... args);
+	void reportNonFatal(@Nullable String msg, @Nullable Object... args);
 
-	void reportNonFatal(@Nullable Throwable throwable, @Nullable String msg, Object... args);
+	void reportNonFatal(@Nullable Throwable throwable, @Nullable String msg, @Nullable Object... args);
 
 	void shouldNotHappen(@Nullable Throwable throwable) throws RuntimeException;
 
-	void shouldNotHappen(@Nullable String msg, Object... args) throws RuntimeException;
+	void shouldNotHappen(@Nullable String msg, @Nullable Object... args) throws RuntimeException;
 
-	void shouldNotHappen(@Nullable Throwable throwable, @Nullable String msg, Object... args) throws RuntimeException;
+	void shouldNotHappen(@Nullable Throwable throwable, @Nullable String msg, @Nullable Object... args) throws RuntimeException;
 
-	void w(@NonNull MTLog.Loggable loggable, String msg, Object... args);
+	void w(@NonNull MTLog.Loggable loggable, String msg, @Nullable Object... args);
 
-	void w(String tag, String msg, Object... args);
+	void w(String tag, String msg, @Nullable Object... args);
 
-	void w(@NonNull MTLog.Loggable loggable, Throwable t, String msg, Object... args);
+	void w(@NonNull MTLog.Loggable loggable, @Nullable Throwable t, String msg, @Nullable Object... args);
 
-	void w(String tag, Throwable t, String msg, Object... args);
+	void w(String tag, @Nullable Throwable t, String msg, @Nullable Object... args);
 }

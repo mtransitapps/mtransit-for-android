@@ -1,7 +1,9 @@
 package org.mtransit.android.util;
 
 import android.support.annotation.NonNull;
+
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.dev.CrashlyticsCrashReporter;
 
 import android.support.annotation.Nullable;
 
@@ -25,7 +27,7 @@ public final class CrashUtils implements MTLog.Loggable {
 		try {
 			com.crashlytics.android.Crashlytics.log(message);
 			if (throwable == null) {
-				throwable = new Exception(message);
+				throwable = new CrashlyticsCrashReporter.NoException(message);
 			}
 			com.crashlytics.android.Crashlytics.logException(throwable);
 		} catch (Exception e) {
