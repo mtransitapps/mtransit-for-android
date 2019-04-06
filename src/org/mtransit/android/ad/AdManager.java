@@ -369,7 +369,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 				this.crashReporter.w(this, "Failed to received ad! Invalid request error code: '%s'.", errorCode);
 				break;
 			case AdRequest.ERROR_CODE_NETWORK_ERROR:
-				this.crashReporter.w(this, "Failed to received ad! Network error code: '%s'.", errorCode);
+				MTLog.w(this, "Failed to received ad! Network error code: '%s'.", errorCode);
 				break;
 			case AdRequest.ERROR_CODE_NO_FILL:
 				this.crashReporter.w(this, "Failed to received ad! No fill error code: '%s'.", errorCode);
