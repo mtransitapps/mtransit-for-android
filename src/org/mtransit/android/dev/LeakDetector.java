@@ -2,8 +2,11 @@ package org.mtransit.android.dev;
 
 import org.mtransit.android.common.IApplication;
 
-public interface LeakDetector {
-	boolean isInAnalyzerProcess(IApplication application);
+import android.support.annotation.NonNull;
 
-	void setup(IApplication application);
+public interface LeakDetector {
+
+	boolean isInAnalyzerProcess(@NonNull IApplication application);
+
+	void setup(@NonNull IApplication application);
 }

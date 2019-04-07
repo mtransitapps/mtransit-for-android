@@ -7,13 +7,12 @@ import org.mtransit.android.commons.TaskUtils;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
-
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 public final class AnalyticsUtils implements MTLog.Loggable {
 
@@ -30,7 +29,7 @@ public final class AnalyticsUtils implements MTLog.Loggable {
 
 	private static final boolean DEBUG = false;
 
-	private static boolean LOCAL_ONLY = false;
+	private static final boolean LOCAL_ONLY = false;
 
 	private static final boolean TRACKING_ADVERTISING_ID_COLLECTION = true;
 

@@ -46,13 +46,13 @@ echo ">> Gradle cleaning... DONE";
 
 if [[ ${IS_CI} = true ]]; then
     echo ">> Running test...";
-	../gradlew ${SETTINGS_FILE_ARGS} :commons-android:test test ${GRADLE_ARGS};
+	../gradlew ${SETTINGS_FILE_ARGS} :commons-android:testDebugUnitTest :app-android:testDebugUnitTest ${GRADLE_ARGS};
 	RESULT=$?;
 	checkResult ${RESULT};
     echo ">> Running test... DONE";
 
     echo ">> Running lint...";
-	../gradlew ${SETTINGS_FILE_ARGS} lint ${GRADLE_ARGS};
+	../gradlew ${SETTINGS_FILE_ARGS} :app-android:lintDebug ${GRADLE_ARGS};
 	RESULT=$?;
 	checkResult ${RESULT};
     echo ">> Running lint... DONE";
@@ -78,7 +78,7 @@ if [[ ${IS_CI} = true ]]; then
 	fi
 
     echo ">> Running build & assemble...";
-	../gradlew ${SETTINGS_FILE_ARGS} build assemble ${GRADLE_ARGS};
+	../gradlew ${SETTINGS_FILE_ARGS} buildDebug assembleDebug ${GRADLE_ARGS};
 	RESULT=$?;
 	checkResult ${RESULT};
 	echo ">> Running build & assemble... DONE";

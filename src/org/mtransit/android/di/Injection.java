@@ -1,5 +1,7 @@
 package org.mtransit.android.di;
 
+import org.mtransit.android.ad.AdManager;
+import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.billing.BillingManager;
 import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.common.IApplication;
@@ -38,6 +40,9 @@ public class Injection {
 
 	@Nullable
 	private static MTLocationProvider locationProvider;
+
+	@Nullable
+	private static IAdManager adManager;
 
 	@Nullable
 	private static LocalPreferenceRepository localPreferenceRepository;
@@ -119,6 +124,21 @@ public class Injection {
 			}
 		}
 		return locationProvider;
+	}
+
+	@NonNull
+	public static IAdManager providesAdManager() {
+		if (adManager == null) {
+			synchronized (Injection.class) {
+				if (adManager == null) {
+					adManager = new AdManager(
+							providesCrashReporter(),
+							providesLocationProvider()
+					);
+				}
+			}
+		}
+		return adManager;
 	}
 
 	@NonNull

@@ -139,7 +139,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return newsProviderMetaData;
 	}
 
-	public static boolean isProvider(@NonNull Context context, String pkg) {
+	public static boolean isProvider(@NonNull Context context, @Nullable String pkg) {
 		if (TextUtils.isEmpty(pkg)) {
 			return false;
 		}

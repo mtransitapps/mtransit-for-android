@@ -1,13 +1,13 @@
 package org.mtransit.android.ui;
 
 import org.mtransit.android.BuildConfig;
+import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.IStrictMode;
 import org.mtransit.android.dev.LeakDetector;
 import org.mtransit.android.di.Injection;
-import org.mtransit.android.util.AdsUtils;
 
 import android.app.Application;
 import android.content.Context;
@@ -16,11 +16,12 @@ import android.support.annotation.Nullable;
 
 public class MTApplication extends Application implements IApplication, MTLog.Loggable {
 
-	private static final String TAG = MTApplication.class.getSimpleName();
+	private static final String LOG_TAG = MTApplication.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	@SuppressWarnings("NullableProblems") // late-init
@@ -33,6 +34,8 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 	private CrashReporter crashReporter = null;
 	@Nullable
 	private IStrictMode strictMode = null;
+	@Nullable
+	private IAdManager adManager = null;
 
 	@Override
 	public void onCreate() {
@@ -46,7 +49,7 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 		application = this;
 		getStrictMode().setup(BuildConfig.DEBUG);
 		getCrashReporter().setup(this, !BuildConfig.DEBUG);
-		AdsUtils.init(this);
+		getAdManager().init(this);
 	}
 
 	@NonNull
@@ -76,6 +79,14 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 			this.crashReporter = Injection.providesCrashReporter();
 		}
 		return this.crashReporter;
+	}
+
+	@NonNull
+	private IAdManager getAdManager() {
+		if (this.adManager == null) {
+			this.adManager = Injection.providesAdManager();
+		}
+		return this.adManager;
 	}
 
 	@NonNull

@@ -107,10 +107,10 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 
 	@NonNull
 	@Override
-	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<POIManager>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case FAVORITES_LOADER:
-			return new FavoritesLoader(getContext());
+			return new FavoritesLoader(requireContext());
 		default:
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			return null;

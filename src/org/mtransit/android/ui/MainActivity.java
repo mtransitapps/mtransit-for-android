@@ -3,6 +3,7 @@ package org.mtransit.android.ui;
 import java.util.WeakHashMap;
 
 import org.mtransit.android.R;
+import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.data.DataSourceProvider;
@@ -10,7 +11,6 @@ import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.SearchFragment;
 import org.mtransit.android.ui.view.common.IActivity;
-import org.mtransit.android.util.AdsUtils;
 import org.mtransit.android.util.AnalyticsUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
@@ -53,7 +53,8 @@ public class MainActivity extends MTActivityWithLocation implements
 		return TRACKING_SCREEN_NAME;
 	}
 
-	public static Intent newInstance(Context context) {
+	@NonNull
+	public static Intent newInstance(@NonNull Context context) {
 		return new Intent(context, MainActivity.class);
 	}
 
@@ -62,10 +63,13 @@ public class MainActivity extends MTActivityWithLocation implements
 	private ActionBarController abController;
 
 	@NonNull
+	private final IAdManager adManager;
+	@NonNull
 	private final IBillingManager billingManager;
 
 	public MainActivity() {
 		super();
+		adManager = Injection.providesAdManager();
 		this.billingManager = Injection.providesBillingManager();
 	}
 
@@ -89,14 +93,14 @@ public class MainActivity extends MTActivityWithLocation implements
 		if (!this.resumed) {
 			return;
 		}
-		AdsUtils.onModulesUpdated(this);
+		this.adManager.onModulesUpdated(this);
 		this.modulesUpdated = false; // processed
 	}
 
 	@Override
 	public void onBillingResult(@Nullable Boolean hasSubscription) {
 		if (hasSubscription != null) {
-			AdsUtils.setShowingAds(!hasSubscription, this);
+			this.adManager.setShowingAds(!hasSubscription, this);
 		}
 	}
 
@@ -163,7 +167,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		AnalyticsUtils.trackScreenView(this, this);
 		this.billingManager.addListener(this);
 		this.billingManager.refreshPurchases();
-		AdsUtils.adaptToScreenSize(this, getResources().getConfiguration());
+		this.adManager.adaptToScreenSize(this, getResources().getConfiguration());
 		onLastLocationChanged(getUserLocation());
 	}
 
@@ -198,7 +202,7 @@ public class MainActivity extends MTActivityWithLocation implements
 			this.navigationDrawerController.onPause();
 		}
 		this.billingManager.removeListener(this);
-		AdsUtils.pauseAd(this);
+		this.adManager.pauseAd(this);
 		DataSourceProvider.onPause();
 	}
 
@@ -235,7 +239,7 @@ public class MainActivity extends MTActivityWithLocation implements
 			this.fragmentsToPopWR = null;
 		}
 		DataSourceProvider.destroy();
-		AdsUtils.destroyAd(this);
+		this.adManager.destroyAd(this);
 	}
 
 	@Override
@@ -398,7 +402,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onConfigurationChanged(newConfig);
 		}
-		AdsUtils.adaptToScreenSize(this, newConfig);
+		this.adManager.adaptToScreenSize(this, newConfig);
 	}
 
 	private WeakHashMap<Fragment, Object> fragmentsToPopWR = new WeakHashMap<Fragment, Object>();

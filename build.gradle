@@ -9,14 +9,13 @@ dependencies {
         exclude group: 'com.google.protobuf', module: 'protobuf-java'
     }
     implementation rootProject.ext.supportLibs.appCompat
-    implementation rootProject.ext.supportLibs.customTabs
     implementation rootProject.ext.supportLibs.design
     implementation rootProject.ext.supportLibs.supportV4
     implementation rootProject.ext.gpsLibs.analytics
     implementation rootProject.ext.gpsLibs.basement // from commons-android
     implementation rootProject.ext.gpsLibs.location
     implementation rootProject.ext.gpsLibs.maps
-    implementation rootProject.ext.gpsLibs.firebase_ads
+    implementation rootProject.ext.gpsLibs.firebase_ads_lite
     implementation rootProject.ext.gpsLibs.firebase_analytics
     implementation rootProject.ext.gpsLibs.firebase_core
     implementation(rootProject.ext.gpsLibs.firebase_crashlytics_aar) {
@@ -27,7 +26,6 @@ dependencies {
     implementation rootProject.ext.inMobiLibs.inMobiAds
     implementation rootProject.ext.inMobiLibs.inMobiAdsMediation
     implementation 'com.android.billingclient:billing:1.2.1'
-    debugImplementation 'com.android.support:multidex:1.0.3'
     // DEBUG
     debugImplementation rootProject.ext.squareLibs.leakcanary
     debugImplementation rootProject.ext.squareLibs.leakcanary_support_fragment
@@ -35,8 +33,8 @@ dependencies {
     releaseImplementation rootProject.ext.squareLibs.leakcanary_no_op
     // TEST
     testImplementation rootProject.ext.squareLibs.leakcanary_no_op
-    // // DEBUG
-    // debugImplementation 'com.android.support:multidex:1.0.3' // DEBUG minSdkVersion < 21
+    // DEBUG
+    debugImplementation 'com.android.support:multidex:1.0.3'
 
     testImplementation rootProject.ext.jUnitLibs.jUnit
     testImplementation rootProject.ext.mockitoLibs.mockitoCore
@@ -117,11 +115,12 @@ android {
     //noinspection GroovyMissingReturnStatement
     lintOptions {
         abortOnError true
-        // abortOnError false // DEBUG
+        warningsAsErrors false
         ignoreWarnings false
-        // ignoreWarnings true // DEBUG
         quiet false
-        // quiet  true // DEBUG
+        checkDependencies true // also check leaf modules
+        // checkAllWarnings true // too slow for CI, can be enabled locally
+        ignoreTestSources true
         warning 'InvalidPackage', //
                 'ClickableViewAccessibility', //
                 'MergeRootFrame', //
