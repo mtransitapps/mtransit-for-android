@@ -1,10 +1,13 @@
 package org.mtransit.android.common.repository;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 public interface IKeyValueRepository {
 
-	boolean hasKey(String key);
+	boolean hasKey(@NonNull String key);
 
-	boolean getValue(String key, boolean defaultValue);
+	boolean getValue(@NonNull String key, boolean defaultValue);
 
-	void saveAsync(String key, Boolean value);
+	void saveAsync(@NonNull String key, @Nullable Boolean value);
 }

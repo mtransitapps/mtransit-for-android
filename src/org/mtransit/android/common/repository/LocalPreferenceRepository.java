@@ -4,6 +4,7 @@ import org.mtransit.android.common.IApplication;
 import org.mtransit.android.commons.PreferenceUtils;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 public class LocalPreferenceRepository extends PreferenceRepository {
 
@@ -12,17 +13,17 @@ public class LocalPreferenceRepository extends PreferenceRepository {
 	}
 
 	@Override
-	public boolean hasKey(String key) {
+	public boolean hasKey(@NonNull String key) {
 		return PreferenceUtils.hasPrefLcl(requireContext(), key);
 	}
 
 	@Override
-	public boolean getValue(String key, boolean defaultValue) {
+	public boolean getValue(@NonNull String key, boolean defaultValue) {
 		return PreferenceUtils.getPrefLcl(requireContext(), key, defaultValue);
 	}
 
 	@Override
-	public void saveAsync(String key, Boolean value) {
+	public void saveAsync(@NonNull String key, @Nullable Boolean value) {
 		PreferenceUtils.savePrefLcl(requireContext(), key, value, false);
 	}
 }
