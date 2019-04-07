@@ -5,6 +5,7 @@ import org.mtransit.android.commons.MTLog;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,7 +18,7 @@ public abstract class MTAppCompatActivity extends AppCompatActivity implements M
 	// INHERITED FROM FRAGMENT ACTIVITY
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCreate(%s)", savedInstanceState);
 		}

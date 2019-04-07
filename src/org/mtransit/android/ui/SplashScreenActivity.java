@@ -5,25 +5,29 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.util.AnalyticsUtils;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 public class SplashScreenActivity extends MTActivity implements AnalyticsUtils.Trackable {
 
-	private static final String TAG = SplashScreenActivity.class.getSimpleName();
+	private static final String LOG_TAG = SplashScreenActivity.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private static final String TRACKING_SCREEN_NAME = "Splash";
 
+	@NonNull
 	@Override
 	public String getScreenName() {
 		return TRACKING_SCREEN_NAME;
 	}
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		setTheme(R.style.MTTheme);
 		super.onCreate(savedInstanceState);
 		int appOpenCounts = PreferenceUtils.getPrefDefault(this, //
