@@ -9,6 +9,7 @@ dependencies {
         exclude group: 'com.google.protobuf', module: 'protobuf-java'
     }
     implementation rootProject.ext.supportLibs.appCompat
+    implementation rootProject.ext.supportLibs.customTabs
     implementation rootProject.ext.supportLibs.design
     implementation rootProject.ext.supportLibs.supportV4
     implementation rootProject.ext.gpsLibs.analytics
