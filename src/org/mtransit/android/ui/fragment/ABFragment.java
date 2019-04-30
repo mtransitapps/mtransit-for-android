@@ -48,6 +48,7 @@ public abstract class ABFragment extends MTFragment implements AnalyticsUtils.Tr
 		return this.defaultABBgColor;
 	}
 
+	@Nullable
 	public View getABCustomView() {
 		return null;
 	}
@@ -72,6 +73,7 @@ public abstract class ABFragment extends MTFragment implements AnalyticsUtils.Tr
 		return DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT;
 	}
 
+	@Nullable
 	public ActionBarController getAbController() {
 		FragmentActivity activity = getActivity();
 		if (activity == null) {

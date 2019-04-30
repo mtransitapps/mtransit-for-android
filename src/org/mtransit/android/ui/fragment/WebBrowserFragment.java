@@ -12,6 +12,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,15 +28,17 @@ import android.widget.ProgressBar;
 
 public class WebBrowserFragment extends ABFragment {
 
-	private static final String TAG = WebBrowserFragment.class.getSimpleName();
+	private static final String LOG_TAG = WebBrowserFragment.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private static final String TRACKING_SCREEN_NAME = "Web";
 
+	@NonNull
 	@Override
 	public String getScreenName() {
 		if (!TextUtils.isEmpty(this.initialUrl)) {
@@ -47,7 +51,8 @@ public class WebBrowserFragment extends ABFragment {
 
 	private static final String EXTRA_URL_CURRENT = "extra_url_current";
 
-	public static WebBrowserFragment newInstance(String url) {
+	@NonNull
+	public static WebBrowserFragment newInstance(@NonNull String url) {
 		WebBrowserFragment f = new WebBrowserFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_URL_INITIAL, url);
@@ -61,7 +66,7 @@ public class WebBrowserFragment extends ABFragment {
 	private String pageTitle;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 		restoreInstanceState(savedInstanceState, getArguments());
@@ -69,16 +74,16 @@ public class WebBrowserFragment extends ABFragment {
 
 	private void restoreInstanceState(Bundle... bundles) {
 		String newInitialUrl = BundleUtils.getString(EXTRA_URL_INITIAL, bundles);
-		if (!TextUtils.isEmpty(newInitialUrl) && !newInitialUrl.equals(this.initialUrl)) {
+		if (newInitialUrl != null && !newInitialUrl.equals(this.initialUrl)) {
 			this.initialUrl = newInitialUrl;
 		}
 		String newCurrentUrl = BundleUtils.getString(EXTRA_URL_CURRENT, bundles);
-		if (!TextUtils.isEmpty(newCurrentUrl) && !newCurrentUrl.equals(this.currentUrl)) {
+		if (newCurrentUrl != null && !newCurrentUrl.equals(this.currentUrl)) {
 			this.currentUrl = newCurrentUrl;
 		}
 		View view = getView();
 		if (view != null) {
-			WebView webView = (WebView) view.findViewById(R.id.webView);
+			WebView webView = view.findViewById(R.id.webView);
 			if (webView != null && bundles.length > 0) {
 				webView.restoreState(bundles[0]);
 			}
@@ -86,7 +91,7 @@ public class WebBrowserFragment extends ABFragment {
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		if (!TextUtils.isEmpty(this.initialUrl)) {
 			outState.putString(EXTRA_URL_INITIAL, this.initialUrl);
 		}
@@ -95,7 +100,7 @@ public class WebBrowserFragment extends ABFragment {
 		}
 		View view = getView();
 		if (view != null) {
-			WebView webView = (WebView) view.findViewById(R.id.webView);
+			WebView webView = view.findViewById(R.id.webView);
 			if (webView != null) {
 				webView.saveState(outState);
 			}
@@ -103,8 +108,9 @@ public class WebBrowserFragment extends ABFragment {
 		super.onSaveInstanceState(outState);
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_web_browser, container, false);
 		setupView(view);
@@ -116,7 +122,7 @@ public class WebBrowserFragment extends ABFragment {
 		if (view == null) {
 			return;
 		}
-		WebView webView = (WebView) view.findViewById(R.id.webView);
+		WebView webView = view.findViewById(R.id.webView);
 		webView.getSettings().setJavaScriptEnabled(true);
 		webView.getSettings().setSupportZoom(true);
 		webView.getSettings().setBuiltInZoomControls(true);
@@ -129,7 +135,7 @@ public class WebBrowserFragment extends ABFragment {
 	public boolean onBackPressed() {
 		View view = getView();
 		if (view != null) {
-			WebView webView = (WebView) view.findViewById(R.id.webView);
+			WebView webView = view.findViewById(R.id.webView);
 			if (webView != null && webView.canGoBack()) {
 				webView.goBack();
 				return true; // handled
@@ -143,13 +149,38 @@ public class WebBrowserFragment extends ABFragment {
 		super.onResume();
 		View view = getView();
 		if (view != null) {
-			WebView webView = (WebView) getView().findViewById(R.id.webView);
+			WebView webView = view.findViewById(R.id.webView);
 			if (webView != null) {
 				if (TextUtils.isEmpty(this.currentUrl)) {
 					webView.loadUrl(this.initialUrl);
 				} else if (!this.currentUrl.equals(webView.getUrl())) {
 					webView.loadUrl(this.currentUrl);
 				}
+				webView.onResume();
+			}
+		}
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		View view = getView();
+		if (view != null) {
+			WebView webView = view.findViewById(R.id.webView);
+			if (webView != null) {
+				webView.onPause();
+			}
+		}
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		View view = getView();
+		if (view != null) {
+			WebView webView = view.findViewById(R.id.webView);
+			if (webView != null) {
+				webView.destroy();
 			}
 		}
 	}
@@ -157,7 +188,7 @@ public class WebBrowserFragment extends ABFragment {
 	public void onProgressChanged(int newProgress) {
 		View view = getView();
 		if (view != null) {
-			ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
+			ProgressBar progressBar = view.findViewById(R.id.progress_bar);
 			if (progressBar != null) {
 				progressBar.setProgress(newProgress);
 				if (newProgress < 100) {
@@ -169,8 +200,9 @@ public class WebBrowserFragment extends ABFragment {
 		}
 	}
 
-	public boolean shouldOverrideUrlLoading(WebView webView, String url) {
-		if (LinkUtils.intercept(getActivity(), url)) {
+	public boolean shouldOverrideUrlLoading(@SuppressWarnings("unused") WebView webView,
+											String url) {
+		if (LinkUtils.intercept(requireActivity(), url)) {
 			return true;
 		}
 		onURLChanged(url);
@@ -232,28 +264,25 @@ public class WebBrowserFragment extends ABFragment {
 
 	private static class MTWebChromeClient extends WebChromeClient implements MTLog.Loggable {
 
-		private static final String TAG = WebBrowserFragment.class.getSimpleName() + ">" + MTWebChromeClient.class.getSimpleName();
+		private static final String LOG_TAG = WebBrowserFragment.class.getSimpleName() + ">" + MTWebChromeClient.class.getSimpleName();
 
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
-		private WeakReference<WebBrowserFragment> webBrowserFragmentWR;
+		@NonNull
+		private final WeakReference<WebBrowserFragment> webBrowserFragmentWR;
 
-		public MTWebChromeClient(WebBrowserFragment webBrowserFragment) {
-			setWebBrowserFragment(webBrowserFragment);
-		}
-
-		private void setWebBrowserFragment(WebBrowserFragment webBrowserFragment) {
-			this.webBrowserFragmentWR = new WeakReference<WebBrowserFragment>(webBrowserFragment);
+		public MTWebChromeClient(@NonNull WebBrowserFragment webBrowserFragment) {
+			this.webBrowserFragmentWR = new WeakReference<>(webBrowserFragment);
 		}
 
 		@Override
 		public void onProgressChanged(WebView webView, int newProgress) {
 			super.onProgressChanged(webView, newProgress);
 			try {
-				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
+				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR.get();
 				if (webBrowserFragment != null) {
 					webBrowserFragment.onProgressChanged(newProgress);
 				}
@@ -266,7 +295,7 @@ public class WebBrowserFragment extends ABFragment {
 		public void onReceivedTitle(WebView webView, String title) {
 			super.onReceivedTitle(webView, title);
 			try {
-				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
+				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR.get();
 				if (webBrowserFragment != null) {
 					webBrowserFragment.onTitleChanged(title);
 					webBrowserFragment.onURLChanged(webView.getUrl());
@@ -279,27 +308,24 @@ public class WebBrowserFragment extends ABFragment {
 
 	private static class MTWebViewClient extends WebViewClient implements MTLog.Loggable {
 
-		private static final String TAG = WebBrowserFragment.class.getSimpleName() + ">" + MTWebViewClient.class.getSimpleName();
+		private static final String LOG_TAG = WebBrowserFragment.class.getSimpleName() + ">" + MTWebViewClient.class.getSimpleName();
 
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
-		private WeakReference<WebBrowserFragment> webBrowserFragmentWR;
+		@NonNull
+		private final WeakReference<WebBrowserFragment> webBrowserFragmentWR;
 
-		public MTWebViewClient(WebBrowserFragment webBrowserFragment) {
-			setWebBrowserFragment(webBrowserFragment);
-		}
-
-		private void setWebBrowserFragment(WebBrowserFragment webBrowserFragment) {
-			this.webBrowserFragmentWR = new WeakReference<WebBrowserFragment>(webBrowserFragment);
+		public MTWebViewClient(@NonNull WebBrowserFragment webBrowserFragment) {
+			this.webBrowserFragmentWR = new WeakReference<>(webBrowserFragment);
 		}
 
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView webView, String url) {
 			try {
-				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
+				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR.get();
 				if (webBrowserFragment != null && webBrowserFragment.shouldOverrideUrlLoading(webView, url)) {
 					return true;
 				}
@@ -313,7 +339,7 @@ public class WebBrowserFragment extends ABFragment {
 		public void onPageStarted(WebView webView, String url, Bitmap favicon) {
 			super.onPageStarted(webView, url, favicon);
 			try {
-				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
+				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR.get();
 				if (webBrowserFragment != null) {
 					webBrowserFragment.onTitleChanged(webView.getTitle());
 					webBrowserFragment.onURLChanged(url);
@@ -327,7 +353,7 @@ public class WebBrowserFragment extends ABFragment {
 		public void onPageFinished(WebView webView, String url) {
 			super.onPageFinished(webView, url);
 			try {
-				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR == null ? null : this.webBrowserFragmentWR.get();
+				WebBrowserFragment webBrowserFragment = this.webBrowserFragmentWR.get();
 				if (webBrowserFragment != null) {
 					webBrowserFragment.onTitleChanged(webView.getTitle());
 					webBrowserFragment.onURLChanged(url);
