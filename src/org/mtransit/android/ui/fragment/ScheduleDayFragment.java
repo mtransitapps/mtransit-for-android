@@ -24,11 +24,9 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.ScheduleTimestampsLoader;
 import org.mtransit.android.util.CrashUtils;
-import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -727,7 +725,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			}
 		}
 
-		private final BroadcastReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
+		private final TimeUtils.TimeChangedReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
 
 		private void addTime(Schedule.Timestamp time) {
 			int hourOfTheDay = TimeUtils.getHourOfTheDay(time.t);

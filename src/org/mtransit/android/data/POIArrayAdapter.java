@@ -47,7 +47,6 @@ import org.mtransit.android.ui.view.MTPieChartPercentView;
 import org.mtransit.android.util.CrashUtils;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -1758,7 +1757,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		resetNowToTheMinute();
 	}
 
-	private final BroadcastReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
+	private final TimeUtils.TimeChangedReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
 
 	private void enableTimeChangedReceiver() {
 		if (!this.timeChangedReceiverEnabled) {

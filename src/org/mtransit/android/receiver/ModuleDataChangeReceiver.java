@@ -11,18 +11,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 public class ModuleDataChangeReceiver extends BroadcastReceiver implements MTLog.Loggable {
 
 	private static final String LOG_TAG = ModuleDataChangeReceiver.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return LOG_TAG;
 	}
 
 	@NonNull
-	private CrashReporter crashReporter;
+	private final CrashReporter crashReporter;
 
 	public ModuleDataChangeReceiver() {
 		super();
@@ -30,8 +32,12 @@ public class ModuleDataChangeReceiver extends BroadcastReceiver implements MTLog
 	}
 
 	@Override
-	public void onReceive(@NonNull Context context, Intent intent) {
-		String action = intent.getAction();
+	public void onReceive(@Nullable Context context, @Nullable Intent intent) {
+		if (context == null) {
+			this.crashReporter.w(this, "Modules data change broadcast receiver with null context ignored!");
+			return;
+		}
+		String action = intent == null ? null : intent.getAction();
 		if (!DataChange.ACTION_DATA_CHANGE.equals(action)) {
 			crashReporter.shouldNotHappen("Wrong receiver action '%s'!", action);
 			return;

@@ -13,7 +13,6 @@ import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.util.LinkUtils;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
@@ -220,7 +219,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 		updateNewsView();
 	}
 
-	private final BroadcastReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
+	private final TimeUtils.TimeChangedReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
 
 	private boolean timeChangedReceiverEnabled = false;
 

@@ -55,7 +55,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -1074,7 +1073,7 @@ public class POIFragment extends ABFragment implements
 		}
 	}
 
-	private final BroadcastReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
+	private final TimeUtils.TimeChangedReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
 
 	@Override
 	public boolean hasLocation() {

@@ -7,7 +7,6 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
@@ -20,7 +19,6 @@ import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -421,7 +419,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			resetNowToTheMinute();
 		}
 
-		private final BroadcastReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
+		private final TimeUtils.TimeChangedReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
 
 		private boolean timeChangedReceiverEnabled = false;
 
