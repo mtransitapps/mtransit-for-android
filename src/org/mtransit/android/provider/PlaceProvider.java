@@ -136,11 +136,14 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		return googlePlacesApiKey;
 	}
 
-	private static final String TEXT_SEARCH_URL_PART_1_BEFORE_KEY = "https://maps.googleapis.com/maps/api/place/textsearch/json?key=";
+	private static final String TEXT_SEARCH_URL_PART_1_BEFORE_KEY = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json" +
+			"?inputtype=textquery" +
+			"&fields=place_id,name,geometry/location" +
+			"&key=";
 	private static final String TEXT_SEARCH_URL_PART_2_BEFORE_LANG = "&language=";
-	private static final String TEXT_SEARCH_URL_PART_3_BEFORE_LOCATION = "&location=";
-	private static final String TEXT_SEARCH_URL_PART_4_BEFORE_RADIUS = "&radius=";
-	private static final String TEXT_SEARCH_URL_PART_5_BEFORE_QUERY = "&query=";
+	private static final String TEXT_SEARCH_URL_PART_3_BEFORE_LOCATION_BIAS_CIRCLE_RADIUS = "&locationbias=circle:";
+	private static final String TEXT_SEARCH_URL_PART_4_BEFORE_LAT_LONG = "@";
+	private static final String TEXT_SEARCH_URL_PART_5_BEFORE_INPUT = "&input=";
 	private static final String TEXT_SEARCH_URL_LANG_DEFAULT = "en";
 	private static final String TEXT_SEARCH_URL_LANG_FRENCH = "fr";
 	private static final int TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT = 50000; // max = 50000
@@ -153,11 +156,11 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		sb.append(TEXT_SEARCH_URL_PART_1_BEFORE_KEY).append(getGOOGLE_PLACES_API_KEY(context));
 		sb.append(TEXT_SEARCH_URL_PART_2_BEFORE_LANG).append(LocaleUtils.isFR() ? TEXT_SEARCH_URL_LANG_FRENCH : TEXT_SEARCH_URL_LANG_DEFAULT);
 		if (optLat != null && optLng != null) {
-			sb.append(TEXT_SEARCH_URL_PART_3_BEFORE_LOCATION).append(optLat).append(',').append(optLng);
-			sb.append(TEXT_SEARCH_URL_PART_4_BEFORE_RADIUS).append(optRadiusInMeters == null ? TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT : optRadiusInMeters);
+			sb.append(TEXT_SEARCH_URL_PART_3_BEFORE_LOCATION_BIAS_CIRCLE_RADIUS).append(optRadiusInMeters == null ? TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT : optRadiusInMeters);
+			sb.append(TEXT_SEARCH_URL_PART_4_BEFORE_LAT_LONG).append(optLat).append(',').append(optLng);
 		}
 		if (ArrayUtils.getSize(searchKeywords) != 0 && !TextUtils.isEmpty(searchKeywords[0])) {
-			sb.append(TEXT_SEARCH_URL_PART_5_BEFORE_QUERY);
+			sb.append(TEXT_SEARCH_URL_PART_5_BEFORE_INPUT);
 			boolean isFirstKeyword = true;
 			for (String searchKeyword : searchKeywords) {
 				if (TextUtils.isEmpty(searchKeyword)) {
@@ -262,7 +265,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		}
 	}
 
-	private static final String JSON_RESULTS = "results";
+	private static final String JSON_CANDIDATES = "candidates";
 	private static final String JSON_NAME = "name";
 	private static final String JSON_PLACE_ID = "place_id";
 	private static final String JSON_GEOMETRY = "geometry";
@@ -272,14 +275,14 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 
 	private Cursor parseTextSearchJson(String jsonString, String authority, String lang, long nowInMs) {
 		try {
-			ArrayList<Place> result = new ArrayList<Place>();
+			ArrayList<Place> result = new ArrayList<>();
 			JSONObject json = jsonString == null ? null : new JSONObject(jsonString);
-			if (json != null && json.has(JSON_RESULTS)) {
+			if (json != null && json.has(JSON_CANDIDATES)) {
 				int score = 1000;
-				JSONArray jResults = json.getJSONArray(JSON_RESULTS);
-				for (int i = 0; i < jResults.length(); i++) {
+				JSONArray jCandidates = json.getJSONArray(JSON_CANDIDATES);
+				for (int i = 0; i < jCandidates.length(); i++) {
 					try {
-						JSONObject jResult = jResults.getJSONObject(i);
+						JSONObject jResult = jCandidates.getJSONObject(i);
 						String name = jResult.getString(JSON_NAME);
 						String placeId = jResult.getString(JSON_PLACE_ID);
 						JSONObject jGeometry = jResult.getJSONObject(JSON_GEOMETRY);
