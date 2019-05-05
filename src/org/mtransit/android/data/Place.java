@@ -9,14 +9,17 @@ import org.mtransit.android.provider.PlaceProvider;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 public class Place extends DefaultPOI {
 
-	private static final String TAG = Place.class.getSimpleName();
+	private static final String LOG_TAG = Place.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	public static final int DST_ID = DataSourceType.TYPE_PLACE.getId();
@@ -59,6 +62,7 @@ public class Place extends DefaultPOI {
 		this.readAtInMs = readAtInMs;
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		return new StringBuilder().append(Place.class.getSimpleName()).append(":[") //
@@ -89,8 +93,10 @@ public class Place extends DefaultPOI {
 		return true; // required for distance sort
 	}
 
+	@Nullable
 	private String uuid = null;
 
+	@NonNull
 	@Override
 	public String getUUID() {
 		if (this.uuid == null) {
@@ -108,6 +114,7 @@ public class Place extends DefaultPOI {
 	private static final String JSON_LANG = "lang";
 	private static final String JSON_READ_AT_IN_MS = "read_at_in_ms";
 
+	@Nullable
 	@Override
 	public JSONObject toJSON() {
 		try {
@@ -123,11 +130,13 @@ public class Place extends DefaultPOI {
 		}
 	}
 
+	@Nullable
 	@Override
 	public POI fromJSON(JSONObject json) {
 		return fromJSONStatic(json);
 	}
 
+	@Nullable
 	public static Place fromJSONStatic(JSONObject json) {
 		try {
 			Place module = new Place( //
@@ -139,11 +148,12 @@ public class Place extends DefaultPOI {
 			DefaultPOI.fromJSON(json, module);
 			return module;
 		} catch (JSONException jsone) {
-			MTLog.w(TAG, jsone, "Error while parsing JSON '%s'!", json);
+			MTLog.w(LOG_TAG, jsone, "Error while parsing JSON '%s'!", json);
 			return null;
 		}
 	}
 
+	@NonNull
 	@Override
 	public ContentValues toContentValues() {
 		ContentValues values = super.toContentValues();
@@ -153,12 +163,14 @@ public class Place extends DefaultPOI {
 		return values;
 	}
 
+	@NonNull
 	@Override
-	public POI fromCursor(Cursor c, String authority) {
+	public POI fromCursor(@NonNull Cursor c, String authority) {
 		return fromCursorStatic(c, authority);
 	}
 
-	public static Place fromCursorStatic(Cursor c, String authority) {
+	@NonNull
+	public static Place fromCursorStatic(@NonNull Cursor c, String authority) {
 		String providerId = c.getString(c.getColumnIndexOrThrow(PlaceProvider.PlaceColumns.T_PLACE_K_PROVIDER_ID));
 		String lang = c.getString(c.getColumnIndexOrThrow(PlaceProvider.PlaceColumns.T_PLACE_K_LANG));
 		long readAtInMs = c.getLong(c.getColumnIndexOrThrow(PlaceProvider.PlaceColumns.T_PLACE_K_READ_AT_IN_MS));
