@@ -9,14 +9,14 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="1000"
-   height="1000"
+   width="1024"
+   height="1024"
    id="svg2"
    version="1.1"
    inkscape:version="0.92.3 (2405546, 2018-03-11)"
    sodipodi:docname="hi-res-app-icon.svg"
-   inkscape:export-xdpi="49.152"
-   inkscape:export-ydpi="49.152">
+   inkscape:export-xdpi="48"
+   inkscape:export-ydpi="48">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -26,9 +26,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.35355339"
-     inkscape:cx="126.1025"
-     inkscape:cy="373.77718"
+     inkscape:zoom="0.5"
+     inkscape:cx="379.60847"
+     inkscape:cy="365.64548"
      inkscape:document-units="px"
      inkscape:current-layer="layer3"
      showgrid="false"
@@ -86,49 +86,50 @@
      inkscape:label="Background"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-52.3622)"
+     transform="translate(0,-28.3622)"
      style="display:inline">
     <rect
        style="fill:#003399;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1"
        id="rect3032"
-       width="1000"
-       height="1000"
+       width="1024"
+       height="1024"
        x="0"
-       y="52.362202" />
+       y="28.362202" />
   </g>
   <g
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Keylines"
-     style="display:none">
+     style="display:none"
+     transform="translate(0,24)">
     <rect
-       transform="translate(0,-52.3622)"
        style="display:inline;opacity:1;fill:#b2da18;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect824"
        width="768"
        height="768"
-       x="116"
-       y="168.3622" />
+       x="128"
+       y="104" />
   </g>
   <g
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="T"
-     style="display:inline">
+     style="display:inline"
+     transform="translate(0,24)">
     <path
        style="opacity:0.07999998;fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 200.58594,406.08983 398.66992,604.17379 V 406.66991 Z"
+       d="M 212.58594,394.08973 410.66992,592.17369 V 394.66981 Z"
        id="path4467"
        inkscape:connector-curvature="0" />
     <path
        style="opacity:0.07999998;fill:#000000;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 798.0625,203.23249 599.334,404.66409 397.25391,801.42389 1097.834,1502.0041 h 400.1699 l 0.01,-598.82621 -700.5704,-700.57036 0.361,0.86277 z"
+       d="M 810.0625,191.23239 611.334,392.66399 409.25391,789.42379 1109.834,1490.004 h 400.1699 l 0.01,-598.82621 -700.5704,-700.57036 0.361,0.86277 z"
        id="path4469"
        inkscape:connector-curvature="0" />
     <path
        id="rect3805-8"
        style="fill:#6699ff;fill-opacity:1;fill-rule:nonzero;stroke:#6699ff;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="M 402.66667,207.99999 H 597.3334 v 584 H 402.66667 Z m -194.66667,0 H 792 V 402.66666 H 208 Z"
+       d="M 414.66667,195.99989 H 609.3334 v 584 H 414.66667 Z m -194.66667,0 H 804 V 390.66656 H 220 Z"
        inkscape:connector-curvature="0" />
   </g>
 </svg>
