@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.firebase.firebase-crash'
 apply plugin: 'io.fabric'
 apply plugin: "org.sonarqube"
 
