@@ -6,6 +6,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -20,6 +21,7 @@ import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SqlUtils;
+import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.POI.POIUtils;
@@ -69,7 +71,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	}
 
 	@NonNull
-	public static UriMatcher getNewUriMatcher(String authority) {
+	public static UriMatcher getNewUriMatcher(@NonNull String authority) {
 		UriMatcher URI_MATCHER = AgencyProvider.getNewUriMatcher(authority);
 		POIProvider.append(URI_MATCHER, authority);
 		return URI_MATCHER;
@@ -148,18 +150,20 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	private static final String TEXT_SEARCH_URL_LANG_FRENCH = "fr";
 	private static final int TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT = 50000; // max = 50000
 
-	@NonNull
-	private static String getTextSearchUrlString(@NonNull Context context,
+	@Nullable
+	private static String getTextSearchUrlString(@NonNull String apiKey,
 												 @Nullable Double optLat, @Nullable Double optLng,
 												 @Nullable Integer optRadiusInMeters, String[] searchKeywords) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(TEXT_SEARCH_URL_PART_1_BEFORE_KEY).append(getGOOGLE_PLACES_API_KEY(context));
+		sb.append(TEXT_SEARCH_URL_PART_1_BEFORE_KEY).append(apiKey);
 		sb.append(TEXT_SEARCH_URL_PART_2_BEFORE_LANG).append(LocaleUtils.isFR() ? TEXT_SEARCH_URL_LANG_FRENCH : TEXT_SEARCH_URL_LANG_DEFAULT);
 		if (optLat != null && optLng != null) {
 			sb.append(TEXT_SEARCH_URL_PART_3_BEFORE_LOCATION_BIAS_CIRCLE_RADIUS).append(optRadiusInMeters == null ? TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT : optRadiusInMeters);
 			sb.append(TEXT_SEARCH_URL_PART_4_BEFORE_LAT_LONG).append(optLat).append(',').append(optLng);
 		}
-		if (ArrayUtils.getSize(searchKeywords) != 0 && !TextUtils.isEmpty(searchKeywords[0])) {
+		int keywordMaxSize = -1;
+		if (ArrayUtils.getSize(searchKeywords) > 0
+				&& !TextUtils.isEmpty(searchKeywords[0])) {
 			sb.append(TEXT_SEARCH_URL_PART_5_BEFORE_INPUT);
 			boolean isFirstKeyword = true;
 			for (String searchKeyword : searchKeywords) {
@@ -175,9 +179,13 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 						sb.append('+');
 					}
 					sb.append(keyword);
+					keywordMaxSize = Math.max(keywordMaxSize, keyword.length());
 					isFirstKeyword = false;
 				}
 			}
+		}
+		if (keywordMaxSize <= 1) {
+			return null; // no significant keyword to search (SKIP search)
 		}
 		return sb.toString();
 	}
@@ -220,18 +228,22 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	private Cursor fetchTextSearchResults(@NonNull Filter poiFilter) {
 		Context context = getContext();
 		if (context == null) {
-			return null;
+			return ContentProviderConstants.EMPTY_CURSOR; // empty cursor = processed
 		}
 		Double lat = poiFilter.getExtraDouble("lat", null);
 		Double lng = poiFilter.getExtraDouble("lng", null);
-		String url = getTextSearchUrlString(context, lat, lng, null, poiFilter.getSearchKeywords());
-		return getTextSearchResults(context, url);
+		String url = getTextSearchUrlString(getGOOGLE_PLACES_API_KEY(context), lat, lng, null, poiFilter.getSearchKeywords());
+		if (url == null) { // no search keyboard => no search
+			return ContentProviderConstants.EMPTY_CURSOR; // empty cursor = processed
+		}
+		return getTextSearchResults(context, url,
+				getTextSearchUrlString(StringUtils.EMPTY, lat, lng, null, poiFilter.getSearchKeywords()));
 	}
 
 	@Nullable
-	private Cursor getTextSearchResults(@NonNull Context context, String urlString) {
+	private Cursor getTextSearchResults(@NonNull Context context, @NonNull String urlString, @Nullable String publicUrlString) {
 		try {
-			MTLog.i(this, "Loading from '%s'...", urlString);
+			MTLog.i(this, "Loading from '%s'...", publicUrlString);
 			URL url = new URL(urlString);
 			URLConnection urlc = url.openConnection();
 			HttpsURLConnection httpsUrlConnection = (HttpsURLConnection) urlc;
@@ -273,6 +285,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	private static final String JSON_LAT = "lat";
 	private static final String JSON_LNG = "lng";
 
+	@Nullable
 	private Cursor parseTextSearchJson(String jsonString, String authority, String lang, long nowInMs) {
 		try {
 			ArrayList<Place> result = new ArrayList<>();
@@ -305,7 +318,8 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		}
 	}
 
-	private Cursor getTextSearchResults(@Nullable ArrayList<Place> places) {
+	@NonNull
+	private Cursor getTextSearchResults(@Nullable List<Place> places) {
 		MatrixCursor cursor = new MatrixCursor(getPOIProjection());
 		if (places != null) {
 			for (Place place : places) {
@@ -364,7 +378,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	 */
 	@Nullable
 	@Override
-	public String getAgencyColorString(Context context) {
+	public String getAgencyColorString(@NonNull Context context) {
 		return null; // default
 	}
 
@@ -413,8 +427,10 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		// do nothing
 	}
 
+	@Nullable
 	private static ArrayMap<String, String> poiProjectionMap;
 
+	@NonNull
 	@Override
 	public ArrayMap<String, String> getPOIProjectionMap() {
 		if (poiProjectionMap == null) {
@@ -429,8 +445,9 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		return true;
 	}
 
+	@Nullable
 	@Override
-	public Cursor queryMT(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+	public Cursor queryMT(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
 		try {
 			Cursor cursor = super.queryMT(uri, projection, selection, selectionArgs, sortOrder);
 			if (cursor != null) {
@@ -447,8 +464,9 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		}
 	}
 
+	@Nullable
 	@Override
-	public String getSortOrder(Uri uri) {
+	public String getSortOrder(@NonNull Uri uri) {
 		String sortOrder = POIProvider.getSortOrderS(this, uri);
 		if (sortOrder != null) {
 			return sortOrder;
@@ -456,8 +474,9 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		return super.getSortOrder(uri);
 	}
 
+	@Nullable
 	@Override
-	public String getTypeMT(Uri uri) {
+	public String getTypeMT(@NonNull Uri uri) {
 		String type = POIProvider.getTypeS(this, uri);
 		if (type != null) {
 			return type;
@@ -466,24 +485,26 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	}
 
 	@Override
-	public int updateMT(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+	public int updateMT(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
 		MTLog.w(this, "The update method is not available.");
 		return 0;
 	}
 
+	@Nullable
 	@Override
-	public Uri insertMT(Uri uri, ContentValues values) {
+	public Uri insertMT(@NonNull Uri uri, @Nullable ContentValues values) {
 		MTLog.w(this, "The insert method is not available.");
 		return null;
 	}
 
 	@Override
-	public int deleteMT(Uri uri, String selection, String[] selectionArgs) {
+	public int deleteMT(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
 		MTLog.w(this, "The delete method is not available.");
 		return 0;
 	}
 
-	public static ArrayMap<String, String> getNewPoiProjectionMap(String authority) {
+	@NonNull
+	public static ArrayMap<String, String> getNewPoiProjectionMap(@NonNull String authority) {
 		// @formatter:off
 		return SqlUtils.ProjectionMapBuilder.getNew() //
 				.appendValue(SqlUtils.concatenate( //
@@ -507,16 +528,19 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		// @formatter:on
 	}
 
+	@NonNull
 	@Override
 	public SQLiteOpenHelper getDBHelper() {
 		return getDBHelper(getContext());
 	}
 
+	@Nullable
 	private static PlaceDbHelper dbHelper;
 
 	private static int currentDbVersion = -1;
 
-	private PlaceDbHelper getDBHelper(Context context) {
+	@NonNull
+	private PlaceDbHelper getDBHelper(@NonNull Context context) {
 		if (dbHelper == null) { // initialize
 			dbHelper = getNewDbHelper(context);
 			currentDbVersion = getCurrentDbVersion();
@@ -537,7 +561,8 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	/**
 	 * Override if multiple {@link PlaceProvider} implementations in same app.
 	 */
-	public PlaceDbHelper getNewDbHelper(Context context) {
+	@NonNull
+	public PlaceDbHelper getNewDbHelper(@NonNull Context context) {
 		return new PlaceDbHelper(context.getApplicationContext());
 	}
 
@@ -555,27 +580,28 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 
 	private static class PlaceDbHelper extends MTSQLiteOpenHelper {
 
-		private static final String TAG = PlaceDbHelper.class.getSimpleName();
+		private static final String LOG_TAG = PlaceDbHelper.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
 		/**
 		 * Override if multiple {@link PlaceDbHelper} in same app.
 		 */
-		public static final String DB_NAME = "place.db";
+		static final String DB_NAME = "place.db";
 
 		/**
 		 * Override if multiple {@link PlaceDbHelper} in same app.
 		 */
-		public static final int DB_VERSION = 2;
+		static final int DB_VERSION = 2;
 
-		public static final String T_PLACE = POIProvider.POIDbHelper.T_POI;
-		public static final String T_PLACE_K_PROVIDER_ID = POIProvider.POIDbHelper.getFkColumnName("provider_id");
-		public static final String T_PLACE_K_LANG = POIProvider.POIDbHelper.getFkColumnName("lang");
-		public static final String T_PLACE_K_READ_AT_IN_MS = POIProvider.POIDbHelper.getFkColumnName("read_at_in_ms");
+		static final String T_PLACE = POIProvider.POIDbHelper.T_POI;
+		static final String T_PLACE_K_PROVIDER_ID = POIProvider.POIDbHelper.getFkColumnName("provider_id");
+		static final String T_PLACE_K_LANG = POIProvider.POIDbHelper.getFkColumnName("lang");
+		static final String T_PLACE_K_READ_AT_IN_MS = POIProvider.POIDbHelper.getFkColumnName("read_at_in_ms");
 		private static final String T_PLACE_SQL_CREATE = POIProvider.POIDbHelper.getSqlCreateBuilder(T_PLACE) //
 				.appendColumn(T_PLACE_K_PROVIDER_ID, SqlUtils.TXT) //
 				.appendColumn(T_PLACE_K_LANG, SqlUtils.TXT) //
@@ -586,26 +612,26 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		/**
 		 * Override if multiple {@link PlaceDbHelper} in same app.
 		 */
-		public static int getDbVersion() {
+		static int getDbVersion() {
 			return DB_VERSION;
 		}
 
-		public PlaceDbHelper(Context context) {
+		PlaceDbHelper(@NonNull Context context) {
 			super(context, DB_NAME, null, getDbVersion());
 		}
 
 		@Override
-		public void onCreateMT(SQLiteDatabase db) {
+		public void onCreateMT(@NonNull SQLiteDatabase db) {
 			initAllDbTables(db);
 		}
 
 		@Override
-		public void onUpgradeMT(SQLiteDatabase db, int oldVersion, int newVersion) {
+		public void onUpgradeMT(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
 			db.execSQL(T_PLACE_SQL_DROP);
 			initAllDbTables(db);
 		}
 
-		private void initAllDbTables(SQLiteDatabase db) {
+		private void initAllDbTables(@NonNull SQLiteDatabase db) {
 			db.execSQL(T_PLACE_SQL_CREATE);
 		}
 	}

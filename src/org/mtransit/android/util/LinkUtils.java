@@ -9,6 +9,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
@@ -22,7 +23,7 @@ import android.support.annotation.NonNull;
 import android.text.Html;
 import android.text.Layout;
 import android.text.Spannable;
-import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.TextUtils;
@@ -46,10 +47,10 @@ public final class LinkUtils implements MTLog.Loggable {
 		try {
 			Spanned text = isHTML ? Html.fromHtml(originalText) : new SpannedString(originalText);
 			URLSpan[] currentSpans = text.getSpans(0, text.length(), URLSpan.class);
-			SpannableString buffer = new SpannableString(text);
+			SpannableStringBuilder buffer = new SpannableStringBuilder(text);
 			Linkify.addLinks(buffer, isHTML ? Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS | Linkify.MAP_ADDRESSES : Linkify.ALL);
 			for (URLSpan span : currentSpans) {
-				buffer.setSpan(span, text.getSpanStart(span), text.getSpanEnd(span), 0);
+				SpanUtils.set(buffer, text.getSpanStart(span), text.getSpanEnd(span), span);
 			}
 			return buffer;
 		} catch (Exception e) {
