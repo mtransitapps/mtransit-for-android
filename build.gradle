@@ -67,12 +67,8 @@ android {
         setProperty("archivesBaseName", "${projectName}_v${versionName}_r${versionCode}")
         resConfigs "en", "fr"
         minSdkVersion rootProject.ext.minSdkVersion
+        // minSdkVersion 21 // DEBUG avoid using legacy multidex
         targetSdkVersion rootProject.ext.targetSdkVersion
-        // DEBUG
-        // minSdkVersion 23 // DEBUG
-        // //noinspection OldTargetApi // DEBUG
-        // targetSdkVersion 22 // DEBUG
-        // maxSdkVersion 23 // DEBUG
     }
 
     signingConfigs {
@@ -89,12 +85,18 @@ android {
         debug {
             versionNameSuffix "_DEBUG"
 
+            // testCoverageEnabled false // DEBUG skip coverage report
             shrinkResources false
             minifyEnabled true
             useProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt'),
                     'proguard-rules.pro'
             multiDexEnabled true
+            // Disable fabric build ID generation for debug builds
+            ext.enableCrashlytics = false
+            // https://docs.fabric.io/android/crashlytics/build-tools.html
+            ext.alwaysUpdatedBuildId = false
+            aaptOptions.cruncherEnabled = false
         }
         //noinspection GroovyMissingReturnStatement
         release {

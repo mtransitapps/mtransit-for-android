@@ -1,12 +1,14 @@
 package org.mtransit.android.dev;
 
 import android.location.Location;
+import android.support.annotation.Nullable;
 
 public final class FakeLocation {
 
 	public static final boolean ENABLED = false;
 	// public static final boolean ENABLED = true; // DEBUG
 
+	@Nullable
 	public static Location getLocation() {
 		// CANADA
 		// location = LocationUtils.getNewLocation(45.5131577, -73.4087376, 77F); // DEBUG
