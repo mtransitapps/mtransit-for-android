@@ -43,6 +43,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
@@ -150,10 +151,11 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	private static final String TEXT_SEARCH_URL_LANG_FRENCH = "fr";
 	private static final int TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT = 50000; // max = 50000
 
+	@VisibleForTesting
 	@Nullable
-	private static String getTextSearchUrlString(@NonNull String apiKey,
-												 @Nullable Double optLat, @Nullable Double optLng,
-												 @Nullable Integer optRadiusInMeters, String[] searchKeywords) {
+	protected static String getTextSearchUrlString(@NonNull String apiKey,
+												   @Nullable Double optLat, @Nullable Double optLng,
+												   @Nullable Integer optRadiusInMeters, String[] searchKeywords) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(TEXT_SEARCH_URL_PART_1_BEFORE_KEY).append(apiKey);
 		sb.append(TEXT_SEARCH_URL_PART_2_BEFORE_LANG).append(LocaleUtils.isFR() ? TEXT_SEARCH_URL_LANG_FRENCH : TEXT_SEARCH_URL_LANG_DEFAULT);
@@ -167,24 +169,28 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 			sb.append(TEXT_SEARCH_URL_PART_5_BEFORE_INPUT);
 			boolean isFirstKeyword = true;
 			for (String searchKeyword : searchKeywords) {
-				if (TextUtils.isEmpty(searchKeyword)) {
+				if (searchKeyword == null || searchKeyword.trim().isEmpty()) {
 					continue;
 				}
 				String[] keywords = searchKeyword.toLowerCase(Locale.ENGLISH).split(ContentProviderConstants.SEARCH_SPLIT_ON);
 				for (String keyword : keywords) {
-					if (TextUtils.isEmpty(searchKeyword)) {
+					if (keyword == null || keyword.trim().isEmpty()) {
 						continue;
 					}
 					if (!isFirstKeyword) {
 						sb.append('+');
 					}
 					sb.append(keyword);
-					keywordMaxSize = Math.max(keywordMaxSize, keyword.length());
+					int keywordSize = keyword.length();
+					if (keywordSize < 5 && StringUtils.isDigitsOnly(keyword, false)) {
+						keywordSize = -1; // ignore 4 digits
+					}
+					keywordMaxSize = Math.max(keywordMaxSize, keywordSize);
 					isFirstKeyword = false;
 				}
 			}
 		}
-		if (keywordMaxSize <= 1) {
+		if (keywordMaxSize < 3) {
 			return null; // no significant keyword to search (SKIP search)
 		}
 		return sb.toString();
