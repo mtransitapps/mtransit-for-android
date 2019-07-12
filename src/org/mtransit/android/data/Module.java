@@ -11,8 +11,8 @@ import org.mtransit.android.provider.ModuleProvider;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.support.annotation.ColorInt;
-import android.support.annotation.Nullable;
+import androidx.annotation.ColorInt;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 public class Module extends DefaultPOI {

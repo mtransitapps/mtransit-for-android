@@ -3,8 +3,8 @@ package org.mtransit.android.util;
 import org.mtransit.android.commons.MTLog;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
 
 public final class LoaderUtils implements MTLog.Loggable {
 

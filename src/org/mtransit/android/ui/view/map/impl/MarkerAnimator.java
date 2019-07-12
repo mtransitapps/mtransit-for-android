@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
 import android.os.SystemClock;
-import android.support.v4.util.ArrayMap;
+import androidx.collection.ArrayMap;
 import android.view.animation.Interpolator;
 
 import com.google.android.gms.maps.model.LatLng;

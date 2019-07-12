@@ -6,7 +6,7 @@ import java.util.List;
 import org.mtransit.android.ui.view.map.Polyline;
 import org.mtransit.android.ui.view.map.PolylineOptions;
 
-import android.support.v4.util.ArrayMap;
+import androidx.collection.ArrayMap;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class PolylineManager {

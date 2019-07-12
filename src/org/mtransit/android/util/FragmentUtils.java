@@ -1,10 +1,16 @@
 package org.mtransit.android.util;
 
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import org.mtransit.android.commons.MTLog;
 
-import android.support.annotation.IdRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 @SuppressWarnings("WeakerAccess")
 public final class FragmentUtils implements MTLog.Loggable {
@@ -18,30 +24,30 @@ public final class FragmentUtils implements MTLog.Loggable {
 		return TAG;
 	}
 
-	public static boolean isCurrentFragmentVisible(@Nullable android.support.v4.app.FragmentActivity fa, @IdRes int currentFragmentId,
-			@Nullable android.support.v4.app.Fragment fragment) {
+	public static boolean isCurrentFragmentVisible(@Nullable FragmentActivity fa, @IdRes int currentFragmentId,
+												   @Nullable Fragment fragment) {
 		MTLog.v(TAG, "isCurrentFragmentVisible(%s)", fragment);
 		if (fragment == null) {
 			MTLog.d(TAG, "isCurrentFragmentVisible() > SKIP (fragment null = invisible)");
 			return false;
 		}
-		android.support.v4.app.FragmentManager fm = fa == null ? null : fa.getSupportFragmentManager();
-		android.support.v4.app.Fragment currentFragment = fm == null ? null : fm.findFragmentById(currentFragmentId);
+		FragmentManager fm = fa == null ? null : fa.getSupportFragmentManager();
+		Fragment currentFragment = fm == null ? null : fm.findFragmentById(currentFragmentId);
 		return isFragmentReady(fragment) && fragment.equals(currentFragment);
 	}
 
-	public static boolean isFragmentReady(@Nullable android.support.v4.app.Fragment fragment) {
+	public static boolean isFragmentReady(@Nullable Fragment fragment) {
 		return fragment != null && fragment.isAdded() && !fragment.isDetached() && !fragment.isRemoving();
 	}
 
-	public static boolean isFragmentReady(@Nullable android.support.v4.app.FragmentActivity fa, @NonNull @IdRes Integer fragmentResId) {
-		android.support.v4.app.Fragment fragment = getFragment(fa, fragmentResId);
+	public static boolean isFragmentReady(@Nullable FragmentActivity fa, @NonNull @IdRes Integer fragmentResId) {
+		Fragment fragment = getFragment(fa, fragmentResId);
 		return fragment != null && fragment.isAdded() && !fragment.isDetached() && !fragment.isRemoving();
 	}
 
 	@Nullable
-	public static android.support.v4.app.Fragment getFragment(@Nullable android.support.v4.app.FragmentActivity fa, @NonNull @IdRes Integer fragmentResId) {
-		android.support.v4.app.FragmentManager fm = fa == null ? null : fa.getSupportFragmentManager();
+	public static Fragment getFragment(@Nullable FragmentActivity fa, @NonNull @IdRes Integer fragmentResId) {
+		FragmentManager fm = fa == null ? null : fa.getSupportFragmentManager();
 		return fm == null ? null : fm.findFragmentById(fragmentResId);
 	}
 
@@ -49,8 +55,8 @@ public final class FragmentUtils implements MTLog.Loggable {
 		return fragment != null && fragment.isAdded() && !fragment.isDetached() && !fragment.isRemoving();
 	}
 
-	public static void replaceFragment(@Nullable android.support.v4.app.FragmentActivity fa, @IdRes int containerViewId,
-			android.support.v4.app.Fragment fragment, boolean addToStack, @Nullable android.support.v4.app.Fragment optSource) {
+	public static void replaceFragment(@Nullable FragmentActivity fa, @IdRes int containerViewId,
+									   Fragment fragment, boolean addToStack, @Nullable Fragment optSource) {
 		MTLog.v(TAG, "replaceFragment()");
 		try {
 			if (fa == null || fa.isFinishing()) {
@@ -62,8 +68,8 @@ public final class FragmentUtils implements MTLog.Loggable {
 				MTLog.d(TAG, "replaceFragment() > SKIP (source fragment is !added/detached/removing)");
 				return;
 			}
-			android.support.v4.app.FragmentManager fm = fa.getSupportFragmentManager();
-			android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
+			FragmentManager fm = fa.getSupportFragmentManager();
+			FragmentTransaction ft = fm.beginTransaction();
 			ft.replace(containerViewId, fragment);
 			if (addToStack) {
 				ft.addToBackStack(null);
@@ -76,8 +82,8 @@ public final class FragmentUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static void replaceFragment(@Nullable android.support.v4.app.FragmentActivity fa, @IdRes int containerViewId,
-			android.support.v4.app.Fragment fragment, boolean addToStack, @Nullable @IdRes Integer optSourceResId) {
+	public static void replaceFragment(@Nullable FragmentActivity fa, @IdRes int containerViewId,
+									   Fragment fragment, boolean addToStack, @Nullable @IdRes Integer optSourceResId) {
 		MTLog.v(TAG, "replaceFragment()");
 		try {
 			if (fa == null || fa.isFinishing()) {
@@ -89,8 +95,8 @@ public final class FragmentUtils implements MTLog.Loggable {
 				MTLog.d(TAG, "replaceFragment() > SKIP (source fragment is !added/detached/removing)");
 				return;
 			}
-			android.support.v4.app.FragmentManager fm = fa.getSupportFragmentManager();
-			android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
+			FragmentManager fm = fa.getSupportFragmentManager();
+			FragmentTransaction ft = fm.beginTransaction();
 			ft.replace(containerViewId, fragment);
 			if (addToStack) {
 				ft.addToBackStack(null);
@@ -103,8 +109,8 @@ public final class FragmentUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static void replaceDialogFragment(@Nullable android.support.v4.app.FragmentActivity fa, String tag,
-			android.support.v4.app.DialogFragment dialogFragment, @Nullable android.support.v4.app.Fragment optSource) {
+	public static void replaceDialogFragment(@Nullable FragmentActivity fa, String tag,
+											 DialogFragment dialogFragment, @Nullable Fragment optSource) {
 		MTLog.v(TAG, "replaceDialogFragment()");
 		try {
 			if (fa == null || fa.isFinishing()) {
@@ -116,9 +122,9 @@ public final class FragmentUtils implements MTLog.Loggable {
 				MTLog.d(TAG, "replaceDialogFragment() > SKIP (source fragment is !added/detached/removing)");
 				return;
 			}
-			android.support.v4.app.FragmentManager fm = fa.getSupportFragmentManager();
-			android.support.v4.app.FragmentTransaction ft = fm.beginTransaction();
-			android.support.v4.app.Fragment prev = fm.findFragmentByTag(tag);
+			FragmentManager fm = fa.getSupportFragmentManager();
+			FragmentTransaction ft = fm.beginTransaction();
+			Fragment prev = fm.findFragmentByTag(tag);
 			if (prev != null) {
 				MTLog.d(TAG, "replaceDialogFragment() > remove old dialog %s", prev);
 				ft.remove(prev);
@@ -167,7 +173,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static void executePendingTransactions(@Nullable android.support.v4.app.FragmentActivity fa, @Nullable android.support.v4.app.Fragment optSource) {
+	public static void executePendingTransactions(@Nullable FragmentActivity fa, @Nullable Fragment optSource) {
 		MTLog.v(TAG, "executePendingTransactions()");
 		try {
 			if (fa == null || fa.isFinishing()) {
@@ -187,8 +193,8 @@ public final class FragmentUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static void clearFragmentBackStackImmediate(@Nullable android.support.v4.app.FragmentActivity fa,
-			@Nullable android.support.v4.app.Fragment optSource) {
+	public static void clearFragmentBackStackImmediate(@Nullable FragmentActivity fa,
+			@Nullable Fragment optSource) {
 		MTLog.v(TAG, "clearFragmentBackStackImmediate()");
 		try {
 			if (fa == null || fa.isFinishing()) {
@@ -200,7 +206,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 				MTLog.d(TAG, "clearFragmentBackStackImmediate() > SKIP (source fragment is !added/detached/removing)");
 				return;
 			}
-			fa.getSupportFragmentManager().popBackStack(null, android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+			fa.getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 		} catch (IllegalStateException ise) {
 			CrashUtils.w(TAG, ise, "Illegal State Exception while clearing fragment back stack immediately!");
 		} catch (Exception e) {
@@ -208,8 +214,8 @@ public final class FragmentUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static void popFragmentFromStack(@Nullable android.support.v4.app.FragmentActivity fa, android.support.v4.app.Fragment fragment,
-			@Nullable android.support.v4.app.Fragment optSource) {
+	public static void popFragmentFromStack(@Nullable FragmentActivity fa, Fragment fragment,
+											@Nullable Fragment optSource) {
 		MTLog.v(TAG, "popFragmentFromStack()");
 		try {
 			if (fa == null || fa.isFinishing()) {
@@ -231,7 +237,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static boolean popLatestEntryFromStack(@Nullable android.support.v4.app.FragmentActivity fa, @Nullable android.support.v4.app.Fragment optSource) {
+	public static boolean popLatestEntryFromStack(@Nullable FragmentActivity fa, @Nullable Fragment optSource) {
 		MTLog.v(TAG, "popLatestEntryFromStack()");
 		try {
 			if (fa == null || fa.isFinishing()) {
@@ -243,7 +249,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 				MTLog.d(TAG, "popLatestEntryFromStack() > SKIP (source fragment is !added/detached/removing)");
 				return false; // not handled
 			}
-			android.support.v4.app.FragmentManager fm = fa.getSupportFragmentManager();
+			FragmentManager fm = fa.getSupportFragmentManager();
 			if (fm.getBackStackEntryCount() > 0) {
 				fm.popBackStack();
 				return true; // handled

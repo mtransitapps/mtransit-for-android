@@ -3,8 +3,8 @@ package org.mtransit.android.dev;
 import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.MTLog;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public interface CrashReporter {
 

@@ -8,7 +8,7 @@ import org.mtransit.android.commons.provider.StatusProvider;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public class ModuleDbHelper extends MTSQLiteOpenHelper {
 

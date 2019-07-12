@@ -28,7 +28,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.support.annotation.RequiresPermission;
+import androidx.annotation.RequiresPermission;
 import android.view.View;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)

@@ -5,7 +5,7 @@ import java.lang.ref.WeakReference;
 import org.mtransit.android.commons.MTLog;
 
 import android.content.Context;
-import android.support.v4.widget.SwipeRefreshLayout;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AbsListView;

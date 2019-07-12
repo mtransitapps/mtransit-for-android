@@ -12,7 +12,7 @@ import org.mtransit.android.commons.MTLog;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 public class AgencyProperties implements MTLog.Loggable {

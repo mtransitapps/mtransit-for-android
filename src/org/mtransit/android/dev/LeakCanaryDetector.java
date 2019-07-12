@@ -5,7 +5,7 @@ import com.squareup.leakcanary.LeakCanary;
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.commons.MTLog;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public class LeakCanaryDetector implements LeakDetector, MTLog.Loggable {
 

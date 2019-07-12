@@ -21,7 +21,7 @@ import org.mtransit.android.util.iab.SkuDetails;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.util.ArrayMap;
+import androidx.collection.ArrayMap;
 import android.widget.Toast;
 
 public final class VendingUtils implements MTLog.Loggable {

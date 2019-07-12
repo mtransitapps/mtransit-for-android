@@ -10,7 +10,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.List;
 
 import android.graphics.Bitmap;
-import android.support.annotation.RequiresPermission;
+import androidx.annotation.RequiresPermission;
 import android.view.View;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)

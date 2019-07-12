@@ -31,7 +31,7 @@ dependencies {
     // TEST
     testImplementation rootProject.ext.squareLibs.leakcanary_no_op
     // DEBUG
-    debugImplementation 'com.android.support:multidex:1.0.3'
+    debugImplementation 'androidx.multidex:multidex:2.0.1'
 
     testImplementation rootProject.ext.jUnitLibs.jUnit
     testImplementation rootProject.ext.mockitoLibs.mockitoCore
@@ -39,7 +39,6 @@ dependencies {
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     Properties projectNameProperties = new Properties()
     projectNameProperties.load(new FileInputStream(file("project_name.properties")))

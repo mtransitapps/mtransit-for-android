@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import android.support.v4.util.ArrayMap;
+import androidx.collection.ArrayMap;
 
 // based on the Google IAB sample (Apache License, Version 2.0)
 public class Inventory {

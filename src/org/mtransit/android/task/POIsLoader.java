@@ -9,7 +9,7 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
-import android.support.v4.util.ArrayMap;
+import androidx.collection.ArrayMap;
 
 public class POIsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 

@@ -23,8 +23,8 @@ import com.google.android.gms.ads.MobileAds;
 
 import android.content.res.Configuration;
 import android.location.Location;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.view.View;
 
 public class AdManager implements IAdManager, MTLog.Loggable {

@@ -16,7 +16,7 @@
         android:layout_gravity="center"
         android:gravity="center">
         <!-- ROUTE SHORT NAME -->
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/route_short_name"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

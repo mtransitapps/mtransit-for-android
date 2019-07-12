@@ -15,7 +15,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
-import android.support.v4.util.Pair;
+import androidx.core.util.Pair;
 import android.util.AttributeSet;
 
 public class MTJPathsView extends MTView {

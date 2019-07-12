@@ -1,11 +1,11 @@
 package org.mtransit.android.util;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.dev.CrashlyticsCrashReporter;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 @Deprecated
 @SuppressWarnings("WeakerAccess")

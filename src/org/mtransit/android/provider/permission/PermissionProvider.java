@@ -3,7 +3,7 @@ package org.mtransit.android.provider.permission;
 import org.mtransit.android.common.IContext;
 import org.mtransit.android.ui.view.common.IActivity;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public interface PermissionProvider {
 	boolean permissionsGranted(@NonNull IContext context);

@@ -8,8 +8,8 @@ import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.MTLog;
 
 import android.content.Context;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.StringRes;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.StringRes;
 
 public enum DataSourceType {
 

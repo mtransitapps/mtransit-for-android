@@ -6,8 +6,8 @@ import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.provider.location.MTLocationProvider;
 
 import android.content.DialogInterface;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 
 public final class ScreenWithLocationCommon implements MTLog.Loggable {
 

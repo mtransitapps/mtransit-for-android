@@ -7,7 +7,7 @@ import org.mtransit.android.util.VendingUtils;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
+import androidx.appcompat.app.ActionBar;
 import android.view.MenuItem;
 
 public class PreferencesActivity extends MTActivity {

@@ -12,10 +12,11 @@ import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.lazy.LazyMarker;
 
 import android.os.SystemClock;
-import android.support.v4.util.ArrayMap;
+import androidx.collection.ArrayMap;
 
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable {
@@ -30,7 +31,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 	private final IGoogleMap factory;
 
 	private final ArrayMap<LazyMarker, DelegatingMarker> markers;
-	private final ArrayMap<com.google.android.gms.maps.model.Marker, LazyMarker> createdMarkers;
+	private final ArrayMap<Marker, LazyMarker> createdMarkers;
 
 	private IMarker markerShowingInfoWindow;
 
@@ -42,7 +43,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 	public MarkerManager(IGoogleMap factory) {
 		this.factory = factory;
 		this.markers = new ArrayMap<LazyMarker, DelegatingMarker>();
-		this.createdMarkers = new ArrayMap<com.google.android.gms.maps.model.Marker, LazyMarker>();
+		this.createdMarkers = new ArrayMap<Marker, LazyMarker>();
 	}
 
 	public IMarker addMarker(ExtendedMarkerOptions markerOptions) {

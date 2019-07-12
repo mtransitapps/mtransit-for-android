@@ -1,7 +1,7 @@
 package org.mtransit.android.ui.view.map.impl;
 
 import android.graphics.Bitmap;
-import android.support.annotation.RequiresPermission;
+import androidx.annotation.RequiresPermission;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.GoogleMap;

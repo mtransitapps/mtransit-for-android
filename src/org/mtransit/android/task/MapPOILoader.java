@@ -25,7 +25,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 import android.content.Context;
-import android.support.v4.util.ArrayMap;
+import androidx.collection.ArrayMap;
 
 public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewController.POIMarker>> {
 

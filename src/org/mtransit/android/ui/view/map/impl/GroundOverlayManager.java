@@ -6,7 +6,7 @@ import java.util.List;
 import org.mtransit.android.ui.view.map.GroundOverlay;
 import org.mtransit.android.ui.view.map.GroundOverlayOptions;
 
-import android.support.v4.util.ArrayMap;
+import androidx.collection.ArrayMap;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class GroundOverlayManager {

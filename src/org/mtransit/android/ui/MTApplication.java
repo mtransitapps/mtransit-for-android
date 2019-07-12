@@ -11,8 +11,8 @@ import org.mtransit.android.di.Injection;
 
 import android.app.Application;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class MTApplication extends Application implements IApplication, MTLog.Loggable {
 

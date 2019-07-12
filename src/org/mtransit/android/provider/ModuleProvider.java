@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mtransit.android.R;
@@ -37,8 +37,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.v4.util.ArrayMap;
+import androidx.annotation.NonNull;
+import androidx.collection.ArrayMap;
 
 public class ModuleProvider extends AgencyProvider implements POIProviderContract, StatusProviderContract {
 

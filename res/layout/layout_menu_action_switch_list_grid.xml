@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:padding="@dimen/switch_padding">
 
-    <android.support.v7.widget.SwitchCompat
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/action_bar_switch_list_grid"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"

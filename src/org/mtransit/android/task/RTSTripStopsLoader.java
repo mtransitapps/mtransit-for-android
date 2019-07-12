@@ -9,8 +9,8 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class RTSTripStopsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 

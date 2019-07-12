@@ -14,8 +14,8 @@ import org.mtransit.android.provider.location.MTLocationProvider;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.ui.MTApplication;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class Injection {
 

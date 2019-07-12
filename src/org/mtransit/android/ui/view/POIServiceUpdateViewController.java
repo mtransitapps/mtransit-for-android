@@ -12,8 +12,8 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.util.LinkUtils;
 
 import android.content.Context;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.Nullable;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;

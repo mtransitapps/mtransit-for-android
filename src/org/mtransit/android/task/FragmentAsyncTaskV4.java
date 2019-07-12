@@ -6,9 +6,9 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.util.FragmentUtils;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 public abstract class FragmentAsyncTaskV4<Params, Progress, Result, F extends Fragment> extends MTAsyncTask<Params, Progress, Result> implements
 		MTLog.Loggable {

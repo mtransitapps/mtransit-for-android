@@ -19,7 +19,7 @@ import org.mtransit.android.ui.fragment.WebBrowserFragment;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.Html;
 import android.text.Layout;
 import android.text.Spannable;
