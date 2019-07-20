@@ -64,7 +64,7 @@
     <string name="twitter">Twitter</string>
     <string name="download_on_store">Télécharger sur Google Play</string>
     <string name="re_enable_app">Activer pour résoudre problème</string>
-    <string name="rate_on_store">Noter on Google Play</string>
+    <string name="rate_on_store">Noter sur Google Play</string>
     <string name="manage_app">Gestion de l\'App</string>
     <string name="uninstall">Désinstaller</string>
     <string name="view_details">Voire Détails</string>
@@ -125,6 +125,10 @@
     <string name="availability">Disponibilité</string>
     <string name="full_schedule">Horaire Complet</string>
     <string name="local_time_and_time">%s heure locale</string>
+    <string name="battery_optimization_issue_title">Problèmes d\'optimisation de la batterie</string>
+    <string name="battery_optimization_issue_message">Les fabricants d\'appareils (Huawei, OnePlus, Nokia, Xiaomi, Meizu&#8230;) modifient le fonctionnement d\'Android pour économiser plus de batterie et cela empêche les apps de fonctionner correctement.\n\nEn savoir plus (en Anglais): https://dontkillmyapp.com/.</string>
+    <string name="battery_optimization_issue_act">Corriger</string>
+    <string name="battery_optimization_issue_learn_more">En savoir plus</string>
     <string name="display_pref_cat_title">Affichage</string>
     <string name="unit_pref_title">Unités</string>
     <string name="unit_pref_summary">Métrique (km/m) ou impérial (mi/ft).</string>
@@ -143,7 +147,7 @@
     <string name="device_settings_location_pref_title">Position</string>
     <string name="device_settings_location_pref_summary">Améliorer la précision de la détection de la position de l\'appareil</string>
     <string name="device_settings_power_management_pref_title">Gestion de l\'énergie</string>
-    <string name="device_settings_power_management_pref_summary">Résoudre les problèmes liés aux optimisations aggressives des fabricants d\'appareils</string>
+    <string name="device_settings_power_management_pref_summary">Résoudre les problèmes liés aux optimisations aggressives de la batterie par les fabricants d\'appareils</string>
     <string name="feedback_pref_cat_title">Commentaires</string>
     <string name="feedback_email_pref_title">Envoyer un commentaire</string>
     <string name="feedback_email_pref_summary">Signaler un problème ou suggérer une nouvelle fonctionnalité.</string>

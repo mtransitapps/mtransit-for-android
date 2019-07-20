@@ -11,7 +11,9 @@ import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.VendingUtils;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -50,6 +52,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 
 	private static final String TWITTER_PAGE_URL = "https://twitter.com/montransit";
 	private static final String FACEBOOK_PAGE_URL = "https://facebook.com/MonTransit";
+	private static final String DONT_KILL_MY_APP_URL = "https://dontkillmyapp.com/";
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -95,7 +98,34 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 				if (activity == null) {
 					return false; // not handled
 				}
-				DeviceUtils.showIgnoreBatteryOptimizationSettings(activity);
+				new AlertDialog.Builder(activity)
+						.setTitle(R.string.battery_optimization_issue_title)
+						.setMessage(R.string.battery_optimization_issue_message)
+						.setPositiveButton(R.string.battery_optimization_issue_act, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+								Activity activity = getActivity();
+								if (activity == null) {
+									return;
+								}
+								DeviceUtils.showIgnoreBatteryOptimizationSettings(activity);
+							}
+						})
+						.setNeutralButton(R.string.battery_optimization_issue_learn_more, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+								Activity activity = getActivity();
+								if (activity == null) {
+									return;
+								}
+								LinkUtils.open(activity, DONT_KILL_MY_APP_URL, DONT_KILL_MY_APP_URL, false);
+							}
+						})
+						.setCancelable(true)
+						.create()
+						.show();
 				return true; // handled
 			}
 		});

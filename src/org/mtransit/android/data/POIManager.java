@@ -409,8 +409,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	private boolean onActionsItemClickApp(@NonNull Activity activity, int itemClicked,
-										  FavoriteManager.FavoriteUpdateListener listener,
-										  @Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+			FavoriteManager.FavoriteUpdateListener listener,
+			@Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
 		case 0: // Rate on Google Play
 			if (onClickHandledListener != null) {
@@ -548,7 +548,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 		return false; // NOT HANDLED
 	}
-
 
 	public boolean isFavoritable() {
 		switch (this.poi.getActionsType()) {
