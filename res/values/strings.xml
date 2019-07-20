@@ -63,6 +63,7 @@
     <string name="google_maps">Google Maps</string>
     <string name="twitter">Twitter</string>
     <string name="download_on_store">Download on Google Play</string>
+    <string name="re_enable_app">Enable to resolve issue</string>
     <string name="rate_on_store">Rate on Google Play</string>
     <string name="manage_app">App Management</string>
     <string name="uninstall">Uninstall</string>

@@ -342,8 +342,9 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	public POIStatus getNewModuleStatus(@NonNull AppStatus.AppStatusFilter filter) {
 		long newLastUpdateInMs = TimeUtils.currentTimeMillis();
-		boolean appInstalled = PackageManagerUtils.isAppInstalled(getContext(), filter.getPkg());
-		return new AppStatus(filter.getTargetUUID(), newLastUpdateInMs, getStatusMaxValidityInMs(), newLastUpdateInMs, appInstalled);
+		return new AppStatus(filter.getTargetUUID(), newLastUpdateInMs, getStatusMaxValidityInMs(), newLastUpdateInMs,
+				PackageManagerUtils.isAppInstalled(getContext(), filter.getPkg()),
+				PackageManagerUtils.isAppEnabled(getContext(), filter.getPkg()));
 	}
 
 	@Override

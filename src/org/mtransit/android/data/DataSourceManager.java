@@ -34,6 +34,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
@@ -160,6 +161,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
+	@Nullable
 	private static POIStatus getPOIStatus(Cursor cursor) {
 		POIStatus result = null;
 		if (cursor != null && cursor.getCount() > 0) {

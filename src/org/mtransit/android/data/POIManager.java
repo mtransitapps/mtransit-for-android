@@ -364,11 +364,17 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			};
 		case POI.ITEM_ACTION_TYPE_APP:
 			if (PackageManagerUtils.isAppInstalled(context, ((Module) this.poi).getPkg())) {
-				return new CharSequence[]{ //
-						context.getString(R.string.rate_on_store), //
-						context.getString(R.string.manage_app), //
-						context.getString(R.string.uninstall), //
-				};
+				if (PackageManagerUtils.isAppEnabled(context, ((Module) this.poi).getPkg())) {
+					return new CharSequence[]{ //
+							context.getString(R.string.rate_on_store), //
+							context.getString(R.string.manage_app), //
+							context.getString(R.string.uninstall), //
+					};
+				} else {
+					return new CharSequence[]{ //
+							context.getString(R.string.re_enable_app), //
+					};
+				}
 			} else {
 				return new CharSequence[]{ //
 						context.getString(R.string.download_on_store), //
@@ -416,6 +422,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				onClickHandledListener.onLeaving();
 			}
 			PackageManagerUtils.showAppDetailsSettings(activity, ((Module) poi).getPkg());
+			return true; // HANDLED
 		case 2: // Uninstall
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
