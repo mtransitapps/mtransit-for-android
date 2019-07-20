@@ -7,7 +7,8 @@ CUSTOM_SETTINGS_GRADLE_FILE="../settings.gradle.all";
 
 GIT_URL=$(git config --get remote.origin.url); # remote get-url origin
 echo ">> Git URL: '$GIT_URL'.";
-GIT_PROJECT_NAME=$(basename --suffix=.git ${GIT_URL});
+GIT_PROJECT_NAME=$(basename -- ${GIT_URL});
+GIT_PROJECT_NAME="${GIT_PROJECT_NAME%.*}"
 echo ">> Git project name: '$GIT_PROJECT_NAME'.";
 if [[ -z "${GIT_PROJECT_NAME}" ]]; then
 	echo "GIT_PROJECT_NAME not found!";
