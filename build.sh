@@ -5,7 +5,7 @@ echo ">> Building...";
 DIRECTORY=$(basename ${PWD});
 CUSTOM_SETTINGS_GRADLE_FILE="../settings.gradle.all";
 
-GIT_URL=$(git remote get-url origin); # git config --get remote.origin.url
+GIT_URL=$(git config --get remote.origin.url); # remote get-url origin
 echo ">> Git URL: '$GIT_URL'.";
 GIT_PROJECT_NAME=$(basename -s .git ${GIT_URL});
 echo ">> Git project name: '$GIT_PROJECT_NAME'.";
