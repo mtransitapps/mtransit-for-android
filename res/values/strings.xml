@@ -64,6 +64,7 @@
     <string name="twitter">Twitter</string>
     <string name="download_on_store">Download on Google Play</string>
     <string name="rate_on_store">Rate on Google Play</string>
+    <string name="manage_app">App Management</string>
     <string name="uninstall">Uninstall</string>
     <string name="view_details">View Details</string>
     <string name="news_shared_on_and_author_and_source">%1$s on %2$s</string>

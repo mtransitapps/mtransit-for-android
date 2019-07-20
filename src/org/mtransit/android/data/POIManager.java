@@ -214,7 +214,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return this.status;
 	}
 
-
 	private boolean findStatus(Context context, boolean skipIfBusy) {
 		long findStatusTimestampMs = TimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
@@ -367,6 +366,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (PackageManagerUtils.isAppInstalled(context, ((Module) this.poi).getPkg())) {
 				return new CharSequence[]{ //
 						context.getString(R.string.rate_on_store), //
+						context.getString(R.string.manage_app), //
 						context.getString(R.string.uninstall), //
 				};
 			} else {
@@ -401,16 +401,22 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 	}
 
-	private boolean onActionsItemClickApp(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
-			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	private boolean onActionsItemClickApp(@NonNull Activity activity, int itemClicked,
+										  FavoriteManager.FavoriteUpdateListener listener,
+										  @Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
-		case 0:
+		case 0: // Rate on Google Play
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
 			StoreUtils.viewAppPage(activity, ((Module) poi).getPkg(), activity.getString(R.string.google_play));
 			return true; // HANDLED
-		case 1:
+		case 1: // Manage App
+			if (onClickHandledListener != null) {
+				onClickHandledListener.onLeaving();
+			}
+			PackageManagerUtils.showAppDetailsSettings(activity, ((Module) poi).getPkg());
+		case 2: // Uninstall
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
