@@ -1,8 +1,8 @@
 package org.mtransit.android.ui.view.common;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.DeviceUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.provider.location.MTLocationProvider;
 
 import android.content.DialogInterface;
@@ -13,6 +13,7 @@ public final class ScreenWithLocationCommon implements MTLog.Loggable {
 
 	private static final String LOG_TAG = ScreenWithLocationCommon.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return LOG_TAG;
@@ -70,6 +71,6 @@ public final class ScreenWithLocationCommon implements MTLog.Loggable {
 	}
 
 	public static void showApplicationDetailsSettingsScreen(@NonNull MTLocationProvider.ScreenWithLocationView screenWithLocationView) {
-		PackageManagerUtils.showAppDetailsSettings(screenWithLocationView.requireActivity(), screenWithLocationView.requireActivity().getPackageName());
+		DeviceUtils.showAppDetailsSettings(screenWithLocationView.requireActivity(), screenWithLocationView.requireActivity().getPackageName());
 	}
 }

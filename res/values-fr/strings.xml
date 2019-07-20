@@ -135,6 +135,15 @@
     <string name="use_internal_web_browser_pref_summary">Ouvrir les liens dans le navigateur interne au lieu du navigateur par défaut</string>
     <string name="use_internal_web_browser_pref_summary_on">Ouvrir les liens dans le navigateur interne</string>
     <string name="use_internal_web_browser_pref_summary_off">Ouvrir les liens dans le navigateur par défaut</string>
+    <string name="device_settings_pref_cat_title">Appareil</string>
+    <string name="device_settings_language_pref_title">Langue</string>
+    <string name="device_settings_language_pref_summary">L\'interface de l\'app s\'ajuste automatiquemet à la langue de l\'appareil</string>
+    <string name="device_settings_date_and_time_pref_title">Date et heure</string>
+    <string name="device_settings_date_and_time_pref_summary">Sélectionner format 12/24 heures et s\'assurer que la date, l\'heure et le fuseau horaire de l\'appareil sont corrects</string>
+    <string name="device_settings_location_pref_title">Position</string>
+    <string name="device_settings_location_pref_summary">Améliorer la précision de la détection de la position de l\'appareil</string>
+    <string name="device_settings_power_management_pref_title">Gestion de l\'énergie</string>
+    <string name="device_settings_power_management_pref_summary">Résoudre les problèmes liés aux optimisations aggressives des fabricants d\'appareils</string>
     <string name="feedback_pref_cat_title">Commentaires</string>
     <string name="feedback_email_pref_title">Envoyer un commentaire</string>
     <string name="feedback_email_pref_summary">Signaler un problème ou suggérer une nouvelle fonctionnalité.</string>

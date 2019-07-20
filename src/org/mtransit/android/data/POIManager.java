@@ -9,6 +9,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.ComparatorUtils;
+import org.mtransit.android.commons.DeviceUtils;
 import org.mtransit.android.commons.LocationUtils.LocationPOI;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
@@ -421,7 +422,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			PackageManagerUtils.showAppDetailsSettings(activity, ((Module) poi).getPkg());
+			DeviceUtils.showAppDetailsSettings(activity, ((Module) poi).getPkg());
 			return true; // HANDLED
 		case 2: // Uninstall
 			if (onClickHandledListener != null) {
