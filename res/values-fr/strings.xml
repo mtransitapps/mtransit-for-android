@@ -124,6 +124,7 @@
     <string name="next_departures">Prochains Départs</string>
     <string name="availability">Disponibilité</string>
     <string name="full_schedule">Horaire Complet</string>
+    <string name="privacy_policy">Politique de confidentialité</string>
     <string name="local_time_and_time">%s heure locale</string>
     <string name="battery_optimization_issue_title">Problèmes d\'optimisation de la batterie</string>
     <string name="battery_optimization_issue_message">Les fabricants d\'appareils (Huawei, OnePlus, Nokia, Xiaomi, Meizu&#8230;) modifient le fonctionnement d\'Android pour économiser plus de batterie et cela empêche les apps de fonctionner correctement.\n\nEn savoir plus (en Anglais): https://dontkillmyapp.com/.</string>
@@ -159,6 +160,8 @@
     <string name="social_twitter_pref_title">Suivre MonTransit sur Twitter</string>
     <string name="social_twitter_pref_summary">twitter.com/MonTransit</string>
     <string name="about_pref_cat_title">À propos</string>
+    <string name="about_privacy_policy_pref_title">@string/privacy_policy</string>
+    <string name="about_privacy_policy_pref_summary">Lire la politique de confidentialité de l\'application</string>
     <string name="about_app_version_pref_title">Version de l\'application</string>
     <string name="about_app_version_pref_summary">@string/ellipsis</string>
     <string name="support_pref_cat_title">Supporter</string>

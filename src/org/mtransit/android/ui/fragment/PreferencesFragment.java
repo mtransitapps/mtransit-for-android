@@ -3,6 +3,7 @@ package org.mtransit.android.ui.fragment;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.DeviceUtils;
+import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
@@ -45,6 +46,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 
 	private static final String SUPPORT_SUBSCRIPTIONS_PREF = "pSupportSubs";
 
+	private static final String ABOUT_PRIVACY_POLICY_PREF = "pAboutPrivacyPolicy";
 	private static final String ABOUT_APP_VERSION_PREF = "pAboutAppVersion";
 
 	private static final String SOCIAL_FACEBOOK_PREF = "pSocialFacebook";
@@ -53,6 +55,8 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 	private static final String TWITTER_PAGE_URL = "https://twitter.com/montransit";
 	private static final String FACEBOOK_PAGE_URL = "https://facebook.com/MonTransit";
 	private static final String DONT_KILL_MY_APP_URL = "https://dontkillmyapp.com/";
+	private static final String PRIVACY_POLICY_PAGE_URL = "https://github.com/mtransitapps/mtransit-for-android/wiki/PrivacyPolicy";
+	private static final String PRIVACY_POLICY_FR_PAGE_URL = "https://github.com/mtransitapps/mtransit-for-android/wiki/PrivacyPolicyFr";
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -191,6 +195,21 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 				return true; // handled
 			}
 		});
+		findPreference(ABOUT_PRIVACY_POLICY_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Activity activity = getActivity();
+				if (activity == null) {
+					return false; // not handled
+				}
+				LinkUtils.open(activity,
+						LocaleUtils.isFR() ?
+								PRIVACY_POLICY_FR_PAGE_URL :
+								PRIVACY_POLICY_PAGE_URL,
+						activity.getString(R.string.privacy_policy), false);
+				return true; // handled
+			}
+		});
 	}
 
 	@Override
@@ -288,7 +307,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 		}
 	}
 
-	private void setAppVersion(Context context) {
+	private void setAppVersion(@NonNull Context context) {
 		findPreference(ABOUT_APP_VERSION_PREF).setSummary("" //
 				+ " v" + PackageManagerUtils.getAppVersionName(context) //
 				+ " (" + PackageManagerUtils.getAppVersionCode(context) + ")");

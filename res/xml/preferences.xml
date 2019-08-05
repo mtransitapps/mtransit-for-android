@@ -44,10 +44,10 @@
             android:title="@string/device_settings_location_pref_title" />
         <Preference
             android:enabled="false"
-            tools:enabled="true"
             android:key="pDeviceSettingsPowerManagement"
             android:summary="@string/device_settings_power_management_pref_summary"
-            android:title="@string/device_settings_power_management_pref_title" />
+            android:title="@string/device_settings_power_management_pref_title"
+            tools:enabled="true" />
     </PreferenceCategory>
     <!-- FEEDBACK -->
     <PreferenceCategory
@@ -99,6 +99,12 @@
     <PreferenceCategory
         android:key="pAbout"
         android:title="@string/about_pref_cat_title">
+        <!-- PRIVACY POLICY -->
+        <Preference
+            android:enabled="true"
+            android:key="pAboutPrivacyPolicy"
+            android:summary="@string/about_privacy_policy_pref_summary"
+            android:title="@string/about_privacy_policy_pref_title" />
         <!-- APP VERSION -->
         <Preference
             android:enabled="true"

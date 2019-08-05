@@ -7,33 +7,39 @@ import org.mtransit.android.util.VendingUtils;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 public class PreferencesActivity extends MTActivity {
 
-	private static final String TAG = PreferencesActivity.class.getSimpleName();
+	private static final String LOG_TAG = PreferencesActivity.class.getSimpleName();
 
 	private static final String EXTRA_SUPPORT = "extra_support";
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private boolean showSupport = false;
-	public static Intent newInstance(Context context) {
+
+	@NonNull
+	public static Intent newInstance(@NonNull Context context) {
 		return newInstance(context, false);
 	}
 
-	public static Intent newInstance(Context context, boolean support) {
+	@NonNull
+	public static Intent newInstance(@NonNull Context context, boolean support) {
 		Intent intent = new Intent(context, PreferencesActivity.class);
 		intent.putExtra(EXTRA_SUPPORT, support);
 		return intent;
 	}
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_preferences);
 		ActionBar actionBar = getSupportActionBar();
@@ -60,26 +66,26 @@ public class PreferencesActivity extends MTActivity {
 	}
 
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
 		outState.putBoolean(EXTRA_SUPPORT, this.showSupport);
 		super.onSaveInstanceState(outState);
 	}
 
 	@Override
-	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+	protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
 		restoreInstanceState(savedInstanceState);
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 		if (!VendingUtils.onActivityResult(this, requestCode, resultCode, data)) {
 			super.onActivityResult(requestCode, resultCode, data);
 		}
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		if (item.getItemId() == android.R.id.home) {
 			finish();
 			return true; // handled
