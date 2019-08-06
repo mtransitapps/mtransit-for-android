@@ -2,6 +2,8 @@ package org.mtransit.android.ui.fragment;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.Constants;
+import org.mtransit.android.commons.DeviceUtils;
+import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
@@ -10,27 +12,41 @@ import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.VendingUtils;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 public class PreferencesFragment extends MTPreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener,
 		VendingUtils.OnVendingResultListener {
 
-	private static final String TAG = PreferenceFragment.class.getSimpleName();
+	private static final String LOG_TAG = PreferenceFragment.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
+
+	private static final String DEVICE_SETTINGS_GROUP_PREF = "pDeviceSettings";
+	private static final String DEVICE_SETTINGS_LANGUAGE_PREF = "pDeviceSettingsLanguage";
+	private static final String DEVICE_SETTINGS_DATE_AND_TIME_PREF = "pDeviceSettingsDateAndTime";
+	private static final String DEVICE_SETTINGS_LOCATION_PREF = "pDeviceSettingsLocation";
+	private static final String DEVICE_SETTINGS_POWER_MANAGEMENT_PREF = "pDeviceSettingsPowerManagement";
 
 	private static final String FEEDBACK_EMAIL_PREF = "pFeedbackEmail";
 	private static final String FEEDBACK_STORE_PREF = "pFeedbackStore";
 
 	private static final String SUPPORT_SUBSCRIPTIONS_PREF = "pSupportSubs";
 
+	private static final String ABOUT_PRIVACY_POLICY_PREF = "pAboutPrivacyPolicy";
 	private static final String ABOUT_APP_VERSION_PREF = "pAboutAppVersion";
 
 	private static final String SOCIAL_FACEBOOK_PREF = "pSocialFacebook";
@@ -38,11 +54,85 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 
 	private static final String TWITTER_PAGE_URL = "https://twitter.com/montransit";
 	private static final String FACEBOOK_PAGE_URL = "https://facebook.com/MonTransit";
+	private static final String DONT_KILL_MY_APP_URL = "https://dontkillmyapp.com/";
+	private static final String PRIVACY_POLICY_PAGE_URL = "https://github.com/mtransitapps/mtransit-for-android/wiki/PrivacyPolicy";
+	private static final String PRIVACY_POLICY_FR_PAGE_URL = "https://github.com/mtransitapps/mtransit-for-android/wiki/PrivacyPolicyFr";
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
+		findPreference(DEVICE_SETTINGS_LANGUAGE_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Activity activity = getActivity();
+				if (activity == null) {
+					return false; // not handled
+				}
+				DeviceUtils.showLocaleSettings(activity);
+				return true; // handled
+			}
+		});
+		findPreference(DEVICE_SETTINGS_DATE_AND_TIME_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Activity activity = getActivity();
+				if (activity == null) {
+					return false; // not handled
+				}
+				DeviceUtils.showDateSettings(activity);
+				return true; // handled
+			}
+		});
+		findPreference(DEVICE_SETTINGS_LOCATION_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Activity activity = getActivity();
+				if (activity == null) {
+					return false; // not handled
+				}
+				DeviceUtils.showLocationSourceSettings(activity);
+				return true; // handled
+			}
+		});
+		findPreference(DEVICE_SETTINGS_POWER_MANAGEMENT_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Activity activity = getActivity();
+				if (activity == null) {
+					return false; // not handled
+				}
+				new AlertDialog.Builder(activity)
+						.setTitle(R.string.battery_optimization_issue_title)
+						.setMessage(R.string.battery_optimization_issue_message)
+						.setPositiveButton(R.string.battery_optimization_issue_act, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+								Activity activity = getActivity();
+								if (activity == null) {
+									return;
+								}
+								DeviceUtils.showIgnoreBatteryOptimizationSettings(activity);
+							}
+						})
+						.setNeutralButton(R.string.battery_optimization_issue_learn_more, new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+								Activity activity = getActivity();
+								if (activity == null) {
+									return;
+								}
+								LinkUtils.open(activity, DONT_KILL_MY_APP_URL, DONT_KILL_MY_APP_URL, false);
+							}
+						})
+						.setCancelable(true)
+						.create()
+						.show();
+				return true; // handled
+			}
+		});
 		findPreference(FEEDBACK_EMAIL_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
@@ -74,6 +164,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 				}
 				Boolean hasSubscription = VendingUtils.isHasSubscription(activity);
 				if (hasSubscription == null) {
+					// DO NOTHING
 				} else if (hasSubscription) {
 					StoreUtils.viewAppPage(activity, activity.getPackageName(), activity.getString(R.string.google_play));
 				} else {
@@ -104,10 +195,25 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 				return true; // handled
 			}
 		});
+		findPreference(ABOUT_PRIVACY_POLICY_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Activity activity = getActivity();
+				if (activity == null) {
+					return false; // not handled
+				}
+				LinkUtils.open(activity,
+						LocaleUtils.isFR() ?
+								PRIVACY_POLICY_FR_PAGE_URL :
+								PRIVACY_POLICY_PAGE_URL,
+						activity.getString(R.string.privacy_policy), false);
+				return true; // handled
+			}
+		});
 	}
 
 	@Override
-	public void onVendingResult(Boolean hasSubscription) {
+	public void onVendingResult(@Nullable Boolean hasSubscription) {
 		Preference supportSubsPref = findPreference(SUPPORT_SUBSCRIPTIONS_PREF);
 		if (hasSubscription == null) {
 			supportSubsPref.setTitle(R.string.ellipsis);
@@ -125,7 +231,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 	}
 
 	@Override
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+	public void onSharedPreferenceChanged(@Nullable SharedPreferences sharedPreferences, @Nullable String key) {
 		if (PreferenceUtils.PREFS_UNITS.equals(key)) {
 			setUnitSummary(getActivity());
 		} else if (PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER.equals(key)) {
@@ -175,6 +281,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 		PreferenceUtils.getPrefDefault(getActivity()).registerOnSharedPreferenceChangeListener(this);
 		setUnitSummary(getActivity());
 		setUseInternalWebBrowserSummary(getActivity());
+		setDeviceSettings();
 		setAppVersion(getActivity());
 		if (((PreferencesActivity) getActivity()).isShowSupport()) {
 			((PreferencesActivity) getActivity()).setShowSupport(false); // clear flag before showing dialog
@@ -185,7 +292,22 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 		}
 	}
 
-	private void setAppVersion(Context context) {
+	private void setDeviceSettings() {
+		Preference powerManagementPref = findPreference(DEVICE_SETTINGS_POWER_MANAGEMENT_PREF);
+		if (powerManagementPref == null) {
+			return;
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			powerManagementPref.setEnabled(true);
+		} else {
+			Preference deviceSettingsPref = findPreference(DEVICE_SETTINGS_GROUP_PREF);
+			if (deviceSettingsPref != null) {
+				((PreferenceCategory) deviceSettingsPref).removePreference(powerManagementPref);
+			}
+		}
+	}
+
+	private void setAppVersion(@NonNull Context context) {
 		findPreference(ABOUT_APP_VERSION_PREF).setSummary("" //
 				+ " v" + PackageManagerUtils.getAppVersionName(context) //
 				+ " (" + PackageManagerUtils.getAppVersionCode(context) + ")");

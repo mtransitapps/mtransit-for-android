@@ -9,6 +9,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.ComparatorUtils;
+import org.mtransit.android.commons.DeviceUtils;
 import org.mtransit.android.commons.LocationUtils.LocationPOI;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
@@ -214,7 +215,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return this.status;
 	}
 
-
 	private boolean findStatus(Context context, boolean skipIfBusy) {
 		long findStatusTimestampMs = TimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
@@ -365,10 +365,17 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			};
 		case POI.ITEM_ACTION_TYPE_APP:
 			if (PackageManagerUtils.isAppInstalled(context, ((Module) this.poi).getPkg())) {
-				return new CharSequence[]{ //
-						context.getString(R.string.rate_on_store), //
-						context.getString(R.string.uninstall), //
-				};
+				if (PackageManagerUtils.isAppEnabled(context, ((Module) this.poi).getPkg())) {
+					return new CharSequence[]{ //
+							context.getString(R.string.rate_on_store), //
+							context.getString(R.string.manage_app), //
+							context.getString(R.string.uninstall), //
+					};
+				} else {
+					return new CharSequence[]{ //
+							context.getString(R.string.re_enable_app), //
+					};
+				}
 			} else {
 				return new CharSequence[]{ //
 						context.getString(R.string.download_on_store), //
@@ -401,16 +408,23 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 	}
 
-	private boolean onActionsItemClickApp(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
-			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	private boolean onActionsItemClickApp(@NonNull Activity activity, int itemClicked,
+			FavoriteManager.FavoriteUpdateListener listener,
+			@Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
-		case 0:
+		case 0: // Rate on Google Play
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
 			StoreUtils.viewAppPage(activity, ((Module) poi).getPkg(), activity.getString(R.string.google_play));
 			return true; // HANDLED
-		case 1:
+		case 1: // Manage App
+			if (onClickHandledListener != null) {
+				onClickHandledListener.onLeaving();
+			}
+			DeviceUtils.showAppDetailsSettings(activity, ((Module) poi).getPkg());
+			return true; // HANDLED
+		case 2: // Uninstall
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
@@ -534,7 +548,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 		return false; // NOT HANDLED
 	}
-
 
 	public boolean isFavoritable() {
 		switch (this.poi.getActionsType()) {

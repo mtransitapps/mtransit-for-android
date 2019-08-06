@@ -17,7 +17,7 @@ public abstract class MTAppCompatActivity extends AppCompatActivity implements M
 	// INHERITED FROM FRAGMENT ACTIVITY
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCreate(%s)", savedInstanceState);
 		}

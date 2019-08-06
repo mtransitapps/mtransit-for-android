@@ -160,6 +160,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
+	@Nullable
 	private static POIStatus getPOIStatus(Cursor cursor) {
 		POIStatus result = null;
 		if (cursor != null && cursor.getCount() > 0) {

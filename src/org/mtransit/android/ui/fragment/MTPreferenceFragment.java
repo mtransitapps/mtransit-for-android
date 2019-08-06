@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -35,6 +36,7 @@ public abstract class MTPreferenceFragment extends PreferenceFragment implements
 		super.addPreferencesFromResource(preferencesResId);
 	}
 
+	@Nullable
 	@Override
 	public Preference findPreference(CharSequence key) {
 		if (Constants.LOG_LIFECYCLE) {
