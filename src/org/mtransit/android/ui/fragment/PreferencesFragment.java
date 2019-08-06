@@ -1,5 +1,8 @@
 package org.mtransit.android.ui.fragment;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.mtransit.android.R;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.DeviceUtils;
@@ -21,8 +24,6 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 public class PreferencesFragment extends MTPreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener,
 		VendingUtils.OnVendingResultListener {

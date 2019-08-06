@@ -1,5 +1,7 @@
 package org.mtransit.android.ui.fragment;
 
+import androidx.annotation.Nullable;
+
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 
@@ -13,7 +15,6 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
