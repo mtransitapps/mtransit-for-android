@@ -1,8 +1,8 @@
 #!/bin/bash
 declare -a FILES=(
 	"google-services.json"
-	"key-store-release.keystore"
-	"keys.properties"
+	"app-signing-release-keystore.keystore"
+	"app-signing-release-keys.properties"
 	"res/values/keys.xml"
 );
 echo "Files:";

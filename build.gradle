@@ -49,14 +49,14 @@ android {
     Properties versionProperties = new Properties()
     versionProperties.load(new FileInputStream(file("version.properties")))
 
-    Properties keysProperties = new Properties()
-    def keysPropertiesFile = file("keys.properties")
-    if (keysPropertiesFile.exists()) {
-        keysProperties.load(new FileInputStream(keysPropertiesFile))
+    Properties appSigningKeysProperties = new Properties()
+    def appSigningKeysPropertiesFile = file("app-signing-release-keys.properties")
+    if (appSigningKeysPropertiesFile.exists()) {
+        appSigningKeysProperties.load(new FileInputStream(appSigningKeysPropertiesFile))
     } else {
-        keysPropertiesFile = file("../keys.properties")
-        if (keysPropertiesFile.exists()) {
-            keysProperties.load(new FileInputStream(keysPropertiesFile))
+        appSigningKeysPropertiesFile = file("../app-signing-release-keys.properties")
+        if (appSigningKeysPropertiesFile.exists()) {
+            appSigningKeysProperties.load(new FileInputStream(appSigningKeysPropertiesFile))
         }
     }
 
@@ -73,11 +73,11 @@ android {
 
     signingConfigs {
         release {
-            if (keysPropertiesFile.exists()) {
-                storeFile file(keysProperties['key.store'])
-                storePassword keysProperties['key.store.password']
-                keyAlias keysProperties['key.alias']
-                keyPassword keysProperties['key.alias.password']
+            if (appSigningKeysPropertiesFile.exists()) {
+                storeFile file(appSigningKeysProperties['key.store'])
+                storePassword appSigningKeysProperties['key.store.password']
+                keyAlias appSigningKeysProperties['key.alias']
+                keyPassword appSigningKeysProperties['key.alias.password']
             }
         }
     }
@@ -100,7 +100,7 @@ android {
         }
         //noinspection GroovyMissingReturnStatement
         release {
-            if (keysPropertiesFile.exists()) {
+            if (appSigningKeysPropertiesFile.exists()) {
                 signingConfig signingConfigs.release
             }
 
