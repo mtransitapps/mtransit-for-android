@@ -49,6 +49,8 @@ android {
     Properties versionProperties = new Properties()
     versionProperties.load(new FileInputStream(file("version.properties")))
 
+    def useGooglePlayUploadKeysProperties = true
+
     Properties appSigningKeysProperties = new Properties()
     def appSigningKeysPropertiesFile = file("app-signing-release-keys.properties")
     if (appSigningKeysPropertiesFile.exists()) {
@@ -60,11 +62,26 @@ android {
         }
     }
 
+    Properties googlePlayUploadKeysProperties = new Properties()
+    def googlePlayUploadKeysPropertiesFile = file("google-play-upload-keys.properties")
+    if (googlePlayUploadKeysPropertiesFile.exists()) {
+        googlePlayUploadKeysProperties.load(new FileInputStream(googlePlayUploadKeysPropertiesFile))
+    } else {
+        googlePlayUploadKeysPropertiesFile = file("../google-play-upload-keys.properties")
+        if (googlePlayUploadKeysPropertiesFile.exists()) {
+            googlePlayUploadKeysProperties.load(new FileInputStream(googlePlayUploadKeysPropertiesFile))
+        }
+    }
+
     defaultConfig {
         applicationId "org.mtransit.android"
         versionCode versionProperties['version.code'] as Integer
         versionName versionProperties['version.name']
-        setProperty("archivesBaseName", "${projectName}_v${versionName}_r${versionCode}")
+        if (useGooglePlayUploadKeysProperties) {
+            setProperty("archivesBaseName", "${projectName}_v${versionName}_r${versionCode}_upload")
+        } else {
+            setProperty("archivesBaseName", "${projectName}_v${versionName}_r${versionCode}")
+        }
         resConfigs "en", "fr"
         minSdkVersion rootProject.ext.minSdkVersion
         // minSdkVersion 21 // DEBUG avoid using legacy multidex
@@ -73,11 +90,20 @@ android {
 
     signingConfigs {
         release {
-            if (appSigningKeysPropertiesFile.exists()) {
-                storeFile file(appSigningKeysProperties['key.store'])
-                storePassword appSigningKeysProperties['key.store.password']
-                keyAlias appSigningKeysProperties['key.alias']
-                keyPassword appSigningKeysProperties['key.alias.password']
+            if (useGooglePlayUploadKeysProperties) {
+                if (googlePlayUploadKeysPropertiesFile.exists()) {
+                    storeFile file(googlePlayUploadKeysProperties['key.store'])
+                    storePassword googlePlayUploadKeysProperties['key.store.password']
+                    keyAlias googlePlayUploadKeysProperties['key.alias']
+                    keyPassword googlePlayUploadKeysProperties['key.alias.password']
+                }
+            } else {
+                if (appSigningKeysPropertiesFile.exists()) {
+                    storeFile file(appSigningKeysProperties['key.store'])
+                    storePassword appSigningKeysProperties['key.store.password']
+                    keyAlias appSigningKeysProperties['key.alias']
+                    keyPassword appSigningKeysProperties['key.alias.password']
+                }
             }
         }
     }
@@ -100,8 +126,14 @@ android {
         }
         //noinspection GroovyMissingReturnStatement
         release {
-            if (appSigningKeysPropertiesFile.exists()) {
-                signingConfig signingConfigs.release
+            if (useGooglePlayUploadKeysProperties) {
+                if (googlePlayUploadKeysPropertiesFile.exists()) {
+                    signingConfig signingConfigs.release
+                }
+            } else {
+                if (appSigningKeysPropertiesFile.exists()) {
+                    signingConfig signingConfigs.release
+                }
             }
 
             shrinkResources true
