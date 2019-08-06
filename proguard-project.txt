@@ -24,17 +24,6 @@
 -keep class org.mtransit.**  { *; }
 # MT - END
 
-# SUPPORT V7 APPCOMPAT - START
--keep class android.support.v4.app.** { *; }
--keep class android.support.v7.app.** { *; }
--keep interface android.support.v4.app.** { *; }
--keep public class android.support.v7.widget.** { *; }
--keep public class android.support.v7.internal.widget.** { *; }
--keep public class * extends android.support.v4.view.ActionProvider {
-    public <init>(android.content.Context);
-}
-# SUPPORT V7 APPCOMPAT - END
-
 # GOOGLE PLAY SERVICES - START
 -keep class * extends java.util.ListResourceBundle {
     protected java.lang.Object[][] getContents();
@@ -112,8 +101,3 @@
 -dontwarn oauth.signpost.**
 -dontwarn twitter4j.**
 # TWITTER4J - END
-
-# FIX SAMSUNG/WIKO MESS - START
-# https://code.google.com/p/android/issues/detail?id=78377
--keep class !android.support.v7.internal.view.menu.**,** {*;}
-# FIX SAMSUNG/WIKO MESS - END

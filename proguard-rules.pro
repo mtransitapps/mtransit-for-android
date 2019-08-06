@@ -33,10 +33,6 @@
 # Do not obfuscate the class files since open source
 -dontobfuscate
 
-# Support Library
--keep class !android.support.v7.internal.view.menu.*MenuBuilder*, android.support.v7.** { *; }
--keep interface android.support.v7.** { *; }
-
 -dontwarn javax.**
 -dontwarn org.apache.log4j.**
 -dontwarn org.slf4j.**
