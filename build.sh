@@ -78,18 +78,18 @@ if [[ ${IS_CI} = true ]]; then
 		echo ">> Skipping sonar for '$GIT_PROJECT_NAME'.";
 	fi
 
-    echo ">> Running build & assemble...";
-	../gradlew ${SETTINGS_FILE_ARGS} buildDebug assembleDebug ${GRADLE_ARGS};
+    echo ">> Running build, assemble & bundle...";
+	../gradlew ${SETTINGS_FILE_ARGS} buildDebug assembleDebug bundleDebug ${GRADLE_ARGS};
 	RESULT=$?;
 	checkResult ${RESULT};
-	echo ">> Running build & assemble... DONE";
+	echo ">> Running build, assemble & bundle... DONE";
 fi
 
-echo ">> Running assemble release & copy-to-output dir...";
-../gradlew ${SETTINGS_FILE_ARGS} :${DIRECTORY}:assembleRelease :${DIRECTORY}:copyReleaseApkToOutputDirs ${GRADLE_ARGS};
+echo ">> Running assemble, bundle release & copy-to-output dir...";
+../gradlew ${SETTINGS_FILE_ARGS} :${DIRECTORY}:assembleRelease :${DIRECTORY}:bundleRelease :${DIRECTORY}:copyReleaseApkToOutputDirs ${GRADLE_ARGS};
 RESULT=$?;
 checkResult ${RESULT};
-echo ">> Running assemble release & copy-to-output dir... DONE";
+echo ">> Running assemble, bundle release & copy-to-output dir... DONE";
 
 echo ">> Cleaning keys...";
 chmod +x keys_cleanup.sh;

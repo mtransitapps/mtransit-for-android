@@ -197,7 +197,7 @@ android {
     }
 
     def publish = project.tasks.create("copyReleaseApkToOutputDirs")
-    publish.description "Copies release APK to output directory"
+    publish.description "Copies release APK & AAB to output directory"
     android.applicationVariants.all { variant ->
         if (variant.buildType.name == "release") {
             Properties customLocalProperties = new Properties()
@@ -210,6 +210,17 @@ android {
                     if (output.outputFile != null && output.outputFile.name.endsWith('.apk')) {
                         def copyToOutputDirTask = project.tasks.create("copyToOutputDir${variant.name}Apk", Copy)
                         def copyToOutputCloudDirTask = project.tasks.create("copyToOutputCloudDir${variant.name}Apk", Copy)
+                        copyToOutputDirTask.from(output.outputFile)
+                        copyToOutputCloudDirTask.from(output.outputFile)
+                        copyToOutputDirTask.into(outputDir)
+                        copyToOutputCloudDirTask.into(outputCloudDir)
+                        copyToOutputDirTask.dependsOn variant.assemble
+                        copyToOutputCloudDirTask.dependsOn variant.assemble
+                        publish.dependsOn copyToOutputDirTask
+                        publish.dependsOn copyToOutputCloudDirTask
+                    } else if (output.outputFile != null && output.outputFile.name.endsWith('.aab')) {
+                        def copyToOutputDirTask = project.tasks.create("copyToOutputDir${variant.name}Bundle", Copy)
+                        def copyToOutputCloudDirTask = project.tasks.create("copyToOutputCloudDir${variant.name}Bundle", Copy)
                         copyToOutputDirTask.from(output.outputFile)
                         copyToOutputCloudDirTask.from(output.outputFile)
                         copyToOutputDirTask.into(outputDir)
