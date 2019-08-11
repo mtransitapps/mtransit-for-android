@@ -59,12 +59,18 @@ android {
         }
     }
 
+    def resValueFr = file("res/values-fr")
+
     defaultConfig {
         applicationId "org.mtransit.android"
         versionCode versionProperties['version.code'] as Integer
         versionName versionProperties['version.name']
         setProperty("archivesBaseName", "${projectName}_v${versionName}_r${versionCode}")
-        resConfigs "en", "fr"
+        if (resValueFr.exists()) {
+            resConfigs "en", "fr"
+        } else {
+            resConfigs "en"
+        }
         minSdkVersion rootProject.ext.minSdkVersion
         // minSdkVersion 21 // DEBUG avoid using legacy multidex
         targetSdkVersion rootProject.ext.targetSdkVersion
@@ -80,6 +86,7 @@ android {
             }
         }
     }
+
     buildTypes {
         debug {
             versionNameSuffix "_DEBUG"
@@ -110,6 +117,7 @@ android {
                     'proguard-rules.pro'
         }
     }
+
     //noinspection GroovyMissingReturnStatement
     lintOptions {
         abortOnError true
@@ -127,6 +135,7 @@ android {
                 'IconDensities',  //
                 'RtlHardcoded'
     }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
