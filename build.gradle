@@ -48,14 +48,27 @@ android {
     Properties versionProperties = new Properties()
     versionProperties.load(new FileInputStream(file("version.properties")))
 
-    Properties keysProperties = new Properties()
-    def keysPropertiesFile = file("keys.properties")
-    if (keysPropertiesFile.exists()) {
-        keysProperties.load(new FileInputStream(keysPropertiesFile))
+    def useGooglePlayUploadKeysProperties = true
+
+    Properties appSigningKeysProperties = new Properties()
+    def appSigningKeysPropertiesFile = file("app-signing-release-keys.properties")
+    if (appSigningKeysPropertiesFile.exists()) {
+        appSigningKeysProperties.load(new FileInputStream(appSigningKeysPropertiesFile))
     } else {
-        keysPropertiesFile = file("../keys.properties")
-        if (keysPropertiesFile.exists()) {
-            keysProperties.load(new FileInputStream(keysPropertiesFile))
+        appSigningKeysPropertiesFile = file("../app-signing-release-keys.properties")
+        if (appSigningKeysPropertiesFile.exists()) {
+            appSigningKeysProperties.load(new FileInputStream(appSigningKeysPropertiesFile))
+        }
+    }
+
+    Properties googlePlayUploadKeysProperties = new Properties()
+    def googlePlayUploadKeysPropertiesFile = file("google-play-upload-keys.properties")
+    if (googlePlayUploadKeysPropertiesFile.exists()) {
+        googlePlayUploadKeysProperties.load(new FileInputStream(googlePlayUploadKeysPropertiesFile))
+    } else {
+        googlePlayUploadKeysPropertiesFile = file("../google-play-upload-keys.properties")
+        if (googlePlayUploadKeysPropertiesFile.exists()) {
+            googlePlayUploadKeysProperties.load(new FileInputStream(googlePlayUploadKeysPropertiesFile))
         }
     }
 
@@ -65,7 +78,11 @@ android {
         applicationId "org.mtransit.android"
         versionCode versionProperties['version.code'] as Integer
         versionName versionProperties['version.name']
-        setProperty("archivesBaseName", "${projectName}_v${versionName}_r${versionCode}")
+        if (useGooglePlayUploadKeysProperties) {
+            setProperty("archivesBaseName", "${projectName}_v${versionName}_r${versionCode}_upload")
+        } else {
+            setProperty("archivesBaseName", "${projectName}_v${versionName}_r${versionCode}")
+        }
         if (resValueFr.exists()) {
             resConfigs "en", "fr"
         } else {
@@ -78,11 +95,20 @@ android {
 
     signingConfigs {
         release {
-            if (keysPropertiesFile.exists()) {
-                storeFile file(keysProperties['key.store'])
-                storePassword keysProperties['key.store.password']
-                keyAlias keysProperties['key.alias']
-                keyPassword keysProperties['key.alias.password']
+            if (useGooglePlayUploadKeysProperties) {
+                if (googlePlayUploadKeysPropertiesFile.exists()) {
+                    storeFile file(googlePlayUploadKeysProperties['key.store'])
+                    storePassword googlePlayUploadKeysProperties['key.store.password']
+                    keyAlias googlePlayUploadKeysProperties['key.alias']
+                    keyPassword googlePlayUploadKeysProperties['key.alias.password']
+                }
+            } else {
+                if (appSigningKeysPropertiesFile.exists()) {
+                    storeFile file(appSigningKeysProperties['key.store'])
+                    storePassword appSigningKeysProperties['key.store.password']
+                    keyAlias appSigningKeysProperties['key.alias']
+                    keyPassword appSigningKeysProperties['key.alias.password']
+                }
             }
         }
     }
@@ -106,8 +132,14 @@ android {
         }
         //noinspection GroovyMissingReturnStatement
         release {
-            if (keysPropertiesFile.exists()) {
-                signingConfig signingConfigs.release
+            if (useGooglePlayUploadKeysProperties) {
+                if (googlePlayUploadKeysPropertiesFile.exists()) {
+                    signingConfig signingConfigs.release
+                }
+            } else {
+                if (appSigningKeysPropertiesFile.exists()) {
+                    signingConfig signingConfigs.release
+                }
             }
 
             shrinkResources true
@@ -167,34 +199,6 @@ android {
                 jvmArgs '-noverify'
                 testLogging {
                     events 'passed', 'skipped', 'failed'
-                }
-            }
-        }
-    }
-
-    def publish = project.tasks.create("copyReleaseApkToOutputDirs")
-    publish.description "Copies release APK to output directory"
-    android.applicationVariants.all { variant ->
-        if (variant.buildType.name == "release") {
-            Properties customLocalProperties = new Properties()
-            def customLocalPropertiesFile = file("../keys.properties")
-            if (customLocalPropertiesFile.exists()) {
-                customLocalProperties.load(new FileInputStream(file("../custom_local.properties")))
-                def outputDir = customLocalProperties['output.dir']
-                def outputCloudDir = customLocalProperties['output.cloud.dir']
-                variant.outputs.each { output ->
-                    if (output.outputFile != null && output.outputFile.name.endsWith('.apk')) {
-                        def copyToOutputDirTask = project.tasks.create("copyToOutputDir${variant.name}Apk", Copy)
-                        def copyToOutputCloudDirTask = project.tasks.create("copyToOutputCloudDir${variant.name}Apk", Copy)
-                        copyToOutputDirTask.from(output.outputFile)
-                        copyToOutputCloudDirTask.from(output.outputFile)
-                        copyToOutputDirTask.into(outputDir)
-                        copyToOutputCloudDirTask.into(outputCloudDir)
-                        copyToOutputDirTask.dependsOn variant.assemble
-                        copyToOutputCloudDirTask.dependsOn variant.assemble
-                        publish.dependsOn copyToOutputDirTask
-                        publish.dependsOn copyToOutputCloudDirTask
-                    }
                 }
             }
         }

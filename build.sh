@@ -78,18 +78,38 @@ if [[ ${IS_CI} = true ]]; then
 		echo ">> Skipping sonar for '$GIT_PROJECT_NAME'.";
 	fi
 
-    echo ">> Running build & assemble...";
-	../gradlew ${SETTINGS_FILE_ARGS} buildDebug assembleDebug ${GRADLE_ARGS};
+    echo ">> Running build, assemble & bundle...";
+	../gradlew ${SETTINGS_FILE_ARGS} buildDebug assembleDebug bundleDebug ${GRADLE_ARGS};
 	RESULT=$?;
 	checkResult ${RESULT};
-	echo ">> Running build & assemble... DONE";
+	echo ">> Running build, assemble & bundle... DONE";
 fi
 
-echo ">> Running assemble release & copy-to-output dir...";
-../gradlew ${SETTINGS_FILE_ARGS} :${DIRECTORY}:assembleRelease :${DIRECTORY}:copyReleaseApkToOutputDirs ${GRADLE_ARGS};
+echo ">> Running bundle release...";
+../gradlew ${SETTINGS_FILE_ARGS} :${DIRECTORY}:bundleRelease ${GRADLE_ARGS};
 RESULT=$?;
 checkResult ${RESULT};
-echo ">> Running assemble release & copy-to-output dir... DONE";
+echo ">> Running bundle release... DONE";
+
+CUSTOM_LOCAL_PROPERTIES="../custom_local.properties";
+if [ -f "$CUSTOM_LOCAL_PROPERTIES" ]; then
+	echo ">> Copying release bundles to output dir...";
+	while IFS='=' read -r key value; do
+		key=$(echo $key | tr '.' '_')
+		eval ${key}=\${value}
+	done < "$CUSTOM_LOCAL_PROPERTIES"
+	if [[ ! -z "${output_dir}" ]]; then
+		cp build/outputs/bundle/release/*.aab ${output_dir};
+		RESULT=$?;
+		checkResult ${RESULT};
+	fi
+	if [[ ! -z "${output_cloud_dir}" ]]; then
+		cp build/outputs/bundle/release/*.aab ${output_cloud_dir};
+		RESULT=$?;
+		checkResult ${RESULT};
+	fi
+	echo ">> Copying release bundles to output dir... DONE";
+fi
 
 echo ">> Cleaning keys...";
 chmod +x keys_cleanup.sh;
