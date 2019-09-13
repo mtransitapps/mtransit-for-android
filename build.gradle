@@ -120,7 +120,6 @@ android {
             // testCoverageEnabled false // DEBUG skip coverage report
             shrinkResources false
             minifyEnabled true
-            useProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt'),
                     'proguard-rules.pro'
             multiDexEnabled true
@@ -144,7 +143,6 @@ android {
 
             shrinkResources true
             minifyEnabled true
-            useProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt'),
                     'proguard-rules.pro'
         }
