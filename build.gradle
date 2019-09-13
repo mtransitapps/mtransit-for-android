@@ -49,6 +49,7 @@ android {
     versionProperties.load(new FileInputStream(file("version.properties")))
 
     def useGooglePlayUploadKeysProperties = true
+    // def useGooglePlayUploadKeysProperties = false // DEBUG
 
     Properties appSigningKeysProperties = new Properties()
     def appSigningKeysPropertiesFile = file("app-signing-release-keys.properties")
@@ -176,6 +177,11 @@ android {
             res.srcDirs = ['res']
             assets.srcDirs = ['assets']
         }
+        debug {
+            java.srcDirs = ['srcDebug']
+            resources.srcDirs = ['srcDebug']
+            res.srcDirs = ['resDebug']
+        }
         test {
             java.srcDirs = ['srcTest']
             resources.srcDirs = ['srcTest']
@@ -184,9 +190,6 @@ android {
             java.srcDirs = ['srcAndroidTest']
             resources.srcDirs = ['srcAndroidTest']
         }
-
-        debug.setRoot('build-types/debug')
-        release.setRoot('build-types/release')
     }
 
     testOptions {
