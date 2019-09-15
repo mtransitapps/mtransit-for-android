@@ -1,6 +1,7 @@
 package org.mtransit.android.ui;
 
 import org.mtransit.android.BuildConfig;
+import org.mtransit.android.ad.AdManager;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.commons.MTLog;
@@ -45,6 +46,9 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 				return; // this process is dedicated to Leak detector, skip app init
 			}
 			getLeakDetector().setup(this);
+		}
+		if (AdManager.isInAdsProcess(this)) {
+			return;
 		}
 		application = this;
 		getStrictMode().setup(BuildConfig.DEBUG);

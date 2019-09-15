@@ -15,6 +15,7 @@ import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.provider.location.MTLocationProvider;
 import org.mtransit.android.ui.view.common.IActivity;
 
+import com.facebook.ads.AudienceNetworkAds;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -30,6 +31,10 @@ import android.view.View;
 public class AdManager implements IAdManager, MTLog.Loggable {
 
 	private static final String LOG_TAG = AdManager.class.getSimpleName();
+
+	public static boolean isInAdsProcess(@NonNull IContext context) {
+		return AudienceNetworkAds.isInAdsProcess(context.requireContext());
+	}
 
 	@NonNull
 	@Override
@@ -410,6 +415,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		public void onAdOpened() {
 			super.onAdOpened();
 		}
+
 		@Override
 		public void onAdClicked() {
 			super.onAdClicked();
