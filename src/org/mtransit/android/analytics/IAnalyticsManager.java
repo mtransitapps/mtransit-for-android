@@ -6,8 +6,6 @@ import androidx.annotation.Nullable;
 
 import org.mtransit.android.ui.view.common.IActivity;
 
-import java.util.Map;
-
 @SuppressWarnings("unused")
 public interface IAnalyticsManager {
 
@@ -15,7 +13,7 @@ public interface IAnalyticsManager {
 
 	void trackEvent(@NonNull String name);
 
-	void trackEvent(@NonNull String name, @Nullable Map<String, Object> params);
+	void trackEvent(@NonNull String name, @Nullable AnalyticsEventsParamsProvider params);
 
 	@MainThread
 	void trackScreenView(@NonNull IActivity activity, @NonNull Trackable page);

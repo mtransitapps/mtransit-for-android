@@ -14,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mtransit.android.R;
 import org.mtransit.android.analytics.AnalyticsEvents;
+import org.mtransit.android.analytics.AnalyticsEventsParamsProvider;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.FileUtils;
@@ -391,10 +392,9 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		final boolean appInstalled = PackageManagerUtils.isAppInstalled(getContext(), filter.getPkg());
 		final boolean appEnabled = PackageManagerUtils.isAppEnabled(getContext(), filter.getPkg());
 		if (appInstalled && !appEnabled) {
-			Map<String, Object> params = new HashMap<>();
-			params.put(AnalyticsEvents.Params.PKG, filter.getPkg());
-			params.put(AnalyticsEvents.Params.STATE, (long) PackageManagerUtils.getAppEnabledState(getContext(), filter.getPkg()));
-			getAnalyticsManager().trackEvent(AnalyticsEvents.FOUND_DISABLED_MODULE, params);
+			getAnalyticsManager().trackEvent(AnalyticsEvents.FOUND_DISABLED_MODULE, new AnalyticsEventsParamsProvider()
+					.put(AnalyticsEvents.Params.PKG, filter.getPkg())
+					.put(AnalyticsEvents.Params.STATE, (long) PackageManagerUtils.getAppEnabledState(getContext(), filter.getPkg())));
 		}
 		return new AppStatus(filter.getTargetUUID(), newLastUpdateInMs, getStatusMaxValidityInMs(), newLastUpdateInMs,
 				appInstalled,

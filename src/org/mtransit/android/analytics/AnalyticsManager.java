@@ -74,14 +74,15 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 	}
 
 	@Override
-	public void trackEvent(@NonNull String name, @Nullable Map<String, Object> params) {
+	public void trackEvent(@NonNull String name, @Nullable AnalyticsEventsParamsProvider params) {
 		if (!ANALYTICS_ENABLED) {
 			return;
 		}
 		Bundle bundle = null;
 		if (params != null) {
+			Map<String, Object> paramMap = params.to();
 			bundle = new Bundle();
-			for (Map.Entry<String, Object> param : params.entrySet()) {
+			for (Map.Entry<String, Object> param : paramMap.entrySet()) {
 				// Firebase: "String, long and double param types are supported."
 				if (param.getValue() instanceof String) {
 					bundle.putString(param.getKey(), (String) param.getValue());
