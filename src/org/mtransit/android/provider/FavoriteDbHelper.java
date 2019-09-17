@@ -9,61 +9,64 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 
+import androidx.annotation.NonNull;
+
 public class FavoriteDbHelper extends MTSQLiteOpenHelper {
 
-	private static final String TAG = FavoriteDbHelper.class.getSimpleName();
+	private static final String LOG_TAG = FavoriteDbHelper.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
-	public static final String DB_NAME = "favorite.db";
+	private static final String DB_NAME = "favorite.db";
 
-	public static final String T_FAVORITE = "favorite";
-	public static final String T_FAVORITE_K_ID = BaseColumns._ID;
-	public static final String T_FAVORITE_K_TYPE = "type";
-	public static final String T_FAVORITE_K_FK_ID = "fk_id";
-	public static final String T_FAVORITE_K_FOLDER_ID = "folder_id";
+	static final String T_FAVORITE = "favorite";
+	static final String T_FAVORITE_K_ID = BaseColumns._ID;
+	static final String T_FAVORITE_K_TYPE = "type";
+	static final String T_FAVORITE_K_FK_ID = "fk_id";
+	static final String T_FAVORITE_K_FOLDER_ID = "folder_id";
 
-	public static final String T_FAVORITE_FOLDER = "favorite_folder";
-	public static final String T_FAVORITE_FOLDER_K_ID = BaseColumns._ID;
-	public static final String T_FAVORITE_FOLDER_K_NAME = "name";
+	static final String T_FAVORITE_FOLDER = "favorite_folder";
+	static final String T_FAVORITE_FOLDER_K_ID = BaseColumns._ID;
+	static final String T_FAVORITE_FOLDER_K_NAME = "name";
 
-	public static final String T_FAVORITE_SQL_CREATE = SqlUtils.SQLCreateBuilder.getNew(T_FAVORITE) //
+	private static final String T_FAVORITE_SQL_CREATE = SqlUtils.SQLCreateBuilder.getNew(T_FAVORITE) //
 			.appendColumn(T_FAVORITE_K_ID, SqlUtils.INT_PK) //
 			.appendColumn(T_FAVORITE_K_TYPE, SqlUtils.INT) //
 			.appendColumn(T_FAVORITE_K_FK_ID, SqlUtils.TXT) //
 			.appendColumn(T_FAVORITE_K_FOLDER_ID, SqlUtils.INT) //
 			.appendForeignKey(T_FAVORITE_K_FOLDER_ID, T_FAVORITE_FOLDER, T_FAVORITE_FOLDER_K_ID) //
 			.build();
-	public static final String T_FAVORITE_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_FAVORITE);
+	private static final String T_FAVORITE_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_FAVORITE);
 
 	private static final String T_FAVORITE_SQL_UPGRADE_BEFORE_2 = "ALTER TABLE " + T_FAVORITE + " ADD " + T_FAVORITE_K_FOLDER_ID + " " + SqlUtils.INT
 			+ " NOT NULL DEFAULT(" + FavoriteManager.DEFAULT_FOLDER_ID + ")";
 
-	public static final String T_FAVORITE_FOLDER_SQL_CREATE = SqlUtils.SQLCreateBuilder.getNew(T_FAVORITE_FOLDER) //
+	private static final String T_FAVORITE_FOLDER_SQL_CREATE = SqlUtils.SQLCreateBuilder.getNew(T_FAVORITE_FOLDER) //
 			.appendColumn(T_FAVORITE_FOLDER_K_ID, SqlUtils.INT_PK) //
 			.appendColumn(T_FAVORITE_FOLDER_K_NAME, SqlUtils.TXT) //
 			.build();
 	private static final String T_FAVORITE_FOLDER_SQL_INIT = String.format(
 			SqlUtils.SQLInsertBuilder.getNew(T_FAVORITE_FOLDER).appendColumns(T_FAVORITE_FOLDER_K_ID, T_FAVORITE_FOLDER_K_NAME).build(), //
 			FavoriteManager.DEFAULT_FOLDER_ID + "," + SqlUtils.escapeString(StringUtils.EMPTY));
-	public static final String T_FAVORITE_FOLDER_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_FAVORITE_FOLDER);
+	private static final String T_FAVORITE_FOLDER_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_FAVORITE_FOLDER);
 
-	public static final int DB_VERSION = 2;
+	private static final int DB_VERSION = 2;
 
-	public FavoriteDbHelper(Context context) {
+	FavoriteDbHelper(@NonNull Context context) {
 		super(context, getDbName(), null, getDbVersion());
 	}
 
 	@Override
-	public void onCreateMT(SQLiteDatabase db) {
+	public void onCreateMT(@NonNull SQLiteDatabase db) {
 		initAllDbTables(db);
 	}
 
 	@Override
-	public void onUpgradeMT(SQLiteDatabase db, int oldVersion, int newVersion) {
+	public void onUpgradeMT(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
 		if (oldVersion < 2) {
 			try {
 				db.execSQL(T_FAVORITE_FOLDER_SQL_CREATE);
@@ -79,17 +82,17 @@ public class FavoriteDbHelper extends MTSQLiteOpenHelper {
 		initAllDbTables(db);
 	}
 
-	private void initAllDbTables(SQLiteDatabase db) {
+	private void initAllDbTables(@NonNull SQLiteDatabase db) {
 		db.execSQL(T_FAVORITE_SQL_CREATE);
 		db.execSQL(T_FAVORITE_FOLDER_SQL_CREATE);
 		db.execSQL(T_FAVORITE_FOLDER_SQL_INIT);
 	}
 
-	public static int getDbVersion() {
+	static int getDbVersion() {
 		return DB_VERSION;
 	}
 
-	public static String getDbName() {
+	private static String getDbName() {
 		return DB_NAME;
 	}
 }

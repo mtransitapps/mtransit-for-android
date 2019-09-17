@@ -33,9 +33,11 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
+
 import android.text.TextUtils;
 
 public final class DataSourceManager implements MTLog.Loggable {
@@ -304,8 +306,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
-	public static Cursor queryContentResolver(ContentResolver contentResolver, Uri uri, String[] projection, String selection, String[] selectionArgs,
-			String sortOrder) {
+	@Nullable
+	public static Cursor queryContentResolver(@NonNull ContentResolver contentResolver, @NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs,
+			@Nullable String sortOrder) {
 		return contentResolver.query(uri, projection, selection, selectionArgs, sortOrder);
 	}
 

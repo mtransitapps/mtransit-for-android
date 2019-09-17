@@ -54,7 +54,12 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 	}
 
 	@Override
-	public void trackUserProperty(@NonNull String name, @NonNull String value) {
+	public void setUserProperty(@NonNull String name, int value) {
+		setUserProperty(name, String.valueOf(value));
+	}
+
+	@Override
+	public void setUserProperty(@NonNull String name, @NonNull String value) {
 		if (!ANALYTICS_ENABLED) {
 			return;
 		}
@@ -66,15 +71,15 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 	}
 
 	@Override
-	public void trackEvent(@NonNull String name) {
+	public void logEvent(@NonNull String name) {
 		if (!ANALYTICS_ENABLED) {
 			return;
 		}
-		trackEvent(name, null);
+		logEvent(name, null);
 	}
 
 	@Override
-	public void trackEvent(@NonNull String name, @Nullable AnalyticsEventsParamsProvider params) {
+	public void logEvent(@NonNull String name, @Nullable AnalyticsEventsParamsProvider params) {
 		if (!ANALYTICS_ENABLED) {
 			return;
 		}

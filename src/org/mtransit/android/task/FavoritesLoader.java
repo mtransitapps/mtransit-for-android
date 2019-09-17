@@ -19,7 +19,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
-import android.util.SparseArray;
+import androidx.collection.SparseArrayCompat;
 
 public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
@@ -73,17 +73,17 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 				favoriteFolderIds.add(favoriteFolderId);
 			}
 		}
-		SparseArray<Favorite.Folder> favoriteFoders = FavoriteManager.findFolders(getContext());
-		if (favoriteFoders != null) {
+		SparseArrayCompat<Favorite.Folder> favoriteFolders = FavoriteManager.findFolders(getContext());
+		if (favoriteFolders != null) {
 			long textMessageId = TimeUtils.currentTimeMillis();
-			for (int f = 0; f < favoriteFoders.size(); f++) {
-				Favorite.Folder favoriteFolder = favoriteFoders.get(favoriteFoders.keyAt(f));
+			for (int f = 0; f < favoriteFolders.size(); f++) {
+				Favorite.Folder favoriteFolder = favoriteFolders.get(favoriteFolders.keyAt(f));
 				if (favoriteFolder.getId() > FavoriteManager.DEFAULT_FOLDER_ID && !favoriteFolderIds.contains(favoriteFolder.getId())) {
 					this.pois.add(FavoriteManager.getNewEmptyFolder(getContext(), textMessageId++, favoriteFolder.getId()));
 				}
 			}
 		}
-		CollectionUtils.sort(this.pois, new Favorite.FavoriteFolderNameComparator(favoriteFoders));
+		CollectionUtils.sort(this.pois, new Favorite.FavoriteFolderNameComparator(favoriteFolders));
 		return this.pois;
 	}
 

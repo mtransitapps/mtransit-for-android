@@ -1,9 +1,7 @@
 package org.mtransit.android.provider;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
@@ -47,6 +45,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 
+@SuppressWarnings("UnusedReturnValue")
 public class ModuleProvider extends AgencyProvider implements POIProviderContract, StatusProviderContract {
 
 	private static final String LOG_TAG = ModuleProvider.class.getSimpleName();
@@ -392,7 +391,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		final boolean appInstalled = PackageManagerUtils.isAppInstalled(getContext(), filter.getPkg());
 		final boolean appEnabled = PackageManagerUtils.isAppEnabled(getContext(), filter.getPkg());
 		if (appInstalled && !appEnabled) {
-			getAnalyticsManager().trackEvent(AnalyticsEvents.FOUND_DISABLED_MODULE, new AnalyticsEventsParamsProvider()
+			getAnalyticsManager().logEvent(AnalyticsEvents.FOUND_DISABLED_MODULE, new AnalyticsEventsParamsProvider()
 					.put(AnalyticsEvents.Params.PKG, filter.getPkg())
 					.put(AnalyticsEvents.Params.STATE, (long) PackageManagerUtils.getAppEnabledState(getContext(), filter.getPkg())));
 		}
@@ -603,7 +602,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			new String[]{ModuleColumns.T_MODULE_K_PKG, ModuleColumns.T_MODULE_K_TARGET_TYPE_ID, ModuleColumns.T_MODULE_K_COLOR,
 					ModuleColumns.T_MODULE_K_LOCATION, ModuleColumns.T_MODULE_K_NAME_FR};
 
-	public static final String[] PROJECTION_MODULE_POI = ArrayUtils.addAll(POIProvider.PROJECTION_POI, PROJECTION_MODULE);
+	public static final String[] PROJECTION_MODULE_POI = ArrayUtils.addAllNonNull(POIProvider.PROJECTION_POI, PROJECTION_MODULE);
 
 	@NonNull
 	@Override

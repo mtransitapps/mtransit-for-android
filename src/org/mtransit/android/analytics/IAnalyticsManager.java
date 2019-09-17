@@ -9,11 +9,13 @@ import org.mtransit.android.ui.view.common.IActivity;
 @SuppressWarnings("unused")
 public interface IAnalyticsManager {
 
-	void trackUserProperty(@NonNull String name, @NonNull String value);
+	void setUserProperty(@NonNull String name, int value);
 
-	void trackEvent(@NonNull String name);
+	void setUserProperty(@NonNull String name, @NonNull String value);
 
-	void trackEvent(@NonNull String name, @Nullable AnalyticsEventsParamsProvider params);
+	void logEvent(@NonNull String name);
+
+	void logEvent(@NonNull String name, @Nullable AnalyticsEventsParamsProvider params);
 
 	@MainThread
 	void trackScreenView(@NonNull IActivity activity, @NonNull Trackable page);

@@ -10,7 +10,8 @@ import org.mtransit.android.provider.FavoriteProvider.FavoriteColumns;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.util.SparseArray;
+
+import androidx.collection.SparseArrayCompat;
 
 public class Favorite {
 
@@ -72,9 +73,9 @@ public class Favorite {
 
 	public static class FavoriteFolderNameComparator implements Comparator<POIManager> {
 
-		private SparseArray<Favorite.Folder> favoriteFolders;
+		private SparseArrayCompat<Favorite.Folder> favoriteFolders;
 
-		public FavoriteFolderNameComparator(SparseArray<Folder> favoriteFolders) {
+		public FavoriteFolderNameComparator(SparseArrayCompat<Folder> favoriteFolders) {
 			this.favoriteFolders = favoriteFolders;
 		}
 

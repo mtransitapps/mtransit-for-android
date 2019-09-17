@@ -44,8 +44,9 @@ import android.graphics.Color;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.SparseArrayCompat;
+
 import android.text.TextUtils;
-import android.util.SparseArray;
 
 public class POIManager implements LocationPOI, MTLog.Loggable {
 
@@ -337,7 +338,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return isNotSkipped;
 	}
 
-	private CharSequence[] getActionsItems(Context context, CharSequence defaultAction, SparseArray<Favorite.Folder> favoriteFolders) {
+	private CharSequence[] getActionsItems(Context context, CharSequence defaultAction, SparseArrayCompat<Favorite.Folder> favoriteFolders) {
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_NONE:
 			return new CharSequence[]{defaultAction};
@@ -389,7 +390,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 	}
 
-	private boolean onActionsItemClick(@NonNull Activity activity, int itemClicked, SparseArray<Favorite.Folder> favoriteFolders,
+	private boolean onActionsItemClick(@NonNull Activity activity, int itemClicked, SparseArrayCompat<Favorite.Folder> favoriteFolders,
 			FavoriteManager.FavoriteUpdateListener listener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_NONE:
@@ -596,7 +597,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return false; // NOT HANDLED
 	}
 
-	public boolean onActionItemLongClick(Activity activity, SparseArray<Favorite.Folder> favoriteFolders,
+	public boolean onActionItemLongClick(Activity activity, SparseArrayCompat<Favorite.Folder> favoriteFolders,
 			FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false;
@@ -604,7 +605,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return showPoiMenu(activity, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
 	}
 
-	public boolean onActionItemClick(Activity activity, SparseArray<Favorite.Folder> favoriteFolders,
+	public boolean onActionItemClick(Activity activity, SparseArrayCompat<Favorite.Folder> favoriteFolders,
 			FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false;
@@ -616,7 +617,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return poiScreenShow;
 	}
 
-	private boolean showPoiMenu(final Activity activity, final SparseArray<Favorite.Folder> favoriteFolders,
+	private boolean showPoiMenu(final Activity activity, final SparseArrayCompat<Favorite.Folder> favoriteFolders,
 			final FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, final POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false;

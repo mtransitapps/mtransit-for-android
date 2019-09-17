@@ -3,7 +3,7 @@ package org.mtransit.android.ui;
 import org.mtransit.android.BuildConfig;
 import org.mtransit.android.ad.AdManager;
 import org.mtransit.android.ad.IAdManager;
-import org.mtransit.android.analytics.AnalyticsProperties;
+import org.mtransit.android.analytics.AnalyticsUserProperties;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.commons.MTLog;
@@ -60,7 +60,7 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 		getStrictMode().setup(BuildConfig.DEBUG);
 		getCrashReporter().setup(this, !BuildConfig.DEBUG);
 		getAdManager().init(this);
-		getAnalyticsManager().trackUserProperty(AnalyticsProperties.DEVICE_MANUFACTURER, Build.MANUFACTURER);
+		getAnalyticsManager().setUserProperty(AnalyticsUserProperties.DEVICE_MANUFACTURER, Build.MANUFACTURER);
 	}
 
 	@NonNull

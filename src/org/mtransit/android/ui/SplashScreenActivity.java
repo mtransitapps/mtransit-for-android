@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.mtransit.android.R;
-import org.mtransit.android.analytics.AnalyticsProperties;
+import org.mtransit.android.analytics.AnalyticsUserProperties;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.di.Injection;
@@ -49,7 +49,7 @@ public class SplashScreenActivity extends MTActivity implements IActivity, IAnal
 				PreferenceUtils.PREF_USER_APP_OPEN_COUNTS_DEFAULT);
 		appOpenCounts++;
 		PreferenceUtils.savePrefDefault(this, PreferenceUtils.PREF_USER_APP_OPEN_COUNTS, appOpenCounts, false); // asynchronous
-		analyticsManager.trackUserProperty(AnalyticsProperties.OPEN_APP_COUNTS, String.valueOf(appOpenCounts));
+		analyticsManager.setUserProperty(AnalyticsUserProperties.OPEN_APP_COUNTS, appOpenCounts);
 		analyticsManager.trackScreenView(this, this);
 		showHomeActivity();
 	}
