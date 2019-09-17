@@ -1,12 +1,18 @@
 package org.mtransit.android.analytics;
 
+import android.os.Bundle;
+
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.common.IActivity;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+
+import java.util.Map;
 
 public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 
@@ -26,6 +32,11 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 	private final FirebaseAnalytics firebaseAnalytics;
 
 	public AnalyticsManager(@NonNull IApplication application) {
+		if (!ANALYTICS_ENABLED) {
+			//noinspection ConstantConditions
+			firebaseAnalytics = null;
+			return;
+		}
 		firebaseAnalytics = FirebaseAnalytics.getInstance(application.requireContext());
 		if (DEBUG) {
 			// DEBUG adb shell setprop debug.firebase.analytics.app org.mtransit.android
@@ -43,20 +54,52 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 		try {
 			firebaseAnalytics.setUserProperty(name, value);
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error while tracing user property (%s:%s)", name, value);
+			MTLog.w(this, e, "Error while tracing user property (%s:%s)", name, value);
 		}
 	}
 
+	@Override
+	public void trackEvent(@NonNull String name) {
+		if (!ANALYTICS_ENABLED) {
+			return;
+		}
+		trackEvent(name, null);
+	}
+
+	@Override
+	public void trackEvent(@NonNull String name, @Nullable Map<String, Object> params) {
+		if (!ANALYTICS_ENABLED) {
+			return;
+		}
+		Bundle bundle = null;
+		if (params != null) {
+			bundle = new Bundle();
+			for (Map.Entry<String, Object> param : params.entrySet()) {
+				// Firebase: "String, long and double param types are supported."
+				if (param.getValue() instanceof String) {
+					bundle.putString(param.getKey(), (String) param.getValue());
+				} else if (param.getValue() instanceof Long) {
+					bundle.putLong(param.getKey(), (Long) param.getValue());
+				} else if (param.getValue() instanceof Double) {
+					bundle.putDouble(param.getKey(), (Double) param.getValue());
+				} else {
+					MTLog.w(this, "Unexpected event parameter type for '" + param.getKey() + "'>'" + param.getValue() + "'!");
+				}
+			}
+		}
+		this.firebaseAnalytics.logEvent(name, bundle);
+	}
+
+	@MainThread
 	@Override
 	public void trackScreenView(@NonNull IActivity activity, @NonNull Trackable page) {
 		if (!ANALYTICS_ENABLED) {
 			return;
 		}
-		final String pageScreenName = page.getScreenName();
 		try {
-			firebaseAnalytics.setCurrentScreen(activity.requireActivity(), pageScreenName, null);
+			firebaseAnalytics.setCurrentScreen(activity.requireActivity(), page.getScreenName(), null);
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error while tracing screen view! (%s)", pageScreenName);
+			MTLog.w(this, e, "Error while tracing screen view! (%s)", page);
 		}
 	}
 }

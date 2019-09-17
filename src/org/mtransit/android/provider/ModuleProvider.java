@@ -1,13 +1,17 @@
 package org.mtransit.android.provider;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.Nullable;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mtransit.android.R;
+import org.mtransit.android.analytics.AnalyticsEvents;
+import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.FileUtils;
 import org.mtransit.android.commons.LocationUtils;
@@ -29,6 +33,7 @@ import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.provider.StatusProvider;
 import org.mtransit.android.commons.provider.StatusProviderContract;
 import org.mtransit.android.data.Module;
+import org.mtransit.android.di.Injection;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -37,18 +42,21 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 
 public class ModuleProvider extends AgencyProvider implements POIProviderContract, StatusProviderContract {
 
-	private static final String TAG = ModuleProvider.class.getSimpleName();
+	private static final String LOG_TAG = ModuleProvider.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		return getLogTag();
@@ -73,25 +81,29 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	private static int currentDbVersion = -1;
 
+	@Nullable
 	private static UriMatcher uriMatcher = null;
 
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
-	private static UriMatcher getURIMATCHER(Context context) {
+	@NonNull
+	private static UriMatcher getURIMATCHER(@NonNull Context context) {
 		if (uriMatcher == null) {
 			uriMatcher = getNewUriMatcher(getAUTHORITY(context));
 		}
 		return uriMatcher;
 	}
 
-	public static UriMatcher getNewUriMatcher(String authority) {
+	@NonNull
+	public static UriMatcher getNewUriMatcher(@NonNull String authority) {
 		UriMatcher URI_MATCHER = AgencyProvider.getNewUriMatcher(authority);
 		StatusProvider.append(URI_MATCHER, authority);
 		POIProvider.append(URI_MATCHER, authority);
 		return URI_MATCHER;
 	}
 
+	@Nullable
 	private static String authority = null;
 
 	/**
@@ -104,16 +116,26 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return authority;
 	}
 
+	@Nullable
 	private static Uri authorityUri = null;
 
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
+	@NonNull
 	private static Uri getAUTHORITYURI(@NonNull Context context) {
 		if (authorityUri == null) {
 			authorityUri = UriUtils.newContentUri(getAUTHORITY(context));
 		}
 		return authorityUri;
+	}
+
+	@NonNull
+	private final IAnalyticsManager analyticsManager;
+
+	public ModuleProvider() {
+		super();
+		analyticsManager = Injection.providesAnalyticsManager();
 	}
 
 	@Override
@@ -124,9 +146,11 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@Override
 	public void ping() {
+		// DO NOTHING
 	}
 
-	private ModuleDbHelper getDBHelper(Context context) {
+	@NonNull
+	private ModuleDbHelper getDBHelper(@NonNull Context context) {
 		if (dbHelper == null) { // initialize
 			dbHelper = getNewDbHelper(context);
 			currentDbVersion = getCurrentDbVersion();
@@ -144,13 +168,16 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return dbHelper;
 	}
 
+	@NonNull
 	@Override
 	public SQLiteOpenHelper getDBHelper() {
+		//noinspection ConstantConditions // TODO requireContext()
 		return getDBHelper(getContext());
 	}
 
+	@Nullable
 	@Override
-	public Cursor queryMT(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+	public Cursor queryMT(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
 		try {
 			Cursor cursor = super.queryMT(uri, projection, selection, selectionArgs, sortOrder);
 			if (cursor != null) {
@@ -171,8 +198,8 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		}
 	}
 
-	@Override
-	public String getSortOrder(Uri uri) {
+	@Nullable
+	public String getSortOrder(@NonNull Uri uri) {
 		String sortOrder = POIProvider.getSortOrderS(this, uri);
 		if (sortOrder != null) {
 			return sortOrder;
@@ -184,8 +211,9 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return super.getSortOrder(uri);
 	}
 
+	@Nullable
 	@Override
-	public String getTypeMT(Uri uri) {
+	public String getTypeMT(@NonNull Uri uri) {
 		String type = POIProvider.getTypeS(this, uri);
 		if (type != null) {
 			return type;
@@ -198,46 +226,52 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@Override
-	public int updateMT(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+	public int updateMT(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
 		MTLog.w(this, "The update method is not available.");
 		return 0;
 	}
 
+	@Nullable
 	@Override
-	public Uri insertMT(@NonNull Uri uri, ContentValues values) {
+	public Uri insertMT(@NonNull Uri uri, @Nullable ContentValues values) {
 		MTLog.w(this, "The insert method is not available.");
 		return null;
 	}
 
 	@Override
-	public int deleteMT(@NonNull Uri uri, String selection, String[] selectionArgs) {
+	public int deleteMT(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
 		MTLog.w(this, "The delete method is not available.");
 		return 0;
 	}
 
+	@NonNull
 	@Override
-	public Cursor getSearchSuggest(String query) {
+	public Cursor getSearchSuggest(@Nullable String query) {
 		return ContentProviderConstants.EMPTY_CURSOR; // no search suggest for modules
 	}
 
+	@Nullable
 	@Override
 	public ArrayMap<String, String> getSearchSuggestProjectionMap() {
 		return null; // no search suggest for modules
 	}
 
+	@Nullable
 	@Override
 	public String getSearchSuggestTable() {
 		return null; // no search suggest for modules
 	}
 
+	@Nullable
 	@Override
-	public Cursor getPOI(POIProviderContract.Filter poiFilter) {
+	public Cursor getPOI(@Nullable POIProviderContract.Filter poiFilter) {
 		updateModuleDataIfRequired();
 		return getPOIFromDB(poiFilter);
 	}
 
+	@Nullable
 	@Override
-	public Cursor getPOIFromDB(POIProviderContract.Filter poiFilter) {
+	public Cursor getPOIFromDB(@Nullable POIProviderContract.Filter poiFilter) {
 		return POIProvider.getDefaultPOIFromDB(poiFilter, this);
 	}
 
@@ -267,6 +301,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	private int deleteAllModuleData() {
 		int affectedRows = 0;
 		try {
+			//noinspection ConstantConditions // TODO requireContext()
 			affectedRows = getDBHelper(getContext()).getWritableDatabase().delete(ModuleDbHelper.T_MODULE, null, null);
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while deleting all module data!");
@@ -281,16 +316,21 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		loadDataFromWWW();
 	}
 
+	@Nullable
 	private HashSet<Module> loadDataFromWWW() {
 		try {
+			Context context = getContext();
+			if (context == null) {
+				return null;
+			}
 			long newLastUpdateInMs = TimeUtils.currentTimeMillis();
 			int fileResId = R.raw.modules;
-			String jsonString = FileUtils.fromFileRes(getContext(), fileResId);
-			HashSet<Module> modules = new HashSet<Module>();
+			String jsonString = FileUtils.fromFileRes(context, fileResId);
+			HashSet<Module> modules = new HashSet<>();
 			JSONArray jsonArray = new JSONArray(jsonString);
 			for (int i = 0; i < jsonArray.length(); i++) {
 				JSONObject jModule = jsonArray.getJSONObject(i);
-				Module module = Module.fromSimpleJSONStatic(jModule, getAUTHORITY(getContext()));
+				Module module = Module.fromSimpleJSONStatic(jModule, getAUTHORITY(context));
 				if (module == null) {
 					continue; // error while converting JSON to Module
 				}
@@ -299,7 +339,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			}
 			deleteAllModuleData();
 			insertModulesLockDB(this, modules);
-			PreferenceUtils.savePrefLcl(getContext(), PREF_KEY_LAST_UPDATE_MS, newLastUpdateInMs, true); // sync
+			PreferenceUtils.savePrefLcl(context, PREF_KEY_LAST_UPDATE_MS, newLastUpdateInMs, true); // sync
 			return modules;
 		} catch (Exception e) {
 			MTLog.w(this, e, "INTERNAL ERROR: Unknown Exception");
@@ -307,7 +347,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		}
 	}
 
-	private static synchronized int insertModulesLockDB(POIProviderContract provider, Collection<Module> defaultPOIs) {
+	private static synchronized int insertModulesLockDB(@NonNull POIProviderContract provider, Collection<Module> defaultPOIs) {
 		int affectedRows = 0;
 		SQLiteDatabase db = null;
 		try {
@@ -323,16 +363,17 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			}
 			db.setTransactionSuccessful(); // mark the transaction as successful
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "ERROR while applying batch update to the database!");
+			MTLog.w(LOG_TAG, e, "ERROR while applying batch update to the database!");
 		} finally {
 			SqlUtils.endTransaction(db);
 		}
 		return affectedRows;
 	}
 
+	@Nullable
 	@Override
-	public POIStatus getNewStatus(StatusProviderContract.Filter filter) {
-		if (filter == null || !(filter instanceof AppStatus.AppStatusFilter)) {
+	public POIStatus getNewStatus(@NonNull StatusProviderContract.Filter filter) {
+		if (!(filter instanceof AppStatus.AppStatusFilter)) {
 			MTLog.w(this, "getNewStatus() > Can't find new schedule without AppStatusFilter!");
 			return null;
 		}
@@ -340,20 +381,28 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return getNewModuleStatus(moduleStatusFilter);
 	}
 
+	@NonNull
 	public POIStatus getNewModuleStatus(@NonNull AppStatus.AppStatusFilter filter) {
 		long newLastUpdateInMs = TimeUtils.currentTimeMillis();
+		//noinspection ConstantConditions // TODO requireContext()
+		final boolean appEnabled = PackageManagerUtils.isAppEnabled(getContext(), filter.getPkg());
+		if (!appEnabled) {
+			analyticsManager.trackEvent(AnalyticsEvents.FOUND_DISABLED_MODULE,
+					Collections.singletonMap(AnalyticsEvents.Params.PKG, (Object) filter.getPkg()));
+		}
 		return new AppStatus(filter.getTargetUUID(), newLastUpdateInMs, getStatusMaxValidityInMs(), newLastUpdateInMs,
 				PackageManagerUtils.isAppInstalled(getContext(), filter.getPkg()),
-				PackageManagerUtils.isAppEnabled(getContext(), filter.getPkg()));
+				appEnabled);
 	}
 
 	@Override
-	public void cacheStatus(POIStatus newStatusToCache) {
+	public void cacheStatus(@NonNull POIStatus newStatusToCache) {
 		StatusProvider.cacheStatusS(this, newStatusToCache);
 	}
 
+	@Nullable
 	@Override
-	public POIStatus getCachedStatus(StatusProviderContract.Filter statusFilter) {
+	public POIStatus getCachedStatus(@NonNull StatusProviderContract.Filter statusFilter) {
 		return StatusProvider.getCachedStatusS(this, statusFilter.getTargetUUID());
 	}
 
@@ -367,11 +416,14 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return StatusProvider.deleteCachedStatus(this, cachedStatusId);
 	}
 
+	@NonNull
 	@Override
 	public Uri getAuthorityUri() {
+		//noinspection ConstantConditions // TODO requireContext()
 		return getAUTHORITYURI(getContext());
 	}
 
+	@NonNull
 	@Override
 	public String getStatusDbTableName() {
 		return ModuleDbHelper.T_MODULE_STATUS;
@@ -379,6 +431,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@Override
 	public boolean isAgencyDeployed() {
+		//noinspection ConstantConditions // TODO requireContext()
 		return SqlUtils.isDbExist(getContext(), getDbName());
 	}
 
@@ -387,6 +440,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		if (currentDbVersion > 0 && currentDbVersion != getCurrentDbVersion()) {
 			return true; // live update required => update
 		}
+		//noinspection ConstantConditions // TODO requireContext()
 		if (!SqlUtils.isDbExist(getContext(), getDbName())) {
 			return true; // not deployed => initialization
 		}
@@ -397,8 +451,10 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return false;
 	}
 
+	@NonNull
 	@Override
 	public UriMatcher getAgencyUriMatcher() {
+		//noinspection ConstantConditions // TODO requireContext()
 		return getURIMATCHER(getContext());
 	}
 
@@ -423,8 +479,9 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
+	@Nullable
 	@Override
-	public String getAgencyColorString(Context context) {
+	public String getAgencyColorString(@NonNull Context context) {
 		return null; // default
 	}
 
@@ -439,20 +496,24 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
+	@NonNull
 	@Override
-	public LocationUtils.Area getAgencyArea(Context context) {
+	public LocationUtils.Area getAgencyArea(@NonNull Context context) {
 		return LocationUtils.THE_WORLD;
 	}
 
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
+	@NonNull
 	public String getDbName() {
 		return ModuleDbHelper.DB_NAME;
 	}
 
+	@NonNull
 	@Override
 	public UriMatcher getURI_MATCHER() {
+		//noinspection ConstantConditions // TODO requireContext()
 		return getURIMATCHER(getContext());
 	}
 
@@ -466,6 +527,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
+	@NonNull
 	public ModuleDbHelper getNewDbHelper(@NonNull Context context) {
 		return new ModuleDbHelper(context.getApplicationContext());
 	}
@@ -491,17 +553,21 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return MODULE_STATUS_MIN_DURATION_BETWEEN_REFRESH_IN_MS;
 	}
 
+	@Nullable
 	private static ArrayMap<String, String> poiProjectionMap;
 
+	@NonNull
 	@Override
 	public ArrayMap<String, String> getPOIProjectionMap() {
 		if (poiProjectionMap == null) {
+			//noinspection ConstantConditions // TODO requireContext()
 			poiProjectionMap = getNewPoiProjectionMap(getAUTHORITY(getContext()));
 		}
 		return poiProjectionMap;
 	}
 
-	public static ArrayMap<String, String> getNewPoiProjectionMap(String authority) {
+	@NonNull
+	public static ArrayMap<String, String> getNewPoiProjectionMap(@NonNull String authority) {
 		// @formatter:off
 		return SqlUtils.ProjectionMapBuilder.getNew()
 				.appendValue(SqlUtils.concatenate( //
@@ -533,11 +599,13 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	public static final String[] PROJECTION_MODULE_POI = ArrayUtils.addAll(POIProvider.PROJECTION_POI, PROJECTION_MODULE);
 
+	@NonNull
 	@Override
 	public String[] getPOIProjection() {
 		return PROJECTION_MODULE_POI;
 	}
 
+	@NonNull
 	@Override
 	public String getPOITable() {
 		return ModuleDbHelper.T_MODULE;
