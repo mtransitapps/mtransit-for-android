@@ -3,6 +3,8 @@ package org.mtransit.android.ui;
 import org.mtransit.android.BuildConfig;
 import org.mtransit.android.ad.AdManager;
 import org.mtransit.android.ad.IAdManager;
+import org.mtransit.android.analytics.AnalyticsProperties;
+import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.dev.CrashReporter;
@@ -12,6 +14,8 @@ import org.mtransit.android.di.Injection;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Build;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -37,6 +41,8 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 	private IStrictMode strictMode = null;
 	@Nullable
 	private IAdManager adManager = null;
+	@Nullable
+	private IAnalyticsManager analyticsManager = null;
 
 	@Override
 	public void onCreate() {
@@ -54,6 +60,7 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 		getStrictMode().setup(BuildConfig.DEBUG);
 		getCrashReporter().setup(this, !BuildConfig.DEBUG);
 		getAdManager().init(this);
+		getAnalyticsManager().trackUserProperty(AnalyticsProperties.DEVICE_MANUFACTURER, Build.MANUFACTURER);
 	}
 
 	@NonNull
@@ -91,6 +98,14 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 			this.adManager = Injection.providesAdManager();
 		}
 		return this.adManager;
+	}
+
+	@NonNull
+	private IAnalyticsManager getAnalyticsManager() {
+		if (this.analyticsManager == null) {
+			this.analyticsManager = Injection.providesAnalyticsManager();
+		}
+		return this.analyticsManager;
 	}
 
 	@NonNull
