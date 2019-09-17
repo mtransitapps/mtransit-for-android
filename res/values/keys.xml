@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,TypographyDashes">
-    <string name="google_analytics_id">INSERT_GOOGLE_ANALYTICS_ID_HERE</string>
     <string name="google_ads_app_id">INSERT_GOOGLE_ADS_APP_ID_HERE</string>
     <string name="google_ads_banner_ad_unit_id">INSERT_GOOGLE_ADS_BANNER_AD_UNIT_ID_HERE</string>
     <string name="google_maps_api_key">INSERT_GOOGLE_MAPS_API_KEY_HERE</string>

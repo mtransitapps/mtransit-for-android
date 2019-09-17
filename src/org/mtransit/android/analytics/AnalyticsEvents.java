@@ -6,5 +6,6 @@ public interface AnalyticsEvents {
 
 	interface Params {
 		String PKG = "mt_pkg";
+		String STATE = "mt_state";
 	}
 }

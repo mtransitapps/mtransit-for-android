@@ -8,6 +8,7 @@ import org.mtransit.android.ui.view.common.IActivity;
 
 import java.util.Map;
 
+@SuppressWarnings("unused")
 public interface IAnalyticsManager {
 
 	void trackUserProperty(@NonNull String name, @NonNull String value);

@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,TypographyDashes">
-    <string name="google_analytics_id">INSERT_GOOGLE_ANALYTICS_ID_HERE</string>
-	 <string name="google_ads_app_id">ca-app-pub-3940256099942544~3347511713</string> <!-- Google-provided test app id -->
-    <string name="google_ads_banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>--> <!-- Google-provided test ad unit - banner -->
+    <string name="google_ads_app_id">ca-app-pub-3940256099942544~3347511713</string> <!-- Google-provided test app id -->
+    <string name="google_ads_banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string><!-- Google-provided test ad unit - banner -->
     <string name="google_maps_api_key">INSERT_GOOGLE_MAPS_API_KEY_HERE</string>
     <string name="google_places_api_key">INSERT_GOOGLE_PLACES_API_KEY_HERE</string>
     <string name="google_play_license_key">INSERT_GOOGLE_PLAY_LICENSE_KEY_HERE</string>
-    <string-array name="google_ads_test_devices_ids">
-    </string-array>
+    <string-array name="google_ads_test_devices_ids" />
     <string name="twitter_consumer_key">INSERT_TWITTER_CONSUMER_KEY_HERE</string>
     <string name="twitter_consumer_secret">INSERT_TWITTER_CONSUMER_SECRET_HERE</string>
 </resources>

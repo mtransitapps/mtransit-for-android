@@ -1,11 +1,14 @@
 package org.mtransit.android.provider;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.ArrayMap;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,9 +45,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
-
-import androidx.annotation.NonNull;
-import androidx.collection.ArrayMap;
 
 public class ModuleProvider extends AgencyProvider implements POIProviderContract, StatusProviderContract {
 
@@ -130,12 +130,15 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return authorityUri;
 	}
 
-	@NonNull
-	private final IAnalyticsManager analyticsManager;
+	@Nullable
+	private IAnalyticsManager analyticsManager;
 
-	public ModuleProvider() {
-		super();
-		analyticsManager = Injection.providesAnalyticsManager();
+	@NonNull
+	private IAnalyticsManager getAnalyticsManager() {
+		if (this.analyticsManager == null) {
+			analyticsManager = Injection.providesAnalyticsManager();
+		}
+		return this.analyticsManager;
 	}
 
 	@Override
@@ -385,13 +388,16 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	public POIStatus getNewModuleStatus(@NonNull AppStatus.AppStatusFilter filter) {
 		long newLastUpdateInMs = TimeUtils.currentTimeMillis();
 		//noinspection ConstantConditions // TODO requireContext()
+		final boolean appInstalled = PackageManagerUtils.isAppInstalled(getContext(), filter.getPkg());
 		final boolean appEnabled = PackageManagerUtils.isAppEnabled(getContext(), filter.getPkg());
-		if (!appEnabled) {
-			analyticsManager.trackEvent(AnalyticsEvents.FOUND_DISABLED_MODULE,
-					Collections.singletonMap(AnalyticsEvents.Params.PKG, (Object) filter.getPkg()));
+		if (appInstalled && !appEnabled) {
+			Map<String, Object> params = new HashMap<>();
+			params.put(AnalyticsEvents.Params.PKG, filter.getPkg());
+			params.put(AnalyticsEvents.Params.STATE, PackageManagerUtils.getAppEnabledState(getContext(), filter.getPkg()));
+			getAnalyticsManager().trackEvent(AnalyticsEvents.FOUND_DISABLED_MODULE, params);
 		}
 		return new AppStatus(filter.getTargetUUID(), newLastUpdateInMs, getStatusMaxValidityInMs(), newLastUpdateInMs,
-				PackageManagerUtils.isAppInstalled(getContext(), filter.getPkg()),
+				appInstalled,
 				appEnabled);
 	}
 

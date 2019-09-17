@@ -14,6 +14,13 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.Map;
 
+// - To enable debug logging run:
+// adb shell setprop log.tag.FA VERBOSE
+// adb shell setprop log.tag.FA-SVC VERBOSE
+// - To enable faster debug mode event logging run:
+// adb shell setprop debug.firebase.analytics.app org.mtransit.android
+// - To view the logs:
+// adb logcat -v time -s FA FA-SVC
 public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 
 	private static final String LOG_TAG = AnalyticsManager.class.getSimpleName();
