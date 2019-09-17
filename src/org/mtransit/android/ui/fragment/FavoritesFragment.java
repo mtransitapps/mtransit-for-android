@@ -43,6 +43,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 
 	private static final String TRACKING_SCREEN_NAME = "Favorites";
 
+	@NonNull
 	@Override
 	public String getScreenName() {
 		return TRACKING_SCREEN_NAME;

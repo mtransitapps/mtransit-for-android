@@ -35,6 +35,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 
 	private static final String TRACKING_SCREEN_NAME = "News";
 
+	@NonNull
 	@Override
 	public String getScreenName() {
 		if (!TextUtils.isEmpty(this.uuid)) {

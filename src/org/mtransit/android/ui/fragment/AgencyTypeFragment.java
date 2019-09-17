@@ -59,6 +59,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	private static final String TRACKING_SCREEN_NAME = "Browse";
 
+	@NonNull
 	@Override
 	public String getScreenName() {
 		if (this.typeId != null) {

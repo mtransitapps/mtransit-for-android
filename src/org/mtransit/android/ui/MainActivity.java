@@ -4,13 +4,14 @@ import java.util.WeakHashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
+import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.SearchFragment;
 import org.mtransit.android.ui.view.common.IActivity;
-import org.mtransit.android.util.AnalyticsUtils;
+import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.VendingUtils;
@@ -23,10 +24,12 @@ import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,13 +37,14 @@ import android.widget.FrameLayout;
 
 public class MainActivity extends MTActivityWithLocation implements
 		FragmentManager.OnBackStackChangedListener,
-		AnalyticsUtils.Trackable,
+		AnalyticsManager.Trackable,
 		VendingUtils.OnVendingResultListener,
 		IActivity,
 		DataSourceProvider.ModulesUpdateListener {
 
 	private static final String TAG = "Stack-" + MainActivity.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -48,6 +52,7 @@ public class MainActivity extends MTActivityWithLocation implements
 
 	private static final String TRACKING_SCREEN_NAME = "Main";
 
+	@NonNull
 	@Override
 	public String getScreenName() {
 		return TRACKING_SCREEN_NAME;
@@ -64,14 +69,17 @@ public class MainActivity extends MTActivityWithLocation implements
 
 	@NonNull
 	private final IAdManager adManager;
+	@NonNull
+	private final IAnalyticsManager analyticsManager;
 
 	public MainActivity() {
 		super();
 		adManager = Injection.providesAdManager();
+		analyticsManager = Injection.providesAnalyticsManager();
 	}
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		this.abController = new ActionBarController(this);
@@ -163,7 +171,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onResume();
 		}
-		AnalyticsUtils.trackScreenView(this, this);
+		analyticsManager.trackScreenView(this, this);
 		VendingUtils.onResume(this, this);
 		this.adManager.adaptToScreenSize(this, getResources().getConfiguration());
 		onLastLocationChanged(getUserLocation());

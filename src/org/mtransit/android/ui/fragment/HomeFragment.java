@@ -57,6 +57,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	private static final String TRACKING_SCREEN_NAME = "Home";
 
+	@NonNull
 	@Override
 	public String getScreenName() {
 		return TRACKING_SCREEN_NAME;

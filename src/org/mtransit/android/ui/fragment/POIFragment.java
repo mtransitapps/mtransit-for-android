@@ -104,6 +104,7 @@ public class POIFragment extends ABFragment implements
 
 	private static final String TRACKING_SCREEN_NAME = "POI";
 
+	@NonNull
 	@Override
 	public String getScreenName() {
 		if (!TextUtils.isEmpty(this.uuid)) {

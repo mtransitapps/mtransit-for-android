@@ -11,7 +11,6 @@ dependencies {
     implementation rootProject.ext.supportLibs.customTabs
     implementation rootProject.ext.supportLibs.design
     implementation rootProject.ext.supportLibs.supportV4
-    implementation rootProject.ext.gpsLibs.analytics
     implementation rootProject.ext.gpsLibs.basement // from commons-android
     implementation rootProject.ext.gpsLibs.location
     implementation rootProject.ext.gpsLibs.maps

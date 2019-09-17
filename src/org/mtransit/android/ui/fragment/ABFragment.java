@@ -1,37 +1,53 @@
 package org.mtransit.android.ui.fragment;
 
 import org.mtransit.android.R;
+import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MainActivity;
-import org.mtransit.android.util.AnalyticsUtils;
+import org.mtransit.android.analytics.AnalyticsManager;
+import org.mtransit.android.ui.view.common.IActivity;
 
 import android.content.Context;
 import android.os.Bundle;
+
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
+
 import android.view.View;
 
-public abstract class ABFragment extends MTFragment implements AnalyticsUtils.Trackable, DataSourceProvider.ModulesUpdateListener {
+public abstract class ABFragment extends MTFragment implements AnalyticsManager.Trackable, IActivity, DataSourceProvider.ModulesUpdateListener {
 
-	public static final boolean DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT = false;
+	private static final boolean DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT = false;
 
 	public static final boolean DEFAULT_DISPLAY_HOME_AS_UP_ENABLED = true;
 
 	public static final boolean DEFAULT_SHOW_SEARCH_MENU_ITEM = true;
 
+	@NonNull
+	private final IAnalyticsManager analyticsManager;
+
+	public ABFragment() {
+		super();
+		analyticsManager = Injection.providesAnalyticsManager();
+	}
+
 	public boolean isABReady() {
 		return true;
 	}
 
+	@Nullable
 	public CharSequence getABTitle(Context context) {
 		return null;
 	}
 
+	@Nullable
 	public CharSequence getABSubtitle(Context context) {
 		return null;
 	}
@@ -83,7 +99,7 @@ public abstract class ABFragment extends MTFragment implements AnalyticsUtils.Tr
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		DataSourceProvider.addModulesUpdateListener(this);
 	}
@@ -91,7 +107,7 @@ public abstract class ABFragment extends MTFragment implements AnalyticsUtils.Tr
 	@Override
 	public void onResume() {
 		super.onResume();
-		AnalyticsUtils.trackScreenView(getActivity(), this);
+		analyticsManager.trackScreenView(this, this);
 		ActionBarController abController = getAbController();
 		if (abController != null) {
 			abController.setAB(this);
@@ -114,5 +130,19 @@ public abstract class ABFragment extends MTFragment implements AnalyticsUtils.Tr
 	public void onDestroy() {
 		super.onDestroy();
 		DataSourceProvider.removeModulesUpdateListener(this);
+	}
+
+	@Override
+	public void finish() {
+		requireActivity().finish();
+	}
+
+	@Nullable
+	@Override
+	public <T extends View> T findViewById(int id) {
+		if (getView() == null) {
+			return null;
+		}
+		return getView().findViewById(id);
 	}
 }

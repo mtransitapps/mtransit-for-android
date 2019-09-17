@@ -62,6 +62,7 @@ public class MapFragment extends ABFragment implements
 
 	private static final String TRACKING_SCREEN_NAME = "Map";
 
+	@NonNull
 	@Override
 	public String getScreenName() {
 		return TRACKING_SCREEN_NAME;

@@ -43,6 +43,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 	private static final String TRACKING_SCREEN_NAME = "Schedule";
 
+	@NonNull
 	@Override
 	public String getScreenName() {
 		return TRACKING_SCREEN_NAME;

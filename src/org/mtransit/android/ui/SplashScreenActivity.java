@@ -1,29 +1,47 @@
 package org.mtransit.android.ui;
 
-import org.mtransit.android.R;
-import org.mtransit.android.commons.PreferenceUtils;
-import org.mtransit.android.util.AnalyticsUtils;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+import org.mtransit.android.R;
+import org.mtransit.android.analytics.AnalyticsEvents;
+import org.mtransit.android.analytics.IAnalyticsManager;
+import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.di.Injection;
+import org.mtransit.android.ui.view.common.IActivity;
+
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 
-public class SplashScreenActivity extends MTActivity implements AnalyticsUtils.Trackable {
+public class SplashScreenActivity extends MTActivity implements IActivity, IAnalyticsManager.Trackable {
 
-	private static final String TAG = SplashScreenActivity.class.getSimpleName();
+	private static final String LOG_TAG = SplashScreenActivity.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private static final String TRACKING_SCREEN_NAME = "Splash";
 
+	@NonNull
+	private final IAnalyticsManager analyticsManager;
+
+	public SplashScreenActivity() {
+		super();
+		analyticsManager = Injection.providesAnalyticsManager();
+	}
+
+	@NonNull
 	@Override
 	public String getScreenName() {
 		return TRACKING_SCREEN_NAME;
 	}
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		setTheme(R.style.MTTheme);
 		super.onCreate(savedInstanceState);
 		int appOpenCounts = PreferenceUtils.getPrefDefault(this, //
@@ -31,13 +49,37 @@ public class SplashScreenActivity extends MTActivity implements AnalyticsUtils.T
 				PreferenceUtils.PREF_USER_APP_OPEN_COUNTS_DEFAULT);
 		appOpenCounts++;
 		PreferenceUtils.savePrefDefault(this, PreferenceUtils.PREF_USER_APP_OPEN_COUNTS, appOpenCounts, false); // asynchronous
-		AnalyticsUtils.trackUserProperty(this, AnalyticsUtils.USER_PROPERTY_OPEN_APP_COUNTS, String.valueOf(appOpenCounts));
-		AnalyticsUtils.trackScreenView(this, this);
+		analyticsManager.trackUserProperty(AnalyticsEvents.USER_PROPERTY_OPEN_APP_COUNTS, String.valueOf(appOpenCounts));
+		analyticsManager.trackScreenView(this, this);
 		showHomeActivity();
 	}
 
 	private void showHomeActivity() {
 		startActivity(MainActivity.newInstance(this));
 		finish();
+	}
+
+	@NonNull
+	@Override
+	public Context getContext() {
+		return this;
+	}
+
+	@NonNull
+	@Override
+	public Context requireContext() throws IllegalStateException {
+		return this;
+	}
+
+	@NonNull
+	@Override
+	public Activity getActivity() {
+		return this;
+	}
+
+	@NonNull
+	@Override
+	public Activity requireActivity() throws IllegalStateException {
+		return this;
 	}
 }

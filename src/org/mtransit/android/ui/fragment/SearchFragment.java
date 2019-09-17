@@ -55,6 +55,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 	private static final String TRACKING_SCREEN_NAME = "Search";
 
+	@NonNull
 	@Override
 	public String getScreenName() {
 		return TRACKING_SCREEN_NAME;

@@ -46,6 +46,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	private static final String TRACKING_SCREEN_NAME = "News";
 
+	@NonNull
 	@Override
 	public String getScreenName() {
 		return TRACKING_SCREEN_NAME;

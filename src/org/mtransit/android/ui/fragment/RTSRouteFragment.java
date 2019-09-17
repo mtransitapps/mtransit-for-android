@@ -65,6 +65,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 	private static final String TRACKING_SCREEN_NAME = "RTSRoute";
 
+	@NonNull
 	@Override
 	public String getScreenName() {
 		if (this.authority != null && this.routeId != null) {

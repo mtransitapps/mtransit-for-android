@@ -2,6 +2,8 @@ package org.mtransit.android.di;
 
 import org.mtransit.android.ad.AdManager;
 import org.mtransit.android.ad.IAdManager;
+import org.mtransit.android.analytics.AnalyticsManager;
+import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.CrashlyticsCrashReporter;
@@ -39,6 +41,9 @@ public class Injection {
 
 	@Nullable
 	private static IAdManager adManager;
+
+	@Nullable
+	private static IAnalyticsManager analyticsManager;
 
 	@NonNull
 	private static IApplication providesApplication() {
@@ -129,5 +134,19 @@ public class Injection {
 			}
 		}
 		return adManager;
+	}
+
+	@NonNull
+	public static IAnalyticsManager providesAnalyticsManager() {
+		if (analyticsManager == null) {
+			synchronized (Injection.class) {
+				if (analyticsManager == null) {
+					analyticsManager = new AnalyticsManager(
+							providesApplication()
+					);
+				}
+			}
+		}
+		return analyticsManager;
 	}
 }
