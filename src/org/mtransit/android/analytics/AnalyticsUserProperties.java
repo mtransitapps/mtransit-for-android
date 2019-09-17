@@ -9,4 +9,6 @@ public interface AnalyticsUserProperties {
 	String FAVORITES_COUNT = "mt_favorites_count";
 
 	String FAVORITE_FOLDER_COUNT = "mt_favorite_folder_count";
+
+	String MODULES_COUNT = "mt_modules_count";
 }

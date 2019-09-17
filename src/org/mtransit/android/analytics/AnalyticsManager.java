@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.Size;
 
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.commons.MTLog;
@@ -54,12 +55,14 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 	}
 
 	@Override
-	public void setUserProperty(@NonNull String name, int value) {
+	public void setUserProperty(@NonNull @Size(min = 1L, max = 24L) String name,
+			int value) {
 		setUserProperty(name, String.valueOf(value));
 	}
 
 	@Override
-	public void setUserProperty(@NonNull String name, @NonNull String value) {
+	public void setUserProperty(@NonNull @Size(min = 1L, max = 24L) String name,
+			@NonNull String value) {
 		if (!ANALYTICS_ENABLED) {
 			return;
 		}

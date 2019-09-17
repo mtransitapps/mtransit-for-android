@@ -6,11 +6,14 @@ import java.util.Iterator;
 import java.util.WeakHashMap;
 
 import org.mtransit.android.R;
+import org.mtransit.android.analytics.AnalyticsUserProperties;
+import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.di.Injection;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -296,7 +299,11 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private ArrayMap<String, Integer> allAgenciesColorInts = new ArrayMap<String, Integer>();
 
+	@NonNull
+	private final IAnalyticsManager analyticsManager;
+
 	private DataSourceProvider() {
+		analyticsManager = Injection.providesAnalyticsManager();
 	}
 
 	public ArrayList<DataSourceType> getAvailableAgencyTypes() {
@@ -588,6 +595,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 				}
 			}
 			CollectionUtils.sort(this.allAgencyTypes, new DataSourceType.DataSourceTypeShortNameComparator(context));
+			analyticsManager.setUserProperty(AnalyticsUserProperties.MODULES_COUNT, allAgenciesAuthority.size());
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while initializing properties!");
 			destroy();
