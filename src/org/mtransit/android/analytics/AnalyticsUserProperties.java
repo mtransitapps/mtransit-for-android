@@ -6,5 +6,7 @@ public interface AnalyticsUserProperties {
 
 	String DEVICE_MANUFACTURER = "mt_device_manufacturer";
 
-	String FAVORITES_FOLDERS_COUNT = "mt_favorites_folders_count";
+	String FAVORITES_COUNT = "mt_favorites_count";
+
+	String FAVORITE_FOLDER_COUNT = "mt_favorite_folder_count";
 }

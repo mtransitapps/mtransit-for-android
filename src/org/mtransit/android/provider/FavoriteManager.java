@@ -2,6 +2,7 @@ package org.mtransit.android.provider;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import org.mtransit.android.R;
 import org.mtransit.android.analytics.AnalyticsUserProperties;
@@ -28,6 +29,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.SparseArrayCompat;
@@ -64,7 +66,7 @@ public class FavoriteManager implements MTLog.Loggable {
 	private static void initInstance(@NonNull Context context) {
 		instance = new FavoriteManager();
 		instance.favoriteFolders = findFolders(context);
-		instance.analyticsManager.setUserProperty(AnalyticsUserProperties.FAVORITES_FOLDERS_COUNT, instance.favoriteFolders.size());
+		instance.analyticsManager.setUserProperty(AnalyticsUserProperties.FAVORITE_FOLDER_COUNT, instance.favoriteFolders.size());
 	}
 
 	@NonNull
@@ -101,7 +103,7 @@ public class FavoriteManager implements MTLog.Loggable {
 			return;
 		}
 		this.favoriteFolders.put(favoriteFolder.getId(), favoriteFolder);
-		this.analyticsManager.setUserProperty(AnalyticsUserProperties.FAVORITES_FOLDERS_COUNT, this.favoriteFolders.size());
+		this.analyticsManager.setUserProperty(AnalyticsUserProperties.FAVORITE_FOLDER_COUNT, this.favoriteFolders.size());
 	}
 
 	private void removeFolder(@NonNull Favorite.Folder favoriteFolder) {
@@ -114,7 +116,7 @@ public class FavoriteManager implements MTLog.Loggable {
 			return;
 		}
 		this.favoriteFolders.remove(favoriteFolderId);
-		this.analyticsManager.setUserProperty(AnalyticsUserProperties.FAVORITES_FOLDERS_COUNT, this.favoriteFolders.size());
+		this.analyticsManager.setUserProperty(AnalyticsUserProperties.FAVORITE_FOLDER_COUNT, this.favoriteFolders.size());
 	}
 
 	public boolean isUsingFavoriteFolders() {
@@ -206,7 +208,7 @@ public class FavoriteManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static HashSet<String> extractFavoriteUUIDs(ArrayList<Favorite> favorites) {
+	private static HashSet<String> extractFavoriteUUIDs(@Nullable List<Favorite> favorites) {
 		HashSet<String> favoriteUUIDs = new HashSet<>();
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {
@@ -236,6 +238,7 @@ public class FavoriteManager implements MTLog.Loggable {
 					} while (cursor.moveToNext());
 				}
 			}
+			get(context).analyticsManager.setUserProperty(AnalyticsUserProperties.FAVORITES_COUNT, result.size());
 		} catch (Exception e) {
 			MTLog.w(LOG_TAG, e, "Error!");
 		} finally {
@@ -365,7 +368,8 @@ public class FavoriteManager implements MTLog.Loggable {
 		}
 	}
 
-	private static Favorite addFavorite(Context context, Favorite newFavorite) {
+	@Nullable
+	private static Favorite addFavorite(@NonNull Context context, @NonNull Favorite newFavorite) {
 		Uri uri = context.getContentResolver().insert(getFavoriteContentUri(context), newFavorite.toContentValues());
 		if (uri == null) {
 			return null;
@@ -373,7 +377,7 @@ public class FavoriteManager implements MTLog.Loggable {
 		return findFavorite(context, uri, null);
 	}
 
-	private static void deleteFavorite(Context context, String fkId, int folderId, FavoriteUpdateListener listener) {
+	private static void deleteFavorite(@NonNull Context context, String fkId, int folderId, @Nullable FavoriteUpdateListener listener) {
 		Favorite findFavorite = findFavorite(context, fkId);
 		if (findFavorite == null) {
 			return; // already deleted
@@ -558,7 +562,7 @@ public class FavoriteManager implements MTLog.Loggable {
 	}
 
 	@SuppressWarnings("UnusedReturnValue")
-	private static boolean updateFavoriteFolder(Context context, @NonNull String favoriteFkId, int folderId, @Nullable FavoriteUpdateListener listener) {
+	private static boolean updateFavoriteFolder(@NonNull Context context, @NonNull String favoriteFkId, int folderId, @Nullable FavoriteUpdateListener listener) {
 		String selectionF = SqlUtils.getWhereEqualsString(FavoriteColumns.T_FAVORITE_K_FK_ID, favoriteFkId);
 		ContentValues updateValues = new ContentValues();
 		updateValues.put(FavoriteColumns.T_FAVORITE_K_FOLDER_ID, folderId);
@@ -649,7 +653,7 @@ public class FavoriteManager implements MTLog.Loggable {
 	private static Uri authorityUri;
 
 	@NonNull
-	private static Uri getAuthorityUri(Context context) {
+	private static Uri getAuthorityUri(@NonNull Context context) {
 		if (authorityUri == null) {
 			authorityUri = UriUtils.newContentUri(getAUTHORITY(context));
 		}
