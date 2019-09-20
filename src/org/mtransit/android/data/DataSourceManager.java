@@ -344,6 +344,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return pois == null || pois.size() == 0 ? null : pois.get(0);
 	}
 
+	@Nullable
 	public static ArrayList<POIManager> findPOIs(Context context, String authority, POIProviderContract.Filter poiFilter) {
 		Cursor cursor = null;
 		try {

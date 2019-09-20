@@ -9,6 +9,7 @@ import org.mtransit.android.commons.MTLog;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.loader.content.AsyncTaskLoader;
@@ -25,14 +26,17 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 		}
 	}
 
+	@SuppressWarnings("deprecation")
+	@Deprecated
 	@Override
-	public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+	public void dump(@Nullable String prefix, @Nullable FileDescriptor fd, @NonNull PrintWriter writer, @Nullable String[] args) {
 		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "dump(%s,%s,%s,%s)", prefix, fd, writer, args);
 		}
 		super.dump(prefix, fd, writer, args);
 	}
 
+	@Nullable
 	@Override
 	public D loadInBackground() {
 		if (Constants.LOG_TASK_LIFECYCLE) {
@@ -44,10 +48,11 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 	/**
 	 * @see AsyncTaskLoader#loadInBackground()
 	 */
+	@Nullable
 	public abstract D loadInBackgroundMT();
 
 	@Override
-	public void onCanceled(D data) {
+	public void onCanceled(@Nullable D data) {
 		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "onCanceled(%s)", data);
 		}
@@ -122,8 +127,9 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 		super.commitContentChanged();
 	}
 
+	@NonNull
 	@Override
-	public String dataToString(D data) {
+	public String dataToString(@Nullable D data) {
 		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "dataToString(%s)", data);
 		}
@@ -171,7 +177,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 	}
 
 	@Override
-	public void registerListener(int id, OnLoadCompleteListener<D> listener) {
+	public void registerListener(int id, @NonNull OnLoadCompleteListener<D> listener) {
 		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "registerListener(%s,%s)", id, listener);
 		}
@@ -212,7 +218,7 @@ public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implemen
 	}
 
 	@Override
-	public void unregisterListener(OnLoadCompleteListener<D> listener) {
+	public void unregisterListener(@NonNull OnLoadCompleteListener<D> listener) {
 		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "unregisterListener(%s)", listener);
 		}

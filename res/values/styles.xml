@@ -20,6 +20,8 @@
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
 
+    <style name="MTThemePreferences" parent="Theme.AppCompat.Light.DarkActionBar" />
+
     <style name="MTTabTextStyle" parent="TextAppearance.Design.Tab">
         <item name="android:textStyle">bold</item>
     </style>

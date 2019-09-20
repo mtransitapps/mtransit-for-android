@@ -12,6 +12,8 @@ import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.lazy.LazyMarker;
 
 import android.os.SystemClock;
+
+import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 
 import com.google.android.gms.maps.model.CameraPosition;
@@ -19,13 +21,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
+@SuppressWarnings("WeakerAccess")
 class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable {
 
-	private static final String TAG = MarkerManager.class.getSimpleName();
+	private static final String LOG_TAG = MarkerManager.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private final IGoogleMap factory;
@@ -42,8 +46,8 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 
 	public MarkerManager(IGoogleMap factory) {
 		this.factory = factory;
-		this.markers = new ArrayMap<LazyMarker, DelegatingMarker>();
-		this.createdMarkers = new ArrayMap<Marker, LazyMarker>();
+		this.markers = new ArrayMap<>();
+		this.createdMarkers = new ArrayMap<>();
 	}
 
 	public IMarker addMarker(ExtendedMarkerOptions markerOptions) {
@@ -67,6 +71,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 	private DelegatingMarker createMarker(com.google.android.gms.maps.model.MarkerOptions markerOptions) {
 		LazyMarker realMarker = new LazyMarker(factory.getMap(), markerOptions, this);
 		DelegatingMarker marker = new DelegatingMarker(realMarker, this);
+		// TODO CRASH SimpleArrayMap ClassCastException: String cannot be cast to Object[]
 		markers.put(realMarker, marker);
 		return marker;
 	}
@@ -155,7 +160,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		if (!this.clusteringSettings.equals(clusteringSettings)) {
 			this.clusteringSettings = clusteringSettings;
 			clusteringStrategy.cleanup();
-			ArrayList<DelegatingMarker> list = new ArrayList<DelegatingMarker>(markers.values());
+			ArrayList<DelegatingMarker> list = new ArrayList<>(markers.values());
 			if (clusteringSettings.isEnabled()) {
 				clusteringStrategy = new GridClusteringStrategy(clusteringSettings, factory, list, new ClusterRefresher());
 			} else if (clusteringSettings.isAddMarkersDynamically()) {

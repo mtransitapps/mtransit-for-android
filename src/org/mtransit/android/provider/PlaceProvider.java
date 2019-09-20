@@ -117,7 +117,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	private static final String[] PROJECTION_PLACE = new String[]{POIProviderContract.Columns.T_POI_K_SCORE_META_OPT, //
 			PlaceColumns.T_PLACE_K_PROVIDER_ID, PlaceColumns.T_PLACE_K_LANG, PlaceColumns.T_PLACE_K_READ_AT_IN_MS};
 
-	public static final String[] PROJECTION_PLACE_POI = ArrayUtils.addAll(POIProvider.PROJECTION_POI, PROJECTION_PLACE);
+	public static final String[] PROJECTION_PLACE_POI = ArrayUtils.addAllNonNull(POIProvider.PROJECTION_POI, PROJECTION_PLACE);
 
 	@NonNull
 	@Override

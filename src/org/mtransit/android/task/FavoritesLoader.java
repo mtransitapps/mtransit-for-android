@@ -16,9 +16,10 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
 
 import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.collection.ArrayMap;
+import androidx.collection.SimpleArrayMap;
 import androidx.collection.SparseArrayCompat;
 
 public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
@@ -51,11 +52,12 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 		for (Favorite favorite : favorites) {
 			uuidToFavoriteFolderId.put(favorite.getFkId(), favorite.getFolderId());
 		}
-		ArrayMap<String, HashSet<String>> authorityToUUIDs = splitByAgency(favorites);
+		SimpleArrayMap<String, HashSet<String>> authorityToUUIDs = splitByAgency(favorites);
 		if (authorityToUUIDs.size() > 0) {
-			for (String authority : authorityToUUIDs.keySet()) {
-				HashSet<String> authorityUUIDs = authorityToUUIDs.get(authority);
-				if (CollectionUtils.getSize(authorityUUIDs) > 0) {
+			for (int a = 0; a < authorityToUUIDs.size(); a++) {
+				String authority = authorityToUUIDs.keyAt(a);
+				HashSet<String> authorityUUIDs = authorityToUUIDs.valueAt(a);
+				if (authorityUUIDs != null && !authorityUUIDs.isEmpty()) {
 					ArrayList<POIManager> agencyPOIs =
 							DataSourceManager.findPOIs(getContext(), authority, POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs));
 					if (agencyPOIs != null) {
@@ -74,13 +76,13 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			}
 		}
 		SparseArrayCompat<Favorite.Folder> favoriteFolders = FavoriteManager.findFolders(getContext());
-		if (favoriteFolders != null) {
-			long textMessageId = TimeUtils.currentTimeMillis();
-			for (int f = 0; f < favoriteFolders.size(); f++) {
-				Favorite.Folder favoriteFolder = favoriteFolders.get(favoriteFolders.keyAt(f));
-				if (favoriteFolder.getId() > FavoriteManager.DEFAULT_FOLDER_ID && !favoriteFolderIds.contains(favoriteFolder.getId())) {
-					this.pois.add(FavoriteManager.getNewEmptyFolder(getContext(), textMessageId++, favoriteFolder.getId()));
-				}
+		long textMessageId = TimeUtils.currentTimeMillis();
+		for (int f = 0; f < favoriteFolders.size(); f++) {
+			Favorite.Folder favoriteFolder = favoriteFolders.get(favoriteFolders.keyAt(f));
+			if (favoriteFolder != null
+					&& favoriteFolder.getId() > FavoriteManager.DEFAULT_FOLDER_ID
+					&& !favoriteFolderIds.contains(favoriteFolder.getId())) {
+				this.pois.add(FavoriteManager.getNewEmptyFolder(getContext(), textMessageId++, favoriteFolder.getId()));
 			}
 		}
 		CollectionUtils.sort(this.pois, new Favorite.FavoriteFolderNameComparator(favoriteFolders));
@@ -88,8 +90,8 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 	}
 
 	@NonNull
-	private static ArrayMap<String, HashSet<String>> splitByAgency(@NonNull List<Favorite> favorites) {
-		ArrayMap<String, HashSet<String>> authorityToUUIDs = new ArrayMap<>();
+	private static SimpleArrayMap<String, HashSet<String>> splitByAgency(@NonNull List<Favorite> favorites) {
+		SimpleArrayMap<String, HashSet<String>> authorityToUUIDs = new SimpleArrayMap<>();
 		for (Favorite favorite : favorites) {
 			String uuid = favorite.getFkId();
 			String authority = POI.POIUtils.extractAuthorityFromUUID(uuid);
@@ -98,6 +100,7 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 				uuids = new HashSet<>();
 			}
 			uuids.add(uuid);
+			// TODO CRASH SimpleArrayMap ClassCastException: String cannot be cast to Object[]
 			authorityToUUIDs.put(authority, uuids);
 		}
 		return authorityToUUIDs;

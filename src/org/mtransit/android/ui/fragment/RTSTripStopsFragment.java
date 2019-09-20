@@ -349,14 +349,14 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 
 	@NonNull
 	@Override
-	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<POIManager>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
 			if (this.tripId == null || TextUtils.isEmpty(this.authority)) {
 				CrashUtils.w(this, "onCreateLoader() > no trip '%s' or authority '%s' !", this.tripId, this.authority);
 				return null;
 			}
-			return new RTSTripStopsLoader(getContext(), this.authority, this.tripId);
+			return new RTSTripStopsLoader(requireContext(), this.authority, this.tripId);
 		default:
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			return null;

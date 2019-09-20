@@ -1170,7 +1170,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 	}
 
-	public void addMarkers(Collection<POIMarker> result) {
+	public void addMarkers(@NonNull Collection<POIMarker> result) {
 		if (MapViewController.this.extendedGoogleMap == null) {
 			return;
 		}

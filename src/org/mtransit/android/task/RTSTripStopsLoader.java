@@ -9,40 +9,49 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class RTSTripStopsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
-	private static final String TAG = RTSAgencyRoutesLoader.class.getSimpleName();
+	private static final String LOG_TAG = RTSAgencyRoutesLoader.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
-	private String authority;
-	private long tripId;
+	@NonNull
+	private final String authority;
+	private final long tripId;
 
 	@Nullable
 	private ArrayList<POIManager> pois;
 
-	public RTSTripStopsLoader(@NonNull Context context, String authority, long tripId) {
+	public RTSTripStopsLoader(@NonNull Context context, @NonNull String authority, long tripId) {
 		super(context);
 		this.authority = authority;
 		this.tripId = tripId;
 	}
 
+	@Nullable
 	@Override
 	public ArrayList<POIManager> loadInBackgroundMT() {
 		if (this.pois != null) {
 			return this.pois;
 		}
 		this.pois = new ArrayList<>();
-		POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewSqlSelectionFilter(SqlUtils.getWhereEquals(
-				GTFSProviderContract.RouteTripStopColumns.T_TRIP_K_ID, this.tripId));
-		poiFilter.addExtra(POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER, //
-				SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE));
+		POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewSqlSelectionFilter(
+				SqlUtils.getWhereEquals(
+						GTFSProviderContract.RouteTripStopColumns.T_TRIP_K_ID, this.tripId)
+		);
+		// TODO CRASH SimpleArrayMap ClassCastException: String cannot be cast to Object[]
+		poiFilter.addExtra(
+				POIProviderContract.POI_FILTER_EXTRA_SORT_ORDER, //
+				SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE)
+		);
 		this.pois = DataSourceManager.findPOIs(getContext(), this.authority, poiFilter);
 		return pois;
 	}

@@ -341,6 +341,7 @@ public class MapFragment extends ABFragment implements
 
 	private static class LoadFilterTypeIdsTask extends FragmentAsyncTaskV4<Object, Void, Boolean, MapFragment> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return MapFragment.class.getSimpleName() + ">" + LoadFilterTypeIdsTask.class.getSimpleName();
@@ -367,26 +368,28 @@ public class MapFragment extends ABFragment implements
 		if (this.filterTypeIds != null) {
 			return false;
 		}
-		ArrayList<DataSourceType> availableTypes = filterTypes(DataSourceProvider.get(getContext()).getAvailableAgencyTypes());
+		ArrayList<DataSourceType> availableTypes = filterTypes(DataSourceProvider.get(requireContext()).getAvailableAgencyTypes());
 		Set<String> filterTypeIdStrings = PreferenceUtils.getPrefLcl( //
-				getContext(), PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS, PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT);
-		this.filterTypeIds = new HashSet<Integer>();
+				requireContext(), PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS, PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT);
+		this.filterTypeIds = new HashSet<>();
 		boolean hasChanged = false;
-		for (String typeIdString : filterTypeIdStrings) {
-			try {
-				DataSourceType type = DataSourceType.parseId(Integer.parseInt(typeIdString));
-				if (type == null) {
+		if (filterTypeIdStrings != null) {
+			for (String typeIdString : filterTypeIdStrings) {
+				try {
+					DataSourceType type = DataSourceType.parseId(Integer.parseInt(typeIdString));
+					if (type == null) {
+						hasChanged = true;
+						continue;
+					}
+					if (!availableTypes.contains(type)) {
+						hasChanged = true;
+						continue;
+					}
+					this.filterTypeIds.add(type.getId());
+				} catch (Exception e) {
+					MTLog.w(this, e, "Error while parsing filter type ID '%s'!", typeIdString);
 					hasChanged = true;
-					continue;
 				}
-				if (!availableTypes.contains(type)) {
-					hasChanged = true;
-					continue;
-				}
-				this.filterTypeIds.add(type.getId());
-			} catch (Exception e) {
-				MTLog.w(this, e, "Error while parsing filter type ID '%s'!", typeIdString);
-				hasChanged = true;
 			}
 		}
 		if (this.includedTypeId != null) {
@@ -394,7 +397,9 @@ public class MapFragment extends ABFragment implements
 				try {
 					DataSourceType type = DataSourceType.parseId(this.includedTypeId);
 					if (type == null) {
+						// DO NOTHING
 					} else if (!availableTypes.contains(type)) {
+						// DO NOTHING
 					} else {
 						this.filterTypeIds.add(type.getId());
 						hasChanged = true;
@@ -412,7 +417,8 @@ public class MapFragment extends ABFragment implements
 		return this.filterTypeIds != null;
 	}
 
-	private ArrayList<DataSourceType> filterTypes(ArrayList<DataSourceType> availableTypes) {
+	@NonNull
+	private ArrayList<DataSourceType> filterTypes(@NonNull ArrayList<DataSourceType> availableTypes) {
 		Iterator<DataSourceType> it = availableTypes.iterator();
 		while (it.hasNext()) {
 			if (!it.next().isMapScreen()) {
@@ -427,7 +433,7 @@ public class MapFragment extends ABFragment implements
 		if (filterTypeIds == null) {
 			return;
 		}
-		Set<String> newFilterTypeIdStrings = new HashSet<String>();
+		Set<String> newFilterTypeIdStrings = new HashSet<>();
 		for (Integer filterTypeId : filterTypeIds) {
 			newFilterTypeIdStrings.add(String.valueOf(filterTypeId));
 		}
@@ -459,10 +465,10 @@ public class MapFragment extends ABFragment implements
 			if (filterTypeIds == null) {
 				return false;
 			}
-			ArrayList<CharSequence> typeNames = new ArrayList<CharSequence>();
-			ArrayList<Boolean> checked = new ArrayList<Boolean>();
-			final ArrayList<Integer> typeIds = new ArrayList<Integer>();
-			final HashSet<Integer> selectedItems = new HashSet<Integer>();
+			ArrayList<CharSequence> typeNames = new ArrayList<>();
+			ArrayList<Boolean> checked = new ArrayList<>();
+			final ArrayList<Integer> typeIds = new ArrayList<>();
+			final HashSet<Integer> selectedItems = new HashSet<>();
 			ArrayList<DataSourceType> availableAgencyTypes = filterTypes(DataSourceProvider.get(getContext()).getAvailableAgencyTypes());
 			for (DataSourceType type : availableAgencyTypes) {
 				typeIds.add(type.getId());
