@@ -1438,7 +1438,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				availabilityPercentStatusViewHolder.textTv.setVisibility(View.VISIBLE);
 			} else {
 				availabilityPercentStatusViewHolder.textTv.setVisibility(View.GONE);
-				availabilityPercentStatusViewHolder.piePercentV.setValueColors( //
+				availabilityPercentStatusViewHolder.piePercentV.setPiecesColors( //
 						Arrays.asList(
 								new Pair<>(
 										availabilityPercent.getValue1Color(),
@@ -1451,7 +1451,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 										availabilityPercent.getValue2ColorBg())
 						)
 				);
-				availabilityPercentStatusViewHolder.piePercentV.setValues(
+				availabilityPercentStatusViewHolder.piePercentV.setPieces(
 						Arrays.asList(
 								availabilityPercent.getValue1(),
 								availabilityPercent.getValue1SubValue1(),

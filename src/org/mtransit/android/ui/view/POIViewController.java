@@ -502,7 +502,7 @@ public class POIViewController implements MTLog.Loggable {
 				availabilityPercentStatusViewHolder.textTv.setVisibility(View.VISIBLE);
 			} else {
 				availabilityPercentStatusViewHolder.textTv.setVisibility(View.GONE);
-				availabilityPercentStatusViewHolder.piePercentV.setValueColors( //
+				availabilityPercentStatusViewHolder.piePercentV.setPiecesColors( //
 						Arrays.asList(
 								new Pair<>(
 										availabilityPercent.getValue1Color(), //
@@ -515,7 +515,7 @@ public class POIViewController implements MTLog.Loggable {
 										availabilityPercent.getValue2ColorBg()) //
 						)
 				);
-				availabilityPercentStatusViewHolder.piePercentV.setValues(
+				availabilityPercentStatusViewHolder.piePercentV.setPieces(
 						Arrays.asList(
 								availabilityPercent.getValue1(),
 								availabilityPercent.getValue1SubValue1(),

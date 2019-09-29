@@ -36,7 +36,7 @@ public class MTPieChartPercentView extends MTView {
 	private RectF bounds;
 
 	@NonNull
-	private final List<Piece> values = new ArrayList<>();
+	private final List<Piece> pieces = new ArrayList<>();
 
 	public MTPieChartPercentView(@NonNull Context context) {
 		super(context);
@@ -56,73 +56,78 @@ public class MTPieChartPercentView extends MTView {
 		if (isInEditMode()) {
 			return;
 		}
-		init(ThemeUtils.obtainStyledInteger(context, attrs, R.styleable.MTPieChart, R.styleable.MTPieChart_mtPieCharPieces, 0));
+		init(
+				ThemeUtils.obtainStyledInteger(context, attrs, R.styleable.MTPieChart, R.styleable.MTPieChart_mtPieCharPieces, 0)
+		);
 	}
 
 	private void init(int count) {
-		this.values.clear();
+		this.pieces.clear();
 		for (int i = 0; i < count; i++) {
-			values.add(new Piece());
+			pieces.add(new Piece());
 		}
 	}
 
-	public void setValueColors(@NonNull List<Pair<Integer, Integer>> valueColors) {
-		if (valueColors.size() != this.values.size()) {
-			MTLog.w(this, "Trying to set wrong number of colors '%d'", valueColors.size());
+	public void setPiecesColors(@NonNull List<Pair<Integer, Integer>> piecesColors) {
+		if (piecesColors.size() != this.pieces.size()) {
+			MTLog.w(this, "Trying to set wrong number of colors '%d'", piecesColors.size());
 			return;
 		}
-		for (int i = 0; i < this.values.size(); i++) {
-			Piece piece = this.values.get(i);
-			Pair<Integer, Integer> valueColor = valueColors.get(i);
-			if (valueColor.first != null) {
-				piece.setValuePaintColor(valueColor.first);
+		for (int i = 0; i < this.pieces.size(); i++) {
+			Piece piece = this.pieces.get(i);
+			Pair<Integer, Integer> pieceColor = piecesColors.get(i);
+			if (pieceColor.first != null) {
+				piece.setPaintColor(pieceColor.first);
 			}
-			if (valueColor.second != null) {
-				piece.setValuePaintBgColor(valueColor.second);
+			if (pieceColor.second != null) {
+				piece.setPaintBgColor(pieceColor.second);
 			}
 		}
 	}
 
-	public void setValues(@NonNull List<Integer> newValues) {
-		if (newValues.size() != this.values.size()) {
-			MTLog.w(this, "Trying to set wrong number of colors '%d'", newValues.size());
+	public void setPieces(@NonNull List<Integer> newSizes) {
+		if (newSizes.size() != this.pieces.size()) {
+			MTLog.w(this, "Trying to set wrong number of color sizes '%d'", newSizes.size());
 			return;
 		}
-		boolean valueChanged = false;
-		for (int i = 0; i < this.values.size(); i++) {
-			Piece piece = this.values.get(i);
-			int newValue = newValues.get(i);
-			if (piece.getValue() != newValue) {
-				piece.setValue(newValue);
-				valueChanged = true;
+		boolean sizesChanged = false;
+		for (int i = 0; i < this.pieces.size(); i++) {
+			Piece piece = this.pieces.get(i);
+			int newSize = newSizes.get(i);
+			if (piece.getSize() != newSize) {
+				piece.setSize(newSize);
+				sizesChanged = true;
 			}
 		}
-		if (!valueChanged) {
+		if (!sizesChanged) {
 			return; // no change
 		}
-		resetValuesAngles();
+		resetSizeAngles();
 	}
 
-	private void resetValuesAngles() {
+	private void resetSizeAngles() {
 		int total = getTotal();
-		float previousValueEndingAngle = DEGREE_90;
-		for (Piece value : this.values) {
-			final float valueAngle = value.value * DEGREE_360 / total;
-			float valueEndingAngle = previousValueEndingAngle + valueAngle;
-			value.valueStartAngle = DEGREE_360 - valueEndingAngle;
-			value.valueSweepAngle = valueEndingAngle - previousValueEndingAngle;
-			previousValueEndingAngle = valueEndingAngle;
+		float previousPieceEndingAngle = DEGREE_90;
+		if (!this.pieces.isEmpty()) {
+			for (int i = this.pieces.size() - 1; i >= 0; i--) { // last first
+				Piece piece = pieces.get(i);
+				final float pieceAngle = piece.getSize() * DEGREE_360 / total;
+				final float pieceEndingAngle = previousPieceEndingAngle + pieceAngle;
+				piece.setStartAngle(DEGREE_360 - pieceEndingAngle);
+				piece.setSweepAngle(pieceEndingAngle - previousPieceEndingAngle);
+				previousPieceEndingAngle = pieceEndingAngle;
+			}
 		}
 		invalidate();
 	}
 
 	public int getTotal() {
 		int total = 0;
-		for (Piece value : this.values) {
-			if (value.value < 0) {
+		for (Piece piece : this.pieces) {
+			if (piece.getSize() < 0) {
 				return -1; // not ready
 			}
-			total += value.value;
+			total += piece.getSize();
 		}
 		return total;
 	}
@@ -131,11 +136,11 @@ public class MTPieChartPercentView extends MTView {
 	protected void onDraw(@NonNull Canvas canvas) {
 		super.onDraw(canvas);
 		if (getTotal() < 0) {
-			return; // values not ready
+			return; // pieces not ready
 		}
-		for (Piece value : this.values) {
-			canvas.drawArc(this.bounds, value.getValueStartAngle(), value.getValueSweepAngle(), true, value.getValuePaint());
-			canvas.drawArc(this.bounds, value.getValueStartAngle(), value.getValueSweepAngle(), false, value.getValuePaintBg());
+		for (Piece piece : this.pieces) {
+			canvas.drawArc(this.bounds, piece.getStartAngle(), piece.getSweepAngle(), true, piece.getPaint());
+			canvas.drawArc(this.bounds, piece.getStartAngle(), piece.getSweepAngle(), false, piece.getPaintBg());
 		}
 	}
 
@@ -165,58 +170,66 @@ public class MTPieChartPercentView extends MTView {
 	public static class Piece {
 
 		@NonNull
-		private final Paint valuePaint;
+		private final Paint paint;
 		@NonNull
-		private final Paint valuePaintBg;
+		private final Paint paintBg;
 
-		private int value = -1;
-		private float valueStartAngle;
-		private float valueSweepAngle;
+		private int size = -1;
+		private float startAngle;
+		private float sweepAngle;
 
 		Piece() {
-			this.valuePaint = new Paint();
-			this.valuePaint.setStyle(Paint.Style.FILL);
-			this.valuePaint.setColor(Color.BLACK);
-			this.valuePaint.setAntiAlias(true);
+			this.paint = new Paint();
+			this.paint.setStyle(Paint.Style.FILL);
+			this.paint.setColor(Color.BLACK);
+			this.paint.setAntiAlias(true);
 
-			this.valuePaintBg = new Paint();
-			this.valuePaintBg.setStyle(Paint.Style.STROKE);
-			this.valuePaintBg.setColor(Color.BLACK);
-			this.valuePaintBg.setAntiAlias(true);
+			this.paintBg = new Paint();
+			this.paintBg.setStyle(Paint.Style.STROKE);
+			this.paintBg.setColor(Color.BLACK);
+			this.paintBg.setAntiAlias(true);
 		}
 
-		int getValue() {
-			return value;
+		int getSize() {
+			return size;
 		}
 
-		void setValue(int value) {
-			this.value = value;
-		}
-
-		@NonNull
-		Paint getValuePaint() {
-			return valuePaint;
-		}
-
-		void setValuePaintColor(@ColorInt int color) {
-			this.valuePaint.setColor(color);
+		void setSize(int size) {
+			this.size = size;
 		}
 
 		@NonNull
-		Paint getValuePaintBg() {
-			return valuePaintBg;
+		Paint getPaint() {
+			return paint;
 		}
 
-		void setValuePaintBgColor(@ColorInt int color) {
-			this.valuePaintBg.setColor(color);
+		void setPaintColor(@ColorInt int color) {
+			this.paint.setColor(color);
 		}
 
-		float getValueStartAngle() {
-			return valueStartAngle;
+		@NonNull
+		Paint getPaintBg() {
+			return paintBg;
 		}
 
-		float getValueSweepAngle() {
-			return valueSweepAngle;
+		void setPaintBgColor(@ColorInt int color) {
+			this.paintBg.setColor(color);
+		}
+
+		float getStartAngle() {
+			return startAngle;
+		}
+
+		void setStartAngle(float startAngle) {
+			this.startAngle = startAngle;
+		}
+
+		float getSweepAngle() {
+			return sweepAngle;
+		}
+
+		void setSweepAngle(float sweepAngle) {
+			this.sweepAngle = sweepAngle;
 		}
 	}
 }
