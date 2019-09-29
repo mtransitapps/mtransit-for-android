@@ -2,6 +2,7 @@ package org.mtransit.android.data;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -542,7 +543,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private WeakReference<OnClickHandledListener> onClickHandledListenerWR;
 
 	public void setOnClickHandledListener(OnClickHandledListener onClickHandledListener) {
-		this.onClickHandledListenerWR = new WeakReference<OnClickHandledListener>(onClickHandledListener);
+		this.onClickHandledListenerWR = new WeakReference<>(onClickHandledListener);
 	}
 
 	public interface OnPOISelectedListener {
@@ -554,7 +555,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private WeakReference<OnPOISelectedListener> onPoiSelectedListenerWR;
 
 	public void setOnPoiSelectedListener(OnPOISelectedListener onPoiSelectedListener) {
-		this.onPoiSelectedListenerWR = new WeakReference<OnPOISelectedListener>(onPoiSelectedListener);
+		this.onPoiSelectedListenerWR = new WeakReference<>(onPoiSelectedListener);
 	}
 
 	public boolean showPoiViewerScreen(int position) {
@@ -634,7 +635,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
-	private HashSet<String> poiUUID = new HashSet<String>();
+	private HashSet<String> poiUUID = new HashSet<>();
 
 	public void appendPois(ArrayList<POIManager> pois) {
 		boolean dataSetChanged = append(pois, false);
@@ -646,7 +647,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private boolean append(ArrayList<POIManager> pois, boolean dataSetChanged) {
 		if (pois != null) {
 			if (this.poisByType == null) {
-				this.poisByType = new LinkedHashMap<Integer, ArrayList<POIManager>>();
+				this.poisByType = new LinkedHashMap<>();
 			}
 			for (POIManager poim : pois) {
 				if (!this.poisByType.containsKey(poim.poi.getDataSourceTypeId())) {
@@ -772,7 +773,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 
 		private UpdateDistanceWithStringTask(POIArrayAdapter poiArrayAdapter) {
-			this.poiArrayAdapterWR = new WeakReference<POIArrayAdapter>(poiArrayAdapter);
+			this.poiArrayAdapterWR = new WeakReference<>(poiArrayAdapter);
 		}
 
 		@Override
@@ -1039,7 +1040,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	public void setActivity(Activity activity) {
-		this.activityWR = new WeakReference<Activity>(activity);
+		this.activityWR = new WeakReference<>(activity);
 	}
 
 	@Override
@@ -1156,7 +1157,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private WeakReference<TypeHeaderButtonsClickListener> typeHeaderButtonsClickListenerWR;
 
 	public void setOnTypeHeaderButtonsClickListener(TypeHeaderButtonsClickListener listener) {
-		this.typeHeaderButtonsClickListenerWR = new WeakReference<TypeHeaderButtonsClickListener>(listener);
+		this.typeHeaderButtonsClickListenerWR = new WeakReference<>(listener);
 	}
 
 	private void onTypeHeaderButtonClick(int buttonId, DataSourceType type) {
@@ -1280,7 +1281,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return convertView;
 	}
 
-	private WeakHashMap<String, CommonStatusViewHolder> poiStatusViewHoldersWR = new WeakHashMap<String, CommonStatusViewHolder>();
+	private WeakHashMap<String, CommonStatusViewHolder> poiStatusViewHoldersWR = new WeakHashMap<>();
 
 	@NonNull
 	private View getBasicPOIView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -1350,7 +1351,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		return layoutRes;
 	}
 
-	private WeakHashMap<MTCompassView, View> compassImgsWR = new WeakHashMap<MTCompassView, View>();
+	private WeakHashMap<MTCompassView, View> compassImgsWR = new WeakHashMap<>();
 
 	private void initCommonViewHolder(CommonViewHolder holder, View convertView, String poiUUID) {
 		holder.view = convertView;
@@ -1438,17 +1439,24 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			} else {
 				availabilityPercentStatusViewHolder.textTv.setVisibility(View.GONE);
 				availabilityPercentStatusViewHolder.piePercentV.setValueColors( //
-						availabilityPercent.getValue1Color(), //
-						availabilityPercent.getValue1ColorBg(), //
-						availabilityPercent.getValue1SubValue1Color(), //
-						availabilityPercent.getValue1SubValue1ColorBg(),//
-						availabilityPercent.getValue2Color(), //
-						availabilityPercent.getValue2ColorBg() //
+						Arrays.asList(
+								new Pair<>(
+										availabilityPercent.getValue1Color(),
+										availabilityPercent.getValue1ColorBg()),
+								new Pair<>(
+										availabilityPercent.getValue1SubValue1Color(),
+										availabilityPercent.getValue1SubValue1ColorBg()),
+								new Pair<>(
+										availabilityPercent.getValue2Color(),
+										availabilityPercent.getValue2ColorBg())
+						)
 				);
 				availabilityPercentStatusViewHolder.piePercentV.setValues(
-						availabilityPercent.getValue1(),
-						availabilityPercent.getValue1SubValue1(),
-						availabilityPercent.getValue2()
+						Arrays.asList(
+								availabilityPercent.getValue1(),
+								availabilityPercent.getValue1SubValue1(),
+								availabilityPercent.getValue2()
+						)
 				);
 				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.VISIBLE);
 			}
@@ -1880,7 +1888,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 
 		private RefreshFavoritesTask(POIArrayAdapter poiArrayAdapter) {
-			this.poiArrayAdapterWR = new WeakReference<POIArrayAdapter>(poiArrayAdapter);
+			this.poiArrayAdapterWR = new WeakReference<>(poiArrayAdapter);
 		}
 
 		@Override
@@ -1915,8 +1923,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			newFav = false; // favorite set before to the same size
 			updatedFav = false; // already set with the same size
 		}
-		HashSet<String> newFavUUIDs = new HashSet<String>();
-		HashMap<String, Integer> newFavUUIDsFolderIds = new HashMap<String, Integer>();
+		HashSet<String> newFavUUIDs = new HashSet<>();
+		HashMap<String, Integer> newFavUUIDsFolderIds = new HashMap<>();
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {
 				String uid = favorite.getFkId();
@@ -1940,9 +1948,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				newFav = true; // favorite never set before
 				updatedFav = false; // never set before so not updated
 			} else {
-				HashSet<Integer> oldFolderIds = new HashSet<Integer>();
+				HashSet<Integer> oldFolderIds = new HashSet<>();
 				oldFolderIds.addAll(this.favUUIDsFolderIds.values());
-				HashSet<Integer> newFolderIds = new HashSet<Integer>();
+				HashSet<Integer> newFolderIds = new HashSet<>();
 				newFolderIds.addAll(newFavUUIDsFolderIds.values());
 				if (CollectionUtils.getSize(oldFolderIds) != CollectionUtils.getSize(newFolderIds)) {
 					newFav = true; // different size => different favorites

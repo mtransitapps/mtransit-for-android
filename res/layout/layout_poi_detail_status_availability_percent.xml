@@ -48,7 +48,7 @@
             android:text=""
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:visibility="gone"
-            tools:text="00 electric bikes"
+            tools:text="00 electric bikes &#9889;"
             tools:visibility="visible" />
 
         <TextView

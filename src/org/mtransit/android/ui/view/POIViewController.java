@@ -1,6 +1,7 @@
 package org.mtransit.android.ui.view;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -502,17 +503,24 @@ public class POIViewController implements MTLog.Loggable {
 			} else {
 				availabilityPercentStatusViewHolder.textTv.setVisibility(View.GONE);
 				availabilityPercentStatusViewHolder.piePercentV.setValueColors( //
-						availabilityPercent.getValue1Color(), //
-						availabilityPercent.getValue1ColorBg(), //
-						availabilityPercent.getValue1SubValue1Color(), //
-						availabilityPercent.getValue1SubValue1ColorBg(), //
-						availabilityPercent.getValue2Color(), //
-						availabilityPercent.getValue2ColorBg() //
+						Arrays.asList(
+								new Pair<>(
+										availabilityPercent.getValue1Color(), //
+										availabilityPercent.getValue1ColorBg()), //
+								new Pair<>(
+										availabilityPercent.getValue1SubValue1Color(), //
+										availabilityPercent.getValue1SubValue1ColorBg()), //
+								new Pair<>(
+										availabilityPercent.getValue2Color(), //
+										availabilityPercent.getValue2ColorBg()) //
+						)
 				);
 				availabilityPercentStatusViewHolder.piePercentV.setValues(
-						availabilityPercent.getValue1(),
-						availabilityPercent.getValue1SubValue1(),
-						availabilityPercent.getValue2()
+						Arrays.asList(
+								availabilityPercent.getValue1(),
+								availabilityPercent.getValue1SubValue1(),
+								availabilityPercent.getValue2()
+						)
 				);
 				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.VISIBLE);
 			}
