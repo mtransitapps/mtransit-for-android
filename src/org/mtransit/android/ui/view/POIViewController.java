@@ -30,9 +30,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.location.Location;
+
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
+
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -40,16 +43,18 @@ import android.widget.TextView;
 
 public class POIViewController implements MTLog.Loggable {
 
-	private static final String TAG = POIViewController.class.getSimpleName();
+	private static final String LOG_TAG = POIViewController.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
+	@LayoutRes
 	public static int getLayoutResId(@NonNull POIManager poim) {
 		if (poim.poi == null) {
-			MTLog.w(TAG, "getLayoutResId() > Unknown view type for poi null!");
+			MTLog.w(LOG_TAG, "getLayoutResId() > Unknown view type for poi null!");
 			return getBasicPOILayout(poim.getStatusType());
 		}
 		switch (poim.poi.getType()) {
@@ -62,7 +67,7 @@ public class POIViewController implements MTLog.Loggable {
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 			return getBasicPOILayout(poim.getStatusType());
 		default:
-			MTLog.w(TAG, "getLayoutResId() > Unknown view type '%s' for poi %s!", poim.poi.getType(), poim);
+			MTLog.w(LOG_TAG, "getLayoutResId() > Unknown view type '%s' for poi %s!", poim.poi.getType(), poim);
 			return getBasicPOILayout(poim.getStatusType());
 		}
 	}
@@ -76,12 +81,13 @@ public class POIViewController implements MTLog.Loggable {
 			layoutRes = R.layout.layout_poi_rts_with_schedule;
 			break;
 		default:
-			MTLog.w(TAG, "Unexpected status '%s' (rts view w/o status)!", status);
+			MTLog.w(LOG_TAG, "Unexpected status '%s' (rts view w/o status)!", status);
 			break;
 		}
 		return layoutRes;
 	}
 
+	@LayoutRes
 	private static int getBasicPOILayout(int status) {
 		int layoutRes = R.layout.layout_poi_basic;
 		switch (status) {
@@ -91,7 +97,7 @@ public class POIViewController implements MTLog.Loggable {
 			layoutRes = R.layout.layout_poi_basic_with_availability_percent;
 			break;
 		default:
-			MTLog.w(TAG, "Unexpected status '%s' (basic view w/o status)!", status);
+			MTLog.w(LOG_TAG, "Unexpected status '%s' (basic view w/o status)!", status);
 			break;
 		}
 		return layoutRes;
@@ -106,7 +112,7 @@ public class POIViewController implements MTLog.Loggable {
 			layoutRes = R.layout.layout_poi_module_with_app_status;
 			break;
 		default:
-			MTLog.w(TAG, "Unexpected status '%s' (module view w/o status)!", status);
+			MTLog.w(LOG_TAG, "Unexpected status '%s' (module view w/o status)!", status);
 			break;
 		}
 		return layoutRes;
@@ -128,7 +134,7 @@ public class POIViewController implements MTLog.Loggable {
 			holder = initBasicViewHolder(poim, view);
 			break;
 		default:
-			MTLog.w(TAG, "initViewHolder() > Unknow view type for poi %s!", poim);
+			MTLog.w(LOG_TAG, "initViewHolder() > Unknow view type for poi %s!", poim);
 			holder = initBasicViewHolder(poim, view);
 		}
 		initCommonViewHolder(holder, view, poim.poi.getUUID());
@@ -139,13 +145,13 @@ public class POIViewController implements MTLog.Loggable {
 
 	private static ServiceUpdateViewHolder initServiceUpdateViewHolder(@NonNull View view) {
 		ServiceUpdateViewHolder holder = new ServiceUpdateViewHolder();
-		holder.warningImg = (ImageView) view.findViewById(R.id.service_update_warning);
+		holder.warningImg = view.findViewById(R.id.service_update_warning);
 		return holder;
 	}
 
 	private static CommonViewHolder initModuleViewHolder(@NonNull POIManager poim, @NonNull View view) {
 		ModuleViewHolder holder = new ModuleViewHolder();
-		holder.moduleExtraTypeImg = (ImageView) view.findViewById(R.id.extra);
+		holder.moduleExtraTypeImg = view.findViewById(R.id.extra);
 		return holder;
 	}
 
@@ -166,9 +172,9 @@ public class POIViewController implements MTLog.Loggable {
 	private static void initRTSExtra(@NonNull View view, @NonNull RouteTripStopViewHolder holder) {
 		holder.rtsExtraV = view.findViewById(R.id.extra);
 		holder.routeFL = view.findViewById(R.id.route);
-		holder.routeShortNameTv = (TextView) view.findViewById(R.id.route_short_name);
-		holder.routeTypeImg = (MTJPathsView) view.findViewById(R.id.route_type_img);
-		holder.tripHeadingTv = (TextView) view.findViewById(R.id.trip_heading);
+		holder.routeShortNameTv = view.findViewById(R.id.route_short_name);
+		holder.routeTypeImg = view.findViewById(R.id.route_type_img);
+		holder.tripHeadingTv = view.findViewById(R.id.trip_heading);
 		holder.tripHeadingBg = view.findViewById(R.id.trip_heading_bg);
 	}
 
@@ -188,7 +194,7 @@ public class POIViewController implements MTLog.Loggable {
 			statusViewHolder = initAppStatusViewHolder(view);
 			break;
 		default:
-			MTLog.w(TAG, "Unexpected status '%s' (no view holder)!", status);
+			MTLog.w(LOG_TAG, "Unexpected status '%s' (no view holder)!", status);
 			break;
 		}
 		if (statusViewHolder != null) {
@@ -199,23 +205,23 @@ public class POIViewController implements MTLog.Loggable {
 
 	private static CommonStatusViewHolder initScheduleViewHolder(@NonNull View view) {
 		ScheduleStatusViewHolder scheduleStatusViewHolder = new ScheduleStatusViewHolder();
-		scheduleStatusViewHolder.dataNextLine1Tv = (TextView) view.findViewById(R.id.data_next_line_1);
-		scheduleStatusViewHolder.dataNextLine2Tv = (TextView) view.findViewById(R.id.data_next_line_2);
+		scheduleStatusViewHolder.dataNextLine1Tv = view.findViewById(R.id.data_next_line_1);
+		scheduleStatusViewHolder.dataNextLine2Tv = view.findViewById(R.id.data_next_line_2);
 		return scheduleStatusViewHolder;
 	}
 
 	@NonNull
 	private static CommonStatusViewHolder initAppStatusViewHolder(@NonNull View view) {
 		AppStatusViewHolder appStatusViewHolder = new AppStatusViewHolder();
-		appStatusViewHolder.textTv = (TextView) view.findViewById(R.id.textTv);
+		appStatusViewHolder.textTv = view.findViewById(R.id.textTv);
 		return appStatusViewHolder;
 	}
 
 	@NonNull
 	private static CommonStatusViewHolder initAvailabilityPercentViewHolder(@NonNull View view) {
 		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = new AvailabilityPercentStatusViewHolder();
-		availabilityPercentStatusViewHolder.textTv = (TextView) view.findViewById(R.id.textTv);
-		availabilityPercentStatusViewHolder.piePercentV = (MTPieChartPercentView) view.findViewById(R.id.pie);
+		availabilityPercentStatusViewHolder.textTv = view.findViewById(R.id.textTv);
+		availabilityPercentStatusViewHolder.piePercentV = view.findViewById(R.id.pie);
 		return availabilityPercentStatusViewHolder;
 	}
 
@@ -224,10 +230,10 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static void initCommonViewHolder(@NonNull CommonViewHolder holder, @NonNull View view, String poiUUID) {
-		holder.nameTv = (TextView) view.findViewById(R.id.name);
-		holder.favImg = (ImageView) view.findViewById(R.id.fav);
-		holder.distanceTv = (TextView) view.findViewById(R.id.distance);
-		holder.compassV = (MTCompassView) view.findViewById(R.id.compass);
+		holder.nameTv = view.findViewById(R.id.name);
+		holder.favImg = view.findViewById(R.id.fav);
+		holder.distanceTv = view.findViewById(R.id.distance);
+		holder.compassV = view.findViewById(R.id.compass);
 	}
 
 	public static void updateView(Context context, @Nullable View view, @Nullable POIManager poim, @NonNull POIDataProvider dataProvider) {
@@ -257,12 +263,12 @@ public class POIViewController implements MTLog.Loggable {
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 			break;
 		default:
-			MTLog.w(TAG, "updateView() > Unknown view type for poi %s!", poim);
+			MTLog.w(LOG_TAG, "updateView() > Unknown view type for poi %s!", poim);
 		}
 	}
 
 	private static void updateModuleExtra(Context context, @NonNull POIManager poim, @NonNull ModuleViewHolder holder, @NonNull POIDataProvider dataProvider) {
-		if (poim.poi != null && poim.poi instanceof Module) {
+		if (poim.poi instanceof Module) {
 			Module module = (Module) poim.poi;
 			holder.moduleExtraTypeImg.setBackgroundColor(poim.getColor(context));
 			DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
@@ -374,14 +380,14 @@ public class POIViewController implements MTLog.Loggable {
 			updateAppStatus(context, statusViewHolder, status);
 			break;
 		default:
-			MTLog.w(TAG, "Unexpected status type '%s'!", status.getType());
+			MTLog.w(LOG_TAG, "Unexpected status type '%s'!", status.getType());
 			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
 	}
 
 	public static void updatePOIStatus(Context context, @Nullable View view, @NonNull POIManager poim, @NonNull POIDataProvider dataProvider) {
 		if (view == null) {
-			MTLog.d(TAG, "updatePOIStatus() > SKIP (no view)");
+			MTLog.d(LOG_TAG, "updatePOIStatus() > SKIP (no view)");
 			return;
 		}
 		if (view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
@@ -414,7 +420,7 @@ public class POIViewController implements MTLog.Loggable {
 			updateAppStatus(context, statusViewHolder, poim, dataProvider);
 			break;
 		default:
-			MTLog.w(TAG, "Unexpected status type '%s'!", poim.getStatusType());
+			MTLog.w(LOG_TAG, "Unexpected status type '%s'!", poim.getStatusType());
 			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
 	}
@@ -431,7 +437,7 @@ public class POIViewController implements MTLog.Loggable {
 
 	private static void updateAppStatus(Context context, @NonNull CommonStatusViewHolder statusViewHolder, @Nullable POIStatus status) {
 		AppStatusViewHolder appStatusViewHolder = (AppStatusViewHolder) statusViewHolder;
-		if (status != null && status instanceof AppStatus) {
+		if (status instanceof AppStatus) {
 			AppStatus appStatus = (AppStatus) status;
 			appStatusViewHolder.textTv.setText(appStatus.getStatusMsg(context));
 			appStatusViewHolder.textTv.setVisibility(View.VISIBLE);
@@ -455,7 +461,7 @@ public class POIViewController implements MTLog.Loggable {
 			@NonNull POIDataProvider dataProvider) {
 		CharSequence line1CS = null;
 		CharSequence line2CS = null;
-		if (status != null && status instanceof Schedule) {
+		if (status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
 			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getStatus( //
 					context, dataProvider.getNowToTheMinute(), TimeUnit.MINUTES.toMillis(30L), null, 10, null);
@@ -481,9 +487,9 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateAvailabilityPercent(Context context, @NonNull CommonStatusViewHolder statusViewHolder, @Nullable POIStatus status) {
+	private static void updateAvailabilityPercent(@NonNull Context context, @NonNull CommonStatusViewHolder statusViewHolder, @Nullable POIStatus status) {
 		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = (AvailabilityPercentStatusViewHolder) statusViewHolder;
-		if (status != null && status instanceof AvailabilityPercent) {
+		if (status instanceof AvailabilityPercent) {
 			AvailabilityPercent availabilityPercent = (AvailabilityPercent) status;
 			if (!availabilityPercent.isStatusOK()) {
 				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.GONE);
@@ -498,10 +504,16 @@ public class POIViewController implements MTLog.Loggable {
 				availabilityPercentStatusViewHolder.piePercentV.setValueColors( //
 						availabilityPercent.getValue1Color(), //
 						availabilityPercent.getValue1ColorBg(), //
+						availabilityPercent.getValue1SubValue1Color(), //
+						availabilityPercent.getValue1SubValue1ColorBg(), //
 						availabilityPercent.getValue2Color(), //
 						availabilityPercent.getValue2ColorBg() //
 				);
-				availabilityPercentStatusViewHolder.piePercentV.setValues(availabilityPercent.getValue1(), availabilityPercent.getValue2());
+				availabilityPercentStatusViewHolder.piePercentV.setValues(
+						availabilityPercent.getValue1(),
+						availabilityPercent.getValue1SubValue1(),
+						availabilityPercent.getValue2()
+				);
 				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.VISIBLE);
 			}
 			statusViewHolder.statusV.setVisibility(View.VISIBLE);
@@ -555,7 +567,7 @@ public class POIViewController implements MTLog.Loggable {
 
 	public static void updatePOIDistanceAndCompass(@Nullable View view, POIManager poim, @NonNull POIDataProvider dataProvider) {
 		if (view == null) {
-			MTLog.d(TAG, "updatePOIDistanceAndCompass() > skip (no view)");
+			MTLog.d(LOG_TAG, "updatePOIDistanceAndCompass() > skip (no view)");
 			return;
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
@@ -564,7 +576,7 @@ public class POIViewController implements MTLog.Loggable {
 
 	private static void updatePOIDistanceAndCompass(CommonViewHolder holder, POIManager poim, @NonNull POIDataProvider dataProvider) {
 		if (poim == null || poim.poi == null || holder == null) {
-			MTLog.d(TAG, "updatePOIDistanceAndCompass() > skip (no poi or view holder)");
+			MTLog.d(LOG_TAG, "updatePOIDistanceAndCompass() > skip (no poi or view holder)");
 			return;
 		}
 		holder.compassV.setLatLng(poim.getLat(), poim.getLng());

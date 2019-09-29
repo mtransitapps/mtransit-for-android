@@ -46,6 +46,7 @@ import org.mtransit.android.ui.view.MTOnLongClickListener;
 import org.mtransit.android.ui.view.MTPieChartPercentView;
 import org.mtransit.android.util.CrashUtils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
@@ -454,7 +455,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header, parent, false);
 			}
-			LinearLayout gridLL = (LinearLayout) convertView.findViewById(R.id.gridLL);
+			LinearLayout gridLL = convertView.findViewById(R.id.gridLL);
 			gridLL.removeAllViews();
 			ArrayList<DataSourceType> allAgencyTypes = dataSourceProvider == null ? null : dataSourceProvider.getAvailableAgencyTypes();
 			this.nbAgencyTypes = CollectionUtils.getSize(allAgencyTypes);
@@ -478,7 +479,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 						availableButtons = 2;
 					}
 					btn = gridLine.findViewById(availableButtons == 2 ? R.id.btn1 : R.id.btn2);
-					btnTv = (TextView) gridLine.findViewById(availableButtons == 2 ? R.id.btn1Tv : R.id.btn2Tv);
+					btnTv = gridLine.findViewById(availableButtons == 2 ? R.id.btn1Tv : R.id.btn2Tv);
 					btnTv.setText(dst.getAllStringResId());
 					if (dst.getWhiteIconResId() != -1) {
 						btnTv.setCompoundDrawablesWithIntrinsicBounds(dst.getWhiteIconResId(), 0, 0, 0);
@@ -906,7 +907,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					view = ((FrameLayout) view).getChildAt(0);
 				}
 				Object tag = view == null ? null : view.getTag();
-				if (tag != null && tag instanceof CommonViewHolder) {
+				if (tag instanceof CommonViewHolder) {
 					POIManager poim = getItem(position);
 					if (poim != null) {
 						updateCommonViewManual(poim, view);
@@ -963,6 +964,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
+	@SuppressLint("ClickableViewAccessibility") // TODO Accessibility
 	public void setManualScrollView(ScrollView scrollView) {
 		this.manualScrollView = scrollView;
 		if (scrollView == null) {
@@ -1208,10 +1210,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			int layoutRes = getTypeHeaderLayoutResId();
 			convertView = this.layoutInflater.inflate(layoutRes, parent, false);
 			TypeHeaderViewHolder holder = new TypeHeaderViewHolder();
-			holder.nameTv = (TextView) convertView.findViewById(R.id.name);
+			holder.nameTv = convertView.findViewById(R.id.name);
 			holder.nearbyBtn = convertView.findViewById(R.id.nearbyBtn);
 			holder.allBtn = convertView.findViewById(R.id.allBtn);
-			holder.allBtnTv = (TextView) convertView.findViewById(R.id.allBtnTv);
+			holder.allBtnTv = convertView.findViewById(R.id.allBtnTv);
 			holder.moreBtn = convertView.findViewById(R.id.moreBtn);
 			convertView.setTag(holder);
 		}
@@ -1251,7 +1253,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_header_with_delete, parent, false);
 			FavoriteFolderHeaderViewHolder holder = new FavoriteFolderHeaderViewHolder();
-			holder.nameTv = (TextView) convertView.findViewById(R.id.name);
+			holder.nameTv = convertView.findViewById(R.id.name);
 			holder.renameBtn = convertView.findViewById(R.id.renameBtn);
 			holder.deleteBtn = convertView.findViewById(R.id.deleteBtn);
 			convertView.setTag(holder);
@@ -1312,23 +1314,23 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private CommonStatusViewHolder initScheduleViewHolder(View convertView) {
 		ScheduleStatusViewHolder scheduleStatusViewHolder = new ScheduleStatusViewHolder();
 		initCommonStatusViewHolderHolder(scheduleStatusViewHolder, convertView);
-		scheduleStatusViewHolder.dataNextLine1Tv = (TextView) convertView.findViewById(R.id.data_next_line_1);
-		scheduleStatusViewHolder.dataNextLine2Tv = (TextView) convertView.findViewById(R.id.data_next_line_2);
+		scheduleStatusViewHolder.dataNextLine1Tv = convertView.findViewById(R.id.data_next_line_1);
+		scheduleStatusViewHolder.dataNextLine2Tv = convertView.findViewById(R.id.data_next_line_2);
 		return scheduleStatusViewHolder;
 	}
 
 	private CommonStatusViewHolder initAppStatusViewHolder(View convertView) {
 		AppStatusViewHolder appStatusViewHolder = new AppStatusViewHolder();
 		initCommonStatusViewHolderHolder(appStatusViewHolder, convertView);
-		appStatusViewHolder.textTv = (TextView) convertView.findViewById(R.id.textTv);
+		appStatusViewHolder.textTv = convertView.findViewById(R.id.textTv);
 		return appStatusViewHolder;
 	}
 
 	private CommonStatusViewHolder initAvailabilityPercentViewHolder(View convertView) {
 		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = new AvailabilityPercentStatusViewHolder();
 		initCommonStatusViewHolderHolder(availabilityPercentStatusViewHolder, convertView);
-		availabilityPercentStatusViewHolder.textTv = (TextView) convertView.findViewById(R.id.textTv);
-		availabilityPercentStatusViewHolder.piePercentV = (MTPieChartPercentView) convertView.findViewById(R.id.pie);
+		availabilityPercentStatusViewHolder.textTv = convertView.findViewById(R.id.textTv);
+		availabilityPercentStatusViewHolder.piePercentV = convertView.findViewById(R.id.pie);
 		return availabilityPercentStatusViewHolder;
 	}
 
@@ -1352,16 +1354,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private void initCommonViewHolder(CommonViewHolder holder, View convertView, String poiUUID) {
 		holder.view = convertView;
-		holder.nameTv = (TextView) convertView.findViewById(R.id.name);
-		holder.favImg = (ImageView) convertView.findViewById(R.id.fav);
-		holder.locationTv = (TextView) convertView.findViewById(R.id.location);
-		holder.distanceTv = (TextView) convertView.findViewById(R.id.distance);
-		holder.compassV = (MTCompassView) convertView.findViewById(R.id.compass);
+		holder.nameTv = convertView.findViewById(R.id.name);
+		holder.favImg = convertView.findViewById(R.id.fav);
+		holder.locationTv = convertView.findViewById(R.id.location);
+		holder.distanceTv = convertView.findViewById(R.id.distance);
+		holder.compassV = convertView.findViewById(R.id.compass);
 	}
 
 	private static void initCommonStatusViewHolderHolder(CommonStatusViewHolder holder, View convertView) {
 		holder.statusV = convertView.findViewById(R.id.status);
-		holder.warningImg = (ImageView) convertView.findViewById(R.id.service_update_warning);
+		holder.warningImg = convertView.findViewById(R.id.service_update_warning);
 	}
 
 	@NonNull
@@ -1387,7 +1389,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private void updateAppStatus(CommonStatusViewHolder statusViewHolder, POIStatus status) {
 		AppStatusViewHolder appStatusViewHolder = (AppStatusViewHolder) statusViewHolder;
-		if (status != null && status instanceof AppStatus) {
+		if (status instanceof AppStatus) {
 			AppStatus appStatus = (AppStatus) status;
 			appStatusViewHolder.textTv.setText(appStatus.getStatusMsg(getContext()));
 			appStatusViewHolder.textTv.setVisibility(View.VISIBLE);
@@ -1423,7 +1425,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private void updateAvailabilityPercent(CommonStatusViewHolder statusViewHolder, POIStatus status) {
 		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = (AvailabilityPercentStatusViewHolder) statusViewHolder;
-		if (status != null && status instanceof AvailabilityPercent) {
+		if (status instanceof AvailabilityPercent) {
 			AvailabilityPercent availabilityPercent = (AvailabilityPercent) status;
 			if (!availabilityPercent.isStatusOK()) {
 				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.GONE);
@@ -1438,10 +1440,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				availabilityPercentStatusViewHolder.piePercentV.setValueColors( //
 						availabilityPercent.getValue1Color(), //
 						availabilityPercent.getValue1ColorBg(), //
+						availabilityPercent.getValue1SubValue1Color(), //
+						availabilityPercent.getValue1SubValue1ColorBg(),//
 						availabilityPercent.getValue2Color(), //
 						availabilityPercent.getValue2ColorBg() //
 				);
-				availabilityPercentStatusViewHolder.piePercentV.setValues(availabilityPercent.getValue1(), availabilityPercent.getValue2());
+				availabilityPercentStatusViewHolder.piePercentV.setValues(
+						availabilityPercent.getValue1(),
+						availabilityPercent.getValue1SubValue1(),
+						availabilityPercent.getValue2()
+				);
 				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.VISIBLE);
 			}
 			statusViewHolder.statusV.setVisibility(View.VISIBLE);
@@ -1517,7 +1525,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	private void updateModuleExtra(POIManager poim, ModuleViewHolder holder) {
-		if (this.showExtra && poim.poi != null && poim.poi instanceof Module) {
+		if (this.showExtra && poim.poi instanceof Module) {
 			Module module = (Module) poim.poi;
 			holder.moduleExtraTypeImg.setBackgroundColor(poim.getColor(getContext()));
 			DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
@@ -1565,9 +1573,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private void initRTSExtra(@NonNull View convertView, @NonNull RouteTripStopViewHolder holder) {
 		holder.rtsExtraV = convertView.findViewById(R.id.extra);
 		holder.routeFL = convertView.findViewById(R.id.route);
-		holder.routeShortNameTv = (TextView) convertView.findViewById(R.id.route_short_name);
-		holder.routeTypeImg = (MTJPathsView) convertView.findViewById(R.id.route_type_img);
-		holder.tripHeadingTv = (TextView) convertView.findViewById(R.id.trip_heading);
+		holder.routeShortNameTv = convertView.findViewById(R.id.route_short_name);
+		holder.routeTypeImg = convertView.findViewById(R.id.route_type_img);
+		holder.tripHeadingTv = convertView.findViewById(R.id.trip_heading);
 		holder.tripHeadingBg = convertView.findViewById(R.id.trip_heading_bg);
 	}
 
@@ -1643,7 +1651,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					@Override
 					public void onClickMT(View view) {
 						Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
-						if (activity == null || !(activity instanceof MainActivity)) {
+						if (!(activity instanceof MainActivity)) {
 							MTLog.w(POIArrayAdapter.this, "No activity available to open RTS fragment!");
 							return;
 						}
@@ -1723,7 +1731,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private void updateRTSSchedule(CommonStatusViewHolder statusViewHolder, POIStatus status) {
 		CharSequence line1CS = null;
 		CharSequence line2CS = null;
-		if (status != null && status instanceof Schedule) {
+		if (status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
 			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getStatus(getContext(), getNowToTheMinute(), TimeUnit.MINUTES.toMillis(30), null, 10,
 					null);

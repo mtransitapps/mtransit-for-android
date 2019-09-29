@@ -1,5 +1,7 @@
 package org.mtransit.android.data;
 
+import androidx.annotation.NonNull;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mtransit.android.commons.MTLog;
@@ -83,6 +85,7 @@ public class TextMessage extends DefaultPOI {
 
 	private String uuid = null;
 
+	@NonNull
 	@Override
 	public String getUUID() {
 		if (this.uuid == null) {
