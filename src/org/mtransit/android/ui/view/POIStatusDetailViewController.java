@@ -218,12 +218,14 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 				availabilityPercentStatusViewHolder.textTv1.setText(availabilityPercent.getStatusMsg(context));
 				availabilityPercentStatusViewHolder.textTv1.setVisibility(View.VISIBLE);
 			} else {
-				availabilityPercentStatusViewHolder.textTv1.setText(availabilityPercent.getValue1Text(context, true));
-				availabilityPercentStatusViewHolder.textTv1.setVisibility(View.VISIBLE);
 				final CharSequence value1SubValue1Text = availabilityPercent.getValue1SubValue1Text(context);
-				if (value1SubValue1Text  == null) {
+				if (value1SubValue1Text == null) { // NO SUB-VALUE
+					availabilityPercentStatusViewHolder.textTv1.setText(availabilityPercent.getValue1Text(context, false));
+					availabilityPercentStatusViewHolder.textTv1.setVisibility(View.VISIBLE);
 					availabilityPercentStatusViewHolder.textTv1SubValue1.setVisibility(View.GONE);
-				} else {
+				} else { // WITH SUB-VALUE
+					availabilityPercentStatusViewHolder.textTv1.setText(availabilityPercent.getValue1SubValueDefaultText(context));
+					availabilityPercentStatusViewHolder.textTv1.setVisibility(View.VISIBLE);
 					availabilityPercentStatusViewHolder.textTv1SubValue1.setText(value1SubValue1Text);
 					availabilityPercentStatusViewHolder.textTv1SubValue1.setVisibility(View.VISIBLE);
 				}

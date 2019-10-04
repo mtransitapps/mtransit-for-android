@@ -93,9 +93,10 @@ public class MTPieChartPercentView extends MTView {
 		boolean sizesChanged = false;
 		for (int i = 0; i < this.pieces.size(); i++) {
 			Piece piece = this.pieces.get(i);
-			int newSize = newSizes.get(i);
-			if (piece.getSize() != newSize) {
-				piece.setSize(newSize);
+			Integer newSize = newSizes.get(i);
+			int newSizeI = newSize == null ? 0 : newSize;
+			if (piece.getSize() != newSizeI) {
+				piece.setSize(newSizeI);
 				sizesChanged = true;
 			}
 		}
