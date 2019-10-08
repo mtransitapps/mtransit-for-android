@@ -91,7 +91,6 @@
     <string name="favorite_folder_deleted_and_folder_name">Dosssier %s supprimé.</string>
     <string name="favorite_folder_deletion_confirmation_title_and_name">Supprimer %s ?</string>
     <string name="favorite_folder_deletion_confirmation_text_and_name">Êtes-vous sur de vouloir supprimer le dossier %s ?</string>
-    <string name="favorite_folder_edited">Dosssier renomé.</string>
     <string name="favorite_folder_edited_and_folder">Dosssier renomé à %s.</string>
     <string name="favorite_folder_empty">(vide)</string>
     <string name="favorite_folder_pick">Sélectionner le dossier</string>

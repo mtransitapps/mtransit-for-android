@@ -49,7 +49,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	public ThreadPoolExecutor getFetchServiceUpdateExecutor() {
 		if (this.fetchServiceUpdateExecutor == null) {
 			this.fetchServiceUpdateExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS,
-					new LIFOBlockingDeque<Runnable>());
+					new LIFOBlockingDeque<>());
 		}
 		return fetchServiceUpdateExecutor;
 	}
@@ -98,10 +98,10 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 
 		public ServiceUpdateFetcherCallable(Context context, ServiceUpdateLoader.ServiceUpdateLoaderListener listener,
 				ServiceUpdateProviderProperties serviceUpdateProvider, POIManager poim, ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
-			this.contextWR = new WeakReference<Context>(context);
+			this.contextWR = new WeakReference<>(context);
 			this.listener = listener;
 			this.serviceUpdateProvider = serviceUpdateProvider;
-			this.poiWR = new WeakReference<POIManager>(poim);
+			this.poiWR = new WeakReference<>(poim);
 			this.serviceUpdateFilter = serviceUpdateFilter;
 		}
 
@@ -131,7 +131,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 			listener.onServiceUpdatesLoaded(poim.poi.getUUID(), poim.getServiceUpdatesOrNull());
 		}
 
-		public ArrayList<ServiceUpdate> call() throws Exception {
+		public ArrayList<ServiceUpdate> call() {
 			Context context = this.contextWR == null ? null : this.contextWR.get();
 			if (context == null) {
 				return null;

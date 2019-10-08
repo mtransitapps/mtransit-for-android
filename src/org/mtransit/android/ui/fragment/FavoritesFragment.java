@@ -83,12 +83,9 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		View view = getView();
 		if (this.modulesUpdated) {
 			if (view != null) {
-				view.post(new Runnable() {
-					@Override
-					public void run() {
-						if (FavoritesFragment.this.modulesUpdated) {
-							onModulesUpdated();
-						}
+				view.post(() -> {
+					if (FavoritesFragment.this.modulesUpdated) {
+						onModulesUpdated();
 					}
 				});
 			}

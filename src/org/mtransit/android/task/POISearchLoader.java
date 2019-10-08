@@ -58,7 +58,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			return this.pois;
 		}
 		clearAllSearchTypesTasks();
-		this.pois = new ArrayList<POIManager>();
+		this.pois = new ArrayList<>();
 		if (TextUtils.isEmpty(this.query)) {
 			return this.pois;
 		}
@@ -70,11 +70,11 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			agencyTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
 			keepAll = false;
 		} else {
-			agencyTypes = new ArrayList<DataSourceType>();
+			agencyTypes = new ArrayList<>();
 			agencyTypes.add(DataSourceType.parseId(this.typeFilter.getDataSourceTypeId()));
 			keepAll = true;
 		}
-		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
+		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<>();
 		if (agencyTypes != null) {
 			for (DataSourceType agencyType : agencyTypes) {
 				if (!agencyType.isSearchable()) {
@@ -107,7 +107,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 	public ThreadPoolExecutor getFetchSearchTypeExecutor() {
 		if (this.fetchSearchTypeExecutor == null) {
 			this.fetchSearchTypeExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS,
-					new LinkedBlockingDeque<Runnable>());
+					new LinkedBlockingDeque<>());
 		}
 		return fetchSearchTypeExecutor;
 	}
@@ -161,7 +161,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 		private POISearchComparator poiSearchComparator;
 
 		public FindSearchTypeTask(Context context, DataSourceType agencyType, String query, boolean keepAll, Location userLocation,
-				POISearchComparator poiSearchComparator) {
+								  POISearchComparator poiSearchComparator) {
 			this.context = context;
 			this.agencyType = agencyType;
 			this.query = query;
@@ -171,20 +171,20 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 		}
 
 		@Override
-		public ArrayList<POIManager> callMT() throws Exception {
+		public ArrayList<POIManager> callMT() {
 			if (TextUtils.isEmpty(this.query)) {
 				return null;
 			}
 			clearFetchAgencySearchTasks();
 			ArrayList<AgencyProperties> agencies = DataSourceProvider.get(this.context).getTypeDataSources(this.context, this.agencyType.getId());
-			ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
+			ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<>();
 			if (agencies != null) {
 				for (AgencyProperties agency : agencies) {
 					FindSearchTask task = new FindSearchTask(this.context, agency, this.query, this.userLocation);
 					taskList.add(getFetchAgencySearchExecutor().submit(task));
 				}
 			}
-			ArrayList<POIManager> typePois = new ArrayList<POIManager>();
+			ArrayList<POIManager> typePois = new ArrayList<>();
 			for (Future<ArrayList<POIManager>> future : taskList) {
 				try {
 					ArrayList<POIManager> agencyPOIs = future.get();
@@ -199,7 +199,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			LocationUtils.updateDistance(typePois, this.userLocation);
 			CollectionUtils.sort(typePois, this.poiSearchComparator);
 			if (!this.keepAll && typePois.size() > 2) {
-				typePois = new ArrayList<POIManager>(typePois.subList(0, 2));
+				typePois = new ArrayList<>(typePois.subList(0, 2));
 			}
 			return typePois;
 		}
@@ -213,7 +213,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 		public ThreadPoolExecutor getFetchAgencySearchExecutor() {
 			if (this.fetchAgencySearchExecutor == null) {
 				this.fetchAgencySearchExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS,
-						new LinkedBlockingDeque<Runnable>());
+						new LinkedBlockingDeque<>());
 			}
 			return fetchAgencySearchExecutor;
 		}
@@ -291,7 +291,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 		}
 
 		@Override
-		public ArrayList<POIManager> callMT() throws Exception {
+		public ArrayList<POIManager> callMT() {
 			if (TextUtils.isEmpty(this.query)) {
 				return null;
 			}

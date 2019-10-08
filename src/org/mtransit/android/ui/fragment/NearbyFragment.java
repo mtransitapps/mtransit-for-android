@@ -33,14 +33,18 @@ import android.location.Address;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.google.android.material.tabs.TabLayout;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -86,7 +90,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private static NearbyFragment newInstance(Location optNearbyLocation, Integer optTypeId, Double optFixedOnLat, Double optFixedOnLng, String optFixedOnName,
-			Integer optFixedOnColor) {
+											  Integer optFixedOnColor) {
 		NearbyFragment f = new NearbyFragment();
 		Bundle args = new Bundle();
 		if (optTypeId != null) {
@@ -279,12 +283,9 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		View view = getView();
 		if (this.modulesUpdated) {
 			if (view != null) {
-				view.post(new Runnable() {
-					@Override
-					public void run() {
-						if (NearbyFragment.this.modulesUpdated) {
-							onModulesUpdated();
-						}
+				view.post(() -> {
+					if (NearbyFragment.this.modulesUpdated) {
+						onModulesUpdated();
 					}
 				});
 			}
@@ -595,27 +596,21 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		return this.locationToast;
 	}
 
+	@SuppressLint("ClickableViewAccessibility")
 	private void initLocationPopup() {
 		this.locationToast = ToastUtils.getNewTouchableToast(getContext(), R.drawable.toast_frame_old, R.string.new_location_toast);
 		if (this.locationToast != null) {
-			this.locationToast.setTouchInterceptor(new View.OnTouchListener() {
-				@SuppressLint("ClickableViewAccessibility")
-				@Override
-				public boolean onTouch(View v, MotionEvent me) {
-					if (me.getAction() == MotionEvent.ACTION_DOWN) {
-						boolean handled = initiateRefresh();
-						hideLocationToast();
-						return handled;
-					}
-					return false; // not handled
+			this.locationToast.setTouchInterceptor((v, me) -> {
+				if (me.getAction() == MotionEvent.ACTION_DOWN) {
+					boolean handled = initiateRefresh();
+					hideLocationToast();
+					return handled;
 				}
+				return false; // not handled
 			});
-			this.locationToast.setOnDismissListener(new PopupWindow.OnDismissListener() {
-				@Override
-				public void onDismiss() {
-					NearbyFragment.this.toastShown = false;
-				}
-			});
+			this.locationToast.setOnDismissListener(() ->
+					NearbyFragment.this.toastShown = false
+			);
 		}
 	}
 
@@ -652,12 +647,9 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		getAbController().setABReady(this, isABReady(), true);
 		View view = getView();
 		if (view != null) {
-			view.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					findNearbyLocation();
-				}
-			}, TimeUnit.SECONDS.toMillis(1));
+			view.postDelayed(
+					this::findNearbyLocation,
+					TimeUnit.SECONDS.toMillis(1));
 		}
 	}
 
@@ -665,7 +657,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		java.util.Set<Fragment> fragments = getChildFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
-				if (fragment != null && fragment instanceof NearbyFragment.NearbyLocationListener) {
+				if (fragment instanceof NearbyLocationListener) {
 					((NearbyFragment.NearbyLocationListener) fragment).onNearbyLocationChanged(location);
 				}
 			}

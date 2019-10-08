@@ -17,7 +17,7 @@ class CircleManager {
 
 	public CircleManager(IGoogleMap factory) {
 		this.factory = factory;
-		this.circles = new ArrayMap<com.google.android.gms.maps.model.Circle, Circle>();
+		this.circles = new ArrayMap<>();
 	}
 
 	@Deprecated
@@ -40,7 +40,7 @@ class CircleManager {
 	}
 
 	public List<Circle> getCircles() {
-		return new ArrayList<Circle>(circles.values());
+		return new ArrayList<>(circles.values());
 	}
 
 	public void onRemove(com.google.android.gms.maps.model.Circle real) {

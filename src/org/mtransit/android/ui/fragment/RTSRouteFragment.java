@@ -136,12 +136,9 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		View view = getView();
 		if (this.modulesUpdated) {
 			if (view != null) {
-				view.post(new Runnable() {
-					@Override
-					public void run() {
-						if (RTSRouteFragment.this.modulesUpdated) {
-							onModulesUpdated();
-						}
+				view.post(() -> {
+					if (RTSRouteFragment.this.modulesUpdated) {
+						onModulesUpdated();
 					}
 				});
 			}
@@ -461,9 +458,9 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (view == null) {
 			return;
 		}
-		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		ViewPager viewPager = view.findViewById(R.id.viewpager);
 		viewPager.addOnPageChangeListener(this);
-		TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
+		TabLayout tabs = view.findViewById(R.id.tabs);
 		viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
 		tabs.setOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
 		setupTabTheme(view);
@@ -474,9 +471,9 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (view == null) {
 			return;
 		}
-		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		ViewPager viewPager = view.findViewById(R.id.viewpager);
 		viewPager.setAdapter(this.adapter);
-		TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
+		TabLayout tabs = view.findViewById(R.id.tabs);
 		tabs.setupWithViewPager(viewPager);
 		notifyTabDataChanged(view);
 		showSelectedTab(view);
@@ -500,7 +497,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 					new LoadLastPageSelectedFromUserPreference(this, this.authority, this.routeId, this.tripId, getRouteTripsOrNull()));
 			return;
 		}
-		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		ViewPager viewPager = view.findViewById(R.id.viewpager);
 		viewPager.setCurrentItem(this.lastPageSelected);
 		MTLog.d(this, "showSelectedTab() > switchView()");
 		switchView(view);
@@ -512,7 +509,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 		Integer abBgColor = getABBgColor(getContext());
 		if (abBgColor != null) {
-			TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
+			TabLayout tabs = view.findViewById(R.id.tabs);
 			tabs.setBackgroundColor(abBgColor);
 		}
 	}
@@ -679,7 +676,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.menu_rts_route, menu);
 		this.listMapToggleMenuItem = menu.findItem(R.id.menu_toggle_list_map);
-		this.listMapSwitchMenuItem = (SwitchCompat) this.listMapToggleMenuItem.getActionView().findViewById(R.id.action_bar_switch_list_map);
+		this.listMapSwitchMenuItem = this.listMapToggleMenuItem.getActionView().findViewById(R.id.action_bar_switch_list_map);
 		this.listMapSwitchMenuItem.setThumbDrawable(getListMapToggleSelector());
 		this.listMapSwitchMenuItem.setOnCheckedChangeListener(this);
 		updateListMapToggleMenuItem();
@@ -744,7 +741,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		java.util.Set<Fragment> fragments = getChildFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
-				if (fragment != null && fragment instanceof RTSTripStopsFragment) {
+				if (fragment instanceof RTSTripStopsFragment) {
 					((RTSTripStopsFragment) fragment).setShowingListInsteadOfMap(this.showingListInsteadOfMap);
 				}
 			}
@@ -788,13 +785,13 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		private WeakReference<Context> contextWR;
 		private int lastVisibleFragmentPosition = -1;
 		private String authority;
-		private int stopId = -1;
+		private int stopId;
 		private boolean showingListInsteadOfMap;
 
 		public RouteTripPagerAdapter(Context context, RTSRouteFragment fragment, ArrayList<Trip> routeTrips, String authority, Route optRoute, int stopId,
 				boolean showingListInsteadOfMap) {
 			super(fragment.getChildFragmentManager());
-			this.contextWR = new WeakReference<Context>(context);
+			this.contextWR = new WeakReference<>(context);
 			this.routeTrips = routeTrips;
 			this.authority = authority;
 			this.stopId = stopId;

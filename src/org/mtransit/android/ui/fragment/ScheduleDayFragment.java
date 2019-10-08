@@ -567,11 +567,11 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private int timesCount = 0;
 
-		private SparseArray<ArrayList<Schedule.Timestamp>> hourToTimes = new SparseArray<ArrayList<Schedule.Timestamp>>();
+		private SparseArray<ArrayList<Schedule.Timestamp>> hourToTimes = new SparseArray<>();
 
 		private boolean initialized = false;
 
-		private ArrayList<Date> hours = new ArrayList<Date>();
+		private ArrayList<Date> hours = new ArrayList<>();
 
 		private LayoutInflater layoutInflater;
 
@@ -610,7 +610,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		}
 
 		public void setActivity(FragmentActivity activity) {
-			this.activityWR = new WeakReference<FragmentActivity>(activity);
+			this.activityWR = new WeakReference<>(activity);
 		}
 
 		public void onPause() {
@@ -624,7 +624,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 				cal = (Calendar) this.dayStartsAt.clone();
 				cal.set(Calendar.HOUR_OF_DAY, hourOfTheDay);
 				this.hours.add(cal.getTime());
-				this.hourToTimes.put(hourOfTheDay, new ArrayList<Schedule.Timestamp>());
+				this.hourToTimes.put(hourOfTheDay, new ArrayList<>());
 			}
 		}
 
@@ -858,7 +858,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_time, parent, false);
 				TimeViewHolder holder = new TimeViewHolder();
-				holder.timeTv = (TextView) convertView.findViewById(R.id.time);
+				holder.timeTv = convertView.findViewById(R.id.time);
 				convertView.setTag(holder);
 			}
 			updateTimeView(position, convertView);
@@ -944,7 +944,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_hour_separator, parent, false);
 				HourSperatorViewHolder holder = new HourSperatorViewHolder();
-				holder.hourTv = (TextView) convertView.findViewById(R.id.hour);
+				holder.hourTv = convertView.findViewById(R.id.hour);
 				convertView.setTag(holder);
 			}
 			updateHourSeparatorView(position, convertView);

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.WeakHashMap;
@@ -651,7 +650,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			}
 			for (POIManager poim : pois) {
 				if (!this.poisByType.containsKey(poim.poi.getDataSourceTypeId())) {
-					this.poisByType.put(poim.poi.getDataSourceTypeId(), new ArrayList<POIManager>());
+					this.poisByType.put(poim.poi.getDataSourceTypeId(), new ArrayList<>());
 				}
 				if (!this.poiUUID.contains(poim.poi.getUUID())) {
 					this.poisByType.get(poim.poi.getDataSourceTypeId()).add(poim);
@@ -785,12 +784,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			}
 			try {
 				if (poiArrayAdapter.poisByType != null) {
-					Iterator<ArrayList<POIManager>> it = poiArrayAdapter.poisByType.values().iterator();
-					while (it.hasNext()) {
+					for (ArrayList<POIManager> poiManagers : poiArrayAdapter.poisByType.values()) {
 						if (isCancelled()) {
 							break;
 						}
-						LocationUtils.updateDistanceWithString(poiArrayAdapter.getContext(), it.next(), params[0], this);
+						LocationUtils.updateDistanceWithString(poiArrayAdapter.getContext(), poiManagers, params[0], this);
 					}
 				}
 			} catch (Exception e) {
@@ -817,9 +815,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	public void updateDistancesNowSync(Location currentLocation) {
 		if (currentLocation != null) {
 			if (this.poisByType != null) {
-				Iterator<ArrayList<POIManager>> it = this.poisByType.values().iterator();
-				while (it.hasNext()) {
-					ArrayList<POIManager> pois = it.next();
+				for (ArrayList<POIManager> pois : this.poisByType.values()) {
 					LocationUtils.updateDistanceWithString(getContext(), pois, currentLocation, null);
 				}
 			}
@@ -876,12 +872,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private Handler handler = new Handler();
 
-	private Runnable notifyDataSetChangedLater = new Runnable() {
-
-		@Override
-		public void run() {
-			notifyDataSetChanged(true); // still really need to show new data
-		}
+	private Runnable notifyDataSetChangedLater = () -> {
+		notifyDataSetChanged(true); // still really need to show new data
 	};
 
 	public void notifyDataSetChanged(boolean force, long minAdapterThresholdInMs) {
@@ -971,28 +963,24 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (scrollView == null) {
 			return;
 		}
-		scrollView.setOnTouchListener(new View.OnTouchListener() {
-
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				switch (event.getAction()) {
-				case MotionEvent.ACTION_SCROLL:
-				case MotionEvent.ACTION_MOVE:
-					setScrollState(AbsListView.OnScrollListener.SCROLL_STATE_FLING);
-					break;
-				case MotionEvent.ACTION_DOWN:
-					setScrollState(AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL);
-					break;
-				case MotionEvent.ACTION_CANCEL:
-				case MotionEvent.ACTION_UP:
-					// scroll view can still by flying
-					setScrollState(AbsListView.OnScrollListener.SCROLL_STATE_IDLE);
-					break;
-				default:
-					MTLog.v(POIArrayAdapter.this, "Unexpected event %s", event);
-				}
-				return false;
+		scrollView.setOnTouchListener((v, event) -> {
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_SCROLL:
+			case MotionEvent.ACTION_MOVE:
+				setScrollState(AbsListView.OnScrollListener.SCROLL_STATE_FLING);
+				break;
+			case MotionEvent.ACTION_DOWN:
+				setScrollState(AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL);
+				break;
+			case MotionEvent.ACTION_CANCEL:
+			case MotionEvent.ACTION_UP:
+				// scroll view can still by flying
+				setScrollState(AbsListView.OnScrollListener.SCROLL_STATE_IDLE);
+				break;
+			default:
+				MTLog.v(POIArrayAdapter.this, "Unexpected event %s", event);
 			}
+			return false;
 		});
 	}
 
@@ -1948,10 +1936,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 				newFav = true; // favorite never set before
 				updatedFav = false; // never set before so not updated
 			} else {
-				HashSet<Integer> oldFolderIds = new HashSet<>();
-				oldFolderIds.addAll(this.favUUIDsFolderIds.values());
-				HashSet<Integer> newFolderIds = new HashSet<>();
-				newFolderIds.addAll(newFavUUIDsFolderIds.values());
+				HashSet<Integer> oldFolderIds = new HashSet<>(this.favUUIDsFolderIds.values());
+				HashSet<Integer> newFolderIds = new HashSet<>(newFavUUIDsFolderIds.values());
 				if (CollectionUtils.getSize(oldFolderIds) != CollectionUtils.getSize(newFolderIds)) {
 					newFav = true; // different size => different favorites
 					updatedFav = true; // different size => different favorites

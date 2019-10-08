@@ -17,7 +17,6 @@ import org.mtransit.android.util.VendingUtils;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -63,153 +62,117 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
-		findPreference(DEVICE_SETTINGS_LANGUAGE_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				Activity activity = getActivity();
-				if (activity == null) {
-					return false; // not handled
-				}
-				DeviceUtils.showLocaleSettings(activity);
-				return true; // handled
+		findPreference(DEVICE_SETTINGS_LANGUAGE_PREF).setOnPreferenceClickListener(preference -> {
+			Activity activity = getActivity();
+			if (activity == null) {
+				return false; // not handled
 			}
+			DeviceUtils.showLocaleSettings(activity);
+			return true; // handled
 		});
-		findPreference(DEVICE_SETTINGS_DATE_AND_TIME_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				Activity activity = getActivity();
-				if (activity == null) {
-					return false; // not handled
-				}
-				DeviceUtils.showDateSettings(activity);
-				return true; // handled
+		findPreference(DEVICE_SETTINGS_DATE_AND_TIME_PREF).setOnPreferenceClickListener(preference -> {
+			Activity activity = getActivity();
+			if (activity == null) {
+				return false; // not handled
 			}
+			DeviceUtils.showDateSettings(activity);
+			return true; // handled
 		});
-		findPreference(DEVICE_SETTINGS_LOCATION_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				Activity activity = getActivity();
-				if (activity == null) {
-					return false; // not handled
-				}
-				DeviceUtils.showLocationSourceSettings(activity);
-				return true; // handled
+		findPreference(DEVICE_SETTINGS_LOCATION_PREF).setOnPreferenceClickListener(preference -> {
+			Activity activity = getActivity();
+			if (activity == null) {
+				return false; // not handled
 			}
+			DeviceUtils.showLocationSourceSettings(activity);
+			return true; // handled
 		});
-		findPreference(DEVICE_SETTINGS_POWER_MANAGEMENT_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				Activity activity = getActivity();
-				if (activity == null) {
-					return false; // not handled
-				}
-				new AlertDialog.Builder(activity)
-						.setTitle(R.string.battery_optimization_issue_title)
-						.setMessage(R.string.battery_optimization_issue_message)
-						.setPositiveButton(R.string.battery_optimization_issue_act, new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								dialog.dismiss();
-								Activity activity = getActivity();
-								if (activity == null) {
-									return;
-								}
-								DeviceUtils.showIgnoreBatteryOptimizationSettings(activity);
-							}
-						})
-						.setNeutralButton(R.string.battery_optimization_issue_learn_more, new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								dialog.dismiss();
-								Activity activity = getActivity();
-								if (activity == null) {
-									return;
-								}
-								LinkUtils.open(activity, DONT_KILL_MY_APP_URL, DONT_KILL_MY_APP_URL, false);
-							}
-						})
-						.setCancelable(true)
-						.create()
-						.show();
-				return true; // handled
+		findPreference(DEVICE_SETTINGS_POWER_MANAGEMENT_PREF).setOnPreferenceClickListener(preference -> {
+			Activity activity = getActivity();
+			if (activity == null) {
+				return false; // not handled
 			}
+			new AlertDialog.Builder(activity)
+					.setTitle(R.string.battery_optimization_issue_title)
+					.setMessage(R.string.battery_optimization_issue_message)
+					.setPositiveButton(R.string.battery_optimization_issue_act, (dialog, which) -> {
+						dialog.dismiss();
+						Activity activity12 = getActivity();
+						if (activity12 == null) {
+							return;
+						}
+						DeviceUtils.showIgnoreBatteryOptimizationSettings(activity12);
+					})
+					.setNeutralButton(R.string.battery_optimization_issue_learn_more, (dialog, which) -> {
+						dialog.dismiss();
+						Activity activity1 = getActivity();
+						if (activity1 == null) {
+							return;
+						}
+						LinkUtils.open(activity1, DONT_KILL_MY_APP_URL, DONT_KILL_MY_APP_URL, false);
+					})
+					.setCancelable(true)
+					.create()
+					.show();
+			return true; // handled
 		});
-		findPreference(FEEDBACK_EMAIL_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				Activity activity = getActivity();
-				if (activity == null) {
-					return false; // not handled
-				}
-				LinkUtils.sendEmail(activity);
-				return true; // handled
+		findPreference(FEEDBACK_EMAIL_PREF).setOnPreferenceClickListener(preference -> {
+			Activity activity = getActivity();
+			if (activity == null) {
+				return false; // not handled
 			}
+			LinkUtils.sendEmail(activity);
+			return true; // handled
 		});
-		findPreference(FEEDBACK_STORE_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				Activity activity = getActivity();
-				if (activity == null) {
-					return false; // not handled
-				}
-				StoreUtils.viewAppPage(activity, Constants.MAIN_APP_PACKAGE_NAME, activity.getString(R.string.google_play));
-				return true; // handled
+		findPreference(FEEDBACK_STORE_PREF).setOnPreferenceClickListener(preference -> {
+			Activity activity = getActivity();
+			if (activity == null) {
+				return false; // not handled
 			}
+			StoreUtils.viewAppPage(activity, Constants.MAIN_APP_PACKAGE_NAME, activity.getString(R.string.google_play));
+			return true; // handled
 		});
-		findPreference(SUPPORT_SUBSCRIPTIONS_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				Activity activity = getActivity();
-				if (activity == null) {
-					return false; // not handled
-				}
-				Boolean hasSubscription = VendingUtils.isHasSubscription(activity);
-				if (hasSubscription == null) {
-					// DO NOTHING
-				} else if (hasSubscription) {
-					StoreUtils.viewAppPage(activity, activity.getPackageName(), activity.getString(R.string.google_play));
-				} else {
-					VendingUtils.purchase(activity);
-				}
-				return true; // handled
+		findPreference(SUPPORT_SUBSCRIPTIONS_PREF).setOnPreferenceClickListener(preference -> {
+			Activity activity = getActivity();
+			if (activity == null) {
+				return false; // not handled
 			}
+			Boolean hasSubscription = VendingUtils.isHasSubscription(activity);
+			if (hasSubscription == null) {
+				// DO NOTHING
+			} else if (hasSubscription) {
+				StoreUtils.viewAppPage(activity, activity.getPackageName(), activity.getString(R.string.google_play));
+			} else {
+				VendingUtils.purchase(activity);
+			}
+			return true; // handled
 		});
-		findPreference(SOCIAL_FACEBOOK_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				Activity activity = getActivity();
-				if (activity == null) {
-					return false; // not handled
-				}
-				LinkUtils.open(activity, FACEBOOK_PAGE_URL, activity.getString(R.string.facebook), false);
-				return true; // handled
+		findPreference(SOCIAL_FACEBOOK_PREF).setOnPreferenceClickListener(preference -> {
+			Activity activity = getActivity();
+			if (activity == null) {
+				return false; // not handled
 			}
+			LinkUtils.open(activity, FACEBOOK_PAGE_URL, activity.getString(R.string.facebook), false);
+			return true; // handled
 		});
-		findPreference(SOCIAL_TWITTER_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				Activity activity = getActivity();
-				if (activity == null) {
-					return false; // not handled
-				}
-				LinkUtils.open(activity, TWITTER_PAGE_URL, activity.getString(R.string.twitter), false);
-				return true; // handled
+		findPreference(SOCIAL_TWITTER_PREF).setOnPreferenceClickListener(preference -> {
+			Activity activity = getActivity();
+			if (activity == null) {
+				return false; // not handled
 			}
+			LinkUtils.open(activity, TWITTER_PAGE_URL, activity.getString(R.string.twitter), false);
+			return true; // handled
 		});
-		findPreference(ABOUT_PRIVACY_POLICY_PREF).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				Activity activity = getActivity();
-				if (activity == null) {
-					return false; // not handled
-				}
-				LinkUtils.open(activity,
-						LocaleUtils.isFR() ?
-								PRIVACY_POLICY_FR_PAGE_URL :
-								PRIVACY_POLICY_PAGE_URL,
-						activity.getString(R.string.privacy_policy), false);
-				return true; // handled
+		findPreference(ABOUT_PRIVACY_POLICY_PREF).setOnPreferenceClickListener(preference -> {
+			Activity activity = getActivity();
+			if (activity == null) {
+				return false; // not handled
 			}
+			LinkUtils.open(activity,
+					LocaleUtils.isFR() ?
+							PRIVACY_POLICY_FR_PAGE_URL :
+							PRIVACY_POLICY_PAGE_URL,
+					activity.getString(R.string.privacy_policy), false);
+			return true; // handled
 		});
 	}
 

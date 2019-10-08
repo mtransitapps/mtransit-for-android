@@ -30,7 +30,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
@@ -155,12 +154,9 @@ public class MapFragment extends ABFragment implements
 		View view = getView();
 		if (this.modulesUpdated) {
 			if (view != null) {
-				view.post(new Runnable() {
-					@Override
-					public void run() {
-						if (MapFragment.this.modulesUpdated) {
-							onModulesUpdated();
-						}
+				view.post(() -> {
+					if (MapFragment.this.modulesUpdated) {
+						onModulesUpdated();
 					}
 				});
 			}
@@ -370,7 +366,7 @@ public class MapFragment extends ABFragment implements
 		ArrayList<DataSourceType> availableTypes = filterTypes(DataSourceProvider.get(getContext()).getAvailableAgencyTypes());
 		Set<String> filterTypeIdStrings = PreferenceUtils.getPrefLcl( //
 				getContext(), PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS, PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT);
-		this.filterTypeIds = new HashSet<Integer>();
+		this.filterTypeIds = new HashSet<>();
 		boolean hasChanged = false;
 		for (String typeIdString : filterTypeIdStrings) {
 			try {
@@ -394,7 +390,9 @@ public class MapFragment extends ABFragment implements
 				try {
 					DataSourceType type = DataSourceType.parseId(this.includedTypeId);
 					if (type == null) {
+						// DO NOTHING
 					} else if (!availableTypes.contains(type)) {
+						// DO NOTHING
 					} else {
 						this.filterTypeIds.add(type.getId());
 						hasChanged = true;
@@ -427,7 +425,7 @@ public class MapFragment extends ABFragment implements
 		if (filterTypeIds == null) {
 			return;
 		}
-		Set<String> newFilterTypeIdStrings = new HashSet<String>();
+		Set<String> newFilterTypeIdStrings = new HashSet<>();
 		for (Integer filterTypeId : filterTypeIds) {
 			newFilterTypeIdStrings.add(String.valueOf(filterTypeId));
 		}
@@ -459,10 +457,10 @@ public class MapFragment extends ABFragment implements
 			if (filterTypeIds == null) {
 				return false;
 			}
-			ArrayList<CharSequence> typeNames = new ArrayList<CharSequence>();
-			ArrayList<Boolean> checked = new ArrayList<Boolean>();
-			final ArrayList<Integer> typeIds = new ArrayList<Integer>();
-			final HashSet<Integer> selectedItems = new HashSet<Integer>();
+			ArrayList<CharSequence> typeNames = new ArrayList<>();
+			ArrayList<Boolean> checked = new ArrayList<>();
+			final ArrayList<Integer> typeIds = new ArrayList<>();
+			final HashSet<Integer> selectedItems = new HashSet<>();
 			ArrayList<DataSourceType> availableAgencyTypes = filterTypes(DataSourceProvider.get(getContext()).getAvailableAgencyTypes());
 			for (DataSourceType type : availableAgencyTypes) {
 				typeIds.add(type.getId());
@@ -479,32 +477,23 @@ public class MapFragment extends ABFragment implements
 			new AlertDialog.Builder(getContext()) //
 					.setTitle(R.string.menu_action_filter) //
 					.setMultiChoiceItems( //
-							typeNames.toArray(new CharSequence[typeNames.size()]), //
+							typeNames.toArray(new CharSequence[0]), //
 							checkedItems, //
-							new DialogInterface.OnMultiChoiceClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-									if (isChecked) {
-										selectedItems.add(which);
-									} else {
-										selectedItems.remove(which);
-									}
+							(dialog, which, isChecked) -> {
+								if (isChecked) {
+									selectedItems.add(which);
+								} else {
+									selectedItems.remove(which);
 								}
 							} //
 					) //
-					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							applyNewFilter(typeIds, selectedItems);
-							dialog.dismiss();
-						}
+					.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+						applyNewFilter(typeIds, selectedItems);
+						dialog.dismiss();
 					}) //
-					.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}
-					}) //
+					.setNegativeButton(android.R.string.cancel, (dialog, which) ->
+							dialog.dismiss()
+					) //
 					.setCancelable(true) //
 					.show();
 

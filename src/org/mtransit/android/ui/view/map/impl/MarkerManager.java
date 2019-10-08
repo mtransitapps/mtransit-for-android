@@ -36,14 +36,14 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 	private IMarker markerShowingInfoWindow;
 
 	private ClusteringSettings clusteringSettings = new ClusteringSettings().enabled(false);
-	private ClusteringStrategy clusteringStrategy = new NoClusteringStrategy(new ArrayList<DelegatingMarker>());
+	private ClusteringStrategy clusteringStrategy = new NoClusteringStrategy(new ArrayList<>());
 
 	private final MarkerAnimator markerAnimator = new MarkerAnimator();
 
 	public MarkerManager(IGoogleMap factory) {
 		this.factory = factory;
-		this.markers = new ArrayMap<LazyMarker, DelegatingMarker>();
-		this.createdMarkers = new ArrayMap<Marker, LazyMarker>();
+		this.markers = new ArrayMap<>();
+		this.createdMarkers = new ArrayMap<>();
 	}
 
 	public IMarker addMarker(ExtendedMarkerOptions markerOptions) {
@@ -93,7 +93,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 	}
 
 	public List<IMarker> getMarkers() {
-		return new ArrayList<IMarker>(markers.values());
+		return new ArrayList<>(markers.values());
 	}
 
 	public IMarker getMarkerShowingInfoWindow() {
@@ -155,7 +155,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		if (!this.clusteringSettings.equals(clusteringSettings)) {
 			this.clusteringSettings = clusteringSettings;
 			clusteringStrategy.cleanup();
-			ArrayList<DelegatingMarker> list = new ArrayList<DelegatingMarker>(markers.values());
+			ArrayList<DelegatingMarker> list = new ArrayList<>(markers.values());
 			if (clusteringSettings.isEnabled()) {
 				clusteringStrategy = new GridClusteringStrategy(clusteringSettings, factory, list, new ClusterRefresher());
 			} else if (clusteringSettings.isAddMarkersDynamically()) {

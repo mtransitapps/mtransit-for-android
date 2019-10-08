@@ -91,7 +91,6 @@
     <string name="favorite_folder_deleted_and_folder_name">Folder %s deleted.</string>
     <string name="favorite_folder_deletion_confirmation_title_and_name">Delete %s?</string>
     <string name="favorite_folder_deletion_confirmation_text_and_name">Are you sure you want to delete the favorite folder %s?</string>
-    <string name="favorite_folder_edited">Folder renamed.</string>
     <string name="favorite_folder_edited_and_folder">Folder renamed to %s.</string>
     <string name="favorite_folder_empty">(empty)</string>
     <string name="favorite_folder_pick">Select folder</string>

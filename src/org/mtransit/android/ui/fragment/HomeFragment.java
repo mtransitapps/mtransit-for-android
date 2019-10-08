@@ -157,12 +157,9 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		View view = getView();
 		if (this.modulesUpdated) {
 			if (view != null) {
-				view.post(new Runnable() {
-					@Override
-					public void run() {
-						if (HomeFragment.this.modulesUpdated) {
-							onModulesUpdated();
-						}
+				view.post(() -> {
+					if (HomeFragment.this.modulesUpdated) {
+						onModulesUpdated();
 					}
 				});
 			}
@@ -328,27 +325,21 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		return this.locationToast;
 	}
 
+	@SuppressLint("ClickableViewAccessibility")
 	private void initLocationPopup() {
 		this.locationToast = ToastUtils.getNewTouchableToast(getContext(), R.drawable.toast_frame_old, R.string.new_location_toast);
 		if (this.locationToast != null) {
-			this.locationToast.setTouchInterceptor(new View.OnTouchListener() {
-				@SuppressLint("ClickableViewAccessibility")
-				@Override
-				public boolean onTouch(View v, MotionEvent me) {
-					if (me.getAction() == MotionEvent.ACTION_DOWN) {
-						boolean handled = initiateRefresh();
-						hideLocationToast();
-						return handled;
-					}
-					return false; // not handled
+			this.locationToast.setTouchInterceptor((v, me) -> {
+				if (me.getAction() == MotionEvent.ACTION_DOWN) {
+					boolean handled = initiateRefresh();
+					hideLocationToast();
+					return handled;
 				}
+				return false; // not handled
 			});
-			this.locationToast.setOnDismissListener(new PopupWindow.OnDismissListener() {
-				@Override
-				public void onDismiss() {
-					HomeFragment.this.toastShown = false;
-				}
-			});
+			this.locationToast.setOnDismissListener(() ->
+					HomeFragment.this.toastShown = false
+			);
 		}
 	}
 
@@ -516,7 +507,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (view.findViewById(R.id.list) == null) { // IF NOT present/inflated DO
 			((ViewStub) view.findViewById(R.id.list_stub)).inflate(); // inflate
 			if (this.swipeRefreshLayout != null) {
-				this.swipeRefreshLayout.setListViewWR((AbsListView) view.findViewById(R.id.list));
+				this.swipeRefreshLayout.setListViewWR(view.findViewById(R.id.list));
 			}
 		}
 	}

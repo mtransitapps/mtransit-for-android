@@ -29,7 +29,7 @@ public class MTJPathsView extends MTView {
 
 	private RectF bounds;
 
-	private HashSet<Pair<Path, Paint>> pathsAndPaints = new HashSet<Pair<Path, Paint>>();
+	private HashSet<Pair<Path, Paint>> pathsAndPaints = new HashSet<>();
 
 	private JPaths jPaths;
 
@@ -152,7 +152,7 @@ public class MTJPathsView extends MTView {
 					this.matrix.postRotate(jPath.rotation.degrees, getX(jPath.rotation.px), getY(jPath.rotation.py));
 					path.transform(this.matrix);
 				}
-				this.pathsAndPaints.add(new Pair<Path, Paint>(path, paint));
+				this.pathsAndPaints.add(new Pair<>(path, paint));
 			}
 		}
 	}

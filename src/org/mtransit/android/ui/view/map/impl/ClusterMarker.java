@@ -21,7 +21,7 @@ class ClusterMarker implements IMarker {
 
 	private com.google.android.gms.maps.model.Marker virtual;
 
-	private List<DelegatingMarker> markers = new ArrayList<DelegatingMarker>();
+	private List<DelegatingMarker> markers = new ArrayList<>();
 
 	public ClusterMarker(GridClusteringStrategy strategy) {
 		this.strategy = strategy;
@@ -56,7 +56,7 @@ class ClusterMarker implements IMarker {
 			if (virtual == null || lastCount != count) {
 				removeVirtual();
 				lastCount = count;
-				virtual = strategy.createMarker(new ArrayList<IMarker>(markers), position);
+				virtual = strategy.createMarker(new ArrayList<>(markers), position);
 			} else {
 				virtual.setPosition(position);
 			}
@@ -88,7 +88,7 @@ class ClusterMarker implements IMarker {
 	}
 
 	List<DelegatingMarker> getMarkersInternal() {
-		return new ArrayList<DelegatingMarker>(markers);
+		return new ArrayList<>(markers);
 	}
 
 	@Override
@@ -141,7 +141,7 @@ class ClusterMarker implements IMarker {
 
 	@Override
 	public List<IMarker> getMarkers() {
-		return new ArrayList<IMarker>(markers);
+		return new ArrayList<>(markers);
 	}
 
 	@Override

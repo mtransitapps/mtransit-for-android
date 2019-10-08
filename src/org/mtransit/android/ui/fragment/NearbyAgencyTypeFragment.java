@@ -198,7 +198,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	}
 
 	private void setupView(@NonNull View view) {
-		this.swipeRefreshLayout = (ListViewSwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
+		this.swipeRefreshLayout = view.findViewById(R.id.swiperefresh);
 		this.swipeRefreshLayout.setColorSchemeColors(ThemeUtils.resolveColorAttribute(view.getContext(), R.attr.colorAccent));
 		setSwipeRefreshLayoutEnabled(this.swipeRefreshLayoutEnabled);
 		inflateList(view);
@@ -286,7 +286,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	}
 
 	public void setNearbyFragment(NearbyFragment nearbyFragment) {
-		this.nearbyFragmentWR = new WeakReference<NearbyFragment>(nearbyFragment);
+		this.nearbyFragmentWR = new WeakReference<>(nearbyFragment);
 	}
 
 	public void setSwipeRefreshLayoutRefreshing(boolean refreshing) {
@@ -384,12 +384,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		View view = getView();
 		if (this.modulesUpdated) {
 			if (view != null) {
-				view.post(new Runnable() {
-					@Override
-					public void run() {
-						if (NearbyAgencyTypeFragment.this.modulesUpdated) {
-							onModulesUpdated();
-						}
+				view.post(() -> {
+					if (NearbyAgencyTypeFragment.this.modulesUpdated) {
+						onModulesUpdated();
 					}
 				});
 			}
@@ -537,7 +534,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	private void inflateList(View view) {
 		if (view.findViewById(R.id.list) == null) { // IF NOT present/inflated DO
 			((ViewStub) view.findViewById(R.id.list_stub)).inflate(); // inflate
-			this.swipeRefreshLayout.setListViewWR((AbsListView) view.findViewById(R.id.list));
+			this.swipeRefreshLayout.setListViewWR(view.findViewById(R.id.list));
 		}
 	}
 

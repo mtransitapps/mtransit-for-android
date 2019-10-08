@@ -229,7 +229,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 		if (this.adapter == null || !this.adapter.isInitialized()) {
 			return null;
 		}
-		HashSet<POIManager> pois = new HashSet<POIManager>();
+		HashSet<POIManager> pois = new HashSet<>();
 		if (this.adapter != null && this.adapter.hasPois()) {
 			for (int i = 0; i < this.adapter.getPoisCount(); i++) {
 				pois.add(this.adapter.getItem(i));
@@ -450,7 +450,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 				inflater.inflate(R.menu.menu_agency_pois, menu);
 			}
 			this.listMapToggleMenuItem = menu.findItem(R.id.menu_toggle_list_map);
-			this.listMapSwitchMenuItem = (SwitchCompat) this.listMapToggleMenuItem.getActionView().findViewById(R.id.action_bar_switch_list_map);
+			this.listMapSwitchMenuItem = this.listMapToggleMenuItem.getActionView().findViewById(R.id.action_bar_switch_list_map);
 			this.listMapSwitchMenuItem.setThumbDrawable(getListMapToggleSelector());
 		} else {
 			if (this.listMapSwitchMenuItem != null) {

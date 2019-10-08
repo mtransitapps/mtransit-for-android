@@ -13,7 +13,7 @@ public class AgencyPropertiesTests {
 	@SuppressWarnings("ConstantConditions")
 	@Test
 	public void testShortNameComparator() {
-		ArrayList<AgencyProperties> agencies = new ArrayList<AgencyProperties>();
+		ArrayList<AgencyProperties> agencies = new ArrayList<>();
 		String shortName;
 		//
 		shortName = null;

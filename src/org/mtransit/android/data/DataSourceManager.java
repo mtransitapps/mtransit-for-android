@@ -49,7 +49,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return TAG;
 	}
 
-	private static ArrayMap<String, Uri> uriMap = new ArrayMap<String, Uri>();
+	private static ArrayMap<String, Uri> uriMap = new ArrayMap<>();
 
 	private static Uri getUri(String authority) {
 		Uri uri = uriMap.get(authority);
@@ -79,7 +79,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	private static ArrayList<ServiceUpdate> getServiceUpdates(Cursor cursor) {
-		ArrayList<ServiceUpdate> result = new ArrayList<ServiceUpdate>();
+		ArrayList<ServiceUpdate> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -111,7 +111,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	private static ArrayList<News> getNews(Cursor cursor, String authority) {
-		ArrayList<News> result = new ArrayList<News>();
+		ArrayList<News> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -278,7 +278,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	private static ArrayList<Trip> getRTSTrips(Cursor cursor) {
-		ArrayList<Trip> result = new ArrayList<Trip>();
+		ArrayList<Trip> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -327,7 +327,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	private static ArrayList<Route> getRTSRoutes(Cursor cursor) {
-		ArrayList<Route> result = new ArrayList<Route>();
+		ArrayList<Route> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -365,7 +365,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	private static ArrayList<POIManager> getPOIs(Cursor cursor, String authority) {
-		ArrayList<POIManager> result = new ArrayList<POIManager>();
+		ArrayList<POIManager> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -394,7 +394,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	public static HashSet<String> getSearchSuggest(Cursor cursor) {
-		HashSet<String> results = new HashSet<String>();
+		HashSet<String> results = new HashSet<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				int text1ColumnIdx = cursor.getColumnIndexOrThrow(SearchManager.SUGGEST_COLUMN_TEXT_1);

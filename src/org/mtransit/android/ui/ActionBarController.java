@@ -64,7 +64,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	public void setMainActivity(MainActivity mainActivity) {
-		this.mainActivityWR = new WeakReference<MainActivity>(mainActivity);
+		this.mainActivityWR = new WeakReference<>(mainActivity);
 	}
 
 	private Context getContextOrNull() {
@@ -107,7 +107,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	private void init() {
 		MainActivity mainActivity = getMainActivityOrNull();
 		if (mainActivity != null) {
-			Toolbar toolbar = (Toolbar) mainActivity.findViewById(R.id.ab_toolbar);
+			Toolbar toolbar = mainActivity.findViewById(R.id.ab_toolbar);
 			mainActivity.setSupportActionBar(toolbar);
 			ActionBar ab = getABOrNull();
 			this.fragmentTitle = mainActivity.getTitle();
@@ -389,7 +389,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		private WeakReference<MainActivity> mainActivityWR;
 
 		public UpOnClickListener(MainActivity mainActivity) {
-			this.mainActivityWR = new WeakReference<MainActivity>(mainActivity);
+			this.mainActivityWR = new WeakReference<>(mainActivity);
 		}
 
 		@Override

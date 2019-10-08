@@ -20,7 +20,7 @@ public class JPaths implements MTLog.Loggable {
 
 	private String id;
 
-	private HashSet<JPath> paths = new HashSet<JPath>();
+	private HashSet<JPath> paths = new HashSet<>();
 
 	public JPaths(String id) {
 		this.id = id;
@@ -109,7 +109,7 @@ public class JPaths implements MTLog.Loggable {
 		}
 	}
 
-	private static JPath fromJSONPath(JSONObject json) throws JSONException {
+	private static JPath fromJSONPath(JSONObject json) {
 		try {
 			JSONObject jPaint = json.getJSONObject(JSON_PAINT);
 			JSONObject jForm = json.getJSONObject(JSON_FORM);
@@ -150,7 +150,8 @@ public class JPaths implements MTLog.Loggable {
 	public static class JPaint {
 
 		public Paint.Style style;
-		public float strokeWidth = -1f;
+
+		public final float strokeWidth;
 
 		public JPaint(Paint.Style style) {
 			this(style, -1f);
@@ -181,10 +182,12 @@ public class JPaths implements MTLog.Loggable {
 		public static JPaint fromJSON(JSONObject json) {
 			try {
 				Paint.Style style = Paint.Style.valueOf(json.getString(JSON_STYLE));
-				JPaint jPaint = new JPaint(style);
+				JPaint jPaint;
 				float strokeWidth = (float) json.optDouble(JSON_STROKE_WIDTH, -1);
 				if (strokeWidth >= 0f) {
-					jPaint.strokeWidth = strokeWidth;
+					jPaint = new JPaint(style, strokeWidth);
+				} else {
+					jPaint = new JPaint(style);
 				}
 				return jPaint;
 			} catch (JSONException e) {

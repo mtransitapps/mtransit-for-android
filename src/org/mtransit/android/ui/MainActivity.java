@@ -1,21 +1,5 @@
 package org.mtransit.android.ui;
 
-import java.util.WeakHashMap;
-
-import org.mtransit.android.R;
-import org.mtransit.android.ad.IAdManager;
-import org.mtransit.android.analytics.IAnalyticsManager;
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.data.DataSourceProvider;
-import org.mtransit.android.di.Injection;
-import org.mtransit.android.ui.fragment.ABFragment;
-import org.mtransit.android.ui.fragment.SearchFragment;
-import org.mtransit.android.ui.view.common.IActivity;
-import org.mtransit.android.analytics.AnalyticsManager;
-import org.mtransit.android.util.FragmentUtils;
-import org.mtransit.android.util.MapUtils;
-import org.mtransit.android.util.VendingUtils;
-
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
@@ -24,16 +8,30 @@ import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.FrameLayout;
+import org.mtransit.android.R;
+import org.mtransit.android.ad.IAdManager;
+import org.mtransit.android.analytics.AnalyticsManager;
+import org.mtransit.android.analytics.IAnalyticsManager;
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.di.Injection;
+import org.mtransit.android.ui.fragment.ABFragment;
+import org.mtransit.android.ui.fragment.SearchFragment;
+import org.mtransit.android.ui.view.common.IActivity;
+import org.mtransit.android.util.FragmentUtils;
+import org.mtransit.android.util.MapUtils;
+import org.mtransit.android.util.VendingUtils;
+
+import java.util.WeakHashMap;
 
 public class MainActivity extends MTActivityWithLocation implements
 		FragmentManager.OnBackStackChangedListener,
@@ -87,7 +85,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		this.navigationDrawerController.onCreate(savedInstanceState);
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
 		DataSourceProvider.addModulesUpdateListener(this);
-		MapUtils.fixScreenFlickering((FrameLayout) findViewById(R.id.content_frame));
+		MapUtils.fixScreenFlickering(findViewById(R.id.content_frame));
 	}
 
 	private boolean modulesUpdated = false;
@@ -182,12 +180,9 @@ public class MainActivity extends MTActivityWithLocation implements
 		super.onPostResume();
 		this.resumed = true;
 		if (this.modulesUpdated) {
-			new Handler().post(new Runnable() {
-				@Override
-				public void run() {
-					if (MainActivity.this.modulesUpdated) {
-						onModulesUpdated();
-					}
+			new Handler().post(() -> {
+				if (MainActivity.this.modulesUpdated) {
+					onModulesUpdated();
 				}
 			});
 		}
@@ -411,7 +406,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		this.adManager.adaptToScreenSize(this, newConfig);
 	}
 
-	private WeakHashMap<Fragment, Object> fragmentsToPopWR = new WeakHashMap<Fragment, Object>();
+	private WeakHashMap<Fragment, Object> fragmentsToPopWR = new WeakHashMap<>();
 
 	public void popFragmentFromStack(Fragment fragment) {
 		FragmentUtils.popFragmentFromStack(this, fragment, null);

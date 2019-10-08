@@ -38,7 +38,7 @@ public class ScheduleTimestampsLoader extends MTAsyncTaskLoaderV4<ArrayList<Sche
 		if (this.timestamps != null) {
 			return this.timestamps;
 		}
-		this.timestamps = new ArrayList<Schedule.Timestamp>();
+		this.timestamps = new ArrayList<>();
 		long endsAtInMs = this.startsAtInMs + TimeUnit.DAYS.toMillis(1);
 		ScheduleTimestampsProviderContract.Filter scheduleFilter = new ScheduleTimestampsProviderContract.Filter(this.rts, this.startsAtInMs, endsAtInMs);
 		Collection<ScheduleProviderProperties> scheduleProviders = DataSourceProvider.get(getContext()).getTargetAuthorityScheduleProviders(

@@ -17,7 +17,7 @@ class GroundOverlayManager {
 
 	public GroundOverlayManager(IGoogleMap factory) {
 		this.factory = factory;
-		this.groundOverlays = new ArrayMap<com.google.android.gms.maps.model.GroundOverlay, GroundOverlay>();
+		this.groundOverlays = new ArrayMap<>();
 	}
 
 	public GroundOverlay addGroundOverlay(GroundOverlayOptions groundOverlayOptions) {
@@ -38,7 +38,7 @@ class GroundOverlayManager {
 	}
 
 	public List<GroundOverlay> getGroundOverlays() {
-		return new ArrayList<GroundOverlay>(groundOverlays.values());
+		return new ArrayList<>(groundOverlays.values());
 	}
 
 	public void onRemove(com.google.android.gms.maps.model.GroundOverlay real) {

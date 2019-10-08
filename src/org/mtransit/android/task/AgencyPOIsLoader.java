@@ -31,7 +31,7 @@ public class AgencyPOIsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>>
 		if (this.pois != null) {
 			return this.pois;
 		}
-		this.pois = new ArrayList<POIManager>();
+		this.pois = new ArrayList<>();
 		this.pois = DataSourceManager.findPOIs(getContext(), this.authority, POIProviderContract.Filter.getNewEmptyFilter());
 		CollectionUtils.sort(this.pois, POIManager.POI_ALPHA_COMPARATOR);
 		return pois;

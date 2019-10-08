@@ -35,7 +35,7 @@ public class POIsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 		if (this.pois != null) {
 			return this.pois;
 		}
-		this.pois = new ArrayList<POIManager>();
+		this.pois = new ArrayList<>();
 		ArrayMap<String, HashSet<String>> authorityToUUIDs = splitByAgency(this.uuids, this.authorities);
 		if (authorityToUUIDs != null && authorityToUUIDs.size() > 0) {
 			for (String authority : authorityToUUIDs.keySet()) {
@@ -54,13 +54,13 @@ public class POIsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 	}
 
 	private ArrayMap<String, HashSet<String>> splitByAgency(ArrayList<String> uuids, ArrayList<String> authorities) {
-		ArrayMap<String, HashSet<String>> authorityToUUIDs = new ArrayMap<String, HashSet<String>>();
+		ArrayMap<String, HashSet<String>> authorityToUUIDs = new ArrayMap<>();
 		if (uuids != null) {
 			for (int i = 0; i < uuids.size(); i++) {
 				String uuid = uuids.get(i);
 				String authority = authorities.get(i);
 				if (!authorityToUUIDs.containsKey(authority)) {
-					authorityToUUIDs.put(authority, new HashSet<String>());
+					authorityToUUIDs.put(authority, new HashSet<>());
 				}
 				authorityToUUIDs.get(authority).add(uuid);
 			}

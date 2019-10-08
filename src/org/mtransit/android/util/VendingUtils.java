@@ -2,7 +2,6 @@ package org.mtransit.android.util;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.WeakHashMap;
 
@@ -13,8 +12,6 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.ui.fragment.PurchaseDialogFragment;
 import org.mtransit.android.util.iab.IabHelper;
-import org.mtransit.android.util.iab.IabResult;
-import org.mtransit.android.util.iab.Inventory;
 import org.mtransit.android.util.iab.Purchase;
 import org.mtransit.android.util.iab.SkuDetails;
 
@@ -49,7 +46,7 @@ public final class VendingUtils implements MTLog.Loggable {
 
 	public static final ArrayMap<String, Integer> PERIOD_RES_ID;
 	static {
-		ArrayMap<String, Integer> map = new ArrayMap<String, Integer>();
+		ArrayMap<String, Integer> map = new ArrayMap<>();
 		map.put(WEEKLY, R.string.support_every_week);
 		map.put(MONTHLY, R.string.support_every_month);
 		map.put(YEARLY, R.string.support_every_year);
@@ -62,7 +59,7 @@ public final class VendingUtils implements MTLog.Loggable {
 
 	public static final ArrayList<String> AVAILABLE_SUBSCRIPTIONS;
 	static {
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 		list.add(SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "1");
 		list.add(SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "2");
 		list.add(SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "3");
@@ -89,7 +86,7 @@ public final class VendingUtils implements MTLog.Loggable {
 
 	public static final ArrayList<String> ALL_VALID_SUBSCRIPTIONS;
 	static {
-		ArrayList<String> set = new ArrayList<String>();
+		ArrayList<String> set = new ArrayList<>();
 		set.add("weekly_subscription"); // Inactive
 		set.add("monthly_subscription"); // Active - offered by default for months
 		set.add("yearly_subscription"); // Active - never offered
@@ -101,7 +98,7 @@ public final class VendingUtils implements MTLog.Loggable {
 
 	private static WeakReference<Context> contextWR;
 
-	private static WeakHashMap<OnVendingResultListener, Object> listenersWR = new WeakHashMap<VendingUtils.OnVendingResultListener, Object>();
+	private static WeakHashMap<OnVendingResultListener, Object> listenersWR = new WeakHashMap<>();
 
 	private static void checkBilling(Context context, OnVendingResultListener listener) {
 		addListener(listener);
@@ -121,7 +118,7 @@ public final class VendingUtils implements MTLog.Loggable {
 	}
 
 	private static void setContext(Context context) {
-		contextWR = new WeakReference<Context>(context);
+		contextWR = new WeakReference<>(context);
 	}
 
 	public static void onPause() {
@@ -137,39 +134,33 @@ public final class VendingUtils implements MTLog.Loggable {
 
 	private static void initBilling(Context context) {
 		mHelper = new IabHelper(context, context.getString(R.string.google_play_license_key));
-		mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
-			@Override
-			public void onIabSetupFinished(IabResult result) {
-				if (!result.isSuccess()) {
-					MTLog.w(TAG, "Problem setting up in-app billing: " + result);
+		mHelper.startSetup(result -> {
+			if (!result.isSuccess()) {
+				MTLog.w(TAG, "Problem setting up in-app billing: " + result);
+				return;
+			}
+			if (mHelper == null) return;
+			mHelper.queryInventoryAsync((result1, inventory) -> {
+				if (mHelper == null) return;
+				if (result1.isFailure()) {
+					MTLog.w(TAG, "Failed to query inventory: %s", result1);
 					return;
 				}
-				if (mHelper == null) return;
-				mHelper.queryInventoryAsync(new IabHelper.QueryInventoryFinishedListener() {
-					@Override
-					public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
-						if (mHelper == null) return;
-						if (result.isFailure()) {
-							MTLog.w(TAG, "Failed to query inventory: %s", result);
-							return;
-						}
-						List<String> allOwnedSkus = inventory.getAllOwnedSkus(IabHelper.ITEM_TYPE_SUBS);
-						Boolean mHasSubscription = false;
-						if (allOwnedSkus != null) {
-							for (String ownedSku : allOwnedSkus) {
-								if (ALL_VALID_SUBSCRIPTIONS.contains(ownedSku)) {
-									Purchase subscriptionPurchase = inventory.getPurchase(ownedSku);
-									if (subscriptionPurchase != null && verifyDeveloperPayload(subscriptionPurchase)) {
-										mHasSubscription = true;
-										break;
-									}
-								}
+				List<String> allOwnedSkus = inventory.getAllOwnedSkus(IabHelper.ITEM_TYPE_SUBS);
+				Boolean mHasSubscription = Boolean.FALSE;
+				if (allOwnedSkus != null) {
+					for (String ownedSku : allOwnedSkus) {
+						if (ALL_VALID_SUBSCRIPTIONS.contains(ownedSku)) {
+							Purchase subscriptionPurchase = inventory.getPurchase(ownedSku);
+							if (subscriptionPurchase != null && verifyDeveloperPayload(subscriptionPurchase)) {
+								mHasSubscription = Boolean.TRUE;
+								break;
 							}
 						}
-						setHasSubscription(mHasSubscription);
 					}
-				});
-			}
+				}
+				setHasSubscription(mHasSubscription);
+			});
 		});
 	}
 
@@ -211,9 +202,7 @@ public final class VendingUtils implements MTLog.Loggable {
 	}
 
 	private static void broadcastNewVendingResult(Boolean newHasSubscription) {
-		Iterator<OnVendingResultListener> it = listenersWR.keySet().iterator();
-		while (it.hasNext()) {
-			OnVendingResultListener listener = it.next();
+		for (OnVendingResultListener listener : listenersWR.keySet()) {
 			if (listener != null) {
 				listener.onVendingResult(newHasSubscription);
 			}
@@ -242,42 +231,39 @@ public final class VendingUtils implements MTLog.Loggable {
 			MTLog.i(TAG, "logInventory() > mHelper: %s", mHelper);
 			if (mHelper != null && mHelper.subscriptionsSupported()) {
 				MTLog.i(TAG, "logInventory() > Query inventory...");
-				mHelper.queryInventoryAsync(true, null, AVAILABLE_SUBSCRIPTIONS, new IabHelper.QueryInventoryFinishedListener() {
-					@Override
-					public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
-						MTLog.i(TAG, "onQueryInventoryFinished(%s,%s)", result, inventory);
-						MTLog.i(TAG, "Query inventory finished.");
-						if (result == null || result.isFailure() || inventory == null) {
-							MTLog.w(TAG, "Failed to query inventory: %s (%s)", result, inventory);
-							return;
-						}
-						MTLog.i(TAG, "Query inventory was successful.");
-						MTLog.i(TAG, "all sku...");
-						for (String sku : inventory.getAllSkus()) {
-							if (!inventory.hasDetails(sku)) {
-								MTLog.i(TAG, "Skip sku %s (no details)", sku);
-								continue;
-							}
-							SkuDetails skuDetails = inventory.getSkuDetails(sku);
-							MTLog.i(TAG, "sku: %s: %s", sku, skuDetails);
-						}
-						MTLog.i(TAG, "all sku... DONE");
-						MTLog.i(TAG, "all owned sku...");
-						for (String sku : inventory.getAllOwnedSkus()) {
-							if (!inventory.hasDetails(sku)) {
-								MTLog.i(TAG, "Skip sku %s (no details)", sku);
-								continue;
-							}
-							SkuDetails skuDetails = inventory.getSkuDetails(sku);
-							MTLog.i(TAG, "sku: %s: %s", sku, skuDetails);
-						}
-						MTLog.i(TAG, "all owned sku... DONE");
-						MTLog.i(TAG, "all purchase...");
-						for (Purchase purchase : inventory.getAllPurchases()) {
-							MTLog.i(TAG, "purchase: %s", purchase);
-						}
-						MTLog.i(TAG, "all purchase... DONE");
+				mHelper.queryInventoryAsync(true, null, AVAILABLE_SUBSCRIPTIONS, (result, inventory) -> {
+					MTLog.i(TAG, "onQueryInventoryFinished(%s,%s)", result, inventory);
+					MTLog.i(TAG, "Query inventory finished.");
+					if (result == null || result.isFailure() || inventory == null) {
+						MTLog.w(TAG, "Failed to query inventory: %s (%s)", result, inventory);
+						return;
 					}
+					MTLog.i(TAG, "Query inventory was successful.");
+					MTLog.i(TAG, "all sku...");
+					for (String sku : inventory.getAllSkus()) {
+						if (!inventory.hasDetails(sku)) {
+							MTLog.i(TAG, "Skip sku %s (no details)", sku);
+							continue;
+						}
+						SkuDetails skuDetails = inventory.getSkuDetails(sku);
+						MTLog.i(TAG, "sku: %s: %s", sku, skuDetails);
+					}
+					MTLog.i(TAG, "all sku... DONE");
+					MTLog.i(TAG, "all owned sku...");
+					for (String sku : inventory.getAllOwnedSkus()) {
+						if (!inventory.hasDetails(sku)) {
+							MTLog.i(TAG, "Skip sku %s (no details)", sku);
+							continue;
+						}
+						SkuDetails skuDetails = inventory.getSkuDetails(sku);
+						MTLog.i(TAG, "sku: %s: %s", sku, skuDetails);
+					}
+					MTLog.i(TAG, "all owned sku... DONE");
+					MTLog.i(TAG, "all purchase...");
+					for (Purchase purchase : inventory.getAllPurchases()) {
+						MTLog.i(TAG, "purchase: %s", purchase);
+					}
+					MTLog.i(TAG, "all purchase... DONE");
 				});
 			}
 		} catch (Exception e) {
@@ -290,40 +276,36 @@ public final class VendingUtils implements MTLog.Loggable {
 	public static void purchase(Activity activity, String sku) {
 		if (mHelper != null && mHelper.subscriptionsSupported()) {
 			String payload = "";
-			mHelper.launchPurchaseFlow(activity, sku, IabHelper.ITEM_TYPE_SUBS, RC_REQUEST, new IabHelper.OnIabPurchaseFinishedListener() {
-				@Override
-				public void onIabPurchaseFinished(IabResult result, Purchase purchase) {
-					Context context = contextWR == null ? null : contextWR.get();
-					if (mHelper == null) return;
-					if (result.isFailure()) {
-						MTLog.w(TAG, "onIabPurchaseFinished() > Error purchasing: %s", result);
-						if (context != null) {
-							int resId = R.string.support_subs_default_failure_message;
-							if (result.getResponse() == IabHelper.IABHELPER_USER_CANCELLED) {
-								resId = R.string.support_subs_user_canceled_message;
-							}
-							ToastUtils.makeTextAndShowCentered(context, resId);
+			mHelper.launchPurchaseFlow(activity, sku, IabHelper.ITEM_TYPE_SUBS, RC_REQUEST, (result, purchase) -> {
+				Context context = contextWR == null ? null : contextWR.get();
+				if (mHelper == null) return;
+				if (result.isFailure()) {
+					MTLog.w(TAG, "onIabPurchaseFinished() > Error purchasing: %s", result);
+					if (context != null) {
+						int resId = R.string.support_subs_default_failure_message;
+						if (result.getResponse() == IabHelper.IABHELPER_USER_CANCELLED) {
+							resId = R.string.support_subs_user_canceled_message;
 						}
-						return;
+						ToastUtils.makeTextAndShowCentered(context, resId);
 					}
-					if (!verifyDeveloperPayload(purchase)) {
-						MTLog.w(TAG, "onIabPurchaseFinished() > Error purchasing. Authenticity verification failed.");
-						if (context != null) {
-							int resId = R.string.support_subs_authenticity_check_fail_message;
-							ToastUtils.makeTextAndShowCentered(context, resId, Toast.LENGTH_LONG);
-						}
-						return;
-					}
-					String purchasedSku = purchase.getSku();
-					if (ALL_VALID_SUBSCRIPTIONS.contains(purchasedSku)) {
-						if (context != null) {
-							int resId = R.string.support_subs_purchase_successful_message;
-							ToastUtils.makeTextAndShowCentered(context, resId, Toast.LENGTH_LONG);
-						}
-						setHasSubscription(true);
-					}
+					return;
 				}
-
+				if (!verifyDeveloperPayload(purchase)) {
+					MTLog.w(TAG, "onIabPurchaseFinished() > Error purchasing. Authenticity verification failed.");
+					if (context != null) {
+						int resId = R.string.support_subs_authenticity_check_fail_message;
+						ToastUtils.makeTextAndShowCentered(context, resId, Toast.LENGTH_LONG);
+					}
+					return;
+				}
+				String purchasedSku = purchase.getSku();
+				if (ALL_VALID_SUBSCRIPTIONS.contains(purchasedSku)) {
+					if (context != null) {
+						int resId = R.string.support_subs_purchase_successful_message;
+						ToastUtils.makeTextAndShowCentered(context, resId, Toast.LENGTH_LONG);
+					}
+					setHasSubscription(true);
+				}
 			}, payload);
 		}
 	}

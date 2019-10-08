@@ -10,13 +10,14 @@ import android.app.Fragment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+@SuppressWarnings("unused")
 public abstract class FragmentAsyncTask<Params, Progress, Result, F extends Fragment> extends MTAsyncTask<Params, Progress, Result> implements MTLog.Loggable {
 
 	private final WeakReference<F> fragmentWR;
 
 	public FragmentAsyncTask(@Nullable F fragment) {
 		super();
-		this.fragmentWR = new WeakReference<F>(fragment);
+		this.fragmentWR = new WeakReference<>(fragment);
 	}
 
 	@Nullable

@@ -555,7 +555,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			POIMarkerIds poiMarkerIds = imarker.getData();
 			if (poiMarkerIds.size() >= 1) {
 				Activity activity = getActivityOrNull();
-				if (activity != null && activity instanceof MainActivity) {
+				if (activity instanceof MainActivity) {
 					FragmentUtils.replaceDialogFragment((MainActivity) activity, FragmentUtils.DIALOG_TAG, //
 							PickPOIDialogFragment.newInstance(poiMarkerIds.getMap()), //
 							null);
@@ -958,12 +958,12 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			addAgency(agency);
 			addExtras(extra);
 			if (this.color != null) {
-				if (color == null || !this.color.equals(color)) {
+				if (!this.color.equals(color)) {
 					this.color = null;
 				}
 			}
 			if (this.secondaryColor != null) {
-				if (secondaryColor == null || !this.secondaryColor.equals(secondaryColor)) {
+				if (!this.secondaryColor.equals(secondaryColor)) {
 					this.secondaryColor = null;
 				}
 			}

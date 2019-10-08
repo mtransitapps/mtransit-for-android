@@ -128,7 +128,7 @@ public class ExtendedMarkerOptions {
 
 	public ExtendedMarkerOptions icon(Context context, int iconResId, Integer color, Integer secondaryColor, int defaultColor) {
 		real.icon(null);
-		realContextWR = new WeakReference<Context>(context);
+		realContextWR = new WeakReference<>(context);
 		realIconResId = iconResId;
 		realColor = color;
 		realSecondaryColor = secondaryColor;
