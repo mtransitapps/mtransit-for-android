@@ -10,6 +10,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 import java.lang.ref.WeakReference;
@@ -57,10 +58,12 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.collection.SimpleArrayMap;
+
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -158,8 +161,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	private boolean locationPermissionGranted = false;
 
 	public MapViewController(String tag, MapMarkerProvider markerProvider, MapListener mapListener, boolean mapToolbarEnabled, boolean myLocationEnabled,
-			boolean myLocationButtonEnabled, boolean indoorLevelPickerEnabled, boolean trafficEnabled, boolean indoorEnabled, int paddingTopSp,
-			boolean followingUser, boolean hasButtons, boolean clusteringEnabled, boolean showAllMarkersWhenReady, boolean markerLabelShowExtra) {
+							 boolean myLocationButtonEnabled, boolean indoorLevelPickerEnabled, boolean trafficEnabled, boolean indoorEnabled, int paddingTopSp,
+							 boolean followingUser, boolean hasButtons, boolean clusteringEnabled, boolean showAllMarkersWhenReady, boolean markerLabelShowExtra) {
 		this.tag = tag;
 		setMarkerProvider(markerProvider);
 		setMapListener(mapListener);
@@ -358,6 +361,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 		this.extendedGoogleMap = ExtendedMapFactory.create(googleMap, getActivityOrNull());
 		applyMapType();
+		applyMapStyle();
 		setupGoogleMapMyLocation();
 		this.extendedGoogleMap.setTrafficEnabled(this.trafficEnabled);
 		this.extendedGoogleMap.setIndoorEnabled(this.indoorEnabled);
@@ -481,6 +485,19 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (map != null) {
 			map.setMapType(getMapType());
 		}
+	}
+
+	private void applyMapStyle() {
+		ExtendedGoogleMap map = getGoogleMapOrNull();
+		if (map == null) {
+			return;
+		}
+		Context context = getActivityOrNull();
+		if (context == null) {
+			return;
+		}
+		MapStyleOptions mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.mapstyle);
+		map.setMapStyle(mapStyleOptions);
 	}
 
 	private void setTypeSwitchImg() {

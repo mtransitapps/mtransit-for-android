@@ -24,10 +24,13 @@ import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.MapStyleOptions;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import android.view.View;
 
@@ -245,6 +248,11 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 	@Override
 	public void setMapType(int mapType) {
 		real.setMapType(mapType);
+	}
+
+	@Override
+	public void setMapStyle(@Nullable MapStyleOptions mapStyleOptions) {
+		real.setMapStyle(mapStyleOptions);
 	}
 
 	@SuppressLint("MissingPermission")
