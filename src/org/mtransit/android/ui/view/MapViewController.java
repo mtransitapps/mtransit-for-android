@@ -496,8 +496,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (context == null) {
 			return;
 		}
-		MapStyleOptions mapStyleOptions = MapStyleOptions.loadRawResourceStyle(context, R.raw.mapstyle);
-		map.setMapStyle(mapStyleOptions);
+		map.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.mapstyle));
 	}
 
 	private void setTypeSwitchImg() {
