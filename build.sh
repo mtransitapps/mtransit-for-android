@@ -67,7 +67,7 @@ if [[ ${IS_CI} = true ]]; then
 			echo "MT_SONAR_LOGIN environment variable is NOT defined!";
 			exit 1;
 		fi
-		if [ -z "$CIRCLE_PULL_REQUEST" ]; then
+		if [[ ! -z "${CIRCLE_PULL_REQUEST}" ]]; then
             GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD);
             if [[ "$GIT_BRANCH" = "HEAD" ]]; then
                 GIT_BRANCH="";
