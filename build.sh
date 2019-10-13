@@ -67,10 +67,18 @@ if [[ ${IS_CI} = true ]]; then
 			echo "MT_SONAR_LOGIN environment variable is NOT defined!";
 			exit 1;
 		fi
+		GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD);
+		if [[ "$GIT_BRANCH" = "HEAD" ]]; then
+		    GIT_BRANCH="";
+		fi
 		echo ">> Running sonar...";
 		../gradlew ${SETTINGS_FILE_ARGS} :${DIRECTORY}:sonarqube \
-			-Dsonar.organization=mtransitapps-github -Dsonar.projectName=${GIT_PROJECT_NAME} \
-			-Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${MT_SONAR_LOGIN} ${GRADLE_ARGS}
+			-Dsonar.organization=mtransitapps-github \
+			-Dsonar.projectName=${GIT_PROJECT_NAME} \
+			-Dsonar.host.url=https://sonarcloud.io \
+			-Dsonar.login=${MT_SONAR_LOGIN} \
+			-Dsonar.pullrequest.branch=${GIT_BRANCH} \
+			${GRADLE_ARGS}
 		RESULT=$?;
 		checkResult ${RESULT};
 		echo ">> Running sonar... DONE";
