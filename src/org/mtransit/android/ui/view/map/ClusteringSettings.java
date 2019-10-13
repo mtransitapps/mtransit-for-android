@@ -1,5 +1,7 @@
 package org.mtransit.android.ui.view.map;
 
+import androidx.core.util.ObjectsCompat;
+
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 public class ClusteringSettings {
 
@@ -69,7 +71,7 @@ public class ClusteringSettings {
 		return addMarkersDynamically == that.addMarkersDynamically //
 				&& Double.compare(that.clusterSize, clusterSize) == 0 //
 				&& enabled == that.enabled //
-				&& (clusterOptionsProvider != null ? clusterOptionsProvider.equals(that.clusterOptionsProvider) : that.clusterOptionsProvider == null);
+				&& (ObjectsCompat.equals(clusterOptionsProvider, that.clusterOptionsProvider));
 	}
 
 	@Override

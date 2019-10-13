@@ -80,7 +80,6 @@ public abstract class MTPreferenceFragment extends PreferenceFragment implements
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onAttach(Activity activity) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -146,7 +145,6 @@ public abstract class MTPreferenceFragment extends PreferenceFragment implements
 		super.onDetach();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onInflate(Activity activity, AttributeSet attrs, Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {

@@ -40,6 +40,11 @@ dependencies {
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    compileOptions {
+        sourceCompatibility rootProject.javaVersion
+        targetCompatibility rootProject.javaVersion
+    }
+
     Properties projectNameProperties = new Properties()
     projectNameProperties.load(new FileInputStream(file("project_name.properties")))
 

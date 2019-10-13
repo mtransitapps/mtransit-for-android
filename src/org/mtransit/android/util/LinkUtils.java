@@ -238,7 +238,7 @@ public final class LinkUtils implements MTLog.Loggable {
 		}
 
 		private void setOnUrlClickListener(OnUrlClickListener onUrlClickListener) {
-			this.onUrlClickListenerWR = new WeakReference<OnUrlClickListener>(onUrlClickListener);
+			this.onUrlClickListenerWR = new WeakReference<>(onUrlClickListener);
 		}
 
 		@Override

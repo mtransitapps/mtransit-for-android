@@ -40,7 +40,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 	private IMarker markerShowingInfoWindow;
 
 	private ClusteringSettings clusteringSettings = new ClusteringSettings().enabled(false);
-	private ClusteringStrategy clusteringStrategy = new NoClusteringStrategy(new ArrayList<DelegatingMarker>());
+	private ClusteringStrategy clusteringStrategy = new NoClusteringStrategy(new ArrayList<>());
 
 	private final MarkerAnimator markerAnimator = new MarkerAnimator();
 
@@ -98,7 +98,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 	}
 
 	public List<IMarker> getMarkers() {
-		return new ArrayList<IMarker>(markers.values());
+		return new ArrayList<>(markers.values());
 	}
 
 	public IMarker getMarkerShowingInfoWindow() {

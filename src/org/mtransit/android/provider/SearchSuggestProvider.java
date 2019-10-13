@@ -87,10 +87,10 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 	private Cursor getSearchSuggest(String query, Cursor recentSearchCursor) {
 		clearAllTasks();
 		HashSet<String> recentSearchSuggestions = DataSourceManager.getSearchSuggest(recentSearchCursor);
-		HashSet<String> suggestions = new HashSet<String>();
+		HashSet<String> suggestions = new HashSet<>();
 		if (!TextUtils.isEmpty(query)) {
 			ArrayList<AgencyProperties> agencies = DataSourceProvider.get(getContext()).getAllAgencies(getContext());
-			ArrayList<Future<HashSet<String>>> taskList = new ArrayList<Future<HashSet<String>>>();
+			ArrayList<Future<HashSet<String>>> taskList = new ArrayList<>();
 			if (agencies != null) {
 				for (AgencyProperties agency : agencies) {
 					FindSearchSuggestTask task = new FindSearchSuggestTask(getContext(), agency, query);
@@ -134,7 +134,7 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 	public ThreadPoolExecutor getFetchSuggestExecutor() {
 		if (this.fetchSuggestExecutor == null) {
 			this.fetchSuggestExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS,
-					new LinkedBlockingDeque<Runnable>());
+					new LinkedBlockingDeque<>());
 		}
 		return fetchSuggestExecutor;
 	}
@@ -166,7 +166,7 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 		}
 
 		@Override
-		public HashSet<String> callMT() throws Exception {
+		public HashSet<String> callMT() {
 			return DataSourceManager.findSearchSuggest(this.context, this.agency.getAuthority(), this.query);
 		}
 	}

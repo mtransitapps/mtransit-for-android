@@ -174,7 +174,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		if (view == null) {
 			return;
 		}
-		AbsListView absListView = (AbsListView) view.findViewById(isShowingListInsteadOfGrid() ? R.id.list : R.id.grid);
+		AbsListView absListView = view.findViewById(isShowingListInsteadOfGrid() ? R.id.list : R.id.grid);
 		linkAdapterWithListView(view);
 		absListView.setOnItemClickListener(this);
 		switchView(view);
@@ -445,7 +445,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 				inflater.inflate(R.menu.menu_rts_agency_routes, menu);
 			}
 			this.listGridToggleMenuItem = menu.findItem(R.id.menu_toggle_list_grid);
-			this.listGridSwitchMenuItem = (SwitchCompat) this.listGridToggleMenuItem.getActionView().findViewById(R.id.action_bar_switch_list_grid);
+			this.listGridSwitchMenuItem = this.listGridToggleMenuItem.getActionView().findViewById(R.id.action_bar_switch_list_grid);
 			this.listGridSwitchMenuItem.setThumbDrawable(getListGridToggleSelector());
 		} else {
 			if (this.listGridSwitchMenuItem != null) {
@@ -593,9 +593,9 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 						: R.layout.layout_rts_route_grid_item, parent, false);
 				RouteViewHolder holder = new RouteViewHolder();
 				holder.routeFL = convertView.findViewById(R.id.route);
-				holder.routeShortNameTv = (TextView) convertView.findViewById(R.id.route_short_name);
-				holder.routeTypeImg = (MTJPathsView) convertView.findViewById(R.id.route_type_img);
-				holder.routeLongNameTv = (TextView) convertView.findViewById(R.id.route_long_name);
+				holder.routeShortNameTv = convertView.findViewById(R.id.route_short_name);
+				holder.routeTypeImg = convertView.findViewById(R.id.route_type_img);
+				holder.routeLongNameTv = convertView.findViewById(R.id.route_long_name);
 				convertView.setTag(holder);
 			}
 			updateRouteView(position, convertView);

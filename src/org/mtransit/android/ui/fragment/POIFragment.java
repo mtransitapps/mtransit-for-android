@@ -77,7 +77,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
-import android.widget.ScrollView;
 
 public class POIFragment extends ABFragment implements
 		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
@@ -396,14 +395,14 @@ public class POIFragment extends ABFragment implements
 		if (context == null) {
 			return false;
 		}
-		this.news = new ArrayList<News>();
+		this.news = new ArrayList<>();
 		HashSet<NewsProviderProperties> poiNewsProviders = DataSourceProvider.get(context).getTargetAuthorityNewsProviders(poim.poi.getAuthority());
 		if (CollectionUtils.getSize(poiNewsProviders) == 0) {
 			return true; // no news, need to apply
 		}
 		long nowInMs = TimeUtils.currentTimeMillis();
 		long minCreatedAtInMs = nowInMs - TimeUnit.DAYS.toMillis(7L);
-		ArrayList<News> allNews = new ArrayList<News>();
+		ArrayList<News> allNews = new ArrayList<>();
 		if (poiNewsProviders != null) {
 			for (NewsProviderProperties poiNewsProvider : poiNewsProviders) {
 				ArrayList<News> providerNews = DataSourceManager.findNews(context, poiNewsProvider.getAuthority(),
@@ -467,7 +466,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		this.mapViewController.onConfigurationChanged(newConfig);
 	}
@@ -666,8 +665,8 @@ public class POIFragment extends ABFragment implements
 		if (view == null) {
 			return;
 		}
-		this.adapter.setManualScrollView((ScrollView) view.findViewById(R.id.scrollview));
-		this.adapter.setManualLayout((ViewGroup) view.findViewById(R.id.poi_nearby_pois_list));
+		this.adapter.setManualScrollView(view.findViewById(R.id.scrollview));
+		this.adapter.setManualLayout(view.findViewById(R.id.poi_nearby_pois_list));
 	}
 
 	private void setupRTSFullScheduleBtn(View view) {
@@ -970,12 +969,9 @@ public class POIFragment extends ABFragment implements
 		View view = getView();
 		if (this.modulesUpdated) {
 			if (view != null) {
-				view.post(new Runnable() {
-					@Override
-					public void run() {
-						if (POIFragment.this.modulesUpdated) {
-							onModulesUpdated();
-						}
+				view.post(() -> {
+					if (POIFragment.this.modulesUpdated) {
+						onModulesUpdated();
 					}
 				});
 			}

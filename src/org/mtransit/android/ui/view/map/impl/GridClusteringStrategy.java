@@ -41,7 +41,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 	private int oldZoom, zoom;
 	private int[] visibleClusters = new int[4];
 
-	private ArrayMap<ClusterKey, ClusterMarker> clusters = new ArrayMap<ClusterKey, ClusterMarker>();
+	private ArrayMap<ClusterKey, ClusterMarker> clusters = new ArrayMap<>();
 
 	private ClusterRefresher refresher;
 	private ClusterOptionsProvider clusterOptionsProvider;
@@ -51,7 +51,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 		this.addMarkersDynamically = settings.isAddMarkersDynamically();
 		this.baseClusterSize = settings.getClusterSize();
 		this.map = map;
-		this.markers = new ArrayMap<DelegatingMarker, ClusterMarker>();
+		this.markers = new ArrayMap<>();
 		this.refresher = refresher;
 		this.zoom = Math.round(map.getCameraPosition().zoom);
 		this.clusterSize = calculateClusterSize(zoom);
@@ -178,7 +178,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 
 	@Override
 	public List<IMarker> getDisplayedMarkers() {
-		List<IMarker> displayedMarkers = new ArrayList<IMarker>();
+		List<IMarker> displayedMarkers = new ArrayList<>();
 		for (ClusterMarker cluster : clusters.values()) {
 			IMarker displayedMarker = cluster.getDisplayedMarker();
 			if (displayedMarker != null) {
@@ -298,7 +298,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 	}
 
 	private void splitClusters() {
-		ArrayMap<ClusterKey, ClusterMarker> newClusters = new ArrayMap<ClusterKey, ClusterMarker>();
+		ArrayMap<ClusterKey, ClusterMarker> newClusters = new ArrayMap<>();
 		for (ClusterMarker cluster : clusters.values()) {
 			List<DelegatingMarker> ms = cluster.getMarkersInternal();
 			if (ms.isEmpty()) {
@@ -338,8 +338,8 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 	}
 
 	private void joinClusters() {
-		ArrayMap<ClusterKey, ClusterMarker> newClusters = new ArrayMap<ClusterKey, ClusterMarker>();
-		ArrayMap<ClusterKey, List<ClusterMarker>> oldClusters = new ArrayMap<ClusterKey, List<ClusterMarker>>();
+		ArrayMap<ClusterKey, ClusterMarker> newClusters = new ArrayMap<>();
+		ArrayMap<ClusterKey, List<ClusterMarker>> oldClusters = new ArrayMap<>();
 		for (ClusterMarker cluster : clusters.values()) {
 			List<DelegatingMarker> ms = cluster.getMarkersInternal();
 			if (ms.isEmpty()) {
@@ -349,7 +349,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 			ClusterKey clusterId = calculateClusterKey(ms.get(0).getClusterGroup(), ms.get(0).getPosition());
 			List<ClusterMarker> clusterList = oldClusters.get(clusterId);
 			if (clusterList == null) {
-				clusterList = new ArrayList<ClusterMarker>();
+				clusterList = new ArrayList<>();
 				oldClusters.put(clusterId, clusterList);
 			}
 			clusterList.add(cluster);

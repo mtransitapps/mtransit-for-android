@@ -49,7 +49,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return TAG;
 	}
 
-	private static ArrayMap<String, Uri> uriMap = new ArrayMap<String, Uri>();
+	private static ArrayMap<String, Uri> uriMap = new ArrayMap<>();
 
 	private static Uri getUri(String authority) {
 		Uri uri = uriMap.get(authority);
@@ -79,7 +79,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	private static ArrayList<ServiceUpdate> getServiceUpdates(Cursor cursor) {
-		ArrayList<ServiceUpdate> result = new ArrayList<ServiceUpdate>();
+		ArrayList<ServiceUpdate> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -111,7 +111,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	private static ArrayList<News> getNews(Cursor cursor, String authority) {
-		ArrayList<News> result = new ArrayList<News>();
+		ArrayList<News> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -148,10 +148,10 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static POIStatus findStatus(Context context, String authority, StatusProviderContract.Filter statusFilter) {
+	public static POIStatus findStatus(@NonNull Context context, @NonNull String authority, @NonNull StatusProviderContract.Filter statusFilter) {
 		Cursor cursor = null;
 		try {
-			String statusFilterJSONString = statusFilter == null ? null : statusFilter.toJSONStringStatic(statusFilter);
+			String statusFilterJSONString = statusFilter.toJSONStringStatic(statusFilter);
 			Uri uri = Uri.withAppendedPath(getUri(authority), StatusProviderContract.STATUS_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, statusFilterJSONString, null, null);
 			return getPOIStatus(cursor);
@@ -174,13 +174,13 @@ public final class DataSourceManager implements MTLog.Loggable {
 					result = null;
 					break;
 				case POI.ITEM_STATUS_TYPE_SCHEDULE:
-					result = Schedule.fromCursor(cursor);
+					result = Schedule.fromCursorWithExtra(cursor);
 					break;
 				case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
-					result = AvailabilityPercent.fromCursor(cursor);
+					result = AvailabilityPercent.fromCursorWithExtra(cursor);
 					break;
 				case POI.ITEM_STATUS_TYPE_APP:
-					result = AppStatus.fromCursor(cursor);
+					result = AppStatus.fromCursorWithExtra(cursor);
 					break;
 				default:
 					MTLog.w(TAG, "findStatus() > Unexpected status '%s'!", status);
@@ -278,7 +278,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	private static ArrayList<Trip> getRTSTrips(Cursor cursor) {
-		ArrayList<Trip> result = new ArrayList<Trip>();
+		ArrayList<Trip> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -327,7 +327,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	private static ArrayList<Route> getRTSRoutes(Cursor cursor) {
-		ArrayList<Route> result = new ArrayList<Route>();
+		ArrayList<Route> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -366,7 +366,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	private static ArrayList<POIManager> getPOIs(Cursor cursor, String authority) {
-		ArrayList<POIManager> result = new ArrayList<POIManager>();
+		ArrayList<POIManager> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
@@ -395,7 +395,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	public static HashSet<String> getSearchSuggest(Cursor cursor) {
-		HashSet<String> results = new HashSet<String>();
+		HashSet<String> results = new HashSet<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				int text1ColumnIdx = cursor.getColumnIndexOrThrow(SearchManager.SUGGEST_COLUMN_TEXT_1);

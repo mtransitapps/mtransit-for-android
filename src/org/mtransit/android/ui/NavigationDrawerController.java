@@ -71,12 +71,12 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	private Integer currentSelectedScreenItemNavId = null;
 	private String currentSelectedScreenItemId = null;
 
-	public NavigationDrawerController(MainActivity mainActivity) {
-		this.mainActivityWR = new WeakReference<MainActivity>(mainActivity);
+	public NavigationDrawerController(@NonNull MainActivity mainActivity) {
+		this.mainActivityWR = new WeakReference<>(mainActivity);
 		DataSourceProvider.addModulesUpdateListener(this);
 	}
 
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@SuppressWarnings("unused") @Nullable Bundle savedInstanceState) {
 	}
 
 	private void setup() {
@@ -84,9 +84,9 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		if (mainActivity == null) {
 			return;
 		}
-		this.navigationView = (NavigationView) mainActivity.findViewById(R.id.nav_view);
+		this.navigationView = mainActivity.findViewById(R.id.nav_view);
 		this.navigationView.setNavigationItemSelectedListener(this);
-		this.drawerLayout = (DrawerLayout) mainActivity.findViewById(R.id.drawer_layout);
+		this.drawerLayout = mainActivity.findViewById(R.id.drawer_layout);
 		this.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 		this.drawerToggle = new ABDrawerToggle(mainActivity, this.drawerLayout);
 		this.drawerLayout.addDrawerListener(this.drawerToggle);
@@ -116,7 +116,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		private final WeakReference<NavigationDrawerController> navigationDrawerControllerWR;
 
 		public FinishSetupTask(NavigationDrawerController navigationDrawerController) {
-			this.navigationDrawerControllerWR = new WeakReference<NavigationDrawerController>(navigationDrawerController);
+			this.navigationDrawerControllerWR = new WeakReference<>(navigationDrawerController);
 		}
 
 		@Override
@@ -490,7 +490,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			activity.startActivity(PreferencesActivity.newInstance(activity, true));
 			break;
 		default:
-			MTLog.w(this, "startNewScreen() > Unexptected screen nav item ID: %s", navItemId);
+			MTLog.w(this, "startNewScreen() > Unexpected screen nav item ID: %s", navItemId);
 		}
 	}
 
@@ -647,12 +647,9 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			onMenuUpdated();
 		}
 		if (this.modulesUpdated) {
-			new Handler().post(new Runnable() {
-				@Override
-				public void run() {
-					if (NavigationDrawerController.this.modulesUpdated) {
-						onModulesUpdated();
-					}
+			new Handler().post(() -> {
+				if (NavigationDrawerController.this.modulesUpdated) {
+					onModulesUpdated();
 				}
 			});
 		}
@@ -720,7 +717,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 
 		public ABDrawerToggle(MainActivity mainActivity, DrawerLayout drawerLayout) {
 			super(mainActivity, drawerLayout, R.string.drawer_open, R.string.drawer_close);
-			this.mainActivityWR = new WeakReference<MainActivity>(mainActivity);
+			this.mainActivityWR = new WeakReference<>(mainActivity);
 		}
 
 		@Override

@@ -55,15 +55,13 @@ public class StatusLoader implements MTLog.Loggable {
 	public ThreadPoolExecutor getFetchStatusExecutor(String statusProviderAuthority) {
 		if (!this.fetchStatusExecutors.containsKey(statusProviderAuthority)) {
 			this.fetchStatusExecutors.put(statusProviderAuthority, //
-					new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS, new LIFOBlockingDeque<Runnable>()));
+					new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS, new LIFOBlockingDeque<>()));
 		}
 		return this.fetchStatusExecutors.get(statusProviderAuthority);
 	}
 
 	public boolean isBusy() {
-		Iterator<Map.Entry<String, ThreadPoolExecutor>> it = this.fetchStatusExecutors.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry<String, ThreadPoolExecutor> fetchStatusExecutor = it.next();
+		for (Map.Entry<String, ThreadPoolExecutor> fetchStatusExecutor : this.fetchStatusExecutors.entrySet()) {
 			if (fetchStatusExecutor.getValue() != null && fetchStatusExecutor.getValue().getActiveCount() > 0) {
 				return true;
 			}
@@ -89,9 +87,7 @@ public class StatusLoader implements MTLog.Loggable {
 		}
 		HashSet<StatusProviderProperties> providers = DataSourceProvider.get(context).getTargetAuthorityStatusProviders(poim.poi.getAuthority());
 		if (providers != null && providers.size() > 0) {
-			Iterator<StatusProviderProperties> it = providers.iterator();
-			while (it.hasNext()) {
-				StatusProviderProperties provider = it.next();
+			for (StatusProviderProperties provider : providers) {
 				if (provider == null) {
 					continue;
 				}

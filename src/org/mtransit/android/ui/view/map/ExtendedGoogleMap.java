@@ -6,14 +6,18 @@ import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 
 import java.util.List;
 
 import android.graphics.Bitmap;
+
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import android.view.View;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
+@SuppressWarnings("unused")
 public interface ExtendedGoogleMap {
 
 	int MAP_TYPE_HYBRID = com.google.android.gms.maps.GoogleMap.MAP_TYPE_HYBRID;
@@ -94,6 +98,8 @@ public interface ExtendedGoogleMap {
 	void setLocationSource(LocationSource locationSource);
 
 	void setMapType(int mapType);
+
+	void setMapStyle(@Nullable MapStyleOptions mapStyleOptions);
 
 	@RequiresPermission(
 			anyOf = {"android.permission.ACCESS_COARSE_LOCATION", "android.permission.ACCESS_FINE_LOCATION"}

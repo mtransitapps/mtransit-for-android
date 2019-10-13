@@ -2,7 +2,6 @@ package org.mtransit.android.ui.fragment;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
@@ -43,8 +42,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 	}
 
 	public static PurchaseDialogFragment newInstance() {
-		PurchaseDialogFragment f = new PurchaseDialogFragment();
-		return f;
+		return new PurchaseDialogFragment();
 	}
 
 	@Override
@@ -74,19 +72,12 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 		if (view == null) {
 			return;
 		}
-		view.findViewById(R.id.buyBtn).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onBuyBtnClick(v.getContext());
-			}
-
-		});
-		view.findViewById(R.id.downloadOrOpenPaidTasksBtn).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onDownloadOrOpenPaidTasksBtnClick(v.getContext());
-			}
-		});
+		view.findViewById(R.id.buyBtn).setOnClickListener(v ->
+				onBuyBtnClick(v.getContext())
+		);
+		view.findViewById(R.id.downloadOrOpenPaidTasksBtn).setOnClickListener(v ->
+				onDownloadOrOpenPaidTasksBtnClick(v.getContext())
+		);
 	}
 
 	private void onDownloadOrOpenPaidTasksBtnClick(@NonNull Context context) {
@@ -124,7 +115,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
-			Spinner periodSpinner = (Spinner) view.findViewById(R.id.period);
+			Spinner periodSpinner = view.findViewById(R.id.period);
 			int periodPosition = periodSpinner.getSelectedItemPosition();
 			String periodS = this.periods.get(periodPosition);
 			if (TextUtils.isEmpty(periodS)) {
@@ -138,7 +129,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
-			Spinner priceSpinner = (Spinner) view.findViewById(R.id.price);
+			Spinner priceSpinner = view.findViewById(R.id.price);
 			int pricePosition = priceSpinner.getSelectedItemPosition();
 			String priceS = this.prices.get(pricePosition);
 			if (TextUtils.isEmpty(priceS)) {
@@ -215,10 +206,10 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 		}
 	}
 
-	private ArrayList<String> prices = new ArrayList<String>();
-	private ArrayMap<String, String> priceSToPriceCat = new ArrayMap<String, String>();
-	private ArrayList<String> periods = new ArrayList<String>();
-	private ArrayMap<String, String> periodSToPeriodCat = new ArrayMap<String, String>();
+	private ArrayList<String> prices = new ArrayList<>();
+	private ArrayMap<String, String> priceSToPriceCat = new ArrayMap<>();
+	private ArrayList<String> periods = new ArrayList<>();
+	private ArrayMap<String, String> periodSToPeriodCat = new ArrayMap<>();
 
 	@Override
 	public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
@@ -270,43 +261,37 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 				defaultPeriodS = periodS;
 			}
 		}
-		Collections.sort(this.periods, new Comparator<String>() {
-			@Override
-			public int compare(String lPeriodS, String rPeriodS) {
-				try {
-					String lPriceCat = PurchaseDialogFragment.this.periodSToPeriodCat.get(lPeriodS);
-					int lIndexOf = VendingUtils.SORTED_PERIOD_CAT.indexOf(lPriceCat);
-					String rPriceCat = PurchaseDialogFragment.this.periodSToPeriodCat.get(rPeriodS);
-					int rIndexOf = VendingUtils.SORTED_PERIOD_CAT.indexOf(rPriceCat);
-					return lIndexOf - rIndexOf;
-				} catch (Exception e) {
-					MTLog.w(TAG, e, "Error while sorting periods!");
-					return 0;
-				}
+		Collections.sort(this.periods, (lPeriodS, rPeriodS) -> {
+			try {
+				String lPriceCat = PurchaseDialogFragment.this.periodSToPeriodCat.get(lPeriodS);
+				int lIndexOf = VendingUtils.SORTED_PERIOD_CAT.indexOf(lPriceCat);
+				String rPriceCat = PurchaseDialogFragment.this.periodSToPeriodCat.get(rPeriodS);
+				int rIndexOf = VendingUtils.SORTED_PERIOD_CAT.indexOf(rPriceCat);
+				return lIndexOf - rIndexOf;
+			} catch (Exception e) {
+				MTLog.w(TAG, e, "Error while sorting periods!");
+				return 0;
 			}
 		});
-		Collections.sort(this.prices, new Comparator<String>() {
-			@Override
-			public int compare(String lPriceS, String rPeriods) {
-				try {
-					String lPriceCat = PurchaseDialogFragment.this.priceSToPriceCat.get(lPriceS);
-					int lIndexOf = lPriceCat == null || !TextUtils.isDigitsOnly(lPriceCat) ? -1 : Integer.parseInt(lPriceCat);
-					String rPriceCat = PurchaseDialogFragment.this.priceSToPriceCat.get(rPeriods);
-					int rIndexOf = rPriceCat == null || !TextUtils.isDigitsOnly(rPriceCat) ? -1 : Integer.parseInt(rPriceCat);
-					return lIndexOf - rIndexOf;
-				} catch (Exception e) {
-					MTLog.w(TAG, e, "Error while sorting prices!");
-					return 0;
-				}
+		Collections.sort(this.prices, (lPriceS, rPeriods) -> {
+			try {
+				String lPriceCat = PurchaseDialogFragment.this.priceSToPriceCat.get(lPriceS);
+				int lIndexOf = lPriceCat == null || !TextUtils.isDigitsOnly(lPriceCat) ? -1 : Integer.parseInt(lPriceCat);
+				String rPriceCat = PurchaseDialogFragment.this.priceSToPriceCat.get(rPeriods);
+				int rIndexOf = rPriceCat == null || !TextUtils.isDigitsOnly(rPriceCat) ? -1 : Integer.parseInt(rPriceCat);
+				return lIndexOf - rIndexOf;
+			} catch (Exception e) {
+				MTLog.w(TAG, e, "Error while sorting prices!");
+				return 0;
 			}
 		});
-		Spinner priceSpinner = (Spinner) view.findViewById(R.id.price);
-		priceSpinner.setAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, this.prices));
+		Spinner priceSpinner = view.findViewById(R.id.price);
+		priceSpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, this.prices));
 		if (defaultPriceS != null) {
 			priceSpinner.setSelection(this.prices.indexOf(defaultPriceS));
 		}
-		Spinner periodSpinner = (Spinner) view.findViewById(R.id.period);
-		periodSpinner.setAdapter(new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_dropdown_item, this.periods));
+		Spinner periodSpinner = view.findViewById(R.id.period);
+		periodSpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, this.periods));
 		if (defaultPeriodS != null) {
 			periodSpinner.setSelection(this.periods.indexOf(defaultPeriodS));
 		}

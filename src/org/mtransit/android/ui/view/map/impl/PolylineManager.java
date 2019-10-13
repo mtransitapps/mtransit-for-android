@@ -17,7 +17,7 @@ class PolylineManager {
 
 	public PolylineManager(IGoogleMap factory) {
 		this.factory = factory;
-		this.polylines = new ArrayMap<com.google.android.gms.maps.model.Polyline, Polyline>();
+		this.polylines = new ArrayMap<>();
 	}
 
 	public Polyline addPolyline(PolylineOptions polylineOptions) {
@@ -38,7 +38,7 @@ class PolylineManager {
 	}
 
 	public List<Polyline> getPolylines() {
-		return new ArrayList<Polyline>(polylines.values());
+		return new ArrayList<>(polylines.values());
 	}
 
 	public void onRemove(com.google.android.gms.maps.model.Polyline real) {

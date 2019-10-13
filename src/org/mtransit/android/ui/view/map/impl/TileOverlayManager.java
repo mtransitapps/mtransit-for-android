@@ -17,7 +17,7 @@ class TileOverlayManager {
 
 	public TileOverlayManager(IGoogleMap factory) {
 		this.factory = factory;
-		this.tileOverlays = new ArrayMap<com.google.android.gms.maps.model.TileOverlay, TileOverlay>();
+		this.tileOverlays = new ArrayMap<>();
 	}
 
 	public TileOverlay addTileOverlay(TileOverlayOptions tileOverlayOptions) {
@@ -38,7 +38,7 @@ class TileOverlayManager {
 	}
 
 	public List<TileOverlay> getTileOverlays() {
-		return new ArrayList<TileOverlay>(tileOverlays.values());
+		return new ArrayList<>(tileOverlays.values());
 	}
 
 	public void onRemove(com.google.android.gms.maps.model.TileOverlay real) {

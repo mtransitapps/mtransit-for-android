@@ -31,7 +31,7 @@ public class MTSearchView extends SearchView implements MTLog.Loggable, View.OnF
 	private WeakReference<MainActivity> mainActivityWR;
 
 	private void init(MainActivity mainActivity) {
-		this.mainActivityWR = new WeakReference<MainActivity>(mainActivity);
+		this.mainActivityWR = new WeakReference<>(mainActivity);
 		setQueryHint(getContext().getString(R.string.search_hint));
 		setIconifiedByDefault(true);
 		setOnQueryTextListener(this);

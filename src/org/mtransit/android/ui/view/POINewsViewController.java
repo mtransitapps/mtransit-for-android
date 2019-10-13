@@ -32,9 +32,9 @@ public class POINewsViewController implements MTLog.Loggable {
 	public static void initViewHolder(View convertView) {
 		NewsViewHolder holder = new NewsViewHolder();
 		holder.layout = convertView;
-		holder.newsTv = (TextView) convertView.findViewById(R.id.newsText);
-		holder.authorTv = (TextView) convertView.findViewById(R.id.author);
-		holder.dateTv = (TextView) convertView.findViewById(R.id.date);
+		holder.newsTv = convertView.findViewById(R.id.newsText);
+		holder.authorTv = convertView.findViewById(R.id.author);
+		holder.dateTv = convertView.findViewById(R.id.date);
 		convertView.setTag(holder);
 	}
 

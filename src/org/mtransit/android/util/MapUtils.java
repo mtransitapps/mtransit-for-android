@@ -117,10 +117,10 @@ public final class MapUtils implements MTLog.Loggable {
 		viewGroup.requestTransparentRegion(viewGroup);
 	}
 
-	private static LruCache<Pair<Integer, Integer>, BitmapDescriptor> cache = new LruCache<Pair<Integer, Integer>, BitmapDescriptor>(128);
+	private static LruCache<Pair<Integer, Integer>, BitmapDescriptor> cache = new LruCache<>(128);
 
 	public static BitmapDescriptor getIcon(Context context, int iconResId, int color) {
-		Pair<Integer, Integer> key = new Pair<Integer, Integer>(iconResId, color);
+		Pair<Integer, Integer> key = new Pair<>(iconResId, color);
 		if (color == Color.BLACK) {
 			color = Color.DKGRAY; // black is too dark to colorize bitmap;
 		}

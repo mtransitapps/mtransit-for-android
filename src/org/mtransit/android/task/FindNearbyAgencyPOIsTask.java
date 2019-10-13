@@ -44,7 +44,7 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> 
 	}
 
 	@Override
-	public ArrayList<POIManager> callMT() throws Exception {
+	public ArrayList<POIManager> callMT() {
 		POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewAroundFilter(this.lat, this.lng, this.aroundDiff);
 		if (this.hideDescentOnly) {
 			poiFilter.addExtra(GTFSProviderContract.POI_FILTER_EXTRA_DESCENT_ONLY, true);

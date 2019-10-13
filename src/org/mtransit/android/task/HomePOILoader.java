@@ -52,7 +52,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 		this.lat = lat;
 		this.lng = lng;
 		this.accuracyInMeters = accuracyInMeters;
-		this.homeFragmentWR = new WeakReference<HomeFragment>(homeFragment);
+		this.homeFragmentWR = new WeakReference<>(homeFragment);
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 		if (this.pois != null) {
 			return this.pois;
 		}
-		this.pois = new ArrayList<POIManager>();
+		this.pois = new ArrayList<>();
 		HashSet<String> favoriteUUIDs = FavoriteManager.findFavoriteUUIDs(getContext());
 		ArrayList<DataSourceType> availableAgencyTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
 		if (availableAgencyTypes != null) {
@@ -96,15 +96,12 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 		if (activity == null) {
 			return;
 		}
-		activity.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				HomeFragment homeFragment = HomePOILoader.this.homeFragmentWR == null ? null : HomePOILoader.this.homeFragmentWR.get();
-				if (homeFragment == null) {
-					return;
-				}
-				homeFragment.onLoadPartial(typePOIs);
+		activity.runOnUiThread(() -> {
+			HomeFragment homeFragment1 = HomePOILoader.this.homeFragmentWR == null ? null : HomePOILoader.this.homeFragmentWR.get();
+			if (homeFragment1 == null) {
+				return;
 			}
+			homeFragment1.onLoadPartial(typePOIs);
 		});
 	}
 
@@ -112,7 +109,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 		Iterator<POIManager> it = typePOIs.iterator();
 		int nbKept = 0;
 		float lastKeptDistance = -1;
-		HashSet<String> routeTripKept = new HashSet<String>();
+		HashSet<String> routeTripKept = new HashSet<>();
 		while (it.hasNext()) {
 			POIManager poim = it.next();
 			if (!favoriteUUIDs.contains(poim.poi.getUUID())) {
@@ -171,14 +168,14 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 	private static ArrayList<POIManager> findNearby( //
 			Context context, double typeLat, double typeLng, LocationUtils.AroundDiff typeAd, Double lastTypeAroundDiff, int typeMaxSize,
 			float typeMinCoverageInMeters, Collection<AgencyProperties> typeAgencies) {
-		ArrayList<POIManager> typePOIs = new ArrayList<POIManager>();
+		ArrayList<POIManager> typePOIs = new ArrayList<>();
 		NearbyPOIListLoader.filterAgencies(typeAgencies, typeLat, typeLng, typeAd, lastTypeAroundDiff);
 		if (typeAgencies == null || typeAgencies.size() == 0) {
 			return typePOIs;
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,
-				new LinkedBlockingDeque<Runnable>(typeAgencies.size()));
-		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
+				new LinkedBlockingDeque<>(typeAgencies.size()));
+		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<>();
 		for (AgencyProperties agency : typeAgencies) {
 			FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask( //
 					context, agency.getAuthority(), typeLat, typeLng, typeAd.aroundDiff, true, true, typeMinCoverageInMeters, typeMaxSize);

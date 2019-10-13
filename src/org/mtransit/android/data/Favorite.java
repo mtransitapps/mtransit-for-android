@@ -84,14 +84,14 @@ public class Favorite {
 			String lFavoriteFolderName = StringUtils.EMPTY;
 			if (FavoriteManager.isFavoriteDataSourceId(lPoim.poi.getDataSourceTypeId())) {
 				int favoriteFolderId = FavoriteManager.extractFavoriteFolderId(lPoim.poi.getDataSourceTypeId());
-				if (this.favoriteFolders != null && ArrayUtils.containsKey(this.favoriteFolders, favoriteFolderId)) {
+				if (ArrayUtils.containsKey(this.favoriteFolders, favoriteFolderId)) {
 					lFavoriteFolderName = this.favoriteFolders.get(favoriteFolderId).getName();
 				}
 			}
 			String rFavoriteFolderName = StringUtils.EMPTY;
 			if (FavoriteManager.isFavoriteDataSourceId(rPoim.poi.getDataSourceTypeId())) {
 				int favoriteFolderId = FavoriteManager.extractFavoriteFolderId(rPoim.poi.getDataSourceTypeId());
-				if (this.favoriteFolders != null && ArrayUtils.containsKey(this.favoriteFolders, favoriteFolderId)) {
+				if (ArrayUtils.containsKey(this.favoriteFolders, favoriteFolderId)) {
 					rFavoriteFolderName = this.favoriteFolders.get(favoriteFolderId).getName();
 				}
 			}

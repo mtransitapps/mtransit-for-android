@@ -48,7 +48,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, float minCoverageInMeters, int maxSize, boolean hideDescentOnly,
 			boolean avoidLoading, ArrayList<String> agenciesAuthority) {
 		this(context, lat, lng, aroundDiff, minCoverageInMeters, maxSize, hideDescentOnly, avoidLoading, agenciesAuthority == null ? null : agenciesAuthority
-				.toArray(new String[agenciesAuthority.size()]));
+				.toArray(new String[0]));
 	}
 
 	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, float minCoverageInMeters, int maxSize, boolean hideDescentOnly,
@@ -67,14 +67,14 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 	@Override
 	public ArrayList<POIManager> loadInBackgroundMT() {
 		if (this.pois == null) {
-			this.pois = new ArrayList<POIManager>();
+			this.pois = new ArrayList<>();
 		}
 		if (ArrayUtils.getSize(this.agenciesAuthority) == 0) {
 			return this.pois;
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,
-				new LinkedBlockingDeque<Runnable>(this.agenciesAuthority.length));
-		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<Future<ArrayList<POIManager>>>();
+				new LinkedBlockingDeque<>(this.agenciesAuthority.length));
+		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<>();
 		for (String agencyAuthority : this.agenciesAuthority) {
 			FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(getContext(), agencyAuthority, this.lat, this.lng, this.aroundDiff,
 					this.hideDescentOnly, this.avoidLoading, this.minCoverageInMeters, this.maxSize);
@@ -105,6 +105,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 				if (!agency.isInArea(area)) {
 					it.remove();
 				} else if (optLastArea != null && agency.isEntirelyInside(optLastArea)) {
+					// DO NOTHING
 				}
 			}
 		}
@@ -121,6 +122,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 				if (!agency.isInArea(area)) {
 					it.remove();
 				} else if (optLastArea != null && agency.isEntirelyInside(optLastArea)) {
+					// DO NOTHING
 				}
 			}
 		}
@@ -128,7 +130,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 	}
 
 	public static ArrayList<String> findTypeAgenciesAuthority(Context context, int typeId, double lat, double lng, double aroundDiff, Double optLastAroundDiff) {
-		ArrayList<String> authorities = new ArrayList<String>();
+		ArrayList<String> authorities = new ArrayList<>();
 		ArrayList<AgencyProperties> agencies = findTypeAgencies(context, typeId, lat, lng, aroundDiff, optLastAroundDiff);
 		if (agencies != null) {
 			for (AgencyProperties agency : agencies) {

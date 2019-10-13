@@ -30,7 +30,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
@@ -155,12 +154,9 @@ public class MapFragment extends ABFragment implements
 		View view = getView();
 		if (this.modulesUpdated) {
 			if (view != null) {
-				view.post(new Runnable() {
-					@Override
-					public void run() {
-						if (MapFragment.this.modulesUpdated) {
-							onModulesUpdated();
-						}
+				view.post(() -> {
+					if (MapFragment.this.modulesUpdated) {
+						onModulesUpdated();
 					}
 				});
 			}
@@ -248,7 +244,7 @@ public class MapFragment extends ABFragment implements
 	private LatLngBounds loadedLatLngBounds = null;
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		this.mapViewController.onConfigurationChanged(newConfig);
 	}
@@ -485,32 +481,23 @@ public class MapFragment extends ABFragment implements
 			new AlertDialog.Builder(getContext()) //
 					.setTitle(R.string.menu_action_filter) //
 					.setMultiChoiceItems( //
-							typeNames.toArray(new CharSequence[typeNames.size()]), //
+							typeNames.toArray(new CharSequence[0]), //
 							checkedItems, //
-							new DialogInterface.OnMultiChoiceClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-									if (isChecked) {
-										selectedItems.add(which);
-									} else {
-										selectedItems.remove(which);
-									}
+							(dialog, which, isChecked) -> {
+								if (isChecked) {
+									selectedItems.add(which);
+								} else {
+									selectedItems.remove(which);
 								}
 							} //
 					) //
-					.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							applyNewFilter(typeIds, selectedItems);
-							dialog.dismiss();
-						}
+					.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+						applyNewFilter(typeIds, selectedItems);
+						dialog.dismiss();
 					}) //
-					.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}
-					}) //
+					.setNegativeButton(android.R.string.cancel, (dialog, which) ->
+							dialog.dismiss()
+					) //
 					.setCancelable(true) //
 					.show();
 

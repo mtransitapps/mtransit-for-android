@@ -54,7 +54,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 		if (this.poiMarkers != null) {
 			return this.poiMarkers;
 		}
-		this.poiMarkers = new HashSet<MapViewController.POIMarker>();
+		this.poiMarkers = new HashSet<>();
 		ArrayList<AgencyProperties> agencies = DataSourceProvider.get(getContext()).getAllAgencies(getContext());
 		if (CollectionUtils.getSize(agencies) == 0) {
 			return this.poiMarkers;
@@ -63,8 +63,8 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 			return this.poiMarkers;
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,
-				new LinkedBlockingDeque<Runnable>(agencies.size()));
-		ArrayList<Future<ArrayMap<LatLng, MapViewController.POIMarker>>> taskList = new ArrayList<Future<ArrayMap<LatLng, MapViewController.POIMarker>>>();
+				new LinkedBlockingDeque<>(agencies.size()));
+		ArrayList<Future<ArrayMap<LatLng, MapViewController.POIMarker>>> taskList = new ArrayList<>();
 		for (AgencyProperties agency : agencies) {
 			DataSourceType type = agency.getType();
 			if (!type.isMapScreen()) {
@@ -82,7 +82,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 			FindAgencyPOIsTask task = new FindAgencyPOIsTask(getContext(), agency, this.latLngBounds, this.loadedLatLngBounds);
 			taskList.add(executor.submit(task));
 		}
-		ArrayMap<LatLng, MapViewController.POIMarker> positionToPoiMarkers = new ArrayMap<LatLng, MapViewController.POIMarker>();
+		ArrayMap<LatLng, MapViewController.POIMarker> positionToPoiMarkers = new ArrayMap<>();
 		for (Future<ArrayMap<LatLng, MapViewController.POIMarker>> future : taskList) {
 			try {
 				ArrayMap<LatLng, MapViewController.POIMarker> agencyPOIs = future.get();
@@ -151,7 +151,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 		}
 
 		@Override
-		public ArrayMap<LatLng, MapViewController.POIMarker> callMT() throws Exception {
+		public ArrayMap<LatLng, MapViewController.POIMarker> callMT() {
 			double minLat = Math.min(this.latLngBounds.northeast.latitude, this.latLngBounds.southwest.latitude);
 			double maxLat = Math.max(this.latLngBounds.northeast.latitude, this.latLngBounds.southwest.latitude);
 			double minLng = Math.min(this.latLngBounds.northeast.longitude, this.latLngBounds.southwest.longitude);
@@ -167,7 +167,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 					Math.max(this.loadedLatLngBounds.northeast.longitude, this.loadedLatLngBounds.southwest.longitude);
 			POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewAreaFilter( //
 					minLat, maxLat, minLng, maxLng, optLoadedMinLat, optLoadedMaxLat, optLoadedMinLng, optLoadedMaxLng);
-			ArrayMap<LatLng, MapViewController.POIMarker> clusterItems = new ArrayMap<LatLng, MapViewController.POIMarker>();
+			ArrayMap<LatLng, MapViewController.POIMarker> clusterItems = new ArrayMap<>();
 			ArrayList<POIManager> poims = DataSourceManager.findPOIs(this.context, this.agency.getAuthority(), poiFilter);
 			String agencyShortName = this.agency.getShortName();
 			if (poims != null) {

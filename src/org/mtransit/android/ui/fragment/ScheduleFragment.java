@@ -226,7 +226,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (view == null) {
 			return;
 		}
-		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		ViewPager viewPager = view.findViewById(R.id.viewpager);
 		viewPager.setOffscreenPageLimit(2);
 		viewPager.setOnPageChangeListener(this); // TODO upgrade to #ViewPager#addOnPageChangeListener()
 		setupAdapter(view);
@@ -236,7 +236,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (view == null) {
 			return;
 		}
-		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		ViewPager viewPager = view.findViewById(R.id.viewpager);
 		viewPager.setAdapter(this.adapter);
 		if (this.lastPageSelected < 0) {
 			this.lastPageSelected = DayPagerAdapter.STARTING_POSITION;
@@ -291,12 +291,9 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		View view = getView();
 		if (this.modulesUpdated) {
 			if (view != null) {
-				view.post(new Runnable() {
-					@Override
-					public void run() {
-						if (ScheduleFragment.this.modulesUpdated) {
-							onModulesUpdated();
-						}
+				view.post(() -> {
+					if (ScheduleFragment.this.modulesUpdated) {
+						onModulesUpdated();
 					}
 				});
 			}
@@ -429,6 +426,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		private static final int STARTING_POSITION = BEFORE_TODAY > 0 ? BEFORE_TODAY : COUNT / 2;
 
 		private int todayPosition = STARTING_POSITION;
+		@SuppressWarnings("FieldCanBeLocal")
 		private long todayStartsAtInMs;
 		private Calendar todayStartsAtCal;
 		private int lastVisibleFragmentPosition = -1;

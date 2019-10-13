@@ -3,6 +3,8 @@ package org.mtransit.android.ui.view.map;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
+import androidx.core.util.ObjectsCompat;
+
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 public class AnimationSettings {
 
@@ -48,13 +50,13 @@ public class AnimationSettings {
 		}
 		AnimationSettings that = (AnimationSettings) o;
 		return duration == that.duration //
-				&& (interpolator != null ? interpolator.equals(that.interpolator) : that.interpolator == null);
+				&& ObjectsCompat.equals(interpolator, that.interpolator);
 	}
 
 	@Override
 	public int hashCode() {
 		int result = 0;
-		result = 31 * result + ((int) (duration ^ (duration >>> 32)));
+		result = 31 * result + (int) (duration ^ duration >>> 32);
 		result = 31 * result + (interpolator != null ? interpolator.hashCode() : 0);
 		return result;
 	}

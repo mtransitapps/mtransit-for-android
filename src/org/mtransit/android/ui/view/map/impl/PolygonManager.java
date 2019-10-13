@@ -17,7 +17,7 @@ class PolygonManager {
 
 	public PolygonManager(IGoogleMap factory) {
 		this.factory = factory;
-		this.polygons = new ArrayMap<com.google.android.gms.maps.model.Polygon, Polygon>();
+		this.polygons = new ArrayMap<>();
 	}
 
 	public Polygon addPolygon(PolygonOptions polygonOptions) {
@@ -38,7 +38,7 @@ class PolygonManager {
 	}
 
 	public List<Polygon> getPolygons() {
-		return new ArrayList<Polygon>(polygons.values());
+		return new ArrayList<>(polygons.values());
 	}
 
 	public void onRemove(com.google.android.gms.maps.model.Polygon real) {

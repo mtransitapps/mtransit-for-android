@@ -17,7 +17,7 @@ public abstract class FragmentAsyncTaskV4<Params, Progress, Result, F extends Fr
 
 	public FragmentAsyncTaskV4(@Nullable F fragment) {
 		super();
-		this.fragmentWR = new WeakReference<F>(fragment);
+		this.fragmentWR = new WeakReference<>(fragment);
 	}
 
 	@Nullable

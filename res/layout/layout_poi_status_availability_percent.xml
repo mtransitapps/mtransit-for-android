@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/status"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_alignParentRight="true"
     android:layout_alignWithParentIfMissing="true"
+    android:layout_alignParentRight="true"
     android:layout_centerVertical="true"
     android:minWidth="?android:attr/listPreferredItemHeight"
     android:orientation="vertical"
     android:visibility="invisible"
     tools:visibility="visible">
+
     <!-- PIE CHART % -->
     <org.mtransit.android.ui.view.MTPieChartPercentView
         android:id="@+id/pie"
@@ -19,6 +21,7 @@
         android:layout_gravity="center_horizontal"
         android:padding="@dimen/poi_img_padding"
         android:visibility="gone"
+        app:mtPieCharPieces="3"
         tools:visibility="visible" />
 
     <TextView

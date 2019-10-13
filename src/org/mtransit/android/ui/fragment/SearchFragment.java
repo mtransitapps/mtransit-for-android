@@ -238,7 +238,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		if (view == null) {
 			return;
 		}
-		Spinner typeFiltersSpinner = (Spinner) view.findViewById(R.id.typeFilters);
+		Spinner typeFiltersSpinner = view.findViewById(R.id.typeFilters);
 		TypeFilter typeFilter = getTypeFilterOrNull();
 		int position = this.typeFiltersAdapter.getPosition(typeFilter);
 		typeFiltersSpinner.setSelection(position);
@@ -255,7 +255,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		inflateList(view);
 		switchView(view);
 		linkAdapterWithListView(view);
-		Spinner typeFiltersSpinner = (Spinner) view.findViewById(R.id.typeFilters);
+		Spinner typeFiltersSpinner = view.findViewById(R.id.typeFilters);
 		typeFiltersSpinner.setAdapter(this.typeFiltersAdapter);
 	}
 
@@ -322,12 +322,9 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	public void onResume() {
 		super.onResume();
 		if (this.modulesUpdated) {
-			new Handler().post(new Runnable() {
-				@Override
-				public void run() {
-					if (SearchFragment.this.modulesUpdated) {
-						onModulesUpdated();
-					}
+			new Handler().post(() -> {
+				if (SearchFragment.this.modulesUpdated) {
+					onModulesUpdated();
 				}
 			});
 		}
@@ -412,7 +409,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		cancelRestartSearchLater();
 		if (TextUtils.isEmpty(this.query)) {
 			this.emptyText = getString(R.string.search_hint);
-			this.adapter.setPois(new ArrayList<POIManager>()); // empty search = no result
+			this.adapter.setPois(new ArrayList<>()); // empty search = no result
 			switchView(getView());
 			return;
 		}
@@ -683,7 +680,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 
 		private void init() {
-			ArrayList<TypeFilter> typeFilters = new ArrayList<TypeFilter>();
+			ArrayList<TypeFilter> typeFilters = new ArrayList<>();
 			typeFilters.add(TypeFilter.ALL);
 			ArrayList<DataSourceType> availableTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
 			if (availableTypes != null) {
@@ -718,7 +715,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_poi_type_item, parent, false);
 				TypeViewHolder holder = new TypeViewHolder();
-				holder.nameTv = (TextView) convertView.findViewById(R.id.name);
+				holder.nameTv = convertView.findViewById(R.id.name);
 				convertView.setTag(holder);
 			}
 			TypeViewHolder holder = (TypeViewHolder) convertView.getTag();

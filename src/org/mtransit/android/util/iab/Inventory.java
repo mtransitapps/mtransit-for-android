@@ -9,8 +9,8 @@ import androidx.collection.ArrayMap;
 // based on the Google IAB sample (Apache License, Version 2.0)
 public class Inventory {
 
-	ArrayMap<String, SkuDetails> mSkuMap = new ArrayMap<String, SkuDetails>();
-	ArrayMap<String, Purchase> mPurchaseMap = new ArrayMap<String, Purchase>();
+	ArrayMap<String, SkuDetails> mSkuMap = new ArrayMap<>();
+	ArrayMap<String, Purchase> mPurchaseMap = new ArrayMap<>();
 
 	Inventory() {
 	}
@@ -36,11 +36,11 @@ public class Inventory {
 	}
 
 	public List<String> getAllOwnedSkus() {
-		return new ArrayList<String>(mPurchaseMap.keySet());
+		return new ArrayList<>(mPurchaseMap.keySet());
 	}
 
 	public List<String> getAllOwnedSkus(String itemType) {
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		for (Purchase p : mPurchaseMap.values()) {
 			if (p.getItemType().equals(itemType)) result.add(p.getSku());
 		}
@@ -48,7 +48,7 @@ public class Inventory {
 	}
 
 	public List<Purchase> getAllPurchases() {
-		return new ArrayList<Purchase>(mPurchaseMap.values());
+		return new ArrayList<>(mPurchaseMap.values());
 	}
 
 	public Set<String> getAllSkus() {

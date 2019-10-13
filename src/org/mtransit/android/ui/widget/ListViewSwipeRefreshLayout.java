@@ -33,15 +33,15 @@ public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MT
 	}
 
 	public void setListViewWR(AbsListView listView) {
-		this.listViewWR = new WeakReference<AbsListView>(listView);
+		this.listViewWR = new WeakReference<>(listView);
 	}
 
 	public void setLoadingViewWR(View loadingView) {
-		this.loadingViewWR = new WeakReference<View>(loadingView);
+		this.loadingViewWR = new WeakReference<>(loadingView);
 	}
 
 	public void setEmptyViewWR(View emptyView) {
-		this.emptyViewWR = new WeakReference<View>(emptyView);
+		this.emptyViewWR = new WeakReference<>(emptyView);
 	}
 
 	public void setRefreshEnabled(boolean refreshEnabled) {

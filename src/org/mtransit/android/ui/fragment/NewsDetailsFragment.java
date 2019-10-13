@@ -185,7 +185,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 		if (news != null) {
 			View view = getView();
 			if (view != null) {
-				TextView newsTv = (TextView) view.findViewById(R.id.newsText);
+				TextView newsTv = view.findViewById(R.id.newsText);
 				newsTv.setText(LinkUtils.linkifyHtml(news.getTextHTML(), true));
 				newsTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptop.getInstance(this));
 				if (news.hasColor()) {
@@ -193,7 +193,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 				} else {
 					newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(getContext()));
 				}
-				TextView dateTv = (TextView) view.findViewById(R.id.date);
+				TextView dateTv = view.findViewById(R.id.date);
 				dateTv.setText(TimeUtils.formatRelativeTime(getContext(), news.getCreatedAtInMs()));
 				final String newWebURL = TextUtils.isEmpty(news.getWebURL()) ? news.getAuthorProfileURL() : news.getWebURL();
 				dateTv.setOnClickListener(new MTOnClickListener() {
@@ -248,12 +248,9 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 		View view = getView();
 		if (this.modulesUpdated) {
 			if (view != null) {
-				view.post(new Runnable() {
-					@Override
-					public void run() {
-						if (NewsDetailsFragment.this.modulesUpdated) {
-							onModulesUpdated();
-						}
+				view.post(() -> {
+					if (NewsDetailsFragment.this.modulesUpdated) {
+						onModulesUpdated();
 					}
 				});
 			}

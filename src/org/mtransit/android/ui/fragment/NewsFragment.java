@@ -168,12 +168,9 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		View view = getView();
 		if (this.modulesUpdated) {
 			if (view != null) {
-				view.post(new Runnable() {
-					@Override
-					public void run() {
-						if (NewsFragment.this.modulesUpdated) {
-							onModulesUpdated();
-						}
+				view.post(() -> {
+					if (NewsFragment.this.modulesUpdated) {
+						onModulesUpdated();
 					}
 				});
 			}
@@ -273,7 +270,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	private void setupView(@NonNull View view) {
-		this.swipeRefreshLayout = (ListViewSwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
+		this.swipeRefreshLayout = view.findViewById(R.id.swiperefresh);
 		this.swipeRefreshLayout.setColorSchemeColors(ThemeUtils.resolveColorAttribute(view.getContext(), R.attr.colorAccent));
 		this.swipeRefreshLayout.setOnRefreshListener(this);
 		inflateList(view);
@@ -320,7 +317,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (view.findViewById(R.id.list) == null) { // IF NOT present/inflated DO
 			((ViewStub) view.findViewById(R.id.list_stub)).inflate(); // inflate
 			if (this.swipeRefreshLayout != null) {
-				this.swipeRefreshLayout.setListViewWR((AbsListView) view.findViewById(R.id.list));
+				this.swipeRefreshLayout.setListViewWR(view.findViewById(R.id.list));
 			}
 		}
 	}
@@ -400,7 +397,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 
 		public void setActivity(Activity activity) {
-			this.activityWR = new WeakReference<Activity>(activity);
+			this.activityWR = new WeakReference<>(activity);
 		}
 
 		private Activity getActivityOrNull() {
@@ -503,9 +500,9 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_news_base, parent, false);
 				NewsViewHolder holder = new NewsViewHolder();
-				holder.newsTv = (TextView) convertView.findViewById(R.id.newsText);
-				holder.authorTv = (TextView) convertView.findViewById(R.id.author);
-				holder.dateTv = (TextView) convertView.findViewById(R.id.date);
+				holder.newsTv = convertView.findViewById(R.id.newsText);
+				holder.authorTv = convertView.findViewById(R.id.author);
+				holder.dateTv = convertView.findViewById(R.id.date);
 				convertView.setTag(holder);
 			}
 			NewsViewHolder holder = (NewsViewHolder) convertView.getTag();

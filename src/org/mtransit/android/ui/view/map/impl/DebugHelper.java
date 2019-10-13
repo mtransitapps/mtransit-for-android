@@ -13,7 +13,7 @@ import org.mtransit.android.ui.view.map.utils.SphericalMercator;
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class DebugHelper {
 
-	private List<Polyline> gridLines = new ArrayList<Polyline>();
+	private List<Polyline> gridLines = new ArrayList<>();
 
 	void drawDebugGrid(IGoogleMap map, double clusterSize) {
 		cleanup();

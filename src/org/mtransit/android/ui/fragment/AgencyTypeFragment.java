@@ -31,14 +31,18 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.google.android.material.tabs.TabLayout;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -174,9 +178,9 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		if (view == null) {
 			return;
 		}
-		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		ViewPager viewPager = view.findViewById(R.id.viewpager);
 		viewPager.setAdapter(this.adapter);
-		TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
+		TabLayout tabs = view.findViewById(R.id.tabs);
 		tabs.setupWithViewPager(viewPager);
 		notifyTabDataChanged(view);
 		showSelectedTab(view);
@@ -199,7 +203,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			TaskUtils.execute(new LoadLastPageSelectedFromUserPreference(this, this.typeId, getTypeAgenciesOrNull()));
 			return;
 		}
-		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		ViewPager viewPager = view.findViewById(R.id.viewpager);
 		viewPager.setCurrentItem(this.lastPageSelected);
 		this.selectedPosition = this.lastPageSelected; // set selected position before update tabs color
 		updateABColorNow(view);
@@ -210,10 +214,10 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		if (view == null) {
 			return;
 		}
-		ViewPager viewPager = (ViewPager) view.findViewById(R.id.viewpager);
+		ViewPager viewPager = view.findViewById(R.id.viewpager);
 		viewPager.setOffscreenPageLimit(3);
 		viewPager.addOnPageChangeListener(this);
-		TabLayout tabs = (TabLayout) view.findViewById(R.id.tabs);
+		TabLayout tabs = view.findViewById(R.id.tabs);
 		viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
 		tabs.setOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
 		setupAdapter(view);
@@ -490,12 +494,9 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		View view = getView();
 		if (this.modulesUpdated) {
 			if (view != null) {
-				view.post(new Runnable() {
-					@Override
-					public void run() {
-						if (AgencyTypeFragment.this.modulesUpdated) {
-							onModulesUpdated();
-						}
+				view.post(() -> {
+					if (AgencyTypeFragment.this.modulesUpdated) {
+						onModulesUpdated();
 					}
 				});
 			}
@@ -610,12 +611,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	private Handler handler = new Handler();
 
-	private Runnable updateABColorLater = new Runnable() {
-		@Override
-		public void run() {
+	private Runnable updateABColorLater = () ->
 			updateABColorNow(getView());
-		}
-	};
 
 	private void updateABColorNow(View view) {
 		this.abBgColor = getNewABBgColor(getContext());
@@ -741,7 +738,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 		public AgencyPagerAdapter(Context context, AgencyTypeFragment agencyTypeFragment, ArrayList<AgencyProperties> agencies) {
 			super(agencyTypeFragment.getChildFragmentManager());
-			this.contextWR = new WeakReference<Context>(context);
+			this.contextWR = new WeakReference<>(context);
 			setAgencies(agencies);
 		}
 
@@ -778,7 +775,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 
 		@NonNull
-		private ArrayList<String> agenciesAuthority = new ArrayList<String>();
+		private ArrayList<String> agenciesAuthority = new ArrayList<>();
 
 		public void setAgencies(ArrayList<AgencyProperties> agencies) {
 			this.agencies = agencies;

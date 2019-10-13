@@ -38,7 +38,6 @@ import org.mtransit.android.ui.fragment.RTSRouteFragment;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Color;
 import androidx.annotation.ColorInt;
@@ -146,7 +145,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	public void setStatusLoaderListener(StatusLoader.StatusLoaderListener statusLoaderListener) {
-		this.statusLoaderListenerWR = new WeakReference<StatusLoader.StatusLoaderListener>(statusLoaderListener);
+		this.statusLoaderListenerWR = new WeakReference<>(statusLoaderListener);
 	}
 
 	public String getLocation() {
@@ -272,7 +271,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private WeakReference<ServiceUpdateLoader.ServiceUpdateLoaderListener> serviceUpdateLoaderListenerWR;
 
 	public void setServiceUpdateLoaderListener(ServiceUpdateLoader.ServiceUpdateLoaderListener serviceUpdateLoaderListener) {
-		this.serviceUpdateLoaderListenerWR = new WeakReference<ServiceUpdateLoader.ServiceUpdateLoaderListener>(serviceUpdateLoaderListener);
+		this.serviceUpdateLoaderListenerWR = new WeakReference<>(serviceUpdateLoaderListener);
 	}
 
 	public boolean hasServiceUpdates() {
@@ -281,7 +280,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	public void setServiceUpdates(@Nullable Collection<ServiceUpdate> newServiceUpdates) {
 		if (this.serviceUpdates == null) {
-			this.serviceUpdates = new ArrayList<ServiceUpdate>();
+			this.serviceUpdates = new ArrayList<>();
 		} else {
 			this.serviceUpdates.clear();
 		}
@@ -636,21 +635,18 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 									activity.getString(R.string.view_details), //
 									favoriteFolders //
 							), //
-							new DialogInterface.OnClickListener() {
-								@Override
-								public void onClick(DialogInterface dialog, int item) {
-									boolean handled = onActionsItemClick(activity, item, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
-									if (handled) {
-										return;
-									}
-									switch (item) {
-									case 0:
-										showPoiViewerScreen(activity, onClickHandledListener);
-										break;
-									default:
-										MTLog.w(POIManager.this, "Unexpected action item '%s'!", item);
-										break;
-									}
+							(dialog, item) -> {
+								boolean handled = onActionsItemClick(activity, item, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
+								if (handled) {
+									return;
+								}
+								switch (item) {
+								case 0:
+									showPoiViewerScreen(activity, onClickHandledListener);
+									break;
+								default:
+									MTLog.w(POIManager.this, "Unexpected action item '%s'!", item);
+									break;
 								}
 							}).show();
 			return true;

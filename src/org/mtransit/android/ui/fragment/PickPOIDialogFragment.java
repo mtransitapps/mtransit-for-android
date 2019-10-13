@@ -28,7 +28,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.Window;
-import android.widget.ScrollView;
 
 public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		DataSourceProvider.ModulesUpdateListener, MTActivityWithLocation.UserLocationListener, POIArrayAdapter.OnClickHandledListener {
@@ -44,8 +43,8 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 	private static final String EXTRA_POI_AUTHORITIES = "extra_poi_authorities";
 
 	public static PickPOIDialogFragment newInstance(ArrayMap<String, String> uuidsAndAuthorities) {
-		ArrayList<String> uuids = new ArrayList<String>();
-		ArrayList<String> authorities = new ArrayList<String>();
+		ArrayList<String> uuids = new ArrayList<>();
+		ArrayList<String> authorities = new ArrayList<>();
 		if (uuidsAndAuthorities != null) {
 			for (ArrayMap.Entry<String, String> uuidAndAuthority : uuidsAndAuthorities.entrySet()) {
 				uuids.add(uuidAndAuthority.getKey());
@@ -139,8 +138,8 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 			return;
 		}
 		inflateList(view);
-		this.adapter.setManualScrollView((ScrollView) view.findViewById(R.id.scrollview));
-		this.adapter.setManualLayout((ViewGroup) view.findViewById(R.id.list));
+		this.adapter.setManualScrollView(view.findViewById(R.id.scrollview));
+		this.adapter.setManualLayout(view.findViewById(R.id.list));
 		switchView(view);
 	}
 
@@ -222,12 +221,9 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 		View view = getView();
 		if (this.modulesUpdated) {
 			if (view != null) {
-				view.post(new Runnable() {
-					@Override
-					public void run() {
-						if (PickPOIDialogFragment.this.modulesUpdated) {
-							onModulesUpdated();
-						}
+				view.post(() -> {
+					if (PickPOIDialogFragment.this.modulesUpdated) {
+						onModulesUpdated();
 					}
 				});
 			}

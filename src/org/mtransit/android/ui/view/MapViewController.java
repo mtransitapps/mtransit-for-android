@@ -10,6 +10,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
 import java.lang.ref.WeakReference;
@@ -57,10 +58,12 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.collection.SimpleArrayMap;
+
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -158,8 +161,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	private boolean locationPermissionGranted = false;
 
 	public MapViewController(String tag, MapMarkerProvider markerProvider, MapListener mapListener, boolean mapToolbarEnabled, boolean myLocationEnabled,
-			boolean myLocationButtonEnabled, boolean indoorLevelPickerEnabled, boolean trafficEnabled, boolean indoorEnabled, int paddingTopSp,
-			boolean followingUser, boolean hasButtons, boolean clusteringEnabled, boolean showAllMarkersWhenReady, boolean markerLabelShowExtra) {
+							 boolean myLocationButtonEnabled, boolean indoorLevelPickerEnabled, boolean trafficEnabled, boolean indoorEnabled, int paddingTopSp,
+							 boolean followingUser, boolean hasButtons, boolean clusteringEnabled, boolean showAllMarkersWhenReady, boolean markerLabelShowExtra) {
 		this.tag = tag;
 		setMarkerProvider(markerProvider);
 		setMapListener(mapListener);
@@ -358,6 +361,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 		this.extendedGoogleMap = ExtendedMapFactory.create(googleMap, getActivityOrNull());
 		applyMapType();
+		applyMapStyle();
 		setupGoogleMapMyLocation();
 		this.extendedGoogleMap.setTrafficEnabled(this.trafficEnabled);
 		this.extendedGoogleMap.setIndoorEnabled(this.indoorEnabled);
@@ -483,6 +487,18 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 	}
 
+	private void applyMapStyle() {
+		ExtendedGoogleMap map = getGoogleMapOrNull();
+		if (map == null) {
+			return;
+		}
+		Context context = getActivityOrNull();
+		if (context == null) {
+			return;
+		}
+		map.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.mapstyle));
+	}
+
 	private void setTypeSwitchImg() {
 		if (this.typeSwitchView != null) {
 			this.typeSwitchView.setImageResource(getMapType() == MapUtils.MAP_TYPE_NORMAL ? R.drawable.ic_map_satellite : R.drawable.ic_map_normal);
@@ -555,7 +571,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			POIMarkerIds poiMarkerIds = imarker.getData();
 			if (poiMarkerIds.size() >= 1) {
 				Activity activity = getActivityOrNull();
-				if (activity != null && activity instanceof MainActivity) {
+				if (activity instanceof MainActivity) {
 					FragmentUtils.replaceDialogFragment((MainActivity) activity, FragmentUtils.DIALOG_TAG, //
 							PickPOIDialogFragment.newInstance(poiMarkerIds.getMap()), //
 							null);
@@ -603,8 +619,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		mapListener.onCameraChange(visibleRegion.latLngBounds);
 	}
 
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		notifyNewCameraPosition();
+		applyMapStyle();
 	}
 
 	public LatLngBounds getBigCameraPosition(Activity activity, float factor) {
@@ -958,12 +975,12 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			addAgency(agency);
 			addExtras(extra);
 			if (this.color != null) {
-				if (color == null || !this.color.equals(color)) {
+				if (!this.color.equals(color)) {
 					this.color = null;
 				}
 			}
 			if (this.secondaryColor != null) {
-				if (secondaryColor == null || !this.secondaryColor.equals(secondaryColor)) {
+				if (!this.secondaryColor.equals(secondaryColor)) {
 					this.secondaryColor = null;
 				}
 			}

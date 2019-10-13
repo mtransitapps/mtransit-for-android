@@ -67,13 +67,32 @@ if [[ ${IS_CI} = true ]]; then
 			echo "MT_SONAR_LOGIN environment variable is NOT defined!";
 			exit 1;
 		fi
-		echo ">> Running sonar...";
-		../gradlew ${SETTINGS_FILE_ARGS} :${DIRECTORY}:sonarqube \
-			-Dsonar.organization=mtransitapps-github -Dsonar.projectName=${GIT_PROJECT_NAME} \
-			-Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${MT_SONAR_LOGIN} ${GRADLE_ARGS}
-		RESULT=$?;
-		checkResult ${RESULT};
-		echo ">> Running sonar... DONE";
+		if [[ ! -z "${CIRCLE_PULL_REQUEST}" ]]; then
+            GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD);
+            if [[ "$GIT_BRANCH" = "HEAD" ]]; then
+                GIT_BRANCH="";
+            fi
+            if [[ -z "${GIT_BRANCH}" ]]; then
+	            GIT_BRANCH=${CIRCLE_BRANCH}; #CircleCI
+                if [[ "$GIT_BRANCH" = "HEAD" ]]; then
+                    GIT_BRANCH="";
+                fi
+            fi
+            PR_NUMBER=${CIRCLE_PULL_REQUEST##*/};
+            echo ">> Running sonar...";
+            ../gradlew ${SETTINGS_FILE_ARGS} :${DIRECTORY}:sonarqube \
+                -Dsonar.organization=mtransitapps-github \
+                -Dsonar.projectName=${GIT_PROJECT_NAME} \
+                -Dsonar.host.url=https://sonarcloud.io \
+                -Dsonar.login=${MT_SONAR_LOGIN} \
+                -Dsonar.pullrequest.base=mmathieum \
+                -Dsonar.pullrequest.branch=${GIT_BRANCH} \
+                -Dsonar.pullrequest.key=${PR_NUMBER} \
+                ${GRADLE_ARGS}
+            RESULT=$?;
+            checkResult ${RESULT};
+            echo ">> Running sonar... DONE";
+        fi
 	else
 		echo ">> Skipping sonar for '$GIT_PROJECT_NAME'.";
 	fi

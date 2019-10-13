@@ -46,12 +46,12 @@ public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
 		if (this.news != null) {
 			return this.news;
 		}
-		this.news = new ArrayList<News>();
+		this.news = new ArrayList<>();
 		ArrayList<NewsProviderProperties> newsProviders;
 		if (CollectionUtils.getSize(this.targetAuthorities) == 0) {
 			newsProviders = DataSourceProvider.get(getContext()).getAllNewsProvider();
 		} else {
-			newsProviders = new ArrayList<NewsProviderProperties>();
+			newsProviders = new ArrayList<>();
 			for (String targetAuthority : this.targetAuthorities) {
 				newsProviders.addAll(DataSourceProvider.get(getContext()).getTargetAuthorityNewsProviders(targetAuthority));
 			}
@@ -61,12 +61,12 @@ public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
 			return this.news;
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,
-				new LinkedBlockingDeque<Runnable>(newsProviders.size()));
-		ArrayList<Future<ArrayList<News>>> taskList = new ArrayList<Future<ArrayList<News>>>();
+				new LinkedBlockingDeque<>(newsProviders.size()));
+		ArrayList<Future<ArrayList<News>>> taskList = new ArrayList<>();
 		for (NewsProviderProperties newsProvider : newsProviders) {
 			taskList.add(executor.submit(new FindNewsTask(getContext(), newsProvider.getAuthority(), this.filterUUIDs, this.filterTargets)));
 		}
-		HashSet<String> newsUUIDs = new HashSet<String>();
+		HashSet<String> newsUUIDs = new HashSet<>();
 		for (Future<ArrayList<News>> future : taskList) {
 			try {
 				ArrayList<News> agencyNews = future.get();
@@ -135,7 +135,7 @@ public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
 		}
 
 		@Override
-		public ArrayList<News> callMT() throws Exception {
+		public ArrayList<News> callMT() {
 			Filter newsFilter;
 			if (CollectionUtils.getSize(this.filterUUIDs) > 0) {
 				newsFilter = NewsProviderContract.Filter.getNewUUIDsFilter(this.filterUUIDs);

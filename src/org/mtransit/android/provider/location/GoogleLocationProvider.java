@@ -2,6 +2,7 @@ package org.mtransit.android.provider.location;
 
 import android.annotation.SuppressLint;
 import android.location.Location;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -11,9 +12,6 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
-
-import java.util.WeakHashMap;
 
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.commons.Constants;
@@ -22,7 +20,8 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.FakeLocation;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
-import org.mtransit.android.provider.permission.PermissionProvider;
+
+import java.util.WeakHashMap;
 
 public class GoogleLocationProvider
 		implements MTLocationProvider,
@@ -33,6 +32,7 @@ public class GoogleLocationProvider
 
 	private static final String LOG_TAG = GoogleLocationProvider.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return LOG_TAG;
@@ -63,8 +63,8 @@ public class GoogleLocationProvider
 	private final CrashReporter crashReporter;
 
 	public GoogleLocationProvider(@NonNull IApplication application,
-			@NonNull LocationPermissionProvider permissionProvider,
-			@NonNull CrashReporter crashReporter) {
+								  @NonNull LocationPermissionProvider permissionProvider,
+								  @NonNull CrashReporter crashReporter) {
 		this.application = application;
 		this.permissionProvider = permissionProvider;
 		this.crashReporter = crashReporter;
@@ -129,14 +129,9 @@ public class GoogleLocationProvider
 
 	@Override
 	public boolean handleRequestPermissionsResult(@NonNull final ScreenWithLocationView screenWithLocationView,
-			final int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+												  final int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		return this.permissionProvider.handleRequestPermissionsResult(requestCode, permissions, grantResults,
-				new PermissionProvider.OnPermissionGrantedListener() {
-					@Override
-					public void onPermissionGranted() {
-						onLocationProviderReady();
-					}
-				});
+				this::onLocationProviderReady);
 	}
 
 	private void onLocationProviderReady() {
@@ -202,12 +197,7 @@ public class GoogleLocationProvider
 			return;
 		}
 		getFusedLocationProviderClient().getLastLocation()
-				.addOnSuccessListener(new OnSuccessListener<Location>() {
-					@Override
-					public void onSuccess(Location location) {
-						onNewLastLocation(location);
-					}
-				});
+				.addOnSuccessListener(this::onNewLastLocation);
 	}
 
 	private void onNewLastLocation(@Nullable Location lastLocation) {
@@ -254,6 +244,7 @@ public class GoogleLocationProvider
 
 		private static final String LOG_TAG = MTLocationCallback.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return LOG_TAG;

@@ -59,7 +59,7 @@ public abstract class MTFragmentV4 extends Fragment implements MTLog.Loggable {
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onConfigurationChanged(%s)", newConfig);
 		}

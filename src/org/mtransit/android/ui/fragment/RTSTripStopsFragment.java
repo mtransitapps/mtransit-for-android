@@ -228,7 +228,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 		if (this.adapter == null || !this.adapter.isInitialized()) {
 			return null;
 		}
-		HashSet<POIManager> pois = new HashSet<POIManager>();
+		HashSet<POIManager> pois = new HashSet<>();
 		if (this.adapter != null && this.adapter.hasPois()) {
 			for (int i = 0; i < this.adapter.getPoisCount(); i++) {
 				pois.add(this.adapter.getItem(i));
@@ -243,7 +243,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		this.mapViewController.onConfigurationChanged(newConfig);
 	}
@@ -408,7 +408,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 			if (poim != null && poim.poi instanceof RouteTripStop) {
 				RouteTripStop rts = (RouteTripStop) poim.poi;
 				if (rts.getStop().getId() == stopId) {
-					return new Pair<Integer, String>(i, poim.poi.getUUID());
+					return new Pair<>(i, poim.poi.getUUID());
 				}
 			}
 		}
@@ -418,13 +418,13 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 	private Pair<Integer, String> findClosestPOIIndexUuid(ArrayList<POIManager> pois) {
 		if (this.userLocation != null && CollectionUtils.getSize(pois) > 0) {
 			LocationUtils.updateDistance(pois, this.userLocation.getLatitude(), this.userLocation.getLongitude());
-			ArrayList<POIManager> sortedPOIs = new ArrayList<POIManager>(pois);
+			ArrayList<POIManager> sortedPOIs = new ArrayList<>(pois);
 			CollectionUtils.sort(sortedPOIs, LocationUtils.POI_DISTANCE_COMPARATOR);
 			String closestPoiUuid = sortedPOIs.get(0).poi.getUUID();
 			for (int i = 0; i < pois.size(); i++) {
 				POIManager poim = pois.get(i);
 				if (poim.poi.getUUID().equals(closestPoiUuid)) {
-					return new Pair<Integer, String>(i, poim.poi.getUUID());
+					return new Pair<>(i, poim.poi.getUUID());
 				}
 			}
 		}

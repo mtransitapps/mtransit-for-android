@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class LazyMarker implements MTLog.Loggable {
 
 	private static final String TAG = LazyMarker.class.getSimpleName();
@@ -51,7 +52,7 @@ public class LazyMarker implements MTLog.Loggable {
 			this.markerOptionsSecondaryColor = optionsSecondaryColor;
 			this.markerOptionsDefaultColor = optionsDefaultColor;
 			this.markerOptionsIconResId = optionsIconResId;
-			this.markerOptionsContextWR = new WeakReference<Context>(optionsContext);
+			this.markerOptionsContextWR = new WeakReference<>(optionsContext);
 			this.listener = listener;
 		}
 	}
@@ -226,7 +227,7 @@ public class LazyMarker implements MTLog.Loggable {
 			markerOptionsColor = color;
 			markerOptionsSecondaryColor = secondaryColor;
 			markerOptionsDefaultColor = defaultColor;
-			markerOptionsContextWR = new WeakReference<Context>(context);
+			markerOptionsContextWR = new WeakReference<>(context);
 			markerOptions.icon(null);
 		}
 	}

@@ -1,32 +1,27 @@
 package org.mtransit.android.ui.view.map.impl;
 
 import android.os.Handler;
-import android.os.Handler.Callback;
-import android.os.Message;
 import android.os.SystemClock;
-import androidx.collection.ArrayMap;
 import android.view.animation.Interpolator;
 
-import com.google.android.gms.maps.model.LatLng;
+import androidx.collection.ArrayMap;
 
-import java.util.Iterator;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.mtransit.android.ui.view.map.AnimationSettings;
 import org.mtransit.android.ui.view.map.IMarker;
 
+import java.util.Iterator;
+
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class MarkerAnimator {
 
-	private Handler handler = new Handler(new Callback() {
-
-		@Override
-		public boolean handleMessage(Message msg) {
-			calculatePositions();
-			return true;
-		}
+	private Handler handler = new Handler(msg -> {
+		calculatePositions();
+		return true;
 	});
 
-	private ArrayMap<DelegatingMarker, AnimationData> queue = new ArrayMap<DelegatingMarker, AnimationData>();
+	private ArrayMap<DelegatingMarker, AnimationData> queue = new ArrayMap<>();
 
 	private void calculatePositions() {
 		long now = SystemClock.uptimeMillis();
