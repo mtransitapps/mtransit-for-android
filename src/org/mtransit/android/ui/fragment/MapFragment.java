@@ -244,7 +244,7 @@ public class MapFragment extends ABFragment implements
 	private LatLngBounds loadedLatLngBounds = null;
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		this.mapViewController.onConfigurationChanged(newConfig);
 	}

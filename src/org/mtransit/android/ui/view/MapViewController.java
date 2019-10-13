@@ -619,8 +619,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		mapListener.onCameraChange(visibleRegion.latLngBounds);
 	}
 
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		notifyNewCameraPosition();
+		applyMapStyle();
 	}
 
 	public LatLngBounds getBigCameraPosition(Activity activity, float factor) {
