@@ -15,16 +15,21 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
+
 import android.text.TextUtils;
 
 public class FavoriteProvider extends MTContentProvider {
 
-	private static final String TAG = FavoriteProvider.class.getSimpleName();
+	private static final String LOG_TAG = FavoriteProvider.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private static final int FAVORITE = 100;
@@ -40,18 +45,19 @@ public class FavoriteProvider extends MTContentProvider {
 			.appendTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FOLDER_ID, FavoriteColumns.T_FAVORITE_K_FOLDER_ID) //
 			.build();
 
-	public static final String[] PROJECTION_FAVORITE = new String[] { FavoriteColumns.T_FAVORITE_K_ID, FavoriteColumns.T_FAVORITE_K_TYPE,
-			FavoriteColumns.T_FAVORITE_K_FK_ID, FavoriteColumns.T_FAVORITE_K_FOLDER_ID };
+	public static final String[] PROJECTION_FAVORITE = new String[]{FavoriteColumns.T_FAVORITE_K_ID, FavoriteColumns.T_FAVORITE_K_TYPE,
+			FavoriteColumns.T_FAVORITE_K_FK_ID, FavoriteColumns.T_FAVORITE_K_FOLDER_ID};
 
 	private static final ArrayMap<String, String> FAVORITE_FOLDER_PROJECTION_MAP = SqlUtils.ProjectionMapBuilder.getNew() //
 			.appendTableColumn(FavoriteDbHelper.T_FAVORITE_FOLDER, FavoriteDbHelper.T_FAVORITE_FOLDER_K_ID, FavoriteFolderColumns.T_FAVORITE_FOLDER_K_ID) //
 			.appendTableColumn(FavoriteDbHelper.T_FAVORITE_FOLDER, FavoriteDbHelper.T_FAVORITE_FOLDER_K_NAME, FavoriteFolderColumns.T_FAVORITE_FOLDER_K_NAME) //
 			.build();
 
-	public static final String[] PROJECTION_FOLDER = new String[] { FavoriteFolderColumns.T_FAVORITE_FOLDER_K_ID,
-			FavoriteFolderColumns.T_FAVORITE_FOLDER_K_NAME };
+	public static final String[] PROJECTION_FOLDER = new String[]{FavoriteFolderColumns.T_FAVORITE_FOLDER_K_ID,
+			FavoriteFolderColumns.T_FAVORITE_FOLDER_K_NAME};
 
-	public static UriMatcher getNewUriMatcher(String authority) {
+	@NonNull
+	public static UriMatcher getNewUriMatcher(@NonNull String authority) {
 		UriMatcher URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 		URI_MATCHER.addURI(authority, "favorite", FAVORITE);
 		URI_MATCHER.addURI(authority, "favorite/#", FAVORITE_ID);
@@ -60,13 +66,17 @@ public class FavoriteProvider extends MTContentProvider {
 		return URI_MATCHER;
 	}
 
+	@Nullable
 	private static String authority;
 
+	@Nullable
 	private static Uri authorityUri;
 
+	@Nullable
 	private static UriMatcher uriMatcher;
 
-	private static FavoriteDbHelper dbHelper;
+	@Nullable
+	private FavoriteDbHelper dbHelper;
 
 	private static int currentDbVersion = -1;
 
@@ -75,7 +85,8 @@ public class FavoriteProvider extends MTContentProvider {
 		return true;
 	}
 
-	private FavoriteDbHelper getDBHelper(Context context) {
+	@NonNull
+	private FavoriteDbHelper getDBHelper(@NonNull Context context) {
 		if (dbHelper == null) { // initialize
 			dbHelper = getNewDbHelper(context);
 			currentDbVersion = getCurrentDbVersion();
@@ -93,7 +104,8 @@ public class FavoriteProvider extends MTContentProvider {
 		return dbHelper;
 	}
 
-	private FavoriteDbHelper getNewDbHelper(Context context) {
+	@NonNull
+	private FavoriteDbHelper getNewDbHelper(@NonNull Context context) {
 		return new FavoriteDbHelper(context.getApplicationContext());
 	}
 
@@ -101,14 +113,16 @@ public class FavoriteProvider extends MTContentProvider {
 		return FavoriteDbHelper.getDbVersion();
 	}
 
-	private static Uri getAuthorityUri(Context context) {
+	@NonNull
+	private static Uri getAuthorityUri(@NonNull Context context) {
 		if (authorityUri == null) {
 			authorityUri = UriUtils.newContentUri(getAUTHORITY(context));
 		}
 		return authorityUri;
 	}
 
-	private static UriMatcher getURI_MATCHER(Context context) {
+	@NonNull
+	private static UriMatcher getURI_MATCHER(@NonNull Context context) {
 		if (uriMatcher == null) {
 			uriMatcher = getNewUriMatcher(getAUTHORITY(context));
 		}
@@ -118,18 +132,24 @@ public class FavoriteProvider extends MTContentProvider {
 	/**
 	 * Override if multiple {@link FavoriteProvider} implementations in same app.
 	 */
-	private static String getAUTHORITY(Context context) {
+	@NonNull
+	private static String getAUTHORITY(@NonNull Context context) {
 		if (authority == null) {
 			authority = context.getResources().getString(R.string.favorite_authority);
 		}
 		return authority;
 	}
 
+	@Nullable
 	@Override
-	public Cursor queryMT(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+	public Cursor queryMT(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
 		try {
 			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-			switch (getURI_MATCHER(getContext()).match(uri)) {
+			final Context context = getContext();
+			if (context == null) {
+				return null;
+			}
+			switch (getURI_MATCHER(context).match(uri)) {
 			case FAVORITE:
 				qb.setTables(FavoriteDbHelper.T_FAVORITE);
 				qb.setProjectionMap(FAVORITE_PROJECTION_MAP);
@@ -156,11 +176,11 @@ public class FavoriteProvider extends MTContentProvider {
 				throw new IllegalArgumentException(String.format("Unknown URI (query): '%s'", uri));
 			}
 			if (TextUtils.isEmpty(sortOrder)) {
-				sortOrder = getSortOrder(uri);
+				sortOrder = getSortOrder(context, uri);
 			}
-			Cursor cursor = qb.query(getDBHelper(getContext()).getReadableDatabase(), projection, selection, selectionArgs, null, null, sortOrder, null);
+			Cursor cursor = qb.query(getDBHelper(context).getReadableDatabase(), projection, selection, selectionArgs, null, null, sortOrder, null);
 			if (cursor != null) {
-				cursor.setNotificationUri(getContext().getContentResolver(), uri);
+				cursor.setNotificationUri(context.getContentResolver(), uri);
 			}
 			return cursor;
 		} catch (Exception e) {
@@ -169,11 +189,11 @@ public class FavoriteProvider extends MTContentProvider {
 		}
 	}
 
-	public String getSortOrder(Uri uri) {
-		switch (getURI_MATCHER(getContext()).match(uri)) {
+	@Nullable
+	public String getSortOrder(@NonNull Context context, @NonNull Uri uri) {
+		switch (getURI_MATCHER(context).match(uri)) {
 		case FAVORITE:
 		case FAVORITE_ID:
-			return null;
 		case FAVORITE_FOLDER:
 		case FAVORITE_FOLDER_ID:
 			return null;
@@ -182,12 +202,16 @@ public class FavoriteProvider extends MTContentProvider {
 		}
 	}
 
+	@Nullable
 	@Override
-	public String getTypeMT(Uri uri) {
-		switch (getURI_MATCHER(getContext()).match(uri)) {
+	public String getTypeMT(@NonNull Uri uri) {
+		final Context context = getContext();
+		if (context == null) {
+			return null;
+		}
+		switch (getURI_MATCHER(context).match(uri)) {
 		case FAVORITE:
 		case FAVORITE_ID:
-			return null;
 		case FAVORITE_FOLDER:
 		case FAVORITE_FOLDER_ID:
 			return null;
@@ -197,33 +221,37 @@ public class FavoriteProvider extends MTContentProvider {
 	}
 
 	@Override
-	public int deleteMT(Uri uri, String selection, String[] selectionArgs) {
+	public int deleteMT(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
 		int affectedRows = 0;
 		try {
-			switch (getURI_MATCHER(getContext()).match(uri)) {
+			final Context context = getContext();
+			if (context == null) {
+				return affectedRows;
+			}
+			switch (getURI_MATCHER(context).match(uri)) {
 			case FAVORITE:
-				affectedRows = getDBHelper(getContext()).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE, selection, selectionArgs);
+				affectedRows = getDBHelper(context).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE, selection, selectionArgs);
 				break;
 			case FAVORITE_ID:
 				selection = SqlUtils.getWhereEquals( //
 						SqlUtils.getTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_ID), //
 						uri.getPathSegments().get(1));
-				affectedRows = getDBHelper(getContext()).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE, selection, null);
+				affectedRows = getDBHelper(context).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE, selection, null);
 				break;
 			case FAVORITE_FOLDER:
-				affectedRows = getDBHelper(getContext()).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE_FOLDER, selection, selectionArgs);
+				affectedRows = getDBHelper(context).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE_FOLDER, selection, selectionArgs);
 				break;
 			case FAVORITE_FOLDER_ID:
 				selection = SqlUtils.getWhereEquals( //
 						SqlUtils.getTableColumn(FavoriteDbHelper.T_FAVORITE_FOLDER, FavoriteDbHelper.T_FAVORITE_FOLDER_K_ID), //
 						uri.getPathSegments().get(2));
-				affectedRows = getDBHelper(getContext()).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE_FOLDER, selection, null);
+				affectedRows = getDBHelper(context).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE_FOLDER, selection, null);
 				break;
 			default:
 				throw new IllegalArgumentException(String.format("Unknown URI (delete): '%s'", uri));
 			}
 			if (affectedRows > 0) {
-				getContext().getContentResolver().notifyChange(uri, null);
+				context.getContentResolver().notifyChange(uri, null);
 			}
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while processing delete query %s!", uri);
@@ -232,21 +260,25 @@ public class FavoriteProvider extends MTContentProvider {
 	}
 
 	@Override
-	public int updateMT(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+	public int updateMT(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
 		int affectedRows = 0;
 		try {
-			switch (getURI_MATCHER(getContext()).match(uri)) {
+			final Context context = getContext();
+			if (context == null) {
+				return affectedRows;
+			}
+			switch (getURI_MATCHER(context).match(uri)) {
 			case FAVORITE:
-				affectedRows = getDBHelper(getContext()).getWritableDatabase().update(FavoriteDbHelper.T_FAVORITE, values, selection, selectionArgs);
+				affectedRows = getDBHelper(context).getWritableDatabase().update(FavoriteDbHelper.T_FAVORITE, values, selection, selectionArgs);
 				break;
 			case FAVORITE_FOLDER:
-				affectedRows = getDBHelper(getContext()).getWritableDatabase().update(FavoriteDbHelper.T_FAVORITE_FOLDER, values, selection, selectionArgs);
+				affectedRows = getDBHelper(context).getWritableDatabase().update(FavoriteDbHelper.T_FAVORITE_FOLDER, values, selection, selectionArgs);
 				break;
 			default:
 				throw new IllegalArgumentException(String.format("Unknown URI (delete): '%s'", uri));
 			}
 			if (affectedRows > 0) {
-				getContext().getContentResolver().notifyChange(uri, null);
+				context.getContentResolver().notifyChange(uri, null);
 			}
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while processing delete query %s!", uri);
@@ -256,33 +288,40 @@ public class FavoriteProvider extends MTContentProvider {
 
 	public static final String FAVORITE_CONTENT_DIRECTORY = "favorite";
 
-	public static Uri getFavoriteContentUri(Context context) {
+	@NonNull
+	public static Uri getFavoriteContentUri(@NonNull Context context) {
 		return Uri.withAppendedPath(getAuthorityUri(context), FAVORITE_CONTENT_DIRECTORY);
 	}
 
 	public static final String FAVORITE_FOLDER_CONTENT_DIRECTORY = "folder";
 
-	public static Uri getFavoriteFolderContentUri(Context context) {
+	@NonNull
+	public static Uri getFavoriteFolderContentUri(@NonNull Context context) {
 		return Uri.withAppendedPath(Uri.withAppendedPath(getAuthorityUri(context), FAVORITE_CONTENT_DIRECTORY), FAVORITE_FOLDER_CONTENT_DIRECTORY);
 	}
 
+	@Nullable
 	@Override
-	public Uri insertMT(Uri uri, ContentValues values) {
+	public Uri insertMT(@NonNull Uri uri, @Nullable ContentValues values) {
 		try {
 			Uri insertUri = null;
 			long newRowId;
-			switch (getURI_MATCHER(getContext()).match(uri)) {
+			final Context context = getContext();
+			if (context == null) {
+				return null;
+			}
+			switch (getURI_MATCHER(context).match(uri)) {
 			case FAVORITE:
-				newRowId = getDBHelper(getContext()).getWritableDatabase().insert(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FK_ID, values);
+				newRowId = getDBHelper(context).getWritableDatabase().insert(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FK_ID, values);
 				if (newRowId > 0) {
-					insertUri = ContentUris.withAppendedId(getFavoriteContentUri(getContext()), newRowId);
+					insertUri = ContentUris.withAppendedId(getFavoriteContentUri(context), newRowId);
 				}
 				break;
 			case FAVORITE_FOLDER:
-				newRowId = getDBHelper(getContext()).getWritableDatabase().insert(FavoriteDbHelper.T_FAVORITE_FOLDER,
+				newRowId = getDBHelper(context).getWritableDatabase().insert(FavoriteDbHelper.T_FAVORITE_FOLDER,
 						FavoriteDbHelper.T_FAVORITE_FOLDER_K_NAME, values);
 				if (newRowId > 0) {
-					insertUri = ContentUris.withAppendedId(getFavoriteFolderContentUri(getContext()), newRowId);
+					insertUri = ContentUris.withAppendedId(getFavoriteFolderContentUri(context), newRowId);
 				}
 				break;
 			default:
@@ -291,7 +330,7 @@ public class FavoriteProvider extends MTContentProvider {
 			if (insertUri == null) {
 				throw new SQLException(String.format("Failed to insert row into %s", uri));
 			} else {
-				getContext().getContentResolver().notifyChange(insertUri, null);
+				context.getContentResolver().notifyChange(insertUri, null);
 				return insertUri;
 			}
 		} catch (Exception e) {
