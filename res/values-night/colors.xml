@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">@color/dark_grey_c</color>
+    <color name="primary_dark">@color/dark_grey_c</color>
+    <color name="accent">@color/primary</color>
+
+    <color name="background">@color/dark_grey</color>
+    <color name="window_background">@color/dark_grey</color>
+
+    <color name="poi_item_bg">@color/dark_grey_a</color>
+
+    <color name="ic_grey600">#8Aa0a0a0</color>
+</resources>

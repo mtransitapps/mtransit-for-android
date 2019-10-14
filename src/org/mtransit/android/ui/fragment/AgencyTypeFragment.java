@@ -219,7 +219,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		viewPager.addOnPageChangeListener(this);
 		TabLayout tabs = view.findViewById(R.id.tabs);
 		viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
-		tabs.setOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
+		tabs.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
 		setupAdapter(view);
 	}
 

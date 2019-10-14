@@ -516,7 +516,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		viewPager.addOnPageChangeListener(this);
 		TabLayout tabs = view.findViewById(R.id.tabs);
 		viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabs));
-		tabs.setOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
+		tabs.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(viewPager));
 		setupTabTheme(view);
 		setupAdapters(view);
 		setSwipeRefreshLayoutEnabled(!isFixedOn());
