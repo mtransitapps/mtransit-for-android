@@ -19,6 +19,7 @@
             android:layout_height="match_parent"
             android:layout_above="@id/ad_layout"
             android:visibility="gone" />
+
         <include
             android:id="@+id/content_frame_loading"
             layout="@layout/layout_loading_large"
@@ -42,6 +43,7 @@
             android:theme="@style/MTThemeOverlay"
             android:visibility="invisible"
             tools:visibility="visible" />
+
     </RelativeLayout>
 
     <com.google.android.material.navigation.NavigationView
@@ -51,4 +53,5 @@
         android:layout_gravity="start"
         app:headerLayout="@layout/layout_drawer_header"
         app:menu="@menu/drawer" />
+
 </androidx.drawerlayout.widget.DrawerLayout>

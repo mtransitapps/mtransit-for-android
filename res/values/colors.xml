@@ -38,7 +38,6 @@
     <color name="mt_bg_dark" tools:ignore="UnusedResources">#230913</color>
     <color name="mt_bg_light" tools:ignore="UnusedResources">#58454F</color>
 
-    <color name="menu_bg">@color/platform_background_holo_light_gradient_start_color</color>
     <color name="poi_item_bg">@android:color/white</color>
 
     <color name="button_bg">@color/primary_dark</color>
