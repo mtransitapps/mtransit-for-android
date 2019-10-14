@@ -22,6 +22,8 @@
 
     <style name="MTThemePreferences" parent="Theme.AppCompat.Light.DarkActionBar" />
 
+    <style name="MTThemeOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
     <style name="MTTabTextStyle" parent="TextAppearance.Design.Tab">
         <item name="android:textStyle">bold</item>
     </style>

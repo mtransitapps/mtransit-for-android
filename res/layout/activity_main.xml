@@ -39,7 +39,7 @@
             android:layout_height="@dimen/action_bar_size_static"
             android:layout_alignParentTop="true"
             android:background="?attr/colorPrimary"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            android:theme="@style/MTThemeOverlay"
             android:visibility="invisible"
             tools:visibility="visible" />
     </RelativeLayout>
