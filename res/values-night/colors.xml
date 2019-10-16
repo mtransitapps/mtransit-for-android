@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">@color/dark_grey_c</color>
-    <color name="primary_dark">@color/dark_grey_c</color>
-    <color name="accent">@color/primary</color>
+    <color name="color_primary">@color/dark_grey_c</color>
+    <color name="color_on_primary">#FFF3F3F3</color>
+
+    <color name="color_primary_dark">@color/dark_grey_c</color>
+
+    <color name="color_accent">@color/color_primary</color>
+
+    <color name="color_surface">@color/dark_grey_a</color>
+    <color name="color_on_surface">#8Aa0a0a0</color>
 
     <color name="background">@color/dark_grey</color>
     <color name="window_background">@color/dark_grey</color>
 
-    <color name="poi_item_bg">@color/dark_grey_a</color>
 
-    <color name="ic_grey600">#8Aa0a0a0</color>
 </resources>

@@ -30,7 +30,7 @@
             android:padding="@dimen/button_text_padding"
             android:textAllCaps="true"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/platform_background_holo_light"
+            android:textColor="?attr/colorOnPrimary"
             tools:drawableLeft="@drawable/ic_directions_bus_white_24dp"
             tools:text="BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE" />
     </FrameLayout>
@@ -60,7 +60,7 @@
             android:padding="@dimen/button_text_padding"
             android:textAllCaps="true"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/platform_background_holo_light"
+            android:textColor="?attr/colorOnPrimary"
             tools:drawableLeft="@drawable/ic_directions_bus_white_24dp"
             tools:text="BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE" />
     </FrameLayout>

@@ -24,12 +24,18 @@
 	5% — 0D
 	0% — 00
     -->
-    <color name="primary">@color/dark_grey</color>
-    <color name="primary_dark">@color/black</color>
-    <color name="accent">@color/primary</color>
+    <color name="color_primary">@color/dark_grey</color>
+    <color name="color_on_primary">#FFF3F3F3</color>
 
-    <color name="background">@color/platform_background_material_light_old</color>
-    <color name="window_background">@color/platform_background_material_light_old</color>
+    <color name="color_primary_dark">@color/black</color>
+
+    <color name="color_accent">@color/color_primary</color>
+
+    <color name="color_surface">#FFFFFF</color>
+    <color name="color_on_surface">#8A000000</color>
+
+    <color name="background">#ffeeeeee</color>
+    <color name="window_background">@color/background</color>
 
     <!-- light icons: #333 @ 60% -->
     <!-- dark icons: #FFF @ 100% -->
@@ -38,18 +44,22 @@
     <color name="mt_bg_dark" tools:ignore="UnusedResources">#230913</color>
     <color name="mt_bg_light" tools:ignore="UnusedResources">#58454F</color>
 
-    <color name="poi_item_bg">@android:color/white</color>
 
-    <color name="button_bg">@color/primary_dark</color>
-    <color name="switch_track_tint">#BFFFFFFF</color><!-- 75% -->
+    <color name="rsn_color">#FFFFFF</color>
+    <color name="rln_color">#FFFFFF</color>
+
+    <color name="button_bg">@color/color_primary_dark</color>
     <color name="head_sign_shadow">#66000000</color><!-- 40% -->
-    <color name="switch_thumb_tint">@color/primary_dark</color>
+
+    <color name="switch_track_tint">#BFFFFFFF</color><!-- 75% -->
+    <color name="switch_thumb_tint">@color/color_primary_dark</color>
     <color name="switch_thumb_tint_border">#BFFFFFFF</color>
 
-    <color name="ic_grey600">#8A000000</color>
 
     <color name="black">#000000</color>
     <color name="dark_grey">#121212</color>
     <color name="dark_grey_a">#1e1e1e</color>
     <color name="dark_grey_c">#2e2e2e</color>
+
+    <color name="transparent">#00000000</color>
 </resources>

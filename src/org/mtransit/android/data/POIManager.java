@@ -40,6 +40,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -59,24 +60,11 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return TAG;
 	}
 
-	private static Integer defaultPoiTextColor = null;
-
-	public static int getDefaultPOITextColor(Context context) {
-		if (defaultPoiTextColor == null) {
-			defaultPoiTextColor = ColorUtils.getTextColorPrimary(context);
-		}
-		return defaultPoiTextColor;
-	}
-
 	public static final POIAlphaComparator POI_ALPHA_COMPARATOR = new POIAlphaComparator();
 
-	private static int defaultDistanceAndCompassColor = -1;
-
-	public static int getDefaultDistanceAndCompassColor(Context context) {
-		if (defaultDistanceAndCompassColor < 0) {
-			defaultDistanceAndCompassColor = ColorUtils.getTextColorTertiary(context);
-		}
-		return defaultDistanceAndCompassColor;
+	@ColorInt
+	public static int getDefaultDistanceAndCompassColor(@NonNull Context context) {
+		return ColorUtils.getTextColorTertiary(context);
 	}
 
 	public POI poi;

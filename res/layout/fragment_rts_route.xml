@@ -9,16 +9,18 @@
     <!-- TABS -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabs"
+        style="@style/Widget.MaterialComponents.TabLayout.Colored"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/MTThemeOverlay"
         android:visibility="gone"
         app:tabContentStart="@dimen/tab_content_start"
         app:tabGravity="fill"
-        app:tabIndicatorColor="@android:color/white"
+        app:tabIndicatorColor="?attr/colorOnPrimary"
         app:tabMinWidth="0dp"
         app:tabMode="scrollable"
-        app:tabTextAppearance="@style/MTTabTextStyle" />
+        app:tabTextAppearance="@style/MTTabTextStyle"
+        tools:visibility="visible" />
     <!-- LOADING -->
     <include
         android:id="@+id/loading"

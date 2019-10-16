@@ -2,13 +2,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
-    android:background="@color/poi_item_bg"
+    android:background="?attr/colorSurface"
     android:clipChildren="false"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingBottom="@dimen/poi_padding_bottom"
     android:paddingLeft="@dimen/poi_padding_left_extra"
+    android:paddingTop="@dimen/poi_padding_top"
     android:paddingRight="@dimen/poi_padding_right"
-    android:paddingTop="@dimen/poi_padding_top">
+    android:paddingBottom="@dimen/poi_padding_bottom">
 
     <include
         android:id="@+id/extra"
@@ -21,4 +21,5 @@
         android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/poi_margin_left"
         android:layout_toRightOf="@id/extra" />
+
 </RelativeLayout>

@@ -5,21 +5,24 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:fillViewport="true"
-    android:minHeight="?android:attr/listPreferredItemHeightLarge"
-    android:minWidth="?android:attr/listPreferredItemHeightLarge" >
+    android:minWidth="?android:attr/listPreferredItemHeightLarge"
+    android:minHeight="?android:attr/listPreferredItemHeightLarge">
+
     <LinearLayout
         android:id="@+id/viewFlipper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="left|center_vertical"
         android:orientation="vertical"
-        android:padding="16dp" >
+        android:padding="16dp">
+
         <include
             android:id="@+id/loading"
+            layout="@layout/layout_loading_large"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            layout="@layout/layout_loading_large"
             android:visibility="gone" />
+
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
@@ -28,6 +31,7 @@
             android:maxLines="2"
             android:text="@string/support_subs_pref_title"
             android:textAppearance="?android:attr/textAppearanceLarge" />
+
         <TextView
             android:id="@+id/subTitle"
             android:layout_width="wrap_content"
@@ -38,6 +42,7 @@
             android:text="@string/support_subs_pref_summary"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textStyle="italic" />
+
         <TextView
             android:id="@+id/beforeText"
             android:layout_width="wrap_content"
@@ -48,11 +53,13 @@
             android:text="@string/support_subs_pick_price"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="italic" />
+
         <LinearLayout
             android:id="@+id/priceSelection"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
+
             <Spinner
                 android:id="@+id/price"
                 android:layout_width="wrap_content"
@@ -62,10 +69,12 @@
                 tools:context=".ui.MainActivity"
                 tools:listitem="@android:layout/simple_spinner_dropdown_item"
                 tools:visibility="visible" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/support_subs_price_and_period_separator" />
+
             <Spinner
                 android:id="@+id/period"
                 android:layout_width="wrap_content"
@@ -76,6 +85,7 @@
                 tools:listitem="@android:layout/simple_spinner_dropdown_item"
                 tools:visibility="visible" />
         </LinearLayout>
+
         <TextView
             android:id="@+id/afterText"
             android:layout_width="wrap_content"
@@ -85,6 +95,7 @@
             android:singleLine="false"
             android:text="@string/support_subs_try_cancel"
             android:textAppearance="?android:attr/textAppearanceMedium" />
+
         <Button
             android:id="@+id/buyBtn"
             android:layout_width="wrap_content"
@@ -95,9 +106,9 @@
             android:id="@+id/paidTasksDivider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginBottom="@dimen/baseline_16"
             android:layout_marginTop="@dimen/baseline_16"
-            android:background="@color/ic_grey600" />
+            android:layout_marginBottom="@dimen/baseline_16"
+            android:background="?attr/colorOnSurface" />
 
         <TextView
             android:id="@+id/paidTasksIncentive"

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/poi_item_bg"
+    android:background="?attr/colorSurface"
     android:minHeight="?android:attr/listPreferredItemHeightLarge"
     android:padding="16dp">
 
@@ -11,8 +11,8 @@
         android:id="@+id/date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
         android:fontFamily="sans-serif-condensed"
         android:maxLines="1"
         android:paddingLeft="1dp"
@@ -35,13 +35,14 @@
         android:textColor="?android:attr/textColorSecondary"
         android:textStyle="bold"
         tools:text="AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR" />
+
     <!-- NAME -->
     <TextView
         android:id="@+id/newsText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_below="@id/author"
+        android:layout_alignParentBottom="true"
         android:ellipsize="end"
         android:fontFamily="sans-serif-condensed"
         android:maxLines="5"
@@ -50,4 +51,5 @@
         android:textColor="?android:attr/textColorPrimary"
         android:textStyle="normal"
         tools:text="NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS" />
+
 </RelativeLayout>

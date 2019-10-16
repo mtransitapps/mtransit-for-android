@@ -1,30 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
-    android:background="@color/poi_item_bg"
+    android:background="?attr/colorSurface"
     android:clipChildren="false"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingBottom="@dimen/poi_padding_bottom"
     android:paddingLeft="@dimen/poi_padding_left_no_extra"
+    android:paddingTop="@dimen/poi_padding_top"
     android:paddingRight="@dimen/poi_padding_right"
-    android:paddingTop="@dimen/poi_padding_top" >
+    android:paddingBottom="@dimen/poi_padding_bottom">
+
     <include
         android:id="@+id/status"
+        layout="@layout/layout_poi_status_availability_percent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="true"
+        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="@dimen/poi_status_inner_padding"
-        layout="@layout/layout_poi_status_availability_percent"
         android:minWidth="?android:attr/listPreferredItemHeight" />
+
     <include
         android:id="@+id/poi"
+        layout="@layout/layout_poi_base_distance_and_compass"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/poi_margin_left"
-        android:layout_toLeftOf="@id/status"
-        layout="@layout/layout_poi_base_distance_and_compass" />
+        android:layout_toLeftOf="@id/status" />
+
 </RelativeLayout>

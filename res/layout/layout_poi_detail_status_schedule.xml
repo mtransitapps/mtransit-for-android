@@ -10,7 +10,7 @@
         android:id="@+id/next_departures_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/poi_item_bg"
+        android:background="?attr/colorSurface"
         android:minHeight="?android:attr/listPreferredItemHeightLarge"
         android:scrollbars="none">
 
@@ -20,5 +20,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:scrollHorizontally="true" />
+
     </HorizontalScrollView>
+
 </LinearLayout>

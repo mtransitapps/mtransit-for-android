@@ -11,5 +11,5 @@
     android:paddingLeft="@dimen/title_padding_left"
     android:paddingTop="@dimen/title_top_padding"
     android:paddingRight="@dimen/title_padding_right"
-    android:textColor="@color/ic_grey600"
+    android:textColor="?attr/colorOnSurface"
     tools:text="TYPE TYPE TYPE TYPE TYPE TYPE TYPE TYPE " />

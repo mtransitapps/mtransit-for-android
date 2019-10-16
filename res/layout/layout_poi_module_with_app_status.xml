@@ -2,21 +2,21 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
-    android:background="@color/poi_item_bg"
+    android:background="?attr/colorSurface"
     android:clipChildren="false"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingBottom="@dimen/poi_padding_bottom"
     android:paddingLeft="@dimen/poi_padding_left_extra"
+    android:paddingTop="@dimen/poi_padding_top"
     android:paddingRight="@dimen/poi_padding_right"
-    android:paddingTop="@dimen/poi_padding_top">
+    android:paddingBottom="@dimen/poi_padding_bottom">
 
     <include
         android:id="@+id/status"
         layout="@layout/layout_poi_status_app"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:layout_alignWithParentIfMissing="true"
+        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="@dimen/poi_status_inner_padding"
         android:minWidth="?android:attr/listPreferredItemHeight" />
@@ -33,4 +33,5 @@
         android:layout_marginLeft="@dimen/poi_margin_left"
         android:layout_toLeftOf="@id/status"
         android:layout_toRightOf="@id/extra" />
+
 </RelativeLayout>

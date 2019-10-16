@@ -27,7 +27,7 @@
             android:maxLines="1"
             android:padding="@dimen/baseline_1"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@android:color/white"
+            android:textColor="@color/rsn_color"
             android:textStyle="bold"
             android:visibility="gone"
             app:autoSizeMaxTextSize="@dimen/route_short_name_max_text_size"
@@ -58,7 +58,7 @@
         android:includeFontPadding="true"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@android:color/white"
+        android:textColor="@color/rln_color"
         android:visibility="gone"
         tools:text="Route Long Name Route Long Name Route Long Name"
         tools:visibility="visible" />

@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical">
+
     <TextView
         android:id="@+id/dayDate"
         android:layout_width="match_parent"
@@ -12,19 +13,23 @@
         android:gravity="center_horizontal"
         android:text="@string/ellipsis"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/ic_grey600" />
+        android:textColor="?attr/colorOnSurface"
+        tools:text="June 2nd, 2015" />
+
     <FrameLayout
         android:id="@+id/viewFlipper"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" >
+        android:layout_weight="1">
+
         <!-- LOADING -->
         <include
             android:id="@+id/loading"
+            layout="@layout/layout_loading_large"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            layout="@layout/layout_loading_large"
             android:visibility="visible" />
+
         <!-- LIST -->
         <ViewStub
             android:id="@+id/list_stub"
@@ -32,7 +37,9 @@
             android:layout_height="match_parent"
             android:layout="@layout/layout_time_list"
             android:visibility="gone" />
+
         <include layout="@layout/layout_shadow" />
+
         <!-- EMPTY -->
         <ViewStub
             android:id="@+id/empty_stub"
@@ -41,5 +48,7 @@
             android:inflatedId="@+id/empty"
             android:layout="@layout/layout_empty"
             android:visibility="gone" />
+
     </FrameLayout>
+
 </LinearLayout>

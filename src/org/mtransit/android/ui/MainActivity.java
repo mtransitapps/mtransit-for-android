@@ -21,7 +21,9 @@ import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
+import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.fragment.ABFragment;
@@ -70,6 +72,8 @@ public class MainActivity extends MTActivityWithLocation implements
 	@NonNull
 	private final IAnalyticsManager analyticsManager;
 
+	private int currentUiMode = -1;
+
 	public MainActivity() {
 		super();
 		adManager = Injection.providesAdManager();
@@ -79,6 +83,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		this.currentUiMode = getResources().getConfiguration().uiMode;
 		setContentView(R.layout.activity_main);
 		this.abController = new ActionBarController(this);
 		this.navigationDrawerController = new NavigationDrawerController(this);
@@ -398,8 +403,14 @@ public class MainActivity extends MTActivityWithLocation implements
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
+		if (this.currentUiMode != newConfig.uiMode) {
+			ColorUtils.resetColorCache();
+			Schedule.resetColorCache();
+			recreate();
+			return;
+		}
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onConfigurationChanged(newConfig);
 		}

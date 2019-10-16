@@ -4,8 +4,10 @@ import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
@@ -180,5 +182,21 @@ public abstract class MTAppCompatActivity extends AppCompatActivity implements M
 			MTLog.v(this, "startSearch(%s,%s,%s,%s)", initialQuery, selectInitialQuery, appSearchData, globalSearch);
 		}
 		super.startSearch(initialQuery, selectInitialQuery, appSearchData, globalSearch);
+	}
+
+	@Override
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
+		if (Constants.LOG_LIFECYCLE) {
+			MTLog.v(this, "onConfigurationChanged(%s)", newConfig);
+		}
+		super.onConfigurationChanged(newConfig);
+	}
+
+	@Override
+	public void recreate() {
+		if (Constants.LOG_LIFECYCLE) {
+			MTLog.v(this, "recreate()");
+		}
+		super.recreate();
 	}
 }
