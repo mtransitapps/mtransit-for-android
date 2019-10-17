@@ -4,7 +4,8 @@
     android:layout_height="wrap_content"
     android:background="?attr/colorPrimary"
     android:gravity="center_vertical"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:theme="@style/MTThemeOverlay">
 
     <ImageView
         android:layout_width="72dp"
@@ -16,14 +17,13 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
         android:fontFamily="sans-serif"
         android:gravity="center_vertical"
         android:minHeight="@dimen/action_bar_size_static"
         android:paddingLeft="8dp"
         android:paddingRight="16dp"
         android:text="@string/app_name"
-        android:textAppearance="?android:attr/textAppearanceLargeInverse"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:textStyle="normal" />
 
 </LinearLayout>

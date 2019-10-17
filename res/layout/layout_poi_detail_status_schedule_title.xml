@@ -50,6 +50,7 @@
         android:layout_toLeftOf="@id/fullScheduleBtn"
         android:drawableLeft="@drawable/ic_schedule_grey600_24dp"
         android:drawablePadding="@dimen/title_drawable_padding"
+        android:drawableTint="?attr/colorOnSurface"
         android:ellipsize="end"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"

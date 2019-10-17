@@ -10,6 +10,7 @@ import org.mtransit.android.commons.data.News;
 
 import android.content.Context;
 import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.view.View;
 import android.widget.TextView;
@@ -18,13 +19,13 @@ public class POINewsViewController implements MTLog.Loggable {
 
 	private static final String TAG = POINewsViewController.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
 	}
 
 	@LayoutRes
-	@Nullable
 	public static int getLayoutResId() {
 		return R.layout.layout_poi_news;
 	}
@@ -67,7 +68,9 @@ public class POINewsViewController implements MTLog.Loggable {
 		if (holder != null) {
 			if (news != null) {
 				holder.authorTv.setText(context.getString(R.string.news_shared_on_and_author_and_source, news.getAuthorOneLine(), news.getSourceLabel()));
-				if (news.hasColor()) {
+				if (news.hasColor()
+						&& (!ColorUtils.isDarkTheme(context)
+						|| !ColorUtils.isTooDarkForDarkTheme(news.getColorInt()))) {
 					holder.authorTv.setTextColor(news.getColorInt());
 				} else {
 					holder.authorTv.setTextColor(ColorUtils.getTextColorSecondary(context));

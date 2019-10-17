@@ -378,7 +378,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	private boolean onActionsItemClick(@NonNull Activity activity, int itemClicked, SparseArrayCompat<Favorite.Folder> favoriteFolders,
-			FavoriteManager.FavoriteUpdateListener listener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+									   FavoriteManager.FavoriteUpdateListener listener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (this.poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_NONE:
 			return false; // NOT HANDLED
@@ -397,8 +397,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	private boolean onActionsItemClickApp(@NonNull Activity activity, int itemClicked,
-			FavoriteManager.FavoriteUpdateListener listener,
-			@Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+										  FavoriteManager.FavoriteUpdateListener listener,
+										  @Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
 		case 0: // Rate on Google Play
 			if (onClickHandledListener != null) {
@@ -423,7 +423,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	private boolean onActionsItemClickPlace(@NonNull Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
-			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+											POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
 		case 0:
 			if (onClickHandledListener != null) {
@@ -512,7 +512,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	private boolean onActionsItemClickRTS(@NonNull Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
-			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+										  POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
 		case 1:
 			if (onClickHandledListener != null) {
@@ -529,7 +529,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	private boolean onActionsItemClickFavoritable(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
-			POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+												  POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
 		case 1:
 			return FavoriteManager.get(activity).addRemoveFavorite(activity, this.poi.getUUID(), listener);
@@ -585,7 +585,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	public boolean onActionItemLongClick(Activity activity, SparseArrayCompat<Favorite.Folder> favoriteFolders,
-			FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+										 FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false;
 		}
@@ -593,7 +593,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	public boolean onActionItemClick(Activity activity, SparseArrayCompat<Favorite.Folder> favoriteFolders,
-			FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+									 FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false;
 		}
@@ -605,7 +605,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	private boolean showPoiMenu(final Activity activity, final SparseArrayCompat<Favorite.Folder> favoriteFolders,
-			final FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, final POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+								final FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, final POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false;
 		}

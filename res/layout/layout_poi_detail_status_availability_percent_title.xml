@@ -16,6 +16,7 @@
         android:layout_gravity="center_vertical"
         android:drawableLeft="@drawable/ic_info_outline_grey600_24dp"
         android:drawablePadding="@dimen/title_drawable_padding"
+        android:drawableTint="?attr/colorOnSurface"
         android:ellipsize="end"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"

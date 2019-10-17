@@ -23,6 +23,7 @@
             android:layout_gravity="center"
             android:background="@drawable/button_rect_bg"
             android:drawablePadding="@dimen/button_drawable_padding"
+            android:drawableTint="?attr/colorOnPrimary"
             android:fontFamily="sans-serif-condensed"
             android:gravity="center_vertical"
             android:includeFontPadding="false"
@@ -33,6 +34,7 @@
             android:textColor="?attr/colorOnPrimary"
             tools:drawableLeft="@drawable/ic_directions_bus_white_24dp"
             tools:text="BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE" />
+
     </FrameLayout>
 
     <FrameLayout
@@ -53,6 +55,7 @@
             android:layout_gravity="center"
             android:background="@drawable/button_rect_bg"
             android:drawablePadding="@dimen/button_drawable_padding"
+            android:drawableTint="?attr/colorOnPrimary"
             android:fontFamily="sans-serif-condensed"
             android:gravity="center_vertical"
             android:includeFontPadding="false"
@@ -63,5 +66,7 @@
             android:textColor="?attr/colorOnPrimary"
             tools:drawableLeft="@drawable/ic_directions_bus_white_24dp"
             tools:text="BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE" />
+
     </FrameLayout>
+
 </LinearLayout>

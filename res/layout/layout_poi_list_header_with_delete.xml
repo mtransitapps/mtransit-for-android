@@ -71,6 +71,7 @@
         android:layout_toLeftOf="@id/renameBtn"
         android:drawableLeft="@drawable/ic_folder_special_grey600_24dp"
         android:drawablePadding="@dimen/title_drawable_padding"
+        android:drawableTint="?attr/colorOnSurface"
         android:ellipsize="end"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"

@@ -15,9 +15,11 @@ import org.mtransit.android.util.LinkUtils;
 
 import android.content.Context;
 import android.os.Bundle;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -188,7 +190,9 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 				TextView newsTv = view.findViewById(R.id.newsText);
 				newsTv.setText(LinkUtils.linkifyHtml(news.getTextHTML(), true));
 				newsTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptop.getInstance(this));
-				if (news.hasColor()) {
+				if (news.hasColor()
+						&& (!ColorUtils.isDarkTheme(getContext())
+						|| !ColorUtils.isTooDarkForDarkTheme(news.getColorInt()))) {
 					newsTv.setLinkTextColor(news.getColorInt());
 				} else {
 					newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(getContext()));

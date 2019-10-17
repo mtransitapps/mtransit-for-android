@@ -21,11 +21,13 @@ import org.mtransit.android.util.LoaderUtils;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,7 +61,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	private static final String EXTRA_FILTER_UUIDS = "extra_filter_uuids";
 
 	public static NewsFragment newInstance(@Nullable Integer optColorInt, @Nullable String optSubtitle, @Nullable ArrayList<String> optTargetAuthorities,
-			@Nullable ArrayList<String> optFilterUUIDs, @Nullable ArrayList<String> optFilterTargets) {
+										   @Nullable ArrayList<String> optFilterUUIDs, @Nullable ArrayList<String> optFilterTargets) {
 		NewsFragment f = new NewsFragment();
 		Bundle args = new Bundle();
 		if (optColorInt != null) {
@@ -508,7 +510,9 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			NewsViewHolder holder = (NewsViewHolder) convertView.getTag();
 			News news = getItem(position);
 			holder.authorTv.setText(getContext().getString(R.string.news_shared_on_and_author_and_source, news.getAuthorOneLine(), news.getSourceLabel()));
-			if (news.hasColor()) {
+			if (news.hasColor()
+					&& (!ColorUtils.isDarkTheme(convertView.getContext())
+					|| !ColorUtils.isTooDarkForDarkTheme(news.getColorInt()))) {
 				holder.authorTv.setTextColor(news.getColorInt());
 			} else {
 				holder.authorTv.setTextColor(ColorUtils.getTextColorSecondary(getContext()));

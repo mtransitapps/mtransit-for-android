@@ -69,6 +69,7 @@
         android:layout_gravity="center_vertical"
         android:layout_toLeftOf="@id/nearbyBtn"
         android:drawablePadding="@dimen/title_drawable_padding"
+        android:drawableTint="?attr/colorOnSurface"
         android:ellipsize="end"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"

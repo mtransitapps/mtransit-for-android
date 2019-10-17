@@ -21,4 +21,5 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/list_view_divider_height"
         android:layout_gravity="center_vertical" />
+
 </LinearLayout>
