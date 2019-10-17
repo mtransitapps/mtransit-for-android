@@ -1128,6 +1128,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		// DO NOTHING
 	}
 
+	@LayoutRes
 	private int getTypeHeaderLayoutResId() {
 		switch (this.showTypeHeader) {
 		case TYPE_HEADER_BASIC:
@@ -1208,8 +1209,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 		TypeHeaderViewHolder holder = (TypeHeaderViewHolder) convertView.getTag();
 		holder.nameTv.setText(this.showTypeHeaderNearby ? type.getNearbyNameResId() : type.getPoiShortNameResId());
-		if (type.getGrey600IconResId() != -1) {
-			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getGrey600IconResId(), 0, 0, 0);
+		if (type.getWhiteIconResId() != -1) {
+			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getWhiteIconResId(), 0, 0, 0);
 		}
 		if (holder.allBtn != null) {
 			holder.allBtn.setOnClickListener(new MTOnClickListener() {

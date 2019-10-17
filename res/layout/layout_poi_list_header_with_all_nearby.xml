@@ -69,7 +69,7 @@
         android:layout_gravity="center_vertical"
         android:layout_toLeftOf="@id/nearbyBtn"
         android:drawablePadding="@dimen/title_drawable_padding"
-        android:drawableTint="?attr/colorOnSurface"
+        android:drawableTint="?attr/colorOnBackground"
         android:ellipsize="end"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
@@ -79,8 +79,8 @@
         android:paddingRight="@dimen/title_padding_right"
         android:paddingBottom="@dimen/title_padding_bottom"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?attr/colorOnSurface"
-        tools:drawableLeft="@drawable/ic_directions_bus_grey600_24dp"
+        android:textColor="?attr/colorOnBackground"
+        tools:drawableLeft="@drawable/ic_directions_bus_white_24dp"
         tools:text="TYPE TYPE TYPE TYPE TYPE TYPE TYPE TYPE " />
 
 </RelativeLayout>

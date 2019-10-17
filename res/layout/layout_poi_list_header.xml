@@ -6,10 +6,11 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/header_height"
     android:drawablePadding="@dimen/title_drawable_padding"
+    android:drawableTint="?attr/colorOnBackground"
     android:ellipsize="end"
     android:fontFamily="sans-serif"
     android:paddingLeft="@dimen/title_padding_left"
     android:paddingTop="@dimen/title_top_padding"
     android:paddingRight="@dimen/title_padding_right"
-    android:textColor="?attr/colorOnSurface"
+    android:textColor="?attr/colorOnBackground"
     tools:text="TYPE TYPE TYPE TYPE TYPE TYPE TYPE TYPE " />

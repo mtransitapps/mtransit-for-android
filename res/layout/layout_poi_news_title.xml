@@ -32,6 +32,7 @@
             android:textAllCaps="true"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?attr/colorOnPrimary" />
+
     </FrameLayout>
 
     <TextView
@@ -45,6 +46,7 @@
         android:layout_toLeftOf="@id/moreBtn"
         android:drawableLeft="@drawable/ic_newspaper_grey600_24dp"
         android:drawablePadding="@dimen/title_drawable_padding"
+        android:drawableTint="?attr/colorOnBackground"
         android:ellipsize="end"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
@@ -55,6 +57,6 @@
         android:paddingBottom="@dimen/title_padding_bottom"
         android:text="@string/latest_news"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?attr/colorOnSurface" />
+        android:textColor="?attr/colorOnBackground" />
 
 </RelativeLayout>

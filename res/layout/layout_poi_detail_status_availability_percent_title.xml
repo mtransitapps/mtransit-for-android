@@ -14,9 +14,9 @@
         android:layout_alignParentBottom="true"
         android:layout_centerVertical="false"
         android:layout_gravity="center_vertical"
-        android:drawableLeft="@drawable/ic_info_outline_grey600_24dp"
+        android:drawableLeft="@drawable/ic_info_outline_white_24dp"
         android:drawablePadding="@dimen/title_drawable_padding"
-        android:drawableTint="?attr/colorOnSurface"
+        android:drawableTint="?attr/colorOnBackground"
         android:ellipsize="end"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
@@ -27,6 +27,6 @@
         android:paddingBottom="@dimen/title_padding_bottom"
         android:text="@string/availability"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?attr/colorOnSurface" />
+        android:textColor="?attr/colorOnBackground" />
 
 </RelativeLayout>
