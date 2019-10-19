@@ -31,6 +31,7 @@ import org.mtransit.android.ui.fragment.SearchFragment;
 import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
+import org.mtransit.android.util.NightModeUtils;
 import org.mtransit.android.util.VendingUtils;
 
 import java.util.WeakHashMap;
@@ -406,8 +407,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		if (this.currentUiMode != newConfig.uiMode) {
-			ColorUtils.resetColorCache();
-			Schedule.resetColorCache();
+			NightModeUtils.resetColorCache();
 			recreate();
 			return;
 		}

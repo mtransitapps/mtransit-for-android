@@ -1,17 +1,19 @@
 package org.mtransit.android.ui;
 
-import org.mtransit.android.R;
-import org.mtransit.android.commons.BundleUtils;
-import org.mtransit.android.util.VendingUtils;
-
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
-import android.view.MenuItem;
+
+import org.mtransit.android.R;
+import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.util.NightModeUtils;
+import org.mtransit.android.util.VendingUtils;
 
 public class PreferencesActivity extends MTActivity {
 
@@ -26,6 +28,8 @@ public class PreferencesActivity extends MTActivity {
 	}
 
 	private boolean showSupport = false;
+
+	private int currentUiMode = -1;
 
 	@NonNull
 	public static Intent newInstance(@NonNull Context context) {
@@ -42,6 +46,7 @@ public class PreferencesActivity extends MTActivity {
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		this.currentUiMode = getResources().getConfiguration().uiMode;
 		setContentView(R.layout.activity_preferences);
 		ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
@@ -76,6 +81,17 @@ public class PreferencesActivity extends MTActivity {
 	protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
 		restoreInstanceState(savedInstanceState);
+	}
+
+	@Override
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		org.mtransit.android.commons.MTLog.v(this, "onConfigurationChanged() > this.currentUiMode: " + this.currentUiMode);
+		org.mtransit.android.commons.MTLog.v(this, "onConfigurationChanged() > newConfig.uiMode: " + newConfig.uiMode);
+		if (this.currentUiMode != newConfig.uiMode) {
+			NightModeUtils.resetColorCache();
+			recreate();
+		}
 	}
 
 	@Override

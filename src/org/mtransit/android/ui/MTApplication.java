@@ -1,5 +1,13 @@
 package org.mtransit.android.ui;
 
+import android.app.Application;
+import android.content.Context;
+import android.os.Build;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
+
 import org.mtransit.android.BuildConfig;
 import org.mtransit.android.ad.AdManager;
 import org.mtransit.android.ad.IAdManager;
@@ -11,13 +19,7 @@ import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.IStrictMode;
 import org.mtransit.android.dev.LeakDetector;
 import org.mtransit.android.di.Injection;
-
-import android.app.Application;
-import android.content.Context;
-import android.os.Build;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import org.mtransit.android.util.NightModeUtils;
 
 public class MTApplication extends Application implements IApplication, MTLog.Loggable {
 
@@ -56,6 +58,7 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 		if (AdManager.isInAdsProcess(this)) {
 			return;
 		}
+		AppCompatDelegate.setDefaultNightMode(NightModeUtils.getDefaultNightMode(this));
 		application = this;
 		getStrictMode().setup(BuildConfig.DEBUG);
 		getCrashReporter().setup(this, !BuildConfig.DEBUG);

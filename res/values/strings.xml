@@ -130,6 +130,12 @@
     <string name="battery_optimization_issue_act">Fix</string>
     <string name="battery_optimization_issue_learn_more">Learn more</string>
     <string name="display_pref_cat_title">Display</string>
+    <string name="theme_pref_title">Theme</string>
+    <string name="theme_pref_summary">Light or Dark theme.</string>
+    <string name="theme_pref_dialog_title">Theme</string>
+    <string name="theme_pref_light">Light</string>
+    <string name="theme_pref_dark">Dark</string>
+    <string name="theme_pref_system_default">System default</string>
     <string name="unit_pref_title">Units</string>
     <string name="unit_pref_summary">Metric(km/m) or Imperial(mi/ft).</string>
     <string name="unit_pref_dialog_title">Units</string>

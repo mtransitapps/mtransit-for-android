@@ -53,7 +53,7 @@ public abstract class MTAppCompatActivity extends AppCompatActivity implements M
 	}
 
 	@Override
-	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+	protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onRestoreInstanceState(%s)", savedInstanceState);
 		}
@@ -101,7 +101,7 @@ public abstract class MTAppCompatActivity extends AppCompatActivity implements M
 	}
 
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onSaveInstanceState(%s)", outState);
 		}
