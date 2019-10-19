@@ -1,5 +1,6 @@
 package org.mtransit.android.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 
@@ -20,6 +21,18 @@ public final class NightModeUtils implements MTLog.Loggable {
 	@Override
 	public String getLogTag() {
 		return LOG_TAG;
+	}
+
+	public static void setDefaultNightMode(@Nullable Context context) {
+		setDefaultNightMode(getDefaultNightMode(context));
+	}
+
+	public static void setDefaultNightMode(@AppCompatDelegate.NightMode int mode) {
+		AppCompatDelegate.setDefaultNightMode(mode);
+	}
+
+	public static void recreate(@NonNull Activity activity) {
+		activity.recreate();
 	}
 
 	public static void resetColorCache() {

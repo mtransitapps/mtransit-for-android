@@ -191,14 +191,14 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 				newsTv.setText(LinkUtils.linkifyHtml(news.getTextHTML(), true));
 				newsTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptop.getInstance(this));
 				if (news.hasColor()
-						&& (!ColorUtils.isDarkTheme(getContext())
+						&& (!ColorUtils.isDarkTheme(view.getContext())
 						|| !ColorUtils.isTooDarkForDarkTheme(news.getColorInt()))) {
 					newsTv.setLinkTextColor(news.getColorInt());
 				} else {
-					newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(getContext()));
+					newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(view.getContext()));
 				}
 				TextView dateTv = view.findViewById(R.id.date);
-				dateTv.setText(TimeUtils.formatRelativeTime(getContext(), news.getCreatedAtInMs()));
+				dateTv.setText(TimeUtils.formatRelativeTime(view.getContext(), news.getCreatedAtInMs()));
 				final String newWebURL = TextUtils.isEmpty(news.getWebURL()) ? news.getAuthorProfileURL() : news.getWebURL();
 				dateTv.setOnClickListener(new MTOnClickListener() {
 					@Override

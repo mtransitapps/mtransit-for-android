@@ -21,9 +21,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
-import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.fragment.ABFragment;
@@ -193,6 +191,12 @@ public class MainActivity extends MTActivityWithLocation implements
 			});
 		}
 		DataSourceProvider.onResume();
+		if (this.currentUiMode != getResources().getConfiguration().uiMode) {
+			new Handler().post(() -> {
+				NightModeUtils.resetColorCache();
+				NightModeUtils.recreate(this);
+			});
+		}
 	}
 
 	private boolean resumed = false;
@@ -408,7 +412,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		super.onConfigurationChanged(newConfig);
 		if (this.currentUiMode != newConfig.uiMode) {
 			NightModeUtils.resetColorCache();
-			recreate();
+			NightModeUtils.recreate(this);
 			return;
 		}
 		if (this.navigationDrawerController != null) {
@@ -432,7 +436,7 @@ public class MainActivity extends MTActivityWithLocation implements
 				this.fragmentsToPopWR.clear();
 			}
 		} catch (Exception e) {
-			MTLog.w(this, e, "Error while poping fragments to pop from stack!");
+			MTLog.w(this, e, "Error while pop-ing fragments to pop from stack!");
 		}
 	}
 

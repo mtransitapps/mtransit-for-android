@@ -12,7 +12,6 @@ import android.preference.PreferenceFragment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDelegate;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.Constants;
@@ -237,7 +236,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 			setUseInternalWebBrowserSummary(getActivity());
 		} else if (PreferenceUtils.PREFS_THEME.equals(key)) {
 			setThemeSummary(getActivity());
-			AppCompatDelegate.setDefaultNightMode(NightModeUtils.getDefaultNightMode(getActivity()));
+			NightModeUtils.setDefaultNightMode(getActivity());
 		}
 	}
 

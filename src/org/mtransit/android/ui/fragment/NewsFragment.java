@@ -39,11 +39,12 @@ import android.widget.TextView;
 
 public class NewsFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<News>>, SwipeRefreshLayout.OnRefreshListener {
 
-	private static final String TAG = NewsFragment.class.getSimpleName();
+	private static final String LOG_TAG = NewsFragment.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private static final String TRACKING_SCREEN_NAME = "News";
@@ -60,6 +61,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	private static final String EXTRA_FILTER_TARGETS = "extra_filter_targets";
 	private static final String EXTRA_FILTER_UUIDS = "extra_filter_uuids";
 
+	@NonNull
 	public static NewsFragment newInstance(@Nullable Integer optColorInt, @Nullable String optSubtitle, @Nullable ArrayList<String> optTargetAuthorities,
 										   @Nullable ArrayList<String> optFilterUUIDs, @Nullable ArrayList<String> optFilterTargets) {
 		NewsFragment f = new NewsFragment();
@@ -380,11 +382,12 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	private static class NewsAdapter extends MTArrayAdapter<News> implements TimeUtils.TimeChangedReceiver.TimeChangedListener,
 			AdapterView.OnItemClickListener {
 
-		private static final String TAG = NewsAdapter.class.getSimpleName();
+		private static final String LOG_TAG = NewsAdapter.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
 		private LayoutInflater layoutInflater;
@@ -511,7 +514,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			News news = getItem(position);
 			holder.authorTv.setText(getContext().getString(R.string.news_shared_on_and_author_and_source, news.getAuthorOneLine(), news.getSourceLabel()));
 			if (news.hasColor()
-					&& (!ColorUtils.isDarkTheme(convertView.getContext())
+					&& (!ColorUtils.isDarkTheme(getContext())
 					|| !ColorUtils.isTooDarkForDarkTheme(news.getColorInt()))) {
 				holder.authorTv.setTextColor(news.getColorInt());
 			} else {

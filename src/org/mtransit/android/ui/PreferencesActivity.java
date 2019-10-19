@@ -90,7 +90,7 @@ public class PreferencesActivity extends MTActivity {
 		org.mtransit.android.commons.MTLog.v(this, "onConfigurationChanged() > newConfig.uiMode: " + newConfig.uiMode);
 		if (this.currentUiMode != newConfig.uiMode) {
 			NightModeUtils.resetColorCache();
-			recreate();
+			NightModeUtils.recreate(this);
 		}
 	}
 

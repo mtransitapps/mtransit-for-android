@@ -6,7 +6,6 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDelegate;
 
 import org.mtransit.android.BuildConfig;
 import org.mtransit.android.ad.AdManager;
@@ -58,7 +57,7 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 		if (AdManager.isInAdsProcess(this)) {
 			return;
 		}
-		AppCompatDelegate.setDefaultNightMode(NightModeUtils.getDefaultNightMode(this));
+		NightModeUtils.setDefaultNightMode(this);
 		application = this;
 		getStrictMode().setup(BuildConfig.DEBUG);
 		getCrashReporter().setup(this, !BuildConfig.DEBUG);

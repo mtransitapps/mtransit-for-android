@@ -1,17 +1,18 @@
 package org.mtransit.android.ui;
 
-import org.mtransit.android.commons.Constants;
-import org.mtransit.android.commons.MTLog;
-
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuItem;
+
+import org.mtransit.android.commons.Constants;
+import org.mtransit.android.commons.MTLog;
 
 /**
  * NO LOGIC HERE, just logs.
@@ -182,6 +183,22 @@ public abstract class MTAppCompatActivity extends AppCompatActivity implements M
 			MTLog.v(this, "startSearch(%s,%s,%s,%s)", initialQuery, selectInitialQuery, appSearchData, globalSearch);
 		}
 		super.startSearch(initialQuery, selectInitialQuery, appSearchData, globalSearch);
+	}
+
+	@Override
+	protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+		if (Constants.LOG_LIFECYCLE) {
+			MTLog.v(this, "onPostCreate(%s)", savedInstanceState);
+		}
+		super.onPostCreate(savedInstanceState);
+	}
+
+	@Override
+	public void onPostCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
+		if (Constants.LOG_LIFECYCLE) {
+			MTLog.v(this, "onPostCreate(%s,%s)", savedInstanceState, persistentState);
+		}
+		super.onPostCreate(savedInstanceState, persistentState);
 	}
 
 	@Override

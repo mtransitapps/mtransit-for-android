@@ -572,7 +572,6 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		return false; // not processed
 	}
 
-
 	private boolean isCurrentSelectedSet() {
 		return this.currentSelectedScreenItemNavId != null && !TextUtils.isEmpty(this.currentSelectedScreenItemId);
 	}

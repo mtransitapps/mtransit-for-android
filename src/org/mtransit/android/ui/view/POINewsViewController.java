@@ -11,7 +11,6 @@ import org.mtransit.android.commons.data.News;
 import android.content.Context;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.view.View;
 import android.widget.TextView;
 

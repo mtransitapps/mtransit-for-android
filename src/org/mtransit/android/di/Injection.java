@@ -1,5 +1,8 @@
 package org.mtransit.android.di;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.mtransit.android.ad.AdManager;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.analytics.AnalyticsManager;
@@ -15,9 +18,6 @@ import org.mtransit.android.provider.location.GoogleLocationProvider;
 import org.mtransit.android.provider.location.MTLocationProvider;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.ui.MTApplication;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 public class Injection {
 
