@@ -8,6 +8,7 @@ import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.common.IApplication;
+import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.CrashlyticsCrashReporter;
 import org.mtransit.android.dev.IStrictMode;
@@ -44,6 +45,9 @@ public class Injection {
 
 	@Nullable
 	private static IAnalyticsManager analyticsManager;
+
+	@Nullable
+	private static DataSourceProvider dataSourceProvider;
 
 	@NonNull
 	private static IApplication providesApplication() {
@@ -148,5 +152,20 @@ public class Injection {
 			}
 		}
 		return analyticsManager;
+	}
+
+	@NonNull
+	public static DataSourceProvider providesDataSourceProvider() {
+		if (dataSourceProvider == null) {
+			synchronized (Injection.class) {
+				if (dataSourceProvider == null) {
+					dataSourceProvider = new DataSourceProvider(
+							providesApplication(),
+							providesAnalyticsManager()
+					);
+				}
+			}
+		}
+		return dataSourceProvider;
 	}
 }

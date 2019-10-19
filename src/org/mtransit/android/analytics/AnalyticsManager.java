@@ -7,11 +7,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Size;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.common.IActivity;
-
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.Map;
 
@@ -56,13 +56,13 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 
 	@Override
 	public void setUserProperty(@NonNull @Size(min = 1L, max = 24L) String name,
-			int value) {
+								int value) {
 		setUserProperty(name, String.valueOf(value));
 	}
 
 	@Override
 	public void setUserProperty(@NonNull @Size(min = 1L, max = 24L) String name,
-			@NonNull String value) {
+								@NonNull String value) {
 		if (!ANALYTICS_ENABLED) {
 			return;
 		}

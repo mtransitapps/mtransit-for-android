@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.Schedule;
 
 public final class NightModeUtils implements MTLog.Loggable {
@@ -37,6 +38,7 @@ public final class NightModeUtils implements MTLog.Loggable {
 
 	public static void resetColorCache() {
 		ColorUtils.resetColorCache();
+		AppStatus.resetColorCache();
 		Schedule.resetColorCache();
 	}
 

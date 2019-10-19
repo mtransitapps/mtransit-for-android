@@ -1,12 +1,23 @@
 package org.mtransit.android.data;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.WeakHashMap;
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
+import android.os.AsyncTask;
+import android.text.TextUtils;
+import android.util.SparseArray;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.collection.ArrayMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.analytics.AnalyticsUserProperties;
 import org.mtransit.android.analytics.IAnalyticsManager;
+import org.mtransit.android.common.IApplication;
+import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
@@ -14,63 +25,72 @@ import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.di.Injection;
 
-import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ProviderInfo;
-import android.os.AsyncTask;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.collection.ArrayMap;
-import android.text.TextUtils;
-import android.util.SparseArray;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.WeakHashMap;
 
-public class DataSourceProvider implements MTLog.Loggable {
+public class DataSourceProvider implements IContext, MTLog.Loggable {
 
-	private static final String TAG = DataSourceProvider.class.getSimpleName();
+	private static final String LOG_TAG = DataSourceProvider.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
-	@Nullable
-	private static DataSourceProvider instance = null;
+	private boolean initialized = false;
 
-	public static DataSourceProvider get(@Nullable Context context) {
-		if (instance == null) {
-			initInstance(context);
+	@NonNull
+	public static DataSourceProvider get(@SuppressWarnings("unused") @Nullable Context context) {
+		DataSourceProvider instance = Injection.providesDataSourceProvider();
+		if (!instance.isInitialized()) {
+			initInstance();
 		}
 		return instance;
 	}
 
-	@Nullable
+	@NonNull
 	public static DataSourceProvider get() {
-		return instance;
+		return Injection.providesDataSourceProvider();
 	}
 
-	private synchronized static void initInstance(@Nullable Context context) {
-		if (instance != null) {
-			return;
+	private synchronized static void initInstance() {
+		DataSourceProvider instance = Injection.providesDataSourceProvider();
+		if (instance.isInitialized()) {
+			return; // already initialized
 		}
-		if (context == null) {
-			return;
-		}
-		DataSourceProvider newInstance = new DataSourceProvider();
-		newInstance.init(context);
-		instance = newInstance;
+		instance.init();
 	}
 
 	public static boolean isSet() {
-		return instance != null;
+		DataSourceProvider instance = Injection.providesDataSourceProvider();
+		return instance.isInitialized();
 	}
 
 	public static void destroy() {
-		if (instance != null) {
-			instance.onDestroy();
-			instance = null;
-		}
+		DataSourceProvider instance = Injection.providesDataSourceProvider();
+		instance.onDestroy();
+	}
+
+	public boolean isInitialized() {
+		return this.initialized;
+	}
+
+	private void setInitialized(boolean initialized) {
+		this.initialized = initialized;
+	}
+
+	@Nullable
+	@Override
+	public Context getContext() {
+		return this.application.getContext();
+	}
+
+	@NonNull
+	@Override
+	public Context requireContext() throws IllegalStateException {
+		return this.application.requireContext();
 	}
 
 	private static boolean resumed = false;
@@ -177,7 +197,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 	}
 
 	public static boolean resetIfNecessary(@NonNull Context context) {
-		if (instance != null) {
+		DataSourceProvider instance = Injection.providesDataSourceProvider();
+		if (instance.isInitialized()) {
 			if (hasChanged(instance, context)) {
 				destroy();
 				triggerModulesUpdated();
@@ -237,6 +258,7 @@ public class DataSourceProvider implements MTLog.Loggable {
 				}
 			}
 		}
+		//noinspection RedundantIfStatement
 		if (nbAgencyProviders != CollectionUtils.getSize(current.allAgenciesAuthority) //
 				|| nbStatusProviders != CollectionUtils.getSize(current.allStatusProviders) //
 				|| nbScheduleProviders != CollectionUtils.getSize(current.allScheduleProviders) //
@@ -299,12 +321,17 @@ public class DataSourceProvider implements MTLog.Loggable {
 	private ArrayMap<String, Integer> allAgenciesColorInts = new ArrayMap<>();
 
 	@NonNull
+	private final IApplication application;
+	@NonNull
 	private final IAnalyticsManager analyticsManager;
 
-	private DataSourceProvider() {
-		analyticsManager = Injection.providesAnalyticsManager();
+	public DataSourceProvider(@NonNull IApplication application,
+							  @NonNull IAnalyticsManager analyticsManager) {
+		this.application = application;
+		this.analyticsManager = analyticsManager;
 	}
 
+	@NonNull
 	public ArrayList<DataSourceType> getAvailableAgencyTypes() {
 		return new ArrayList<>(this.allAgencyTypes); // copy
 	}
@@ -313,9 +340,10 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return CollectionUtils.getSize(this.allAgenciesAuthority);
 	}
 
-	public ArrayList<AgencyProperties> getAllAgencies(Context context) {
+	@Nullable
+	public ArrayList<AgencyProperties> getAllAgencies(@SuppressWarnings("unused") @Nullable Context context) {
 		if (!isAgencyPropertiesSet()) {
-			initAgencyProperties(context);
+			initAgencyProperties();
 		}
 		if (this.allAgencies == null) {
 			return null;
@@ -327,20 +355,18 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return this.allAgencies != null;
 	}
 
-	private synchronized void initAgencyProperties(Context context) {
+	private synchronized void initAgencyProperties() {
 		if (this.allAgencies != null) {
 			return; // too late
 		}
-		if (context == null) {
-			return;
-		}
 		try {
+			Context context = requireContext();
 			if (CollectionUtils.getSize(this.allAgenciesAuthority) > 0) {
 				ArrayList<AgencyProperties> allAgencies = new ArrayList<>();
 				ArrayMap<String, AgencyProperties> allAgenciesByAuthority = new ArrayMap<>();
 				SparseArray<ArrayList<AgencyProperties>> allAgenciesByTypeId = new SparseArray<>();
 				for (String authority : this.allAgenciesAuthority) {
-					boolean isRTS = this.agenciesAuthorityIsRts.get(authority);
+					boolean isRTS = Boolean.TRUE.equals(this.agenciesAuthorityIsRts.get(authority));
 					Integer typeId = this.agenciesAuthorityTypeId.get(authority);
 					if (typeId != null && typeId >= 0) {
 						DataSourceType type = DataSourceType.parseId(typeId);
@@ -384,14 +410,14 @@ public class DataSourceProvider implements MTLog.Loggable {
 		}
 	}
 
-	public boolean hasAgency(String authority) {
+	public boolean hasAgency(@NonNull String authority) {
 		return this.allAgenciesAuthority.contains(authority);
 	}
 
 	@Nullable
-	public AgencyProperties getAgency(Context context, String authority) {
+	public AgencyProperties getAgency(@SuppressWarnings("unused") @Nullable Context context, @NonNull String authority) {
 		if (!isAgencyPropertiesSet()) {
-			initAgencyProperties(context);
+			initAgencyProperties();
 		}
 		if (this.allAgenciesByAuthority == null) {
 			return null;
@@ -399,9 +425,10 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return this.allAgenciesByAuthority.get(authority);
 	}
 
-	public ArrayList<AgencyProperties> getTypeDataSources(Context context, int typeId) {
+	@Nullable
+	public ArrayList<AgencyProperties> getTypeDataSources(@SuppressWarnings("unused") @Nullable Context context, int typeId) {
 		if (!isAgencyPropertiesSet()) {
-			initAgencyProperties(context);
+			initAgencyProperties();
 		}
 		ArrayList<AgencyProperties> agencies = this.allAgenciesByTypeId == null ? null : this.allAgenciesByTypeId.get(typeId);
 		if (agencies == null) {
@@ -410,40 +437,47 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return new ArrayList<>(agencies); // copy
 	}
 
+	@Nullable
 	@ColorInt
-	public Integer getAgencyColorInt(Context context, String authority) {
+	public Integer getAgencyColorInt(@SuppressWarnings("unused") @Nullable Context context, @NonNull String authority) {
 		if (!isAgencyPropertiesSet()) {
-			initAgencyProperties(context);
+			initAgencyProperties();
 		}
 		return this.allAgenciesColorInts.get(authority);
 	}
 
 	@Nullable
-	public String getAgencyPkg(String authority) {
+	public String getAgencyPkg(@NonNull String authority) {
 		return this.agenciesAuthorityPkg.get(authority);
 	}
 
-	private StatusProviderProperties getStatusProvider(String authority) {
+	@Nullable
+	private StatusProviderProperties getStatusProvider(@NonNull String authority) {
 		return this.allStatusProvidersByAuthority.get(authority);
 	}
 
-	private ScheduleProviderProperties getScheduleProvider(String authority) {
+	@Nullable
+	private ScheduleProviderProperties getScheduleProvider(@NonNull String authority) {
 		return this.allScheduleProvidersByAuthority.get(authority);
 	}
 
-	private ServiceUpdateProviderProperties getServiceUpdateProvider(String authority) {
+	@Nullable
+	private ServiceUpdateProviderProperties getServiceUpdateProvider(@NonNull String authority) {
 		return this.allServiceUpdateProvidersByAuthority.get(authority);
 	}
 
+	@NonNull
 	public ArrayList<NewsProviderProperties> getAllNewsProvider() {
 		return new ArrayList<>(this.allNewsProviders); // copy
 	}
 
-	private NewsProviderProperties getNewsProvider(String authority) {
+	@Nullable
+	private NewsProviderProperties getNewsProvider(@NonNull String authority) {
 		return this.allNewsProvidersByAuthority.get(authority);
 	}
 
-	public HashSet<StatusProviderProperties> getTargetAuthorityStatusProviders(String targetAuthority) {
+	@Nullable
+	public HashSet<StatusProviderProperties> getTargetAuthorityStatusProviders(@NonNull String targetAuthority) {
 		HashSet<StatusProviderProperties> statusProviders = this.statusProvidersByTargetAuthority.get(targetAuthority);
 		if (statusProviders == null) {
 			return null;
@@ -451,7 +485,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return new HashSet<>(statusProviders); // copy
 	}
 
-	public HashSet<ScheduleProviderProperties> getTargetAuthorityScheduleProviders(String targetAuthority) {
+	@Nullable
+	public HashSet<ScheduleProviderProperties> getTargetAuthorityScheduleProviders(@NonNull String targetAuthority) {
 		HashSet<ScheduleProviderProperties> scheduleProviders = this.scheduleProvidersByTargetAuthority.get(targetAuthority);
 		if (scheduleProviders == null) {
 			return null;
@@ -459,7 +494,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return new HashSet<>(scheduleProviders); // copy
 	}
 
-	public HashSet<ServiceUpdateProviderProperties> getTargetAuthorityServiceUpdateProviders(String targetAuthority) {
+	@Nullable
+	public HashSet<ServiceUpdateProviderProperties> getTargetAuthorityServiceUpdateProviders(@NonNull String targetAuthority) {
 		HashSet<ServiceUpdateProviderProperties> serviceUpdateProviders = this.serviceUpdateProvidersByTargetAuthority.get(targetAuthority);
 		if (serviceUpdateProviders == null) {
 			return null;
@@ -467,7 +503,8 @@ public class DataSourceProvider implements MTLog.Loggable {
 		return new HashSet<>(serviceUpdateProviders); // copy
 	}
 
-	public HashSet<NewsProviderProperties> getTargetAuthorityNewsProviders(String targetAuthority) {
+	@Nullable
+	public HashSet<NewsProviderProperties> getTargetAuthorityNewsProviders(@NonNull String targetAuthority) {
 		HashSet<NewsProviderProperties> newsProviders = this.newsProvidersByTargetAuthority.get(targetAuthority);
 		if (newsProviders == null) {
 			return null;
@@ -476,6 +513,9 @@ public class DataSourceProvider implements MTLog.Loggable {
 	}
 
 	public void onDestroy() {
+		if (!isInitialized()) {
+			return; // already destroyed
+		}
 		if (this.allAgencies != null) {
 			this.allAgencies.clear();
 			this.allAgencies = null; // reset
@@ -506,10 +546,15 @@ public class DataSourceProvider implements MTLog.Loggable {
 		this.allNewsProvidersByAuthority.clear();
 		this.newsProvidersByTargetAuthority.clear();
 		this.allAgenciesColorInts.clear();
+		setInitialized(false);
 	}
 
-	private synchronized void init(@NonNull Context context) {
+	private synchronized void init() {
 		try {
+			if (isInitialized()) {
+				return; // already initialized
+			}
+			Context context = requireContext();
 			String agencyProviderMetaData = getAgencyProviderMetaData(context);
 			String agencyProviderTypeMetaData = context.getString(R.string.agency_provider_type);
 			String rtsProviderMetaData = context.getString(R.string.rts_provider);
@@ -549,10 +594,12 @@ public class DataSourceProvider implements MTLog.Loggable {
 								this.allStatusProviders.add(newStatusProvider);
 								this.allStatusProvidersByAuthority.put(newStatusProvider.getAuthority(), newStatusProvider);
 								String newScheduleProviderTargetAuthority = newStatusProvider.getTargetAuthority();
-								if (!this.statusProvidersByTargetAuthority.containsKey(newScheduleProviderTargetAuthority)) {
-									this.statusProvidersByTargetAuthority.put(newScheduleProviderTargetAuthority, new HashSet<>());
+								HashSet<StatusProviderProperties> statusProviderProperties = this.statusProvidersByTargetAuthority.get(newScheduleProviderTargetAuthority);
+								if (statusProviderProperties == null) {
+									statusProviderProperties = new HashSet<>();
 								}
-								this.statusProvidersByTargetAuthority.get(newScheduleProviderTargetAuthority).add(newStatusProvider);
+								statusProviderProperties.add(newStatusProvider);
+								this.statusProvidersByTargetAuthority.put(newScheduleProviderTargetAuthority, statusProviderProperties);
 							}
 							if (scheduleProviderMetaData.equals(provider.metaData.getString(scheduleProviderMetaData))) {
 								String targetAuthority = provider.metaData.getString(scheduleProviderTargetMetaData);
@@ -560,10 +607,12 @@ public class DataSourceProvider implements MTLog.Loggable {
 								this.allScheduleProviders.add(newScheduleProvider);
 								this.allScheduleProvidersByAuthority.put(newScheduleProvider.getAuthority(), newScheduleProvider);
 								String newScheduleProviderTargetAuthority = newScheduleProvider.getTargetAuthority();
-								if (!this.scheduleProvidersByTargetAuthority.containsKey(newScheduleProviderTargetAuthority)) {
-									this.scheduleProvidersByTargetAuthority.put(newScheduleProviderTargetAuthority, new HashSet<>());
+								HashSet<ScheduleProviderProperties> scheduleProviderProperties = this.scheduleProvidersByTargetAuthority.get(newScheduleProviderTargetAuthority);
+								if (scheduleProviderProperties == null) {
+									scheduleProviderProperties = new HashSet<>();
 								}
-								this.scheduleProvidersByTargetAuthority.get(newScheduleProviderTargetAuthority).add(newScheduleProvider);
+								scheduleProviderProperties.add(newScheduleProvider);
+								this.scheduleProvidersByTargetAuthority.put(newScheduleProviderTargetAuthority, scheduleProviderProperties);
 							}
 							if (serviceUpdateProviderMetaData.equals(provider.metaData.getString(serviceUpdateProviderMetaData))) {
 								String targetAuthority = provider.metaData.getString(serviceUpdateProviderTargetMetaData);
@@ -572,11 +621,12 @@ public class DataSourceProvider implements MTLog.Loggable {
 								this.allServiceUpdateProviders.add(newServiceUpdateProvider);
 								this.allServiceUpdateProvidersByAuthority.put(newServiceUpdateProvider.getAuthority(), newServiceUpdateProvider);
 								String newServiceUpdateProviderTargetAuthority = newServiceUpdateProvider.getTargetAuthority();
-								if (!this.serviceUpdateProvidersByTargetAuthority.containsKey(newServiceUpdateProviderTargetAuthority)) {
-									this.serviceUpdateProvidersByTargetAuthority.put( //
-											newServiceUpdateProviderTargetAuthority, new HashSet<>());
+								HashSet<ServiceUpdateProviderProperties> serviceUpdateProviderProperties = this.serviceUpdateProvidersByTargetAuthority.get(newServiceUpdateProviderTargetAuthority);
+								if (serviceUpdateProviderProperties == null) {
+									serviceUpdateProviderProperties = new HashSet<>();
 								}
-								this.serviceUpdateProvidersByTargetAuthority.get(newServiceUpdateProviderTargetAuthority).add(newServiceUpdateProvider);
+								serviceUpdateProviderProperties.add(newServiceUpdateProvider);
+								this.serviceUpdateProvidersByTargetAuthority.put(newServiceUpdateProviderTargetAuthority, serviceUpdateProviderProperties);
 							}
 							if (newsProviderMetaData.equals(provider.metaData.getString(newsProviderMetaData))) {
 								String targetAuthority = provider.metaData.getString(newsProviderTargetMetaData);
@@ -584,10 +634,12 @@ public class DataSourceProvider implements MTLog.Loggable {
 								this.allNewsProviders.add(newNewsProvider);
 								this.allNewsProvidersByAuthority.put(newNewsProvider.getAuthority(), newNewsProvider);
 								String newNewsProviderTargetAuthority = newNewsProvider.getTargetAuthority();
-								if (!this.newsProvidersByTargetAuthority.containsKey(newNewsProviderTargetAuthority)) {
-									this.newsProvidersByTargetAuthority.put(newNewsProviderTargetAuthority, new HashSet<>());
+								HashSet<NewsProviderProperties> newsProviderProperties = this.newsProvidersByTargetAuthority.get(newNewsProviderTargetAuthority);
+								if (newsProviderProperties == null) {
+									newsProviderProperties = new HashSet<>();
 								}
-								this.newsProvidersByTargetAuthority.get(newNewsProviderTargetAuthority).add(newNewsProvider);
+								newsProviderProperties.add(newNewsProvider);
+								this.newsProvidersByTargetAuthority.put(newNewsProviderTargetAuthority, newsProviderProperties);
 							}
 						}
 					}
@@ -595,32 +647,35 @@ public class DataSourceProvider implements MTLog.Loggable {
 			}
 			CollectionUtils.sort(this.allAgencyTypes, new DataSourceType.DataSourceTypeShortNameComparator(context));
 			analyticsManager.setUserProperty(AnalyticsUserProperties.MODULES_COUNT, allAgenciesAuthority.size());
+			setInitialized(true);
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while initializing properties!");
 			destroy();
 		}
 	}
 
+	@NonNull
 	private static WeakHashMap<ModulesUpdateListener, Object> modulesUpdateListeners = new WeakHashMap<>();
 
-	public static void addModulesUpdateListener(ModulesUpdateListener listener) {
+	public static void addModulesUpdateListener(@NonNull ModulesUpdateListener listener) {
 		try {
 			if (!modulesUpdateListeners.containsKey(listener)) {
 				modulesUpdateListeners.put(listener, null);
 			}
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "addModulesUpdateListener() > error while adding listener '%s'!", listener);
+			MTLog.w(LOG_TAG, e, "addModulesUpdateListener() > error while adding listener '%s'!", listener);
 		}
 	}
 
-	public static void removeModulesUpdateListener(ModulesUpdateListener listener) {
+	public static void removeModulesUpdateListener(@NonNull ModulesUpdateListener listener) {
 		try {
 			modulesUpdateListeners.remove(listener);
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "removeModulesUpdateListener() > error while removing listener '%s'!", listener);
+			MTLog.w(LOG_TAG, e, "removeModulesUpdateListener() > error while removing listener '%s'!", listener);
 		}
 	}
 
+	@Nullable
 	private static TriggerModulesUpdatedTask triggerModulesUpdatedTask = null;
 
 	private static boolean triggerModulesUpdated = false;
@@ -630,17 +685,13 @@ public class DataSourceProvider implements MTLog.Loggable {
 		if (!resumed) {
 			return;
 		}
-		if (modulesUpdateListeners != null) {
-			if (triggerModulesUpdatedTask != null && triggerModulesUpdatedTask.getStatus() != AsyncTask.Status.RUNNING) {
-				triggerModulesUpdatedTask.cancel(true);
-			}
-			WeakHashMap<ModulesUpdateListener, Object> listenersCopy = new WeakHashMap<>(modulesUpdateListeners);
-			triggerModulesUpdatedTask = new TriggerModulesUpdatedTask(listenersCopy);
-			TaskUtils.execute(triggerModulesUpdatedTask);
-			triggerModulesUpdated = false; // processed
-		} else {
-			triggerModulesUpdated = false; // processed
+		if (triggerModulesUpdatedTask != null && triggerModulesUpdatedTask.getStatus() != AsyncTask.Status.RUNNING) {
+			triggerModulesUpdatedTask.cancel(true);
 		}
+		WeakHashMap<ModulesUpdateListener, Object> listenersCopy = new WeakHashMap<>(modulesUpdateListeners);
+		triggerModulesUpdatedTask = new TriggerModulesUpdatedTask(listenersCopy);
+		TaskUtils.execute(triggerModulesUpdatedTask);
+		triggerModulesUpdated = false; // processed
 	}
 
 	public interface ModulesUpdateListener {
@@ -649,26 +700,26 @@ public class DataSourceProvider implements MTLog.Loggable {
 
 	private static class TriggerModulesUpdatedTask extends MTAsyncTask<Void, ModulesUpdateListener, Void> {
 
-		private static final String TAG = DataSourceProvider.class.getSimpleName() + ">" + TriggerModulesUpdatedTask.class.getSimpleName();
+		private static final String LOG_TAG = DataSourceProvider.class.getSimpleName() + ">" + TriggerModulesUpdatedTask.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
-		private WeakHashMap<ModulesUpdateListener, Object> listeners;
+		@NonNull
+		private final WeakHashMap<ModulesUpdateListener, Object> listeners;
 
-		public TriggerModulesUpdatedTask(WeakHashMap<ModulesUpdateListener, Object> listeners) {
+		public TriggerModulesUpdatedTask(@NonNull WeakHashMap<ModulesUpdateListener, Object> listeners) {
 			this.listeners = listeners;
 		}
 
 		@Override
 		protected Void doInBackgroundMT(Void... params) {
-			if (this.listeners != null) {
-				for (ModulesUpdateListener listener : this.listeners.keySet()) {
-					if (listener != null) {
-						publishProgress(listener);
-					}
+			for (ModulesUpdateListener listener : this.listeners.keySet()) {
+				if (listener != null) {
+					publishProgress(listener);
 				}
 			}
 			return null;
