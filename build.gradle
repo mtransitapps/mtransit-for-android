@@ -51,7 +51,11 @@ android {
     def projectName = projectNameProperties["project.name"]
 
     Properties versionProperties = new Properties()
-    versionProperties.load(new FileInputStream(file("version.properties")))
+    versionProperties.load(new FileInputStream(file("../commons-android/version.properties")))
+    def theVersionName=versionProperties['version.name']
+
+    def commitCount = "git -C ../ rev-list HEAD --count".execute().text.trim().toInteger()
+    def theVersionCode=1000+commitCount;
 
     def useGooglePlayUploadKeysProperties = true
     // def useGooglePlayUploadKeysProperties = false // DEBUG
@@ -82,12 +86,12 @@ android {
 
     defaultConfig {
         applicationId "org.mtransit.android"
-        versionCode versionProperties['version.code'] as Integer
-        versionName versionProperties['version.name']
+        versionCode theVersionCode
+        versionName theVersionName+"r"+theVersionCode
         if (useGooglePlayUploadKeysProperties) {
-            setProperty("archivesBaseName", "${projectName}_v${versionName}_r${versionCode}_upload")
+            setProperty("archivesBaseName", "${projectName}_v${theVersionName}_r${theVersionCode}_upload")
         } else {
-            setProperty("archivesBaseName", "${projectName}_v${versionName}_r${versionCode}")
+            setProperty("archivesBaseName", "${projectName}_v${theVersionName}_r${theVersionCode}")
         }
         if (resValueFr.exists()) {
             resConfigs "en", "fr"
