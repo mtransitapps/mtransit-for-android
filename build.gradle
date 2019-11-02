@@ -57,6 +57,9 @@ android {
     def commitCountLocal = "git rev-list HEAD --count".execute().text.trim().toInteger()
     println "commitCountLocal: " + commitCountLocal // DEBUG
 
+    def commitCountTest = "git -C ../ rev-list HEAD --count".execute().text.trim()
+    println "commitCountTest: " + commitCountTest // DEBUG
+
     def commitCount = "git -C ../ rev-list HEAD --count".execute().text.trim().toInteger()
     println "commitCount: " + commitCount // DEBUG
     def theVersionCode=1000+commitCount
