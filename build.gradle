@@ -54,11 +54,17 @@ android {
     versionProperties.load(new FileInputStream(file("../commons-android/version.properties")))
     def theVersionName=versionProperties['version.name']
 
+    def commitCountLocal = "git rev-list HEAD --count".execute().text.trim().toInteger()
+    println "commitCountLocal: " + commitCountLocal // DEBUG
+
     def commitCount = "git -C ../ rev-list HEAD --count".execute().text.trim().toInteger()
-    def theVersionCode=1000+commitCount;
+    println "commitCount: " + commitCount // DEBUG
+    def theVersionCode=1000+commitCount
+    println "theVersionCode: " + theVersionCode // DEBUG
 
     def useGooglePlayUploadKeysProperties = true
     // def useGooglePlayUploadKeysProperties = false // DEBUG
+    println "useGooglePlayUploadKeysProperties: " + useGooglePlayUploadKeysProperties // DEBUG
 
     Properties appSigningKeysProperties = new Properties()
     def appSigningKeysPropertiesFile = file("app-signing-release-keys.properties")
