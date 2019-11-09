@@ -52,4 +52,5 @@ proguard/
 /keys_cleanup.sh
 /keys_files.sh
 /keys_setup.sh
+/src/main/play/default-language.txt
 /src/main/play/contact-email.txt
