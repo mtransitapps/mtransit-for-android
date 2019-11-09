@@ -1,0 +1,55 @@
+<b>MonTransit vous donne accès aux informations de transport en commun les plus pertinentes, incluant : </b>
+- les horaires (hors-ligne & temps-réel) des autobus, métros, trains, tramways et traversiers,
+- la disponibilité des stations vélos
+- les messages d'alertes et les dernières nouvelles des agences de transport provenant de leurs sites Internet, blogues, Twitter, YouTube…
+
+
+Sur l'écran d'accueil, vous pouvez voir les prochains départs des trajets des lignes et la disponibilité des stations de vélo à proximité dans une interface prévisible.
+Vous pouvez naviguez l'information comme vous le souhaitez en utilisant le menu coulissant (cliquez sur l'icône ☰ dans le coin supérieur gauche de l'écran).
+Par exemple, vous pouvez utiliser l'écran Carte pour découvrir les transports disponibles à proximité ou vous pouvez chercher un lieu en cliquant sur l'icône 🔍 recherche
+
+Pas d'accès Internet ? GPS désactivé ? WiFi éteint ? Pas de problème, MonTransit offre de multiples façons de trouver l'information que vous cherchez :
+- vous pouvez accéder à vos favoris ★ ou parcourir toutes les informations de transport en utilisant le menu coulissant (cliquez sur l'icône ☰ dans le coin supérieur gauche de l'écran)
+- vous pouvez entrer le numéro # ou le nom d'une ligne, le code # ou le nom d'un arrêt ou d'une station, les noms de rues ... en cliquant sur l'icône 🔍 recherche
+- toutes les horaires des autobus, métros, trains, tramways et traversiers sont disponibles hors-ligne
+
+MonTransit vous permet d'installer les agences de transports que vous voulez (vous n'avez pas à passer d'une ville à une autre & vous pouvez accèder à toutes les informations n'importe quand, n'importe où).
+Les informations des autobus, métros, trains, tramways et traversiers sont mises à jours via le Google Play Store sans utiliser votre batterie ou les données de votre forfait (3G/4G/LTE).
+
+MonTransit est actuellement disponible au Canada :
+- <b>AB :</b> Calgary, ETS, Red Deer…
+- <b>BC :</b> BC Transit, TransLink, West Coast Express…
+- <b>MB :</b> Winnipeg, Brandon…
+- <b>NB :</b> Codiac, Fredericton…
+- <b>NÉ :</b> Halifax…
+- <b>NL :</b> Metrobus…
+- <b>ON :</b> GO Transit, GRT, HSR, MiWay, OC Transpo, TTC, YRT Viva, Niagara Region, St Catharines…
+- <b>QC :</b> AMT, BIXI, RTC, RTL, STM, STL, STO, STS, CIT, MRC…
+- <b>SK :</b> Regina, Saskatoon…
+- <b>YK :</b> Whitehorse…
+MonTransit est actuellement disponible dans le nord des États-Unis :
+- <b>AK :</b> People Mover…
+
+Toutes les fonctionnalités sont disponibles gratuitement mais vous pouvez soutenir le projet (et cacher les publicités) en payant un abonnement Google Play (1 mois gratuit, annulable en tout temps).
+
+Vous êtes nos clients et seule source de revenus.
+Merci.
+
+Réseaux sociaux :
+- Facebook : https://facebook.com/MonTransit
+- Twitter : https://twitter.com/montransit
+
+Cette application est gratuite et ouverte :
+https://github.com/mtransitapps/mtransit-for-android
+
+Plus d'information (en anglais) : https://goo.gl/z2e6HP
+
+Fait avec ♥ à Montréal au Canada en Amérique du Nord.
+
+Autorisations :
+- Achats via l'application : requis pour les dons (cacher pubs & supporter MonTransit)
+- Position : requis pour afficher les informations de transport à proximité ainsi que la distances et la boussole
+- Photos/Contenus multimédias/Fichiers : requis par Google Maps
+- Autres : requis par Google Analytics & Google Mobile Ads (AdMob) & Google Maps & Facebook Audience Network
+
+Alias : Mon Transit, MyTransit, My Transit, MonTransport, Mon Transport
