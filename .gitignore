@@ -43,6 +43,7 @@ proguard/
 /enc/google-play-upload-certificate.pem
 /enc/google-play-upload-keys.properties
 /enc/google-play-upload-keystore.keystore
+/enc/src/main/play/contact-email.txt
 /encrypt_file.sh
 /google-play-auto-publisher.json
 /google-play-upload-certificate.pem
@@ -51,3 +52,4 @@ proguard/
 /keys_cleanup.sh
 /keys_files.sh
 /keys_setup.sh
+/src/main/play/contact-email.txt
