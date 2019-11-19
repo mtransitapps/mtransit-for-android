@@ -30,12 +30,24 @@ proguard/
 *.donotpublish
 
 # Shared files
-/app-signing-release-keys.properties
-/app-signing-release-keystore-encrypted.keystore
-/app-signing-release-keystore.keystore
 /build.gradle
 /build.sh
 /decrypt_file.sh
+/encrypt_file.sh
+/keys_cleanup.sh
+/keys_files.sh
+/keys_setup.sh
+/promote.sh
+/promote_*.sh
+/publish.sh
+/publish_*.sh
+/src/main/play/default-language.txt
+
+# Kays (encrypted files)
+/app-signing-release-keys.properties
+/app-signing-release-keystore-encrypted.keystore
+/app-signing-release-keystore.keystore
+/clr
 /enc/app-signing-release-keys.properties
 /enc/app-signing-release-keystore-encrypted.keystore
 /enc/app-signing-release-keystore.keystore
@@ -44,13 +56,9 @@ proguard/
 /enc/google-play-upload-keys.properties
 /enc/google-play-upload-keystore.keystore
 /enc/src/main/play/contact-email.txt
-/encrypt_file.sh
 /google-play-auto-publisher.json
 /google-play-upload-certificate.pem
 /google-play-upload-keys.properties
 /google-play-upload-keystore.keystore
-/keys_cleanup.sh
-/keys_files.sh
-/keys_setup.sh
 /src/main/play/contact-email.txt
-/src/main/play/default-language.txt
+/src/main/res/values/keys.xml
