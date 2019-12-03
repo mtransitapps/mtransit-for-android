@@ -16,6 +16,7 @@ public class TextMessage extends DefaultPOI {
 
 	private static final String TAG = TextMessage.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -53,6 +54,7 @@ public class TextMessage extends DefaultPOI {
 		return getMessage();
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		return new StringBuilder().append(TextMessage.class.getSimpleName()).append(":[") //
@@ -117,7 +119,7 @@ public class TextMessage extends DefaultPOI {
 	}
 
 	@Override
-	public POI fromJSON(JSONObject json) {
+	public POI fromJSON(@NonNull JSONObject json) {
 		return fromJSONStatic(json);
 	}
 
@@ -154,8 +156,9 @@ public class TextMessage extends DefaultPOI {
 		return values;
 	}
 
+	@NonNull
 	@Override
-	public POI fromCursor(Cursor c, String authority) {
+	public POI fromCursor(@NonNull Cursor c, @NonNull String authority) {
 		return fromCursorStatic(c, authority);
 	}
 

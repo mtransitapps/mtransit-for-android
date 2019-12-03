@@ -20,6 +20,7 @@ public class Module extends DefaultPOI {
 
 	private static final String TAG = Module.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -105,6 +106,7 @@ public class Module extends DefaultPOI {
 		return super.getName();
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		return new StringBuilder().append(Module.class.getSimpleName()).append(":[") //
@@ -180,7 +182,7 @@ public class Module extends DefaultPOI {
 	}
 
 	@Override
-	public POI fromJSON(JSONObject json) {
+	public POI fromJSON(@NonNull JSONObject json) {
 		return fromJSONStatic(json);
 	}
 
@@ -251,8 +253,9 @@ public class Module extends DefaultPOI {
 		return values;
 	}
 
+	@NonNull
 	@Override
-	public POI fromCursor(Cursor c, String authority) {
+	public POI fromCursor(@NonNull Cursor c, @NonNull String authority) {
 		return fromCursorStatic(c, authority);
 	}
 

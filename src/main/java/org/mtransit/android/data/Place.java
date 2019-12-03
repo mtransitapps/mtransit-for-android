@@ -132,7 +132,7 @@ public class Place extends DefaultPOI {
 
 	@Nullable
 	@Override
-	public POI fromJSON(JSONObject json) {
+	public POI fromJSON(@NonNull JSONObject json) {
 		return fromJSONStatic(json);
 	}
 
@@ -165,7 +165,7 @@ public class Place extends DefaultPOI {
 
 	@NonNull
 	@Override
-	public POI fromCursor(@NonNull Cursor c, String authority) {
+	public POI fromCursor(@NonNull Cursor c, @NonNull String authority) {
 		return fromCursorStatic(c, authority);
 	}
 
