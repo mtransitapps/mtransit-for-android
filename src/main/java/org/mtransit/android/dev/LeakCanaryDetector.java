@@ -1,11 +1,9 @@
 package org.mtransit.android.dev;
 
-import com.squareup.leakcanary.LeakCanary;
+import androidx.annotation.NonNull;
 
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.commons.MTLog;
-
-import androidx.annotation.NonNull;
 
 public class LeakCanaryDetector implements LeakDetector, MTLog.Loggable {
 
@@ -18,21 +16,7 @@ public class LeakCanaryDetector implements LeakDetector, MTLog.Loggable {
 	}
 
 	@Override
-	public boolean isInAnalyzerProcess(@NonNull IApplication application) {
-		try {
-			return LeakCanary.isInAnalyzerProcess(application.requireContext());
-		} catch (Exception e) {
-			MTLog.w(this, "Error while initializing LeakCanary!", e);
-			return false;
-		}
-	}
-
-	@Override
 	public void setup(@NonNull IApplication application) {
-		try {
-			LeakCanary.install(application.requireApplication());
-		} catch (Exception e) {
-			MTLog.w(this, "Error while initializing LeakCanary!", e);
-		}
+		// DO NOTHING https://square.github.io/leakcanary
 	}
 }

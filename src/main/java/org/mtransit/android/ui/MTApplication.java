@@ -48,9 +48,6 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 	public void onCreate() {
 		super.onCreate();
 		if (BuildConfig.DEBUG) {
-			if (getLeakDetector().isInAnalyzerProcess(this)) {
-				return; // this process is dedicated to Leak detector, skip app init
-			}
 			getLeakDetector().setup(this);
 		}
 		if (AdManager.isInAdsProcess(this)) {

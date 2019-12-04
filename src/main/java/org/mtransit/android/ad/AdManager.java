@@ -45,6 +45,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	private static final boolean DEBUG = false;
 
 	private static boolean AD_ENABLED = true;
+	// private static boolean AD_ENABLED = false; // DEBUG
 
 	private static final int MIN_AGENCIES_FOR_ADS = 2;
 
