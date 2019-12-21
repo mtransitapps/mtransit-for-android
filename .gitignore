@@ -37,6 +37,7 @@ proguard/
 /keys_cleanup.sh
 /keys_files.sh
 /keys_setup.sh
+/lint.xml
 /promote.sh
 /promote_*.sh
 /publish.sh
