@@ -51,5 +51,3 @@ Autorisations :
 - Position : requis pour afficher les informations de transport à proximité ainsi que la distances et la boussole
 - Photos/Contenus multimédias/Fichiers : requis par Google Maps
 - Autres : requis par Google Analytics & Google Mobile Ads (AdMob) & Google Maps & Facebook Audience Network
-
-Alias : Mon Transit, MyTransit, My Transit, MonTransport, Mon Transport

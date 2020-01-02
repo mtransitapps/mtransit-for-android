@@ -51,5 +51,3 @@ Permissions:
 - Location: required to show nearby transit information & show distance & compass
 - Photo/Media/Files: required by Google Maps
 - Other: required by Google Analytics & Google Mobile Ads (AdMob) & Google Maps & Facebook Audience Network
-
-AKA: Mon Transit, MyTransit, My Transit, MonTransport, Mon Transport
