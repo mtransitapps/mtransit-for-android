@@ -1,5 +1,8 @@
 package org.mtransit.android.ad;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
@@ -24,9 +27,10 @@ import com.google.android.gms.ads.MobileAds;
 
 import android.content.res.Configuration;
 import android.location.Location;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 
 public class AdManager implements IAdManager, MTLog.Loggable {
 
@@ -66,7 +70,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	private final MTLocationProvider locationProvider;
 
 	public AdManager(@NonNull CrashReporter crashReporter,
-					 @NonNull MTLocationProvider locationProvider) {
+			@NonNull MTLocationProvider locationProvider) {
 		this.crashReporter = crashReporter;
 		this.locationProvider = locationProvider;
 	}
@@ -99,17 +103,40 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	}
 
 	@Override
-	public int getBannerHeightInPx(@Nullable IContext context) {
+	public int getBannerHeightInPx(@Nullable IActivity activity) {
 		if (adLoaded == null || !adLoaded) {
 			return 0; // ad not loaded
 		}
 		if (!isShowingAds()) {
 			return 0; // not showing ads (0 agency installed, paying user...)
 		}
-		if (context == null) {
+		if (activity == null) {
 			return 0; // can't measure w/o context
 		}
-		return AdSize.SMART_BANNER.getHeightInPixels(context.requireContext());
+		final AdSize adSize = getAdSize(activity);
+		return adSize.getHeightInPixels(activity.requireContext());
+	}
+
+	@NonNull
+	private static AdSize getAdSize(IActivity activity) {
+		Display display = activity.requireActivity().getWindowManager().getDefaultDisplay();
+		DisplayMetrics outMetrics = new DisplayMetrics();
+		display.getMetrics(outMetrics);
+
+		float density = outMetrics.density;
+
+		View adLayout = activity.findViewById(R.id.ad_layout);
+		float adWidthPixels = adLayout == null ? 0 : adLayout.getWidth();
+
+		float widthPixels = outMetrics.widthPixels;
+
+		if (adWidthPixels == 0) {
+			adWidthPixels = widthPixels;
+		}
+
+		int adWidth = (int) (adWidthPixels / density);
+
+		return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(activity.requireContext(), adWidth);
 	}
 
 	private void refreshAdStatus(@NonNull IActivity activity) {
@@ -314,30 +341,40 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 				return;
 			}
 			if (Boolean.TRUE.equals(result) && !isCancelled()) { // show ads
-				View adLayout = activity.findViewById(R.id.ad_layout);
+				ViewGroup adLayout = activity.findViewById(R.id.ad_layout);
 				if (adLayout != null) {
-					AdView adView = adLayout.findViewById(R.id.ad);
-					if (adView != null) {
-						adView.setAdListener(new MTAdListener(this.adManager, this.crashReporter, activity));
-						AdRequest.Builder adRequestBd = new AdRequest.Builder();
-						adRequestBd.setLocation(this.adManager.getLastLocation());
-						for (String keyword : KEYWORDS) {
-							adRequestBd.addKeyword(keyword);
-						}
-						if (DEBUG) {
-							adRequestBd.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
-							for (String deviceId : activity.requireContext().getResources().getStringArray(R.array.google_ads_test_devices_ids)) {
-								adRequestBd.addTestDevice(deviceId);
-							}
-						}
-						AdRequest adRequest = adRequestBd.build();
-						MTLog.d(this, "onPostExecute() > request.isTestDevice(): %s", adRequest.isTestDevice(activity.requireContext()));
-						adView.loadAd(adRequest);
-					}
+					AdView adView = new AdView(activity.requireContext());
+					adView.setId(R.id.ad);
+					adView.setAdUnitId(activity.requireContext().getString(R.string.google_ads_banner_ad_unit_id));
+					adLayout.removeAllViews();
+					adLayout.addView(adView);
+
+					final AdSize adSize = getAdSize(activity);
+					adView.setAdSize(adSize);
+					adView.setAdListener(new MTAdListener(this.adManager, this.crashReporter, activity));
+
+					adView.loadAd(getAdRequest(activity));
 				}
 			} else { // hide ads
 				this.adManager.hideAds(activity);
 			}
+		}
+
+		private AdRequest getAdRequest(IContext context) {
+			AdRequest.Builder adRequestBd = new AdRequest.Builder();
+			adRequestBd.setLocation(this.adManager.getLastLocation());
+			for (String keyword : KEYWORDS) {
+				adRequestBd.addKeyword(keyword);
+			}
+			if (DEBUG) {
+				adRequestBd.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
+				for (String deviceId : context.requireContext().getResources().getStringArray(R.array.google_ads_test_devices_ids)) {
+					adRequestBd.addTestDevice(deviceId);
+				}
+			}
+			AdRequest adRequest = adRequestBd.build();
+			MTLog.d(this, "onPostExecute() > request.isTestDevice(): %s", adRequest.isTestDevice(context.requireContext()));
+			return adRequest;
 		}
 	}
 

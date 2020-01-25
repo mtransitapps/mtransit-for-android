@@ -1,12 +1,12 @@
 package org.mtransit.android.ad;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.mtransit.android.common.IApplication;
-import org.mtransit.android.common.IContext;
 import org.mtransit.android.ui.view.common.IActivity;
 
 import android.content.res.Configuration;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 public interface IAdManager {
 
@@ -16,7 +16,7 @@ public interface IAdManager {
 
 	void setShowingAds(@Nullable Boolean newShowingAds, @NonNull IActivity activity);
 
-	int getBannerHeightInPx(@Nullable IContext context);
+	int getBannerHeightInPx(@Nullable IActivity activity);
 
 	void adaptToScreenSize(@NonNull IActivity activity, @Nullable Configuration configuration);
 

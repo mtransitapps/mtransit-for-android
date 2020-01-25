@@ -649,7 +649,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		if (view != null) {
 			view.postDelayed(
 					this::findNearbyLocation,
-					TimeUnit.SECONDS.toMillis(1));
+					TimeUnit.SECONDS.toMillis(1L));
 		}
 	}
 

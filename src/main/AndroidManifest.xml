@@ -68,6 +68,7 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="false"
         android:theme="@style/MTTheme"
+        tools:replace="android:supportsRtl"
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="n">
         <!-- SPLASH SCREEN (not visible) DO NOT CHANGE ANDROID:NAME OR LAUNCHER ICON REMOVED! -->
