@@ -48,7 +48,10 @@ android {
     versionProperties.load(new FileInputStream(file("version.properties")))
 
     def useGooglePlayUploadKeysProperties = true
-    // def useGooglePlayUploadKeysProperties = false // DEBUG
+    if (project.hasProperty("useGooglePlayUploadKeysProperties")) {
+        useGooglePlayUploadKeysProperties = project.getProperty("useGooglePlayUploadKeysProperties").toBoolean()
+    }
+    println "> Using Google Play Upload keys: " + useGooglePlayUploadKeysProperties
 
     Properties appSigningKeysProperties = new Properties()
     def appSigningKeysPropertiesFile = file("app-signing-release-keys.properties")

@@ -91,6 +91,12 @@ RESULT=$?;
 checkResult ${RESULT};
 echo ">> Running bundle release... DONE";
 
+echo ">> Running assemble release...";
+../gradlew ${SETTINGS_FILE_ARGS} :${DIRECTORY}:assembleRelease -PuseGooglePlayUploadKeysProperties=false ${GRADLE_ARGS};
+RESULT=$?;
+checkResult ${RESULT};
+echo ">> Running assemble release... DONE";
+
 CUSTOM_LOCAL_PROPERTIES="../custom_local.properties";
 if [ -f "$CUSTOM_LOCAL_PROPERTIES" ]; then
 	echo ">> Copying release bundles to output dir...";
