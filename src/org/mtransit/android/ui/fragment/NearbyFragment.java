@@ -657,7 +657,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				public void run() {
 					findNearbyLocation();
 				}
-			}, TimeUnit.SECONDS.toMillis(1));
+			}, TimeUnit.SECONDS.toMillis(1L));
 		}
 	}
 
@@ -665,7 +665,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		java.util.Set<Fragment> fragments = getChildFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
-				if (fragment != null && fragment instanceof NearbyFragment.NearbyLocationListener) {
+				if (fragment instanceof NearbyLocationListener) {
 					((NearbyFragment.NearbyLocationListener) fragment).onNearbyLocationChanged(location);
 				}
 			}

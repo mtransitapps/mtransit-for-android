@@ -5,7 +5,9 @@
     <string name="google_maps_api_key">INSERT_GOOGLE_MAPS_API_KEY_HERE</string>
     <string name="google_places_api_key">INSERT_GOOGLE_PLACES_API_KEY_HERE</string>
     <string name="google_play_license_key">INSERT_GOOGLE_PLAY_LICENSE_KEY_HERE</string>
-    <string-array name="google_ads_test_devices_ids" />
+    <string-array name="google_ads_test_devices_ids">
+        <item>9912D21DEAC16B56420FF20B307872D1</item><!-- @mmathieum:Hammerhead -->
+    </string-array>
     <string name="twitter_consumer_key">INSERT_TWITTER_CONSUMER_KEY_HERE</string>
     <string name="twitter_consumer_secret">INSERT_TWITTER_CONSUMER_SECRET_HERE</string>
 </resources>
