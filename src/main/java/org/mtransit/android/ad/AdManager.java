@@ -343,14 +343,22 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			if (Boolean.TRUE.equals(result) && !isCancelled()) { // show ads
 				ViewGroup adLayout = activity.findViewById(R.id.ad_layout);
 				if (adLayout != null) {
-					AdView adView = new AdView(activity.requireContext());
-					adView.setId(R.id.ad);
-					adView.setAdUnitId(activity.requireContext().getString(R.string.google_ads_banner_ad_unit_id));
-					adLayout.removeAllViews();
-					adLayout.addView(adView);
+					AdView adView = adLayout.findViewById(R.id.ad);
+					if (adView == null) {
+						adView = new AdView(activity.requireContext());
+						adView.setLayoutParams(new ViewGroup.LayoutParams(
+								ViewGroup.LayoutParams.MATCH_PARENT,
+								ViewGroup.LayoutParams.WRAP_CONTENT
+						));
+						adView.setVisibility(View.GONE);
+						adView.setId(R.id.ad);
+						adView.setAdUnitId(activity.requireContext().getString(R.string.google_ads_banner_ad_unit_id));
+						adLayout.removeAllViews();
+						adLayout.addView(adView);
 
-					final AdSize adSize = getAdSize(activity);
-					adView.setAdSize(adSize);
+						final AdSize adSize = getAdSize(activity);
+						adView.setAdSize(adSize);
+					}
 					adView.setAdListener(new MTAdListener(this.adManager, this.crashReporter, activity));
 
 					adView.loadAd(getAdRequest(activity));
