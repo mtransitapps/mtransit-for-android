@@ -1174,9 +1174,9 @@ public class POIFragment extends ABFragment implements
 		POIManager poim = getPoimOrNull();
 		if (poim != null && poim.isFavoritable()) {
 			boolean isFav = isFavorite();
-			this.addRemoveFavoriteMenuItem.setIcon(isFav ? R.drawable.ic_action_star_dark : R.drawable.ic_action_star_border_dark);
+			this.addRemoveFavoriteMenuItem.setIcon(isFav ? R.drawable.ic_star_black_24dp : R.drawable.ic_star_border_black_24dp);
 			this.addRemoveFavoriteMenuItem.setTitle(isFav ? //
-					FavoriteManager.get(getContext()).isUsingFavoriteFolders() ? //
+					FavoriteManager.get(requireContext()).isUsingFavoriteFolders() ? //
 							R.string.menu_action_edit_favorite //
 							: R.string.menu_action_remove_favorite //
 					: R.string.menu_action_add_favorite);

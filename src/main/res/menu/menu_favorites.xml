@@ -5,7 +5,7 @@
     tools:context="org.mtransit.android.MainActivity">
     <item
         android:id="@+id/menu_add_favorite_folder"
-        android:icon="@drawable/ic_action_create_new_folder_dark"
+        android:icon="@drawable/ic_create_new_folder_black_24dp"
         android:title="@string/menu_action_favorite_folder_new"
         app:showAsAction="ifRoom" />
 </menu>

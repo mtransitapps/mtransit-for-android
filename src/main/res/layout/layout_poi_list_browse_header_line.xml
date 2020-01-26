@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -23,7 +24,6 @@
             android:layout_gravity="center"
             android:background="@drawable/button_rect_bg"
             android:drawablePadding="@dimen/button_drawable_padding"
-            android:drawableTint="?attr/colorOnPrimary"
             android:fontFamily="sans-serif-condensed"
             android:gravity="center_vertical"
             android:includeFontPadding="false"
@@ -32,7 +32,8 @@
             android:textAllCaps="true"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="?attr/colorOnPrimary"
-            tools:drawableLeft="@drawable/ic_directions_bus_white_24dp"
+            app:drawableTint="?attr/colorOnPrimary"
+            tools:drawableLeftCompat="@drawable/ic_directions_bus_white_24dp"
             tools:text="BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE" />
 
     </FrameLayout>
@@ -55,7 +56,6 @@
             android:layout_gravity="center"
             android:background="@drawable/button_rect_bg"
             android:drawablePadding="@dimen/button_drawable_padding"
-            android:drawableTint="?attr/colorOnPrimary"
             android:fontFamily="sans-serif-condensed"
             android:gravity="center_vertical"
             android:includeFontPadding="false"
@@ -64,7 +64,8 @@
             android:textAllCaps="true"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="?attr/colorOnPrimary"
-            tools:drawableLeft="@drawable/ic_directions_bus_white_24dp"
+            app:drawableTint="?attr/colorOnPrimary"
+            tools:drawableLeft="@drawable/ic_directions_bus_black_24dp"
             tools:text="BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE" />
 
     </FrameLayout>

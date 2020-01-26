@@ -10,7 +10,7 @@
             android:title="@string/home" />
         <item
             android:id="@id/nav_favorites"
-            android:icon="@drawable/ic_grade_black_24dp"
+            android:icon="@drawable/ic_star_black_24dp"
             android:title="@string/favorites" />
         <item
             android:id="@id/nav_nearby"
@@ -52,7 +52,7 @@
             tools:visible="true" />
         <item
             android:id="@id/nav_light_rail"
-            android:icon="@drawable/ic_directions_light_rail_black_24dp"
+            android:icon="@drawable/ic_tram_black_24dp"
             android:title="@string/agency_type_light_rail_all"
             android:visible="false"
             tools:visible="true" />

@@ -658,7 +658,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			if (dst == null) {
 				return null;
 			}
-			return new TypeFilter(dst.getId(), dst.getPoiShortNameResId(), dst.getWhiteIconResId());
+			return new TypeFilter(dst.getId(), dst.getPoiShortNameResId(), dst.getIconResId());
 		}
 	}
 

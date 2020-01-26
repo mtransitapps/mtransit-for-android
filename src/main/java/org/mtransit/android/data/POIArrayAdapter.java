@@ -481,8 +481,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 					btn = gridLine.findViewById(availableButtons == 2 ? R.id.btn1 : R.id.btn2);
 					btnTv = gridLine.findViewById(availableButtons == 2 ? R.id.btn1Tv : R.id.btn2Tv);
 					btnTv.setText(dst.getAllStringResId());
-					if (dst.getWhiteIconResId() != -1) {
-						btnTv.setCompoundDrawablesWithIntrinsicBounds(dst.getWhiteIconResId(), 0, 0, 0);
+					if (dst.getIconResId() != -1) {
+						btnTv.setCompoundDrawablesWithIntrinsicBounds(dst.getIconResId(), 0, 0, 0);
 					} else {
 						btnTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
 					}
@@ -1209,8 +1209,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 		TypeHeaderViewHolder holder = (TypeHeaderViewHolder) convertView.getTag();
 		holder.nameTv.setText(this.showTypeHeaderNearby ? type.getNearbyNameResId() : type.getPoiShortNameResId());
-		if (type.getWhiteIconResId() != -1) {
-			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getWhiteIconResId(), 0, 0, 0);
+		if (type.getIconResId() != -1) {
+			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getIconResId(), 0, 0, 0);
 		}
 		if (holder.allBtn != null) {
 			holder.allBtn.setOnClickListener(new MTOnClickListener() {
@@ -1527,7 +1527,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			holder.moduleExtraTypeImg.setBackgroundColor(poim.getColor(getContext()));
 			DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
 			if (moduleType != null) {
-				holder.moduleExtraTypeImg.setImageResource(moduleType.getWhiteIconResId());
+				holder.moduleExtraTypeImg.setImageResource(moduleType.getIconResId());
 			} else {
 				holder.moduleExtraTypeImg.setImageResource(0);
 			}

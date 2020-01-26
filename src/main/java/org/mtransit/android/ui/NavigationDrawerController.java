@@ -249,7 +249,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			for (DataSourceType dst : allAgencyTypes) {
 				if (this.navigationView.getMenu().findItem(dst.getNavResId()) == null) {
 					MenuItem newMenuItem = this.navigationView.getMenu().add(R.id.drawer_modules, dst.getNavResId(), Menu.NONE, dst.getAllStringResId());
-					newMenuItem.setIcon(dst.getBlackIconResId());
+					newMenuItem.setIcon(dst.getIconResId());
 				}
 				this.navigationView.getMenu().findItem(dst.getNavResId()).setVisible(true);
 			}

@@ -274,7 +274,7 @@ public class POIViewController implements MTLog.Loggable {
 			holder.moduleExtraTypeImg.setBackgroundColor(poim.getColor(context));
 			DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
 			if (moduleType != null) {
-				holder.moduleExtraTypeImg.setImageResource(moduleType.getWhiteIconResId());
+				holder.moduleExtraTypeImg.setImageResource(moduleType.getIconResId());
 			} else {
 				holder.moduleExtraTypeImg.setImageResource(0);
 			}

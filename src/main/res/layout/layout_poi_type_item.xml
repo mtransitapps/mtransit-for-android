@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/name"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center_vertical"
     android:drawablePadding="@dimen/title_drawable_padding"
-    android:drawableTint="?attr/colorOnBackground"
     android:ellipsize="end"
     android:fontFamily="sans-serif-light"
     android:gravity="center_vertical"
@@ -16,4 +16,5 @@
     android:paddingRight="@dimen/title_padding_right"
     android:textAppearance="?android:attr/textAppearanceMedium"
     android:textColor="?attr/colorOnBackground"
+    app:drawableTint="?attr/colorOnBackground"
     tools:text="TYPE TYPE TYPE TYPE TYPE TYPE TYPE TYPE " />

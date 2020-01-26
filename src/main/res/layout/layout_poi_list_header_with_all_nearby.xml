@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="@dimen/header_height"
     android:layout_gravity="center_vertical"
@@ -69,7 +70,6 @@
         android:layout_gravity="center_vertical"
         android:layout_toLeftOf="@id/nearbyBtn"
         android:drawablePadding="@dimen/title_drawable_padding"
-        android:drawableTint="?attr/colorOnBackground"
         android:ellipsize="end"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
@@ -80,7 +80,8 @@
         android:paddingBottom="@dimen/title_padding_bottom"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="?attr/colorOnBackground"
-        tools:drawableLeft="@drawable/ic_directions_bus_white_24dp"
+        app:drawableTint="?attr/colorOnBackground"
+        tools:drawableLeft="@drawable/ic_directions_bus_black_24dp"
         tools:text="TYPE TYPE TYPE TYPE TYPE TYPE TYPE TYPE " />
 
 </RelativeLayout>

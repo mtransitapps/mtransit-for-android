@@ -1,5 +1,8 @@
 package org.mtransit.android.data;
 
+import androidx.annotation.DrawableRes;
+import androidx.annotation.StringRes;
+
 import java.lang.ref.WeakReference;
 import java.util.Comparator;
 
@@ -8,57 +11,43 @@ import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.MTLog;
 
 import android.content.Context;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.StringRes;
 
 public enum DataSourceType {
 
 	TYPE_LIGHT_RAIL(0, // GTFS - Tram, Streetcar
 			R.string.agency_type_light_rail_short_name, R.string.agency_type_light_rail_all, //
 			R.string.agency_type_light_rail_stations_short_name, R.string.agency_type_light_rail_nearby, //
-			R.drawable.ic_directions_light_rail_black_24dp, //
-			R.drawable.ic_directions_light_rail_grey600_24dp, //
-			R.drawable.ic_directions_light_rail_white_24dp, //
+			R.drawable.ic_tram_black_24dp, //
 			R.id.nav_light_rail, //
 			true, true, true, true, true), //
 	TYPE_SUBWAY(1, // GTFS - Metro
 			R.string.agency_type_subway_short_name, R.string.agency_type_subway_all, //
 			R.string.agency_type_subway_stations_short_name, R.string.agency_type_subway_nearby, //
 			R.drawable.ic_directions_subway_black_24dp, //
-			R.drawable.ic_directions_subway_grey600_24dp, //
-			R.drawable.ic_directions_subway_white_24dp, //
 			R.id.nav_subway, //
 			true, true, true, true, true), //
 	TYPE_RAIL(2, // GTFS - Train
 			R.string.agency_type_rail_short_name, R.string.agency_type_rail_all, //
 			R.string.agency_type_rail_stations_short_name, R.string.agency_type_rail_nearby, //
 			R.drawable.ic_directions_railway_black_24dp, //
-			R.drawable.ic_directions_railway_grey600_24dp, //
-			R.drawable.ic_directions_railway_white_24dp, //
 			R.id.nav_rail, //
 			true, true, true, true, true), //
 	TYPE_BUS(3, // GTFS - Bus
 			R.string.agency_type_bus_short_name, R.string.agency_type_bus_all, //
 			R.string.agency_type_bus_stops_short_name, R.string.agency_type_bus_nearby, //
 			R.drawable.ic_directions_bus_black_24dp, //
-			R.drawable.ic_directions_bus_grey600_24dp, //
-			R.drawable.ic_directions_bus_white_24dp, //
 			R.id.nav_bus, //
 			true, true, true, true, true), //
 	TYPE_FERRY(4, // GTFS - Boat
 			R.string.agency_type_ferry_short_name, R.string.agency_type_ferry_all, //
 			R.string.agency_type_ferry_stations_short_name, R.string.agency_type_ferry_nearby, //
 			R.drawable.ic_directions_boat_black_24dp, //
-			R.drawable.ic_directions_boat_grey600_24dp, //
-			R.drawable.ic_directions_boat_white_24dp, //
 			R.id.nav_ferry, //
 			true, true, true, true, true), //
 	TYPE_BIKE(100, // like BIXI, Velib
 			R.string.agency_type_bike_short_name, R.string.agency_type_bike_all, //
 			R.string.agency_type_bike_stations_short_name, R.string.agency_type_bike_nearby, //
 			R.drawable.ic_directions_bike_black_24dp, //
-			R.drawable.ic_directions_bike_grey600_24dp, //
-			R.drawable.ic_directions_bike_white_24dp, //
 			R.id.nav_bike, //
 			true, true, true, true, true), //
 	TYPE_PLACE(666, //
@@ -66,15 +55,11 @@ public enum DataSourceType {
 			R.string.agency_type_place_app_short_name, R.string.agency_type_place_nearby, //
 			-1, //
 			R.drawable.ic_place_grey600_24dp, //
-			-1, //
-			-1, //
 			false, false, false, false, true), //
 	TYPE_MODULE(999, //
 			R.string.agency_type_module_short_name, R.string.agency_type_module_all, //
 			R.string.agency_type_module_app_short_name, R.string.agency_type_module_nearby, //
 			R.drawable.ic_library_add_black_24dp, //
-			R.drawable.ic_library_add_grey600_24dp, //
-			R.drawable.ic_library_add_white_24dp, //
 			R.id.nav_module, //
 			true, true, true, false, false), //
 	;
@@ -95,11 +80,7 @@ public enum DataSourceType {
 	private int nearbyNameResId;
 
 	@DrawableRes
-	private int blackIconResId;
-	@DrawableRes
-	private int grey600IconResId;
-	@DrawableRes
-	private int whiteIconResId;
+	private int iconResId;
 
 	private int navResId;
 
@@ -111,7 +92,7 @@ public enum DataSourceType {
 
 	DataSourceType(int id,
 			@StringRes int shortNameResId, @StringRes int allStringResId, @StringRes int poiShortNameResId, @StringRes int nearbyNameResId,
-			@DrawableRes int blackIconResId, @DrawableRes int grey600IconResId, @DrawableRes int whiteIconResId,
+			@DrawableRes int iconResId,
 			int navResId,
 			boolean menuList, boolean homeScreen, boolean nearbyScreen, boolean mapScreen, boolean searchable) {
 		if (id >= MAX_ID) {
@@ -122,9 +103,7 @@ public enum DataSourceType {
 		this.allStringResId = allStringResId;
 		this.poiShortNameResId = poiShortNameResId;
 		this.nearbyNameResId = nearbyNameResId;
-		this.blackIconResId = blackIconResId;
-		this.grey600IconResId = grey600IconResId;
-		this.whiteIconResId = whiteIconResId;
+		this.iconResId = iconResId;
 		this.navResId = navResId;
 		this.menuList = menuList;
 		this.homeScreen = homeScreen;
@@ -158,18 +137,8 @@ public enum DataSourceType {
 	}
 
 	@DrawableRes
-	public int getBlackIconResId() {
-		return blackIconResId;
-	}
-
-	@DrawableRes
-	public int getGrey600IconResId() {
-		return grey600IconResId;
-	}
-
-	@DrawableRes
-	public int getWhiteIconResId() {
-		return whiteIconResId;
+	public int getIconResId() {
+		return iconResId;
 	}
 
 	public int getNavResId() {
