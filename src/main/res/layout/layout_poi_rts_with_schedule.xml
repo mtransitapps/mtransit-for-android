@@ -20,7 +20,8 @@
         android:layout_centerVertical="true"
         android:layout_marginRight="@dimen/poi_status_inner_padding"
         android:scaleType="fitCenter"
-        android:src="@drawable/warning_light"
+        android:src="@drawable/ic_warning_black_24dp"
+        android:tint="@color/color_secondary_on_background"
         android:visibility="gone"
         tools:visibility="visible" />
 

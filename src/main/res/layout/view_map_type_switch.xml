@@ -11,6 +11,6 @@
     android:layout_marginLeft="8dp"
     android:alpha="0.75"
     android:scaleType="centerCrop"
-    android:src="@drawable/ic_map_satellite"
+    android:src="@drawable/map_satellite"
     android:visibility="gone"
     tools:visibility="visible" />

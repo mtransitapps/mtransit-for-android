@@ -15,6 +15,8 @@
 
     <color name="color_on_background">@color/color_on_primary</color>
 
+    <color name="color_secondary_on_background">@color/white_15</color>
+
     <color name="navigation_item_color_default">@color/color_on_surface</color>
     <color name="navigation_item_color_checked">@color/color_on_primary</color>
 

@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.view.map.impl;
 
+import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 
 import com.google.android.gms.maps.model.CameraPosition;
@@ -421,7 +422,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 		return baseClusterSize / (1 << zoom);
 	}
 
-	com.google.android.gms.maps.model.Marker createMarker(List<IMarker> markers, LatLng position) {
+	com.google.android.gms.maps.model.Marker createMarker(@NonNull List<IMarker> markers, LatLng position) {
 		markerOptions.position(position);
 		ClusterOptions opts = clusterOptionsProvider.getClusterOptions(markers);
 		markerOptions.icon(opts.getIcon());

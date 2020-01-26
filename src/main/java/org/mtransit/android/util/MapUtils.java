@@ -1,9 +1,18 @@
 package org.mtransit.android.util;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.mtransit.android.R;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ResourceUtils;
+
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,15 +20,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.util.LruCache;
 import android.util.Pair;
 import android.view.ViewGroup;
-
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
 public final class MapUtils implements MTLog.Loggable {
 
@@ -117,9 +120,10 @@ public final class MapUtils implements MTLog.Loggable {
 		viewGroup.requestTransparentRegion(viewGroup);
 	}
 
+	@NonNull
 	private static LruCache<Pair<Integer, Integer>, BitmapDescriptor> cache = new LruCache<>(128);
 
-	public static BitmapDescriptor getIcon(Context context, int iconResId, int color) {
+	public static BitmapDescriptor getIcon(@Nullable Context context, @DrawableRes int iconResId, @ColorInt int color) {
 		Pair<Integer, Integer> key = new Pair<>(iconResId, color);
 		if (color == Color.BLACK) {
 			color = Color.DKGRAY; // black is too dark to colorize bitmap;

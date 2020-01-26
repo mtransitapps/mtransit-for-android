@@ -501,7 +501,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private void setTypeSwitchImg() {
 		if (this.typeSwitchView != null) {
-			this.typeSwitchView.setImageResource(getMapType() == MapUtils.MAP_TYPE_NORMAL ? R.drawable.ic_map_satellite : R.drawable.ic_map_normal);
+			this.typeSwitchView.setImageResource(getMapType() == MapUtils.MAP_TYPE_NORMAL ? R.drawable.map_satellite : R.drawable.map_normal);
 		}
 	}
 
@@ -1175,7 +1175,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				if (mapViewController.markerLabelShowExtra) {
 					options.snippet(poiMarker.getSnippet());
 				}
-				options.icon(mapViewController.getActivityOrNull(), R.drawable.ic_place_white_slim, poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
+				options.icon(mapViewController.getActivityOrNull(), R.drawable.map_icon_place_white_slim, poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
 				options.data(poiMarker.getUuidsAndAuthority());
 				mapViewController.extendedGoogleMap.addMarker(options);
 			}
@@ -1198,7 +1198,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			if (this.markerLabelShowExtra) {
 				options.snippet(poiMarker.getSnippet());
 			}
-			options.icon(getActivityOrNull(), R.drawable.ic_place_white_slim, poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
+			options.icon(getActivityOrNull(), R.drawable.map_icon_place_white_slim, poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
 			options.data(poiMarker.getUuidsAndAuthority());
 			IMarker marker = this.extendedGoogleMap.addMarker(options);
 			if (poiMarker.hasUUID(this.lastSelectedUUID)) {

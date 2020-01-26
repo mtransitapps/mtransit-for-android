@@ -54,7 +54,7 @@ public enum DataSourceType {
 			R.string.agency_type_place_short_name, R.string.agency_type_place_all, //
 			R.string.agency_type_place_app_short_name, R.string.agency_type_place_nearby, //
 			-1, //
-			R.drawable.ic_place_grey600_24dp, //
+			R.drawable.ic_place_black_24dp, //
 			false, false, false, false, true), //
 	TYPE_MODULE(999, //
 			R.string.agency_type_module_short_name, R.string.agency_type_module_all, //

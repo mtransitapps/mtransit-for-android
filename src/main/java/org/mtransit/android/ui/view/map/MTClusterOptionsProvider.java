@@ -1,5 +1,10 @@
 package org.mtransit.android.ui.view.map;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -8,45 +13,51 @@ import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.util.MapUtils;
 
+import com.google.android.gms.maps.model.BitmapDescriptor;
+
 import android.content.Context;
 import android.graphics.Color;
-
-import com.google.android.gms.maps.model.BitmapDescriptor;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 public class MTClusterOptionsProvider implements ClusterOptionsProvider, MTLog.Loggable {
 
-	private static final String TAG = MTClusterOptionsProvider.class.getSimpleName();
+	private static final String LOG_TAG = MTClusterOptionsProvider.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
-	private static final int CLUSTER_ICON_RES = R.drawable.ic_cluster_blur_white;
+	@DrawableRes
+	private static final int CLUSTER_ICON_RES = R.drawable.map_icon_cluster_blur_white;
 
+	@NonNull
 	private ClusterOptions clusterOptions = new ClusterOptions().anchor(0.5f, 0.5f);
 
-	private WeakReference<Context> contextWR;
+	@NonNull
+	private final WeakReference<Context> contextWR;
 
-	public MTClusterOptionsProvider(Context context) {
+	public MTClusterOptionsProvider(@Nullable Context context) {
 		this.contextWR = new WeakReference<>(context);
 	}
 
+	@NonNull
 	@Override
-	public ClusterOptions getClusterOptions(List<IMarker> markers) {
+	public ClusterOptions getClusterOptions(@NonNull List<IMarker> markers) {
 		BitmapDescriptor icon = getClusterIcon(markers);
 		this.clusterOptions.icon(icon);
 		return this.clusterOptions;
 	}
 
-	private BitmapDescriptor getClusterIcon(List<IMarker> markers) {
+	private BitmapDescriptor getClusterIcon(@NonNull List<IMarker> markers) {
 		Integer color = getColor(markers);
-		Context context = this.contextWR == null ? null : this.contextWR.get();
+		Context context = this.contextWR.get();
 		return MapUtils.getIcon(context, CLUSTER_ICON_RES, color);
 	}
 
-	private Integer getColor(List<IMarker> markers) {
+	@ColorInt
+	private Integer getColor(@NonNull List<IMarker> markers) {
 		try {
 			if (CollectionUtils.getSize(markers) == 0) {
 				return Color.BLACK;
