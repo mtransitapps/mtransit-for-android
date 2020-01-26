@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="org.mtransit.android"
+    tools:ignore="MissingVersion">
+    <!-- REQUEST PERMISSIONS USAGE -->
+    <!-- ACCESS_COARSE_LOCATION: required to display distance & compass -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- ACCESS_FINE_LOCATION: required to display distance & compass -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- INTERNET: required to get up-to-date information -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- ACCESS_NETWORK_STATE: required for Google Analytics & Google Mobile Ads (AdMob) & Google Maps & Facebook Audience Network -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- WRITE_EXTERNAL_STORAGE: required by Google Maps -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- GOOGLE PLAY IN-APP BILLING & SUBSCRIPTIONS -->
+    <uses-permission android:name="com.android.vending.BILLING" />
+    <!-- READ_PROVIDER: required to read modules data -->
+    <uses-permission android:name="org.mtransit.android.provider.permission.READ_PROVIDER" />
+    <!-- BROADCAST_RECEIVER: required to read modules data -->
+    <uses-permission android:name="org.mtransit.android.receiver.permission.BROADCAST_RECEIVER" />
+    <!-- DECLARES PERMISSIONS -->
+    <permission
+        android:name="org.mtransit.android.provider.permission.READ_PROVIDER"
+        android:description="@string/provider_permission_description_read"
+        android:label="@string/provider_permission_label_read"
+        android:protectionLevel="signature" />
+    <permission
+        android:name="org.mtransit.android.receiver.permission.BROADCAST_RECEIVER"
+        android:description="@string/receiver_permission_description_broadcast"
+        android:label="@string/receiver_permission_label_broadcast"
+        android:protectionLevel="signature" />
+    <!-- USES FEATURE (not required) -->
+    <uses-feature
+        android:name="android.hardware.location"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.gps"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.network"
+        android:required="false" />
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.sensor.accelerometer"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.sensor.compass"
+        android:required="false" />
+    <!-- SUPPORT SCREENS -->
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
+    <!-- APPLICATION -->
+    <application
+        android:name=".ui.MTApplication"
+        android:allowBackup="true"
+        android:fullBackupContent="@xml/backup_descriptor"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="false"
+        android:theme="@style/MTTheme"
+        tools:replace="android:supportsRtl"
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:targetApi="n">
+        <!-- SPLASH SCREEN (not visible) DO NOT CHANGE ANDROID:NAME OR LAUNCHER ICON REMOVED! -->
+        <activity
+            android:name=".ui.SplashScreenActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher"
+            android:theme="@style/MTTheme.Launcher">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- MAIN SCREEN -->
+        <activity
+            android:name=".ui.MainActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
+        <!-- PREFERENCES SCREEN -->
+        <activity
+            android:name=".ui.PreferencesActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:theme="@style/MTThemePreferences" />
+        <!-- SEARCH -->
+        <meta-data
+            android:name="android.app.default_searchable"
+            android:value=".ui.MainActivity" />
+        <!-- GOOGLE PLAY SERVICES VERSION -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <!-- GOOGLE MOBILE ADS APP ID -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/google_ads_app_id" />
+        <!-- GOOGLE MAPS API KEY -->
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="@string/google_maps_api_key" />
+        <!-- FIREBASE CRASHLYTICS -->
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
+        <!-- USES LIBRARY -->
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+        <!-- MODULES CHANGES RECEIVER -->
+        <receiver android:name=".receiver.ModulesReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_INSTALL" />
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.PACKAGE_CHANGED" />
+                <action android:name="android.intent.action.PACKAGE_FIRST_LAUNCH" />
+                <action android:name="android.intent.action.PACKAGE_DATA_CLEARED" />
+                <action android:name="android.intent.action.PACKAGE_RESTARTED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_VERIFIED" />
+                <action android:name="android.intent.action.PACKAGE_NEEDS_VERIFICATION" />
+
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".receiver.ModuleDataChangeReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="org.mtransit.android.receiver.permission.BROADCAST_RECEIVER">
+            <intent-filter>
+                <action android:name="org.mtransit.android.intent.action.DATA_CHANGE" />
+            </intent-filter>
+        </receiver>
+        <!-- FAVORITE PROVIDER -->
+        <provider
+            android:name="org.mtransit.android.provider.FavoriteProvider"
+            android:authorities="@string/favorite_authority"
+            android:exported="false" />
+        <!-- MODULE PROVIDER -->
+        <provider
+            android:name="org.mtransit.android.provider.ModuleProvider"
+            android:authorities="@string/module_authority"
+            android:exported="false"
+            android:readPermission="org.mtransit.android.provider.permission.READ_PROVIDER">
+            <meta-data
+                android:name="@string/agency_provider"
+                android:value="@string/agency_provider" />
+            <meta-data
+                android:name="@string/agency_provider_type"
+                android:value="999" />
+            <meta-data
+                android:name="@string/poi_provider"
+                android:value="@string/poi_provider" />
+            <meta-data
+                android:name="@string/status_provider"
+                android:value="@string/status_provider" />
+            <meta-data
+                android:name="@string/status_provider_target"
+                android:value="@string/module_authority" />
+        </provider>
+        <!-- PLACE PROVIDER -->
+        <provider
+            android:name="org.mtransit.android.provider.PlaceProvider"
+            android:authorities="@string/place_authority"
+            android:exported="false"
+            android:readPermission="org.mtransit.android.provider.permission.READ_PROVIDER">
+            <meta-data
+                android:name="@string/agency_provider"
+                android:value="@string/agency_provider" />
+            <meta-data
+                android:name="@string/agency_provider_type"
+                android:value="666" />
+            <meta-data
+                android:name="@string/poi_provider"
+                android:value="@string/poi_provider" />
+        </provider>
+        <!-- TWITTER NEWS PROVIDER -->
+        <provider
+            android:name="org.mtransit.android.commons.provider.TwitterNewsProvider"
+            android:authorities="@string/twitter_authority"
+            android:exported="true"
+            android:readPermission="org.mtransit.android.provider.permission.READ_PROVIDER"
+            tools:ignore="MissingRegistered">
+            <meta-data
+                android:name="@string/news_provider"
+                android:value="@string/news_provider" />
+            <meta-data
+                android:name="@string/news_provider_target"
+                android:value="@string/twitter_target_for_poi_authority" />
+        </provider>
+    </application>
+</manifest>

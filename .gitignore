@@ -28,3 +28,41 @@ proguard/
 
 # Do Not Publish files
 *.donotpublish
+
+# Shared files
+/build.gradle
+/build.sh
+/decrypt_file.sh
+/encrypt_file.sh
+/keys_cleanup.sh
+/keys_files.sh
+/keys_setup.sh
+/lint.xml
+/promote.sh
+/promote_*.sh
+/publish.sh
+/publish_*.sh
+/src/main/play/default-language.txt
+
+# Kays (encrypted files)
+/app-signing-release-keys.properties
+/app-signing-release-keystore-encrypted.keystore
+/app-signing-release-keystore.keystore
+/clr
+/enc/app-signing-release-keys.properties
+/enc/app-signing-release-keystore-encrypted.keystore
+/enc/app-signing-release-keystore.keystore
+/enc/google-play-auto-publisher.json
+/enc/google-play-upload-certificate.pem
+/enc/google-play-upload-keys.properties
+/enc/google-play-upload-keystore.keystore
+/enc/src/main/play/contact-email.txt
+/google-play-auto-publisher.json
+/google-play-upload-certificate.pem
+/google-play-upload-keys.properties
+/google-play-upload-keystore.keystore
+/src/main/play/contact-email.txt
+/src/main/res/values/keys.xml
+/stage_res_all_schedule_stops.sh
+/stage_res_current_schedule_stops.sh
+/stage_res_next_schedule_stops.sh
