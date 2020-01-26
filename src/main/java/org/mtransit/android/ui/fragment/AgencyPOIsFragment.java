@@ -1,5 +1,12 @@
 package org.mtransit.android.ui.fragment;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -9,7 +16,6 @@ import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.PreferenceUtils;
-import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.di.Injection;
@@ -30,11 +36,6 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.location.Location;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.appcompat.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.util.StateSet;
 import android.view.LayoutInflater;
@@ -472,18 +473,22 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 	private StateListDrawable getListMapToggleSelector() {
 		if (listMapToggleSelector == null) {
 			listMapToggleSelector = new StateListDrawable();
-			LayerDrawable listLayerDrawable = (LayerDrawable) SupportFactory.get().getResourcesDrawable(getResources(), R.drawable.switch_thumb_list, null);
-			GradientDrawable listOvalShape = (GradientDrawable) listLayerDrawable.findDrawableByLayerId(R.id.switch_list_oval_shape);
-			if (this.colorInt != null) {
-				listOvalShape.setColor(this.colorInt);
+			LayerDrawable listLayerDrawable = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.switch_thumb_list, requireContext().getTheme());
+			if (listLayerDrawable != null) {
+				GradientDrawable listOvalShape = (GradientDrawable) listLayerDrawable.findDrawableByLayerId(R.id.switch_list_oval_shape);
+				if (this.colorInt != null) {
+					listOvalShape.setColor(this.colorInt);
+				}
+				listMapToggleSelector.addState(new int[]{android.R.attr.state_checked}, listLayerDrawable);
 			}
-			listMapToggleSelector.addState(new int[]{android.R.attr.state_checked}, listLayerDrawable);
-			LayerDrawable mapLayerDrawable = (LayerDrawable) SupportFactory.get().getResourcesDrawable(getResources(), R.drawable.switch_thumb_map, null);
-			GradientDrawable mapOvalShape = (GradientDrawable) mapLayerDrawable.findDrawableByLayerId(R.id.switch_map_oval_shape);
-			if (this.colorInt != null) {
-				mapOvalShape.setColor(this.colorInt);
+			LayerDrawable mapLayerDrawable = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.switch_thumb_map, requireContext().getTheme());
+			if (mapLayerDrawable != null) {
+				GradientDrawable mapOvalShape = (GradientDrawable) mapLayerDrawable.findDrawableByLayerId(R.id.switch_map_oval_shape);
+				if (this.colorInt != null) {
+					mapOvalShape.setColor(this.colorInt);
+				}
+				listMapToggleSelector.addState(StateSet.WILD_CARD, mapLayerDrawable);
 			}
-			listMapToggleSelector.addState(StateSet.WILD_CARD, mapLayerDrawable);
 		}
 		return this.listMapToggleSelector;
 	}

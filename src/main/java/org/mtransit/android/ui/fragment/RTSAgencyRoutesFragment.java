@@ -6,7 +6,6 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
-import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.data.AgencyProperties;
@@ -29,6 +28,7 @@ import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.appcompat.widget.SwitchCompat;
@@ -467,18 +467,22 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 	private StateListDrawable getListGridToggleSelector() {
 		if (listGridToggleSelector == null) {
 			listGridToggleSelector = new StateListDrawable();
-			LayerDrawable listLayerDrawable = (LayerDrawable) SupportFactory.get().getResourcesDrawable(getResources(), R.drawable.switch_thumb_list, null);
-			GradientDrawable listOvalShape = (GradientDrawable) listLayerDrawable.findDrawableByLayerId(R.id.switch_list_oval_shape);
-			if (this.colorInt != null) {
-				listOvalShape.setColor(this.colorInt);
+			LayerDrawable listLayerDrawable = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.switch_thumb_list, requireContext().getTheme());
+			if (listLayerDrawable != null) {
+				GradientDrawable listOvalShape = (GradientDrawable) listLayerDrawable.findDrawableByLayerId(R.id.switch_list_oval_shape);
+				if (this.colorInt != null) {
+					listOvalShape.setColor(this.colorInt);
+				}
+				listGridToggleSelector.addState(new int[]{android.R.attr.state_checked}, listLayerDrawable);
 			}
-			listGridToggleSelector.addState(new int[]{android.R.attr.state_checked}, listLayerDrawable);
-			LayerDrawable gridLayerDrawable = (LayerDrawable) SupportFactory.get().getResourcesDrawable(getResources(), R.drawable.switch_thumb_grid, null);
-			GradientDrawable gridOvalShape = (GradientDrawable) gridLayerDrawable.findDrawableByLayerId(R.id.switch_grid_oval_shape);
-			if (this.colorInt != null) {
-				gridOvalShape.setColor(this.colorInt);
+			LayerDrawable gridLayerDrawable = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.switch_thumb_grid,  requireContext().getTheme());
+			if (gridLayerDrawable != null) {
+				GradientDrawable gridOvalShape = (GradientDrawable) gridLayerDrawable.findDrawableByLayerId(R.id.switch_grid_oval_shape);
+				if (this.colorInt != null) {
+					gridOvalShape.setColor(this.colorInt);
+				}
+				listGridToggleSelector.addState(StateSet.WILD_CARD, gridLayerDrawable);
 			}
-			listGridToggleSelector.addState(StateSet.WILD_CARD, gridLayerDrawable);
 		}
 		return this.listGridToggleSelector;
 	}

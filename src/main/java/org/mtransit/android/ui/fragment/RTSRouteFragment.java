@@ -12,7 +12,6 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.data.DataSourceManager;
@@ -34,6 +33,8 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.material.tabs.TabLayout;
+
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -386,8 +387,8 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 	}
 
-	private void initAdapters(Activity activity) {
-		this.adapter = new RouteTripPagerAdapter(activity, this, null, this.authority, null, this.stopId, isShowingListInsteadOfMap());
+	private void initAdapters(Context context) {
+		this.adapter = new RouteTripPagerAdapter(context, this, null, this.authority, null, this.stopId, isShowingListInsteadOfMap());
 	}
 
 	private static class LoadLastPageSelectedFromUserPreference extends FragmentAsyncTaskV4<Void, Void, Integer, RTSRouteFragment> {
@@ -689,18 +690,22 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (listMapToggleSelector == null) {
 			Integer colorInt = POIManager.getRouteColor(getContext(), getRouteOrNull(), this.authority, null);
 			listMapToggleSelector = new StateListDrawable();
-			LayerDrawable listLayerDrawable = (LayerDrawable) SupportFactory.get().getResourcesDrawable(getResources(), R.drawable.switch_thumb_list, null);
-			GradientDrawable listOvalShape = (GradientDrawable) listLayerDrawable.findDrawableByLayerId(R.id.switch_list_oval_shape);
-			if (colorInt != null) {
-				listOvalShape.setColor(colorInt);
+			LayerDrawable listLayerDrawable = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.switch_thumb_list, requireContext().getTheme());
+			if (listLayerDrawable != null) {
+				GradientDrawable listOvalShape = (GradientDrawable) listLayerDrawable.findDrawableByLayerId(R.id.switch_list_oval_shape);
+				if (colorInt != null) {
+					listOvalShape.setColor(colorInt);
+				}
+				listMapToggleSelector.addState(new int[]{android.R.attr.state_checked}, listLayerDrawable);
 			}
-			listMapToggleSelector.addState(new int[]{android.R.attr.state_checked}, listLayerDrawable);
-			LayerDrawable mapLayerDrawable = (LayerDrawable) SupportFactory.get().getResourcesDrawable(getResources(), R.drawable.switch_thumb_map, null);
-			GradientDrawable mapOvalShape = (GradientDrawable) mapLayerDrawable.findDrawableByLayerId(R.id.switch_map_oval_shape);
-			if (colorInt != null) {
-				mapOvalShape.setColor(colorInt);
+			LayerDrawable mapLayerDrawable = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.switch_thumb_map, requireContext().getTheme());
+			if (mapLayerDrawable != null) {
+				GradientDrawable mapOvalShape = (GradientDrawable) mapLayerDrawable.findDrawableByLayerId(R.id.switch_map_oval_shape);
+				if (colorInt != null) {
+					mapOvalShape.setColor(colorInt);
+				}
+				listMapToggleSelector.addState(StateSet.WILD_CARD, mapLayerDrawable);
 			}
-			listMapToggleSelector.addState(StateSet.WILD_CARD, mapLayerDrawable);
 		}
 		return this.listMapToggleSelector;
 	}
