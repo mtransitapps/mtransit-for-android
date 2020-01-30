@@ -17,17 +17,17 @@
     <!-- GOOGLE PLAY IN-APP BILLING & SUBSCRIPTIONS -->
     <uses-permission android:name="com.android.vending.BILLING" />
     <!-- READ_PROVIDER: required to read modules data -->
-    <uses-permission android:name="org.mtransit.android.provider.permission.READ_PROVIDER" />
+    <uses-permission android:name="${permission_provider_read}" />
     <!-- BROADCAST_RECEIVER: required to read modules data -->
-    <uses-permission android:name="org.mtransit.android.receiver.permission.BROADCAST_RECEIVER" />
+    <uses-permission android:name="${permission_receiver_broadcast}" />
     <!-- DECLARES PERMISSIONS -->
     <permission
-        android:name="org.mtransit.android.provider.permission.READ_PROVIDER"
+        android:name="${permission_provider_read}"
         android:description="@string/provider_permission_description_read"
         android:label="@string/provider_permission_label_read"
         android:protectionLevel="signature" />
     <permission
-        android:name="org.mtransit.android.receiver.permission.BROADCAST_RECEIVER"
+        android:name="${permission_receiver_broadcast}"
         android:description="@string/receiver_permission_description_broadcast"
         android:label="@string/receiver_permission_label_broadcast"
         android:protectionLevel="signature" />
@@ -150,7 +150,7 @@
             android:name=".receiver.ModuleDataChangeReceiver"
             android:enabled="true"
             android:exported="true"
-            android:permission="org.mtransit.android.receiver.permission.BROADCAST_RECEIVER">
+            android:permission="${permission_receiver_broadcast}">
             <intent-filter>
                 <action android:name="org.mtransit.android.intent.action.DATA_CHANGE" />
             </intent-filter>
@@ -165,7 +165,7 @@
             android:name="org.mtransit.android.provider.ModuleProvider"
             android:authorities="@string/module_authority"
             android:exported="false"
-            android:readPermission="org.mtransit.android.provider.permission.READ_PROVIDER">
+            android:readPermission="${permission_provider_read}">
             <meta-data
                 android:name="@string/agency_provider"
                 android:value="@string/agency_provider" />
@@ -187,7 +187,7 @@
             android:name="org.mtransit.android.provider.PlaceProvider"
             android:authorities="@string/place_authority"
             android:exported="false"
-            android:readPermission="org.mtransit.android.provider.permission.READ_PROVIDER">
+            android:readPermission="${permission_provider_read}">
             <meta-data
                 android:name="@string/agency_provider"
                 android:value="@string/agency_provider" />
@@ -203,7 +203,7 @@
             android:name="org.mtransit.android.commons.provider.TwitterNewsProvider"
             android:authorities="@string/twitter_authority"
             android:exported="true"
-            android:readPermission="org.mtransit.android.provider.permission.READ_PROVIDER"
+            android:readPermission="${permission_provider_read}"
             tools:ignore="MissingRegistered">
             <meta-data
                 android:name="@string/news_provider"
