@@ -8,8 +8,6 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- ACCESS_FINE_LOCATION: required to display distance & compass -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <!-- INTERNET: required to get up-to-date information -->
-    <uses-permission android:name="android.permission.INTERNET" />
     <!-- ACCESS_NETWORK_STATE: required for Google Analytics & Google Mobile Ads (AdMob) & Google Maps & Facebook Audience Network -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- WRITE_EXTERNAL_STORAGE: required by Google Maps -->
@@ -18,19 +16,6 @@
     <uses-permission android:name="com.android.vending.BILLING" />
     <!-- READ_PROVIDER: required to read modules data -->
     <uses-permission android:name="${permission_provider_read}" />
-    <!-- BROADCAST_RECEIVER: required to read modules data -->
-    <uses-permission android:name="${permission_receiver_broadcast}" />
-    <!-- DECLARES PERMISSIONS -->
-    <permission
-        android:name="${permission_provider_read}"
-        android:description="@string/provider_permission_description_read"
-        android:label="@string/provider_permission_label_read"
-        android:protectionLevel="signature" />
-    <permission
-        android:name="${permission_receiver_broadcast}"
-        android:description="@string/receiver_permission_description_broadcast"
-        android:label="@string/receiver_permission_label_broadcast"
-        android:protectionLevel="signature" />
     <!-- USES FEATURE (not required) -->
     <uses-feature
         android:name="android.hardware.location"
@@ -50,13 +35,6 @@
     <uses-feature
         android:name="android.hardware.sensor.compass"
         android:required="false" />
-    <!-- SUPPORT SCREENS -->
-    <supports-screens
-        android:anyDensity="true"
-        android:largeScreens="true"
-        android:normalScreens="true"
-        android:smallScreens="true"
-        android:xlargeScreens="true" />
     <!-- APPLICATION -->
     <application
         android:name=".ui.MTApplication"
