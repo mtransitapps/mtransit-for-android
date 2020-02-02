@@ -1,11 +1,14 @@
 package org.mtransit.android.ui.view.map;
 
-import java.util.List;
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
 
-import android.content.Context;
+import java.util.List;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
+
+import android.content.Context;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 public interface IMarker {
@@ -77,7 +80,7 @@ public interface IMarker {
 	@Deprecated
 	void setIcon(BitmapDescriptor icon);
 
-	void setIcon(Context context, Integer iconResId, Integer color, Integer secondaryColor, Integer defaultColor);
+	void setIcon(Context context, @DrawableRes Integer iconResId, @ColorInt Integer color, @ColorInt Integer secondaryColor, @ColorInt Integer defaultColor);
 
 	Integer getColor();
 

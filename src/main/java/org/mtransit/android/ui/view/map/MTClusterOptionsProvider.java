@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
+import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.util.MapUtils;
 
@@ -51,16 +52,17 @@ public class MTClusterOptionsProvider implements ClusterOptionsProvider, MTLog.L
 	}
 
 	private BitmapDescriptor getClusterIcon(@NonNull List<IMarker> markers) {
-		Integer color = getColor(markers);
 		Context context = this.contextWR.get();
+		Integer color = getColor(context, markers);
 		return MapUtils.getIcon(context, CLUSTER_ICON_RES, color);
 	}
 
 	@ColorInt
-	private Integer getColor(@NonNull List<IMarker> markers) {
+	private Integer getColor(@Nullable Context context, @NonNull List<IMarker> markers) {
+		final int defaultMapColor = getDefaultColor(context);
 		try {
 			if (CollectionUtils.getSize(markers) == 0) {
-				return Color.BLACK;
+				return defaultMapColor;
 			}
 			Integer color = null;
 			Integer secondaryColor = null;
@@ -76,41 +78,52 @@ public class MTClusterOptionsProvider implements ClusterOptionsProvider, MTLog.L
 				}
 				if (color == null) {
 					if (marker.getColor() != null) {
-						color = Color.BLACK;
+						color = defaultMapColor;
 					}
 				} else if (!color.equals(marker.getColor())) {
-					color = Color.BLACK;
+					color = defaultMapColor;
 				}
 				if (secondaryColor == null) {
 					if (marker.getSecondaryColor() != null) {
-						secondaryColor = Color.BLACK;
+						secondaryColor = defaultMapColor;
 					}
 				} else if (!secondaryColor.equals(marker.getSecondaryColor())) {
-					secondaryColor = Color.BLACK;
+					secondaryColor = defaultMapColor;
 				}
 				if (defaultColor == null) {
 					if (marker.getDefaultColor() != null) {
-						defaultColor = Color.BLACK;
+						defaultColor = defaultMapColor;
 					}
 				} else if (!defaultColor.equals(marker.getDefaultColor())) {
-					defaultColor = Color.BLACK;
+					defaultColor = defaultMapColor;
 				}
-				if (color != null && color.equals(Color.BLACK) && secondaryColor != null && secondaryColor.equals(Color.BLACK) && defaultColor != null
-						&& defaultColor.equals(Color.BLACK)) {
-					return Color.BLACK;
+				if (color != null && color.equals(defaultMapColor)
+						&& secondaryColor != null && secondaryColor.equals(defaultMapColor)
+						&& defaultColor != null && defaultColor.equals(defaultMapColor)) {
+					return defaultMapColor;
 				}
 			}
-			if (color != null && !color.equals(Color.BLACK)) {
+			if (color != null && !color.equals(defaultMapColor)) {
 				return color;
-			} else if (secondaryColor != null && !secondaryColor.equals(Color.BLACK)) {
+			} else if (secondaryColor != null && !secondaryColor.equals(defaultMapColor)) {
 				return secondaryColor;
-			} else if (defaultColor != null && !defaultColor.equals(Color.BLACK)) {
+			} else if (defaultColor != null && !defaultColor.equals(defaultMapColor)) {
 				return defaultColor;
 			} else {
-				return Color.BLACK;
+				return defaultMapColor;
 			}
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while finding color!");
+			return defaultMapColor;
+		}
+	}
+
+	@ColorInt
+	private int getDefaultColor(@Nullable Context context) {
+		MTLog.d(this, "getDefaultColor()");
+		if (context != null && ColorUtils.isDarkTheme(context)) {
+			return Color.WHITE;
+		} else {
 			return Color.BLACK;
 		}
 	}

@@ -1,5 +1,8 @@
 package org.mtransit.android.task;
 
+import androidx.annotation.NonNull;
+import androidx.collection.ArrayMap;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -25,15 +28,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 import android.content.Context;
-import androidx.collection.ArrayMap;
 
 public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewController.POIMarker>> {
 
-	private static final String TAG = MapPOILoader.class.getSimpleName();
+	private static final String LOG_TAG = MapPOILoader.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private Collection<Integer> filterTypeIds;
@@ -131,11 +134,12 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 
 	private static class FindAgencyPOIsTask extends MTCallable<ArrayMap<LatLng, MapViewController.POIMarker>> {
 
-		private static final String TAG = MapPOILoader.class.getSimpleName() + ">" + FindAgencyPOIsTask.class.getSimpleName();
+		private static final String LOG_TAG = MapPOILoader.class.getSimpleName() + ">" + FindAgencyPOIsTask.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
 		private Context context;
@@ -143,7 +147,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 		private LatLngBounds latLngBounds;
 		private LatLngBounds loadedLatLngBounds;
 
-		public FindAgencyPOIsTask(Context context, AgencyProperties agency, LatLngBounds latLngBounds, LatLngBounds loadedLatLngBounds) {
+		FindAgencyPOIsTask(Context context, AgencyProperties agency, LatLngBounds latLngBounds, LatLngBounds loadedLatLngBounds) {
 			this.context = context;
 			this.agency = agency;
 			this.latLngBounds = latLngBounds;
@@ -156,7 +160,6 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 			double maxLat = Math.max(this.latLngBounds.northeast.latitude, this.latLngBounds.southwest.latitude);
 			double minLng = Math.min(this.latLngBounds.northeast.longitude, this.latLngBounds.southwest.longitude);
 			double maxLng = Math.max(this.latLngBounds.northeast.longitude, this.latLngBounds.southwest.longitude);
-			MTLog.d(this, "call() > maxLng: %s", maxLng);
 			Double optLoadedMinLat = this.loadedLatLngBounds == null ? null : //
 					Math.min(this.loadedLatLngBounds.northeast.latitude, this.loadedLatLngBounds.southwest.latitude);
 			Double optLoadedMaxLat = this.loadedLatLngBounds == null ? null : //
@@ -197,13 +200,13 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 					authority = poim.poi.getAuthority();
 					color = POIManager.getColor(this.context, poim.poi, null);
 					secondaryColor = agency.getColorInt();
-					if (clusterItems.containsKey(positionTrunc)) {
-						clusterItems.get(positionTrunc).merge(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority);
+					MapViewController.POIMarker clusterItem = clusterItems.get(positionTrunc);
+					if (clusterItem == null) {
+						clusterItem = new MapViewController.POIMarker(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority);
 					} else {
-						clusterItems.put( //
-								positionTrunc, //
-								new MapViewController.POIMarker(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority));
+						clusterItem.merge(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority);
 					}
+					clusterItems.put(positionTrunc, clusterItem);
 				}
 			}
 			return clusterItems;

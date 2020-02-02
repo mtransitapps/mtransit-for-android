@@ -1,17 +1,11 @@
 package org.mtransit.android.ui.view;
 
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.LocationSource;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MapStyleOptions;
-import com.google.android.gms.maps.model.VisibleRegion;
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.collection.ArrayMap;
+import androidx.collection.SimpleArrayMap;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -24,6 +18,7 @@ import java.util.regex.Pattern;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
+import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
@@ -50,6 +45,19 @@ import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.LocationSource;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
+import com.google.android.gms.maps.model.VisibleRegion;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -58,12 +66,6 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Location;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.collection.ArrayMap;
-import androidx.collection.SimpleArrayMap;
-
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -496,7 +498,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (context == null) {
 			return;
 		}
-		map.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.mapstyle));
+		map.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style_default));
 	}
 
 	private void setTypeSwitchImg() {
@@ -844,22 +846,28 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	public static class POIMarker implements MTLog.Loggable {
 
-		private static final String TAG = MapViewController.class.getSimpleName() + ">" + POIMarker.class.getSimpleName();
+		private static final String LOG_TAG = MapViewController.class.getSimpleName() + ">" + POIMarker.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
 		private LatLng position;
 		private ArrayList<String> names = new ArrayList<>();
 		private ArrayList<String> agencies = new ArrayList<>();
 		private ArrayList<String> extras = new ArrayList<>();
+		@ColorInt
 		private Integer color;
+		@ColorInt
 		private Integer secondaryColor;
-		private POIMarkerIds uuidsAndAuthority = new POIMarkerIds();
+		@NonNull
+		private final POIMarkerIds uuidsAndAuthority = new POIMarkerIds();
 
-		public POIMarker(LatLng position, String name, String agency, String extra, Integer color, Integer secondaryColor, String uuid, String authority) {
+		public POIMarker(LatLng position, String name, String agency, String extra,
+				@ColorInt Integer color, @ColorInt Integer secondaryColor,
+				String uuid, String authority) {
 			addPosition(position);
 			addName(name);
 			addAgency(agency);
@@ -969,7 +977,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			this.uuidsAndAuthority.merge(poiMarker.uuidsAndAuthority);
 		}
 
-		public void merge(LatLng position, String name, String agency, String extra, Integer color, Integer secondaryColor, String uuid, String authority) {
+		public void merge(LatLng position, String name, String agency, String extra,
+				@ColorInt Integer color, @ColorInt Integer secondaryColor,
+				String uuid, String authority) {
 			addPosition(position);
 			addName(name);
 			addAgency(agency);
@@ -1019,6 +1029,20 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 					this.names.add(name);
 				}
 			}
+		}
+
+		@NonNull
+		@Override
+		public String toString() {
+			return POIMarker.class.getSimpleName() + "{" +
+					"position=" + position +
+					", names=" + names +
+					", agencies=" + agencies +
+					", extras=" + extras +
+					", color=" + color +
+					", secondaryColor=" + secondaryColor +
+					", uuidsAndAuthority=" + uuidsAndAuthority +
+					'}';
 		}
 	}
 
@@ -1080,6 +1104,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		@NonNull
 		private final WeakReference<MapViewController> mapViewControllerWR;
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return LOG_TAG;
@@ -1175,7 +1200,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				if (mapViewController.markerLabelShowExtra) {
 					options.snippet(poiMarker.getSnippet());
 				}
-				options.icon(mapViewController.getActivityOrNull(), R.drawable.map_icon_place_white_slim, poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
+				final Context context = mapViewController.getActivityOrNull();
+				options.icon(context, getPlaceIconRes(context), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
 				options.data(poiMarker.getUuidsAndAuthority());
 				mapViewController.extendedGoogleMap.addMarker(options);
 			}
@@ -1185,6 +1211,14 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				mapViewController.showMarkers(false, mapViewController.followingUser);
 			}
 		}
+	}
+
+	@DrawableRes
+	private static int getPlaceIconRes(Context context) {
+		if (ColorUtils.isDarkTheme(context)) {
+			return R.drawable.map_icon_place_twotone_white_36;
+		}
+		return R.drawable.map_icon_place_twotone_black_36;
 	}
 
 	public void addMarkers(@NonNull Collection<POIMarker> result) {
@@ -1198,7 +1232,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			if (this.markerLabelShowExtra) {
 				options.snippet(poiMarker.getSnippet());
 			}
-			options.icon(getActivityOrNull(), R.drawable.map_icon_place_white_slim, poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
+			final Context context = getActivityOrNull();
+			options.icon(context, getPlaceIconRes(context), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
 			options.data(poiMarker.getUuidsAndAuthority());
 			IMarker marker = this.extendedGoogleMap.addMarker(options);
 			if (poiMarker.hasUUID(this.lastSelectedUUID)) {

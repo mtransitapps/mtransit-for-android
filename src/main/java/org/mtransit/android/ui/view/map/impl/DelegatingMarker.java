@@ -1,18 +1,32 @@
 package org.mtransit.android.ui.view.map.impl;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+
 import java.util.List;
 
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.map.AnimationSettings;
 import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.lazy.LazyMarker;
 
-import android.content.Context;
-
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 
+import android.content.Context;
+import android.util.Log;
+
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
-class DelegatingMarker implements IMarker {
+class DelegatingMarker implements IMarker, MTLog.Loggable {
+
+	private static final String LOG_TAG = DelegatingMarker.class.getSimpleName();
+
+	@NonNull
+	@Override
+	public String getLogTag() {
+		return LOG_TAG;
+	}
 
 	private LazyMarker real;
 	private MarkerManager manager;
@@ -180,7 +194,7 @@ class DelegatingMarker implements IMarker {
 	}
 
 	@Override
-	public void setIcon(Context context, Integer iconResId, Integer color, Integer secondaryColor, Integer defaultColor) {
+	public void setIcon(Context context, @DrawableRes Integer iconResId, @ColorInt Integer color, @ColorInt Integer secondaryColor, @ColorInt Integer defaultColor) {
 		real.setIcon(context, iconResId, color, secondaryColor, defaultColor);
 	}
 

@@ -1,5 +1,9 @@
 package org.mtransit.android.data;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -12,16 +16,16 @@ import org.mtransit.android.commons.MTLog;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
 public class AgencyProperties implements MTLog.Loggable {
 
-	private static final String TAG = AgencyProperties.class.getSimpleName();
+	private static final String LOG_TAG = AgencyProperties.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	public static final AgencyPropertiesShortNameComparator SHORT_NAME_COMPARATOR = new AgencyPropertiesShortNameComparator();
@@ -30,6 +34,7 @@ public class AgencyProperties implements MTLog.Loggable {
 	private DataSourceType type;
 	private String shortName;
 	private String longName;
+	@ColorInt
 	private Integer colorInt = null;
 	private LocationUtils.Area area;
 	private boolean isRTS;
@@ -62,6 +67,7 @@ public class AgencyProperties implements MTLog.Loggable {
 		}
 	}
 
+	@ColorInt
 	public int getColorInt() {
 		if (colorInt == null) {
 			return 0;

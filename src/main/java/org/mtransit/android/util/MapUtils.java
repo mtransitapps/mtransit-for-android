@@ -26,11 +26,12 @@ import android.view.ViewGroup;
 
 public final class MapUtils implements MTLog.Loggable {
 
-	private static final String TAG = MapUtils.class.getSimpleName();
+	private static final String LOG_TAG = MapUtils.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	public static final int MAP_TYPE_NORMAL = GoogleMap.MAP_TYPE_NORMAL;
@@ -123,10 +124,14 @@ public final class MapUtils implements MTLog.Loggable {
 	@NonNull
 	private static LruCache<Pair<Integer, Integer>, BitmapDescriptor> cache = new LruCache<>(128);
 
+	@NonNull
 	public static BitmapDescriptor getIcon(@Nullable Context context, @DrawableRes int iconResId, @ColorInt int color) {
 		Pair<Integer, Integer> key = new Pair<>(iconResId, color);
 		if (color == Color.BLACK) {
 			color = Color.DKGRAY; // black is too dark to colorize bitmap;
+		}
+		if (color == Color.WHITE) {
+			color = Color.LTGRAY;
 		}
 		BitmapDescriptor cachedBitmap = cache.get(key);
 		if (cachedBitmap != null) {

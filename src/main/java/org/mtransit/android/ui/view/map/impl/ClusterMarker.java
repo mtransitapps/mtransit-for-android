@@ -1,16 +1,19 @@
 package org.mtransit.android.ui.view.map.impl;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.mtransit.android.ui.view.map.AnimationSettings;
 import org.mtransit.android.ui.view.map.IMarker;
 
-import android.content.Context;
-
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+
+import android.content.Context;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class ClusterMarker implements IMarker {
@@ -257,7 +260,7 @@ class ClusterMarker implements IMarker {
 	}
 
 	@Override
-	public void setIcon(Context context, Integer iconResId, Integer color, Integer secondaryColor, Integer defaultColor) {
+	public void setIcon(Context context, @DrawableRes Integer iconResId, @ColorInt Integer color, @ColorInt Integer secondaryColor, @ColorInt Integer defaultColor) {
 		throw new UnsupportedOperationException();
 	}
 

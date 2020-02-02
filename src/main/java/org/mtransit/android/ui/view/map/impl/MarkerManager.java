@@ -64,8 +64,13 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 	private void setExtendedOptions(DelegatingMarker marker, ExtendedMarkerOptions markerOptions) {
 		marker.setClusterGroup(markerOptions.getClusterGroup());
 		marker.setData(markerOptions.getData());
-		marker.setIcon(markerOptions.getContext(), markerOptions.getIconResId(), markerOptions.getColor(), markerOptions.getSecondaryColor(),
-				markerOptions.getDefaultColor());
+		marker.setIcon(
+				markerOptions.getContext(),
+				markerOptions.getIconResId(),
+				markerOptions.getColor(),
+				markerOptions.getSecondaryColor(),
+				markerOptions.getDefaultColor()
+		);
 	}
 
 	private DelegatingMarker createMarker(com.google.android.gms.maps.model.MarkerOptions markerOptions) {
@@ -176,7 +181,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 	}
 
 	@Override
-	public void onMarkerCreate(LazyMarker marker) {
+	public void onMarkerCreate(@NonNull LazyMarker marker) {
 		createdMarkers.put(marker.getMarker(), marker);
 	}
 

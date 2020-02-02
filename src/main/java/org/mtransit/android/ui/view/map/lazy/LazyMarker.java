@@ -1,11 +1,14 @@
 package org.mtransit.android.ui.view.map.lazy;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.lang.ref.WeakReference;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.util.MapUtils;
-
-import android.content.Context;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -13,19 +16,23 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import android.content.Context;
+import android.util.Log;
+
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class LazyMarker implements MTLog.Loggable {
 
-	private static final String TAG = LazyMarker.class.getSimpleName();
+	private static final String LOG_TAG = LazyMarker.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	public interface OnMarkerCreateListener {
-		void onMarkerCreate(LazyMarker marker);
+		void onMarkerCreate(@NonNull LazyMarker marker);
 	}
 
 	private Marker marker;
@@ -213,13 +220,17 @@ public class LazyMarker implements MTLog.Loggable {
 		}
 	}
 
+	@DrawableRes
 	private Integer markerOptionsIconResId = null;
+	@ColorInt
 	private Integer markerOptionsColor = null;
+	@ColorInt
 	private Integer markerOptionsSecondaryColor = null;
+	@ColorInt
 	private Integer markerOptionsDefaultColor = null;
 	private WeakReference<Context> markerOptionsContextWR = null;
 
-	public void setIcon(Context context, Integer iconResId, Integer color, Integer secondaryColor, Integer defaultColor) {
+	public void setIcon(Context context, @DrawableRes Integer iconResId, @ColorInt Integer color, @ColorInt Integer secondaryColor, @ColorInt Integer defaultColor) {
 		if (marker != null) {
 			marker.setIcon(MapUtils.getIcon(context, iconResId, color));
 		} else {
@@ -232,14 +243,17 @@ public class LazyMarker implements MTLog.Loggable {
 		}
 	}
 
+	@ColorInt
 	public Integer getColor() {
 		return this.markerOptionsColor;
 	}
 
+	@ColorInt
 	public Integer getSecondaryColor() {
 		return this.markerOptionsSecondaryColor;
 	}
 
+	@ColorInt
 	public Integer getDefaultColor() {
 		return this.markerOptionsDefaultColor;
 	}
@@ -315,8 +329,11 @@ public class LazyMarker implements MTLog.Loggable {
 		}
 	}
 
-	private void createMarker(GoogleMap map, MarkerOptions options, Integer markerOptionsColor, Integer markerOptionsSecondaryColor,
-			Integer markerOptionsDefaultColor, Integer markerOptionsIconResId, Context markerOptionsContext, OnMarkerCreateListener listener) {
+	private void createMarker(@NonNull GoogleMap map, @NonNull MarkerOptions options,
+			@ColorInt Integer markerOptionsColor, @ColorInt Integer markerOptionsSecondaryColor, @ColorInt Integer markerOptionsDefaultColor,
+			@DrawableRes Integer markerOptionsIconResId,
+			@Nullable Context markerOptionsContext,
+			@Nullable OnMarkerCreateListener listener) {
 		if (markerOptionsDefaultColor != null && markerOptionsIconResId != null && markerOptionsContext != null) {
 			int color = markerOptionsColor == null ? markerOptionsSecondaryColor == null ? markerOptionsDefaultColor : markerOptionsSecondaryColor
 					: markerOptionsColor;
