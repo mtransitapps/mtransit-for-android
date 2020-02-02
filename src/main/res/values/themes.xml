@@ -19,9 +19,9 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="windowActionBarOverlay">true</item>
         <!-- default background color (#fffafafa) is too light, using old default background color (#ffeeeeee) -->
+        <item name="android:windowBackground">@color/window_background</item>
         <item name="android:colorBackground">@color/color_background</item>
         <item name="colorOnBackground">@color/color_on_background</item>
-        <item name="android:windowBackground">@color/window_background</item>
     </style>
 
     <style name="MTTheme.Launcher" parent="MTTheme">

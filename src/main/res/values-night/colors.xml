@@ -10,7 +10,7 @@
     <color name="color_surface">@color/dark_grey_a</color>
     <color name="color_on_surface">#8Aa0a0a0</color>
 
-    <color name="color_background">@color/dark_grey</color>
+    <color name="color_background">@color/black</color>
     <color name="window_background">@color/color_background</color>
 
     <color name="color_on_background">@color/color_on_primary</color>
