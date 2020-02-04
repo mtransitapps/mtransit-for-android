@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
-import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
@@ -1201,7 +1200,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 					options.snippet(poiMarker.getSnippet());
 				}
 				final Context context = mapViewController.getActivityOrNull();
-				options.icon(context, getPlaceIconRes(context), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
+				options.icon(context, getPlaceIconRes(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
 				options.data(poiMarker.getUuidsAndAuthority());
 				mapViewController.extendedGoogleMap.addMarker(options);
 			}
@@ -1214,11 +1213,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	@DrawableRes
-	private static int getPlaceIconRes(Context context) {
-		if (ColorUtils.isDarkTheme(context)) {
-			return R.drawable.map_icon_place_twotone_white_36;
-		}
-		return R.drawable.map_icon_place_twotone_black_36;
+	private static int getPlaceIconRes() {
+		return R.drawable.map_icon_place_white_slim; // production
 	}
 
 	public void addMarkers(@NonNull Collection<POIMarker> result) {
@@ -1233,7 +1229,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				options.snippet(poiMarker.getSnippet());
 			}
 			final Context context = getActivityOrNull();
-			options.icon(context, getPlaceIconRes(context), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
+			options.icon(context, getPlaceIconRes(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
 			options.data(poiMarker.getUuidsAndAuthority());
 			IMarker marker = this.extendedGoogleMap.addMarker(options);
 			if (poiMarker.hasUUID(this.lastSelectedUUID)) {

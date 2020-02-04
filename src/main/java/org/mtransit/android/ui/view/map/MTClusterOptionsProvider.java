@@ -30,9 +30,6 @@ public class MTClusterOptionsProvider implements ClusterOptionsProvider, MTLog.L
 		return LOG_TAG;
 	}
 
-	@DrawableRes
-	private static final int CLUSTER_ICON_RES = R.drawable.map_icon_cluster_blur_white;
-
 	@NonNull
 	private ClusterOptions clusterOptions = new ClusterOptions().anchor(0.5f, 0.5f);
 
@@ -51,10 +48,16 @@ public class MTClusterOptionsProvider implements ClusterOptionsProvider, MTLog.L
 		return this.clusterOptions;
 	}
 
+
+	@DrawableRes
+	private static int getClusterIconRes() {
+		return R.drawable.map_icon_cluster_blur_white;
+	}
+
 	private BitmapDescriptor getClusterIcon(@NonNull List<IMarker> markers) {
 		Context context = this.contextWR.get();
 		Integer color = getColor(context, markers);
-		return MapUtils.getIcon(context, CLUSTER_ICON_RES, color);
+		return MapUtils.getIcon(context, getClusterIconRes(), color);
 	}
 
 	@ColorInt
