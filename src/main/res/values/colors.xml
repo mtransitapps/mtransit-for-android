@@ -37,7 +37,7 @@
     <color name="color_background">@color/light_grey</color>
     <color name="window_background">@color/color_background</color>
 
-    <color name="color_on_background">@color/color_primary</color>
+    <color name="color_on_background">@color/ic_grey600</color>
 
     <color name="color_secondary_on_background">@color/white_85</color>
 
@@ -76,6 +76,8 @@
     <color name="black_85">#D9000000</color>
 
     <color name="light_grey">#ffeeeeee</color>
+
+    <color name="ic_grey600">#8A000000</color>
 
     <color name="transparent">#00000000</color>
 </resources>

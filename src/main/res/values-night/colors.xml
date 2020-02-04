@@ -13,7 +13,7 @@
     <color name="color_background">@color/black</color>
     <color name="window_background">@color/color_background</color>
 
-    <color name="color_on_background">@color/color_on_primary</color>
+    <color name="color_on_background">@color/white_75</color>
 
     <color name="color_secondary_on_background">@color/white_25</color>
 
