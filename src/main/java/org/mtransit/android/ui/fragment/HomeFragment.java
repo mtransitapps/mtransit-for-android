@@ -93,7 +93,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public void onAttach(Activity activity) {
+	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
 		initAdapters(activity);
 	}
@@ -106,7 +106,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_home, container, false);
 		setupView(view);
@@ -144,7 +144,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		if (this.nearbyLocation != null) {
 			outState.putParcelable(EXTRA_NEARBY_LOCATION, this.nearbyLocation);
 		}
@@ -398,13 +398,13 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.menu_home, menu);
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_show_map:
 			if (getActivity() != null) {

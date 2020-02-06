@@ -77,7 +77,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	private WeakReference<NearbyFragment> nearbyFragmentWR;
 
 	@Override
-	public void onAttach(Activity activity) {
+	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
 		initAdapters(activity);
 	}
@@ -90,7 +90,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_nearby_agency_type, container, false);
 		setupView(view);
@@ -98,7 +98,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		if (this.typeId != null) {
 			outState.putInt(EXTRA_TYPE_ID, this.typeId);
 		}

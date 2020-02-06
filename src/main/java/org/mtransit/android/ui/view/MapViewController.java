@@ -193,7 +193,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.tag = tag;
 	}
 
-	public void onAttach(Activity activity) {
+	public void onAttach(@NonNull Activity activity) {
 		setActivity(activity);
 	}
 
@@ -1301,7 +1301,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		return success;
 	}
 
-	private void setActivity(Activity activity) {
+	private void setActivity(@NonNull Activity activity) {
 		this.activityWR = new WeakReference<>(activity);
 	}
 

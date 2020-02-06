@@ -58,7 +58,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	private Location userLocation;
 
 	@Override
-	public void onAttach(Activity activity) {
+	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
 		initAdapters(activity);
 	}
@@ -70,7 +70,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_favorites, container, false);
 		setupView(view);
@@ -143,16 +143,16 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.menu_favorites, menu);
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_add_favorite_folder:
-			FavoriteManager.showAddFolderDialog(getContext(), this, null, null);
+			FavoriteManager.showAddFolderDialog(requireActivity(), this, null, null);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);

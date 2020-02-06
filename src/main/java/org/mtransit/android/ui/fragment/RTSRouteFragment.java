@@ -111,7 +111,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	private int stopId = -1;
 
 	@Override
-	public void onAttach(Activity activity) {
+	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
 		initAdapters(activity);
 	}
@@ -124,7 +124,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_rts_route, container, false);
 		setupView(view);
@@ -338,7 +338,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		if (this.authority != null) {
 			outState.putString(EXTRA_AUTHORITY, this.authority);
 		}
@@ -673,7 +673,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	private SwitchCompat listMapSwitchMenuItem;
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.menu_rts_route, menu);
 		this.listMapToggleMenuItem = menu.findItem(R.id.menu_toggle_list_map);
@@ -754,7 +754,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_toggle_list_map:
 			setShowingListInsteadOfMap(!isShowingListInsteadOfMap()); // switching

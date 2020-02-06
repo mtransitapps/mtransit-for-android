@@ -1,5 +1,9 @@
 package org.mtransit.android.ui.fragment;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 
@@ -8,9 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import android.util.AttributeSet;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -26,7 +27,7 @@ import android.view.ViewGroup;
 public abstract class MTFragmentV4 extends Fragment implements MTLog.Loggable {
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onActivityCreated(%s)", savedInstanceState);
 		}
@@ -34,7 +35,7 @@ public abstract class MTFragmentV4 extends Fragment implements MTLog.Loggable {
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onActivityResult(%s,%s,%s)", requestCode, resultCode, data);
 		}
@@ -43,7 +44,7 @@ public abstract class MTFragmentV4 extends Fragment implements MTLog.Loggable {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void onAttach(Activity activity) {
+	public void onAttach(@NonNull Activity activity) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onAttach(%s)", activity);
 		}
@@ -51,7 +52,7 @@ public abstract class MTFragmentV4 extends Fragment implements MTLog.Loggable {
 	}
 
 	@Override
-	public void onAttach(Context context) {
+	public void onAttach(@NonNull Context context) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onAttach(%s)", context);
 		}
@@ -109,7 +110,7 @@ public abstract class MTFragmentV4 extends Fragment implements MTLog.Loggable {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void onInflate(Activity activity, AttributeSet attrs, Bundle savedInstanceState) {
+	public void onInflate(@NonNull Activity activity, @NonNull AttributeSet attrs, @Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onInflate(%s,%s,%s)", activity, attrs, savedInstanceState);
 		}
@@ -117,7 +118,7 @@ public abstract class MTFragmentV4 extends Fragment implements MTLog.Loggable {
 	}
 
 	@Override
-	public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+	public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs, @Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onInflate(%s,%s,%s)", context, attrs, savedInstanceState);
 		}
@@ -173,7 +174,7 @@ public abstract class MTFragmentV4 extends Fragment implements MTLog.Loggable {
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onViewCreated(%s, %s)", view, savedInstanceState);
 		}
@@ -181,7 +182,7 @@ public abstract class MTFragmentV4 extends Fragment implements MTLog.Loggable {
 	}
 
 	@Override
-	public void onViewStateRestored(Bundle savedInstanceState) {
+	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onViewStateRestored(%s)", savedInstanceState);
 		}
@@ -189,7 +190,7 @@ public abstract class MTFragmentV4 extends Fragment implements MTLog.Loggable {
 	}
 
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+	public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, @Nullable ContextMenu.ContextMenuInfo menuInfo) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCreateContextMenu(%s,%s,%s)", menu, v, menuInfo);
 		}
@@ -197,7 +198,7 @@ public abstract class MTFragmentV4 extends Fragment implements MTLog.Loggable {
 	}
 
 	@Override
-	public boolean onContextItemSelected(MenuItem item) {
+	public boolean onContextItemSelected(@NonNull MenuItem item) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onContextItemSelected(%s)", item);
 		}
@@ -205,7 +206,7 @@ public abstract class MTFragmentV4 extends Fragment implements MTLog.Loggable {
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCreateOptionsMenu(%s,%s)", menu, inflater);
 		}
@@ -214,11 +215,11 @@ public abstract class MTFragmentV4 extends Fragment implements MTLog.Loggable {
 
 	/**
 	 * @deprecated menu items are always visible in the action bar so {@link #onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)} is always
-	 *             called before anyway
+	 * called before anyway
 	 */
 	@Deprecated
 	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
+	public void onPrepareOptionsMenu(@NonNull Menu menu) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onPrepareOptionsMenu(%s)", menu);
 		}
@@ -226,7 +227,7 @@ public abstract class MTFragmentV4 extends Fragment implements MTLog.Loggable {
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onOptionsItemSelected(%s)", item);
 		}

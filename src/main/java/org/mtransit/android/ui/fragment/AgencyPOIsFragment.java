@@ -122,7 +122,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 	}
 
 	@Override
-	public void onAttach(Activity activity) {
+	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
 		initAdapters(activity);
 		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
@@ -143,7 +143,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_agency_pois, container, false);
 		this.mapViewController.onCreateView(view, savedInstanceState);
@@ -151,14 +151,14 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		setupView(view);
 		this.mapViewController.onViewCreated(view, savedInstanceState);
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		if (!TextUtils.isEmpty(this.authority)) {
 			outState.putString(EXTRA_AGENCY_AUTHORITY, this.authority);
 		}
@@ -444,7 +444,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 	private SwitchCompat listMapSwitchMenuItem;
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		if (this.fragmentVisible) {
 			if (menu.findItem(R.id.menu_toggle_list_map) == null) {
@@ -562,7 +562,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		if (!this.fragmentVisible) {
 			return false; // not handled
 		}

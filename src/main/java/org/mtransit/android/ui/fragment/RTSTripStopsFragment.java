@@ -109,7 +109,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 	}
 
 	@Override
-	public void onAttach(Activity activity) {
+	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
 		initAdapters(activity);
 		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
@@ -130,7 +130,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_rts_trip_stops, container, false);
 		this.mapViewController.onCreateView(view, savedInstanceState);
@@ -138,14 +138,14 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		setupView(view);
 		this.mapViewController.onViewCreated(view, savedInstanceState);
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		if (!TextUtils.isEmpty(this.authority)) {
 			outState.putString(EXTRA_AGENCY_AUTHORITY, this.authority);
 		}

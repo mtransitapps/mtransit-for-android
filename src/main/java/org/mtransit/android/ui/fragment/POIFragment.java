@@ -498,7 +498,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onAttach(Activity activity) {
+	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
 		initAdapters(activity);
 		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
@@ -520,7 +520,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_poi, container, false);
 		this.mapViewController.onCreateView(view, savedInstanceState);
@@ -528,14 +528,14 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		setupView(view);
 		this.mapViewController.onViewCreated(view, savedInstanceState);
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		if (!TextUtils.isEmpty(this.uuid)) {
 			outState.putString(EXTRA_POI_UUID, this.uuid);
 		}
@@ -1160,7 +1160,7 @@ public class POIFragment extends ABFragment implements
 	private MenuItem addRemoveFavoriteMenuItem;
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.menu_poi, menu);
 		this.addRemoveFavoriteMenuItem = menu.findItem(R.id.menu_add_remove_favorite);
@@ -1187,7 +1187,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_add_remove_favorite:
 			POIManager poim = getPoimOrNull();

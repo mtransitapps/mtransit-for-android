@@ -100,7 +100,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	private ListViewSwipeRefreshLayout swipeRefreshLayout;
 
 	@Override
-	public void onAttach(Activity activity) {
+	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
 		initAdapters(activity);
 	}
@@ -139,7 +139,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		if (this.colorInt != null) {
 			outState.putInt(EXTRA_COLOR_INT, this.colorInt);
 		}
@@ -159,7 +159,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_news, container, false);
 		setupView(view);

@@ -1,5 +1,10 @@
 package org.mtransit.android.ui.fragment;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -34,10 +39,6 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -52,11 +53,12 @@ public class MapFragment extends ABFragment implements
 		IContext,
 		MapViewController.MapListener {
 
-	private static final String TAG = MapFragment.class.getSimpleName();
+	private static final String LOG_TAG = MapFragment.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private static final String TRACKING_SCREEN_NAME = "Map";
@@ -71,7 +73,8 @@ public class MapFragment extends ABFragment implements
 	private static final String EXTRA_SELECTED_UUID = "extra_selected_uuid";
 	private static final String EXTRA_INCLUDE_TYPE_ID = "extra_include_type_id";
 
-	public static MapFragment newInstance(Location optInitialLocation, String optSelectedUUID, Integer optIncludeTypeId) {
+	@NonNull
+	public static MapFragment newInstance(@Nullable Location optInitialLocation, @Nullable String optSelectedUUID, @Nullable Integer optIncludeTypeId) {
 		MapFragment f = new MapFragment();
 		Bundle args = new Bundle();
 		if (optInitialLocation != null) {
@@ -88,8 +91,9 @@ public class MapFragment extends ABFragment implements
 		return f;
 	}
 
-	private MapViewController mapViewController =
-			new MapViewController(TAG, null, this, true, true, true, false, false, false, 64, false, true, true, false, true);
+	@NonNull
+	private final MapViewController mapViewController =
+			new MapViewController(LOG_TAG, null, this, true, true, true, false, false, false, 64, false, true, true, false, true);
 
 	@NonNull
 	private final LocationPermissionProvider locationPermissionProvider;
@@ -100,22 +104,23 @@ public class MapFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onAttach(Activity activity) {
+	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
 		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
 		this.mapViewController.onAttach(activity);
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 		restoreInstanceState(savedInstanceState, getArguments());
 		this.mapViewController.onCreate(savedInstanceState);
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_map, container, false);
 		this.mapViewController.onCreateView(view, savedInstanceState);
@@ -123,13 +128,14 @@ public class MapFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		setupView(view);
 		this.mapViewController.onViewCreated(view, savedInstanceState);
 	}
 
-	private void setupView(View view) {
+	private void setupView(@SuppressWarnings("unused") View view) {
+		// DO NOTHING
 	}
 
 	private void restoreInstanceState(Bundle... bundles) {
@@ -298,7 +304,7 @@ public class MapFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.menu_map, menu);
 	}
@@ -454,7 +460,7 @@ public class MapFragment extends ABFragment implements
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_filter:
 			Set<Integer> filterTypeIds = getFilterTypeIdsOrNull();
@@ -499,6 +505,7 @@ public class MapFragment extends ABFragment implements
 							dialog.dismiss()
 					) //
 					.setCancelable(true) //
+					.create()
 					.show();
 
 			return true; // handled
@@ -513,7 +520,7 @@ public class MapFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		this.mapViewController.onSaveInstanceState(outState);
 		super.onSaveInstanceState(outState);
 	}
