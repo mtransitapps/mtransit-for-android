@@ -13,8 +13,10 @@
     </style>
 
     <style name="MTAlertDialogMaterialTheme" parent="@style/ThemeOverlay.MaterialComponents.MaterialAlertDialog">
-        <item name="colorControlActivated">?attr/colorOnBackground</item>
-        <item name="colorPrimary">?attr/colorOnSurface</item>
+        <item name="colorPrimary">@color/color_on_surface</item>
+        <item name="colorControlActivated">@color/color_on_surface</item>
+        <item name="colorOnSurface">@color/color_on_background</item>
+        <item name="colorSurface">@color/color_surface</item>
     </style>
 
 </resources>
