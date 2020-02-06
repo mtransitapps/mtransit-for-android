@@ -24,22 +24,6 @@
 	5% — 0D
 	0% — 00
     -->
-    <color name="color_primary">@color/dark_grey</color>
-    <color name="color_on_primary">#FFF3F3F3</color>
-
-    <color name="color_primary_dark">@color/black</color>
-
-    <color name="color_accent">@color/color_primary</color>
-
-    <color name="color_surface">#FFFFFF</color>
-    <color name="color_on_surface">#8A000000</color>
-
-    <color name="color_background">@color/light_grey</color>
-    <color name="window_background">@color/color_background</color>
-
-    <color name="color_on_background">@color/ic_grey600</color>
-
-    <color name="color_secondary_on_background">@color/white_85</color>
 
     <!-- light icons: #333 @ 60% -->
     <!-- dark icons: #FFF @ 100% -->
@@ -57,9 +41,6 @@
     <color name="switch_track_tint">@color/white_75</color><!-- 75% -->
     <color name="switch_thumb_tint">@color/color_primary_dark</color>
     <color name="switch_thumb_tint_border">#BFFFFFFF</color>
-
-    <color name="navigation_item_color_default">@color/color_on_surface</color>
-    <color name="navigation_item_color_checked">@color/color_primary</color>
 
     <color name="black">#000000</color>
     <color name="dark_grey">#121212</color>
@@ -80,4 +61,5 @@
     <color name="ic_grey600">#8A000000</color>
 
     <color name="transparent">#00000000</color>
+
 </resources>

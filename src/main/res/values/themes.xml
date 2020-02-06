@@ -13,6 +13,7 @@
         <item name="colorOnSurface">@color/color_on_surface</item>
 
         <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
+        <item name="materialAlertDialogTheme">@style/MTAlertDialogMaterialTheme</item>
     </style>
 
     <style name="MTTheme" parent="MTBaseTheme">
@@ -28,6 +29,11 @@
         <item name="android:windowBackground">@drawable/background_launch_screen</item>
     </style>
 
-    <style name="MTThemePreferences" parent="@style/Theme.MaterialComponents.DayNight.DarkActionBar" />
+    <style name="MTThemePreferences" parent="@style/Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorOnPrimary">@color/color_on_primary</item>
+        <item name="colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="colorAccent">?attr/colorOnBackground</item>
+    </style>
 
 </resources>

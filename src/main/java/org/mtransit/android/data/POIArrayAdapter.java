@@ -102,6 +102,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private HashMap<String, Integer> favUUIDsFolderIds;
 
+	@Nullable
 	private WeakReference<Activity> activityWR;
 
 	private Location location;
@@ -1254,7 +1255,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			holder.renameBtn.setOnClickListener(new MTOnClickListener() {
 				@Override
 				public void onClickMT(View view) {
-					FavoriteManager.showUpdateFolderDialog(getContext(), POIArrayAdapter.this.layoutInflater, favoriteFolder,
+					Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
+					FavoriteManager.showUpdateFolderDialog(activity, POIArrayAdapter.this.layoutInflater, favoriteFolder,
 							POIArrayAdapter.this.favoriteUpdateListener);
 				}
 			});
@@ -1263,7 +1265,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			holder.deleteBtn.setOnClickListener(new MTOnClickListener() {
 				@Override
 				public void onClickMT(View view) {
-					FavoriteManager.showDeleteFolderDialog(POIArrayAdapter.this.getContext(), favoriteFolder, POIArrayAdapter.this.favoriteUpdateListener);
+					Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
+					FavoriteManager.showDeleteFolderDialog(activity, favoriteFolder, POIArrayAdapter.this.favoriteUpdateListener);
 				}
 			});
 		}

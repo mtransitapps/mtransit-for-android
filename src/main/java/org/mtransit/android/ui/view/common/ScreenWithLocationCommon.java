@@ -4,9 +4,9 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.DeviceUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.provider.location.MTLocationProvider;
+import org.mtransit.android.ui.MTDialog;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 
 public final class ScreenWithLocationCommon implements MTLog.Loggable {
 
@@ -25,7 +25,7 @@ public final class ScreenWithLocationCommon implements MTLog.Loggable {
 
 	public static void showPermissionsRationale(@NonNull final MTLocationProvider.ScreenWithLocationView screenWithLocationView,
 			@NonNull final MTLocationProvider.OnPermissionsRationale listener) {
-		new AlertDialog.Builder(screenWithLocationView.requireActivity())
+		new MTDialog.Builder(screenWithLocationView.requireActivity())
 				.setTitle(R.string.location_permission_rationale_title)
 				.setMessage(R.string.location_permission_rationale_message)
 				.setPositiveButton(R.string.location_permission_rationale_ok, (dialog, which) -> {
@@ -42,7 +42,7 @@ public final class ScreenWithLocationCommon implements MTLog.Loggable {
 
 	public static void showPermissionsPermanentlyDenied(@NonNull final MTLocationProvider.ScreenWithLocationView screenWithLocationView,
 			@NonNull final MTLocationProvider.OnPermissionsPermanentlyDenied listener) {
-		new AlertDialog.Builder(screenWithLocationView.requireActivity())
+		new MTDialog.Builder(screenWithLocationView.requireActivity())
 				.setTitle(R.string.location_permission_rationale_title)
 				.setMessage(R.string.location_permission_rationale_message)
 				.setPositiveButton(R.string.location_permission_rationale_ok, (dialog, which) -> {

@@ -25,6 +25,7 @@ import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.MapPOILoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.ui.MTDialog;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
@@ -33,7 +34,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -484,7 +484,7 @@ public class MapFragment extends ABFragment implements
 					selectedItems.add(c);
 				}
 			}
-			new AlertDialog.Builder(getContext()) //
+			new MTDialog.Builder(requireActivity()) //
 					.setTitle(R.string.menu_action_filter) //
 					.setMultiChoiceItems( //
 							typeNames.toArray(new CharSequence[0]), //

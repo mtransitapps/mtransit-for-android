@@ -1192,7 +1192,7 @@ public class POIFragment extends ABFragment implements
 		case R.id.menu_add_remove_favorite:
 			POIManager poim = getPoimOrNull();
 			if (poim != null && poim.isFavoritable()) {
-				return FavoriteManager.get(getContext()).addRemoveFavorite(getContext(), poim.poi.getUUID(), this);
+				return FavoriteManager.get(requireActivity()).addRemoveFavorite(requireActivity(), poim.poi.getUUID(), this);
 			}
 			break;
 		case R.id.menu_show_directions:

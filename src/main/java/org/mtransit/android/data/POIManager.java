@@ -1,5 +1,10 @@
 package org.mtransit.android.data;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.collection.SparseArrayCompat;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,22 +35,16 @@ import org.mtransit.android.commons.provider.StatusProviderContract;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
+import org.mtransit.android.ui.MTDialog;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.NearbyFragment;
 import org.mtransit.android.ui.fragment.POIFragment;
 import org.mtransit.android.ui.fragment.RTSRouteFragment;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
-
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.collection.SparseArrayCompat;
-
 import android.text.TextUtils;
 
 public class POIManager implements LocationPOI, MTLog.Loggable {
@@ -614,7 +613,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 		case POI.ITEM_VIEW_TYPE_MODULE:
-			new AlertDialog.Builder(activity) //
+			new MTDialog.Builder(activity) //
 					.setTitle(this.poi.getName()) //
 					.setItems( //
 							getActionsItems( //
@@ -635,7 +634,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 									MTLog.w(POIManager.this, "Unexpected action item '%s'!", item);
 									break;
 								}
-							}).show();
+							})
+					.create()
+					.show();
 			return true;
 		default:
 			MTLog.w(this, "Unknown view type '%s' for poi '%s'!", this.poi.getType(), this);

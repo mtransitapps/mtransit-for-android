@@ -12,4 +12,9 @@
         <item name="android:colorForeground">@color/switch_track_tint</item>
     </style>
 
+    <style name="MTAlertDialogMaterialTheme" parent="@style/ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="colorControlActivated">?attr/colorOnBackground</item>
+        <item name="colorPrimary">?attr/colorOnSurface</item>
+    </style>
+
 </resources>

@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -20,6 +19,7 @@ import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
+import org.mtransit.android.ui.MTDialog;
 import org.mtransit.android.ui.PreferencesActivity;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.NightModeUtils;
@@ -103,7 +103,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 				if (activity == null) {
 					return false; // not handled
 				}
-				new AlertDialog.Builder(activity)
+				new MTDialog.Builder(activity)
 						.setTitle(R.string.battery_optimization_issue_title)
 						.setMessage(R.string.battery_optimization_issue_message)
 						.setPositiveButton(R.string.battery_optimization_issue_act, (dialog, which) -> {

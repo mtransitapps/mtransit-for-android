@@ -1,19 +1,12 @@
 package org.mtransit.android.provider;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.EditText;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.SparseArrayCompat;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 import org.mtransit.android.R;
 import org.mtransit.android.analytics.AnalyticsUserProperties;
@@ -32,10 +25,18 @@ import org.mtransit.android.data.TextMessage;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.FavoriteProvider.FavoriteColumns;
 import org.mtransit.android.provider.FavoriteProvider.FavoriteFolderColumns;
+import org.mtransit.android.ui.MTDialog;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
 
 @SuppressWarnings("unused")
 public class FavoriteManager implements MTLog.Loggable {
@@ -248,8 +249,8 @@ public class FavoriteManager implements MTLog.Loggable {
 	private int initialWhich;
 	private int selectedWhich;
 
-	public boolean addRemoveFavorite(final @NonNull Context context, final @NonNull String fkId, final @Nullable FavoriteUpdateListener listener) {
-		final int favoriteFolderId = findFavoriteFolderId(context, fkId);
+	public boolean addRemoveFavorite(final @NonNull Activity activity, final @NonNull String fkId, final @Nullable FavoriteUpdateListener listener) {
+		final int favoriteFolderId = findFavoriteFolderId(activity, fkId);
 		boolean isFavorite = favoriteFolderId >= 0;
 		if (isUsingFavoriteFolders()) { // show folder selector
 			int checkedItem = -1;
@@ -257,7 +258,7 @@ public class FavoriteManager implements MTLog.Loggable {
 			final ArrayList<Integer> itemsListId = new ArrayList<>();
 			int i = 0;
 			itemsListId.add(DEFAULT_FOLDER_ID);
-			itemsList.add(context.getString(R.string.favorite_folder_default));
+			itemsList.add(activity.getString(R.string.favorite_folder_default));
 			//noinspection ConditionCoveredByFurtherCondition
 			if (favoriteFolderId >= 0 && favoriteFolderId == DEFAULT_FOLDER_ID) {
 				checkedItem = i;
@@ -278,12 +279,12 @@ public class FavoriteManager implements MTLog.Loggable {
 			}
 			final int newFolderId = Integer.MAX_VALUE;
 			itemsListId.add(newFolderId);
-			itemsList.add(context.getString(R.string.favorite_folder_new));
+			itemsList.add(activity.getString(R.string.favorite_folder_new));
 			i++;
 			final int removeFavoriteId = newFolderId - 1;
 			if (favoriteFolderId >= 0) {
 				itemsListId.add(removeFavoriteId);
-				itemsList.add(context.getString(R.string.favorite_remove));
+				itemsList.add(activity.getString(R.string.favorite_remove));
 				//noinspection UnusedAssignment // TODO ???
 				i++;
 			}
@@ -292,7 +293,7 @@ public class FavoriteManager implements MTLog.Loggable {
 				checkedItem = 0; // (default choice when adding favorite)
 			}
 			this.selectedWhich = checkedItem;
-			new AlertDialog.Builder(context) //
+			new MTDialog.Builder(activity) //
 					.setTitle(R.string.favorite_folder_pick) //
 					.setSingleChoiceItems( //
 							itemsList.toArray(new String[]{}), //
@@ -305,13 +306,13 @@ public class FavoriteManager implements MTLog.Loggable {
 						}
 						int selectedFavoriteFolderId = itemsListId.get(FavoriteManager.this.selectedWhich);
 						if (selectedFavoriteFolderId == newFolderId) { // create new folder
-							showAddFolderDialog(context, listener, fkId, favoriteFolderId);
+							showAddFolderDialog(activity, listener, fkId, favoriteFolderId);
 						} else if (selectedFavoriteFolderId == removeFavoriteId) { // delete favorite
-							deleteFavorite(context, fkId, favoriteFolderId, listener);
+							deleteFavorite(activity, fkId, favoriteFolderId, listener);
 						} else if (favoriteFolderId >= 0) { // move favorite
-							updateFavoriteFolder(context, fkId, selectedFavoriteFolderId, listener);
+							updateFavoriteFolder(activity, fkId, selectedFavoriteFolderId, listener);
 						} else { // add new favorite
-							addFavorite(context, fkId, selectedFavoriteFolderId, listener);
+							addFavorite(activity, fkId, selectedFavoriteFolderId, listener);
 						}
 						if (dialog != null) {
 							dialog.dismiss();
@@ -321,9 +322,11 @@ public class FavoriteManager implements MTLog.Loggable {
 						if (dialog != null) {
 							dialog.cancel();
 						}
-					}).show();
+					})
+					.create()
+					.show();
 		} else {
-			addOrDeleteFavorite(context, isFavorite, fkId, DEFAULT_FOLDER_ID, listener);
+			addOrDeleteFavorite(activity, isFavorite, fkId, DEFAULT_FOLDER_ID, listener);
 		}
 		return true; // HANDLED
 	}
@@ -427,23 +430,23 @@ public class FavoriteManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static void showAddFolderDialog(final @NonNull Context context,
+	public static void showAddFolderDialog(final @NonNull Activity activity,
 										   final @Nullable FavoriteUpdateListener listener,
 										   final @Nullable String optUpdatedFkId,
 										   final @Nullable Integer optFavoriteFolderId) {
 		@SuppressLint("InflateParams") // dialog
-				View view = LayoutInflater.from(context).inflate(R.layout.layout_favorites_folder_edit, null);
+				View view = LayoutInflater.from(activity).inflate(R.layout.layout_favorites_folder_edit, null, false);
 		final EditText newFolderNameTv = view.findViewById(R.id.folder_name);
-		new AlertDialog.Builder(context) //
+		new MTDialog.Builder(activity)
 				.setView(view) //
 				.setPositiveButton(R.string.favorite_folder_new_create, (dialog, id) -> {
 					String newFolderName = newFolderNameTv.getText().toString();
-					Favorite.Folder createdFolder = addFolder(context, newFolderName, TextUtils.isEmpty(optUpdatedFkId) ? listener : null);
+					Favorite.Folder createdFolder = addFolder(activity, newFolderName, TextUtils.isEmpty(optUpdatedFkId) ? listener : null);
 					if (createdFolder != null && optUpdatedFkId != null && !optUpdatedFkId.isEmpty()) {
 						if (optFavoriteFolderId != null && optFavoriteFolderId >= 0) { // move favorite
-							updateFavoriteFolder(context, optUpdatedFkId, createdFolder.getId(), listener);
+							updateFavoriteFolder(activity, optUpdatedFkId, createdFolder.getId(), listener);
 						} else { // add new favorite
-							addFavorite(context, optUpdatedFkId, createdFolder.getId(), listener);
+							addFavorite(activity, optUpdatedFkId, createdFolder.getId(), listener);
 						}
 					}
 				}) //
@@ -452,6 +455,7 @@ public class FavoriteManager implements MTLog.Loggable {
 						dialog.cancel();
 					}
 				}) //
+				.create()
 				.show();
 	}
 
@@ -498,18 +502,22 @@ public class FavoriteManager implements MTLog.Loggable {
 		return cache;
 	}
 
-	public static void showDeleteFolderDialog(final @NonNull Context context, final @NonNull Favorite.Folder favoriteFolder, final @Nullable FavoriteUpdateListener listener) {
-		new AlertDialog.Builder(context) //
-				.setTitle(context.getString(R.string.favorite_folder_deletion_confirmation_title_and_name, favoriteFolder.getName())) //
-				.setMessage(context.getString(R.string.favorite_folder_deletion_confirmation_text_and_name, favoriteFolder.getName())) //
+	public static void showDeleteFolderDialog(final @Nullable Activity activity, final @NonNull Favorite.Folder favoriteFolder, final @Nullable FavoriteUpdateListener listener) {
+		if (activity == null || activity.isFinishing()) {
+			return; // SKIP
+		}
+		new MTDialog.Builder(activity) //
+				.setTitle(activity.getString(R.string.favorite_folder_deletion_confirmation_title_and_name, favoriteFolder.getName())) //
+				.setMessage(activity.getString(R.string.favorite_folder_deletion_confirmation_text_and_name, favoriteFolder.getName())) //
 				.setPositiveButton(R.string.delete, (dialog, which) ->
-						deleteFolder(context, favoriteFolder, listener)
+						deleteFolder(activity, favoriteFolder, listener)
 				) //
 				.setNegativeButton(R.string.cancel, (dialog, id) -> {
 					if (dialog != null) {
 						dialog.cancel();
 					}
 				}) //
+				.create()
 				.show();
 	}
 
@@ -559,23 +567,27 @@ public class FavoriteManager implements MTLog.Loggable {
 		return updatedRows > 0;
 	}
 
-	public static void showUpdateFolderDialog(final @NonNull Context context, @NonNull LayoutInflater layoutInflater, final @NonNull Favorite.Folder favoriteFolder,
-											  final @Nullable FavoriteUpdateListener listener) {
+	public static void showUpdateFolderDialog(final @Nullable Activity activity, @NonNull LayoutInflater layoutInflater, final @NonNull Favorite.Folder favoriteFolder,
+			final @Nullable FavoriteUpdateListener listener) {
+		if (activity == null || activity.isFinishing()) {
+			return; // SKIP
+		}
 		@SuppressLint("InflateParams") // dialog
 				View editView = layoutInflater.inflate(R.layout.layout_favorites_folder_edit, null);
 		final EditText newFolderNameTv = editView.findViewById(R.id.folder_name);
 		newFolderNameTv.setText(favoriteFolder.getName());
-		new AlertDialog.Builder(context) //
+		new MTDialog.Builder(activity) //
 				.setView(editView) //
 				.setPositiveButton(R.string.favorite_folder_edit, (dialog, id) -> {
 					String newFolderName = newFolderNameTv.getText().toString();
-					updateFolder(context, favoriteFolder.getId(), newFolderName, listener);
+					updateFolder(activity, favoriteFolder.getId(), newFolderName, listener);
 				}) //
 				.setNegativeButton(R.string.favorite_folder_new_cancel, (dialog, id) -> {
 					if (dialog != null) {
 						dialog.cancel();
 					}
 				}) //
+				.create()
 				.show();
 	}
 
