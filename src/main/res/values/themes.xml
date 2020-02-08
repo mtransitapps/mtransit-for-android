@@ -3,9 +3,12 @@
 
     <style name="MTBaseTheme" parent="@style/Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/color_primary</item>
-        <item name="colorOnPrimary">@color/color_on_primary</item>
-
         <item name="colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="colorSecondary">@color/color_primary</item>
+        <item name="colorSecondaryVariant">@color/color_primary_dark</item>
+
+        <item name="colorOnPrimary">@color/color_on_primary</item>
+        <item name="colorOnSecondary">@color/color_on_primary</item>
 
         <item name="colorAccent">@color/color_accent</item>
 

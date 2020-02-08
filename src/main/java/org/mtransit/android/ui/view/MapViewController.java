@@ -865,8 +865,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		private final POIMarkerIds uuidsAndAuthority = new POIMarkerIds();
 
 		public POIMarker(LatLng position, String name, String agency, String extra,
-				@ColorInt Integer color, @ColorInt Integer secondaryColor,
-				String uuid, String authority) {
+						 @ColorInt Integer color, @ColorInt Integer secondaryColor,
+						 String uuid, String authority) {
 			addPosition(position);
 			addName(name);
 			addAgency(agency);
@@ -977,8 +977,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 
 		public void merge(LatLng position, String name, String agency, String extra,
-				@ColorInt Integer color, @ColorInt Integer secondaryColor,
-				String uuid, String authority) {
+						  @ColorInt Integer color, @ColorInt Integer secondaryColor,
+						  String uuid, String authority) {
 			addPosition(position);
 			addName(name);
 			addAgency(agency);

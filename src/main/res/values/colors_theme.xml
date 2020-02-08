@@ -4,7 +4,10 @@
     <color name="color_primary">@color/dark_grey</color>
     <color name="color_on_primary">#FFF3F3F3</color>
 
-    <color name="color_primary_dark">@color/black</color>
+    <color name="color_primary_dark">@color/dark_grey</color>
+    <color name="color_primary_variant">@color/color_primary</color>
+
+    <color name="color_secondary">@color/color_primary</color>
 
     <color name="color_accent">@color/color_primary</color>
 

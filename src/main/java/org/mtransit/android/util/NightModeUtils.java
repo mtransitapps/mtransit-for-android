@@ -1,9 +1,5 @@
 package org.mtransit.android.util;
 
-import android.app.Activity;
-import android.content.Context;
-import android.os.Build;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -12,8 +8,15 @@ import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.data.AppStatus;
+import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.Schedule;
+import org.mtransit.android.ui.fragment.ScheduleDayFragment;
 
+import android.app.Activity;
+import android.content.Context;
+import android.os.Build;
+
+@SuppressWarnings("WeakerAccess")
 public final class NightModeUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = NightModeUtils.class.getSimpleName();
@@ -40,6 +43,8 @@ public final class NightModeUtils implements MTLog.Loggable {
 		ColorUtils.resetColorCache();
 		AppStatus.resetColorCache();
 		Schedule.resetColorCache();
+		AvailabilityPercent.resetColorCache();
+		ScheduleDayFragment.resetColorCache();
 	}
 
 	@AppCompatDelegate.NightMode

@@ -1,5 +1,11 @@
 package org.mtransit.android.ui.fragment;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -29,11 +35,6 @@ import org.mtransit.android.util.LoaderUtils;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentActivity;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
@@ -550,16 +551,21 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		TaskUtils.cancelQuietly(this.loadRtsTask, true);
 	}
 
+	public static void resetColorCache() {
+		TimeAdapter.resetColorCache();
+	}
+
 	private static class TimeAdapter extends MTBaseAdapter implements TimeUtils.TimeChangedReceiver.TimeChangedListener {
 
-		private static final String TAG = ScheduleDayFragment.class.getSimpleName() + ">" + TimeAdapter.class.getSimpleName();
+		private static final String LOG_TAG = ScheduleDayFragment.class.getSimpleName() + ">" + TimeAdapter.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
-		private static final int ITEM_VIEW_TYPE_HOUR_SERATORS = 0;
+		private static final int ITEM_VIEW_TYPE_HOUR_SEPARATORS = 0;
 
 		private static final int ITEM_VIEW_TYPE_TIME = 1;
 
@@ -781,7 +787,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		public int getPosition(Object item) {
 			int index = 0;
-			if (item == null || !(item instanceof Schedule.Timestamp)) {
+			if (!(item instanceof Schedule.Timestamp)) {
 				return index;
 			}
 			Schedule.Timestamp time = (Schedule.Timestamp) item;
@@ -829,10 +835,10 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		@Override
 		public int getItemViewType(int position) {
 			Object item = getItem(position);
-			if (item != null && item instanceof Schedule.Timestamp) {
+			if (item instanceof Schedule.Timestamp) {
 				return ITEM_VIEW_TYPE_TIME;
 			}
-			return ITEM_VIEW_TYPE_HOUR_SERATORS;
+			return ITEM_VIEW_TYPE_HOUR_SEPARATORS;
 		}
 
 		@Override
@@ -843,7 +849,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		@Override
 		public View getViewMT(int position, View convertView, ViewGroup parent) {
 			switch (getItemViewType(position)) {
-			case ITEM_VIEW_TYPE_HOUR_SERATORS:
+			case ITEM_VIEW_TYPE_HOUR_SEPARATORS:
 				return getHourSeparatorView(position, convertView, parent);
 			case ITEM_VIEW_TYPE_TIME:
 				return getTimeView(position, convertView, parent);
@@ -913,8 +919,10 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private static final StyleSpan SCHEDULE_LIST_TIMES_FUTURE_STYLE = SpanUtils.getNewNormalStyleSpan();
 
+		@Nullable
 		private static ForegroundColorSpan scheduleListTimesPastTextColor = null;
 
+		@NonNull
 		private static ForegroundColorSpan getScheduleListTimesPastTextColor(Context context) {
 			if (scheduleListTimesPastTextColor == null) {
 				scheduleListTimesPastTextColor = SpanUtils.getNewTextColor(Schedule.getDefaultPastTextColor(context));
@@ -922,8 +930,10 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return scheduleListTimesPastTextColor;
 		}
 
+		@Nullable
 		private static ForegroundColorSpan scheduleListTimesNowTextColor = null;
 
+		@NonNull
 		private static ForegroundColorSpan getScheduleListTimesNowTextColor(Context context) {
 			if (scheduleListTimesNowTextColor == null) {
 				scheduleListTimesNowTextColor = SpanUtils.getNewTextColor(Schedule.getDefaultNowTextColor(context));
@@ -931,13 +941,21 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return scheduleListTimesNowTextColor;
 		}
 
+		@Nullable
 		private static ForegroundColorSpan scheduleListTimesFutureTextColor = null;
 
+		@NonNull
 		private static ForegroundColorSpan getScheduleListTimesFutureTextColor(Context context) {
 			if (scheduleListTimesFutureTextColor == null) {
 				scheduleListTimesFutureTextColor = SpanUtils.getNewTextColor(Schedule.getDefaultFutureTextColor(context));
 			}
 			return scheduleListTimesFutureTextColor;
+		}
+
+		public static void resetColorCache() {
+			scheduleListTimesPastTextColor = null;
+			scheduleListTimesNowTextColor = null;
+			scheduleListTimesFutureTextColor = null;
 		}
 
 		private View getHourSeparatorView(int position, View convertView, ViewGroup parent) {

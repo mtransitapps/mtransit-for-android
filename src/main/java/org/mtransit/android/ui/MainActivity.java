@@ -1,21 +1,11 @@
 package org.mtransit.android.ui;
 
-import android.app.Activity;
-import android.app.SearchManager;
-import android.content.Context;
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.location.Location;
-import android.os.Bundle;
-import android.os.Handler;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+
+import java.util.WeakHashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
@@ -32,7 +22,17 @@ import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.NightModeUtils;
 import org.mtransit.android.util.VendingUtils;
 
-import java.util.WeakHashMap;
+import android.app.Activity;
+import android.app.SearchManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.location.Location;
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 
 public class MainActivity extends MTActivityWithLocation implements
 		FragmentManager.OnBackStackChangedListener,
@@ -82,6 +82,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		NightModeUtils.resetColorCache(); // single activity, no cache can be trusted to be from the right theme
 		this.currentUiMode = getResources().getConfiguration().uiMode;
 		setContentView(R.layout.activity_main);
 		this.abController = new ActionBarController(this);
@@ -254,7 +255,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	}
 
 	@Override
-	protected void onSaveInstanceState(Bundle outState) {
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onSaveState(outState);
 		}
@@ -265,7 +266,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	}
 
 	@Override
-	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+	protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onRestoreState(savedInstanceState);

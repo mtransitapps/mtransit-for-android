@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="color_primary">@color/dark_grey_c</color>
+
+    <color name="color_primary">@color/dark_grey_12</color>
     <color name="color_on_primary">#FFF3F3F3</color>
 
     <color name="color_primary_dark">@color/color_background</color>
+    <color name="color_primary_variant">@color/color_primary</color>
+
+    <color name="color_secondary">@color/color_primary</color>
 
     <color name="color_accent">@color/color_primary</color>
 
-    <color name="color_surface">@color/dark_grey_a</color>
-    <color name="color_on_surface">#8Aa0a0a0</color>
+    <color name="color_surface">@color/dark_grey_5</color>
+    <color name="color_on_surface">@color/white_50</color>
 
-    <color name="color_background">@color/black</color>
+    <color name="color_background">@color/dark_grey</color>
     <color name="window_background">@color/color_background</color>
 
     <color name="color_on_background">@color/white_75</color>
