@@ -125,7 +125,7 @@ public final class MapUtils implements MTLog.Loggable {
 	private static LruCache<Pair<Integer, Integer>, BitmapDescriptor> cache = new LruCache<>(128);
 
 	@NonNull
-	public static BitmapDescriptor getIcon(@Nullable Context context, @DrawableRes int iconResId, @ColorInt int color) {
+	public static BitmapDescriptor getIcon(@Nullable Context context, @DrawableRes int iconResId, @ColorInt int color, boolean replaceColor) {
 		Pair<Integer, Integer> key = new Pair<>(iconResId, color);
 		if (color == Color.BLACK) {
 			color = Color.DKGRAY; // black is too dark to colorize bitmap;
@@ -137,7 +137,7 @@ public final class MapUtils implements MTLog.Loggable {
 		if (cachedBitmap != null) {
 			return cachedBitmap;
 		}
-		Bitmap newBase = ColorUtils.colorizeBitmapResource(context, color, iconResId);
+		Bitmap newBase = ColorUtils.colorizeBitmapResource(context, color, iconResId, replaceColor);
 		BitmapDescriptor newBitmapDescriptor = BitmapDescriptorFactory.fromBitmap(newBase);
 		cache.put(key, newBitmapDescriptor);
 		return newBitmapDescriptor;

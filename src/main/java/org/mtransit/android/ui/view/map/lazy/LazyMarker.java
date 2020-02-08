@@ -232,7 +232,7 @@ public class LazyMarker implements MTLog.Loggable {
 
 	public void setIcon(Context context, @DrawableRes Integer iconResId, @ColorInt Integer color, @ColorInt Integer secondaryColor, @ColorInt Integer defaultColor) {
 		if (marker != null) {
-			marker.setIcon(MapUtils.getIcon(context, iconResId, color));
+			marker.setIcon(MapUtils.getIcon(context, iconResId, color, true));
 		} else {
 			markerOptionsIconResId = iconResId;
 			markerOptionsColor = color;
@@ -337,7 +337,7 @@ public class LazyMarker implements MTLog.Loggable {
 		if (markerOptionsDefaultColor != null && markerOptionsIconResId != null && markerOptionsContext != null) {
 			int color = markerOptionsColor == null ? markerOptionsSecondaryColor == null ? markerOptionsDefaultColor : markerOptionsSecondaryColor
 					: markerOptionsColor;
-			options.icon(MapUtils.getIcon(markerOptionsContext, markerOptionsIconResId, color));
+			options.icon(MapUtils.getIcon(markerOptionsContext, markerOptionsIconResId, color, true));
 		}
 		marker = map.addMarker(options);
 		if (listener != null) {

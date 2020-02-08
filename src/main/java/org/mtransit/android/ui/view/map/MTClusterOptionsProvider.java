@@ -57,7 +57,7 @@ public class MTClusterOptionsProvider implements ClusterOptionsProvider, MTLog.L
 	private BitmapDescriptor getClusterIcon(@NonNull List<IMarker> markers) {
 		Context context = this.contextWR.get();
 		Integer color = getColor(context, markers);
-		return MapUtils.getIcon(context, getClusterIconRes(), color);
+		return MapUtils.getIcon(context, getClusterIconRes(), color, false);
 	}
 
 	@ColorInt
