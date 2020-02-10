@@ -1,5 +1,9 @@
 package org.mtransit.android.data;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.collection.SimpleArrayMap;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -34,28 +38,31 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.collection.ArrayMap;
-
 import android.text.TextUtils;
 
 public final class DataSourceManager implements MTLog.Loggable {
 
-	private static final String TAG = DataSourceManager.class.getSimpleName();
+	private static final String LOG_TAG = DataSourceManager.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
-	private static ArrayMap<String, Uri> uriMap = new ArrayMap<>();
+	private static final SimpleArrayMap<String, Uri> uriMap = new SimpleArrayMap<>();
 
-	private static Uri getUri(String authority) {
+	@NonNull
+	private static Uri getUri(@NonNull String authority) {
 		Uri uri = uriMap.get(authority);
 		if (uri == null) {
-			uri = UriUtils.newContentUri(authority);
-			uriMap.put(authority, uri);
+			synchronized (uriMap) {
+				uri = uriMap.get(authority);
+				if (uri == null) {
+					uri = UriUtils.newContentUri(authority);
+					uriMap.put(authority, uri);
+				}
+			}
 		}
 		return uri;
 	}
@@ -63,7 +70,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 	private DataSourceManager() {
 	}
 
-	public static ArrayList<ServiceUpdate> findServiceUpdates(Context context, String authority, ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
+	@Nullable
+	public static ArrayList<ServiceUpdate> findServiceUpdates(@NonNull Context context, @NonNull String authority,
+			@Nullable ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
 		Cursor cursor = null;
 		try {
 			String serviceUpdateFilterJSONString = serviceUpdateFilter == null ? null : serviceUpdateFilter.toJSONString();
@@ -71,14 +80,15 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, serviceUpdateFilterJSONString, null, null);
 			return getServiceUpdates(cursor);
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error!");
+			MTLog.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
-	private static ArrayList<ServiceUpdate> getServiceUpdates(Cursor cursor) {
+	@NonNull
+	private static ArrayList<ServiceUpdate> getServiceUpdates(@Nullable Cursor cursor) {
 		ArrayList<ServiceUpdate> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
@@ -90,12 +100,14 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static News findANews(Context context, String authority, NewsProviderContract.Filter newsFilter) {
+	@Nullable
+	public static News findANews(@NonNull Context context, @NonNull String authority, @Nullable NewsProviderContract.Filter newsFilter) {
 		ArrayList<News> news = findNews(context, authority, newsFilter);
 		return news == null || news.size() == 0 ? null : news.get(0);
 	}
 
-	public static ArrayList<News> findNews(Context context, String authority, NewsProviderContract.Filter newsFilter) {
+	@Nullable
+	public static ArrayList<News> findNews(@NonNull Context context, @NonNull String authority, @Nullable NewsProviderContract.Filter newsFilter) {
 		Cursor cursor = null;
 		try {
 			String newsFilterJSONString = newsFilter == null ? null : newsFilter.toJSONString();
@@ -103,14 +115,15 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, newsFilterJSONString, null, null);
 			return getNews(cursor, authority);
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error!");
+			MTLog.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
-	private static ArrayList<News> getNews(Cursor cursor, String authority) {
+	@NonNull
+	private static ArrayList<News> getNews(@Nullable Cursor cursor, @NonNull String authority) {
 		ArrayList<News> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
@@ -122,8 +135,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static ScheduleTimestamps findScheduleTimestamps(Context context, String authority,
-			ScheduleTimestampsProviderContract.Filter scheduleTimestampsFilter) {
+	@Nullable
+	public static ScheduleTimestamps findScheduleTimestamps(@NonNull Context context, @NonNull String authority,
+			@Nullable ScheduleTimestampsProviderContract.Filter scheduleTimestampsFilter) {
 		Cursor cursor = null;
 		try {
 			String scheduleTimestampsFilterJSONString = scheduleTimestampsFilter == null ? null : scheduleTimestampsFilter.toJSONString();
@@ -131,14 +145,15 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, scheduleTimestampsFilterJSONString, null, null);
 			return getScheduleTimestamp(cursor);
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error!");
+			MTLog.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
-	private static ScheduleTimestamps getScheduleTimestamp(Cursor cursor) {
+	@Nullable
+	private static ScheduleTimestamps getScheduleTimestamp(@Nullable Cursor cursor) {
 		ScheduleTimestamps result = null;
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
@@ -148,6 +163,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
+	@Nullable
 	public static POIStatus findStatus(@NonNull Context context, @NonNull String authority, @NonNull StatusProviderContract.Filter statusFilter) {
 		Cursor cursor = null;
 		try {
@@ -156,7 +172,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, statusFilterJSONString, null, null);
 			return getPOIStatus(cursor);
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error!");
+			MTLog.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -164,7 +180,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	private static POIStatus getPOIStatus(Cursor cursor) {
+	private static POIStatus getPOIStatus(@Nullable Cursor cursor) {
 		POIStatus result = null;
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
@@ -183,7 +199,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 					result = AppStatus.fromCursorWithExtra(cursor);
 					break;
 				default:
-					MTLog.w(TAG, "findStatus() > Unexpected status '%s'!", status);
+					MTLog.w(LOG_TAG, "findStatus() > Unexpected status '%s'!", status);
 					result = null;
 					break;
 				}
@@ -192,19 +208,20 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static void ping(@NonNull Context context, String authority) {
+	public static void ping(@NonNull Context context, @NonNull String authority) {
 		Cursor cursor = null;
 		try {
 			Uri uri = Uri.withAppendedPath(getUri(authority), ProviderContract.PING_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error!");
+			MTLog.w(LOG_TAG, e, "Error!");
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
-	public static AgencyProperties findAgencyProperties(Context context, String authority, DataSourceType dst, boolean isRTS) {
+	@Nullable
+	public static AgencyProperties findAgencyProperties(@NonNull Context context, @NonNull String authority, @NonNull DataSourceType dst, boolean isRTS) {
 		AgencyProperties result = null;
 		Cursor cursor = null;
 		try {
@@ -220,14 +237,15 @@ public final class DataSourceManager implements MTLog.Loggable {
 				}
 			}
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error!");
+			MTLog.w(LOG_TAG, e, "Error!");
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
 		return result;
 	}
 
-	public static JPaths findAgencyRTSRouteLogo(Context context, String authority) {
+	@Nullable
+	public static JPaths findAgencyRTSRouteLogo(@NonNull Context context, @NonNull String authority) {
 		JPaths result = null;
 		Cursor cursor = null;
 		try {
@@ -239,30 +257,32 @@ public final class DataSourceManager implements MTLog.Loggable {
 				}
 			}
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error!");
+			MTLog.w(LOG_TAG, e, "Error!");
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
 		return result;
 	}
 
-	public static Trip findRTSTrip(Context context, String authority, int tripId) {
+	@Nullable
+	public static Trip findRTSTrip(@NonNull Context context, @NonNull String authority, int tripId) {
 		Cursor cursor = null;
 		try {
 			Uri uri = getRTSTripsUri(authority);
 			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.TripColumns.T_TRIP_K_ID, tripId);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_TRIP, selection, null, null);
 			ArrayList<Trip> rtsTrips = getRTSTrips(cursor);
-			return rtsTrips == null || rtsTrips.size() == 0 ? null : rtsTrips.get(0);
+			return rtsTrips.size() == 0 ? null : rtsTrips.get(0);
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error!");
+			MTLog.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
-	public static ArrayList<Trip> findRTSRouteTrips(Context context, String authority, long routeId) {
+	@Nullable
+	public static ArrayList<Trip> findRTSRouteTrips(@NonNull Context context, @NonNull String authority, long routeId) {
 		Cursor cursor = null;
 		try {
 			Uri uri = getRTSTripsUri(authority);
@@ -270,14 +290,15 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_TRIP, selection, null, null);
 			return getRTSTrips(cursor);
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error!");
+			MTLog.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
-	private static ArrayList<Trip> getRTSTrips(Cursor cursor) {
+	@NonNull
+	private static ArrayList<Trip> getRTSTrips(@Nullable Cursor cursor) {
 		ArrayList<Trip> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
@@ -290,16 +311,17 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static Route findRTSRoute(Context context, String authority, long routeId) {
+	@Nullable
+	public static Route findRTSRoute(@NonNull Context context, @NonNull String authority, long routeId) {
 		Cursor cursor = null;
 		try {
 			Uri uri = getRTSRoutesUri(authority);
 			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.RouteColumns.T_ROUTE_K_ID, routeId);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_ROUTE, selection, null, null);
 			ArrayList<Route> rtsRoutes = getRTSRoutes(cursor);
-			return rtsRoutes == null || rtsRoutes.size() == 0 ? null : rtsRoutes.get(0);
+			return rtsRoutes.size() == 0 ? null : rtsRoutes.get(0);
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error!");
+			MTLog.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
@@ -307,26 +329,29 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static Cursor queryContentResolver(@NonNull ContentResolver contentResolver, @NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs,
+	public static Cursor queryContentResolver(@NonNull ContentResolver contentResolver, @NonNull Uri uri,
+			@Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs,
 			@Nullable String sortOrder) {
 		return contentResolver.query(uri, projection, selection, selectionArgs, sortOrder);
 	}
 
-	public static ArrayList<Route> findAllRTSAgencyRoutes(Context context, String authority) {
+	@Nullable
+	public static ArrayList<Route> findAllRTSAgencyRoutes(@NonNull Context context, @NonNull String authority) {
 		Cursor cursor = null;
 		try {
 			Uri uri = getRTSRoutesUri(authority);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_ROUTE, null, null, null);
 			return getRTSRoutes(cursor);
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error!");
+			MTLog.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
-	private static ArrayList<Route> getRTSRoutes(Cursor cursor) {
+	@NonNull
+	private static ArrayList<Route> getRTSRoutes(@Nullable Cursor cursor) {
 		ArrayList<Route> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
@@ -339,18 +364,19 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static POIManager findPOI(Context context, String authority, POIProviderContract.Filter poiFilter) {
+	@Nullable
+	public static POIManager findPOI(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
 		ArrayList<POIManager> pois = findPOIs(context, authority, poiFilter);
 		return pois == null || pois.size() == 0 ? null : pois.get(0);
 	}
 
 	@Nullable
-	public static ArrayList<POIManager> findPOIs(Context context, String authority, POIProviderContract.Filter poiFilter) {
+	public static ArrayList<POIManager> findPOIs(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
 		Cursor cursor = null;
 		try {
 			JSONObject filterJSON = POIProviderContract.Filter.toJSON(poiFilter);
 			if (filterJSON == null) {
-				MTLog.w(TAG, "Invalid POI filter!");
+				MTLog.w(LOG_TAG, "Invalid POI filter!");
 				return null;
 			}
 			String filterJsonString = filterJSON.toString();
@@ -358,14 +384,15 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, POIProvider.PROJECTION_POI_ALL_COLUMNS, filterJsonString, null, null);
 			return getPOIs(cursor, authority);
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error!");
+			MTLog.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
-	private static ArrayList<POIManager> getPOIs(Cursor cursor, String authority) {
+	@NonNull
+	private static ArrayList<POIManager> getPOIs(@Nullable Cursor cursor, @NonNull String authority) {
 		ArrayList<POIManager> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
@@ -377,7 +404,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
-	public static HashSet<String> findSearchSuggest(Context context, String authority, String query) {
+	@Nullable
+	public static HashSet<String> findSearchSuggest(@NonNull Context context, @NonNull String authority, @Nullable String query) {
 		Cursor cursor = null;
 		try {
 			Uri searchSuggestUri = Uri.withAppendedPath(getUri(authority), SearchManager.SUGGEST_URI_PATH_QUERY);
@@ -387,14 +415,15 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), searchSuggestUri, null, null, null, null);
 			return getSearchSuggest(cursor);
 		} catch (Exception e) {
-			MTLog.w(TAG, e, "Error!");
+			MTLog.w(LOG_TAG, e, "Error!");
 			return null;
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
 	}
 
-	public static HashSet<String> getSearchSuggest(Cursor cursor) {
+	@NonNull
+	public static HashSet<String> getSearchSuggest(@Nullable Cursor cursor) {
 		HashSet<String> results = new HashSet<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
@@ -408,15 +437,18 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return results;
 	}
 
-	private static Uri getPOIUri(String authority) {
+	@NonNull
+	private static Uri getPOIUri(@NonNull String authority) {
 		return Uri.withAppendedPath(getUri(authority), POIProviderContract.POI_PATH);
 	}
 
-	private static Uri getRTSRoutesUri(String authority) {
+	@NonNull
+	private static Uri getRTSRoutesUri(@NonNull String authority) {
 		return Uri.withAppendedPath(getUri(authority), GTFSProviderContract.ROUTE_PATH);
 	}
 
-	private static Uri getRTSTripsUri(String authority) {
+	@NonNull
+	private static Uri getRTSTripsUri(@NonNull String authority) {
 		return Uri.withAppendedPath(getUri(authority), GTFSProviderContract.TRIP_PATH);
 	}
 }
