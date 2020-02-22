@@ -1,6 +1,12 @@
 package org.mtransit.android.ui.view;
 
-import java.util.ArrayList;
+import android.content.Context;
+import android.view.View;
+import android.widget.TextView;
+
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.ColorUtils;
@@ -8,11 +14,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
 
-import android.content.Context;
-import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-import android.view.View;
-import android.widget.TextView;
+import java.util.ArrayList;
 
 public class POINewsViewController implements MTLog.Loggable {
 
@@ -63,29 +65,33 @@ public class POINewsViewController implements MTLog.Loggable {
 		updateNewsView(context, newsViewHolder, news);
 	}
 
-	private static void updateNewsView(Context context, NewsViewHolder holder, News news) {
-		if (holder != null) {
-			if (news != null) {
-				holder.authorTv.setText(context.getString(R.string.news_shared_on_and_author_and_source, news.getAuthorOneLine(), news.getSourceLabel()));
-				if (news.hasColor()
-						&& (!ColorUtils.isDarkTheme(context)
-						|| !ColorUtils.isTooDarkForDarkTheme(news.getColorInt()))) {
-					holder.authorTv.setTextColor(news.getColorInt());
-				} else {
-					holder.authorTv.setTextColor(ColorUtils.getTextColorSecondary(context));
-				}
-				holder.dateTv.setText(TimeUtils.formatRelativeTime(context, news.getCreatedAtInMs()));
-				holder.newsTv.setText(news.getText());
-				if (news.hasColor()) {
-					holder.newsTv.setLinkTextColor(news.getColorInt());
-				} else {
-					holder.newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(context));
-				}
-				holder.layout.setVisibility(View.VISIBLE);
-			} else {
-				holder.layout.setVisibility(View.GONE);
-			}
+	private static void updateNewsView(@NonNull Context context, NewsViewHolder holder, @Nullable News news) {
+		if (holder == null) {
+			return;
 		}
+		if (news == null) {
+			holder.layout.setVisibility(View.GONE);
+			return;
+		}
+		holder.authorTv.setText(context.getString(R.string.news_shared_on_and_author_and_source, news.getAuthorOneLine(), news.getSourceLabel()));
+		if (news.hasColor()) {
+			if (ColorUtils.isDarkTheme(context)
+					&& ColorUtils.isTooDarkForDarkTheme(news.getColorInt())) {
+				holder.authorTv.setTextColor(ColorUtils.lightenColor(news.getColorInt()));
+			} else {
+				holder.authorTv.setTextColor(news.getColorInt());
+			}
+		} else {
+			holder.authorTv.setTextColor(ColorUtils.getTextColorSecondary(context));
+		}
+		holder.dateTv.setText(TimeUtils.formatRelativeTime(context, news.getCreatedAtInMs()));
+		holder.newsTv.setText(news.getText());
+		if (news.hasColor()) {
+			holder.newsTv.setLinkTextColor(news.getColorInt());
+		} else {
+			holder.newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(context));
+		}
+		holder.layout.setVisibility(View.VISIBLE);
 	}
 
 	private static final class NewsViewHolder {

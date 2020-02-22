@@ -1,7 +1,22 @@
 package org.mtransit.android.ui.fragment;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
+import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -18,24 +33,8 @@ import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
-import android.app.Activity;
-import android.content.Context;
-import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.TextView;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 public class NewsFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<News>>, SwipeRefreshLayout.OnRefreshListener {
 
@@ -512,11 +511,18 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			}
 			NewsViewHolder holder = (NewsViewHolder) convertView.getTag();
 			News news = getItem(position);
+			if (news == null) {
+				convertView.setVisibility(View.GONE);
+				return convertView;
+			}
 			holder.authorTv.setText(getContext().getString(R.string.news_shared_on_and_author_and_source, news.getAuthorOneLine(), news.getSourceLabel()));
-			if (news.hasColor()
-					&& (!ColorUtils.isDarkTheme(getContext())
-					|| !ColorUtils.isTooDarkForDarkTheme(news.getColorInt()))) {
-				holder.authorTv.setTextColor(news.getColorInt());
+			if (news.hasColor()) {
+				if (ColorUtils.isDarkTheme(getContext())
+						&& ColorUtils.isTooDarkForDarkTheme(news.getColorInt())) {
+					holder.authorTv.setTextColor(ColorUtils.lightenColor(news.getColorInt()));
+				} else {
+					holder.authorTv.setTextColor(news.getColorInt());
+				}
 			} else {
 				holder.authorTv.setTextColor(ColorUtils.getTextColorSecondary(getContext()));
 			}
@@ -527,6 +533,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			} else {
 				holder.newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(getContext()));
 			}
+			convertView.setVisibility(View.VISIBLE);
 			return convertView;
 		}
 

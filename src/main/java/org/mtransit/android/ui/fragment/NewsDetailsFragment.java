@@ -1,5 +1,17 @@
 package org.mtransit.android.ui.fragment;
 
+import android.content.Context;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ColorUtils;
@@ -12,19 +24,6 @@ import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.util.LinkUtils;
-
-import android.content.Context;
-import android.os.Bundle;
-
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeChangedReceiver.TimeChangedListener, LinkUtils.OnUrlClickListener {
 
@@ -166,7 +165,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 			return false;
 		}
 		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
-			this.news = DataSourceManager.findANews(getContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
+			this.news = DataSourceManager.findANews(requireContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
 		}
 		return this.news != null;
 	}
@@ -184,30 +183,35 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 
 	private void updateNewsView() {
 		News news = getNewsOrNull();
-		if (news != null) {
-			View view = getView();
-			if (view != null) {
-				TextView newsTv = view.findViewById(R.id.newsText);
-				newsTv.setText(LinkUtils.linkifyHtml(news.getTextHTML(), true));
-				newsTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptop.getInstance(this));
-				if (news.hasColor()
-						&& (!ColorUtils.isDarkTheme(view.getContext())
-						|| !ColorUtils.isTooDarkForDarkTheme(news.getColorInt()))) {
-					newsTv.setLinkTextColor(news.getColorInt());
-				} else {
-					newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(view.getContext()));
-				}
-				TextView dateTv = view.findViewById(R.id.date);
-				dateTv.setText(TimeUtils.formatRelativeTime(view.getContext(), news.getCreatedAtInMs()));
-				final String newWebURL = TextUtils.isEmpty(news.getWebURL()) ? news.getAuthorProfileURL() : news.getWebURL();
-				dateTv.setOnClickListener(new MTOnClickListener() {
-					@Override
-					public void onClickMT(View view) {
-						LinkUtils.open(getActivity(), newWebURL, getString(R.string.web_browser), true);
-					}
-				});
-			}
+		if (news == null) {
+			return;
 		}
+		View view = getView();
+		if (view == null) {
+			return;
+		}
+		TextView newsTv = view.findViewById(R.id.newsText);
+		newsTv.setText(LinkUtils.linkifyHtml(news.getTextHTML(), true));
+		newsTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptop.getInstance(this));
+		if (news.hasColor()) {
+			if (ColorUtils.isDarkTheme(view.getContext())
+					&& ColorUtils.isTooDarkForDarkTheme(news.getColorInt())) {
+				newsTv.setLinkTextColor(ColorUtils.lightenColor(news.getColorInt()));
+			} else {
+				newsTv.setLinkTextColor(news.getColorInt());
+			}
+		} else {
+			newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(view.getContext()));
+		}
+		TextView dateTv = view.findViewById(R.id.date);
+		dateTv.setText(TimeUtils.formatRelativeTime(view.getContext(), news.getCreatedAtInMs()));
+		final String newWebURL = TextUtils.isEmpty(news.getWebURL()) ? news.getAuthorProfileURL() : news.getWebURL();
+		dateTv.setOnClickListener(new MTOnClickListener() {
+			@Override
+			public void onClickMT(View view) {
+				LinkUtils.open(getActivity(), newWebURL, getString(R.string.web_browser), true);
+			}
+		});
 	}
 
 	@Override
@@ -275,7 +279,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 		if (activity == null) {
 			return;
 		}
-		News newNews = DataSourceManager.findANews(getContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
+		News newNews = DataSourceManager.findANews(requireContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
 		if (newNews == null) {
 			if (activity.isMTResumed()) {
 				activity.popFragmentFromStack(this); // close this fragment
