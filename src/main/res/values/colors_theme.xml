@@ -11,8 +11,9 @@
 
     <color name="color_accent">@color/color_primary</color>
 
-    <color name="color_surface">#FFFFFF</color>
-    <color name="color_on_surface">@color/ic_grey600</color>
+    <!-- surface: same as default  -->
+    <color name="color_surface">@color/design_default_color_surface</color>
+    <color name="color_on_surface">@color/design_default_color_on_surface</color>
 
     <color name="color_background">@color/light_grey</color>
     <color name="window_background">@color/color_background</color>
