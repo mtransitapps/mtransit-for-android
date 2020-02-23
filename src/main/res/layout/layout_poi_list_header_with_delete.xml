@@ -70,7 +70,6 @@
         android:layout_centerVertical="false"
         android:layout_gravity="center_vertical"
         android:layout_toLeftOf="@id/renameBtn"
-        android:drawableLeft="@drawable/ic_folder_special_black_24dp"
         android:drawablePadding="@dimen/title_drawable_padding"
         android:ellipsize="end"
         android:fontFamily="sans-serif-light"
@@ -82,6 +81,7 @@
         android:paddingBottom="@dimen/title_padding_bottom"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="?attr/colorOnBackground"
+        app:drawableLeftCompat="@drawable/ic_folder_special_black_24dp"
         app:drawableTint="?attr/colorOnBackground"
         tools:text="TYPE TYPE TYPE TYPE TYPE TYPE TYPE TYPE " />
 
