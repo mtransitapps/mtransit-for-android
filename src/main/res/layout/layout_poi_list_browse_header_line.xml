@@ -33,7 +33,7 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="?attr/colorOnPrimary"
             app:drawableTint="?attr/colorOnPrimary"
-            tools:drawableLeftCompat="@drawable/ic_directions_bus_white_24dp"
+            tools:drawableLeftCompat="@drawable/ic_directions_bus_black_24dp"
             tools:text="BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE BROWSE" />
 
     </FrameLayout>
