@@ -1,3 +1,3 @@
 Compatible avec (presque) toutes les agences de transport au Canada et dans le nord des États-Unis (AK).
-Maintenant avec des dossiers pour les favoris.
+Maintenant avec thème sombre.
 Correction de problèmes & amélioration des performances.
