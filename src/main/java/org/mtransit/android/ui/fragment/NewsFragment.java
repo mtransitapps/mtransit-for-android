@@ -517,12 +517,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			}
 			holder.authorTv.setText(getContext().getString(R.string.news_shared_on_and_author_and_source, news.getAuthorOneLine(), news.getSourceLabel()));
 			if (news.hasColor()) {
-				if (ColorUtils.isDarkTheme(getContext())
-						&& ColorUtils.isTooDarkForDarkTheme(news.getColorInt())) {
-					holder.authorTv.setTextColor(ColorUtils.lightenColor(news.getColorInt()));
-				} else {
-					holder.authorTv.setTextColor(news.getColorInt());
-				}
+				holder.authorTv.setTextColor(ColorUtils.adaptColorToTheme(getContext(), news.getColorInt()));
 			} else {
 				holder.authorTv.setTextColor(ColorUtils.getTextColorSecondary(getContext()));
 			}

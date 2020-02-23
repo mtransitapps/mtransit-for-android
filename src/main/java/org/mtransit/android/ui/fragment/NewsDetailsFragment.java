@@ -194,12 +194,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 		newsTv.setText(LinkUtils.linkifyHtml(news.getTextHTML(), true));
 		newsTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptop.getInstance(this));
 		if (news.hasColor()) {
-			if (ColorUtils.isDarkTheme(view.getContext())
-					&& ColorUtils.isTooDarkForDarkTheme(news.getColorInt())) {
-				newsTv.setLinkTextColor(ColorUtils.lightenColor(news.getColorInt()));
-			} else {
-				newsTv.setLinkTextColor(news.getColorInt());
-			}
+			newsTv.setLinkTextColor(ColorUtils.adaptColorToTheme(view.getContext(), news.getColorInt()));
 		} else {
 			newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(view.getContext()));
 		}

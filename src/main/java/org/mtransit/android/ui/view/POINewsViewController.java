@@ -75,12 +75,7 @@ public class POINewsViewController implements MTLog.Loggable {
 		}
 		holder.authorTv.setText(context.getString(R.string.news_shared_on_and_author_and_source, news.getAuthorOneLine(), news.getSourceLabel()));
 		if (news.hasColor()) {
-			if (ColorUtils.isDarkTheme(context)
-					&& ColorUtils.isTooDarkForDarkTheme(news.getColorInt())) {
-				holder.authorTv.setTextColor(ColorUtils.lightenColor(news.getColorInt()));
-			} else {
-				holder.authorTv.setTextColor(news.getColorInt());
-			}
+			holder.authorTv.setTextColor(ColorUtils.adaptColorToTheme(context, news.getColorInt()));
 		} else {
 			holder.authorTv.setTextColor(ColorUtils.getTextColorSecondary(context));
 		}

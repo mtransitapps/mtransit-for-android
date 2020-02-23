@@ -1,19 +1,5 @@
 package org.mtransit.android.util;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import org.mtransit.android.R;
-import org.mtransit.android.commons.ColorUtils;
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.ResourceUtils;
-
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +9,20 @@ import android.net.Uri;
 import android.util.LruCache;
 import android.util.Pair;
 import android.view.ViewGroup;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+
+import org.mtransit.android.R;
+import org.mtransit.android.commons.ColorUtils;
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.ResourceUtils;
 
 public final class MapUtils implements MTLog.Loggable {
 
@@ -49,9 +49,9 @@ public final class MapUtils implements MTLog.Loggable {
 	private static final String MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM_PUBLIC_TRANSIT_VALUE = "r";
 
 	public static void showDirection(Activity activity, //
-			@Nullable Double optDestLat, @Nullable Double optDestLng, //
-			@Nullable Double optSrcLat, @Nullable Double optSrcLng, //
-			@Nullable String optQuery) {
+									 @Nullable Double optDestLat, @Nullable Double optDestLng, //
+									 @Nullable Double optSrcLat, @Nullable Double optSrcLng, //
+									 @Nullable String optQuery) {
 		Uri gmmIntentUri = Uri.parse(MAP_DIRECTION_URL_PART_1);
 		if (optSrcLat != null && optSrcLng != null) {
 			gmmIntentUri = gmmIntentUri //
@@ -127,12 +127,7 @@ public final class MapUtils implements MTLog.Loggable {
 	@NonNull
 	public static BitmapDescriptor getIcon(@Nullable Context context, @DrawableRes int iconResId, @ColorInt int color, boolean replaceColor) {
 		Pair<Integer, Integer> key = new Pair<>(iconResId, color);
-		if (color == Color.BLACK) {
-			color = Color.DKGRAY; // black is too dark to colorize bitmap;
-		}
-		if (color == Color.WHITE) {
-			color = Color.LTGRAY;
-		}
+		color = ColorUtils.adaptColorToTheme(context, color);
 		BitmapDescriptor cachedBitmap = cache.get(key);
 		if (cachedBitmap != null) {
 			return cachedBitmap;
