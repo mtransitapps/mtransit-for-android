@@ -1,10 +1,21 @@
 package org.mtransit.android.ad;
 
+import android.content.res.Configuration;
+import android.location.Location;
+import android.util.DisplayMetrics;
+import android.view.Display;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
+import com.facebook.ads.AudienceNetworkAds;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 
 import org.mtransit.android.R;
 import org.mtransit.android.common.IApplication;
@@ -18,19 +29,8 @@ import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.provider.location.MTLocationProvider;
 import org.mtransit.android.ui.view.common.IActivity;
 
-import com.facebook.ads.AudienceNetworkAds;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
-
-import android.content.res.Configuration;
-import android.location.Location;
-import android.util.DisplayMetrics;
-import android.view.Display;
-import android.view.View;
-import android.view.ViewGroup;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 public class AdManager implements IAdManager, MTLog.Loggable {
 
@@ -53,6 +53,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	// private static boolean AD_ENABLED = false; // DEBUG
 
 	private static final int MIN_AGENCIES_FOR_ADS = 2;
+	// private static final int MIN_AGENCIES_FOR_ADS = 0; // DEBUG
 
 	private static final ArrayList<String> KEYWORDS = ArrayUtils.asArrayList(
 			"transit", "bus", "subway", "bike", "sharing", "ferries", "boat", "trail", "lrt", "streetcar", "tram", "tramway",
@@ -71,7 +72,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	private final MTLocationProvider locationProvider;
 
 	public AdManager(@NonNull CrashReporter crashReporter,
-			@NonNull MTLocationProvider locationProvider) {
+					 @NonNull MTLocationProvider locationProvider) {
 		this.crashReporter = crashReporter;
 		this.locationProvider = locationProvider;
 	}
@@ -119,7 +120,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	}
 
 	@NonNull
-	private static AdSize getAdSize(IActivity activity) {
+	private static AdSize getAdSize(@NonNull IActivity activity) {
 		Display display = activity.requireActivity().getWindowManager().getDefaultDisplay();
 		DisplayMetrics outMetrics = new DisplayMetrics();
 		display.getMetrics(outMetrics);
@@ -159,7 +160,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 		if (nbAgencies == null) {
 			DataSourceProvider dataSourceProvider = DataSourceProvider.get();
-			nbAgencies = dataSourceProvider == null ? null : dataSourceProvider.getAllAgenciesCount();
+			nbAgencies = dataSourceProvider.isInitialized() ? dataSourceProvider.getAllAgenciesCount() : null;
 		}
 		if (nbAgencies == null // number of agency unknown
 				|| nbAgencies <= MIN_AGENCIES_FOR_ADS) { // no (real) agency installed
