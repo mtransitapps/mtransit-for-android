@@ -1,8 +1,25 @@
 package org.mtransit.android.ui;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Iterator;
+import android.app.Activity;
+import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.location.Location;
+import android.os.Bundle;
+import android.os.Handler;
+import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.google.android.material.navigation.NavigationView;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -15,6 +32,7 @@ import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.task.MTAsyncTask;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
+import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.fragment.ABFragment;
@@ -27,30 +45,18 @@ import org.mtransit.android.ui.fragment.NewsFragment;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.MapUtils;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.res.Configuration;
-import android.location.Location;
-import android.os.Bundle;
-import android.os.Handler;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.navigation.NavigationView;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNavigationItemSelectedListener, DataSourceProvider.ModulesUpdateListener {
 
-	private static final String TAG = "Stack-" + NavigationDrawerController.class.getSimpleName();
+	private static final String LOG_TAG = "Stack-" + NavigationDrawerController.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private static final String ITEM_ID_AGENCY_TYPE_START_WITH = "agencytype-";
@@ -62,32 +68,47 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	private static final int ITEM_INDEX_TRIP_PLANNER = 4;
 	private static final int ITEM_INDEX_NEWS = 5;
 	private static final int ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT = R.id.nav_home;
-	public static final String ITEM_ID_SELECTED_SCREEN_DEFAULT = ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME;
+	private static final String ITEM_ID_SELECTED_SCREEN_DEFAULT = ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME;
 
-	private WeakReference<MainActivity> mainActivityWR;
+	@NonNull
+	private final WeakReference<MainActivity> mainActivityWR;
+	@NonNull
+	private final CrashReporter crashReporter;
+	@Nullable
 	private DrawerLayout drawerLayout;
+	@Nullable
 	private ABDrawerToggle drawerToggle;
+	@Nullable
 	private NavigationView navigationView;
+	@Nullable
 	private Integer currentSelectedScreenItemNavId = null;
+	@Nullable
 	private String currentSelectedScreenItemId = null;
 
-	public NavigationDrawerController(@NonNull MainActivity mainActivity) {
+	NavigationDrawerController(@NonNull MainActivity mainActivity,
+							   @NonNull CrashReporter crashReporter) {
 		this.mainActivityWR = new WeakReference<>(mainActivity);
+		this.crashReporter = crashReporter;
 		DataSourceProvider.addModulesUpdateListener(this);
 	}
 
 	public void onCreate(@SuppressWarnings("unused") @Nullable Bundle savedInstanceState) {
+		// DO NOTHING
 	}
 
 	private void setup() {
-		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		MainActivity mainActivity = this.mainActivityWR.get();
 		if (mainActivity == null) {
 			return;
 		}
 		this.navigationView = mainActivity.findViewById(R.id.nav_view);
 		this.navigationView.setNavigationItemSelectedListener(this);
 		this.drawerLayout = mainActivity.findViewById(R.id.drawer_layout);
-		this.drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+		try {
+			this.drawerLayout.setDrawerShadow(ContextCompat.getDrawable(mainActivity, R.drawable.drawer_shadow), GravityCompat.START);
+		} catch (Resources.NotFoundException nfe) { // seen on Android 4, 5 & 7
+			this.crashReporter.w(this, "Error while setting drawer layout shadow!");
+		}
 		this.drawerToggle = new ABDrawerToggle(mainActivity, this.drawerLayout);
 		this.drawerLayout.addDrawerListener(this.drawerToggle);
 		finishSetupAsync();
@@ -106,26 +127,28 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 
 	private static class FinishSetupTask extends MTAsyncTask<Void, String, String> {
 
-		private final String TAG = NavigationDrawerController.TAG + ">" + FinishSetupTask.class.getSimpleName();
+		private final String LOG_TAG = NavigationDrawerController.LOG_TAG + ">" + FinishSetupTask.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
 		private final WeakReference<NavigationDrawerController> navigationDrawerControllerWR;
 
-		public FinishSetupTask(NavigationDrawerController navigationDrawerController) {
+		FinishSetupTask(NavigationDrawerController navigationDrawerController) {
 			this.navigationDrawerControllerWR = new WeakReference<>(navigationDrawerController);
 		}
 
+		@Nullable
 		@Override
 		protected String doInBackgroundMT(Void... params) {
 			NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
 			if (navigationDrawerController == null) {
 				return null;
 			}
-			Context context = navigationDrawerController.mainActivityWR == null ? null : navigationDrawerController.mainActivityWR.get();
+			Context context = navigationDrawerController.mainActivityWR.get();
 			if (context == null) {
 				return null;
 			}
@@ -138,7 +161,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		}
 
 		@Override
-		protected void onPostExecute(String itemId) {
+		protected void onPostExecute(@Nullable String itemId) {
 			NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
 			if (navigationDrawerController == null) {
 				return;
@@ -167,7 +190,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		}
 
 		@Override
-		protected void onProgressUpdate(String... itemIds) {
+		protected void onProgressUpdate(@Nullable String... itemIds) {
 			super.onProgressUpdate(itemIds);
 			if (isCancelled()) {
 				return;
@@ -176,11 +199,12 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		}
 	}
 
+	@Nullable
 	private Boolean userLearnedDrawer = null;
 
 	private boolean hasUserLearnedDrawer() {
 		if (this.userLearnedDrawer == null) {
-			MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+			MainActivity mainActivity = this.mainActivityWR.get();
 			if (mainActivity != null) {
 				this.userLearnedDrawer = PreferenceUtils.getPrefDefault(mainActivity, PreferenceUtils.PREF_USER_LEARNED_DRAWER, //
 						PreferenceUtils.PREF_USER_LEARNED_DRAWER_DEFAULT);
@@ -189,11 +213,11 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		return this.userLearnedDrawer == null ? false : this.userLearnedDrawer;
 	}
 
-	protected void setUserLearnedDrawer() {
+	private void setUserLearnedDrawer() {
 		this.userLearnedDrawer = true;
-		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
-		if (mainActivity != null) {
-			PreferenceUtils.savePrefDefault(mainActivity, PreferenceUtils.PREF_USER_LEARNED_DRAWER, this.userLearnedDrawer, false); // asynchronous
+		Context context = this.mainActivityWR.get();
+		if (context != null) {
+			PreferenceUtils.savePrefDefault(context, PreferenceUtils.PREF_USER_LEARNED_DRAWER, this.userLearnedDrawer, false); // asynchronous
 		}
 	}
 
@@ -209,13 +233,14 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	}
 
 	private void initAllAgencyTypes() {
-		Context context = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		Context context = this.mainActivityWR.get();
 		if (context != null) {
 			this.allAgencyTypes = filterAgencyTypes(DataSourceProvider.get(context).getAvailableAgencyTypes());
 		}
 	}
 
-	private ArrayList<DataSourceType> filterAgencyTypes(ArrayList<DataSourceType> availableAgencyTypes) {
+	@Nullable
+	private ArrayList<DataSourceType> filterAgencyTypes(@Nullable ArrayList<DataSourceType> availableAgencyTypes) {
 		if (availableAgencyTypes != null) {
 			Iterator<DataSourceType> it = availableAgencyTypes.iterator();
 			while (it.hasNext()) {
@@ -266,7 +291,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		if (this.navigationView == null) {
 			return;
 		}
-		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		MainActivity mainActivity = this.mainActivityWR.get();
 		if (mainActivity == null) {
 			return;
 		}
@@ -285,7 +310,8 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		this.menuUpdated = false; // processed
 	}
 
-	public String getScreenItemId(Integer navItemId) {
+	@Nullable
+	private String getScreenItemId(@Nullable Integer navItemId) {
 		if (navItemId == null) {
 			return null;
 		}
@@ -317,12 +343,9 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		case R.id.nav_module:
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.getId();
 		case R.id.nav_settings:
-			return null;
-		case R.id.nav_send_feedback:
-			return null;
-		case R.id.nav_rate_review:
-			return null;
 		case R.id.nav_support:
+		case R.id.nav_rate_review:
+		case R.id.nav_send_feedback:
 			return null;
 		default:
 			MTLog.w(this, "Unexpected screen nav item ID '%s'!", navItemId);
@@ -330,7 +353,8 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		}
 	}
 
-	private Integer getScreenNavItemId(String itemId) {
+	@NonNull
+	private Integer getScreenNavItemId(@Nullable String itemId) {
 		if (TextUtils.isEmpty(itemId)) {
 			return ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT;
 		}
@@ -392,11 +416,11 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		return true; // processed
 	}
 
-	private void selectItem(Integer navItemId, boolean clearStack) {
+	private void selectItem(@Nullable Integer navItemId, boolean clearStack) {
 		if (navItemId == null) {
 			return;
 		}
-		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		MainActivity mainActivity = this.mainActivityWR.get();
 		if (mainActivity == null) {
 			return;
 		}
@@ -430,7 +454,8 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		}
 	}
 
-	private ABFragment getNewStaticFragmentAt(Integer navItemId) {
+	@Nullable
+	private ABFragment getNewStaticFragmentAt(@Nullable Integer navItemId) {
 		if (navItemId == null) {
 			MTLog.w(this, "getNewStaticFragmentAt() > skip (nav item ID null)");
 			return null;
@@ -455,7 +480,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		return null;
 	}
 
-	private void startNewScreen(Activity activity, Integer navItemId) {
+	private void startNewScreen(@Nullable Activity activity, @Nullable Integer navItemId) {
 		if (navItemId == null) {
 			MTLog.w(this, "startNewScreen() > skip (nav item ID null)");
 			return;
@@ -494,44 +519,40 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		}
 	}
 
-	private boolean isRootScreen(Integer navItemId) {
+	private boolean isRootScreen(@Nullable Integer navItemId) {
 		if (navItemId == null) {
 			MTLog.w(this, "isRootScreen() > null (return false)");
 			return false;
 		}
 		switch (navItemId) {
 		case R.id.nav_trip_planner:
-			return false;
-		case R.id.nav_settings:
-			return false;
-		case R.id.nav_send_feedback:
-			return false;
-		case R.id.nav_rate_review:
-			return false;
 		case R.id.nav_support:
+		case R.id.nav_rate_review:
+		case R.id.nav_send_feedback:
+		case R.id.nav_settings:
 			return false;
 		default:
 			return true;
 		}
 	}
 
-	public void openDrawer() {
+	private void openDrawer() {
 		if (this.drawerLayout != null && this.navigationView != null) {
 			this.drawerLayout.openDrawer(this.navigationView);
 		}
 	}
 
-	public void closeDrawer() {
+	private void closeDrawer() {
 		if (this.drawerLayout != null && this.navigationView != null) {
 			this.drawerLayout.closeDrawer(this.navigationView);
 		}
 	}
 
-	public boolean isDrawerOpen() {
+	boolean isDrawerOpen() {
 		return this.drawerLayout != null && this.navigationView != null && this.drawerLayout.isDrawerOpen(this.navigationView);
 	}
 
-	public boolean onBackPressed() {
+	boolean onBackPressed() {
 		if (isDrawerOpen()) {
 			closeDrawer();
 			return true; // processed
@@ -539,33 +560,34 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		return false; // not processed
 	}
 
-	public void setDrawerToggleIndicatorEnabled(boolean enabled) {
+	void setDrawerToggleIndicatorEnabled(boolean enabled) {
 		if (this.drawerToggle != null) {
 			this.drawerToggle.setDrawerIndicatorEnabled(enabled);
 		}
 	}
 
-	public void syncDrawerToggleState() {
+	private void syncDrawerToggleState() {
 		if (this.drawerToggle != null) {
 			this.drawerToggle.syncState();
 		}
 	}
 
-	public void onActivityPostCreate() {
+	void onActivityPostCreate() {
 		syncDrawerToggleState();
 	}
 
-	public void onDrawerToggleConfigurationChanged(Configuration newConfig) {
+	private void onDrawerToggleConfigurationChanged(Configuration newConfig) {
 		if (this.drawerToggle != null) {
 			this.drawerToggle.onConfigurationChanged(newConfig);
 		}
 	}
 
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		onDrawerToggleConfigurationChanged(newConfig);
 	}
 
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+		//noinspection RedundantIfStatement
 		if (this.drawerToggle != null && this.drawerToggle.onOptionsItemSelected(item)) {
 			return true; // processed
 		}
@@ -576,41 +598,41 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		return this.currentSelectedScreenItemNavId != null && !TextUtils.isEmpty(this.currentSelectedScreenItemId);
 	}
 
-	public void setCurrentSelectedItemChecked(boolean checked) {
+	void setCurrentSelectedItemChecked(boolean checked) {
 		if (this.navigationView != null && this.currentSelectedScreenItemNavId != null) {
 			if (checked) { // unchecked all others (not automatic because multiple groups not handled by navigation view)
 				this.navigationView.getMenu().findItem(this.currentSelectedScreenItemNavId).setCheckable(true);
 				this.navigationView.getMenu().findItem(this.currentSelectedScreenItemNavId).setChecked(true);
-				uncheckOtherMenuItems();
+				uncheckOtherMenuItems(this.navigationView, this.currentSelectedScreenItemNavId);
 			} else {
 				this.navigationView.getMenu().findItem(this.currentSelectedScreenItemNavId).setCheckable(false);
 			}
 		}
 	}
 
-	private void uncheckOtherMenuItems() {
-		this.navigationView.getMenu().findItem(R.id.nav_home).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_home);
-		this.navigationView.getMenu().findItem(R.id.nav_favorites).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_favorites);
-		this.navigationView.getMenu().findItem(R.id.nav_nearby).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_nearby);
-		this.navigationView.getMenu().findItem(R.id.nav_map).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_map);
-		this.navigationView.getMenu().findItem(R.id.nav_trip_planner).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_trip_planner);
-		this.navigationView.getMenu().findItem(R.id.nav_news).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_news);
+	private static void uncheckOtherMenuItems(@NonNull NavigationView navigationView, int currentSelectedScreenItemNavId) {
+		navigationView.getMenu().findItem(R.id.nav_home).setCheckable(currentSelectedScreenItemNavId == R.id.nav_home);
+		navigationView.getMenu().findItem(R.id.nav_favorites).setCheckable(currentSelectedScreenItemNavId == R.id.nav_favorites);
+		navigationView.getMenu().findItem(R.id.nav_nearby).setCheckable(currentSelectedScreenItemNavId == R.id.nav_nearby);
+		navigationView.getMenu().findItem(R.id.nav_map).setCheckable(currentSelectedScreenItemNavId == R.id.nav_map);
+		navigationView.getMenu().findItem(R.id.nav_trip_planner).setCheckable(currentSelectedScreenItemNavId == R.id.nav_trip_planner);
+		navigationView.getMenu().findItem(R.id.nav_news).setCheckable(currentSelectedScreenItemNavId == R.id.nav_news);
 		for (DataSourceType dst : DataSourceType.values()) {
-			if (dst.getNavResId() == this.currentSelectedScreenItemNavId) {
+			if (dst.getNavResId() == currentSelectedScreenItemNavId) {
 				continue;
 			}
 			if (!dst.isMenuList()) {
 				continue;
 			}
-			this.navigationView.getMenu().findItem(dst.getNavResId()).setCheckable(false);
+			navigationView.getMenu().findItem(dst.getNavResId()).setCheckable(false);
 		}
-		this.navigationView.getMenu().findItem(R.id.nav_settings).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_settings);
-		this.navigationView.getMenu().findItem(R.id.nav_send_feedback).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_send_feedback);
-		this.navigationView.getMenu().findItem(R.id.nav_rate_review).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_rate_review);
-		this.navigationView.getMenu().findItem(R.id.nav_support).setCheckable(this.currentSelectedScreenItemNavId == R.id.nav_support);
+		navigationView.getMenu().findItem(R.id.nav_settings).setCheckable(currentSelectedScreenItemNavId == R.id.nav_settings);
+		navigationView.getMenu().findItem(R.id.nav_send_feedback).setCheckable(currentSelectedScreenItemNavId == R.id.nav_send_feedback);
+		navigationView.getMenu().findItem(R.id.nav_rate_review).setCheckable(currentSelectedScreenItemNavId == R.id.nav_rate_review);
+		navigationView.getMenu().findItem(R.id.nav_support).setCheckable(currentSelectedScreenItemNavId == R.id.nav_support);
 	}
 
-	public void onBackStackChanged(int backStackEntryCount) {
+	void onBackStackChanged(int backStackEntryCount) {
 		setCurrentSelectedItemChecked(backStackEntryCount == 0);
 	}
 
@@ -622,7 +644,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		if (!this.resumed) {
 			return;
 		}
-		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		MainActivity mainActivity = this.mainActivityWR.get();
 		ArrayList<DataSourceType> newAllAgencyTypes = filterAgencyTypes(DataSourceProvider.get(mainActivity).getAvailableAgencyTypes());
 		if (CollectionUtils.getSize(this.allAgencyTypes) != CollectionUtils.getSize(newAllAgencyTypes)) {
 			this.allAgencyTypes = newAllAgencyTypes; // force reset
@@ -634,7 +656,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		}
 	}
 
-	public void onStart() {
+	void onStart() {
 		setup();
 	}
 
@@ -658,14 +680,14 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		this.resumed = false;
 	}
 
-	public void onStop() {
+	void onStop() {
 		TaskUtils.cancelQuietly(this.finishSetupTask, true);
 	}
 
 	private static final String EXTRA_SELECTED_ROOT_SCREEN_ID = "extra_selected_root_screen_id";
 	private static final String EXTRA_SELECTED_ROOT_SCREEN_NAV_ITEM_ID = "extra_selected_root_screen_nav_item_id";
 
-	public void onSaveState(Bundle outState) {
+	void onSaveState(Bundle outState) {
 		if (this.currentSelectedScreenItemNavId != null) {
 			outState.putInt(EXTRA_SELECTED_ROOT_SCREEN_NAV_ITEM_ID, this.currentSelectedScreenItemNavId);
 		}
@@ -674,7 +696,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		}
 	}
 
-	public void onRestoreState(Bundle savedInstanceState) {
+	void onRestoreState(Bundle savedInstanceState) {
 		Integer newSavedRootScreenNavItem = BundleUtils.getInt(EXTRA_SELECTED_ROOT_SCREEN_NAV_ITEM_ID, savedInstanceState);
 		if (newSavedRootScreenNavItem != null && !newSavedRootScreenNavItem.equals(this.currentSelectedScreenItemNavId)) {
 			this.currentSelectedScreenItemNavId = newSavedRootScreenNavItem;
@@ -685,12 +707,9 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		}
 	}
 
-	public void destroy() {
+	void destroy() {
 		DataSourceProvider.removeModulesUpdateListener(this);
-		if (this.mainActivityWR != null) {
-			this.mainActivityWR.clear();
-			this.mainActivityWR = null;
-		}
+		this.mainActivityWR.clear();
 		this.currentSelectedScreenItemNavId = null;
 		this.currentSelectedScreenItemId = null;
 		this.navigationView = null;
@@ -705,16 +724,17 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 
 	private static class ABDrawerToggle extends ActionBarDrawerToggle implements MTLog.Loggable {
 
-		private static final String TAG = MainActivity.class.getSimpleName() + ">" + ABDrawerToggle.class.getSimpleName();
+		private static final String LOG_TAG = MainActivity.class.getSimpleName() + ">" + ABDrawerToggle.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
 		private WeakReference<MainActivity> mainActivityWR;
 
-		public ABDrawerToggle(MainActivity mainActivity, DrawerLayout drawerLayout) {
+		ABDrawerToggle(MainActivity mainActivity, DrawerLayout drawerLayout) {
 			super(mainActivity, drawerLayout, R.string.drawer_open, R.string.drawer_close);
 			this.mainActivityWR = new WeakReference<>(mainActivity);
 		}

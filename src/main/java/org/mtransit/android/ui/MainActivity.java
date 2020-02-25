@@ -1,11 +1,21 @@
 package org.mtransit.android.ui;
 
+import android.app.Activity;
+import android.app.SearchManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.location.Location;
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-
-import java.util.WeakHashMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
@@ -22,18 +32,9 @@ import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.NightModeUtils;
 import org.mtransit.android.util.VendingUtils;
 
-import android.app.Activity;
-import android.app.SearchManager;
-import android.content.Context;
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.location.Location;
-import android.os.Bundle;
-import android.os.Handler;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import java.util.WeakHashMap;
 
+@SuppressWarnings("unused")
 public class MainActivity extends MTActivityWithLocation implements
 		FragmentManager.OnBackStackChangedListener,
 		AnalyticsManager.Trackable,
@@ -246,10 +247,7 @@ public class MainActivity extends MTActivityWithLocation implements
 			this.navigationDrawerController.destroy();
 			this.navigationDrawerController = null;
 		}
-		if (this.fragmentsToPopWR != null) {
-			this.fragmentsToPopWR.clear();
-			this.fragmentsToPopWR = null;
-		}
+		this.fragmentsToPopWR.clear();
 		DataSourceProvider.destroy();
 		this.adManager.destroyAd(this);
 	}
@@ -318,7 +316,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		MTActivityWithLocation.broadcastUserLocationChanged(this, getFragments(), lastLocation);
 	}
 
-	public boolean isCurrentFragmentVisible(Fragment fragment) {
+	public boolean isCurrentFragmentVisible(@Nullable Fragment fragment) {
 		return FragmentUtils.isCurrentFragmentVisible(this, R.id.content_frame, fragment);
 	}
 
@@ -392,7 +390,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(@NonNull Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		if (this.abController != null) {
 			this.abController.onCreateOptionsMenu(menu, getMenuInflater());
@@ -401,7 +399,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	}
 
 	@Override
-	protected void onPostCreate(Bundle savedInstanceState) {
+	protected void onPostCreate(@Nullable Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onActivityPostCreate();
@@ -422,20 +420,19 @@ public class MainActivity extends MTActivityWithLocation implements
 		this.adManager.adaptToScreenSize(this, newConfig);
 	}
 
-	private WeakHashMap<Fragment, Object> fragmentsToPopWR = new WeakHashMap<>();
+	@NonNull
+	private final WeakHashMap<Fragment, Object> fragmentsToPopWR = new WeakHashMap<>();
 
-	public void popFragmentFromStack(Fragment fragment) {
+	public void popFragmentFromStack(@Nullable Fragment fragment) {
 		FragmentUtils.popFragmentFromStack(this, fragment, null);
 	}
 
 	private void popFragmentsToPop() {
 		try {
-			if (this.fragmentsToPopWR != null) {
-				for (Fragment fragment : this.fragmentsToPopWR.keySet()) {
-					popFragmentFromStack(fragment);
-				}
-				this.fragmentsToPopWR.clear();
+			for (Fragment fragment : this.fragmentsToPopWR.keySet()) {
+				popFragmentFromStack(fragment);
 			}
+			this.fragmentsToPopWR.clear();
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while pop-ing fragments to pop from stack!");
 		}
@@ -446,7 +443,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		if (this.navigationDrawerController != null && this.navigationDrawerController.onOptionsItemSelected(item)) {
 			return true; // handled
 		}

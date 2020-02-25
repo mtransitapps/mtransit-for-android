@@ -6,6 +6,7 @@ import org.mtransit.android.commons.MTLog;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+@SuppressWarnings("unused")
 public interface CrashReporter {
 
 	void setup(@NonNull IContext context, boolean enabled);

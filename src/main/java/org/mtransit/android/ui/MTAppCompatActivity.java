@@ -162,7 +162,7 @@ public abstract class MTAppCompatActivity extends AppCompatActivity implements M
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onOptionsItemSelected(%s)", item);
 		}

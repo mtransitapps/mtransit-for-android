@@ -1,28 +1,30 @@
 package org.mtransit.android.ui;
 
-import java.lang.ref.WeakReference;
-
-import org.mtransit.android.R;
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.ui.fragment.ABFragment;
-import org.mtransit.android.ui.view.MTOnClickListener;
-
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import androidx.annotation.ColorInt;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+
+import org.mtransit.android.R;
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.ui.fragment.ABFragment;
+import org.mtransit.android.ui.view.MTOnClickListener;
+
+import java.lang.ref.WeakReference;
 
 public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
@@ -132,8 +134,8 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	private void setAB(CharSequence title, CharSequence subtitle, @ColorInt Integer bgColor, View customView, boolean customViewFocusable,
-			boolean customViewRequestFocus, boolean themeDarkInsteadOfThemeLight, boolean displayHomeAsUpEnabled, boolean showSearchMenuItem,
-			boolean fragmentReady) {
+					   boolean customViewRequestFocus, boolean themeDarkInsteadOfThemeLight, boolean displayHomeAsUpEnabled, boolean showSearchMenuItem,
+					   boolean fragmentReady) {
 		this.fragmentTitle = title;
 		this.fragmentSubtitle = subtitle;
 		this.fragmentBgColor = bgColor;
@@ -179,7 +181,6 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			updateABDrawerClosed();
 		}
 	}
-
 
 	public void setABBgColor(Fragment source, @ColorInt Integer bgColor, boolean update) {
 		if (!isCurrentFragmentVisible(source)) {
@@ -353,7 +354,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		this.upOnClickListener = null;
 	}
 
-	public boolean onCreateOptionsMenu(Menu menu, MenuInflater menuInflater) {
+	public boolean onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
 		menuInflater.inflate(R.menu.menu_main, menu);
 		this.searchMenuItem = menu.findItem(R.id.menu_search);
 		updateSearchMenuItemVisibility();
