@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.mtransit.android.BuildConfig;
-import org.mtransit.android.ad.AdManager;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.analytics.AnalyticsUserProperties;
 import org.mtransit.android.analytics.IAnalyticsManager;
@@ -50,9 +49,6 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 		super.onCreate();
 		if (BuildConfig.DEBUG) {
 			getLeakDetector().setup(this);
-		}
-		if (AdManager.isInAdsProcess(this)) {
-			return;
 		}
 		NightModeUtils.setDefaultNightMode(this);
 		application = this;

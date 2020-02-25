@@ -17,6 +17,7 @@ public class PlaceProviderTest {
 		// Arrange
 		String[] searchKeywords = null;
 		// Act
+		//noinspection ConstantConditions
 		String result = PlaceProvider.getTextSearchUrlString(API_KEY, LAT, LNG, RADIUS_IN_METERS, searchKeywords);
 		// Assert
 		assertNull(result);

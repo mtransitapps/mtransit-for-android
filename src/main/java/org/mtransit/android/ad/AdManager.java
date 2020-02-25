@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.facebook.ads.AudienceNetworkAds;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -35,10 +34,6 @@ import java.util.ArrayList;
 public class AdManager implements IAdManager, MTLog.Loggable {
 
 	private static final String LOG_TAG = AdManager.class.getSimpleName();
-
-	public static boolean isInAdsProcess(@NonNull IContext context) {
-		return AudienceNetworkAds.isInAdsProcess(context.requireContext());
-	}
 
 	@NonNull
 	@Override
