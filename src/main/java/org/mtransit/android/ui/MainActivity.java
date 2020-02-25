@@ -23,6 +23,7 @@ import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.SearchFragment;
@@ -71,6 +72,8 @@ public class MainActivity extends MTActivityWithLocation implements
 	private final IAdManager adManager;
 	@NonNull
 	private final IAnalyticsManager analyticsManager;
+	@NonNull
+	private final CrashReporter crashReporter;
 
 	private int currentUiMode = -1;
 
@@ -78,6 +81,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		super();
 		adManager = Injection.providesAdManager();
 		analyticsManager = Injection.providesAnalyticsManager();
+		crashReporter = Injection.providesCrashReporter();
 	}
 
 	@Override
@@ -87,7 +91,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		this.currentUiMode = getResources().getConfiguration().uiMode;
 		setContentView(R.layout.activity_main);
 		this.abController = new ActionBarController(this);
-		this.navigationDrawerController = new NavigationDrawerController(this);
+		this.navigationDrawerController = new NavigationDrawerController(this, crashReporter);
 		this.navigationDrawerController.onCreate(savedInstanceState);
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
 		DataSourceProvider.addModulesUpdateListener(this);
