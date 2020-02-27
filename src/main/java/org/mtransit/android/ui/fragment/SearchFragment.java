@@ -173,7 +173,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		if (this.typeFilter == null) {
 			return;
 		}
-		getLoaderManager().destroyLoader(POI_SEARCH_LOADER); // cancel now
+		LoaderUtils.destroyLoader(this, POI_SEARCH_LOADER); // cancel now
 		cancelRestartSearchLater();
 		View view = getView();
 		if (this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
@@ -405,7 +405,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	}
 
 	private void applyNewQuery() {
-		getLoaderManager().destroyLoader(POI_SEARCH_LOADER); // cancel now
+		LoaderUtils.destroyLoader(this, POI_SEARCH_LOADER); // cancel now
 		cancelRestartSearchLater();
 		if (TextUtils.isEmpty(this.query)) {
 			this.emptyText = getString(R.string.search_hint);

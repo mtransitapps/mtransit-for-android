@@ -11,7 +11,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import org.mtransit.android.commons.MTLog;
 
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "unused"})
 public final class FragmentUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = FragmentUtils.class.getSimpleName();
@@ -53,6 +53,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 		return fm == null ? null : fm.findFragmentById(fragmentResId);
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public static boolean isFragmentReady(@Nullable android.app.Fragment fragment) {
 		return fragment != null && fragment.isAdded() && !fragment.isDetached() && !fragment.isRemoving();
 	}

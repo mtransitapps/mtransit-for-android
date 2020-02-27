@@ -1,15 +1,26 @@
 package org.mtransit.android.ui.fragment;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.location.Location;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
 import org.mtransit.android.R;
 import org.mtransit.android.common.IContext;
@@ -24,28 +35,18 @@ import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.MapPOILoader;
+import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MTDialog;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-
-import android.app.Activity;
-import android.content.Context;
-import android.content.res.Configuration;
-import android.graphics.Color;
-import android.location.Location;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class MapFragment extends ABFragment implements
 		LoaderManager.LoaderCallbacks<Collection<MapViewController.POIMarker>>,
@@ -212,12 +213,13 @@ public class MapFragment extends ABFragment implements
 
 	@NonNull
 	@Override
-	public Loader<Collection<MapViewController.POIMarker>> onCreateLoader(int id, Bundle args) {
+	public Loader<Collection<MapViewController.POIMarker>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
 			return new MapPOILoader(getContext(), getFilterTypeIdsOrNull(), this.loadingLatLngBounds, this.loadedLatLngBounds);
 		default:
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
+			//noinspection ConstantConditions // TODO fix latter
 			return null;
 		}
 	}
@@ -227,7 +229,7 @@ public class MapFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onLoadFinished(@NonNull Loader<Collection<MapViewController.POIMarker>> loader, Collection<MapViewController.POIMarker> data) {
+	public void onLoadFinished(@NonNull Loader<Collection<MapViewController.POIMarker>> loader, @Nullable Collection<MapViewController.POIMarker> data) {
 		if (this.loadingLatLngBounds == null) {
 			return;
 		}
@@ -273,7 +275,7 @@ public class MapFragment extends ABFragment implements
 				&& this.loadingLatLngBounds.contains(latLngBounds.southwest);
 		if (!loaded && !loading) {
 			this.mapViewController.showLoading();
-			getLoaderManager().destroyLoader(POIS_LOADER); // cancel now
+			LoaderUtils.destroyLoader(this, POIS_LOADER); // cancel now
 			if (this.loadingLatLngBounds != null) {
 				if (!this.loadingLatLngBounds.contains(latLngBounds.northeast)) {
 					this.loadingLatLngBounds = this.loadingLatLngBounds.including(latLngBounds.northeast);
@@ -339,6 +341,7 @@ public class MapFragment extends ABFragment implements
 		TaskUtils.execute(this.loadFilterTypeIdsTask);
 	}
 
+	@Nullable
 	private LoadFilterTypeIdsTask loadFilterTypeIdsTask = null;
 
 	private static class LoadFilterTypeIdsTask extends FragmentAsyncTaskV4<Object, Void, Boolean, MapFragment> {
@@ -349,7 +352,7 @@ public class MapFragment extends ABFragment implements
 			return MapFragment.class.getSimpleName() + ">" + LoadFilterTypeIdsTask.class.getSimpleName();
 		}
 
-		public LoadFilterTypeIdsTask(MapFragment mapFragment) {
+		LoadFilterTypeIdsTask(MapFragment mapFragment) {
 			super(mapFragment);
 		}
 
@@ -370,9 +373,10 @@ public class MapFragment extends ABFragment implements
 		if (this.filterTypeIds != null) {
 			return false;
 		}
-		ArrayList<DataSourceType> availableTypes = filterTypes(DataSourceProvider.get(requireContext()).getAvailableAgencyTypes());
+		final Context context = requireContext();
+		ArrayList<DataSourceType> availableTypes = filterTypes(DataSourceProvider.get(context).getAvailableAgencyTypes());
 		Set<String> filterTypeIdStrings = PreferenceUtils.getPrefLcl( //
-				requireContext(), PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS, PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT);
+				context, PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS, PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT);
 		this.filterTypeIds = new HashSet<>();
 		boolean hasChanged = false;
 		if (filterTypeIdStrings != null) {
@@ -446,8 +450,11 @@ public class MapFragment extends ABFragment implements
 		if (this.filterTypeIds == null) {
 			return;
 		}
-		getLoaderManager().destroyLoader(POIS_LOADER); // cancel now
-		getAbController().setABTitle(this, getABTitle(getContext()), true);
+		LoaderUtils.destroyLoader(this, POIS_LOADER); // cancel now
+		final ActionBarController abController = getAbController();
+		if (abController != null) {
+			abController.setABTitle(this, getABTitle(requireContext()), true);
+		}
 		if (this.loadingLatLngBounds == null) {
 			this.loadingLatLngBounds = this.loadedLatLngBounds; // use the loaded area
 		}

@@ -1217,23 +1217,25 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		return R.drawable.map_icon_place_white_slim_original;
 	}
 
-	public void addMarkers(@NonNull Collection<POIMarker> result) {
+	public void addMarkers(@Nullable Collection<POIMarker> result) {
 		if (MapViewController.this.extendedGoogleMap == null) {
 			return;
 		}
 		ExtendedMarkerOptions options = new ExtendedMarkerOptions();
-		for (POIMarker poiMarker : result) {
-			options.position(poiMarker.position);
-			options.title(poiMarker.getTitle());
-			if (this.markerLabelShowExtra) {
-				options.snippet(poiMarker.getSnippet());
-			}
-			final Context context = getActivityOrNull();
-			options.icon(context, getPlaceIconRes(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
-			options.data(poiMarker.getUuidsAndAuthority());
-			IMarker marker = this.extendedGoogleMap.addMarker(options);
-			if (poiMarker.hasUUID(this.lastSelectedUUID)) {
-				marker.showInfoWindow();
+		if (result != null) {
+			for (POIMarker poiMarker : result) {
+				options.position(poiMarker.position);
+				options.title(poiMarker.getTitle());
+				if (this.markerLabelShowExtra) {
+					options.snippet(poiMarker.getSnippet());
+				}
+				final Context context = getActivityOrNull();
+				options.icon(context, getPlaceIconRes(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
+				options.data(poiMarker.getUuidsAndAuthority());
+				IMarker marker = this.extendedGoogleMap.addMarker(options);
+				if (poiMarker.hasUUID(this.lastSelectedUUID)) {
+					marker.showInfoWindow();
+				}
 			}
 		}
 		this.clusterManagerItemsLoaded = true;

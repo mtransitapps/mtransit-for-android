@@ -1,21 +1,21 @@
 package org.mtransit.android.dev;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 
-import io.fabric.sdk.android.Fabric;
+import org.mtransit.android.BuildConfig;
+import org.mtransit.android.common.IContext;
+import org.mtransit.android.commons.MTLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.mtransit.android.BuildConfig;
-import org.mtransit.android.common.IContext;
-import org.mtransit.android.commons.MTLog;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import io.fabric.sdk.android.Fabric;
 
 public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 
@@ -42,12 +42,12 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 	}
 
 	@Override
-	public void reportNonFatal(@Nullable String msg, @Nullable Object... args) {
+	public void reportNonFatal(@Nullable String msg, @NonNull Object... args) {
 		reportNonFatal(null, msg, args);
 	}
 
 	@Override
-	public void reportNonFatal(@Nullable Throwable throwable, @Nullable String message, @Nullable Object... args) {
+	public void reportNonFatal(@Nullable Throwable throwable, @Nullable String message, @NonNull Object... args) {
 		try {
 			String fMessage = message == null ? null : String.format(message, args);
 			Crashlytics.log(fMessage);
@@ -66,12 +66,12 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 	}
 
 	@Override
-	public void shouldNotHappen(@Nullable String msg, @Nullable Object... args) throws RuntimeException {
+	public void shouldNotHappen(@Nullable String msg, @NonNull Object... args) throws RuntimeException {
 		shouldNotHappen(null, msg, args);
 	}
 
 	@Override
-	public void shouldNotHappen(@Nullable Throwable throwable, @Nullable String msg, @Nullable Object... args) throws RuntimeException {
+	public void shouldNotHappen(@Nullable Throwable throwable, @Nullable String msg, @NonNull Object... args) throws RuntimeException {
 		if (BuildConfig.DEBUG) {
 			if (msg == null) {
 				msg = "No error message";
@@ -87,28 +87,36 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 	}
 
 	@Override
-	public void w(@NonNull MTLog.Loggable loggable, String msg, @Nullable Object... args) {
+	public void w(@NonNull MTLog.Loggable loggable, @Nullable String msg, @NonNull Object... args) {
 		w(loggable.getLogTag(), msg, args);
 	}
 
 	@Override
-	public void w(String tag, String msg, @Nullable Object... args) {
+	public void w(@NonNull String tag, @Nullable String msg, @NonNull Object... args) {
 		MTLog.w(tag, msg, args);
 		reportNonFatal(msg, args);
 	}
 
 	@Override
-	public void w(@NonNull MTLog.Loggable loggable, @Nullable Throwable t, String msg, @Nullable Object... args) {
+	public void w(@NonNull MTLog.Loggable loggable, @Nullable Throwable t, @Nullable String msg, @NonNull Object... args) {
 		w(loggable.getLogTag(), t, msg, args);
 	}
 
 	@Override
-	public void w(String tag, @Nullable Throwable t, String msg, @Nullable Object... args) {
+	public void w(@NonNull String tag, @Nullable Throwable t, @Nullable String msg, @NonNull Object... args) {
 		MTLog.w(tag, t, msg, args);
 		reportNonFatal(t, msg, args);
 	}
 
-	public static class NoException extends Exception {
+	public static class NoException extends Exception implements MTLog.Loggable {
+
+		private static final String LOG_TAG = NoException.class.getSimpleName();
+
+		@NonNull
+		@Override
+		public String getLogTag() {
+			return LOG_TAG;
+		}
 
 		private static final List<String> USELESS_CLASSES = Arrays.asList(
 				"org.mtransit.android.dev.CrashlyticsCrashReporter",
@@ -132,7 +140,7 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 				}
 				return cause;
 			} catch (Exception e) {
-				android.util.Log.w(NoException.class.getSimpleName(), "Error while setting cause stacktrace!", e);
+				android.util.Log.w(LOG_TAG, "Error while setting cause stacktrace!", e);
 				return super.getCause();
 			}
 		}
@@ -148,8 +156,7 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 
 		private void initCustomStackTrace() {
 			StackTraceElement[] stackTrace = super.getStackTrace();
-			List<StackTraceElement> customStackTraceList = new ArrayList<>(Arrays.asList( //
-					stackTrace == null ? new StackTraceElement[0] : stackTrace));
+			List<StackTraceElement> customStackTraceList = new ArrayList<>(Arrays.asList(stackTrace));
 			try {
 				Iterator<StackTraceElement> it = customStackTraceList.iterator();
 				while (it.hasNext()) {
@@ -161,7 +168,7 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 					}
 				}
 			} catch (Exception e) {
-				android.util.Log.w(NoException.class.getSimpleName(), "Error while initializing stacktrace!", e);
+				android.util.Log.w(LOG_TAG, "Error while initializing stacktrace!", e);
 			}
 			customStackTrace = customStackTraceList.toArray(new StackTraceElement[0]);
 		}

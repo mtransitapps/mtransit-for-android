@@ -1,13 +1,14 @@
 package org.mtransit.android.util;
 
-import org.mtransit.android.commons.MTLog;
-
 import android.os.Bundle;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
+
+import org.mtransit.android.commons.MTLog;
 
 public final class LoaderUtils implements MTLog.Loggable {
 
@@ -19,6 +20,7 @@ public final class LoaderUtils implements MTLog.Loggable {
 		return LOG_TAG;
 	}
 
+	@MainThread
 	public static void restartLoader(@NonNull Fragment fragment, int loaderId, @Nullable Bundle args, @NonNull LoaderManager.LoaderCallbacks<?> loaderCallbacks) {
 		try {
 			if (fragment.getActivity() == null) {
@@ -26,10 +28,11 @@ public final class LoaderUtils implements MTLog.Loggable {
 			}
 			restartLoader(LoaderManager.getInstance(fragment), loaderId, args, loaderCallbacks);
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error while restarting loader ID '%s' for '%s'", loaderId, loaderCallbacks);
+			CrashUtils.w(LOG_TAG, e, "Error while restarting loader ID '%d' for '%s'!", loaderId, loaderCallbacks);
 		}
 	}
 
+	@MainThread
 	private static void restartLoader(@NonNull LoaderManager loaderManager, int loaderId, @Nullable Bundle args, @NonNull LoaderManager.LoaderCallbacks<?> loaderCallbacks) {
 		try {
 			//noinspection ConstantConditions
@@ -38,7 +41,28 @@ public final class LoaderUtils implements MTLog.Loggable {
 			}
 			loaderManager.restartLoader(loaderId, args, loaderCallbacks);
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error while restarting loader ID '%s' for '%s'", loaderId, loaderCallbacks);
+			CrashUtils.w(LOG_TAG, e, "Error while restarting loader ID '%d' for '%s'!", loaderId, loaderCallbacks);
+		}
+	}
+
+	@MainThread
+	public static void destroyLoader(@NonNull Fragment fragment, int loaderId) {
+		try {
+			if (fragment.getActivity() == null) {
+				return;
+			}
+			destroyLoader(LoaderManager.getInstance(fragment), loaderId);
+		} catch (Exception e) {
+			CrashUtils.w(LOG_TAG, e, "Error while destroying loader ID '%d'!", loaderId);
+		}
+	}
+
+	@MainThread
+	public static void destroyLoader(@NonNull LoaderManager loaderManager, int loaderId) {
+		try {
+			loaderManager.destroyLoader(loaderId);
+		} catch (Exception e) {
+			CrashUtils.w(LOG_TAG, e, "Error while destroying loader ID '%d'!", loaderId);
 		}
 	}
 }

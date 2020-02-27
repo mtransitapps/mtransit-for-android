@@ -30,7 +30,8 @@ public abstract class FragmentAsyncTaskV4<Params, Progress, Result, F extends Fr
 	@Override
 	protected Result doInBackgroundMT(Params... params) {
 		F fragment = getFragment();
-		if (fragment == null) {
+		if (!FragmentUtils.isFragmentReady(fragment)) {
+			MTLog.d(this, "onPostExecute() > SKIP (fragment not ready)");
 			return null;
 		}
 		return doInBackgroundWithFragment(fragment, params);
