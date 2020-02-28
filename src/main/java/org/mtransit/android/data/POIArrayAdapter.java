@@ -1,14 +1,30 @@
 package org.mtransit.android.data;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.WeakHashMap;
-import java.util.concurrent.TimeUnit;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.graphics.Typeface;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.location.Location;
+import android.os.Handler;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
+
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
@@ -28,7 +44,7 @@ import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
-import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
@@ -46,30 +62,15 @@ import org.mtransit.android.ui.view.MTOnLongClickListener;
 import org.mtransit.android.ui.view.MTPieChartPercentView;
 import org.mtransit.android.util.CrashUtils;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.graphics.Typeface;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.location.Location;
-import android.os.Handler;
-import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.util.Pair;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.WeakHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements SensorUtils.CompassListener, AdapterView.OnItemClickListener,
 		AdapterView.OnItemLongClickListener, SensorEventListener, AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener,
@@ -763,10 +764,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 	}
 
-	private static class UpdateDistanceWithStringTask extends MTAsyncTask<Location, Void, Void> {
+	private static class UpdateDistanceWithStringTask extends MTCancellableAsyncTask<Location, Void, Void> {
 
+		@NonNull
 		private final WeakReference<POIArrayAdapter> poiArrayAdapterWR;
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return POIArrayAdapter.class.getSimpleName() + ">" + UpdateDistanceWithStringTask.class.getSimpleName();
@@ -777,7 +780,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 
 		@Override
-		protected Void doInBackgroundMT(Location... params) {
+		protected Void doInBackgroundNotCancelledMT(Location... params) {
 			android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
 			POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
 			if (poiArrayAdapter == null) {
@@ -799,7 +802,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 
 		@Override
-		protected void onPostExecute(Void result) {
+		protected void onPostExecuteNotCancelledMT(Void result) {
 			POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
 			if (poiArrayAdapter == null) {
 				return;
@@ -1863,17 +1866,19 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private RefreshFavoritesTask refreshFavoritesTask;
 
 	private void refreshFavorites() {
-		if (this.refreshFavoritesTask != null && this.refreshFavoritesTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.refreshFavoritesTask != null && this.refreshFavoritesTask.getStatus() == MTCancellableAsyncTask.Status.RUNNING) {
 			return; // skipped, last refresh still in progress so probably good enough
 		}
 		this.refreshFavoritesTask = new RefreshFavoritesTask(this);
 		TaskUtils.execute(this.refreshFavoritesTask);
 	}
 
-	private static class RefreshFavoritesTask extends MTAsyncTask<Integer, Void, ArrayList<Favorite>> {
+	private static class RefreshFavoritesTask extends MTCancellableAsyncTask<Integer, Void, ArrayList<Favorite>> {
 
+		@NonNull
 		private final WeakReference<POIArrayAdapter> poiArrayAdapterWR;
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return POIArrayAdapter.class.getSimpleName() + ">" + RefreshFavoritesTask.class.getSimpleName();
@@ -1884,7 +1889,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 
 		@Override
-		protected ArrayList<Favorite> doInBackgroundMT(Integer... params) {
+		protected ArrayList<Favorite> doInBackgroundNotCancelledMT(Integer... params) {
 			POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
 			if (poiArrayAdapter == null) {
 				return null;
@@ -1893,7 +1898,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		}
 
 		@Override
-		protected void onPostExecute(@Nullable ArrayList<Favorite> result) {
+		protected void onPostExecuteNotCancelledMT(@Nullable ArrayList<Favorite> result) {
 			POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
 			if (poiArrayAdapter == null) {
 				return;
@@ -1926,7 +1931,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 							(this.favUUIDsFolderIds != null //
 									&& this.favUUIDsFolderIds.containsKey(uid) //
 									&& this.favUUIDsFolderIds.get(uid) != favorite.getFolderId()) //
-							) {
+					) {
 						newFav = true;
 						updatedFav = true;
 					}

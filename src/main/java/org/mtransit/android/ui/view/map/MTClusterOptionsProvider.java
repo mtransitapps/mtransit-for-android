@@ -123,7 +123,6 @@ public class MTClusterOptionsProvider implements ClusterOptionsProvider, MTLog.L
 
 	@ColorInt
 	private int getDefaultColor(@Nullable Context context) {
-		MTLog.d(this, "getDefaultColor()");
 		if (context != null && ColorUtils.isDarkTheme(context)) {
 			return Color.WHITE;
 		} else {

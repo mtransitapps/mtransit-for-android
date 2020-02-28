@@ -1,11 +1,32 @@
 package org.mtransit.android.ui.fragment;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.concurrent.TimeUnit;
+import android.app.Activity;
+import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.location.Location;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.widget.AbsListView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
 import org.mtransit.android.R;
 import org.mtransit.android.common.IContext;
@@ -35,7 +56,7 @@ import org.mtransit.android.data.ScheduleProviderProperties;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
-import org.mtransit.android.task.FragmentAsyncTaskV4;
+import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
@@ -51,32 +72,12 @@ import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.LoaderUtils;
 import org.mtransit.android.util.MapUtils;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-
-import android.app.Activity;
-import android.content.Context;
-import android.content.res.Configuration;
-import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.location.Location;
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentActivity;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.widget.AbsListView;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
 public class POIFragment extends ABFragment implements
 		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
@@ -166,24 +167,25 @@ public class POIFragment extends ABFragment implements
 
 	private LoadAgencyTask loadAgencyTask = null;
 
-	private static class LoadAgencyTask extends FragmentAsyncTaskV4<Void, Void, Boolean, POIFragment> {
+	private static class LoadAgencyTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, POIFragment> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return POIFragment.class.getSimpleName() + ">" + LoadAgencyTask.class.getSimpleName();
 		}
 
-		public LoadAgencyTask(POIFragment poiFragment) {
+		LoadAgencyTask(POIFragment poiFragment) {
 			super(poiFragment);
 		}
 
 		@Override
-		protected Boolean doInBackgroundWithFragment(@NonNull POIFragment poiFragment, Void... params) {
+		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull POIFragment poiFragment, Void... params) {
 			return poiFragment.initAgencySync();
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull POIFragment poiFragment, @Nullable Boolean result) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull POIFragment poiFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
 				poiFragment.applyNewAgency();
 			}
@@ -249,24 +251,25 @@ public class POIFragment extends ABFragment implements
 
 	private LoadPoimTask loadPoimTask = null;
 
-	private static class LoadPoimTask extends FragmentAsyncTaskV4<Void, Void, Boolean, POIFragment> {
+	private static class LoadPoimTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, POIFragment> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return POIFragment.class.getSimpleName() + ">" + LoadPoimTask.class.getSimpleName();
 		}
 
-		public LoadPoimTask(POIFragment poiFragment) {
+		LoadPoimTask(@NonNull POIFragment poiFragment) {
 			super(poiFragment);
 		}
 
 		@Override
-		protected Boolean doInBackgroundWithFragment(@NonNull POIFragment poiFragment, Void... params) {
+		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull POIFragment poiFragment, @Nullable Void... params) {
 			return poiFragment.initPoimSync();
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull POIFragment poiFragment, @Nullable Boolean result) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull POIFragment poiFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
 				poiFragment.applyNewPoim();
 			}
@@ -359,24 +362,25 @@ public class POIFragment extends ABFragment implements
 
 	private LoadNewsTask loadNewsTask = null;
 
-	private static class LoadNewsTask extends FragmentAsyncTaskV4<Void, Void, Boolean, POIFragment> {
+	private static class LoadNewsTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, POIFragment> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return POIFragment.class.getSimpleName() + ">" + LoadNewsTask.class.getSimpleName();
 		}
 
-		public LoadNewsTask(POIFragment poiFragment) {
+		LoadNewsTask(POIFragment poiFragment) {
 			super(poiFragment);
 		}
 
 		@Override
-		protected Boolean doInBackgroundWithFragment(@NonNull POIFragment poiFragment, Void... params) {
+		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull POIFragment poiFragment, Void... params) {
 			return poiFragment.initNewsSync();
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull POIFragment poiFragment, @Nullable Boolean result) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull POIFragment poiFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
 				poiFragment.applyNewNews();
 			}
@@ -783,7 +787,6 @@ public class POIFragment extends ABFragment implements
 		}
 		return view.findViewById(R.id.poi_status_detail);
 	}
-
 
 	private View getPOIServiceUpdateView(View view) {
 		if (view == null) {

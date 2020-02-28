@@ -81,9 +81,9 @@ public final class FragmentUtils implements MTLog.Loggable {
 			}
 			ft.commit();
 		} catch (IllegalStateException ise) {
-			CrashUtils.w(LOG_TAG, ise, "Illegal State Exception while replacing fragment '%s'!", fragment);
+			CrashUtils.w(LOG_TAG, ise, "Illegal State Exception while replacing fragment '%s' from '%s' in '%s'!", fragment, optSource, fa);
 		} catch (Exception e) {
-			CrashUtils.w(LOG_TAG, e, "Unexpected error while replacing fragment '%s'!", fragment);
+			CrashUtils.w(LOG_TAG, e, "Unexpected error while replacing fragment '%s' from '%s' in '%s'!", fragment, optSource, fa);
 		}
 	}
 

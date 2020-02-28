@@ -1,7 +1,25 @@
 package org.mtransit.android.ui.fragment;
 
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
+import android.app.Activity;
+import android.content.Context;
+import android.location.Location;
+import android.os.Bundle;
+import android.os.Handler;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.widget.AbsListView;
+import android.widget.AdapterView;
+import android.widget.Spinner;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -15,7 +33,7 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
-import org.mtransit.android.task.FragmentAsyncTaskV4;
+import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.POISearchLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
@@ -23,25 +41,8 @@ import org.mtransit.android.ui.view.MTSearchView;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
-import android.app.Activity;
-import android.content.Context;
-import android.location.Location;
-import android.os.Bundle;
-import android.os.Handler;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.appcompat.app.ActionBar;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.Spinner;
-import android.widget.TextView;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class SearchFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
 		POIArrayAdapter.TypeHeaderButtonsClickListener, AdapterView.OnItemSelectedListener {
@@ -115,24 +116,25 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 	private LoadTypeFilterTask loadTypeFilterTask;
 
-	private static class LoadTypeFilterTask extends FragmentAsyncTaskV4<Void, Void, Boolean, SearchFragment> {
+	private static class LoadTypeFilterTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, SearchFragment> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return SearchFragment.class.getSimpleName() + ">" + LoadTypeFilterTask.class.getSimpleName();
 		}
 
-		public LoadTypeFilterTask(SearchFragment searchFragment) {
+		LoadTypeFilterTask(SearchFragment searchFragment) {
 			super(searchFragment);
 		}
 
 		@Override
-		protected Boolean doInBackgroundWithFragment(@NonNull SearchFragment searchFragment, Void... params) {
+		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull SearchFragment searchFragment, Void... params) {
 			return searchFragment.initTypeFilterSync();
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull SearchFragment searchFragment, @Nullable Boolean result) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull SearchFragment searchFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
 				searchFragment.applyNewTypeFilter();
 			}

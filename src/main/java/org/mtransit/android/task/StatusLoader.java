@@ -1,5 +1,20 @@
 package org.mtransit.android.task;
 
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.RuntimeUtils;
+import org.mtransit.android.commons.data.POIStatus;
+import org.mtransit.android.commons.provider.StatusProviderContract;
+import org.mtransit.android.commons.task.MTCancellableAsyncTask;
+import org.mtransit.android.data.DataSourceManager;
+import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.data.POIManager;
+import org.mtransit.android.data.StatusProviderProperties;
+
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,20 +23,6 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.RuntimeUtils;
-import org.mtransit.android.commons.data.POIStatus;
-import org.mtransit.android.commons.provider.StatusProviderContract;
-import org.mtransit.android.commons.task.MTAsyncTask;
-import org.mtransit.android.data.DataSourceManager;
-import org.mtransit.android.data.DataSourceProvider;
-import org.mtransit.android.data.POIManager;
-import org.mtransit.android.data.StatusProviderProperties;
-
-import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 public class StatusLoader implements MTLog.Loggable {
 
@@ -52,12 +53,13 @@ public class StatusLoader implements MTLog.Loggable {
 	private static final int MAX_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES > 1 ? RuntimeUtils.NUMBER_OF_CORES / 2 : 1;
 
 	@NonNull
-	public ThreadPoolExecutor getFetchStatusExecutor(String statusProviderAuthority) {
-		if (!this.fetchStatusExecutors.containsKey(statusProviderAuthority)) {
-			this.fetchStatusExecutors.put(statusProviderAuthority, //
-					new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS, new LIFOBlockingDeque<>()));
+	private ThreadPoolExecutor getFetchStatusExecutor(@NonNull String statusProviderAuthority) {
+		ThreadPoolExecutor threadPoolExecutor = this.fetchStatusExecutors.get(statusProviderAuthority);
+		if (threadPoolExecutor == null) {
+			threadPoolExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS, new LIFOBlockingDeque<>());
+			this.fetchStatusExecutors.put(statusProviderAuthority, threadPoolExecutor);
 		}
-		return this.fetchStatusExecutors.get(statusProviderAuthority);
+		return threadPoolExecutor;
 	}
 
 	public boolean isBusy() {
@@ -81,7 +83,7 @@ public class StatusLoader implements MTLog.Loggable {
 	}
 
 	public boolean findStatus(@Nullable Context context, @NonNull POIManager poim, @NonNull StatusProviderContract.Filter statusFilter,
-			@Nullable StatusLoader.StatusLoaderListener listener, boolean skipIfBusy) {
+							  @Nullable StatusLoader.StatusLoaderListener listener, boolean skipIfBusy) {
 		if (skipIfBusy && isBusy()) {
 			return false;
 		}
@@ -98,13 +100,14 @@ public class StatusLoader implements MTLog.Loggable {
 		return true;
 	}
 
-	private static class StatusFetcherCallable extends MTAsyncTask<Void, Void, POIStatus> {
+	private static class StatusFetcherCallable extends MTCancellableAsyncTask<Void, Void, POIStatus> {
 
-		private static final String TAG = StatusLoader.class.getSimpleName() + '>' + StatusFetcherCallable.class.getSimpleName();
+		private static final String LGO_TAG = StatusLoader.class.getSimpleName() + '>' + StatusFetcherCallable.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LGO_TAG;
 		}
 
 		@NonNull
@@ -119,7 +122,7 @@ public class StatusLoader implements MTLog.Loggable {
 		private final StatusProviderContract.Filter statusFilter;
 
 		StatusFetcherCallable(@Nullable Context context, @Nullable StatusLoader.StatusLoaderListener listener, @NonNull StatusProviderProperties statusProvider,
-				@Nullable POIManager poim, @NonNull StatusProviderContract.Filter statusFilter) {
+							  @Nullable POIManager poim, @NonNull StatusProviderContract.Filter statusFilter) {
 			this.contextWR = new WeakReference<>(context);
 			this.listenerWR = new WeakReference<>(listener);
 			this.statusProvider = statusProvider;
@@ -128,7 +131,7 @@ public class StatusLoader implements MTLog.Loggable {
 		}
 
 		@Override
-		protected POIStatus doInBackgroundMT(Void... params) {
+		protected POIStatus doInBackgroundNotCancelledMT(Void... params) {
 			try {
 				return call();
 			} catch (Exception e) {
@@ -138,7 +141,7 @@ public class StatusLoader implements MTLog.Loggable {
 		}
 
 		@Override
-		protected void onPostExecute(@Nullable POIStatus result) {
+		protected void onPostExecuteNotCancelledMT(@Nullable POIStatus result) {
 			if (result == null) {
 				return;
 			}
@@ -156,7 +159,8 @@ public class StatusLoader implements MTLog.Loggable {
 			}
 		}
 
-		public POIStatus call() {
+		@Nullable
+		POIStatus call() {
 			Context context = this.contextWR.get();
 			if (context == null) {
 				return null;

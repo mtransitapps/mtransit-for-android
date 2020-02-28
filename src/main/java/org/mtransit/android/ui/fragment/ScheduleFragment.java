@@ -1,6 +1,21 @@
 package org.mtransit.android.ui.fragment;
 
-import java.util.Calendar;
+import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -11,26 +26,12 @@ import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
-import org.mtransit.android.task.FragmentAsyncTaskV4;
+import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
 
-import android.app.Activity;
-import android.content.Context;
-import android.os.Bundle;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
+import java.util.Calendar;
 
 public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChangeListener {
 
@@ -97,24 +98,25 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 	private LoadRtsTask loadRtsTask = null;
 
-	private static class LoadRtsTask extends FragmentAsyncTaskV4<Void, Void, Boolean, ScheduleFragment> {
+	private static class LoadRtsTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, ScheduleFragment> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return ScheduleFragment.class.getSimpleName() + ">" + LoadRtsTask.class.getSimpleName();
 		}
 
-		public LoadRtsTask(ScheduleFragment scheduleFragment) {
+		LoadRtsTask(ScheduleFragment scheduleFragment) {
 			super(scheduleFragment);
 		}
 
 		@Override
-		protected Boolean doInBackgroundWithFragment(@NonNull ScheduleFragment scheduleFragment, Void... params) {
+		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull ScheduleFragment scheduleFragment, Void... params) {
 			return scheduleFragment.initRtsSync();
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull ScheduleFragment scheduleFragment, @Nullable Boolean result) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull ScheduleFragment scheduleFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
 				scheduleFragment.applyNewRts();
 			}
@@ -158,7 +160,6 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private String authority;
-
 
 	@Override
 	public void onAttach(@NonNull Activity activity) {

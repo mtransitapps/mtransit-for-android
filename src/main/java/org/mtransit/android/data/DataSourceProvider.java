@@ -22,7 +22,7 @@ import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.di.Injection;
 
 import java.util.ArrayList;
@@ -698,7 +698,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		void onModulesUpdated();
 	}
 
-	private static class TriggerModulesUpdatedTask extends MTAsyncTask<Void, ModulesUpdateListener, Void> {
+	private static class TriggerModulesUpdatedTask extends MTCancellableAsyncTask<Void, ModulesUpdateListener, Void> {
 
 		private static final String LOG_TAG = DataSourceProvider.class.getSimpleName() + ">" + TriggerModulesUpdatedTask.class.getSimpleName();
 
@@ -711,12 +711,12 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		@NonNull
 		private final WeakHashMap<ModulesUpdateListener, Object> listeners;
 
-		public TriggerModulesUpdatedTask(@NonNull WeakHashMap<ModulesUpdateListener, Object> listeners) {
+		TriggerModulesUpdatedTask(@NonNull WeakHashMap<ModulesUpdateListener, Object> listeners) {
 			this.listeners = listeners;
 		}
 
 		@Override
-		protected Void doInBackgroundMT(Void... params) {
+		protected Void doInBackgroundNotCancelledMT(Void... params) {
 			for (ModulesUpdateListener listener : this.listeners.keySet()) {
 				if (listener != null) {
 					publishProgress(listener);
@@ -726,7 +726,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		}
 
 		@Override
-		protected void onProgressUpdate(ModulesUpdateListener... values) {
+		protected void onProgressUpdateNotCancelledMT(ModulesUpdateListener... values) {
 			if (values != null && values.length > 0) {
 				try {
 					values[0].onModulesUpdated();

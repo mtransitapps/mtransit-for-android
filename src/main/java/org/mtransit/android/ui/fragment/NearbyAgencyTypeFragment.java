@@ -12,7 +12,7 @@ import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
-import org.mtransit.android.task.FragmentAsyncTaskV4;
+import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
@@ -152,24 +152,25 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 
 	private LoadTypeAgenciesAuthorityAsyncTask loadTypeAgenciesAuthorityAsyncTask = null;
 
-	private static class LoadTypeAgenciesAuthorityAsyncTask extends FragmentAsyncTaskV4<Void, Void, Boolean, NearbyAgencyTypeFragment> {
+	private static class LoadTypeAgenciesAuthorityAsyncTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, NearbyAgencyTypeFragment> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return NearbyAgencyTypeFragment.class.getSimpleName() + ">" + LoadTypeAgenciesAuthorityAsyncTask.class.getSimpleName();
 		}
 
-		public LoadTypeAgenciesAuthorityAsyncTask(NearbyAgencyTypeFragment nearbyAgencyTypeFragment) {
+		LoadTypeAgenciesAuthorityAsyncTask(NearbyAgencyTypeFragment nearbyAgencyTypeFragment) {
 			super(nearbyAgencyTypeFragment);
 		}
 
 		@Override
-		protected Boolean doInBackgroundWithFragment(@NonNull NearbyAgencyTypeFragment nearbyAgencyTypeFragment, Void... params) {
+		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull NearbyAgencyTypeFragment nearbyAgencyTypeFragment, Void... params) {
 			return nearbyAgencyTypeFragment.initTypeAgenciesAuthoritySync();
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull NearbyAgencyTypeFragment nearbyAgencyTypeFragment, @Nullable Boolean result) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull NearbyAgencyTypeFragment nearbyAgencyTypeFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
 				nearbyAgencyTypeFragment.applyNewTypeAgenciesAuthority();
 			}

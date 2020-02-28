@@ -1,6 +1,28 @@
 package org.mtransit.android.ui.fragment;
 
-import java.util.ArrayList;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
+import android.location.Address;
+import android.location.Location;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.widget.AbsListView;
+import android.widget.PopupWindow;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
@@ -14,35 +36,15 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.FavoriteManager;
-import org.mtransit.android.task.FragmentAsyncTaskV4;
 import org.mtransit.android.task.HomePOILoader;
+import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
+import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 import org.mtransit.android.util.LoaderUtils;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
-import android.location.Address;
-import android.location.Location;
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.widget.AbsListView;
-import android.widget.PopupWindow;
+import java.util.ArrayList;
 
 public class HomeFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
 		FavoriteManager.FavoriteUpdateListener, SwipeRefreshLayout.OnRefreshListener, POIArrayAdapter.TypeHeaderButtonsClickListener,
@@ -175,19 +177,20 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	private FindNearbyLocationTask findNearbyLocationTask;
 
-	private static class FindNearbyLocationTask extends FragmentAsyncTaskV4<Location, Void, String, HomeFragment> {
+	private static class FindNearbyLocationTask extends MTCancellableFragmentAsyncTask<Location, Void, String, HomeFragment> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return HomeFragment.class.getSimpleName() + ">" + FindNearbyLocationTask.class.getSimpleName();
 		}
 
-		public FindNearbyLocationTask(HomeFragment homeFragment) {
+		FindNearbyLocationTask(HomeFragment homeFragment) {
 			super(homeFragment);
 		}
 
 		@Override
-		protected String doInBackgroundWithFragment(@NonNull HomeFragment homeFragment, Location... locations) {
+		protected String doInBackgroundNotCancelledWithFragmentMT(@NonNull HomeFragment homeFragment, Location... locations) {
 			Context context = homeFragment.getContext();
 			Location nearbyLocation = locations[0];
 			if (context == null || nearbyLocation == null) {
@@ -198,14 +201,17 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull HomeFragment homeFragment, @Nullable String newLocationAddress) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull HomeFragment homeFragment, @Nullable String newLocationAddress) {
 			boolean refreshRequired = newLocationAddress != null && !newLocationAddress.equals(homeFragment.nearbyLocationAddress);
 			homeFragment.nearbyLocationAddress = newLocationAddress;
 			if (refreshRequired) {
 				Context context = homeFragment.getContext();
 				if (context != null) {
-					homeFragment.getAbController().setABSubtitle(homeFragment, homeFragment.getABSubtitle(context), false);
-					homeFragment.getAbController().setABReady(homeFragment, homeFragment.isABReady(), true);
+					final ActionBarController abController = homeFragment.getAbController();
+					if (abController != null) {
+						abController.setABSubtitle(homeFragment, homeFragment.getABSubtitle(context), false);
+						abController.setABReady(homeFragment, homeFragment.isABReady(), true);
+					}
 				}
 			}
 		}

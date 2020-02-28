@@ -33,7 +33,7 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
-import org.mtransit.android.task.FragmentAsyncTaskV4;
+import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.MapPOILoader;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MTActivityWithLocation;
@@ -344,7 +344,7 @@ public class MapFragment extends ABFragment implements
 	@Nullable
 	private LoadFilterTypeIdsTask loadFilterTypeIdsTask = null;
 
-	private static class LoadFilterTypeIdsTask extends FragmentAsyncTaskV4<Object, Void, Boolean, MapFragment> {
+	private static class LoadFilterTypeIdsTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, MapFragment> {
 
 		@NonNull
 		@Override
@@ -352,17 +352,18 @@ public class MapFragment extends ABFragment implements
 			return MapFragment.class.getSimpleName() + ">" + LoadFilterTypeIdsTask.class.getSimpleName();
 		}
 
-		LoadFilterTypeIdsTask(MapFragment mapFragment) {
+		LoadFilterTypeIdsTask(@NonNull MapFragment mapFragment) {
 			super(mapFragment);
 		}
 
+		@Nullable
 		@Override
-		protected Boolean doInBackgroundWithFragment(@NonNull MapFragment mapFragment, Object... params) {
+		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull MapFragment mapFragment, @Nullable Void... params) {
 			return mapFragment.initFilterTypeIdsSync();
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull MapFragment mapFragment, @Nullable Boolean result) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull MapFragment mapFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
 				mapFragment.applyNewFilterTypeIds();
 			}
@@ -373,7 +374,10 @@ public class MapFragment extends ABFragment implements
 		if (this.filterTypeIds != null) {
 			return false;
 		}
-		final Context context = requireContext();
+		final Context context = getContext();
+		if (context == null) {
+			return false;
+		}
 		ArrayList<DataSourceType> availableTypes = filterTypes(DataSourceProvider.get(context).getAvailableAgencyTypes());
 		Set<String> filterTypeIdStrings = PreferenceUtils.getPrefLcl( //
 				context, PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS, PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT);

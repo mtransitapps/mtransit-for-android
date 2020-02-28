@@ -1,9 +1,32 @@
 package org.mtransit.android.ui.fragment;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.concurrent.TimeUnit;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
+import android.location.Address;
+import android.location.Location;
+import android.os.Bundle;
+import android.os.Parcelable;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.widget.PopupWindow;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.tabs.TabLayout;
 
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
@@ -18,43 +41,19 @@ import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.di.Injection;
-import org.mtransit.android.task.FragmentAsyncTaskV4;
+import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
+import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.NavigationDrawerController;
 import org.mtransit.android.util.MapUtils;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
-import android.location.Address;
-import android.location.Location;
-import android.os.Bundle;
-import android.os.Parcelable;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.google.android.material.tabs.TabLayout;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.widget.PopupWindow;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
 public class NearbyFragment extends ABFragment implements ViewPager.OnPageChangeListener, MTActivityWithLocation.UserLocationListener,
 		SwipeRefreshLayout.OnRefreshListener {
@@ -313,19 +312,20 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 	private FindNearbyLocationTask findNearbyLocationTask;
 
-	private static class FindNearbyLocationTask extends FragmentAsyncTaskV4<Location, Void, String, NearbyFragment> {
+	private static class FindNearbyLocationTask extends MTCancellableFragmentAsyncTask<Location, Void, String, NearbyFragment> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return NearbyFragment.class.getSimpleName() + ">" + FindNearbyLocationTask.class.getSimpleName();
 		}
 
-		public FindNearbyLocationTask(NearbyFragment nearbyFragment) {
+		FindNearbyLocationTask(NearbyFragment nearbyFragment) {
 			super(nearbyFragment);
 		}
 
 		@Override
-		protected String doInBackgroundWithFragment(@NonNull NearbyFragment nearbyFragment, Location... locations) {
+		protected String doInBackgroundNotCancelledWithFragmentMT(@NonNull NearbyFragment nearbyFragment, Location... locations) {
 			Context context = nearbyFragment.getActivity();
 			Location nearbyLocation = locations[0];
 			if (context == null || nearbyLocation == null) {
@@ -336,15 +336,18 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull NearbyFragment nearbyFragment, @Nullable String newLocationAddress) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull NearbyFragment nearbyFragment, @Nullable String newLocationAddress) {
 			boolean refreshRequired = newLocationAddress != null && !newLocationAddress.equals(nearbyFragment.nearbyLocationAddress);
 			nearbyFragment.nearbyLocationAddress = newLocationAddress;
 			if (refreshRequired) {
 				Context context = nearbyFragment.getContext();
 				if (context != null) {
 					MTLog.d(this, "onPostExecute() > ab controller refresh");
-					nearbyFragment.getAbController().setABSubtitle(nearbyFragment, nearbyFragment.getABSubtitle(context), false);
-					nearbyFragment.getAbController().setABReady(nearbyFragment, nearbyFragment.isABReady(), true);
+					final ActionBarController abController = nearbyFragment.getAbController();
+					if (abController != null) {
+						abController.setABSubtitle(nearbyFragment, nearbyFragment.getABSubtitle(context), false);
+						abController.setABReady(nearbyFragment, nearbyFragment.isABReady(), true);
+					}
 				}
 			}
 		}
@@ -386,24 +389,25 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 	private LoadAvailableTypesTask loadAvailableTypesTask = null;
 
-	private static class LoadAvailableTypesTask extends FragmentAsyncTaskV4<Void, Void, Boolean, NearbyFragment> {
+	private static class LoadAvailableTypesTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, NearbyFragment> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return NearbyFragment.class.getSimpleName() + ">" + LoadAvailableTypesTask.class.getSimpleName();
 		}
 
-		public LoadAvailableTypesTask(NearbyFragment nearbyFragment) {
+		LoadAvailableTypesTask(NearbyFragment nearbyFragment) {
 			super(nearbyFragment);
 		}
 
 		@Override
-		protected Boolean doInBackgroundWithFragment(@NonNull NearbyFragment nearbyFragment, Void... params) {
+		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull NearbyFragment nearbyFragment, Void... params) {
 			return nearbyFragment.initAvailableTypesSync();
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull NearbyFragment nearbyFragment, @Nullable Boolean result) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull NearbyFragment nearbyFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
 				nearbyFragment.applyNewAvailableTypes();
 			}
@@ -446,26 +450,29 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		return availableAgencyTypes;
 	}
 
-	private static class LoadLastPageSelectedFromUserPreference extends FragmentAsyncTaskV4<Void, Void, Integer, NearbyFragment> {
+	private static class LoadLastPageSelectedFromUserPreference extends MTCancellableFragmentAsyncTask<Void, Void, Integer, NearbyFragment> {
 
-		private static final String TAG = NearbyFragment.class.getSimpleName() + ">" + LoadLastPageSelectedFromUserPreference.class.getSimpleName();
+		private static final String LOG_TAG = NearbyFragment.class.getSimpleName() + ">" + LoadLastPageSelectedFromUserPreference.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
+		@Nullable
 		private Integer selectedTypeId;
+		@Nullable
 		private ArrayList<DataSourceType> newAgencyTypes;
 
-		public LoadLastPageSelectedFromUserPreference(NearbyFragment nearbyFragment, Integer selectedTypeId, ArrayList<DataSourceType> newAgencyTypes) {
+		LoadLastPageSelectedFromUserPreference(@NonNull NearbyFragment nearbyFragment, @Nullable Integer selectedTypeId, @Nullable ArrayList<DataSourceType> newAgencyTypes) {
 			super(nearbyFragment);
 			this.selectedTypeId = selectedTypeId;
 			this.newAgencyTypes = newAgencyTypes;
 		}
 
 		@Override
-		protected Integer doInBackgroundWithFragment(@NonNull NearbyFragment nearbyFragment, Void... params) {
+		protected Integer doInBackgroundNotCancelledWithFragmentMT(@NonNull NearbyFragment nearbyFragment, Void... params) {
 			try {
 				if (this.selectedTypeId == null) {
 					Context context = nearbyFragment.getContext();
@@ -486,13 +493,13 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 					}
 				}
 			} catch (Exception e) {
-				MTLog.w(TAG, e, "Error while determining the select nearby tab!");
+				MTLog.w(LOG_TAG, e, "Error while determining the select nearby tab!");
 			}
 			return null;
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull NearbyFragment nearbyFragment, @Nullable Integer lastPageSelected) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull NearbyFragment nearbyFragment, @Nullable Integer lastPageSelected) {
 			if (nearbyFragment.lastPageSelected >= 0) {
 				return; // user has manually move to another page before, too late
 			}
@@ -643,8 +650,11 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		broadcastNearbyLocationChanged(this.nearbyLocation);
 		setSwipeRefreshLayoutRefreshing(false);
 		this.nearbyLocationAddress = null;
-		getAbController().setABSubtitle(this, getABSubtitle(getContext()), false);
-		getAbController().setABReady(this, isABReady(), true);
+		final ActionBarController abController = getAbController();
+		if (abController != null) {
+			abController.setABSubtitle(this, getABSubtitle(getContext()), false);
+			abController.setABReady(this, isABReady(), true);
+		}
 		View view = getView();
 		if (view != null) {
 			view.postDelayed(

@@ -45,7 +45,7 @@ import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.RouteTripStop;
-import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
@@ -252,8 +252,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	@Nullable
 	private InitMapViewTask initMapViewTask = null;
 
-	private static class InitMapViewTask extends MTAsyncTask<Object, Void, Boolean> {
+	private static class InitMapViewTask extends MTCancellableAsyncTask<Object, Void, Boolean> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return MapViewController.class.getSimpleName() + ">" + InitMapViewTask.class.getSimpleName();
@@ -271,7 +272,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 
 		@Override
-		protected Boolean doInBackgroundMT(Object... params) {
+		protected Boolean doInBackgroundNotCancelledMT(Object... params) {
 			View view = this.viewWR.get();
 			if (view == null) {
 				return false;
@@ -286,8 +287,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			super.onPostExecute(result);
+		protected void onPostExecuteNotCancelledMT(Boolean result) {
 			MapViewController mapViewController = this.mapViewControllerWR.get();
 			if (mapViewController == null) {
 				return;
@@ -1096,7 +1096,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	@Nullable
 	private LoadClusterItemsTask loadClusterItemsTask = null;
 
-	private static class LoadClusterItemsTask extends MTAsyncTask<Void, Void, Collection<POIMarker>> {
+	private static class LoadClusterItemsTask extends MTCancellableAsyncTask<Void, Void, Collection<POIMarker>> {
 
 		private final String LOG_TAG = MapViewController.class.getSimpleName() + ">" + LoadClusterItemsTask.class.getSimpleName();
 
@@ -1114,7 +1114,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 
 		@Override
-		protected Collection<POIMarker> doInBackgroundMT(Void... params) {
+		protected Collection<POIMarker> doInBackgroundNotCancelledMT(Void... params) {
 			MapViewController mapViewController = this.mapViewControllerWR.get();
 			if (mapViewController == null) {
 				return null;
@@ -1180,8 +1180,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 
 		@Override
-		protected void onPostExecute(@Nullable Collection<POIMarker> result) {
-			super.onPostExecute(result);
+		protected void onPostExecuteNotCancelledMT(@Nullable Collection<POIMarker> result) {
 			MapViewController mapViewController = this.mapViewControllerWR.get();
 			if (mapViewController == null) {
 				return;

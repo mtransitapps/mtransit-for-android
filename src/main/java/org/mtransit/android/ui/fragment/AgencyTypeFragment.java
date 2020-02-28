@@ -16,7 +16,7 @@ import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
-import org.mtransit.android.task.FragmentAsyncTaskV4;
+import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.ActionBarController;
@@ -317,24 +317,25 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	private LoadTypeTask loadTypeTask = null;
 
-	private static class LoadTypeTask extends FragmentAsyncTaskV4<Void, Void, Boolean, AgencyTypeFragment> {
+	private static class LoadTypeTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, AgencyTypeFragment> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return AgencyTypeFragment.class.getSimpleName() + ">" + LoadTypeTask.class.getSimpleName();
 		}
 
-		public LoadTypeTask(AgencyTypeFragment agencyTypeFragment) {
+		LoadTypeTask(AgencyTypeFragment agencyTypeFragment) {
 			super(agencyTypeFragment);
 		}
 
 		@Override
-		protected Boolean doInBackgroundWithFragment(@NonNull AgencyTypeFragment agencyTypeFragment, Void... voids) {
+		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull AgencyTypeFragment agencyTypeFragment, Void... voids) {
 			return agencyTypeFragment.initTypeSync();
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull AgencyTypeFragment agencyTypeFragment, @Nullable Boolean result) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull AgencyTypeFragment agencyTypeFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
 				agencyTypeFragment.applyNewType();
 			}
@@ -343,24 +344,25 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	private LoadTypeAgenciesTask loadTypeAgenciesTask = null;
 
-	private static class LoadTypeAgenciesTask extends FragmentAsyncTaskV4<Void, Void, Boolean, AgencyTypeFragment> {
+	private static class LoadTypeAgenciesTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, AgencyTypeFragment> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return AgencyTypeFragment.class.getSimpleName() + ">" + LoadTypeAgenciesTask.class.getSimpleName();
 		}
 
-		public LoadTypeAgenciesTask(AgencyTypeFragment agencyTypeFragment) {
+		LoadTypeAgenciesTask(AgencyTypeFragment agencyTypeFragment) {
 			super(agencyTypeFragment);
 		}
 
 		@Override
-		protected Boolean doInBackgroundWithFragment(@NonNull AgencyTypeFragment agencyTypeFragment, Void... params) {
+		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull AgencyTypeFragment agencyTypeFragment, Void... params) {
 			return agencyTypeFragment.initTypeAgenciesSync();
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull AgencyTypeFragment agencyTypeFragment, @Nullable Boolean result) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull AgencyTypeFragment agencyTypeFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
 				agencyTypeFragment.applyNewTypeAgencies();
 			}
@@ -430,30 +432,34 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		this.adapter = new AgencyPagerAdapter(activity, this, null);
 	}
 
-	private static class LoadLastPageSelectedFromUserPreference extends FragmentAsyncTaskV4<Void, Void, Integer, AgencyTypeFragment> {
+	private static class LoadLastPageSelectedFromUserPreference extends MTCancellableFragmentAsyncTask<Void, Void, Integer, AgencyTypeFragment> {
 
-		private final String TAG = AgencyTypeFragment.class.getSimpleName() + ">" + LoadLastPageSelectedFromUserPreference.class.getSimpleName();
+		private static final String LOG_TAG = AgencyTypeFragment.class.getSimpleName() + ">" + LoadLastPageSelectedFromUserPreference.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
+		@Nullable
 		private Integer typeId;
+		@Nullable
 		private ArrayList<AgencyProperties> newAgencies;
 
-		public LoadLastPageSelectedFromUserPreference(AgencyTypeFragment agencyTypeFragment, Integer typeId, ArrayList<AgencyProperties> newAgencies) {
+		LoadLastPageSelectedFromUserPreference(@NonNull AgencyTypeFragment agencyTypeFragment, @Nullable Integer typeId, @Nullable ArrayList<AgencyProperties> newAgencies) {
 			super(agencyTypeFragment);
 			this.typeId = typeId;
 			this.newAgencies = newAgencies;
 		}
 
+		@Nullable
 		@Override
-		protected Integer doInBackgroundWithFragment(@NonNull AgencyTypeFragment agencyTypeFragment, Void... params) {
+		protected Integer doInBackgroundNotCancelledWithFragmentMT(@NonNull AgencyTypeFragment agencyTypeFragment, Void... params) {
 			try {
 				String agencyAuthority;
 				Context context = agencyTypeFragment.getContext();
-				if (context != null) {
+				if (context != null && this.typeId != null) {
 					String typePref = PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(this.typeId);
 					agencyAuthority = PreferenceUtils.getPrefLcl(context, typePref, PreferenceUtils.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT);
 				} else {
@@ -473,7 +479,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull AgencyTypeFragment agencyTypeFragment, @Nullable Integer lastPageSelected) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull AgencyTypeFragment agencyTypeFragment, @Nullable Integer lastPageSelected) {
 			if (agencyTypeFragment.lastPageSelected >= 0) {
 				return; // user has manually move to another page before, too late
 			}
@@ -623,8 +629,11 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 					tabs.setBackgroundColor(this.abBgColor);
 				}
 			}
-			getAbController().setABBgColor(this, getABBgColor(getContext()), false);
-			getAbController().updateABBgColor();
+			final ActionBarController abController = getAbController();
+			if (abController != null) {
+				abController.setABBgColor(this, getABBgColor(getContext()), false);
+				abController.updateABBgColor();
+			}
 			cancelUpdateABColorLater();
 		}
 	}

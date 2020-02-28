@@ -1,5 +1,20 @@
 package org.mtransit.android.task;
 
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.RuntimeUtils;
+import org.mtransit.android.commons.data.ServiceUpdate;
+import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
+import org.mtransit.android.commons.task.MTCancellableAsyncTask;
+import org.mtransit.android.data.DataSourceManager;
+import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.data.POIManager;
+import org.mtransit.android.data.ServiceUpdateProviderProperties;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -7,26 +22,13 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.RuntimeUtils;
-import org.mtransit.android.commons.data.ServiceUpdate;
-import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
-import org.mtransit.android.commons.task.MTAsyncTask;
-import org.mtransit.android.data.DataSourceManager;
-import org.mtransit.android.data.DataSourceProvider;
-import org.mtransit.android.data.POIManager;
-import org.mtransit.android.data.ServiceUpdateProviderProperties;
-
-import android.content.Context;
-import androidx.annotation.Nullable;
-
 public class ServiceUpdateLoader implements MTLog.Loggable {
 
-	private static final String TAG = ServiceUpdateLoader.class.getSimpleName();
+	private static final String LOG_TAG = ServiceUpdateLoader.class.getSimpleName();
 
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private static ServiceUpdateLoader instance;
@@ -66,7 +68,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	}
 
 	public boolean findServiceUpdate(Context context, POIManager poim, ServiceUpdateProviderContract.Filter serviceUpdateFilter,
-			ServiceUpdateLoader.ServiceUpdateLoaderListener listener, boolean skipIfBusy) {
+									 ServiceUpdateLoader.ServiceUpdateLoaderListener listener, boolean skipIfBusy) {
 		if (skipIfBusy && isBusy()) {
 			return false;
 		}
@@ -81,23 +83,24 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		return true;
 	}
 
-	private static class ServiceUpdateFetcherCallable extends MTAsyncTask<Void, Void, ArrayList<ServiceUpdate>> {
+	private static class ServiceUpdateFetcherCallable extends MTCancellableAsyncTask<Void, Void, ArrayList<ServiceUpdate>> {
 
-		private static final String TAG = ServiceUpdateLoader.TAG + '>' + ServiceUpdateFetcherCallable.class.getSimpleName();
+		private static final String LOG_TAG = ServiceUpdateLoader.LOG_TAG + '>' + ServiceUpdateFetcherCallable.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
-		private WeakReference<Context> contextWR;
-		private ServiceUpdateProviderProperties serviceUpdateProvider;
-		private WeakReference<POIManager> poiWR;
-		private ServiceUpdateLoader.ServiceUpdateLoaderListener listener;
-		private ServiceUpdateProviderContract.Filter serviceUpdateFilter;
+		private final WeakReference<Context> contextWR;
+		private final ServiceUpdateProviderProperties serviceUpdateProvider;
+		private final WeakReference<POIManager> poiWR;
+		private final ServiceUpdateLoader.ServiceUpdateLoaderListener listener;
+		private final ServiceUpdateProviderContract.Filter serviceUpdateFilter;
 
 		public ServiceUpdateFetcherCallable(Context context, ServiceUpdateLoader.ServiceUpdateLoaderListener listener,
-				ServiceUpdateProviderProperties serviceUpdateProvider, POIManager poim, ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
+											ServiceUpdateProviderProperties serviceUpdateProvider, POIManager poim, ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
 			this.contextWR = new WeakReference<>(context);
 			this.listener = listener;
 			this.serviceUpdateProvider = serviceUpdateProvider;
@@ -106,7 +109,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Override
-		protected ArrayList<ServiceUpdate> doInBackgroundMT(Void... params) {
+		protected ArrayList<ServiceUpdate> doInBackgroundNotCancelledMT(Void... params) {
 			try {
 				return call();
 			} catch (Exception e) {
@@ -116,7 +119,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 
 		@Override
-		protected void onPostExecute(@Nullable ArrayList<ServiceUpdate> result) {
+		protected void onPostExecuteNotCancelledMT(@Nullable ArrayList<ServiceUpdate> result) {
 			if (result == null) {
 				return;
 			}
@@ -131,7 +134,8 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 			listener.onServiceUpdatesLoaded(poim.poi.getUUID(), poim.getServiceUpdatesOrNull());
 		}
 
-		public ArrayList<ServiceUpdate> call() {
+		@Nullable
+		ArrayList<ServiceUpdate> call() {
 			Context context = this.contextWR == null ? null : this.contextWR.get();
 			if (context == null) {
 				return null;

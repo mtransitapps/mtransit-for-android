@@ -29,7 +29,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.dev.CrashReporter;
@@ -115,7 +115,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	}
 
 	private void finishSetupAsync() {
-		if (this.finishSetupTask != null && this.finishSetupTask.getStatus() == MTAsyncTask.Status.RUNNING) {
+		if (this.finishSetupTask != null && this.finishSetupTask.getStatus() == MTCancellableAsyncTask.Status.RUNNING) {
 			return;
 		}
 		this.finishSetupTask = new FinishSetupTask(this);
@@ -125,7 +125,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	@Nullable
 	private FinishSetupTask finishSetupTask = null;
 
-	private static class FinishSetupTask extends MTAsyncTask<Void, String, String> {
+	private static class FinishSetupTask extends MTCancellableAsyncTask<Void, String, String> {
 
 		private final String LOG_TAG = NavigationDrawerController.LOG_TAG + ">" + FinishSetupTask.class.getSimpleName();
 
@@ -143,7 +143,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 
 		@Nullable
 		@Override
-		protected String doInBackgroundMT(Void... params) {
+		protected String doInBackgroundNotCancelledMT(Void... params) {
 			NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
 			if (navigationDrawerController == null) {
 				return null;
@@ -161,7 +161,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		}
 
 		@Override
-		protected void onPostExecute(@Nullable String itemId) {
+		protected void onPostExecuteNotCancelledMT(@Nullable String itemId) {
 			NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
 			if (navigationDrawerController == null) {
 				return;
@@ -190,11 +190,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		}
 
 		@Override
-		protected void onProgressUpdate(@Nullable String... itemIds) {
-			super.onProgressUpdate(itemIds);
-			if (isCancelled()) {
-				return;
-			}
+		protected void onProgressUpdateNotCancelledMT(@Nullable String... itemIds) {
 			selectItemId(itemIds == null || itemIds.length == 0 ? null : itemIds[0]);
 		}
 	}

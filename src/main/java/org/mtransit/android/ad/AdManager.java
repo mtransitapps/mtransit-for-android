@@ -22,7 +22,7 @@ import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.commons.task.MTAsyncTask;
+import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.provider.location.MTLocationProvider;
@@ -300,7 +300,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	@Nullable
 	private static SetupAdTask setupAdTask;
 
-	private static class SetupAdTask extends MTAsyncTask<Void, Void, Boolean> {
+	private static class SetupAdTask extends MTCancellableAsyncTask<Void, Void, Boolean> {
 
 		private static final String LOG_TAG = AdManager.class.getSimpleName() + ">" + SetupAdTask.class.getSimpleName();
 
@@ -324,7 +324,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 
 		@Override
-		protected Boolean doInBackgroundMT(Void... params) {
+		protected Boolean doInBackgroundNotCancelledMT(Void... params) {
 			if (!AD_ENABLED) {
 				return false;
 			}
@@ -332,7 +332,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 
 		@Override
-		protected void onPostExecute(@NonNull Boolean result) {
+		protected void onPostExecuteNotCancelledMT(@Nullable Boolean result) {
 			IActivity activity = this.activityWR.get();
 			if (activity == null) {
 				return;

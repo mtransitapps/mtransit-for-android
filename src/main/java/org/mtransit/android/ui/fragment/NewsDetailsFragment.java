@@ -20,7 +20,7 @@ import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.data.DataSourceManager;
-import org.mtransit.android.task.FragmentAsyncTaskV4;
+import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.util.LinkUtils;
@@ -125,24 +125,25 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 
 	private LoadNewsTask loadNewsTask = null;
 
-	private static class LoadNewsTask extends FragmentAsyncTaskV4<Void, Void, Boolean, NewsDetailsFragment> {
+	private static class LoadNewsTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, NewsDetailsFragment> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return NewsDetailsFragment.class.getSimpleName() + ">" + LoadNewsTask.class.getSimpleName();
 		}
 
-		public LoadNewsTask(NewsDetailsFragment newsDetailsFragment) {
+		LoadNewsTask(NewsDetailsFragment newsDetailsFragment) {
 			super(newsDetailsFragment);
 		}
 
 		@Override
-		protected Boolean doInBackgroundWithFragment(@NonNull NewsDetailsFragment newsDetailsFragment, Void... params) {
+		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull NewsDetailsFragment newsDetailsFragment, Void... params) {
 			return newsDetailsFragment.initNewsSync();
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull NewsDetailsFragment newsDetailsFragment, @Nullable Boolean result) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull NewsDetailsFragment newsDetailsFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
 				newsDetailsFragment.applyNewNews();
 			}

@@ -1,16 +1,25 @@
 package org.mtransit.android.ui.fragment;
 
+import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
+import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
+import android.util.SparseArray;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.widget.AbsListView;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
-
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -27,25 +36,16 @@ import org.mtransit.android.commons.ui.widget.MTBaseAdapter;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
-import org.mtransit.android.task.FragmentAsyncTaskV4;
+import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.ScheduleTimestampsLoader;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
-import android.app.Activity;
-import android.content.Context;
-import android.os.Bundle;
-import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.StyleSpan;
-import android.util.SparseArray;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.widget.AbsListView;
-import android.widget.TextView;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAwareFragment, DataSourceProvider.ModulesUpdateListener,
 		LoaderManager.LoaderCallbacks<ArrayList<Schedule.Timestamp>> {
@@ -65,7 +65,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	private static final String EXTRA_SCROLLED_TO_NOW = "extra_scrolled_to_now";
 
 	public static ScheduleDayFragment newInstance(String uuid, String authority, long dayStartsAtInMs, int fragmentPosition, int lastVisibleFragmentPosition,
-			RouteTripStop optRts) {
+												  RouteTripStop optRts) {
 		ScheduleDayFragment f = new ScheduleDayFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
@@ -154,24 +154,25 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 	private LoadRtsTask loadRtsTask = null;
 
-	private static class LoadRtsTask extends FragmentAsyncTaskV4<Void, Void, Boolean, ScheduleDayFragment> {
+	private static class LoadRtsTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, ScheduleDayFragment> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return ScheduleDayFragment.class.getSimpleName() + ">" + LoadRtsTask.class.getSimpleName();
 		}
 
-		public LoadRtsTask(ScheduleDayFragment scheduleDayFragment) {
+		LoadRtsTask(ScheduleDayFragment scheduleDayFragment) {
 			super(scheduleDayFragment);
 		}
 
 		@Override
-		protected Boolean doInBackgroundWithFragment(@NonNull ScheduleDayFragment scheduleDayFragment, Void... params) {
+		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull ScheduleDayFragment scheduleDayFragment, Void... params) {
 			return scheduleDayFragment.initRtsSync();
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull ScheduleDayFragment scheduleDayFragment, @Nullable Boolean result) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull ScheduleDayFragment scheduleDayFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
 				scheduleDayFragment.applyNewRts();
 			}

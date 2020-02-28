@@ -1,27 +1,5 @@
 package org.mtransit.android.ui.fragment;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Locale;
-
-import org.mtransit.android.R;
-import org.mtransit.android.commons.BundleUtils;
-import org.mtransit.android.commons.CollectionUtils;
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.PreferenceUtils;
-import org.mtransit.android.commons.SpanUtils;
-import org.mtransit.android.commons.StringUtils;
-import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.commons.data.Route;
-import org.mtransit.android.commons.data.Trip;
-import org.mtransit.android.data.DataSourceManager;
-import org.mtransit.android.data.POIManager;
-import org.mtransit.android.task.FragmentAsyncTaskV4;
-import org.mtransit.android.task.ServiceUpdateLoader;
-import org.mtransit.android.task.StatusLoader;
-import org.mtransit.android.ui.MTActivityWithLocation;
-import org.mtransit.android.ui.MainActivity;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
@@ -29,17 +7,6 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.location.Location;
 import android.os.Bundle;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.tabs.TabLayout;
-
-import androidx.core.content.res.ResourcesCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.widget.SwitchCompat;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
@@ -53,6 +20,40 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.CompoundButton;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.tabs.TabLayout;
+
+import org.mtransit.android.R;
+import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.CollectionUtils;
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.commons.SpanUtils;
+import org.mtransit.android.commons.StringUtils;
+import org.mtransit.android.commons.TaskUtils;
+import org.mtransit.android.commons.data.Route;
+import org.mtransit.android.commons.data.Trip;
+import org.mtransit.android.data.DataSourceManager;
+import org.mtransit.android.data.POIManager;
+import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
+import org.mtransit.android.task.ServiceUpdateLoader;
+import org.mtransit.android.task.StatusLoader;
+import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.ui.MainActivity;
+
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Locale;
 
 public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChangeListener, MTActivityWithLocation.UserLocationListener,
 		CompoundButton.OnCheckedChangeListener {
@@ -204,24 +205,25 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 	private LoadRouteTripsTask loadRouteTripsTask = null;
 
-	private static class LoadRouteTripsTask extends FragmentAsyncTaskV4<Object, Void, Boolean, RTSRouteFragment> {
+	private static class LoadRouteTripsTask extends MTCancellableFragmentAsyncTask<Object, Void, Boolean, RTSRouteFragment> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return RTSRouteFragment.class.getSimpleName() + ">" + LoadRouteTripsTask.class.getSimpleName();
 		}
 
-		public LoadRouteTripsTask(RTSRouteFragment rtsRouteFragment) {
+		LoadRouteTripsTask(RTSRouteFragment rtsRouteFragment) {
 			super(rtsRouteFragment);
 		}
 
 		@Override
-		protected Boolean doInBackgroundWithFragment(@NonNull RTSRouteFragment rtsRouteFragment, Object... params) {
+		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull RTSRouteFragment rtsRouteFragment, Object... params) {
 			return rtsRouteFragment.initRouteTripsSync();
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull RTSRouteFragment rtsRouteFragment, @Nullable Boolean result) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull RTSRouteFragment rtsRouteFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
 				rtsRouteFragment.applyNewRouteTrips();
 			}
@@ -284,24 +286,25 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 	private LoadRouteTask loadRouteTask = null;
 
-	private static class LoadRouteTask extends FragmentAsyncTaskV4<Object, Void, Boolean, RTSRouteFragment> {
+	private static class LoadRouteTask extends MTCancellableFragmentAsyncTask<Object, Void, Boolean, RTSRouteFragment> {
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return RTSRouteFragment.class.getSimpleName() + ">" + LoadRouteTask.class.getSimpleName();
 		}
 
-		public LoadRouteTask(RTSRouteFragment rtsRouteFragment) {
+		LoadRouteTask(RTSRouteFragment rtsRouteFragment) {
 			super(rtsRouteFragment);
 		}
 
 		@Override
-		protected Boolean doInBackgroundWithFragment(@NonNull RTSRouteFragment rtsRouteFragment, Object... params) {
+		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull RTSRouteFragment rtsRouteFragment, Object... params) {
 			return rtsRouteFragment.initRouteSync();
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull RTSRouteFragment rtsRouteFragment, @Nullable Boolean result) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull RTSRouteFragment rtsRouteFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
 				rtsRouteFragment.applyNewRoute();
 			}
@@ -391,22 +394,27 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		this.adapter = new RouteTripPagerAdapter(context, this, null, this.authority, null, this.stopId, isShowingListInsteadOfMap());
 	}
 
-	private static class LoadLastPageSelectedFromUserPreference extends FragmentAsyncTaskV4<Void, Void, Integer, RTSRouteFragment> {
+	private static class LoadLastPageSelectedFromUserPreference extends MTCancellableFragmentAsyncTask<Void, Void, Integer, RTSRouteFragment> {
 
-		private final String TAG = RTSRouteFragment.class.getSimpleName() + ">" + LoadLastPageSelectedFromUserPreference.class.getSimpleName();
+		private final String LOG_TAG = RTSRouteFragment.class.getSimpleName() + ">" + LoadLastPageSelectedFromUserPreference.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
 		private String authority;
 		private Long routeId;
 		private long tripId;
+		@Nullable
 		private ArrayList<Trip> routeTrips;
 
-		public LoadLastPageSelectedFromUserPreference(RTSRouteFragment rtsRouteFragment, String authority, Long routeId, long tripId,
-				ArrayList<Trip> routeTrips) {
+		LoadLastPageSelectedFromUserPreference(RTSRouteFragment rtsRouteFragment,
+											   String authority,
+											   Long routeId,
+											   long tripId,
+											   @Nullable ArrayList<Trip> routeTrips) {
 			super(rtsRouteFragment);
 			this.authority = authority;
 			this.routeId = routeId;
@@ -415,7 +423,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 
 		@Override
-		protected Integer doInBackgroundWithFragment(@NonNull RTSRouteFragment rtsRouteFragment, Void... params) {
+		protected Integer doInBackgroundNotCancelledWithFragmentMT(@NonNull RTSRouteFragment rtsRouteFragment, Void... params) {
 			try {
 				Context context = rtsRouteFragment.getContext();
 				if (this.tripId < 0L) {
@@ -440,7 +448,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 
 		@Override
-		protected void onPostExecuteFragmentReady(@NonNull RTSRouteFragment rtsRouteFragment, @Nullable Integer lastPageSelected) {
+		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull RTSRouteFragment rtsRouteFragment, @Nullable Integer lastPageSelected) {
 			if (rtsRouteFragment.lastPageSelected >= 0) {
 				return; // user has manually move to another page before, too late
 			}
@@ -794,7 +802,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		private boolean showingListInsteadOfMap;
 
 		public RouteTripPagerAdapter(Context context, RTSRouteFragment fragment, ArrayList<Trip> routeTrips, String authority, Route optRoute, int stopId,
-				boolean showingListInsteadOfMap) {
+									 boolean showingListInsteadOfMap) {
 			super(fragment.getChildFragmentManager());
 			this.contextWR = new WeakReference<>(context);
 			this.routeTrips = routeTrips;
