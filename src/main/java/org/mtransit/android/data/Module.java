@@ -1,5 +1,13 @@
 package org.mtransit.android.data;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.text.TextUtils;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mtransit.android.commons.ColorUtils;
@@ -9,13 +17,7 @@ import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.provider.ModuleProvider;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import android.text.TextUtils;
-
+@SuppressWarnings("WeakerAccess")
 public class Module extends DefaultPOI {
 
 	private static final String TAG = Module.class.getSimpleName();
@@ -28,44 +30,42 @@ public class Module extends DefaultPOI {
 
 	public static final int DST_ID = DataSourceType.TYPE_MODULE.getId();
 
-	private String pkg;
+	@NonNull
+	private final String pkg;
 
-	private int targetTypeId;
+	private final int targetTypeId;
 
+	@Nullable
 	private String color = null;
 
+	@Nullable
 	private String location = null;
 
+	@Nullable
 	private String nameFr = null;
 
-	public Module(String authority, String pkg, int targetTypeId) {
+	public Module(@NonNull String authority, @NonNull String pkg, int targetTypeId) {
 		super(authority, DST_ID, POI.ITEM_VIEW_TYPE_MODULE, POI.ITEM_STATUS_TYPE_APP, POI.ITEM_ACTION_TYPE_APP);
-		setPkg(pkg);
-		setTargetTypeId(targetTypeId);
-	}
-
-	public String getPkg() {
-		return pkg;
-	}
-
-	private void setPkg(String pkg) {
 		this.pkg = pkg;
 		resetUUID();
+		this.targetTypeId = targetTypeId;
+	}
+
+	@NonNull
+	public String getPkg() {
+		return pkg;
 	}
 
 	public int getTargetTypeId() {
 		return targetTypeId;
 	}
 
-	private void setTargetTypeId(int targetTypeId) {
-		this.targetTypeId = targetTypeId;
-	}
-
-	private void setColor(String color) {
+	private void setColor(@Nullable String color) {
 		this.color = color;
 		this.colorInt = null; // reset
 	}
 
+	@Nullable
 	public String getColor() {
 		return this.color;
 	}
@@ -77,30 +77,36 @@ public class Module extends DefaultPOI {
 	@ColorInt
 	public int getColorInt() {
 		if (this.colorInt == null) {
-			this.colorInt = ColorUtils.parseColor(getColor());
+			if (getColor() != null) {
+				this.colorInt = ColorUtils.parseColor(getColor());
+			}
 		}
 		return this.colorInt;
 	}
 
+	@Nullable
 	public String getLocation() {
 		return this.location;
 	}
 
-	private void setLocation(String location) {
+	private void setLocation(@Nullable String location) {
 		this.location = location;
 	}
 
+	@Nullable
 	public String getNameFr() {
 		return nameFr;
 	}
 
-	private void setNameFr(String nameFr) {
+	private void setNameFr(@Nullable String nameFr) {
 		this.nameFr = nameFr;
 	}
 
+	@NonNull
 	@Override
 	public String getName() {
-		if (LocaleUtils.isFR() && !TextUtils.isEmpty(getNameFr())) {
+		if (LocaleUtils.isFR()
+				&& !TextUtils.isEmpty(getNameFr())) {
 			return getNameFr();
 		}
 		return super.getName();
@@ -109,11 +115,15 @@ public class Module extends DefaultPOI {
 	@NonNull
 	@Override
 	public String toString() {
-		return new StringBuilder().append(Module.class.getSimpleName()).append(":[") //
-				.append("authority:").append(getAuthority()).append(',') //
-				.append("pkg:").append(getPkg()).append(',') //
-				.append("id:").append(getId()).append(',') //
-				.append(']').toString();
+		return Module.class.getSimpleName() + "{" +
+				"pkg='" + pkg + '\'' +
+				", targetTypeId=" + targetTypeId +
+				", color='" + color + '\'' +
+				", location='" + location + '\'' +
+				", nameFr='" + nameFr + '\'' +
+				", colorInt=" + colorInt +
+				", uuid='" + uuid + '\'' +
+				'}';
 	}
 
 	@Override
@@ -259,7 +269,8 @@ public class Module extends DefaultPOI {
 		return fromCursorStatic(c, authority);
 	}
 
-	public static Module fromCursorStatic(Cursor c, String authority) {
+	@NonNull
+	public static Module fromCursorStatic(@NonNull Cursor c, @NonNull String authority) {
 		String pkg = c.getString(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_PKG));
 		int targetTypeId = c.getInt(c.getColumnIndexOrThrow(ModuleProvider.ModuleColumns.T_MODULE_K_TARGET_TYPE_ID));
 		Module module = new Module(authority, pkg, targetTypeId);

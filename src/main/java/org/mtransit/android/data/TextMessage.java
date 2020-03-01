@@ -1,5 +1,8 @@
 package org.mtransit.android.data;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+
 import androidx.annotation.NonNull;
 
 import org.json.JSONException;
@@ -8,9 +11,6 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.provider.POIProviderContract;
-
-import android.content.ContentValues;
-import android.database.Cursor;
 
 public class TextMessage extends DefaultPOI {
 
@@ -49,6 +49,7 @@ public class TextMessage extends DefaultPOI {
 		return this.message;
 	}
 
+	@NonNull
 	@Override
 	public String getName() {
 		return getMessage();
@@ -162,7 +163,9 @@ public class TextMessage extends DefaultPOI {
 		return fromCursorStatic(c, authority);
 	}
 
-	public static TextMessage fromCursorStatic(Cursor c, String authority) {
+	@NonNull
+	public static TextMessage fromCursorStatic(@NonNull Cursor c,
+											   @SuppressWarnings("unused") @NonNull String authority) {
 		long messageId = c.getLong(c.getColumnIndexOrThrow(TextMessageColumns.T_TEXT_MESSAGE_K_MESSAGE_ID));
 		String message = c.getString(c.getColumnIndexOrThrow(TextMessageColumns.T_TEXT_MESSAGE_K_MESSAGE));
 		TextMessage textMessage = new TextMessage(messageId, message);

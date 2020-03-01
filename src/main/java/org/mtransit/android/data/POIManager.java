@@ -1,14 +1,15 @@
 package org.mtransit.android.data;
 
+import android.app.Activity;
+import android.content.Context;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.text.TextUtils;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.SparseArrayCompat;
-
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
@@ -41,11 +42,10 @@ import org.mtransit.android.ui.fragment.NearbyFragment;
 import org.mtransit.android.ui.fragment.POIFragment;
 import org.mtransit.android.ui.fragment.RTSRouteFragment;
 
-import android.app.Activity;
-import android.content.Context;
-import android.database.Cursor;
-import android.graphics.Color;
-import android.text.TextUtils;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 
 public class POIManager implements LocationPOI, MTLog.Loggable {
 
@@ -66,7 +66,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return ColorUtils.getTextColorTertiary(context);
 	}
 
-	public POI poi;
+	@NonNull
+	public final POI poi;
 	private CharSequence distanceString = null;
 	private float distance = -1;
 	@Nullable
@@ -81,11 +82,11 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	private int scheduleMaxDataRequests = Schedule.ScheduleStatusFilter.MAX_DATA_REQUESTS_DEFAULT;
 
-	public POIManager(POI poi) {
+	public POIManager(@NonNull POI poi) {
 		this(poi, null);
 	}
 
-	public POIManager(POI poi, @Nullable POIStatus status) {
+	public POIManager(@NonNull POI poi, @Nullable POIStatus status) {
 		this.poi = poi;
 		this.status = status;
 	}
@@ -223,6 +224,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		this.scheduleMaxDataRequests = scheduleMaxDataRequests;
 	}
 
+	@Nullable
 	private StatusProviderContract.Filter getFilter() {
 		switch (getStatusType()) {
 		case POI.ITEM_STATUS_TYPE_NONE:
