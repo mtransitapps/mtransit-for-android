@@ -72,7 +72,7 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 	private Location userLocation = null;
 
 	@Override
-	public void onAttach(Activity activity) {
+	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
 		initAdapters(activity);
 	}
@@ -116,7 +116,7 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_dialog_pick_poi, container, false);
 		setupView(view);
@@ -197,7 +197,7 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		if (CollectionUtils.getSize(this.uuids) > 0) {
 			outState.putStringArrayList(EXTRA_POI_UUIDS, this.uuids);
 		}

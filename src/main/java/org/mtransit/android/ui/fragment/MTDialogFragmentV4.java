@@ -1,8 +1,5 @@
 package org.mtransit.android.ui.fragment;
 
-import org.mtransit.android.commons.Constants;
-import org.mtransit.android.commons.MTLog;
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -10,14 +7,22 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+import org.mtransit.android.commons.Constants;
+import org.mtransit.android.commons.MTLog;
 
 /**
  * NO LOGIC HERE, just logs.
@@ -33,7 +38,7 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 
 	@NonNull
 	@Override
-	public Dialog onCreateDialog(Bundle savedInstanceState) {
+	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCreateDialog(%s)", savedInstanceState);
 		}
@@ -41,7 +46,7 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 	}
 
 	@Override
-	public void show(FragmentManager manager, String tag) {
+	public void show(@NonNull FragmentManager manager, @Nullable String tag) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "show(%s,%s)", manager, tag);
 		}
@@ -49,7 +54,7 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 	}
 
 	@Override
-	public int show(FragmentTransaction transaction, String tag) {
+	public int show(@NonNull FragmentTransaction transaction, @Nullable String tag) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "show(%s,%s)", transaction, tag);
 		}
@@ -57,7 +62,7 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 	}
 
 	@Override
-	public void onCancel(DialogInterface dialog) {
+	public void onCancel(@NonNull DialogInterface dialog) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCancel(%s)", dialog);
 		}
@@ -65,7 +70,7 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 	}
 
 	@Override
-	public void onDismiss(DialogInterface dialog) {
+	public void onDismiss(@NonNull DialogInterface dialog) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onDismiss(%s)", dialog);
 		}
@@ -74,7 +79,7 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 
 	// INHERITED FROM FRAGMENT
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onActivityCreated(%s)", savedInstanceState);
 		}
@@ -82,7 +87,7 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onActivityResult(%s,%s,%s)", requestCode, resultCode, data);
 		}
@@ -91,7 +96,7 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void onAttach(Activity activity) {
+	public void onAttach(@NonNull Activity activity) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onAttach(%s)", activity);
 		}
@@ -99,7 +104,7 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 	}
 
 	@Override
-	public void onAttach(Context context) {
+	public void onAttach(@NonNull Context context) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onAttach(%s)", context);
 		}
@@ -107,7 +112,7 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onConfigurationChanged(%s)", newConfig);
 		}
@@ -115,15 +120,17 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCreate(%s)", savedInstanceState);
 		}
 		super.onCreate(savedInstanceState);
 	}
 
+	@MainThread
+	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCreateView(%s,%s,%s)", inflater, container, savedInstanceState);
 		}
@@ -155,16 +162,20 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 	}
 
 	@SuppressWarnings("deprecation")
+	@UiThread
+	@CallSuper
 	@Override
-	public void onInflate(Activity activity, AttributeSet attrs, Bundle savedInstanceState) {
+	public void onInflate(@NonNull Activity activity, @NonNull AttributeSet attrs, @Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onInflate(%s,%s,%s)", activity, attrs, savedInstanceState);
 		}
 		super.onInflate(activity, attrs, savedInstanceState);
 	}
 
+	@UiThread
+	@CallSuper
 	@Override
-	public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+	public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs, @Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onInflate(%s,%s,%s)", context, attrs, savedInstanceState);
 		}
@@ -196,7 +207,7 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onSaveInstanceState(%s)", outState);
 		}
@@ -220,7 +231,7 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onViewCreated(%s, %s)", view, savedInstanceState);
 		}
@@ -228,7 +239,7 @@ public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog
 	}
 
 	@Override
-	public void onViewStateRestored(Bundle savedInstanceState) {
+	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onViewStateRestored(%s)", savedInstanceState);
 		}

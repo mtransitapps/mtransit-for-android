@@ -136,6 +136,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		this.statusLoaderListenerWR = new WeakReference<>(statusLoaderListener);
 	}
 
+	@Nullable
 	public String getLocation() {
 		if (this.poi instanceof Module) {
 			return ((Module) this.poi).getLocation();
@@ -144,9 +145,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	public int getStatusType() {
-		if (this.poi == null) {
-			return -1;
-		}
 		return this.poi.getStatusType();
 	}
 
