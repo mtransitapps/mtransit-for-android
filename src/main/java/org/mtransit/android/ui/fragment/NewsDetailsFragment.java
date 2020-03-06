@@ -192,7 +192,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 			return;
 		}
 		TextView newsTv = view.findViewById(R.id.newsText);
-		newsTv.setText(LinkUtils.linkifyHtml(news.getTextHTML(), true));
+		newsTv.setText(LinkUtils.linkifyHtml(news.getTextHTML(), true), TextView.BufferType.SPANNABLE);
 		newsTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptop.getInstance(this));
 		if (news.hasColor()) {
 			newsTv.setLinkTextColor(ColorUtils.adaptColorToTheme(view.getContext(), news.getColorInt()));
@@ -200,7 +200,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 			newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(view.getContext()));
 		}
 		TextView dateTv = view.findViewById(R.id.date);
-		dateTv.setText(TimeUtils.formatRelativeTime(view.getContext(), news.getCreatedAtInMs()));
+		dateTv.setText(TimeUtils.formatRelativeTime(view.getContext(), news.getCreatedAtInMs()), TextView.BufferType.SPANNABLE);
 		final String newWebURL = TextUtils.isEmpty(news.getWebURL()) ? news.getAuthorProfileURL() : news.getWebURL();
 		dateTv.setOnClickListener(new MTOnClickListener() {
 			@Override

@@ -440,7 +440,7 @@ public class POIViewController implements MTLog.Loggable {
 		AppStatusViewHolder appStatusViewHolder = (AppStatusViewHolder) statusViewHolder;
 		if (status instanceof AppStatus) {
 			AppStatus appStatus = (AppStatus) status;
-			appStatusViewHolder.textTv.setText(appStatus.getStatusMsg(context));
+			appStatusViewHolder.textTv.setText(appStatus.getStatusMsg(context), TextView.BufferType.SPANNABLE);
 			appStatusViewHolder.textTv.setVisibility(View.VISIBLE);
 			statusViewHolder.statusV.setVisibility(View.VISIBLE);
 		} else {
@@ -472,8 +472,8 @@ public class POIViewController implements MTLog.Loggable {
 			}
 		}
 		ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
-		scheduleStatusViewHolder.dataNextLine1Tv.setText(line1CS);
-		scheduleStatusViewHolder.dataNextLine2Tv.setText(line2CS);
+		scheduleStatusViewHolder.dataNextLine1Tv.setText(line1CS, TextView.BufferType.SPANNABLE);
+		scheduleStatusViewHolder.dataNextLine2Tv.setText(line2CS, TextView.BufferType.SPANNABLE);
 		scheduleStatusViewHolder.dataNextLine2Tv.setVisibility(line2CS != null && line2CS.length() > 0 ? View.VISIBLE : View.GONE);
 		statusViewHolder.statusV.setVisibility(line1CS != null && line1CS.length() > 0 ? View.VISIBLE : View.INVISIBLE);
 	}
@@ -494,11 +494,11 @@ public class POIViewController implements MTLog.Loggable {
 			AvailabilityPercent availabilityPercent = (AvailabilityPercent) status;
 			if (!availabilityPercent.isStatusOK()) {
 				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.GONE);
-				availabilityPercentStatusViewHolder.textTv.setText(availabilityPercent.getStatusMsg(context));
+				availabilityPercentStatusViewHolder.textTv.setText(availabilityPercent.getStatusMsg(context), TextView.BufferType.SPANNABLE);
 				availabilityPercentStatusViewHolder.textTv.setVisibility(View.VISIBLE);
 			} else if (availabilityPercent.isShowingLowerValue()) {
 				availabilityPercentStatusViewHolder.piePercentV.setVisibility(View.GONE);
-				availabilityPercentStatusViewHolder.textTv.setText(availabilityPercent.getLowerValueText(context));
+				availabilityPercentStatusViewHolder.textTv.setText(availabilityPercent.getLowerValueText(context), TextView.BufferType.SPANNABLE);
 				availabilityPercentStatusViewHolder.textTv.setVisibility(View.VISIBLE);
 			} else {
 				availabilityPercentStatusViewHolder.textTv.setVisibility(View.GONE);

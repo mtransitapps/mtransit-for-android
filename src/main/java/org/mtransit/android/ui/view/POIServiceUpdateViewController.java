@@ -113,7 +113,7 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 					serviceMessageDisplayed++;
 				}
 			}
-			serviceUpdatesListViewHolder.messagesTv.setText(LinkUtils.linkifyHtml(ssb.toString(), true));
+			serviceUpdatesListViewHolder.messagesTv.setText(LinkUtils.linkifyHtml(ssb.toString(), true), TextView.BufferType.SPANNABLE);
 			serviceUpdatesListViewHolder.messagesTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptop.getInstance(dataProvider));
 		}
 		if (serviceMessageDisplayed == 0) {

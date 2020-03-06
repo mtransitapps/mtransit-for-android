@@ -303,7 +303,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		if (view == null) {
 			return;
 		}
-		((TextView) view.findViewById(R.id.dayDate)).setText(getDayDateString());
+		((TextView) view.findViewById(R.id.dayDate)).setText(getDayDateString(), TextView.BufferType.SPANNABLE);
 		setupAdapter(view);
 	}
 

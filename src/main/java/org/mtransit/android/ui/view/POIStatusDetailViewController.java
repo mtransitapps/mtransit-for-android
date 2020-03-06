@@ -1,7 +1,21 @@
 package org.mtransit.android.ui.view;
 
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
+import android.content.Context;
+import android.graphics.PorterDuff;
+import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
+import android.text.style.TextAppearanceSpan;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
@@ -15,23 +29,8 @@ import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.data.POIManager;
 
-import android.content.Context;
-import android.graphics.PorterDuff;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.util.Pair;
-
-import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.StyleSpan;
-import android.text.style.TextAppearanceSpan;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class POIStatusDetailViewController implements MTLog.Loggable {
 
@@ -114,7 +113,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static void updatePOIStatus(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status,
-			POIViewController.POIDataProvider dataProvider, POIManager optPOI) {
+										POIViewController.POIDataProvider dataProvider, POIManager optPOI) {
 		if (dataProvider == null || !dataProvider.isShowingStatus() || status == null || statusViewHolder == null) {
 			if (statusViewHolder != null) {
 				setStatusView(statusViewHolder, false);
@@ -178,7 +177,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static void updateAppStatusView(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim,
-			POIViewController.POIDataProvider dataProvider) {
+											POIViewController.POIDataProvider dataProvider) {
 		if (dataProvider != null && dataProvider.isShowingStatus() && poim != null && statusViewHolder instanceof AppStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
 			updateAppStatusView(context, statusViewHolder, poim.getStatus(context));
@@ -191,7 +190,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		AppStatusViewHolder appStatusViewHolder = (AppStatusViewHolder) statusViewHolder;
 		if (status instanceof AppStatus) {
 			AppStatus appStatus = (AppStatus) status;
-			appStatusViewHolder.textTv.setText(appStatus.getStatusMsg(context));
+			appStatusViewHolder.textTv.setText(appStatus.getStatusMsg(context), TextView.BufferType.SPANNABLE);
 			appStatusViewHolder.textTv.setVisibility(View.VISIBLE);
 			setStatusView(statusViewHolder, true);
 		} else {
@@ -200,7 +199,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static void updateAvailabilityPercentView(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim,
-			POIViewController.POIDataProvider dataProvider) {
+													  POIViewController.POIDataProvider dataProvider) {
 		if (dataProvider != null && dataProvider.isShowingStatus() && poim != null && statusViewHolder instanceof AvailabilityPercentStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
 			updateAvailabilityPercentView(context, statusViewHolder, poim.getStatus(context));
@@ -215,21 +214,21 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			AvailabilityPercent availabilityPercent = (AvailabilityPercent) status;
 			if (!availabilityPercent.isStatusOK()) {
 				availabilityPercentStatusViewHolder.textTv2.setVisibility(View.GONE);
-				availabilityPercentStatusViewHolder.textTv1.setText(availabilityPercent.getStatusMsg(context));
+				availabilityPercentStatusViewHolder.textTv1.setText(availabilityPercent.getStatusMsg(context), TextView.BufferType.SPANNABLE);
 				availabilityPercentStatusViewHolder.textTv1.setVisibility(View.VISIBLE);
 			} else {
 				final CharSequence value1SubValue1Text = availabilityPercent.getValue1SubValue1Text(context);
 				if (value1SubValue1Text == null) { // NO SUB-VALUE
-					availabilityPercentStatusViewHolder.textTv1.setText(availabilityPercent.getValue1Text(context, false));
+					availabilityPercentStatusViewHolder.textTv1.setText(availabilityPercent.getValue1Text(context, false), TextView.BufferType.SPANNABLE);
 					availabilityPercentStatusViewHolder.textTv1.setVisibility(View.VISIBLE);
 					availabilityPercentStatusViewHolder.textTv1SubValue1.setVisibility(View.GONE);
 				} else { // WITH SUB-VALUE
-					availabilityPercentStatusViewHolder.textTv1.setText(availabilityPercent.getValue1SubValueDefaultText(context));
+					availabilityPercentStatusViewHolder.textTv1.setText(availabilityPercent.getValue1SubValueDefaultText(context), TextView.BufferType.SPANNABLE);
 					availabilityPercentStatusViewHolder.textTv1.setVisibility(View.VISIBLE);
-					availabilityPercentStatusViewHolder.textTv1SubValue1.setText(value1SubValue1Text);
+					availabilityPercentStatusViewHolder.textTv1SubValue1.setText(value1SubValue1Text, TextView.BufferType.SPANNABLE);
 					availabilityPercentStatusViewHolder.textTv1SubValue1.setVisibility(View.VISIBLE);
 				}
-				availabilityPercentStatusViewHolder.textTv2.setText(availabilityPercent.getValue2Text(context));
+				availabilityPercentStatusViewHolder.textTv2.setText(availabilityPercent.getValue2Text(context), TextView.BufferType.SPANNABLE);
 				availabilityPercentStatusViewHolder.textTv2.setVisibility(View.VISIBLE);
 			}
 			availabilityPercentStatusViewHolder.progressBar.setIndeterminate(false);
@@ -243,7 +242,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static void updateScheduleView(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim,
-			POIViewController.POIDataProvider dataProvider) {
+										   POIViewController.POIDataProvider dataProvider) {
 		if (dataProvider != null && dataProvider.isShowingStatus() && poim != null && statusViewHolder instanceof ScheduleStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
 			updateScheduleView(context, statusViewHolder, poim.getStatus(context), dataProvider, poim);
@@ -253,7 +252,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static void updateScheduleView(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status,
-			POIViewController.POIDataProvider dataProvider, POIManager optPOI) {
+										   POIViewController.POIDataProvider dataProvider, POIManager optPOI) {
 		ArrayList<Pair<CharSequence, CharSequence>> nextDeparturesList = null;
 		if (dataProvider != null && status instanceof Schedule) {
 			Schedule schedule = (Schedule) status;
@@ -271,14 +270,14 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		if (nextDeparturesList != null) {
 			for (Pair<CharSequence, CharSequence> nextDeparture : nextDeparturesList) {
 				View view = layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_departure, scheduleStatusViewHolder.nextDeparturesLL, false);
-				((TextView) view.findViewById(R.id.next_departure_time_baseline)).setText(baselineSSB);
+				((TextView) view.findViewById(R.id.next_departure_time_baseline)).setText(baselineSSB, TextView.BufferType.SPANNABLE);
 				((TextView) view.findViewById(R.id.next_departure_time)).setText(nextDeparture.first);
 				TextView headSignTv = view.findViewById(R.id.next_departures_head_sign);
 				if (TextUtils.isEmpty(nextDeparture.second)) {
 					headSignTv.setText(null);
 					headSignTv.setVisibility(View.INVISIBLE);
 				} else {
-					headSignTv.setText(nextDeparture.second);
+					headSignTv.setText(nextDeparture.second, TextView.BufferType.SPANNABLE);
 					headSignTv.setVisibility(View.VISIBLE);
 				}
 				scheduleStatusViewHolder.nextDeparturesLL.addView(view);
@@ -300,9 +299,11 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		return scheduleSpaceTextAppearance;
 	}
 
+	@Nullable
 	private static SpannableStringBuilder baselineSSB;
 
-	private static SpannableStringBuilder getScheduleSpace(Context context) {
+	@NonNull
+	private static SpannableStringBuilder getScheduleSpace(@NonNull Context context) {
 		if (baselineSSB == null) {
 			baselineSSB = SpanUtils.setAll(new SpannableStringBuilder(StringUtils.SPACE_STRING), //
 					getScheduleSpaceTextAppearance(context), SCHEDULE_SPACE_STYLE, SCHEDULE_SPACE_SIZE);
