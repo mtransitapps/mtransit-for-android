@@ -13,7 +13,6 @@ import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteTripStop;
-import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
@@ -21,6 +20,7 @@ import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.JPaths;
 import org.mtransit.android.data.Module;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.data.UISchedule;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
@@ -462,8 +462,8 @@ public class POIViewController implements MTLog.Loggable {
 			@NonNull POIDataProvider dataProvider) {
 		CharSequence line1CS = null;
 		CharSequence line2CS = null;
-		if (status instanceof Schedule) {
-			Schedule schedule = (Schedule) status;
+		if (status instanceof UISchedule) {
+			UISchedule schedule = (UISchedule) status;
 			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getStatus( //
 					context, dataProvider.getNowToTheMinute(), TimeUnit.MINUTES.toMillis(30L), null, 10, null);
 			if (lines != null && lines.size() >= 1) {

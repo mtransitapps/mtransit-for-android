@@ -18,7 +18,6 @@ import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
-import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ScheduleTimestamps;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.data.Trip;
@@ -190,7 +189,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 					result = null;
 					break;
 				case POI.ITEM_STATUS_TYPE_SCHEDULE:
-					result = Schedule.fromCursorWithExtra(cursor);
+					result = UISchedule.fromCursorWithExtra(cursor);
 					break;
 				case POI.ITEM_STATUS_TYPE_AVAILABILITY_PERCENT:
 					result = AvailabilityPercent.fromCursorWithExtra(cursor);

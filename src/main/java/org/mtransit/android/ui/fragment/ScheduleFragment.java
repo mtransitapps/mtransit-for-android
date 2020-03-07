@@ -21,7 +21,6 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.DataSourceManager;
@@ -30,6 +29,7 @@ import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.util.UITimeUtils;
 
 import java.util.Calendar;
 
@@ -219,7 +219,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (activity == null) {
 			return;
 		}
-		this.adapter = new DayPagerAdapter(this, TimeUtils.getBeginningOfTodayInMs(), null, null, null);
+		this.adapter = new DayPagerAdapter(this, UITimeUtils.getBeginningOfTodayInMs(), null, null, null);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -441,7 +441,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			this.authority = authority;
 			this.optRts = optRts;
 			this.todayStartsAtInMs = todayStartsAtInMs;
-			this.todayStartsAtCal = TimeUtils.getNewCalendarInstance(this.todayStartsAtInMs);
+			this.todayStartsAtCal = UITimeUtils.getNewCalendarInstance(this.todayStartsAtInMs);
 		}
 
 		public boolean isInitialized() {

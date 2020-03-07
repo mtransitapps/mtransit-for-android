@@ -21,7 +21,6 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SqlUtils;
-import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.DefaultPOI;
@@ -36,6 +35,7 @@ import org.mtransit.android.commons.provider.StatusProvider;
 import org.mtransit.android.commons.provider.StatusProviderContract;
 import org.mtransit.android.data.Module;
 import org.mtransit.android.di.Injection;
+import org.mtransit.android.util.UITimeUtils;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -290,7 +290,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	public void updateModuleDataIfRequired() {
 		long lastUpdateInMs = PreferenceUtils.getPrefLcl(getContext(), PREF_KEY_LAST_UPDATE_MS, 0L);
-		long nowInMs = TimeUtils.currentTimeMillis();
+		long nowInMs = UITimeUtils.currentTimeMillis();
 		if (lastUpdateInMs + getPOIMaxValidityInMs() < nowInMs) { // too old to display?
 			deleteAllModuleData();
 			updateAllModuleDataFromWWW(lastUpdateInMs);
@@ -326,7 +326,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			if (context == null) {
 				return null;
 			}
-			long newLastUpdateInMs = TimeUtils.currentTimeMillis();
+			long newLastUpdateInMs = UITimeUtils.currentTimeMillis();
 			int fileResId = R.raw.modules;
 			String jsonString = FileUtils.fromFileRes(context, fileResId);
 			HashSet<Module> modules = new HashSet<>();
@@ -386,7 +386,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@NonNull
 	public POIStatus getNewModuleStatus(@NonNull AppStatus.AppStatusFilter filter) {
-		long newLastUpdateInMs = TimeUtils.currentTimeMillis();
+		long newLastUpdateInMs = UITimeUtils.currentTimeMillis();
 		//noinspection ConstantConditions // TODO requireContext()
 		final boolean appInstalled = PackageManagerUtils.isAppInstalled(getContext(), filter.getPkg());
 		final boolean appEnabled = PackageManagerUtils.isAppEnabled(getContext(), filter.getPkg());

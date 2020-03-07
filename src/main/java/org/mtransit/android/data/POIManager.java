@@ -21,7 +21,6 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.StringUtils;
-import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.DefaultPOI;
@@ -29,7 +28,7 @@ import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteTripStop;
-import org.mtransit.android.commons.data.Schedule;
+import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.provider.StatusProviderContract;
@@ -41,6 +40,7 @@ import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.NearbyFragment;
 import org.mtransit.android.ui.fragment.POIFragment;
 import org.mtransit.android.ui.fragment.RTSRouteFragment;
+import org.mtransit.android.util.UITimeUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -80,7 +80,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	private WeakReference<StatusLoader.StatusLoaderListener> statusLoaderListenerWR;
 
-	private int scheduleMaxDataRequests = Schedule.ScheduleStatusFilter.MAX_DATA_REQUESTS_DEFAULT;
+	private int scheduleMaxDataRequests = ScheduleStatusFilter.MAX_DATA_REQUESTS_DEFAULT;
 
 	public POIManager(@NonNull POI poi) {
 		this(poi, null);
@@ -160,7 +160,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_STATUS_TYPE_NONE:
 			return false; // no change
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
-			if (!(newStatus instanceof Schedule)) {
+			if (!(newStatus instanceof UISchedule)) {
 				MTLog.w(this, "setStatus() > Unexpected schedule status '%s'!", newStatus);
 				return false; // no change
 			}
@@ -202,7 +202,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	private boolean findStatus(Context context, boolean skipIfBusy) {
-		long findStatusTimestampMs = TimeUtils.currentTimeToTheMinuteMillis();
+		long findStatusTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindStatusTimestampMs != findStatusTimestampMs) { // IF not same minute as last findStatus() call DO
 			StatusProviderContract.Filter filter = getFilter();
@@ -230,8 +230,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_STATUS_TYPE_SCHEDULE:
 			if (this.poi instanceof RouteTripStop) {
 				RouteTripStop rts = (RouteTripStop) this.poi;
-				Schedule.ScheduleStatusFilter filter = new Schedule.ScheduleStatusFilter(this.poi.getUUID(), rts);
-				filter.setLookBehindInMs(TimeUtils.RECENT_IN_MILLIS);
+				ScheduleStatusFilter filter = new ScheduleStatusFilter(this.poi.getUUID(), rts);
+				filter.setLookBehindInMs(UITimeUtils.RECENT_IN_MILLIS);
 				filter.setMaxDataRequests(this.scheduleMaxDataRequests);
 				return filter;
 			} else {
@@ -308,7 +308,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private long lastFindServiceUpdateTimestampMs = -1;
 
 	private boolean findServiceUpdates(Context context, boolean skipIfBusy) {
-		long findServiceUpdateTimestampMs = TimeUtils.currentTimeToTheMinuteMillis();
+		long findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
 			ServiceUpdateProviderContract.Filter filter = new ServiceUpdateProviderContract.Filter(this.poi);

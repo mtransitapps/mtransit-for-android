@@ -9,7 +9,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
-import org.mtransit.android.commons.data.Schedule;
+import org.mtransit.android.data.UISchedule;
 import org.mtransit.android.ui.fragment.ScheduleDayFragment;
 
 import android.app.Activity;
@@ -42,7 +42,7 @@ public final class NightModeUtils implements MTLog.Loggable {
 	public static void resetColorCache() {
 		ColorUtils.resetColorCache();
 		AppStatus.resetColorCache();
-		Schedule.resetColorCache();
+		UISchedule.resetColorCache();
 		AvailabilityPercent.resetColorCache();
 		ScheduleDayFragment.resetColorCache();
 	}

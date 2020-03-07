@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.mtransit.android.commons.CollectionUtils;
-import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.DataSourceManager;
@@ -14,6 +13,7 @@ import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.Favorite;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
+import org.mtransit.android.util.UITimeUtils;
 
 import android.content.Context;
 
@@ -76,7 +76,7 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			}
 		}
 		SparseArrayCompat<Favorite.Folder> favoriteFolders = FavoriteManager.findFolders(getContext());
-		long textMessageId = TimeUtils.currentTimeMillis();
+		long textMessageId = UITimeUtils.currentTimeMillis();
 		for (int f = 0; f < favoriteFolders.size(); f++) {
 			Favorite.Folder favoriteFolder = favoriteFolders.get(favoriteFolders.keyAt(f));
 			if (favoriteFolder != null

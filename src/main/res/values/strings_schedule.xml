@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources" tools:locale="en">
+    <string name="descent_only">Drop Off Only</string>
+    <string name="descent_only_part_1">Drop Off</string>
+    <string name="descent_only_part_2">Only</string>
+    <string name="frequent_service">Frequent Service</string>
+    <string name="frequent_service_part_1">Frequent</string>
+    <string name="frequent_service_part_2">Service</string>
+    <plurals name="every_minutes_and_quantity">
+        <item quantity="one">Every Minutes</item>
+        <item quantity="other">Every %s Minutes</item>
+    </plurals>
+    <plurals name="every_minutes_and_quantity_part_1">
+        <item quantity="one">Every</item>
+        <item quantity="other">Every</item>
+    </plurals>
+    <plurals name="every_minutes_and_quantity_part_2">
+        <item quantity="one">Minutes</item>
+        <item quantity="other">%s Minutes</item>
+    </plurals>
+    <string name="no_service">No Service</string>
+    <string name="no_service_part_1">No</string>
+    <string name="no_service_part_2">Service</string>
+    <string name="no_upcoming_departures">No upcoming departures.</string>
+    <string name="this_morning">This Morning</string>
+    <string name="this_morning_part_1">This</string>
+    <string name="this_morning_part_2">Morning</string>
+    <string name="this_afternoon">This Afternoon</string>
+    <string name="this_afternoon_part_1">This</string>
+    <string name="this_afternoon_part_2">Afternoon</string>
+    <string name="this_evening">This Evening</string>
+    <string name="this_evening_part_1">This</string>
+    <string name="this_evening_part_2">Evening</string>
+    <string name="tonight">Tonight</string>
+    <string name="tonight_part_1">Tonight</string>
+    <string name="tonight_part_2" />
+    <string name="yesterday">Yesterday</string>
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="tomorrow_part_1">Tomorrow</string>
+    <string name="tomorrow_part_2" />
+    <string name="next_week">Next Week</string>
+    <string name="next_week_part_1">Next</string>
+    <string name="next_week_part_2">Week</string>
+    <string name="next_month">Next Month</string>
+    <string name="next_month_part_1">Next</string>
+    <string name="next_month_part_2">Month</string>
+    <string name="next_year">Next Year</string>
+    <string name="next_year_part_1">Next</string>
+    <string name="next_year_part_2">Year</string>
+    <string name="this_month">This Month</string>
+    <string name="this_month_part_1">This</string>
+    <string name="this_month_part_2">Month</string>
+    <string name="now_short_and_loud">NOW</string>
+    <string name="zero_capitalized">Zero</string>
+    <string name="one_capitalized">One</string>
+    <string name="two_capitalized">Two</string>
+    <string name="three_capitalized">Three</string>
+    <string name="four_capitalized">Four</string>
+    <string name="five_capitalized">Five</string>
+    <string name="six_capitalized">Six</string>
+    <string name="seven_capitalized">Seven</string>
+    <string name="eight_capitalized">Eight</string>
+    <string name="nine_capitalized">Nine</string>
+    <string name="ten_capitalized">Ten</string>
+    <string name="eleven_capitalized">Eleven</string>
+    <string name="twelve_capitalized">Twelve</string>
+    <string name="thirteen_capitalized">Thirteen</string>
+    <string name="fourteen_capitalized">Fourteen</string>
+    <string name="fifteen_capitalized">Fifteen</string>
+    <string name="sixteen_capitalized">Sixteen</string>
+    <string name="seventeen_capitalized">Seventeen</string>
+    <string name="eighteen_capitalized">Eighteen</string>
+    <string name="nineteen_capitalized">Nineteen</string>
+    <plurals name="days_capitalized">
+        <item quantity="one">Day</item>
+        <item quantity="other">Days</item>
+    </plurals>
+    <plurals name="hours_capitalized">
+        <item quantity="one">Hour</item>
+        <item quantity="other">Hours</item>
+    </plurals>
+    <plurals name="minutes_capitalized">
+        <item quantity="one">Minute</item>
+        <item quantity="other">Minutes</item>
+    </plurals>
+</resources>

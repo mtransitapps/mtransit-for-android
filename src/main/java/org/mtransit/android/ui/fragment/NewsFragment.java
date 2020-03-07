@@ -23,7 +23,6 @@ import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.ThemeUtils;
-import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.task.NewsLoader;
@@ -32,6 +31,7 @@ import org.mtransit.android.ui.view.MTOnItemClickListener;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
+import org.mtransit.android.util.UITimeUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -378,7 +378,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		return super.getABBgColor(context);
 	}
 
-	private static class NewsAdapter extends MTArrayAdapter<News> implements TimeUtils.TimeChangedReceiver.TimeChangedListener,
+	private static class NewsAdapter extends MTArrayAdapter<News> implements UITimeUtils.TimeChangedReceiver.TimeChangedListener,
 			AdapterView.OnItemClickListener {
 
 		private static final String LOG_TAG = NewsAdapter.class.getSimpleName();
@@ -421,13 +421,13 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			resetNowToTheMinute();
 		}
 
-		private final TimeUtils.TimeChangedReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
+		private final UITimeUtils.TimeChangedReceiver timeChangedReceiver = new UITimeUtils.TimeChangedReceiver(this);
 
 		private boolean timeChangedReceiverEnabled = false;
 
 		private void enableTimeChangedReceiver() {
 			if (!this.timeChangedReceiverEnabled) {
-				getContext().registerReceiver(timeChangedReceiver, TimeUtils.TIME_CHANGED_INTENT_FILTER);
+				getContext().registerReceiver(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER);
 				this.timeChangedReceiverEnabled = true;
 			}
 		}
@@ -521,7 +521,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			} else {
 				holder.authorTv.setTextColor(ColorUtils.getTextColorSecondary(getContext()));
 			}
-			holder.dateTv.setText(TimeUtils.formatRelativeTime(getContext(), news.getCreatedAtInMs()));
+			holder.dateTv.setText(UITimeUtils.formatRelativeTime(getContext(), news.getCreatedAtInMs()));
 			holder.newsTv.setText(news.getText());
 			if (news.hasColor()) {
 				holder.newsTv.setLinkTextColor(news.getColorInt());

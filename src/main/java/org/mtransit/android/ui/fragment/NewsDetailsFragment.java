@@ -16,7 +16,6 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.data.DataSourceManager;
@@ -24,8 +23,9 @@ import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.util.LinkUtils;
+import org.mtransit.android.util.UITimeUtils;
 
-public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeChangedReceiver.TimeChangedListener, LinkUtils.OnUrlClickListener {
+public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeChangedReceiver.TimeChangedListener, LinkUtils.OnUrlClickListener {
 
 	private static final String TAG = NewsDetailsFragment.class.getSimpleName();
 
@@ -200,7 +200,7 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 			newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(view.getContext()));
 		}
 		TextView dateTv = view.findViewById(R.id.date);
-		dateTv.setText(TimeUtils.formatRelativeTime(view.getContext(), news.getCreatedAtInMs()), TextView.BufferType.SPANNABLE);
+		dateTv.setText(UITimeUtils.formatRelativeTime(view.getContext(), news.getCreatedAtInMs()), TextView.BufferType.SPANNABLE);
 		final String newWebURL = TextUtils.isEmpty(news.getWebURL()) ? news.getAuthorProfileURL() : news.getWebURL();
 		dateTv.setOnClickListener(new MTOnClickListener() {
 			@Override
@@ -224,14 +224,14 @@ public class NewsDetailsFragment extends ABFragment implements TimeUtils.TimeCha
 		updateNewsView();
 	}
 
-	private final TimeUtils.TimeChangedReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
+	private final UITimeUtils.TimeChangedReceiver timeChangedReceiver = new UITimeUtils.TimeChangedReceiver(this);
 
 	private boolean timeChangedReceiverEnabled = false;
 
 	private void enableTimeChangedReceiver() {
 		if (!this.timeChangedReceiverEnabled) {
 			if (getActivity() != null) {
-				getActivity().registerReceiver(timeChangedReceiver, TimeUtils.TIME_CHANGED_INTENT_FILTER);
+				getActivity().registerReceiver(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER);
 			}
 			this.timeChangedReceiverEnabled = true;
 		}

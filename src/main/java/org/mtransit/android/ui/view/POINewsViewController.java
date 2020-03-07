@@ -11,8 +11,8 @@ import androidx.annotation.Nullable;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
+import org.mtransit.android.util.UITimeUtils;
 
 import java.util.ArrayList;
 
@@ -79,7 +79,7 @@ public class POINewsViewController implements MTLog.Loggable {
 		} else {
 			holder.authorTv.setTextColor(ColorUtils.getTextColorSecondary(context));
 		}
-		holder.dateTv.setText(TimeUtils.formatRelativeTime(context, news.getCreatedAtInMs()), TextView.BufferType.SPANNABLE);
+		holder.dateTv.setText(UITimeUtils.formatRelativeTime(context, news.getCreatedAtInMs()), TextView.BufferType.SPANNABLE);
 		holder.newsTv.setText(news.getText());
 		if (news.hasColor()) {
 			holder.newsTv.setLinkTextColor(news.getColorInt());

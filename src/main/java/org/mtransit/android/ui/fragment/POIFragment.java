@@ -38,11 +38,10 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SensorUtils;
 import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteTripStop;
-import org.mtransit.android.commons.data.Schedule;
+import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.commons.provider.POIProviderContract;
@@ -71,6 +70,7 @@ import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.LoaderUtils;
 import org.mtransit.android.util.MapUtils;
+import org.mtransit.android.util.UITimeUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -87,7 +87,7 @@ public class POIFragment extends ABFragment implements
 		SensorUtils.CompassListener,
 		SensorUtils.SensorTaskCompleted,
 		FavoriteManager.FavoriteUpdateListener,
-		TimeUtils.TimeChangedReceiver.TimeChangedListener,
+		UITimeUtils.TimeChangedReceiver.TimeChangedListener,
 		MapViewController.MapMarkerProvider,
 		IContext,
 		MapViewController.MapListener {
@@ -297,7 +297,7 @@ public class POIFragment extends ABFragment implements
 	private void setPOIProperties() {
 		if (this.poim != null) {
 			this.poim.setInFocus(true);
-			this.poim.setScheduleMaxDataRequests(Schedule.ScheduleStatusFilter.DATA_REQUEST_MONTHS);
+			this.poim.setScheduleMaxDataRequests(ScheduleStatusFilter.DATA_REQUEST_MONTHS);
 			this.poim.resetLastFindTimestamps();
 		}
 	}
@@ -404,7 +404,7 @@ public class POIFragment extends ABFragment implements
 		if (CollectionUtils.getSize(poiNewsProviders) == 0) {
 			return true; // no news, need to apply
 		}
-		long nowInMs = TimeUtils.currentTimeMillis();
+		long nowInMs = UITimeUtils.currentTimeMillis();
 		long minCreatedAtInMs = nowInMs - TimeUnit.DAYS.toMillis(7L);
 		ArrayList<News> allNews = new ArrayList<>();
 		if (poiNewsProviders != null) {
@@ -923,7 +923,7 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public void updateCompass(float orientation, boolean force) {
-		long now = TimeUtils.currentTimeMillis();
+		long now = UITimeUtils.currentTimeMillis();
 		int roundedOrientation = SensorUtils.convertToPosivite360Degree((int) orientation);
 		SensorUtils.updateCompass(force, this.userLocation, roundedOrientation, now, AbsListView.OnScrollListener.SCROLL_STATE_IDLE, this.lastCompassChanged,
 				this.lastCompassInDegree, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS, this);
@@ -1036,7 +1036,7 @@ public class POIFragment extends ABFragment implements
 
 	private void resetNowToTheMinute() {
 		MTLog.i(this, "Refreshing UI data...");
-		this.nowToTheMinute = TimeUtils.currentTimeToTheMinuteMillis();
+		this.nowToTheMinute = UITimeUtils.currentTimeToTheMinuteMillis();
 		View view = getView();
 		POIManager poim = getPoimOrNull();
 		if (poim != null) {
@@ -1057,7 +1057,7 @@ public class POIFragment extends ABFragment implements
 	private void enableTimeChangedReceiver() {
 		if (!this.timeChangedReceiverEnabled) {
 			if (getContext() != null) {
-				getContext().registerReceiver(timeChangedReceiver, TimeUtils.TIME_CHANGED_INTENT_FILTER);
+				getContext().registerReceiver(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER);
 			}
 			this.timeChangedReceiverEnabled = true;
 		}
@@ -1073,7 +1073,7 @@ public class POIFragment extends ABFragment implements
 		}
 	}
 
-	private final TimeUtils.TimeChangedReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
+	private final UITimeUtils.TimeChangedReceiver timeChangedReceiver = new UITimeUtils.TimeChangedReceiver(this);
 
 	@Override
 	public boolean hasLocation() {

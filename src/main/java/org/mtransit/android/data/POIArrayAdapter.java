@@ -34,7 +34,6 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SensorUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThemeUtils;
-import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
@@ -42,7 +41,6 @@ import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteTripStop;
-import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
@@ -61,6 +59,7 @@ import org.mtransit.android.ui.view.MTOnItemLongClickListener;
 import org.mtransit.android.ui.view.MTOnLongClickListener;
 import org.mtransit.android.ui.view.MTPieChartPercentView;
 import org.mtransit.android.util.CrashUtils;
+import org.mtransit.android.util.UITimeUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -75,7 +74,7 @@ import java.util.concurrent.TimeUnit;
 public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements SensorUtils.CompassListener, AdapterView.OnItemClickListener,
 		AdapterView.OnItemLongClickListener, SensorEventListener, AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener,
 		ServiceUpdateLoader.ServiceUpdateLoaderListener, FavoriteManager.FavoriteUpdateListener, SensorUtils.SensorTaskCompleted,
-		TimeUtils.TimeChangedReceiver.TimeChangedListener {
+		UITimeUtils.TimeChangedReceiver.TimeChangedListener {
 
 	private static final String TAG = POIArrayAdapter.class.getSimpleName();
 
@@ -881,7 +880,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	};
 
 	public void notifyDataSetChanged(boolean force, long minAdapterThresholdInMs) {
-		long now = TimeUtils.currentTimeMillis();
+		long now = UITimeUtils.currentTimeMillis();
 		long adapterThreshold = Math.max(minAdapterThresholdInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
 		if (this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && (force || (now - this.lastNotifyDataSetChanged) > adapterThreshold)) {
 			notifyDataSetChanged();
@@ -1095,7 +1094,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (getPoisCount() == 0) {
 			return;
 		}
-		long now = TimeUtils.currentTimeMillis();
+		long now = UITimeUtils.currentTimeMillis();
 		int roundedOrientation = SensorUtils.convertToPosivite360Degree((int) orientation);
 		SensorUtils.updateCompass(force, this.location, roundedOrientation, now, this.scrollState, this.lastCompassChanged, this.lastCompassInDegree,
 				Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS, this);
@@ -1734,8 +1733,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	private void updateRTSSchedule(CommonStatusViewHolder statusViewHolder, POIStatus status) {
 		CharSequence line1CS = null;
 		CharSequence line2CS = null;
-		if (status instanceof Schedule) {
-			Schedule schedule = (Schedule) status;
+		if (status instanceof UISchedule) {
+			UISchedule schedule = (UISchedule) status;
 			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getStatus(getContext(), getNowToTheMinute(), TimeUnit.MINUTES.toMillis(30), null, 10,
 					null);
 			if (lines != null && lines.size() >= 1) {
@@ -1759,7 +1758,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	}
 
 	private void resetNowToTheMinute() {
-		this.nowToTheMinute = TimeUtils.currentTimeToTheMinuteMillis();
+		this.nowToTheMinute = UITimeUtils.currentTimeToTheMinuteMillis();
 		notifyDataSetChanged(false);
 	}
 
@@ -1768,11 +1767,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		resetNowToTheMinute();
 	}
 
-	private final TimeUtils.TimeChangedReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
+	private final UITimeUtils.TimeChangedReceiver timeChangedReceiver = new UITimeUtils.TimeChangedReceiver(this);
 
 	private void enableTimeChangedReceiver() {
 		if (!this.timeChangedReceiverEnabled) {
-			getContext().registerReceiver(timeChangedReceiver, TimeUtils.TIME_CHANGED_INTENT_FILTER);
+			getContext().registerReceiver(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER);
 			this.timeChangedReceiverEnabled = true;
 		}
 	}

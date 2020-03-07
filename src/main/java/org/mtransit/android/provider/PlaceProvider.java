@@ -22,7 +22,6 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.StringUtils;
-import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.POI.POIUtils;
 import org.mtransit.android.commons.provider.AgencyProvider;
@@ -31,6 +30,7 @@ import org.mtransit.android.commons.provider.MTSQLiteOpenHelper;
 import org.mtransit.android.commons.provider.POIProvider;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.Place;
+import org.mtransit.android.util.UITimeUtils;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -255,7 +255,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 			HttpsURLConnection httpsUrlConnection = (HttpsURLConnection) urlc;
 			switch (httpsUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
-				long newLastUpdateInMs = TimeUtils.currentTimeMillis();
+				long newLastUpdateInMs = UITimeUtils.currentTimeMillis();
 				String jsonString = FileUtils.getString(urlc.getInputStream());
 				String lang = LocaleUtils.isFR() ? Locale.FRENCH.getLanguage() : Locale.ENGLISH.getLanguage();
 				return parseTextSearchJson(jsonString, getAUTHORITY(context), lang, newLastUpdateInMs);

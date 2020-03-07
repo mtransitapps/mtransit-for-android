@@ -26,8 +26,8 @@ import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteTripStop;
-import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.data.UISchedule;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -254,8 +254,8 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	private static void updateScheduleView(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status,
 										   POIViewController.POIDataProvider dataProvider, POIManager optPOI) {
 		ArrayList<Pair<CharSequence, CharSequence>> nextDeparturesList = null;
-		if (dataProvider != null && status instanceof Schedule) {
-			Schedule schedule = (Schedule) status;
+		if (dataProvider != null && status instanceof UISchedule) {
+			UISchedule schedule = (UISchedule) status;
 			String defaultHeadSign = (optPOI != null && optPOI.poi instanceof RouteTripStop) ? ((RouteTripStop) optPOI.poi).getTrip()
 					.getHeading(context) : null;
 			nextDeparturesList = schedule.getScheduleList(context, dataProvider.getNowToTheMinute(), TimeUnit.HOURS.toMillis(1), TimeUnit.HOURS.toMillis(12),

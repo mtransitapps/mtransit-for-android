@@ -27,19 +27,20 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
-import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
-import org.mtransit.android.commons.data.Schedule;
+import org.mtransit.android.commons.data.Schedule.Timestamp;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.ui.widget.MTBaseAdapter;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.data.UISchedule;
 import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.ScheduleTimestampsLoader;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
+import org.mtransit.android.util.UITimeUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAwareFragment, DataSourceProvider.ModulesUpdateListener,
-		LoaderManager.LoaderCallbacks<ArrayList<Schedule.Timestamp>> {
+		LoaderManager.LoaderCallbacks<ArrayList<Timestamp>> {
 
 	private static final String TAG = ScheduleDayFragment.class.getSimpleName();
 
@@ -110,7 +111,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 	private void initDayStartsAtCal() {
 		if (this.dayStartsAtInMs > 0L) {
-			this.dayStartsAtCal = TimeUtils.getNewCalendar(this.dayStartsAtInMs);
+			this.dayStartsAtCal = UITimeUtils.getNewCalendar(this.dayStartsAtInMs);
 		}
 	}
 
@@ -311,11 +312,11 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 	private CharSequence getDayDateString() {
 		CharSequence dateS;
-		if (TimeUtils.isYesterday(this.dayStartsAtInMs)) {
+		if (UITimeUtils.isYesterday(this.dayStartsAtInMs)) {
 			dateS = getString(R.string.yesterday) + " " + DAY_DATE_FORMAT.formatThreadSafe(getDayStartsAtDate());
-		} else if (TimeUtils.isToday(this.dayStartsAtInMs)) {
+		} else if (UITimeUtils.isToday(this.dayStartsAtInMs)) {
 			dateS = getString(R.string.today) + " " + DAY_DATE_FORMAT.formatThreadSafe(getDayStartsAtDate());
-		} else if (TimeUtils.isTomorrow(this.dayStartsAtInMs)) {
+		} else if (UITimeUtils.isTomorrow(this.dayStartsAtInMs)) {
 			dateS = getString(R.string.tomorrow) + " " + DAY_DATE_FORMAT.formatThreadSafe(getDayStartsAtDate());
 		} else {
 			dateS = DAY_DATE_FORMAT.formatThreadSafe(getDayStartsAtDate());
@@ -425,7 +426,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 	@NonNull
 	@Override
-	public Loader<ArrayList<Schedule.Timestamp>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<Timestamp>> onCreateLoader(int id, Bundle args) {
 		switch (id) {
 		case SCHEDULE_LOADER:
 			RouteTripStop rts = getRtsOrNull();
@@ -441,7 +442,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	}
 
 	@Override
-	public void onLoaderReset(@NonNull Loader<ArrayList<Schedule.Timestamp>> loader) {
+	public void onLoaderReset(@NonNull Loader<ArrayList<Timestamp>> loader) {
 		if (this.adapter != null) {
 			this.adapter.clearTimes();
 			this.adapter.onPause();
@@ -449,7 +450,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	}
 
 	@Override
-	public void onLoadFinished(@NonNull Loader<ArrayList<Schedule.Timestamp>> loader, ArrayList<Schedule.Timestamp> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<Timestamp>> loader, ArrayList<Timestamp> data) {
 		View view = getView();
 		if (view == null) {
 			return; // too late
@@ -473,7 +474,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	}
 
 	private int getTodaySelectPosition() {
-		Schedule.Timestamp nextTime = this.adapter.getNextTimeInMs();
+		Timestamp nextTime = this.adapter.getNextTimeInMs();
 		if (nextTime != null) {
 			int nextTimePosition = this.adapter.getPosition(nextTime);
 			if (nextTimePosition > 0) {
@@ -556,7 +557,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		TimeAdapter.resetColorCache();
 	}
 
-	private static class TimeAdapter extends MTBaseAdapter implements TimeUtils.TimeChangedReceiver.TimeChangedListener {
+	private static class TimeAdapter extends MTBaseAdapter implements UITimeUtils.TimeChangedReceiver.TimeChangedListener {
 
 		private static final String LOG_TAG = ScheduleDayFragment.class.getSimpleName() + ">" + TimeAdapter.class.getSimpleName();
 
@@ -574,7 +575,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private int timesCount = 0;
 
-		private SparseArray<ArrayList<Schedule.Timestamp>> hourToTimes = new SparseArray<>();
+		private SparseArray<ArrayList<Timestamp>> hourToTimes = new SparseArray<>();
 
 		private boolean initialized = false;
 
@@ -586,7 +587,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private WeakReference<FragmentActivity> activityWR;
 
-		private Schedule.Timestamp nextTimeInMs = null;
+		private Timestamp nextTimeInMs = null;
 
 		private RouteTripStop optRts;
 
@@ -648,9 +649,9 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			this.nextTimeInMs = null;
 		}
 
-		public void setTimes(ArrayList<Schedule.Timestamp> times) {
+		public void setTimes(ArrayList<Timestamp> times) {
 			clearTimes();
-			for (Schedule.Timestamp time : times) {
+			for (Timestamp time : times) {
 				addTime(time);
 				if (this.nextTimeInMs == null && time.t >= getNowToTheMinute()) {
 					this.nextTimeInMs = time;
@@ -673,7 +674,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		private void findNextTimeInMs() {
 			this.nextTimeInMs = null;
 			for (int hourOfTheDay = 0; hourOfTheDay < HOUR_SEPARATORS_COUNT; hourOfTheDay++) {
-				for (Schedule.Timestamp time : this.hourToTimes.get(hourOfTheDay)) {
+				for (Timestamp time : this.hourToTimes.get(hourOfTheDay)) {
 					if (this.nextTimeInMs == null && time.t >= getNowToTheMinute()) {
 						this.nextTimeInMs = time;
 						return;
@@ -682,7 +683,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			}
 		}
 
-		public Schedule.Timestamp getNextTimeInMs() {
+		public Timestamp getNextTimeInMs() {
 			if (this.nextTimeInMs == null) {
 				findNextTimeInMs();
 			}
@@ -707,7 +708,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		}
 
 		private void resetNowToTheMinute() {
-			this.nowToTheMinute = TimeUtils.currentTimeToTheMinuteMillis();
+			this.nowToTheMinute = UITimeUtils.currentTimeToTheMinuteMillis();
 			notifyDataSetChanged();
 		}
 
@@ -715,7 +716,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			if (!this.timeChangedReceiverEnabled) {
 				FragmentActivity activity = this.activityWR == null ? null : this.activityWR.get();
 				if (activity != null) {
-					activity.registerReceiver(this.timeChangedReceiver, TimeUtils.TIME_CHANGED_INTENT_FILTER);
+					activity.registerReceiver(this.timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER);
 				}
 				this.timeChangedReceiverEnabled = true;
 			}
@@ -732,10 +733,10 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			}
 		}
 
-		private final TimeUtils.TimeChangedReceiver timeChangedReceiver = new TimeUtils.TimeChangedReceiver(this);
+		private final UITimeUtils.TimeChangedReceiver timeChangedReceiver = new UITimeUtils.TimeChangedReceiver(this);
 
-		private void addTime(Schedule.Timestamp time) {
-			int hourOfTheDay = TimeUtils.getHourOfTheDay(time.t);
+		private void addTime(Timestamp time) {
+			int hourOfTheDay = UITimeUtils.getHourOfTheDay(time.t);
 			this.hourToTimes.get(hourOfTheDay).add(time);
 			this.timesCount++;
 		}
@@ -769,7 +770,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return null;
 		}
 
-		private Calendar todayStartsAt = TimeUtils.getBeginningOfTodayCal();
+		private Calendar todayStartsAt = UITimeUtils.getBeginningOfTodayCal();
 		private Calendar todayEndsAt = null;
 
 		public int compareToToday() {
@@ -777,7 +778,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 				return -1; // past
 			}
 			if (this.todayEndsAt == null) {
-				this.todayEndsAt = TimeUtils.getBeginningOfTomorrowCal();
+				this.todayEndsAt = UITimeUtils.getBeginningOfTomorrowCal();
 				this.todayEndsAt.add(Calendar.MILLISECOND, -1);
 			}
 			if (this.dayStartsAt.after(this.todayEndsAt)) {
@@ -788,10 +789,10 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		public int getPosition(Object item) {
 			int index = 0;
-			if (!(item instanceof Schedule.Timestamp)) {
+			if (!(item instanceof Timestamp)) {
 				return index;
 			}
-			Schedule.Timestamp time = (Schedule.Timestamp) item;
+			Timestamp time = (Timestamp) item;
 			Date date = new Date(time.t);
 			Date thatDate;
 			Date nextDate;
@@ -804,7 +805,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 						nextHourOfTheDay = hourOfTheDay + 1;
 						nextDate = nextHourOfTheDay < this.hours.size() ? this.hours.get(nextHourOfTheDay) : null;
 						if (nextDate == null || date.before(nextDate)) {
-							for (Schedule.Timestamp hourTime : this.hourToTimes.get(hourOfTheDay)) {
+							for (Timestamp hourTime : this.hourToTimes.get(hourOfTheDay)) {
 								if (time.t == hourTime.t) {
 									return index;
 								}
@@ -836,7 +837,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		@Override
 		public int getItemViewType(int position) {
 			Object item = getItem(position);
-			if (item instanceof Schedule.Timestamp) {
+			if (item instanceof Timestamp) {
 				return ITEM_VIEW_TYPE_TIME;
 			}
 			return ITEM_VIEW_TYPE_HOUR_SEPARATORS;
@@ -877,14 +878,14 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private void updateTimeView(int position, @NonNull View convertView) {
 			TimeViewHolder holder = (TimeViewHolder) convertView.getTag();
-			Schedule.Timestamp timestamp = (Schedule.Timestamp) getItem(position);
+			Timestamp timestamp = (Timestamp) getItem(position);
 			Context context = this.activityWR == null ? null : this.activityWR.get();
 			if (timestamp != null && context != null) {
-				String userTime = TimeUtils.formatTime(context, timestamp.t);
+				String userTime = UITimeUtils.formatTime(context, timestamp.t);
 				SpannableStringBuilder timeSb = new SpannableStringBuilder(userTime);
 				TimeZone timestampTZ = TimeZone.getTimeZone(timestamp.getLocalTimeZone());
 				if (timestamp.hasLocalTimeZone() && !this.deviceTimeZone.equals(timestampTZ)) {
-					String localTime = TimeUtils.formatTime(context, timestamp.t, timestampTZ);
+					String localTime = UITimeUtils.formatTime(context, timestamp.t, timestampTZ);
 					if (!localTime.equalsIgnoreCase(userTime)) {
 						timeSb.append(P1).append(context.getString(R.string.local_time_and_time, localTime)).append(P2);
 					}
@@ -897,10 +898,10 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 						timeSb.append(P1).append(timestampHeading).append(P2);
 					}
 				}
-				TimeUtils.cleanTimes(timeOnly, timeSb);
+				UITimeUtils.cleanTimes(timeOnly, timeSb);
 				long nextTimeInMsT = this.nextTimeInMs == null ? -1L : this.nextTimeInMs.t;
 				if (nextTimeInMsT >= 0L //
-						&& TimeUtils.isSameDay(getNowToTheMinute(), nextTimeInMsT) //
+						&& UITimeUtils.isSameDay(getNowToTheMinute(), nextTimeInMsT) //
 						&& nextTimeInMsT == timestamp.t) { // now
 					SpanUtils.setAll(timeSb, getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_NOW_STYLE);
 				} else if (timestamp.t < getNowToTheMinute()) { // past
@@ -926,7 +927,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		@NonNull
 		private static ForegroundColorSpan getScheduleListTimesPastTextColor(Context context) {
 			if (scheduleListTimesPastTextColor == null) {
-				scheduleListTimesPastTextColor = SpanUtils.getNewTextColor(Schedule.getDefaultPastTextColor(context));
+				scheduleListTimesPastTextColor = SpanUtils.getNewTextColor(UISchedule.getDefaultPastTextColor(context));
 			}
 			return scheduleListTimesPastTextColor;
 		}
@@ -937,7 +938,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		@NonNull
 		private static ForegroundColorSpan getScheduleListTimesNowTextColor(Context context) {
 			if (scheduleListTimesNowTextColor == null) {
-				scheduleListTimesNowTextColor = SpanUtils.getNewTextColor(Schedule.getDefaultNowTextColor(context));
+				scheduleListTimesNowTextColor = SpanUtils.getNewTextColor(UISchedule.getDefaultNowTextColor(context));
 			}
 			return scheduleListTimesNowTextColor;
 		}
@@ -948,7 +949,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		@NonNull
 		private static ForegroundColorSpan getScheduleListTimesFutureTextColor(Context context) {
 			if (scheduleListTimesFutureTextColor == null) {
-				scheduleListTimesFutureTextColor = SpanUtils.getNewTextColor(Schedule.getDefaultFutureTextColor(context));
+				scheduleListTimesFutureTextColor = SpanUtils.getNewTextColor(UISchedule.getDefaultFutureTextColor(context));
 			}
 			return scheduleListTimesFutureTextColor;
 		}
@@ -985,7 +986,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private static ThreadSafeDateFormatter getHourFormatter(Context context) {
 			if (HOUR_FORMATTER == null) {
-				HOUR_FORMATTER = TimeUtils.getNewHourFormat(context);
+				HOUR_FORMATTER = UITimeUtils.getNewHourFormat(context);
 			}
 			return HOUR_FORMATTER;
 		}
