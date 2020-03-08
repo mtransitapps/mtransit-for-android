@@ -15,15 +15,17 @@ import android.text.style.TypefaceSpan;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.SimpleArrayMap;
 import androidx.core.util.Pair;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SpanUtils;
+import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.POIStatus;
+import org.mtransit.android.data.UISchedule;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
@@ -334,18 +336,18 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		}
 	}
 
-	public static boolean isFrequentService(@NonNull List<Long> timestamps, long providerFSMinDurationInMs, long providerFSTimeSpanInMs) {
-		if (CollectionUtils.getSize(timestamps) < FREQUENT_SERVICE_MIN_SERVICE) {
+	public static boolean isFrequentService(@NonNull SimpleArrayMap<Long, Boolean> timestamps, long providerFSMinDurationInMs, long providerFSTimeSpanInMs) {
+		if (timestamps.size() < FREQUENT_SERVICE_MIN_SERVICE) {
 			return false; // NOT FREQUENT (no service at all)
 		}
 		long fsMinDurationMs = providerFSMinDurationInMs > 0 ? providerFSMinDurationInMs : FREQUENT_SERVICE_MIN_DURATION_IN_MS_DEFAULT;
 		long fsTimeSpanMs = providerFSTimeSpanInMs > 0 ? providerFSTimeSpanInMs : FREQUENT_SERVICE_TIME_SPAN_IN_MS_DEFAULT;
-		long firstTimestamp = timestamps.get(0);
+		long firstTimestamp = timestamps.keyAt(0);
 		long previousTimestamp = firstTimestamp;
 		long currentTimestamp;
 		long diffInMs;
 		for (int i = 1; i < timestamps.size(); i++) {
-			currentTimestamp = timestamps.get(i);
+			currentTimestamp = timestamps.keyAt(i);
 			diffInMs = currentTimestamp - previousTimestamp;
 			if (diffInMs > fsTimeSpanMs) {
 				return false; // NOT FREQUENT
@@ -363,9 +365,11 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	@NonNull
-	public static Pair<CharSequence, CharSequence> getShortTimeSpan(@NonNull Context context, long diffInMs, long targetedTimestamp, long precisionInMs) {
+	public static Pair<CharSequence, CharSequence> getShortTimeSpan(@NonNull Context context,
+																	long diffInMs, long targetedTimestamp, long precisionInMs,
+																	@Nullable Boolean realTime) {
 		if (diffInMs < MAX_DURATION_DISPLAYED_IN_MS) {
-			return getShortTimeSpanNumber(context, diffInMs, precisionInMs);
+			return getShortTimeSpanNumber(context, diffInMs, precisionInMs, realTime);
 		} else {
 			Pair<CharSequence, CharSequence> shortTimeSpanString = getShortTimeSpanString(context, diffInMs, targetedTimestamp);
 			return new Pair<>( //
@@ -375,14 +379,20 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	@NonNull
-	private static Pair<CharSequence, CharSequence> getShortTimeSpanNumber(@NonNull Context context, long diffInMs, long precisionInMs) {
+	private static Pair<CharSequence, CharSequence> getShortTimeSpanNumber(@NonNull Context context,
+																		   long diffInMs, long precisionInMs,
+																		   @Nullable Boolean realTime) {
 		SpannableStringBuilder shortTimeSpan1SSB = new SpannableStringBuilder();
 		SpannableStringBuilder shortTimeSpan2SSB = new SpannableStringBuilder();
-		return getShortTimeSpanNumber(context, diffInMs, precisionInMs, shortTimeSpan1SSB, shortTimeSpan2SSB);
+		return getShortTimeSpanNumber(context,
+				diffInMs, precisionInMs,
+				realTime,
+				shortTimeSpan1SSB, shortTimeSpan2SSB);
 	}
 
 	@NonNull
 	static Pair<CharSequence, CharSequence> getShortTimeSpanNumber(@NonNull Context context, long diffInMs, long precisionInMs,
+																   @Nullable Boolean realTime,
 																   @NonNull SpannableStringBuilder shortTimeSpan1SSB,
 																   @NonNull SpannableStringBuilder shortTimeSpan2SSB) {
 		int diffInSec = (int) Math.floor(TimeUnit.MILLISECONDS.toSeconds(diffInMs));
@@ -408,6 +418,10 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		int urgentTime2Start = -1;
 		int urgentTime2End = -1;
 		boolean isShortTimeSpanString = false;
+		final boolean isRealTime = Boolean.TRUE.equals(realTime);
+		if (isRealTime) {
+			shortTimeSpan1SSB.append(StringUtils.SPACE_CAR);
+		}
 		Resources resources = context.getResources();
 		if (diffInDay > 0 && diffInHour > MAX_HOURS_SHOWED) {
 			shortTimeSpan1SSB.append(getNumberInLetter(context, diffInDay));
@@ -445,6 +459,10 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 				urgentTime2End = shortTimeSpan2SSB.length();
 			}
 		}
+		// set spans
+		if (isRealTime) {
+			shortTimeSpan1SSB = SpanUtils.set(shortTimeSpan1SSB, 0, 1, UISchedule.getRealTimeImage(context, true));
+		}
 		if (urgentTime1Start < urgentTime1End) {
 			shortTimeSpan1SSB = SpanUtils.set(shortTimeSpan1SSB, urgentTime1Start, urgentTime1End, getUrgentTime1TextAppearance(context));
 		}
@@ -455,12 +473,13 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 			shortTimeSpan2SSB = SpanUtils.set(shortTimeSpan2SSB, timeUnit2Start, timeUnit2End, //
 					TIME_UNIT_SIZE, TIME_UNIT_FONT);
 		}
-		if (isShortTimeSpanString) {
+		if (isShortTimeSpanString) { // > 99 minutes
 			return new Pair<>( //
 					getShortTimeSpanStringStyle(context, shortTimeSpan1SSB), //
 					getShortTimeSpanStringStyle(context, shortTimeSpan2SSB));
+		} else { // < 99 minutes
+			return new Pair<>(shortTimeSpan1SSB, shortTimeSpan2SSB);
 		}
-		return new Pair<>(shortTimeSpan1SSB, shortTimeSpan2SSB);
 	}
 
 	@NonNull
@@ -602,7 +621,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 				DateUtils.formatSameDayTime(targetedTimestamp, now, ThreadSafeDateFormatter.MEDIUM, ThreadSafeDateFormatter.SHORT), null); // DEFAULT
 	}
 
-	private static CharSequence getShortTimeSpanStringStyle(@NonNull Context context, CharSequence timeSpan) {
+	private static CharSequence getShortTimeSpanStringStyle(@NonNull Context context, @Nullable CharSequence timeSpan) {
 		if (TextUtils.isEmpty(timeSpan)) {
 			return timeSpan;
 		}

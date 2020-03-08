@@ -3,7 +3,6 @@ package org.mtransit.android.data;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
-import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
@@ -16,6 +15,7 @@ import android.text.style.TypefaceSpan;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.SimpleArrayMap;
 import androidx.core.util.Pair;
 
 import org.mtransit.android.R;
@@ -26,12 +26,12 @@ import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Trip;
+import org.mtransit.android.util.UISpanUtils;
 import org.mtransit.android.util.UITimeUtils;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -273,9 +273,13 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	private static ImageSpan realTimeImage = null;
 
 	@Nullable
-	private static ImageSpan getRealTimeImage(@NonNull Context context) {
+	public static ImageSpan getRealTimeImage(@NonNull Context context, boolean beforeNotAfter) {
 		if (realTimeImage == null) {
-			realTimeImage = SpanUtils.getNewImage(context, R.drawable.baseline_rss_feed_white_18, ImageSpan.ALIGN_BASELINE);
+			realTimeImage = UISpanUtils.getNewImage(context,
+					beforeNotAfter ?
+							R.drawable.ic_rss_feed_black_12dp_mirror :
+							R.drawable.ic_rss_feed_black_12dp,
+					ImageSpan.ALIGN_BASELINE);
 		}
 		return realTimeImage;
 	}
@@ -527,49 +531,44 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				if (headSignSSB != null && headSignSSB.length() > 0) {
 					headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesPastTextColor(context));
 				}
-			} else //
-				if (startPreviousTimeIndex < endPreviousTimeIndex //
-						&& index > startPreviousTimeIndex && index <= endPreviousTimeIndex) {
-					timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
-							getScheduleListTimesCloseTextAppearance(context), getScheduleListTimesPastTextColor(context));
-					if (headSignSSB != null && headSignSSB.length() > 0) {
-						headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesPastTextColor(context));
-					}
-				} else //
-					if (startNextTimeIndex < endNextTimeIndex //
-							&& index > startNextTimeIndex && index <= endNextTimeIndex) {
-						timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
-								getScheduleListTimesClosestTextAppearance(context), getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_STYLE);
-						if (headSignSSB != null && headSignSSB.length() > 0) {
-							headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesNowTextColor(context));
-						}
-					} else //
-						if (startNextNextTimeIndex < endNextNextTimeIndex //
-								&& index > startNextNextTimeIndex && index <= endNextNextTimeIndex) {
-							timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
-									getScheduleListTimesCloseTextAppearance(context), getScheduleListTimesFutureTextColor(context));
-							if (headSignSSB != null && headSignSSB.length() > 0) {
-								headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesFutureTextColor(context));
-							}
-						} else //
-							if (startAfterNextTimesIndex < endAfterNextTimesIndex //
-									&& index > startAfterNextTimesIndex && index <= endAfterNextTimesIndex) {
-								timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
-										getScheduleListTimesFarTextAppearance(context), getScheduleListTimesFutureTextColor(context));
-								if (headSignSSB != null && headSignSSB.length() > 0) {
-									headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesFutureTextColor(context));
-								}
-							}
+			} else if (startPreviousTimeIndex < endPreviousTimeIndex //
+					&& index > startPreviousTimeIndex && index <= endPreviousTimeIndex) {
+				timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
+						getScheduleListTimesCloseTextAppearance(context), getScheduleListTimesPastTextColor(context));
+				if (headSignSSB != null && headSignSSB.length() > 0) {
+					headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesPastTextColor(context));
+				}
+			} else if (startNextTimeIndex < endNextTimeIndex //
+					&& index > startNextTimeIndex && index <= endNextTimeIndex) {
+				timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
+						getScheduleListTimesClosestTextAppearance(context), getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_STYLE);
+				if (headSignSSB != null && headSignSSB.length() > 0) {
+					headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesNowTextColor(context));
+				}
+			} else if (startNextNextTimeIndex < endNextNextTimeIndex //
+					&& index > startNextNextTimeIndex && index <= endNextNextTimeIndex) {
+				timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
+						getScheduleListTimesCloseTextAppearance(context), getScheduleListTimesFutureTextColor(context));
+				if (headSignSSB != null && headSignSSB.length() > 0) {
+					headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesFutureTextColor(context));
+				}
+			} else if (startAfterNextTimesIndex < endAfterNextTimesIndex //
+					&& index > startAfterNextTimesIndex && index <= endAfterNextTimesIndex) {
+				timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
+						getScheduleListTimesFarTextAppearance(context), getScheduleListTimesFutureTextColor(context));
+				if (headSignSSB != null && headSignSSB.length() > 0) {
+					headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesFutureTextColor(context));
+				}
+			}
 			UITimeUtils.cleanTimes(timeSSB);
 			timeSSB = SpanUtils.setAll(timeSSB, SCHEDULE_LIST_TIMES_SIZE);
 			if (t.isRealTime()) {
-				int start = timeSSB.length() - 1;
-				int end = timeSSB.length();
-				timeSSB.setSpan(
-						getRealTimeImage(context),
+				int start = 0;
+				int end = start + 1;
+				timeSSB = SpanUtils.set(timeSSB,
 						start,
 						end,
-						Spannable.SPAN_INCLUSIVE_INCLUSIVE
+						getRealTimeImage(context, true)
 				);
 			}
 			if (headSignSSB != null && headSignSSB.length() > 0) {
@@ -729,13 +728,13 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			this.statusStringsTimestamp = after;
 			return;
 		}
-		ArrayList<Long> nextTimestamps = getStatusNextTimestamps(after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
-		if (CollectionUtils.getSize(nextTimestamps) <= 0) { // NO SERVICE
+		SimpleArrayMap<Long, Boolean> nextTimestamps = getStatusNextTimestamps(after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
+		if (nextTimestamps.size() <= 0) { // NO SERVICE
 			generateStatusStringsNoService(context);
 			this.statusStringsTimestamp = after;
 			return;
 		}
-		long diffInMs = nextTimestamps.get(0) - after;
+		long diffInMs = nextTimestamps.keyAt(0) - after;
 		// TODO diffInMs can be < 0 !! ?
 		boolean isFrequentService = //
 				!isDescentOnly() //
@@ -752,44 +751,49 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	}
 
 	@NonNull
-	static ArrayList<Long> filterStatusNextTimestampsTimes(@NonNull ArrayList<Long> nextTimestampList) {
-		ArrayList<Long> nextTimestampsT = new ArrayList<>();
+	static SimpleArrayMap<Long, Boolean> filterStatusNextTimestampsTimes(@NonNull SimpleArrayMap<Long, Boolean> nextTimestampList) {
+		SimpleArrayMap<Long, Boolean> nextTimestampsT = new SimpleArrayMap<>();
 		Long lastTimestamp = null;
-		for (Long timestamp : nextTimestampList) {
-			if (nextTimestampsT.contains(timestamp)) {
-				continue; // skip duplicate time
+		if (nextTimestampList.size() > 0) {
+			for (int t = 0; t < nextTimestampList.size(); t++) {
+				Long timestamp = nextTimestampList.keyAt(t);
+				if (nextTimestampsT.containsKey(timestamp)) {
+					continue; // skip duplicate time
+				}
+				if (lastTimestamp != null //
+						&& (timestamp - lastTimestamp) < MIN_UI_PRECISION_IN_MS) {
+					continue; // skip near duplicate time
+				}
+				nextTimestampsT.put(timestamp, nextTimestampList.valueAt(t));
+				lastTimestamp = timestamp;
 			}
-			if (lastTimestamp != null //
-					&& (timestamp - lastTimestamp) < MIN_UI_PRECISION_IN_MS) {
-				continue; // skip near duplicate time
-			}
-			nextTimestampsT.add(timestamp);
-			lastTimestamp = timestamp;
 		}
 		return nextTimestampsT;
 	}
 
 	@NonNull
-	ArrayList<Long> getStatusNextTimestamps(long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
-											@Nullable Integer optMinCount, @Nullable Integer optMaxCount) {
+	SimpleArrayMap<Long, Boolean> getStatusNextTimestamps(long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
+														  @Nullable Integer optMinCount, @Nullable Integer optMaxCount) {
 		long usefulPastInMs = Math.max(MAX_LAST_STATUS_DIFF_IN_MS, getUIProviderPrecisionInMs());
 		ArrayList<Timestamp> nextTimestampList = getNextTimestamps(after - usefulPastInMs, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
-		ArrayList<Long> nextTimestampsT = new ArrayList<>();
+		SimpleArrayMap<Long, Boolean> nextTimestampsT = new SimpleArrayMap<>();
 		for (Timestamp timestamp : nextTimestampList) {
-			Long tt = timestamp.t;
-			nextTimestampsT.add(tt);
+			nextTimestampsT.put(timestamp.getT(), timestamp.getRealTime());
 		}
 		if (nextTimestampsT.size() > 0) {
 			Long theNextTimestamp = null;
 			Long theLastTimestamp = null;
-			for (Long timestamp : nextTimestampsT) {
-				if (timestamp >= after) {
-					if (theNextTimestamp == null || timestamp < theNextTimestamp) {
-						theNextTimestamp = timestamp;
-					}
-				} else {
-					if (theLastTimestamp == null || theLastTimestamp < timestamp) {
-						theLastTimestamp = timestamp;
+			if (nextTimestampsT.size() > 0) {
+				for (int t = 0; t < nextTimestampsT.size(); t++) {
+					Long timestamp = nextTimestampsT.keyAt(t);
+					if (timestamp >= after) {
+						if (theNextTimestamp == null || timestamp < theNextTimestamp) {
+							theNextTimestamp = timestamp;
+						}
+					} else {
+						if (theLastTimestamp == null || theLastTimestamp < timestamp) {
+							theLastTimestamp = timestamp;
+						}
 					}
 				}
 			}
@@ -805,11 +809,12 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			}
 			//noinspection ConstantConditions // TODO ?
 			if (oldestUsefulTimestamp != null) {
-				Iterator<Long> it = nextTimestampsT.iterator();
-				while (it.hasNext()) {
-					Long timestamp = it.next();
-					if (timestamp < oldestUsefulTimestamp) {
-						it.remove();
+				if (nextTimestampsT.size() > 0) {
+					for (int t = 0; t < nextTimestampsT.size(); t++) {
+						Long timestamp = nextTimestampsT.keyAt(t);
+						if (timestamp < oldestUsefulTimestamp) {
+							nextTimestampsT.removeAt(t);
+						}
 					}
 				}
 			}
@@ -817,11 +822,13 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		return nextTimestampsT;
 	}
 
-	private void generateStatusStringsTimes(@NonNull Context context, long recentEnoughToBeNow, long diffInMs, @NonNull ArrayList<Long> nextTimestamps) {
-		Pair<CharSequence, CharSequence> statusCS = UITimeUtils.getShortTimeSpan(context, diffInMs, nextTimestamps.get(0), getUIProviderPrecisionInMs());
+	private void generateStatusStringsTimes(@NonNull Context context, long recentEnoughToBeNow, long diffInMs, @NonNull SimpleArrayMap<Long, Boolean> nextTimestamps) {
+		Pair<CharSequence, CharSequence> statusCS = UITimeUtils.getShortTimeSpan(context,
+				diffInMs, nextTimestamps.keyAt(0), getUIProviderPrecisionInMs(),
+				nextTimestamps.valueAt(0));
 		CharSequence line1CS;
 		CharSequence line2CS;
-		if (diffInMs < UITimeUtils.URGENT_SCHEDULE_IN_MS && CollectionUtils.getSize(nextTimestamps) > 1) { // URGENT & NEXT NEXT SCHEDULE
+		if (diffInMs < UITimeUtils.URGENT_SCHEDULE_IN_MS && nextTimestamps.size() > 1) { // URGENT & NEXT NEXT SCHEDULE
 			if (statusCS.second == null || statusCS.second.length() == 0) {
 				line1CS = SpanUtils.setAll(statusCS.first, getStatusStringsTextColor1(context));
 			} else {
@@ -830,8 +837,10 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 						SpanUtils.setAll(getNewStatusSpaceSSB(context), getStatusStringsTextColor2(context)), //
 						SpanUtils.setAll(statusCS.second, getStatusStringsTextColor3(context)));
 			}
-			long diff2InMs = nextTimestamps.get(1) - recentEnoughToBeNow;
-			Pair<CharSequence, CharSequence> nextStatusCS = UITimeUtils.getShortTimeSpan(context, diff2InMs, nextTimestamps.get(1), getUIProviderPrecisionInMs());
+			long diff2InMs = nextTimestamps.keyAt(1) - recentEnoughToBeNow;
+			Pair<CharSequence, CharSequence> nextStatusCS = UITimeUtils.getShortTimeSpan(context,
+					diff2InMs, nextTimestamps.keyAt(1), getUIProviderPrecisionInMs(),
+					nextTimestamps.valueAt(1));
 			if (nextStatusCS.second == null || nextStatusCS.second.length() == 0) {
 				line2CS = SpanUtils.setAll(nextStatusCS.first, getStatusStringsTextColor1(context));
 			} else {
