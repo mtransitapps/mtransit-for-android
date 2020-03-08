@@ -9,6 +9,7 @@ import android.content.res.Resources;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.text.style.ImageSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.TextAppearanceSpan;
 import android.text.style.TypefaceSpan;
@@ -20,7 +21,6 @@ import androidx.core.util.Pair;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SpanUtils;
-import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.POIStatus;
@@ -121,6 +121,17 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 			urgentTime2TextAppearance = SpanUtils.getNewLargeTextAppearance(context);
 		}
 		return urgentTime2TextAppearance;
+	}
+
+	@Nullable
+	private static ImageSpan realTimeImage = null;
+
+	@Nullable
+	private static ImageSpan getRealTimeImage(@NonNull Context context) {
+		if (realTimeImage == null) {
+			realTimeImage = UISchedule.getNewRealTimeImage(context, true);
+		}
+		return realTimeImage;
 	}
 
 	@NonNull
@@ -413,6 +424,8 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		if (diffInHour - (diffInDay * HOUR_IN_DAY) > (HOUR_IN_DAY / 2)) {
 			diffInDay++;
 		}
+		int realTimeStart = -1;
+		int realTimeEnd = -1;
 		int urgentTime1Start = -1;
 		int urgentTime1End = -1;
 		int timeUnit2Start = -1;
@@ -421,9 +434,6 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		int urgentTime2End = -1;
 		boolean isShortTimeSpanString = false;
 		final boolean isRealTime = Boolean.TRUE.equals(realTime);
-		if (isRealTime) {
-			shortTimeSpan1SSB.append(StringUtils.SPACE_CAR);
-		}
 		Resources resources = context.getResources();
 		if (diffInDay > 0 && diffInHour > MAX_HOURS_SHOWED) {
 			shortTimeSpan1SSB.append(getNumberInLetter(context, diffInDay));
@@ -461,9 +471,14 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 				urgentTime2End = shortTimeSpan2SSB.length();
 			}
 		}
-		// set spans
 		if (isRealTime) {
-			shortTimeSpan1SSB = SpanUtils.set(shortTimeSpan1SSB, 0, 1, UISchedule.getRealTimeImage(context, true));
+			realTimeStart = shortTimeSpan1SSB.length();
+			shortTimeSpan1SSB.append('_');
+			realTimeEnd = shortTimeSpan1SSB.length();
+		}
+		// set spans
+		if (realTimeStart < realTimeEnd) {
+			shortTimeSpan1SSB = SpanUtils.set(shortTimeSpan1SSB, realTimeStart, realTimeEnd, getRealTimeImage(context));
 		}
 		if (urgentTime1Start < urgentTime1End) {
 			shortTimeSpan1SSB = SpanUtils.set(shortTimeSpan1SSB, urgentTime1Start, urgentTime1End, getUrgentTime1TextAppearance(context));

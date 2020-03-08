@@ -1,9 +1,18 @@
 package org.mtransit.android.ui.view;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.Typeface;
+import android.location.Location;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
@@ -27,20 +36,10 @@ import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.RTSRouteFragment;
 import org.mtransit.android.util.LinkUtils;
 
-import android.app.Activity;
-import android.content.Context;
-import android.graphics.Typeface;
-import android.location.Location;
-
-import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.util.Pair;
-
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class POIViewController implements MTLog.Loggable {
 
@@ -285,7 +284,7 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static void updateRTSExtra(Context context, @NonNull POIManager poim, @NonNull RouteTripStopViewHolder holder,
-			@NonNull final POIDataProvider dataProvider) {
+									   @NonNull final POIDataProvider dataProvider) {
 		if (poim.poi instanceof RouteTripStop) {
 			RouteTripStop rts = (RouteTripStop) poim.poi;
 			if (dataProvider.isShowingExtra() && rts.getRoute() == null) {
@@ -359,7 +358,7 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static void updatePOIStatus(Context context, @Nullable CommonStatusViewHolder statusViewHolder, @NonNull POIStatus status,
-			@NonNull POIDataProvider dataProvider) {
+										@NonNull POIDataProvider dataProvider) {
 		if (statusViewHolder == null) {
 			return;
 		}
@@ -399,7 +398,7 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static void updatePOIStatus(Context context, @Nullable CommonStatusViewHolder statusViewHolder, @NonNull POIManager poim,
-			@NonNull POIDataProvider dataProvider) {
+										@NonNull POIDataProvider dataProvider) {
 		if (statusViewHolder == null) {
 			return;
 		}
@@ -427,7 +426,7 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static void updateAppStatus(Context context, @NonNull CommonStatusViewHolder statusViewHolder, @NonNull POIManager poim,
-			@NonNull POIDataProvider dataProvider) {
+										@NonNull POIDataProvider dataProvider) {
 		if (dataProvider.isShowingStatus() && statusViewHolder instanceof AppStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
 			updateAppStatus(context, statusViewHolder, poim.getStatus(context));
@@ -449,7 +448,7 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static void updateRTSSchedule(Context context, @NonNull CommonStatusViewHolder statusViewHolder, @NonNull POIManager poim,
-			@NonNull POIDataProvider dataProvider) {
+										  @NonNull POIDataProvider dataProvider) {
 		if (dataProvider.isShowingStatus() && statusViewHolder instanceof ScheduleStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
 			updateRTSSchedule(context, statusViewHolder, poim.getStatus(context), dataProvider);
@@ -459,7 +458,7 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static void updateRTSSchedule(Context context, @NonNull CommonStatusViewHolder statusViewHolder, @Nullable POIStatus status,
-			@NonNull POIDataProvider dataProvider) {
+										  @NonNull POIDataProvider dataProvider) {
 		CharSequence line1CS = null;
 		CharSequence line2CS = null;
 		if (status instanceof UISchedule) {
@@ -479,7 +478,7 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static void updateAvailabilityPercent(Context context, @NonNull CommonStatusViewHolder statusViewHolder, @NonNull POIManager poim,
-			@NonNull POIDataProvider dataProvider) {
+												  @NonNull POIDataProvider dataProvider) {
 		if (dataProvider.isShowingStatus() && statusViewHolder instanceof AvailabilityPercentStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
 			updateAvailabilityPercent(context, statusViewHolder, poim.getStatus(context));
@@ -550,7 +549,7 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static void updatePOIServiceUpdate(Context context, @Nullable ServiceUpdateViewHolder serviceUpdateViewHolder, @NonNull POIManager poim,
-			@NonNull POIDataProvider dataProvider) {
+											   @NonNull POIDataProvider dataProvider) {
 		if (serviceUpdateViewHolder != null) {
 			if (dataProvider.isShowingServiceUpdates()) {
 				poim.setServiceUpdateLoaderListener(dataProvider);
@@ -562,7 +561,7 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static void updateServiceUpdateViewHolder(@NonNull ServiceUpdateViewHolder serviceUpdateViewHolder, Boolean isServiceUpdateWarning,
-			@NonNull POIDataProvider dataProvider) {
+													  @NonNull POIDataProvider dataProvider) {
 		if (serviceUpdateViewHolder.warningImg == null) {
 			return;
 		}

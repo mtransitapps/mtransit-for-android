@@ -273,15 +273,18 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	private static ImageSpan realTimeImage = null;
 
 	@Nullable
-	public static ImageSpan getRealTimeImage(@NonNull Context context, boolean beforeNotAfter) {
+	private static ImageSpan getRealTimeImage(@NonNull Context context) {
 		if (realTimeImage == null) {
-			realTimeImage = UISpanUtils.getNewImage(context,
-					beforeNotAfter ?
-							R.drawable.ic_rss_feed_black_12dp_mirror :
-							R.drawable.ic_rss_feed_black_12dp,
-					ImageSpan.ALIGN_BASELINE);
+			realTimeImage = getNewRealTimeImage(context, false);
 		}
 		return realTimeImage;
+	}
+
+	@Nullable
+	public static ImageSpan getNewRealTimeImage(@NonNull Context context, boolean countdown) {
+		return UISpanUtils.getNewImage(context,
+				(countdown ? R.drawable.ic_rss_feed_black_6dp : R.drawable.ic_rss_feed_black_12dp),
+				ImageSpan.ALIGN_BASELINE);
 	}
 
 	private static TextAppearanceSpan statusStringTextAppearance = null;
@@ -518,6 +521,9 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			index++;
 			SpannableStringBuilder headSignSSB = null;
 			String fTime = UITimeUtils.formatTime(context, t.t);
+			if (!t.isRealTime()) {
+				fTime = fTime.replace('_', StringUtils.EMPTY_CAR);
+			}
 			// fTime = new ThreadSafeDateFormatter(FORMAT_TIME_24_PRECISE_PATTERN, Locale.getDefault())
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
 			if (t.hasHeadsign() && !Trip.isSameHeadsign(t.getHeading(context), optDefaultHeadSign)) {
@@ -563,12 +569,12 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			UITimeUtils.cleanTimes(timeSSB);
 			timeSSB = SpanUtils.setAll(timeSSB, SCHEDULE_LIST_TIMES_SIZE);
 			if (t.isRealTime()) {
-				int start = 0;
+				int start = fTime.indexOf('_');
 				int end = start + 1;
 				timeSSB = SpanUtils.set(timeSSB,
 						start,
 						end,
-						getRealTimeImage(context, true)
+						getRealTimeImage(context)
 				);
 			}
 			if (headSignSSB != null && headSignSSB.length() > 0) {
@@ -702,7 +708,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	// STATUS
 
 	@Nullable
-	public ArrayList<Pair<CharSequence, CharSequence>> getStatus(@NonNull Context context, long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
+	public ArrayList<Pair<CharSequence, CharSequence>> getStatus(@NonNull Context context, long after,
+																 @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
 																 @Nullable Integer optMinCount, @Nullable Integer optMaxCount) {
 		if (this.statusStrings == null || this.statusStringsTimestamp != after) {
 			generateStatus(context, after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
@@ -710,7 +717,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		return this.statusStrings;
 	}
 
-	private void generateStatus(@NonNull Context context, long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
+	private void generateStatus(@NonNull Context context, long after,
+								@Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
 								@Nullable Integer optMinCount, @Nullable Integer optMaxCount) {
 		if (isNoData()) { // NO DATA
 			return;
@@ -829,7 +837,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				line1CS = TextUtils.concat( //
 						SpanUtils.setAll(statusCS.first, getStatusStringsTextColor1(context)), //
 						SpanUtils.setAll(getNewStatusSpaceSSB(context), getStatusStringsTextColor2(context)), //
-						SpanUtils.setAll(statusCS.second, getStatusStringsTextColor3(context)));
+						SpanUtils.setAll(statusCS.second, getStatusStringsTextColor3(context))
+				);
 			}
 			long diff2InMs = nextTimestamps.get(1).getT() - recentEnoughToBeNow;
 			Pair<CharSequence, CharSequence> nextStatusCS = UITimeUtils.getShortTimeSpan(context,
@@ -843,7 +852,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				line2CS = TextUtils.concat( //
 						SpanUtils.setAll(nextStatusCS.first, getStatusStringsTextColor1(context)), //
 						SpanUtils.setAll(getNewStatusSpaceSSB(context), getStatusStringsTextColor2(context)), //
-						SpanUtils.setAll(nextStatusCS.second, getStatusStringsTextColor3(context)));
+						SpanUtils.setAll(nextStatusCS.second, getStatusStringsTextColor3(context)) //
+				);
 			}
 		} else { // NEXT SCHEDULE ONLY (large numbers)
 			if (diffInMs < UITimeUtils.MAX_DURATION_SHOW_NUMBER_IN_MS) {
@@ -887,8 +897,10 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		return statusSpaceTextAppearance;
 	}
 
+	@NonNull
 	private SpannableStringBuilder getNewStatusSpaceSSB(@NonNull Context context) {
-		return SpanUtils.setAll(new SpannableStringBuilder(StringUtils.SPACE_STRING), //
+		return SpanUtils.setAll( //
+				new SpannableStringBuilder(StringUtils.SPACE_STRING), //
 				getStatusSpaceTextAppearance(context), STATUS_FONT);
 	}
 

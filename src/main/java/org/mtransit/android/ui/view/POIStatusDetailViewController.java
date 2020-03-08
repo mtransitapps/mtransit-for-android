@@ -290,8 +290,10 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	private static final RelativeSizeSpan SCHEDULE_SPACE_SIZE = SpanUtils.getNew200PercentSizeSpan();
 	private static final StyleSpan SCHEDULE_SPACE_STYLE = SpanUtils.getNewBoldStyleSpan();
 
+	@Nullable
 	private static TextAppearanceSpan scheduleSpaceTextAppearance = null;
 
+	@NonNull
 	private static TextAppearanceSpan getScheduleSpaceTextAppearance(Context context) {
 		if (scheduleSpaceTextAppearance == null) {
 			scheduleSpaceTextAppearance = SpanUtils.getNewLargeTextAppearance(context);
@@ -305,7 +307,8 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	@NonNull
 	private static SpannableStringBuilder getScheduleSpace(@NonNull Context context) {
 		if (baselineSSB == null) {
-			baselineSSB = SpanUtils.setAll(new SpannableStringBuilder(StringUtils.SPACE_STRING), //
+			baselineSSB = SpanUtils.setAll(
+					new SpannableStringBuilder(StringUtils.SPACE_STRING), //
 					getScheduleSpaceTextAppearance(context), SCHEDULE_SPACE_STYLE, SCHEDULE_SPACE_SIZE);
 		}
 		return baselineSSB;
