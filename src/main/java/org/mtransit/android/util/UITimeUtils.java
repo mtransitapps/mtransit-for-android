@@ -134,7 +134,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		return realTimeImage;
 	}
 
-	public static void resetColorCache() {
+	static void resetColorCache() {
 		realTimeImage = null;
 	}
 

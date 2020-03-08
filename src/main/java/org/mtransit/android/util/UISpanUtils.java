@@ -8,6 +8,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
@@ -27,17 +28,18 @@ public class UISpanUtils extends SpanUtils implements MTLog.Loggable {
 
 	@Nullable
 	public static ImageSpan getNewImage(@NonNull Context context, @DrawableRes int id, int verticalAlignment) {
-		final Drawable drawable = ContextCompat.getDrawable(context, id);
+		Drawable drawable = ContextCompat.getDrawable(context, id);
 		if (drawable == null) {
 			MTLog.w(LOG_TAG, "Cannot load new image span!");
 			return null;
 		}
+		drawable = DrawableCompat.wrap(drawable); // tint
 		int left = 0;
 		int right = drawable.getIntrinsicWidth();
 		int top = 0;
 		int bottom = drawable.getIntrinsicHeight();
 		drawable.setBounds(left, top, right, bottom);
-		drawable.setTint(ThemeUtils.resolveColorAttribute(context, R.attr.colorOnSurface));
+		DrawableCompat.setTint(drawable, ThemeUtils.resolveColorAttribute(context, R.attr.colorOnSurface));
 		return new MTSuperscriptImageSpan(drawable, verticalAlignment);
 	}
 }
