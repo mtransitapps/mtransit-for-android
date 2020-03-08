@@ -45,6 +45,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		return LOG_TAG;
 	}
 
+	public static final char REAL_TIME_CHAR = '_';
+
 	private static final long MAX_LAST_STATUS_DIFF_IN_MS = TimeUnit.MINUTES.toMillis(5L);
 
 	private static final long MAX_FREQUENCY_DISPLAYED_IN_SEC = TimeUnit.MINUTES.toSeconds(15L);
@@ -306,6 +308,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		statusStringsTextColor1 = null;
 		statusStringsTextColor2 = null;
 		statusStringsTextColor3 = null;
+		realTimeImage = null;
 	}
 
 	@Nullable
@@ -522,7 +525,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			SpannableStringBuilder headSignSSB = null;
 			String fTime = UITimeUtils.formatTime(context, t.t);
 			if (!t.isRealTime()) {
-				fTime = fTime.replace('_', StringUtils.EMPTY_CAR);
+				fTime = fTime.replace(REAL_TIME_CHAR, StringUtils.EMPTY_CAR);
 			}
 			// fTime = new ThreadSafeDateFormatter(FORMAT_TIME_24_PRECISE_PATTERN, Locale.getDefault())
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
@@ -569,7 +572,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			UITimeUtils.cleanTimes(timeSSB);
 			timeSSB = SpanUtils.setAll(timeSSB, SCHEDULE_LIST_TIMES_SIZE);
 			if (t.isRealTime()) {
-				int start = fTime.indexOf('_');
+				int start = fTime.indexOf(REAL_TIME_CHAR);
 				int end = start + 1;
 				timeSSB = SpanUtils.set(timeSSB,
 						start,

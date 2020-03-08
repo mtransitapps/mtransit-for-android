@@ -1,7 +1,6 @@
 package org.mtransit.android.util;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.text.style.ImageSpan;
 
@@ -10,8 +9,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SpanUtils;
+import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.ui.MTSuperscriptImageSpan;
 
 public class UISpanUtils extends SpanUtils implements MTLog.Loggable {
@@ -36,6 +37,7 @@ public class UISpanUtils extends SpanUtils implements MTLog.Loggable {
 		int top = 0;
 		int bottom = drawable.getIntrinsicHeight();
 		drawable.setBounds(left, top, right, bottom);
+		drawable.setTint(ThemeUtils.resolveColorAttribute(context, R.attr.colorOnSurface));
 		return new MTSuperscriptImageSpan(drawable, verticalAlignment);
 	}
 }

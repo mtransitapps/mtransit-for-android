@@ -134,6 +134,10 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		return realTimeImage;
 	}
 
+	public static void resetColorCache() {
+		realTimeImage = null;
+	}
+
 	@NonNull
 	public static ThreadSafeDateFormatter getNewHourFormat(@NonNull Context context) {
 		if (is24HourFormat(context)) {
@@ -473,7 +477,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		}
 		if (isRealTime) {
 			realTimeStart = shortTimeSpan1SSB.length();
-			shortTimeSpan1SSB.append('_');
+			shortTimeSpan1SSB.append(UISchedule.REAL_TIME_CHAR);
 			realTimeEnd = shortTimeSpan1SSB.length();
 		}
 		// set spans
