@@ -64,9 +64,10 @@ public class UITimeUtilsTest {
 		SpannableStringBuilder shortTimeSpan2SSB = mock(SpannableStringBuilder.class);
 		long diffInMs = TimeUnit.MINUTES.toMillis(9L);
 		long precisionInMs = TimeUnit.MINUTES.toMillis(1L);
+		Boolean realTime = null;
 		when(resources.getQuantityString(R.plurals.minutes_capitalized, 9)).thenReturn("Minutes");
 		//
-		Pair<CharSequence, CharSequence> result = UITimeUtils.getShortTimeSpanNumber(context, diffInMs, precisionInMs, shortTimeSpan1SSB, shortTimeSpan2SSB);
+		Pair<CharSequence, CharSequence> result = UITimeUtils.getShortTimeSpanNumber(context, diffInMs, precisionInMs, realTime, shortTimeSpan1SSB, shortTimeSpan2SSB);
 		//
 		verify(shortTimeSpan1SSB).append(eq("9"));
 		verify(shortTimeSpan2SSB).append(eq("Minutes"));

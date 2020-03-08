@@ -48,11 +48,11 @@ public class UIScheduleTest {
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_IN_MS + TimeUnit.MINUTES.toMillis(24L)));
 		schedule.sortTimestamps();
 		//
-		ArrayList<Long> result = schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT);
+		ArrayList<Timestamp> result = schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT);
 		//
 		assertEquals(4, result.size());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(-2L), result.get(0).longValue());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(7L), result.get(1).longValue());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(-2L), result.get(0).getT());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(7L), result.get(1).getT());
 	}
 
 	@Test
@@ -65,11 +65,11 @@ public class UIScheduleTest {
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_IN_MS + TimeUnit.MINUTES.toMillis(24L)));
 		schedule.sortTimestamps();
 		//
-		ArrayList<Long> result = schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT);
+		ArrayList<Timestamp> result = schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT);
 		//
 		assertEquals(3, result.size());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(7L), result.get(0).longValue());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(13L), result.get(1).longValue());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(7L), result.get(0).getT());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(13L), result.get(1).getT());
 	}
 
 	@Test
@@ -83,11 +83,11 @@ public class UIScheduleTest {
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_IN_MS + TimeUnit.MINUTES.toMillis(24L)));
 		schedule.sortTimestamps();
 		//
-		ArrayList<Long> result = schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT);
+		ArrayList<Timestamp> result = schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT);
 		//
 		assertEquals(4, result.size());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(-1L), result.get(0).longValue());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(7L), result.get(1).longValue());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(7L), result.get(1).getT());
 	}
 
 	@Test
@@ -103,12 +103,12 @@ public class UIScheduleTest {
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_IN_MS + TimeUnit.MINUTES.toMillis(24L)));
 		schedule.sortTimestamps();
 		//
-		ArrayList<Long> result = UISchedule.filterStatusNextTimestampsTimes( //
+		ArrayList<Timestamp> result = UISchedule.filterStatusNextTimestampsTimes( //
 				schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT));
 		//
 		assertEquals(4, result.size());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(-1L), result.get(0).longValue());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(7L), result.get(1).longValue());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(7L), result.get(1).getT());
 	}
 
 	@Test
@@ -122,12 +122,12 @@ public class UIScheduleTest {
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_IN_MS + TimeUnit.MINUTES.toMillis(24L)));
 		schedule.sortTimestamps();
 		//
-		ArrayList<Long> result = UISchedule.filterStatusNextTimestampsTimes( //
+		ArrayList<Timestamp> result = UISchedule.filterStatusNextTimestampsTimes( //
 				schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT));
 		//
 		assertEquals(3, result.size());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(7L), result.get(0).longValue());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(13L), result.get(1).longValue());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(7L), result.get(0).getT());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(13L), result.get(1).getT());
 	}
 
 	@Test
@@ -142,12 +142,12 @@ public class UIScheduleTest {
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_IN_MS + TimeUnit.MINUTES.toMillis(24L)));
 		schedule.sortTimestamps();
 		//
-		ArrayList<Long> result = UISchedule.filterStatusNextTimestampsTimes( //
+		ArrayList<Timestamp> result = UISchedule.filterStatusNextTimestampsTimes( //
 				schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT));
 		//
 		assertEquals(4, result.size());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(-1L), result.get(0).longValue());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(7L), result.get(1).longValue());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(7L), result.get(1).getT());
 	}
 
 	@Test
@@ -162,12 +162,13 @@ public class UIScheduleTest {
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_IN_MS + TimeUnit.MINUTES.toMillis(24L)));
 		schedule.sortTimestamps();
 		//
-		ArrayList<Long> result = UISchedule.filterStatusNextTimestampsTimes( //
+		ArrayList<Timestamp> result = UISchedule.filterStatusNextTimestampsTimes( //
 				schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT));
 		//
+		// TODO FIX TEST
 		assertEquals(3, result.size());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(7L), result.get(0).longValue());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(13L), result.get(1).longValue());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(7L), result.get(0).getT());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(13L), result.get(1).getT());
 	}
 
 	@Test
@@ -182,12 +183,12 @@ public class UIScheduleTest {
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_IN_MS + TimeUnit.MINUTES.toMillis(24L)));
 		schedule.sortTimestamps();
 		//
-		ArrayList<Long> result = UISchedule.filterStatusNextTimestampsTimes( //
+		ArrayList<Timestamp> result = UISchedule.filterStatusNextTimestampsTimes( //
 				schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT));
 		//
 		assertEquals(5, result.size());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(0L), result.get(0).longValue());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(3L), result.get(1).longValue());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(0L), result.get(0).getT());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(3L), result.get(1).getT());
 	}
 
 	@Test
@@ -204,11 +205,11 @@ public class UIScheduleTest {
 		schedule.addTimestampWithoutSort(new Timestamp(NOW_IN_MS + TimeUnit.MINUTES.toMillis(24L)));
 		schedule.sortTimestamps();
 		//
-		ArrayList<Long> result = UISchedule.filterStatusNextTimestampsTimes( //
+		ArrayList<Timestamp> result = UISchedule.filterStatusNextTimestampsTimes( //
 				schedule.getStatusNextTimestamps(AFTER_IN_MS, MIN_COVERAGE_IN_MS, MAX_COVERAGE_IN_MS, MIN_COUNT, MAX_COUNT));
 		//
 		assertEquals(7, result.size());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(-1L), result.get(0).longValue());
-		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(2L), result.get(1).longValue());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());
+		assertEquals(NOW_IN_MS + TimeUnit.MINUTES.toMillis(2L), result.get(1).getT());
 	}
 }

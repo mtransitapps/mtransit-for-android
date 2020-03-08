@@ -15,7 +15,6 @@ import android.text.style.TypefaceSpan;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.collection.SimpleArrayMap;
 import androidx.core.util.Pair;
 
 import org.mtransit.android.R;
@@ -32,6 +31,7 @@ import org.mtransit.android.util.UITimeUtils;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -728,13 +728,13 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			this.statusStringsTimestamp = after;
 			return;
 		}
-		SimpleArrayMap<Long, Boolean> nextTimestamps = getStatusNextTimestamps(after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
+		ArrayList<Timestamp> nextTimestamps = getStatusNextTimestamps(after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
 		if (nextTimestamps.size() <= 0) { // NO SERVICE
 			generateStatusStringsNoService(context);
 			this.statusStringsTimestamp = after;
 			return;
 		}
-		long diffInMs = nextTimestamps.keyAt(0) - after;
+		long diffInMs = nextTimestamps.get(0).getT() - after;
 		// TODO diffInMs can be < 0 !! ?
 		boolean isFrequentService = //
 				!isDescentOnly() //
@@ -751,49 +751,41 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	}
 
 	@NonNull
-	static SimpleArrayMap<Long, Boolean> filterStatusNextTimestampsTimes(@NonNull SimpleArrayMap<Long, Boolean> nextTimestampList) {
-		SimpleArrayMap<Long, Boolean> nextTimestampsT = new SimpleArrayMap<>();
+	static ArrayList<Timestamp> filterStatusNextTimestampsTimes(@NonNull ArrayList<Timestamp> nextTimestampList) {
+		ArrayList<Timestamp> nextTimestampsT = new ArrayList<>();
 		Long lastTimestamp = null;
 		if (nextTimestampList.size() > 0) {
-			for (int t = 0; t < nextTimestampList.size(); t++) {
-				Long timestamp = nextTimestampList.keyAt(t);
-				if (nextTimestampsT.containsKey(timestamp)) {
+			for (Timestamp timestamp : nextTimestampList) {
+				if (nextTimestampsT.contains(timestamp)) {
 					continue; // skip duplicate time
 				}
 				if (lastTimestamp != null //
-						&& (timestamp - lastTimestamp) < MIN_UI_PRECISION_IN_MS) {
+						&& (timestamp.getT() - lastTimestamp) < MIN_UI_PRECISION_IN_MS) {
 					continue; // skip near duplicate time
 				}
-				nextTimestampsT.put(timestamp, nextTimestampList.valueAt(t));
-				lastTimestamp = timestamp;
+				nextTimestampsT.add(timestamp);
+				lastTimestamp = timestamp.getT();
 			}
 		}
 		return nextTimestampsT;
 	}
 
 	@NonNull
-	SimpleArrayMap<Long, Boolean> getStatusNextTimestamps(long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
-														  @Nullable Integer optMinCount, @Nullable Integer optMaxCount) {
+	ArrayList<Timestamp> getStatusNextTimestamps(long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
+												 @Nullable Integer optMinCount, @Nullable Integer optMaxCount) {
 		long usefulPastInMs = Math.max(MAX_LAST_STATUS_DIFF_IN_MS, getUIProviderPrecisionInMs());
-		ArrayList<Timestamp> nextTimestampList = getNextTimestamps(after - usefulPastInMs, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
-		SimpleArrayMap<Long, Boolean> nextTimestampsT = new SimpleArrayMap<>();
-		for (Timestamp timestamp : nextTimestampList) {
-			nextTimestampsT.put(timestamp.getT(), timestamp.getRealTime());
-		}
+		ArrayList<Timestamp> nextTimestampsT = getNextTimestamps(after - usefulPastInMs, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
 		if (nextTimestampsT.size() > 0) {
 			Long theNextTimestamp = null;
 			Long theLastTimestamp = null;
-			if (nextTimestampsT.size() > 0) {
-				for (int t = 0; t < nextTimestampsT.size(); t++) {
-					Long timestamp = nextTimestampsT.keyAt(t);
-					if (timestamp >= after) {
-						if (theNextTimestamp == null || timestamp < theNextTimestamp) {
-							theNextTimestamp = timestamp;
-						}
-					} else {
-						if (theLastTimestamp == null || theLastTimestamp < timestamp) {
-							theLastTimestamp = timestamp;
-						}
+			for (Timestamp timestamp : nextTimestampsT) {
+				if (timestamp.getT() >= after) {
+					if (theNextTimestamp == null || timestamp.getT() < theNextTimestamp) {
+						theNextTimestamp = timestamp.getT();
+					}
+				} else {
+					if (theLastTimestamp == null || theLastTimestamp < timestamp.getT()) {
+						theLastTimestamp = timestamp.getT();
 					}
 				}
 			}
@@ -809,12 +801,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			}
 			//noinspection ConstantConditions // TODO ?
 			if (oldestUsefulTimestamp != null) {
-				if (nextTimestampsT.size() > 0) {
-					for (int t = 0; t < nextTimestampsT.size(); t++) {
-						Long timestamp = nextTimestampsT.keyAt(t);
-						if (timestamp < oldestUsefulTimestamp) {
-							nextTimestampsT.removeAt(t);
-						}
+				Iterator<Timestamp> it = nextTimestampsT.iterator();
+				while (it.hasNext()) {
+					Timestamp timestamp = it.next();
+					if (timestamp.getT() < oldestUsefulTimestamp) {
+						it.remove();
 					}
 				}
 			}
@@ -822,10 +813,13 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		return nextTimestampsT;
 	}
 
-	private void generateStatusStringsTimes(@NonNull Context context, long recentEnoughToBeNow, long diffInMs, @NonNull SimpleArrayMap<Long, Boolean> nextTimestamps) {
+	private void generateStatusStringsTimes(@NonNull Context context, long recentEnoughToBeNow, long diffInMs,
+											@NonNull ArrayList<Timestamp> nextTimestamps) {
 		Pair<CharSequence, CharSequence> statusCS = UITimeUtils.getShortTimeSpan(context,
-				diffInMs, nextTimestamps.keyAt(0), getUIProviderPrecisionInMs(),
-				nextTimestamps.valueAt(0));
+				diffInMs,
+				nextTimestamps.get(0),
+				getUIProviderPrecisionInMs()
+		);
 		CharSequence line1CS;
 		CharSequence line2CS;
 		if (diffInMs < UITimeUtils.URGENT_SCHEDULE_IN_MS && nextTimestamps.size() > 1) { // URGENT & NEXT NEXT SCHEDULE
@@ -837,10 +831,12 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 						SpanUtils.setAll(getNewStatusSpaceSSB(context), getStatusStringsTextColor2(context)), //
 						SpanUtils.setAll(statusCS.second, getStatusStringsTextColor3(context)));
 			}
-			long diff2InMs = nextTimestamps.keyAt(1) - recentEnoughToBeNow;
+			long diff2InMs = nextTimestamps.get(1).getT() - recentEnoughToBeNow;
 			Pair<CharSequence, CharSequence> nextStatusCS = UITimeUtils.getShortTimeSpan(context,
-					diff2InMs, nextTimestamps.keyAt(1), getUIProviderPrecisionInMs(),
-					nextTimestamps.valueAt(1));
+					diff2InMs,
+					nextTimestamps.get(1),
+					getUIProviderPrecisionInMs()
+			);
 			if (nextStatusCS.second == null || nextStatusCS.second.length() == 0) {
 				line2CS = SpanUtils.setAll(nextStatusCS.first, getStatusStringsTextColor1(context));
 			} else {

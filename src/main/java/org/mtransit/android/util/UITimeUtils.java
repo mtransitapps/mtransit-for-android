@@ -15,7 +15,6 @@ import android.text.style.TypefaceSpan;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.collection.SimpleArrayMap;
 import androidx.core.util.Pair;
 
 import org.mtransit.android.R;
@@ -25,9 +24,11 @@ import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.POIStatus;
+import org.mtransit.android.commons.data.Schedule.Timestamp;
 import org.mtransit.android.data.UISchedule;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -336,18 +337,18 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		}
 	}
 
-	public static boolean isFrequentService(@NonNull SimpleArrayMap<Long, Boolean> timestamps, long providerFSMinDurationInMs, long providerFSTimeSpanInMs) {
+	public static boolean isFrequentService(@NonNull ArrayList<Timestamp> timestamps, long providerFSMinDurationInMs, long providerFSTimeSpanInMs) {
 		if (timestamps.size() < FREQUENT_SERVICE_MIN_SERVICE) {
 			return false; // NOT FREQUENT (no service at all)
 		}
 		long fsMinDurationMs = providerFSMinDurationInMs > 0 ? providerFSMinDurationInMs : FREQUENT_SERVICE_MIN_DURATION_IN_MS_DEFAULT;
 		long fsTimeSpanMs = providerFSTimeSpanInMs > 0 ? providerFSTimeSpanInMs : FREQUENT_SERVICE_TIME_SPAN_IN_MS_DEFAULT;
-		long firstTimestamp = timestamps.keyAt(0);
+		long firstTimestamp = timestamps.get(0).getT();
 		long previousTimestamp = firstTimestamp;
-		long currentTimestamp;
+		Long currentTimestamp;
 		long diffInMs;
 		for (int i = 1; i < timestamps.size(); i++) {
-			currentTimestamp = timestamps.keyAt(i);
+			currentTimestamp = timestamps.get(i).getT();
 			diffInMs = currentTimestamp - previousTimestamp;
 			if (diffInMs > fsTimeSpanMs) {
 				return false; // NOT FREQUENT
@@ -366,12 +367,13 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 
 	@NonNull
 	public static Pair<CharSequence, CharSequence> getShortTimeSpan(@NonNull Context context,
-																	long diffInMs, long targetedTimestamp, long precisionInMs,
-																	@Nullable Boolean realTime) {
+																	long diffInMs,
+																	@NonNull Timestamp targetedTimestamp,
+																	long precisionInMs) {
 		if (diffInMs < MAX_DURATION_DISPLAYED_IN_MS) {
-			return getShortTimeSpanNumber(context, diffInMs, precisionInMs, realTime);
+			return getShortTimeSpanNumber(context, diffInMs, precisionInMs, targetedTimestamp.getRealTime());
 		} else {
-			Pair<CharSequence, CharSequence> shortTimeSpanString = getShortTimeSpanString(context, diffInMs, targetedTimestamp);
+			Pair<CharSequence, CharSequence> shortTimeSpanString = getShortTimeSpanString(context, diffInMs, targetedTimestamp.getT());
 			return new Pair<>( //
 					getShortTimeSpanStringStyle(context, shortTimeSpanString.first),  //
 					getShortTimeSpanStringStyle(context, shortTimeSpanString.second));
