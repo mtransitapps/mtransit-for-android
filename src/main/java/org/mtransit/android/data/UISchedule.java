@@ -726,7 +726,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		if (isNoData()) { // NO DATA
 			return;
 		}
-		if (this.isDescentOnly()) { // DESCENT ONLY
+		if (isDescentOnly()) { // DESCENT ONLY
 			if (this.statusStrings == null || this.statusStrings.size() == 0) {
 				generateStatusStringsDescentOnly(context);
 			} // ELSE descent only already set

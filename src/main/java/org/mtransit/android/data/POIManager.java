@@ -153,7 +153,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	public boolean setStatus(@NonNull POIStatus newStatus) {
-		if (!newStatus.isUseful()) {
+		if (!newStatus.isUseful() && !newStatus.isNoData()) {
 			return false; // no change
 		}
 		switch (getStatusType()) {
