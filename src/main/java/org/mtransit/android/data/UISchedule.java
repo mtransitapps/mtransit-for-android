@@ -724,6 +724,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 								@Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
 								@Nullable Integer optMinCount, @Nullable Integer optMaxCount) {
 		if (isNoData()) { // NO DATA
+			generateStatusStringsNoService(context);
+			this.statusStringsTimestamp = after;
 			return;
 		}
 		if (isDescentOnly()) { // DESCENT ONLY
