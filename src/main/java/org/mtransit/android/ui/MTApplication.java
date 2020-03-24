@@ -12,6 +12,7 @@ import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.analytics.AnalyticsUserProperties;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.common.IApplication;
+import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.IStrictMode;
@@ -43,6 +44,15 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 	private IAdManager adManager = null;
 	@Nullable
 	private IAnalyticsManager analyticsManager = null;
+
+	@Override
+	protected void attachBaseContext(@NonNull Context base) {
+		base = LocaleUtils.fixDefaultLocale(base);
+		super.attachBaseContext(base);
+		// if (BuildConfig.DEBUG) {
+		// androidx.multidex.MultiDex.install(this);
+		// }
+	}
 
 	@Override
 	public void onCreate() {

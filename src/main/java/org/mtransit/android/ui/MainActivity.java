@@ -21,6 +21,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
+import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.dev.CrashReporter;
@@ -96,6 +97,12 @@ public class MainActivity extends MTActivityWithLocation implements
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
 		DataSourceProvider.addModulesUpdateListener(this);
 		MapUtils.fixScreenFlickering(findViewById(R.id.content_frame));
+	}
+
+	@Override
+	protected void attachBaseContext(@NonNull Context newBase) {
+		newBase = LocaleUtils.fixDefaultLocale(newBase);
+		super.attachBaseContext(newBase);
 	}
 
 	private boolean modulesUpdated = false;

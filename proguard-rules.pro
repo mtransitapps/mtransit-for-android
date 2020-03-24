@@ -20,7 +20,7 @@
 #}
 
 -forceprocessing
--optimizationpasses 5
+-optimizationpasses 2
 
 # Produces useful obfuscated stack traces
 # http://proguard.sourceforge.net/manual/examples.html#stacktrace

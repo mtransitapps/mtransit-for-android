@@ -15,6 +15,7 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.RequestConfiguration;
 
 import org.mtransit.android.R;
 import org.mtransit.android.common.IApplication;
@@ -30,6 +31,8 @@ import org.mtransit.android.ui.view.common.IActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class AdManager implements IAdManager, MTLog.Loggable {
 
@@ -82,6 +85,16 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 					application.requireApplication().getApplicationContext(),
 					application.requireContext().getString(R.string.google_ads_app_id)
 			);
+			if (DEBUG) {
+				List<String> testDeviceIds = new ArrayList<>();
+				testDeviceIds.add(AdRequest.DEVICE_ID_EMULATOR);
+				testDeviceIds.addAll(Arrays.asList(application.requireContext().getResources().getStringArray(R.array.google_ads_test_devices_ids)));
+				MobileAds.setRequestConfiguration(
+						new RequestConfiguration.Builder()
+								.setTestDeviceIds(testDeviceIds)
+								.build()
+				);
+			}
 		} catch (Exception e) {
 			this.crashReporter.w(this, e, "Error while initializing Ads!");
 		}
@@ -370,12 +383,6 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			adRequestBd.setLocation(this.adManager.getLastLocation());
 			for (String keyword : KEYWORDS) {
 				adRequestBd.addKeyword(keyword);
-			}
-			if (DEBUG) {
-				adRequestBd.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
-				for (String deviceId : context.requireContext().getResources().getStringArray(R.array.google_ads_test_devices_ids)) {
-					adRequestBd.addTestDevice(deviceId);
-				}
 			}
 			AdRequest adRequest = adRequestBd.build();
 			MTLog.d(this, "onPostExecute() > request.isTestDevice(): %s", adRequest.isTestDevice(context.requireContext()));

@@ -1,20 +1,21 @@
 package org.mtransit.android.ui;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.os.Bundle;
+import android.view.MenuItem;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.util.NightModeUtils;
 import org.mtransit.android.util.VendingUtils;
-
-import android.content.Context;
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.os.Bundle;
-import android.view.MenuItem;
 
 public class PreferencesActivity extends MTActivity {
 
@@ -55,6 +56,12 @@ public class PreferencesActivity extends MTActivity {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
 		restoreInstanceState(savedInstanceState, getIntent().getExtras());
+	}
+
+	@Override
+	protected void attachBaseContext(@NonNull Context newBase) {
+		newBase = LocaleUtils.fixDefaultLocale(newBase);
+		super.attachBaseContext(newBase);
 	}
 
 	private void restoreInstanceState(Bundle... bundles) {
