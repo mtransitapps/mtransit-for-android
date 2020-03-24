@@ -82,11 +82,13 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 
 	private static final String AM = "am";
 	private static final String A_M_ = "a.m.";
+	private static final String A__M_ = "a. m.";
 	private static final String PM = "pm";
 	private static final String P_M_ = "p.m.";
+	private static final String P__M_ = "p. m.";
 	private static final List<String> AM_PM_LIST = Arrays.asList( //
-			AM, A_M_, //
-			PM, P_M_ //
+			AM, A_M_, A__M_, //
+			PM, P_M_, P__M_ //
 	);
 
 	private static final long MILLIS_IN_SEC = 1000L;
@@ -337,10 +339,13 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 				if (index <= 0) {
 					break;
 				}
-				output = SpanUtils.set(output, index - 1, index, SpanUtils.getNew10PercentSizeSpan()); // remove space hack
-				if (amPm.length() == 4) {
-					output = SpanUtils.set(output, index + 1, index + 2, SpanUtils.getNew10PercentSizeSpan()); // remove space hack
-					output = SpanUtils.set(output, index + 3, index + 4, SpanUtils.getNew10PercentSizeSpan()); // remove space hack
+				output = SpanUtils.set(output, index - 1, index, SpanUtils.getNew10PercentSizeSpan()); // remove space hack - before
+				if (A_M_.equals(amPm) || P_M_.equals(amPm)) {
+					output = SpanUtils.set(output, index + 1, index + 2, SpanUtils.getNew10PercentSizeSpan()); // remove space hack - after a/p
+					output = SpanUtils.set(output, index + 3, index + 4, SpanUtils.getNew10PercentSizeSpan()); // remove space hack - after m
+				} else if (A__M_.equals(amPm) || P__M_.equals(amPm)) {
+					output = SpanUtils.set(output, index + 1, index + 3, SpanUtils.getNew10PercentSizeSpan()); // remove space hack - after a/p
+					output = SpanUtils.set(output, index + 4, index + 5, SpanUtils.getNew10PercentSizeSpan()); // remove space hack - after m
 				}
 				output = SpanUtils.set(output, index, index + amPm.length(), SpanUtils.getNew25PercentSizeSpan());
 			}
