@@ -31,7 +31,6 @@ import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.SensorUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.api.SupportFactory;
@@ -44,7 +43,9 @@ import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.FavoriteManager;
+import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
@@ -59,6 +60,7 @@ import org.mtransit.android.ui.view.MTOnItemLongClickListener;
 import org.mtransit.android.ui.view.MTOnLongClickListener;
 import org.mtransit.android.ui.view.MTPieChartPercentView;
 import org.mtransit.android.util.CrashUtils;
+import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.UITimeUtils;
 
 import java.lang.ref.WeakReference;
@@ -71,9 +73,9 @@ import java.util.Locale;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 
-public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements SensorUtils.CompassListener, AdapterView.OnItemClickListener,
+public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSensorManager.CompassListener, AdapterView.OnItemClickListener,
 		AdapterView.OnItemLongClickListener, SensorEventListener, AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener,
-		ServiceUpdateLoader.ServiceUpdateLoaderListener, FavoriteManager.FavoriteUpdateListener, SensorUtils.SensorTaskCompleted,
+		ServiceUpdateLoader.ServiceUpdateLoaderListener, FavoriteManager.FavoriteUpdateListener, MTSensorManager.SensorTaskCompleted,
 		UITimeUtils.TimeChangedReceiver.TimeChangedListener {
 
 	private static final String TAG = POIArrayAdapter.class.getSimpleName();
@@ -105,6 +107,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 	@Nullable
 	private WeakReference<Activity> activityWR;
 
+	@Nullable
 	private Location location;
 
 	private int lastCompassInDegree = -1;
@@ -151,10 +154,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	private FavoriteManager.FavoriteUpdateListener favoriteUpdateListener = this;
 
+	@NonNull
+	private final MTSensorManager sensorManager;
+
 	public POIArrayAdapter(Activity activity) {
 		super(activity, -1);
 		setActivity(activity);
 		this.layoutInflater = LayoutInflater.from(getContext());
+		this.sensorManager = Injection.providesSensorManager();
 	}
 
 	public void setManualLayout(ViewGroup manualLayout) {
@@ -991,9 +998,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 		if (newLocation != null) {
 			if (this.location == null || LocationUtils.isMoreRelevant(getLogTag(), this.location, newLocation)) {
 				this.location = newLocation;
-				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
+				this.locationDeclination = this.sensorManager.getLocationDeclination(this.location);
 				if (!this.compassUpdatesEnabled) {
-					SensorUtils.registerCompassListener(getContext(), this);
+					this.sensorManager.registerCompassListener(this);
 					this.compassUpdatesEnabled = true;
 				}
 				updateDistances(this.location);
@@ -1007,7 +1014,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			this.activityWR = null;
 		}
 		if (this.compassUpdatesEnabled) {
-			SensorUtils.unregisterSensorListener(getContext(), this);
+			this.sensorManager.unregisterSensorListener(this);
 			this.compassUpdatesEnabled = false;
 		}
 		this.handler.removeCallbacks(this.notifyDataSetChangedLater);
@@ -1095,8 +1102,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			return;
 		}
 		long now = UITimeUtils.currentTimeMillis();
-		int roundedOrientation = SensorUtils.convertToPositive360Degree((int) orientation);
-		SensorUtils.updateCompass(force, this.location, roundedOrientation, now, this.scrollState, this.lastCompassChanged, this.lastCompassInDegree,
+		int roundedOrientation = DegreeUtils.convertToPositive360Degree((int) orientation);
+		this.sensorManager.updateCompass(force, this.location, roundedOrientation, now, this.scrollState, this.lastCompassChanged, this.lastCompassInDegree,
 				Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS, this);
 	}
 
@@ -1123,7 +1130,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 
 	@Override
 	public void onSensorChanged(SensorEvent se) {
-		SensorUtils.checkForCompass(getContext(), se, this.accelerometerValues, this.magneticFieldValues, this);
+		this.sensorManager.checkForCompass(se, this.accelerometerValues, this.magneticFieldValues, this);
 	}
 
 	@Override

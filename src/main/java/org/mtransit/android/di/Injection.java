@@ -18,6 +18,8 @@ import org.mtransit.android.dev.StrictModeImpl;
 import org.mtransit.android.provider.location.GoogleLocationProvider;
 import org.mtransit.android.provider.location.MTLocationProvider;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
+import org.mtransit.android.provider.sensor.MTSensorManager;
+import org.mtransit.android.provider.sensor.SensorManagerImpl;
 import org.mtransit.android.ui.MTApplication;
 
 public class Injection {
@@ -39,6 +41,9 @@ public class Injection {
 
 	@Nullable
 	private static MTLocationProvider locationProvider;
+
+	@Nullable
+	private static MTSensorManager sensorManager;
 
 	@Nullable
 	private static IAdManager adManager;
@@ -123,6 +128,20 @@ public class Injection {
 			}
 		}
 		return locationProvider;
+	}
+
+	@NonNull
+	public static MTSensorManager providesSensorManager() {
+		if (sensorManager == null) {
+			synchronized (Injection.class) {
+				if (sensorManager == null) {
+					sensorManager = new SensorManagerImpl(
+							providesApplication()
+					);
+				}
+			}
+		}
+		return sensorManager;
 	}
 
 	@NonNull

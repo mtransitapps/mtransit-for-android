@@ -36,7 +36,6 @@ import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.SensorUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.data.POIStatus;
@@ -55,6 +54,7 @@ import org.mtransit.android.data.ScheduleProviderProperties;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
+import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
@@ -66,6 +66,7 @@ import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
 import org.mtransit.android.util.CrashUtils;
+import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.LoaderUtils;
@@ -84,8 +85,8 @@ public class POIFragment extends ABFragment implements
 		POIViewController.POIDataProvider,
 		MTActivityWithLocation.UserLocationListener,
 		SensorEventListener,
-		SensorUtils.CompassListener,
-		SensorUtils.SensorTaskCompleted,
+		MTSensorManager.CompassListener,
+		MTSensorManager.SensorTaskCompleted,
 		FavoriteManager.FavoriteUpdateListener,
 		UITimeUtils.TimeChangedReceiver.TimeChangedListener,
 		MapViewController.MapMarkerProvider,
@@ -140,10 +141,13 @@ public class POIFragment extends ABFragment implements
 
 	@NonNull
 	private final LocationPermissionProvider locationPermissionProvider;
+	@NonNull
+	private final MTSensorManager sensorManager;
 
 	public POIFragment() {
 		super();
 		this.locationPermissionProvider = Injection.providesLocationPermissionProvider();
+		this.sensorManager = Injection.providesSensorManager();
 	}
 
 	private boolean hasAgency() {
@@ -869,8 +873,10 @@ public class POIFragment extends ABFragment implements
 		return LinkUtils.open(getActivity(), url, getString(R.string.web_browser), true);
 	}
 
+	@Nullable
 	private Location userLocation;
 
+	@Nullable
 	@Override
 	public Location getLocation() {
 		return this.userLocation;
@@ -886,9 +892,9 @@ public class POIFragment extends ABFragment implements
 		}
 		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 			this.userLocation = newLocation;
-			this.locationDeclination = SensorUtils.getLocationDeclination(newLocation);
+			this.locationDeclination = sensorManager.getLocationDeclination(newLocation);
 			if (!this.compassUpdatesEnabled) {
-				SensorUtils.registerCompassListener(getContext(), this);
+				sensorManager.registerCompassListener(this);
 				this.compassUpdatesEnabled = true;
 			}
 			POIManager poim = getPoimOrNull();
@@ -900,14 +906,13 @@ public class POIFragment extends ABFragment implements
 			if (this.adapter != null) {
 				this.adapter.setLocation(newLocation);
 			}
-
 		}
 	}
 
 	private boolean compassUpdatesEnabled = false;
 
 	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+	public void onAccuracyChanged(@NonNull Sensor sensor, int accuracy) {
 	}
 
 	private float[] accelerometerValues = new float[3];
@@ -915,8 +920,8 @@ public class POIFragment extends ABFragment implements
 	private float[] magneticFieldValues = new float[3];
 
 	@Override
-	public void onSensorChanged(SensorEvent se) {
-		SensorUtils.checkForCompass(getContext(), se, this.accelerometerValues, this.magneticFieldValues, this);
+	public void onSensorChanged(@NonNull SensorEvent se) {
+		sensorManager.checkForCompass(se, this.accelerometerValues, this.magneticFieldValues, this);
 	}
 
 	private long lastCompassChanged = -1L;
@@ -924,8 +929,8 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void updateCompass(float orientation, boolean force) {
 		long now = UITimeUtils.currentTimeMillis();
-		int roundedOrientation = SensorUtils.convertToPositive360Degree((int) orientation);
-		SensorUtils.updateCompass(force, this.userLocation, roundedOrientation, now, AbsListView.OnScrollListener.SCROLL_STATE_IDLE, this.lastCompassChanged,
+		int roundedOrientation = DegreeUtils.convertToPositive360Degree((int) orientation);
+		sensorManager.updateCompass(force, this.userLocation, roundedOrientation, now, AbsListView.OnScrollListener.SCROLL_STATE_IDLE, this.lastCompassChanged,
 				this.lastCompassInDegree, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS, this);
 	}
 
@@ -1008,7 +1013,7 @@ public class POIFragment extends ABFragment implements
 	public void onPause() {
 		super.onPause();
 		if (this.compassUpdatesEnabled) {
-			SensorUtils.unregisterSensorListener(getContext(), this);
+			sensorManager.unregisterSensorListener(this);
 			this.compassUpdatesEnabled = false;
 		}
 		disableTimeChangedReceiver();

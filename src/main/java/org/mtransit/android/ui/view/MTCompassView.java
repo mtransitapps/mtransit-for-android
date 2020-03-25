@@ -1,11 +1,5 @@
 package org.mtransit.android.ui.view;
 
-import org.mtransit.android.commons.Constants;
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.SensorUtils;
-import org.mtransit.android.commons.ui.view.MTView;
-import org.mtransit.android.data.POIManager;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -13,6 +7,13 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.location.Location;
 import android.util.AttributeSet;
+
+import org.mtransit.android.commons.Constants;
+import org.mtransit.android.commons.LocationUtils;
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.ui.view.MTView;
+import org.mtransit.android.data.POIManager;
+import org.mtransit.android.util.DegreeUtils;
 
 public class MTCompassView extends MTView {
 
@@ -124,8 +125,7 @@ public class MTCompassView extends MTView {
 		if (this.lat == null || this.lng == null || location == null) {
 			return;
 		}
-		float compassRotation = SensorUtils.getCompassRotationInDegree(location.getLatitude(), location.getLongitude(), this.lat, this.lng,
-				lastCompassInDegree, locationDeclination);
+		float compassRotation = LocationUtils.bearTo(location.getLatitude(), location.getLongitude(), this.lat, this.lng) - (lastCompassInDegree + locationDeclination);
 		setHeadingInDegree((int) compassRotation);
 	}
 
@@ -134,8 +134,8 @@ public class MTCompassView extends MTView {
 		this.lng = lng;
 	}
 
-	public void setHeadingInDegree(int headingInDegree) {
-		headingInDegree = SensorUtils.convertToPositive360Degree(headingInDegree); // should not be necessary anymore
+	private void setHeadingInDegree(int headingInDegree) {
+		headingInDegree = DegreeUtils.convertToPositive360Degree(headingInDegree); // should not be necessary anymore
 		if (this.headingInDegree != headingInDegree) {
 			this.headingInDegree = headingInDegree;
 			invalidate();
