@@ -924,7 +924,7 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void updateCompass(float orientation, boolean force) {
 		long now = UITimeUtils.currentTimeMillis();
-		int roundedOrientation = SensorUtils.convertToPosivite360Degree((int) orientation);
+		int roundedOrientation = SensorUtils.convertToPositive360Degree((int) orientation);
 		SensorUtils.updateCompass(force, this.userLocation, roundedOrientation, now, AbsListView.OnScrollListener.SCROLL_STATE_IDLE, this.lastCompassChanged,
 				this.lastCompassInDegree, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS, this);
 	}

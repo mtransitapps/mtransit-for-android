@@ -1095,7 +1095,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements Senso
 			return;
 		}
 		long now = UITimeUtils.currentTimeMillis();
-		int roundedOrientation = SensorUtils.convertToPosivite360Degree((int) orientation);
+		int roundedOrientation = SensorUtils.convertToPositive360Degree((int) orientation);
 		SensorUtils.updateCompass(force, this.location, roundedOrientation, now, this.scrollState, this.lastCompassChanged, this.lastCompassInDegree,
 				Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS, this);
 	}

@@ -135,7 +135,7 @@ public class MTCompassView extends MTView {
 	}
 
 	public void setHeadingInDegree(int headingInDegree) {
-		headingInDegree = SensorUtils.convertToPosivite360Degree(headingInDegree); // should not be necessary anymore
+		headingInDegree = SensorUtils.convertToPositive360Degree(headingInDegree); // should not be necessary anymore
 		if (this.headingInDegree != headingInDegree) {
 			this.headingInDegree = headingInDegree;
 			invalidate();
