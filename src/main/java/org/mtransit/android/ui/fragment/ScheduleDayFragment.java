@@ -46,16 +46,18 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAwareFragment, DataSourceProvider.ModulesUpdateListener,
 		LoaderManager.LoaderCallbacks<ArrayList<Timestamp>> {
 
-	private static final String TAG = ScheduleDayFragment.class.getSimpleName();
+	private static final String LOG_TAG = ScheduleDayFragment.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG + "-" + dayStartsAtInMs;
+		return LOG_TAG + "-" + dayStartsAtInMs;
 	}
 
 	private static final String EXTRA_AUTHORITY = "extra_agency_authority";
@@ -65,8 +67,11 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 	private static final String EXTRA_SCROLLED_TO_NOW = "extra_scrolled_to_now";
 
-	public static ScheduleDayFragment newInstance(String uuid, String authority, long dayStartsAtInMs, int fragmentPosition, int lastVisibleFragmentPosition,
-												  RouteTripStop optRts) {
+	@NonNull
+	public static ScheduleDayFragment newInstance(@NonNull String uuid,
+												  @NonNull String authority,
+												  long dayStartsAtInMs, int fragmentPosition, int lastVisibleFragmentPosition,
+												  @Nullable RouteTripStop optRts) {
 		ScheduleDayFragment f = new ScheduleDayFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
@@ -196,7 +201,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return false;
 		}
 		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
-			POIManager poim = DataSourceManager.findPOI(getContext(), this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
+			POIManager poim = DataSourceManager.findPOI(requireContext(), this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
 			if (poim != null && poim.poi instanceof RouteTripStop) {
 				this.rts = (RouteTripStop) poim.poi;
 			}
@@ -223,13 +228,14 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_schedule_day, container, false);
 		setupView(view);
@@ -296,7 +302,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		this.adapter.setDayStartsAt(getDayStartsAtCal());
 	}
 
-	public int getFragmentPosition() {
+	int getFragmentPosition() {
 		return fragmentPosition;
 	}
 
@@ -308,18 +314,19 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		setupAdapter(view);
 	}
 
-	private static final ThreadSafeDateFormatter DAY_DATE_FORMAT = new ThreadSafeDateFormatter("EEEE, MMM d, yyyy");
+	@NonNull
+	private ThreadSafeDateFormatter dayDateFormat = new ThreadSafeDateFormatter("EEEE, MMM d, yyyy", Locale.getDefault());
 
 	private CharSequence getDayDateString() {
 		CharSequence dateS;
 		if (UITimeUtils.isYesterday(this.dayStartsAtInMs)) {
-			dateS = getString(R.string.yesterday) + " " + DAY_DATE_FORMAT.formatThreadSafe(getDayStartsAtDate());
+			dateS = getString(R.string.yesterday) + " " + dayDateFormat.formatThreadSafe(getDayStartsAtDate());
 		} else if (UITimeUtils.isToday(this.dayStartsAtInMs)) {
-			dateS = getString(R.string.today) + " " + DAY_DATE_FORMAT.formatThreadSafe(getDayStartsAtDate());
+			dateS = getString(R.string.today) + " " + dayDateFormat.formatThreadSafe(getDayStartsAtDate());
 		} else if (UITimeUtils.isTomorrow(this.dayStartsAtInMs)) {
-			dateS = getString(R.string.tomorrow) + " " + DAY_DATE_FORMAT.formatThreadSafe(getDayStartsAtDate());
+			dateS = getString(R.string.tomorrow) + " " + dayDateFormat.formatThreadSafe(getDayStartsAtDate());
 		} else {
-			dateS = DAY_DATE_FORMAT.formatThreadSafe(getDayStartsAtDate());
+			dateS = dayDateFormat.formatThreadSafe(getDayStartsAtDate());
 		}
 		return dateS;
 	}
@@ -426,17 +433,21 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 	@NonNull
 	@Override
-	public Loader<ArrayList<Timestamp>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<Timestamp>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case SCHEDULE_LOADER:
 			RouteTripStop rts = getRtsOrNull();
 			if (this.dayStartsAtInMs <= 0L || rts == null) {
+				//noinspection deprecation FIXME
 				CrashUtils.w(this, "onCreateLoader() > skip (start time or RTL not set)");
+				//noinspection ConstantConditions // FIXME
 				return null;
 			}
 			return new ScheduleTimestampsLoader(getContext(), rts, this.dayStartsAtInMs);
 		default:
+			//noinspection deprecation FIXME
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
+			//noinspection ConstantConditions // FIXME
 			return null;
 		}
 	}
@@ -450,7 +461,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	}
 
 	@Override
-	public void onLoadFinished(@NonNull Loader<ArrayList<Timestamp>> loader, ArrayList<Timestamp> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<Timestamp>> loader, @Nullable ArrayList<Timestamp> data) {
 		View view = getView();
 		if (view == null) {
 			return; // too late
@@ -575,25 +586,31 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private int timesCount = 0;
 
-		private SparseArray<ArrayList<Timestamp>> hourToTimes = new SparseArray<>();
+		@NonNull
+		private final SparseArray<ArrayList<Timestamp>> hourToTimes = new SparseArray<>();
 
 		private boolean initialized = false;
 
-		private ArrayList<Date> hours = new ArrayList<>();
+		@NonNull
+		private final ArrayList<Date> hours = new ArrayList<>();
 
 		private LayoutInflater layoutInflater;
 
 		private Calendar dayStartsAt;
 
-		private WeakReference<FragmentActivity> activityWR;
+		@NonNull
+		private WeakReference<FragmentActivity> activityWR = new WeakReference<>(null);
 
+		@Nullable
 		private Timestamp nextTimeInMs = null;
 
+		@Nullable
 		private RouteTripStop optRts;
 
-		private TimeZone deviceTimeZone = TimeZone.getDefault();
+		@NonNull
+		private final TimeZone deviceTimeZone = TimeZone.getDefault();
 
-		public TimeAdapter(FragmentActivity activity, Calendar dayStartsAt, RouteTripStop optRts) {
+		TimeAdapter(FragmentActivity activity, Calendar dayStartsAt, RouteTripStop optRts) {
 			super();
 			setActivity(activity);
 			this.layoutInflater = LayoutInflater.from(activity);
@@ -601,7 +618,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			setRts(optRts);
 		}
 
-		public void setDayStartsAt(Calendar dayStartsAt) {
+		void setDayStartsAt(Calendar dayStartsAt) {
 			this.dayStartsAt = dayStartsAt;
 			resetHours();
 			if (this.dayStartsAt != null) {
@@ -609,7 +626,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			}
 		}
 
-		public void setRts(RouteTripStop optRts) {
+		void setRts(@Nullable RouteTripStop optRts) {
 			this.optRts = optRts;
 		}
 
@@ -641,7 +658,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			this.hourToTimes.clear();
 		}
 
-		public void clearTimes() {
+		void clearTimes() {
 			for (int hourOfTheDay = 0; hourOfTheDay < HOUR_SEPARATORS_COUNT; hourOfTheDay++) {
 				this.hourToTimes.get(hourOfTheDay).clear();
 			}
@@ -649,13 +666,15 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			this.nextTimeInMs = null;
 		}
 
-		public void setTimes(ArrayList<Timestamp> times) {
+		void setTimes(@Nullable ArrayList<Timestamp> times) {
 			clearTimes();
-			for (Timestamp time : times) {
-				addTime(time);
-				if (this.nextTimeInMs == null && time.t >= getNowToTheMinute()) {
-					this.nextTimeInMs = time;
-					MTLog.d(this, "setTimes() > this.nextTimeInMs: %s", this.nextTimeInMs);
+			if (times != null) {
+				for (Timestamp time : times) {
+					addTime(time);
+					if (this.nextTimeInMs == null && time.t >= getNowToTheMinute()) {
+						this.nextTimeInMs = time;
+						MTLog.d(this, "setTimes() > this.nextTimeInMs: %s", this.nextTimeInMs);
+					}
 				}
 			}
 			this.initialized = true;
@@ -683,7 +702,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			}
 		}
 
-		public Timestamp getNextTimeInMs() {
+		Timestamp getNextTimeInMs() {
 			if (this.nextTimeInMs == null) {
 				findNextTimeInMs();
 			}
@@ -714,7 +733,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private void enableTimeChangedReceiver() {
 			if (!this.timeChangedReceiverEnabled) {
-				FragmentActivity activity = this.activityWR == null ? null : this.activityWR.get();
+				FragmentActivity activity = this.activityWR.get();
 				if (activity != null) {
 					activity.registerReceiver(this.timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER);
 				}
@@ -724,7 +743,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 
 		private void disableTimeChangedReceiver() {
 			if (this.timeChangedReceiverEnabled) {
-				FragmentActivity activity = this.activityWR == null ? null : this.activityWR.get();
+				FragmentActivity activity = this.activityWR.get();
 				if (activity != null) {
 					activity.unregisterReceiver(this.timeChangedReceiver);
 				}
@@ -733,9 +752,10 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			}
 		}
 
+		@NonNull
 		private final UITimeUtils.TimeChangedReceiver timeChangedReceiver = new UITimeUtils.TimeChangedReceiver(this);
 
-		private void addTime(Timestamp time) {
+		private void addTime(@NonNull Timestamp time) {
 			int hourOfTheDay = UITimeUtils.getHourOfTheDay(time.t);
 			this.hourToTimes.get(hourOfTheDay).add(time);
 			this.timesCount++;
@@ -770,10 +790,12 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return null;
 		}
 
+		@NonNull
 		private Calendar todayStartsAt = UITimeUtils.getBeginningOfTodayCal();
+		@Nullable
 		private Calendar todayEndsAt = null;
 
-		public int compareToToday() {
+		int compareToToday() {
 			if (this.dayStartsAt.before(this.todayStartsAt)) {
 				return -1; // past
 			}
@@ -822,7 +844,8 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return -1;
 		}
 
-		public Integer getItemHourSeparator(int position) {
+		@Nullable
+		Integer getItemHourSeparator(int position) {
 			int index = 0;
 			for (int hourOfTheDay = 0; hourOfTheDay < HOUR_SEPARATORS_COUNT; hourOfTheDay++) {
 				if (index == position) {
@@ -862,7 +885,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		}
 
 		@NonNull
-		private View getTimeView(int position, @Nullable View convertView, ViewGroup parent) {
+		private View getTimeView(int position, @Nullable View convertView, @Nullable ViewGroup parent) {
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_time, parent, false);
 				TimeViewHolder holder = new TimeViewHolder();
@@ -879,13 +902,15 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		private void updateTimeView(int position, @NonNull View convertView) {
 			TimeViewHolder holder = (TimeViewHolder) convertView.getTag();
 			Timestamp timestamp = (Timestamp) getItem(position);
-			Context context = this.activityWR == null ? null : this.activityWR.get();
+			Context context = this.activityWR.get();
 			if (timestamp != null && context != null) {
 				String userTime = UITimeUtils.formatTime(context, timestamp.t);
+				userTime = UISchedule.cleanNoRealTime(timestamp, userTime);
 				SpannableStringBuilder timeSb = new SpannableStringBuilder(userTime);
 				TimeZone timestampTZ = TimeZone.getTimeZone(timestamp.getLocalTimeZone());
 				if (timestamp.hasLocalTimeZone() && !this.deviceTimeZone.equals(timestampTZ)) {
 					String localTime = UITimeUtils.formatTime(context, timestamp.t, timestampTZ);
+					localTime = UISchedule.cleanNoRealTime(timestamp, localTime);
 					if (!localTime.equalsIgnoreCase(userTime)) {
 						timeSb.append(P1).append(context.getString(R.string.local_time_and_time, localTime)).append(P2);
 					}
@@ -899,6 +924,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 					}
 				}
 				UITimeUtils.cleanTimes(timeOnly, timeSb);
+				timeSb = UISchedule.decorateRealTime(context, timestamp, userTime, timeSb);
 				long nextTimeInMsT = this.nextTimeInMs == null ? -1L : this.nextTimeInMs.t;
 				if (nextTimeInMsT >= 0L //
 						&& UITimeUtils.isSameDay(getNowToTheMinute(), nextTimeInMsT) //
@@ -915,10 +941,13 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			}
 		}
 
+		@NonNull
 		private static final StyleSpan SCHEDULE_LIST_TIMES_PAST_STYLE = SpanUtils.getNewNormalStyleSpan();
 
+		@NonNull
 		private static final StyleSpan SCHEDULE_LIST_TIMES_NOW_STYLE = SpanUtils.getNewBoldStyleSpan();
 
+		@NonNull
 		private static final StyleSpan SCHEDULE_LIST_TIMES_FUTURE_STYLE = SpanUtils.getNewNormalStyleSpan();
 
 		@Nullable
@@ -954,13 +983,14 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return scheduleListTimesFutureTextColor;
 		}
 
-		public static void resetColorCache() {
+		static void resetColorCache() {
 			scheduleListTimesPastTextColor = null;
 			scheduleListTimesNowTextColor = null;
 			scheduleListTimesFutureTextColor = null;
 		}
 
-		private View getHourSeparatorView(int position, View convertView, ViewGroup parent) {
+		@NonNull
+		private View getHourSeparatorView(int position, @Nullable View convertView, ViewGroup parent) {
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_hour_separator, parent, false);
 				HourSperatorViewHolder holder = new HourSperatorViewHolder();
@@ -971,31 +1001,39 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			return convertView;
 		}
 
-		private void updateHourSeparatorView(int position, View convertView) {
+		private void updateHourSeparatorView(int position, @NonNull View convertView) {
 			HourSperatorViewHolder holder = (HourSperatorViewHolder) convertView.getTag();
 			Integer hourOfTheDay = getItemHourSeparator(position);
-			Context context = this.activityWR == null ? null : this.activityWR.get();
+			Context context = this.activityWR.get();
 			if (hourOfTheDay != null && context != null) {
-				holder.hourTv.setText(getHourFormatter(context).formatThreadSafe(this.hours.get(hourOfTheDay)));
+				holder.hourTv.setText(
+						UISchedule.cleanNoRealTime(false,
+								getHourFormatter(context).formatThreadSafe(
+										this.hours.get(hourOfTheDay)
+								)
+						)
+				);
 			} else {
 				holder.hourTv.setText(null);
 			}
 		}
 
+		@Nullable
 		private static ThreadSafeDateFormatter HOUR_FORMATTER;
 
-		private static ThreadSafeDateFormatter getHourFormatter(Context context) {
+		@NonNull
+		private static ThreadSafeDateFormatter getHourFormatter(@NonNull Context context) {
 			if (HOUR_FORMATTER == null) {
 				HOUR_FORMATTER = UITimeUtils.getNewHourFormat(context);
 			}
 			return HOUR_FORMATTER;
 		}
 
-		public static class TimeViewHolder {
+		static class TimeViewHolder {
 			TextView timeTv;
 		}
 
-		public static class HourSperatorViewHolder {
+		static class HourSperatorViewHolder {
 			TextView hourTv;
 		}
 	}

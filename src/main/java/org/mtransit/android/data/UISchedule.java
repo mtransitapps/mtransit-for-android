@@ -524,9 +524,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			index++;
 			SpannableStringBuilder headSignSSB = null;
 			String fTime = UITimeUtils.formatTime(context, t.t);
-			if (!t.isRealTime()) {
-				fTime = fTime.replace(REAL_TIME_CHAR, StringUtils.EMPTY_CAR);
-			}
+			fTime = cleanNoRealTime(t, fTime);
 			// fTime = new ThreadSafeDateFormatter(FORMAT_TIME_24_PRECISE_PATTERN, Locale.getDefault())
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
 			if (t.hasHeadsign() && !Trip.isSameHeadsign(t.getHeading(context), optDefaultHeadSign)) {
@@ -571,21 +569,43 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			}
 			UITimeUtils.cleanTimes(timeSSB);
 			timeSSB = SpanUtils.setAll(timeSSB, SCHEDULE_LIST_TIMES_SIZE);
-			if (t.isRealTime()) {
-				int start = fTime.indexOf(REAL_TIME_CHAR);
-				int end = start + 1;
-				timeSSB = SpanUtils.set(timeSSB,
-						start,
-						end,
-						getRealTimeImage(context)
-				);
-			}
+			timeSSB = decorateRealTime(context, t, fTime, timeSSB);
 			if (headSignSSB != null && headSignSSB.length() > 0) {
 				headSignSSB = SpanUtils.setAll(headSignSSB, SCHEDULE_LIST_TIMES_STYLE);
 			}
 			list.add(new Pair<>(timeSSB, headSignSSB));
 		}
 		this.scheduleList = list;
+	}
+
+	@NonNull
+	public static String cleanNoRealTime(@NonNull Timestamp t, @NonNull String fTime) {
+		return cleanNoRealTime(t.isRealTime(), fTime);
+	}
+
+	@NonNull
+	public static String cleanNoRealTime(boolean realTime, @NonNull String fTime) {
+		if (!realTime) {
+			fTime = fTime.replace(REAL_TIME_CHAR, StringUtils.EMPTY_CAR);
+		}
+		return fTime;
+	}
+
+	@NonNull
+	public static SpannableStringBuilder decorateRealTime(@NonNull Context context,
+														  @NonNull Timestamp t,
+														  @NonNull String fTime,
+														  @NonNull SpannableStringBuilder timeSSB) {
+		if (t.isRealTime()) {
+			int start = fTime.indexOf(REAL_TIME_CHAR);
+			int end = start + 1;
+			timeSSB = SpanUtils.set(timeSSB,
+					start,
+					end,
+					getRealTimeImage(context)
+			);
+		}
+		return timeSSB;
 	}
 
 	// SCHEDULE
@@ -600,6 +620,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		return this.scheduleString;
 	}
 
+	@SuppressWarnings("unused")
 	private void generateSchedule(@NonNull Context context, long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
 								  @Nullable Integer optMinCount, @Nullable Integer optMaxCount) {
 		ArrayList<Timestamp> nextTimestamps =
@@ -633,6 +654,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		this.scheduleStringTimestamp = after;
 	}
 
+	@SuppressWarnings("unused")
 	private void generateScheduleStringsTimes(Context context, long after, ArrayList<Timestamp> nextTimestamps) {
 		SpannableStringBuilder ssb = new SpannableStringBuilder();
 		int startPreviousTimes = -1, endPreviousTimes = -1;
@@ -666,7 +688,9 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 					startNextTime = ssb.length();
 				}
 			}
-			ssb.append(UITimeUtils.formatTime(context, t.t));
+			String fTime = UITimeUtils.formatTime(context, t.t);
+			fTime = cleanNoRealTime(t, fTime);
+			ssb.append(fTime);
 			if (t.t >= after) {
 				if (endNextTime == -1) {
 					if (startNextTime != ssb.length()) {
