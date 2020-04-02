@@ -184,6 +184,6 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	}
 
 	public interface ServiceUpdateLoaderListener {
-		void onServiceUpdatesLoaded(String targetUUID, ArrayList<ServiceUpdate> serviceUpdates);
+		void onServiceUpdatesLoaded(@NonNull String targetUUID, @Nullable ArrayList<ServiceUpdate> serviceUpdates);
 	}
 }

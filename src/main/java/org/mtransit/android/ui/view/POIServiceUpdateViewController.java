@@ -13,7 +13,7 @@ import org.mtransit.android.util.LinkUtils;
 
 import android.content.Context;
 import androidx.annotation.LayoutRes;
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
@@ -22,25 +22,25 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 
 	private static final String TAG = POIServiceUpdateViewController.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
 	}
 
 	@LayoutRes
-	@Nullable
 	public static int getLayoutResId() {
 		return R.layout.layout_poi_service_update;
 	}
 
-	public static void initViewHolder(POIManager poim, View view) {
+	public static void initViewHolder(POIManager poim, @NonNull View view) {
 		ServiceUpdatesListViewHolder serviceUpdatesListViewHolder = new ServiceUpdatesListViewHolder();
 		serviceUpdatesListViewHolder.layout = view;
 		serviceUpdatesListViewHolder.messagesTv = view.findViewById(R.id.service_udapte_text);
 		view.setTag(serviceUpdatesListViewHolder);
 	}
 
-	public static void updateView(Context context, View view, POIManager poim, POIViewController.POIDataProvider dataProvider) {
+	public static void updateView(@NonNull Context context, View view, POIManager poim, POIViewController.POIDataProvider dataProvider) {
 		if (view == null) {
 			return;
 		}
@@ -51,7 +51,7 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		updateView(context, holder, poim, dataProvider);
 	}
 
-	private static void updateView(Context context, ServiceUpdatesListViewHolder serviceUpdatesListViewHolder, POIManager poim,
+	private static void updateView(@NonNull Context context, ServiceUpdatesListViewHolder serviceUpdatesListViewHolder, POIManager poim,
 			POIViewController.POIDataProvider dataProvider) {
 		if (dataProvider == null || !dataProvider.isShowingStatus() || poim == null || serviceUpdatesListViewHolder == null) {
 			if (serviceUpdatesListViewHolder != null) {
@@ -62,7 +62,7 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		updateServiceUpdatesView(context, serviceUpdatesListViewHolder, poim, dataProvider);
 	}
 
-	public static void updateServiceUpdate(Context context, View view, ArrayList<ServiceUpdate> serviceUpdates,
+	public static void updateServiceUpdate(@NonNull Context context, View view, ArrayList<ServiceUpdate> serviceUpdates,
 			POIViewController.POIDataProvider dataProvider) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof ServiceUpdatesListViewHolder)) {
 			return;
@@ -71,7 +71,7 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		updateServiceUpdatesView(context, holder, serviceUpdates, dataProvider);
 	}
 
-	private static void updateServiceUpdatesView(Context context, ServiceUpdatesListViewHolder serviceUpdatesListViewHolder, POIManager poim,
+	private static void updateServiceUpdatesView(@NonNull Context context, ServiceUpdatesListViewHolder serviceUpdatesListViewHolder, POIManager poim,
 			POIViewController.POIDataProvider dataProvider) {
 		if (serviceUpdatesListViewHolder != null) {
 			if (dataProvider != null && dataProvider.isShowingServiceUpdates() && poim != null) {
@@ -83,8 +83,8 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateServiceUpdatesView(Context context, ServiceUpdatesListViewHolder serviceUpdatesListViewHolder,
-			ArrayList<ServiceUpdate> serviceUpdates, POIViewController.POIDataProvider dataProvider) {
+	private static void updateServiceUpdatesView(@NonNull Context context, ServiceUpdatesListViewHolder serviceUpdatesListViewHolder,
+												 ArrayList<ServiceUpdate> serviceUpdates, POIViewController.POIDataProvider dataProvider) {
 		int serviceMessageDisplayed = 0;
 		boolean isWarning = false;
 		if (dataProvider != null && CollectionUtils.getSize(serviceUpdates) != 0) {

@@ -18,12 +18,12 @@ import java.util.ArrayList;
 
 public class POINewsViewController implements MTLog.Loggable {
 
-	private static final String TAG = POINewsViewController.class.getSimpleName();
+	private static final String LOG_TAG = POINewsViewController.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	@LayoutRes
@@ -31,7 +31,7 @@ public class POINewsViewController implements MTLog.Loggable {
 		return R.layout.layout_poi_news;
 	}
 
-	public static void initViewHolder(View convertView) {
+	private static void initViewHolder(@NonNull View convertView) {
 		NewsViewHolder holder = new NewsViewHolder();
 		holder.layout = convertView;
 		holder.newsTv = convertView.findViewById(R.id.newsText);
@@ -40,11 +40,13 @@ public class POINewsViewController implements MTLog.Loggable {
 		convertView.setTag(holder);
 	}
 
-	public static void updateView(Context context, View view, ArrayList<News> news) {
-		updateView(context, view, news == null || news.size() == 0 ? null : news.get(0));
+	public static void updateView(@NonNull Context context, @Nullable View view, @Nullable ArrayList<News> news) {
+		updateView(context, view,
+				news == null || news.size() == 0 ? null : news.get(0)
+		);
 	}
 
-	public static void updateView(Context context, View view, News news) {
+	private static void updateView(@NonNull Context context, @Nullable View view, @Nullable News news) {
 		if (view == null) {
 			return;
 		}

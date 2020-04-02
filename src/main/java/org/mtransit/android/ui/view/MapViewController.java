@@ -556,6 +556,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	@Override
 	public void onMapLoaded() {
+		// DO NOTHING
 	}
 
 	@Override

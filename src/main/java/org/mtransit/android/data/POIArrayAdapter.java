@@ -631,7 +631,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		refreshFavorites();
 	}
 
-	public void setPois(ArrayList<POIManager> pois) {
+	public void setPois(@Nullable ArrayList<POIManager> pois) {
 		if (this.poisByType != null) {
 			this.poisByType.clear();
 		}
@@ -642,16 +642,17 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 	}
 
-	private HashSet<String> poiUUID = new HashSet<>();
+	@NonNull
+	private final HashSet<String> poiUUID = new HashSet<>();
 
-	public void appendPois(ArrayList<POIManager> pois) {
+	public void appendPois(@Nullable ArrayList<POIManager> pois) {
 		boolean dataSetChanged = append(pois, false);
 		if (dataSetChanged) {
 			notifyDataSetChanged();
 		}
 	}
 
-	private boolean append(ArrayList<POIManager> pois, boolean dataSetChanged) {
+	private boolean append(@Nullable ArrayList<POIManager> pois, boolean dataSetChanged) {
 		if (pois != null) {
 			if (this.poisByType == null) {
 				this.poisByType = new LinkedHashMap<>();
@@ -1048,9 +1049,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			this.poisByType = null; // not initialized
 		}
 		resetCounts();
-		if (this.poiUUID != null) {
-			this.poiUUID.clear();
-		}
+		this.poiUUID.clear();
 		if (this.closestPoiUuids != null) {
 			this.closestPoiUuids.clear();
 			this.closestPoiUuids = null;
@@ -1080,9 +1079,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			this.poisByType = null;
 		}
 		resetCounts();
-		if (this.poiUUID != null) {
-			this.poiUUID.clear();
-		}
+		this.poiUUID.clear();
 		if (this.compassImgsWR != null) {
 			this.compassImgsWR.clear();
 		}

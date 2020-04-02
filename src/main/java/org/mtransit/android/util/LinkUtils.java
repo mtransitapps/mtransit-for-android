@@ -59,7 +59,7 @@ public final class LinkUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static boolean open(Activity activity, String url, String label, boolean www) {
+	public static boolean open(@NonNull Activity activity, String url, String label, boolean www) {
 		if (TextUtils.isEmpty(url)) {
 			return false;
 		}
@@ -275,6 +275,6 @@ public final class LinkUtils implements MTLog.Loggable {
 	}
 
 	public interface OnUrlClickListener {
-		boolean onURLClick(String url);
+		boolean onURLClick(@NonNull String url);
 	}
 }

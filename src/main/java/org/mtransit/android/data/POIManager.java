@@ -276,6 +276,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 	}
 
+	@Nullable
 	public ArrayList<ServiceUpdate> getServiceUpdatesOrNull() {
 		return this.serviceUpdates;
 	}

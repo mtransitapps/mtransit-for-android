@@ -104,7 +104,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		view.setTag(scheduleStatusViewHolder);
 	}
 
-	public static void updatePOIStatus(Context context, View view, POIStatus status, POIViewController.POIDataProvider dataProvider, POIManager optPOI) {
+	public static void updatePOIStatus(@NonNull Context context, View view, POIStatus status, POIViewController.POIDataProvider dataProvider, POIManager optPOI) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof CommonStatusViewHolder)) {
 			return;
 		}
@@ -112,7 +112,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		updatePOIStatus(context, holder, status, dataProvider, optPOI);
 	}
 
-	private static void updatePOIStatus(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status,
+	private static void updatePOIStatus(@NonNull Context context, CommonStatusViewHolder statusViewHolder, POIStatus status,
 										POIViewController.POIDataProvider dataProvider, POIManager optPOI) {
 		if (dataProvider == null || !dataProvider.isShowingStatus() || status == null || statusViewHolder == null) {
 			if (statusViewHolder != null) {
@@ -139,7 +139,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 	}
 
-	public static void updateView(Context context, View view, POIManager poim, POIViewController.POIDataProvider dataProvider) {
+	public static void updateView(@NonNull Context context, View view, POIManager poim, POIViewController.POIDataProvider dataProvider) {
 		if (view == null) {
 			return;
 		}
@@ -150,7 +150,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		updateView(context, holder, poim, dataProvider);
 	}
 
-	private static void updateView(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim, POIViewController.POIDataProvider dataProvider) {
+	private static void updateView(@NonNull Context context, CommonStatusViewHolder statusViewHolder, POIManager poim, POIViewController.POIDataProvider dataProvider) {
 		if (dataProvider == null || !dataProvider.isShowingStatus() || poim == null || statusViewHolder == null) {
 			if (statusViewHolder != null) {
 				setStatusView(statusViewHolder, false);
@@ -198,7 +198,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateAvailabilityPercentView(Context context, CommonStatusViewHolder statusViewHolder, POIManager poim,
+	private static void updateAvailabilityPercentView(@NonNull Context context, CommonStatusViewHolder statusViewHolder, POIManager poim,
 													  POIViewController.POIDataProvider dataProvider) {
 		if (dataProvider != null && dataProvider.isShowingStatus() && poim != null && statusViewHolder instanceof AvailabilityPercentStatusViewHolder) {
 			poim.setStatusLoaderListener(dataProvider);
