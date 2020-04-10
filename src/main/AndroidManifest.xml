@@ -46,9 +46,9 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="false"
         android:theme="@style/MTTheme"
-        tools:replace="android:supportsRtl"
         tools:ignore="GoogleAppIndexingWarning"
-        tools:targetApi="n">
+        tools:targetApi="29">
+        <!--  tools:replace="android:supportsRtl" -->
         <!-- SPLASH SCREEN (not visible) DO NOT CHANGE ANDROID:NAME OR LAUNCHER ICON REMOVED! -->
         <activity
             android:name=".ui.SplashScreenActivity"
@@ -107,19 +107,21 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
         <!-- MODULES CHANGES RECEIVER -->
-        <receiver android:name=".receiver.ModulesReceiver">
+        <receiver android:name=".receiver.ModuleReceiver" tools:node="remove" />
+        <receiver android:name=".receiver.ModulesReceiver"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_INSTALL" />
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
-                <action android:name="android.intent.action.PACKAGE_REPLACED" />
                 <action android:name="android.intent.action.PACKAGE_CHANGED" />
-                <action android:name="android.intent.action.PACKAGE_FIRST_LAUNCH" />
                 <action android:name="android.intent.action.PACKAGE_DATA_CLEARED" />
-                <action android:name="android.intent.action.PACKAGE_RESTARTED" />
-                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_FIRST_LAUNCH" />
                 <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED" />
-                <action android:name="android.intent.action.PACKAGE_VERIFIED" />
+                <action android:name="android.intent.action.PACKAGE_INSTALL" />
                 <action android:name="android.intent.action.PACKAGE_NEEDS_VERIFICATION" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.PACKAGE_RESTARTED" />
+                <action android:name="android.intent.action.PACKAGE_VERIFIED" />
 
                 <data android:scheme="package" />
             </intent-filter>

@@ -49,6 +49,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return LOG_TAG;
 	}
 
+	@NonNull
 	private static final SimpleArrayMap<String, Uri> uriMap = new SimpleArrayMap<>();
 
 	@NonNull
