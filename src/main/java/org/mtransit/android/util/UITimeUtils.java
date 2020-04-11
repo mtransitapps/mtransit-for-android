@@ -391,30 +391,30 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 																	@NonNull Timestamp targetedTimestamp,
 																	long precisionInMs) {
 		if (diffInMs < MAX_DURATION_DISPLAYED_IN_MS) {
-			return getShortTimeSpanNumber(context, diffInMs, precisionInMs, targetedTimestamp.getRealTime());
+			return getShortTimeSpanNumber(context, diffInMs, precisionInMs, targetedTimestamp.isRealTime(), targetedTimestamp.isOldSchedule());
 		} else {
 			Pair<CharSequence, CharSequence> shortTimeSpanString = getShortTimeSpanString(context, diffInMs, targetedTimestamp.getT());
 			return new Pair<>( //
-					getShortTimeSpanStringStyle(context, shortTimeSpanString.first),  //
-					getShortTimeSpanStringStyle(context, shortTimeSpanString.second));
+					getShortTimeSpanStringStyle(context, shortTimeSpanString.first, targetedTimestamp.isOldSchedule()),  //
+					getShortTimeSpanStringStyle(context, shortTimeSpanString.second, targetedTimestamp.isOldSchedule()));
 		}
 	}
 
 	@NonNull
 	private static Pair<CharSequence, CharSequence> getShortTimeSpanNumber(@NonNull Context context,
 																		   long diffInMs, long precisionInMs,
-																		   @Nullable Boolean realTime) {
+																		   boolean isRealTime, boolean isOldSchedule) {
 		SpannableStringBuilder shortTimeSpan1SSB = new SpannableStringBuilder();
 		SpannableStringBuilder shortTimeSpan2SSB = new SpannableStringBuilder();
 		return getShortTimeSpanNumber(context,
 				diffInMs, precisionInMs,
-				realTime,
+				isRealTime, isOldSchedule,
 				shortTimeSpan1SSB, shortTimeSpan2SSB);
 	}
 
 	@NonNull
 	static Pair<CharSequence, CharSequence> getShortTimeSpanNumber(@NonNull Context context, long diffInMs, long precisionInMs,
-																   @Nullable Boolean realTime,
+																   boolean isRealTime, boolean isOldSchedule,
 																   @NonNull SpannableStringBuilder shortTimeSpan1SSB,
 																   @NonNull SpannableStringBuilder shortTimeSpan2SSB) {
 		int diffInSec = (int) Math.floor(TimeUnit.MILLISECONDS.toSeconds(diffInMs));
@@ -442,7 +442,6 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		int urgentTime2Start = -1;
 		int urgentTime2End = -1;
 		boolean isShortTimeSpanString = false;
-		final boolean isRealTime = Boolean.TRUE.equals(realTime);
 		Resources resources = context.getResources();
 		if (diffInDay > 0 && diffInHour > MAX_HOURS_SHOWED) {
 			shortTimeSpan1SSB.append(getNumberInLetter(context, diffInDay));
@@ -501,9 +500,13 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		}
 		if (isShortTimeSpanString) { // > 99 minutes
 			return new Pair<>( //
-					getShortTimeSpanStringStyle(context, shortTimeSpan1SSB), //
-					getShortTimeSpanStringStyle(context, shortTimeSpan2SSB));
+					getShortTimeSpanStringStyle(context, shortTimeSpan1SSB, isOldSchedule), //
+					getShortTimeSpanStringStyle(context, shortTimeSpan2SSB, isOldSchedule));
 		} else { // < 99 minutes
+			if (isOldSchedule) {
+				shortTimeSpan1SSB = SpanUtils.setAllNN(shortTimeSpan1SSB, SpanUtils.getNewItalicStyleSpan());
+				shortTimeSpan2SSB = SpanUtils.setAllNN(shortTimeSpan2SSB, SpanUtils.getNewItalicStyleSpan());
+			}
 			return new Pair<>(shortTimeSpan1SSB, shortTimeSpan2SSB);
 		}
 	}
@@ -647,9 +650,13 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 				DateUtils.formatSameDayTime(targetedTimestamp, now, ThreadSafeDateFormatter.MEDIUM, ThreadSafeDateFormatter.SHORT), null); // DEFAULT
 	}
 
-	private static CharSequence getShortTimeSpanStringStyle(@NonNull Context context, @Nullable CharSequence timeSpan) {
+	private static CharSequence getShortTimeSpanStringStyle(@NonNull Context context, @Nullable CharSequence timeSpan, boolean isOldSchedule) {
 		if (TextUtils.isEmpty(timeSpan)) {
 			return timeSpan;
+		}
+		if (isOldSchedule) {
+			timeSpan = SpanUtils.setAll(timeSpan,
+					SpanUtils.getNewItalicStyleSpan()); // can be concatenated
 		}
 		return SpanUtils.setAll(timeSpan, //
 				SpanUtils.getNewSmallTextAppearance(context), // can be concatenated

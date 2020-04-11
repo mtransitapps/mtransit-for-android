@@ -596,6 +596,9 @@ public class POIFragment extends ABFragment implements
 			return;
 		}
 		hideNearbyList(true);
+		if (Constants.FORCE_NEARBY_POI_LIST_OFF) {
+			return;
+		}
 		if (hasPoim()) {
 			LoaderUtils.restartLoader(this, NEARBY_POIS_LOADER, null, this);
 		}

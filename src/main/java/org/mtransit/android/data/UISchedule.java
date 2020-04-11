@@ -55,6 +55,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 
 	private static final StyleSpan SCHEDULE_LIST_TIMES_STYLE = SpanUtils.getNewBoldStyleSpan();
 
+	private static final StyleSpan SCHEDULE_OLD_SCHEDULE_STYLE = SpanUtils.getNewItalicStyleSpan();
+
 	private static final RelativeSizeSpan NO_SERVICE_SIZE = SpanUtils.getNew200PercentSizeSpan();
 
 	@ColorInt
@@ -525,12 +527,10 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			SpannableStringBuilder headSignSSB = null;
 			String fTime = UITimeUtils.formatTime(context, t.t);
 			fTime = cleanNoRealTime(t, fTime);
-			// fTime = new ThreadSafeDateFormatter(FORMAT_TIME_24_PRECISE_PATTERN, Locale.getDefault())
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
 			if (t.hasHeadsign() && !Trip.isSameHeadsign(t.getHeading(context), optDefaultHeadSign)) {
 				headSignSSB = new SpannableStringBuilder(t.getHeading(context).toUpperCase(Locale.ENGLISH));
 			}
-			//			if (true) {
 			if (startPreviousTimesIndex < endPreviousTimesIndex //
 					&& index > startPreviousTimesIndex && index <= endPreviousTimesIndex) {
 				timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
@@ -570,6 +570,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			UITimeUtils.cleanTimes(timeSSB);
 			timeSSB = SpanUtils.setAll(timeSSB, SCHEDULE_LIST_TIMES_SIZE);
 			timeSSB = decorateRealTime(context, t, fTime, timeSSB);
+			timeSSB = decorateOldSchedule(t, fTime, timeSSB);
 			if (headSignSSB != null && headSignSSB.length() > 0) {
 				headSignSSB = SpanUtils.setAll(headSignSSB, SCHEDULE_LIST_TIMES_STYLE);
 			}
@@ -603,6 +604,22 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 					start,
 					end,
 					getRealTimeImage(context)
+			);
+		}
+		return timeSSB;
+	}
+
+	@NonNull
+	public static SpannableStringBuilder decorateOldSchedule(@NonNull Timestamp t,
+															 @NonNull String fTime,
+															 @NonNull SpannableStringBuilder timeSSB) {
+		if (t.isOldSchedule()) {
+			int start = 0;
+			int end = fTime.length();
+			timeSSB = SpanUtils.set(timeSSB,
+					start,
+					end,
+					SCHEDULE_OLD_SCHEDULE_STYLE
 			);
 		}
 		return timeSSB;
