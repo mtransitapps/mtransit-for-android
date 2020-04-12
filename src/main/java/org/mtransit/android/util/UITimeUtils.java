@@ -50,7 +50,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		return LOG_TAG;
 	}
 
-	public static final long RECENT_IN_MILLIS = DateUtils.HOUR_IN_MILLIS;
+	public static final long RECENT_IN_MILLIS = TimeUnit.HOURS.toMillis(1L);
 
 	private static final long MAX_DURATION_DISPLAYED_IN_MS = TimeUnit.HOURS.toMillis(6L);
 	private static final long URGENT_SCHEDULE_IN_MIN = 10L;

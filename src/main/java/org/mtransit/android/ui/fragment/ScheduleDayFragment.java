@@ -925,7 +925,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 				}
 				UITimeUtils.cleanTimes(timeOnly, timeSb);
 				timeSb = UISchedule.decorateRealTime(context, timestamp, userTime, timeSb);
-				timeSb = UISchedule.decorateOldSchedule(timestamp, userTime, timeSb);
+				timeSb = UISchedule.decorateOldSchedule(timestamp, timeSb);
 				long nextTimeInMsT = this.nextTimeInMs == null ? -1L : this.nextTimeInMs.t;
 				if (nextTimeInMsT >= 0L //
 						&& UITimeUtils.isSameDay(getNowToTheMinute(), nextTimeInMsT) //

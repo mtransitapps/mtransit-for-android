@@ -450,6 +450,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				Timestamp timestamp = getNextTimestamp(after);
 				if (timestamp != null && timestamp.t >= 0L) {
 					ssb = new SpannableStringBuilder(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(timestamp.t)));
+					ssb = decorateOldSchedule(timestamp, ssb);
 				}
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while parsing next timestamp date time!");
@@ -572,7 +573,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			UITimeUtils.cleanTimes(timeSSB);
 			timeSSB = SpanUtils.setAll(timeSSB, SCHEDULE_LIST_TIMES_SIZE);
 			timeSSB = decorateRealTime(context, t, fTime, timeSSB);
-			timeSSB = decorateOldSchedule(t, fTime, timeSSB);
+			timeSSB = decorateOldSchedule(t, timeSSB);
 			if (headSignSSB != null && headSignSSB.length() > 0) {
 				headSignSSB = SpanUtils.setAll(headSignSSB, SCHEDULE_LIST_TIMES_STYLE);
 			}
@@ -613,14 +614,9 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 
 	@NonNull
 	public static SpannableStringBuilder decorateOldSchedule(@NonNull Timestamp t,
-															 @NonNull String fTime,
 															 @NonNull SpannableStringBuilder timeSSB) {
 		if (t.isOldSchedule()) {
-			int start = 0;
-			int end = fTime.length();
-			timeSSB = SpanUtils.set(timeSSB,
-					start,
-					end,
+			timeSSB = SpanUtils.setAllNN(timeSSB,
 					SCHEDULE_OLD_SCHEDULE_STYLE
 			);
 		}
