@@ -1,3 +1,4 @@
+# ORIGINAL FILE: https://github.com/mtransitapps/commons/tree/master/shared/app-android
 # Built application files
 *.apk
 *.ap_
@@ -25,6 +26,9 @@ proguard/
 
 # Log Files
 *.log
+
+# IntelliJ
+*.iml
 
 # Do Not Publish files
 *.donotpublish
