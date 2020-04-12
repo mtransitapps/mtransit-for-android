@@ -430,8 +430,10 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	// SCHEDULE LIST
 
 	@Nullable
-	public ArrayList<Pair<CharSequence, CharSequence>> getScheduleList(@NonNull Context context, long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
-																	   @Nullable Integer optMinCount, @Nullable Integer optMaxCount, @Nullable String optDefaultHeadSign) {
+	public ArrayList<Pair<CharSequence, CharSequence>> getScheduleList(@NonNull Context context, long after,
+																	   @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
+																	   @Nullable Integer optMinCount, @Nullable Integer optMaxCount,
+																	   @Nullable String optDefaultHeadSign) {
 		if (this.scheduleList == null || this.scheduleListTimestamp != after) {
 			generateScheduleList(context, after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount, optDefaultHeadSign);
 		}

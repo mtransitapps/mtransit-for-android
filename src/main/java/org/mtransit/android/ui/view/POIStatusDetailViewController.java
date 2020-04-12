@@ -251,6 +251,9 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 	}
 
+	private static final long MIN_COVERAGE_IN_MS = TimeUnit.HOURS.toMillis(1L);
+	private static final long MAX_COVERAGE_IN_MS = TimeUnit.HOURS.toMillis(12L);
+
 	private static void updateScheduleView(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status,
 										   POIViewController.POIDataProvider dataProvider, POIManager optPOI) {
 		ArrayList<Pair<CharSequence, CharSequence>> nextDeparturesList = null;
@@ -258,8 +261,13 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			UISchedule schedule = (UISchedule) status;
 			String defaultHeadSign = (optPOI != null && optPOI.poi instanceof RouteTripStop) ? ((RouteTripStop) optPOI.poi).getTrip()
 					.getHeading(context) : null;
-			nextDeparturesList = schedule.getScheduleList(context, dataProvider.getNowToTheMinute(), TimeUnit.HOURS.toMillis(1), TimeUnit.HOURS.toMillis(12),
-					10, 20, defaultHeadSign);
+			nextDeparturesList = schedule.getScheduleList(context,
+					dataProvider.getNowToTheMinute(),
+					MIN_COVERAGE_IN_MS,
+					MAX_COVERAGE_IN_MS,
+					10,
+					20,
+					defaultHeadSign);
 		}
 		ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
 		LayoutInflater layoutInflater = LayoutInflater.from(context);
