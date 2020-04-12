@@ -291,9 +291,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				ImageSpan.ALIGN_BASELINE);
 	}
 
+	@Nullable
 	private static TextAppearanceSpan statusStringTextAppearance = null;
 
-	private static TextAppearanceSpan getStatusStringTextAppearance(Context context) {
+	@NonNull
+	private static TextAppearanceSpan getStatusStringTextAppearance(@NonNull Context context) {
 		if (statusStringTextAppearance == null) {
 			statusStringTextAppearance = SpanUtils.getNewSmallTextAppearance(context);
 		}
@@ -318,6 +320,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 
 	private long scheduleListTimestamp = -1L;
 
+	@Nullable
 	private CharSequence scheduleString = null;
 
 	private long scheduleStringTimestamp = -1L;
@@ -474,7 +477,10 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	}
 
 	@SuppressWarnings("ConditionCoveredByFurtherCondition")
-	private void generateScheduleListTimes(@NonNull Context context, long after, ArrayList<Timestamp> nextTimestamps, @Nullable String optDefaultHeadSign) {
+	private void generateScheduleListTimes(@NonNull Context context,
+										   long after,
+										   @NonNull ArrayList<Timestamp> nextTimestamps,
+										   @Nullable String optDefaultHeadSign) {
 		ArrayList<Pair<CharSequence, CharSequence>> list = new ArrayList<>();
 		int startPreviousTimesIndex = -1, endPreviousTimesIndex = -1;
 		int startPreviousTimeIndex = -1, endPreviousTimeIndex = -1;
@@ -646,6 +652,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				Timestamp timestamp = getNextTimestamp(after);
 				if (timestamp != null && timestamp.t >= 0L) {
 					ssb = new SpannableStringBuilder(DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date(timestamp.t)));
+					ssb = decorateOldSchedule(timestamp, ssb);
 				}
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while parsing next timestamp date time!");
@@ -951,9 +958,13 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	private void generateStatusStringsFrequency(@NonNull Context context, @NonNull Frequency frequency) {
 		int headwayInMin = frequency.headwayInSec / 60;
 		CharSequence headway = UITimeUtils.getNumberInLetter(context, headwayInMin);
-		generateStatusStrings(context, //
-				context.getResources().getQuantityString(R.plurals.every_minutes_and_quantity_part_1, headwayInMin, headway), //
-				context.getResources().getQuantityString(R.plurals.every_minutes_and_quantity_part_2, headwayInMin, headway));
+		final SpannableStringBuilder cs1 = new SpannableStringBuilder(context.getResources().getQuantityString(R.plurals.every_minutes_and_quantity_part_1, headwayInMin, headway));
+		final SpannableStringBuilder cs2 = new SpannableStringBuilder(context.getResources().getQuantityString(R.plurals.every_minutes_and_quantity_part_2, headwayInMin, headway));
+		if (frequency.isOldSchedule()) {
+			SpanUtils.setAll(cs1, SCHEDULE_OLD_SCHEDULE_STYLE);
+			SpanUtils.setAll(cs2, SCHEDULE_OLD_SCHEDULE_STYLE);
+		}
+		generateStatusStrings(context, cs1, cs2);
 	}
 
 	private void generateStatusStringsNoService(@NonNull Context context) {
@@ -968,7 +979,9 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		generateStatusStrings(context, context.getString(R.string.descent_only_part_1), context.getString(R.string.descent_only_part_2));
 	}
 
-	private void generateStatusStrings(Context context, CharSequence cs1, CharSequence cs2) {
+	private void generateStatusStrings(@NonNull Context context,
+									   CharSequence cs1,
+									   CharSequence cs2) {
 		this.statusStrings = new ArrayList<>();
 		this.statusStrings.add(new Pair<>(//
 				SpanUtils.setAll(cs1, //
