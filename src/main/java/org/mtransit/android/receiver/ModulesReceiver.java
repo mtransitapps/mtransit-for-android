@@ -54,11 +54,13 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 
 	@Override
 	public void onReceive(@Nullable Context context, @Nullable Intent intent) {
+		MTLog.i(this, "onReceive(%s)", intent);
 		if (context == null) {
 			this.crashReporter.w(this, "Modules broadcast receiver with null context ignored!");
 			return;
 		}
 		String action = intent == null ? null : intent.getAction();
+		MTLog.i(this, "onReceive() > action: %s.", action);
 		if (!ACTIONS.contains(action)) {
 			this.crashReporter.w(this, "Modules broadcast receiver with unexpected action '%s' ignored!", action);
 			return;
