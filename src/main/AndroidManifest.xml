@@ -107,7 +107,7 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
         <!-- MODULES CHANGES RECEIVER -->
-        <receiver android:name=".receiver.ModuleReceiver" tools:node="remove" />
+        <receiver android:name=".commons.receiver.ModuleReceiver" tools:node="remove" />
         <receiver android:name=".receiver.ModulesReceiver"
             android:exported="true">
             <intent-filter>
