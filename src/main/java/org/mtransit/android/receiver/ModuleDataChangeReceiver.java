@@ -42,6 +42,7 @@ public class ModuleDataChangeReceiver extends BroadcastReceiver implements MTLog
 			crashReporter.shouldNotHappen("Wrong receiver action '%s'!", action);
 			return;
 		}
+		MTLog.i(this, "Broadcast received: %s", action);
 		Bundle extras = intent.getExtras();
 		boolean forceReset = extras != null && extras.getBoolean(DataChange.FORCE, false);
 		if (forceReset) {

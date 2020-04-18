@@ -63,6 +63,7 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 			this.crashReporter.w(this, "Modules broadcast receiver with unexpected action '%s' ignored!", action);
 			return;
 		}
+		MTLog.i(this, "Broadcast received: %s", action);
 		Uri data = intent == null ? null : intent.getData();
 		String pkg = data == null ? null : data.getSchemeSpecificPart();
 		if (DataSourceProvider.isSet()) {
