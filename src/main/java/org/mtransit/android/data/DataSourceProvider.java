@@ -197,6 +197,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	public static boolean resetIfNecessary(@NonNull Context context) {
+		MTLog.i(LOG_TAG, "resetIfNecessary(%s)", context); // DEBUG
 		DataSourceProvider instance = Injection.providesDataSourceProvider();
 		if (instance.isInitialized()) {
 			if (hasChanged(instance, context)) {
@@ -681,6 +682,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	private static boolean triggerModulesUpdated = false;
 
 	public static void triggerModulesUpdated() {
+		MTLog.i(LOG_TAG, "triggerModulesUpdated()"); // DEBUG
 		triggerModulesUpdated = true;
 		if (!resumed) {
 			return;
@@ -712,6 +714,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		private final WeakHashMap<ModulesUpdateListener, Object> listeners;
 
 		TriggerModulesUpdatedTask(@NonNull WeakHashMap<ModulesUpdateListener, Object> listeners) {
+			MTLog.i(LOG_TAG, "TriggerModulesUpdatedTask(%s)", listeners); // DEBUG
 			this.listeners = listeners;
 		}
 
@@ -727,6 +730,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 
 		@Override
 		protected void onProgressUpdateNotCancelledMT(ModulesUpdateListener... values) {
+			MTLog.i(LOG_TAG, "onProgressUpdateNotCancelledMT(%s)", values == null ? null : java.util.Arrays.asList(values)); // DEBUG
 			if (values != null && values.length > 0) {
 				try {
 					values[0].onModulesUpdated();
