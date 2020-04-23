@@ -54,22 +54,20 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 
 	@Override
 	public void onReceive(@Nullable Context context, @Nullable Intent intent) {
-		MTLog.i(this, "onReceive(%s)", intent);
 		if (context == null) {
 			this.crashReporter.w(this, "Modules broadcast receiver with null context ignored!");
 			return;
 		}
 		String action = intent == null ? null : intent.getAction();
-		MTLog.i(this, "onReceive() > action: %s.", action);
 		if (!ACTIONS.contains(action)) {
 			this.crashReporter.w(this, "Modules broadcast receiver with unexpected action '%s' ignored!", action);
 			return;
 		}
-		MTLog.i(this, "Broadcast received: %s", action);
 		Uri data = intent == null ? null : intent.getData();
 		String pkg = data == null ? null : data.getSchemeSpecificPart();
 		if (DataSourceProvider.isSet()) {
 			if (DataSourceProvider.isProvider(context, pkg)) {
+				MTLog.i(this, "Broadcast received: %s", action);
 				boolean didReset = DataSourceProvider.resetIfNecessary(context);
 				if (!didReset) {
 					ping(context, pkg);
@@ -77,15 +75,19 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 			} else {
 				if (Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(action) //
 						|| Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
-					DataSourceProvider.resetIfNecessary(context);
+					if (DataSourceProvider.resetIfNecessary(context)) {
+						MTLog.i(this, "Broadcast received: %s", action);
+					}
 				}
 			}
 		} else {
-			ping(context, pkg);
+			if (ping(context, pkg)) {
+				MTLog.i(this, "Broadcast received: %s", action);
+			}
 		}
 	}
 
-	private void ping(@NonNull Context context, @Nullable String pkg) {
+	private boolean ping(@NonNull Context context, @Nullable String pkg) {
 		ProviderInfo[] providers = PackageManagerUtils.findContentProvidersWithMetaData(context, pkg);
 		if (providers != null) {
 			String agencyProviderMetaData = DataSourceProvider.getAgencyProviderMetaData(context);
@@ -93,9 +95,11 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 				if (provider != null && provider.metaData != null) {
 					if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
 						DataSourceManager.ping(context, provider.authority);
+						return true;
 					}
 				}
 			}
 		}
+		return false;
 	}
 }
