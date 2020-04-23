@@ -124,8 +124,8 @@
                 <action android:name="android.intent.action.PACKAGE_VERIFIED" />
 
                 <data
+                    android:host="org.mtransit.android.*"
                     android:scheme="package" />
-                <!--  android:host="org.mtransit.android.*" -->
             </intent-filter>
         </receiver>
         <receiver
