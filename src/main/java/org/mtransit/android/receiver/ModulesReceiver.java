@@ -67,7 +67,7 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 		String pkg = data == null ? null : data.getSchemeSpecificPart();
 		if (DataSourceProvider.isSet()) {
 			if (DataSourceProvider.isProvider(context, pkg)) {
-				MTLog.i(this, "Broadcast received: %s", action);
+				MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
 				boolean didReset = DataSourceProvider.resetIfNecessary(context);
 				if (!didReset) {
 					ping(context, pkg);
@@ -76,13 +76,13 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 				if (Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(action) //
 						|| Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
 					if (DataSourceProvider.resetIfNecessary(context)) {
-						MTLog.i(this, "Broadcast received: %s", action);
+						MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
 					}
 				}
 			}
 		} else {
 			if (ping(context, pkg)) {
-				MTLog.i(this, "Broadcast received: %s", action);
+				MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
 			}
 		}
 	}
@@ -94,7 +94,7 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 			for (ProviderInfo provider : providers) {
 				if (provider != null && provider.metaData != null) {
 					if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
-						MTLog.i(this, "Ping: %s", pkg);
+						MTLog.i(this, "Ping: %s", provider.authority);
 						DataSourceManager.ping(context, provider.authority);
 						return true;
 					}
