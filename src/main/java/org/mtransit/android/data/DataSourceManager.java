@@ -221,7 +221,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static AgencyProperties findAgencyProperties(@NonNull Context context, @NonNull String authority, @NonNull DataSourceType dst, boolean isRTS) {
+	static AgencyProperties findAgencyProperties(@NonNull Context context, @NonNull String authority, @NonNull DataSourceType dst, boolean isRTS) {
 		AgencyProperties result = null;
 		Cursor cursor = null;
 		try {
@@ -245,7 +245,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static JPaths findAgencyRTSRouteLogo(@NonNull Context context, @NonNull String authority) {
+	static JPaths findAgencyRTSRouteLogo(@NonNull Context context, @NonNull String authority) {
 		JPaths result = null;
 		Cursor cursor = null;
 		try {
@@ -264,6 +264,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		return result;
 	}
 
+	@SuppressWarnings("unused")
 	@Nullable
 	public static Trip findRTSTrip(@NonNull Context context, @NonNull String authority, int tripId) {
 		Cursor cursor = null;

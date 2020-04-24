@@ -54,18 +54,15 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 
 	@Override
 	public void onReceive(@Nullable Context context, @Nullable Intent intent) {
-		MTLog.i(this, "onReceive(%s)", intent); // DEBUG
 		if (context == null) {
 			this.crashReporter.w(this, "Modules broadcast receiver with null context ignored!");
 			return;
 		}
 		String action = intent == null ? null : intent.getAction();
-		MTLog.i(this, "onReceive() > action: %s.", action); // DEBUG
 		if (!ACTIONS.contains(action)) {
 			this.crashReporter.w(this, "Modules broadcast receiver with unexpected action '%s' ignored!", action);
 			return;
 		}
-		MTLog.i(this, "Broadcast received: %s", action);  // DEBUG
 		Uri data = intent == null ? null : intent.getData();
 		String pkg = data == null ? null : data.getSchemeSpecificPart();
 		if (DataSourceProvider.isSet()) {
@@ -97,6 +94,7 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 			for (ProviderInfo provider : providers) {
 				if (provider != null && provider.metaData != null) {
 					if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
+						MTLog.i(this, "Ping: %s", pkg);
 						DataSourceManager.ping(context, provider.authority);
 						return true;
 					}
