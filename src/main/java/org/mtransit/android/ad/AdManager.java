@@ -82,8 +82,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 		try {
 			MobileAds.initialize(
-					application.requireApplication().getApplicationContext(),
-					application.requireContext().getString(R.string.google_ads_app_id)
+					application.requireApplication().getApplicationContext()
 			);
 			if (DEBUG) {
 				List<String> testDeviceIds = new ArrayList<>();
@@ -172,11 +171,14 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 		if (nbAgencies == null // number of agency unknown
 				|| nbAgencies <= MIN_AGENCIES_FOR_ADS) { // no (real) agency installed
+			MTLog.d(this, "isShowingAds() > Not showing ads (no '%d' agency installed).", nbAgencies);
 			return false; // not showing ads
 		}
 		if (showingAds == null) { // paying status unknown
+			MTLog.d(this, "isShowingAds() > Not showing ads (paying status unknown: '%s').", showingAds);
 			return false; // not showing ads
 		}
+		MTLog.d(this, "isShowingAds() > Showing ads: '%s'.", showingAds);
 		return showingAds;
 	}
 
@@ -378,6 +380,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			}
 		}
 
+		@NonNull
 		private AdRequest getAdRequest(IContext context) {
 			AdRequest.Builder adRequestBd = new AdRequest.Builder();
 			adRequestBd.setLocation(this.adManager.getLastLocation());
@@ -385,7 +388,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 				adRequestBd.addKeyword(keyword);
 			}
 			AdRequest adRequest = adRequestBd.build();
-			MTLog.d(this, "onPostExecute() > request.isTestDevice(): %s", adRequest.isTestDevice(context.requireContext()));
+			MTLog.d(this, "getAdRequest() > test device? %s.", adRequest.isTestDevice(context.requireContext()));
 			return adRequest;
 		}
 	}

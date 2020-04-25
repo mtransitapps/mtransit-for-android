@@ -63,6 +63,7 @@ public class FavoriteManager implements MTLog.Loggable {
 	}
 
 	private static void initInstance(@NonNull Context context) {
+		MTLog.i(LOG_TAG, "Favorite initialization.");
 		instance = new FavoriteManager();
 		instance.favoriteFolders = findFolders(context);
 		instance.analyticsManager.setUserProperty(AnalyticsUserProperties.FAVORITE_FOLDER_COUNT, instance.favoriteFolders.size());

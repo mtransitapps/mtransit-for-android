@@ -125,7 +125,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 		if (!VendingUtils.onActivityResult(this, requestCode, resultCode, data)) {
 			super.onActivityResult(requestCode, resultCode, data);
 		}

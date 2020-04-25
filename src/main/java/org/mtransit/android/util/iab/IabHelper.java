@@ -242,7 +242,7 @@ public class IabHelper implements MTLog.Loggable {
 		}
 	}
 
-	public boolean handleActivityResult(int requestCode, int resultCode, Intent data) {
+	public boolean handleActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 		IabResult result;
 		if (requestCode != mRequestCode) return false;
 		checkNotDisposed();

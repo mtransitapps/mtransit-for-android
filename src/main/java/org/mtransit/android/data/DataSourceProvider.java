@@ -554,6 +554,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 			if (isInitialized()) {
 				return; // already initialized
 			}
+			MTLog.i(this, "Initializing data-sources...");
 			Context context = requireContext();
 			String agencyProviderMetaData = getAgencyProviderMetaData(context);
 			String agencyProviderTypeMetaData = context.getString(R.string.agency_provider_type);
@@ -648,10 +649,12 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 			CollectionUtils.sort(this.allAgencyTypes, new DataSourceType.DataSourceTypeShortNameComparator(context));
 			analyticsManager.setUserProperty(AnalyticsUserProperties.MODULES_COUNT, allAgenciesAuthority.size());
 			setInitialized(true);
+			triggerModulesUpdated();
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while initializing properties!");
 			destroy();
 		}
+		MTLog.i(this, "Initializing data-sources... DONE");
 	}
 
 	@NonNull
