@@ -48,16 +48,25 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 	private static final String SUPPORT_SUBSCRIPTIONS_PREF = "pSupportSubs";
 
 	private static final String ABOUT_PRIVACY_POLICY_PREF = "pAboutPrivacyPolicy";
+	private static final String ABOUT_TERMS_OF_USE_PREF = "pAboutTermsOfUse";
 	private static final String ABOUT_APP_VERSION_PREF = "pAboutAppVersion";
+
+	private static final String _3RD_PARTY_GOOGLE_PRIVACY_POLICY_PREF = "p3rdPartyGooglePrivacyPolicy";
+	private static final String _3RD_PARTY_YOUTUBE_TERMS_OF_SERVICE_PREF = "p3rdPartyYouTubeTermsOfService";
 
 	private static final String SOCIAL_FACEBOOK_PREF = "pSocialFacebook";
 	private static final String SOCIAL_TWITTER_PREF = "pSocialTwitter";
 
 	private static final String TWITTER_PAGE_URL = "https://twitter.com/montransit";
 	private static final String FACEBOOK_PAGE_URL = "https://facebook.com/MonTransit";
-	private static final String DONT_KILL_MY_APP_URL = "https://dontkillmyapp.com/";
+	private static final String DO_NOT_KILL_MY_APP_URL = "https://dontkillmyapp.com/";
 	private static final String PRIVACY_POLICY_PAGE_URL = "https://github.com/mtransitapps/mtransit-for-android/wiki/PrivacyPolicy";
 	private static final String PRIVACY_POLICY_FR_PAGE_URL = "https://github.com/mtransitapps/mtransit-for-android/wiki/PrivacyPolicyFr";
+	private static final String TERMS_OF_USE_PAGE_URL = "https://github.com/mtransitapps/mtransit-for-android/wiki/TermsOfUse";
+	private static final String TERMS_OF_USE_FR_PAGE_URL = "https://github.com/mtransitapps/mtransit-for-android/wiki/TermsOfUseFr";
+
+	private static final String GOOGLE_PRIVACY_POLICY_PAGE_URL = "https://policies.google.com/privacy";
+	private static final String YOUTUBE_TERMS_OF_SERVICE_PAGE_URL = "https://www.youtube.com/t/terms";
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -120,7 +129,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 							if (activity1 == null) {
 								return;
 							}
-							LinkUtils.open(activity1, DONT_KILL_MY_APP_URL, DONT_KILL_MY_APP_URL, false);
+							LinkUtils.open(activity1, DO_NOT_KILL_MY_APP_URL, DO_NOT_KILL_MY_APP_URL, false);
 						})
 						.setCancelable(true)
 						.create()
@@ -201,7 +210,56 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 						LocaleUtils.isFR() ?
 								PRIVACY_POLICY_FR_PAGE_URL :
 								PRIVACY_POLICY_PAGE_URL,
-						activity.getString(R.string.privacy_policy), false);
+						activity.getString(R.string.privacy_policy),
+						false // open in external web browser
+				);
+				return true; // handled
+			});
+		}
+		final Preference aboutTermsOfUsePref = findPreference(ABOUT_TERMS_OF_USE_PREF);
+		if (aboutTermsOfUsePref != null) {
+			aboutTermsOfUsePref.setOnPreferenceClickListener(preference -> {
+				Activity activity = getActivity();
+				if (activity == null) {
+					return false; // not handled
+				}
+				LinkUtils.open(activity,
+						LocaleUtils.isFR() ?
+								TERMS_OF_USE_FR_PAGE_URL :
+								TERMS_OF_USE_PAGE_URL,
+						activity.getString(R.string.terms_of_use),
+						false // open in external web browser
+				);
+				return true; // handled
+			});
+		}
+		final Preference thirdPartyGooglePrivacyPolicyPref = findPreference(_3RD_PARTY_GOOGLE_PRIVACY_POLICY_PREF);
+		if (thirdPartyGooglePrivacyPolicyPref != null) {
+			thirdPartyGooglePrivacyPolicyPref.setOnPreferenceClickListener(preference -> {
+				Activity activity = getActivity();
+				if (activity == null) {
+					return false; // not handled
+				}
+				LinkUtils.open(activity,
+						GOOGLE_PRIVACY_POLICY_PAGE_URL,
+						null,
+						false // open in external web browser
+				);
+				return true; // handled
+			});
+		}
+		final Preference thirdPartyYouTubeTermsOfServicePref = findPreference(_3RD_PARTY_YOUTUBE_TERMS_OF_SERVICE_PREF);
+		if (thirdPartyYouTubeTermsOfServicePref != null) {
+			thirdPartyYouTubeTermsOfServicePref.setOnPreferenceClickListener(preference -> {
+				Activity activity = getActivity();
+				if (activity == null) {
+					return false; // not handled
+				}
+				LinkUtils.open(activity,
+						YOUTUBE_TERMS_OF_SERVICE_PAGE_URL,
+						null,
+						false // open in external web browser
+				);
 				return true; // handled
 			});
 		}
