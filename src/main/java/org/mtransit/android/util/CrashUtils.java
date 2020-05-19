@@ -25,11 +25,13 @@ public final class CrashUtils implements MTLog.Loggable {
 	@Deprecated
 	public static void report(@Nullable Throwable throwable, @NonNull String message) {
 		try {
-			com.crashlytics.android.Crashlytics.log(message);
+			final com.google.firebase.crashlytics.FirebaseCrashlytics firebaseCrashlytics
+					= com.google.firebase.crashlytics.FirebaseCrashlytics.getInstance();
+			firebaseCrashlytics.log(message);
 			if (throwable == null) {
 				throwable = new CrashlyticsCrashReporter.NoException(message);
 			}
-			com.crashlytics.android.Crashlytics.logException(throwable);
+			firebaseCrashlytics.recordException(throwable);
 		} catch (Exception e) {
 			MTLog.w(LOG_TAG, e, "Error while reporting message '%s'!", message);
 		}

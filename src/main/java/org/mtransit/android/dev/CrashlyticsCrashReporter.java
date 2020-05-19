@@ -3,8 +3,7 @@ package org.mtransit.android.dev;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.core.CrashlyticsCore;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.mtransit.android.BuildConfig;
 import org.mtransit.android.common.IContext;
@@ -15,8 +14,11 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import io.fabric.sdk.android.Fabric;
-
+// - enable debug logging:
+// adb shell setprop log.tag.FirebaseCrashlytics DEBUG
+// adb logcat -s FirebaseCrashlytics
+// - disable debug logging:
+// adb shell setprop log.tag.FirebaseCrashlytics INFO
 public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 
 	private static final String LOG_TAG = CrashlyticsCrashReporter.class.getSimpleName();
@@ -29,11 +31,8 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 
 	@Override
 	public void setup(@NonNull IContext context, boolean enabled) {
-		Fabric.with(context.requireContext(), new Crashlytics.Builder()
-				.core(new CrashlyticsCore.Builder()
-						.disabled(!enabled)
-						.build())
-				.build());
+		FirebaseCrashlytics.getInstance()
+				.setCrashlyticsCollectionEnabled(enabled);
 	}
 
 	@Override
@@ -49,12 +48,13 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 	@Override
 	public void reportNonFatal(@Nullable Throwable throwable, @Nullable String message, @NonNull Object... args) {
 		try {
-			String fMessage = message == null ? null : String.format(message, args);
-			Crashlytics.log(fMessage);
+			final String fMessage = message == null ? "No message" : String.format(message, args);
+			final FirebaseCrashlytics firebaseCrashlytics = FirebaseCrashlytics.getInstance();
+			firebaseCrashlytics.log(fMessage);
 			if (throwable == null) {
 				throwable = new NoException(fMessage);
 			}
-			Crashlytics.logException(throwable);
+			firebaseCrashlytics.recordException(throwable);
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while reporting message '%s'!", message);
 		}
