@@ -1,11 +1,9 @@
 package org.mtransit.android.task;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
@@ -18,29 +16,43 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.NewsProviderProperties;
 
-import android.content.Context;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
 
-	private static final String TAG = NewsLoader.class.getSimpleName();
+	private static final String LOG_TAG = NewsLoader.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
+	@Nullable
 	private ArrayList<News> news;
-	private ArrayList<String> targetAuthorities;
-	private ArrayList<String> filterUUIDs;
-	private ArrayList<String> filterTargets;
+	@Nullable
+	private final ArrayList<String> targetAuthorities;
+	@Nullable
+	private final ArrayList<String> filterUUIDs;
+	@Nullable
+	private final ArrayList<String> filterTargets;
 
-	public NewsLoader(Context context, ArrayList<String> optTargetAuthorities, ArrayList<String> optFilterUUIDs, ArrayList<String> optFilterTargets) {
+	public NewsLoader(@NonNull Context context,
+					  @Nullable ArrayList<String> optTargetAuthorities,
+					  @Nullable ArrayList<String> optFilterUUIDs,
+					  @Nullable ArrayList<String> optFilterTargets) {
 		super(context);
 		this.targetAuthorities = optTargetAuthorities;
 		this.filterUUIDs = optFilterUUIDs;
 		this.filterTargets = optFilterTargets;
 	}
 
+	@NonNull
 	@Override
 	public ArrayList<News> loadInBackgroundMT() {
 		if (this.news != null) {
@@ -48,12 +60,15 @@ public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
 		}
 		this.news = new ArrayList<>();
 		ArrayList<NewsProviderProperties> newsProviders;
-		if (CollectionUtils.getSize(this.targetAuthorities) == 0) {
+		if (this.targetAuthorities == null || this.targetAuthorities.isEmpty()) {
 			newsProviders = DataSourceProvider.get(getContext()).getAllNewsProvider();
 		} else {
 			newsProviders = new ArrayList<>();
 			for (String targetAuthority : this.targetAuthorities) {
-				newsProviders.addAll(DataSourceProvider.get(getContext()).getTargetAuthorityNewsProviders(targetAuthority));
+				final HashSet<NewsProviderProperties> targetAuthorityNewsProviders = DataSourceProvider.get(getContext()).getTargetAuthorityNewsProviders(targetAuthority);
+				if (targetAuthorityNewsProviders != null) {
+					newsProviders.addAll(targetAuthorityNewsProviders);
+				}
 			}
 		}
 		if (CollectionUtils.getSize(newsProviders) == 0) {
@@ -106,7 +121,7 @@ public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
 	}
 
 	@Override
-	public void deliverResult(ArrayList<News> data) {
+	public void deliverResult(@Nullable ArrayList<News> data) {
 		this.news = data;
 		if (isStarted()) {
 			super.deliverResult(data);
@@ -115,19 +130,27 @@ public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
 
 	private static class FindNewsTask extends MTCallable<ArrayList<News>> {
 
-		private static final String TAG = NewsLoader.class.getSimpleName() + ">" + FindNewsTask.class.getSimpleName();
+		private static final String LOG_TAG = NewsLoader.class.getSimpleName() + ">" + FindNewsTask.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
-		private Context context;
-		private String authority;
-		private ArrayList<String> filterUUIDs;
-		private ArrayList<String> filterTargets;
+		@NonNull
+		private final Context context;
+		@NonNull
+		private final String authority;
+		@Nullable
+		private final ArrayList<String> filterUUIDs;
+		@Nullable
+		private final ArrayList<String> filterTargets;
 
-		public FindNewsTask(Context context, String authority, ArrayList<String> optFilterUUIDs, ArrayList<String> optFilterTargets) {
+		FindNewsTask(@NonNull Context context,
+					 @NonNull String authority,
+					 @Nullable ArrayList<String> optFilterUUIDs,
+					 @Nullable ArrayList<String> optFilterTargets) {
 			this.context = context;
 			this.authority = authority;
 			this.filterUUIDs = optFilterUUIDs;

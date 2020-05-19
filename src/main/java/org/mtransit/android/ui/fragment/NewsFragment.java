@@ -221,12 +221,13 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	@NonNull
 	@Override
-	public Loader<ArrayList<News>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<News>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case NEWS_LOADER:
-			return new NewsLoader(getContext(), this.targetAuthorities, this.filterUUIDs, this.filterTargets);
+			return new NewsLoader(requireContext(), this.targetAuthorities, this.filterUUIDs, this.filterTargets);
 		default:
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
+			//noinspection ConstantConditions // FIXME
 			return null;
 		}
 	}
@@ -239,7 +240,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public void onLoadFinished(@NonNull Loader<ArrayList<News>> loader, ArrayList<News> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<News>> loader, @Nullable ArrayList<News> data) {
 		this.emptyText = getString(R.string.no_news);
 		this.adapter.setNews(data);
 		switchView(getView());
@@ -250,6 +251,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		initiateRefresh();
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	private boolean initiateRefresh() {
 		if (this.adapter != null) {
 			this.adapter.clear();
@@ -260,7 +262,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		return true;
 	}
 
-	public void setSwipeRefreshLayoutRefreshing(boolean refreshing) {
+	private void setSwipeRefreshLayoutRefreshing(boolean refreshing) {
 		if (this.swipeRefreshLayout != null) {
 			if (refreshing) {
 				if (!this.swipeRefreshLayout.isRefreshing()) {
@@ -392,6 +394,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		private LayoutInflater layoutInflater;
 		private WeakReference<Activity> activityWR;
 
+		@Nullable
 		private ArrayList<News> news;
 
 		private NewsAdapter(Activity activity) {
@@ -439,7 +442,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			}
 		}
 
-		public void setNews(ArrayList<News> news) {
+		public void setNews(@Nullable ArrayList<News> news) {
 			this.news = news;
 			notifyDataSetChanged();
 		}
