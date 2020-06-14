@@ -18,7 +18,7 @@
         android:paddingLeft="1dp"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="?android:attr/textColorTertiary"
-        tools:text="DATE" />
+        tools:text="@tools:sample/date/day_of_week" />
 
     <TextView
         android:id="@+id/author"
@@ -34,15 +34,29 @@
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="?android:attr/textColorSecondary"
         android:textStyle="bold"
-        tools:text="AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR" />
+        tools:text="@tools:sample/full_names" />
 
-    <!-- NAME -->
+    <ImageView
+        android:id="@+id/thumbnail"
+        android:layout_width="@dimen/baseline_96"
+        android:layout_height="@dimen/baseline_96"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_below="@id/author"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="@dimen/baseline_16"
+        android:layout_marginTop="@dimen/baseline_8"
+        android:layout_marginBottom="@dimen/baseline_8"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        tools:src="@tools:sample/backgrounds/scenic"
+        tools:visibility="visible" />
+
     <TextView
         android:id="@+id/newsText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/author"
-        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@id/thumbnail"
         android:ellipsize="end"
         android:fontFamily="sans-serif-condensed"
         android:maxLines="5"
@@ -50,6 +64,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="?android:attr/textColorPrimary"
         android:textStyle="normal"
-        tools:text="NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS" />
+        tools:maxLines="50"
+        tools:text="@tools:sample/lorem/random" />
 
 </RelativeLayout>

@@ -6,15 +6,19 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.bumptech.glide.Glide;
+
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ColorUtils;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.provider.NewsProviderContract;
@@ -27,11 +31,12 @@ import org.mtransit.android.util.UITimeUtils;
 
 public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeChangedReceiver.TimeChangedListener, LinkUtils.OnUrlClickListener {
 
-	private static final String TAG = NewsDetailsFragment.class.getSimpleName();
+	private static final String LOG_TAG = NewsDetailsFragment.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private static final String TRACKING_SCREEN_NAME = "News";
@@ -48,7 +53,8 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	private static final String EXTRA_AUTHORITY = "extra_agency_authority";
 	private static final String EXTRA_NEWS_UUID = "extra_news_uuid";
 
-	public static NewsDetailsFragment newInstance(String uuid, String authority, @Nullable News optNews) {
+	@NonNull
+	public static NewsDetailsFragment newInstance(@NonNull String uuid, @NonNull String authority, @Nullable News optNews) {
 		NewsDetailsFragment f = new NewsDetailsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
@@ -65,18 +71,18 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	private News news;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
 	}
 
 	private void restoreInstanceState(Bundle... bundles) {
 		String newAuthority = BundleUtils.getString(EXTRA_AUTHORITY, bundles);
-		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
+		if (newAuthority != null && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
 		}
 		String newUUID = BundleUtils.getString(EXTRA_NEWS_UUID, bundles);
-		if (!TextUtils.isEmpty(newUUID) && !newUUID.equals(this.uuid)) {
+		if (newUUID != null && !newUUID.equals(this.uuid)) {
 			this.uuid = newUUID;
 			resetNews();
 		}
@@ -93,15 +99,17 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		super.onSaveInstanceState(outState);
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_news_details, container, false);
 		setupView(view);
 		return view;
 	}
 
-	private void setupView(View view) {
+	private void setupView(@SuppressWarnings("unused") View view) {
+		// DO NOTHING
 	}
 
 	private boolean hasNews() {
@@ -176,10 +184,12 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 			return;
 		}
 		updateNewsView();
-		getAbController().setABBgColor(this, getABBgColor(getContext()), false);
-		getAbController().setABTitle(this, getABTitle(getContext()), false);
-		getAbController().setABSubtitle(this, getABSubtitle(getContext()), false);
-		getAbController().setABReady(this, isABReady(), true);
+		if (getAbController() != null && getContext() != null) {
+			getAbController().setABBgColor(this, getABBgColor(getContext()), false);
+			getAbController().setABTitle(this, getABTitle(getContext()), false);
+			getAbController().setABSubtitle(this, getABSubtitle(getContext()), false);
+			getAbController().setABReady(this, isABReady(), true);
+		}
 	}
 
 	private void updateNewsView() {
@@ -190,6 +200,17 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		View view = getView();
 		if (view == null) {
 			return;
+		}
+		ImageView thumbnailIng = view.findViewById(R.id.thumbnail);
+		if (news.getHasValidImageUrls()) {
+			Glide.with(this)
+					.load(news.getFirstValidImageUrl())
+					.into(thumbnailIng);
+			thumbnailIng.setVisibility(View.VISIBLE);
+		} else {
+			Glide.with(this)
+					.clear(thumbnailIng);
+			thumbnailIng.setVisibility(View.GONE);
 		}
 		TextView newsTv = view.findViewById(R.id.newsText);
 		newsTv.setText(LinkUtils.linkifyHtml(news.getTextHTML(), true), TextView.BufferType.SPANNABLE);
@@ -205,14 +226,14 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		dateTv.setOnClickListener(new MTOnClickListener() {
 			@Override
 			public void onClickMT(View view) {
-				LinkUtils.open(getActivity(), newWebURL, getString(R.string.web_browser), true);
+				LinkUtils.open(requireActivity(), newWebURL, getString(R.string.web_browser), true);
 			}
 		});
 	}
 
 	@Override
-	public boolean onURLClick(String url) {
-		return LinkUtils.open(getActivity(), url, getString(R.string.web_browser), true);
+	public boolean onURLClick(@NonNull String url) {
+		return LinkUtils.open(requireActivity(), url, getString(R.string.web_browser), true);
 	}
 
 	@Override
@@ -292,9 +313,10 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		disableTimeChangeddReceiver();
 	}
 
+	@Nullable
 	@ColorInt
 	@Override
-	public Integer getABBgColor(Context context) {
+	public Integer getABBgColor(@NonNull Context context) {
 		News news = getNewsOrNull();
 		if (news != null && news.hasColor()) {
 			return news.getColorInt();
@@ -302,8 +324,9 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		return super.getABBgColor(context);
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABTitle(Context context) {
+	public CharSequence getABTitle(@NonNull Context context) {
 		News news = getNewsOrNull();
 		if (news != null) {
 			return news.getAuthorOneLine();
@@ -311,8 +334,9 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		return super.getABTitle(context);
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABSubtitle(Context context) {
+	public CharSequence getABSubtitle(@NonNull Context context) {
 		News news = getNewsOrNull();
 		if (news != null) {
 			return news.getSourceLabel();

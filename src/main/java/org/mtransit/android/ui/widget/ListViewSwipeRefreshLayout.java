@@ -1,22 +1,25 @@
 package org.mtransit.android.ui.widget;
 
-import java.lang.ref.WeakReference;
-
-import org.mtransit.android.commons.MTLog;
-
 import android.content.Context;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AbsListView;
 
+import androidx.annotation.NonNull;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import org.mtransit.android.commons.MTLog;
+
+import java.lang.ref.WeakReference;
+
 public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MTLog.Loggable {
 
-	private static final String TAG = ListViewSwipeRefreshLayout.class.getSimpleName();
+	private static final String LOG_TAG = ListViewSwipeRefreshLayout.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private boolean refreshEnabled = true;
@@ -50,6 +53,9 @@ public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MT
 
 	@Override
 	public boolean canChildScrollUp() {
+		if (isInEditMode()) {
+			return super.canChildScrollUp();
+		}
 		if (!this.refreshEnabled) {
 			return true;
 		}

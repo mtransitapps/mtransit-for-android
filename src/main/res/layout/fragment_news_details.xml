@@ -16,21 +16,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="?android:attr/listPreferredItemHeightLarge"
-            android:padding="16dp">
+            android:paddingBottom="@dimen/baseline_16">
+
+            <ImageView
+                android:id="@+id/thumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/baseline_192"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginBottom="@dimen/baseline_8"
+                android:scaleType="fitCenter"
+                android:visibility="gone"
+                tools:src="@tools:sample/backgrounds/scenic"
+                tools:visibility="visible" />
 
             <TextView
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
+                android:layout_below="@id/thumbnail"
                 android:layout_alignParentRight="true"
+                android:layout_marginLeft="@dimen/baseline_16"
+                android:layout_marginRight="@dimen/baseline_16"
                 android:background="?android:attr/selectableItemBackground"
                 android:fontFamily="sans-serif-condensed"
                 android:maxLines="1"
                 android:padding="1dp"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="?android:attr/textColorTertiary"
-                tools:text="DATE" />
+                tools:text="@tools:sample/date/day_of_week" />
 
             <TextView
                 android:id="@+id/newsText"
@@ -38,13 +52,15 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/date"
                 android:layout_alignParentBottom="true"
+                android:layout_marginLeft="@dimen/baseline_16"
+                android:layout_marginTop="8dp"
+                android:layout_marginRight="@dimen/baseline_16"
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-condensed"
-                android:paddingTop="8dp"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="?android:attr/textColorPrimary"
                 android:textStyle="normal"
-                tools:text="NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS NEWS" />
+                tools:text="@tools:sample/lorem/random" />
 
         </RelativeLayout>
 

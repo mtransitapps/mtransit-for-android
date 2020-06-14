@@ -10,18 +10,23 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.bumptech.glide.Glide;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
@@ -33,7 +38,6 @@ import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 import org.mtransit.android.util.UITimeUtils;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 public class NewsFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<News>>, SwipeRefreshLayout.OnRefreshListener {
@@ -101,15 +105,15 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
-		initAdapters(activity);
+		initAdapters();
 	}
 
-	private void initAdapters(Activity activity) {
-		this.adapter = new NewsAdapter(activity);
+	private void initAdapters() {
+		this.adapter = new NewsAdapter(this);
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
 	}
@@ -157,8 +161,9 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		super.onSaveInstanceState(outState);
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_news, container, false);
 		setupView(view);
@@ -262,7 +267,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		return true;
 	}
 
-	private void setSwipeRefreshLayoutRefreshing(boolean refreshing) {
+	private void setSwipeRefreshLayoutRefreshing(@SuppressWarnings("SameParameterValue") boolean refreshing) {
 		if (this.swipeRefreshLayout != null) {
 			if (refreshing) {
 				if (!this.swipeRefreshLayout.isRefreshing()) {
@@ -359,13 +364,15 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABTitle(Context context) {
+	public CharSequence getABTitle(@NonNull Context context) {
 		return context.getString(R.string.news);
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABSubtitle(Context context) {
+	public CharSequence getABSubtitle(@NonNull Context context) {
 		if (!TextUtils.isEmpty(this.subTitle)) {
 			return this.subTitle;
 		}
@@ -373,7 +380,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public Integer getABBgColor(Context context) {
+	public Integer getABBgColor(@NonNull Context context) {
 		if (this.colorInt != null) {
 			return this.colorInt;
 		}
@@ -391,24 +398,21 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			return LOG_TAG;
 		}
 
-		private LayoutInflater layoutInflater;
-		private WeakReference<Activity> activityWR;
+		private final LayoutInflater layoutInflater;
+		private final Fragment fragment;
 
 		@Nullable
 		private ArrayList<News> news;
 
-		private NewsAdapter(Activity activity) {
-			super(activity, -1);
-			setActivity(activity);
+		private NewsAdapter(@NonNull Fragment fragment) {
+			super(fragment.requireContext(), -1);
+			this.fragment = fragment;
 			this.layoutInflater = LayoutInflater.from(getContext());
 		}
 
-		public void setActivity(Activity activity) {
-			this.activityWR = new WeakReference<>(activity);
-		}
-
+		@Nullable
 		private Activity getActivityOrNull() {
-			return this.activityWR == null ? null : this.activityWR.get();
+			return this.fragment.getActivity();
 		}
 
 		public boolean isInitialized() {
@@ -435,7 +439,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			}
 		}
 
-		private void disableTimeChangeddReceiver() {
+		private void disableTimeChangedReceiver() {
 			if (this.timeChangedReceiverEnabled) {
 				getContext().unregisterReceiver(this.timeChangedReceiver);
 				this.timeChangedReceiverEnabled = false;
@@ -480,7 +484,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 
 		public void onPause() {
-			disableTimeChangeddReceiver();
+			disableTimeChangedReceiver();
 		}
 
 		public void onResume() {
@@ -488,7 +492,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 
 		public void onDestroy() {
-			disableTimeChangeddReceiver();
+			disableTimeChangedReceiver();
 		}
 
 		@Override
@@ -507,6 +511,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_news_base, parent, false);
 				NewsViewHolder holder = new NewsViewHolder();
+				holder.thumbnailImg = convertView.findViewById(R.id.thumbnail);
 				holder.newsTv = convertView.findViewById(R.id.newsText);
 				holder.authorTv = convertView.findViewById(R.id.author);
 				holder.dateTv = convertView.findViewById(R.id.date);
@@ -517,6 +522,16 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			if (news == null) {
 				convertView.setVisibility(View.GONE);
 				return convertView;
+			}
+			if (news.getHasValidImageUrls()) {
+				Glide.with(this.fragment)
+						.load(news.getFirstValidImageUrl())
+						.into(holder.thumbnailImg);
+				holder.thumbnailImg.setVisibility(View.VISIBLE);
+			} else {
+				Glide.with(this.fragment)
+						.clear(holder.thumbnailImg);
+				holder.thumbnailImg.setVisibility(View.GONE);
 			}
 			holder.authorTv.setText(getContext().getString(R.string.news_shared_on_and_author_and_source, news.getAuthorOneLine(), news.getSourceLabel()));
 			if (news.hasColor()) {
@@ -541,6 +556,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 
 		private static final class NewsViewHolder {
+			private ImageView thumbnailImg;
 			private TextView newsTv;
 			private TextView authorTv;
 			private TextView dateTv;
