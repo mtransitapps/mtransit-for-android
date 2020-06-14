@@ -40,6 +40,7 @@
     <dimen name="baseline_264">264dp</dimen>
     <dimen name="baseline_272">272dp</dimen>
     <dimen name="baseline_280">280dp</dimen>
+    <dimen name="baseline_288">288dp</dimen>
     <dimen name="baseline_400">400dp</dimen>
     <!-- TEXT SIZES -->
     <dimen name="text_size_extra_extra_extra__small">2sp</dimen>

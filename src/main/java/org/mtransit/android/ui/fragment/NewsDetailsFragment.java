@@ -202,15 +202,18 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 			return;
 		}
 		ImageView thumbnailIng = view.findViewById(R.id.thumbnail);
+		View noThumbnailSpace = view.findViewById(R.id.no_thumbnail_space);
 		if (news.getHasValidImageUrls()) {
+			noThumbnailSpace.setVisibility(View.GONE);
 			Glide.with(this)
 					.load(news.getFirstValidImageUrl())
 					.into(thumbnailIng);
 			thumbnailIng.setVisibility(View.VISIBLE);
 		} else {
+			thumbnailIng.setVisibility(View.GONE);
 			Glide.with(this)
 					.clear(thumbnailIng);
-			thumbnailIng.setVisibility(View.GONE);
+			noThumbnailSpace.setVisibility(View.VISIBLE);
 		}
 		TextView newsTv = view.findViewById(R.id.newsText);
 		newsTv.setText(LinkUtils.linkifyHtml(news.getTextHTML(), true), TextView.BufferType.SPANNABLE);

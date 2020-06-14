@@ -30,11 +30,21 @@
                 tools:src="@tools:sample/backgrounds/scenic"
                 tools:visibility="visible" />
 
+            <View
+                android:id="@+id/no_thumbnail_space"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/baseline_16"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_below="@id/thumbnail"
+                android:layout_alignParentTop="true"
+                android:visibility="gone"
+                tools:visibility="gone" />
+
             <TextView
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/thumbnail"
+                android:layout_below="@id/no_thumbnail_space"
                 android:layout_alignParentRight="true"
                 android:layout_marginLeft="@dimen/baseline_16"
                 android:layout_marginRight="@dimen/baseline_16"
