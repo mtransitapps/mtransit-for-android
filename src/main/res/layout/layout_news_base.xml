@@ -39,14 +39,14 @@
     <ImageView
         android:id="@+id/thumbnail"
         android:layout_width="@dimen/baseline_96"
-        android:layout_height="match_parent"
+        android:layout_height="@dimen/baseline_96"
         android:layout_alignWithParentIfMissing="true"
         android:layout_below="@id/author"
         android:layout_alignBottom="@id/newsText"
         android:layout_alignParentRight="true"
-        android:layout_marginLeft="@dimen/baseline_2"
+        android:layout_marginLeft="@dimen/baseline_8"
         android:layout_marginTop="@dimen/baseline_2"
-        android:scaleType="fitCenter"
+        android:scaleType="centerCrop"
         android:visibility="gone"
         tools:src="@tools:sample/backgrounds/scenic"
         tools:visibility="visible" />

@@ -149,14 +149,20 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		}
 	}
 
+	@Deprecated
 	@NonNull
-	public static CharSequence formatRelativeTime(@NonNull Context context, long timeInThePastInMs) {
-		return formatRelativeTime(context, timeInThePastInMs, currentTimeMillis());
+	public static CharSequence formatRelativeTime(@SuppressWarnings("unused") @NonNull Context context,
+												  long timeInThePastInMs) {
+		return formatRelativeTime(timeInThePastInMs);
 	}
 
 	@NonNull
-	private static CharSequence formatRelativeTime(@SuppressWarnings("unused") @NonNull Context context,
-												   long timeInThePastInMs,
+	public static CharSequence formatRelativeTime(long timeInThePastInMs) {
+		return formatRelativeTime(timeInThePastInMs, currentTimeMillis());
+	}
+
+	@NonNull
+	private static CharSequence formatRelativeTime(long timeInThePastInMs,
 												   long nowInMs) {
 		return DateUtils.getRelativeTimeSpanString(timeInThePastInMs, nowInMs, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
 	}
@@ -365,7 +371,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		long fsTimeSpanMs = providerFSTimeSpanInMs > 0 ? providerFSTimeSpanInMs : FREQUENT_SERVICE_TIME_SPAN_IN_MS_DEFAULT;
 		long firstTimestamp = timestamps.get(0).getT();
 		long previousTimestamp = firstTimestamp;
-		Long currentTimestamp;
+		long currentTimestamp;
 		long diffInMs;
 		for (int i = 1; i < timestamps.size(); i++) {
 			currentTimestamp = timestamps.get(i).getT();

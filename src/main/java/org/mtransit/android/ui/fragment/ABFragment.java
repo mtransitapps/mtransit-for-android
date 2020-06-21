@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.ContentView;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
@@ -34,6 +36,12 @@ public abstract class ABFragment extends MTFragment implements AnalyticsManager.
 
 	public ABFragment() {
 		super();
+		analyticsManager = Injection.providesAnalyticsManager();
+	}
+
+	@ContentView
+	public ABFragment(@LayoutRes int contentLayoutId) {
+		super(contentLayoutId);
 		analyticsManager = Injection.providesAnalyticsManager();
 	}
 

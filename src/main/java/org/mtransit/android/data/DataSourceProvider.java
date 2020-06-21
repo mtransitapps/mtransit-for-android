@@ -5,6 +5,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.SparseArray;
 
@@ -21,6 +22,7 @@ import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
+import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.di.Injection;
@@ -43,6 +45,15 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 
 	@NonNull
 	public static DataSourceProvider get(@SuppressWarnings("unused") @Nullable Context context) {
+		DataSourceProvider instance = Injection.providesDataSourceProvider();
+		if (!instance.isInitialized()) {
+			initInstance();
+		}
+		return instance;
+	}
+
+	@NonNull
+	public static DataSourceProvider getOrInit() {
 		DataSourceProvider instance = Injection.providesDataSourceProvider();
 		if (!instance.isInitialized()) {
 			initInstance();
@@ -292,7 +303,8 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 
 	private ArrayList<ServiceUpdateProviderProperties> allServiceUpdateProviders = new ArrayList<>();
 
-	private ArrayList<NewsProviderProperties> allNewsProviders = new ArrayList<>();
+	@NonNull
+	private final ArrayList<NewsProviderProperties> allNewsProviders = new ArrayList<>();
 
 	@Nullable
 	private ArrayMap<String, AgencyProperties> allAgenciesByAuthority = null;
@@ -572,76 +584,80 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 				ProviderInfo[] providers = packageInfo.providers;
 				if (providers != null) {
 					for (ProviderInfo provider : providers) {
-						if (provider.metaData != null) {
-							if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
-								this.agenciesAuthorityPkg.put(provider.authority, provider.packageName);
-								int agencyTypeId = provider.metaData.getInt(agencyProviderTypeMetaData, -1);
-								if (agencyTypeId >= 0) {
-									DataSourceType newAgencyType = DataSourceType.parseId(agencyTypeId);
-									if (newAgencyType != null) {
-										if (!this.allAgencyTypes.contains(newAgencyType)) {
-											this.allAgencyTypes.add(newAgencyType);
-										}
+						final String providerAuthority = provider.authority;
+						final Bundle providerMetaData = provider.metaData;
+						if (providerMetaData == null
+								|| providerAuthority == null || providerAuthority.isEmpty()) {
+							continue;
+						}
+						if (agencyProviderMetaData.equals(providerMetaData.getString(agencyProviderMetaData))) {
+							this.agenciesAuthorityPkg.put(providerAuthority, provider.packageName);
+							int agencyTypeId = providerMetaData.getInt(agencyProviderTypeMetaData, -1);
+							if (agencyTypeId >= 0) {
+								DataSourceType newAgencyType = DataSourceType.parseId(agencyTypeId);
+								if (newAgencyType != null) {
+									if (!this.allAgencyTypes.contains(newAgencyType)) {
+										this.allAgencyTypes.add(newAgencyType);
 									}
-									this.agenciesAuthorityTypeId.put(provider.authority, agencyTypeId);
 								}
-								this.agenciesAuthorityIsRts.put( //
-										provider.authority, rtsProviderMetaData.equals(provider.metaData.getString(rtsProviderMetaData)));
-								this.allAgenciesAuthority.add(provider.authority);
+								this.agenciesAuthorityTypeId.put(providerAuthority, agencyTypeId);
 							}
-							if (statusProviderMetaData.equals(provider.metaData.getString(statusProviderMetaData))) {
-								String targetAuthority = provider.metaData.getString(statusProviderTargetMetaData);
-								StatusProviderProperties newStatusProvider = new StatusProviderProperties(provider.authority, targetAuthority);
-								this.allStatusProviders.add(newStatusProvider);
-								this.allStatusProvidersByAuthority.put(newStatusProvider.getAuthority(), newStatusProvider);
-								String newScheduleProviderTargetAuthority = newStatusProvider.getTargetAuthority();
-								HashSet<StatusProviderProperties> statusProviderProperties = this.statusProvidersByTargetAuthority.get(newScheduleProviderTargetAuthority);
-								if (statusProviderProperties == null) {
-									statusProviderProperties = new HashSet<>();
-								}
-								statusProviderProperties.add(newStatusProvider);
-								this.statusProvidersByTargetAuthority.put(newScheduleProviderTargetAuthority, statusProviderProperties);
+							this.agenciesAuthorityIsRts.put( //
+									providerAuthority, rtsProviderMetaData.equals(providerMetaData.getString(rtsProviderMetaData)));
+							this.allAgenciesAuthority.add(providerAuthority);
+						}
+						if (statusProviderMetaData.equals(providerMetaData.getString(statusProviderMetaData))) {
+							String targetAuthority = providerMetaData.getString(statusProviderTargetMetaData);
+							StatusProviderProperties newStatusProvider = new StatusProviderProperties(providerAuthority, targetAuthority);
+							this.allStatusProviders.add(newStatusProvider);
+							this.allStatusProvidersByAuthority.put(newStatusProvider.getAuthority(), newStatusProvider);
+							String newScheduleProviderTargetAuthority = newStatusProvider.getTargetAuthority();
+							HashSet<StatusProviderProperties> statusProviderProperties = this.statusProvidersByTargetAuthority.get(newScheduleProviderTargetAuthority);
+							if (statusProviderProperties == null) {
+								statusProviderProperties = new HashSet<>();
 							}
-							if (scheduleProviderMetaData.equals(provider.metaData.getString(scheduleProviderMetaData))) {
-								String targetAuthority = provider.metaData.getString(scheduleProviderTargetMetaData);
-								ScheduleProviderProperties newScheduleProvider = new ScheduleProviderProperties(provider.authority, targetAuthority);
-								this.allScheduleProviders.add(newScheduleProvider);
-								this.allScheduleProvidersByAuthority.put(newScheduleProvider.getAuthority(), newScheduleProvider);
-								String newScheduleProviderTargetAuthority = newScheduleProvider.getTargetAuthority();
-								HashSet<ScheduleProviderProperties> scheduleProviderProperties = this.scheduleProvidersByTargetAuthority.get(newScheduleProviderTargetAuthority);
-								if (scheduleProviderProperties == null) {
-									scheduleProviderProperties = new HashSet<>();
-								}
-								scheduleProviderProperties.add(newScheduleProvider);
-								this.scheduleProvidersByTargetAuthority.put(newScheduleProviderTargetAuthority, scheduleProviderProperties);
+							statusProviderProperties.add(newStatusProvider);
+							this.statusProvidersByTargetAuthority.put(newScheduleProviderTargetAuthority, statusProviderProperties);
+						}
+						if (scheduleProviderMetaData.equals(providerMetaData.getString(scheduleProviderMetaData))) {
+							String targetAuthority = providerMetaData.getString(scheduleProviderTargetMetaData);
+							ScheduleProviderProperties newScheduleProvider = new ScheduleProviderProperties(providerAuthority, targetAuthority);
+							this.allScheduleProviders.add(newScheduleProvider);
+							this.allScheduleProvidersByAuthority.put(newScheduleProvider.getAuthority(), newScheduleProvider);
+							String newScheduleProviderTargetAuthority = newScheduleProvider.getTargetAuthority();
+							HashSet<ScheduleProviderProperties> scheduleProviderProperties = this.scheduleProvidersByTargetAuthority.get(newScheduleProviderTargetAuthority);
+							if (scheduleProviderProperties == null) {
+								scheduleProviderProperties = new HashSet<>();
 							}
-							if (serviceUpdateProviderMetaData.equals(provider.metaData.getString(serviceUpdateProviderMetaData))) {
-								String targetAuthority = provider.metaData.getString(serviceUpdateProviderTargetMetaData);
-								ServiceUpdateProviderProperties newServiceUpdateProvider =
-										new ServiceUpdateProviderProperties(provider.authority, targetAuthority);
-								this.allServiceUpdateProviders.add(newServiceUpdateProvider);
-								this.allServiceUpdateProvidersByAuthority.put(newServiceUpdateProvider.getAuthority(), newServiceUpdateProvider);
-								String newServiceUpdateProviderTargetAuthority = newServiceUpdateProvider.getTargetAuthority();
-								HashSet<ServiceUpdateProviderProperties> serviceUpdateProviderProperties = this.serviceUpdateProvidersByTargetAuthority.get(newServiceUpdateProviderTargetAuthority);
-								if (serviceUpdateProviderProperties == null) {
-									serviceUpdateProviderProperties = new HashSet<>();
-								}
-								serviceUpdateProviderProperties.add(newServiceUpdateProvider);
-								this.serviceUpdateProvidersByTargetAuthority.put(newServiceUpdateProviderTargetAuthority, serviceUpdateProviderProperties);
+							scheduleProviderProperties.add(newScheduleProvider);
+							this.scheduleProvidersByTargetAuthority.put(newScheduleProviderTargetAuthority, scheduleProviderProperties);
+						}
+						if (serviceUpdateProviderMetaData.equals(providerMetaData.getString(serviceUpdateProviderMetaData))) {
+							String targetAuthority = providerMetaData.getString(serviceUpdateProviderTargetMetaData);
+							ServiceUpdateProviderProperties newServiceUpdateProvider =
+									new ServiceUpdateProviderProperties(providerAuthority, targetAuthority);
+							this.allServiceUpdateProviders.add(newServiceUpdateProvider);
+							this.allServiceUpdateProvidersByAuthority.put(newServiceUpdateProvider.getAuthority(), newServiceUpdateProvider);
+							String newServiceUpdateProviderTargetAuthority = newServiceUpdateProvider.getTargetAuthority();
+							HashSet<ServiceUpdateProviderProperties> serviceUpdateProviderProperties = this.serviceUpdateProvidersByTargetAuthority.get(newServiceUpdateProviderTargetAuthority);
+							if (serviceUpdateProviderProperties == null) {
+								serviceUpdateProviderProperties = new HashSet<>();
 							}
-							if (newsProviderMetaData.equals(provider.metaData.getString(newsProviderMetaData))) {
-								String targetAuthority = provider.metaData.getString(newsProviderTargetMetaData);
-								NewsProviderProperties newNewsProvider = new NewsProviderProperties(provider.authority, targetAuthority);
-								this.allNewsProviders.add(newNewsProvider);
-								this.allNewsProvidersByAuthority.put(newNewsProvider.getAuthority(), newNewsProvider);
-								String newNewsProviderTargetAuthority = newNewsProvider.getTargetAuthority();
-								HashSet<NewsProviderProperties> newsProviderProperties = this.newsProvidersByTargetAuthority.get(newNewsProviderTargetAuthority);
-								if (newsProviderProperties == null) {
-									newsProviderProperties = new HashSet<>();
-								}
-								newsProviderProperties.add(newNewsProvider);
-								this.newsProvidersByTargetAuthority.put(newNewsProviderTargetAuthority, newsProviderProperties);
+							serviceUpdateProviderProperties.add(newServiceUpdateProvider);
+							this.serviceUpdateProvidersByTargetAuthority.put(newServiceUpdateProviderTargetAuthority, serviceUpdateProviderProperties);
+						}
+						if (newsProviderMetaData.equals(providerMetaData.getString(newsProviderMetaData))) {
+							String targetAuthority = providerMetaData.getString(newsProviderTargetMetaData, StringUtils.EMPTY);
+							NewsProviderProperties newNewsProvider = new NewsProviderProperties(providerAuthority, targetAuthority);
+							this.allNewsProviders.add(newNewsProvider);
+							this.allNewsProvidersByAuthority.put(newNewsProvider.getAuthority(), newNewsProvider);
+							String newNewsProviderTargetAuthority = newNewsProvider.getTargetAuthority();
+							HashSet<NewsProviderProperties> newsProviderProperties = this.newsProvidersByTargetAuthority.get(newNewsProviderTargetAuthority);
+							if (newsProviderProperties == null) {
+								newsProviderProperties = new HashSet<>();
 							}
+							newsProviderProperties.add(newNewsProvider);
+							this.newsProvidersByTargetAuthority.put(newNewsProviderTargetAuthority, newsProviderProperties);
 						}
 					}
 				}

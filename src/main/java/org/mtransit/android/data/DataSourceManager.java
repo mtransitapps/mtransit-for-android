@@ -14,7 +14,7 @@ import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
-import org.mtransit.android.commons.data.News;
+import org.mtransit.android.commons.data.NewsArticle;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
@@ -101,13 +101,13 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static News findANews(@NonNull Context context, @NonNull String authority, @Nullable NewsProviderContract.Filter newsFilter) {
-		ArrayList<News> news = findNews(context, authority, newsFilter);
+	public static NewsArticle findANews(@NonNull Context context, @NonNull String authority, @Nullable NewsProviderContract.Filter newsFilter) {
+		ArrayList<NewsArticle> news = findNews(context, authority, newsFilter);
 		return news == null || news.size() == 0 ? null : news.get(0);
 	}
 
 	@Nullable
-	public static ArrayList<News> findNews(@NonNull Context context, @NonNull String authority, @Nullable NewsProviderContract.Filter newsFilter) {
+	public static ArrayList<NewsArticle> findNews(@NonNull Context context, @NonNull String authority, @Nullable NewsProviderContract.Filter newsFilter) {
 		Cursor cursor = null;
 		try {
 			String newsFilterJSONString = newsFilter == null ? null : newsFilter.toJSONString();
@@ -123,12 +123,12 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static ArrayList<News> getNews(@Nullable Cursor cursor, @NonNull String authority) {
-		ArrayList<News> result = new ArrayList<>();
+	private static ArrayList<NewsArticle> getNews(@Nullable Cursor cursor, @NonNull String authority) {
+		ArrayList<NewsArticle> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
-					result.add(News.fromCursorStatic(cursor, authority));
+					result.add(NewsArticle.fromCursorStatic(cursor, authority));
 				} while (cursor.moveToNext());
 			}
 		}

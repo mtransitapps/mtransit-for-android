@@ -18,9 +18,8 @@ import com.bumptech.glide.Glide;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ColorUtils;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.commons.data.News;
+import org.mtransit.android.commons.data.NewsArticle;
 import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
@@ -54,7 +53,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	private static final String EXTRA_NEWS_UUID = "extra_news_uuid";
 
 	@NonNull
-	public static NewsDetailsFragment newInstance(@NonNull String uuid, @NonNull String authority, @Nullable News optNews) {
+	public static NewsDetailsFragment newInstance(@NonNull String uuid, @NonNull String authority, @Nullable NewsArticle optNews) {
 		NewsDetailsFragment f = new NewsDetailsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
@@ -68,7 +67,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 
 	private String authority;
 	private String uuid;
-	private News news;
+	private NewsArticle news;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -162,7 +161,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		this.news = null;
 	}
 
-	private News getNewsOrNull() {
+	private NewsArticle getNewsOrNull() {
 		if (!hasNews()) {
 			return null;
 		}
@@ -193,7 +192,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	}
 
 	private void updateNewsView() {
-		News news = getNewsOrNull();
+		NewsArticle news = getNewsOrNull();
 		if (news == null) {
 			return;
 		}
@@ -299,7 +298,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		if (activity == null) {
 			return;
 		}
-		News newNews = DataSourceManager.findANews(requireContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
+		NewsArticle newNews = DataSourceManager.findANews(requireContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
 		if (newNews == null) {
 			if (activity.isMTResumed()) {
 				activity.popFragmentFromStack(this); // close this fragment
@@ -320,7 +319,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	@ColorInt
 	@Override
 	public Integer getABBgColor(@NonNull Context context) {
-		News news = getNewsOrNull();
+		NewsArticle news = getNewsOrNull();
 		if (news != null && news.hasColor()) {
 			return news.getColorInt();
 		}
@@ -330,7 +329,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	@Nullable
 	@Override
 	public CharSequence getABTitle(@NonNull Context context) {
-		News news = getNewsOrNull();
+		NewsArticle news = getNewsOrNull();
 		if (news != null) {
 			return news.getAuthorOneLine();
 		}
@@ -340,7 +339,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	@Nullable
 	@Override
 	public CharSequence getABSubtitle(@NonNull Context context) {
-		News news = getNewsOrNull();
+		NewsArticle news = getNewsOrNull();
 		if (news != null) {
 			return news.getSourceLabel();
 		}

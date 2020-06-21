@@ -37,7 +37,7 @@ import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.commons.data.News;
+import org.mtransit.android.commons.data.NewsArticle;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
@@ -59,6 +59,7 @@ import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.news.NewsListFragment;
 import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.POINewsViewController;
@@ -348,10 +349,10 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
-	private ArrayList<News> news = null;
+	private ArrayList<NewsArticle> news = null;
 
 	@Nullable
-	private ArrayList<News> getNewsOrNull() {
+	private ArrayList<NewsArticle> getNewsOrNull() {
 		if (!hasNews()) {
 			return null;
 		}
@@ -426,10 +427,10 @@ public class POIFragment extends ABFragment implements
 		final NewsProviderContract.Filter newsFilter = NewsProviderContract.Filter
 				.getNewTargetFilter(poim.poi)
 				.setMinCreatedAtInMs(nowInMs - TimeUnit.DAYS.toMillis(14L));
-		ArrayList<News> allNews = new ArrayList<>();
+		ArrayList<NewsArticle> allNews = new ArrayList<>();
 		if (poiNewsProviders != null) {
 			for (NewsProviderProperties poiNewsProvider : poiNewsProviders) {
-				ArrayList<News> providerNews = DataSourceManager.findNews(context, poiNewsProvider.getAuthority(),
+				ArrayList<NewsArticle> providerNews = DataSourceManager.findNews(context, poiNewsProvider.getAuthority(),
 						newsFilter);
 				if (providerNews != null) {
 					allNews.addAll(providerNews);
@@ -439,10 +440,10 @@ public class POIFragment extends ABFragment implements
 		if (CollectionUtils.getSize(allNews) == 0) {
 			return true; // no news, need to apply
 		}
-		CollectionUtils.sort(allNews, News.NEWS_SEVERITY_COMPARATOR);
+		CollectionUtils.sort(allNews, NewsArticle.NEWS_SEVERITY_COMPARATOR);
 		int noteworthiness = 1;
 		while (this.news.isEmpty() && noteworthiness < 7) {
-			for (News news : allNews) {
+			for (NewsArticle news : allNews) {
 				if (news.getCreatedAtInMs() + news.getNoteworthyInMs() * noteworthiness < nowInMs) {
 					continue; // news too old to be worthy
 				}
@@ -576,12 +577,12 @@ public class POIFragment extends ABFragment implements
 
 	private void restoreInstanceState(Bundle... bundles) {
 		String newAuthority = BundleUtils.getString(EXTRA_AUTHORITY, bundles);
-		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
+		if (newAuthority != null && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
 			resetAgency();
 		}
 		String newUuid = BundleUtils.getString(EXTRA_POI_UUID, bundles);
-		if (!TextUtils.isEmpty(newUuid) && !newUuid.equals(this.uuid)) {
+		if (newUuid != null && !newUuid.equals(this.uuid)) {
 			this.uuid = newUuid;
 			resetPoim();
 		}
@@ -768,7 +769,7 @@ public class POIFragment extends ABFragment implements
 					Integer colorInt = poim.getColor(getContext());
 					String subtitle = POIManager.getOneLineDescription(getContext(), poim.poi);
 					((MainActivity) activity).addFragmentToStack( //
-							NewsFragment.newInstance( //
+							NewsListFragment.newInstance( //
 									colorInt, subtitle, ArrayUtils.asArrayList(poim.poi.getAuthority()), null,
 									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()), //
 							POIFragment.this);
@@ -850,11 +851,11 @@ public class POIFragment extends ABFragment implements
 			view.findViewById(R.id.the_poi_news).setOnClickListener(new MTOnClickListener() {
 				@Override
 				public void onClickMT(View view) {
-					ArrayList<News> news = getNewsOrNull();
+					ArrayList<NewsArticle> news = getNewsOrNull();
 					if (news == null || news.size() == 0) {
 						return;
 					}
-					News lastNews = news.get(0);
+					NewsArticle lastNews = news.get(0);
 					if (lastNews == null) {
 						return;
 					}
@@ -1088,7 +1089,7 @@ public class POIFragment extends ABFragment implements
 			POIStatusDetailViewController.updateView(requireContext(), getPOIStatusView(view), poim, this);
 			POIServiceUpdateViewController.updateView(requireContext(), getPOIServiceUpdateView(view), poim, this);
 		}
-		ArrayList<News> news = getNewsOrNull();
+		ArrayList<NewsArticle> news = getNewsOrNull();
 		if (news != null) {
 			POINewsViewController.updateView(requireContext(), getPOINewsView(view), news);
 		}

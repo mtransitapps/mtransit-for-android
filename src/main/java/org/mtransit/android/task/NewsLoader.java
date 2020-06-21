@@ -8,7 +8,7 @@ import androidx.annotation.Nullable;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
-import org.mtransit.android.commons.data.News;
+import org.mtransit.android.commons.data.NewsArticle;
 import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.commons.provider.NewsProviderContract.Filter;
 import org.mtransit.android.commons.task.MTCallable;
@@ -23,7 +23,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
+public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<NewsArticle>> {
 
 	private static final String LOG_TAG = NewsLoader.class.getSimpleName();
 
@@ -34,7 +34,7 @@ public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
 	}
 
 	@Nullable
-	private ArrayList<News> news;
+	private ArrayList<NewsArticle> news;
 	@Nullable
 	private final ArrayList<String> targetAuthorities;
 	@Nullable
@@ -54,7 +54,7 @@ public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
 
 	@NonNull
 	@Override
-	public ArrayList<News> loadInBackgroundMT() {
+	public ArrayList<NewsArticle> loadInBackgroundMT() {
 		if (this.news != null) {
 			return this.news;
 		}
@@ -77,16 +77,16 @@ public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,
 				new LinkedBlockingDeque<>(newsProviders.size()));
-		ArrayList<Future<ArrayList<News>>> taskList = new ArrayList<>();
+		ArrayList<Future<ArrayList<NewsArticle>>> taskList = new ArrayList<>();
 		for (NewsProviderProperties newsProvider : newsProviders) {
 			taskList.add(executor.submit(new FindNewsTask(getContext(), newsProvider.getAuthority(), this.filterUUIDs, this.filterTargets)));
 		}
 		HashSet<String> newsUUIDs = new HashSet<>();
-		for (Future<ArrayList<News>> future : taskList) {
+		for (Future<ArrayList<NewsArticle>> future : taskList) {
 			try {
-				ArrayList<News> agencyNews = future.get();
+				ArrayList<NewsArticle> agencyNews = future.get();
 				if (agencyNews != null) {
-					for (News aNews : agencyNews) {
+					for (NewsArticle aNews : agencyNews) {
 						if (newsUUIDs.contains(aNews.getUUID())) {
 							continue;
 						}
@@ -99,7 +99,7 @@ public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
 			}
 		}
 		executor.shutdown();
-		CollectionUtils.sort(this.news, News.NEWS_COMPARATOR);
+		CollectionUtils.sort(this.news, NewsArticle.NEWS_COMPARATOR);
 		return this.news;
 	}
 
@@ -121,14 +121,14 @@ public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
 	}
 
 	@Override
-	public void deliverResult(@Nullable ArrayList<News> data) {
+	public void deliverResult(@Nullable ArrayList<NewsArticle> data) {
 		this.news = data;
 		if (isStarted()) {
 			super.deliverResult(data);
 		}
 	}
 
-	private static class FindNewsTask extends MTCallable<ArrayList<News>> {
+	private static class FindNewsTask extends MTCallable<ArrayList<NewsArticle>> {
 
 		private static final String LOG_TAG = NewsLoader.class.getSimpleName() + ">" + FindNewsTask.class.getSimpleName();
 
@@ -158,7 +158,7 @@ public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
 		}
 
 		@Override
-		public ArrayList<News> callMT() {
+		public ArrayList<NewsArticle> callMT() {
 			Filter newsFilter;
 			if (CollectionUtils.getSize(this.filterUUIDs) > 0) {
 				newsFilter = NewsProviderContract.Filter.getNewUUIDsFilter(this.filterUUIDs);

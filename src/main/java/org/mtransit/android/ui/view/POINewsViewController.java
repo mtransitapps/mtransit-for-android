@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.data.News;
+import org.mtransit.android.commons.data.NewsArticle;
 import org.mtransit.android.util.UITimeUtils;
 
 import java.util.ArrayList;
@@ -40,13 +40,13 @@ public class POINewsViewController implements MTLog.Loggable {
 		convertView.setTag(holder);
 	}
 
-	public static void updateView(@NonNull Context context, @Nullable View view, @Nullable ArrayList<News> news) {
+	public static void updateView(@NonNull Context context, @Nullable View view, @Nullable ArrayList<NewsArticle> news) {
 		updateView(context, view,
 				news == null || news.size() == 0 ? null : news.get(0)
 		);
 	}
 
-	private static void updateView(@NonNull Context context, @Nullable View view, @Nullable News news) {
+	private static void updateView(@NonNull Context context, @Nullable View view, @Nullable NewsArticle news) {
 		if (view == null) {
 			return;
 		}
@@ -57,7 +57,7 @@ public class POINewsViewController implements MTLog.Loggable {
 		updateView(context, newsViewHolder, news);
 	}
 
-	private static void updateView(Context context, NewsViewHolder newsViewHolder, News news) {
+	private static void updateView(Context context, NewsViewHolder newsViewHolder, NewsArticle news) {
 		if (news == null || newsViewHolder == null) {
 			if (newsViewHolder != null) {
 				newsViewHolder.layout.setVisibility(View.GONE);
@@ -67,7 +67,7 @@ public class POINewsViewController implements MTLog.Loggable {
 		updateNewsView(context, newsViewHolder, news);
 	}
 
-	private static void updateNewsView(@NonNull Context context, NewsViewHolder holder, @Nullable News news) {
+	private static void updateNewsView(@NonNull Context context, NewsViewHolder holder, @Nullable NewsArticle news) {
 		if (holder == null) {
 			return;
 		}

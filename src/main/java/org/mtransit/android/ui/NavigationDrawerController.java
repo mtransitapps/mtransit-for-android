@@ -41,7 +41,7 @@ import org.mtransit.android.ui.fragment.FavoritesFragment;
 import org.mtransit.android.ui.fragment.HomeFragment;
 import org.mtransit.android.ui.fragment.MapFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
-import org.mtransit.android.ui.fragment.NewsFragment;
+import org.mtransit.android.ui.news.NewsListFragment;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.MapUtils;
 
@@ -351,7 +351,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 
 	@NonNull
 	private Integer getScreenNavItemId(@Nullable String itemId) {
-		if (TextUtils.isEmpty(itemId)) {
+		if (itemId == null || itemId.isEmpty()) {
 			return ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT;
 		}
 		if (itemId.startsWith(ITEM_ID_STATIC_START_WITH)) {
@@ -466,7 +466,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		case R.id.nav_map:
 			return MapFragment.newInstance(null, null, null);
 		case R.id.nav_news:
-			return NewsFragment.newInstance(null, null, null, null, null);
+			return NewsListFragment.newInstance(null, null, null, null, null);
 		}
 		DataSourceType dst = DataSourceType.parseNavResId(navItemId);
 		if (dst != null) {
@@ -642,6 +642,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		}
 		MainActivity mainActivity = this.mainActivityWR.get();
 		ArrayList<DataSourceType> newAllAgencyTypes = filterAgencyTypes(DataSourceProvider.get(mainActivity).getAvailableAgencyTypes());
+		//noinspection IfStatementWithIdenticalBranches
 		if (CollectionUtils.getSize(this.allAgencyTypes) != CollectionUtils.getSize(newAllAgencyTypes)) {
 			this.allAgencyTypes = newAllAgencyTypes; // force reset
 			setVisibleMenuItems();
@@ -698,7 +699,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			this.currentSelectedScreenItemNavId = newSavedRootScreenNavItem;
 		}
 		String newRootScreenId = BundleUtils.getString(EXTRA_SELECTED_ROOT_SCREEN_ID, savedInstanceState);
-		if (!TextUtils.isEmpty(newRootScreenId) && !newRootScreenId.equals(this.currentSelectedScreenItemId)) {
+		if (newRootScreenId != null && !newRootScreenId.equals(this.currentSelectedScreenItemId)) {
 			this.currentSelectedScreenItemId = newRootScreenId;
 		}
 	}

@@ -26,9 +26,8 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
-import org.mtransit.android.commons.data.News;
+import org.mtransit.android.commons.data.NewsArticle;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.task.NewsLoader;
 import org.mtransit.android.ui.MainActivity;
@@ -40,7 +39,7 @@ import org.mtransit.android.util.UITimeUtils;
 
 import java.util.ArrayList;
 
-public class NewsFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<News>>, SwipeRefreshLayout.OnRefreshListener {
+public class NewsFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<NewsArticle>>, SwipeRefreshLayout.OnRefreshListener {
 
 	private static final String LOG_TAG = NewsFragment.class.getSimpleName();
 
@@ -226,7 +225,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	@NonNull
 	@Override
-	public Loader<ArrayList<News>> onCreateLoader(int id, @Nullable Bundle args) {
+	public Loader<ArrayList<NewsArticle>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case NEWS_LOADER:
 			return new NewsLoader(requireContext(), this.targetAuthorities, this.filterUUIDs, this.filterTargets);
@@ -238,14 +237,14 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public void onLoaderReset(@NonNull Loader<ArrayList<News>> loader) {
+	public void onLoaderReset(@NonNull Loader<ArrayList<NewsArticle>> loader) {
 		if (this.adapter != null) {
 			this.adapter.clear();
 		}
 	}
 
 	@Override
-	public void onLoadFinished(@NonNull Loader<ArrayList<News>> loader, @Nullable ArrayList<News> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<NewsArticle>> loader, @Nullable ArrayList<NewsArticle> data) {
 		this.emptyText = getString(R.string.no_news);
 		this.adapter.setNews(data);
 		switchView(getView());
@@ -387,7 +386,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		return super.getABBgColor(context);
 	}
 
-	private static class NewsAdapter extends MTArrayAdapter<News> implements UITimeUtils.TimeChangedReceiver.TimeChangedListener,
+	private static class NewsAdapter extends MTArrayAdapter<NewsArticle> implements UITimeUtils.TimeChangedReceiver.TimeChangedListener,
 			AdapterView.OnItemClickListener {
 
 		private static final String LOG_TAG = NewsAdapter.class.getSimpleName();
@@ -402,7 +401,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		private final Fragment fragment;
 
 		@Nullable
-		private ArrayList<News> news;
+		private ArrayList<NewsArticle> news;
 
 		private NewsAdapter(@NonNull Fragment fragment) {
 			super(fragment.requireContext(), -1);
@@ -446,7 +445,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			}
 		}
 
-		public void setNews(@Nullable ArrayList<News> news) {
+		public void setNews(@Nullable ArrayList<NewsArticle> news) {
 			this.news = news;
 			notifyDataSetChanged();
 		}
@@ -465,7 +464,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			MTOnItemClickListener.onItemClickS(parent, view, position, id, new MTOnItemClickListener() {
 				@Override
 				public void onItemClickMT(AdapterView<?> parent, View view, int position, long id) {
-					News news = getItem(position);
+					NewsArticle news = getItem(position);
 					if (news == null) {
 						return;
 					}
@@ -518,7 +517,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 				convertView.setTag(holder);
 			}
 			NewsViewHolder holder = (NewsViewHolder) convertView.getTag();
-			News news = getItem(position);
+			NewsArticle news = getItem(position);
 			if (news == null) {
 				convertView.setVisibility(View.GONE);
 				return convertView;
@@ -551,7 +550,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 
 		@Override
-		public News getItem(int position) {
+		public NewsArticle getItem(int position) {
 			return this.news == null ? null : this.news.get(position);
 		}
 

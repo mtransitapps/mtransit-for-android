@@ -71,6 +71,7 @@
     <string name="news_shared_on_and_author_and_source">%1$s on %2$s</string>
     <string name="no_news">No news.</string>
     <string name="latest_news">Latest News</string>
+    <string name="no_news_image_content_description">No news image</string>
     <string name="no_favorites">No favorites.</string>
     <string name="favorite_removed">Favorite removed.</string>
     <string name="favorite_removed_to_folder_and_folder">Favorite removed from %s.</string>
