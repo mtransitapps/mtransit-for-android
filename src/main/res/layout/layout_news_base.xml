@@ -48,6 +48,7 @@
         android:layout_marginTop="@dimen/baseline_2"
         android:scaleType="centerCrop"
         android:visibility="gone"
+        android:contentDescription="@string/no_news_article_image_content_description"
         tools:src="@tools:sample/backgrounds/scenic"
         tools:visibility="visible" />
 

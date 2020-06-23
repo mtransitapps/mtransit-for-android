@@ -1,8 +1,8 @@
 package org.mtransit.android.ui.news
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -11,13 +11,13 @@ import org.mtransit.android.R
 import org.mtransit.android.common.IContext
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.data.NewsArticle
-import org.mtransit.android.databinding.LayoutNewsBaseBinding
+import org.mtransit.android.databinding.LayoutNewsListItemBinding
 import org.mtransit.android.ui.news.NewsListAdapter.NewsArticleViewHolder
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver
 import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver.TimeChangedListener
 
-class NewsListAdapter :
+class NewsListAdapter(private val viewModel: NewsListViewModel) :
     TimeChangedListener,
     ListAdapter<NewsArticle, NewsArticleViewHolder>(NewsArticleDiffCallback()) {
 
@@ -32,7 +32,7 @@ class NewsListAdapter :
     override fun onBindViewHolder(holder: NewsArticleViewHolder, position: Int) {
         val item = getItem(position)
 
-        holder.bind(item)
+        holder.bind(viewModel, item)
     }
 
     private fun resetNowToTheMinute() {
@@ -43,9 +43,9 @@ class NewsListAdapter :
         resetNowToTheMinute()
     }
 
-    private fun enableTimeChangedReceiver(iContext: IContext) {
+    private fun enableTimeChangedReceiver(context: IContext) {
         if (!timeChangedReceiverEnabled) {
-            iContext.context?.registerReceiver(
+            context.context?.registerReceiver(
                 timeChangedReceiver,
                 UITimeUtils.TIME_CHANGED_INTENT_FILTER
             )
@@ -53,80 +53,107 @@ class NewsListAdapter :
         }
     }
 
-    private fun disableTimeChangedReceiver(iContext: IContext) {
+    private fun disableTimeChangedReceiver(context: IContext) {
         if (timeChangedReceiverEnabled) {
-            iContext.context?.unregisterReceiver(timeChangedReceiver)
+            context.context?.unregisterReceiver(timeChangedReceiver)
             timeChangedReceiverEnabled = false
         }
     }
 
-    fun onPause(iContext: IContext) {
-        disableTimeChangedReceiver(iContext)
+    fun onPause(context: IContext) {
+        disableTimeChangedReceiver(context)
     }
 
-    fun onResume(iContext: IContext) {
-        enableTimeChangedReceiver(iContext)
+    fun onResume(context: IContext) {
+        enableTimeChangedReceiver(context)
     }
 
-    fun onDestroy(iContext: IContext) {
-        disableTimeChangedReceiver(iContext)
+    fun onDestroy(context: IContext) {
+        disableTimeChangedReceiver(context)
     }
 
     class NewsArticleViewHolder private constructor(
-        private val binding: LayoutNewsBaseBinding
+        private val binding: LayoutNewsListItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         companion object {
             fun from(parent: ViewGroup): NewsArticleViewHolder {
-                val layoutInflater = LayoutInflater.from(parent.context)
-                val binding = LayoutNewsBaseBinding.inflate(layoutInflater, parent, false)
-                return NewsArticleViewHolder(binding)
+                return NewsArticleViewHolder(
+                    LayoutNewsListItemBinding.inflate(
+                        LayoutInflater.from(parent.context),
+                        parent,
+                        false
+                    )
+                )
             }
         }
 
-        fun bind(news: NewsArticle) {
+        fun bind(viewModel: NewsListViewModel, newsArticle: NewsArticle) {
             val context = itemView.context
-            if (news.hasValidImageUrls) {
-                Glide.with(context)
-                    .load(news.firstValidImageUrl)
-                    .into(binding.thumbnail)
-                binding.thumbnail.visibility = View.VISIBLE
-            } else {
-                Glide.with(context)
-                    .clear(binding.thumbnail)
-                binding.thumbnail.visibility = View.GONE
+            binding.authorIcon.apply {
+                isVisible = if (newsArticle.hasAuthorPictureURL) {
+                    Glide.with(context)
+                        .load(newsArticle.authorPictureURL)
+                        .into(this)
+                    true
+                } else {
+                    Glide.with(context)
+                        .clear(this)
+                    false
+                }
             }
-            binding.author.text = context.getString(
-                R.string.news_shared_on_and_author_and_source,
-                news.authorOneLine,
-                news.sourceLabel
-            )
-            if (news.hasColor()) {
-                binding.author.setTextColor(
-                    ColorUtils.adaptColorToTheme(
-                        context,
-                        news.colorInt
-                    )
-                )
-            } else {
-                binding.author.setTextColor(
-                    ColorUtils.getTextColorSecondary(
-                        context
-                    )
-                )
+            binding.thumbnail.apply {
+                isVisible = if (newsArticle.hasValidImageUrls) {
+                    Glide.with(context)
+                        .load(newsArticle.firstValidImageUrl)
+                        .into(this)
+                    true
+                } else {
+                    Glide.with(context)
+                        .clear(this)
+                    false
+                }
             }
-            binding.date.text = UITimeUtils.formatRelativeTime(news.createdAtInMs)
-            binding.newsText.text = news.text
-            if (news.hasColor()) {
-                binding.newsText.setLinkTextColor(news.colorInt)
-            } else {
-                binding.newsText.setLinkTextColor(
-                    ColorUtils.getTextColorPrimary(
-                        context
-                    )
+            binding.author.apply {
+                text = context.getString(
+                    R.string.news_shared_on_and_author_and_source,
+                    newsArticle.authorOneLine,
+                    newsArticle.sourceLabel
                 )
+                if (newsArticle.hasColor()) {
+                    setTextColor(
+                        ColorUtils.adaptColorToTheme(
+                            context,
+                            newsArticle.colorInt
+                        )
+                    )
+                } else {
+                    setTextColor(
+                        ColorUtils.getTextColorSecondary(
+                            context
+                        )
+                    )
+                }
             }
-            itemView.visibility = View.VISIBLE
+            binding.date.text = UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs)
+            binding.newsText.apply {
+                text = newsArticle.text
+                if (newsArticle.hasColor()) {
+                    setLinkTextColor(newsArticle.colorInt)
+                } else {
+                    setLinkTextColor(
+                        ColorUtils.getTextColorPrimary(
+                            context
+                        )
+                    )
+                }
+            }
+            binding.root.apply {
+                setOnClickListener {
+                    viewModel.openNews(newsArticle)
+                }
+                isVisible = true
+            }
         }
     }
 }

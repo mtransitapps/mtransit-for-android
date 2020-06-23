@@ -1,17 +1,23 @@
 package org.mtransit.android.ui.news
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DividerItemDecoration
 import org.mtransit.android.R
 import org.mtransit.android.commons.ThemeUtils
+import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.databinding.FragmentNewsListBinding
 import org.mtransit.android.di.ServiceLocator
+import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.fragment.NewsDetailsFragment
 import org.mtransit.android.ui.view.MTViewModelFactory
+import org.mtransit.android.ui.view.common.EventObserver
 
 class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
@@ -59,7 +65,17 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
         )
     }
 
-    private val listAdapter: NewsListAdapter by lazy { NewsListAdapter() }
+    private val listAdapter: NewsListAdapter by lazy { NewsListAdapter(viewModel) }
+
+    private var subTitle: String? = null
+    private var colorInt: Int? = null
+
+    override fun getABTitle(context: Context?) =
+        context?.getString(R.string.news) ?: super.getABTitle(context)
+
+    override fun getABSubtitle(context: Context?) = subTitle ?: super.getABSubtitle(context)
+
+    override fun getABBgColor(context: Context?): Int = colorInt ?: super.getABBgColor(context)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -76,8 +92,20 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
         viewModel.newsArticles.observe(viewLifecycleOwner, Observer {
             listAdapter.submitList(it)
         })
+        viewModel.openNewsArticleEvent.observe(viewLifecycleOwner, EventObserver {
+            openNewsDetails(it)
+        })
     }
 
+    private fun openNewsDetails(newsArticle: NewsArticle) {
+        (activity as MainActivity).addFragmentToStack(
+            NewsDetailsFragment.newInstance(
+                newsArticle.uUID,
+                newsArticle.authority,
+                newsArticle
+            )
+        )
+    }
 
     private var viewBinding: FragmentNewsListBinding? = null
 
@@ -100,6 +128,12 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
                 setOnRefreshListener(viewModel::refresh)
             }
             newsList.adapter = listAdapter
+            newsList.addItemDecoration(
+                DividerItemDecoration(
+                    newsList.context,
+                    DividerItemDecoration.VERTICAL
+                )
+            )
         }
     }
 

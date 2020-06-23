@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.data.source.NewsRepository
+import org.mtransit.android.ui.view.common.Event
 
 class NewsListViewModel(
     private val newsRepository: NewsRepository
@@ -42,8 +43,15 @@ class NewsListViewModel(
             it.isEmpty()
         }
 
+    private val _openNewsArticleEvent = MutableLiveData<Event<NewsArticle>>()
+    val openNewsArticleEvent: LiveData<Event<NewsArticle>> = _openNewsArticleEvent
+
     init {
         loadNews(true)
+    }
+
+    fun openNews(newsArticle: NewsArticle) {
+        _openNewsArticleEvent.value = Event(newsArticle)
     }
 
     override fun onCleared() {

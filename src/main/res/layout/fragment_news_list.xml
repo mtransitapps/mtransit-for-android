@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/coordinator_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/action_bar_size_static">
 
     <org.mtransit.android.ui.view.ScrollChildSwipeRefreshLayout
         android:id="@+id/refresh_layout"
@@ -30,7 +31,9 @@
                     android:id="@+id/news_list"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                    android:scrollbarStyle="insideOverlay"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/layout_news_list_item" />
 
             </LinearLayout>
 
@@ -51,6 +54,8 @@
                     android:text="@string/no_news" />
 
             </LinearLayout>
+
+            <include layout="@layout/layout_shadow" />
 
         </RelativeLayout>
 

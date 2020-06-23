@@ -71,7 +71,8 @@
     <string name="news_shared_on_and_author_and_source">%1$s sur %2$s</string>
     <string name="no_news">Pas de nouvelles.</string>
     <string name="latest_news">Dernière Nouvelle</string>
-    <string name="no_news_image_content_description">Image pas de nouvelles</string>
+    <string name="no_news_image_content_description">Pas d\'image de nouvelles</string>
+    <string name="no_news_author_icon_content_description">Pad d\'icône de l\'auteur</string>
     <string name="no_favorites">Aucun favori.</string>
     <string name="favorite_removed">Favori supprimé.</string>
     <string name="favorite_removed_to_folder_and_folder">Favori supprimé de %s.</string>
