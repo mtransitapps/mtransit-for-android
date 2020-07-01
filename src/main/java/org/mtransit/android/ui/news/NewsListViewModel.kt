@@ -36,8 +36,6 @@ class NewsListViewModel(
 
     val newsArticles: LiveData<List<NewsArticle>> = _newsArticles
 
-    val items = newsArticles
-
     val empty: LiveData<Boolean> =
         Transformations.map(_newsArticles) {
             it.isEmpty()

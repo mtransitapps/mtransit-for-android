@@ -6,7 +6,8 @@
     android:background="?attr/colorSurface"
     android:foreground="?attr/selectableItemBackground"
     android:minHeight="?android:attr/listPreferredItemHeightLarge"
-    android:padding="@dimen/item_padding">
+    android:padding="@dimen/item_padding"
+    tools:layout_height="@dimen/baseline_128">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -27,7 +28,7 @@
             tools:text="@tools:sample/date/day_of_week" />
 
         <ImageView
-            android:id="@+id/authorIcon"
+            android:id="@+id/author_icon"
             android:layout_width="@dimen/baseline_16"
             android:layout_height="@dimen/baseline_16"
             android:layout_alignWithParentIfMissing="true"
@@ -46,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_toLeftOf="@id/date"
-            android:layout_toRightOf="@id/authorIcon"
+            android:layout_toRightOf="@id/author_icon"
             android:ellipsize="marquee"
             android:fontFamily="sans-serif-condensed"
             android:gravity="bottom|left"
@@ -63,7 +64,7 @@
             android:layout_height="@dimen/baseline_96"
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/author"
-            android:layout_alignBottom="@id/newsText"
+            android:layout_alignBottom="@id/news_text"
             android:layout_alignParentRight="true"
             android:layout_marginLeft="@dimen/baseline_8"
             android:layout_marginTop="@dimen/baseline_2"
@@ -74,7 +75,7 @@
             tools:visibility="visible" />
 
         <TextView
-            android:id="@+id/newsText"
+            android:id="@+id/news_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/author"

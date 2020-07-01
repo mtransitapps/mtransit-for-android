@@ -71,6 +71,18 @@ class NewsRepository(
         }
     }
 
+    suspend fun loadNewsArticle(authority: String?, uuid: String?): NewsArticle? {
+        return withContext(ioDispatcher) {
+            var result: NewsArticle? = null
+            if (authority == null || uuid == null) {
+                return@withContext result
+            }
+            val newsFilter = NewsProviderContract.Filter.getNewUUIDFilter(uuid)
+            result = dataSourceRepository.findNewsArticle(authority, newsFilter)
+            return@withContext result
+        }
+    }
+
     override fun onModulesUpdated() {
         if (refreshPending) {
             refreshPending = false

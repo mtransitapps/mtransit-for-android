@@ -3,7 +3,6 @@ package org.mtransit.android.ui.news
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isVisible
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -19,7 +18,7 @@ import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver.TimeChangedList
 
 class NewsListAdapter(private val viewModel: NewsListViewModel) :
     TimeChangedListener,
-    ListAdapter<NewsArticle, NewsArticleViewHolder>(NewsArticleDiffCallback()) {
+    ListAdapter<NewsArticle, NewsArticleViewHolder>(NewsArticleDiffCallback) {
 
     private val timeChangedReceiver = TimeChangedReceiver(this)
 
@@ -120,33 +119,31 @@ class NewsListAdapter(private val viewModel: NewsListViewModel) :
                     newsArticle.authorOneLine,
                     newsArticle.sourceLabel
                 )
-                if (newsArticle.hasColor()) {
-                    setTextColor(
+                setLinkTextColor(
+                    if (newsArticle.hasColor()) {
                         ColorUtils.adaptColorToTheme(
                             context,
                             newsArticle.colorInt
                         )
-                    )
-                } else {
-                    setTextColor(
+                    } else {
                         ColorUtils.getTextColorSecondary(
                             context
                         )
-                    )
-                }
+                    }
+                )
             }
             binding.date.text = UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs)
             binding.newsText.apply {
                 text = newsArticle.text
-                if (newsArticle.hasColor()) {
-                    setLinkTextColor(newsArticle.colorInt)
-                } else {
-                    setLinkTextColor(
+                setLinkTextColor(
+                    if (newsArticle.hasColor()) {
+                        newsArticle.colorInt
+                    } else {
                         ColorUtils.getTextColorPrimary(
                             context
                         )
-                    )
-                }
+                    }
+                )
             }
             binding.root.apply {
                 setOnClickListener {
@@ -155,22 +152,5 @@ class NewsListAdapter(private val viewModel: NewsListViewModel) :
                 isVisible = true
             }
         }
-    }
-}
-
-
-/**
- * Callback for calculating the diff between two non-null items in a list.
- *
- * Used by ListAdapter to calculate the minimum number of changes between and old list and a new
- * list that's been passed to `submitList`.
- */
-class NewsArticleDiffCallback : DiffUtil.ItemCallback<NewsArticle>() {
-    override fun areItemsTheSame(oldItem: NewsArticle, newItem: NewsArticle): Boolean {
-        return oldItem.id == newItem.id
-    }
-
-    override fun areContentsTheSame(oldItem: NewsArticle, newItem: NewsArticle): Boolean {
-        return oldItem == newItem
     }
 }

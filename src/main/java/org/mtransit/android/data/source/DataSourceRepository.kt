@@ -14,4 +14,10 @@ class DataSourceRepository(private val iApplication: IApplication) {
     ): ArrayList<NewsArticle>? {
         return DataSourceManager.findNews(iApplication.requireContext(), authority, newsFilter)
     }
+    fun findNewsArticle(
+        authority: String,
+        newsFilter: NewsProviderContract.Filter?
+    ): NewsArticle? {
+        return DataSourceManager.findANews(iApplication.requireContext(), authority, newsFilter)
+    }
 }

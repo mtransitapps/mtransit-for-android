@@ -15,7 +15,7 @@ import org.mtransit.android.databinding.FragmentNewsListBinding
 import org.mtransit.android.di.ServiceLocator
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
-import org.mtransit.android.ui.fragment.NewsDetailsFragment
+import org.mtransit.android.ui.news.viewer.NewsViewerFragment
 import org.mtransit.android.ui.view.MTViewModelFactory
 import org.mtransit.android.ui.view.common.EventObserver
 
@@ -99,10 +99,9 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
     private fun openNewsDetails(newsArticle: NewsArticle) {
         (activity as MainActivity).addFragmentToStack(
-            NewsDetailsFragment.newInstance(
-                newsArticle.uUID,
+            NewsViewerFragment.newInstance(
                 newsArticle.authority,
-                newsArticle
+                newsArticle.uUID
             )
         )
     }

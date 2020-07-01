@@ -511,7 +511,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 				convertView = this.layoutInflater.inflate(R.layout.layout_news_base, parent, false);
 				NewsViewHolder holder = new NewsViewHolder();
 				holder.thumbnailImg = convertView.findViewById(R.id.thumbnail);
-				holder.newsTv = convertView.findViewById(R.id.newsText);
+				holder.newsTv = convertView.findViewById(R.id.news_text);
 				holder.authorTv = convertView.findViewById(R.id.author);
 				holder.dateTv = convertView.findViewById(R.id.date);
 				convertView.setTag(holder);

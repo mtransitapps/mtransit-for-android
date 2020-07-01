@@ -214,7 +214,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 					.clear(thumbnailIng);
 			noThumbnailSpace.setVisibility(View.VISIBLE);
 		}
-		TextView newsTv = view.findViewById(R.id.newsText);
+		TextView newsTv = view.findViewById(R.id.news_text);
 		newsTv.setText(LinkUtils.linkifyHtml(news.getTextHTML(), true), TextView.BufferType.SPANNABLE);
 		newsTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptop.getInstance(this));
 		if (news.hasColor()) {
