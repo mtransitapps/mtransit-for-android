@@ -19,7 +19,7 @@ import org.mtransit.android.ui.view.MTViewModelFactory
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.UITimeUtils
 
-class NewsViewerPageFragment() : Fragment(R.layout.fragment_news_viewer_page) {
+class NewsViewerPageFragment : Fragment(R.layout.fragment_news_viewer_page) {
 
     companion object {
 
@@ -60,11 +60,19 @@ class NewsViewerPageFragment() : Fragment(R.layout.fragment_news_viewer_page) {
         )
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.start(
+            BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, arguments),
+            BundleUtils.getString(EXTRA_NEWS_UUID, savedInstanceState, arguments)
+        )
+    }
+
     private var viewBinding: FragmentNewsViewerPageBinding? = null
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel.newsArticle.observe(this.viewLifecycleOwner, Observer { it ->
+        viewModel.newsArticle.observe(this.viewLifecycleOwner, Observer {
             it?.let { newsArticle ->
                 viewBinding?.apply {
                     val context = thisNews.context
@@ -167,9 +175,5 @@ class NewsViewerPageFragment() : Fragment(R.layout.fragment_news_viewer_page) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentNewsViewerPageBinding.bind(view)
         viewBinding = binding
-        viewModel.start(
-            BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, arguments),
-            BundleUtils.getString(EXTRA_NEWS_UUID, savedInstanceState, arguments)
-        )
     }
 }

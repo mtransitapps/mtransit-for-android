@@ -31,7 +31,7 @@ class MTViewModelFactory constructor(
             isAssignableFrom(NewsViewerViewModel::class.java) ->
                 NewsViewerViewModel(newsRepository, handle)
             isAssignableFrom(NewsViewerPageViewModel::class.java) ->
-                NewsViewerPageViewModel(newsRepository, handle)
+                NewsViewerPageViewModel(newsRepository)
             else ->
                 throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }

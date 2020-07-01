@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
 import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.data.source.NewsRepository
+import org.mtransit.android.ui.view.common.PairMediatorLiveData
 
+const val CURRENT_NEWS_AUTHORITY_SAVED_STATE_KEY = "CURRENT_NEWS_AUTHORITY_SAVED_STATE_KEY"
 const val CURRENT_NEWS_UUID_SAVED_STATE_KEY = "CURRENT_NEWS_UUID_SAVED_STATE_KEY"
 
 class NewsViewerViewModel(
@@ -22,32 +24,60 @@ class NewsViewerViewModel(
     val newsArticles: LiveData<List<NewsArticle>> = _newsArticles
 
     init {
-        setCurrentNewsUUID(getSavedCurrentNewsUUID())
+        setCurrentNews(
+            getSavedCurrentNewsUUID(),
+            getSavedCurrentNewsAuthority()
+        )
     }
 
-    private fun setCurrentNewsUUID(uuid: String?) {
+    private fun setCurrentNews(authority: String?, uuid: String?) {
+        savedStateHandle.set(CURRENT_NEWS_AUTHORITY_SAVED_STATE_KEY, authority)
         savedStateHandle.set(CURRENT_NEWS_UUID_SAVED_STATE_KEY, uuid)
+    }
+
+    private fun getSavedCurrentNewsAuthority(): String? {
+        return savedStateHandle.get(CURRENT_NEWS_AUTHORITY_SAVED_STATE_KEY)
+    }
+
+    private fun loadSavedCurrentNewsAuthority(): LiveData<String> {
+        return savedStateHandle.getLiveData<String>(CURRENT_NEWS_AUTHORITY_SAVED_STATE_KEY)
     }
 
     private fun getSavedCurrentNewsUUID(): String? {
         return savedStateHandle.get(CURRENT_NEWS_UUID_SAVED_STATE_KEY)
     }
 
-    private fun getCurrentNewsUUID(): String {
-        return getSavedCurrentNewsUUID() ?: pickCurrentNewsUUID()
+    private fun loadSavedCurrentNewsUUID(): LiveData<String> {
+        return savedStateHandle.getLiveData<String>(CURRENT_NEWS_UUID_SAVED_STATE_KEY)
     }
 
-    val currentNewsUUID: LiveData<String> =
-        savedStateHandle.getLiveData(CURRENT_NEWS_UUID_SAVED_STATE_KEY, pickCurrentNewsUUID())
 
-    private fun pickCurrentNewsUUID(): String {
-        return newsRepository.newsArticles.value?.first()?.uUID ?: ""
-    }
 
+    private val _authorityAndUUID =
+        PairMediatorLiveData(loadSavedCurrentNewsAuthority(), loadSavedCurrentNewsUUID())
+    val currentNewsAuthorityAndUUID = _authorityAndUUID
     fun onModulesUpdated() {
     }
 
-    fun onPageSelected(uuid: String?) {
-        setCurrentNewsUUID(uuid)
+    fun start(authority: String?, uuid: String?) {
+        if (authority == getSavedCurrentNewsAuthority()
+            && uuid == getSavedCurrentNewsUUID()
+        ) {
+            return
+        }
+        setCurrentNews(authority, uuid)
+    }
+
+    fun onPageSelected(newsArticle: NewsArticle) {
+        onPageSelected(newsArticle.authority, newsArticle.uUID)
+    }
+
+    fun onPageSelected(authority: String?, uuid: String?) {
+        if (authority == getSavedCurrentNewsAuthority()
+            && uuid == getSavedCurrentNewsUUID()
+        ) {
+            return
+        }
+        setCurrentNews(authority, uuid)
     }
 }

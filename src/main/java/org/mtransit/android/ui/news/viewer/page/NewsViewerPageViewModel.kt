@@ -2,10 +2,7 @@ package org.mtransit.android.ui.news.viewer.page
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
@@ -15,8 +12,7 @@ import org.mtransit.android.data.source.NewsRepository
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 
 class NewsViewerPageViewModel(
-    newsRepository: NewsRepository,
-    private val state: SavedStateHandle
+    newsRepository: NewsRepository
 ) : ViewModel() {
 
     private val _authority = MutableLiveData<String>()
@@ -34,21 +30,9 @@ class NewsViewerPageViewModel(
                     )
                 )
             }
-
         }
 
     val newsArticle: LiveData<NewsArticle?> = _newsArticle
-
-    private val _newsArticles: LiveData<List<NewsArticle>> =
-        newsRepository
-            .newsArticles
-            .distinctUntilChanged()
-
-    val newsArticles: LiveData<List<NewsArticle>> = _newsArticles
-
-    val newsArticle2: LiveData<NewsArticle> = Transformations.map(_newsArticles) {
-        it.first() // FIXME
-    }
 
     fun onModulesUpdated() {
         TODO("Not yet implemented")

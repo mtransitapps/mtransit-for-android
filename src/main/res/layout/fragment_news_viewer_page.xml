@@ -21,10 +21,11 @@
             <ImageView
                 android:id="@+id/thumbnail"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/baseline_192"
+                android:layout_height="wrap_content"
                 android:layout_alignWithParentIfMissing="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginBottom="@dimen/baseline_8"
+                android:adjustViewBounds="true"
                 android:contentDescription="@string/no_news_article_image_content_description"
                 android:scaleType="fitCenter"
                 android:visibility="gone"

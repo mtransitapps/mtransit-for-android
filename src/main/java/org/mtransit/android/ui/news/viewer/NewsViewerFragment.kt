@@ -8,6 +8,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import org.mtransit.android.R
+import org.mtransit.android.commons.BundleUtils
 import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.databinding.FragmentNewsViewerBinding
 import org.mtransit.android.di.ServiceLocator
@@ -78,16 +79,27 @@ class NewsViewerFragment : ABFragment(R.layout.fragment_news_viewer) {
         )
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.start(
+            BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, arguments),
+            BundleUtils.getString(EXTRA_NEWS_UUID, savedInstanceState, arguments)
+        )
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel.newsArticles.observe(viewLifecycleOwner, Observer {
             adapter.submitList(it)
         })
-        viewModel.currentNewsUUID.observe(viewLifecycleOwner, Observer {
-            val position = adapter.getItemPosition(it)
-            if (position >= 0) {
-                viewPager.currentItem = position
+        viewModel.currentNewsAuthorityAndUUID.observe(viewLifecycleOwner, Observer {
+            val newPosition = adapter.getItemPosition(it.second)
+            if (newPosition < 0 || newPosition == viewPager.currentItem) {
+                return@Observer
             }
+            viewPager.setCurrentItem(
+                newPosition, viewPager.currentItem != 0
+            )
         })
     }
 
@@ -103,7 +115,9 @@ class NewsViewerFragment : ABFragment(R.layout.fragment_news_viewer) {
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                viewModel.onPageSelected(adapter.getItem(position).uUID)
+                viewModel.onPageSelected(
+                    adapter.getItem(position)
+                )
             }
         })
         adapter = NewsViewerPagerAdapter(this)
