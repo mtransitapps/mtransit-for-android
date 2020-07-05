@@ -106,7 +106,7 @@ class NewsViewerPageFragment : Fragment(R.layout.fragment_news_viewer_page) {
                     }
                     author.apply {
                         text = newsArticle.authorOneLine
-                        setLinkTextColor(
+                        setTextColor(
                             if (newsArticle.hasColor()) {
                                 ColorUtils.adaptColorToTheme(
                                     context,
@@ -136,16 +136,16 @@ class NewsViewerPageFragment : Fragment(R.layout.fragment_news_viewer_page) {
                                     true
                                 )
                             }
-                        if (newsArticle.hasColor()) {
-                            setLinkTextColor(
+                        setLinkTextColor(
+                            if (newsArticle.hasColor()) {
                                 ColorUtils.adaptColorToTheme(
                                     context,
                                     newsArticle.colorInt
                                 )
-                            )
-                        } else {
-                            setLinkTextColor(ColorUtils.getTextColorPrimary(context))
-                        }
+                            } else {
+                                ColorUtils.getTextColorPrimary(context)
+                            }
+                        )
                     }
                     date.apply {
                         setText(

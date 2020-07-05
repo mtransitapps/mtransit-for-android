@@ -119,7 +119,7 @@ class NewsListAdapter(private val viewModel: NewsListViewModel) :
                     newsArticle.authorOneLine,
                     newsArticle.sourceLabel
                 )
-                setLinkTextColor(
+                setTextColor(
                     if (newsArticle.hasColor()) {
                         ColorUtils.adaptColorToTheme(
                             context,
