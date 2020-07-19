@@ -90,7 +90,6 @@ class NewsViewerFragment : ABFragment(R.layout.fragment_news_viewer) {
 
     override fun getABBgColor(context: Context?): Int = colorInt ?: super.getABBgColor(context)
 
-
     private lateinit var viewPager: ViewPager2
 
     private var viewBinding: FragmentNewsViewerBinding? = null
@@ -136,7 +135,6 @@ class NewsViewerFragment : ABFragment(R.layout.fragment_news_viewer) {
             }
         })
         viewModel.currentNewsArticleUUID.observe(viewLifecycleOwner, Observer { uuid ->
-            )
             selectNewsArticle(uuid)
         })
     }
