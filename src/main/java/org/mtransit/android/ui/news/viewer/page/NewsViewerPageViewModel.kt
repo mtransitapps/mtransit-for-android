@@ -7,18 +7,21 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.data.source.NewsRepository
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
 
 class NewsViewerPageViewModel(
     newsRepository: NewsRepository
-) : ViewModel() {
+) : ViewModel(), MTLog.Loggable {
 
-    private val _authority = MutableLiveData<String>()
-    private val _newsUUID = MutableLiveData<String>()
+    companion object {
+        val LOG_TAG: String = NewsViewerPageViewModel::class.java.simpleName
+    }
 
-    private val _authorityAndUUID = PairMediatorLiveData(_authority, _newsUUID)
+    override fun getLogTag() = "${LOG_TAG}-${_authorityAndUUID.value?.second}"
+
+    private val _authorityAndUUID = MutableLiveData<Pair<String, String>>()
 
     private val _newsArticle: LiveData<NewsArticle?> =
         _authorityAndUUID.switchMap { authorityAndUUID ->
@@ -39,10 +42,16 @@ class NewsViewerPageViewModel(
     }
 
     fun start(authority: String?, uuid: String?) {
-        if (authority == _authority.value || uuid == _newsUUID.value) {
-            return
+        if (authority.isNullOrEmpty() || uuid.isNullOrEmpty()) {
+            MTLog.w(this, "start() > Unexpected authority '$authority' & uuid '$uuid'!")
+            return // SKIP
         }
-        _authority.value = authority
-        _newsUUID.value = uuid
+        if (authority == _authorityAndUUID.value?.first
+            && uuid == _authorityAndUUID.value?.second
+        ) {
+            MTLog.d(this, "start() > SKIP (same UUID '$uuid' & authority '$authority')")
+            return // SKIP
+        }
+        _authorityAndUUID.value = Pair(authority, uuid)
     }
 }

@@ -1,5 +1,6 @@
 package org.mtransit.android.data.source
 
+import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineDispatcher
@@ -10,6 +11,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.commons.provider.NewsProviderContract
 import org.mtransit.android.data.DataSourceProvider
+import org.mtransit.android.data.NewsProviderProperties
 
 var LOG_TAG = NewsRepository::class.java.simpleName
 
@@ -23,52 +25,136 @@ class NewsRepository(
 
     private var refreshPending = false
 
-    private val _newsArticles: MutableLiveData<List<NewsArticle>> = MutableLiveData()
+    private val _filter = MutableLiveData<Triple<List<String>?, List<String>?, List<String>?>>()
 
-    val newsArticles: LiveData<List<NewsArticle>> = _newsArticles
+    val filter: LiveData<Triple<List<String>?, List<String>?, List<String>?>> = _filter
+
+    private val _filteredNewsArticles = MutableLiveData<List<NewsArticle>>()
+
+    val filteredNewsArticles: LiveData<List<NewsArticle>> = _filteredNewsArticles
 
     init {
         DataSourceProvider.addModulesUpdateListener(this)
     }
 
-    suspend fun refreshNews() {
+    fun setFilter(
+        targetAuthorities: List<String>,
+        filterUUIDs: List<String>,
+        filterTargets: List<String>
+    ) {
+        if (targetAuthorities == _filter.value?.first
+            && filterUUIDs == filter.value?.second
+            && filterTargets == filter.value?.third
+        ) {
+            MTLog.d(
+                this,
+                "setFilter() > SKIP"
+            )
+            return
+        }
+        _filter.value = Triple(targetAuthorities, filterUUIDs, filterTargets)
+    }
+
+    suspend fun refreshFilteredNewsIfEmpty() {
+        if (_filteredNewsArticles.value.isNullOrEmpty()) {
+            refreshFilteredNews()
+        }
+    }
+
+    suspend fun refreshFilteredNews() {
         if (!dataSourceProvider.isInitialized) {
             refreshPending = true
             return
         }
-        doRefreshNews()
+        doRefreshFilteredNews()
     }
 
-    private suspend fun doRefreshNews() {
-        _newsArticles.value = withContext(ioDispatcher) {
-            val result: MutableList<NewsArticle> = mutableListOf()
-            val dsp = DataSourceProvider.getOrInit()
-            val newsProviders = dsp.allNewsProvider
-            if (newsProviders.isEmpty()) {
-                MTLog.d(
-                    this@NewsRepository,
-                    "loadInBackground() > no News provider found"
-                )
-                return@withContext result
+    private suspend fun doRefreshFilteredNews() {
+        _filteredNewsArticles.value = loadNews(
+            _filter.value?.first,
+            _filter.value?.second,
+            _filter.value?.third
+        )
+    }
+
+    private suspend fun loadNews(
+        targetAuthorities: List<String>? = null,
+        filterUUIDs: List<String>? = null,
+        filterTargets: List<String>? = null
+    ): List<NewsArticle> {
+        return loadNews(
+            targetAuthorities,
+            if (!filterUUIDs.isNullOrEmpty()) {
+                NewsProviderContract.Filter.getNewUUIDsFilter(filterUUIDs)
+            } else if (!filterTargets.isNullOrEmpty()) {
+                NewsProviderContract.Filter.getNewTargetsFilter(filterTargets)
+            } else {
+                NewsProviderContract.Filter.getNewEmptyFilter()
             }
-            val newsUUIDs = mutableSetOf<String>()
-            newsProviders.forEach { newsProvider ->
-                val newsFilter = NewsProviderContract.Filter.getNewEmptyFilter()
-                val providerNews =
-                    dataSourceRepository.findNews(newsProvider.authority, newsFilter)
-                providerNews?.forEach { providerNewsArticle ->
-                    if (!newsUUIDs.contains(providerNewsArticle.uUID)) {
-                        result.add(providerNewsArticle)
-                        newsUUIDs.add(providerNewsArticle.uUID)
+        )
+    }
+
+    private suspend fun loadNews(
+        targetAuthorities: List<String>? = null,
+        filter: NewsProviderContract.Filter = NewsProviderContract.Filter.getNewEmptyFilter()
+    ): MutableList<NewsArticle> {
+        return withContext(ioDispatcher) {
+            return@withContext doLoadNews(targetAuthorities, filter)
+        }
+    }
+
+    @WorkerThread
+    fun doLoadNews(
+        targetAuthority: String? = null,
+        filter: NewsProviderContract.Filter = NewsProviderContract.Filter.getNewEmptyFilter()
+    ): MutableList<NewsArticle> {
+        return doLoadNews(
+            if (targetAuthority.isNullOrEmpty()) null else listOf(targetAuthority),
+            filter
+        )
+    }
+
+    @WorkerThread
+    fun doLoadNews(
+        targetAuthorities: List<String>? = null,
+        filter: NewsProviderContract.Filter = NewsProviderContract.Filter.getNewEmptyFilter()
+    ): MutableList<NewsArticle> {
+        val result: MutableList<NewsArticle> = mutableListOf()
+        val dsp = DataSourceProvider.getOrInit()
+        val newsProviders: MutableList<NewsProviderProperties> = mutableListOf()
+        if (targetAuthorities.isNullOrEmpty()) {
+            newsProviders.addAll(dsp.allNewsProvider)
+        } else {
+            targetAuthorities.forEach { targetAuthority ->
+                dsp.getTargetAuthorityNewsProviders(targetAuthority)
+                    ?.apply {
+                        newsProviders.addAll(this)
                     }
+            }
+        }
+        if (newsProviders.isEmpty()) {
+            MTLog.d(
+                this,
+                "doLoadNews() > no News provider found (target:$targetAuthorities|filter:$filter)"
+            )
+            return result
+        }
+        val newsUUIDs = mutableSetOf<String>()
+        newsProviders.forEach { newsProvider ->
+            val providerNews =
+                dataSourceRepository.findNews(newsProvider.authority, filter)
+            providerNews?.forEach { providerNewsArticle ->
+                if (!newsUUIDs.contains(providerNewsArticle.uUID)) {
+                    result.add(providerNewsArticle)
+                    newsUUIDs.add(providerNewsArticle.uUID)
                 }
             }
-            CollectionUtils.sort<NewsArticle>(
-                result,
-                NewsArticle.NEWS_COMPARATOR
-            )
-            return@withContext result
         }
+        CollectionUtils.sort<NewsArticle>(
+            result,
+            NewsArticle.NEWS_COMPARATOR
+        )
+        return result
     }
 
     suspend fun loadNewsArticle(authority: String?, uuid: String?): NewsArticle? {

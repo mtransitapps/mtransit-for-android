@@ -47,11 +47,11 @@ import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
-import org.mtransit.android.data.NewsProviderProperties;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ScheduleProviderProperties;
-import org.mtransit.android.di.Injection;
+import org.mtransit.android.data.source.NewsRepository;
+import org.mtransit.android.di.ServiceLocator;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.provider.sensor.MTSensorManager;
@@ -60,6 +60,7 @@ import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.news.NewsListFragment;
+import org.mtransit.android.ui.news.viewer.NewsViewerFragment;
 import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.POINewsViewController;
@@ -77,8 +78,8 @@ import org.mtransit.android.util.UITimeUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class POIFragment extends ABFragment implements
@@ -147,11 +148,14 @@ public class POIFragment extends ABFragment implements
 	private final LocationPermissionProvider locationPermissionProvider;
 	@NonNull
 	private final MTSensorManager sensorManager;
+	@NonNull
+	private final NewsRepository newsRepository;
 
 	public POIFragment() {
 		super();
-		this.locationPermissionProvider = Injection.providesLocationPermissionProvider();
-		this.sensorManager = Injection.providesSensorManager();
+		this.locationPermissionProvider = ServiceLocator.getLocationPermissionProvider();
+		this.sensorManager = ServiceLocator.getSensorManager();
+		this.newsRepository = ServiceLocator.getNewsRepository();
 	}
 
 	private boolean hasAgency() {
@@ -419,24 +423,12 @@ public class POIFragment extends ABFragment implements
 			return false;
 		}
 		this.news = new ArrayList<>();
-		HashSet<NewsProviderProperties> poiNewsProviders = DataSourceProvider.get(context).getTargetAuthorityNewsProviders(poim.poi.getAuthority());
-		if (CollectionUtils.getSize(poiNewsProviders) == 0) {
-			return true; // no news, need to apply
-		}
+
 		long nowInMs = UITimeUtils.currentTimeMillis();
 		final NewsProviderContract.Filter newsFilter = NewsProviderContract.Filter
 				.getNewTargetFilter(poim.poi)
-				.setMinCreatedAtInMs(nowInMs - TimeUnit.DAYS.toMillis(14L));
-		ArrayList<NewsArticle> allNews = new ArrayList<>();
-		if (poiNewsProviders != null) {
-			for (NewsProviderProperties poiNewsProvider : poiNewsProviders) {
-				ArrayList<NewsArticle> providerNews = DataSourceManager.findNews(context, poiNewsProvider.getAuthority(),
-						newsFilter);
-				if (providerNews != null) {
-					allNews.addAll(providerNews);
-				}
-			}
-		}
+				.setOldestCreatedAtInMs(nowInMs - TimeUnit.DAYS.toMillis(14L));
+		List<NewsArticle> allNews = newsRepository.doLoadNews(poim.poi.getAuthority(), newsFilter);
 		if (CollectionUtils.getSize(allNews) == 0) {
 			return true; // no news, need to apply
 		}
@@ -770,7 +762,10 @@ public class POIFragment extends ABFragment implements
 					String subtitle = POIManager.getOneLineDescription(getContext(), poim.poi);
 					((MainActivity) activity).addFragmentToStack( //
 							NewsListFragment.newInstance( //
-									colorInt, subtitle, ArrayUtils.asArrayList(poim.poi.getAuthority()), null,
+									colorInt,
+									subtitle,
+									Collections.singletonList(poim.poi.getAuthority()),
+									null,
 									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()), //
 							POIFragment.this);
 				}
@@ -864,7 +859,15 @@ public class POIFragment extends ABFragment implements
 						return;
 					}
 					((MainActivity) activity).addFragmentToStack( //
-							NewsDetailsFragment.newInstance(lastNews.getUUID(), lastNews.getAuthority(), lastNews), //
+							NewsViewerFragment.newInstance(
+									lastNews.getAuthority(),
+									lastNews.getUUID(),
+									poim == null ? null : poim.getColor(getContext()),
+									poim == null ? null : POIManager.getOneLineDescription(getContext(), poim.poi),
+									poim == null ? null : ArrayUtils.asArrayList(poim.poi.getAuthority()),
+									null,
+									poim == null ? null : NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
+							),
 							POIFragment.this);
 				}
 			});

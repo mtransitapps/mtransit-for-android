@@ -1,25 +1,28 @@
 package org.mtransit.android.ui.news.viewer.page
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import com.bumptech.glide.Glide
 import org.mtransit.android.R
 import org.mtransit.android.commons.BundleUtils
 import org.mtransit.android.commons.ColorUtils
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.databinding.FragmentNewsViewerPageBinding
 import org.mtransit.android.di.ServiceLocator
+import org.mtransit.android.ui.fragment.MTFragmentV4
 import org.mtransit.android.ui.view.MTViewModelFactory
+import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.UITimeUtils
 
-class NewsViewerPageFragment : Fragment(R.layout.fragment_news_viewer_page) {
+class NewsViewerPageFragment : MTFragmentV4(R.layout.fragment_news_viewer_page), MTLog.Loggable {
 
     companion object {
 
@@ -53,6 +56,10 @@ class NewsViewerPageFragment : Fragment(R.layout.fragment_news_viewer_page) {
         val LOG_TAG = NewsViewerPageFragment::class.java.simpleName
     }
 
+    private var _uuid: String? = null
+
+    override fun getLogTag() = "$LOG_TAG-$_uuid"
+
     private val viewModel: NewsViewerPageViewModel by viewModels {
         MTViewModelFactory(
             ServiceLocator.newsRepository,
@@ -62,9 +69,10 @@ class NewsViewerPageFragment : Fragment(R.layout.fragment_news_viewer_page) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        _uuid = BundleUtils.getString(EXTRA_NEWS_UUID, savedInstanceState, arguments)
         viewModel.start(
             BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, arguments),
-            BundleUtils.getString(EXTRA_NEWS_UUID, savedInstanceState, arguments)
+            _uuid
         )
     }
 
@@ -72,6 +80,10 @@ class NewsViewerPageFragment : Fragment(R.layout.fragment_news_viewer_page) {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        startObservingVM()
+    }
+
+    private fun startObservingVM() {
         viewModel.newsArticle.observe(this.viewLifecycleOwner, Observer {
             it?.let { newsArticle ->
                 viewBinding?.apply {
@@ -79,13 +91,17 @@ class NewsViewerPageFragment : Fragment(R.layout.fragment_news_viewer_page) {
                     thumbnail.apply {
                         isVisible = if (newsArticle.hasValidImageUrls) {
                             noThumbnailSpace.isVisible = false
-                            Glide.with(context)
-                                .load(newsArticle.firstValidImageUrl)
-                                .into(this)
+                            ImageManager.loadInto(
+                                context,
+                                newsArticle.firstValidImageUrl,
+                                this
+                            )
                             true
                         } else {
-                            Glide.with(context)
-                                .clear(this)
+                            ImageManager.clear(
+                                context,
+                                this
+                            )
                             noThumbnailSpace.isVisible = true
                             false
                         }
@@ -93,14 +109,18 @@ class NewsViewerPageFragment : Fragment(R.layout.fragment_news_viewer_page) {
                     authorIcon.apply {
                         isVisible = if (newsArticle.hasAuthorPictureURL) {
                             noAuthorIconSpace.isVisible = false
-                            Glide.with(context)
-                                .load(newsArticle.authorPictureURL)
-                                .into(this)
+                            ImageManager.loadInto(
+                                context,
+                                newsArticle.authorPictureURL,
+                                this
+                            )
                             true
                         } else {
                             noAuthorIconSpace.isVisible = true
-                            Glide.with(context)
-                                .clear(this)
+                            ImageManager.clear(
+                                context,
+                                this
+                            )
                             false
                         }
                     }

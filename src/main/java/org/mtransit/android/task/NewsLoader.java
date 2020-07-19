@@ -23,6 +23,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings("DeprecatedIsStillUsed")
+@Deprecated
 public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<NewsArticle>> {
 
 	private static final String LOG_TAG = NewsLoader.class.getSimpleName();
@@ -130,7 +132,7 @@ public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<NewsArticle>> {
 
 	private static class FindNewsTask extends MTCallable<ArrayList<NewsArticle>> {
 
-		private static final String LOG_TAG = NewsLoader.class.getSimpleName() + ">" + FindNewsTask.class.getSimpleName();
+		private static final String LOG_TAG = FindNewsTask.class.getSimpleName();
 
 		@NonNull
 		@Override

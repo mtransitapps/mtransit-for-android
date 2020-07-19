@@ -449,9 +449,16 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return new ArrayList<>(agencies); // copy
 	}
 
+	@Deprecated
 	@Nullable
 	@ColorInt
 	public Integer getAgencyColorInt(@SuppressWarnings("unused") @Nullable Context context, @NonNull String authority) {
+		return getAgencyColorInt(authority);
+	}
+
+	@Nullable
+	@ColorInt
+	public Integer getAgencyColorInt(@NonNull String authority) {
 		if (!isAgencyPropertiesSet()) {
 			initAgencyProperties();
 		}
@@ -484,7 +491,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	@Nullable
-	private NewsProviderProperties getNewsProvider(@NonNull String authority) {
+	public NewsProviderProperties getNewsProvider(@NonNull String authority) {
 		return this.allNewsProvidersByAuthority.get(authority);
 	}
 

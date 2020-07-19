@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import org.mtransit.android.R
+import org.mtransit.android.commons.BundleUtils
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.databinding.FragmentNewsListBinding
@@ -70,6 +71,23 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
     private var subTitle: String? = null
     private var colorInt: Int? = null
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.start(
+            BundleUtils.getStringArrayList(
+                EXTRA_FILTER_TARGET_AUTHORITIES, savedInstanceState, arguments
+            ),
+            BundleUtils.getStringArrayList(
+                EXTRA_FILTER_UUIDS, savedInstanceState, arguments
+            ),
+            BundleUtils.getStringArrayList(
+                EXTRA_FILTER_TARGETS, savedInstanceState, arguments
+            )
+        )
+        this.subTitle = BundleUtils.getString(EXTRA_SUB_TITLE, savedInstanceState, arguments)
+        this.colorInt = BundleUtils.getInt(EXTRA_COLOR_INT, savedInstanceState, arguments)
+    }
+
     override fun getABTitle(context: Context?) =
         context?.getString(R.string.news) ?: super.getABTitle(context)
 
@@ -89,7 +107,7 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
         viewModel.dataLoading.observe(viewLifecycleOwner, Observer {
             viewBinding?.refreshLayout?.isRefreshing = it
         })
-        viewModel.newsArticles.observe(viewLifecycleOwner, Observer {
+        viewModel.filteredNewsArticles.observe(viewLifecycleOwner, Observer {
             listAdapter.submitList(it)
         })
         viewModel.openNewsArticleEvent.observe(viewLifecycleOwner, EventObserver {
@@ -100,8 +118,12 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
     private fun openNewsDetails(newsArticle: NewsArticle) {
         (activity as MainActivity).addFragmentToStack(
             NewsViewerFragment.newInstance(
-                newsArticle.authority,
-                newsArticle.uUID
+                newsArticle,
+                this.colorInt,
+                this.subTitle,
+                viewModel.filter.value?.first,
+                viewModel.filter.value?.second,
+                viewModel.filter.value?.third
             )
         )
     }

@@ -439,7 +439,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private Integer color = null;
 
 	@ColorInt
-	public int getColor(Context context) {
+	public int getColor(@Nullable Context context) {
 		if (color == null) {
 			color = getColor(context, poi, null);
 		}
@@ -449,8 +449,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return color;
 	}
 
+	@Nullable
 	@ColorInt
-	public static Integer getColor(Context context, POI poi, Integer defaultColor) {
+	public static Integer getColor(@Nullable Context context, @Nullable POI poi, @Nullable Integer defaultColor) {
 		if (poi != null) {
 			if (poi instanceof RouteTripStop) {
 				if (((RouteTripStop) poi).getRoute().hasColor()) {
@@ -459,7 +460,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			} else if (poi instanceof Module) {
 				return ((Module) poi).getColorInt();
 			}
-			Integer agencyColorInt = DataSourceProvider.get(context).getAgencyColorInt(context, poi.getAuthority());
+			Integer agencyColorInt = DataSourceProvider.get(context).getAgencyColorInt(poi.getAuthority());
 			if (agencyColorInt != null) {
 				return agencyColorInt;
 			}

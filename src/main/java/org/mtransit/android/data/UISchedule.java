@@ -794,7 +794,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			return;
 		}
 		long diffInMs = nextTimestamps.get(0).getT() - after;
-		// TODO diffInMs can be < 0 !! ?
+		// TODO diffInMs can be < 0 ! ?
 		boolean isFrequentService = //
 				!isDescentOnly() //
 						&& diffInMs < UITimeUtils.FREQUENT_SERVICE_TIME_SPAN_IN_MS_DEFAULT //

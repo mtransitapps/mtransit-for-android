@@ -20,8 +20,6 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.bumptech.glide.Glide;
-
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
@@ -32,6 +30,7 @@ import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.task.NewsLoader;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTOnItemClickListener;
+import org.mtransit.android.ui.view.common.ImageManager;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
@@ -39,6 +38,8 @@ import org.mtransit.android.util.UITimeUtils;
 
 import java.util.ArrayList;
 
+@Deprecated
+@SuppressWarnings("unused")
 public class NewsFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<NewsArticle>>, SwipeRefreshLayout.OnRefreshListener {
 
 	private static final String LOG_TAG = NewsFragment.class.getSimpleName();
@@ -523,13 +524,13 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 				return convertView;
 			}
 			if (news.getHasValidImageUrls()) {
-				Glide.with(this.fragment)
-						.load(news.getFirstValidImageUrl())
-						.into(holder.thumbnailImg);
+				ImageManager.loadInto(this.fragment,
+						news.getFirstValidImageUrl(),
+						holder.thumbnailImg);
 				holder.thumbnailImg.setVisibility(View.VISIBLE);
 			} else {
-				Glide.with(this.fragment)
-						.clear(holder.thumbnailImg);
+				ImageManager.clear(this.fragment,
+						holder.thumbnailImg);
 				holder.thumbnailImg.setVisibility(View.GONE);
 			}
 			holder.authorTv.setText(getContext().getString(R.string.news_shared_on_and_author_and_source, news.getAuthorOneLine(), news.getSourceLabel()));

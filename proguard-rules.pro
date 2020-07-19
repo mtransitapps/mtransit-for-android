@@ -19,7 +19,6 @@
 #   public *;
 #}
 
--forceprocessing
 -optimizationpasses 2
 
 # Produces useful obfuscated stack traces
@@ -46,10 +45,10 @@
 # GOOGLE TRANSIT REALTIME - END
 
 # GOOGLE MOBILE ADS (ADMOB) - START
--keep public class com.google.android.gms.ads.** {
+-keep public class com.google.android.gms.ads.* {
    public *;
 }
--keep public class com.google.ads.** {
+-keep public class com.google.ads.* {
    public *;
 }
 -keep class com.google.ads.mediation.admob.AdMobAdapter {
@@ -61,7 +60,7 @@
 # GOOGLE MOBILE ADS (ADMOB) - END
 
 # FACEBOOK AUDIENCE NETWORK - START
--keep public class com.facebook.ads.** {
+-keep public class com.facebook.ads.* {
    public *;
 }
 -keep class com.google.ads.mediation.facebook.FacebookAdapter {
@@ -71,13 +70,13 @@
 # FACEBOOK AUDIENCE NETWORK - END
 
 # INMOBI - START
--keep class com.inmobi.** { *; }
+-keep class com.inmobi.* { *; }
 # skip the Picasso library classes
--keep class com.squareup.picasso.** {*;}
+-keep class com.squareup.picasso.* {*;}
 -dontwarn com.squareup.picasso.**
 -dontwarn com.squareup.okhttp.**
 # skip Moat classes
--keep class com.moat.** {*;}
+-keep class com.moat.* {*;}
 -dontwarn com.moat.**
 # skip Google Play Services classes
 -dontwarn com.google.android.gms.plus.**
@@ -86,6 +85,6 @@
 # CRASHLYTICS - START
 -keepattributes SourceFile,LineNumberTable        # Keep file names and line numbers.
 -keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.
--keep class com.google.firebase.crashlytics.** { *; }
+-keep class com.google.firebase.crashlytics.* { *; }
 -dontwarn com.google.firebase.crashlytics.**
 # CRASHLYTICS - END

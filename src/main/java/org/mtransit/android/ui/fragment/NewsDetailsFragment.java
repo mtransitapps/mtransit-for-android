@@ -13,8 +13,6 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.bumptech.glide.Glide;
-
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ColorUtils;
@@ -25,9 +23,11 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTOnClickListener;
+import org.mtransit.android.ui.view.common.ImageManager;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.UITimeUtils;
 
+@Deprecated
 public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeChangedReceiver.TimeChangedListener, LinkUtils.OnUrlClickListener {
 
 	private static final String LOG_TAG = NewsDetailsFragment.class.getSimpleName();
@@ -60,14 +60,14 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		f.authority = authority;
 		args.putString(EXTRA_NEWS_UUID, uuid);
 		f.uuid = uuid;
-		f.news = optNews;
+		f.newsArticle = optNews;
 		f.setArguments(args);
 		return f;
 	}
 
 	private String authority;
 	private String uuid;
-	private NewsArticle news;
+	private NewsArticle newsArticle;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -112,7 +112,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	}
 
 	private boolean hasNews() {
-		if (this.news == null) {
+		if (this.newsArticle == null) {
 			initNewsAsync();
 			return false;
 		}
@@ -158,28 +158,28 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	}
 
 	private void resetNews() {
-		this.news = null;
+		this.newsArticle = null;
 	}
 
 	private NewsArticle getNewsOrNull() {
 		if (!hasNews()) {
 			return null;
 		}
-		return this.news;
+		return this.newsArticle;
 	}
 
 	private boolean initNewsSync() {
-		if (this.news != null) {
+		if (this.newsArticle != null) {
 			return false;
 		}
 		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
-			this.news = DataSourceManager.findANews(requireContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
+			this.newsArticle = DataSourceManager.findANews(requireContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
 		}
-		return this.news != null;
+		return this.newsArticle != null;
 	}
 
 	private void applyNewNews() {
-		if (this.news == null) {
+		if (this.newsArticle == null) {
 			return;
 		}
 		updateNewsView();
@@ -204,14 +204,14 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		View noThumbnailSpace = view.findViewById(R.id.no_thumbnail_space);
 		if (news.getHasValidImageUrls()) {
 			noThumbnailSpace.setVisibility(View.GONE);
-			Glide.with(this)
-					.load(news.getFirstValidImageUrl())
-					.into(thumbnailIng);
+			ImageManager.loadInto(this,
+					news.getFirstValidImageUrl(),
+					thumbnailIng);
 			thumbnailIng.setVisibility(View.VISIBLE);
 		} else {
 			thumbnailIng.setVisibility(View.GONE);
-			Glide.with(this)
-					.clear(thumbnailIng);
+			ImageManager.clear(this,
+					thumbnailIng);
 			noThumbnailSpace.setVisibility(View.VISIBLE);
 		}
 		TextView newsTv = view.findViewById(R.id.news_text);
@@ -298,8 +298,8 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		if (activity == null) {
 			return;
 		}
-		NewsArticle newNews = DataSourceManager.findANews(requireContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
-		if (newNews == null) {
+		NewsArticle newNewsArticle = DataSourceManager.findANews(requireContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
+		if (newNewsArticle == null) {
 			if (activity.isMTResumed()) {
 				activity.popFragmentFromStack(this); // close this fragment
 				this.modulesUpdated = false; // processed

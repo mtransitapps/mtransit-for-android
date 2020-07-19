@@ -13,7 +13,6 @@ import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.databinding.FragmentNewsViewerBinding
 import org.mtransit.android.di.ServiceLocator
 import org.mtransit.android.ui.fragment.ABFragment
-import org.mtransit.android.ui.news.viewer.page.NewsViewerPageFragment
 import org.mtransit.android.ui.view.MTViewModelFactory
 
 class NewsViewerFragment : ABFragment(R.layout.fragment_news_viewer) {
@@ -22,31 +21,57 @@ class NewsViewerFragment : ABFragment(R.layout.fragment_news_viewer) {
 
         private const val EXTRA_AUTHORITY = "extra_agency_authority"
         private const val EXTRA_NEWS_UUID = "extra_news_uuid"
+        private const val EXTRA_COLOR_INT = "extra_color_int"
+        private const val EXTRA_SUB_TITLE = "extra_subtitle"
+        private const val EXTRA_FILTER_TARGET_AUTHORITIES =
+            "extra_filter_target_authorities"
+        private const val EXTRA_FILTER_TARGETS = "extra_filter_targets"
+        private const val EXTRA_FILTER_UUIDS = "extra_filter_uuids"
 
         @JvmStatic
         fun newInstance(
-            newsArticle: NewsArticle
+            newsArticle: NewsArticle,
+            colorInt: Int?,
+            subtitle: String?,
+            targetAuthorities: List<String>?,
+            filterUUIDs: List<String>?,
+            filterTargets: List<String>?
         ): NewsViewerFragment {
             return newInstance(
                 newsArticle.authority,
-                newsArticle.uUID
+                newsArticle.uUID,
+                colorInt,
+                subtitle,
+                targetAuthorities,
+                filterUUIDs,
+                filterTargets
             )
         }
 
         @JvmStatic
         fun newInstance(
             authority: String,
-            uuid: String
+            uuid: String,
+            colorInt: Int?,
+            subtitle: String?,
+            targetAuthorities: List<String>?,
+            filterUUIDs: List<String>?,
+            filterTargets: List<String>?
         ): NewsViewerFragment {
             return NewsViewerFragment().apply {
                 arguments = bundleOf(
                     EXTRA_AUTHORITY to authority,
-                    EXTRA_NEWS_UUID to uuid
+                    EXTRA_NEWS_UUID to uuid,
+                    EXTRA_COLOR_INT to colorInt,
+                    EXTRA_SUB_TITLE to subtitle,
+                    EXTRA_FILTER_TARGET_AUTHORITIES to targetAuthorities,
+                    EXTRA_FILTER_TARGETS to filterTargets,
+                    EXTRA_FILTER_UUIDS to filterUUIDs
                 )
             }
         }
 
-        val LOG_TAG = NewsViewerPageFragment::class.java.simpleName
+        val LOG_TAG = NewsViewerFragment::class.java.simpleName
 
         private const val TRACKING_SCREEN_NAME = "NewsViewer"
     }
@@ -83,24 +108,47 @@ class NewsViewerFragment : ABFragment(R.layout.fragment_news_viewer) {
         super.onCreate(savedInstanceState)
         viewModel.start(
             BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, arguments),
-            BundleUtils.getString(EXTRA_NEWS_UUID, savedInstanceState, arguments)
+            BundleUtils.getString(EXTRA_NEWS_UUID, savedInstanceState, arguments),
+            BundleUtils.getStringArrayList(
+                EXTRA_FILTER_TARGET_AUTHORITIES, savedInstanceState, arguments
+            ),
+            BundleUtils.getStringArrayList(
+                EXTRA_FILTER_UUIDS, savedInstanceState, arguments
+            ),
+            BundleUtils.getStringArrayList(
+                EXTRA_FILTER_TARGETS, savedInstanceState, arguments
+            )
         )
+        this.subTitle = BundleUtils.getString(EXTRA_SUB_TITLE, savedInstanceState, arguments)
+        this.colorInt = BundleUtils.getInt(EXTRA_COLOR_INT, savedInstanceState, arguments)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel.newsArticles.observe(viewLifecycleOwner, Observer {
+        viewModel.filteredNewsArticles.observe(viewLifecycleOwner, Observer {
+            val oldSize = adapter.size
             adapter.submitList(it)
-        })
-        viewModel.currentNewsAuthorityAndUUID.observe(viewLifecycleOwner, Observer {
-            val newPosition = adapter.getItemPosition(it.second)
-            if (newPosition < 0 || newPosition == viewPager.currentItem) {
-                return@Observer
+            if (oldSize == 0) {
+                val lastSelectedArticleUUID = viewModel.getSavedCurrentNewsUUID()
+                lastSelectedArticleUUID?.let { uuid ->
+                    selectNewsArticle(uuid)
+                }
             }
-            viewPager.setCurrentItem(
-                newPosition, viewPager.currentItem != 0
-            )
         })
+        viewModel.currentNewsArticleUUID.observe(viewLifecycleOwner, Observer { uuid ->
+            )
+            selectNewsArticle(uuid)
+        })
+    }
+
+    private fun selectNewsArticle(uuid: String) {
+        val newPosition = adapter.getItemPosition(uuid)
+        if (newPosition < 0 || newPosition == viewPager.currentItem) {
+            return
+        }
+        viewPager.setCurrentItem(
+            newPosition, viewPager.currentItem != 0
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -112,6 +160,7 @@ class NewsViewerFragment : ABFragment(R.layout.fragment_news_viewer) {
 
     private fun setupView(binding: FragmentNewsViewerBinding) {
         viewPager = binding.viewpager
+        viewPager.offscreenPageLimit = 1
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)

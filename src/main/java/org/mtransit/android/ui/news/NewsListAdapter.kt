@@ -5,13 +5,13 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import org.mtransit.android.R
 import org.mtransit.android.common.IContext
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.databinding.LayoutNewsListItemBinding
 import org.mtransit.android.ui.news.NewsListAdapter.NewsArticleViewHolder
+import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver
 import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver.TimeChangedListener
@@ -91,25 +91,33 @@ class NewsListAdapter(private val viewModel: NewsListViewModel) :
             val context = itemView.context
             binding.authorIcon.apply {
                 isVisible = if (newsArticle.hasAuthorPictureURL) {
-                    Glide.with(context)
-                        .load(newsArticle.authorPictureURL)
-                        .into(this)
+                    ImageManager.loadInto(
+                        context,
+                        newsArticle.authorPictureURL,
+                        this
+                    )
                     true
                 } else {
-                    Glide.with(context)
-                        .clear(this)
+                    ImageManager.clear(
+                        context,
+                        this
+                    )
                     false
                 }
             }
             binding.thumbnail.apply {
                 isVisible = if (newsArticle.hasValidImageUrls) {
-                    Glide.with(context)
-                        .load(newsArticle.firstValidImageUrl)
-                        .into(this)
+                    ImageManager.loadInto(
+                        context,
+                        newsArticle.firstValidImageUrl,
+                        this
+                    )
                     true
                 } else {
-                    Glide.with(context)
-                        .clear(this)
+                    ImageManager.clear(
+                        context,
+                        this
+                    )
                     false
                 }
             }

@@ -8,9 +8,11 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.data.source.NewsRepository
 import org.mtransit.android.ui.view.common.Event
+import org.mtransit.android.ui.view.common.PairMediatorLiveData
 
 class NewsListViewModel(
     private val newsRepository: NewsRepository
@@ -21,23 +23,40 @@ class NewsListViewModel(
     private val _dataLoading = MutableLiveData<Boolean>()
     val dataLoading: LiveData<Boolean> = _dataLoading
 
-    private val _newsArticles: LiveData<List<NewsArticle>> = _forceUpdate.switchMap { forceUpdate ->
-        if (forceUpdate) {
-            _dataLoading.value = true
-            viewModelScope.launch {
-                newsRepository.refreshNews()
-                _dataLoading.value = false
+    val filter: LiveData<Triple<List<String>?, List<String>?, List<String>?>> =
+        newsRepository.filter
+
+    private val _trigger = PairMediatorLiveData(filter, _forceUpdate)
+    private val _filteredNewsArticles: LiveData<List<NewsArticle>> =
+        _trigger.switchMap { trigger ->
+            if (trigger.second == true) {
+                _dataLoading.value = true
+                viewModelScope.launch {
+                    newsRepository.refreshFilteredNews()
+                    _dataLoading.value = false
+                }
             }
+            newsRepository
+                .filteredNewsArticles
+                .distinctUntilChanged()
         }
-        newsRepository
-            .newsArticles
-            .distinctUntilChanged()
+
+    val filteredNewsArticles: LiveData<List<NewsArticle>> = _filteredNewsArticles
+
+    fun start(
+        targetAuthorities: List<String>?,
+        filterUUIDs: List<String>?,
+        filterTargets: List<String>?
+    ) {
+        newsRepository.setFilter(
+            targetAuthorities ?: emptyList(),
+            filterUUIDs ?: emptyList(),
+            filterTargets ?: emptyList()
+        )
     }
 
-    val newsArticles: LiveData<List<NewsArticle>> = _newsArticles
-
     val empty: LiveData<Boolean> =
-        Transformations.map(_newsArticles) {
+        Transformations.map(_filteredNewsArticles) {
             it.isEmpty()
         }
 
