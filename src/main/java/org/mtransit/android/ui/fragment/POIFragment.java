@@ -428,7 +428,7 @@ public class POIFragment extends ABFragment implements
 			return false;
 		}
 
-		long nowInMs = UITimeUtils.currentTimeMillis();
+		final long nowInMs = UITimeUtils.currentTimeMillis();
 		final NewsProviderContract.Filter newsFilter = NewsProviderContract.Filter
 				.getNewTargetFilter(poim.poi)
 				.setOldestCreatedAtInMs(nowInMs - TimeUnit.DAYS.toMillis(14L));
@@ -439,13 +439,16 @@ public class POIFragment extends ABFragment implements
 		CollectionUtils.sort(allNews, NewsArticle.NEWS_SEVERITY_COMPARATOR);
 		int noteworthiness = 1;
 		this.newsArticles = new ArrayList<>();
-		while (this.newsArticles.isEmpty() && noteworthiness < 7) {
-			for (NewsArticle news : allNews) {
-				if (news.getCreatedAtInMs() + news.getNoteworthyInMs() * noteworthiness < nowInMs) {
-					continue; // news too old to be worthy
+		int minSelectedArticles = allNews.size() > 1 ? 2 : 1; // encourage 2+ articles
+		while (this.newsArticles.size() < minSelectedArticles && noteworthiness < 7) {
+			for (NewsArticle newsArticle : allNews) {
+				final long validityInMs = newsArticle.getCreatedAtInMs() + newsArticle.getNoteworthyInMs() * noteworthiness;
+				if (validityInMs < nowInMs) {
+					continue; // newsArticle too old to be worthy
 				}
-				this.newsArticles.add(0, news);
-				break;
+				if (!this.newsArticles.contains(newsArticle)) {
+					this.newsArticles.add(newsArticle);
+				}
 			}
 			noteworthiness++;
 		}
