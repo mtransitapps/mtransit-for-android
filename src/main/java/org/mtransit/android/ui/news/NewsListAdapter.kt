@@ -16,8 +16,10 @@ import org.mtransit.android.util.UITimeUtils
 import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver
 import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver.TimeChangedListener
 
-class NewsListAdapter(private val viewModel: NewsListViewModel) :
-    TimeChangedListener,
+class NewsListAdapter(
+    private val listener: OnNewsArticleSelectedListener,
+    private val minLines: Int? = null
+) : TimeChangedListener,
     ListAdapter<NewsArticle, NewsArticleViewHolder>(NewsArticleDiffCallback) {
 
     private val timeChangedReceiver = TimeChangedReceiver(this)
@@ -31,7 +33,7 @@ class NewsListAdapter(private val viewModel: NewsListViewModel) :
     override fun onBindViewHolder(holder: NewsArticleViewHolder, position: Int) {
         val item = getItem(position)
 
-        holder.bind(viewModel, item)
+        holder.bind(listener, minLines, item)
     }
 
     private fun resetNowToTheMinute() {
@@ -77,18 +79,24 @@ class NewsListAdapter(private val viewModel: NewsListViewModel) :
 
         companion object {
             fun from(parent: ViewGroup): NewsArticleViewHolder {
-                return NewsArticleViewHolder(
-                    LayoutNewsListItemBinding.inflate(
-                        LayoutInflater.from(parent.context),
-                        parent,
-                        false
-                    )
+                val binding = LayoutNewsListItemBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
                 )
+                return NewsArticleViewHolder(binding)
             }
         }
 
-        fun bind(viewModel: NewsListViewModel, newsArticle: NewsArticle) {
+        fun bind(
+            listener: OnNewsArticleSelectedListener,
+            minLines: Int?,
+            newsArticle: NewsArticle
+        ) {
             val context = itemView.context
+            minLines?.let {
+                binding.newsText.minLines = it
+            }
             binding.authorIcon.apply {
                 isVisible = if (newsArticle.hasAuthorPictureURL) {
                     ImageManager.loadInto(
@@ -155,10 +163,14 @@ class NewsListAdapter(private val viewModel: NewsListViewModel) :
             }
             binding.root.apply {
                 setOnClickListener {
-                    viewModel.openNews(newsArticle)
+                    listener.onNewsArticleSelected(newsArticle)
                 }
                 isVisible = true
             }
         }
+    }
+
+    interface OnNewsArticleSelectedListener {
+        fun onNewsArticleSelected(newsArticle: NewsArticle)
     }
 }

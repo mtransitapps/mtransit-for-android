@@ -24,6 +24,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -59,11 +62,11 @@ import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.news.NewsListAdapter;
 import org.mtransit.android.ui.news.NewsListFragment;
 import org.mtransit.android.ui.news.viewer.NewsViewerFragment;
 import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.ui.view.MapViewController;
-import org.mtransit.android.ui.view.POINewsViewController;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
@@ -342,9 +345,11 @@ public class POIFragment extends ABFragment implements
 		POIViewController.updateView(context, getPOIView(view), this.poim, this);
 		POIStatusDetailViewController.updateView(context, getPOIStatusView(view), this.poim, this);
 		POIServiceUpdateViewController.updateView(context, getPOIServiceUpdateView(view), this.poim, this);
-		POINewsViewController.updateView(context, getPOINewsView(view), getNewsOrNull());
+		if (getPOINewsView(getView()) != null) { // init
+			final ArrayList<NewsArticle> newsOrNull = getNewsOrNull();
+			getNewsListAdapter().submitList(newsOrNull);
+		}
 		setupRTSFullScheduleBtn(view);
-		setupMoreNewsButton(view);
 		setupMoreNearbyButton(view);
 		if (getActivity() != null) {
 			getActivity().invalidateOptionsMenu(); // add/remove star from action bar
@@ -353,18 +358,18 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
-	private ArrayList<NewsArticle> news = null;
+	private ArrayList<NewsArticle> newsArticles = null;
 
 	@Nullable
 	private ArrayList<NewsArticle> getNewsOrNull() {
 		if (!hasNews()) {
 			return null;
 		}
-		return this.news;
+		return this.newsArticles;
 	}
 
 	private boolean hasNews() {
-		if (this.news == null) {
+		if (this.newsArticles == null) {
 			initNewsAsync();
 			return false;
 		}
@@ -411,7 +416,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	private boolean initNewsSync() {
-		if (this.news != null) {
+		if (this.newsArticles != null) {
 			return false;
 		}
 		POIManager poim = getPoimOrNull();
@@ -422,7 +427,6 @@ public class POIFragment extends ABFragment implements
 		if (context == null) {
 			return false;
 		}
-		this.news = new ArrayList<>();
 
 		long nowInMs = UITimeUtils.currentTimeMillis();
 		final NewsProviderContract.Filter newsFilter = NewsProviderContract.Filter
@@ -434,12 +438,13 @@ public class POIFragment extends ABFragment implements
 		}
 		CollectionUtils.sort(allNews, NewsArticle.NEWS_SEVERITY_COMPARATOR);
 		int noteworthiness = 1;
-		while (this.news.isEmpty() && noteworthiness < 7) {
+		this.newsArticles = new ArrayList<>();
+		while (this.newsArticles.isEmpty() && noteworthiness < 7) {
 			for (NewsArticle news : allNews) {
 				if (news.getCreatedAtInMs() + news.getNoteworthyInMs() * noteworthiness < nowInMs) {
 					continue; // news too old to be worthy
 				}
-				this.news.add(0, news);
+				this.newsArticles.add(0, news);
 				break;
 			}
 			noteworthiness++;
@@ -448,14 +453,9 @@ public class POIFragment extends ABFragment implements
 	}
 
 	private void applyNewNews() {
-		if (this.news == null) {
-			return;
+		if (getPOINewsView(getView()) != null) { // init
+			getNewsListAdapter().submitList(this.newsArticles);
 		}
-		final Context context = getContext();
-		if (context == null) {
-			return;
-		}
-		POINewsViewController.updateView(context, getPOINewsView(getView()), this.news);
 	}
 
 	@Nullable
@@ -840,39 +840,48 @@ public class POIFragment extends ABFragment implements
 			return null;
 		}
 		if (view.findViewById(R.id.poi_news) == null) { // IF NOT present/inflated DO
-			int layoutResId = POINewsViewController.getLayoutResId();
+			final int layoutResId = R.layout.layout_poi_latest_news;
 			((ViewStub) view.findViewById(R.id.poi_news_stub)).setLayoutResource(layoutResId);
 			((ViewStub) view.findViewById(R.id.poi_news_stub)).inflate(); // inflate
-			view.findViewById(R.id.the_poi_news).setOnClickListener(new MTOnClickListener() {
-				@Override
-				public void onClickMT(View view) {
-					ArrayList<NewsArticle> news = getNewsOrNull();
-					if (news == null || news.size() == 0) {
-						return;
-					}
-					NewsArticle lastNews = news.get(0);
-					if (lastNews == null) {
-						return;
-					}
-					Activity activity = getActivity();
-					if (activity == null) {
-						return;
-					}
-					((MainActivity) activity).addFragmentToStack( //
-							NewsViewerFragment.newInstance(
-									lastNews.getAuthority(),
-									lastNews.getUUID(),
-									poim == null ? null : poim.getColor(getContext()),
-									poim == null ? null : POIManager.getOneLineDescription(getContext(), poim.poi),
-									poim == null ? null : ArrayUtils.asArrayList(poim.poi.getAuthority()),
-									null,
-									poim == null ? null : NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
-							),
-							POIFragment.this);
-				}
-			});
+			setupMoreNewsButton(view);
+			RecyclerView newsList = view.findViewById(R.id.news_list);
+			LinearSnapHelper snapHelper = new LinearSnapHelper();
+			snapHelper.attachToRecyclerView(newsList);
+			newsList.setLayoutManager(new LinearLayoutManager(
+					newsList.getContext(),
+					LinearLayoutManager.HORIZONTAL,
+					false
+			));
+			newsList.setAdapter(getNewsListAdapter());
 		}
 		return view.findViewById(R.id.poi_news);
+	}
+
+	@Nullable
+	private NewsListAdapter newsListAdapter;
+
+	@NonNull
+	private NewsListAdapter getNewsListAdapter() {
+		if (this.newsListAdapter == null) {
+			this.newsListAdapter = new NewsListAdapter(newsArticle -> {
+				Activity activity = getActivity();
+				if (activity == null) {
+					return;
+				}
+				((MainActivity) activity).addFragmentToStack( //
+						NewsViewerFragment.newInstance(
+								newsArticle.getAuthority(),
+								newsArticle.getUUID(),
+								poim == null ? null : poim.getColor(getContext()),
+								poim == null ? null : POIManager.getOneLineDescription(getContext(), poim.poi),
+								poim == null ? null : ArrayUtils.asArrayList(poim.poi.getAuthority()),
+								null,
+								poim == null ? null : NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
+						),
+						POIFragment.this);
+			}, 5);
+		}
+		return this.newsListAdapter;
 	}
 
 	@Nullable
@@ -1032,6 +1041,9 @@ public class POIFragment extends ABFragment implements
 		if (this.adapter != null) {
 			this.adapter.onResume(getActivity(), this.userLocation);
 		}
+		if (this.newsListAdapter != null) {
+			this.newsListAdapter.onResume(this);
+		}
 		POIManager poim = getPoimOrNull();
 		if (poim != null) {
 			this.mapViewController.notifyMarkerChanged(this);
@@ -1039,9 +1051,13 @@ public class POIFragment extends ABFragment implements
 			POIViewController.updateView(requireContext(), getPOIView(view), poim, this);
 			POIStatusDetailViewController.updateView(requireContext(), getPOIStatusView(view), poim, this);
 			POIServiceUpdateViewController.updateView(requireContext(), getPOIServiceUpdateView(view), poim, this);
-			POINewsViewController.updateView(requireContext(), getPOINewsView(view), getNewsOrNull());
+			final ArrayList<NewsArticle> newsOrNull = getNewsOrNull();
+			if (newsOrNull != null) {
+				if (getPOINewsView(getView()) != null) { // init
+					getNewsListAdapter().submitList(newsOrNull);
+				}
+			}
 			setupRTSFullScheduleBtn(view);
-			setupMoreNewsButton(view);
 			setupMoreNearbyButton(view);
 			setupNearbyList();
 		}
@@ -1061,6 +1077,9 @@ public class POIFragment extends ABFragment implements
 		this.mapViewController.onPause();
 		if (this.adapter != null) {
 			this.adapter.onPause();
+		}
+		if (this.newsListAdapter != null) {
+			this.newsListAdapter.onPause(this);
 		}
 	}
 
@@ -1092,9 +1111,11 @@ public class POIFragment extends ABFragment implements
 			POIStatusDetailViewController.updateView(requireContext(), getPOIStatusView(view), poim, this);
 			POIServiceUpdateViewController.updateView(requireContext(), getPOIServiceUpdateView(view), poim, this);
 		}
-		ArrayList<NewsArticle> news = getNewsOrNull();
-		if (news != null) {
-			POINewsViewController.updateView(requireContext(), getPOINewsView(view), news);
+		ArrayList<NewsArticle> newsOrNull = getNewsOrNull();
+		if (newsOrNull != null) {
+			if (getPOINewsView(getView()) != null) { // init
+				getNewsListAdapter().submitList(newsOrNull);
+			}
 		}
 	}
 
@@ -1306,6 +1327,10 @@ public class POIFragment extends ABFragment implements
 		if (this.adapter != null) {
 			this.adapter.onDestroy();
 			this.adapter = null;
+		}
+		if (this.newsListAdapter != null) {
+			this.newsListAdapter.onDestroy(this);
+			this.newsListAdapter = null;
 		}
 		TaskUtils.cancelQuietly(this.loadAgencyTask, true);
 		TaskUtils.cancelQuietly(this.loadPoimTask, true);

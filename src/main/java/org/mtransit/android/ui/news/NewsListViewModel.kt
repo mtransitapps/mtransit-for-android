@@ -16,7 +16,7 @@ import org.mtransit.android.ui.view.common.PairMediatorLiveData
 
 class NewsListViewModel(
     private val newsRepository: NewsRepository
-) : ViewModel() {
+) : ViewModel(), NewsListAdapter.OnNewsArticleSelectedListener {
 
     private val _forceUpdate = MutableLiveData<Boolean>(false)
 
@@ -65,6 +65,10 @@ class NewsListViewModel(
 
     init {
         loadNews(true)
+    }
+
+    override fun onNewsArticleSelected(newsArticle: NewsArticle) {
+        openNews(newsArticle)
     }
 
     fun openNews(newsArticle: NewsArticle) {

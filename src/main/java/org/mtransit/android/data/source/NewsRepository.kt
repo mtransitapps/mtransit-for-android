@@ -141,9 +141,9 @@ class NewsRepository(
         }
         val newsUUIDs = mutableSetOf<String>()
         newsProviders.forEach { newsProvider ->
-            val providerNews =
+            val providerNewsArticles =
                 dataSourceRepository.findNews(newsProvider.authority, filter)
-            providerNews?.forEach { providerNewsArticle ->
+            providerNewsArticles?.forEach { providerNewsArticle ->
                 if (!newsUUIDs.contains(providerNewsArticle.uUID)) {
                     result.add(providerNewsArticle)
                     newsUUIDs.add(providerNewsArticle.uUID)

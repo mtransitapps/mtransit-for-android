@@ -5,14 +5,14 @@
     android:layout_height="wrap_content"
     android:background="?attr/colorSurface"
     android:foreground="?attr/selectableItemBackground"
-    android:minHeight="?android:attr/listPreferredItemHeightLarge"
     android:padding="@dimen/item_padding"
-    tools:layout_height="@dimen/baseline_128">
+    tools:layout_height="@dimen/baseline_176">
 
     <RelativeLayout
+        android:id="@+id/list_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorSurface">
+        android:minHeight="?android:attr/listPreferredItemHeightLarge">
 
         <TextView
             android:id="@+id/date"

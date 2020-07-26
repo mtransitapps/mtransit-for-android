@@ -57,7 +57,7 @@ public class POINewsViewController implements MTLog.Loggable {
 		updateView(context, newsViewHolder, news);
 	}
 
-	private static void updateView(Context context, NewsViewHolder newsViewHolder, NewsArticle news) {
+	private static void updateView(@NonNull Context context, @Nullable NewsViewHolder newsViewHolder, @Nullable NewsArticle news) {
 		if (news == null || newsViewHolder == null) {
 			if (newsViewHolder != null) {
 				newsViewHolder.layout.setVisibility(View.GONE);
@@ -67,7 +67,7 @@ public class POINewsViewController implements MTLog.Loggable {
 		updateNewsView(context, newsViewHolder, news);
 	}
 
-	private static void updateNewsView(@NonNull Context context, NewsViewHolder holder, @Nullable NewsArticle news) {
+	private static void updateNewsView(@NonNull Context context, @Nullable NewsViewHolder holder, @Nullable NewsArticle news) {
 		if (holder == null) {
 			return;
 		}
