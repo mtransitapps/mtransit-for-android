@@ -15,6 +15,9 @@ import org.mtransit.android.data.source.NewsRepository
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 
+const val CURRENT_NEWS_AUTHORITY_SAVED_STATE_KEY = "CURRENT_NEWS_AUTHORITY_SAVED_STATE_KEY"
+const val CURRENT_NEWS_UUID_SAVED_STATE_KEY = "CURRENT_NEWS_UUID_SAVED_STATE_KEY"
+
 class NewsListViewModel(
     private val newsRepository: NewsRepository,
     private val savedStateHandle: SavedStateHandle
