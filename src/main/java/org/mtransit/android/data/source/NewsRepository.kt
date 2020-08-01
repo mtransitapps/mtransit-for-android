@@ -55,12 +55,6 @@ class NewsRepository(
         _filter.value = Triple(targetAuthorities, filterUUIDs, filterTargets)
     }
 
-    suspend fun refreshFilteredNewsIfEmpty() {
-        if (_filteredNewsArticles.value.isNullOrEmpty()) {
-            refreshFilteredNews()
-        }
-    }
-
     suspend fun refreshFilteredNews() {
         if (!dataSourceProvider.isInitialized) {
             refreshPending = true

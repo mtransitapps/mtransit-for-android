@@ -7,15 +7,15 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.data.DataSourceProvider
 import org.mtransit.android.di.ServiceLocator
-import org.mtransit.android.ui.news.viewer.page.NewsViewerPageFragment
+import org.mtransit.android.ui.news.viewer.page.NewsArticleFragment
 
-class NewsViewerPagerAdapter(
+class NewsPagerAdapter(
     fragment: Fragment,
     private val dst: DataSourceProvider = ServiceLocator.dataSourceProvider
 ) : FragmentStateAdapter(fragment), MTLog.Loggable {
 
     companion object {
-        val LOG_TAG = NewsViewerPagerAdapter::class.java.simpleName
+        val LOG_TAG = NewsPagerAdapter::class.java.simpleName
     }
 
     override fun getLogTag() = LOG_TAG
@@ -24,11 +24,10 @@ class NewsViewerPagerAdapter(
 
     override fun getItemCount() = items.size
 
-    override fun createFragment(position: Int): NewsViewerPageFragment {
+    override fun createFragment(position: Int): NewsArticleFragment {
         val newsArticle = getItem(position)
-        return NewsViewerPageFragment.newInstance(newsArticle)
+        return NewsArticleFragment.newInstance(newsArticle)
     }
-
 
     private fun itemToLong(providerIndex: Int, newsArticle: NewsArticle): Long {
         return (providerIndex + 1) * 10_000_000_000L +

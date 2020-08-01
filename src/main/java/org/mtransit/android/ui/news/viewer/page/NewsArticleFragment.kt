@@ -12,7 +12,7 @@ import org.mtransit.android.commons.BundleUtils
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.NewsArticle
-import org.mtransit.android.databinding.FragmentNewsViewerPageBinding
+import org.mtransit.android.databinding.FragmentNewsArticleBinding
 import org.mtransit.android.di.ServiceLocator
 import org.mtransit.android.ui.fragment.MTFragmentV4
 import org.mtransit.android.ui.view.MTViewModelFactory
@@ -20,7 +20,7 @@ import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.UITimeUtils
 
-class NewsViewerPageFragment : MTFragmentV4(R.layout.fragment_news_viewer_page), MTLog.Loggable {
+class NewsArticleFragment : MTFragmentV4(R.layout.fragment_news_article), MTLog.Loggable {
 
     companion object {
 
@@ -30,7 +30,7 @@ class NewsViewerPageFragment : MTFragmentV4(R.layout.fragment_news_viewer_page),
         @JvmStatic
         fun newInstance(
             newsArticle: NewsArticle
-        ): NewsViewerPageFragment {
+        ): NewsArticleFragment {
             return newInstance(
                 newsArticle.authority,
                 newsArticle.uUID
@@ -41,8 +41,8 @@ class NewsViewerPageFragment : MTFragmentV4(R.layout.fragment_news_viewer_page),
         fun newInstance(
             authority: String,
             uuid: String
-        ): NewsViewerPageFragment {
-            return NewsViewerPageFragment()
+        ): NewsArticleFragment {
+            return NewsArticleFragment()
                 .apply {
                     arguments = bundleOf(
                         EXTRA_AUTHORITY to authority,
@@ -51,14 +51,14 @@ class NewsViewerPageFragment : MTFragmentV4(R.layout.fragment_news_viewer_page),
                 }
         }
 
-        val LOG_TAG = NewsViewerPageFragment::class.java.simpleName
+        val LOG_TAG = NewsArticleFragment::class.java.simpleName
     }
 
     private var _uuid: String? = null
 
     override fun getLogTag() = "$LOG_TAG-$_uuid"
 
-    private val viewModel: NewsViewerPageViewModel by viewModels {
+    private val viewModel: NewsArticleViewModel by viewModels {
         MTViewModelFactory(
             ServiceLocator.newsRepository,
             this
@@ -74,7 +74,7 @@ class NewsViewerPageFragment : MTFragmentV4(R.layout.fragment_news_viewer_page),
         )
     }
 
-    private var viewBinding: FragmentNewsViewerPageBinding? = null
+    private var viewBinding: FragmentNewsArticleBinding? = null
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -191,7 +191,7 @@ class NewsViewerPageFragment : MTFragmentV4(R.layout.fragment_news_viewer_page),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val binding = FragmentNewsViewerPageBinding.bind(view)
+        val binding = FragmentNewsArticleBinding.bind(view)
         viewBinding = binding
     }
 }

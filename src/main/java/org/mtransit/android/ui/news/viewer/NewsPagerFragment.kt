@@ -4,18 +4,19 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.viewpager2.widget.ViewPager2
 import org.mtransit.android.R
 import org.mtransit.android.commons.BundleUtils
 import org.mtransit.android.commons.data.NewsArticle
-import org.mtransit.android.databinding.FragmentNewsViewerBinding
+import org.mtransit.android.databinding.FragmentNewsPagerBinding
 import org.mtransit.android.di.ServiceLocator
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.news.NewsListViewModel
 import org.mtransit.android.ui.view.MTViewModelFactory
 
-class NewsViewerFragment : ABFragment(R.layout.fragment_news_viewer) {
+class NewsPagerFragment : ABFragment(R.layout.fragment_news_pager) {
 
     companion object {
 
@@ -36,7 +37,7 @@ class NewsViewerFragment : ABFragment(R.layout.fragment_news_viewer) {
             targetAuthorities: List<String>?,
             filterUUIDs: List<String>?,
             filterTargets: List<String>?
-        ): NewsViewerFragment {
+        ): NewsPagerFragment {
             return newInstance(
                 newsArticle.authority,
                 newsArticle.uUID,
@@ -57,8 +58,8 @@ class NewsViewerFragment : ABFragment(R.layout.fragment_news_viewer) {
             targetAuthorities: List<String>?,
             filterUUIDs: List<String>?,
             filterTargets: List<String>?
-        ): NewsViewerFragment {
-            return NewsViewerFragment().apply {
+        ): NewsPagerFragment {
+            return NewsPagerFragment().apply {
                 arguments = bundleOf(
                     EXTRA_AUTHORITY to authority,
                     EXTRA_NEWS_UUID to uuid,
@@ -71,7 +72,7 @@ class NewsViewerFragment : ABFragment(R.layout.fragment_news_viewer) {
             }
         }
 
-        val LOG_TAG = NewsViewerFragment::class.java.simpleName
+        val LOG_TAG = NewsPagerFragment::class.java.simpleName
 
         private const val TRACKING_SCREEN_NAME = "NewsViewer"
     }
@@ -92,11 +93,11 @@ class NewsViewerFragment : ABFragment(R.layout.fragment_news_viewer) {
 
     private lateinit var viewPager: ViewPager2
 
-    private var viewBinding: FragmentNewsViewerBinding? = null
+    private var viewBinding: FragmentNewsPagerBinding? = null
 
-    private lateinit var adapter: NewsViewerPagerAdapter
+    private lateinit var adapter: NewsPagerAdapter
 
-    private val viewModel: NewsViewerViewModel by viewModels {
+    private val viewModel: NewsListViewModel by activityViewModels {
         MTViewModelFactory(
             ServiceLocator.newsRepository,
             this
@@ -105,9 +106,11 @@ class NewsViewerFragment : ABFragment(R.layout.fragment_news_viewer) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.start(
+        viewModel.onPageSelected(
             BundleUtils.getString(EXTRA_AUTHORITY, savedInstanceState, arguments),
-            BundleUtils.getString(EXTRA_NEWS_UUID, savedInstanceState, arguments),
+            BundleUtils.getString(EXTRA_NEWS_UUID, savedInstanceState, arguments)
+        )
+        viewModel.setFilter(
             BundleUtils.getStringArrayList(
                 EXTRA_FILTER_TARGET_AUTHORITIES, savedInstanceState, arguments
             ),
@@ -151,12 +154,12 @@ class NewsViewerFragment : ABFragment(R.layout.fragment_news_viewer) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val binding = FragmentNewsViewerBinding.bind(view)
+        val binding = FragmentNewsPagerBinding.bind(view)
         viewBinding = binding
         setupView(binding)
     }
 
-    private fun setupView(binding: FragmentNewsViewerBinding) {
+    private fun setupView(binding: FragmentNewsPagerBinding) {
         viewPager = binding.viewpager
         viewPager.offscreenPageLimit = 1
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -167,7 +170,7 @@ class NewsViewerFragment : ABFragment(R.layout.fragment_news_viewer) {
                 )
             }
         })
-        adapter = NewsViewerPagerAdapter(this)
+        adapter = NewsPagerAdapter(this)
         viewPager.adapter = adapter
     }
 

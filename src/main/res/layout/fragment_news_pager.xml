@@ -10,6 +10,6 @@
         android:layout_height="match_parent"
         android:layoutDirection="ltr"
         android:orientation="horizontal"
-        tools:listitem="@layout/fragment_news_viewer_page" />
+        tools:listitem="@layout/fragment_news_article" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,6 @@
 package org.mtransit.android.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
@@ -65,8 +66,10 @@ public class MainActivity extends MTActivityWithLocation implements
 		return new Intent(context, MainActivity.class);
 	}
 
+	@Nullable
 	private NavigationDrawerController navigationDrawerController;
 
+	@Nullable
 	private ActionBarController abController;
 
 	@NonNull
@@ -131,22 +134,25 @@ public class MainActivity extends MTActivityWithLocation implements
 		}
 	}
 
+	@Nullable
 	public ActionBarController getAbController() {
 		return abController;
 	}
 
+	@Nullable
 	public NavigationDrawerController getNavigationDrawerController() {
 		return navigationDrawerController;
 	}
 
 	@Override
-	protected void onNewIntent(Intent intent) {
+	protected void onNewIntent(@SuppressLint("UnknownNullness") Intent intent) {
 		super.onNewIntent(intent);
 		setIntent(intent);
 		processIntent(intent);
 	}
 
-	private boolean processIntent(Intent intent) {
+	@SuppressWarnings("UnusedReturnValue")
+	private boolean processIntent(@NonNull Intent intent) {
 		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
 			onSearchQueryRequested(intent.getStringExtra(SearchManager.QUERY));
 			return true; // intent processed
@@ -160,7 +166,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		return true; // processed
 	}
 
-	public void onSearchQueryRequested(String query) {
+	public void onSearchQueryRequested(@Nullable String query) {
 		Fragment currentFragment = getCurrentFragment();
 		if (currentFragment instanceof SearchFragment) {
 			((SearchFragment) currentFragment).setSearchQuery(query, false);
@@ -289,7 +295,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		FragmentUtils.clearFragmentBackStackImmediate(this, null);
 	}
 
-	public void showNewFragment(ABFragment newFragment, boolean addToStack, @Nullable Fragment optSource) {
+	public void showNewFragment(@NonNull ABFragment newFragment, boolean addToStack, @Nullable Fragment optSource) {
 		FragmentUtils.replaceFragment(this, R.id.content_frame, newFragment, addToStack, optSource);
 		if (addToStack) {
 			incBackEntryCount();
@@ -314,11 +320,11 @@ public class MainActivity extends MTActivityWithLocation implements
 		}
 	}
 
-	public void addFragmentToStack(ABFragment newFragment) {
+	public void addFragmentToStack(@NonNull ABFragment newFragment) {
 		addFragmentToStack(newFragment, getCurrentFragment());
 	}
 
-	public void addFragmentToStack(ABFragment newFragment, @Nullable Fragment optSource) {
+	public void addFragmentToStack(@NonNull ABFragment newFragment, @Nullable Fragment optSource) {
 		showNewFragment(newFragment, true, optSource);
 	}
 

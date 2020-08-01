@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import org.mtransit.android.R
@@ -16,7 +16,7 @@ import org.mtransit.android.databinding.FragmentNewsListBinding
 import org.mtransit.android.di.ServiceLocator
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
-import org.mtransit.android.ui.news.viewer.NewsViewerFragment
+import org.mtransit.android.ui.news.viewer.NewsPagerFragment
 import org.mtransit.android.ui.view.MTViewModelFactory
 import org.mtransit.android.ui.view.common.EventObserver
 
@@ -59,7 +59,7 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
     override fun getScreenName() = TRACKING_SCREEN_NAME
 
-    private val viewModel: NewsListViewModel by viewModels {
+    private val viewModel: NewsListViewModel by activityViewModels {
         MTViewModelFactory(
             ServiceLocator.newsRepository,
             this
@@ -73,14 +73,14 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.start(
-            BundleUtils.getStringArrayList(
+        viewModel.setFilter(
+            targetAuthorities = BundleUtils.getStringArrayList(
                 EXTRA_FILTER_TARGET_AUTHORITIES, savedInstanceState, arguments
             ),
-            BundleUtils.getStringArrayList(
+            filterUUIDs = BundleUtils.getStringArrayList(
                 EXTRA_FILTER_UUIDS, savedInstanceState, arguments
             ),
-            BundleUtils.getStringArrayList(
+            filterTargets = BundleUtils.getStringArrayList(
                 EXTRA_FILTER_TARGETS, savedInstanceState, arguments
             )
         )
@@ -117,7 +117,7 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
     private fun openNewsDetails(newsArticle: NewsArticle) {
         (activity as MainActivity).addFragmentToStack(
-            NewsViewerFragment.newInstance(
+            NewsPagerFragment.newInstance(
                 newsArticle,
                 this.colorInt,
                 this.subTitle,

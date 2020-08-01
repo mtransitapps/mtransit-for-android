@@ -11,12 +11,12 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.data.source.NewsRepository
 
-class NewsViewerPageViewModel(
+class NewsArticleViewModel(
     newsRepository: NewsRepository
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
-        val LOG_TAG: String = NewsViewerPageViewModel::class.java.simpleName
+        val LOG_TAG: String = NewsArticleViewModel::class.java.simpleName
     }
 
     override fun getLogTag() = "${LOG_TAG}-${_authorityAndUUID.value?.second}"
@@ -38,7 +38,6 @@ class NewsViewerPageViewModel(
     val newsArticle: LiveData<NewsArticle?> = _newsArticle
 
     fun onModulesUpdated() {
-        TODO("Not yet implemented")
     }
 
     fun start(authority: String?, uuid: String?) {

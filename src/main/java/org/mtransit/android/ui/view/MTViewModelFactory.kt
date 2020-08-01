@@ -7,8 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.savedstate.SavedStateRegistryOwner
 import org.mtransit.android.data.source.NewsRepository
 import org.mtransit.android.ui.news.NewsListViewModel
-import org.mtransit.android.ui.news.viewer.NewsViewerViewModel
-import org.mtransit.android.ui.news.viewer.page.NewsViewerPageViewModel
+import org.mtransit.android.ui.news.viewer.page.NewsArticleViewModel
 
 /**
  * Factory for all ViewModels.
@@ -27,11 +26,9 @@ class MTViewModelFactory constructor(
     ) = with(modelClass) {
         when {
             isAssignableFrom(NewsListViewModel::class.java) ->
-                NewsListViewModel(newsRepository)
-            isAssignableFrom(NewsViewerViewModel::class.java) ->
-                NewsViewerViewModel(newsRepository, handle)
-            isAssignableFrom(NewsViewerPageViewModel::class.java) ->
-                NewsViewerPageViewModel(newsRepository)
+                NewsListViewModel(newsRepository, handle)
+            isAssignableFrom(NewsArticleViewModel::class.java) ->
+                NewsArticleViewModel(newsRepository)
             else ->
                 throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }

@@ -2,6 +2,7 @@ package org.mtransit.android.ui.news
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
@@ -15,7 +16,8 @@ import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 
 class NewsListViewModel(
-    private val newsRepository: NewsRepository
+    private val newsRepository: NewsRepository,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), NewsListAdapter.OnNewsArticleSelectedListener {
 
     private val _forceUpdate = MutableLiveData<Boolean>(false)
@@ -43,7 +45,66 @@ class NewsListViewModel(
 
     val filteredNewsArticles: LiveData<List<NewsArticle>> = _filteredNewsArticles
 
-    fun start(
+    init {
+        setCurrentNews(
+            getSavedCurrentNewsAuthority(),
+            getSavedCurrentNewsUUID()
+        )
+    }
+
+    private fun setCurrentNews(authority: String?, uuid: String?) {
+        savedStateHandle.set(
+            CURRENT_NEWS_AUTHORITY_SAVED_STATE_KEY,
+            authority
+        )
+        savedStateHandle.set(
+            CURRENT_NEWS_UUID_SAVED_STATE_KEY,
+            uuid
+        )
+    }
+
+    private fun getSavedCurrentNewsAuthority(): String? {
+        return savedStateHandle.get(CURRENT_NEWS_AUTHORITY_SAVED_STATE_KEY)
+    }
+
+    private fun loadSavedCurrentNewsAuthority(): LiveData<String> {
+        return savedStateHandle.getLiveData<String>(CURRENT_NEWS_AUTHORITY_SAVED_STATE_KEY)
+    }
+
+    fun getSavedCurrentNewsUUID(): String? {
+        return savedStateHandle.get(CURRENT_NEWS_UUID_SAVED_STATE_KEY)
+
+    }
+
+    private fun loadSavedCurrentNewsUUID(): LiveData<String> {
+        return savedStateHandle.getLiveData<String>(CURRENT_NEWS_UUID_SAVED_STATE_KEY)
+    }
+
+    private val _authorityAndUUID =
+        PairMediatorLiveData(
+            loadSavedCurrentNewsAuthority(),
+            loadSavedCurrentNewsUUID()
+        )
+
+    val currentNewsArticleUUID: LiveData<String> = Transformations.map(_authorityAndUUID) {
+        it.second
+    }
+
+    fun onPageSelected(newsArticle: NewsArticle) {
+        onPageSelected(newsArticle.authority, newsArticle.uUID)
+    }
+
+    fun onPageSelected(authority: String?, uuid: String?) {
+        if (authority == getSavedCurrentNewsAuthority()
+            && uuid == getSavedCurrentNewsUUID()
+        ) {
+            MTLog.d(this, "start() > SKIP")
+            return
+        }
+        setCurrentNews(authority, uuid)
+    }
+
+    fun setFilter(
         targetAuthorities: List<String>?,
         filterUUIDs: List<String>?,
         filterTargets: List<String>?
@@ -71,7 +132,7 @@ class NewsListViewModel(
         openNews(newsArticle)
     }
 
-    fun openNews(newsArticle: NewsArticle) {
+    private fun openNews(newsArticle: NewsArticle) {
         _openNewsArticleEvent.value = Event(newsArticle)
     }
 

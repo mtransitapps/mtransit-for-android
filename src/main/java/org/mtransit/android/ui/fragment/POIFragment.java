@@ -64,7 +64,7 @@ import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.news.NewsListAdapter;
 import org.mtransit.android.ui.news.NewsListFragment;
-import org.mtransit.android.ui.news.viewer.NewsViewerFragment;
+import org.mtransit.android.ui.news.viewer.NewsPagerFragment;
 import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
@@ -872,7 +872,7 @@ public class POIFragment extends ABFragment implements
 					return;
 				}
 				((MainActivity) activity).addFragmentToStack( //
-						NewsViewerFragment.newInstance(
+						NewsPagerFragment.newInstance(
 								newsArticle.getAuthority(),
 								newsArticle.getUUID(),
 								poim == null ? null : poim.getColor(getContext()),
