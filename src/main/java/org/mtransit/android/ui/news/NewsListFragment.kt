@@ -19,6 +19,7 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.news.viewer.NewsPagerFragment
 import org.mtransit.android.ui.view.MTViewModelFactory
 import org.mtransit.android.ui.view.common.EventObserver
+import java.util.ArrayList
 
 class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
@@ -38,6 +39,23 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
             targetAuthorities: List<String>?,
             filterUUIDs: List<String>?,
             filterTargets: List<String>?
+        ): NewsListFragment {
+            return newInstance(
+                colorInt,
+                subtitle,
+                targetAuthorities?.let { ArrayList(it) },
+                filterUUIDs?.let { ArrayList(it) },
+                filterTargets?.let { ArrayList(it) }
+            )
+        }
+
+        @JvmStatic
+        fun newInstance(
+            colorInt: Int?,
+            subtitle: String?,
+            targetAuthorities: ArrayList<String>?,
+            filterUUIDs: ArrayList<String>?,
+            filterTargets: ArrayList<String>?
         ): NewsListFragment {
             return NewsListFragment().apply {
                 arguments = bundleOf(

@@ -15,6 +15,7 @@ import org.mtransit.android.di.ServiceLocator
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.news.NewsListViewModel
 import org.mtransit.android.ui.view.MTViewModelFactory
+import java.util.ArrayList
 
 class NewsPagerFragment : ABFragment(R.layout.fragment_news_pager) {
 
@@ -43,6 +44,26 @@ class NewsPagerFragment : ABFragment(R.layout.fragment_news_pager) {
                 newsArticle.uUID,
                 colorInt,
                 subtitle,
+                targetAuthorities?.let { ArrayList(it) },
+                filterUUIDs?.let { ArrayList(it) },
+                filterTargets?.let { ArrayList(it) }
+            )
+        }
+
+        @JvmStatic
+        fun newInstance(
+            newsArticle: NewsArticle,
+            colorInt: Int?,
+            subtitle: String?,
+            targetAuthorities: ArrayList<String>?,
+            filterUUIDs: ArrayList<String>?,
+            filterTargets: ArrayList<String>?
+        ): NewsPagerFragment {
+            return newInstance(
+                newsArticle.authority,
+                newsArticle.uUID,
+                colorInt,
+                subtitle,
                 targetAuthorities,
                 filterUUIDs,
                 filterTargets
@@ -58,6 +79,27 @@ class NewsPagerFragment : ABFragment(R.layout.fragment_news_pager) {
             targetAuthorities: List<String>?,
             filterUUIDs: List<String>?,
             filterTargets: List<String>?
+        ): NewsPagerFragment {
+            return newInstance(
+                authority,
+                uuid,
+                colorInt,
+                subtitle,
+                targetAuthorities?.let { ArrayList(it) },
+                filterUUIDs?.let { ArrayList(it) },
+                filterTargets?.let { ArrayList(it) }
+            )
+        }
+
+        @JvmStatic
+        fun newInstance(
+            authority: String,
+            uuid: String,
+            colorInt: Int?,
+            subtitle: String?,
+            targetAuthorities: ArrayList<String>?,
+            filterUUIDs: ArrayList<String>?,
+            filterTargets: ArrayList<String>?
         ): NewsPagerFragment {
             return NewsPagerFragment().apply {
                 arguments = bundleOf(

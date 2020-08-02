@@ -795,8 +795,7 @@ public class POIFragment extends ABFragment implements
 				}
 				((MainActivity) activity).addFragmentToStack( //
 						NewsPagerFragment.newInstance(
-								newsArticle.getAuthority(),
-								newsArticle.getUUID(),
+								newsArticle,
 								this.poim == null ? null : this.poim.getColor(getContext()),
 								this.poim == null ? null : POIManager.getOneLineDescription(getContext(), this.poim.poi),
 								this.poim == null ? null : ArrayUtils.asArrayList(this.poim.poi.getAuthority()),
