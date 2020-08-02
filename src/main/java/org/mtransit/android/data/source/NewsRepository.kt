@@ -46,10 +46,7 @@ class NewsRepository(
             && filterUUIDs == filter.value?.second
             && filterTargets == filter.value?.third
         ) {
-            MTLog.d(
-                this,
-                "setFilter() > SKIP"
-            )
+            MTLog.d(this, "setFilter() > SKIP")
             return
         }
         _filter.value = Triple(targetAuthorities, filterUUIDs, filterTargets)
@@ -99,17 +96,6 @@ class NewsRepository(
 
     @WorkerThread
     fun doLoadNews(
-        targetAuthority: String? = null,
-        filter: NewsProviderContract.Filter = NewsProviderContract.Filter.getNewEmptyFilter()
-    ): MutableList<NewsArticle> {
-        return doLoadNews(
-            if (targetAuthority.isNullOrEmpty()) null else listOf(targetAuthority),
-            filter
-        )
-    }
-
-    @WorkerThread
-    fun doLoadNews(
         targetAuthorities: List<String>? = null,
         filter: NewsProviderContract.Filter = NewsProviderContract.Filter.getNewEmptyFilter()
     ): MutableList<NewsArticle> {
@@ -127,10 +113,7 @@ class NewsRepository(
             }
         }
         if (newsProviders.isEmpty()) {
-            MTLog.d(
-                this,
-                "doLoadNews() > no News provider found (target:$targetAuthorities|filter:$filter)"
-            )
+            MTLog.d(this, "doLoadNews() > no News provider found (target:$targetAuthorities|filter:$filter)")
             return result
         }
         val newsUUIDs = mutableSetOf<String>()
@@ -155,6 +138,7 @@ class NewsRepository(
         return withContext(ioDispatcher) {
             var result: NewsArticle? = null
             if (authority == null || uuid == null) {
+                MTLog.w(this@NewsRepository, "loadNewsArticle() > Unexpected authority '$authority' & uuid '$uuid'!")
                 return@withContext result
             }
             val newsFilter = NewsProviderContract.Filter.getNewUUIDFilter(uuid)

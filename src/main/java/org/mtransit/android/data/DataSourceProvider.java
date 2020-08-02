@@ -363,6 +363,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return new ArrayList<>(this.allAgencies); // copy
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean isAgencyPropertiesSet() {
 		return this.allAgencies != null;
 	}
@@ -422,6 +423,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		}
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	public boolean hasAgency(@NonNull String authority) {
 		return this.allAgenciesAuthority.contains(authority);
 	}
@@ -456,6 +458,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return getAgencyColorInt(authority);
 	}
 
+	@SuppressWarnings("WeakerAccess")
 	@Nullable
 	@ColorInt
 	public Integer getAgencyColorInt(@NonNull String authority) {

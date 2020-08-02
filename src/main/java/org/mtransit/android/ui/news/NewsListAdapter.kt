@@ -32,11 +32,10 @@ class NewsListAdapter(
 
     override fun onBindViewHolder(holder: NewsArticleViewHolder, position: Int) {
         val item = getItem(position)
-
         holder.bind(listener, minLines, item)
     }
 
-    private fun resetNowToTheMinute() {
+    fun resetNowToTheMinute() {
         notifyDataSetChanged()
     }
 

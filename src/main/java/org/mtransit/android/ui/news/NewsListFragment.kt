@@ -97,7 +97,6 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
         viewModel.empty.observe(viewLifecycleOwner, Observer {
             viewBinding?.apply {
                 noNewsLayout.isVisible = it

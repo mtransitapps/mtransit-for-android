@@ -14,6 +14,8 @@ import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.data.source.NewsRepository
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.util.UITimeUtils
+import java.util.concurrent.TimeUnit
 
 const val CURRENT_NEWS_AUTHORITY_SAVED_STATE_KEY = "CURRENT_NEWS_AUTHORITY_SAVED_STATE_KEY"
 const val CURRENT_NEWS_UUID_SAVED_STATE_KEY = "CURRENT_NEWS_UUID_SAVED_STATE_KEY"
@@ -32,6 +34,7 @@ class NewsListViewModel(
         newsRepository.filter
 
     private val _trigger = PairMediatorLiveData(filter, _forceUpdate)
+
     private val _filteredNewsArticles: LiveData<List<NewsArticle>> =
         _trigger.switchMap { trigger ->
             if (trigger.second == true) {
@@ -47,6 +50,40 @@ class NewsListViewModel(
         }
 
     val filteredNewsArticles: LiveData<List<NewsArticle>> = _filteredNewsArticles
+
+    var selectionFilterMaxNoteworthiness: Int = 7
+
+    var selectionFilterOldestCreatedAtInMs: Long =
+        UITimeUtils.currentTimeMillis() - TimeUnit.DAYS.toMillis(14L)
+
+    val selectedNewsArticles: LiveData<List<NewsArticle>> =
+        Transformations.map(_filteredNewsArticles) { newsArticles ->
+            val sortedNewsArticles = newsArticles
+                .filter {
+                    it.createdAtInMs > selectionFilterOldestCreatedAtInMs
+                }
+                .sortedWith(NewsArticle.NEWS_SEVERITY_COMPARATOR)
+            val minSelectedArticles =
+                if (sortedNewsArticles.size > 1) 2 else 1  // encourage 2+ articles
+            val nowInMs = UITimeUtils.currentTimeMillis()
+            var noteworthiness = 1
+            val newSelectedNewsArticle = mutableListOf<NewsArticle>()
+            while (newSelectedNewsArticle.size < minSelectedArticles
+                && noteworthiness < selectionFilterMaxNoteworthiness
+            ) {
+                sortedNewsArticles.forEach { newsArticle ->
+                    val validityInMs: Long =
+                        newsArticle.createdAtInMs + newsArticle.noteworthyInMs * noteworthiness
+                    if (validityInMs >= nowInMs) {
+                        if (!newSelectedNewsArticle.contains(newsArticle)) {
+                            newSelectedNewsArticle.add(newsArticle)
+                        }
+                    }
+                }
+                noteworthiness++
+            }
+            newSelectedNewsArticle
+        }
 
     init {
         setCurrentNews(

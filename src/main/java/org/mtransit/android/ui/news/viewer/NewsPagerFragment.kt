@@ -164,7 +164,6 @@ class NewsPagerFragment : ABFragment(R.layout.fragment_news_pager) {
         viewPager.offscreenPageLimit = 1
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
                 viewModel.onPageSelected(
                     adapter.getItem(position)
                 )

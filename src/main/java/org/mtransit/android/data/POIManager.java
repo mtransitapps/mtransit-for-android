@@ -49,14 +49,12 @@ import java.util.Comparator;
 
 public class POIManager implements LocationPOI, MTLog.Loggable {
 
-	private static final String TAG = POIManager.class.getSimpleName();
+	private static final String LOG_TAG = POIManager.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		if (this.poi != null) {
-			return TAG + "-" + this.poi.getUUID();
-		}
-		return TAG;
+		return LOG_TAG + "-" + this.poi.getUUID();
 	}
 
 	public static final POIAlphaComparator POI_ALPHA_COMPARATOR = new POIAlphaComparator();
@@ -475,7 +473,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				return route.getColorInt();
 			}
 		}
-		Integer agencyColorInt = DataSourceProvider.get(context).getAgencyColorInt(context, authority);
+		Integer agencyColorInt = DataSourceProvider.get(context).getAgencyColorInt(authority);
 		if (agencyColorInt != null) {
 			return agencyColorInt;
 		}
@@ -657,7 +655,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 			return new POIManager(TextMessage.fromCursorStatic(cursor, authority));
 		default:
-			MTLog.w(TAG, "Unexpected POI type '%s'! (using default)", DefaultPOI.getTypeFromCursor(cursor));
+			MTLog.w(LOG_TAG, "Unexpected POI type '%s'! (using default)", DefaultPOI.getTypeFromCursor(cursor));
 			return new POIManager(DefaultPOI.fromCursorStatic(cursor, authority));
 		}
 	}
@@ -674,7 +672,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@Override
 	public boolean hasLocation() {
-		return this.poi != null && this.poi.hasLocation();
+		return this.poi.hasLocation();
 	}
 
 	private static class POIAlphaComparator implements Comparator<POIManager> {
