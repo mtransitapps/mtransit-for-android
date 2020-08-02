@@ -127,10 +127,7 @@ class NewsRepository(
                 }
             }
         }
-        CollectionUtils.sort<NewsArticle>(
-            result,
-            NewsArticle.NEWS_COMPARATOR
-        )
+        CollectionUtils.sort<NewsArticle>(result, NewsArticle.NEWS_COMPARATOR)
         return result
     }
 

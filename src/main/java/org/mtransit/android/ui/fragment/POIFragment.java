@@ -683,12 +683,10 @@ public class POIFragment extends ABFragment implements
 						MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
 						return;
 					}
-					Integer colorInt = poim.getColor(getContext());
-					String subtitle = POIManager.getOneLineDescription(getContext(), poim.poi);
 					((MainActivity) activity).addFragmentToStack( //
 							NewsListFragment.newInstance( //
-									colorInt,
-									subtitle,
+									poim.getColor(getContext()),
+									POIManager.getOneLineDescription(getContext(), poim.poi),
 									Collections.singletonList(poim.poi.getAuthority()),
 									null,
 									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()), //
@@ -793,16 +791,29 @@ public class POIFragment extends ABFragment implements
 				if (activity == null) {
 					return;
 				}
-				((MainActivity) activity).addFragmentToStack( //
-						NewsPagerFragment.newInstance(
-								newsArticle,
-								this.poim == null ? null : this.poim.getColor(getContext()),
-								this.poim == null ? null : POIManager.getOneLineDescription(getContext(), this.poim.poi),
-								this.poim == null ? null : ArrayUtils.asArrayList(this.poim.poi.getAuthority()),
-								null,
-								this.poim == null ? null : NewsProviderContract.Filter.getNewTargetFilter(this.poim.poi).getTargets()
-						),
-						POIFragment.this);
+				if (this.newsListViewModel != null) {
+					this.newsListViewModel.setDeepLinkTo(newsArticle);
+					((MainActivity) activity).addFragmentToStack( //
+							NewsListFragment.newInstance( //
+									this.poim == null ? null : this.poim.getColor(getContext()),
+									this.poim == null ? null : POIManager.getOneLineDescription(getContext(), this.poim.poi),
+									this.poim == null ? null : Collections.singletonList(this.poim.poi.getAuthority()),
+									null,
+									this.poim == null ? null : NewsProviderContract.Filter.getNewTargetFilter(this.poim.poi).getTargets()
+							), //
+							POIFragment.this);
+				} else {
+					((MainActivity) activity).addFragmentToStack( //
+							NewsPagerFragment.newInstance(
+									newsArticle,
+									this.poim == null ? null : this.poim.getColor(getContext()),
+									this.poim == null ? null : POIManager.getOneLineDescription(getContext(), this.poim.poi),
+									this.poim == null ? null : ArrayUtils.asArrayList(this.poim.poi.getAuthority()),
+									null,
+									this.poim == null ? null : NewsProviderContract.Filter.getNewTargetFilter(this.poim.poi).getTargets()
+							),
+							POIFragment.this);
+				}
 			}, 5);
 		}
 		return this.newsListAdapter;

@@ -168,6 +168,10 @@ class NewsListViewModel(
         loadNews(true)
     }
 
+    fun setDeepLinkTo(newsArticle: NewsArticle) {
+        openNews(newsArticle)
+    }
+
     override fun onNewsArticleSelected(newsArticle: NewsArticle) {
         openNews(newsArticle)
     }
