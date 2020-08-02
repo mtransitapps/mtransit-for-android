@@ -37,6 +37,9 @@ class NewsPagerAdapter(
                 })
     }
 
+    /**
+     * related [containsItem]
+     */
     override fun getItemId(position: Int): Long {
         val newsArticle = getItem(position)
         val index = dst.allNewsProvider.indexOf(dst.getNewsProvider(newsArticle.authority))
@@ -53,17 +56,12 @@ class NewsPagerAdapter(
         return items[position]
     }
 
+    /**
+     * related [getItemId]
+     */
     override fun containsItem(itemId: Long): Boolean {
-        return items.any { it.id == toNewsArticleId(itemId) }
-    }
-
-    private fun toNewsArticleId(itemId: Long): Int {
-        return itemId.toInt()
-    }
-
-    @Suppress("unused")
-    fun containsItem(newsArticle: NewsArticle): Boolean {
-        return items.any { it.id == newsArticle.id }
+        val newsArticleId = itemId.rem(10_000_000_000L).toInt()
+        return items.any { it.id == newsArticleId }
     }
 
     fun getItemPosition(uuid: String?): Int {
