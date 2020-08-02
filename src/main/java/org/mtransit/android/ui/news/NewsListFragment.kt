@@ -121,14 +121,26 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
                 newsLinearLayout.isVisible = !it
             }
         })
-        viewModel.dataLoading.observe(viewLifecycleOwner, Observer {
-            viewBinding?.refreshLayout?.isRefreshing = it
+        viewModel.dataLoading.observe(viewLifecycleOwner, Observer { isLoading ->
+            viewBinding?.refreshLayout?.isRefreshing = isLoading
         })
-        viewModel.filteredNewsArticles.observe(viewLifecycleOwner, Observer {
-            listAdapter.submitList(it)
+        viewModel.filteredNewsArticles.observe(viewLifecycleOwner, Observer { newsArticles ->
+            listAdapter.submitList(newsArticles)
         })
-        viewModel.openNewsArticleEvent.observe(viewLifecycleOwner, EventObserver {
-            openNewsDetails(it)
+        viewModel.openNewsArticleEvent.observe(viewLifecycleOwner, EventObserver { newsArticle ->
+            openNewsDetails(newsArticle)
+        })
+        viewModel.currentNewsArticleUUID.observe(viewLifecycleOwner, Observer { uuid ->
+            viewBinding?.newsList?.let { recyclerView ->
+                val newsArticlePosition = this.listAdapter.getItemPosition(uuid)
+                if (newsArticlePosition >= 0) {
+                    recyclerView.scrollToPosition(
+                        (newsArticlePosition - 1) // show 1 more stop on top of the list
+                            .coerceAtLeast(0)
+                            .coerceAtMost(this.listAdapter.itemCount - 1)
+                    )
+                }
+            }
         })
     }
 

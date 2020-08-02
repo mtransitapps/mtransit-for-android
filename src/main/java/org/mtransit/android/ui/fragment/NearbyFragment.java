@@ -769,6 +769,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 	@Override
 	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+		// DO NOTHING
 	}
 
 	private void setSwipeRefreshLayoutRefreshing(boolean refreshing) {

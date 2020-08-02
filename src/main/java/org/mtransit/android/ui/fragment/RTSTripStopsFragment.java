@@ -169,7 +169,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 
 	private void restoreInstanceState(Bundle... bundles) {
 		String newAuthority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, bundles);
-		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
+		if (newAuthority != null && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
 		}
 		Long newTripId = BundleUtils.getLong(EXTRA_TRIP_ID, bundles);
@@ -347,6 +347,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 
 	private static final int POIS_LOADER = 0;
 
+	@SuppressWarnings("ConstantConditions")
 	@NonNull
 	@Override
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, @Nullable Bundle args) {

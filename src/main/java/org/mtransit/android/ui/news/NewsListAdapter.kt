@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import org.mtransit.android.R
 import org.mtransit.android.common.IContext
 import org.mtransit.android.commons.ColorUtils
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.databinding.LayoutNewsListItemBinding
 import org.mtransit.android.ui.news.NewsListAdapter.NewsArticleViewHolder
@@ -33,6 +34,21 @@ class NewsListAdapter(
     override fun onBindViewHolder(holder: NewsArticleViewHolder, position: Int) {
         val item = getItem(position)
         holder.bind(listener, minLines, item)
+    }
+
+    fun getItem(uuid: String?): NewsArticle? {
+        return currentList.first {
+            it.uUID == uuid
+        }
+    }
+
+    fun getItemPosition(uuid: String?): Int {
+        return uuid?.let {
+            currentList.indexOfFirst { it.uUID == uuid }
+        } ?: run {
+            MTLog.w(this, "getItemPosition() > No news article for '$uuid'!")
+            -1
+        }
     }
 
     fun resetNowToTheMinute() {
