@@ -137,7 +137,9 @@
             android:layout_height="1dp"
             android:layout_marginTop="@dimen/baseline_16"
             android:layout_marginBottom="@dimen/baseline_16"
-            android:background="?attr/colorOnSurface" />
+            android:background="?attr/colorOnSurface"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/rewardedAdText"
@@ -157,7 +159,7 @@
             android:layout_height="wrap_content"
             android:enabled="false"
             android:text="@string/support_watch_rewarded_ad_btn_and_days"
-            android:visibility="visible"
+            android:visibility="gone"
             tools:visibility="visible" />
 
     </LinearLayout>

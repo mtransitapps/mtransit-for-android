@@ -48,6 +48,7 @@ public class IabHelper implements MTLog.Loggable {
 
 	String mAsyncOperation = "";
 
+	@Nullable
 	Context mContext;
 
 	IInAppBillingService mService;
@@ -97,7 +98,7 @@ public class IabHelper implements MTLog.Loggable {
 	public static final String GET_SKU_DETAILS_ITEM_LIST = "ITEM_ID_LIST";
 	public static final String GET_SKU_DETAILS_ITEM_TYPE_LIST = "ITEM_TYPE_LIST";
 
-	public IabHelper(Context ctx, String base64PublicKey) {
+	public IabHelper(@NonNull Context ctx, @NonNull String base64PublicKey) {
 		mContext = ctx.getApplicationContext();
 		mSignatureBase64 = base64PublicKey;
 	}
@@ -106,9 +107,11 @@ public class IabHelper implements MTLog.Loggable {
 		void onIabSetupFinished(IabResult result);
 	}
 
-	public void startSetup(final OnIabSetupFinishedListener listener) {
+	public void startSetup(@Nullable final OnIabSetupFinishedListener listener) {
 		checkNotDisposed();
-		if (mSetupDone) throw new IllegalStateException("IAB helper is already set up.");
+		if (mSetupDone) {
+			throw new IllegalStateException("IAB helper is already set up.");
+		}
 		mServiceConn = new ServiceConnection() {
 			@Override
 			public void onServiceDisconnected(ComponentName name) {
@@ -117,13 +120,17 @@ public class IabHelper implements MTLog.Loggable {
 
 			@Override
 			public void onServiceConnected(ComponentName name, IBinder service) {
-				if (mDisposed) return;
+				if (mDisposed) {
+					return;
+				}
 				mService = IInAppBillingService.Stub.asInterface(service);
-				String packageName = mContext.getPackageName();
+				final String packageName = mContext == null ? null : mContext.getPackageName();
 				try {
 					int response = mService.isBillingSupported(3, packageName, ITEM_TYPE_INAPP);
 					if (response != BILLING_RESPONSE_RESULT_OK) {
-						if (listener != null) listener.onIabSetupFinished(new IabResult(response, "Error checking for billing v3 support."));
+						if (listener != null) {
+							listener.onIabSetupFinished(new IabResult(response, "Error checking for billing v3 support."));
+						}
 						mSubscriptionsSupported = false;
 						return;
 					}
@@ -160,7 +167,9 @@ public class IabHelper implements MTLog.Loggable {
 		mSetupDone = false;
 		if (mServiceConn != null) {
 			try {
-				if (mContext != null && mService != null) mContext.unbindService(mServiceConn);
+				if (mContext != null && mService != null) {
+					mContext.unbindService(mServiceConn);
+				}
 			} catch (Exception e) { // fix crash in production
 				MTLog.w(this, e, "Error while unbinding service!");
 			}
@@ -173,7 +182,9 @@ public class IabHelper implements MTLog.Loggable {
 	}
 
 	private void checkNotDisposed() {
-		if (mDisposed) throw new IllegalStateException("IabHelper was disposed of, so it cannot be used.");
+		if (mDisposed) {
+			throw new IllegalStateException("IabHelper was disposed of, so it cannot be used.");
+		}
 	}
 
 	public boolean subscriptionsSupported() {
@@ -187,23 +198,23 @@ public class IabHelper implements MTLog.Loggable {
 
 	OnIabPurchaseFinishedListener mPurchaseListener;
 
-	public void launchPurchaseFlow(Activity act, String sku, int requestCode, OnIabPurchaseFinishedListener listener) {
+	public void launchPurchaseFlow(@NonNull Activity act, String sku, int requestCode, OnIabPurchaseFinishedListener listener) {
 		launchPurchaseFlow(act, sku, requestCode, listener, "");
 	}
 
-	public void launchPurchaseFlow(Activity act, String sku, int requestCode, OnIabPurchaseFinishedListener listener, String extraData) {
+	public void launchPurchaseFlow(@NonNull Activity act, String sku, int requestCode, OnIabPurchaseFinishedListener listener, String extraData) {
 		launchPurchaseFlow(act, sku, ITEM_TYPE_INAPP, requestCode, listener, extraData);
 	}
 
-	public void launchSubscriptionPurchaseFlow(Activity act, String sku, int requestCode, OnIabPurchaseFinishedListener listener) {
+	public void launchSubscriptionPurchaseFlow(@NonNull Activity act, String sku, int requestCode, OnIabPurchaseFinishedListener listener) {
 		launchSubscriptionPurchaseFlow(act, sku, requestCode, listener, "");
 	}
 
-	public void launchSubscriptionPurchaseFlow(Activity act, String sku, int requestCode, OnIabPurchaseFinishedListener listener, String extraData) {
+	public void launchSubscriptionPurchaseFlow(@NonNull Activity act, String sku, int requestCode, OnIabPurchaseFinishedListener listener, String extraData) {
 		launchPurchaseFlow(act, sku, ITEM_TYPE_SUBS, requestCode, listener, extraData);
 	}
 
-	public void launchPurchaseFlow(Activity act, String sku, String itemType, int requestCode, OnIabPurchaseFinishedListener listener, String extraData) {
+	public void launchPurchaseFlow(@NonNull Activity act, String sku, String itemType, int requestCode, OnIabPurchaseFinishedListener listener, String extraData) {
 		checkNotDisposed();
 		checkSetupDone("launchPurchaseFlow");
 		flagStartAsync("launchPurchaseFlow");
@@ -211,17 +222,21 @@ public class IabHelper implements MTLog.Loggable {
 		if (itemType.equals(ITEM_TYPE_SUBS) && !mSubscriptionsSupported) {
 			IabResult r = new IabResult(IABHELPER_SUBSCRIPTIONS_NOT_AVAILABLE, "Subscriptions are not available.");
 			flagEndAsync();
-			if (listener != null) listener.onIabPurchaseFinished(r, null);
+			if (listener != null) {
+				listener.onIabPurchaseFinished(r, null);
+			}
 			return;
 		}
 		try {
-			Bundle buyIntentBundle = mService.getBuyIntent(3, mContext.getPackageName(), sku, itemType, extraData);
+			Bundle buyIntentBundle = mService.getBuyIntent(3, act.getPackageName(), sku, itemType, extraData);
 			int response = getResponseCodeFromBundle(buyIntentBundle);
 			if (response != BILLING_RESPONSE_RESULT_OK) {
 				MTLog.e(this, "In-app billing error: Unable to buy item, Error response: %s", getResponseDesc(response));
 				flagEndAsync();
 				result = new IabResult(response, "Unable to buy item");
-				if (listener != null) listener.onIabPurchaseFinished(result, null);
+				if (listener != null) {
+					listener.onIabPurchaseFinished(result, null);
+				}
 				return;
 			}
 			PendingIntent pendingIntent = buyIntentBundle.getParcelable(RESPONSE_BUY_INTENT);
@@ -233,25 +248,33 @@ public class IabHelper implements MTLog.Loggable {
 			MTLog.e(this, e, "In-app billing error: SendIntentException while launching purchase flow for sku " + sku);
 			flagEndAsync();
 			result = new IabResult(IABHELPER_SEND_INTENT_FAILED, "Failed to send intent.");
-			if (listener != null) listener.onIabPurchaseFinished(result, null);
+			if (listener != null) {
+				listener.onIabPurchaseFinished(result, null);
+			}
 		} catch (RemoteException e) {
 			MTLog.e(this, e, "In-app billing error: RemoteException while launching purchase flow for sku " + sku);
 			flagEndAsync();
 			result = new IabResult(IABHELPER_REMOTE_EXCEPTION, "Remote exception while starting purchase flow");
-			if (listener != null) listener.onIabPurchaseFinished(result, null);
+			if (listener != null) {
+				listener.onIabPurchaseFinished(result, null);
+			}
 		}
 	}
 
 	public boolean handleActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 		IabResult result;
-		if (requestCode != mRequestCode) return false;
+		if (requestCode != mRequestCode) {
+			return false;
+		}
 		checkNotDisposed();
 		checkSetupDone("handleActivityResult");
 		flagEndAsync();
 		if (data == null) {
 			MTLog.e(this, "In-app billing error: Null data in IAB activity result.");
 			result = new IabResult(IABHELPER_BAD_RESPONSE, "Null data in IAB result");
-			if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, null);
+			if (mPurchaseListener != null) {
+				mPurchaseListener.onIabPurchaseFinished(result, null);
+			}
 			return true;
 		}
 		int responseCode = getResponseCodeFromIntent(data);
@@ -261,7 +284,9 @@ public class IabHelper implements MTLog.Loggable {
 			if (purchaseData == null || dataSignature == null) {
 				MTLog.e(this, "In-app billing error: BUG: either purchaseData or dataSignature is null.");
 				result = new IabResult(IABHELPER_UNKNOWN_ERROR, "IAB returned null purchaseData or dataSignature");
-				if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, null);
+				if (mPurchaseListener != null) {
+					mPurchaseListener.onIabPurchaseFinished(result, null);
+				}
 				return true;
 			}
 			Purchase purchase;
@@ -271,13 +296,17 @@ public class IabHelper implements MTLog.Loggable {
 				if (!Security.verifyPurchase(mSignatureBase64, purchaseData, dataSignature)) {
 					MTLog.e(this, "In-app billing error: Purchase signature verification FAILED for sku %s", sku);
 					result = new IabResult(IABHELPER_VERIFICATION_FAILED, String.format("Signature verification failed for sku %s", sku));
-					if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, purchase);
+					if (mPurchaseListener != null) {
+						mPurchaseListener.onIabPurchaseFinished(result, purchase);
+					}
 					return true;
 				}
 			} catch (JSONException e) {
 				MTLog.e(this, e, "In-app billing error: Failed to parse purchase data.");
 				result = new IabResult(IABHELPER_BAD_RESPONSE, "Failed to parse purchase data.");
-				if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, null);
+				if (mPurchaseListener != null) {
+					mPurchaseListener.onIabPurchaseFinished(result, null);
+				}
 				return true;
 			}
 			if (mPurchaseListener != null) {
@@ -290,16 +319,23 @@ public class IabHelper implements MTLog.Loggable {
 			}
 		} else if (resultCode == Activity.RESULT_CANCELED) {
 			result = new IabResult(IABHELPER_USER_CANCELLED, "User canceled.");
-			if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, null);
+			if (mPurchaseListener != null) {
+				mPurchaseListener.onIabPurchaseFinished(result, null);
+			}
 		} else {
 			MTLog.e(this, "In-app billing error: Purchase failed. Result code: %s. Response: %s", Integer.toString(resultCode), getResponseDesc(responseCode));
 			result = new IabResult(IABHELPER_UNKNOWN_PURCHASE_RESPONSE, "Unknown purchase response.");
-			if (mPurchaseListener != null) mPurchaseListener.onIabPurchaseFinished(result, null);
+			if (mPurchaseListener != null) {
+				mPurchaseListener.onIabPurchaseFinished(result, null);
+			}
 		}
 		return true;
 	}
 
-	public Inventory queryInventory(boolean querySkuDetails, List<String> moreItemSkus, List<String> moreSubsSkus) throws IabException {
+	@NonNull
+	public Inventory queryInventory(boolean querySkuDetails,
+									@Nullable List<String> moreItemSkus,
+									@Nullable List<String> moreSubsSkus) throws IabException {
 		checkNotDisposed();
 		checkSetupDone("queryInventory");
 		try {
@@ -338,8 +374,10 @@ public class IabHelper implements MTLog.Loggable {
 		void onQueryInventoryFinished(@Nullable IabResult result, @Nullable Inventory inv);
 	}
 
-	public void queryInventoryAsync(final boolean querySkuDetails, final List<String> moreItemSkus, final List<String> moreSubsSkus,
-			QueryInventoryFinishedListener listenerHR) {
+	public void queryInventoryAsync(final boolean querySkuDetails,
+									@Nullable final List<String> moreItemSkus,
+									@Nullable final List<String> moreSubsSkus,
+									@Nullable QueryInventoryFinishedListener listenerHR) {
 		final Handler handler = new Handler();
 		final WeakReference<QueryInventoryFinishedListener> listenerWR = listenerHR == null ? null : new WeakReference<>(
 				listenerHR);
@@ -389,7 +427,7 @@ public class IabHelper implements MTLog.Loggable {
 				MTLog.e(this, "In-app billing error: Can't consume %s. No token.", sku);
 				throw new IabException(IABHELPER_MISSING_TOKEN, String.format("PurchaseInfo is missing token for sku: %s %s", sku, itemInfo));
 			}
-			int response = mService.consumePurchase(3, mContext.getPackageName(), token);
+			int response = mContext == null ? -1 : mService.consumePurchase(3, mContext.getPackageName(), token);
 			if (response != BILLING_RESPONSE_RESULT_OK) {
 				throw new IabException(response, String.format("Error consuming sku %s", sku));
 			}
@@ -420,6 +458,7 @@ public class IabHelper implements MTLog.Loggable {
 		consumeAsyncInternal(purchases, null, listener);
 	}
 
+	@NonNull
 	public static String getResponseDesc(int code) {
 		String[] iab_msgs = ("0:OK/1:User Canceled/2:Unknown/" + "3:Billing Unavailable/4:Item unavailable/"
 				+ "5:Developer Error/6:Error/7:Item Already Owned/" + "8:Item not owned").split("/");
@@ -428,12 +467,16 @@ public class IabHelper implements MTLog.Loggable {
 				+ "-1007:Missing token/" + "-1008:Unknown error/" + "-1009:Subscriptions not available/" + "-1010:Invalid consumption attempt").split("/");
 		if (code <= IABHELPER_ERROR_BASE) {
 			int index = IABHELPER_ERROR_BASE - code;
-			if (index >= 0 && index < iabhelper_msgs.length) return iabhelper_msgs[index];
-			else
+			if (index >= 0 && index < iabhelper_msgs.length) {
+				return iabhelper_msgs[index];
+			} else {
 				return code + ":Unknown IAB Helper Error";
-		} else if (code < 0 || code >= iab_msgs.length) return code + ":Unknown";
-		else
+			}
+		} else if (code < 0 || code >= iab_msgs.length) {
+			return code + ":Unknown";
+		} else {
 			return iab_msgs[code];
+		}
 	}
 
 	void checkSetupDone(String operation) {
@@ -443,27 +486,32 @@ public class IabHelper implements MTLog.Loggable {
 		}
 	}
 
-	int getResponseCodeFromBundle(Bundle b) {
+	int getResponseCodeFromBundle(@NonNull Bundle b) {
 		Object o = b.get(RESPONSE_CODE);
 		if (o == null) {
 			return BILLING_RESPONSE_RESULT_OK;
-		} else if (o instanceof Integer) return ((Integer) o);
-		else if (o instanceof Long) return (int) ((Long) o).longValue();
-		else {
+		} else if (o instanceof Integer) {
+			return ((Integer) o);
+		} else if (o instanceof Long) {
+			return (int) ((Long) o).longValue();
+		} else {
 			MTLog.e(this, "In-app billing error: Unexpected type for bundle response code.");
 			MTLog.e(this, "%s", o.getClass().getName());
 			throw new RuntimeException("Unexpected type for bundle response code: " + o.getClass().getName());
 		}
 	}
 
-	int getResponseCodeFromIntent(Intent i) {
-		Object o = i.getExtras().get(RESPONSE_CODE);
+	int getResponseCodeFromIntent(@NonNull Intent intent) {
+		final Bundle extras = intent.getExtras();
+		Object o = extras == null ? null : extras.get(RESPONSE_CODE);
 		if (o == null) {
 			MTLog.e(this, "In-app billing error: Intent with no response code, assuming OK (known issue)");
 			return BILLING_RESPONSE_RESULT_OK;
-		} else if (o instanceof Integer) return ((Integer) o);
-		else if (o instanceof Long) return (int) ((Long) o).longValue();
-		else {
+		} else if (o instanceof Integer) {
+			return ((Integer) o);
+		} else if (o instanceof Long) {
+			return (int) ((Long) o).longValue();
+		} else {
 			MTLog.e(this, "In-app billing error: Unexpected type for intent response code: %s", o.getClass().getName());
 			MTLog.e(this, "%s", o.getClass().getName());
 			throw new RuntimeException("Unexpected type for intent response code: " + o.getClass().getName());
@@ -471,9 +519,10 @@ public class IabHelper implements MTLog.Loggable {
 	}
 
 	void flagStartAsync(String operation) {
-		if (mAsyncInProgress)
+		if (mAsyncInProgress) {
 			throw new IllegalStateException(String.format("Can't start async operation (%s) because another async operation (%s) is in progress.", operation,
 					mAsyncOperation));
+		}
 		mAsyncOperation = operation;
 		mAsyncInProgress = true;
 	}
@@ -525,7 +574,7 @@ public class IabHelper implements MTLog.Loggable {
 
 	private static final int MAX_SKU_PER_REQUEST = 20;
 
-	int querySkuDetails(String itemType, Inventory inv, List<String> moreSkus) throws RemoteException, JSONException {
+	int querySkuDetails(String itemType, @NonNull Inventory inv, @Nullable List<String> moreSkus) throws RemoteException, JSONException {
 		ArrayList<String> skuList = new ArrayList<>(inv.getAllOwnedSkus(itemType));
 		if (moreSkus != null) {
 			for (String sku : moreSkus) {
@@ -541,9 +590,9 @@ public class IabHelper implements MTLog.Loggable {
 			int end = skuList.size() - start >= MAX_SKU_PER_REQUEST ? MAX_SKU_PER_REQUEST : skuList.size();
 			Bundle querySkus = new Bundle();
 			querySkus.putStringArrayList(GET_SKU_DETAILS_ITEM_LIST, new ArrayList<>(skuList.subList(start, end)));
-			Bundle skuDetails = mService.getSkuDetails(3, mContext.getPackageName(), itemType, querySkus);
-			if (!skuDetails.containsKey(RESPONSE_GET_SKU_DETAILS_LIST)) {
-				int response = getResponseCodeFromBundle(skuDetails);
+			Bundle skuDetails = mContext == null ? null : mService.getSkuDetails(3, mContext.getPackageName(), itemType, querySkus);
+			if (skuDetails == null || !skuDetails.containsKey(RESPONSE_GET_SKU_DETAILS_LIST)) {
+				int response = skuDetails == null ? -1 : getResponseCodeFromBundle(skuDetails);
 				if (response != BILLING_RESPONSE_RESULT_OK) {
 					return response;
 				} else {

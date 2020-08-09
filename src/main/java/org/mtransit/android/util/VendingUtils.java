@@ -1,9 +1,14 @@
 package org.mtransit.android.util;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.WeakHashMap;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.collection.ArrayMap;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.ArrayUtils;
@@ -15,27 +20,23 @@ import org.mtransit.android.util.iab.IabHelper;
 import org.mtransit.android.util.iab.Purchase;
 import org.mtransit.android.util.iab.SkuDetails;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.collection.ArrayMap;
-
-import android.os.Build;
-import android.widget.Toast;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.WeakHashMap;
 
 public final class VendingUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = VendingUtils.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return LOG_TAG;
 	}
 
 	private static final boolean FORCE_HAS_SUBSCRIPTION = false;
+	// private static final boolean FORCE_HAS_SUBSCRIPTION = true; // DEBUG
 
 	private static final boolean FORCE_DO_NOT_HAVE_SUBSCRIPTION = false;
 
@@ -50,6 +51,7 @@ public final class VendingUtils implements MTLog.Loggable {
 	public static final ArrayList<String> SORTED_PERIOD_CAT = ArrayUtils.asArrayList(WEEKLY, MONTHLY, YEARLY);
 
 	public static final ArrayMap<String, Integer> PERIOD_RES_ID;
+
 	static {
 		ArrayMap<String, Integer> map = new ArrayMap<>();
 		map.put(WEEKLY, R.string.support_every_week);
@@ -63,6 +65,7 @@ public final class VendingUtils implements MTLog.Loggable {
 	public static final String DEFAULT_PERIOD_CAT = MONTHLY;
 
 	public static final ArrayList<String> AVAILABLE_SUBSCRIPTIONS;
+
 	static {
 		ArrayList<String> list = new ArrayList<>();
 		list.add(SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "1");
@@ -90,6 +93,7 @@ public final class VendingUtils implements MTLog.Loggable {
 	}
 
 	public static final ArrayList<String> ALL_VALID_SUBSCRIPTIONS;
+
 	static {
 		ArrayList<String> set = new ArrayList<>();
 		set.add("weekly_subscription"); // Inactive
@@ -215,7 +219,7 @@ public final class VendingUtils implements MTLog.Loggable {
 		return hasSubscription;
 	}
 
-	private static void broadcastNewVendingResult(Boolean newHasSubscription) {
+	private static void broadcastNewVendingResult(@Nullable Boolean newHasSubscription) {
 		for (OnVendingResultListener listener : listenersWR.keySet()) {
 			if (listener != null) {
 				listener.onVendingResult(newHasSubscription);
@@ -226,7 +230,6 @@ public final class VendingUtils implements MTLog.Loggable {
 	public static void purchase(Activity activity) {
 		FragmentUtils.replaceDialogFragment(activity, FragmentUtils.DIALOG_TAG, PurchaseDialogFragment.newInstance(), null);
 	}
-
 
 	public static void getInventory(IabHelper.QueryInventoryFinishedListener listener) {
 		try {
@@ -351,7 +354,6 @@ public final class VendingUtils implements MTLog.Loggable {
 	}
 
 	public interface OnVendingResultListener {
-		void onVendingResult(Boolean hasSubscription);
+		void onVendingResult(@Nullable Boolean hasSubscription);
 	}
-
 }

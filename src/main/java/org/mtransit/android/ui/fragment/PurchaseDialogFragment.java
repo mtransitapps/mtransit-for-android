@@ -257,41 +257,52 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 					PackageManagerUtils.isAppInstalled(view.getContext(), PAID_TASKS_PKG) ? //
 							R.string.support_paid_tasks_incentive_open_btn
 							: R.string.support_paid_tasks_incentive_download_btn);
-			final Button rewardedAdsBtn = view.findViewById(R.id.rewardedAdsBtn);
-			if (this.adManager.isRewardedAdAvailableToShow()) {
-				view.findViewById(R.id.paidTasksDivider2).setVisibility(View.VISIBLE);
-				rewardedAdsBtn.setVisibility(View.VISIBLE);
-			}
-			rewardedAdsBtn.setEnabled(
-					this.adManager.isRewardedAdAvailableToShow()
-			);
-			rewardedAdsBtn.setText(getString(
-					this.adManager.isRewardedNow() ?
-							R.string.support_watch_rewarded_ad_btn_more_and_days :
-							R.string.support_watch_rewarded_ad_btn_and_days,
-					this.adManager.getRewardedAdAmount()
-			));
-			final TextView rewardedAdStatusTv = (TextView) view.findViewById(R.id.rewardedAdText);
-			rewardedAdStatusTv.setVisibility(this.adManager.isRewardedNow() ? View.VISIBLE : View.GONE);
+			refreshRewardedLayout(view);
+		}
+	}
+
+	private void refreshRewardedLayout(@NonNull View view) {
+		final boolean availableToShow = this.adManager.isRewardedAdAvailableToShow();
+		final boolean rewardedNow = this.adManager.isRewardedNow();
+		final long rewardedUntilInMs = this.adManager.getRewardedUntilInMs();
+		final int rewardedAmount = this.adManager.getRewardedAdAmount();
+
+		final View rewardedDivider = view.findViewById(R.id.paidTasksDivider2);
+		final TextView rewardedAdStatusTv = (TextView) view.findViewById(R.id.rewardedAdText);
+		final Button rewardedAdsBtn = view.findViewById(R.id.rewardedAdsBtn);
+
+		rewardedDivider.setVisibility(availableToShow || rewardedNow ? View.VISIBLE : View.GONE);
+
+		if (rewardedNow) {
 			rewardedAdStatusTv.setText(getString(
 					R.string.support_watch_rewarded_ad_status_until_and_date,
-					this.dateFormatter.formatThreadSafe(this.adManager.getRewardedUntilInMs())
+					this.dateFormatter.formatThreadSafe(rewardedUntilInMs)
 			));
+			rewardedAdStatusTv.setVisibility(View.VISIBLE);
+		} else {
+			rewardedAdStatusTv.setVisibility(View.GONE);
+			rewardedAdStatusTv.setText(null);
+		}
+
+		rewardedAdsBtn.setText(getString(
+				rewardedNow ?
+						R.string.support_watch_rewarded_ad_btn_more_and_days :
+						R.string.support_watch_rewarded_ad_btn_and_days,
+				rewardedAmount
+		));
+		if (availableToShow) { // only if NOT paying user
+			rewardedAdsBtn.setEnabled(true);
+			rewardedAdsBtn.setVisibility(View.VISIBLE);
+		} else {
+			rewardedAdsBtn.setEnabled(false); // keep but disable
 		}
 	}
 
 	@Override
 	public void onRewardedAdStatusChanged() {
-		final boolean availableToShow = this.adManager.isRewardedAdAvailableToShow();
 		View view = getView();
 		if (view != null) {
-			if (availableToShow) { // hidden until paying status known
-				view.findViewById(R.id.paidTasksDivider2).setVisibility(View.VISIBLE);
-				view.findViewById(R.id.rewardedAdsBtn).setVisibility(View.VISIBLE);
-			}
-			view.findViewById(R.id.rewardedAdsBtn).setEnabled(
-					availableToShow
-			);
+			refreshRewardedLayout(view);
 		}
 	}
 
