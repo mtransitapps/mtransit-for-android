@@ -197,6 +197,11 @@
     <string name="support_paid_tasks_incentive_open_btn">Ouvrir Google Opinion Rewards</string>
     <string name="support_paid_tasks_incentive_download_btn">Télécharger Google Opinion Rewards</string>
     <string name="support_paid_tasks_incentive_app_label">Google Opinion Rewards</string>
+    <string name="support_watch_rewarded_ad_status_until_and_date">Sans pub jusqu\'au %s</string>
+    <string name="support_watch_rewarded_ad_btn_and_days">Regarder une pub pour\navoir %d jours sans pub</string>
+    <string name="support_watch_rewarded_ad_btn_more_and_days">Regarder une pub pour\navoir +%d jours sans pub</string>
+    <string name="support_watch_rewarded_ad_default_failure_message">:(</string>
+    <string name="support_watch_rewarded_ad_not_ready">Aucune pub disponible actuellement :(</string>
 
     <string name="location_permission_rationale_title">Permission requise</string>
     <string name="location_permission_rationale_message">MonTransit a besoin de la position de votre appareil pour afficher des informations de transport en commun pertinentes dans différents écrans :\nAccueil, À Proximité, Carte …</string>

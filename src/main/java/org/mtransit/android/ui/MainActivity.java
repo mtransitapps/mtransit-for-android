@@ -189,6 +189,8 @@ public class MainActivity extends MTActivityWithLocation implements
 		analyticsManager.trackScreenView(this, this);
 		VendingUtils.onResume(this, this);
 		this.adManager.adaptToScreenSize(this, getResources().getConfiguration());
+		this.adManager.linkRewardedAd(this);
+		this.adManager.refreshRewardedAdStatus(this);
 		onLastLocationChanged(getUserLocation());
 	}
 
@@ -261,6 +263,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		this.fragmentsToPopWR.clear();
 		DataSourceProvider.destroy();
 		this.adManager.destroyAd(this);
+		this.adManager.unlinkRewardedAd(this);
 	}
 
 	@Override

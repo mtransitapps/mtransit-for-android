@@ -16,13 +16,20 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.RequestConfiguration;
+import com.google.android.gms.ads.rewarded.RewardItem;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdCallback;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 
+import org.mtransit.android.BuildConfig;
 import org.mtransit.android.R;
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.TaskUtils;
+import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.dev.CrashReporter;
@@ -33,6 +40,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class AdManager implements IAdManager, MTLog.Loggable {
 
@@ -65,12 +73,16 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	private Boolean adLoaded = null;
 
 	@NonNull
+	private final IApplication application;
+	@NonNull
 	private final CrashReporter crashReporter;
 	@NonNull
 	private final MTLocationProvider locationProvider;
 
-	public AdManager(@NonNull CrashReporter crashReporter,
+	public AdManager(@NonNull IApplication application,
+					 @NonNull CrashReporter crashReporter,
 					 @NonNull MTLocationProvider locationProvider) {
+		this.application = application;
 		this.crashReporter = crashReporter;
 		this.locationProvider = locationProvider;
 	}
@@ -109,6 +121,241 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	public void setShowingAds(@Nullable Boolean newShowingAds, @NonNull IActivity activity) {
 		showingAds = newShowingAds;
 		refreshAdStatus(activity);
+		refreshRewardedAdStatus(activity);
+	}
+
+	@Nullable
+	private Long rewardedUntilInMs = null;
+
+	@Override
+	public long getRewardedUntilInMs() {
+		if (this.rewardedUntilInMs == null) {
+			this.rewardedUntilInMs = PreferenceUtils.getPrefDefault(
+					this.application.requireContext(),
+					PreferenceUtils.PREF_USER_REWARDED_UNTIL,
+					PreferenceUtils.PREF_USER_REWARDED_UNTIL_DEFAULT);
+		}
+		return this.rewardedUntilInMs;
+	}
+
+	private void setRewardedUntilInMs(long newRewardedUntilInMs) {
+		this.rewardedUntilInMs = newRewardedUntilInMs;
+		PreferenceUtils.savePrefDefault(
+				this.application.requireContext(),
+				PreferenceUtils.PREF_USER_REWARDED_UNTIL,
+				rewardedUntilInMs,
+				false // asynchronous
+		);
+	}
+
+	@Override
+	public boolean isRewardedNow() {
+		return getRewardedUntilInMs() > TimeUtils.currentTimeMillis();
+	}
+
+	private void rewardUser(long newRewardInMs, @Nullable IActivity activity) {
+		final long currentRewardedUntilOrNow = Math.max(getRewardedUntilInMs(), TimeUtils.currentTimeMillis());
+		setRewardedUntilInMs(currentRewardedUntilOrNow + newRewardInMs);
+		if (activity != null) {
+			refreshAdStatus(activity);
+		}
+	}
+
+	@Nullable
+	private WeakReference<RewardedAdListener> rewardedAdListenerWR = null;
+
+	@Override
+	public void setRewardedAdListener(@Nullable RewardedAdListener rewardedAdListener) {
+		if (rewardedAdListener == null) {
+			if (this.rewardedAdListenerWR != null) {
+				this.rewardedAdListenerWR.clear();
+			}
+			this.rewardedAdListenerWR = null;
+		} else {
+			this.rewardedAdListenerWR = new WeakReference<>(rewardedAdListener);
+		}
+	}
+
+	@Nullable
+	private RewardedAdListener getRewardedAdListener() {
+		return this.rewardedAdListenerWR == null ? null : this.rewardedAdListenerWR.get();
+	}
+
+	@Nullable
+	private RewardedAd rewardedAd = null;
+	@Nullable
+	private Integer rewardedAdActivityHashCode = null;
+
+	@NonNull
+	private RewardedAd getRewardedAd(@NonNull IActivity activity) {
+		if (this.rewardedAd == null
+				|| (this.rewardedAdActivityHashCode != null && !this.rewardedAdActivityHashCode.equals(activity.hashCode()))) {
+			final android.app.Activity theActivity = activity.requireActivity();
+			this.rewardedAdActivityHashCode = theActivity.hashCode();
+			this.rewardedAd = new RewardedAd(
+					theActivity, // require activity?
+					theActivity.getString(R.string.google_ads_rewarded_ad_unit_id)
+			);
+		}
+		return this.rewardedAd;
+	}
+
+	@Override
+	public void linkRewardedAd(@NonNull IActivity activity) {
+		if (this.rewardedAdActivityHashCode != null
+				&& this.rewardedAdActivityHashCode.equals(activity.hashCode())) {
+			return; // same activity
+		}
+		this.rewardedAd = null;
+		this.rewardedAdActivityHashCode = null;
+		getRewardedAd(activity);
+	}
+
+	@Override
+	public void unlinkRewardedAd(@NonNull IActivity activity) {
+		if (this.rewardedAdActivityHashCode != null
+				&& this.rewardedAdActivityHashCode.equals(activity.hashCode())) {
+			this.rewardedAd = null;
+			this.rewardedAdActivityHashCode = null;
+		}
+	}
+
+	@Override
+	public void refreshRewardedAdStatus(@NonNull IActivity activity) {
+		final boolean isNotPayingUser = Boolean.TRUE.equals(this.showingAds);
+		if (isNotPayingUser) {
+			loadRewardedAdIfNecessary(activity);
+		}
+	}
+
+	private void loadRewardedAdIfNecessary(@NonNull IActivity activity) {
+		final RewardedAd rewardedAd = getRewardedAd(activity);
+		if (!rewardedAd.isLoaded()) {
+			rewardedAd.loadAd(getAdRequest(activity), new MTRewardedAdLoadCallback(this));
+		}
+	}
+
+	@NonNull
+	private AdRequest getAdRequest(@NonNull IContext context) {
+		AdRequest.Builder adRequestBd = new AdRequest.Builder();
+		adRequestBd.setLocation(getLastLocation());
+		for (String keyword : KEYWORDS) {
+			adRequestBd.addKeyword(keyword);
+		}
+		AdRequest adRequest = adRequestBd.build();
+		if (BuildConfig.DEBUG) {
+			MTLog.d(this, "getAdRequest() > test device? %s.", adRequest.isTestDevice(context.requireContext()));
+		}
+		return adRequest;
+	}
+
+	private static class MTRewardedAdLoadCallback extends RewardedAdLoadCallback implements MTLog.Loggable {
+
+		private static final String LOG_TAG = AdManager.class.getSimpleName() + ">" + MTRewardedAdLoadCallback.class.getSimpleName();
+
+		@NonNull
+		@Override
+		public String getLogTag() {
+			return LOG_TAG;
+		}
+
+		@NonNull
+		private final AdManager adManager;
+
+		MTRewardedAdLoadCallback(@NonNull AdManager adManager) {
+			this.adManager = adManager;
+		}
+
+		@Override
+		public void onRewardedAdLoaded() {
+			super.onRewardedAdLoaded();
+			final RewardedAdListener listener = this.adManager.getRewardedAdListener();
+			if (listener != null) {
+				listener.onRewardedAdStatusChanged();
+			}
+		}
+
+		@Override
+		public void onRewardedAdFailedToLoad(int i) {
+			super.onRewardedAdFailedToLoad(i);
+			final RewardedAdListener listener = this.adManager.getRewardedAdListener();
+			if (listener != null) {
+				listener.onRewardedAdStatusChanged();
+			}
+		}
+	}
+
+	@Override
+	public boolean isRewardedAdAvailableToShow() {
+		if (this.rewardedAd == null) { // do not trigger creation + loading
+			return false;
+		}
+		return this.rewardedAd.isLoaded();
+	}
+
+	@Override
+	public boolean showRewardedAd(@NonNull IActivity activity) {
+		if (this.rewardedAd == null) { // do not trigger creation + loading
+			return false;
+		}
+		if (!this.rewardedAd.isLoaded()) {
+			return false;
+		}
+		this.rewardedAd.show(activity.requireActivity(), new MTRewardedAdCallback(this, activity));
+		return true;
+	}
+
+	@Override
+	public int getRewardedAdAmount() {
+		return 10;
+	}
+
+	private static class MTRewardedAdCallback extends RewardedAdCallback implements MTLog.Loggable {
+
+		private static final String LOG_TAG = AdManager.class.getSimpleName() + ">" + MTRewardedAdCallback.class.getSimpleName();
+
+		@NonNull
+		@Override
+		public String getLogTag() {
+			return LOG_TAG;
+		}
+
+		@NonNull
+		private final AdManager adManager;
+		@NonNull
+		private final WeakReference<IActivity> activityWR;
+
+		MTRewardedAdCallback(@NonNull AdManager adManager, @NonNull IActivity activity) {
+			this.adManager = adManager;
+			this.activityWR = new WeakReference<>(activity);
+		}
+
+		@Override
+		public void onRewardedAdOpened() {
+			super.onRewardedAdOpened();
+		}
+
+		@Override
+		public void onRewardedAdClosed() {
+			super.onRewardedAdClosed();
+			final IActivity activity = this.activityWR.get();
+			if (activity != null) {
+				this.adManager.refreshRewardedAdStatus(activity);
+			}
+		}
+
+		@Override
+		public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
+			final long rewardAmount = 10L; // TODO custom amount? rewardItem.getAmount()
+			final TimeUnit rewardType = TimeUnit.DAYS;// TODO custom type? rewardItem.getType();
+			final IActivity activity = this.activityWR.get();
+			this.adManager.rewardUser(rewardType.toMillis(rewardAmount), activity);
+		}
+
+		@Override
+		public void onRewardedAdFailedToShow(int i) {
+			super.onRewardedAdFailedToShow(i);
+		}
 	}
 
 	@Override
@@ -179,6 +426,10 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			return false; // not showing ads
 		}
 		MTLog.d(this, "isShowingAds() > Showing ads: '%s'.", showingAds);
+		if (isRewardedNow()) { // rewarded status
+			MTLog.d(this, "isShowingAds() > Not showing ads (rewarded until: %s).", this.rewardedUntilInMs);
+			return false; // not showing ads
+		}
 		return showingAds;
 	}
 
@@ -373,23 +624,11 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 					}
 					adView.setAdListener(new MTAdListener(this.adManager, this.crashReporter, activity));
 
-					adView.loadAd(getAdRequest(activity));
+					adView.loadAd(this.adManager.getAdRequest(activity));
 				}
 			} else { // hide ads
 				this.adManager.hideAds(activity);
 			}
-		}
-
-		@NonNull
-		private AdRequest getAdRequest(IContext context) {
-			AdRequest.Builder adRequestBd = new AdRequest.Builder();
-			adRequestBd.setLocation(this.adManager.getLastLocation());
-			for (String keyword : KEYWORDS) {
-				adRequestBd.addKeyword(keyword);
-			}
-			AdRequest adRequest = adRequestBd.build();
-			MTLog.d(this, "getAdRequest() > test device? %s.", adRequest.isTestDevice(context.requireContext()));
-			return adRequest;
 		}
 	}
 

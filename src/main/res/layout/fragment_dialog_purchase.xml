@@ -131,5 +131,34 @@
             tools:text="@string/support_paid_tasks_incentive_open_btn"
             tools:visibility="visible" />
 
+        <View
+            android:id="@+id/paidTasksDivider2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/baseline_16"
+            android:layout_marginBottom="@dimen/baseline_16"
+            android:background="?attr/colorOnSurface" />
+
+        <TextView
+            android:id="@+id/rewardedAdText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="false"
+            android:text="@string/support_paid_tasks_incentive"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textStyle="italic"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <Button
+            android:id="@+id/rewardedAdsBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:text="@string/support_watch_rewarded_ad_btn_and_days"
+            android:visibility="visible"
+            tools:visibility="visible" />
+
     </LinearLayout>
 </ScrollView>

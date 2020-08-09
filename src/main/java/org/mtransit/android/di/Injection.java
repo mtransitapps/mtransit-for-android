@@ -150,6 +150,7 @@ public class Injection {
 			synchronized (Injection.class) {
 				if (adManager == null) {
 					adManager = new AdManager(
+							providesApplication(),
 							providesCrashReporter(),
 							providesLocationProvider()
 					);

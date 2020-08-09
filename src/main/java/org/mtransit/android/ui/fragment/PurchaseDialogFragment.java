@@ -1,26 +1,11 @@
 package org.mtransit.android.ui.fragment;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
-import org.mtransit.android.R;
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.PackageManagerUtils;
-import org.mtransit.android.commons.StoreUtils;
-import org.mtransit.android.commons.ToastUtils;
-import org.mtransit.android.util.VendingUtils;
-import org.mtransit.android.util.iab.IabHelper;
-import org.mtransit.android.util.iab.IabResult;
-import org.mtransit.android.util.iab.Inventory;
-import org.mtransit.android.util.iab.SkuDetails;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.collection.ArrayMap;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,32 +14,67 @@ import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 
-public class PurchaseDialogFragment extends MTDialogFragment implements IabHelper.QueryInventoryFinishedListener {
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.collection.ArrayMap;
 
-	private static final String TAG = PurchaseDialogFragment.class.getSimpleName();
+import org.mtransit.android.R;
+import org.mtransit.android.ad.IAdManager;
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.PackageManagerUtils;
+import org.mtransit.android.commons.StoreUtils;
+import org.mtransit.android.commons.ThreadSafeDateFormatter;
+import org.mtransit.android.commons.ToastUtils;
+import org.mtransit.android.di.Injection;
+import org.mtransit.android.ui.view.common.IActivity;
+import org.mtransit.android.util.VendingUtils;
+import org.mtransit.android.util.iab.IabHelper;
+import org.mtransit.android.util.iab.IabResult;
+import org.mtransit.android.util.iab.Inventory;
+import org.mtransit.android.util.iab.SkuDetails;
+
+import java.util.ArrayList;
+import java.util.Collections;
+
+public class PurchaseDialogFragment extends MTDialogFragment implements IActivity, IabHelper.QueryInventoryFinishedListener, IAdManager.RewardedAdListener {
+
+	private static final String LOG_TAG = PurchaseDialogFragment.class.getSimpleName();
 
 	public static final String PAID_TASKS_PKG = "com.google.android.apps.paidtasks";
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
+	@NonNull
 	public static PurchaseDialogFragment newInstance() {
 		return new PurchaseDialogFragment();
 	}
 
+	@NonNull
+	private final IAdManager adManager;
+
+	public PurchaseDialogFragment() {
+		super();
+		this.adManager = Injection.providesAdManager();
+	}
+
+	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_dialog_purchase, container, false);
 		setupView(view);
 		return view;
 	}
 
+	@NonNull
 	@Override
-	public Dialog onCreateDialog(Bundle savedInstanceState) {
+	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 		Dialog dialog = super.onCreateDialog(savedInstanceState);
 		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		dialog.setCancelable(true);
@@ -63,7 +83,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 	}
 
 	@Override
-	public void onCancel(DialogInterface dialog) {
+	public void onCancel(@SuppressLint("UnknownNullness") DialogInterface dialog) {
 		super.onCancel(dialog);
 		ToastUtils.makeTextAndShowCentered(getActivity(), R.string.support_subs_user_canceled_message);
 	}
@@ -78,6 +98,67 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 		view.findViewById(R.id.downloadOrOpenPaidTasksBtn).setOnClickListener(v ->
 				onDownloadOrOpenPaidTasksBtnClick(v.getContext())
 		);
+		view.findViewById(R.id.rewardedAdsBtn).setOnClickListener(v ->
+				onRewardedAdButtonClick(v.getContext())
+		);
+	}
+
+	@NonNull
+	@Override
+	public Context requireContext() throws IllegalStateException {
+		Context context = getContext();
+		if (context == null) {
+			throw new IllegalStateException("Fragment " + this + " not attached to a context.");
+		}
+		return context;
+	}
+
+	@NonNull
+	@Override
+	public Activity requireActivity() throws IllegalStateException {
+		Activity activity = getActivity();
+		if (activity == null) {
+			throw new IllegalStateException("Fragment " + this + " not attached to an activity.");
+		}
+		return activity;
+	}
+
+	@Override
+	public void finish() {
+		requireActivity().finish();
+	}
+
+	@Nullable
+	@Override
+	public <T extends View> T findViewById(int id) {
+		if (getView() == null) {
+			return null;
+		}
+		return getView().findViewById(id);
+	}
+
+	private void onRewardedAdButtonClick(@NonNull Context context) {
+		Activity activity = getActivity();
+		try {
+			if (activity == null) {
+				MTLog.w(this, "onRewardedAdButtonClick() > skip (no view or no activity)");
+				ToastUtils.makeTextAndShowCentered(context, R.string.support_watch_rewarded_ad_default_failure_message);
+				return;
+			}
+			if (!this.adManager.isRewardedAdAvailableToShow()) {
+				MTLog.w(this, "onRewardedAdButtonClick() > skip (no ad available)");
+				ToastUtils.makeTextAndShowCentered(context, R.string.support_watch_rewarded_ad_not_ready);
+				return;
+			}
+			this.adManager.showRewardedAd(this);
+			final View view = getView();
+			if (view != null) {
+				view.findViewById(R.id.rewardedAdsBtn).setEnabled(false);
+			}
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while handling download or open paid tasks button!");
+			ToastUtils.makeTextAndShowCentered(context, R.string.support_watch_rewarded_ad_default_failure_message);
+		}
 	}
 
 	private void onDownloadOrOpenPaidTasksBtnClick(@NonNull Context context) {
@@ -160,18 +241,64 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 		}
 	}
 
+	private final ThreadSafeDateFormatter dateFormatter = ThreadSafeDateFormatter.getDateInstance(ThreadSafeDateFormatter.MEDIUM);
+
 	@Override
 	public void onResume() {
 		super.onResume();
 		VendingUtils.getInventory(this);
+		this.adManager.setRewardedAdListener(this);
+		this.adManager.linkRewardedAd(this);
+		this.adManager.refreshRewardedAdStatus(this);
 		showLoading();
 		View view = getView();
 		if (view != null) {
 			((Button) view.findViewById(R.id.downloadOrOpenPaidTasksBtn)).setText( //
 					PackageManagerUtils.isAppInstalled(view.getContext(), PAID_TASKS_PKG) ? //
-					R.string.support_paid_tasks_incentive_open_btn
+							R.string.support_paid_tasks_incentive_open_btn
 							: R.string.support_paid_tasks_incentive_download_btn);
+			final Button rewardedAdsBtn = view.findViewById(R.id.rewardedAdsBtn);
+			if (this.adManager.isRewardedAdAvailableToShow()) {
+				view.findViewById(R.id.paidTasksDivider2).setVisibility(View.VISIBLE);
+				rewardedAdsBtn.setVisibility(View.VISIBLE);
+			}
+			rewardedAdsBtn.setEnabled(
+					this.adManager.isRewardedAdAvailableToShow()
+			);
+			rewardedAdsBtn.setText(getString(
+					this.adManager.isRewardedNow() ?
+							R.string.support_watch_rewarded_ad_btn_more_and_days :
+							R.string.support_watch_rewarded_ad_btn_and_days,
+					this.adManager.getRewardedAdAmount()
+			));
+			final TextView rewardedAdStatusTv = (TextView) view.findViewById(R.id.rewardedAdText);
+			rewardedAdStatusTv.setVisibility(this.adManager.isRewardedNow() ? View.VISIBLE : View.GONE);
+			rewardedAdStatusTv.setText(getString(
+					R.string.support_watch_rewarded_ad_status_until_and_date,
+					this.dateFormatter.formatThreadSafe(this.adManager.getRewardedUntilInMs())
+			));
 		}
+	}
+
+	@Override
+	public void onRewardedAdStatusChanged() {
+		final boolean availableToShow = this.adManager.isRewardedAdAvailableToShow();
+		View view = getView();
+		if (view != null) {
+			if (availableToShow) { // hidden until paying status known
+				view.findViewById(R.id.paidTasksDivider2).setVisibility(View.VISIBLE);
+				view.findViewById(R.id.rewardedAdsBtn).setVisibility(View.VISIBLE);
+			}
+			view.findViewById(R.id.rewardedAdsBtn).setEnabled(
+					availableToShow
+			);
+		}
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		this.adManager.unlinkRewardedAd(this);
 	}
 
 	private void showLoading() {
@@ -212,7 +339,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 	private ArrayMap<String, String> periodSToPeriodCat = new ArrayMap<>();
 
 	@Override
-	public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
+	public void onQueryInventoryFinished(@Nullable IabResult result, @Nullable Inventory inventory) {
 		View view = getView();
 		Activity activity = getActivity();
 		if (view == null || activity == null) {
@@ -269,7 +396,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 				int rIndexOf = VendingUtils.SORTED_PERIOD_CAT.indexOf(rPriceCat);
 				return lIndexOf - rIndexOf;
 			} catch (Exception e) {
-				MTLog.w(TAG, e, "Error while sorting periods!");
+				MTLog.w(LOG_TAG, e, "Error while sorting periods!");
 				return 0;
 			}
 		});
@@ -281,7 +408,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IabHelpe
 				int rIndexOf = rPriceCat == null || !TextUtils.isDigitsOnly(rPriceCat) ? -1 : Integer.parseInt(rPriceCat);
 				return lIndexOf - rIndexOf;
 			} catch (Exception e) {
-				MTLog.w(TAG, e, "Error while sorting prices!");
+				MTLog.w(LOG_TAG, e, "Error while sorting prices!");
 				return 0;
 			}
 		});

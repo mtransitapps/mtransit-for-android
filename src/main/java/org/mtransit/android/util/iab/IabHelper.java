@@ -335,7 +335,7 @@ public class IabHelper implements MTLog.Loggable {
 	}
 
 	public interface QueryInventoryFinishedListener {
-		void onQueryInventoryFinished(IabResult result, Inventory inv);
+		void onQueryInventoryFinished(@Nullable IabResult result, @Nullable Inventory inv);
 	}
 
 	public void queryInventoryAsync(final boolean querySkuDetails, final List<String> moreItemSkus, final List<String> moreSubsSkus,
