@@ -241,6 +241,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		}
 	}
 
+	@NonNull
 	private final ThreadSafeDateFormatter dateFormatter = ThreadSafeDateFormatter.getDateInstance(ThreadSafeDateFormatter.MEDIUM);
 
 	@Override
@@ -259,6 +260,12 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 							: R.string.support_paid_tasks_incentive_download_btn);
 			refreshRewardedLayout(view);
 		}
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		this.adManager.setRewardedAdListener(null);
 	}
 
 	private void refreshRewardedLayout(@NonNull View view) {

@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,6 +30,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 import org.mtransit.android.R;
+import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.BundleUtils;
@@ -37,6 +39,8 @@ import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TaskUtils;
+import org.mtransit.android.commons.ThreadSafeDateFormatter;
+import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteTripStop;
@@ -91,6 +95,7 @@ public class POIFragment extends ABFragment implements
 		UITimeUtils.TimeChangedReceiver.TimeChangedListener,
 		MapViewController.MapMarkerProvider,
 		IContext,
+		IAdManager.RewardedAdListener,
 		MapViewController.MapListener {
 
 	private static final String LOG_TAG = POIFragment.class.getSimpleName();
@@ -146,11 +151,14 @@ public class POIFragment extends ABFragment implements
 	private final LocationPermissionProvider locationPermissionProvider;
 	@NonNull
 	private final MTSensorManager sensorManager;
+	@NonNull
+	private final IAdManager adManager;
 
 	public POIFragment() {
 		super();
 		this.locationPermissionProvider = Injection.providesLocationPermissionProvider();
 		this.sensorManager = Injection.providesSensorManager();
+		this.adManager = Injection.providesAdManager();
 	}
 
 	private boolean hasAgency() {
@@ -576,12 +584,12 @@ public class POIFragment extends ABFragment implements
 
 	private void restoreInstanceState(Bundle... bundles) {
 		String newAuthority = BundleUtils.getString(EXTRA_AUTHORITY, bundles);
-		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
+		if (newAuthority != null && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
 			resetAgency();
 		}
 		String newUuid = BundleUtils.getString(EXTRA_POI_UUID, bundles);
-		if (!TextUtils.isEmpty(newUuid) && !newUuid.equals(this.uuid)) {
+		if (newUuid != null && !newUuid.equals(this.uuid)) {
 			this.uuid = newUuid;
 			resetPoim();
 		}
@@ -872,6 +880,44 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
+	private View getPOIRewardedAdView(@Nullable View view) {
+		if (view == null) {
+			return null;
+		}
+		if (view.findViewById(R.id.poi_rewarded_ad) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.poi_rewarded_ad_stub)).inflate(); // inflate
+
+			view.findViewById(R.id.rewardedAdsBtn).setOnClickListener(new MTOnClickListener() {
+				@Override
+				public void onClickMT(View view) {
+					onRewardedAdButtonClick(view.getContext());
+				}
+			});
+		}
+		return view.findViewById(R.id.poi_rewarded_ad);
+	}
+
+	private void onRewardedAdButtonClick(@NonNull Context context) {
+		final Activity activity = getActivity();
+		if (activity == null) {
+			MTLog.w(this, "onRewardedAdButtonClick() > skip (no view or no activity)");
+			ToastUtils.makeTextAndShowCentered(context, R.string.support_watch_rewarded_ad_default_failure_message);
+			return;
+		}
+		if (!this.adManager.isRewardedAdAvailableToShow()) {
+			MTLog.w(this, "onRewardedAdButtonClick() > skip (no ad available)");
+			ToastUtils.makeTextAndShowCentered(context, R.string.support_watch_rewarded_ad_not_ready);
+			return;
+		}
+		this.adManager.showRewardedAd(this);
+		final View view = getView();
+		if (view != null) {
+			view.findViewById(R.id.rewardedAdsBtn).setEnabled(false);
+		}
+		this.adManager.showRewardedAd(POIFragment.this);
+	}
+
+	@Nullable
 	private View getPOIView(@Nullable View view) {
 		POIManager poim = getPoimOrNull();
 		if (view == null || poim == null) {
@@ -1044,6 +1090,58 @@ public class POIFragment extends ABFragment implements
 		if (getActivity() != null) {
 			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
 		}
+		this.adManager.setRewardedAdListener(this);
+		refreshRewardedLayout(getView());
+	}
+
+	@Override
+	public void onRewardedAdStatusChanged() {
+		View view = getView();
+		if (view != null) {
+			refreshRewardedLayout(view);
+		}
+	}
+
+	@NonNull
+	private final ThreadSafeDateFormatter rewardedAdDateFormatter = ThreadSafeDateFormatter.getDateInstance(ThreadSafeDateFormatter.MEDIUM);
+
+	private void refreshRewardedLayout(@Nullable View view) {
+		final View rewardedLayout = getPOIRewardedAdView(view);
+		if (rewardedLayout != null) {
+			final TextView rewardedAdTitleTv = rewardedLayout.findViewById(R.id.rewardAdTitle);
+			final TextView rewardedAdsBtn = rewardedLayout.findViewById(R.id.rewardedAdsBtn);
+
+			final boolean availableToShow = this.adManager.isRewardedAdAvailableToShow();
+			final boolean rewardedNow = this.adManager.isRewardedNow();
+			final long rewardedUntilInMs = this.adManager.getRewardedUntilInMs();
+			final int rewardedAmount = this.adManager.getRewardedAdAmount();
+
+			rewardedLayout.setVisibility(availableToShow ? View.VISIBLE : View.GONE);
+
+			if (rewardedNow) {
+				rewardedAdTitleTv.setText(getString(
+						R.string.watch_rewarded_ad_title_text_and_date,
+						this.rewardedAdDateFormatter.formatThreadSafe(rewardedUntilInMs)
+				));
+				rewardedAdTitleTv.setVisibility(View.VISIBLE);
+			} else {
+				rewardedAdTitleTv.setVisibility(View.GONE);
+				rewardedAdTitleTv.setText(null);
+			}
+
+			rewardedAdsBtn.setText(getString(
+					rewardedNow ?
+							R.string.watch_rewarded_ad_btn_more_and_days :
+							R.string.watch_rewarded_ad_btn_and_days,
+					rewardedAmount
+			));
+			if (availableToShow) { // only if NOT paying user
+				rewardedAdsBtn.setEnabled(true);
+				rewardedAdsBtn.setVisibility(View.VISIBLE);
+			} else {
+				rewardedAdsBtn.setEnabled(false); // keep but disable
+			}
+		}
 	}
 
 	@Override
@@ -1058,6 +1156,7 @@ public class POIFragment extends ABFragment implements
 		if (this.adapter != null) {
 			this.adapter.onPause();
 		}
+		this.adManager.setRewardedAdListener(null);
 	}
 
 	private long nowToTheMinute = -1L;

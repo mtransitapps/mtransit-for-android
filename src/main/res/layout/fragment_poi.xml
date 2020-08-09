@@ -3,15 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
+
     <ScrollView
         android:id="@+id/scrollview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
+
             <com.google.android.gms.maps.MapView
                 android:id="@+id/map"
                 android:layout_width="match_parent"
@@ -25,31 +28,44 @@
                 app:uiZoomControls="false"
                 app:uiZoomGestures="false"
                 tools:visibility="visible" />
+
             <ViewStub
                 android:id="@+id/this_poi_stub"
                 android:layout_width="match_parent"
                 android:layout_height="?android:attr/listPreferredItemHeight"
                 android:inflatedId="@+id/this_poi" />
+
             <ViewStub
                 android:id="@+id/poi_status_detail_stub"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inflatedId="@+id/poi_status_detail" />
+
             <ViewStub
                 android:id="@+id/poi_service_update_stub"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inflatedId="@+id/poi_service_update" />
+
             <ViewStub
                 android:id="@+id/poi_news_stub"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inflatedId="@+id/poi_news" />
+
+            <ViewStub
+                android:id="@+id/poi_rewarded_ad_stub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inflatedId="@+id/poi_rewarded_ad"
+                android:layout="@layout/layout_poi_rewarded_ad" />
+
             <include
                 android:id="@+id/poi_nearby_pois_title"
                 layout="@layout/layout_poi_nearby_pois_title"
                 android:visibility="gone"
                 tools:visibility="visible" />
+
             <LinearLayout
                 android:id="@+id/poi_nearby_pois_list"
                 android:layout_width="match_parent"
@@ -59,5 +75,6 @@
                 tools:visibility="visible" />
         </LinearLayout>
     </ScrollView>
+
     <include layout="@layout/layout_shadow" />
 </FrameLayout>
