@@ -26,6 +26,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
+import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.view.common.IActivity;
@@ -37,6 +38,7 @@ import org.mtransit.android.util.iab.SkuDetails;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 public class PurchaseDialogFragment extends MTDialogFragment implements IActivity, IabHelper.QueryInventoryFinishedListener, IAdManager.RewardedAdListener {
 
@@ -303,6 +305,18 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		} else {
 			rewardedAdsBtn.setEnabled(false); // keep but disable
 		}
+	}
+
+	@Override
+	public boolean skipRewardedAd() {
+		if (!this.adManager.isRewardedNow()) {
+			return false; // never skip for non-rewarded users
+		}
+		final long rewardedUntilInMs = this.adManager.getRewardedUntilInMs();
+		final long skipRewardedAdUntilInMs = TimeUtils.currentTimeMillis()
+				- TimeUnit.HOURS.toMillis(1L) // accounts for "recent" rewards
+				+ this.adManager.getRewardedAdAmount() * this.adManager.getRewardedAdAmountInMs(); // not unlimited
+		return rewardedUntilInMs > skipRewardedAdUntilInMs;
 	}
 
 	@Override

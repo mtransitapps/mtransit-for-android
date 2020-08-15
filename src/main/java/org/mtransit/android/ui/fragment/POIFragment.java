@@ -40,6 +40,7 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
+import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.data.POIStatus;
@@ -909,12 +910,11 @@ public class POIFragment extends ABFragment implements
 			ToastUtils.makeTextAndShowCentered(context, R.string.support_watch_rewarded_ad_not_ready);
 			return;
 		}
-		this.adManager.showRewardedAd(this);
 		final View view = getView();
 		if (view != null) {
 			view.findViewById(R.id.rewardedAdsBtn).setEnabled(false);
 		}
-		this.adManager.showRewardedAd(POIFragment.this);
+		this.adManager.showRewardedAd(this);
 	}
 
 	@Nullable
@@ -1091,7 +1091,24 @@ public class POIFragment extends ABFragment implements
 			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
 		}
 		this.adManager.setRewardedAdListener(this);
+		this.adManager.refreshRewardedAdStatus(this);
 		refreshRewardedLayout(getView());
+	}
+
+	@Override
+	public boolean skipRewardedAd() {
+		return shouldSkipRewardedAd(this, this.adManager);
+	}
+
+	public static boolean shouldSkipRewardedAd(@NonNull MTLog.Loggable loggable, @NonNull IAdManager adManager) {
+		if (!adManager.isRewardedNow()) {
+			return false; // never skip for non-rewarded users
+		}
+		final long rewardedUntilInMs = adManager.getRewardedUntilInMs();
+		final long skipRewardedAdUntilInMs = TimeUtils.currentTimeMillis()
+				- TimeUnit.HOURS.toMillis(1L) // accounts for "recent" rewards
+				+ 2L * adManager.getRewardedAdAmountInMs();
+		return rewardedUntilInMs > skipRewardedAdUntilInMs;
 	}
 
 	@Override
@@ -1123,11 +1140,12 @@ public class POIFragment extends ABFragment implements
 						R.string.watch_rewarded_ad_title_text_and_date,
 						this.rewardedAdDateFormatter.formatThreadSafe(rewardedUntilInMs)
 				));
-				rewardedAdTitleTv.setVisibility(View.VISIBLE);
 			} else {
-				rewardedAdTitleTv.setVisibility(View.GONE);
-				rewardedAdTitleTv.setText(null);
+				rewardedAdTitleTv.setText(getString(
+						R.string.watch_rewarded_ad_title_text
+				));
 			}
+			rewardedAdTitleTv.setVisibility(View.VISIBLE);
 
 			rewardedAdsBtn.setText(getString(
 					rewardedNow ?

@@ -18,11 +18,14 @@ public interface IAdManager {
 
 	int getRewardedAdAmount();
 
+	long getRewardedAdAmountInMs();
+
 	void linkRewardedAd(@NonNull IActivity activity);
 
 	void unlinkRewardedAd(@NonNull IActivity activity);
 
 	void refreshRewardedAdStatus(@NonNull IActivity activity);
+
 	boolean isRewardedAdAvailableToShow();
 
 	@SuppressWarnings("UnusedReturnValue")
@@ -46,5 +49,7 @@ public interface IAdManager {
 
 	interface RewardedAdListener {
 		void onRewardedAdStatusChanged();
+
+		boolean skipRewardedAd();
 	}
 }

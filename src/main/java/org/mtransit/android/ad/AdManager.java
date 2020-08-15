@@ -10,10 +10,12 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.gms.ads.rewarded.RewardItem;
@@ -129,6 +131,9 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 	@Override
 	public long getRewardedUntilInMs() {
+		if (!AD_ENABLED) {
+			return Long.MAX_VALUE; // forever
+		}
 		if (this.rewardedUntilInMs == null) {
 			this.rewardedUntilInMs = PreferenceUtils.getPrefDefault(
 					this.application.requireContext(),
@@ -150,6 +155,9 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 	@Override
 	public boolean isRewardedNow() {
+		if (!AD_ENABLED) {
+			return true;
+		}
 		return getRewardedUntilInMs() > TimeUtils.currentTimeMillis();
 	}
 
@@ -222,16 +230,30 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 	@Override
 	public void refreshRewardedAdStatus(@NonNull IActivity activity) {
-		final boolean isNotPayingUser = Boolean.TRUE.equals(this.showingAds);
-		if (isNotPayingUser) {
-			loadRewardedAdIfNecessary(activity);
+		if (!AD_ENABLED) {
+			return;
 		}
+		final boolean isNotPayingUser = Boolean.TRUE.equals(this.showingAds);
+		if (!isNotPayingUser) {
+			MTLog.d(this, "refreshRewardedAdStatus() > SKIP (paying user)");
+			return;
+		}
+		final RewardedAdListener listener = getRewardedAdListener();
+		if (listener == null) {
+			MTLog.d(this, "refreshRewardedAdStatus() > SKIP (unknown screen)");
+			return;
+		}
+		if (listener.skipRewardedAd()) {
+			MTLog.d(this, "refreshRewardedAdStatus() > SKIP (not in this screen)");
+			return;
+		}
+		loadRewardedAdIfNecessary(activity);
 	}
 
 	private void loadRewardedAdIfNecessary(@NonNull IActivity activity) {
 		final RewardedAd rewardedAd = getRewardedAd(activity);
 		if (!rewardedAd.isLoaded()) {
-			rewardedAd.loadAd(getAdRequest(activity), new MTRewardedAdLoadCallback(this));
+			rewardedAd.loadAd(getAdRequest(activity), new MTRewardedAdLoadCallback(this, this.crashReporter));
 		}
 	}
 
@@ -261,9 +283,12 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 		@NonNull
 		private final AdManager adManager;
+		@NonNull
+		private final CrashReporter crashReporter;
 
-		MTRewardedAdLoadCallback(@NonNull AdManager adManager) {
+		MTRewardedAdLoadCallback(@NonNull AdManager adManager, @NonNull CrashReporter crashReporter) {
 			this.adManager = adManager;
+			this.crashReporter = crashReporter;
 		}
 
 		@Override
@@ -276,17 +301,40 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 
 		@Override
-		public void onRewardedAdFailedToLoad(int i) {
-			super.onRewardedAdFailedToLoad(i);
+		public void onRewardedAdFailedToLoad(LoadAdError loadAdError) {
+			super.onRewardedAdFailedToLoad(loadAdError);
 			final RewardedAdListener listener = this.adManager.getRewardedAdListener();
 			if (listener != null) {
 				listener.onRewardedAdStatusChanged();
+			}
+			switch (loadAdError.getCode()) {
+			case AdRequest.ERROR_CODE_APP_ID_MISSING:
+				this.crashReporter.w(this, "Failed to received rewarded ad! App ID missing: '%s' (%s).", loadAdError.getCode(), loadAdError);
+				break;
+			case AdRequest.ERROR_CODE_INTERNAL_ERROR:
+				this.crashReporter.w(this, "Failed to received rewarded ad! Internal error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
+				break;
+			case AdRequest.ERROR_CODE_INVALID_REQUEST:
+				this.crashReporter.w(this, "Failed to received rewarded ad! Invalid request error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
+				break;
+			case AdRequest.ERROR_CODE_NETWORK_ERROR:
+				MTLog.w(this, "Failed to received rewarded ad! Network error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
+				break;
+			case AdRequest.ERROR_CODE_NO_FILL:
+				this.crashReporter.w(this, "Failed to received rewarded ad! No fill error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
+				break;
+			default:
+				this.crashReporter.w(this, "Failed to received rewarded ad! Error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
+				break;
 			}
 		}
 	}
 
 	@Override
 	public boolean isRewardedAdAvailableToShow() {
+		if (!AD_ENABLED) {
+			return false;
+		}
 		if (this.rewardedAd == null) { // do not trigger creation + loading
 			return false;
 		}
@@ -295,19 +343,29 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 	@Override
 	public boolean showRewardedAd(@NonNull IActivity activity) {
+		if (!AD_ENABLED) {
+			return false;
+		}
 		if (this.rewardedAd == null) { // do not trigger creation + loading
 			return false;
 		}
 		if (!this.rewardedAd.isLoaded()) {
 			return false;
 		}
-		this.rewardedAd.show(activity.requireActivity(), new MTRewardedAdCallback(this, activity));
+		this.rewardedAd.show(activity.requireActivity(), new MTRewardedAdCallback(this, this.crashReporter, activity));
 		return true;
 	}
 
 	@Override
 	public int getRewardedAdAmount() {
-		return 10;
+		return 7; // 1 week
+	}
+
+	@Override
+	public long getRewardedAdAmountInMs() {
+		final long rewardAmount = getRewardedAdAmount(); // TODO custom amount? rewardItem.getAmount()
+		final TimeUnit rewardType = TimeUnit.DAYS;// TODO custom type? rewardItem.getType();
+		return rewardType.toMillis(rewardAmount);
 	}
 
 	private static class MTRewardedAdCallback extends RewardedAdCallback implements MTLog.Loggable {
@@ -323,10 +381,13 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		@NonNull
 		private final AdManager adManager;
 		@NonNull
+		private final CrashReporter crashReporter;
+		@NonNull
 		private final WeakReference<IActivity> activityWR;
 
-		MTRewardedAdCallback(@NonNull AdManager adManager, @NonNull IActivity activity) {
+		MTRewardedAdCallback(@NonNull AdManager adManager, @NonNull CrashReporter crashReporter, @NonNull IActivity activity) {
 			this.adManager = adManager;
+			this.crashReporter = crashReporter;
 			this.activityWR = new WeakReference<>(activity);
 		}
 
@@ -346,15 +407,14 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 		@Override
 		public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
-			final long rewardAmount = 10L; // TODO custom amount? rewardItem.getAmount()
-			final TimeUnit rewardType = TimeUnit.DAYS;// TODO custom type? rewardItem.getType();
 			final IActivity activity = this.activityWR.get();
-			this.adManager.rewardUser(rewardType.toMillis(rewardAmount), activity);
+			this.adManager.rewardUser(this.adManager.getRewardedAdAmountInMs(), activity);
 		}
 
 		@Override
-		public void onRewardedAdFailedToShow(int i) {
-			super.onRewardedAdFailedToShow(i);
+		public void onRewardedAdFailedToShow(AdError adError) {
+			super.onRewardedAdFailedToShow(adError);
+			this.crashReporter.w(this, "Failed to show rewarded ad! %s: '%s' (%s).", adError.getCode(), adError.getMessage(), adError.getDomain());
 		}
 	}
 
@@ -656,23 +716,27 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 
 		@Override
-		public void onAdFailedToLoad(int errorCode) {
-			super.onAdFailedToLoad(errorCode);
-			switch (errorCode) {
+		public void onAdFailedToLoad(LoadAdError loadAdError) {
+			super.onAdFailedToLoad(loadAdError);
+			switch (loadAdError.getCode()) {
+			case AdRequest.ERROR_CODE_APP_ID_MISSING:
+				this.crashReporter.w(this, "Failed to received ad! App ID missing: '%s' (%s).", loadAdError.getCode(), loadAdError);
+				break;
 			case AdRequest.ERROR_CODE_INTERNAL_ERROR:
-				this.crashReporter.w(this, "Failed to received ad! Internal error code: '%s'.", errorCode);
+				this.crashReporter.w(this, "Failed to received ad! Internal error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
 				break;
 			case AdRequest.ERROR_CODE_INVALID_REQUEST:
-				this.crashReporter.w(this, "Failed to received ad! Invalid request error code: '%s'.", errorCode);
+				this.crashReporter.w(this, "Failed to received ad! Invalid request error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
 				break;
 			case AdRequest.ERROR_CODE_NETWORK_ERROR:
-				MTLog.w(this, "Failed to received ad! Network error code: '%s'.", errorCode);
+				MTLog.w(this, "Failed to received ad! Network error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
 				break;
 			case AdRequest.ERROR_CODE_NO_FILL:
-				this.crashReporter.w(this, "Failed to received ad! No fill error code: '%s'.", errorCode);
+				this.crashReporter.w(this, "Failed to received ad! No fill error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
 				break;
 			default:
-				this.crashReporter.w(this, "Failed to received ad! Error code: '%s'.", errorCode);
+				this.crashReporter.w(this, "Failed to received ad! Error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
+				break;
 			}
 			this.adManager.adLoaded = null;
 			IActivity activity = this.activityWR.get();
