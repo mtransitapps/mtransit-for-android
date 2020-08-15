@@ -202,6 +202,7 @@
     <string name="support_watch_rewarded_ad_btn_more_and_days">Regarder une pub pour\navoir +%d jours sans pub</string>
     <string name="support_watch_rewarded_ad_default_failure_message">:(</string>
     <string name="support_watch_rewarded_ad_not_ready">Aucune pub disponible actuellement :(</string>
+    <string name="support_watch_rewarded_ad_successful_message">Merci :)</string>
 
     <string name="watch_rewarded_ad_title_text">Sans-pub</string>
     <string name="watch_rewarded_ad_title_text_and_date">Sans-pub jusqu\'au %s</string>

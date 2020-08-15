@@ -6,6 +6,7 @@ import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +33,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.TimeUtils;
+import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.dev.CrashReporter;
@@ -165,6 +167,9 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		final long currentRewardedUntilOrNow = Math.max(getRewardedUntilInMs(), TimeUtils.currentTimeMillis());
 		setRewardedUntilInMs(currentRewardedUntilOrNow + newRewardInMs);
 		if (activity != null) {
+			ToastUtils.makeTextAndShowCentered(activity.getContext(),
+					R.string.support_watch_rewarded_ad_successful_message,
+					Toast.LENGTH_LONG);
 			refreshAdStatus(activity);
 		}
 	}

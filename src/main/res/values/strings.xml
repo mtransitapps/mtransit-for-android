@@ -202,6 +202,7 @@
     <string name="support_watch_rewarded_ad_btn_more_and_days">Watch an ad to\nget +%d days ad-free</string>
     <string name="support_watch_rewarded_ad_default_failure_message">:(</string>
     <string name="support_watch_rewarded_ad_not_ready">No ad available at this time :(</string>
+    <string name="support_watch_rewarded_ad_successful_message">Thank You :)</string>
 
     <string name="watch_rewarded_ad_title_text">Ad-free</string>
     <string name="watch_rewarded_ad_title_text_and_date">Ad-free until %s</string>
