@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.CollectionUtils
 import org.mtransit.android.commons.MTLog
@@ -12,6 +13,7 @@ import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.commons.provider.NewsProviderContract
 import org.mtransit.android.data.DataSourceProvider
 import org.mtransit.android.data.NewsProviderProperties
+import org.mtransit.android.ui.view.common.MTLoading
 
 var LOG_TAG = NewsRepository::class.java.simpleName
 
@@ -33,6 +35,10 @@ class NewsRepository(
 
     val filteredNewsArticles: LiveData<List<NewsArticle>> = _filteredNewsArticles
 
+    private val _loadingNewsArticles = MutableLiveData<MTLoading>(MTLoading(false))
+
+    val loadingNewsArticles: LiveData<MTLoading> = _loadingNewsArticles
+
     init {
         DataSourceProvider.addModulesUpdateListener(this)
     }
@@ -41,15 +47,17 @@ class NewsRepository(
         targetAuthorities: List<String>,
         filterUUIDs: List<String>,
         filterTargets: List<String>
-    ) {
+    ): Boolean {
         if (targetAuthorities == _filter.value?.first
-            && filterUUIDs == filter.value?.second
-            && filterTargets == filter.value?.third
+            && filterUUIDs == _filter.value?.second
+            && filterTargets == _filter.value?.third
         ) {
             MTLog.d(this, "setFilter() > SKIP")
-            return
+            return false
         }
+        _filteredNewsArticles.value = null // clear
         _filter.value = Triple(targetAuthorities, filterUUIDs, filterTargets)
+        return true
     }
 
     suspend fun refreshFilteredNews() {
@@ -61,11 +69,17 @@ class NewsRepository(
     }
 
     private suspend fun doRefreshFilteredNews() {
-        _filteredNewsArticles.value = loadNews(
-            _filter.value?.first,
-            _filter.value?.second,
-            _filter.value?.third
-        )
+        _loadingNewsArticles.value = MTLoading(true)
+        withContext(ioDispatcher) {
+            val loadedNews = loadNews(
+                _filter.value?.first,
+                _filter.value?.second,
+                _filter.value?.third
+            )
+            ensureActive() // do not set wrong loaded news
+            _filteredNewsArticles.postValue(loadedNews)
+            _loadingNewsArticles.postValue(MTLoading(false))
+        }
     }
 
     private suspend fun loadNews(
@@ -90,7 +104,9 @@ class NewsRepository(
         filter: NewsProviderContract.Filter = NewsProviderContract.Filter.getNewEmptyFilter()
     ): MutableList<NewsArticle> {
         return withContext(ioDispatcher) {
-            return@withContext doLoadNews(targetAuthorities, filter)
+            val doLoadNews = doLoadNews(targetAuthorities, filter)
+            ensureActive() // do not set wrong loaded news
+            return@withContext doLoadNews
         }
     }
 

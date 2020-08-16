@@ -13,6 +13,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.NewsArticle
 import org.mtransit.android.data.source.NewsRepository
 import org.mtransit.android.ui.view.common.Event
+import org.mtransit.android.ui.view.common.MTLoading
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.util.UITimeUtils
 import java.util.concurrent.TimeUnit
@@ -27,21 +28,18 @@ class NewsListViewModel(
 
     private val _forceUpdate = MutableLiveData<Boolean>(false)
 
-    private val _dataLoading = MutableLiveData<Boolean>()
-    val dataLoading: LiveData<Boolean> = _dataLoading
+    val dataLoading: LiveData<MTLoading> = newsRepository.loadingNewsArticles
 
     val filter: LiveData<Triple<List<String>?, List<String>?, List<String>?>> =
         newsRepository.filter
 
-    private val _trigger = PairMediatorLiveData(filter, _forceUpdate)
+    private val _trigger = PairMediatorLiveData(newsRepository.filter, _forceUpdate)
 
     private val _filteredNewsArticles: LiveData<List<NewsArticle>> =
         _trigger.switchMap { trigger ->
             if (trigger.second == true) {
-                _dataLoading.value = true
                 viewModelScope.launch {
                     newsRepository.refreshFilteredNews()
-                    _dataLoading.value = false
                 }
             }
             newsRepository
@@ -57,32 +55,34 @@ class NewsListViewModel(
         UITimeUtils.currentTimeMillis() - TimeUnit.DAYS.toMillis(14L)
 
     val selectedNewsArticles: LiveData<List<NewsArticle>> =
-        Transformations.map(_filteredNewsArticles) { newsArticles ->
-            val sortedNewsArticles = newsArticles
-                .filter {
-                    it.createdAtInMs > selectionFilterOldestCreatedAtInMs
-                }
-                .sortedWith(NewsArticle.NEWS_SEVERITY_COMPARATOR)
-            val minSelectedArticles =
-                if (sortedNewsArticles.size > 1) 2 else 1  // encourage 2+ articles
-            val nowInMs = UITimeUtils.currentTimeMillis()
-            var noteworthiness = 1
-            val newSelectedNewsArticle = mutableListOf<NewsArticle>()
-            while (newSelectedNewsArticle.size < minSelectedArticles
-                && noteworthiness < selectionFilterMaxNoteworthiness
-            ) {
-                sortedNewsArticles.forEach { newsArticle ->
-                    val validityInMs: Long =
-                        newsArticle.createdAtInMs + newsArticle.noteworthyInMs * noteworthiness
-                    if (validityInMs >= nowInMs) {
-                        if (!newSelectedNewsArticle.contains(newsArticle)) {
-                            newSelectedNewsArticle.add(newsArticle)
+        Transformations.map(_filteredNewsArticles) { newsArticles: List<NewsArticle>? ->
+            newsArticles?.let { newsArticleNN ->
+                val sortedNewsArticles = newsArticleNN
+                    .filter {
+                        it.createdAtInMs > selectionFilterOldestCreatedAtInMs
+                    }
+                    .sortedWith(NewsArticle.NEWS_SEVERITY_COMPARATOR)
+                val minSelectedArticles =
+                    if (sortedNewsArticles.size > 1) 2 else 1  // encourage 2+ articles
+                val nowInMs = UITimeUtils.currentTimeMillis()
+                var noteworthiness = 1
+                val newSelectedNewsArticle = mutableListOf<NewsArticle>()
+                while (newSelectedNewsArticle.size < minSelectedArticles
+                    && noteworthiness < selectionFilterMaxNoteworthiness
+                ) {
+                    sortedNewsArticles.forEach { newsArticle ->
+                        val validityInMs: Long =
+                            newsArticle.createdAtInMs + newsArticle.noteworthyInMs * noteworthiness
+                        if (validityInMs >= nowInMs) {
+                            if (!newSelectedNewsArticle.contains(newsArticle)) {
+                                newSelectedNewsArticle.add(newsArticle)
+                            }
                         }
                     }
+                    noteworthiness++
                 }
-                noteworthiness++
+                newSelectedNewsArticle
             }
-            newSelectedNewsArticle
         }
 
     init {
@@ -149,16 +149,19 @@ class NewsListViewModel(
         filterUUIDs: List<String>?,
         filterTargets: List<String>?
     ) {
-        newsRepository.setFilter(
+        val filterChanged = newsRepository.setFilter(
             targetAuthorities ?: emptyList(),
             filterUUIDs ?: emptyList(),
             filterTargets ?: emptyList()
         )
+        if (filterChanged) {
+            setCurrentNews(null, null) // reset
+        }
     }
 
     val empty: LiveData<Boolean> =
         Transformations.map(_filteredNewsArticles) {
-            it.isEmpty()
+            it.isNullOrEmpty()
         }
 
     private val _openNewsArticleEvent = MutableLiveData<Event<NewsArticle>>()

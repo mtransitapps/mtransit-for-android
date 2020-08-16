@@ -121,8 +121,8 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
                 newsLinearLayout.isVisible = !it
             }
         })
-        viewModel.dataLoading.observe(viewLifecycleOwner, Observer { isLoading ->
-            viewBinding?.refreshLayout?.isRefreshing = isLoading
+        viewModel.dataLoading.observe(viewLifecycleOwner, Observer { loadingState ->
+            viewBinding?.refreshLayout?.isRefreshing = loadingState.loading
         })
         viewModel.filteredNewsArticles.observe(viewLifecycleOwner, Observer { newsArticles ->
             listAdapter.submitList(newsArticles)

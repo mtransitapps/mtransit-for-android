@@ -59,6 +59,7 @@ import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ScheduleProviderProperties;
 import org.mtransit.android.data.source.NewsRepository;
+import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.di.ServiceLocator;
 import org.mtransit.android.provider.FavoriteManager;
@@ -78,7 +79,6 @@ import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
-import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
@@ -162,6 +162,8 @@ public class POIFragment extends ABFragment implements
 	@NonNull
 	private final IAdManager adManager;
 	@NonNull
+	private final CrashReporter crashReporter;
+	@NonNull
 	private final NewsRepository newsRepository;
 
 	@Nullable
@@ -172,6 +174,7 @@ public class POIFragment extends ABFragment implements
 		this.locationPermissionProvider = Injection.providesLocationPermissionProvider();
 		this.sensorManager = Injection.providesSensorManager();
 		this.adManager = Injection.providesAdManager();
+		this.crashReporter = Injection.providesCrashReporter();
 		this.newsRepository = ServiceLocator.getNewsRepository();
 	}
 
@@ -542,23 +545,20 @@ public class POIFragment extends ABFragment implements
 		case NEARBY_POIS_LOADER:
 			POIManager poim = getPoimOrNull();
 			if (TextUtils.isEmpty(this.authority) || poim == null) {
-				//noinspection deprecation // FIXME
-				CrashUtils.w(this, "onCreateLoader() > agency or poi not available yet (agency:%s|poi:%s).", this.authority, poim);
+				this.crashReporter.w(this, "onCreateLoader() > agency or poi not available yet (agency:%s|poi:%s).", this.authority, poim);
 				//noinspection ConstantConditions // FIXME
 				return null;
 			}
 			Context context = getContext();
 			if (context == null) {
-				//noinspection deprecation // FIXME
-				CrashUtils.w(this, "onCreateLoader() > skip (no context)");
+				this.crashReporter.w(this, "onCreateLoader() > skip (no context)");
 				//noinspection ConstantConditions // FIXME
 				return null;
 			}
 			return new NearbyPOIListLoader(context, poim.poi.getLat(), poim.poi.getLng(), this.ad.aroundDiff,
 					LocationUtils.MIN_POI_NEARBY_POIS_LIST_COVERAGE_IN_METERS, LocationUtils.MAX_POI_NEARBY_POIS_LIST, false, true, this.authority);
 		default:
-			//noinspection deprecation // FIXME
-			CrashUtils.w(this, "Loader id '%s' unknown!", id);
+			this.crashReporter.w(this, "Loader id '%s' unknown!", id);
 			//noinspection ConstantConditions // FIXME
 			return null;
 		}
@@ -1047,10 +1047,10 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public boolean skipRewardedAd() {
-		return shouldSkipRewardedAd(this, this.adManager);
+		return shouldSkipRewardedAd(this.adManager);
 	}
 
-	public static boolean shouldSkipRewardedAd(@NonNull MTLog.Loggable loggable, @NonNull IAdManager adManager) {
+	public static boolean shouldSkipRewardedAd(@NonNull IAdManager adManager) {
 		if (!adManager.isRewardedNow()) {
 			return false; // never skip for non-rewarded users
 		}
