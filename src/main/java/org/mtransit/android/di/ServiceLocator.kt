@@ -68,6 +68,7 @@ object ServiceLocator {
     @JvmStatic
     val adManager: IAdManager by lazy {
         AdManager(
+            application,
             crashReporter,
             locationProvider
         )
