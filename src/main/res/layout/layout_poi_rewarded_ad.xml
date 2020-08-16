@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <include layout="@layout/layout_poi_rewarded_ad_title" />
+
+    <TextView
+        android:id="@+id/rewardedAdsBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        android:enabled="false"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:paddingLeft="@dimen/baseline_16"
+        android:paddingTop="@dimen/baseline_16"
+        android:paddingRight="@dimen/baseline_16"
+        android:paddingBottom="@dimen/baseline_16"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:visibility="gone"
+        tools:ignore="UnusedAttribute"
+        tools:text="@string/watch_rewarded_ad_btn_and_days"
+        tools:visibility="visible" />
+
+</LinearLayout>

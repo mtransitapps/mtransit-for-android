@@ -16,9 +16,9 @@
         android:layout_centerVertical="true"
         android:padding="@dimen/poi_fav_padding"
         android:scaleType="fitCenter"
-        android:tint="@color/color_secondary_on_background"
         android:visibility="gone"
         app:srcCompat="@drawable/ic_star_black_24dp"
+        app:tint="@color/color_secondary_on_background"
         tools:visibility="visible" />
 
     <LinearLayout

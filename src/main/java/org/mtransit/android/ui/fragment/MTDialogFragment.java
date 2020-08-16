@@ -20,6 +20,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * NO LOGIC HERE, just logs.
  */
@@ -32,8 +35,9 @@ public abstract class MTDialogFragment extends DialogFragment implements MTLog.L
 		}
 	}
 
+	@NonNull
 	@Override
-	public Dialog onCreateDialog(Bundle savedInstanceState) {
+	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCreateDialog(%s)", savedInstanceState);
 		}
@@ -121,8 +125,9 @@ public abstract class MTDialogFragment extends DialogFragment implements MTLog.L
 		super.onCreate(savedInstanceState);
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCreateView(%s,%s,%s)", inflater, container, savedInstanceState);
 		}

@@ -28,6 +28,7 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.fragment.ABFragment;
+import org.mtransit.android.ui.fragment.POIFragment;
 import org.mtransit.android.ui.fragment.SearchFragment;
 import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.util.FragmentUtils;
@@ -43,6 +44,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		AnalyticsManager.Trackable,
 		VendingUtils.OnVendingResultListener,
 		IActivity,
+		IAdManager.RewardedAdListener,
 		DataSourceProvider.ModulesUpdateListener {
 
 	private static final String TAG = "Stack-" + MainActivity.class.getSimpleName();
@@ -195,7 +197,19 @@ public class MainActivity extends MTActivityWithLocation implements
 		analyticsManager.trackScreenView(this, this);
 		VendingUtils.onResume(this, this);
 		this.adManager.adaptToScreenSize(this, getResources().getConfiguration());
+		this.adManager.setRewardedAdListener(this); // used until POI screen is visible // need to pre-load ASAP
+		this.adManager.linkRewardedAd(this);
 		onLastLocationChanged(getUserLocation());
+	}
+
+	@Override
+	public void onRewardedAdStatusChanged() {
+		// DO NOTHING
+	}
+
+	@Override
+	public boolean skipRewardedAd() {
+		return POIFragment.shouldSkipRewardedAd(this, this.adManager);
 	}
 
 	@Override
@@ -267,6 +281,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		this.fragmentsToPopWR.clear();
 		DataSourceProvider.destroy();
 		this.adManager.destroyAd(this);
+		this.adManager.unlinkRewardedAd(this);
 	}
 
 	@Override
