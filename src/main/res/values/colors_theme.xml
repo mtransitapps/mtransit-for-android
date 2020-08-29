@@ -20,7 +20,7 @@
 
     <color name="color_on_background">@color/ic_grey600</color>
 
-    <color name="color_secondary_on_background">@color/white_85</color>
+    <color name="color_secondary_on_background">@color/black_15</color>
 
     <color name="navigation_item_color_default">@color/color_on_background</color>
     <color name="navigation_item_color_checked">@color/color_primary</color>
