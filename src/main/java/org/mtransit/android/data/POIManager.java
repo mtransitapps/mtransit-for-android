@@ -194,14 +194,14 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	@Nullable
-	public POIStatus getStatus(Context context) {
+	public POIStatus getStatus(@Nullable Context context) {
 		if (this.status == null || this.lastFindStatusTimestampMs < 0L || this.inFocus || !this.status.isUseful()) {
 			findStatus(context, false);
 		}
 		return this.status;
 	}
 
-	private boolean findStatus(Context context, boolean skipIfBusy) {
+	private boolean findStatus(@Nullable Context context, boolean skipIfBusy) {
 		long findStatusTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindStatusTimestampMs != findStatusTimestampMs) { // IF not same minute as last findStatus() call DO

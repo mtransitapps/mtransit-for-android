@@ -186,7 +186,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateAppStatusView(Context context, CommonStatusViewHolder statusViewHolder, POIStatus status) {
+	private static void updateAppStatusView(@NonNull Context context, CommonStatusViewHolder statusViewHolder, POIStatus status) {
 		AppStatusViewHolder appStatusViewHolder = (AppStatusViewHolder) statusViewHolder;
 		if (status instanceof AppStatus) {
 			AppStatus appStatus = (AppStatus) status;

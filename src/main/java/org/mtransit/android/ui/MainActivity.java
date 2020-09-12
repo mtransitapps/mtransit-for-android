@@ -203,7 +203,7 @@ public class MainActivity extends MTActivityWithLocation implements
 
 	@Override
 	public boolean skipRewardedAd() {
-		return POIFragment.shouldSkipRewardedAd(this, this.adManager);
+		return POIFragment.shouldSkipRewardedAd(this.adManager);
 	}
 
 	@Override

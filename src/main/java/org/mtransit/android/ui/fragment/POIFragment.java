@@ -1074,14 +1074,15 @@ public class POIFragment extends ABFragment implements
 		if (this.adapter != null) {
 			this.adapter.onResume(getActivity(), this.userLocation);
 		}
-		POIManager poim = getPoimOrNull();
+		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
 			this.mapViewController.notifyMarkerChanged(this);
 			this.mapViewController.showMap(view);
-			POIViewController.updateView(requireContext(), getPOIView(view), poim, this);
-			POIStatusDetailViewController.updateView(requireContext(), getPOIStatusView(view), poim, this);
-			POIServiceUpdateViewController.updateView(requireContext(), getPOIServiceUpdateView(view), poim, this);
-			POINewsViewController.updateView(requireContext(), getPOINewsView(view), getNewsOrNull());
+			final Context context = requireContext();
+			POIViewController.updateView(context, getPOIView(view), poim, this);
+			POIStatusDetailViewController.updateView(context, getPOIStatusView(view), poim, this);
+			POIServiceUpdateViewController.updateView(context, getPOIServiceUpdateView(view), poim, this);
+			POINewsViewController.updateView(context, getPOINewsView(view), getNewsOrNull());
 			setupRTSFullScheduleBtn(view);
 			setupMoreNewsButton(view);
 			setupMoreNearbyButton(view);
@@ -1097,10 +1098,10 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public boolean skipRewardedAd() {
-		return shouldSkipRewardedAd(this, this.adManager);
+		return shouldSkipRewardedAd(this.adManager);
 	}
 
-	public static boolean shouldSkipRewardedAd(@NonNull MTLog.Loggable loggable, @NonNull IAdManager adManager) {
+	public static boolean shouldSkipRewardedAd(@NonNull IAdManager adManager) {
 		if (!adManager.isRewardedNow()) {
 			return false; // never skip for non-rewarded users
 		}
@@ -1196,18 +1197,22 @@ public class POIFragment extends ABFragment implements
 	private void resetNowToTheMinute() {
 		MTLog.i(this, "Refreshing UI data...");
 		this.nowToTheMinute = UITimeUtils.currentTimeToTheMinuteMillis();
-		View view = getView();
-		POIManager poim = getPoimOrNull();
+		final Context context = getContext();
+		if (context == null) {
+			return;
+		}
+		final View view = getView();
+		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
 			View poiView = getPOIView(view);
-			POIViewController.updatePOIStatus(getContext(), poiView, poim, this);
-			POIViewController.updatePOIServiceUpdate(getContext(), poiView, poim, this);
-			POIStatusDetailViewController.updateView(requireContext(), getPOIStatusView(view), poim, this);
-			POIServiceUpdateViewController.updateView(requireContext(), getPOIServiceUpdateView(view), poim, this);
+			POIViewController.updatePOIStatus(context, poiView, poim, this);
+			POIViewController.updatePOIServiceUpdate(context, poiView, poim, this);
+			POIStatusDetailViewController.updateView(context, getPOIStatusView(view), poim, this);
+			POIServiceUpdateViewController.updateView(context, getPOIServiceUpdateView(view), poim, this);
 		}
 		ArrayList<News> news = getNewsOrNull();
 		if (news != null) {
-			POINewsViewController.updateView(requireContext(), getPOINewsView(view), news);
+			POINewsViewController.updateView(context, getPOINewsView(view), news);
 		}
 	}
 
@@ -1215,10 +1220,10 @@ public class POIFragment extends ABFragment implements
 
 	private void enableTimeChangedReceiver() {
 		if (!this.timeChangedReceiverEnabled) {
+			this.timeChangedReceiverEnabled = true;
 			if (getContext() != null) {
 				getContext().registerReceiver(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER);
 			}
-			this.timeChangedReceiverEnabled = true;
 		}
 	}
 
@@ -1374,7 +1379,8 @@ public class POIFragment extends ABFragment implements
 		resetFavorite();
 		updateFavMenuItem();
 		POIManager poim = getPoimOrNull();
-		if (poim != null) {
+		final Context context = getContext();
+		if (poim != null && context != null) {
 			POIViewController.updateView(getContext(), getPOIView(getView()), poim, this);
 		}
 	}
