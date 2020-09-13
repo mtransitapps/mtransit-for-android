@@ -351,7 +351,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 
 	@NonNull
 	private Integer getScreenNavItemId(@Nullable String itemId) {
-		if (TextUtils.isEmpty(itemId)) {
+		if (itemId == null || itemId.isEmpty()) {
 			return ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT;
 		}
 		if (itemId.startsWith(ITEM_ID_STATIC_START_WITH)) {
@@ -698,7 +698,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			this.currentSelectedScreenItemNavId = newSavedRootScreenNavItem;
 		}
 		String newRootScreenId = BundleUtils.getString(EXTRA_SELECTED_ROOT_SCREEN_ID, savedInstanceState);
-		if (!TextUtils.isEmpty(newRootScreenId) && !newRootScreenId.equals(this.currentSelectedScreenItemId)) {
+		if (newRootScreenId != null && !newRootScreenId.equals(this.currentSelectedScreenItemId)) {
 			this.currentSelectedScreenItemId = newRootScreenId;
 		}
 	}

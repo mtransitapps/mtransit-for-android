@@ -317,5 +317,33 @@
         <package android:name="org.mtransit.android.us_longview_rivercities_transit_bus" />
         <package android:name="org.mtransit.android.us_snohomish_county_community_transit_bus" />
         <package android:name="org.mtransit.android.us_washington_state_ferry" />
+        <!-- PACKAGE VISIBILITY: Google Opinion Rewards -->
+        <package android:name="com.google.android.apps.paidtasks" />
+        <!-- PACKAGE VISIBILITY: Google Maps -->
+        <package android:name="com.google.android.apps.maps" />
+        <!-- PACKAGE VISIBILITY: Google Maps Lite -->
+        <package android:name="com.google.android.apps.mapslite" />
+        <!-- PACKAGE VISIBILITY: Maps apps -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data
+                android:scheme="https"
+                android:host="www.google.com"
+                android:pathPrefix="/maps"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data
+                android:scheme="https"
+                android:host="maps.google.com" />
+        </intent>
+        <intent>
+             <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="geo" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="google.navigation" />
+        </intent>
     </queries>
 </manifest>

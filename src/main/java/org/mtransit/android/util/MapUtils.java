@@ -42,13 +42,15 @@ public final class MapUtils implements MTLog.Loggable {
 
 	public static final int DEFAULT_MARKET_COLOR = Color.WHITE;
 
+	// https://developers.google.com/maps/documentation/urls/get-started#directions-action
+	// https://developers.google.com/maps/documentation/urls/android-intents
 	private static final String MAP_DIRECTION_URL_PART_1 = "https://maps.google.com/maps";
 	private static final String MAP_DIRECTION_URL_SOURCE_ADDRESS_PARAM = "saddr";
 	private static final String MAP_DIRECTION_URL_DESTINATION_ADDRESS_PARAM = "daddr";
 	private static final String MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM = "dirflg";
 	private static final String MAP_DIRECTION_URL_DIRECTION_FLAG_PARAM_PUBLIC_TRANSIT_VALUE = "r";
 
-	public static void showDirection(Activity activity, //
+	public static void showDirection(@NonNull Activity activity, //
 									 @Nullable Double optDestLat, @Nullable Double optDestLng, //
 									 @Nullable Double optSrcLat, @Nullable Double optSrcLng, //
 									 @Nullable String optQuery) {

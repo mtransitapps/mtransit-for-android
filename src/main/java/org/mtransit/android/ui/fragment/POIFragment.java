@@ -1366,7 +1366,7 @@ public class POIFragment extends ABFragment implements
 		case R.id.menu_show_directions:
 			POIManager poim2 = getPoimOrNull();
 			if (poim2 != null) {
-				MapUtils.showDirection(getActivity(), poim2.poi.getLat(), poim2.poi.getLng(), null, null, poim2.poi.getName());
+				MapUtils.showDirection(requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), null, null, poim2.poi.getName());
 				return true; // handled
 			}
 			break;

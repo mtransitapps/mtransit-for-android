@@ -823,7 +823,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		switch (item.getItemId()) {
 		case R.id.menu_show_directions:
 			if (this.fixedOnLat != null && this.fixedOnLng != null) {
-				MapUtils.showDirection(getActivity(), this.fixedOnLat, this.fixedOnLng, null, null, this.fixedOnName);
+				MapUtils.showDirection(requireActivity(), this.fixedOnLat, this.fixedOnLng, null, null, this.fixedOnName);
 				return true; // handled
 			}
 			break;
