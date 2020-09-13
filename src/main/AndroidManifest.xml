@@ -136,6 +136,7 @@
                 <action android:name="org.mtransit.android.intent.action.DATA_CHANGE" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".commons.receiver.GenericReceiver" tools:node="remove" />
         <!-- FAVORITE PROVIDER -->
         <provider
             android:name="org.mtransit.android.provider.FavoriteProvider"
@@ -194,4 +195,127 @@
                 android:value="@string/twitter_target_for_poi_authority" />
         </provider>
     </application>
+    <queries>
+        <!-- PACKAGE VISIBILITY: secondary apps visible by main app -->
+        <intent>
+            <action android:name="org.mtransit.android.intent.action.GENERIC" />
+        </intent>
+        <!-- PACKAGE VISIBILITY: backward compatibility -->
+        <package android:name="org.mtransit.android.ca_airdrie_transit_bus" />
+        <package android:name="org.mtransit.android.ca_banff_roam_transit_bus" />
+        <package android:name="org.mtransit.android.ca_barrie_transit_bus" />
+        <package android:name="org.mtransit.android.ca_brampton_transit_bus" />
+        <package android:name="org.mtransit.android.ca_brandon_transit_bus" />
+        <package android:name="org.mtransit.android.ca_burlington_transit_bus" />
+        <package android:name="org.mtransit.android.ca_calgary_transit_bus" />
+        <package android:name="org.mtransit.android.ca_calgary_transit_train" />
+        <package android:name="org.mtransit.android.ca_campbell_river_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_central_fraser_valley_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_chambly_richelieu_carignan_citcrc_bus" />
+        <package android:name="org.mtransit.android.ca_chilliwack_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_comox_valley_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_cornwall_transit_bus" />
+        <package android:name="org.mtransit.android.ca_cowichan_valley_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_cranbrook_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_dawson_creek_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_deux_montagnes_mrcdm_bus" />
+        <package android:name="org.mtransit.android.ca_durham_region_transit_bus" />
+        <package android:name="org.mtransit.android.ca_edmonton_ets_bus" />
+        <package android:name="org.mtransit.android.ca_edmonton_ets_train" />
+        <package android:name="org.mtransit.android.ca_fort_erie_transit_bus" />
+        <package android:name="org.mtransit.android.ca_fort_st_john_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_fraser_valley_express_bus" />
+        <package android:name="org.mtransit.android.ca_fredericton_transit_bus" />
+        <package android:name="org.mtransit.android.ca_gatineau_sto_bus" />
+        <package android:name="org.mtransit.android.ca_grand_river_transit_bus" />
+        <package android:name="org.mtransit.android.ca_grand_river_transit_light_rail" />
+        <package android:name="org.mtransit.android.ca_grande_prairie_transit_bus" />
+        <package android:name="org.mtransit.android.ca_gta_up_express_train" />
+        <package android:name="org.mtransit.android.ca_gtha_go_transit_bus" />
+        <package android:name="org.mtransit.android.ca_gtha_go_transit_train" />
+        <package android:name="org.mtransit.android.ca_guelph_transit_bus" />
+        <package android:name="org.mtransit.android.ca_halifax_transit_bus" />
+        <package android:name="org.mtransit.android.ca_halifax_transit_ferry" />
+        <package android:name="org.mtransit.android.ca_hamilton_hsr_bus" />
+        <package android:name="org.mtransit.android.ca_haut_st_laurent_cithsl_bus" />
+        <package android:name="org.mtransit.android.ca_joliette_ctjm_bus" />
+        <package android:name="org.mtransit.android.ca_kamloops_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_kelowna_regional_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_kingston_transit_bus" />
+        <package android:name="org.mtransit.android.ca_l_assomption_mrclasso_bus" />
+        <package android:name="org.mtransit.android.ca_la_presqu_ile_citpi_bus" />
+        <package android:name="org.mtransit.android.ca_lanaudiere_crtl_bus" />
+        <package android:name="org.mtransit.android.ca_laurentides_citla_bus" />
+        <package android:name="org.mtransit.android.ca_laurentides_linter_bus" />
+        <package android:name="org.mtransit.android.ca_laval_stl_bus" />
+        <package android:name="org.mtransit.android.ca_le_richelain_citlr_bus" />
+        <package android:name="org.mtransit.android.ca_les_moulins_mrclm_bus" />
+        <package android:name="org.mtransit.android.ca_lethbridge_transit_bus" />
+        <package android:name="org.mtransit.android.ca_levis_stl_bus" />
+        <package android:name="org.mtransit.android.ca_london_transit_bus" />
+        <package android:name="org.mtransit.android.ca_longueuil_rtl_bus" />
+        <package android:name="org.mtransit.android.ca_maritime_bus" />
+        <package android:name="org.mtransit.android.ca_milton_transit_bus" />
+        <package android:name="org.mtransit.android.ca_mississauga_miway_bus" />
+        <package android:name="org.mtransit.android.ca_moncton_codiac_transpo_bus" />
+        <package android:name="org.mtransit.android.ca_montreal_amt_bus" />
+        <package android:name="org.mtransit.android.ca_montreal_amt_train" />
+        <package android:name="org.mtransit.android.ca_montreal_bixi_bike" />
+        <package android:name="org.mtransit.android.ca_montreal_stm_bus" />
+        <package android:name="org.mtransit.android.ca_montreal_stm_subway" />
+        <package android:name="org.mtransit.android.ca_nanaimo_rdn_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_niagara_falls_transit_bus" />
+        <package android:name="org.mtransit.android.ca_niagara_falls_wego_bus" />
+        <package android:name="org.mtransit.android.ca_niagara_region_transit_bus" />
+        <package android:name="org.mtransit.android.ca_oakville_transit_bus" />
+        <package android:name="org.mtransit.android.ca_ottawa_oc_transpo_bus" />
+        <package android:name="org.mtransit.android.ca_ottawa_oc_transpo_train" />
+        <package android:name="org.mtransit.android.ca_prince_george_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_quebec_orleans_express_bus" />
+        <package android:name="org.mtransit.android.ca_quebec_rtc_bus" />
+        <package android:name="org.mtransit.android.ca_red_deer_transit_bus" />
+        <package android:name="org.mtransit.android.ca_regina_transit_bus" />
+        <package android:name="org.mtransit.android.ca_richelieu_citvr_bus" />
+        <package android:name="org.mtransit.android.ca_roussillon_citrous_bus" />
+        <package android:name="org.mtransit.android.ca_saskatoon_transit_bus" />
+        <package android:name="org.mtransit.android.ca_shawinigan_rtcs_bus" />
+        <package android:name="org.mtransit.android.ca_sherbrooke_sts_bus" />
+        <package android:name="org.mtransit.android.ca_sorel_varennes_citsv_bus" />
+        <package android:name="org.mtransit.android.ca_squamish_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_st_albert_transit_bus" />
+        <package android:name="org.mtransit.android.ca_st_catharines_transit_bus" />
+        <package android:name="org.mtransit.android.ca_st_john_s_metrobus_transit_bus" />
+        <package android:name="org.mtransit.android.ca_ste_julie_omitsju_bus" />
+        <package android:name="org.mtransit.android.ca_strathcona_county_transit_bus" />
+        <package android:name="org.mtransit.android.ca_sud_ouest_citso_bus" />
+        <package android:name="org.mtransit.android.ca_sudbury_transit_bus" />
+        <package android:name="org.mtransit.android.ca_sunshine_coast_regional_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_thunder_bay_transit_bus" />
+        <package android:name="org.mtransit.android.ca_toronto_share_bike" />
+        <package android:name="org.mtransit.android.ca_toronto_ttc_bus" />
+        <package android:name="org.mtransit.android.ca_toronto_ttc_light_rail" />
+        <package android:name="org.mtransit.android.ca_toronto_ttc_subway" />
+        <package android:name="org.mtransit.android.ca_vancouver_mobi_bike" />
+        <package android:name="org.mtransit.android.ca_vancouver_translink_bus" />
+        <package android:name="org.mtransit.android.ca_vancouver_translink_ferry2" />
+        <package android:name="org.mtransit.android.ca_vancouver_translink_train" />
+        <package android:name="org.mtransit.android.ca_vernon_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_victoria_regional_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_welland_transit_bus" />
+        <package android:name="org.mtransit.android.ca_west_coast_express_bus" />
+        <package android:name="org.mtransit.android.ca_west_coast_express_train" />
+        <package android:name="org.mtransit.android.ca_west_kootenay_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_whistler_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_whitehorse_transit_bus" />
+        <package android:name="org.mtransit.android.ca_windsor_transit_bus" />
+        <package android:name="org.mtransit.android.ca_winnipeg_transit_bus" />
+        <package android:name="org.mtransit.android.ca_york_region_yrt_viva_bus" />
+        <package android:name="org.mtransit.android.us_anchorage_people_mover_bus" />
+        <package android:name="org.mtransit.android.us_clark_county_c_tran_bus" />
+        <package android:name="org.mtransit.android.us_everett_transit_bus" />
+        <package android:name="org.mtransit.android.us_juneau_capital_transit_bus" />
+        <package android:name="org.mtransit.android.us_longview_rivercities_transit_bus" />
+        <package android:name="org.mtransit.android.us_snohomish_county_community_transit_bus" />
+        <package android:name="org.mtransit.android.us_washington_state_ferry" />
+    </queries>
 </manifest>
