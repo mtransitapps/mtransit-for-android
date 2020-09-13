@@ -1,19 +1,9 @@
 package org.mtransit.android.ui.fragment;
 
-import java.lang.ref.WeakReference;
-
-import org.mtransit.android.R;
-import org.mtransit.android.commons.BundleUtils;
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.ui.ActionBarController;
-import org.mtransit.android.util.LinkUtils;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,6 +15,17 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import org.mtransit.android.R;
+import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.ui.ActionBarController;
+import org.mtransit.android.util.LinkUtils;
+
+import java.lang.ref.WeakReference;
 
 public class WebBrowserFragment extends ABFragment {
 
@@ -185,7 +186,7 @@ public class WebBrowserFragment extends ABFragment {
 		}
 	}
 
-	public void onProgressChanged(int newProgress) {
+	private void onProgressChanged(int newProgress) {
 		View view = getView();
 		if (view != null) {
 			ProgressBar progressBar = view.findViewById(R.id.progress_bar);
@@ -200,16 +201,20 @@ public class WebBrowserFragment extends ABFragment {
 		}
 	}
 
-	public boolean shouldOverrideUrlLoading(@SuppressWarnings("unused") WebView webView,
-											String url) {
-		if (LinkUtils.intercept(requireActivity(), url)) {
-			return true;
+	private boolean shouldOverrideUrlLoading(WebView webView,
+											 @NonNull String url) {
+		if (LinkUtils.isIntentIntent(url)) {
+			if (LinkUtils.interceptIntent(webView, url)) {
+				return true; // INTERCEPTED
+			}
+		} else if (LinkUtils.intercept(requireActivity(), url)) {
+			return true; // INTERCEPTED
 		}
 		onURLChanged(url);
-		return false;
+		return false; // NOT intercepted
 	}
 
-	public void onTitleChanged(String title) {
+	private void onTitleChanged(String title) {
 		this.pageTitle = title;
 		ActionBarController abController = getAbController();
 		if (abController != null) {
@@ -217,7 +222,7 @@ public class WebBrowserFragment extends ABFragment {
 		}
 	}
 
-	public void onURLChanged(String url) {
+	private void onURLChanged(String url) {
 		this.currentUrl = url;
 		ActionBarController abController = getAbController();
 		if (abController != null) {
@@ -256,7 +261,7 @@ public class WebBrowserFragment extends ABFragment {
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_open_www:
-			LinkUtils.open(getActivity(), this.currentUrl, getString(R.string.web_browser), false);
+			LinkUtils.open(requireActivity(), this.currentUrl, getString(R.string.web_browser), false);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -274,7 +279,7 @@ public class WebBrowserFragment extends ABFragment {
 		@NonNull
 		private final WeakReference<WebBrowserFragment> webBrowserFragmentWR;
 
-		public MTWebChromeClient(@NonNull WebBrowserFragment webBrowserFragment) {
+		MTWebChromeClient(@NonNull WebBrowserFragment webBrowserFragment) {
 			this.webBrowserFragmentWR = new WeakReference<>(webBrowserFragment);
 		}
 
@@ -318,7 +323,7 @@ public class WebBrowserFragment extends ABFragment {
 		@NonNull
 		private final WeakReference<WebBrowserFragment> webBrowserFragmentWR;
 
-		public MTWebViewClient(@NonNull WebBrowserFragment webBrowserFragment) {
+		MTWebViewClient(@NonNull WebBrowserFragment webBrowserFragment) {
 			this.webBrowserFragmentWR = new WeakReference<>(webBrowserFragment);
 		}
 

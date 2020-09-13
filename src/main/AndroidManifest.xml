@@ -317,6 +317,28 @@
         <package android:name="org.mtransit.android.us_longview_rivercities_transit_bus" />
         <package android:name="org.mtransit.android.us_snohomish_county_community_transit_bus" />
         <package android:name="org.mtransit.android.us_washington_state_ferry" />
+        <!-- PACKAGE VISIBILITY: Web Browser -->
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+        <!-- PACKAGE VISIBILITY: Twitter apps -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data
+                android:scheme="https"
+                android:host="mobile.twitter.com" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data
+                android:scheme="https"
+                android:host="twitter.com" />
+        </intent>
         <!-- PACKAGE VISIBILITY: Google Opinion Rewards -->
         <package android:name="com.google.android.apps.paidtasks" />
         <!-- PACKAGE VISIBILITY: Google Maps -->
@@ -344,6 +366,18 @@
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="google.navigation" />
+        </intent>
+        <!-- PACKAGE VISIBILITY: YouTube -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data
+                android:scheme="https"
+                android:host="youtube.com" />
+        </intent>
+        <!-- PACKAGE VISIBILITY: PDF Viewers -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="application/pdf" />
         </intent>
     </queries>
 </manifest>

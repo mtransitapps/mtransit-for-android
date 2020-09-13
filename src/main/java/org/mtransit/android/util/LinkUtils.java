@@ -1,9 +1,24 @@
 package org.mtransit.android.util;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.regex.Pattern;
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
+import android.text.Html;
+import android.text.Layout;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.SpannedString;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
+import android.text.util.Linkify;
+import android.view.MotionEvent;
+import android.webkit.WebView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
@@ -16,28 +31,16 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.WebBrowserFragment;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
-import androidx.annotation.NonNull;
-import android.text.Html;
-import android.text.Layout;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.SpannedString;
-import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.text.style.URLSpan;
-import android.text.util.Linkify;
-import android.view.MotionEvent;
-import android.widget.TextView;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 public final class LinkUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = LinkUtils.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return LOG_TAG;
@@ -59,8 +62,9 @@ public final class LinkUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static boolean open(@NonNull Activity activity, String url, String label, boolean www) {
-		if (TextUtils.isEmpty(url)) {
+	public static boolean open(@NonNull Activity activity, @Nullable String url, @Nullable String label, boolean www) {
+		MTLog.v(LOG_TAG, "open(%s)", url);
+		if (url == null || url.isEmpty()) {
 			return false;
 		}
 		if (intercept(activity, url)) {
@@ -77,7 +81,28 @@ public final class LinkUtils implements MTLog.Loggable {
 		return org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), label);
 	}
 
-	public static boolean intercept(@NonNull Activity activity, String url) {
+	public static boolean interceptIntent(@NonNull WebView webView, @NonNull String url) {
+		try {
+			Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+			if (intent != null) {
+				if (PackageManagerUtils.isAppInstalledDefault(webView.getContext(), intent)) {
+					org.mtransit.android.commons.LinkUtils.open(webView.getContext(), intent, null);
+					return true; // INTERCEPTED
+				} else {
+					final String fallbackUrl = intent.getStringExtra("browser_fallback_url");
+					if (fallbackUrl != null && !fallbackUrl.isEmpty()) {
+						webView.loadUrl(fallbackUrl);
+						return true; // INTERCEPTED
+					}
+				}
+			}
+		} catch (Exception e) {
+			MTLog.w(LOG_TAG, e, "Error while processing '%s'!", url);
+		}
+		return false; // not INTERCEPTED
+	}
+
+	public static boolean intercept(@NonNull Activity activity, @NonNull String url) {
 		if (StoreUtils.isStoreIntent(url)) {
 			org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), activity.getString(R.string.google_play));
 			return true; // intercepted
@@ -122,8 +147,8 @@ public final class LinkUtils implements MTLog.Loggable {
 		try {
 			if (DataSourceProvider.isSet()) {
 				DataSourceProvider dataSourceProvider = DataSourceProvider.get();
-				if (dataSourceProvider != null) {
-					ArrayList<AgencyProperties> allAgencies = dataSourceProvider.getAllAgencies(activity);
+				ArrayList<AgencyProperties> allAgencies = dataSourceProvider.getAllAgencies(activity);
+				if (allAgencies != null) {
 					for (AgencyProperties agencyProperties : allAgencies) {
 						if (!agencyProperties.getType().isMapScreen()) {
 							continue;
@@ -131,8 +156,8 @@ public final class LinkUtils implements MTLog.Loggable {
 						subjectSb //
 								.append(" - ").append(agencyProperties.getShortName()) //
 								.append(" ").append(activity.getString(agencyProperties.getType().getShortNameResId()));
-						String pkg = dataSourceProvider.getAgencyPkg(agencyProperties.getAuthority());
-						if (!TextUtils.isEmpty(pkg)) {
+						final String pkg = dataSourceProvider.getAgencyPkg(agencyProperties.getAuthority());
+						if (pkg != null && !pkg.isEmpty()) {
 							subjectSb //
 									.append(" v").append(PackageManagerUtils.getAppVersionName(activity, pkg)) //
 									.append(" (r").append(PackageManagerUtils.getAppVersionCode(activity, pkg)).append(")");
@@ -141,6 +166,7 @@ public final class LinkUtils implements MTLog.Loggable {
 				}
 			}
 		} catch (Exception e) {
+			//noinspection deprecation // FXIME
 			CrashUtils.w(LOG_TAG, e, "Error while adding agencies to email subject!");
 		}
 		intent.putExtra(Intent.EXTRA_SUBJECT, subjectSb.toString());
@@ -149,11 +175,11 @@ public final class LinkUtils implements MTLog.Loggable {
 
 	private static final String EMAIL_SCHEME = "mailto";
 
-	public static boolean isEmailIntent(String url) {
+	private static boolean isEmailIntent(String url) {
 		return isEmailIntent(Uri.parse(url));
 	}
 
-	public static boolean isEmailIntent(Uri uri) {
+	private static boolean isEmailIntent(Uri uri) {
 		if (uri != null) {
 			if (EMAIL_SCHEME.equals(uri.getScheme())) {
 				return true;
@@ -164,11 +190,11 @@ public final class LinkUtils implements MTLog.Loggable {
 
 	private static final String TEL_SCHEME = "tel";
 
-	public static boolean isPhoneNumberIntent(String url) {
+	private static boolean isPhoneNumberIntent(String url) {
 		return isPhoneNumberIntent(Uri.parse(url));
 	}
 
-	public static boolean isPhoneNumberIntent(Uri uri) {
+	private static boolean isPhoneNumberIntent(Uri uri) {
 		if (uri != null) {
 			if (TEL_SCHEME.equals(uri.getScheme())) {
 				return true;
@@ -179,7 +205,7 @@ public final class LinkUtils implements MTLog.Loggable {
 
 	private static final String EXT_PDF = ".pdf";
 
-	public static boolean isPDFIntent(String url) {
+	private static boolean isPDFIntent(String url) {
 		if (url != null) {
 			if (url.toLowerCase(Locale.ENGLISH).endsWith(EXT_PDF)) {
 				return true;
@@ -188,11 +214,25 @@ public final class LinkUtils implements MTLog.Loggable {
 		return false;
 	}
 
-	public static boolean isPDFIntent(Uri uri) {
+	public static boolean isPDFIntent(@Nullable Uri uri) {
 		return isPDFIntent(uri == null ? null : uri.toString());
 	}
 
-	public static boolean isYouTubeIntent(String url) {
+	// https://developer.chrome.com/multidevice/android/intents
+	public static boolean isIntentIntent(@NonNull String url) {
+		return isIntentIntent(Uri.parse(url));
+	}
+
+	private static final String INTENT_SCHEME = "intent";
+
+	private static boolean isIntentIntent(@Nullable Uri uri) {
+		if (uri != null) {
+			return INTENT_SCHEME.equals(uri.getScheme());
+		}
+		return false;
+	}
+
+	private static boolean isYouTubeIntent(String url) {
 		return isYouTubeIntent(Uri.parse(url));
 	}
 
@@ -200,31 +240,31 @@ public final class LinkUtils implements MTLog.Loggable {
 	private static final String HTTPS_SCHEME = "https";
 	private static final Pattern YOUTUBE_WWW_AUTHORITY_REGEX = Pattern.compile("(youtube\\.com|youtu\\.be)");
 
-	public static boolean isYouTubeIntent(Uri uri) {
+	private static boolean isYouTubeIntent(Uri uri) {
 		if (uri != null) {
-			if (HTTPS_SCHEME.equals(uri.getScheme()) || HTTP_SCHEME.equals(uri.getScheme())) {
-				if (YOUTUBE_WWW_AUTHORITY_REGEX.matcher(uri.getAuthority()).find()) {
-					return true;
-				}
+			if (HTTPS_SCHEME.equals(uri.getScheme())
+					|| HTTP_SCHEME.equals(uri.getScheme())) {
+				final String authority = uri.getAuthority();
+				return authority != null && YOUTUBE_WWW_AUTHORITY_REGEX.matcher(authority).find();
 			}
 		}
 		return false;
 	}
 
-	public static class LinkMovementMethodInterceptop extends LinkMovementMethod implements MTLog.Loggable {
+	public static class LinkMovementMethodInterceptor extends LinkMovementMethod implements MTLog.Loggable {
 
-		private static final String TAG = LinkMovementMethodInterceptop.class.getSimpleName();
+		private static final String TAG = LinkMovementMethodInterceptor.class.getSimpleName();
 
 		@Override
 		public String getLogTag() {
 			return TAG;
 		}
 
-		private static LinkMovementMethodInterceptop sInstance;
+		private static LinkMovementMethodInterceptor sInstance;
 
-		public static LinkMovementMethodInterceptop getInstance(OnUrlClickListener onUrlClickListener) {
+		public static LinkMovementMethodInterceptor getInstance(OnUrlClickListener onUrlClickListener) {
 			if (sInstance == null) {
-				sInstance = new LinkMovementMethodInterceptop(onUrlClickListener);
+				sInstance = new LinkMovementMethodInterceptor(onUrlClickListener);
 			} else {
 				sInstance.setOnUrlClickListener(onUrlClickListener);
 			}
@@ -233,7 +273,7 @@ public final class LinkUtils implements MTLog.Loggable {
 
 		private WeakReference<OnUrlClickListener> onUrlClickListenerWR;
 
-		public LinkMovementMethodInterceptop(OnUrlClickListener onUrlClickListener) {
+		LinkMovementMethodInterceptor(OnUrlClickListener onUrlClickListener) {
 			setOnUrlClickListener(onUrlClickListener);
 		}
 

@@ -193,7 +193,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		}
 		TextView newsTv = view.findViewById(R.id.newsText);
 		newsTv.setText(LinkUtils.linkifyHtml(news.getTextHTML(), true), TextView.BufferType.SPANNABLE);
-		newsTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptop.getInstance(this));
+		newsTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptor.getInstance(this));
 		if (news.hasColor()) {
 			newsTv.setLinkTextColor(ColorUtils.adaptColorToTheme(view.getContext(), news.getColorInt()));
 		} else {
@@ -212,7 +212,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 
 	@Override
 	public boolean onURLClick(String url) {
-		return LinkUtils.open(getActivity(), url, getString(R.string.web_browser), true);
+		return LinkUtils.open(requireActivity(), url, getString(R.string.web_browser), true);
 	}
 
 	@Override
