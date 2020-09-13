@@ -113,7 +113,10 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 			return;
 		}
 		try {
-			firebaseAnalytics.setCurrentScreen(activity.requireActivity(), page.getScreenName(), null);
+			Bundle bundle = new Bundle();
+			bundle.putString(FirebaseAnalytics.Param.SCREEN_NAME, page.getScreenName());
+			bundle.putString(FirebaseAnalytics.Param.SCREEN_CLASS, page.getClass().getSimpleName());
+			firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle);
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while tracing screen view! (%s)", page);
 		}

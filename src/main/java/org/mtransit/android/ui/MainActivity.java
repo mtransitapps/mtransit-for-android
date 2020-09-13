@@ -20,7 +20,6 @@ import androidx.fragment.app.FragmentManager;
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.analytics.AnalyticsManager;
-import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.data.DataSourceProvider;
@@ -37,7 +36,6 @@ import org.mtransit.android.util.VendingUtils;
 
 import java.util.WeakHashMap;
 
-@SuppressWarnings("unused")
 public class MainActivity extends MTActivityWithLocation implements
 		FragmentManager.OnBackStackChangedListener,
 		AnalyticsManager.Trackable,
@@ -74,8 +72,6 @@ public class MainActivity extends MTActivityWithLocation implements
 	@NonNull
 	private final IAdManager adManager;
 	@NonNull
-	private final IAnalyticsManager analyticsManager;
-	@NonNull
 	private final CrashReporter crashReporter;
 
 	private int currentUiMode = -1;
@@ -83,7 +79,6 @@ public class MainActivity extends MTActivityWithLocation implements
 	public MainActivity() {
 		super();
 		adManager = Injection.providesAdManager();
-		analyticsManager = Injection.providesAnalyticsManager();
 		crashReporter = Injection.providesCrashReporter();
 	}
 
@@ -188,7 +183,6 @@ public class MainActivity extends MTActivityWithLocation implements
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onResume();
 		}
-		analyticsManager.trackScreenView(this, this);
 		VendingUtils.onResume(this, this);
 		this.adManager.adaptToScreenSize(this, getResources().getConfiguration());
 		this.adManager.setRewardedAdListener(this); // used until POI screen is visible // need to pre-load ASAP
