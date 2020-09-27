@@ -71,7 +71,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -1949,7 +1948,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 							|| //
 							(this.favUUIDsFolderIds != null //
 									&& this.favUUIDsFolderIds.containsKey(uid) //
-									&& !Objects.equals(this.favUUIDsFolderIds.get(uid), favorite.getFolderId())) //
+									&& !SupportFactory.get().equals(this.favUUIDsFolderIds.get(uid), favorite.getFolderId())) //
 					) {
 						newFav = true;
 						updatedFav = true;
