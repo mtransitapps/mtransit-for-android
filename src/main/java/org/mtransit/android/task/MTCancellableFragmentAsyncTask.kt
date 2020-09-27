@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package org.mtransit.android.task
 
 import androidx.fragment.app.Fragment

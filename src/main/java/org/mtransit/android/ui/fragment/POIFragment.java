@@ -70,6 +70,7 @@ import org.mtransit.android.ui.view.POINewsViewController;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
+import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.FragmentUtils;
@@ -536,7 +537,7 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
-		initAdapters(activity);
+		initAdapters(this);
 		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
 		this.mapViewController.onAttach(activity);
 	}
@@ -705,7 +706,7 @@ public class POIFragment extends ABFragment implements
 		view.findViewById(R.id.poi_nearby_pois_list).setVisibility(View.VISIBLE);
 	}
 
-	private void initAdapters(Activity activity) {
+	private void initAdapters(IActivity activity) {
 		this.adapter = new POIArrayAdapter(activity);
 		this.adapter.setTag(getLogTag());
 	}
@@ -1004,7 +1005,7 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public void onSensorChanged(@NonNull SensorEvent se) {
-		sensorManager.checkForCompass(se, this.accelerometerValues, this.magneticFieldValues, this);
+		sensorManager.checkForCompass(this, se, this.accelerometerValues, this.magneticFieldValues, this);
 	}
 
 	private long lastCompassChanged = -1L;
@@ -1072,7 +1073,7 @@ public class POIFragment extends ABFragment implements
 		enableTimeChangedReceiver();
 		this.mapViewController.onResume();
 		if (this.adapter != null) {
-			this.adapter.onResume(getActivity(), this.userLocation);
+			this.adapter.onResume(this, this.userLocation);
 		}
 		final POIManager poim = getPoimOrNull();
 		if (poim != null) {

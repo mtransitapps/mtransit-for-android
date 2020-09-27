@@ -59,6 +59,7 @@ import org.mtransit.android.ui.view.MTOnItemClickListener;
 import org.mtransit.android.ui.view.MTOnItemLongClickListener;
 import org.mtransit.android.ui.view.MTOnLongClickListener;
 import org.mtransit.android.ui.view.MTPieChartPercentView;
+import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.UITimeUtils;
@@ -70,6 +71,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -82,6 +84,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	private String tag = TAG;
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return tag;
@@ -105,7 +108,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private HashMap<String, Integer> favUUIDsFolderIds;
 
 	@Nullable
-	private WeakReference<Activity> activityWR;
+	private WeakReference<IActivity> activityWR;
 
 	@Nullable
 	private Location location;
@@ -157,8 +160,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@NonNull
 	private final MTSensorManager sensorManager;
 
-	public POIArrayAdapter(Activity activity) {
-		super(activity, -1);
+	public POIArrayAdapter(@NonNull IActivity activity) {
+		super(activity.requireContext(), -1);
 		setActivity(activity);
 		this.layoutInflater = LayoutInflater.from(getContext());
 		this.sensorManager = Injection.providesSensorManager();
@@ -300,7 +303,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				if (this.showTypeHeader != TYPE_HEADER_NONE) {
 					this.count++;
 				}
-				this.count += this.poisByType.get(type).size();
+				final ArrayList<POIManager> typePOIMs = this.poisByType.get(type);
+				this.count += typePOIMs == null ? 0 : typePOIMs.size();
 			}
 		}
 		if (this.infiniteLoading) {
@@ -309,7 +313,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	@Override
-	public int getPosition(POIManager item) {
+	public int getPosition(@Nullable POIManager item) {
 		int position = 0;
 		if (this.showBrowseHeaderSection) {
 			position++;
@@ -319,11 +323,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				if (this.showTypeHeader != TYPE_HEADER_NONE) {
 					position++;
 				}
-				int indexOf = this.poisByType.get(type).indexOf(item);
+				final ArrayList<POIManager> typePOIMs = this.poisByType.get(type);
+				int indexOf = typePOIMs == null ? -1 : typePOIMs.indexOf(item);
 				if (indexOf >= 0) {
 					return position + indexOf;
 				}
-				position += this.poisByType.get(type).size();
+				position += typePOIMs == null ? 0 : typePOIMs.size();
 			}
 		}
 		return position;
@@ -341,10 +346,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				if (this.showTypeHeader != TYPE_HEADER_NONE) {
 					index++;
 				}
-				if (position >= index && position < index + this.poisByType.get(type).size()) {
-					return this.poisByType.get(type).get(position - index);
+				final ArrayList<POIManager> typePOIMs = this.poisByType.get(type);
+				final int typePOIMCount = typePOIMs == null ? 0 : typePOIMs.size();
+				if (position >= index && position < index + typePOIMCount) {
+					return typePOIMs.get(position - index);
 				}
-				index += this.poisByType.get(type).size();
+				index += typePOIMCount;
 			}
 		}
 		return null;
@@ -354,9 +361,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	public POIManager getItem(String uuid) {
 		if (this.poisByType != null) {
 			for (Integer type : this.poisByType.keySet()) {
-				for (POIManager poim : this.poisByType.get(type)) {
-					if (poim.poi.getUUID().equals(uuid)) {
-						return poim;
+				final ArrayList<POIManager> typePOIMs = this.poisByType.get(type);
+				if (typePOIMs != null) {
+					for (POIManager poim : typePOIMs) {
+						if (poim.poi.getUUID().equals(uuid)) {
+							return poim;
+						}
 					}
 				}
 			}
@@ -376,7 +386,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 					return type;
 				}
 				index++;
-				index += this.poisByType.get(type).size();
+				final ArrayList<POIManager> typePOIMs = this.poisByType.get(type);
+				index += typePOIMs == null ? 0 : typePOIMs.size();
 			}
 		}
 		return null;
@@ -398,8 +409,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				if (typeId != null) {
 					if (FavoriteManager.isFavoriteDataSourceId(typeId)) {
 						int favoriteFolderId = FavoriteManager.extractFavoriteFolderId(typeId);
-						if (FavoriteManager.get(getContext()).hasFavoriteFolder(favoriteFolderId)) {
-							return getFavoriteFolderHeaderView(FavoriteManager.get(getContext()).getFolder(favoriteFolderId), convertView, parent);
+						final FavoriteManager favoriteManager = FavoriteManager.get(getContext());
+						final Favorite.Folder favoriteFolder = favoriteManager.getFolder(favoriteFolderId);
+						if (favoriteFolder != null) {
+							return getFavoriteFolderHeaderView(favoriteFolder, convertView, parent);
 						}
 					}
 					DataSourceType dst = DataSourceType.parseId(typeId);
@@ -458,14 +471,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	private View getBrowseHeaderSectionView(@Nullable View convertView, @NonNull ViewGroup parent) {
 		DataSourceProvider dataSourceProvider = DataSourceProvider.get(parent.getContext());
-		int agenciesCount = dataSourceProvider == null ? 0 : dataSourceProvider.getAllAgenciesCount();
+		int agenciesCount = dataSourceProvider.isInitialized() ? 0 : dataSourceProvider.getAllAgenciesCount();
 		if (convertView == null || this.nbAgencyTypes != agenciesCount) {
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header, parent, false);
 			}
 			LinearLayout gridLL = convertView.findViewById(R.id.gridLL);
 			gridLL.removeAllViews();
-			ArrayList<DataSourceType> allAgencyTypes = dataSourceProvider == null ? null : dataSourceProvider.getAvailableAgencyTypes();
+			ArrayList<DataSourceType> allAgencyTypes = dataSourceProvider.isInitialized() ? null : dataSourceProvider.getAvailableAgencyTypes();
 			this.nbAgencyTypes = CollectionUtils.getSize(allAgencyTypes);
 			if (allAgencyTypes == null) {
 				gridLL.setVisibility(View.GONE);
@@ -606,7 +619,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (poim == null) {
 			return false;
 		}
-		Activity activity = this.activityWR == null ? null : this.activityWR.get();
+		Activity activity = getActivity();
 		if (activity == null) {
 			return false;
 		}
@@ -618,7 +631,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (poim == null) {
 			return false;
 		}
-		Activity activity = this.activityWR == null ? null : this.activityWR.get();
+		Activity activity = getActivity();
 		if (activity == null) {
 			return false;
 		}
@@ -658,14 +671,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				this.poisByType = new LinkedHashMap<>();
 			}
 			for (POIManager poim : pois) {
-				if (!this.poisByType.containsKey(poim.poi.getDataSourceTypeId())) {
-					this.poisByType.put(poim.poi.getDataSourceTypeId(), new ArrayList<>());
+				ArrayList<POIManager> typePOIMs = this.poisByType.get(poim.poi.getDataSourceTypeId());
+				if (typePOIMs == null) {
+					typePOIMs = new ArrayList<>();
 				}
 				if (!this.poiUUID.contains(poim.poi.getUUID())) {
-					this.poisByType.get(poim.poi.getDataSourceTypeId()).add(poim);
+					typePOIMs.add(poim);
 					this.poiUUID.add(poim.poi.getUUID());
 					dataSetChanged = true;
 				}
+				this.poisByType.put(poim.poi.getDataSourceTypeId(), typePOIMs);
 			}
 		}
 		if (dataSetChanged) {
@@ -700,7 +715,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.poisCount = 0;
 		if (this.poisByType != null) {
 			for (Integer type : this.poisByType.keySet()) {
-				this.poisCount += this.poisByType.get(type).size();
+				final ArrayList<POIManager> typePOIMs = this.poisByType.get(type);
+				this.poisCount += typePOIMs == null ? 0 : typePOIMs.size();
 			}
 		}
 	}
@@ -1030,7 +1046,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				.toString();
 	}
 
-	public void onResume(Activity activity, Location userLocation) {
+	public void onResume(@NonNull IActivity activity, Location userLocation) {
 		setActivity(activity);
 		this.location = null; // clear current location to force refresh
 		setLocation(userLocation);
@@ -1038,8 +1054,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		enableTimeChangedReceiver(); // need to be enabled even if no schedule status displayed to keep others statuses up-to-date
 	}
 
-	public void setActivity(Activity activity) {
+	public void setActivity(@NonNull IActivity activity) {
 		this.activityWR = new WeakReference<>(activity);
+	}
+
+	@Nullable
+	private Activity getActivity() {
+		IActivity activity = this.activityWR == null ? null : this.activityWR.get();
+		return activity == null ? null : activity.getActivity();
 	}
 
 	@Override
@@ -1055,9 +1077,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			this.closestPoiUuids = null;
 		}
 		disableTimeChangedReceiver();
-		if (this.compassImgsWR != null) {
-			this.compassImgsWR.clear();
-		}
+		this.compassImgsWR.clear();
 		this.lastCompassChanged = -1;
 		this.lastCompassInDegree = -1;
 		this.accelerometerValues = new float[3];
@@ -1080,9 +1100,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 		resetCounts();
 		this.poiUUID.clear();
-		if (this.compassImgsWR != null) {
-			this.compassImgsWR.clear();
-		}
+		this.compassImgsWR.clear();
 		this.poiStatusViewHoldersWR.clear();
 		if (this.onClickHandledListenerWR != null) {
 			this.onClickHandledListenerWR.clear();
@@ -1114,9 +1132,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (!this.compassUpdatesEnabled || this.location == null || this.lastCompassInDegree < 0) {
 			return;
 		}
-		if (this.compassImgsWR == null) {
-			return;
-		}
 		for (WeakHashMap.Entry<MTCompassView, View> compassAndDistance : this.compassImgsWR.entrySet()) {
 			MTCompassView compassView = compassAndDistance.getKey();
 			if (compassView != null && compassView.isHeadingSet()) {
@@ -1127,7 +1142,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@Override
 	public void onSensorChanged(SensorEvent se) {
-		this.sensorManager.checkForCompass(se, this.accelerometerValues, this.magneticFieldValues, this);
+		IActivity activity = this.activityWR == null ? null : this.activityWR.get();
+		if (activity == null) {
+			return;
+		}
+		this.sensorManager.checkForCompass(activity, se, this.accelerometerValues, this.magneticFieldValues, this);
 	}
 
 	@Override
@@ -1164,7 +1183,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		switch (buttonId) {
 		case TypeHeaderButtonsClickListener.BUTTON_ALL:
 			if (type != null) {
-				Activity activity = this.activityWR == null ? null : this.activityWR.get();
+				Activity activity = getActivity();
 				if (activity != null) {
 					leaving();
 					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(type.getId(), type));
@@ -1173,7 +1192,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			break;
 		case TypeHeaderButtonsClickListener.BUTTON_NEARBY:
 			if (type != null) {
-				Activity activity = this.activityWR == null ? null : this.activityWR.get();
+				Activity activity = getActivity();
 				if (activity != null) {
 					leaving();
 					((MainActivity) activity).addFragmentToStack(NearbyFragment.newNearbyInstance(null, type.getId()));
@@ -1182,7 +1201,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			break;
 		case TypeHeaderButtonsClickListener.BUTTON_MORE:
 			if (type != null) {
-				Activity activity = this.activityWR == null ? null : this.activityWR.get();
+				Activity activity = getActivity();
 				if (activity != null) {
 					leaving();
 					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(type.getId(), type));
@@ -1246,7 +1265,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return convertView;
 	}
 
-	private View getFavoriteFolderHeaderView(final Favorite.Folder favoriteFolder, @Nullable View convertView, @NonNull ViewGroup parent) {
+	private View getFavoriteFolderHeaderView(final @NonNull Favorite.Folder favoriteFolder,
+											 @Nullable View convertView,
+											 @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_header_with_delete, parent, false);
 			FavoriteFolderHeaderViewHolder holder = new FavoriteFolderHeaderViewHolder();
@@ -1256,12 +1277,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			convertView.setTag(holder);
 		}
 		FavoriteFolderHeaderViewHolder holder = (FavoriteFolderHeaderViewHolder) convertView.getTag();
-		holder.nameTv.setText(favoriteFolder == null ? null : favoriteFolder.getName());
+		holder.nameTv.setText(favoriteFolder.getName());
 		if (holder.renameBtn != null) {
 			holder.renameBtn.setOnClickListener(new MTOnClickListener() {
 				@Override
 				public void onClickMT(View view) {
-					Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
+					Activity activity = POIArrayAdapter.this.getActivity();
 					FavoriteManager.showUpdateFolderDialog(activity, POIArrayAdapter.this.layoutInflater, favoriteFolder,
 							POIArrayAdapter.this.favoriteUpdateListener);
 				}
@@ -1271,7 +1292,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			holder.deleteBtn.setOnClickListener(new MTOnClickListener() {
 				@Override
 				public void onClickMT(View view) {
-					Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
+					Activity activity = POIArrayAdapter.this.getActivity();
 					FavoriteManager.showDeleteFolderDialog(activity, favoriteFolder, POIArrayAdapter.this.favoriteUpdateListener);
 				}
 			});
@@ -1279,7 +1300,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return convertView;
 	}
 
-	private WeakHashMap<String, CommonStatusViewHolder> poiStatusViewHoldersWR = new WeakHashMap<>();
+	@NonNull
+	private final WeakHashMap<String, CommonStatusViewHolder> poiStatusViewHoldersWR = new WeakHashMap<>();
 
 	@NonNull
 	private View getBasicPOIView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -1294,6 +1316,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return convertView;
 	}
 
+	@Nullable
 	private CommonStatusViewHolder initPOIStatusViewHolder(int status, View convertView) {
 		switch (status) {
 		case POI.ITEM_STATUS_TYPE_NONE:
@@ -1318,14 +1341,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return scheduleStatusViewHolder;
 	}
 
-	private CommonStatusViewHolder initAppStatusViewHolder(View convertView) {
+	private CommonStatusViewHolder initAppStatusViewHolder(@NonNull View convertView) {
 		AppStatusViewHolder appStatusViewHolder = new AppStatusViewHolder();
 		initCommonStatusViewHolderHolder(appStatusViewHolder, convertView);
 		appStatusViewHolder.textTv = convertView.findViewById(R.id.textTv);
 		return appStatusViewHolder;
 	}
 
-	private CommonStatusViewHolder initAvailabilityPercentViewHolder(View convertView) {
+	private CommonStatusViewHolder initAvailabilityPercentViewHolder(@NonNull View convertView) {
 		AvailabilityPercentStatusViewHolder availabilityPercentStatusViewHolder = new AvailabilityPercentStatusViewHolder();
 		initCommonStatusViewHolderHolder(availabilityPercentStatusViewHolder, convertView);
 		availabilityPercentStatusViewHolder.textTv = convertView.findViewById(R.id.textTv);
@@ -1349,7 +1372,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return layoutRes;
 	}
 
-	private WeakHashMap<MTCompassView, View> compassImgsWR = new WeakHashMap<>();
+	@NonNull
+	private final WeakHashMap<MTCompassView, View> compassImgsWR = new WeakHashMap<>();
 
 	private void initCommonViewHolder(CommonViewHolder holder, View convertView, String poiUUID) {
 		holder.view = convertView;
@@ -1607,7 +1631,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private void updateRTSExtra(POIManager poim, RouteTripStopViewHolder holder) {
 		if (poim.poi instanceof RouteTripStop) {
 			RouteTripStop rts = (RouteTripStop) poim.poi;
-			if (!this.showExtra || rts.getRoute() == null) {
+			if (!this.showExtra) {
 				if (holder.rtsExtraV != null) {
 					holder.rtsExtraV.setVisibility(View.GONE);
 				}
@@ -1642,21 +1666,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setVisibility(View.VISIBLE);
-				final Long tripId;
-				if (rts.getTrip() == null) {
-					holder.tripHeadingBg.setVisibility(View.GONE);
-					tripId = null;
-				} else {
-					tripId = rts.getTrip().getId();
-					holder.tripHeadingTv.setText(rts.getTrip().getHeading(getContext()).toUpperCase(Locale.getDefault()));
-					holder.tripHeadingBg.setVisibility(View.VISIBLE);
-				}
+				final long tripId = rts.getTrip().getId();
+				holder.tripHeadingTv.setText(rts.getTrip().getHeading(getContext()).toUpperCase(Locale.getDefault()));
+				holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setBackgroundColor(poim.getColor(getContext()));
-				final Integer stopId = rts.getStop() == null ? null : rts.getStop().getId();
+				final int stopId = rts.getStop().getId();
 				holder.rtsExtraV.setOnClickListener(new MTOnClickListener() {
 					@Override
 					public void onClickMT(View view) {
-						Activity activity = POIArrayAdapter.this.activityWR == null ? null : POIArrayAdapter.this.activityWR.get();
+						Activity activity = POIArrayAdapter.this.getActivity();
 						if (!(activity instanceof MainActivity)) {
 							MTLog.w(POIArrayAdapter.this, "No activity available to open RTS fragment!");
 							return;
@@ -1789,7 +1807,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	private void updateCommonView(CommonViewHolder holder, POIManager poim) {
-		if (poim == null || poim.poi == null || holder == null) {
+		if (poim == null || holder == null) {
 			return;
 		}
 		final POI poi = poim.poi;
@@ -1797,9 +1815,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (holder.statusViewHolder != null) {
 			holder.statusViewHolder.uuid = holder.uuid;
 		}
-		if (holder.uuid != null) {
-			this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
-		}
+		this.poiStatusViewHoldersWR.put(holder.uuid, holder.statusViewHolder);
 		if (holder.compassV != null) {
 			holder.compassV.setLatLng(poim.getLat(), poim.getLng());
 			this.compassImgsWR.put(holder.compassV, holder.distanceTv);
@@ -1933,7 +1949,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 							|| //
 							(this.favUUIDsFolderIds != null //
 									&& this.favUUIDsFolderIds.containsKey(uid) //
-									&& this.favUUIDsFolderIds.get(uid) != favorite.getFolderId()) //
+									&& !Objects.equals(this.favUUIDsFolderIds.get(uid), favorite.getFolderId())) //
 					) {
 						newFav = true;
 						updatedFav = true;

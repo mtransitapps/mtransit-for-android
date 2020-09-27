@@ -1,8 +1,24 @@
 package org.mtransit.android.ui.fragment;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
+import android.app.Activity;
+import android.content.res.Configuration;
+import android.location.Location;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.widget.AbsListView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
 import org.mtransit.android.R;
 import org.mtransit.android.common.IContext;
@@ -17,27 +33,13 @@ import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.task.RTSTripStopsLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.MapViewController;
+import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-
-import android.app.Activity;
-import android.content.res.Configuration;
-import android.location.Location;
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.core.util.Pair;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.widget.AbsListView;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 
 public class RTSTripStopsFragment extends MTFragmentV4 implements
 		VisibilityAwareFragment,
@@ -45,6 +47,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 		MTActivityWithLocation.UserLocationListener,
 		MapViewController.MapMarkerProvider,
 		IContext,
+		IActivity,
 		MapViewController.MapListener {
 
 	private static final String TAG = RTSTripStopsFragment.class.getSimpleName();
@@ -63,7 +66,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 	private static final String EXTRA_CLOSEST_POI_SHOWN = "extra_closest_poi_shown";
 
 	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String authority, long tripId, Integer optStopId,
-			boolean showingListInsteadOfMap) {
+												   boolean showingListInsteadOfMap) {
 		RTSTripStopsFragment f = new RTSTripStopsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, authority);
@@ -111,7 +114,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 	@Override
 	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
-		initAdapters(activity);
+		initAdapters(this);
 		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
 		this.mapViewController.onAttach(activity);
 	}
@@ -169,7 +172,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 
 	private void restoreInstanceState(Bundle... bundles) {
 		String newAuthority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, bundles);
-		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
+		if (newAuthority != null && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
 		}
 		Long newTripId = BundleUtils.getLong(EXTRA_TRIP_ID, bundles);
@@ -208,7 +211,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 		this.mapViewController.setTag(getLogTag());
 	}
 
-	private void initAdapters(Activity activity) {
+	private void initAdapters(IActivity activity) {
 		this.adapter = new POIArrayAdapter(activity);
 		this.adapter.setShowExtra(false);
 	}
@@ -290,7 +293,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 				&& ((this.fragmentPosition == visibleFragmentPosition && this.fragmentVisible) //
 				|| //
 				(this.fragmentPosition != visibleFragmentPosition && !this.fragmentVisible)) //
-				) {
+		) {
 			return;
 		}
 		this.lastVisibleFragmentPosition = visibleFragmentPosition;
@@ -338,7 +341,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 		if (this.adapter == null || !this.adapter.isInitialized()) {
 			LoaderUtils.restartLoader(this, POIS_LOADER, null, this);
 		} else {
-			this.adapter.onResume(getActivity(), this.userLocation);
+			this.adapter.onResume(this, this.userLocation);
 		}
 		if (getActivity() != null) {
 			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
@@ -354,11 +357,13 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 		case POIS_LOADER:
 			if (this.tripId == null || TextUtils.isEmpty(this.authority)) {
 				CrashUtils.w(this, "onCreateLoader() > no trip '%s' or authority '%s' !", this.tripId, this.authority);
+				//noinspection ConstantConditions // FIXME
 				return null;
 			}
 			return new RTSTripStopsLoader(requireContext(), this.authority, this.tripId);
 		default:
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
+			//noinspection ConstantConditions // FIXME
 			return null;
 		}
 	}
@@ -462,7 +467,7 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 			onFragmentVisible();
 		} // ELSE would be call later
 		if (this.adapter != null) {
-			this.adapter.setActivity(getActivity());
+			this.adapter.setActivity(this);
 		}
 	}
 
@@ -485,6 +490,20 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 			this.adapter.onDestroy();
 		}
 		this.mapViewController.onDestroy();
+	}
+
+	@Override
+	public void finish() {
+		requireActivity().finish();
+	}
+
+	@Nullable
+	@Override
+	public <T extends View> T findViewById(int id) {
+		if (getView() == null) {
+			return null;
+		}
+		return getView().findViewById(id);
 	}
 
 	private void switchView(View view) {

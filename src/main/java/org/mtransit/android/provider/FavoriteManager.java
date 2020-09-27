@@ -1,12 +1,19 @@
 package org.mtransit.android.provider;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.SparseArrayCompat;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 import org.mtransit.android.R;
 import org.mtransit.android.analytics.AnalyticsUserProperties;
@@ -27,16 +34,9 @@ import org.mtransit.android.provider.FavoriteProvider.FavoriteColumns;
 import org.mtransit.android.provider.FavoriteProvider.FavoriteFolderColumns;
 import org.mtransit.android.ui.MTDialog;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.EditText;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 @SuppressWarnings("unused")
 public class FavoriteManager implements MTLog.Loggable {
@@ -64,28 +64,28 @@ public class FavoriteManager implements MTLog.Loggable {
 
 	private static void initInstance(@NonNull Context context) {
 		MTLog.i(LOG_TAG, "Favorite initialization.");
-		instance = new FavoriteManager();
-		instance.favoriteFolders = findFolders(context);
-		instance.analyticsManager.setUserProperty(AnalyticsUserProperties.FAVORITE_FOLDER_COUNT, instance.favoriteFolders.size());
+		instance = new FavoriteManager(context);
 	}
 
 	@NonNull
 	private final IAnalyticsManager analyticsManager;
 
-	private FavoriteManager() {
+	private FavoriteManager(@NonNull Context context) {
 		analyticsManager = Injection.providesAnalyticsManager();
+		favoriteFolders = findFolders(context);
+		analyticsManager.setUserProperty(AnalyticsUserProperties.FAVORITE_FOLDER_COUNT, favoriteFolders.size());
 	}
 
-	@Nullable
-	private SparseArrayCompat<Favorite.Folder> favoriteFolders = null;
+	@NonNull
+	private final SparseArrayCompat<Favorite.Folder> favoriteFolders;
 
-	@Nullable
+	@NonNull
 	public SparseArrayCompat<Favorite.Folder> getFavoriteFolders() {
 		return this.favoriteFolders;
 	}
 
 	public boolean hasFavoriteFolders() {
-		return this.favoriteFolders != null && this.favoriteFolders.size() > 0;
+		return this.favoriteFolders.size() > 0;
 	}
 
 	public boolean hasFavoriteFolder(int favoriteFolderId) {
@@ -94,14 +94,10 @@ public class FavoriteManager implements MTLog.Loggable {
 
 	@Nullable
 	public Favorite.Folder getFolder(int favoriteFolderId) {
-		return this.favoriteFolders == null ? null : this.favoriteFolders.get(favoriteFolderId);
+		return this.favoriteFolders.get(favoriteFolderId);
 	}
 
 	private void addFolder(@NonNull Favorite.Folder favoriteFolder) {
-		if (this.favoriteFolders == null) {
-			MTLog.w(this, "Try to add folder to the list before init!");
-			return;
-		}
 		this.favoriteFolders.put(favoriteFolder.getId(), favoriteFolder);
 		this.analyticsManager.setUserProperty(AnalyticsUserProperties.FAVORITE_FOLDER_COUNT, this.favoriteFolders.size());
 	}
@@ -111,16 +107,12 @@ public class FavoriteManager implements MTLog.Loggable {
 	}
 
 	private void removeFolder(int favoriteFolderId) {
-		if (this.favoriteFolders == null) {
-			MTLog.w(this, "Try to remove folder to the list before init!");
-			return;
-		}
 		this.favoriteFolders.remove(favoriteFolderId);
 		this.analyticsManager.setUserProperty(AnalyticsUserProperties.FAVORITE_FOLDER_COUNT, this.favoriteFolders.size());
 	}
 
 	public boolean isUsingFavoriteFolders() {
-		if (this.favoriteFolders == null || this.favoriteFolders.size() == 0) {
+		if (this.favoriteFolders.size() == 0) {
 			return false;
 		}
 		//noinspection RedundantIfStatement
@@ -569,7 +561,7 @@ public class FavoriteManager implements MTLog.Loggable {
 	}
 
 	public static void showUpdateFolderDialog(final @Nullable Activity activity, @NonNull LayoutInflater layoutInflater, final @NonNull Favorite.Folder favoriteFolder,
-			final @Nullable FavoriteUpdateListener listener) {
+											  final @Nullable FavoriteUpdateListener listener) {
 		if (activity == null || activity.isFinishing()) {
 			return; // SKIP
 		}

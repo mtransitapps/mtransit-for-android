@@ -1,6 +1,20 @@
 package org.mtransit.android.ui.fragment;
 
-import java.util.ArrayList;
+import android.app.Activity;
+import android.app.Dialog;
+import android.location.Location;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.view.Window;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.collection.ArrayMap;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -11,26 +25,14 @@ import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.POIsLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
-import android.app.Activity;
-import android.app.Dialog;
-import android.location.Location;
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.collection.ArrayMap;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.view.Window;
+import java.util.ArrayList;
 
 public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
-		DataSourceProvider.ModulesUpdateListener, MTActivityWithLocation.UserLocationListener, POIArrayAdapter.OnClickHandledListener {
+		DataSourceProvider.ModulesUpdateListener, MTActivityWithLocation.UserLocationListener, POIArrayAdapter.OnClickHandledListener, IActivity {
 
 	private static final String TAG = PickPOIDialogFragment.class.getSimpleName();
 
@@ -74,10 +76,10 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 	@Override
 	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
-		initAdapters(activity);
+		initAdapters(this);
 	}
 
-	private void initAdapters(Activity activity) {
+	private void initAdapters(IActivity activity) {
 		this.adapter = new POIArrayAdapter(activity);
 		this.adapter.setOnClickHandledListener(this);
 		this.adapter.setTag(getLogTag());
@@ -230,7 +232,7 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 		}
 		switchView(view);
 		if (this.adapter != null && this.adapter.isInitialized()) {
-			this.adapter.onResume(getActivity(), this.userLocation);
+			this.adapter.onResume(this, this.userLocation);
 		} else {
 			LoaderUtils.restartLoader(this, POIS_LOADER, null, this);
 		}
@@ -249,6 +251,7 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 			return new POIsLoader(getContext(), this.uuids, this.authorities);
 		default:
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
+			//noinspection ConstantConditions // FIXME
 			return null;
 		}
 	}
@@ -288,5 +291,19 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 			this.adapter = null;
 		}
 		DataSourceProvider.removeModulesUpdateListener(this);
+	}
+
+	@Override
+	public void finish() {
+		requireActivity().finish();
+	}
+
+	@Nullable
+	@Override
+	public <T extends View> T findViewById(int id) {
+		if (getView() == null) {
+			return null;
+		}
+		return getView().findViewById(id);
 	}
 }
