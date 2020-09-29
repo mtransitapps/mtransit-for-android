@@ -470,14 +470,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	private View getBrowseHeaderSectionView(@Nullable View convertView, @NonNull ViewGroup parent) {
 		DataSourceProvider dataSourceProvider = DataSourceProvider.get(parent.getContext());
-		int agenciesCount = dataSourceProvider.isInitialized() ? 0 : dataSourceProvider.getAllAgenciesCount();
+		int agenciesCount = !dataSourceProvider.isInitialized() ? 0 : dataSourceProvider.getAllAgenciesCount();
 		if (convertView == null || this.nbAgencyTypes != agenciesCount) {
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header, parent, false);
 			}
 			LinearLayout gridLL = convertView.findViewById(R.id.gridLL);
 			gridLL.removeAllViews();
-			ArrayList<DataSourceType> allAgencyTypes = dataSourceProvider.isInitialized() ? null : dataSourceProvider.getAvailableAgencyTypes();
+			ArrayList<DataSourceType> allAgencyTypes = !dataSourceProvider.isInitialized() ? null : dataSourceProvider.getAvailableAgencyTypes();
 			this.nbAgencyTypes = CollectionUtils.getSize(allAgencyTypes);
 			if (allAgencyTypes == null) {
 				gridLL.setVisibility(View.GONE);
