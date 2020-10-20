@@ -869,7 +869,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	@Override
-	public void onStatusLoaded(POIStatus status) {
+	public void onStatusLoaded(@NonNull POIStatus status) {
 		if (this.showStatus) {
 			CommonStatusViewHolder statusViewHolder = this.poiStatusViewHoldersWR.get(status.getTargetUUID());
 			if (statusViewHolder != null && status.getTargetUUID().equals(statusViewHolder.uuid)) {
