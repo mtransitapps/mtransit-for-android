@@ -32,14 +32,12 @@ import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.NightModeUtils;
-import org.mtransit.android.util.VendingUtils;
 
 import java.util.WeakHashMap;
 
 public class MainActivity extends MTActivityWithLocation implements
 		FragmentManager.OnBackStackChangedListener,
 		AnalyticsManager.Trackable,
-		VendingUtils.OnVendingResultListener,
 		IActivity,
 		IAdManager.RewardedAdListener,
 		DataSourceProvider.ModulesUpdateListener {
@@ -114,20 +112,6 @@ public class MainActivity extends MTActivityWithLocation implements
 		this.modulesUpdated = false; // processed
 	}
 
-	@Override
-	public void onVendingResult(@Nullable Boolean hasSubscription) {
-		if (hasSubscription != null) {
-			this.adManager.setShowingAds(!hasSubscription, this);
-		}
-	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-		if (!VendingUtils.onActivityResult(this, requestCode, resultCode, data)) {
-			super.onActivityResult(requestCode, resultCode, data);
-		}
-	}
-
 	public ActionBarController getAbController() {
 		return abController;
 	}
@@ -183,7 +167,6 @@ public class MainActivity extends MTActivityWithLocation implements
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onResume();
 		}
-		VendingUtils.onResume(this, this);
 		this.adManager.adaptToScreenSize(this, getResources().getConfiguration());
 		this.adManager.setRewardedAdListener(this); // used until POI screen is visible // need to pre-load ASAP
 		this.adManager.linkRewardedAd(this);
@@ -233,7 +216,6 @@ public class MainActivity extends MTActivityWithLocation implements
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onPause();
 		}
-		VendingUtils.onPause();
 		this.adManager.pauseAd(this);
 		DataSourceProvider.onPause();
 	}
@@ -256,7 +238,6 @@ public class MainActivity extends MTActivityWithLocation implements
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		VendingUtils.destroyBilling(this);
 		DataSourceProvider.removeModulesUpdateListener(this);
 		if (this.abController != null) {
 			this.abController.destroy();

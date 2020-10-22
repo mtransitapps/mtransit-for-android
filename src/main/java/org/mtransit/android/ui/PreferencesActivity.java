@@ -13,9 +13,7 @@ import androidx.appcompat.app.ActionBar;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.LocaleUtils;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.util.NightModeUtils;
-import org.mtransit.android.util.VendingUtils;
 
 public class PreferencesActivity extends MTActivity {
 
@@ -97,13 +95,6 @@ public class PreferencesActivity extends MTActivity {
 		if (this.currentUiMode != newConfig.uiMode) {
 			NightModeUtils.resetColorCache();
 			NightModeUtils.recreate(this);
-		}
-	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-		if (!VendingUtils.onActivityResult(this, requestCode, resultCode, data)) {
-			super.onActivityResult(requestCode, resultCode, data);
 		}
 	}
 
