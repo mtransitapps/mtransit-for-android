@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="MTBaseTheme" parent="@style/Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="colorSecondary">@color/color_primary</item>
+        <item name="colorSecondaryVariant">@color/color_primary_dark</item>
+
+        <item name="colorOnPrimary">@color/color_on_primary</item>
+        <item name="colorOnSecondary">@color/color_on_primary</item>
+
+        <item name="colorAccent">@color/color_accent</item>
+
+        <item name="colorSurface">@color/color_surface</item>
+        <item name="colorOnSurface">@color/color_on_surface</item>
+
+        <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
+        <item name="materialAlertDialogTheme">@style/MTAlertDialogMaterialTheme</item>
+    </style>
+
+    <style name="MTTheme" parent="MTBaseTheme">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="windowActionBarOverlay">true</item>
+        <!-- default background color (#fffafafa) is too light, using old default background color (#ffeeeeee) -->
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:colorBackground">@color/color_background</item>
+        <item name="colorOnBackground">@color/color_on_background</item>
+    </style>
+
+    <style name="MTTheme.Launcher" parent="MTTheme">
+        <item name="android:windowBackground">@drawable/background_launch_screen</item>
+    </style>
+
+    <style name="MTThemePreferences" parent="@style/Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorOnPrimary">@color/color_on_primary</item>
+        <item name="colorPrimaryDark">@color/color_primary_dark</item>
+        <item name="colorAccent">@color/color_on_background</item>
+        <item name="colorControlActivated">@color/color_on_surface</item>
+    </style>
+
+</resources>

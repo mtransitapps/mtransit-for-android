@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="MTThemeOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
+
+    <style name="MTTabTextStyle" parent="TextAppearance.Design.Tab">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MTSwitch" parent="Theme.MaterialComponents">
+        <item name="colorControlActivated">@color/switch_track_tint</item>
+        <item name="android:colorForeground">@color/switch_track_tint</item>
+    </style>
+
+    <style name="MTAlertDialogMaterialTheme" parent="@style/ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="colorPrimary">@color/color_on_surface</item>
+        <item name="colorControlActivated">@color/color_on_surface</item>
+        <item name="colorOnSurface">@color/color_on_background</item>
+        <item name="colorSurface">@color/color_surface</item>
+    </style>
+
+</resources>

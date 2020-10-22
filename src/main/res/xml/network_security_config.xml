@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
+    <base-config
+        cleartextTrafficPermitted="true"
+        tools:ignore="InsecureBaseConfiguration" /><!-- WebView may open any url -->
+    <!-- REQUIRED BY FACEBOOK AUDIENCE NETWORK SDK -->
+    <!-- https://developers.facebook.com/docs/audience-network/android-network-security-config -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">127.0.0.1</domain>
+    </domain-config>
+</network-security-config>

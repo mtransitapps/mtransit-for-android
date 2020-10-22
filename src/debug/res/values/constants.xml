@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="favorite_authority">org.mtransit.android.debug.favorite</string>
+    <string name="module_authority">org.mtransit.android.debug.provider.module</string>
+    <string name="place_authority">org.mtransit.android.debug.provider.place</string>
+</resources>

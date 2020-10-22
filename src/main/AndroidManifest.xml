@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="org.mtransit.android"
+    tools:ignore="MissingVersion">
+    <!-- REQUEST PERMISSIONS USAGE -->
+    <!-- ACCESS_COARSE_LOCATION: required to display distance & compass -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- ACCESS_FINE_LOCATION: required to display distance & compass -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- ACCESS_NETWORK_STATE: required for Google Analytics & Google Mobile Ads (AdMob) & Google Maps & Facebook Audience Network -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- WRITE_EXTERNAL_STORAGE: required by Google Maps -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- GOOGLE PLAY IN-APP BILLING & SUBSCRIPTIONS -->
+    <uses-permission android:name="com.android.vending.BILLING" />
+    <!-- READ_PROVIDER: required to read modules data -->
+    <uses-permission android:name="${permission_provider_read}" />
+    <!-- USES FEATURE (not required) -->
+    <uses-feature
+        android:name="android.hardware.location"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.gps"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.network"
+        android:required="false" />
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.sensor.accelerometer"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.sensor.compass"
+        android:required="false" />
+    <!-- APPLICATION -->
+    <application
+        android:name=".ui.MTApplication"
+        android:allowBackup="true"
+        android:fullBackupContent="@xml/backup_descriptor"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="false"
+        android:theme="@style/MTTheme"
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:targetApi="29">
+        <!--  tools:replace="android:supportsRtl" -->
+        <!-- SPLASH SCREEN (not visible) DO NOT CHANGE ANDROID:NAME OR LAUNCHER ICON REMOVED! -->
+        <activity
+            android:name=".ui.SplashScreenActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher"
+            android:theme="@style/MTTheme.Launcher">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- MAIN SCREEN -->
+        <activity
+            android:name=".ui.MainActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
+        <!-- PREFERENCES SCREEN -->
+        <activity
+            android:name=".ui.PreferencesActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:theme="@style/MTThemePreferences" />
+        <!-- SEARCH -->
+        <meta-data
+            android:name="android.app.default_searchable"
+            android:value=".ui.MainActivity" />
+        <!-- GOOGLE PLAY SERVICES VERSION -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <!-- GOOGLE MOBILE ADS APP ID -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="@string/google_ads_app_id" />
+        <!-- GOOGLE MAPS API KEY -->
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="@string/google_maps_api_key" />
+        <!-- FIREBASE CRASHLYTICS -->
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
+        <!-- FIREBASE ANALYTICS -->
+        <meta-data
+            android:name="google_analytics_automatic_screen_reporting_enabled"
+            android:value="false" />
+        <!-- USES LIBRARY -->
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+        <!-- MODULES CHANGES RECEIVER -->
+        <receiver android:name=".commons.receiver.ModuleReceiver" tools:node="remove" />
+        <receiver android:name=".receiver.ModulesReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_CHANGED" />
+                <action android:name="android.intent.action.PACKAGE_DATA_CLEARED" />
+                <action android:name="android.intent.action.PACKAGE_FIRST_LAUNCH" />
+                <action android:name="android.intent.action.PACKAGE_FULLY_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_INSTALL" />
+                <action android:name="android.intent.action.PACKAGE_NEEDS_VERIFICATION" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.PACKAGE_RESTARTED" />
+                <action android:name="android.intent.action.PACKAGE_VERIFIED" />
+
+                <data
+                    android:scheme="package" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".receiver.ModuleDataChangeReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="${permission_receiver_broadcast}">
+            <intent-filter>
+                <action android:name="org.mtransit.android.intent.action.DATA_CHANGE" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".commons.receiver.GenericReceiver" tools:node="remove" />
+        <!-- FAVORITE PROVIDER -->
+        <provider
+            android:name="org.mtransit.android.provider.FavoriteProvider"
+            android:authorities="@string/favorite_authority"
+            android:exported="false" />
+        <!-- MODULE PROVIDER -->
+        <provider
+            android:name="org.mtransit.android.provider.ModuleProvider"
+            android:authorities="@string/module_authority"
+            android:exported="false"
+            android:readPermission="${permission_provider_read}">
+            <meta-data
+                android:name="@string/agency_provider"
+                android:value="@string/agency_provider" />
+            <meta-data
+                android:name="@string/agency_provider_type"
+                android:value="999" />
+            <meta-data
+                android:name="@string/poi_provider"
+                android:value="@string/poi_provider" />
+            <meta-data
+                android:name="@string/status_provider"
+                android:value="@string/status_provider" />
+            <meta-data
+                android:name="@string/status_provider_target"
+                android:value="@string/module_authority" />
+        </provider>
+        <!-- PLACE PROVIDER -->
+        <provider
+            android:name="org.mtransit.android.provider.PlaceProvider"
+            android:authorities="@string/place_authority"
+            android:exported="false"
+            android:readPermission="${permission_provider_read}">
+            <meta-data
+                android:name="@string/agency_provider"
+                android:value="@string/agency_provider" />
+            <meta-data
+                android:name="@string/agency_provider_type"
+                android:value="666" />
+            <meta-data
+                android:name="@string/poi_provider"
+                android:value="@string/poi_provider" />
+        </provider>
+        <!-- TWITTER NEWS PROVIDER -->
+        <provider
+            android:name="org.mtransit.android.commons.provider.TwitterNewsProvider"
+            android:authorities="@string/twitter_authority"
+            android:exported="true"
+            android:readPermission="${permission_provider_read}"
+            tools:ignore="MissingRegistered">
+            <meta-data
+                android:name="@string/news_provider"
+                android:value="@string/news_provider" />
+            <meta-data
+                android:name="@string/news_provider_target"
+                android:value="@string/twitter_target_for_poi_authority" />
+        </provider>
+    </application>
+    <queries>
+        <!-- PACKAGE VISIBILITY: secondary apps visible by main app -->
+        <intent>
+            <action android:name="org.mtransit.android.intent.action.GENERIC" />
+        </intent>
+        <!-- PACKAGE VISIBILITY: backward compatibility -->
+        <package android:name="org.mtransit.android.ca_airdrie_transit_bus" />
+        <package android:name="org.mtransit.android.ca_banff_roam_transit_bus" />
+        <package android:name="org.mtransit.android.ca_barrie_transit_bus" />
+        <package android:name="org.mtransit.android.ca_brampton_transit_bus" />
+        <package android:name="org.mtransit.android.ca_brandon_transit_bus" />
+        <package android:name="org.mtransit.android.ca_burlington_transit_bus" />
+        <package android:name="org.mtransit.android.ca_calgary_transit_bus" />
+        <package android:name="org.mtransit.android.ca_calgary_transit_train" />
+        <package android:name="org.mtransit.android.ca_campbell_river_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_central_fraser_valley_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_chambly_richelieu_carignan_citcrc_bus" />
+        <package android:name="org.mtransit.android.ca_chilliwack_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_comox_valley_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_cornwall_transit_bus" />
+        <package android:name="org.mtransit.android.ca_cowichan_valley_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_cranbrook_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_dawson_creek_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_deux_montagnes_mrcdm_bus" />
+        <package android:name="org.mtransit.android.ca_durham_region_transit_bus" />
+        <package android:name="org.mtransit.android.ca_edmonton_ets_bus" />
+        <package android:name="org.mtransit.android.ca_edmonton_ets_train" />
+        <package android:name="org.mtransit.android.ca_fort_erie_transit_bus" />
+        <package android:name="org.mtransit.android.ca_fort_st_john_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_fraser_valley_express_bus" />
+        <package android:name="org.mtransit.android.ca_fredericton_transit_bus" />
+        <package android:name="org.mtransit.android.ca_gatineau_sto_bus" />
+        <package android:name="org.mtransit.android.ca_grand_river_transit_bus" />
+        <package android:name="org.mtransit.android.ca_grand_river_transit_light_rail" />
+        <package android:name="org.mtransit.android.ca_grande_prairie_transit_bus" />
+        <package android:name="org.mtransit.android.ca_gta_up_express_train" />
+        <package android:name="org.mtransit.android.ca_gtha_go_transit_bus" />
+        <package android:name="org.mtransit.android.ca_gtha_go_transit_train" />
+        <package android:name="org.mtransit.android.ca_guelph_transit_bus" />
+        <package android:name="org.mtransit.android.ca_halifax_transit_bus" />
+        <package android:name="org.mtransit.android.ca_halifax_transit_ferry" />
+        <package android:name="org.mtransit.android.ca_hamilton_hsr_bus" />
+        <package android:name="org.mtransit.android.ca_haut_st_laurent_cithsl_bus" />
+        <package android:name="org.mtransit.android.ca_joliette_ctjm_bus" />
+        <package android:name="org.mtransit.android.ca_kamloops_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_kelowna_regional_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_kingston_transit_bus" />
+        <package android:name="org.mtransit.android.ca_l_assomption_mrclasso_bus" />
+        <package android:name="org.mtransit.android.ca_la_presqu_ile_citpi_bus" />
+        <package android:name="org.mtransit.android.ca_lanaudiere_crtl_bus" />
+        <package android:name="org.mtransit.android.ca_laurentides_citla_bus" />
+        <package android:name="org.mtransit.android.ca_laurentides_linter_bus" />
+        <package android:name="org.mtransit.android.ca_laval_stl_bus" />
+        <package android:name="org.mtransit.android.ca_le_richelain_citlr_bus" />
+        <package android:name="org.mtransit.android.ca_les_moulins_mrclm_bus" />
+        <package android:name="org.mtransit.android.ca_lethbridge_transit_bus" />
+        <package android:name="org.mtransit.android.ca_levis_stl_bus" />
+        <package android:name="org.mtransit.android.ca_london_transit_bus" />
+        <package android:name="org.mtransit.android.ca_longueuil_rtl_bus" />
+        <package android:name="org.mtransit.android.ca_maritime_bus" />
+        <package android:name="org.mtransit.android.ca_milton_transit_bus" />
+        <package android:name="org.mtransit.android.ca_mississauga_miway_bus" />
+        <package android:name="org.mtransit.android.ca_moncton_codiac_transpo_bus" />
+        <package android:name="org.mtransit.android.ca_montreal_amt_bus" />
+        <package android:name="org.mtransit.android.ca_montreal_amt_train" />
+        <package android:name="org.mtransit.android.ca_montreal_bixi_bike" />
+        <package android:name="org.mtransit.android.ca_montreal_stm_bus" />
+        <package android:name="org.mtransit.android.ca_montreal_stm_subway" />
+        <package android:name="org.mtransit.android.ca_nanaimo_rdn_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_niagara_falls_transit_bus" />
+        <package android:name="org.mtransit.android.ca_niagara_falls_wego_bus" />
+        <package android:name="org.mtransit.android.ca_niagara_region_transit_bus" />
+        <package android:name="org.mtransit.android.ca_oakville_transit_bus" />
+        <package android:name="org.mtransit.android.ca_ottawa_oc_transpo_bus" />
+        <package android:name="org.mtransit.android.ca_ottawa_oc_transpo_train" />
+        <package android:name="org.mtransit.android.ca_prince_george_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_quebec_orleans_express_bus" />
+        <package android:name="org.mtransit.android.ca_quebec_rtc_bus" />
+        <package android:name="org.mtransit.android.ca_red_deer_transit_bus" />
+        <package android:name="org.mtransit.android.ca_regina_transit_bus" />
+        <package android:name="org.mtransit.android.ca_richelieu_citvr_bus" />
+        <package android:name="org.mtransit.android.ca_roussillon_citrous_bus" />
+        <package android:name="org.mtransit.android.ca_saskatoon_transit_bus" />
+        <package android:name="org.mtransit.android.ca_shawinigan_rtcs_bus" />
+        <package android:name="org.mtransit.android.ca_sherbrooke_sts_bus" />
+        <package android:name="org.mtransit.android.ca_sorel_varennes_citsv_bus" />
+        <package android:name="org.mtransit.android.ca_squamish_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_st_albert_transit_bus" />
+        <package android:name="org.mtransit.android.ca_st_catharines_transit_bus" />
+        <package android:name="org.mtransit.android.ca_st_john_s_metrobus_transit_bus" />
+        <package android:name="org.mtransit.android.ca_ste_julie_omitsju_bus" />
+        <package android:name="org.mtransit.android.ca_strathcona_county_transit_bus" />
+        <package android:name="org.mtransit.android.ca_sud_ouest_citso_bus" />
+        <package android:name="org.mtransit.android.ca_sudbury_transit_bus" />
+        <package android:name="org.mtransit.android.ca_sunshine_coast_regional_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_thunder_bay_transit_bus" />
+        <package android:name="org.mtransit.android.ca_toronto_share_bike" />
+        <package android:name="org.mtransit.android.ca_toronto_ttc_bus" />
+        <package android:name="org.mtransit.android.ca_toronto_ttc_light_rail" />
+        <package android:name="org.mtransit.android.ca_toronto_ttc_subway" />
+        <package android:name="org.mtransit.android.ca_vancouver_mobi_bike" />
+        <package android:name="org.mtransit.android.ca_vancouver_translink_bus" />
+        <package android:name="org.mtransit.android.ca_vancouver_translink_ferry2" />
+        <package android:name="org.mtransit.android.ca_vancouver_translink_train" />
+        <package android:name="org.mtransit.android.ca_vernon_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_victoria_regional_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_welland_transit_bus" />
+        <package android:name="org.mtransit.android.ca_west_coast_express_bus" />
+        <package android:name="org.mtransit.android.ca_west_coast_express_train" />
+        <package android:name="org.mtransit.android.ca_west_kootenay_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_whistler_transit_system_bus" />
+        <package android:name="org.mtransit.android.ca_whitehorse_transit_bus" />
+        <package android:name="org.mtransit.android.ca_windsor_transit_bus" />
+        <package android:name="org.mtransit.android.ca_winnipeg_transit_bus" />
+        <package android:name="org.mtransit.android.ca_york_region_yrt_viva_bus" />
+        <package android:name="org.mtransit.android.us_anchorage_people_mover_bus" />
+        <package android:name="org.mtransit.android.us_clark_county_c_tran_bus" />
+        <package android:name="org.mtransit.android.us_everett_transit_bus" />
+        <package android:name="org.mtransit.android.us_juneau_capital_transit_bus" />
+        <package android:name="org.mtransit.android.us_longview_rivercities_transit_bus" />
+        <package android:name="org.mtransit.android.us_snohomish_county_community_transit_bus" />
+        <package android:name="org.mtransit.android.us_washington_state_ferry" />
+        <!-- PACKAGE VISIBILITY: Web Browser -->
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+        <!-- PACKAGE VISIBILITY: Twitter apps -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data
+                android:scheme="https"
+                android:host="mobile.twitter.com" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data
+                android:scheme="https"
+                android:host="twitter.com" />
+        </intent>
+        <!-- PACKAGE VISIBILITY: Google Opinion Rewards -->
+        <package android:name="com.google.android.apps.paidtasks" />
+        <!-- PACKAGE VISIBILITY: Google Maps -->
+        <package android:name="com.google.android.apps.maps" />
+        <!-- PACKAGE VISIBILITY: Google Maps Lite -->
+        <package android:name="com.google.android.apps.mapslite" />
+        <!-- PACKAGE VISIBILITY: Maps apps -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data
+                android:scheme="https"
+                android:host="www.google.com"
+                android:pathPrefix="/maps"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data
+                android:scheme="https"
+                android:host="maps.google.com" />
+        </intent>
+        <intent>
+             <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="geo" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="google.navigation" />
+        </intent>
+        <!-- PACKAGE VISIBILITY: YouTube -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data
+                android:scheme="https"
+                android:host="youtube.com" />
+        </intent>
+        <!-- PACKAGE VISIBILITY: PDF Viewers -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="application/pdf" />
+        </intent>
+    </queries>
+</manifest>

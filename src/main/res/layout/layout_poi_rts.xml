@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:background="?attr/colorSurface"
+    android:clipChildren="false"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:paddingLeft="@dimen/poi_padding_left_extra"
+    android:paddingTop="@dimen/poi_padding_top"
+    android:paddingRight="@dimen/poi_padding_right"
+    android:paddingBottom="@dimen/poi_padding_bottom">
+
+    <include
+        android:id="@+id/extra"
+        layout="@layout/layout_poi_rts_extras" />
+
+    <include
+        android:id="@+id/poi"
+        layout="@layout/layout_poi_base_distance_and_compass"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/poi_margin_left"
+        android:layout_toRightOf="@id/extra" />
+
+</RelativeLayout>

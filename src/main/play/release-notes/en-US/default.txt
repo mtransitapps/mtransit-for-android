@@ -1,0 +1,3 @@
+Compatible with (almost) all transit agencies in Canada and the northern United States (AK).
+Now with dark theme.
+Bug fixes & performance improvements.

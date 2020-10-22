@@ -1,0 +1,53 @@
+<b>MonTransit effortlessly brings the most relevant transit information to you, including: </b>
+- buses, ferries, subways, streetcars & trains schedules (offline & real-time),
+- bike stations availability,
+- service alerts & the latest news from agencies web sites, blogs, Twitter, YouTube…
+
+
+On the home screen, you can see all nearby route trips next departures as well as nearby bike stations availability in a predictable user interface.
+You can access the information any way you want by using the sliding menu (click on the ☰ icon in the upper left corner of the screen or swipe from the left edge of any screen).
+For example, you can use the Map screen to discover new bus stops, subway stations, train stations or bike stations or you can search for a place by clicking on the 🔍 icon in the upper right corner of any screen.
+
+No Internet? GPS turned off? WiFi disabled? No problem, MonTransit offers multiple ways to find the information you're looking for:
+- you can access your ★ favorites or browse all transit information by using the sliding menu (click on the ☰ icon in the upper left corner of the screen or swipe from the left edge of any screen)
+- you can enter a route number # or name, stop code # or name, street names... by clicking on the search 🔍 icon in the upper right corner of any screen
+- all buses, ferries, subways, streetcars & trains schedule are available offline
+
+MonTransit lets you install the transit agencies that you want (you don't have to switch between cities & you can access all the information any time, anywhere).
+The buses, ferries, subways, streetcars & trains information are kept up-to-date through Google Play Store auto-updates without using your device's battery or mobile Internet data plan (3G/4G/LTE).
+
+MonTransit is currently available in Canada:
+- <b>AB:</b> Calgary, ETS, Red Deer…
+- <b>BC:</b> BC Transit, TransLink, West Coast Express…
+- <b>MB:</b> Winnipeg, Brandon…
+- <b>NB:</b> Codiac, Fredericton…
+- <b>NL:</b> Metrobus…
+- <b>NS:</b> Halifax…
+- <b>ON:</b> GO Transit, GRT, HSR, MiWay, OC Transpo, TTC, YRT Viva, Niagara Region, St Catharines…
+- <b>QC:</b> AMT, BIXI, RTC, RTL, STM, STL, STO, STS, CIT, MRC…
+- <b>SK:</b> Regina, Saskatoon…
+- <b>YK:</b> Whitehorse…
+MonTransit is currently available in the northern United States:
+- <b>AK:</b> People Mover…
+
+All the features are available for free (no paywall) but you can support the project (and hide ads) by paying a Google Play subscription (1 month free, cancel any time).
+
+You are our customers & only source of revenues.
+Thank You.
+
+Social:
+- Facebook: https://facebook.com/MonTransit
+- Twitter: https://twitter.com/montransit
+
+This app is free & open-source:
+https://github.com/mtransitapps/mtransit-for-android
+
+More information: https://goo.gl/z2e6HP
+
+Made with ♥ in Montreal, Canada in North America.
+
+Permissions:
+- In-app purchases: required for donations (hide ads & support MonTransit)
+- Location: required to show nearby transit information & show distance & compass
+- Photo/Media/Files: required by Google Maps
+- Other: required by Google Analytics & Google Mobile Ads (AdMob) & Google Maps & Facebook Audience Network

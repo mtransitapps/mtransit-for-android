@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/switch_padding">
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/action_bar_switch_list_grid"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text=""
+        android:theme="@style/MTSwitch"
+        android:visibility="gone"
+        tools:checked="true"
+        tools:enabled="true"
+        tools:textOff="@string/menu_action_list"
+        tools:textOn="@string/menu_action_grid"
+        tools:visibility="visible" />
+
+</RelativeLayout>

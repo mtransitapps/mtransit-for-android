@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:background="?attr/colorSurface"
+    android:clipChildren="false"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:paddingLeft="@dimen/poi_padding_left_no_extra"
+    android:paddingTop="@dimen/poi_padding_top"
+    android:paddingRight="@dimen/poi_padding_right"
+    android:paddingBottom="@dimen/poi_padding_bottom">
+
+    <ImageView
+        android:id="@+id/service_update_warning"
+        android:layout_width="@dimen/poi_img_width"
+        android:layout_height="@dimen/poi_img_height"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/poi_status_inner_padding"
+        android:scaleType="fitCenter"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_warning_black_24dp"
+        app:tint="@color/color_secondary_on_background"
+        tools:visibility="visible" />
+
+    <include
+        android:id="@+id/status"
+        layout="@layout/layout_poi_status_schedule"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/poi_status_inner_padding"
+        android:minWidth="?android:attr/listPreferredItemHeight" />
+
+    <include
+        android:id="@+id/poi"
+        layout="@layout/layout_poi_base_distance_and_compass"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/poi_margin_left"
+        android:layout_toLeftOf="@id/status" />
+
+</RelativeLayout>

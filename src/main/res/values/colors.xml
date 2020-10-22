@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!--
+	100% — FF
+	95% — F2
+	90% — E6
+	85% — D9
+	80% — CC
+	75% — BF
+	70% — B3
+	65% — A6
+	60% — 99
+	55% — 8C
+	54% — 8A
+	50% — 80
+	45% — 73
+	40% — 66
+	35% — 59
+	30% — 4D
+	25% — 40
+	20% — 33
+	15% — 26
+	10% — 1A
+	5% — 0D
+	0% — 00
+    -->
+
+    <!-- light icons: #333 @ 60% -->
+    <!-- dark icons: #FFF @ 100% -->
+    <color name="mt_blue_malibu" tools:ignore="UnusedResources">#6699FF</color> <!-- light blue -->
+    <color name="mt_blue_smalt" tools:ignore="UnusedResources">#003399</color> <!-- dark blue -->
+    <color name="mt_bg_dark" tools:ignore="UnusedResources">#230913</color>
+    <color name="mt_bg_light" tools:ignore="UnusedResources">#58454F</color>
+
+    <color name="rsn_color">#FFFFFF</color>
+    <color name="rln_color">#FFFFFF</color>
+
+    <color name="button_bg">@color/color_primary_dark</color>
+    <color name="head_sign_shadow">#66000000</color><!-- 40% -->
+
+    <color name="switch_track_tint">@color/white_75</color><!-- 75% -->
+    <color name="switch_thumb_tint">@color/color_primary_dark</color>
+    <color name="switch_thumb_tint_border">#BFFFFFFF</color>
+
+    <color name="black">#000000</color>
+    <color name="dark_grey">#121212</color>
+    <color name="dark_grey_5">#1e1e1e</color>
+    <color name="dark_grey_7">#222222</color>
+    <color name="dark_grey_8">#242424</color>
+    <color name="dark_grey_9">#272727</color>
+    <color name="dark_grey_11">#2c2c2c</color>
+    <color name="dark_grey_12">#2e2e2e</color>
+    <color name="dark_grey_14">#323232</color>
+    <color name="dark_grey_15">#353535</color>
+    <color name="dark_grey_16">#383838</color>
+
+    <color name="white_15">#26FFFFFF</color>
+    <color name="white_25">#40FFFFFF</color>
+    <color name="white_50">#80FFFFFF</color>
+    <color name="white_75">#BFFFFFFF</color>
+    <color name="white_85">#D9FFFFFF</color>
+
+    <color name="black_15">#26000000</color>
+    <color name="black_85">#D9000000</color>
+
+    <color name="light_grey">#ffeeeeee</color>
+
+    <color name="ic_grey600">#8A000000</color>
+
+    <color name="transparent">#00000000</color>
+
+</resources>

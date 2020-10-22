@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
+    <string name="descent_only">Descente Seulement</string>
+    <string name="descent_only_part_1">Descente</string>
+    <string name="descent_only_part_2">Seulement</string>
+    <string name="frequent_service">Service Régulier</string>
+    <string name="frequent_service_part_1">Service</string>
+    <string name="frequent_service_part_2">Régulier</string>
+    <plurals name="every_minutes_and_quantity">
+        <item quantity="one" tools:ignore="ImpliedQuantity">Toutes Les Minutes</item>
+        <item quantity="other">Toutes Les %s Minutes</item>
+    </plurals>
+    <plurals name="every_minutes_and_quantity_part_1">
+        <item quantity="one" tools:ignore="ImpliedQuantity">Toutes Les</item>
+        <item quantity="other">Toutes Les</item>
+    </plurals>
+    <plurals name="every_minutes_and_quantity_part_2">
+        <item quantity="one" tools:ignore="ImpliedQuantity">Minutes</item>
+        <item quantity="other">%s Minutes</item>
+    </plurals>
+    <string name="no_service">Aucun Service</string>
+    <string name="no_service_part_1">Aucun</string>
+    <string name="no_service_part_2">Service</string>
+    <string name="no_upcoming_departures">Pas de départs à venir.</string>
+    <string name="this_morning">Ce Matin</string>
+    <string name="this_morning_part_1">Ce</string>
+    <string name="this_morning_part_2">Matin</string>
+    <string name="this_afternoon">Cet Après-Midi</string>
+    <string name="this_afternoon_part_1">Cet</string>
+    <string name="this_afternoon_part_2">Après-Midi</string>
+    <string name="this_evening">Ce Soir</string>
+    <string name="this_evening_part_1">Ce Soir</string>
+    <string name="this_evening_part_2" />
+    <string name="tonight">Cette Nuit</string>
+    <string name="tonight_part_1">Cette</string>
+    <string name="tonight_part_2">Nuit</string>
+    <string name="yesterday">Hier</string>
+    <string name="today">Aujourd\'hui</string>
+    <string name="tomorrow">Demain</string>
+    <string name="tomorrow_part_1">Demain</string>
+    <string name="tomorrow_part_2" />
+    <string name="next_week">La Semaine Prochaine</string>
+    <string name="next_week_part_1">La Semaine</string>
+    <string name="next_week_part_2">Prochaine</string>
+    <string name="next_month">Le Mois Prochain</string>
+    <string name="next_month_part_1">Le Mois</string>
+    <string name="next_month_part_2">Prochain</string>
+    <string name="next_year">L\'Année Prochaine</string>
+    <string name="next_year_part_1">L\'Année</string>
+    <string name="next_year_part_2">Prochaine</string>
+    <string name="this_month">Ce Mois</string>
+    <string name="this_month_part_1">Ce</string>
+    <string name="this_month_part_2">Mois</string>
+    <string name="now_short_and_loud">ICI</string>
+    <string name="zero_capitalized">Zéro</string>
+    <string name="one_capitalized">Un</string>
+    <string name="two_capitalized">Deux</string>
+    <string name="three_capitalized">Trois</string>
+    <string name="four_capitalized">Quatre</string>
+    <string name="five_capitalized">Cinq</string>
+    <string name="six_capitalized">Six</string>
+    <string name="seven_capitalized">Sept</string>
+    <string name="eight_capitalized">Huit</string>
+    <string name="nine_capitalized">Neuf</string>
+    <string name="ten_capitalized">Dix</string>
+    <string name="eleven_capitalized">Onze</string>
+    <string name="twelve_capitalized">Douze</string>
+    <string name="thirteen_capitalized">Treize</string>
+    <string name="fourteen_capitalized">Quatorze</string>
+    <string name="fifteen_capitalized">Quinze</string>
+    <string name="sixteen_capitalized">Seize</string>
+    <string name="seventeen_capitalized">Dix-sept</string>
+    <string name="eighteen_capitalized">Dix-huit</string>
+    <string name="nineteen_capitalized">Dix-neuf</string>
+    <plurals name="days_capitalized">
+        <item quantity="one" tools:ignore="ImpliedQuantity">Jour</item>
+        <item quantity="other">Jours</item>
+    </plurals>
+    <plurals name="hours_capitalized">
+        <item quantity="one" tools:ignore="ImpliedQuantity">Heure</item>
+        <item quantity="other">Heures</item>
+    </plurals>
+    <plurals name="minutes_capitalized">
+        <item quantity="one" tools:ignore="ImpliedQuantity">Minute</item>
+        <item quantity="other">Minutes</item>
+    </plurals>
+</resources>

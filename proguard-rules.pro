@@ -20,7 +20,7 @@
 #}
 
 -forceprocessing
--optimizationpasses 5
+-optimizationpasses 2
 
 # Produces useful obfuscated stack traces
 # http://proguard.sourceforge.net/manual/examples.html#stacktrace
@@ -32,10 +32,6 @@
 
 # Do not obfuscate the class files since open source
 -dontobfuscate
-
-# Support Library
--keep class !android.support.v7.internal.view.menu.*MenuBuilder*, android.support.v7.** { *; }
--keep interface android.support.v7.** { *; }
 
 -dontwarn javax.**
 -dontwarn org.apache.log4j.**
@@ -92,7 +88,8 @@
 # INMOBI - END
 
 # CRASHLYTICS - START
--keepattributes *Annotation*
--keepattributes SourceFile,LineNumberTable
--keep public class * extends java.lang.Exception
+-keepattributes SourceFile,LineNumberTable        # Keep file names and line numbers.
+-keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.
+-keep class com.google.firebase.crashlytics.** { *; }
+-dontwarn com.google.firebase.crashlytics.**
 # CRASHLYTICS - END

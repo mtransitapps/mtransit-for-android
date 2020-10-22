@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="color_primary">@color/dark_grey_12</color>
+    <color name="color_on_primary">#FFF3F3F3</color>
+
+    <color name="color_primary_dark">@color/color_primary</color>
+    <color name="color_primary_variant">@color/color_primary</color>
+
+    <color name="color_secondary">@color/color_primary</color>
+
+    <color name="color_accent">@color/color_primary</color>
+
+    <color name="color_surface">@color/dark_grey_5</color>
+    <color name="color_on_surface">@color/white_50</color>
+
+    <!-- background: same as default -->
+    <color name="color_background">@color/design_dark_default_color_background</color>
+    <color name="window_background">@color/color_background</color>
+
+    <color name="color_on_background">@color/design_dark_default_color_on_background</color>
+
+    <color name="color_secondary_on_background">@color/white_25</color>
+
+    <color name="navigation_item_color_default">@color/color_on_surface</color>
+    <color name="navigation_item_color_checked">@color/color_on_primary</color>
+
+</resources>
