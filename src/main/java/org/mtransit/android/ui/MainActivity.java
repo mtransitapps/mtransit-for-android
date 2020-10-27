@@ -119,11 +119,9 @@ public class MainActivity extends MTActivityWithLocation implements
 
 	@Override
 	public void onBillingResult(@Nullable String sku) {
-		if (sku != null) {
-			this.adManager.setShowingAds(
-					sku.isEmpty(), // empty = no sky = showing ads
-					this
-			);
+		Boolean hasSubscription = sku == null ? null : !sku.isEmpty();
+		if (hasSubscription != null) {
+			this.adManager.setShowingAds(!hasSubscription, this);
 		}
 	}
 

@@ -200,7 +200,6 @@ public class Injection {
 
 	@NonNull
 	private static LocalPreferenceRepository providesLocalPreferenceRepository() {
-		org.mtransit.android.commons.MTLog.v(Injection.class.getSimpleName(), "providesLocalPreferenceRepository()");
 		if (localPreferenceRepository == null) {
 			synchronized (Injection.class) {
 				if (localPreferenceRepository == null) {

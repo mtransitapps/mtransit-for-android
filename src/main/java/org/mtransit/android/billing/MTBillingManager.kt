@@ -60,7 +60,7 @@ class MTBillingManager(
     }
 
     private fun startConnection() {
-        billingClientConnected = null
+        billingClientConnected = null // unknown
         billingClient.startConnection(this)
     }
 
@@ -114,6 +114,13 @@ class MTBillingManager(
     }
 
     private fun querySkuDetails() {
+        if (!billingClient.isReady) {
+            MTLog.w(this, "querySkuDetails() > BillingClient is not ready")
+            if (this.billingClientConnected == false) {
+                startConnection()
+            }
+            return
+        }
         billingClient.querySkuDetailsAsync(
             SkuDetailsParams.newBuilder()
                 .setSkusList(IBillingManager.ALL_VALID_SUBSCRIPTIONS)
