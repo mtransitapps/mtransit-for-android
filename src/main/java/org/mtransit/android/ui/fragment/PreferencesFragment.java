@@ -18,7 +18,6 @@ import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.DeviceUtils;
 import org.mtransit.android.commons.LocaleUtils;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
@@ -179,9 +178,10 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 					return false; // not handled
 				}
 				String currentSubscription = this.billingManager.getCurrentSubscription();
-				if (currentSubscription == null) { // unknown status
+				Boolean hasSubscription = currentSubscription == null ? null : !currentSubscription.isEmpty();
+				if (hasSubscription == null) { // unknown status
 					// DO NOTHING
-				} else if (!currentSubscription.isEmpty()) { // has subscription
+				} else if (hasSubscription) { // has subscription
 					StoreUtils.viewSubscriptionPage(activity, currentSubscription, activity.getPackageName(), activity.getString(R.string.google_play));
 				} else { // does NOT have subscription
 					BillingUtils.showPurchaseDialog(activity);
