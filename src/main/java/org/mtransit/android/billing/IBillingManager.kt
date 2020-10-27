@@ -72,7 +72,7 @@ interface IBillingManager {
 
     fun getCurrentSubscription(): String?
 
-    fun launchBillingFlow(activity: IActivity, sku: String)
+    fun launchBillingFlow(activity: IActivity, sku: String) : Boolean
 
     fun addListener(listener: OnBillingResultListener)
 

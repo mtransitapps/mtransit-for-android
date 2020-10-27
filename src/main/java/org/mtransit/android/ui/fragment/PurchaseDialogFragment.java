@@ -246,7 +246,12 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
-			this.billingManager.launchBillingFlow(this, sku);
+			final boolean billingFlowLaunched = this.billingManager.launchBillingFlow(this, sku);
+			if (!billingFlowLaunched) {
+				MTLog.w(this, "onBuyBtnClick() > skip (can not launch billing flow for: %s)", sku);
+				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
+				return;
+			}
 			Dialog dialog = getDialog();
 			if (dialog != null) {
 				dialog.dismiss();

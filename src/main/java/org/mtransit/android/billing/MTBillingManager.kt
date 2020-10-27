@@ -38,9 +38,7 @@ class MTBillingManager(
         private const val PREF_KEY_SUBSCRIPTION_DEFAULT = ""
     }
 
-    override fun getLogTag(): String {
-        return LOG_TAG
-    }
+    override fun getLogTag(): String = LOG_TAG
 
     private var billingClientConnected: Boolean? = false
 
@@ -51,9 +49,7 @@ class MTBillingManager(
 
     private var _currentSubSku: String? = null
 
-    private val listenersWR = WeakHashMap<OnBillingResultListener, Void?>()
-
-    private val purchases = MutableLiveData<List<Purchase>>()
+    private val _listenersWR = WeakHashMap<OnBillingResultListener, Void?>()
 
     private val _skusWithSkuDetails = MutableLiveData<Map<String, SkuDetails>>()
 
@@ -73,14 +69,12 @@ class MTBillingManager(
     }
 
     override fun onBillingSetupFinished(billingResult: BillingResult) {
-        val responseCode = billingResult.responseCode
-        val debugMessage = billingResult.debugMessage
-        MTLog.d(this, "onBillingSetupFinished: $responseCode $debugMessage")
-        if (responseCode == BillingResponseCode.OK) {
+        if (billingResult.responseCode == BillingResponseCode.OK) {
             billingClientConnected = true
             querySkuDetails()
             queryPurchases()
         } else {
+            MTLog.w(this, "Billing setup NOT successful! ${billingResult.responseCode}: ${billingResult.debugMessage}")
             billingClientConnected = false
         }
     }
@@ -89,10 +83,7 @@ class MTBillingManager(
         billingResult: BillingResult,
         purchases: MutableList<Purchase>?
     ) {
-        val responseCode = billingResult.responseCode
-        val debugMessage = billingResult.debugMessage
-        MTLog.d(this, "onPurchasesUpdated: $responseCode $debugMessage")
-        when (responseCode) {
+        when (billingResult.responseCode) {
             BillingResponseCode.OK -> {
                 if (purchases == null) {
                     processPurchases(null)
@@ -133,11 +124,8 @@ class MTBillingManager(
     }
 
     override fun onSkuDetailsResponse(billingResult: BillingResult, skuDetailsList: List<SkuDetails>?) {
-        val responseCode = billingResult.responseCode
-        val debugMessage = billingResult.debugMessage
-        when (responseCode) {
+        when (billingResult.responseCode) {
             BillingResponseCode.OK -> {
-                MTLog.d(this, "onSkuDetailsResponse: $responseCode $debugMessage")
                 if (skuDetailsList == null) {
                     _skusWithSkuDetails.postValue(emptyMap())
                 } else
@@ -146,8 +134,9 @@ class MTBillingManager(
                             for (details in skuDetailsList) {
                                 put(details.sku, details)
                             }
-                        }.also { postedValue ->
-                            MTLog.i(this, "onSkuDetailsResponse: count ${postedValue.size}")
+                        }
+                        .also { postedValue ->
+                            MTLog.d(this, "onSkuDetailsResponse() > found ${postedValue.size} SKU details")
                         })
             }
             BillingResponseCode.SERVICE_DISCONNECTED,
@@ -156,13 +145,13 @@ class MTBillingManager(
             BillingResponseCode.ITEM_UNAVAILABLE,
             BillingResponseCode.DEVELOPER_ERROR,
             BillingResponseCode.ERROR -> {
-                MTLog.w(this, "onSkuDetailsResponse: $responseCode $debugMessage") // expected
+                MTLog.w(this, "Error while fetching SKU details! ${billingResult.responseCode}: ${billingResult.debugMessage}")
             }
             BillingResponseCode.USER_CANCELED,
             BillingResponseCode.FEATURE_NOT_SUPPORTED,
             BillingResponseCode.ITEM_ALREADY_OWNED,
             BillingResponseCode.ITEM_NOT_OWNED -> {
-                MTLog.e(this, "onSkuDetailsResponse: $responseCode $debugMessage") // not expected
+                MTLog.e(this, "Unexpected error while fetching SKU details! ${billingResult.responseCode}: ${billingResult.debugMessage}")
             }
         }
     }
@@ -179,64 +168,53 @@ class MTBillingManager(
             }
             return
         }
-        val result = billingClient.queryPurchases(BillingClient.SkuType.SUBS)
-        if (result.purchasesList == null) {
+        val purchasesResult = billingClient.queryPurchases(BillingClient.SkuType.SUBS)
+        val billingResult = purchasesResult.billingResult
+        if (billingResult.responseCode != BillingResponseCode.OK) {
+            MTLog.w(this, "Error while querying purchases! ${billingResult.responseCode}: ${billingResult.debugMessage}")
+        }
+        if (purchasesResult.purchasesList == null) {
             processPurchases(null)
         } else {
-            processPurchases(result.purchasesList)
+            processPurchases(purchasesResult.purchasesList)
         }
     }
 
     private fun processPurchases(purchasesList: List<Purchase>?) {
         if (isUnchangedPurchaseList(purchasesList)) {
-            MTLog.d(this, "processPurchases: Purchase list has not changed")
+            MTLog.d(this, "processPurchases() > SKIP (purchase list has not changed)")
             return
         }
-        purchases.postValue(purchasesList)
-        purchasesList?.let {
-            logAcknowledgementStatus(purchasesList)
-            it.forEach { purchase ->
+        purchasesList?.let { list ->
+            list.forEach { purchase ->
                 handlePurchase(purchase)
             }
-            logAcknowledgementStatus(purchasesList)
         }
-        val sku: String = purchasesList?.map { purchase ->
-            purchase.sku
-        }?.firstOrNull { sku ->
-            sku.isNotEmpty()
-        }.orEmpty()
-        setCurrentSubscription(sku)
+        setCurrentSubscription(
+            purchasesList?.map { purchase ->
+                purchase.sku
+            }?.firstOrNull { sku ->
+                sku.isNotEmpty()
+            }.orEmpty()
+        )
     }
 
-    private fun logAcknowledgementStatus(purchasesList: List<Purchase>) {
-        var ackYes = 0
-        var ackNo = 0
-        for (purchase in purchasesList) {
-            if (purchase.isAcknowledged) {
-                ackYes++
-            } else {
-                ackNo++
-            }
-        }
-        MTLog.d(this, "logAcknowledgementStatus: acknowledged = $ackYes | unacknowledged= $ackNo")
-    }
-
-    private fun isUnchangedPurchaseList(purchasesList: List<Purchase>?): Boolean {
+    private fun isUnchangedPurchaseList(@Suppress("UNUSED_PARAMETER") purchasesList: List<Purchase>?): Boolean {
         return false // TODO optimized to avoid updates with identical data.
     }
 
-    override fun launchBillingFlow(activity: IActivity, sku: String) {
+    override fun launchBillingFlow(activity: IActivity, sku: String): Boolean {
         val skuDetails = _skusWithSkuDetails.value?.get(sku) ?: run {
             MTLog.w(this, "Could not find SkuDetails to make purchase.")
-            return
+            return false
         }
-        launchBillingFlow(activity, skuDetails)
+        return launchBillingFlow(activity, skuDetails)
     }
 
-    private fun launchBillingFlow(activity: IActivity, skuDetails: SkuDetails) {
+    private fun launchBillingFlow(activity: IActivity, skuDetails: SkuDetails): Boolean {
         val theActivity = activity.activity ?: run {
             MTLog.w(this, "Could not find activity to make purchase.")
-            return
+            return false
         }
 
         val billingResult = billingClient.launchBillingFlow( // results delivered > onPurchasesUpdated()
@@ -245,8 +223,10 @@ class MTBillingManager(
                 .setSkuDetails(skuDetails)
                 .build()
         )
-        val responseCode = billingResult.responseCode
-        val debugMessage = billingResult.debugMessage
+        if (billingResult.responseCode != BillingResponseCode.OK) {
+            MTLog.w(this, "Error while launching billing flow! ${billingResult.responseCode}: ${billingResult.debugMessage}")
+        }
+        return billingResult.responseCode == BillingResponseCode.OK
     }
 
     private fun handlePurchase(purchase: Purchase) {
@@ -257,12 +237,14 @@ class MTBillingManager(
     }
 
     private fun acknowledgePurchase(purchaseToken: String) {
-        val params = AcknowledgePurchaseParams.newBuilder()
-            .setPurchaseToken(purchaseToken)
-            .build()
-        billingClient.acknowledgePurchase(params) { billingResult ->
-            val responseCode = billingResult.responseCode
-            val debugMessage = billingResult.debugMessage
+        billingClient.acknowledgePurchase(
+            AcknowledgePurchaseParams.newBuilder()
+                .setPurchaseToken(purchaseToken)
+                .build()
+        ) { billingResult ->
+            if (billingResult.responseCode != BillingResponseCode.OK) {
+                MTLog.w(this, "Error while acknowledging purchase! ${billingResult.responseCode}: ${billingResult.debugMessage}")
+            }
         }
     }
 
@@ -289,17 +271,17 @@ class MTBillingManager(
     }
 
     private fun broadcastCurrentSkuChanged() {
-        this.listenersWR.keys.forEach { listener ->
+        this._listenersWR.keys.forEach { listener ->
             listener.onBillingResult(this._currentSubSku)
         }
     }
 
     override fun addListener(listener: OnBillingResultListener) {
-        listenersWR[listener] = null
+        _listenersWR[listener] = null
         listener.onBillingResult(getCurrentSubscription())
     }
 
     override fun removeListener(listener: OnBillingResultListener) {
-        listenersWR.remove(listener)
+        _listenersWR.remove(listener)
     }
 }
