@@ -13,18 +13,24 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.mtransit.android.R;
+import org.mtransit.android.billing.BillingUtils;
+import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.DeviceUtils;
 import org.mtransit.android.commons.LocaleUtils;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.MTDialog;
 import org.mtransit.android.ui.PreferencesActivity;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.NightModeUtils;
 
-public class PreferencesFragment extends MTPreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class PreferencesFragment extends MTPreferenceFragment implements
+		IBillingManager.OnBillingResultListener,
+		SharedPreferences.OnSharedPreferenceChangeListener {
 
 	private static final String LOG_TAG = PreferenceFragment.class.getSimpleName();
 
@@ -65,6 +71,14 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 
 	private static final String GOOGLE_PRIVACY_POLICY_PAGE_URL = "https://policies.google.com/privacy";
 	private static final String YOUTUBE_TERMS_OF_SERVICE_PAGE_URL = "https://www.youtube.com/t/terms";
+
+	@NonNull
+	private final IBillingManager billingManager;
+
+	public PreferencesFragment() {
+		super();
+		this.billingManager = Injection.providesBillingManager();
+	}
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -164,11 +178,13 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 				if (activity == null) {
 					return false; // not handled
 				}
-				Boolean hasSubscription = null;
-				if (hasSubscription == null) {
+				String currentSubscription = this.billingManager.getCurrentSubscription();
+				if (currentSubscription == null) { // unknown status
 					// DO NOTHING
-				} else if (hasSubscription) {
-					StoreUtils.viewAppPage(activity, activity.getPackageName(), activity.getString(R.string.google_play));
+				} else if (!currentSubscription.isEmpty()) { // has subscription
+					StoreUtils.viewSubscriptionPage(activity, currentSubscription, activity.getPackageName(), activity.getString(R.string.google_play));
+				} else { // does NOT have subscription
+					BillingUtils.showPurchaseDialog(activity);
 				}
 				return true; // handled
 			});
@@ -262,6 +278,28 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 	}
 
 	@Override
+	public void onBillingResult(@Nullable String sku) {
+		Boolean hasSubscription = sku == null ? null : !sku.isEmpty();
+		Preference supportSubsPref = findPreference(SUPPORT_SUBSCRIPTIONS_PREF);
+		if (supportSubsPref == null) {
+			return;
+		}
+		if (hasSubscription == null) {
+			supportSubsPref.setTitle(R.string.ellipsis);
+			supportSubsPref.setSummary(R.string.ellipsis);
+			supportSubsPref.setEnabled(false);
+		} else if (hasSubscription) {
+			supportSubsPref.setTitle(R.string.support_subs_cancel_pref_title);
+			supportSubsPref.setSummary(R.string.support_subs_cancel_pref_summary);
+			supportSubsPref.setEnabled(true);
+		} else {
+			supportSubsPref.setTitle(R.string.support_subs_pref_title);
+			supportSubsPref.setSummary(R.string.support_subs_pref_summary);
+			supportSubsPref.setEnabled(true);
+		}
+	}
+
+	@Override
 	public void onSharedPreferenceChanged(@Nullable SharedPreferences sharedPreferences, @Nullable String key) {
 		if (PreferenceUtils.PREFS_UNITS.equals(key)) {
 			setUnitSummary(getActivity());
@@ -332,6 +370,8 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 	@Override
 	public void onResume() {
 		super.onResume();
+		this.billingManager.addListener(this);
+		this.billingManager.refreshPurchases();
 		PreferenceUtils.getPrefDefault(getActivity()).registerOnSharedPreferenceChangeListener(this);
 		setUnitSummary(getActivity());
 		setUseInternalWebBrowserSummary(getActivity());
@@ -339,6 +379,10 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 		setAppVersion(getActivity());
 		if (((PreferencesActivity) getActivity()).isShowSupport()) {
 			((PreferencesActivity) getActivity()).setShowSupport(false); // clear flag before showing dialog
+			Boolean hasSubscription = this.billingManager.isHasSubscription();
+			if (hasSubscription != null && !hasSubscription) {
+				BillingUtils.showPurchaseDialog(getActivity());
+			}
 		}
 	}
 
@@ -371,5 +415,6 @@ public class PreferencesFragment extends MTPreferenceFragment implements SharedP
 	public void onPause() {
 		super.onPause();
 		PreferenceUtils.getPrefDefault(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
+		this.billingManager.removeListener(this);
 	}
 }

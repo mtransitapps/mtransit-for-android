@@ -32,7 +32,8 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 		return LOG_TAG;
 	}
 
-	private static boolean ANALYTICS_ENABLED = true;
+	private static final boolean ANALYTICS_ENABLED = true;
+	// private static final boolean ANALYTICS_ENABLED = false; // DEBUG
 
 	private static final boolean DEBUG = false;
 

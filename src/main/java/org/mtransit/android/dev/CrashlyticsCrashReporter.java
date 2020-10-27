@@ -31,6 +31,9 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 
 	@Override
 	public void setup(@NonNull IContext context, boolean enabled) {
+		if (!CRASHLYTICS_ENABLED) {
+			return;
+		}
 		FirebaseCrashlytics.getInstance()
 				.setCrashlyticsCollectionEnabled(enabled);
 	}
@@ -47,6 +50,9 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 
 	@Override
 	public void reportNonFatal(@Nullable Throwable throwable, @Nullable String message, @NonNull Object... args) {
+		if (!CRASHLYTICS_ENABLED) {
+			return;
+		}
 		try {
 			final String fMessage = message == null ? "No message" : String.format(message, args);
 			final FirebaseCrashlytics firebaseCrashlytics = FirebaseCrashlytics.getInstance();

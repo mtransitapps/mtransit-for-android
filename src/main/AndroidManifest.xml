@@ -8,12 +8,6 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- ACCESS_FINE_LOCATION: required to display distance & compass -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <!-- ACCESS_NETWORK_STATE: required for Google Analytics & Google Mobile Ads (AdMob) & Google Maps & Facebook Audience Network -->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <!-- WRITE_EXTERNAL_STORAGE: required by Google Maps -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <!-- GOOGLE PLAY IN-APP BILLING & SUBSCRIPTIONS -->
-    <uses-permission android:name="com.android.vending.BILLING" />
     <!-- READ_PROVIDER: required to read modules data -->
     <uses-permission android:name="${permission_provider_read}" />
     <!-- USES FEATURE (not required) -->
@@ -111,8 +105,11 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
         <!-- MODULES CHANGES RECEIVER -->
-        <receiver android:name=".commons.receiver.ModuleReceiver" tools:node="remove" />
-        <receiver android:name=".receiver.ModulesReceiver"
+        <receiver
+            android:name=".commons.receiver.ModuleReceiver"
+            tools:node="remove" />
+        <receiver
+            android:name=".receiver.ModulesReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
@@ -127,8 +124,7 @@
                 <action android:name="android.intent.action.PACKAGE_RESTARTED" />
                 <action android:name="android.intent.action.PACKAGE_VERIFIED" />
 
-                <data
-                    android:scheme="package" />
+                <data android:scheme="package" />
             </intent-filter>
         </receiver>
         <receiver
@@ -140,7 +136,9 @@
                 <action android:name="org.mtransit.android.intent.action.DATA_CHANGE" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".commons.receiver.GenericReceiver" tools:node="remove" />
+        <receiver
+            android:name=".commons.receiver.GenericReceiver"
+            tools:node="remove" />
         <!-- FAVORITE PROVIDER -->
         <provider
             android:name="org.mtransit.android.provider.FavoriteProvider"
@@ -323,7 +321,7 @@
         <package android:name="org.mtransit.android.us_washington_state_ferry" />
         <!-- PACKAGE VISIBILITY: Web Browser -->
         <intent>
-            <action android:name="android.support.customtabs.action.CustomTabsService"/>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
         </intent>
         <intent>
             <action android:name="android.intent.action.VIEW" />
@@ -334,14 +332,14 @@
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data
-                android:scheme="https"
-                android:host="mobile.twitter.com" />
+                android:host="mobile.twitter.com"
+                android:scheme="https" />
         </intent>
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data
-                android:scheme="https"
-                android:host="twitter.com" />
+                android:host="twitter.com"
+                android:scheme="https" />
         </intent>
         <!-- PACKAGE VISIBILITY: Google Opinion Rewards -->
         <package android:name="com.google.android.apps.paidtasks" />
@@ -353,18 +351,18 @@
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data
-                android:scheme="https"
                 android:host="www.google.com"
-                android:pathPrefix="/maps"/>
+                android:pathPrefix="/maps"
+                android:scheme="https" />
         </intent>
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data
-                android:scheme="https"
-                android:host="maps.google.com" />
+                android:host="maps.google.com"
+                android:scheme="https" />
         </intent>
         <intent>
-             <action android:name="android.intent.action.VIEW" />
+            <action android:name="android.intent.action.VIEW" />
             <data android:scheme="geo" />
         </intent>
         <intent>
@@ -375,8 +373,8 @@
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data
-                android:scheme="https"
-                android:host="youtube.com" />
+                android:host="youtube.com"
+                android:scheme="https" />
         </intent>
         <!-- PACKAGE VISIBILITY: PDF Viewers -->
         <intent>

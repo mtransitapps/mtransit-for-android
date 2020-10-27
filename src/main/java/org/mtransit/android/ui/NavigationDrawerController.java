@@ -70,6 +70,9 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	private static final int ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT = R.id.nav_home;
 	private static final String ITEM_ID_SELECTED_SCREEN_DEFAULT = ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME;
 
+	private static final int MIN_AGENCY_INSTALLED = 1; // include "+"
+	// private static final int MIN_AGENCY_INSTALLED = 0; // DEBUG
+
 	@NonNull
 	private final WeakReference<MainActivity> mainActivityWR;
 	@NonNull
@@ -275,7 +278,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 				this.navigationView.getMenu().findItem(dst.getNavResId()).setVisible(true);
 			}
 		}
-		boolean hasAgencyInstalled = allAgencyTypes != null && allAgencyTypes.size() > 1; // include "+"
+		boolean hasAgencyInstalled = allAgencyTypes != null && allAgencyTypes.size() > MIN_AGENCY_INSTALLED;
 		this.navigationView.getMenu().findItem(R.id.nav_rate_review).setVisible(hasAgencyInstalled);
 		this.navigationView.getMenu().findItem(R.id.nav_support).setVisible(hasAgencyInstalled);
 	}
@@ -311,42 +314,40 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		if (navItemId == null) {
 			return null;
 		}
-		switch (navItemId) {
-		case R.id.nav_home:
+		if (navItemId == R.id.nav_home) {
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME;
-		case R.id.nav_favorites:
+		} else if (navItemId == R.id.nav_favorites) {
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_FAVORITE;
-		case R.id.nav_nearby:
+		} else if (navItemId == R.id.nav_nearby) {
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEARBY;
-		case R.id.nav_map:
+		} else if (navItemId == R.id.nav_map) {
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_MAP;
-		case R.id.nav_trip_planner:
+		} else if (navItemId == R.id.nav_trip_planner) {
 			return null; // NOT ROOT SCREEN // ITEM_ID_STATIC_START_WITH + ITEM_INDEX_TRIP_PLANNER;
-		case R.id.nav_news:
+		} else if (navItemId == R.id.nav_news) {
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEWS;
-		case R.id.nav_light_rail:
+		} else if (navItemId == R.id.nav_light_rail) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_LIGHT_RAIL.getId();
-		case R.id.nav_subway:
+		} else if (navItemId == R.id.nav_subway) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_SUBWAY.getId();
-		case R.id.nav_rail:
+		} else if (navItemId == R.id.nav_rail) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_RAIL.getId();
-		case R.id.nav_bus:
+		} else if (navItemId == R.id.nav_bus) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BUS.getId();
-		case R.id.nav_ferry:
+		} else if (navItemId == R.id.nav_ferry) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_FERRY.getId();
-		case R.id.nav_bike:
+		} else if (navItemId == R.id.nav_bike) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BIKE.getId();
-		case R.id.nav_module:
+		} else if (navItemId == R.id.nav_module) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.getId();
-		case R.id.nav_settings:
-		case R.id.nav_support:
-		case R.id.nav_rate_review:
-		case R.id.nav_send_feedback:
-			return null;
-		default:
-			MTLog.w(this, "Unexpected screen nav item ID '%s'!", navItemId);
+		} else if (navItemId == R.id.nav_settings
+				|| navItemId == R.id.nav_support
+				|| navItemId == R.id.nav_rate_review
+				|| navItemId == R.id.nav_send_feedback) {
 			return null;
 		}
+		MTLog.w(this, "Unexpected screen nav item ID '%s'!", navItemId);
+		return null;
 	}
 
 	@NonNull
@@ -456,16 +457,15 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			MTLog.w(this, "getNewStaticFragmentAt() > skip (nav item ID null)");
 			return null;
 		}
-		switch (navItemId) {
-		case R.id.nav_home:
+		if (navItemId == R.id.nav_home) {
 			return HomeFragment.newInstance(null);
-		case R.id.nav_favorites:
+		} else if (navItemId == R.id.nav_favorites) {
 			return FavoritesFragment.newInstance();
-		case R.id.nav_nearby:
+		} else if (navItemId == R.id.nav_nearby) {
 			return NearbyFragment.newNearbyInstance(null, null);
-		case R.id.nav_map:
+		} else if (navItemId == R.id.nav_map) {
 			return MapFragment.newInstance(null, null, null);
-		case R.id.nav_news:
+		} else if (navItemId == R.id.nav_news) {
 			return NewsFragment.newInstance(null, null, null, null, null);
 		}
 		DataSourceType dst = DataSourceType.parseNavResId(navItemId);
@@ -485,8 +485,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			MTLog.w(this, "startNewScreen() > skip (activity null)");
 			return;
 		}
-		switch (navItemId) {
-		case R.id.nav_trip_planner:
+		if (navItemId == R.id.nav_trip_planner) {
 			double optSrcLat = 0.0;
 			double optSrcLng = 0.0;
 			if (activity instanceof MainActivity) {
@@ -497,20 +496,15 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 				}
 			}
 			MapUtils.showDirection(activity, null, null, optSrcLat, optSrcLng, null);
-			break;
-		case R.id.nav_settings:
+		} else if (navItemId == R.id.nav_settings) {
 			activity.startActivity(PreferencesActivity.newInstance(activity));
-			break;
-		case R.id.nav_send_feedback:
+		} else if (navItemId == R.id.nav_send_feedback) {
 			LinkUtils.sendEmail(activity);
-			break;
-		case R.id.nav_rate_review:
+		} else if (navItemId == R.id.nav_rate_review) {
 			StoreUtils.viewAppPage(activity, Constants.MAIN_APP_PACKAGE_NAME, activity.getString(R.string.google_play));
-			break;
-		case R.id.nav_support:
+		} else if (navItemId == R.id.nav_support) {
 			activity.startActivity(PreferencesActivity.newInstance(activity, true));
-			break;
-		default:
+		} else {
 			MTLog.w(this, "startNewScreen() > Unexpected screen nav item ID: %s", navItemId);
 		}
 	}
@@ -520,16 +514,15 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			MTLog.w(this, "isRootScreen() > null (return false)");
 			return false;
 		}
-		switch (navItemId) {
-		case R.id.nav_trip_planner:
-		case R.id.nav_support:
-		case R.id.nav_rate_review:
-		case R.id.nav_send_feedback:
-		case R.id.nav_settings:
+		//noinspection RedundantIfStatement
+		if (navItemId == R.id.nav_trip_planner
+				|| navItemId == R.id.nav_support
+				|| navItemId == R.id.nav_rate_review
+				|| navItemId == R.id.nav_send_feedback
+				|| navItemId == R.id.nav_settings) {
 			return false;
-		default:
-			return true;
 		}
+		return true;
 	}
 
 	private void openDrawer() {
@@ -728,7 +721,8 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			return LOG_TAG;
 		}
 
-		private WeakReference<MainActivity> mainActivityWR;
+		@NonNull
+		private final WeakReference<MainActivity> mainActivityWR;
 
 		ABDrawerToggle(MainActivity mainActivity, DrawerLayout drawerLayout) {
 			super(mainActivity, drawerLayout, R.string.drawer_open, R.string.drawer_close);
@@ -737,13 +731,15 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 
 		@Override
 		public void onDrawerClosed(View view) {
-			MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
-			if (mainActivity != null) {
-				ActionBarController abController = mainActivity.getAbController();
-				if (abController != null) {
-					abController.updateABDrawerClosed();
-				}
+			MainActivity mainActivity = this.mainActivityWR.get();
+			if (mainActivity == null) {
+				return;
 			}
+			ActionBarController abController = mainActivity.getAbController();
+			if (abController == null) {
+				return;
+			}
+			abController.updateABDrawerClosed();
 		}
 	}
 }

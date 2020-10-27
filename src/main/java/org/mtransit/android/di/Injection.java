@@ -7,7 +7,10 @@ import org.mtransit.android.ad.AdManager;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
+import org.mtransit.android.billing.IBillingManager;
+import org.mtransit.android.billing.MTBillingManager;
 import org.mtransit.android.common.IApplication;
+import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.CrashlyticsCrashReporter;
@@ -53,6 +56,12 @@ public class Injection {
 
 	@Nullable
 	private static DataSourceProvider dataSourceProvider;
+
+	@Nullable
+	private static LocalPreferenceRepository localPreferenceRepository;
+
+	@Nullable
+	private static IBillingManager billingManager;
 
 	@NonNull
 	private static IApplication providesApplication() {
@@ -187,5 +196,35 @@ public class Injection {
 			}
 		}
 		return dataSourceProvider;
+	}
+
+	@NonNull
+	private static LocalPreferenceRepository providesLocalPreferenceRepository() {
+		org.mtransit.android.commons.MTLog.v(Injection.class.getSimpleName(), "providesLocalPreferenceRepository()");
+		if (localPreferenceRepository == null) {
+			synchronized (Injection.class) {
+				if (localPreferenceRepository == null) {
+					localPreferenceRepository = new LocalPreferenceRepository(
+							providesApplication()
+					);
+				}
+			}
+		}
+		return localPreferenceRepository;
+	}
+
+	@NonNull
+	public static IBillingManager providesBillingManager() {
+		if (billingManager == null) {
+			synchronized (Injection.class) {
+				if (billingManager == null) {
+					billingManager = new MTBillingManager(
+							providesApplication(),
+							providesLocalPreferenceRepository()
+					);
+				}
+			}
+		}
+		return billingManager;
 	}
 }

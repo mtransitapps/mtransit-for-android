@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.fragment;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -11,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -19,8 +19,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 
+import com.android.billingclient.api.SkuDetails;
+
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
+import org.mtransit.android.billing.IBillingManager;
+import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.StoreUtils;
@@ -31,14 +35,15 @@ import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.view.common.IActivity;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 
 public class PurchaseDialogFragment extends MTDialogFragment implements IActivity, IAdManager.RewardedAdListener {
 
 	private static final String LOG_TAG = PurchaseDialogFragment.class.getSimpleName();
 
-	public static final String PAID_TASKS_PKG = "com.google.android.apps.paidtasks";
+	private static final String PAID_TASKS_PKG = "com.google.android.apps.paidtasks";
 
 	@NonNull
 	@Override
@@ -53,10 +58,13 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 
 	@NonNull
 	private final IAdManager adManager;
+	@NonNull
+	private final IBillingManager billingManager;
 
 	public PurchaseDialogFragment() {
 		super();
 		this.adManager = Injection.providesAdManager();
+		this.billingManager = Injection.providesBillingManager();
 	}
 
 	@Nullable
@@ -79,7 +87,13 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	}
 
 	@Override
-	public void onCancel(@SuppressLint("UnknownNullness") DialogInterface dialog) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		this.billingManager.getSkusWithSkuDetails().observeForever(this::onNewSku);
+	}
+
+	@Override
+	public void onCancel(@NonNull DialogInterface dialog) {
 		super.onCancel(dialog);
 		ToastUtils.makeTextAndShowCentered(getActivity(), R.string.support_subs_user_canceled_message);
 	}
@@ -117,6 +131,12 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 			throw new IllegalStateException("Fragment " + this + " not attached to an activity.");
 		}
 		return activity;
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		this.billingManager.getSkusWithSkuDetails().removeObserver(this::onNewSku);
 	}
 
 	@Override
@@ -195,13 +215,13 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 			Spinner periodSpinner = view.findViewById(R.id.period);
 			int periodPosition = periodSpinner.getSelectedItemPosition();
 			String periodS = this.periods.get(periodPosition);
-			if (TextUtils.isEmpty(periodS)) {
+			if (periodS == null || periodS.isEmpty()) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected period position: %s)", periodPosition);
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
 			String periodCat = this.periodSToPeriodCat.get(periodS);
-			if (TextUtils.isEmpty(periodCat)) {
+			if (periodCat == null || periodCat.isEmpty()) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected period string: %s)", periodS);
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
@@ -209,17 +229,24 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 			Spinner priceSpinner = view.findViewById(R.id.price);
 			int pricePosition = priceSpinner.getSelectedItemPosition();
 			String priceS = this.prices.get(pricePosition);
-			if (TextUtils.isEmpty(priceS)) {
+			if (priceS == null || priceS.isEmpty()) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected price position: %s)", pricePosition);
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
 			String priceCat = this.priceSToPriceCat.get(priceS);
-			if (TextUtils.isEmpty(priceCat)) {
+			if (priceCat == null || priceCat.isEmpty()) {
 				MTLog.w(this, "onBuyBtnClick() > skip (unexpected price string: %s)", priceS);
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
+			String sku = IBillingManager.SKU_STARTS_WITH_F + periodCat + IBillingManager.SKU_SUBSCRIPTION + priceCat;
+			if (!IBillingManager.AVAILABLE_SUBSCRIPTIONS.contains(sku)) {
+				MTLog.w(this, "onBuyBtnClick() > skip (unexpected sku: %s)", sku);
+				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
+				return;
+			}
+			this.billingManager.launchBillingFlow(this, sku);
 			Dialog dialog = getDialog();
 			if (dialog != null) {
 				dialog.dismiss();
@@ -236,6 +263,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@Override
 	public void onResume() {
 		super.onResume();
+		this.billingManager.refreshAvailableSubscriptions();
 		this.adManager.setRewardedAdListener(this);
 		this.adManager.linkRewardedAd(this);
 		this.adManager.refreshRewardedAdStatus(this);
@@ -263,7 +291,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		final int rewardedAmount = this.adManager.getRewardedAdAmount();
 
 		final View rewardedDivider = view.findViewById(R.id.paidTasksDivider2);
-		final TextView rewardedAdStatusTv = (TextView) view.findViewById(R.id.rewardedAdText);
+		final TextView rewardedAdStatusTv = view.findViewById(R.id.rewardedAdText);
 		final Button rewardedAdsBtn = view.findViewById(R.id.rewardedAdsBtn);
 
 		rewardedDivider.setVisibility(availableToShow || rewardedNow ? View.VISIBLE : View.GONE);
@@ -351,9 +379,111 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		}
 	}
 
+	private static final ArrayList<String> SORTED_PERIOD_CAT = ArrayUtils.asArrayList(
+			IBillingManager.WEEKLY,
+			IBillingManager.MONTHLY,
+			IBillingManager.YEARLY
+	);
+
+	private static final ArrayMap<String, Integer> PERIOD_RES_ID;
+
+	static {
+		ArrayMap<String, Integer> map = new ArrayMap<>();
+		map.put(IBillingManager.WEEKLY, R.string.support_every_week);
+		map.put(IBillingManager.MONTHLY, R.string.support_every_month);
+		map.put(IBillingManager.YEARLY, R.string.support_every_year);
+		PERIOD_RES_ID = map;
+	}
+
 	private final ArrayList<String> prices = new ArrayList<>();
 	private final ArrayMap<String, String> priceSToPriceCat = new ArrayMap<>();
 	private final ArrayList<String> periods = new ArrayList<>();
 	private final ArrayMap<String, String> periodSToPeriodCat = new ArrayMap<>();
 
+	private void onNewSku(@Nullable Map<String, SkuDetails> skusWithSkuDetails) {
+		View view = getView();
+		Activity activity = getActivity();
+		if (view == null || activity == null) {
+			return;
+		}
+		if (skusWithSkuDetails == null) {
+			return;
+		}
+		this.prices.clear();
+		this.periods.clear();
+		this.priceSToPriceCat.clear();
+		this.periodSToPeriodCat.clear();
+		String defaultPriceS = null;
+		String defaultPeriodS = null;
+		for (String sku : skusWithSkuDetails.keySet()) {
+			if (!sku.startsWith(IBillingManager.SKU_STARTS_WITH_F)) {
+				continue;
+			}
+			SkuDetails skuDetails = skusWithSkuDetails.get(sku);
+			if (skuDetails == null) {
+				continue;
+			}
+			String periodCat = sku.substring(
+					IBillingManager.SKU_STARTS_WITH_F.length(),
+					sku.indexOf(IBillingManager.SKU_SUBSCRIPTION, IBillingManager.SKU_STARTS_WITH_F.length())
+			);
+			final Integer resId = PERIOD_RES_ID.get(periodCat);
+			if (resId == null) {
+				MTLog.w(this, "Skip sku %s (unknown periodCat: %s)", sku, periodCat);
+				continue;
+			}
+			String priceCat = sku.substring(sku.indexOf(IBillingManager.SKU_SUBSCRIPTION) + IBillingManager.SKU_SUBSCRIPTION.length());
+			String priceS = skuDetails.getPrice();
+			this.priceSToPriceCat.put(priceS, priceCat);
+			if (!this.prices.contains(priceS)) {
+				this.prices.add(priceS);
+			}
+			String periodS = activity.getString(resId);
+			if (!this.periods.contains(periodS)) {
+				this.periods.add(periodS);
+			}
+			this.periodSToPeriodCat.put(periodS, periodCat);
+			if (IBillingManager.DEFAULT_PRICE_CAT.equals(priceCat)) {
+				defaultPriceS = priceS;
+			}
+			if (IBillingManager.DEFAULT_PERIOD_CAT.equals(periodCat)) {
+				defaultPeriodS = periodS;
+			}
+		}
+		Collections.sort(this.periods, (lPeriodS, rPeriodS) -> {
+			try {
+				String lPriceCat = PurchaseDialogFragment.this.periodSToPeriodCat.get(lPeriodS);
+				int lIndexOf = SORTED_PERIOD_CAT.indexOf(lPriceCat);
+				String rPriceCat = PurchaseDialogFragment.this.periodSToPeriodCat.get(rPeriodS);
+				int rIndexOf = SORTED_PERIOD_CAT.indexOf(rPriceCat);
+				return lIndexOf - rIndexOf;
+			} catch (Exception e) {
+				MTLog.w(LOG_TAG, e, "Error while sorting periods!");
+				return 0;
+			}
+		});
+		Collections.sort(this.prices, (lPriceS, rPeriods) -> {
+			try {
+				String lPriceCat = PurchaseDialogFragment.this.priceSToPriceCat.get(lPriceS);
+				int lIndexOf = lPriceCat == null || !TextUtils.isDigitsOnly(lPriceCat) ? -1 : Integer.parseInt(lPriceCat);
+				String rPriceCat = PurchaseDialogFragment.this.priceSToPriceCat.get(rPeriods);
+				int rIndexOf = rPriceCat == null || !TextUtils.isDigitsOnly(rPriceCat) ? -1 : Integer.parseInt(rPriceCat);
+				return lIndexOf - rIndexOf;
+			} catch (Exception e) {
+				MTLog.w(LOG_TAG, e, "Error while sorting prices!");
+				return 0;
+			}
+		});
+		Spinner priceSpinner = view.findViewById(R.id.price);
+		priceSpinner.setAdapter(new ArrayAdapter<>(activity, android.R.layout.simple_spinner_dropdown_item, this.prices));
+		if (defaultPriceS != null) {
+			priceSpinner.setSelection(this.prices.indexOf(defaultPriceS));
+		}
+		Spinner periodSpinner = view.findViewById(R.id.period);
+		periodSpinner.setAdapter(new ArrayAdapter<>(activity, android.R.layout.simple_spinner_dropdown_item, this.periods));
+		if (defaultPeriodS != null) {
+			periodSpinner.setSelection(this.periods.indexOf(defaultPeriodS));
+		}
+		showNotLoading();
+	}
 }

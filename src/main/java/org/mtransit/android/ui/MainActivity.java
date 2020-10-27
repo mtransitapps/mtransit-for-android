@@ -20,6 +20,7 @@ import androidx.fragment.app.FragmentManager;
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.analytics.AnalyticsManager;
+import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.data.DataSourceProvider;
@@ -38,6 +39,7 @@ import java.util.WeakHashMap;
 public class MainActivity extends MTActivityWithLocation implements
 		FragmentManager.OnBackStackChangedListener,
 		AnalyticsManager.Trackable,
+		IBillingManager.OnBillingResultListener,
 		IActivity,
 		IAdManager.RewardedAdListener,
 		DataSourceProvider.ModulesUpdateListener {
@@ -71,6 +73,8 @@ public class MainActivity extends MTActivityWithLocation implements
 	private final IAdManager adManager;
 	@NonNull
 	private final CrashReporter crashReporter;
+	@NonNull
+	private final IBillingManager billingManager;
 
 	private int currentUiMode = -1;
 
@@ -78,6 +82,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		super();
 		adManager = Injection.providesAdManager();
 		crashReporter = Injection.providesCrashReporter();
+		billingManager = Injection.providesBillingManager();
 	}
 
 	@Override
@@ -110,6 +115,16 @@ public class MainActivity extends MTActivityWithLocation implements
 		}
 		this.adManager.onModulesUpdated(this);
 		this.modulesUpdated = false; // processed
+	}
+
+	@Override
+	public void onBillingResult(@Nullable String sku) {
+		if (sku != null) {
+			this.adManager.setShowingAds(
+					sku.isEmpty(), // empty = no sky = showing ads
+					this
+			);
+		}
 	}
 
 	public ActionBarController getAbController() {
@@ -167,6 +182,8 @@ public class MainActivity extends MTActivityWithLocation implements
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onResume();
 		}
+		this.billingManager.addListener(this);
+		this.billingManager.refreshPurchases();
 		this.adManager.adaptToScreenSize(this, getResources().getConfiguration());
 		this.adManager.setRewardedAdListener(this); // used until POI screen is visible // need to pre-load ASAP
 		this.adManager.linkRewardedAd(this);
@@ -216,6 +233,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onPause();
 		}
+		this.billingManager.removeListener(this);
 		this.adManager.pauseAd(this);
 		DataSourceProvider.onPause();
 	}
