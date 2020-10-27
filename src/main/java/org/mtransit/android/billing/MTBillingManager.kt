@@ -75,7 +75,7 @@ class MTBillingManager(
             queryPurchases()
         } else {
             MTLog.w(this, "Billing setup NOT successful! ${billingResult.responseCode}: ${billingResult.debugMessage}")
-            billingClientConnected = false
+            billingClientConnected = false // will try again at next data refresh triggered from UI
         }
     }
 
@@ -115,7 +115,7 @@ class MTBillingManager(
 
     private fun querySkuDetails() {
         if (!billingClient.isReady) {
-            MTLog.w(this, "querySkuDetails() > BillingClient is not ready")
+            MTLog.d(this, "querySkuDetails() > BillingClient is not ready")
             if (this.billingClientConnected == false) {
                 startConnection()
             }
@@ -169,7 +169,7 @@ class MTBillingManager(
 
     private fun queryPurchases() {
         if (!billingClient.isReady) {
-            MTLog.w(this, "queryPurchases() > BillingClient is not ready")
+            MTLog.d(this, "queryPurchases() > BillingClient is not ready")
             if (this.billingClientConnected == false) {
                 startConnection()
             }
