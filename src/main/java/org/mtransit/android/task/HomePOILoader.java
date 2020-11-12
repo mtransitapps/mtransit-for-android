@@ -39,13 +39,13 @@ public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 	private static final int NB_MAX_BY_TYPE_TWO_TYPES = 4;
 	private int nbMaxByType = NB_MAX_BY_TYPE;
 
-	private double lat;
-	private double lng;
-	private float accuracyInMeters;
+	private final double lat;
+	private final double lng;
+	private final float accuracyInMeters;
 
 	private ArrayList<POIManager> pois;
 
-	private WeakReference<HomeFragment> homeFragmentWR;
+	private final WeakReference<HomeFragment> homeFragmentWR;
 
 	public HomePOILoader(HomeFragment homeFragment, Context context, double lat, double lng, float accuracyInMeters) {
 		super(context);

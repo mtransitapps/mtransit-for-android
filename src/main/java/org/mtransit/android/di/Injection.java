@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
+import org.mtransit.android.billing.IBillingManager;
+import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.IStrictMode;
@@ -13,6 +15,9 @@ import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.provider.sensor.MTSensorManager;
 
 public class Injection {
+
+	private Injection() {
+	}
 
 	@NonNull
 	public static LeakDetector providesLeakDetector() {
@@ -57,5 +62,15 @@ public class Injection {
 	@NonNull
 	public static DataSourceProvider providesDataSourceProvider() {
 		return ServiceLocator.getDataSourceProvider();
+	}
+
+	@NonNull
+	public static LocalPreferenceRepository providesLocalPreferenceRepository() {
+		return ServiceLocator.getLocalPreferenceRepository();
+	}
+
+	@NonNull
+	public static IBillingManager providesBillingManager() {
+		return ServiceLocator.getBillingManager();
 	}
 }

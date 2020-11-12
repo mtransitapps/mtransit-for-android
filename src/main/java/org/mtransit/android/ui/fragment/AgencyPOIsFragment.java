@@ -1,34 +1,5 @@
 package org.mtransit.android.ui.fragment;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SwitchCompat;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-
-import org.mtransit.android.R;
-import org.mtransit.android.common.IContext;
-import org.mtransit.android.commons.BundleUtils;
-import org.mtransit.android.commons.LocationUtils;
-import org.mtransit.android.commons.PreferenceUtils;
-import org.mtransit.android.data.POIArrayAdapter;
-import org.mtransit.android.data.POIManager;
-import org.mtransit.android.di.Injection;
-import org.mtransit.android.provider.permission.LocationPermissionProvider;
-import org.mtransit.android.task.AgencyPOIsLoader;
-import org.mtransit.android.ui.MTActivityWithLocation;
-import org.mtransit.android.ui.view.MapViewController;
-import org.mtransit.android.util.CrashUtils;
-import org.mtransit.android.util.LoaderUtils;
-
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.drawable.GradientDrawable;
@@ -49,6 +20,36 @@ import android.widget.AbsListView;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+
+import org.mtransit.android.R;
+import org.mtransit.android.common.IContext;
+import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.LocationUtils;
+import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.data.POIArrayAdapter;
+import org.mtransit.android.data.POIManager;
+import org.mtransit.android.di.Injection;
+import org.mtransit.android.provider.permission.LocationPermissionProvider;
+import org.mtransit.android.task.AgencyPOIsLoader;
+import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.ui.view.MapViewController;
+import org.mtransit.android.ui.view.common.IActivity;
+import org.mtransit.android.util.CrashUtils;
+import org.mtransit.android.util.LoaderUtils;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+
 public class AgencyPOIsFragment extends MTFragmentV4 implements
 		AgencyTypeFragment.AgencyFragment,
 		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
@@ -56,6 +57,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 		MapViewController.MapMarkerProvider,
 		MapViewController.MapListener,
 		IContext,
+		IActivity,
 		CompoundButton.OnCheckedChangeListener {
 
 	private static final String TAG = AgencyPOIsFragment.class.getSimpleName();
@@ -72,7 +74,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 	private static final String EXTRA_SHOWING_LIST_INSTEAD_OF_MAP = "extra_showing_list_instead_of_map";
 
 	public static AgencyPOIsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, @NonNull String agencyAuthority,
-			@Nullable Integer optColorInt, @Nullable Boolean optShowingListInsteadOfMap) {
+												 @Nullable Integer optColorInt, @Nullable Boolean optShowingListInsteadOfMap) {
 		AgencyPOIsFragment f = new AgencyPOIsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, agencyAuthority);
@@ -124,7 +126,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 	@Override
 	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
-		initAdapters(activity);
+		initAdapters(this);
 		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
 		this.mapViewController.onAttach(activity);
 	}
@@ -180,7 +182,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 
 	private void restoreInstanceState(Bundle... bundles) {
 		String newAuthority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, bundles);
-		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
+		if (newAuthority != null && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
 		}
 		Boolean newShowingListInsteadOfMap = BundleUtils.getBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, bundles);
@@ -211,7 +213,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 		this.mapViewController.setTag(getLogTag());
 	}
 
-	private void initAdapters(Activity activity) {
+	private void initAdapters(IActivity activity) {
 		this.adapter = new POIArrayAdapter(activity);
 	}
 
@@ -292,7 +294,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 				&& ((this.fragmentPosition == visibleFragmentPosition && this.fragmentVisible) //
 				|| //
 				(this.fragmentPosition != visibleFragmentPosition && !this.fragmentVisible)) //
-				) {
+		) {
 			return;
 		}
 		this.lastVisibleFragmentPosition = visibleFragmentPosition;
@@ -339,7 +341,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 		if (!this.adapter.isInitialized()) {
 			LoaderUtils.restartLoader(this, POIS_LOADER, null, this);
 		} else {
-			this.adapter.onResume(getActivity(), this.userLocation);
+			this.adapter.onResume(this, this.userLocation);
 		}
 		checkIfShowingListInsteadOfMapChanged();
 		if (getActivity() != null) {
@@ -360,11 +362,13 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 		case POIS_LOADER:
 			if (TextUtils.isEmpty(this.authority)) {
 				CrashUtils.w(this, "onCreateLoader() > skip (no authority)");
+				//noinspection ConstantConditions // FIXME
 				return null;
 			}
 			return new AgencyPOIsLoader(getActivity(), this.authority);
 		default:
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
+			//noinspection ConstantConditions // FIXME
 			return null;
 		}
 	}
@@ -415,8 +419,22 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 			onFragmentVisible();
 		} // ELSE would be call later
 		if (this.adapter != null) {
-			this.adapter.setActivity(getActivity());
+			this.adapter.setActivity(this);
 		}
+	}
+
+	@Override
+	public void finish() {
+		requireActivity().finish();
+	}
+
+	@Nullable
+	@Override
+	public <T extends View> T findViewById(int id) {
+		if (getView() == null) {
+			return null;
+		}
+		return getView().findViewById(id);
 	}
 
 	@Override

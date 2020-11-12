@@ -23,7 +23,7 @@
         android:scaleType="fitCenter"
         android:visibility="gone"
         app:srcCompat="@drawable/ic_warning_black_24dp"
-        tools:tint="@color/color_secondary_on_background"
+        app:tint="@color/color_secondary_on_background"
         tools:visibility="visible" />
 
     <include

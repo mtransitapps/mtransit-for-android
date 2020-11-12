@@ -8,10 +8,11 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.location.Location
 import android.view.Surface
-import android.view.WindowManager
 import android.widget.AbsListView
 import org.mtransit.android.common.IApplication
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.api.SupportFactory
+import org.mtransit.android.ui.view.common.IActivity
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 
@@ -28,14 +29,6 @@ class SensorManagerImpl(appContext: IApplication) : MTSensorManager, MTLog.Logga
 
     private val sensorManager =
         appContext.requireApplication().getSystemService(Context.SENSOR_SERVICE) as SensorManager?
-
-    private val windowManager =
-        appContext.requireApplication().getSystemService(Context.WINDOW_SERVICE) as WindowManager?
-
-    private val surfaceRotation: Int
-        get() {
-            return windowManager?.defaultDisplay?.rotation ?: Surface.ROTATION_0
-        }
 
     override fun getLogTag() = LOG_TAG
 
@@ -67,6 +60,7 @@ class SensorManagerImpl(appContext: IApplication) : MTSensorManager, MTLog.Logga
     }
 
     override fun checkForCompass(
+        activity: IActivity,
         event: SensorEvent,
         accelerometerValues: FloatArray,
         magneticFieldValues: FloatArray,
@@ -87,6 +81,7 @@ class SensorManagerImpl(appContext: IApplication) : MTSensorManager, MTLog.Logga
                     && magneticFieldValues[2] != 0.0f
                 ) {
                     calculateOrientation(
+                        activity,
                         accelerometerValues,
                         magneticFieldValues
                     )?.let {
@@ -108,6 +103,7 @@ class SensorManagerImpl(appContext: IApplication) : MTSensorManager, MTLog.Logga
                     && accelerometerValues[2] != 0.0f
                 ) {
                     calculateOrientation(
+                        activity,
                         accelerometerValues,
                         magneticFieldValues
                     )?.let {
@@ -122,6 +118,7 @@ class SensorManagerImpl(appContext: IApplication) : MTSensorManager, MTLog.Logga
     }
 
     private fun calculateOrientation(
+        activity: IActivity,
         accelerometerValues: FloatArray?,
         magneticFieldValues: FloatArray?
     ): Float? {
@@ -141,7 +138,9 @@ class SensorManagerImpl(appContext: IApplication) : MTSensorManager, MTLog.Logga
         val axis = IntArray(2)
         axis[0] = SensorManager.AXIS_X
         axis[1] = SensorManager.AXIS_Y
-        when (surfaceRotation) {
+        val aActivity = activity.activity ?: return null
+        val defaultDisplay = SupportFactory.get().getDefaultDisplay(aActivity)
+        when (defaultDisplay?.rotation) {
             Surface.ROTATION_0 -> {
                 // DO NOTHING
             }
@@ -155,6 +154,9 @@ class SensorManagerImpl(appContext: IApplication) : MTSensorManager, MTLog.Logga
             Surface.ROTATION_270 -> {
                 axis[0] = SensorManager.AXIS_MINUS_Y
                 axis[1] = SensorManager.AXIS_X
+            }
+            else -> {
+                // DO NOTHING
             }
         }
         val outR = FloatArray(9)

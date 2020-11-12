@@ -41,6 +41,7 @@ import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 import org.mtransit.android.util.LoaderUtils;
 
@@ -97,7 +98,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
-		initAdapters(activity);
+		initAdapters(this);
 	}
 
 	@Override
@@ -168,7 +169,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 		switchView(view);
 		if (this.adapter != null) {
-			this.adapter.onResume(getActivity(), this.userLocation);
+			this.adapter.onResume(this, this.userLocation);
 		}
 		if (getActivity() != null) {
 			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getLastLocation());
@@ -256,6 +257,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		case POIS_LOADER:
 			if (this.nearbyLocation == null) {
 				this.crashReporter.w(this, "onCreateLoader() > skip (no nearby location)");
+				//noinspection ConstantConditions // FIXME
 				return null;
 			}
 			this.loadFinished = false;
@@ -263,6 +265,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 					this.nearbyLocation.getAccuracy());
 		default:
 			this.crashReporter.w(this, "Loader id '%s' unknown!", id);
+			//noinspection ConstantConditions // FIXME
 			return null;
 		}
 	}
@@ -387,11 +390,13 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		hideLocationToast();
 		setSwipeRefreshLayoutRefreshing(false);
 		this.nearbyLocationAddress = null;
-		getAbController().setABSubtitle(this, getABSubtitle(getContext()), false);
-		getAbController().setABReady(this, isABReady(), true);
+		if (getAbController() != null) {
+			getAbController().setABSubtitle(this, getABSubtitle(getContext()), false);
+			getAbController().setABReady(this, isABReady(), true);
+		}
 	}
 
-	public void setSwipeRefreshLayoutRefreshing(boolean refreshing) {
+	private void setSwipeRefreshLayoutRefreshing(boolean refreshing) {
 		if (this.swipeRefreshLayout != null) {
 			if (refreshing) {
 				if (!this.swipeRefreshLayout.isRefreshing()) {
@@ -437,7 +442,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 	}
 
-	private void initAdapters(Activity activity) {
+	private void initAdapters(IActivity activity) {
 		this.adapter = new POIArrayAdapter(activity);
 		this.adapter.setTag(getLogTag());
 		this.adapter.setFavoriteUpdateListener(this);

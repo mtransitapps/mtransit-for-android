@@ -79,6 +79,8 @@ import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
+import org.mtransit.android.ui.view.common.IActivity;
+import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
@@ -439,7 +441,7 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
-		initAdapters(activity);
+		initAdapters(this);
 		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
 		this.mapViewController.onAttach(activity);
 	}
@@ -624,7 +626,7 @@ public class POIFragment extends ABFragment implements
 		view.findViewById(R.id.poi_nearby_pois_list).setVisibility(View.VISIBLE);
 	}
 
-	private void initAdapters(Activity activity) {
+	private void initAdapters(IActivity activity) {
 		this.adapter = new POIArrayAdapter(activity);
 		this.adapter.setTag(getLogTag());
 	}
@@ -953,7 +955,7 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public void onSensorChanged(@NonNull SensorEvent se) {
-		sensorManager.checkForCompass(se, this.accelerometerValues, this.magneticFieldValues, this);
+		sensorManager.checkForCompass(this, se, this.accelerometerValues, this.magneticFieldValues, this);
 	}
 
 	private long lastCompassChanged = -1L;
@@ -1021,18 +1023,19 @@ public class POIFragment extends ABFragment implements
 		enableTimeChangedReceiver();
 		this.mapViewController.onResume();
 		if (this.adapter != null) {
-			this.adapter.onResume(getActivity(), this.userLocation);
+			this.adapter.onResume(this, this.userLocation);
 		}
 		if (this.newsListAdapter != null) {
 			this.newsListAdapter.onResume(this);
 		}
-		POIManager poim = getPoimOrNull();
+		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
 			this.mapViewController.notifyMarkerChanged(this);
 			this.mapViewController.showMap(view);
-			POIViewController.updateView(requireContext(), getPOIView(view), poim, this);
-			POIStatusDetailViewController.updateView(requireContext(), getPOIStatusView(view), poim, this);
-			POIServiceUpdateViewController.updateView(requireContext(), getPOIServiceUpdateView(view), poim, this);
+			final Context context = requireContext();
+			POIViewController.updateView(context, getPOIView(view), poim, this);
+			POIStatusDetailViewController.updateView(context, getPOIStatusView(view), poim, this);
+			POIServiceUpdateViewController.updateView(context, getPOIServiceUpdateView(view), poim, this);
 			setupRTSFullScheduleBtn(view);
 			setupMoreNearbyButton(view);
 			setupNearbyList();
@@ -1149,14 +1152,18 @@ public class POIFragment extends ABFragment implements
 	private void resetNowToTheMinute() {
 		MTLog.i(this, "Refreshing UI data...");
 		this.nowToTheMinute = UITimeUtils.currentTimeToTheMinuteMillis();
-		View view = getView();
-		POIManager poim = getPoimOrNull();
+		final Context context = getContext();
+		if (context == null) {
+			return;
+		}
+		final View view = getView();
+		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
 			View poiView = getPOIView(view);
-			POIViewController.updatePOIStatus(getContext(), poiView, poim, this);
-			POIViewController.updatePOIServiceUpdate(getContext(), poiView, poim, this);
-			POIStatusDetailViewController.updateView(requireContext(), getPOIStatusView(view), poim, this);
-			POIServiceUpdateViewController.updateView(requireContext(), getPOIServiceUpdateView(view), poim, this);
+			POIViewController.updatePOIStatus(context, poiView, poim, this);
+			POIViewController.updatePOIServiceUpdate(context, poiView, poim, this);
+			POIStatusDetailViewController.updateView(context, getPOIStatusView(view), poim, this);
+			POIServiceUpdateViewController.updateView(context, getPOIServiceUpdateView(view), poim, this);
 		}
 		if (this.newsListViewModel != null) {
 			this.newsListViewModel.refresh();
@@ -1170,10 +1177,10 @@ public class POIFragment extends ABFragment implements
 
 	private void enableTimeChangedReceiver() {
 		if (!this.timeChangedReceiverEnabled) {
+			this.timeChangedReceiverEnabled = true;
 			if (getContext() != null) {
 				getContext().registerReceiver(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER);
 			}
-			this.timeChangedReceiverEnabled = true;
 		}
 	}
 
@@ -1316,7 +1323,7 @@ public class POIFragment extends ABFragment implements
 		case R.id.menu_show_directions:
 			POIManager poim2 = getPoimOrNull();
 			if (poim2 != null) {
-				MapUtils.showDirection(getActivity(), poim2.poi.getLat(), poim2.poi.getLng(), null, null, poim2.poi.getName());
+				MapUtils.showDirection(requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), null, null, poim2.poi.getName());
 				return true; // handled
 			}
 			break;
@@ -1328,9 +1335,10 @@ public class POIFragment extends ABFragment implements
 	public void onFavoriteUpdated() {
 		resetFavorite();
 		updateFavMenuItem();
-		POIManager poim = getPoimOrNull();
-		if (poim != null) {
-			POIViewController.updateView(getContext(), getPOIView(getView()), poim, this);
+		final POIManager poim = getPoimOrNull();
+		final Context context = getContext();
+		if (poim != null && context != null) {
+			POIViewController.updateView(context, getPOIView(getView()), poim, this);
 		}
 	}
 

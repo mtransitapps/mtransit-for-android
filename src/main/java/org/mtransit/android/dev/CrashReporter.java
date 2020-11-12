@@ -9,6 +9,9 @@ import org.mtransit.android.commons.MTLog;
 @SuppressWarnings("unused")
 public interface CrashReporter {
 
+	boolean CRASHLYTICS_ENABLED = true;
+	// boolean CRASHLYTICS_ENABLED = false; // DEBUG
+
 	void setup(@NonNull IContext context, boolean enabled);
 
 	void reportNonFatal(@Nullable Throwable throwable);

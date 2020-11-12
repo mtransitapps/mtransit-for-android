@@ -21,7 +21,7 @@ import androidx.fragment.app.FragmentManager;
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.analytics.AnalyticsManager;
-import org.mtransit.android.analytics.IAnalyticsManager;
+import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.data.DataSourceProvider;
@@ -34,15 +34,13 @@ import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.NightModeUtils;
-import org.mtransit.android.util.VendingUtils;
 
 import java.util.WeakHashMap;
 
-@SuppressWarnings("unused")
 public class MainActivity extends MTActivityWithLocation implements
 		FragmentManager.OnBackStackChangedListener,
 		AnalyticsManager.Trackable,
-		VendingUtils.OnVendingResultListener,
+		IBillingManager.OnBillingResultListener,
 		IActivity,
 		IAdManager.RewardedAdListener,
 		DataSourceProvider.ModulesUpdateListener {
@@ -77,17 +75,17 @@ public class MainActivity extends MTActivityWithLocation implements
 	@NonNull
 	private final IAdManager adManager;
 	@NonNull
-	private final IAnalyticsManager analyticsManager;
-	@NonNull
 	private final CrashReporter crashReporter;
+	@NonNull
+	private final IBillingManager billingManager;
 
 	private int currentUiMode = -1;
 
 	public MainActivity() {
 		super();
 		adManager = Injection.providesAdManager();
-		analyticsManager = Injection.providesAnalyticsManager();
 		crashReporter = Injection.providesCrashReporter();
+		billingManager = Injection.providesBillingManager();
 	}
 
 	@Override
@@ -123,20 +121,13 @@ public class MainActivity extends MTActivityWithLocation implements
 	}
 
 	@Override
-	public void onVendingResult(@Nullable Boolean hasSubscription) {
+	public void onBillingResult(@Nullable String sku) {
+		Boolean hasSubscription = sku == null ? null : !sku.isEmpty();
 		if (hasSubscription != null) {
 			this.adManager.setShowingAds(!hasSubscription, this);
 		}
 	}
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-		if (!VendingUtils.onActivityResult(this, requestCode, resultCode, data)) {
-			super.onActivityResult(requestCode, resultCode, data);
-		}
-	}
-
-	@Nullable
 	public ActionBarController getAbController() {
 		return abController;
 	}
@@ -194,8 +185,8 @@ public class MainActivity extends MTActivityWithLocation implements
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onResume();
 		}
-		analyticsManager.trackScreenView(this, this);
-		VendingUtils.onResume(this, this);
+		this.billingManager.addListener(this);
+		this.billingManager.refreshPurchases();
 		this.adManager.adaptToScreenSize(this, getResources().getConfiguration());
 		this.adManager.setRewardedAdListener(this); // used until POI screen is visible // need to pre-load ASAP
 		this.adManager.linkRewardedAd(this);
@@ -245,7 +236,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onPause();
 		}
-		VendingUtils.onPause();
+		this.billingManager.removeListener(this);
 		this.adManager.pauseAd(this);
 		DataSourceProvider.onPause();
 	}
@@ -268,7 +259,6 @@ public class MainActivity extends MTActivityWithLocation implements
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		VendingUtils.destroyBilling(this);
 		DataSourceProvider.removeModulesUpdateListener(this);
 		if (this.abController != null) {
 			this.abController.destroy();

@@ -1,7 +1,19 @@
 package org.mtransit.android.ui.fragment;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
+import android.app.Activity;
+import android.location.Location;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.widget.AbsListView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -15,26 +27,16 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
-import android.app.Activity;
-import android.location.Location;
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentActivity;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.widget.AbsListView;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 
 public class NearbyAgencyTypeFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
-		NearbyFragment.NearbyLocationListener, DataSourceProvider.ModulesUpdateListener, POIArrayAdapter.InfiniteLoadingListener {
+		NearbyFragment.NearbyLocationListener, DataSourceProvider.ModulesUpdateListener, POIArrayAdapter.InfiniteLoadingListener, IActivity {
 
 	private static final String TAG = NearbyAgencyTypeFragment.class.getSimpleName();
 
@@ -79,7 +81,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	@Override
 	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
-		initAdapters(activity);
+		initAdapters(this);
 	}
 
 	@Override
@@ -246,7 +248,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		this.adapter.setTag(String.valueOf(this.typeId));
 	}
 
-	private void initAdapters(Activity activity) {
+	private void initAdapters(IActivity activity) {
 		this.adapter = new POIArrayAdapter(activity);
 		this.adapter.setInfiniteLoading(true);
 		this.adapter.setInfiniteLoadingListener(this);
@@ -347,7 +349,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		this.fragmentVisible = true;
 		switchView(getView());
 		if (this.adapter != null) {
-			this.adapter.onResume(getActivity(), this.userLocation);
+			this.adapter.onResume(this, this.userLocation);
 		}
 		NearbyFragment nearbyFragment = this.nearbyFragmentWR == null ? null : this.nearbyFragmentWR.get();
 		if (nearbyFragment != null) {
@@ -395,7 +397,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		if (this.fragmentPosition >= 0 && this.fragmentPosition == this.lastVisibleFragmentPosition) {
 			onFragmentVisible();
 		} // ELSE will be called later
-		this.adapter.setActivity(getActivity());
+		this.adapter.setActivity(this);
 	}
 
 	@Override
@@ -583,14 +585,30 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		case NEARBY_POIS_LOADER:
 			if (this.nearbyLocation == null || this.typeId == null || getTypeAgenciesAuthorityOrNull() == null) {
 				CrashUtils.w(this, "onCreateLoader() > nearby location or type not available yet.");
+				//noinspection ConstantConditions // FIXME
 				return null;
 			}
 			return new NearbyPOIListLoader(getContext(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff,
 					this.minCoverageInMeters, this.maxSize, false, true, getTypeAgenciesAuthorityOrNull());
 		default:
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
+			//noinspection ConstantConditions // FIXME
 			return null;
 		}
+	}
+
+	@Override
+	public void finish() {
+		requireActivity().finish();
+	}
+
+	@Nullable
+	@Override
+	public <T extends View> T findViewById(int id) {
+		if (getView() == null) {
+			return null;
+		}
+		return getView().findViewById(id);
 	}
 
 	@Override

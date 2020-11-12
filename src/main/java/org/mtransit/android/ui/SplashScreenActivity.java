@@ -1,5 +1,9 @@
 package org.mtransit.android.ui;
 
+import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -9,10 +13,6 @@ import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.view.common.IActivity;
-
-import android.app.Activity;
-import android.content.Context;
-import android.os.Bundle;
 
 public class SplashScreenActivity extends MTActivity implements IActivity, IAnalyticsManager.Trackable {
 

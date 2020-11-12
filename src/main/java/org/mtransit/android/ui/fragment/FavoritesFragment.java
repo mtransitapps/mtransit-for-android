@@ -1,25 +1,9 @@
 package org.mtransit.android.ui.fragment;
 
-import java.util.ArrayList;
-
-import org.mtransit.android.R;
-import org.mtransit.android.commons.LocationUtils;
-import org.mtransit.android.data.POIArrayAdapter;
-import org.mtransit.android.data.POIManager;
-import org.mtransit.android.provider.FavoriteManager;
-import org.mtransit.android.task.FavoritesLoader;
-import org.mtransit.android.ui.MTActivityWithLocation;
-import org.mtransit.android.util.CrashUtils;
-import org.mtransit.android.util.LoaderUtils;
-
 import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,8 +15,26 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+
+import org.mtransit.android.R;
+import org.mtransit.android.commons.LocationUtils;
+import org.mtransit.android.data.POIArrayAdapter;
+import org.mtransit.android.data.POIManager;
+import org.mtransit.android.provider.FavoriteManager;
+import org.mtransit.android.task.FavoritesLoader;
+import org.mtransit.android.ui.MTActivityWithLocation;
+import org.mtransit.android.ui.view.common.IActivity;
+import org.mtransit.android.util.CrashUtils;
+import org.mtransit.android.util.LoaderUtils;
+
+import java.util.ArrayList;
+
 public class FavoritesFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
-		FavoriteManager.FavoriteUpdateListener {
+		FavoriteManager.FavoriteUpdateListener, IActivity {
 
 	private static final String TAG = FavoritesFragment.class.getSimpleName();
 
@@ -60,7 +62,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	@Override
 	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
-		initAdapters(activity);
+		initAdapters(this);
 	}
 
 	@Override
@@ -92,7 +94,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		}
 		switchView(view);
 		if (this.adapter != null && this.adapter.isInitialized()) {
-			this.adapter.onResume(getActivity(), this.userLocation);
+			this.adapter.onResume(this, this.userLocation);
 		} else {
 			LoaderUtils.restartLoader(this, FAVORITES_LOADER, null, this);
 		}
@@ -111,6 +113,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 			return new FavoritesLoader(requireContext());
 		default:
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
+			//noinspection ConstantConditions // FIXME
 			return null;
 		}
 	}
@@ -175,7 +178,21 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		}
 	}
 
-	private void initAdapters(Activity activity) {
+	@Override
+	public void finish() {
+		requireActivity().finish();
+	}
+
+	@Nullable
+	@Override
+	public <T extends View> T findViewById(int id) {
+		if (getView() == null) {
+			return null;
+		}
+		return getView().findViewById(id);
+	}
+
+	private void initAdapters(IActivity activity) {
 		this.adapter = new POIArrayAdapter(activity);
 		this.adapter.setTag(getLogTag());
 		this.adapter.setShowFavorite(false); // all items in this screen are favorites

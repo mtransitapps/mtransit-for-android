@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package org.mtransit.android.task
 
 import androidx.fragment.app.Fragment
@@ -6,6 +8,7 @@ import org.mtransit.android.commons.task.MTCancellableAsyncTask
 import org.mtransit.android.util.FragmentUtils
 import java.lang.ref.WeakReference
 
+@Deprecated(message = "Deprecated in Android SDK")
 abstract class MTCancellableFragmentAsyncTask<Params, Progress, Result, F : Fragment?>(
     fragment: F?
 ) : MTCancellableAsyncTask<Params, Progress, Result>(), MTLog.Loggable {

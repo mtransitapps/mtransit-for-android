@@ -38,6 +38,7 @@ import org.mtransit.android.task.POISearchLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTSearchView;
+import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
@@ -202,7 +203,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	@Override
 	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
-		initAdapters(activity);
+		initAdapters(this);
 	}
 
 	@Override
@@ -219,11 +220,11 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		return view;
 	}
 
-	private void initAdapters(Activity activity) {
+	private void initAdapters(IActivity activity) {
 		this.adapter = new POIArrayAdapter(activity);
 		this.adapter.setTag(getLogTag());
 		this.adapter.setOnTypeHeaderButtonsClickListener(this);
-		this.typeFiltersAdapter = new TypeFiltersAdapter(activity);
+		this.typeFiltersAdapter = new TypeFiltersAdapter(activity.requireContext());
 	}
 
 	@Override
@@ -331,7 +332,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			});
 		}
 		switchView(getView());
-		this.adapter.onResume(getActivity(), this.userLocation);
+		this.adapter.onResume(this, this.userLocation);
 		if (!this.adapter.isInitialized()) {
 			applyNewQuery();
 		}
@@ -675,7 +676,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 		private LayoutInflater layoutInflater;
 
-		public TypeFiltersAdapter(Context context) {
+		public TypeFiltersAdapter(@NonNull Context context) {
 			super(context, -1);
 			this.layoutInflater = LayoutInflater.from(context);
 			init();
@@ -707,6 +708,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			return getTheView(position, convertView, parent);
 		}
 
+		@NonNull
 		@Override
 		public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 			return getTheView(position, convertView, parent);

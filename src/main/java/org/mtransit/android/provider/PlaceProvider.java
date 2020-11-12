@@ -20,6 +20,7 @@ import org.mtransit.android.commons.FileUtils;
 import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.NetworkUtils;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.UriUtils;
@@ -252,6 +253,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 			MTLog.i(this, "Loading from '%s'...", publicUrlString);
 			URL url = new URL(urlString);
 			URLConnection urlc = url.openConnection();
+			NetworkUtils.setupUrlConnection(urlc);
 			HttpsURLConnection httpsUrlConnection = (HttpsURLConnection) urlc;
 			switch (httpsUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:

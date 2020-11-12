@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.CrashlyticsCrashReporter;
 
 @Deprecated
@@ -24,6 +25,9 @@ public final class CrashUtils implements MTLog.Loggable {
 
 	@Deprecated
 	public static void report(@Nullable Throwable throwable, @NonNull String message) {
+		if (CrashReporter.CRASHLYTICS_ENABLED) {
+			return;
+		}
 		try {
 			final com.google.firebase.crashlytics.FirebaseCrashlytics firebaseCrashlytics
 					= com.google.firebase.crashlytics.FirebaseCrashlytics.getInstance();

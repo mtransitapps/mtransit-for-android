@@ -26,15 +26,18 @@ import java.util.concurrent.TimeUnit;
 
 public class StatusLoader implements MTLog.Loggable {
 
-	private static final String TAG = StatusLoader.class.getSimpleName();
+	private static final String LOG_TAG = StatusLoader.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
+	@Nullable
 	private static StatusLoader instance;
 
+	@NonNull
 	public static StatusLoader get() {
 		if (instance == null) {
 			instance = new StatusLoader();
@@ -43,26 +46,33 @@ public class StatusLoader implements MTLog.Loggable {
 	}
 
 	private StatusLoader() {
+		// DO NOTHING
 	}
 
 	@NonNull
-	private HashMap<String, ThreadPoolExecutor> fetchStatusExecutors = new HashMap<>();
+	private final HashMap<String, ThreadPoolExecutor> fetchStatusExecutors = new HashMap<>();
 
-	private static final int CORE_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES > 1 ? RuntimeUtils.NUMBER_OF_CORES / 2 : 1;
-
-	private static final int MAX_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES > 1 ? RuntimeUtils.NUMBER_OF_CORES / 2 : 1;
+	private static final int MAX_CORE = 2;
+	private static final int CORE_POOL_SIZE = Math.min(RuntimeUtils.NUMBER_OF_CORES, MAX_CORE) + 1;
+	private static final int MAX_POOL_SIZE = Math.min(RuntimeUtils.NUMBER_OF_CORES, MAX_CORE) * 2 + 1;
 
 	@NonNull
 	private ThreadPoolExecutor getFetchStatusExecutor(@NonNull String statusProviderAuthority) {
 		ThreadPoolExecutor threadPoolExecutor = this.fetchStatusExecutors.get(statusProviderAuthority);
 		if (threadPoolExecutor == null) {
-			threadPoolExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS, new LIFOBlockingDeque<>());
+			threadPoolExecutor = new ThreadPoolExecutor(
+					CORE_POOL_SIZE,
+					MAX_POOL_SIZE,
+					0L,
+					TimeUnit.MILLISECONDS,
+					new LIFOBlockingDeque<>()
+			);
 			this.fetchStatusExecutors.put(statusProviderAuthority, threadPoolExecutor);
 		}
 		return threadPoolExecutor;
 	}
 
-	public boolean isBusy() {
+	private boolean isBusy() {
 		for (Map.Entry<String, ThreadPoolExecutor> fetchStatusExecutor : this.fetchStatusExecutors.entrySet()) {
 			if (fetchStatusExecutor.getValue() != null && fetchStatusExecutor.getValue().getActiveCount() > 0) {
 				return true;
@@ -93,7 +103,7 @@ public class StatusLoader implements MTLog.Loggable {
 				if (provider == null) {
 					continue;
 				}
-				StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter); // , null, timestamp);
+				StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter);
 				task.executeOnExecutor(getFetchStatusExecutor(provider.getAuthority()));
 			}
 		}
@@ -121,8 +131,11 @@ public class StatusLoader implements MTLog.Loggable {
 		@NonNull
 		private final StatusProviderContract.Filter statusFilter;
 
-		StatusFetcherCallable(@Nullable Context context, @Nullable StatusLoader.StatusLoaderListener listener, @NonNull StatusProviderProperties statusProvider,
-							  @Nullable POIManager poim, @NonNull StatusProviderContract.Filter statusFilter) {
+		StatusFetcherCallable(@Nullable Context context,
+							  @Nullable StatusLoader.StatusLoaderListener listener,
+							  @NonNull StatusProviderProperties statusProvider,
+							  @Nullable POIManager poim,
+							  @NonNull StatusProviderContract.Filter statusFilter) {
 			this.contextWR = new WeakReference<>(context);
 			this.listenerWR = new WeakReference<>(listener);
 			this.statusProvider = statusProvider;
@@ -175,32 +188,33 @@ public class StatusLoader implements MTLog.Loggable {
 
 	public static class LIFOBlockingDeque<E> extends LinkedBlockingDeque<E> implements MTLog.Loggable {
 
-		private static final String TAG = LIFOBlockingDeque.class.getSimpleName();
+		private static final String LOG_TAG = LIFOBlockingDeque.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
-		private static final long serialVersionUID = -470545646554946137L;
+		private static final long serialVersionUID = -2614488162524238781L;
 
 		@Override
-		public boolean offer(E e) {
+		public boolean offer(@NonNull E e) {
 			return super.offerFirst(e);
 		}
 
 		@Override
-		public boolean offer(E e, long timeout, TimeUnit unit) throws InterruptedException {
+		public boolean offer(@NonNull E e, long timeout, @NonNull TimeUnit unit) throws InterruptedException {
 			return super.offerFirst(e, timeout, unit);
 		}
 
 		@Override
-		public boolean add(E e) {
+		public boolean add(@NonNull E e) {
 			return super.offerFirst(e);
 		}
 
 		@Override
-		public void put(E e) throws InterruptedException {
+		public void put(@NonNull E e) throws InterruptedException {
 			super.putFirst(e);
 		}
 	}

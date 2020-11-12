@@ -4,6 +4,9 @@ import org.mtransit.android.ad.AdManager
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.analytics.AnalyticsManager
 import org.mtransit.android.analytics.IAnalyticsManager
+import org.mtransit.android.billing.IBillingManager
+import org.mtransit.android.billing.MTBillingManager
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.common.IApplication
 import org.mtransit.android.data.DataSourceProvider
 import org.mtransit.android.data.source.DataSourceRepository
@@ -86,6 +89,21 @@ object ServiceLocator {
         DataSourceProvider(
             application,
             analyticsManager
+        )
+    }
+
+    @JvmStatic
+    val localPreferenceRepository: LocalPreferenceRepository by lazy {
+        LocalPreferenceRepository(
+            application
+        )
+    }
+
+    @JvmStatic
+    val billingManager: IBillingManager by lazy {
+        MTBillingManager(
+            application,
+            localPreferenceRepository
         )
     }
 
