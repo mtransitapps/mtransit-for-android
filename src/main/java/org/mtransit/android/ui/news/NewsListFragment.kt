@@ -6,7 +6,6 @@ import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import org.mtransit.android.R
 import org.mtransit.android.commons.BundleUtils
@@ -27,8 +26,7 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
         private const val EXTRA_COLOR_INT = "extra_color_int"
         private const val EXTRA_SUB_TITLE = "extra_subtitle"
-        private const val EXTRA_FILTER_TARGET_AUTHORITIES =
-            "extra_filter_target_authorities"
+        private const val EXTRA_FILTER_TARGET_AUTHORITIES = "extra_filter_target_authorities"
         private const val EXTRA_FILTER_TARGETS = "extra_filter_targets"
         private const val EXTRA_FILTER_UUIDS = "extra_filter_uuids"
 
@@ -68,12 +66,12 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
             }
         }
 
-        val LOG_TAG = NewsListFragment::class.java.simpleName
+        val LOG_TAG: String = NewsListFragment::class.java.simpleName
 
         private const val TRACKING_SCREEN_NAME = "NewsList"
     }
 
-    override fun getLogTag() = LOG_TAG
+    override fun getLogTag(): String = LOG_TAG
 
     override fun getScreenName() = TRACKING_SCREEN_NAME
 
@@ -115,22 +113,22 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel.empty.observe(viewLifecycleOwner, Observer {
+        viewModel.empty.observe(viewLifecycleOwner, {
             viewBinding?.apply {
                 noNewsLayout.isVisible = it
                 newsLinearLayout.isVisible = !it
             }
         })
-        viewModel.dataLoading.observe(viewLifecycleOwner, Observer { loadingState ->
+        viewModel.dataLoading.observe(viewLifecycleOwner, { loadingState ->
             viewBinding?.refreshLayout?.isRefreshing = loadingState.loading
         })
-        viewModel.filteredNewsArticles.observe(viewLifecycleOwner, Observer { newsArticles ->
+        viewModel.filteredNewsArticles.observe(viewLifecycleOwner, { newsArticles ->
             listAdapter.submitList(newsArticles)
         })
         viewModel.openNewsArticleEvent.observe(viewLifecycleOwner, EventObserver { newsArticle ->
             openNewsDetails(newsArticle)
         })
-        viewModel.currentNewsArticleUUID.observe(viewLifecycleOwner, Observer { uuid ->
+        viewModel.currentNewsArticleUUID.observe(viewLifecycleOwner, { uuid ->
             viewBinding?.newsList?.let { recyclerView ->
                 val newsArticlePosition = this.listAdapter.getItemPosition(uuid)
                 if (newsArticlePosition >= 0) {

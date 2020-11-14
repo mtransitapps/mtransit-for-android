@@ -6,18 +6,19 @@ import org.mtransit.android.commons.provider.NewsProviderContract
 import org.mtransit.android.data.DataSourceManager
 import java.util.ArrayList
 
-class DataSourceRepository(private val iApplication: IApplication) {
+class DataSourceRepository(private val app: IApplication) {
 
     fun findNews(
         authority: String,
         newsFilter: NewsProviderContract.Filter?
     ): ArrayList<NewsArticle>? {
-        return DataSourceManager.findNews(iApplication.requireContext(), authority, newsFilter)
+        return DataSourceManager.findNews(app.requireContext(), authority, newsFilter)
     }
+
     fun findNewsArticle(
         authority: String,
         newsFilter: NewsProviderContract.Filter?
     ): NewsArticle? {
-        return DataSourceManager.findANews(iApplication.requireContext(), authority, newsFilter)
+        return DataSourceManager.findANews(app.requireContext(), authority, newsFilter)
     }
 }

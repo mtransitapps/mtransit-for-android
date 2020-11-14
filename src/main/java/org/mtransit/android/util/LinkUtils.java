@@ -160,14 +160,8 @@ public final class LinkUtils implements MTLog.Loggable {
 						final String pkg = dataSourceProvider.getAgencyPkg(agencyProperties.getAuthority());
 						if (pkg != null && !pkg.isEmpty()) {
 							subjectSb //
-									.append(" - ").append(agencyProperties.getShortName()) //
-									.append(" ").append(activity.getString(agencyProperties.getType().getShortNameResId()));
-							String pkg = dataSourceProvider.getAgencyPkg(agencyProperties.getAuthority());
-							if (!TextUtils.isEmpty(pkg)) {
-								subjectSb //
-										.append(" v").append(PackageManagerUtils.getAppVersionName(activity, pkg)) //
-										.append(" (r").append(PackageManagerUtils.getAppVersionCode(activity, pkg)).append(")");
-							}
+									.append(" v").append(PackageManagerUtils.getAppVersionName(activity, pkg)) //
+									.append(" (r").append(PackageManagerUtils.getAppVersionCode(activity, pkg)).append(")");
 						}
 					}
 				}
@@ -260,15 +254,18 @@ public final class LinkUtils implements MTLog.Loggable {
 
 	public static class LinkMovementMethodInterceptor extends LinkMovementMethod implements MTLog.Loggable {
 
-		private static final String TAG = LinkMovementMethodInterceptor.class.getSimpleName();
+		private static final String LOG_TAG = LinkMovementMethodInterceptor.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
+		@Nullable
 		private static LinkMovementMethodInterceptor sInstance;
 
+		@NonNull
 		public static LinkMovementMethodInterceptor getInstance(OnUrlClickListener onUrlClickListener) {
 			if (sInstance == null) {
 				sInstance = new LinkMovementMethodInterceptor(onUrlClickListener);

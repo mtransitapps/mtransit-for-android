@@ -146,7 +146,7 @@ class NewsArticleFragment : MTFragmentV4(R.layout.fragment_news_article), MTLog.
                             TextView.BufferType.SPANNABLE
                         )
                         movementMethod =
-                            LinkUtils.LinkMovementMethodInterceptop.getInstance { url ->
+                            LinkUtils.LinkMovementMethodInterceptor.getInstance { url ->
                                 LinkUtils.open(
                                     requireActivity(),
                                     url,
