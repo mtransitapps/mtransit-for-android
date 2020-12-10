@@ -42,6 +42,8 @@ proguard/
 /keys_files.sh
 /keys_setup.sh
 /lint.xml
+/print_current_next_rts_diff.sh
+/print_git_diff_stat.sh
 /promote.sh
 /promote_*.sh
 /publish.sh
