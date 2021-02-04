@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.ImageSpan;
 import android.text.style.RelativeSizeSpan;
@@ -21,6 +20,7 @@ import androidx.core.util.Pair;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SpanUtils;
+import org.mtransit.commons.StringUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.POIStatus;
@@ -651,7 +651,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	private static CharSequence getShortTimeSpanStringStyle(@NonNull Context context, @Nullable CharSequence timeSpan, boolean isOldSchedule) {
-		if (TextUtils.isEmpty(timeSpan)) {
+		if (StringUtils.isEmpty(timeSpan)) {
 			return timeSpan;
 		}
 		if (isOldSchedule) {
