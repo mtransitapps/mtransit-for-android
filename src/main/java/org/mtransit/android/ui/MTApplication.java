@@ -19,6 +19,7 @@ import org.mtransit.android.dev.IStrictMode;
 import org.mtransit.android.dev.LeakDetector;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.util.NightModeUtils;
+import org.mtransit.commons.CommonsApp;
 
 public class MTApplication extends Application implements IApplication, MTLog.Loggable {
 
@@ -30,7 +31,7 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 		return LOG_TAG;
 	}
 
-	@SuppressWarnings("NullableProblems") // late-init
+	@SuppressWarnings({"NotNullFieldNotInitialized"}) // late-init
 	@NonNull
 	private static IApplication application;
 
@@ -57,6 +58,7 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		CommonsApp.setup(true);
 		if (BuildConfig.DEBUG) {
 			getLeakDetector().setup(this);
 		}
