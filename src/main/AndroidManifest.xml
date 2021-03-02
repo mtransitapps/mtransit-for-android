@@ -41,12 +41,13 @@
         android:supportsRtl="false"
         android:theme="@style/MTTheme"
         tools:ignore="GoogleAppIndexingWarning"
-        tools:targetApi="29">
-        <!--  tools:replace="android:supportsRtl" -->
+        tools:targetApi="30">
+        <!-- tools:replace="android:supportsRtl" -->
         <!-- SPLASH SCREEN (not visible) DO NOT CHANGE ANDROID:NAME OR LAUNCHER ICON REMOVED! -->
         <activity
             android:name=".ui.SplashScreenActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:exported="true"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/ic_launcher"
             android:roundIcon="@mipmap/ic_launcher"
@@ -58,10 +59,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- REMOVE MODULE REDIRECT ACTIVITY -->
+        <activity
+            android:name=".commons.ui.ModuleRedirectActivity"
+            tools:node="remove" />
         <!-- MAIN SCREEN -->
         <activity
             android:name=".ui.MainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:exported="false"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
