@@ -69,6 +69,7 @@ proguard/
 /google-play-upload-keystore.keystore
 /src/main/play/contact-email.txt
 /src/main/res/values/keys.xml
+/src/debug/res/values/keys.xml
 /stage_res_all_schedule_stops.sh
 /stage_res_current_schedule_stops.sh
 /stage_res_next_schedule_stops.sh
