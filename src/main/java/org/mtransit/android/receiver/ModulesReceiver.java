@@ -41,7 +41,7 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 			Intent.ACTION_PACKAGE_REMOVED,
 			Intent.ACTION_PACKAGE_REPLACED,
 			Intent.ACTION_PACKAGE_RESTARTED,
-			"android.intent.action.PACKAGE_VERIFIED" // minSDK 17 = Intent.ACTION_PACKAGE_VERIFIED
+			Intent.ACTION_PACKAGE_VERIFIED
 	);
 
 	@NonNull
