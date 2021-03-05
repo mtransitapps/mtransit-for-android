@@ -57,6 +57,7 @@ public class SplashScreenActivity extends MTActivity implements IActivity, IAnal
 	private void showHomeActivity() {
 		// if (true) {
 		// com.google.android.ads.mediationtestsuite.MediationTestSuite.launch(this);
+		// finish();
 		// return;
 		// }
 		startActivity(MainActivity.newInstance(this));

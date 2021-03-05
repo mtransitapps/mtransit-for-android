@@ -180,11 +180,11 @@ public class MainActivity extends MTActivityWithLocation implements
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.onResume();
 		}
-		this.billingManager.addListener(this);
-		this.billingManager.refreshPurchases();
 		this.adManager.adaptToScreenSize(this, getResources().getConfiguration());
 		this.adManager.setRewardedAdListener(this); // used until POI screen is visible // need to pre-load ASAP
 		this.adManager.linkRewardedAd(this);
+		this.billingManager.addListener(this); // trigger onBillingResult() w/ current value
+		this.billingManager.refreshPurchases();
 		onLastLocationChanged(getUserLocation());
 	}
 
