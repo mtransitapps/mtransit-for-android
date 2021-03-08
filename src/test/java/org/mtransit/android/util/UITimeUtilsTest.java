@@ -26,6 +26,7 @@ public class UITimeUtilsTest {
 
 	@Test
 	public void testCleanTimes() {
+		// Arrange
 		String input;
 		SpannableStringBuilder output;
 		//
@@ -50,13 +51,16 @@ public class UITimeUtilsTest {
 		input = "2:06 p.m.";
 		output = mock(SpannableStringBuilder.class);
 		when(output.length()).thenReturn(input.length());
+		// Act
 		UITimeUtils.cleanTimes(input, output);
+		// Assert
 		verify(output).setSpan(any(RelativeSizeSpan.class), eq(5), eq(9), anyInt());
 	}
 
+	@SuppressWarnings({"ConstantConditions", "unused"})
 	@Test
 	public void testGetShortTimeSpanNumber() {
-		//
+		// Arrange
 		Context context = mock(Context.class);
 		Resources resources = mock(Resources.class);
 		when(context.getResources()).thenReturn(resources);
@@ -67,12 +71,12 @@ public class UITimeUtilsTest {
 		boolean isRealTime = false;
 		boolean isOldSchedule = false;
 		when(resources.getQuantityString(R.plurals.minutes_capitalized, 9)).thenReturn("Minutes");
-		//
+		// Act
 		Pair<CharSequence, CharSequence> result = UITimeUtils.getShortTimeSpanNumber(context,
 				diffInMs, precisionInMs,
 				isRealTime, isOldSchedule,
 				shortTimeSpan1SSB, shortTimeSpan2SSB);
-		//
+		// Assert
 		verify(shortTimeSpan1SSB).append(eq("9"));
 		verify(shortTimeSpan2SSB).append(eq("Minutes"));
 	}

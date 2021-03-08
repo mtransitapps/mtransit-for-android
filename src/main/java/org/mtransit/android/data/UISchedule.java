@@ -45,8 +45,6 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		return LOG_TAG;
 	}
 
-	public static final char REAL_TIME_CHAR = '_';
-
 	private static final long MAX_LAST_STATUS_DIFF_IN_MS = TimeUnit.MINUTES.toMillis(5L);
 
 	private static final long MAX_FREQUENCY_DISPLAYED_IN_SEC = TimeUnit.MINUTES.toSeconds(15L);
@@ -534,8 +532,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		for (Timestamp t : nextTimestamps) {
 			index++;
 			SpannableStringBuilder headSignSSB = null;
-			String fTime = UITimeUtils.formatTime(context, t.t);
-			fTime = cleanNoRealTime(t, fTime);
+			String fTime = UITimeUtils.formatTime(context, t);
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
 			if (t.hasHeadsign() && !Trip.isSameHeadsign(t.getHeading(context), optDefaultHeadSign)) {
 				headSignSSB = new SpannableStringBuilder(t.getHeading(context).toUpperCase(Locale.ENGLISH));
@@ -589,25 +586,12 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	}
 
 	@NonNull
-	public static String cleanNoRealTime(@NonNull Timestamp t, @NonNull String fTime) {
-		return cleanNoRealTime(t.isRealTime(), fTime);
-	}
-
-	@NonNull
-	public static String cleanNoRealTime(boolean realTime, @NonNull String fTime) {
-		if (!realTime) {
-			fTime = fTime.replace(REAL_TIME_CHAR, StringUtils.EMPTY_CAR);
-		}
-		return fTime;
-	}
-
-	@NonNull
 	public static SpannableStringBuilder decorateRealTime(@NonNull Context context,
 														  @NonNull Timestamp t,
 														  @NonNull String fTime,
 														  @NonNull SpannableStringBuilder timeSSB) {
 		if (t.isRealTime()) {
-			int start = fTime.indexOf(REAL_TIME_CHAR);
+			int start = fTime.indexOf(UITimeUtils.REAL_TIME_CHAR);
 			int end = start + 1;
 			timeSSB = SpanUtils.set(timeSSB,
 					start,
@@ -710,8 +694,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 					startNextTime = ssb.length();
 				}
 			}
-			String fTime = UITimeUtils.formatTime(context, t.t);
-			fTime = cleanNoRealTime(t, fTime);
+			String fTime = UITimeUtils.formatTime(context, t);
 			ssb.append(fTime);
 			if (t.t >= after) {
 				if (endNextTime == -1) {
@@ -724,9 +707,10 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 					endNextNextTime = ssb.length();
 					startAfterNextTimes = endNextNextTime;
 					endAfterNextTimes = startAfterNextTimes; // if was last, the same means empty
-				} else if (endAfterNextTimes != -1 && startAfterNextTimes != -1) {
-					endAfterNextTimes = ssb.length();
-				}
+				} else //noinspection ConstantConditions
+					if (endAfterNextTimes != -1 && startAfterNextTimes != -1) {
+						endAfterNextTimes = ssb.length();
+					}
 			}
 		}
 		if (startPreviousTimes < endPreviousTimes) {

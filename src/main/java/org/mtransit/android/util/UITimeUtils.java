@@ -20,12 +20,12 @@ import androidx.core.util.Pair;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SpanUtils;
-import org.mtransit.commons.StringUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Schedule.Timestamp;
 import org.mtransit.android.data.UISchedule;
+import org.mtransit.commons.StringUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -100,9 +100,9 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	private static final int MAX_HOURS_SHOWED = 99;
 	public static final long MAX_DURATION_SHOW_NUMBER_IN_MS = TimeUnit.MINUTES.toMillis(MAX_MINUTES_SHOWED);
 
-	private static RelativeSizeSpan TIME_UNIT_SIZE = SpanUtils.getNew50PercentSizeSpan();
+	private static final RelativeSizeSpan TIME_UNIT_SIZE = SpanUtils.getNew50PercentSizeSpan();
 
-	private static TypefaceSpan TIME_UNIT_FONT = SpanUtils.getNewTypefaceSpan(POIStatus.getStatusTextFont());
+	private static final TypefaceSpan TIME_UNIT_FONT = SpanUtils.getNewTypefaceSpan(POIStatus.getStatusTextFont());
 
 	@Nullable
 	private static TextAppearanceSpan urgentTime1TextAppearance = null;
@@ -161,17 +161,20 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		return DateUtils.getRelativeTimeSpanString(timeInThePastInMs, nowInMs, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
 	}
 
-	@NonNull
-	public static String formatTime(@NonNull Context context, long timeInMs) {
-		return getFormatTime(context, timeInMs).formatThreadSafe(timeInMs);
-	}
-
 	@SuppressWarnings("unused")
 	@NonNull
 	public static String formatTime(@NonNull Context context, long timeInMs, @NonNull String timeZone) {
 		return formatTime(context, timeInMs, TimeZone.getTimeZone(timeZone));
 	}
 
+	@NonNull
+	public static String formatTime(@NonNull Context context, @NonNull Timestamp t, @NonNull TimeZone timeZone) {
+		return cleanNoRealTime(t.isRealTime(),
+				formatTime(context, t.t, timeZone)
+		);
+	}
+
+	@SuppressWarnings("WeakerAccess")
 	@NonNull
 	public static String formatTime(@NonNull Context context, long timeInMs, @NonNull TimeZone timeZone) {
 		return getFormatTimeTZ(context, timeInMs, timeZone).formatThreadSafe(timeInMs);
@@ -186,7 +189,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	@NonNull
-	private static WeakHashMap<String, ThreadSafeDateFormatter> formatTimePreciseTZ = new WeakHashMap<>();
+	private static final WeakHashMap<String, ThreadSafeDateFormatter> formatTimePreciseTZ = new WeakHashMap<>();
 
 	@NonNull
 	private static ThreadSafeDateFormatter getFormatTimePreciseTZ(@NonNull Context context, @NonNull TimeZone timeZone) {
@@ -200,7 +203,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	@NonNull
-	private static WeakHashMap<String, ThreadSafeDateFormatter> formatTimeTZ = new WeakHashMap<>();
+	private static final WeakHashMap<String, ThreadSafeDateFormatter> formatTimeTZ = new WeakHashMap<>();
 
 	@NonNull
 	private static ThreadSafeDateFormatter getFormatTimeTZ(@NonNull Context context, @NonNull TimeZone timeZone) {
@@ -228,7 +231,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	@NonNull
-	private static WeakHashMap<String, ThreadSafeDateFormatter> formatTimePreciseWithTZ = new WeakHashMap<>();
+	private static final WeakHashMap<String, ThreadSafeDateFormatter> formatTimePreciseWithTZ = new WeakHashMap<>();
 
 	@NonNull
 	private static ThreadSafeDateFormatter getFormatTimePreciseWithTZ(@NonNull Context context, @NonNull TimeZone timeZone) {
@@ -251,7 +254,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	@NonNull
-	private static WeakHashMap<String, ThreadSafeDateFormatter> formatTimeWithTZ = new WeakHashMap<>();
+	private static final WeakHashMap<String, ThreadSafeDateFormatter> formatTimeWithTZ = new WeakHashMap<>();
 
 	@NonNull
 	private static ThreadSafeDateFormatter getFormatTimeWithTZ(@NonNull Context context, @NonNull TimeZone timeZone) {
@@ -365,7 +368,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		long fsTimeSpanMs = providerFSTimeSpanInMs > 0 ? providerFSTimeSpanInMs : FREQUENT_SERVICE_TIME_SPAN_IN_MS_DEFAULT;
 		long firstTimestamp = timestamps.get(0).getT();
 		long previousTimestamp = firstTimestamp;
-		Long currentTimestamp;
+		long currentTimestamp;
 		long diffInMs;
 		for (int i = 1; i < timestamps.size(); i++) {
 			currentTimestamp = timestamps.get(i).getT();
@@ -481,7 +484,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		}
 		if (isRealTime) {
 			realTimeStart = shortTimeSpan1SSB.length();
-			shortTimeSpan1SSB.append(UISchedule.REAL_TIME_CHAR);
+			shortTimeSpan1SSB.append(UITimeUtils.REAL_TIME_CHAR);
 			realTimeEnd = shortTimeSpan1SSB.length();
 		}
 		// set spans

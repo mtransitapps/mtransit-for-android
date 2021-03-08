@@ -904,13 +904,11 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			Timestamp timestamp = (Timestamp) getItem(position);
 			Context context = this.activityWR.get();
 			if (timestamp != null && context != null) {
-				String userTime = UITimeUtils.formatTime(context, timestamp.t);
-				userTime = UISchedule.cleanNoRealTime(timestamp, userTime);
+				String userTime = UITimeUtils.formatTime(context, timestamp);
 				SpannableStringBuilder timeSb = new SpannableStringBuilder(userTime);
 				TimeZone timestampTZ = TimeZone.getTimeZone(timestamp.getLocalTimeZone());
 				if (timestamp.hasLocalTimeZone() && !this.deviceTimeZone.equals(timestampTZ)) {
-					String localTime = UITimeUtils.formatTime(context, timestamp.t, timestampTZ);
-					localTime = UISchedule.cleanNoRealTime(timestamp, localTime);
+					String localTime = UITimeUtils.formatTime(context, timestamp, timestampTZ);
 					if (!localTime.equalsIgnoreCase(userTime)) {
 						timeSb.append(P1).append(context.getString(R.string.local_time_and_time, localTime)).append(P2);
 					}
@@ -994,7 +992,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		private View getHourSeparatorView(int position, @Nullable View convertView, ViewGroup parent) {
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_hour_separator, parent, false);
-				HourSperatorViewHolder holder = new HourSperatorViewHolder();
+				HourSeparatorViewHolder holder = new HourSeparatorViewHolder();
 				holder.hourTv = convertView.findViewById(R.id.hour);
 				convertView.setTag(holder);
 			}
@@ -1003,12 +1001,12 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		}
 
 		private void updateHourSeparatorView(int position, @NonNull View convertView) {
-			HourSperatorViewHolder holder = (HourSperatorViewHolder) convertView.getTag();
+			HourSeparatorViewHolder holder = (HourSeparatorViewHolder) convertView.getTag();
 			Integer hourOfTheDay = getItemHourSeparator(position);
 			Context context = this.activityWR.get();
 			if (hourOfTheDay != null && context != null) {
 				holder.hourTv.setText(
-						UISchedule.cleanNoRealTime(false,
+						UITimeUtils.cleanNoRealTime(false,
 								getHourFormatter(context).formatThreadSafe(
 										this.hours.get(hourOfTheDay)
 								)
@@ -1034,7 +1032,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 			TextView timeTv;
 		}
 
-		static class HourSperatorViewHolder {
+		static class HourSeparatorViewHolder {
 			TextView hourTv;
 		}
 	}
