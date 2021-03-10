@@ -1,16 +1,20 @@
 package org.mtransit.android.provider;
 
-import java.net.HttpURLConnection;
-import java.net.SocketException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.UriMatcher;
+import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
+import android.text.TextUtils;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLHandshakeException;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.annotation.VisibleForTesting;
+import androidx.collection.ArrayMap;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -33,20 +37,17 @@ import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.Place;
 import org.mtransit.android.util.UITimeUtils;
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.UriMatcher;
-import android.database.Cursor;
-import android.database.MatrixCursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.net.Uri;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.StringRes;
-import androidx.annotation.VisibleForTesting;
-import androidx.collection.ArrayMap;
-import android.text.TextUtils;
+import java.net.HttpURLConnection;
+import java.net.SocketException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLHandshakeException;
 
 public class PlaceProvider extends AgencyProvider implements POIProviderContract {
 
@@ -350,7 +351,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 
 	@NonNull
 	@Override
-	public LocationUtils.Area getAgencyArea(Context context) {
+	public LocationUtils.Area getAgencyArea(@NonNull Context context) {
 		return LocationUtils.THE_WORLD;
 	}
 
@@ -537,9 +538,21 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	}
 
 	@NonNull
-	@Override
-	public SQLiteOpenHelper getDBHelper() {
+	private SQLiteOpenHelper getDBHelper() {
+		//noinspection ConstantConditions // TODO requireContext()
 		return getDBHelper(getContext());
+	}
+
+	@NonNull
+	@Override
+	public SQLiteDatabase getReadDB() {
+		return getDBHelper().getReadableDatabase();
+	}
+
+	@NonNull
+	@Override
+	public SQLiteDatabase getWriteDB() {
+		return getDBHelper().getWritableDatabase();
 	}
 
 	@Nullable

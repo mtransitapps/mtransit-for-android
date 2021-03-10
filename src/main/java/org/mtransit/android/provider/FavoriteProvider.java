@@ -1,11 +1,5 @@
 package org.mtransit.android.provider;
 
-import org.mtransit.android.R;
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.SqlUtils;
-import org.mtransit.android.commons.UriUtils;
-import org.mtransit.android.commons.provider.MTContentProvider;
-
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -15,12 +9,17 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 
-import android.text.TextUtils;
+import org.mtransit.android.R;
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.SqlUtils;
+import org.mtransit.android.commons.UriUtils;
+import org.mtransit.android.commons.provider.MTContentProvider;
 
 public class FavoriteProvider extends MTContentProvider {
 

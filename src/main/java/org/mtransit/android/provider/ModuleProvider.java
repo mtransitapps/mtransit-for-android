@@ -1,8 +1,12 @@
 package org.mtransit.android.provider;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.concurrent.TimeUnit;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.UriMatcher;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,13 +41,9 @@ import org.mtransit.android.data.Module;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.util.UITimeUtils;
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.UriMatcher;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.net.Uri;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("UnusedReturnValue")
 public class ModuleProvider extends AgencyProvider implements POIProviderContract, StatusProviderContract {
@@ -172,10 +172,21 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@NonNull
-	@Override
-	public SQLiteOpenHelper getDBHelper() {
+	private SQLiteOpenHelper getDBHelper() {
 		//noinspection ConstantConditions // TODO requireContext()
 		return getDBHelper(getContext());
+	}
+
+	@NonNull
+	@Override
+	public SQLiteDatabase getReadDB() {
+		return getDBHelper().getReadableDatabase();
+	}
+
+	@NonNull
+	@Override
+	public SQLiteDatabase getWriteDB() {
+		return getDBHelper().getWritableDatabase();
 	}
 
 	@Nullable
@@ -304,8 +315,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	private int deleteAllModuleData() {
 		int affectedRows = 0;
 		try {
-			//noinspection ConstantConditions // TODO requireContext()
-			affectedRows = getDBHelper(getContext()).getWritableDatabase().delete(ModuleDbHelper.T_MODULE, null, null);
+			affectedRows = getWriteDB().delete(ModuleDbHelper.T_MODULE, null, null);
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while deleting all module data!");
 		}
@@ -354,7 +364,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		int affectedRows = 0;
 		SQLiteDatabase db = null;
 		try {
-			db = provider.getDBHelper().getWritableDatabase();
+			db = provider.getWriteDB();
 			db.beginTransaction(); // start the transaction
 			if (defaultPOIs != null) {
 				for (DefaultPOI defaultPOI : defaultPOIs) {

@@ -4,6 +4,8 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.provider.MTSQLiteOpenHelper;
+import org.mtransit.commons.sql.SQLCreateBuilder;
+import org.mtransit.commons.sql.SQLInsertBuilder;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -33,7 +35,7 @@ public class FavoriteDbHelper extends MTSQLiteOpenHelper {
 	static final String T_FAVORITE_FOLDER_K_ID = BaseColumns._ID;
 	static final String T_FAVORITE_FOLDER_K_NAME = "name";
 
-	private static final String T_FAVORITE_SQL_CREATE = SqlUtils.SQLCreateBuilder.getNew(T_FAVORITE) //
+	private static final String T_FAVORITE_SQL_CREATE = SQLCreateBuilder.getNew(T_FAVORITE) //
 			.appendColumn(T_FAVORITE_K_ID, SqlUtils.INT_PK) //
 			.appendColumn(T_FAVORITE_K_TYPE, SqlUtils.INT) //
 			.appendColumn(T_FAVORITE_K_FK_ID, SqlUtils.TXT) //
@@ -45,12 +47,12 @@ public class FavoriteDbHelper extends MTSQLiteOpenHelper {
 	private static final String T_FAVORITE_SQL_UPGRADE_BEFORE_2 = "ALTER TABLE " + T_FAVORITE + " ADD " + T_FAVORITE_K_FOLDER_ID + " " + SqlUtils.INT
 			+ " NOT NULL DEFAULT(" + FavoriteManager.DEFAULT_FOLDER_ID + ")";
 
-	private static final String T_FAVORITE_FOLDER_SQL_CREATE = SqlUtils.SQLCreateBuilder.getNew(T_FAVORITE_FOLDER) //
+	private static final String T_FAVORITE_FOLDER_SQL_CREATE = SQLCreateBuilder.getNew(T_FAVORITE_FOLDER) //
 			.appendColumn(T_FAVORITE_FOLDER_K_ID, SqlUtils.INT_PK) //
 			.appendColumn(T_FAVORITE_FOLDER_K_NAME, SqlUtils.TXT) //
 			.build();
 	private static final String T_FAVORITE_FOLDER_SQL_INIT = String.format(
-			SqlUtils.SQLInsertBuilder.getNew(T_FAVORITE_FOLDER).appendColumns(T_FAVORITE_FOLDER_K_ID, T_FAVORITE_FOLDER_K_NAME).build(), //
+			SQLInsertBuilder.getNew(T_FAVORITE_FOLDER).appendColumns(T_FAVORITE_FOLDER_K_ID, T_FAVORITE_FOLDER_K_NAME).build(), //
 			FavoriteManager.DEFAULT_FOLDER_ID + "," + SqlUtils.escapeString(StringUtils.EMPTY));
 	private static final String T_FAVORITE_FOLDER_SQL_DROP = SqlUtils.getSQLDropIfExistsQuery(T_FAVORITE_FOLDER);
 
