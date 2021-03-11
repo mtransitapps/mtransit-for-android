@@ -416,8 +416,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_show_map:
+		if (item.getItemId() == R.id.menu_show_map) {
 			if (getActivity() != null) {
 				((MainActivity) getActivity()).addFragmentToStack(MapFragment.newInstance(null, null, null), this);
 			}

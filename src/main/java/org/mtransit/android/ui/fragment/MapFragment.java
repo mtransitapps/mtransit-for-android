@@ -472,8 +472,7 @@ public class MapFragment extends ABFragment implements
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_filter:
+		if (item.getItemId() == R.id.menu_filter) {
 			Set<Integer> filterTypeIds = getFilterTypeIdsOrNull();
 			if (filterTypeIds == null) {
 				return false;

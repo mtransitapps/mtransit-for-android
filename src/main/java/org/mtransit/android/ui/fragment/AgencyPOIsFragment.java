@@ -584,8 +584,7 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 		if (!this.fragmentVisible) {
 			return false; // not handled
 		}
-		switch (item.getItemId()) {
-		case R.id.menu_toggle_list_map:
+		if (item.getItemId() == R.id.menu_toggle_list_map) {
 			setShowingListInsteadOfMap(!isShowingListInsteadOfMap()); // switching
 			return true; // handled
 		}

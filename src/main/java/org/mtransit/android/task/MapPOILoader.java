@@ -1,17 +1,14 @@
 package org.mtransit.android.task;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 
-import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
@@ -24,10 +21,13 @@ import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.ui.view.MapViewController;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-
-import android.content.Context;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewController.POIMarker>> {
 
@@ -39,19 +39,26 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 		return LOG_TAG;
 	}
 
-	private Collection<Integer> filterTypeIds;
-	private LatLngBounds latLngBounds;
-	private LatLngBounds loadedLatLngBounds;
+	@Nullable
+	private final Collection<Integer> filterTypeIds;
+	@Nullable
+	private final LatLngBounds latLngBounds;
+	@Nullable
+	private final LatLngBounds loadedLatLngBounds;
 
 	private Collection<MapViewController.POIMarker> poiMarkers;
 
-	public MapPOILoader(Context context, Collection<Integer> filterTypeIds, LatLngBounds latLngBounds, LatLngBounds loadedLatLngBounds) {
+	public MapPOILoader(@NonNull Context context,
+						@Nullable Collection<Integer> filterTypeIds,
+						@Nullable LatLngBounds latLngBounds,
+						@Nullable LatLngBounds loadedLatLngBounds) {
 		super(context);
 		this.filterTypeIds = filterTypeIds;
 		this.latLngBounds = latLngBounds;
 		this.loadedLatLngBounds = loadedLatLngBounds;
 	}
 
+	@Nullable
 	@Override
 	public Collection<MapViewController.POIMarker> loadInBackgroundMT() {
 		if (this.poiMarkers != null) {
@@ -59,7 +66,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 		}
 		this.poiMarkers = new HashSet<>();
 		ArrayList<AgencyProperties> agencies = DataSourceProvider.get(getContext()).getAllAgencies(getContext());
-		if (CollectionUtils.getSize(agencies) == 0) {
+		if (agencies == null || agencies.isEmpty()) {
 			return this.poiMarkers;
 		}
 		if (this.latLngBounds == null) {
@@ -79,7 +86,9 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 			if (agency.isEntirelyInside(this.loadedLatLngBounds)) {
 				continue;
 			}
-			if (CollectionUtils.getSize(this.filterTypeIds) > 0 && !this.filterTypeIds.contains(type.getId())) {
+			if (this.filterTypeIds != null
+					&& !this.filterTypeIds.isEmpty()
+					&& !this.filterTypeIds.contains(type.getId())) {
 				continue;
 			}
 			FindAgencyPOIsTask task = new FindAgencyPOIsTask(getContext(), agency, this.latLngBounds, this.loadedLatLngBounds);
@@ -91,11 +100,13 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 				ArrayMap<LatLng, MapViewController.POIMarker> agencyPOIs = future.get();
 				if (agencyPOIs != null) {
 					for (ArrayMap.Entry<LatLng, MapViewController.POIMarker> agencyMarker : agencyPOIs.entrySet()) {
-						if (positionToPoiMarkers.containsKey(agencyMarker.getKey())) {
-							positionToPoiMarkers.get(agencyMarker.getKey()).merge(agencyMarker.getValue());
+						MapViewController.POIMarker poiMarker = positionToPoiMarkers.get(agencyMarker.getKey());
+						if (poiMarker == null) {
+							poiMarker = agencyMarker.getValue();
 						} else {
-							positionToPoiMarkers.put(agencyMarker.getKey(), agencyMarker.getValue());
+							poiMarker.merge(agencyMarker.getValue());
 						}
+						positionToPoiMarkers.put(agencyMarker.getKey(), poiMarker);
 					}
 				}
 			} catch (Exception e) {
@@ -125,7 +136,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 	}
 
 	@Override
-	public void deliverResult(Collection<MapViewController.POIMarker> data) {
+	public void deliverResult(@Nullable Collection<MapViewController.POIMarker> data) {
 		this.poiMarkers = data;
 		if (isStarted()) {
 			super.deliverResult(data);
@@ -142,10 +153,10 @@ public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewControll
 			return LOG_TAG;
 		}
 
-		private Context context;
-		private AgencyProperties agency;
-		private LatLngBounds latLngBounds;
-		private LatLngBounds loadedLatLngBounds;
+		private final Context context;
+		private final AgencyProperties agency;
+		private final LatLngBounds latLngBounds;
+		private final LatLngBounds loadedLatLngBounds;
 
 		FindAgencyPOIsTask(Context context, AgencyProperties agency, LatLngBounds latLngBounds, LatLngBounds loadedLatLngBounds) {
 			this.context = context;

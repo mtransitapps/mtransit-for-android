@@ -1,22 +1,5 @@
 package org.mtransit.android.provider;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.RuntimeUtils;
-import org.mtransit.android.commons.SqlUtils;
-import org.mtransit.android.commons.provider.ContentProviderConstants;
-import org.mtransit.android.commons.provider.MTSearchRecentSuggestionsProvider;
-import org.mtransit.android.commons.task.MTCallable;
-import org.mtransit.android.data.AgencyProperties;
-import org.mtransit.android.data.DataSourceManager;
-import org.mtransit.android.data.DataSourceProvider;
-
 import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
@@ -27,14 +10,36 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.RuntimeUtils;
+import org.mtransit.android.commons.SqlUtils;
+import org.mtransit.android.commons.provider.ContentProviderConstants;
+import org.mtransit.android.commons.provider.MTSearchRecentSuggestionsProvider;
+import org.mtransit.android.commons.task.MTCallable;
+import org.mtransit.android.data.AgencyProperties;
+import org.mtransit.android.data.DataSourceManager;
+import org.mtransit.android.data.DataSourceProvider;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 @SuppressLint("Registered")
 public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 
-	private static final String TAG = SearchSuggestProvider.class.getSimpleName();
+	private static final String LOG_TAG = SearchSuggestProvider.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	public final static String AUTHORITY = "org.mtransit.android.provider.search.suggest";
@@ -42,15 +47,16 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 
 	private static final UriMatcher URI_MATCHER = getNewUriMatcher(AUTHORITY);
 
-	public static UriMatcher getNewUriMatcher(String authority) {
+	@NonNull
+	public static UriMatcher getNewUriMatcher(@NonNull String authority) {
 		UriMatcher URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 		URI_MATCHER.addURI(authority, SearchManager.SUGGEST_URI_PATH_QUERY, ContentProviderConstants.SEARCH_SUGGEST_EMPTY);
 		URI_MATCHER.addURI(authority, SearchManager.SUGGEST_URI_PATH_QUERY + "/*", ContentProviderConstants.SEARCH_SUGGEST_QUERY);
 		return URI_MATCHER;
 	}
 
-	private static final String[] SEARCH_SUGGEST_COLUMNS = new String[] { BaseColumns._ID, SearchManager.SUGGEST_COLUMN_ICON_1,
-			SearchManager.SUGGEST_COLUMN_TEXT_1, SearchManager.SUGGEST_COLUMN_QUERY, };
+	private static final String[] SEARCH_SUGGEST_COLUMNS = new String[]{BaseColumns._ID, SearchManager.SUGGEST_COLUMN_ICON_1,
+			SearchManager.SUGGEST_COLUMN_TEXT_1, SearchManager.SUGGEST_COLUMN_QUERY,};
 
 	private static final String SEARCH_SUGGEST_ICON = "android.resource://system/" + android.R.drawable.ic_menu_search;
 	private static final String RECENT_SEARCH_SUGGEST_ICON = "android.resource://system/" + android.R.drawable.ic_menu_recent_history;
@@ -59,8 +65,9 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 		setupSuggestions(AUTHORITY, MODE);
 	}
 
+	@Nullable
 	@Override
-	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+	public Cursor query(@NotNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
 		Cursor cursor = null;
 		String query;
 		try {
@@ -111,16 +118,14 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 		}
 		MatrixCursor cursor = new MatrixCursor(SEARCH_SUGGEST_COLUMNS);
 		int autoIncId = 0;
-		if (recentSearchSuggestions != null) {
-			for (String suggestion : recentSearchSuggestions) {
-				cursor.addRow(new Object[] { autoIncId++, RECENT_SEARCH_SUGGEST_ICON, suggestion, suggestion });
-			}
+		for (String suggestion : recentSearchSuggestions) {
+			cursor.addRow(new Object[]{autoIncId++, RECENT_SEARCH_SUGGEST_ICON, suggestion, suggestion});
 		}
 		for (String suggestion : suggestions) {
-			if (recentSearchSuggestions != null && recentSearchSuggestions.contains(suggestion)) {
+			if (recentSearchSuggestions.contains(suggestion)) {
 				continue; // skip
 			}
-			cursor.addRow(new Object[] { autoIncId++, SEARCH_SUGGEST_ICON, suggestion, suggestion });
+			cursor.addRow(new Object[]{autoIncId++, SEARCH_SUGGEST_ICON, suggestion, suggestion});
 		}
 		return cursor;
 	}
@@ -129,8 +134,10 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 
 	private static final int MAX_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES;
 
+	@Nullable
 	private ThreadPoolExecutor fetchSuggestExecutor;
 
+	@NonNull
 	public ThreadPoolExecutor getFetchSuggestExecutor() {
 		if (this.fetchSuggestExecutor == null) {
 			this.fetchSuggestExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS,
@@ -148,18 +155,19 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 
 	private static class FindSearchSuggestTask extends MTCallable<HashSet<String>> {
 
-		private static final String TAG = SearchSuggestProvider.class.getSimpleName() + ">" + FindSearchSuggestTask.class.getSimpleName();
+		private static final String LOG_TAG = SearchSuggestProvider.class.getSimpleName() + ">" + FindSearchSuggestTask.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
-		private Context context;
-		private AgencyProperties agency;
-		private String query;
+		private final Context context;
+		private final AgencyProperties agency;
+		private final String query;
 
-		public FindSearchSuggestTask(Context context, AgencyProperties agency, String query) {
+		FindSearchSuggestTask(Context context, AgencyProperties agency, String query) {
 			this.context = context;
 			this.agency = agency;
 			this.query = query;

@@ -1,12 +1,8 @@
 package org.mtransit.android.task;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import android.content.Context;
+import android.location.Location;
+import android.text.TextUtils;
 
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ComparatorUtils;
@@ -24,9 +20,13 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.ui.fragment.SearchFragment;
 
-import android.content.Context;
-import android.location.Location;
-import android.text.TextUtils;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
 
@@ -39,11 +39,11 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 
 	private ArrayList<POIManager> pois;
 
-	private String query;
+	private final String query;
 
-	private SearchFragment.TypeFilter typeFilter;
+	private final SearchFragment.TypeFilter typeFilter;
 
-	private Location userLocation;
+	private final Location userLocation;
 
 	public POISearchLoader(Context context, String query, SearchFragment.TypeFilter typeFilter, Location userLocation) {
 		super(context);
@@ -75,14 +75,12 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			keepAll = true;
 		}
 		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<>();
-		if (agencyTypes != null) {
-			for (DataSourceType agencyType : agencyTypes) {
-				if (!agencyType.isSearchable()) {
-					continue;
-				}
-				taskList.add(getFetchSearchTypeExecutor().submit(
-						new FindSearchTypeTask(getContext(), agencyType, this.query, keepAll, this.userLocation, poiSearchComparator)));
+		for (DataSourceType agencyType : agencyTypes) {
+			if (!agencyType.isSearchable()) {
+				continue;
 			}
+			taskList.add(getFetchSearchTypeExecutor().submit(
+					new FindSearchTypeTask(getContext(), agencyType, this.query, keepAll, this.userLocation, poiSearchComparator)));
 		}
 		for (Future<ArrayList<POIManager>> future : taskList) {
 			try {
@@ -153,12 +151,12 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			return TAG;
 		}
 
-		private Context context;
-		private DataSourceType agencyType;
-		private String query;
-		private boolean keepAll;
-		private Location userLocation;
-		private POISearchComparator poiSearchComparator;
+		private final Context context;
+		private final DataSourceType agencyType;
+		private final String query;
+		private final boolean keepAll;
+		private final Location userLocation;
+		private final POISearchComparator poiSearchComparator;
 
 		public FindSearchTypeTask(Context context, DataSourceType agencyType, String query, boolean keepAll, Location userLocation,
 								  POISearchComparator poiSearchComparator) {
@@ -228,7 +226,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 
 	private static class POISearchComparator implements Comparator<POIManager> {
 
-		private HashSet<String> favoriteUUIDs;
+		private final HashSet<String> favoriteUUIDs;
 
 		public POISearchComparator(HashSet<String> favoriteUUIDs) {
 			this.favoriteUUIDs = favoriteUUIDs;
@@ -278,10 +276,10 @@ public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 			return TAG;
 		}
 
-		private Context context;
-		private AgencyProperties agency;
-		private String query;
-		private Location userLocation;
+		private final Context context;
+		private final AgencyProperties agency;
+		private final String query;
+		private final Location userLocation;
 
 		public FindSearchTask(Context context, AgencyProperties agency, String query, Location userLocation) {
 			this.context = context;

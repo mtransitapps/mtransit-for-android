@@ -763,8 +763,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_toggle_list_map:
+		if (item.getItemId() == R.id.menu_toggle_list_map) {
 			setShowingListInsteadOfMap(!isShowingListInsteadOfMap()); // switching
 			return true; // handled
 		}

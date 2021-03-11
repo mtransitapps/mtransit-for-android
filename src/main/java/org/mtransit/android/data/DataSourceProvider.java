@@ -270,55 +270,53 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	@NonNull
-	private HashSet<String> allAgenciesAuthority = new HashSet<>();
+	private final HashSet<String> allAgenciesAuthority = new HashSet<>();
 
 	@NonNull
-	private ArrayMap<String, Integer> agenciesAuthorityTypeId = new ArrayMap<>();
+	private final ArrayMap<String, Integer> agenciesAuthorityTypeId = new ArrayMap<>();
 
 	@NonNull
-	private ArrayMap<String, String> agenciesAuthorityPkg = new ArrayMap<>();
+	private final ArrayMap<String, String> agenciesAuthorityPkg = new ArrayMap<>();
 
 	@NonNull
-	private ArrayMap<String, Boolean> agenciesAuthorityIsRts = new ArrayMap<>();
+	private final ArrayMap<String, Boolean> agenciesAuthorityIsRts = new ArrayMap<>();
 
-	private ArrayList<DataSourceType> allAgencyTypes = new ArrayList<>();
+	private final ArrayList<DataSourceType> allAgencyTypes = new ArrayList<>();
 
 	@Nullable
 	private ArrayList<AgencyProperties> allAgencies = null;
 
-	private ArrayList<StatusProviderProperties> allStatusProviders = new ArrayList<>();
+	private final ArrayList<StatusProviderProperties> allStatusProviders = new ArrayList<>();
 
-	private ArrayList<ScheduleProviderProperties> allScheduleProviders = new ArrayList<>();
+	private final ArrayList<ScheduleProviderProperties> allScheduleProviders = new ArrayList<>();
 
-	private ArrayList<ServiceUpdateProviderProperties> allServiceUpdateProviders = new ArrayList<>();
+	private final ArrayList<ServiceUpdateProviderProperties> allServiceUpdateProviders = new ArrayList<>();
 
-	private ArrayList<NewsProviderProperties> allNewsProviders = new ArrayList<>();
+	private final ArrayList<NewsProviderProperties> allNewsProviders = new ArrayList<>();
 
 	@Nullable
 	private ArrayMap<String, AgencyProperties> allAgenciesByAuthority = null;
 
-	private ArrayMap<String, StatusProviderProperties> allStatusProvidersByAuthority = new ArrayMap<>();
+	private final ArrayMap<String, StatusProviderProperties> allStatusProvidersByAuthority = new ArrayMap<>();
 
-	private ArrayMap<String, ScheduleProviderProperties> allScheduleProvidersByAuthority = new ArrayMap<>();
+	private final ArrayMap<String, ScheduleProviderProperties> allScheduleProvidersByAuthority = new ArrayMap<>();
 
-	private ArrayMap<String, ServiceUpdateProviderProperties> allServiceUpdateProvidersByAuthority = new ArrayMap<>();
+	private final ArrayMap<String, ServiceUpdateProviderProperties> allServiceUpdateProvidersByAuthority = new ArrayMap<>();
 
-	private ArrayMap<String, NewsProviderProperties> allNewsProvidersByAuthority = new ArrayMap<>();
+	private final ArrayMap<String, NewsProviderProperties> allNewsProvidersByAuthority = new ArrayMap<>();
 
 	@Nullable
 	private SparseArray<ArrayList<AgencyProperties>> allAgenciesByTypeId = null;
 
-	private ArrayMap<String, HashSet<StatusProviderProperties>> statusProvidersByTargetAuthority = new ArrayMap<>();
+	private final ArrayMap<String, HashSet<StatusProviderProperties>> statusProvidersByTargetAuthority = new ArrayMap<>();
 
-	private ArrayMap<String, HashSet<ScheduleProviderProperties>> scheduleProvidersByTargetAuthority =
-			new ArrayMap<>();
+	private final ArrayMap<String, HashSet<ScheduleProviderProperties>> scheduleProvidersByTargetAuthority = new ArrayMap<>();
 
-	private ArrayMap<String, HashSet<ServiceUpdateProviderProperties>> serviceUpdateProvidersByTargetAuthority =
-			new ArrayMap<>();
+	private final ArrayMap<String, HashSet<ServiceUpdateProviderProperties>> serviceUpdateProvidersByTargetAuthority = new ArrayMap<>();
 
-	private ArrayMap<String, HashSet<NewsProviderProperties>> newsProvidersByTargetAuthority = new ArrayMap<>();
+	private final ArrayMap<String, HashSet<NewsProviderProperties>> newsProvidersByTargetAuthority = new ArrayMap<>();
 
-	private ArrayMap<String, Integer> allAgenciesColorInts = new ArrayMap<>();
+	private final ArrayMap<String, Integer> allAgenciesColorInts = new ArrayMap<>();
 
 	@NonNull
 	private final IApplication application;
@@ -394,9 +392,9 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 						MTLog.w(this, "Invalid type ID '%s', skipping agency provider '%s'!.", typeId, authority);
 					}
 				}
-				CollectionUtils.sort(allAgencies, AgencyProperties.SHORT_NAME_COMPARATOR);
+				CollectionUtils.sort(allAgencies, AgencyProperties.getSHORT_NAME_COMPARATOR());
 				for (int i = 0; i < allAgenciesByTypeId.size(); i++) {
-					CollectionUtils.sort(allAgenciesByTypeId.get(allAgenciesByTypeId.keyAt(i)), AgencyProperties.SHORT_NAME_COMPARATOR);
+					CollectionUtils.sort(allAgenciesByTypeId.get(allAgenciesByTypeId.keyAt(i)), AgencyProperties.getSHORT_NAME_COMPARATOR());
 				}
 				this.allAgencies = allAgencies;
 				this.allAgenciesByAuthority = allAgenciesByAuthority;
@@ -658,7 +656,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	@NonNull
-	private static WeakHashMap<ModulesUpdateListener, Object> modulesUpdateListeners = new WeakHashMap<>();
+	private static final WeakHashMap<ModulesUpdateListener, Object> modulesUpdateListeners = new WeakHashMap<>();
 
 	public static void addModulesUpdateListener(@NonNull ModulesUpdateListener listener) {
 		try {

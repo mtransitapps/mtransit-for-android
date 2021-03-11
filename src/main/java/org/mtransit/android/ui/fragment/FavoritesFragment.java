@@ -153,8 +153,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_add_favorite_folder:
+		if (item.getItemId() == R.id.menu_add_favorite_folder) {
 			FavoriteManager.showAddFolderDialog(requireActivity(), this, null, null);
 			return true;
 		}

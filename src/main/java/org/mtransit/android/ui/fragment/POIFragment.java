@@ -615,7 +615,7 @@ public class POIFragment extends ABFragment implements
 	}
 
 	private static final int NEARBY_POIS_LOADER = 0;
-	private LocationUtils.AroundDiff ad = LocationUtils.getNewDefaultAroundDiff();
+	private final LocationUtils.AroundDiff ad = LocationUtils.getNewDefaultAroundDiff();
 
 	@NonNull
 	@Override
@@ -999,9 +999,9 @@ public class POIFragment extends ABFragment implements
 	public void onAccuracyChanged(@NonNull Sensor sensor, int accuracy) {
 	}
 
-	private float[] accelerometerValues = new float[3];
+	private final float[] accelerometerValues = new float[3];
 
-	private float[] magneticFieldValues = new float[3];
+	private final float[] magneticFieldValues = new float[3];
 
 	@Override
 	public void onSensorChanged(@NonNull SensorEvent se) {
@@ -1357,20 +1357,18 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_add_remove_favorite:
+		final int itemId = item.getItemId();
+		if (itemId == R.id.menu_add_remove_favorite) {
 			POIManager poim = getPoimOrNull();
 			if (poim != null && poim.isFavoritable()) {
 				return FavoriteManager.get(requireActivity()).addRemoveFavorite(requireActivity(), poim.poi.getUUID(), this);
 			}
-			break;
-		case R.id.menu_show_directions:
+		} else if (itemId == R.id.menu_show_directions) {
 			POIManager poim2 = getPoimOrNull();
 			if (poim2 != null) {
 				MapUtils.showDirection(requireActivity(), poim2.poi.getLat(), poim2.poi.getLng(), null, null, poim2.poi.getName());
 				return true; // handled
 			}
-			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}

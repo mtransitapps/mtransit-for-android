@@ -508,8 +508,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeF
 		if (!this.fragmentVisible) {
 			return false; // not handled
 		}
-		switch (item.getItemId()) {
-		case R.id.menu_toggle_list_grid:
+		if (item.getItemId() == R.id.menu_toggle_list_grid) {
 			setShowingListInsteadOfGrid(!isShowingListInsteadOfGrid()); // switching
 			return true; // handled
 		}

@@ -142,18 +142,18 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private WeakReference<MapMarkerProvider> markerProviderWR;
 	private WeakReference<MapListener> mapListenerWR;
-	private boolean mapToolbarEnabled;
-	private boolean myLocationEnabled;
-	private boolean myLocationButtonEnabled;
-	private boolean indoorLevelPickerEnabled;
-	private boolean trafficEnabled;
-	private boolean indoorEnabled;
-	private int paddingTopSp;
-	private boolean followingUser;
-	private boolean hasButtons;
-	private boolean clusteringEnabled;
-	private boolean showAllMarkersWhenReady;
-	private boolean markerLabelShowExtra;
+	private final boolean mapToolbarEnabled;
+	private final boolean myLocationEnabled;
+	private final boolean myLocationButtonEnabled;
+	private final boolean indoorLevelPickerEnabled;
+	private final boolean trafficEnabled;
+	private final boolean indoorEnabled;
+	private final int paddingTopSp;
+	private final boolean followingUser;
+	private final boolean hasButtons;
+	private final boolean clusteringEnabled;
+	private final boolean showAllMarkersWhenReady;
+	private final boolean markerLabelShowExtra;
 
 	private CameraPosition lastCameraPosition;
 
@@ -855,9 +855,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 
 		private LatLng position;
-		private ArrayList<String> names = new ArrayList<>();
-		private ArrayList<String> agencies = new ArrayList<>();
-		private ArrayList<String> extras = new ArrayList<>();
+		private final ArrayList<String> names = new ArrayList<>();
+		private final ArrayList<String> agencies = new ArrayList<>();
+		private final ArrayList<String> extras = new ArrayList<>();
 		@ColorInt
 		private Integer color;
 		@ColorInt
@@ -1067,7 +1067,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return this.uuidsAndAuthority.containsKey(uuid);
 		}
 
-		private ArrayMap<String, String> uuidsAndAuthority = new ArrayMap<>();
+		private final ArrayMap<String, String> uuidsAndAuthority = new ArrayMap<>();
 
 		public void put(String uuid, String authority) {
 			try {

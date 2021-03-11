@@ -116,8 +116,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_nearby:
+		if (item.getItemId() == R.id.menu_nearby) {
 			if (getActivity() != null) {
 				((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newNearbyInstance(null, this.typeId), this);
 			}

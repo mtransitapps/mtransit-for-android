@@ -68,27 +68,27 @@ public enum DataSourceType {
 
 	public static final int MAX_ID = 1000;
 
-	private int id;
+	private final int id;
 
 	@StringRes
-	private int shortNameResId;
+	private final int shortNameResId;
 	@StringRes
-	private int allStringResId;
+	private final int allStringResId;
 	@StringRes
-	private int poiShortNameResId;
+	private final int poiShortNameResId;
 	@StringRes
-	private int nearbyNameResId;
+	private final int nearbyNameResId;
 
 	@DrawableRes
-	private int iconResId;
+	private final int iconResId;
 
-	private int navResId;
+	private final int navResId;
 
-	private boolean menuList;
-	private boolean homeScreen;
-	private boolean nearbyScreen;
-	private boolean mapScreen;
-	private boolean searchable;
+	private final boolean menuList;
+	private final boolean homeScreen;
+	private final boolean nearbyScreen;
+	private final boolean mapScreen;
+	private final boolean searchable;
 
 	DataSourceType(int id,
 			@StringRes int shortNameResId, @StringRes int allStringResId, @StringRes int poiShortNameResId, @StringRes int nearbyNameResId,
@@ -198,25 +198,23 @@ public enum DataSourceType {
 			MTLog.w(TAG, "Nav res ID 'null' doesn't match any type!");
 			return null;
 		}
-		switch (navResId) {
-		case R.id.nav_light_rail:
+		if (navResId == R.id.nav_light_rail) {
 			return TYPE_LIGHT_RAIL;
-		case R.id.nav_subway:
+		} else if (navResId == R.id.nav_subway) {
 			return TYPE_SUBWAY;
-		case R.id.nav_rail:
+		} else if (navResId == R.id.nav_rail) {
 			return TYPE_RAIL;
-		case R.id.nav_bus:
+		} else if (navResId == R.id.nav_bus) {
 			return TYPE_BUS;
-		case R.id.nav_ferry:
+		} else if (navResId == R.id.nav_ferry) {
 			return TYPE_FERRY;
-		case R.id.nav_bike:
+		} else if (navResId == R.id.nav_bike) {
 			return TYPE_BIKE;
-		case R.id.nav_module:
+		} else if (navResId == R.id.nav_module) {
 			return TYPE_MODULE;
-		default:
-			MTLog.w(TAG, "Nav res ID '5s' doesn't match any type!", navResId);
-			return null;
 		}
+		MTLog.w(TAG, "Nav res ID '5s' doesn't match any type!", navResId);
+		return null;
 	}
 
 	public static class DataSourceTypeComparator implements Comparator<DataSourceType> {
@@ -229,7 +227,7 @@ public enum DataSourceType {
 
 	public static class DataSourceTypeShortNameComparator implements Comparator<DataSourceType> {
 
-		private WeakReference<Context> contextWR;
+		private final WeakReference<Context> contextWR;
 
 		public DataSourceTypeShortNameComparator(Context context) {
 			this.contextWR = new WeakReference<>(context);
@@ -261,7 +259,7 @@ public enum DataSourceType {
 
 	public static class POIManagerTypeShortNameComparator implements Comparator<POIManager> {
 
-		private WeakReference<Context> contextWR;
+		private final WeakReference<Context> contextWR;
 
 		public POIManagerTypeShortNameComparator(Context context) {
 			this.contextWR = new WeakReference<>(context);

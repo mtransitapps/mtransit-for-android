@@ -232,7 +232,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 					String shortName = cursor.getString(cursor.getColumnIndexOrThrow(AgencyProviderContract.SHORT_NAME_PATH));
 					String longName = cursor.getString(cursor.getColumnIndexOrThrow(AgencyProviderContract.LABEL_PATH));
 					String color = cursor.getString(cursor.getColumnIndexOrThrow(AgencyProviderContract.COLOR_PATH));
-					Area area = Area.fromCursor(cursor);
+					Area area = Area.fromCursorNN(cursor);
 					result = new AgencyProperties(authority, dst, shortName, longName, color, area, isRTS);
 				}
 			}

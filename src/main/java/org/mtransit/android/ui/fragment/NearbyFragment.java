@@ -820,14 +820,13 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_show_directions:
+		int itemId = item.getItemId();
+		if (itemId == R.id.menu_show_directions) {
 			if (this.fixedOnLat != null && this.fixedOnLng != null) {
 				MapUtils.showDirection(requireActivity(), this.fixedOnLat, this.fixedOnLng, null, null, this.fixedOnName);
 				return true; // handled
 			}
-			break;
-		case R.id.menu_show_map:
+		} else if (itemId == R.id.menu_show_map) {
 			Location fixedOnLocation = null;
 			if (this.fixedOnLat != null && this.fixedOnLng != null) {
 				fixedOnLocation = LocationUtils.getNewLocation(this.fixedOnLat, this.fixedOnLng);
