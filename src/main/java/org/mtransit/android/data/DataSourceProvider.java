@@ -225,40 +225,46 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		PackageManager pm = context.getPackageManager();
 		for (PackageInfo packageInfo : pm.getInstalledPackages(PackageManager.GET_PROVIDERS | PackageManager.GET_META_DATA)) {
 			ProviderInfo[] providers = packageInfo.providers;
-			if (providers != null) {
-				for (ProviderInfo provider : providers) {
-					if (provider != null && provider.metaData != null) {
-						if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
-							if (!current.hasAgency(provider.authority)) {
-								return true;
-							}
-							nbAgencyProviders++;
-						}
-						if (statusProviderMetaData.equals(provider.metaData.getString(statusProviderMetaData))) {
-							if (current.getStatusProvider(provider.authority) == null) {
-								return true;
-							}
-							nbStatusProviders++;
-						}
-						if (scheduleProviderMetaData.equals(provider.metaData.getString(scheduleProviderMetaData))) {
-							if (current.getScheduleProvider(provider.authority) == null) {
-								return true;
-							}
-							nbScheduleProviders++;
-						}
-						if (serviceUpdateProviderMetaData.equals(provider.metaData.getString(serviceUpdateProviderMetaData))) {
-							if (current.getServiceUpdateProvider(provider.authority) == null) {
-								return true;
-							}
-							nbServiceUpdateProviders++;
-						}
-						if (newsProviderMetaData.equals(provider.metaData.getString(newsProviderMetaData))) {
-							if (current.getNewsProvider(provider.authority) == null) {
-								return true;
-							}
-							nbNewsProviders++;
-						}
+			if (providers == null) {
+				continue;
+			}
+			for (ProviderInfo provider : providers) {
+				if (provider == null) {
+					continue;
+				}
+				final Bundle providerMetaData = provider.metaData;
+				if (providerMetaData == null) {
+					continue;
+				}
+				if (agencyProviderMetaData.equals(providerMetaData.getString(agencyProviderMetaData))) {
+					if (!current.hasAgency(provider.authority)) {
+						return true;
 					}
+					nbAgencyProviders++;
+				}
+				if (statusProviderMetaData.equals(providerMetaData.getString(statusProviderMetaData))) {
+					if (current.getStatusProvider(provider.authority) == null) {
+						return true;
+					}
+					nbStatusProviders++;
+				}
+				if (scheduleProviderMetaData.equals(providerMetaData.getString(scheduleProviderMetaData))) {
+					if (current.getScheduleProvider(provider.authority) == null) {
+						return true;
+					}
+					nbScheduleProviders++;
+				}
+				if (serviceUpdateProviderMetaData.equals(providerMetaData.getString(serviceUpdateProviderMetaData))) {
+					if (current.getServiceUpdateProvider(provider.authority) == null) {
+						return true;
+					}
+					nbServiceUpdateProviders++;
+				}
+				if (newsProviderMetaData.equals(providerMetaData.getString(newsProviderMetaData))) {
+					if (current.getNewsProvider(provider.authority) == null) {
+						return true;
+					}
+					nbNewsProviders++;
 				}
 			}
 		}
@@ -613,21 +619,21 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 						this.allAgenciesAuthority.add(providerAuthority);
 					}
 					if (statusProviderMetaData.equals(providerMetaData.getString(statusProviderMetaData))) {
-						String targetAuthority = providerMetaData.getString(statusProviderTargetMetaData);
-						StatusProviderProperties newStatusProvider = new StatusProviderProperties(providerAuthority, targetAuthority);
+						String targetAuthority = providerMetaData.getString(statusProviderTargetMetaData); // POI target authority OR empty
+						StatusProviderProperties newStatusProvider = new StatusProviderProperties(providerAuthority, targetAuthority, providerPkg);
 						this.allStatusProviders.add(newStatusProvider);
 						this.allStatusProvidersByAuthority.put(newStatusProvider.getAuthority(), newStatusProvider);
-						String newScheduleProviderTargetAuthority = newStatusProvider.getTargetAuthority();
-						HashSet<StatusProviderProperties> statusProviderProperties = this.statusProvidersByTargetAuthority.get(newScheduleProviderTargetAuthority);
+						String newStatusProviderTargetAuthority = newStatusProvider.getTargetAuthority();
+						HashSet<StatusProviderProperties> statusProviderProperties = this.statusProvidersByTargetAuthority.get(newStatusProviderTargetAuthority);
 						if (statusProviderProperties == null) {
 							statusProviderProperties = new HashSet<>();
 						}
 						statusProviderProperties.add(newStatusProvider);
-						this.statusProvidersByTargetAuthority.put(newScheduleProviderTargetAuthority, statusProviderProperties);
+						this.statusProvidersByTargetAuthority.put(newStatusProviderTargetAuthority, statusProviderProperties);
 					}
 					if (scheduleProviderMetaData.equals(providerMetaData.getString(scheduleProviderMetaData))) {
-						String targetAuthority = providerMetaData.getString(scheduleProviderTargetMetaData);
-						ScheduleProviderProperties newScheduleProvider = new ScheduleProviderProperties(providerAuthority, targetAuthority);
+						String targetAuthority = providerMetaData.getString(scheduleProviderTargetMetaData); // POI target authority OR empty
+						ScheduleProviderProperties newScheduleProvider = new ScheduleProviderProperties(providerAuthority, targetAuthority, providerPkg);
 						this.allScheduleProviders.add(newScheduleProvider);
 						this.allScheduleProvidersByAuthority.put(newScheduleProvider.getAuthority(), newScheduleProvider);
 						String newScheduleProviderTargetAuthority = newScheduleProvider.getTargetAuthority();
@@ -639,9 +645,9 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 						this.scheduleProvidersByTargetAuthority.put(newScheduleProviderTargetAuthority, scheduleProviderProperties);
 					}
 					if (serviceUpdateProviderMetaData.equals(providerMetaData.getString(serviceUpdateProviderMetaData))) {
-						String targetAuthority = providerMetaData.getString(serviceUpdateProviderTargetMetaData);
+						String targetAuthority = providerMetaData.getString(serviceUpdateProviderTargetMetaData); // POI target authority OR empty
 						ServiceUpdateProviderProperties newServiceUpdateProvider =
-								new ServiceUpdateProviderProperties(providerAuthority, targetAuthority);
+								new ServiceUpdateProviderProperties(providerAuthority, targetAuthority, providerPkg);
 						this.allServiceUpdateProviders.add(newServiceUpdateProvider);
 						this.allServiceUpdateProvidersByAuthority.put(newServiceUpdateProvider.getAuthority(), newServiceUpdateProvider);
 						String newServiceUpdateProviderTargetAuthority = newServiceUpdateProvider.getTargetAuthority();
@@ -653,8 +659,8 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 						this.serviceUpdateProvidersByTargetAuthority.put(newServiceUpdateProviderTargetAuthority, serviceUpdateProviderProperties);
 					}
 					if (newsProviderMetaData.equals(providerMetaData.getString(newsProviderMetaData))) {
-						String targetAuthority = providerMetaData.getString(newsProviderTargetMetaData);
-						NewsProviderProperties newNewsProvider = new NewsProviderProperties(providerAuthority, targetAuthority);
+						String targetAuthority = providerMetaData.getString(newsProviderTargetMetaData); // POI target authority OR empty
+						NewsProviderProperties newNewsProvider = new NewsProviderProperties(providerAuthority, targetAuthority, providerPkg);
 						this.allNewsProviders.add(newNewsProvider);
 						this.allNewsProvidersByAuthority.put(newNewsProvider.getAuthority(), newNewsProvider);
 						String newNewsProviderTargetAuthority = newNewsProvider.getTargetAuthority();

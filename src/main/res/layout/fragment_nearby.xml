@@ -15,7 +15,7 @@
         android:theme="@style/MTThemeOverlay"
         android:visibility="gone"
         app:tabContentStart="@dimen/tab_content_start"
-        app:tabGravity="fill"
+        app:tabGravity="start"
         app:tabIndicatorColor="?attr/colorOnPrimary"
         app:tabMinWidth="0dp"
         app:tabMode="scrollable"

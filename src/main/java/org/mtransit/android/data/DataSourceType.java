@@ -1,16 +1,18 @@
 package org.mtransit.android.data;
 
-import androidx.annotation.DrawableRes;
-import androidx.annotation.StringRes;
+import android.content.Context;
 
-import java.lang.ref.WeakReference;
-import java.util.Comparator;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.MTLog;
 
-import android.content.Context;
+import java.lang.ref.WeakReference;
+import java.util.Comparator;
 
 public enum DataSourceType {
 
@@ -91,10 +93,10 @@ public enum DataSourceType {
 	private final boolean searchable;
 
 	DataSourceType(int id,
-			@StringRes int shortNameResId, @StringRes int allStringResId, @StringRes int poiShortNameResId, @StringRes int nearbyNameResId,
-			@DrawableRes int iconResId,
-			int navResId,
-			boolean menuList, boolean homeScreen, boolean nearbyScreen, boolean mapScreen, boolean searchable) {
+				   @StringRes int shortNameResId, @StringRes int allStringResId, @StringRes int poiShortNameResId, @StringRes int nearbyNameResId,
+				   @DrawableRes int iconResId,
+				   int navResId,
+				   boolean menuList, boolean homeScreen, boolean nearbyScreen, boolean mapScreen, boolean searchable) {
 		if (id >= MAX_ID) {
 			throw new UnsupportedOperationException(String.format("Data source type ID '%s' must be lower than '%s'!", id, MAX_ID));
 		}
@@ -145,6 +147,7 @@ public enum DataSourceType {
 		return navResId;
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean isMenuList() {
 		return this.menuList;
 	}
@@ -157,6 +160,7 @@ public enum DataSourceType {
 		return this.nearbyScreen;
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean isMapScreen() {
 		return this.mapScreen;
 	}
@@ -165,7 +169,8 @@ public enum DataSourceType {
 		return searchable;
 	}
 
-	public static DataSourceType parseId(Integer id) {
+	@Nullable
+	public static DataSourceType parseId(@Nullable Integer id) {
 		if (id == null) {
 			MTLog.w(TAG, "ID 'null' doesn't match any type!");
 			return null;
@@ -193,7 +198,8 @@ public enum DataSourceType {
 		}
 	}
 
-	public static DataSourceType parseNavResId(Integer navResId) {
+	@Nullable
+	public static DataSourceType parseNavResId(@Nullable Integer navResId) {
 		if (navResId == null) {
 			MTLog.w(TAG, "Nav res ID 'null' doesn't match any type!");
 			return null;
@@ -217,25 +223,27 @@ public enum DataSourceType {
 		return null;
 	}
 
+	@SuppressWarnings("unused")
 	public static class DataSourceTypeComparator implements Comparator<DataSourceType> {
 
 		@Override
-		public int compare(DataSourceType lType, DataSourceType rType) {
+		public int compare(@NonNull DataSourceType lType, @NonNull DataSourceType rType) {
 			return lType.id - rType.id;
 		}
 	}
 
 	public static class DataSourceTypeShortNameComparator implements Comparator<DataSourceType> {
 
+		@NonNull
 		private final WeakReference<Context> contextWR;
 
-		public DataSourceTypeShortNameComparator(Context context) {
+		DataSourceTypeShortNameComparator(@NonNull Context context) {
 			this.contextWR = new WeakReference<>(context);
 		}
 
 		@Override
-		public int compare(DataSourceType lType, DataSourceType rType) {
-			Context context = this.contextWR == null ? null : this.contextWR.get();
+		public int compare(@NonNull DataSourceType lType, @NonNull DataSourceType rType) {
+			Context context = this.contextWR.get();
 			if (context == null) {
 				return ComparatorUtils.SAME;
 			}
@@ -259,15 +267,16 @@ public enum DataSourceType {
 
 	public static class POIManagerTypeShortNameComparator implements Comparator<POIManager> {
 
+		@NonNull
 		private final WeakReference<Context> contextWR;
 
-		public POIManagerTypeShortNameComparator(Context context) {
+		public POIManagerTypeShortNameComparator(@NonNull Context context) {
 			this.contextWR = new WeakReference<>(context);
 		}
 
 		@Override
-		public int compare(POIManager lPoim, POIManager rPoim) {
-			Context context = this.contextWR == null ? null : this.contextWR.get();
+		public int compare(@NonNull POIManager lPoim, @NonNull POIManager rPoim) {
+			Context context = this.contextWR.get();
 			if (context == null) {
 				return 0;
 			}

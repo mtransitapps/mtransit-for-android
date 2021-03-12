@@ -31,7 +31,7 @@ abstract class DataSourcesDatabase : RoomDatabase() {
 
     abstract fun scheduleProviderPropertiesDao(): ScheduleProviderPropertiesDao
 
-    abstract fun serviceUpdatePropertiesDao(): ServiceUpdateProviderPropertiesDao
+    abstract fun serviceUpdateProviderPropertiesDao(): ServiceUpdateProviderPropertiesDao
 
     abstract fun newsProviderPropertiesDao(): NewsProviderPropertiesDao
 

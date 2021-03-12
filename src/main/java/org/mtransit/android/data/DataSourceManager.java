@@ -220,14 +220,14 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	static AgencyProperties findAgencyProperties(@NonNull Context context,
-												 @NonNull String authority,
-												 @NonNull DataSourceType dst,
-												 boolean isRTS,
-												 @Nullable JPaths logo,
-												 @NonNull String pkg,
-												 long longVersionCode,
-												 boolean enabled) {
+	public static AgencyProperties findAgencyProperties(@NonNull Context context,
+														@NonNull String authority,
+														@NonNull DataSourceType dst,
+														boolean isRTS,
+														@Nullable JPaths logo,
+														@NonNull String pkg,
+														long longVersionCode,
+														boolean enabled) {
 		AgencyProperties result = null;
 		Cursor cursor = null;
 		try {
@@ -264,7 +264,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	static JPaths findAgencyRTSRouteLogo(@NonNull Context context, @NonNull String authority) {
+	public static JPaths findAgencyRTSRouteLogo(@NonNull Context context, @NonNull String authority) {
 		JPaths result = null;
 		Cursor cursor = null;
 		try {

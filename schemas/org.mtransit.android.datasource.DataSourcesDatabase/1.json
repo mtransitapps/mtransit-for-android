@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "ebfbc0515108b0b52266b68ad88e2dff",
+    "identityHash": "e0d3666d241be18a59fb09d300e8347b",
     "entities": [
       {
         "tableName": "agency_properties",
@@ -110,7 +110,7 @@
       },
       {
         "tableName": "status_provider_properties",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`authority` TEXT NOT NULL, `target_authority` TEXT NOT NULL, PRIMARY KEY(`authority`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`authority` TEXT NOT NULL, `target_authority` TEXT NOT NULL, `pkg` TEXT NOT NULL, PRIMARY KEY(`authority`))",
         "fields": [
           {
             "fieldPath": "authority",
@@ -121,6 +121,12 @@
           {
             "fieldPath": "targetAuthority",
             "columnName": "target_authority",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pkg",
+            "columnName": "pkg",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -136,7 +142,7 @@
       },
       {
         "tableName": "schedule_provider_properties",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`authority` TEXT NOT NULL, `target_authority` TEXT NOT NULL, PRIMARY KEY(`authority`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`authority` TEXT NOT NULL, `target_authority` TEXT NOT NULL, `pkg` TEXT NOT NULL, PRIMARY KEY(`authority`))",
         "fields": [
           {
             "fieldPath": "authority",
@@ -147,6 +153,12 @@
           {
             "fieldPath": "targetAuthority",
             "columnName": "target_authority",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pkg",
+            "columnName": "pkg",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -162,7 +174,7 @@
       },
       {
         "tableName": "service_update_provider_properties",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`authority` TEXT NOT NULL, `target_authority` TEXT NOT NULL, PRIMARY KEY(`authority`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`authority` TEXT NOT NULL, `target_authority` TEXT NOT NULL, `pkg` TEXT NOT NULL, PRIMARY KEY(`authority`))",
         "fields": [
           {
             "fieldPath": "authority",
@@ -173,6 +185,12 @@
           {
             "fieldPath": "targetAuthority",
             "columnName": "target_authority",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pkg",
+            "columnName": "pkg",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -188,7 +206,7 @@
       },
       {
         "tableName": "news_provider_properties",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`authority` TEXT NOT NULL, `target_authority` TEXT NOT NULL, PRIMARY KEY(`authority`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`authority` TEXT NOT NULL, `target_authority` TEXT NOT NULL, `pkg` TEXT NOT NULL, PRIMARY KEY(`authority`))",
         "fields": [
           {
             "fieldPath": "authority",
@@ -199,6 +217,12 @@
           {
             "fieldPath": "targetAuthority",
             "columnName": "target_authority",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pkg",
+            "columnName": "pkg",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -216,7 +240,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ebfbc0515108b0b52266b68ad88e2dff')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e0d3666d241be18a59fb09d300e8347b')"
     ]
   }
 }
