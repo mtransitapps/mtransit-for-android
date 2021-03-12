@@ -1,13 +1,5 @@
 package org.mtransit.android.ui.view;
 
-import java.util.HashSet;
-
-import org.mtransit.android.commons.Constants;
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.StringUtils;
-import org.mtransit.android.commons.ui.view.MTView;
-import org.mtransit.android.data.JPaths;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -15,21 +7,33 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
-import androidx.core.util.Pair;
 import android.util.AttributeSet;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
+
+import org.mtransit.android.commons.Constants;
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.StringUtils;
+import org.mtransit.android.commons.ui.view.MTView;
+import org.mtransit.android.data.JPaths;
+
+import java.util.HashSet;
 
 public class MTJPathsView extends MTView {
 
-	private static final String TAG = MTJPathsView.class.getSimpleName();
+	private static final String LOG_TAG = MTJPathsView.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private RectF bounds;
 
-	private HashSet<Pair<Path, Paint>> pathsAndPaints = new HashSet<>();
+	private final HashSet<Pair<Path, Paint>> pathsAndPaints = new HashSet<>();
 
 	private JPaths jPaths;
 
@@ -37,34 +41,37 @@ public class MTJPathsView extends MTView {
 
 	private float width;
 
-	public MTJPathsView(Context context) {
+	public MTJPathsView(@NonNull Context context) {
 		super(context);
 		init();
 	}
 
-	public MTJPathsView(Context context, AttributeSet attrs) {
+	public MTJPathsView(@NonNull Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
 
-	public MTJPathsView(Context context, AttributeSet attrs, int defStyle) {
+	public MTJPathsView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
 	}
 
 	private void init() {
+		// DO NOTHING
 	}
 
 	public void setColor(int color) {
 		this.color = color;
 		if (this.pathsAndPaints != null) {
 			for (Pair<Path, Paint> pp : this.pathsAndPaints) {
-				pp.second.setColor(color);
+				if (pp.second != null) {
+					pp.second.setColor(color);
+				}
 			}
 		}
 	}
 
-	public void setJSON(JPaths jPaths) {
+	public void setJSON(@Nullable JPaths jPaths) {
 		boolean invalidate;
 		if (this.jPaths == null && jPaths != null) {
 			invalidate = true;
@@ -84,7 +91,7 @@ public class MTJPathsView extends MTView {
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas) {
+	protected void onDraw(@NonNull Canvas canvas) {
 		super.onDraw(canvas);
 		if (this.pathsAndPaints != null) {
 			for (Pair<Path, Paint> pp : this.pathsAndPaints) {
@@ -96,7 +103,7 @@ public class MTJPathsView extends MTView {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		if (Constants.LOG_VIEW_LIFECYCLE) {
-			MTLog.v(TAG, "onMeasure(%s,%s)", widthMeasureSpec, heightMeasureSpec);
+			MTLog.v(LOG_TAG, "onMeasure(%s,%s)", widthMeasureSpec, heightMeasureSpec);
 		}
 		int width = MeasureSpec.getSize(widthMeasureSpec);
 		int height = MeasureSpec.getSize(heightMeasureSpec);

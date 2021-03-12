@@ -1,5 +1,7 @@
 package org.mtransit.android.di;
 
+import android.content.pm.PackageManager;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -12,6 +14,10 @@ import org.mtransit.android.billing.MTBillingManager;
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.datasource.DataSourcesCache;
+import org.mtransit.android.datasource.DataSourcesDatabase;
+import org.mtransit.android.datasource.DataSourcesReader;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.CrashlyticsCrashReporter;
 import org.mtransit.android.dev.IStrictMode;
@@ -29,6 +35,9 @@ public class Injection {
 
 	@Nullable
 	private static IApplication application;
+
+	@Nullable
+	private static PackageManager packageManager;
 
 	@Nullable
 	private static LeakDetector leakDetector;
@@ -63,6 +72,18 @@ public class Injection {
 	@Nullable
 	private static IBillingManager billingManager;
 
+	@Nullable
+	private static DataSourcesDatabase dataSourcesDatabase;
+
+	@Nullable
+	private static DataSourcesCache dataSourcesCache;
+
+	@Nullable
+	private static DataSourcesReader dataSourcesReader;
+
+	@Nullable
+	private static DataSourcesRepository dataSourcesRepository;
+
 	@NonNull
 	private static IApplication providesApplication() {
 		if (application == null) {
@@ -73,6 +94,18 @@ public class Injection {
 			}
 		}
 		return application;
+	}
+
+	@NonNull
+	public static PackageManager providesPackageManager() {
+		if (packageManager == null) {
+			synchronized (Injection.class) {
+				if (packageManager == null) {
+					packageManager = providesApplication().requireApplication().getPackageManager();
+				}
+			}
+		}
+		return packageManager;
 	}
 
 	@NonNull
@@ -225,5 +258,65 @@ public class Injection {
 			}
 		}
 		return billingManager;
+	}
+
+	@NonNull
+	public static DataSourcesDatabase providesDataSourcesDatabase() {
+		if (dataSourcesDatabase == null) {
+			synchronized (Injection.class) {
+				if (dataSourcesDatabase == null) {
+					dataSourcesDatabase = DataSourcesDatabase.getInstance(
+							providesApplication()
+					);
+				}
+			}
+		}
+		return dataSourcesDatabase;
+	}
+
+	@NonNull
+	public static DataSourcesCache providesDataSourcesCache() {
+		if (dataSourcesCache == null) {
+			synchronized (Injection.class) {
+				if (dataSourcesCache == null) {
+					dataSourcesCache = new DataSourcesCache(
+							providesDataSourcesDatabase()
+					);
+				}
+			}
+		}
+		return dataSourcesCache;
+	}
+
+	@NonNull
+	public static DataSourcesReader providesDataSourcesReader() {
+		if (dataSourcesReader == null) {
+			synchronized (Injection.class) {
+				if (dataSourcesReader == null) {
+					dataSourcesReader = new DataSourcesReader(
+							providesApplication(),
+							providesPackageManager(),
+							providesDataSourcesDatabase()
+							// providesDataSourcesCache()
+					);
+				}
+			}
+		}
+		return dataSourcesReader;
+	}
+
+	@NonNull
+	public static DataSourcesRepository providesDataSourcesRepository() {
+		if (dataSourcesRepository == null) {
+			synchronized (Injection.class) {
+				if (dataSourcesRepository == null) {
+					dataSourcesRepository = new DataSourcesRepository(
+							providesDataSourcesCache(),
+							providesDataSourcesReader()
+					);
+				}
+			}
+		}
+		return dataSourcesRepository;
 	}
 }

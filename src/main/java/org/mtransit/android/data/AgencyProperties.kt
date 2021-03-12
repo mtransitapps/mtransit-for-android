@@ -1,5 +1,10 @@
 package org.mtransit.android.data
 
+import androidx.room.ColumnInfo
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import org.mtransit.android.commons.ColorUtils
@@ -8,18 +13,39 @@ import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 
+@Entity(tableName = "agency_properties")
 data class AgencyProperties(
+    @PrimaryKey
+    @ColumnInfo(name = "id")
     val id: String,
+    @ColumnInfo(name = "type")
     val type: DataSourceType,
+    @ColumnInfo(name = "short_name")
     val shortName: String,
+    @ColumnInfo(name = "long_name")
     val longName: String,
+    @ColumnInfo(name = "color_int")
     val colorInt: Int? = null,
+    @Embedded(prefix = "area")
     val area: LocationUtils.Area,
+    @ColumnInfo(name = "pkg")
+    val pkg: String,
+    @ColumnInfo(name = "long_version_code")
+    val longVersionCode: Long = DEFAULT_VERSION_CODE,
+    @ColumnInfo(name = "is_installed")
+    val isInstalled: Boolean = true,
+    @ColumnInfo(name = "is_enabled")
+    val isEnabled: Boolean = true,
+    @ColumnInfo(name = "is_rts")
     val isRTS: Boolean = false,
-    var logo: JPaths? = null,
+    @ColumnInfo(name = "logo")
+    val logo: JPaths? = null,
 ) {
 
     companion object {
+
+        const val DEFAULT_VERSION_CODE = -1L
+
         @JvmStatic
         val SHORT_NAME_COMPARATOR: Comparator<AgencyProperties> = Comparator { lap, rap ->
             lap.shortNameLC.compareTo(rap.shortNameLC)
@@ -42,7 +68,12 @@ data class AgencyProperties(
         longName: String,
         color: String? = null,
         area: LocationUtils.Area,
-        isRTS: Boolean = false
+        pkg: String,
+        longVersionCode: Long,
+        isInstalled: Boolean,
+        isEnabled: Boolean,
+        isRTS: Boolean = false,
+        logo: JPaths? = null,
     ) : this(
         id,
         type,
@@ -50,9 +81,15 @@ data class AgencyProperties(
         longName,
         color?.let { ColorUtils.parseColor(it) },
         area,
-        isRTS
+        pkg,
+        longVersionCode,
+        isInstalled,
+        isEnabled,
+        isRTS,
+        logo,
     )
 
+    @Ignore
     val authority = id
 
     val shortNameLC: String

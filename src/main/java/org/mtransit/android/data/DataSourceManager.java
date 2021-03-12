@@ -1,11 +1,15 @@
 package org.mtransit.android.data;
 
+import android.app.SearchManager;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.SimpleArrayMap;
-
-import java.util.ArrayList;
-import java.util.HashSet;
 
 import org.json.JSONObject;
 import org.mtransit.android.commons.LocationUtils.Area;
@@ -31,13 +35,8 @@ import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract;
 import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.provider.StatusProviderContract;
 
-import android.app.SearchManager;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-
-import android.text.TextUtils;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 public final class DataSourceManager implements MTLog.Loggable {
 
@@ -72,7 +71,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 
 	@Nullable
 	public static ArrayList<ServiceUpdate> findServiceUpdates(@NonNull Context context, @NonNull String authority,
-			@Nullable ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
+															  @Nullable ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
 		Cursor cursor = null;
 		try {
 			String serviceUpdateFilterJSONString = serviceUpdateFilter == null ? null : serviceUpdateFilter.toJSONString();
@@ -137,7 +136,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 
 	@Nullable
 	public static ScheduleTimestamps findScheduleTimestamps(@NonNull Context context, @NonNull String authority,
-			@Nullable ScheduleTimestampsProviderContract.Filter scheduleTimestampsFilter) {
+															@Nullable ScheduleTimestampsProviderContract.Filter scheduleTimestampsFilter) {
 		Cursor cursor = null;
 		try {
 			String scheduleTimestampsFilterJSONString = scheduleTimestampsFilter == null ? null : scheduleTimestampsFilter.toJSONString();
@@ -221,7 +220,14 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	static AgencyProperties findAgencyProperties(@NonNull Context context, @NonNull String authority, @NonNull DataSourceType dst, boolean isRTS) {
+	static AgencyProperties findAgencyProperties(@NonNull Context context,
+												 @NonNull String authority,
+												 @NonNull DataSourceType dst,
+												 boolean isRTS,
+												 @Nullable JPaths logo,
+												 @NonNull String pkg,
+												 long longVersionCode,
+												 boolean enabled) {
 		AgencyProperties result = null;
 		Cursor cursor = null;
 		try {
@@ -233,7 +239,20 @@ public final class DataSourceManager implements MTLog.Loggable {
 					String longName = cursor.getString(cursor.getColumnIndexOrThrow(AgencyProviderContract.LABEL_PATH));
 					String color = cursor.getString(cursor.getColumnIndexOrThrow(AgencyProviderContract.COLOR_PATH));
 					Area area = Area.fromCursorNN(cursor);
-					result = new AgencyProperties(authority, dst, shortName, longName, color, area, isRTS);
+					result = new AgencyProperties(
+							authority,
+							dst,
+							shortName,
+							longName,
+							color,
+							area,
+							pkg,
+							longVersionCode,
+							true,
+							enabled,
+							isRTS,
+							logo
+					);
 				}
 			}
 		} catch (Exception e) {
@@ -331,8 +350,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 
 	@Nullable
 	public static Cursor queryContentResolver(@NonNull ContentResolver contentResolver, @NonNull Uri uri,
-			@Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs,
-			@Nullable String sortOrder) {
+											  @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs,
+											  @Nullable String sortOrder) {
 		return contentResolver.query(uri, projection, selection, selectionArgs, sortOrder);
 	}
 
