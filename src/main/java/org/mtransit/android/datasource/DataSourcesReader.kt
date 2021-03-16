@@ -51,15 +51,17 @@ class DataSourcesReader(
     private val serviceUpdateProviderTargetMetaData by lazy { app.requireApplication().getString(R.string.service_update_provider_target) }
     private val newsProviderTargetMetaData by lazy { app.requireApplication().getString(R.string.news_provider_target) }
 
-    suspend fun update() {
+    suspend fun update(): Boolean {
+        var updated = false
         withContext(Dispatchers.IO) {
-            updateKnownActiveDataSources()
-            updateReInstalledReEnabledDataSources()
-            lookForNewDataSources()
+            updateKnownActiveDataSources { updated = true }
+            updateReInstalledReEnabledDataSources { updated = true }
+            lookForNewDataSources { updated = true }
         }
+        return updated
     }
 
-    private fun lookForNewDataSources() {
+    private fun lookForNewDataSources(markUpdated: () -> Unit) {
         val knownAgencyProperties = dataSourcesDatabase.agencyPropertiesDao().getAllAgencies()
         val knownStatusProviderProperties = dataSourcesDatabase.statusProviderPropertiesDao().getAllStatusProvider()
         val knownScheduleProviderProperties = dataSourcesDatabase.scheduleProviderPropertiesDao().getAllScheduleProvider()
@@ -83,6 +85,7 @@ class DataSourcesReader(
                             null, // NEW
                             pm.getAppLongVersionCode(pkg, DEFAULT_VERSION_CODE), // NEW
                             pkgProviders,
+                            markUpdated
                         )
                     }
                 }
@@ -94,6 +97,7 @@ class DataSourcesReader(
                             dataSourcesDatabase.statusProviderPropertiesDao().insert(
                                 StatusProviderProperties(providerAuthority, targetAuthority, pkg)
                             )
+                            markUpdated()
                         }
                     }
                 }
@@ -105,6 +109,7 @@ class DataSourcesReader(
                             dataSourcesDatabase.scheduleProviderPropertiesDao().insert(
                                 ScheduleProviderProperties(providerAuthority, targetAuthority, pkg)
                             )
+                            markUpdated()
                         }
                     }
                 }
@@ -116,6 +121,7 @@ class DataSourcesReader(
                             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().insert(
                                 ServiceUpdateProviderProperties(providerAuthority, targetAuthority, pkg)
                             )
+                            markUpdated()
                         }
                     }
                 }
@@ -127,6 +133,7 @@ class DataSourcesReader(
                             dataSourcesDatabase.newsProviderPropertiesDao().insert(
                                 NewsProviderProperties(providerAuthority, targetAuthority, pkg)
                             )
+                            markUpdated()
                         }
                     }
                 }
@@ -134,17 +141,17 @@ class DataSourcesReader(
         }
     }
 
-    private fun updateReInstalledReEnabledDataSources() { // UPDATE IN-VISIBLE KNOWN DATA SOURCES (uninstalled | disabled & check version)
+    private fun updateReInstalledReEnabledDataSources(markUpdated: () -> Unit) { // UPDATE IN-VISIBLE KNOWN DATA SOURCES (uninstalled | disabled & check version)
         // AGENCY: only apply to agency (other properties are deleted when uninstalled/disabled)
         dataSourcesDatabase.agencyPropertiesDao().getAllNotInstalledOrNotEnabledAgencies().forEach { agencyProperties ->
             val pkg = agencyProperties.pkg
             val authority = agencyProperties.authority
             if (!pm.isAppInstalled(pkg)) { // APP UNINSTALLED
-                updateUninstalledAgencyProperties(agencyProperties, authority)
+                updateUninstalledAgencyProperties(agencyProperties, authority, markUpdated)
                 return@forEach
             }
             if (!pm.isAppEnabled(pkg)) { // APP DISABLED #DontKillMyApp
-                updateDisabledAgencyProperties(agencyProperties, authority)
+                updateDisabledAgencyProperties(agencyProperties, authority, markUpdated)
                 return@forEach
             }
             // App RE-installed OR RE-enabled
@@ -154,6 +161,7 @@ class DataSourcesReader(
                 dataSourcesDatabase.agencyPropertiesDao().update(
                     agencyProperties.copy(isInstalled = true, isEnabled = true) // no need to refresh properties == same data
                 )
+                markUpdated()
             } else {
                 refreshAgencyProperties(
                     pkg,
@@ -161,12 +169,13 @@ class DataSourcesReader(
                     agencyProperties,
                     longVersionCode,
                     pm.getInstalledProvidersWithMetaData(pkg),
+                    markUpdated
                 )
             }
         }
     }
 
-    private fun updateKnownActiveDataSources() { // UPDATE KNOWN ACTIVE DATA SOURCES (installed & enabled & check version)
+    private fun updateKnownActiveDataSources(markUpdated: () -> Unit) { // UPDATE KNOWN ACTIVE DATA SOURCES (installed & enabled & check version)
         val knownStatusProviderProperties = dataSourcesDatabase.statusProviderPropertiesDao().getAllStatusProvider()
         val knownScheduleProviderProperties = dataSourcesDatabase.scheduleProviderPropertiesDao().getAllScheduleProvider()
         val knownServiceUpdateProviderProperties = dataSourcesDatabase.serviceUpdateProviderPropertiesDao().getAllServiceUpdateProvider()
@@ -176,11 +185,11 @@ class DataSourcesReader(
             val pkg = agencyProperties.pkg
             val authority = agencyProperties.authority
             if (!pm.isAppInstalled(pkg)) { // APP UNINSTALLED
-                updateUninstalledAgencyProperties(agencyProperties, authority)
+                updateUninstalledAgencyProperties(agencyProperties, authority, markUpdated)
                 return@forEach
             }
             if (!pm.isAppEnabled(pkg)) { // APP DISABLED #DontKillMyApp
-                updateDisabledAgencyProperties(agencyProperties, authority)
+                updateDisabledAgencyProperties(agencyProperties, authority, markUpdated)
                 return@forEach
             }
             val longVersionCode = pm.getAppLongVersionCode(pkg, DEFAULT_VERSION_CODE)
@@ -191,42 +200,45 @@ class DataSourcesReader(
                     agencyProperties,
                     longVersionCode,
                     pm.getInstalledProvidersWithMetaData(pkg),
+                    markUpdated
                 )
             } // ELSE no need to refresh == same data
         }
         // STATUS
         knownStatusProviderProperties.forEach { statusProviderProperties ->
-            refreshStatusProviderProperties(statusProviderProperties)
+            refreshStatusProviderProperties(statusProviderProperties, markUpdated)
         }
         // SCHEDULE
         knownScheduleProviderProperties.forEach { scheduleProviderProperties ->
-            refreshScheduleProviderProperties(scheduleProviderProperties)
+            refreshScheduleProviderProperties(scheduleProviderProperties, markUpdated)
         }
         // SERVICE UPDATE
         knownServiceUpdateProviderProperties.forEach { serviceUpdateProviderProperties ->
-            refreshServiceUpdateProviderProperties(serviceUpdateProviderProperties)
+            refreshServiceUpdateProviderProperties(serviceUpdateProviderProperties, markUpdated)
         }
         // NEWS
         knownNewsProviderProperties.forEach { newsProviderProperties ->
-            refreshNewsProviderProperties(newsProviderProperties)
+            refreshNewsProviderProperties(newsProviderProperties, markUpdated)
         }
     }
 
-    private fun updateDisabledAgencyProperties(agencyProperties: AgencyProperties, authority: String) {
+    private fun updateDisabledAgencyProperties(agencyProperties: AgencyProperties, authority: String, markUpdated: () -> Unit) {
         if (agencyProperties.isEnabled) {
             MTLog.d(this, "Agency '$authority' disabled.")
             dataSourcesDatabase.agencyPropertiesDao().update(
                 agencyProperties.copy(isEnabled = false)
             )
+            markUpdated()
         }
     }
 
-    private fun updateUninstalledAgencyProperties(agencyProperties: AgencyProperties, authority: String) {
+    private fun updateUninstalledAgencyProperties(agencyProperties: AgencyProperties, authority: String, markUpdated: () -> Unit) {
         if (agencyProperties.isInstalled) {
             MTLog.d(this, "Agency '$authority' uninstalled.")
             dataSourcesDatabase.agencyPropertiesDao().update(
                 agencyProperties.copy(isInstalled = false)
             )
+            markUpdated()
         }
     }
 
@@ -236,10 +248,14 @@ class DataSourcesReader(
         agencyProperties: AgencyProperties? = null, // NEW
         longVersionCode: Long = pm.getAppLongVersionCode(pkg, DEFAULT_VERSION_CODE), // NEW,
         pkgProviders: List<ProviderInfo>? = pm.getInstalledProvidersWithMetaData(pkg),
+        markUpdated: () -> Unit
     ) {
         if (pkgProviders.isNullOrEmpty()) {
             MTLog.d(this, "Agency '$agencyAuthority' invalid (no content providers).")
-            agencyProperties?.let { dataSourcesDatabase.agencyPropertiesDao().delete(it) }
+            agencyProperties?.let {
+                dataSourcesDatabase.agencyPropertiesDao().delete(it)
+                markUpdated()
+            }
             return
         }
         val thisAgencyPropertiesProvider = pkgProviders
@@ -249,7 +265,10 @@ class DataSourcesReader(
             }
         if (thisAgencyPropertiesProvider?.metaData == null) {
             MTLog.d(this, "Agency '$agencyAuthority' invalid (no agency meta-data).")
-            agencyProperties?.let { dataSourcesDatabase.agencyPropertiesDao().delete(it) }
+            agencyProperties?.let {
+                dataSourcesDatabase.agencyPropertiesDao().delete(it)
+                markUpdated()
+            }
             return
         }
         val providerMetaData: Bundle = thisAgencyPropertiesProvider.metaData
@@ -257,7 +276,10 @@ class DataSourcesReader(
         val agencyType = if (agencyTypeId == -1) null else DataSourceType.parseId(agencyTypeId)
         if (agencyType == null) {
             MTLog.d(this, "Agency '$agencyAuthority' invalid (type ID '$agencyTypeId' invalid).")
-            agencyProperties?.let { dataSourcesDatabase.agencyPropertiesDao().delete(it) }
+            agencyProperties?.let {
+                dataSourcesDatabase.agencyPropertiesDao().delete(it)
+                markUpdated()
+            }
             return
         }
         val isRTS = providerMetaData.isKeyMT(rtsProviderMetaData)
@@ -274,19 +296,24 @@ class DataSourcesReader(
         )
         if (newAgencyProperties == null) {
             MTLog.d(this, "Agency '$agencyAuthority' invalid (error while fetching new agency properties).")
-            agencyProperties?.let { dataSourcesDatabase.agencyPropertiesDao().delete(it) }
+            agencyProperties?.let {
+                dataSourcesDatabase.agencyPropertiesDao().delete(it)
+                markUpdated()
+            }
             return
         }
         if (agencyProperties == null) {
             MTLog.d(this, "Agency '$agencyAuthority' properties added.")
             dataSourcesDatabase.agencyPropertiesDao().insert(newAgencyProperties)
+            markUpdated()
         } else {
             MTLog.d(this, "Agency '$agencyAuthority' properties updated.")
             dataSourcesDatabase.agencyPropertiesDao().update(newAgencyProperties)
+            markUpdated()
         }
     }
 
-    private fun refreshStatusProviderProperties(statusProviderProperties: StatusProviderProperties) {
+    private fun refreshStatusProviderProperties(statusProviderProperties: StatusProviderProperties, markUpdated: () -> Unit) {
         val pkg = statusProviderProperties.pkg
         val authority = statusProviderProperties.authority
         if (!pm.isAppInstalled(pkg)
@@ -294,6 +321,7 @@ class DataSourcesReader(
         ) {
             MTLog.d(this, "Status '$authority' removed (uninstalled | disabled)")
             dataSourcesDatabase.statusProviderPropertiesDao().delete(statusProviderProperties)
+            markUpdated()
             return
         }
         val provider = pm.getInstalledProviderWithMetaData(pkg, authority)
@@ -301,12 +329,14 @@ class DataSourcesReader(
         if (providerMetadata == null) {
             MTLog.d(this, "Status '$authority' removed (no provider metadata)")
             dataSourcesDatabase.statusProviderPropertiesDao().delete(statusProviderProperties)
+            markUpdated()
             return
         }
         val newTargetAuthority = providerMetadata.getString(statusProviderTargetMetaData)
         if (newTargetAuthority == null) {
             MTLog.d(this, "Status '$authority' removed (invalid target authority)")
             dataSourcesDatabase.statusProviderPropertiesDao().delete(statusProviderProperties)
+            markUpdated()
             return
         }
         if (newTargetAuthority != statusProviderProperties.targetAuthority) {
@@ -314,10 +344,11 @@ class DataSourcesReader(
             dataSourcesDatabase.statusProviderPropertiesDao().update(
                 statusProviderProperties.copy(targetAuthority = newTargetAuthority)
             )
+            markUpdated()
         }
     }
 
-    private fun refreshScheduleProviderProperties(scheduleProviderProperties: ScheduleProviderProperties) {
+    private fun refreshScheduleProviderProperties(scheduleProviderProperties: ScheduleProviderProperties, markUpdated: () -> Unit) {
         val pkg = scheduleProviderProperties.pkg
         val authority = scheduleProviderProperties.authority
         if (!pm.isAppInstalled(pkg)
@@ -325,6 +356,7 @@ class DataSourcesReader(
         ) {
             MTLog.d(this, "Schedule '$authority' removed (uninstalled | disabled)")
             dataSourcesDatabase.scheduleProviderPropertiesDao().delete(scheduleProviderProperties)
+            markUpdated()
             return
         }
         val provider = pm.getInstalledProviderWithMetaData(pkg, authority)
@@ -332,12 +364,14 @@ class DataSourcesReader(
         if (providerMetadata == null) {
             MTLog.d(this, "Schedule '$authority' removed (no provider metadata)")
             dataSourcesDatabase.scheduleProviderPropertiesDao().delete(scheduleProviderProperties)
+            markUpdated()
             return
         }
         val newTargetAuthority = providerMetadata.getString(scheduleProviderTargetMetaData)
         if (newTargetAuthority == null) {
             MTLog.d(this, "Schedule '$authority' removed (invalid target authority)")
             dataSourcesDatabase.scheduleProviderPropertiesDao().delete(scheduleProviderProperties)
+            markUpdated()
             return
         }
         if (newTargetAuthority != scheduleProviderProperties.targetAuthority) {
@@ -345,10 +379,11 @@ class DataSourcesReader(
             dataSourcesDatabase.scheduleProviderPropertiesDao().update(
                 scheduleProviderProperties.copy(targetAuthority = newTargetAuthority)
             )
+            markUpdated()
         }
     }
 
-    private fun refreshServiceUpdateProviderProperties(serviceUpdateProviderProperties: ServiceUpdateProviderProperties) {
+    private fun refreshServiceUpdateProviderProperties(serviceUpdateProviderProperties: ServiceUpdateProviderProperties, markUpdated: () -> Unit) {
         val pkg = serviceUpdateProviderProperties.pkg
         val authority = serviceUpdateProviderProperties.authority
         if (!pm.isAppInstalled(pkg)
@@ -356,6 +391,7 @@ class DataSourcesReader(
         ) {
             MTLog.d(this, "Service Update '$authority' removed (uninstalled | disabled)")
             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().delete(serviceUpdateProviderProperties)
+            markUpdated()
             return
         }
         val provider = pm.getInstalledProviderWithMetaData(pkg, authority)
@@ -363,12 +399,14 @@ class DataSourcesReader(
         if (providerMetadata == null) {
             MTLog.d(this, "Service Update '$authority' removed (no provider metadata)")
             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().delete(serviceUpdateProviderProperties)
+            markUpdated()
             return
         }
         val newTargetAuthority = providerMetadata.getString(serviceUpdateProviderTargetMetaData)
         if (newTargetAuthority == null) {
             MTLog.d(this, "Service Update '$authority' removed (invalid target authority)")
             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().delete(serviceUpdateProviderProperties)
+            markUpdated()
             return
         }
         if (newTargetAuthority != serviceUpdateProviderProperties.targetAuthority) {
@@ -376,10 +414,11 @@ class DataSourcesReader(
             dataSourcesDatabase.serviceUpdateProviderPropertiesDao().update(
                 serviceUpdateProviderProperties.copy(targetAuthority = newTargetAuthority)
             )
+            markUpdated()
         }
     }
 
-    private fun refreshNewsProviderProperties(newsProviderProperties: NewsProviderProperties) {
+    private fun refreshNewsProviderProperties(newsProviderProperties: NewsProviderProperties, markUpdated: () -> Unit) {
         val pkg = newsProviderProperties.pkg
         val authority = newsProviderProperties.authority
         if (!pm.isAppInstalled(pkg)
@@ -387,6 +426,7 @@ class DataSourcesReader(
         ) {
             MTLog.d(this, "News '$authority' removed (uninstalled | disabled)")
             dataSourcesDatabase.newsProviderPropertiesDao().delete(newsProviderProperties)
+            markUpdated()
             return
         }
         val provider = pm.getInstalledProviderWithMetaData(pkg, authority)
@@ -394,12 +434,14 @@ class DataSourcesReader(
         if (providerMetadata == null) {
             MTLog.d(this, "News '$authority' removed (no provider metadata)")
             dataSourcesDatabase.newsProviderPropertiesDao().delete(newsProviderProperties)
+            markUpdated()
             return
         }
         val newTargetAuthority = providerMetadata.getString(newsProviderTargetMetaData)
         if (newTargetAuthority == null) {
             MTLog.d(this, "News '$authority' removed (invalid target authority)")
             dataSourcesDatabase.newsProviderPropertiesDao().delete(newsProviderProperties)
+            markUpdated()
             return
         }
         if (newTargetAuthority != newsProviderProperties.targetAuthority) {
@@ -407,6 +449,7 @@ class DataSourcesReader(
             dataSourcesDatabase.newsProviderPropertiesDao().update(
                 newsProviderProperties.copy(targetAuthority = newTargetAuthority)
             )
+            markUpdated()
         }
     }
 }

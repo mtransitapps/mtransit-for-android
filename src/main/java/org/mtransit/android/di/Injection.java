@@ -31,6 +31,7 @@ import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.provider.sensor.SensorManagerImpl;
 import org.mtransit.android.ui.MTApplication;
 
+@SuppressWarnings("WeakerAccess")
 public class Injection {
 
 	@Nullable
