@@ -32,6 +32,40 @@ class DataSourcesReader(
 
     companion object {
         val LOG_TAG: String = DataSourcesReader::class.java.simpleName
+
+        @Deprecated(message = "Use non-static")
+        @JvmStatic
+        fun isProvider(context: android.content.Context, pkg: String?): Boolean {
+            val pm = context.applicationContext.packageManager
+            val agencyProviderMetaData = context.getString(R.string.agency_provider)
+            val statusProviderMetaData = context.getString(R.string.status_provider)
+            val scheduleProviderMetaData = context.getString(R.string.schedule_provider)
+            val serviceUpdateProviderMetaData = context.getString(R.string.service_update_provider)
+            val newsProviderMetaData = context.getString(R.string.news_provider)
+            if (pkg.isNullOrBlank()) {
+                return false
+            }
+            pm.getInstalledProvidersWithMetaData(pkg)?.forEach { providerInfo ->
+                val providerMetaData: Bundle = providerInfo.metaData ?: return@forEach
+                if (providerMetaData.isKeyMT(agencyProviderMetaData)) {
+                    return true
+                }
+                if (providerMetaData.isKeyMT(statusProviderMetaData)) {
+                    return true
+                }
+                if (providerMetaData.isKeyMT(scheduleProviderMetaData)) {
+                    return true
+                }
+                if (providerMetaData.isKeyMT(serviceUpdateProviderMetaData)) {
+                    return true
+                }
+                if (providerMetaData.isKeyMT(newsProviderMetaData)) {
+                    return true
+                }
+                return false
+            }
+            return false
+        }
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -50,6 +84,32 @@ class DataSourcesReader(
     private val scheduleProviderTargetMetaData by lazy { app.requireApplication().getString(R.string.schedule_provider_target) }
     private val serviceUpdateProviderTargetMetaData by lazy { app.requireApplication().getString(R.string.service_update_provider_target) }
     private val newsProviderTargetMetaData by lazy { app.requireApplication().getString(R.string.news_provider_target) }
+
+    fun isProvider(pkg: String?): Boolean {
+        if (pkg.isNullOrBlank()) {
+            return false
+        }
+        pm.getInstalledProvidersWithMetaData(pkg)?.forEach { providerInfo ->
+            val providerMetaData: Bundle = providerInfo.metaData ?: return@forEach
+            if (providerMetaData.isKeyMT(agencyProviderMetaData)) {
+                return true
+            }
+            if (providerMetaData.isKeyMT(statusProviderMetaData)) {
+                return true
+            }
+            if (providerMetaData.isKeyMT(scheduleProviderMetaData)) {
+                return true
+            }
+            if (providerMetaData.isKeyMT(serviceUpdateProviderMetaData)) {
+                return true
+            }
+            if (providerMetaData.isKeyMT(newsProviderMetaData)) {
+                return true
+            }
+            return false
+        }
+        return false
+    }
 
     suspend fun update(): Boolean {
         var updated = false
@@ -181,7 +241,7 @@ class DataSourcesReader(
         val knownServiceUpdateProviderProperties = dataSourcesDatabase.serviceUpdateProviderPropertiesDao().getAllServiceUpdateProvider()
         val knownNewsProviderProperties = dataSourcesDatabase.newsProviderPropertiesDao().getAllNewsProvider()
         // AGENCY (only one properties kept in cache even when uninstalled/disabled to save refreshing data)
-        dataSourcesDatabase.agencyPropertiesDao().getAllInstalledAndEnabledAgencies().forEach { agencyProperties ->
+        dataSourcesDatabase.agencyPropertiesDao().getAllEnabledAgencies().forEach { agencyProperties ->
             val pkg = agencyProperties.pkg
             val authority = agencyProperties.authority
             if (!pm.isAppInstalled(pkg)) { // APP UNINSTALLED

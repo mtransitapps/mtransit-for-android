@@ -13,6 +13,7 @@ import android.util.SparseArray;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import androidx.collection.ArrayMap;
 
 import org.mtransit.android.R;
@@ -25,11 +26,16 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
+import org.mtransit.android.datasource.DataSourcesReader;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.di.Injection;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.WeakHashMap;
+import java.util.concurrent.CompletableFuture;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class DataSourceProvider implements IContext, MTLog.Loggable {
 
@@ -44,7 +50,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	private boolean initialized = false;
 
 	@NonNull
-	public static DataSourceProvider get(@SuppressWarnings("unused") @Nullable Context context) {
+	public static DataSourceProvider get(@SuppressWarnings("unused") @Nullable Context context) { // INIT SYNC
 		DataSourceProvider instance = Injection.providesDataSourceProvider();
 		if (!instance.isInitialized()) {
 			initInstance();
@@ -53,7 +59,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	@NonNull
-	public static DataSourceProvider get() {
+	public static DataSourceProvider get() { // NO NOT INIT
 		return Injection.providesDataSourceProvider();
 	}
 
@@ -164,6 +170,10 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	public static boolean isProvider(@NonNull Context context, @Nullable String pkg) {
+		if (F_CACHE_DATA_SOURCES) {
+			//noinspection deprecation
+			return DataSourcesReader.isProvider(context, pkg);
+		}
 		if (TextUtils.isEmpty(pkg)) {
 			return false;
 		}
@@ -332,11 +342,18 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	private final IApplication application;
 	@NonNull
 	private final IAnalyticsManager analyticsManager;
+	@Nullable
+	private final DataSourcesRepository dataSourcesRepository;
 
 	public DataSourceProvider(@NonNull IApplication application,
 							  @NonNull IAnalyticsManager analyticsManager) {
 		this.application = application;
 		this.analyticsManager = analyticsManager;
+		if (F_CACHE_DATA_SOURCES) {
+			dataSourcesRepository = Injection.providesDataSourcesRepository();
+		} else {
+			dataSourcesRepository = null;
+		}
 	}
 
 	@NonNull
@@ -348,10 +365,14 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return CollectionUtils.getSize(this.allAgenciesAuthority);
 	}
 
+	@WorkerThread
 	@Nullable
 	public ArrayList<AgencyProperties> getAllAgencies(@SuppressWarnings("unused") @Nullable Context context) {
 		if (!isAgencyPropertiesSet()) {
 			initAgencyProperties();
+		}
+		if (F_CACHE_DATA_SOURCES) {
+			return new ArrayList<>(this.dataSourcesRepository.getAllAgencies());
 		}
 		if (this.allAgencies == null) {
 			return null;
@@ -364,9 +385,23 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return this.allAgencies != null;
 	}
 
+	@WorkerThread
 	private synchronized void initAgencyProperties() {
 		if (this.allAgencies != null) {
 			return; // too late
+		}
+		if (F_CACHE_DATA_SOURCES) {
+			try {
+				final CompletableFuture<Boolean> updatedListener = this.dataSourcesRepository.updateAsync();
+				final boolean updated = updatedListener.get();
+				this.allAgencies = new ArrayList<>(this.dataSourcesRepository.getAllAgencies()); // mark agency properties set
+				if (updated) {
+					triggerModulesUpdated();
+				}
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while updating data-sources from repository!");
+			}
+			return;
 		}
 		try {
 			Context context = requireContext();
@@ -435,10 +470,14 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return this.allAgenciesAuthority.contains(authority);
 	}
 
+	@WorkerThread
 	@Nullable
 	public AgencyProperties getAgency(@SuppressWarnings("unused") @Nullable Context context, @NonNull String authority) {
 		if (!isAgencyPropertiesSet()) {
 			initAgencyProperties();
+		}
+		if (F_CACHE_DATA_SOURCES) {
+			return this.dataSourcesRepository.getAgency(authority);
 		}
 		if (this.allAgenciesByAuthority == null) {
 			return null;
@@ -446,23 +485,41 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return this.allAgenciesByAuthority.get(authority);
 	}
 
+	@WorkerThread
 	@Nullable
 	public ArrayList<AgencyProperties> getTypeDataSources(@SuppressWarnings("unused") @Nullable Context context, int typeId) {
+		final DataSourceType type = DataSourceType.parseId(typeId);
+		if (type == null) {
+			return null;
+		}
+		return getTypeDataSources(context, type);
+	}
+
+	@WorkerThread
+	@Nullable
+	public ArrayList<AgencyProperties> getTypeDataSources(@SuppressWarnings("unused") @Nullable Context context, @NonNull DataSourceType type) {
 		if (!isAgencyPropertiesSet()) {
 			initAgencyProperties();
 		}
-		ArrayList<AgencyProperties> agencies = this.allAgenciesByTypeId == null ? null : this.allAgenciesByTypeId.get(typeId);
+		if (F_CACHE_DATA_SOURCES) {
+			return new ArrayList<>(this.dataSourcesRepository.getTypeDataSources(type));
+		}
+		ArrayList<AgencyProperties> agencies = this.allAgenciesByTypeId == null ? null : this.allAgenciesByTypeId.get(type.getId());
 		if (agencies == null) {
 			return null;
 		}
 		return new ArrayList<>(agencies); // copy
 	}
 
+	@WorkerThread
 	@Nullable
 	@ColorInt
 	Integer getAgencyColorInt(@SuppressWarnings("unused") @Nullable Context context, @NonNull String authority) {
 		if (!isAgencyPropertiesSet()) {
 			initAgencyProperties();
+		}
+		if (F_CACHE_DATA_SOURCES) {
+			return this.dataSourcesRepository.getAgencyColorInt(authority);
 		}
 		return this.allAgenciesColorInts.get(authority);
 	}

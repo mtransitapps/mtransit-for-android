@@ -1,14 +1,64 @@
 package org.mtransit.android.datasource
 
-import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.DataSourceType
 
 class DataSourcesCache(private val dataSourcesDatabase: DataSourcesDatabase) {
 
-    val allAgencies = dataSourcesDatabase.agencyPropertiesDao().getAllAgencies()
+    // AGENCY
 
-    val allInstalledAgencies = dataSourcesDatabase.agencyPropertiesDao().getAllInstalledAgencies()
+    private fun agencyPropertiesDao() = dataSourcesDatabase.agencyPropertiesDao()
 
-    fun update(agencyProperties: AgencyProperties) {
-        dataSourcesDatabase.agencyPropertiesDao().update(agencyProperties)
-    }
+    fun getAllAgencies() = agencyPropertiesDao().getAllAgencies()
+
+    fun getAllAgenciesCount() = agencyPropertiesDao().getAllAgenciesCount()
+
+    fun getAgency(authority: String) = agencyPropertiesDao().getAgency(authority)
+
+    fun getAllDataSourceTypes() = agencyPropertiesDao().getAllDataSourceTypes()
+
+    fun getTypeDataSources(dst: DataSourceType) = agencyPropertiesDao().getTypeDataSources(dst)
+
+    fun getAgencyPkg(authority: String) = agencyPropertiesDao().getAgencyPkg(authority)
+
+    fun getAgencyColorInt(authority: String) = agencyPropertiesDao().getAgencyColorInt(authority)
+
+    // STATUS
+
+    private fun statusProviderPropertiesDao() = dataSourcesDatabase.statusProviderPropertiesDao()
+
+    fun getAllStatusProviders() = statusProviderPropertiesDao().getAllStatusProvider()
+
+    fun getStatusProviders(targetAuthority: String) = statusProviderPropertiesDao().getTargetAuthorityStatusProvider(targetAuthority)
+
+    fun getStatusProvider(authority: String) = statusProviderPropertiesDao().getStatusProvider(authority)
+
+    // SCHEDULE
+
+    private fun scheduleProviderPropertiesDao() = dataSourcesDatabase.scheduleProviderPropertiesDao()
+
+    fun getAllScheduleProviders() = scheduleProviderPropertiesDao().getAllScheduleProvider()
+
+    fun getScheduleProviders(targetAuthority: String) = scheduleProviderPropertiesDao().getTargetAuthorityScheduleProvider(targetAuthority)
+
+    fun getScheduleProvider(authority: String) = scheduleProviderPropertiesDao().getScheduleProvider(authority)
+
+    // SERVICE UPDATE
+
+    private fun serviceUpdateProviderPropertiesDao() = dataSourcesDatabase.serviceUpdateProviderPropertiesDao()
+
+    fun getAllServiceUpdateProviders() = serviceUpdateProviderPropertiesDao().getAllServiceUpdateProvider()
+
+    fun getServiceUpdateProviders(targetAuthority: String) = serviceUpdateProviderPropertiesDao().getTargetAuthorityServiceUpdateProvider(targetAuthority)
+
+    fun getServiceUpdateProvider(authority: String) = serviceUpdateProviderPropertiesDao().getServiceUpdateProvider(authority)
+
+    // NEWS
+
+    private fun newsProviderPropertiesDao() = dataSourcesDatabase.newsProviderPropertiesDao()
+
+    fun getAllNewsProviders() = newsProviderPropertiesDao().getAllNewsProvider()
+
+    fun getNewsProviders(targetAuthority: String) = newsProviderPropertiesDao().getTargetAuthorityNewsProviders(targetAuthority)
+
+    fun getNewsProvider(authority: String) = newsProviderPropertiesDao().getNewsProvider(authority)
 }

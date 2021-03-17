@@ -4,6 +4,8 @@
     package="org.mtransit.android"
     tools:ignore="MissingVersion">
     <!-- REQUEST PERMISSIONS USAGE -->
+    <!-- INTERNET: Used for real time information and more -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- ACCESS_COARSE_LOCATION: required to display distance & compass -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- ACCESS_FINE_LOCATION: required to display distance & compass -->

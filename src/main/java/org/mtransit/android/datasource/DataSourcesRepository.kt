@@ -5,6 +5,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.future.future
 import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.data.DataSourceType
 import java.util.concurrent.CompletableFuture
 
 class DataSourcesRepository(
@@ -18,11 +19,78 @@ class DataSourcesRepository(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val allAgencies = dataSourcesCache.allAgencies
+    // AGENCY
 
-    fun updateAsync(): CompletableFuture<Unit> { // JAVA
-        return GlobalScope.future {
-            update()
+    fun getAllAgencies() = dataSourcesCache.getAllAgencies()
+
+    fun getAllAgenciesCount() = dataSourcesCache.getAllAgenciesCount()
+
+    fun getAgency(authority: String) = dataSourcesCache.getAgency(authority)
+
+    fun getAllDataSourceTypes() = dataSourcesCache.getAllDataSourceTypes()
+
+    fun getTypeDataSources(dst: DataSourceType) = dataSourcesCache.getTypeDataSources(dst)
+
+    fun getAgencyPkg(authority: String) = dataSourcesCache.getAgencyPkg(authority)
+
+    fun getAgencyColorInt(authority: String) = dataSourcesCache.getAgencyColorInt(authority)
+
+    // STATUS
+
+    fun getAllStatusProviders() = dataSourcesCache.getAllStatusProviders()
+
+    fun getStatusProviders(targetAuthority: String) = dataSourcesCache.getStatusProviders(targetAuthority)
+
+    fun getStatusProvider(authority: String) = dataSourcesCache.getStatusProvider(authority)
+
+    // SCHEDULE
+
+    fun getAllScheduleProviders() = dataSourcesCache.getAllScheduleProviders()
+
+    fun getScheduleProviders(targetAuthority: String) = dataSourcesCache.getScheduleProviders(targetAuthority)
+
+    fun getScheduleProvider(authority: String) = dataSourcesCache.getScheduleProvider(authority)
+
+    // SERVICE UPDATE
+
+    fun getAllServiceUpdateProviders() = dataSourcesCache.getAllServiceUpdateProviders()
+
+    fun getServiceUpdateProviders(targetAuthority: String) = dataSourcesCache.getServiceUpdateProviders(targetAuthority)
+
+    fun getServiceUpdateProvider(authority: String) = dataSourcesCache.getServiceUpdateProvider(authority)
+
+    // NEWS
+
+    fun getAllNewsProviders() = dataSourcesCache.getAllNewsProviders()
+
+    fun getNewsProviders(targetAuthority: String) = dataSourcesCache.getNewsProviders(targetAuthority)
+
+    fun getNewsProvider(authority: String) = dataSourcesCache.getNewsProvider(authority)
+
+    private var runningUpdate: Boolean = false
+
+    @JvmOverloads
+    fun updateAsync(force: Boolean = false): CompletableFuture<Boolean> { // JAVA
+        if (runningUpdate) {
+            MTLog.d(this@DataSourcesRepository, "updateAsync() > SKIP (was running - before sync)")
+            return GlobalScope.future { false }
+        }
+        synchronized(this) {
+            if (runningUpdate) {
+                MTLog.d(this@DataSourcesRepository, "updateAsync() > SKIP (was running - in sync)")
+                return GlobalScope.future { false }
+            }
+            return GlobalScope.future {
+                var updated = false
+                if (!runningUpdate) {
+                    runningUpdate = true
+                    updated = update()
+                    runningUpdate = false
+                } else {
+                    MTLog.d(this@DataSourcesRepository, "updateAsync() > SKIP (was running - in future)")
+                }
+                updated
+            }
         }
     }
 
@@ -32,5 +100,9 @@ class DataSourcesRepository(
             updated = dataSourcesReader.update()
         }
         return updated
+    }
+
+    fun isProvider(pkg: String): Boolean {
+        return this.dataSourcesReader.isProvider(pkg)
     }
 }
