@@ -11,7 +11,6 @@ import android.text.TextUtils;
 import android.util.SparseArray;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -50,7 +49,6 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 
 	private boolean initialized = false;
 
-	@MainThread
 	@NonNull
 	public static DataSourceProvider get(@SuppressWarnings("unused") @Nullable Context context) { // INIT SYNC
 		DataSourceProvider instance = Injection.providesDataSourceProvider();
@@ -65,7 +63,6 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return Injection.providesDataSourceProvider();
 	}
 
-	@MainThread
 	private synchronized static void initInstance() {
 		DataSourceProvider instance = Injection.providesDataSourceProvider();
 		if (instance.isInitialized()) {
@@ -87,7 +84,6 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		instance.onDestroy();
 	}
 
-	@MainThread
 	public boolean isInitialized() {
 		return this.initialized;
 	}
@@ -216,7 +212,6 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return false;
 	}
 
-	@MainThread
 	public static boolean resetIfNecessary(@NonNull Context context) {
 		DataSourceProvider instance = Injection.providesDataSourceProvider();
 		if (instance.isInitialized()) {
@@ -229,7 +224,6 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return false;
 	}
 
-	@MainThread
 	@SuppressLint("QueryPermissionsNeeded")
 	private synchronized static boolean hasChanged(DataSourceProvider current, @NonNull Context context) {
 		if (current == null) {
@@ -374,7 +368,6 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return CollectionUtils.getSize(this.allAgenciesAuthority);
 	}
 
-	@MainThread
 	@Nullable
 	public ArrayList<AgencyProperties> getAllAgencies(@SuppressWarnings("unused") @Nullable Context context) {
 		if (!isAgencyPropertiesSet()) {
@@ -391,7 +384,6 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return this.allAgencies != null;
 	}
 
-	@MainThread
 	private synchronized void initAgencyProperties() {
 		if (this.allAgencies != null) {
 			return; // too late
@@ -467,7 +459,6 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return this.allAgenciesAuthority.contains(authority);
 	}
 
-	@MainThread
 	@Nullable
 	public AgencyProperties getAgency(@SuppressWarnings("unused") @Nullable Context context, @NonNull String authority) {
 		if (!isAgencyPropertiesSet()) {
@@ -479,7 +470,6 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return this.allAgenciesByAuthority.get(authority);
 	}
 
-	@MainThread
 	@Nullable
 	public ArrayList<AgencyProperties> getTypeDataSources(@SuppressWarnings("unused") @Nullable Context context, int typeId) {
 		final DataSourceType type = DataSourceType.parseId(typeId);
@@ -489,7 +479,6 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return getTypeDataSources(context, type);
 	}
 
-	@MainThread
 	@Nullable
 	public ArrayList<AgencyProperties> getTypeDataSources(@SuppressWarnings("unused") @Nullable Context context, @NonNull DataSourceType type) {
 		if (!isAgencyPropertiesSet()) {
@@ -502,7 +491,6 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return new ArrayList<>(agencies); // copy
 	}
 
-	@MainThread
 	@Nullable
 	@ColorInt
 	Integer getAgencyColorInt(@SuppressWarnings("unused") @Nullable Context context, @NonNull String authority) {
@@ -752,7 +740,6 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		setInitialized(true);
 	}
 
-	@MainThread
 	@SuppressLint("QueryPermissionsNeeded")
 	private synchronized void init() {
 		try {
@@ -871,7 +858,6 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		MTLog.i(this, "Initializing data-sources... DONE");
 	}
 
-	@MainThread
 	private void initFromDataSourceRepository(boolean forceUpdated) {
 		if (this.updateDataSourceRepositoryTask != null && this.updateDataSourceRepositoryTask.getStatus() == UpdateDataSourceRepositoryTask.Status.RUNNING) {
 			MTLog.d(this, "initFromDataSourceRepository() > SKIP (already running)");
