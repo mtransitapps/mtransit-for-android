@@ -359,21 +359,27 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABTitle(Context context) {
+	public CharSequence getABTitle(@Nullable Context context) {
+		if (context == null) {
+			return super.getABTitle(context);
+		}
 		return context.getString(R.string.news);
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABSubtitle(Context context) {
+	public CharSequence getABSubtitle(@Nullable Context context) {
 		if (!TextUtils.isEmpty(this.subTitle)) {
 			return this.subTitle;
 		}
 		return super.getABSubtitle(context);
 	}
 
+	@Nullable
 	@Override
-	public Integer getABBgColor(Context context) {
+	public Integer getABBgColor(@Nullable Context context) {
 		if (this.colorInt != null) {
 			return this.colorInt;
 		}
@@ -391,7 +397,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			return LOG_TAG;
 		}
 
-		private LayoutInflater layoutInflater;
+		private final LayoutInflater layoutInflater;
 		private WeakReference<Activity> activityWR;
 
 		@Nullable

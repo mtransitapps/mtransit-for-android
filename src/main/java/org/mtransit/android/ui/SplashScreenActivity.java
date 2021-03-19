@@ -1,7 +1,5 @@
 package org.mtransit.android.ui;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -62,29 +60,5 @@ public class SplashScreenActivity extends MTActivity implements IActivity, IAnal
 		// }
 		startActivity(MainActivity.newInstance(this));
 		finish();
-	}
-
-	@NonNull
-	@Override
-	public Context getContext() {
-		return this;
-	}
-
-	@NonNull
-	@Override
-	public Context requireContext() throws IllegalStateException {
-		return this;
-	}
-
-	@NonNull
-	@Override
-	public Activity getActivity() {
-		return this;
-	}
-
-	@NonNull
-	@Override
-	public Activity requireActivity() throws IllegalStateException {
-		return this;
 	}
 }

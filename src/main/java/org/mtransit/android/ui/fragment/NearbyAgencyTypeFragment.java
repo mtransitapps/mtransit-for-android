@@ -9,9 +9,11 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.AbsListView;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 
@@ -35,21 +37,26 @@ import org.mtransit.android.util.LoaderUtils;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
-public class NearbyAgencyTypeFragment extends MTFragmentV4 implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
+public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityAwareFragment, LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		NearbyFragment.NearbyLocationListener, DataSourceProvider.ModulesUpdateListener, POIArrayAdapter.InfiniteLoadingListener, IActivity {
 
-	private static final String TAG = NearbyAgencyTypeFragment.class.getSimpleName();
+	private static final String LOG_TAG = NearbyAgencyTypeFragment.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG + "-" + this.typeId;
+		return LOG_TAG + "-" + this.typeId;
 	}
 
 	private static final String EXTRA_TYPE_ID = "extra_type_id";
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 
-	public static NearbyAgencyTypeFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, int typeId, Location optNearbyLocation) {
+	@NonNull
+	public static NearbyAgencyTypeFragment newInstance(int fragmentPosition,
+													   int lastVisibleFragmentPosition,
+													   int typeId,
+													   @SuppressWarnings("unused") @Nullable Location optNearbyLocation) {
 		NearbyAgencyTypeFragment f = new NearbyAgencyTypeFragment();
 		Bundle args = new Bundle();
 		args.putInt(EXTRA_TYPE_ID, typeId);
@@ -66,16 +73,23 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		return f;
 	}
 
+	@Nullable
 	private POIArrayAdapter adapter;
+	@NonNull
 	private LocationUtils.AroundDiff ad = LocationUtils.getNewDefaultAroundDiff();
+	@Nullable
 	private Double lastEmptyAroundDiff = null;
+	@Nullable
 	private Location nearbyLocation;
+	@Nullable
 	private Location userLocation;
+	@Nullable
 	private ListViewSwipeRefreshLayout swipeRefreshLayout;
 	private boolean swipeRefreshLayoutEnabled = true;
 	private int fragmentPosition = -1;
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
+	@Nullable
 	private WeakReference<NearbyFragment> nearbyFragmentWR;
 
 	@Override
@@ -85,14 +99,15 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
 		DataSourceProvider.addModulesUpdateListener(this);
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_nearby_agency_type, container, false);
 		setupView(view);
@@ -113,18 +128,22 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		super.onSaveInstanceState(outState);
 	}
 
+	@Nullable
 	private Integer typeId;
 
-	public Integer getTypeId() {
+	@Nullable
+	Integer getTypeId() {
 		return this.typeId;
 	}
 
+	@Nullable
 	private ArrayList<String> typeAgenciesAuthority;
 
 	private void resetTypeAgenciesAuthority() {
 		this.typeAgenciesAuthority = null;
 	}
 
+	@Nullable
 	private ArrayList<String> getTypeAgenciesAuthorityOrNull() {
 		if (!hasTypeAgenciesAuthority()) {
 			return null;
@@ -152,8 +171,10 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		TaskUtils.execute(this.loadTypeAgenciesAuthorityAsyncTask);
 	}
 
+	@Nullable
 	private LoadTypeAgenciesAuthorityAsyncTask loadTypeAgenciesAuthorityAsyncTask = null;
 
+	@SuppressWarnings("deprecation")
 	private static class LoadTypeAgenciesAuthorityAsyncTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, NearbyAgencyTypeFragment> {
 
 		@NonNull
@@ -179,6 +200,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		}
 	}
 
+	@MainThread
 	private boolean initTypeAgenciesAuthoritySync() {
 		if (this.typeAgenciesAuthority != null) {
 			return false;
@@ -191,6 +213,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		return this.typeAgenciesAuthority != null;
 	}
 
+	@MainThread
 	private void applyNewTypeAgenciesAuthority() {
 		if (this.typeAgenciesAuthority == null) {
 			return;
@@ -254,6 +277,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		this.adapter.setInfiniteLoadingListener(this);
 	}
 
+	@MainThread
 	private void doLoadMore() {
 		this.minSize *= 2;
 		this.maxSize *= 2;
@@ -288,11 +312,11 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		return true; // now loading
 	}
 
-	public void setNearbyFragment(NearbyFragment nearbyFragment) {
+	void setNearbyFragment(@Nullable NearbyFragment nearbyFragment) {
 		this.nearbyFragmentWR = new WeakReference<>(nearbyFragment);
 	}
 
-	public void setSwipeRefreshLayoutRefreshing(boolean refreshing) {
+	void setSwipeRefreshLayoutRefreshing(boolean refreshing) {
 		if (this.swipeRefreshLayout != null) {
 			if (refreshing) {
 				if (!this.swipeRefreshLayout.isRefreshing()) {
@@ -304,7 +328,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		}
 	}
 
-	public void setSwipeRefreshLayoutEnabled(boolean swipeRefreshLayoutEnabled) {
+	void setSwipeRefreshLayoutEnabled(boolean swipeRefreshLayoutEnabled) {
 		this.swipeRefreshLayoutEnabled = swipeRefreshLayoutEnabled;
 		if (this.swipeRefreshLayout != null) {
 			this.swipeRefreshLayout.setRefreshEnabled(swipeRefreshLayoutEnabled);
@@ -421,7 +445,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 	}
 
 	@Override
-	public void onNearbyLocationChanged(Location newLocation) {
+	public void onNearbyLocationChanged(@Nullable Location newLocation) {
 		if (newLocation != null) {
 			useNewNearbyLocation(newLocation, false); // true);
 		} else {
@@ -429,6 +453,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		}
 	}
 
+	@MainThread
 	private void useNewNearbyLocation(Location newNearbyLocation, boolean force) {
 		if (!force) {
 			if (newNearbyLocation == null || !this.fragmentVisible || LocationUtils.areTheSame(newNearbyLocation, this.nearbyLocation)) {
@@ -478,6 +503,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		if (!isResumed()) {
 			return;
 		}
+		//noinspection IfStatementWithIdenticalBranches
 		if (this.adapter != null && this.nearbyLocation != null && this.typeId != null && this.ad != null) {
 			FragmentActivity activity = getActivity();
 			if (activity == null) {
@@ -580,10 +606,11 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 
 	@NonNull
 	@Override
-	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<POIManager>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case NEARBY_POIS_LOADER:
 			if (this.nearbyLocation == null || this.typeId == null || getTypeAgenciesAuthorityOrNull() == null) {
+				//noinspection deprecation
 				CrashUtils.w(this, "onCreateLoader() > nearby location or type not available yet.");
 				//noinspection ConstantConditions // FIXME
 				return null;
@@ -591,6 +618,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			return new NearbyPOIListLoader(getContext(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff,
 					this.minCoverageInMeters, this.maxSize, false, true, getTypeAgenciesAuthorityOrNull());
 		default:
+			//noinspection deprecation
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			//noinspection ConstantConditions // FIXME
 			return null;
@@ -611,6 +639,12 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		return getView().findViewById(id);
 	}
 
+	@NonNull
+	@Override
+	public LifecycleOwner getLifecycleOwner() {
+		return this;
+	}
+
 	@Override
 	public void onLoaderReset(@NonNull Loader<ArrayList<POIManager>> loader) {
 		if (this.adapter != null) {
@@ -618,8 +652,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 		}
 	}
 
+	@MainThread
 	@Override
-	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, @Nullable ArrayList<POIManager> data) {
 		int dataSize = CollectionUtils.getSize(data);
 		if (dataSize < this.minSize //
 				&& !LocationUtils.searchComplete(this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(), this.ad.aroundDiff)) {
@@ -628,10 +663,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentV4 implements Visibility
 			} else {
 				this.lastEmptyAroundDiff = null;
 			}
-			LocationUtils.incAroundDiff(this.ad);
+			LocationUtils.incAroundDiff(this.ad); // increase covered area
 			resetTypeAgenciesAuthority();
-			initTypeAgenciesAuthoritySync();
-			LoaderUtils.restartLoader(this, NEARBY_POIS_LOADER, null, this);
+			initTypeAgenciesAuthorityAsync(); // look for new agencies in this area (loader will be restarted after)
 		} else {
 			this.distanceCoveredInMeters = this.minCoverageInMeters;
 			this.sizeCovered = data == null ? 0 : data.size();

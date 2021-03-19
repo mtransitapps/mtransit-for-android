@@ -1,5 +1,9 @@
 package org.mtransit.android.ui.fragment;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 
@@ -8,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import androidx.fragment.app.ListFragment;
 import android.util.AttributeSet;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -17,105 +20,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 
 /**
  * NO LOGIC HERE, just logs.
  */
-public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Loggable {
-
-	public MTListFragmentV4() {
-		super();
-		if (Constants.LOG_LIFECYCLE) {
-			MTLog.v(this, "%s()", getLogTag());
-		}
-	}
+public abstract class MTFragmentX extends Fragment implements MTLog.Loggable {
 
 	@Override
-	public ListAdapter getListAdapter() {
-		if (Constants.LOG_LIFECYCLE) {
-			MTLog.v(this, "getListAdapter()");
-		}
-		return super.getListAdapter();
-	}
-
-	@Override
-	public ListView getListView() {
-		if (Constants.LOG_LIFECYCLE) {
-			MTLog.v(this, "getListView()");
-		}
-		return super.getListView();
-	}
-
-	@Override
-	public long getSelectedItemId() {
-		if (Constants.LOG_LIFECYCLE) {
-			MTLog.v(this, "getSelectedItemId()");
-		}
-		return super.getSelectedItemId();
-	}
-
-	@Override
-	public int getSelectedItemPosition() {
-		if (Constants.LOG_LIFECYCLE) {
-			MTLog.v(this, "getSelectedItemPosition()");
-		}
-		return super.getSelectedItemPosition();
-	}
-
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		if (Constants.LOG_LIFECYCLE) {
-			MTLog.v(this, "onListItemClick(%s,%s,%s,%s)", l, v, position, id);
-		}
-		super.onListItemClick(l, v, position, id);
-	}
-
-	@Override
-	public void setEmptyText(CharSequence text) {
-		if (Constants.LOG_LIFECYCLE) {
-			MTLog.v(this, "setEmptyText(%s)", text);
-		}
-		super.setEmptyText(text);
-	}
-
-	@Override
-	public void setListAdapter(ListAdapter adapter) {
-		if (Constants.LOG_LIFECYCLE) {
-			MTLog.v(this, "setListAdapter(%s)", adapter);
-		}
-		super.setListAdapter(adapter);
-	}
-
-	@Override
-	public void setListShown(boolean shown) {
-		if (Constants.LOG_LIFECYCLE) {
-			MTLog.v(this, "setListShown(%s)", shown);
-		}
-		super.setListShown(shown);
-	}
-
-	@Override
-	public void setListShownNoAnimation(boolean shown) {
-		if (Constants.LOG_LIFECYCLE) {
-			MTLog.v(this, "setListShownNoAnimation(%s)", shown);
-		}
-		super.setListShownNoAnimation(shown);
-	}
-
-	@Override
-	public void setSelection(int position) {
-		if (Constants.LOG_LIFECYCLE) {
-			MTLog.v(this, "setSelection(%s)", position);
-		}
-		super.setSelection(position);
-	}
-
-	// INHERITED FROM FRAGMENT
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onActivityCreated(%s)", savedInstanceState);
 		}
@@ -123,7 +35,7 @@ public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Log
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onActivityResult(%s,%s,%s)", requestCode, resultCode, data);
 		}
@@ -132,7 +44,7 @@ public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Log
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void onAttach(Activity activity) {
+	public void onAttach(@NonNull Activity activity) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onAttach(%s)", activity);
 		}
@@ -140,7 +52,7 @@ public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Log
 	}
 
 	@Override
-	public void onAttach(Context context) {
+	public void onAttach(@NonNull Context context) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onAttach(%s)", context);
 		}
@@ -148,7 +60,7 @@ public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Log
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onConfigurationChanged(%s)", newConfig);
 		}
@@ -156,15 +68,16 @@ public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Log
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCreate(%s)", savedInstanceState);
 		}
 		super.onCreate(savedInstanceState);
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCreateView(%s,%s,%s)", inflater, container, savedInstanceState);
 		}
@@ -197,7 +110,7 @@ public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Log
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void onInflate(Activity activity, AttributeSet attrs, Bundle savedInstanceState) {
+	public void onInflate(@NonNull Activity activity, @NonNull AttributeSet attrs, @Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onInflate(%s,%s,%s)", activity, attrs, savedInstanceState);
 		}
@@ -205,7 +118,7 @@ public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Log
 	}
 
 	@Override
-	public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+	public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs, @Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onInflate(%s,%s,%s)", context, attrs, savedInstanceState);
 		}
@@ -237,7 +150,7 @@ public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Log
 	}
 
 	@Override
-	public void onSaveInstanceState(Bundle outState) {
+	public void onSaveInstanceState(@NonNull Bundle outState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onSaveInstanceState(%s)", outState);
 		}
@@ -261,7 +174,7 @@ public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Log
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onViewCreated(%s, %s)", view, savedInstanceState);
 		}
@@ -269,7 +182,7 @@ public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Log
 	}
 
 	@Override
-	public void onViewStateRestored(Bundle savedInstanceState) {
+	public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onViewStateRestored(%s)", savedInstanceState);
 		}
@@ -277,7 +190,7 @@ public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Log
 	}
 
 	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+	public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, @Nullable ContextMenu.ContextMenuInfo menuInfo) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCreateContextMenu(%s,%s,%s)", menu, v, menuInfo);
 		}
@@ -285,7 +198,7 @@ public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Log
 	}
 
 	@Override
-	public boolean onContextItemSelected(MenuItem item) {
+	public boolean onContextItemSelected(@NonNull MenuItem item) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onContextItemSelected(%s)", item);
 		}
@@ -293,15 +206,20 @@ public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Log
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCreateOptionsMenu(%s,%s)", menu, inflater);
 		}
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
+	/**
+	 * @deprecated menu items are always visible in the action bar so {@link #onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)} is always
+	 * called before anyway
+	 */
+	@Deprecated
 	@Override
-	public void onPrepareOptionsMenu(Menu menu) {
+	public void onPrepareOptionsMenu(@NonNull Menu menu) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onPrepareOptionsMenu(%s)", menu);
 		}
@@ -309,11 +227,10 @@ public abstract class MTListFragmentV4 extends ListFragment implements MTLog.Log
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onOptionsItemSelected(%s)", item);
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
 }

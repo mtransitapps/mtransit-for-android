@@ -14,6 +14,7 @@ import android.widget.AbsListView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 
@@ -41,7 +42,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class RTSTripStopsFragment extends MTFragmentV4 implements
+public class RTSTripStopsFragment extends MTFragmentX implements
 		VisibilityAwareFragment,
 		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		MTActivityWithLocation.UserLocationListener,
@@ -504,6 +505,12 @@ public class RTSTripStopsFragment extends MTFragmentV4 implements
 			return null;
 		}
 		return getView().findViewById(id);
+	}
+
+	@NonNull
+	@Override
+	public LifecycleOwner getLifecycleOwner() {
+		return this;
 	}
 
 	private void switchView(View view) {

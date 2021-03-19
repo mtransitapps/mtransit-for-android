@@ -663,9 +663,10 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	private Integer abBgColor = null;
 
+	@Nullable
 	@ColorInt
 	@Override
-	public Integer getABBgColor(Context context) {
+	public Integer getABBgColor(@Nullable Context context) {
 		if (this.abBgColor == null) {
 			this.abBgColor = getNewABBgColor(context);
 		}
@@ -718,10 +719,11 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		return hasType();
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABTitle(Context context) {
+	public CharSequence getABTitle(@Nullable Context context) {
 		if (context == null) {
-			return super.getABTitle(null);
+			return super.getABTitle(context);
 		}
 		DataSourceType type = getTypeOrNull();
 		if (type == null) {

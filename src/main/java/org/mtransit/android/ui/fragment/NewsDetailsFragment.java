@@ -292,9 +292,10 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		disableTimeChangeddReceiver();
 	}
 
+	@Nullable
 	@ColorInt
 	@Override
-	public Integer getABBgColor(Context context) {
+	public Integer getABBgColor(@Nullable Context context) {
 		News news = getNewsOrNull();
 		if (news != null && news.hasColor()) {
 			return news.getColorInt();
@@ -302,8 +303,9 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		return super.getABBgColor(context);
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABTitle(Context context) {
+	public CharSequence getABTitle(@Nullable Context context) {
 		News news = getNewsOrNull();
 		if (news != null) {
 			return news.getAuthorOneLine();
@@ -311,8 +313,9 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		return super.getABTitle(context);
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABSubtitle(Context context) {
+	public CharSequence getABSubtitle(@Nullable Context context) {
 		News news = getNewsOrNull();
 		if (news != null) {
 			return news.getSourceLabel();

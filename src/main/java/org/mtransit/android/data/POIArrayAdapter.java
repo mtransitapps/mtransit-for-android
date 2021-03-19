@@ -24,6 +24,7 @@ import android.widget.TextView;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 import androidx.core.util.Pair;
 
 import org.mtransit.android.R;
@@ -43,6 +44,7 @@ import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.sensor.MTSensorManager;
@@ -70,18 +72,21 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSensorManager.CompassListener, AdapterView.OnItemClickListener,
 		AdapterView.OnItemLongClickListener, SensorEventListener, AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener,
 		ServiceUpdateLoader.ServiceUpdateLoaderListener, FavoriteManager.FavoriteUpdateListener, MTSensorManager.SensorTaskCompleted,
 		UITimeUtils.TimeChangedReceiver.TimeChangedListener {
 
-	private static final String TAG = POIArrayAdapter.class.getSimpleName();
+	private static final String LOG_TAG = POIArrayAdapter.class.getSimpleName();
 
-	private String tag = TAG;
+	private String tag = LOG_TAG;
 
 	@NonNull
 	@Override
@@ -89,8 +94,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return tag;
 	}
 
-	public void setTag(String tag) {
-		this.tag = TAG + "-" + tag;
+	public void setTag(@NonNull String tag) {
+		this.tag = LOG_TAG + "-" + tag;
 	}
 
 	public static final int TYPE_HEADER_NONE = 0;
@@ -98,7 +103,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	public static final int TYPE_HEADER_ALL_NEARBY = 2;
 	public static final int TYPE_HEADER_MORE = 3;
 
-	private LayoutInflater layoutInflater;
+	private final LayoutInflater layoutInflater;
 
 	private LinkedHashMap<Integer, ArrayList<POIManager>> poisByType;
 
@@ -158,12 +163,29 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@NonNull
 	private final MTSensorManager sensorManager;
+	@SuppressWarnings("FieldCanBeLocal")
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
+
+	@Nullable
+	private List<AgencyProperties> allAgencies;
+	@Nullable
+	private List<DataSourceType> dataSourceTypes;
 
 	public POIArrayAdapter(@NonNull IActivity activity) {
 		super(activity.requireContext(), -1);
 		setActivity(activity);
 		this.layoutInflater = LayoutInflater.from(getContext());
 		this.sensorManager = Injection.providesSensorManager();
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+		if (F_CACHE_DATA_SOURCES) {
+			this.dataSourcesRepository.readingAllAgencies().observe(activity.getLifecycleOwner(), newAgencies ->
+					this.allAgencies = newAgencies
+			);
+			this.dataSourcesRepository.readingAllDataSourceTypes().observe(activity.getLifecycleOwner(), newDataSourceTypes ->
+					this.dataSourceTypes = newDataSourceTypes
+			);
+		}
 	}
 
 	public void setManualLayout(ViewGroup manualLayout) {
@@ -469,15 +491,30 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private int nbAgencyTypes = -1;
 
 	private View getBrowseHeaderSectionView(@Nullable View convertView, @NonNull ViewGroup parent) {
-		DataSourceProvider dataSourceProvider = DataSourceProvider.get(parent.getContext());
-		int agenciesCount = !dataSourceProvider.isInitialized() ? 0 : dataSourceProvider.getAllAgenciesCount();
+		DataSourceProvider dataSourceProvider;
+		if (F_CACHE_DATA_SOURCES) {
+			dataSourceProvider = null;
+		} else {
+			dataSourceProvider = DataSourceProvider.get(parent.getContext());
+		}
+		int agenciesCount;
+		if (F_CACHE_DATA_SOURCES) {
+			agenciesCount = this.allAgencies == null ? 0 : this.allAgencies.size();
+		} else {
+			agenciesCount = !dataSourceProvider.isInitialized() ? 0 : dataSourceProvider.getAllAgenciesCount();
+		}
 		if (convertView == null || this.nbAgencyTypes != agenciesCount) {
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header, parent, false);
 			}
 			LinearLayout gridLL = convertView.findViewById(R.id.gridLL);
 			gridLL.removeAllViews();
-			ArrayList<DataSourceType> allAgencyTypes = !dataSourceProvider.isInitialized() ? null : dataSourceProvider.getAvailableAgencyTypes();
+			List<DataSourceType> allAgencyTypes;
+			if (F_CACHE_DATA_SOURCES) {
+				allAgencyTypes = this.dataSourceTypes;
+			} else {
+				allAgencyTypes = !dataSourceProvider.isInitialized() ? null : dataSourceProvider.getAvailableAgencyTypes();
+			}
 			this.nbAgencyTypes = CollectionUtils.getSize(allAgencyTypes);
 			if (allAgencyTypes == null) {
 				gridLL.setVisibility(View.GONE);
@@ -896,9 +933,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		notifyDataSetChanged(force, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
 	}
 
-	private Handler handler = new Handler();
+	private final Handler handler = new Handler();
 
-	private Runnable notifyDataSetChangedLater = () -> {
+	private final Runnable notifyDataSetChangedLater = () -> {
 		notifyDataSetChanged(true); // still really need to show new data
 	};
 
@@ -1585,6 +1622,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return layoutRes;
 	}
 
+	@UiThread
 	@NonNull
 	private View getRouteTripStopView(@NonNull POIManager poim, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
@@ -1608,6 +1646,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		holder.tripHeadingBg = convertView.findViewById(R.id.trip_heading_bg);
 	}
 
+	@UiThread
 	@NonNull
 	private View updateRouteTripStopView(@NonNull POIManager poim, @NonNull View convertView) {
 		if (!(convertView.getTag() instanceof RouteTripStopViewHolder)) {
@@ -1627,6 +1666,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.showExtra = showExtra;
 	}
 
+	@UiThread
 	private void updateRTSExtra(POIManager poim, RouteTripStopViewHolder holder) {
 		if (poim.poi instanceof RouteTripStop) {
 			RouteTripStop rts = (RouteTripStop) poim.poi;
@@ -1648,7 +1688,19 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 					if (holder.routeTypeImg.hasPaths() && poim.poi.getAuthority().equals(holder.routeTypeImg.getTag())) {
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
-						AgencyProperties agency = DataSourceProvider.get(getContext()).getAgency(getContext(), poim.poi.getAuthority());
+						AgencyProperties agency = null;
+						if (F_CACHE_DATA_SOURCES) {
+							if (this.allAgencies != null) {
+								for (AgencyProperties agencyProperties : this.allAgencies) {
+									if (agencyProperties.getAuthority().equals(poim.poi.getAuthority())) {
+										agency = agencyProperties;
+										break;
+									}
+								}
+							}
+						} else {
+							agency = DataSourceProvider.get(getContext()).getAgency(getContext(), poim.poi.getAuthority());
+						}
 						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo();
 						if (rtsRouteLogo != null) {
 							holder.routeTypeImg.setJSON(rtsRouteLogo);

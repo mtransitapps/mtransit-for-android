@@ -1,9 +1,8 @@
 package org.mtransit.android.task;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.TimeUnit;
+import android.content.Context;
 
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule.Timestamp;
 import org.mtransit.android.commons.data.ScheduleTimestamps;
@@ -12,9 +11,11 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.ScheduleProviderProperties;
 
-import android.content.Context;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
-public class ScheduleTimestampsLoader extends MTAsyncTaskLoaderV4<ArrayList<Timestamp>> {
+public class ScheduleTimestampsLoader extends MTAsyncTaskLoaderX<ArrayList<Timestamp>> {
 
 	private static final String TAG = ScheduleTimestampsLoader.class.getSimpleName();
 
@@ -24,8 +25,8 @@ public class ScheduleTimestampsLoader extends MTAsyncTaskLoaderV4<ArrayList<Time
 	}
 
 	private ArrayList<Timestamp> timestamps;
-	private long startsAtInMs;
-	private RouteTripStop rts;
+	private final long startsAtInMs;
+	private final RouteTripStop rts;
 
 	public ScheduleTimestampsLoader(Context context, RouteTripStop rts, long startsAtInMs) {
 		super(context);

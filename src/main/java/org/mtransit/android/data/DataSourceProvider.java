@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.util.SparseArray;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -49,6 +50,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 
 	private boolean initialized = false;
 
+	@MainThread
 	@NonNull
 	public static DataSourceProvider get(@SuppressWarnings("unused") @Nullable Context context) { // INIT SYNC
 		DataSourceProvider instance = Injection.providesDataSourceProvider();
@@ -63,6 +65,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return Injection.providesDataSourceProvider();
 	}
 
+	@MainThread
 	private synchronized static void initInstance() {
 		DataSourceProvider instance = Injection.providesDataSourceProvider();
 		if (instance.isInitialized()) {
@@ -77,10 +80,14 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	public static void destroy() {
+		if (F_CACHE_DATA_SOURCES) {
+			return;
+		}
 		DataSourceProvider instance = Injection.providesDataSourceProvider();
 		instance.onDestroy();
 	}
 
+	@MainThread
 	public boolean isInitialized() {
 		return this.initialized;
 	}
@@ -209,6 +216,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return false;
 	}
 
+	@MainThread
 	public static boolean resetIfNecessary(@NonNull Context context) {
 		DataSourceProvider instance = Injection.providesDataSourceProvider();
 		if (instance.isInitialized()) {
@@ -221,10 +229,15 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return false;
 	}
 
+	@MainThread
 	@SuppressLint("QueryPermissionsNeeded")
 	private synchronized static boolean hasChanged(DataSourceProvider current, @NonNull Context context) {
 		if (current == null) {
 			return true;
+		}
+		if (F_CACHE_DATA_SOURCES) {
+			current.initFromDataSourceRepository(false);
+			return false; // will be handled by initFromDataSourceRepository()
 		}
 		String agencyProviderMetaData = getAgencyProviderMetaData(context);
 		String scheduleProviderMetaData = getScheduleProviderMetaData(context);
@@ -342,18 +355,14 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	private final IApplication application;
 	@NonNull
 	private final IAnalyticsManager analyticsManager;
-	@Nullable
+	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 
 	public DataSourceProvider(@NonNull IApplication application,
 							  @NonNull IAnalyticsManager analyticsManager) {
 		this.application = application;
 		this.analyticsManager = analyticsManager;
-		if (F_CACHE_DATA_SOURCES) {
-			dataSourcesRepository = Injection.providesDataSourcesRepository();
-		} else {
-			dataSourcesRepository = null;
-		}
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 	}
 
 	@NonNull
@@ -365,14 +374,11 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return CollectionUtils.getSize(this.allAgenciesAuthority);
 	}
 
-	@WorkerThread
+	@MainThread
 	@Nullable
 	public ArrayList<AgencyProperties> getAllAgencies(@SuppressWarnings("unused") @Nullable Context context) {
 		if (!isAgencyPropertiesSet()) {
 			initAgencyProperties();
-		}
-		if (F_CACHE_DATA_SOURCES) {
-			return new ArrayList<>(this.dataSourcesRepository.getAllAgencies());
 		}
 		if (this.allAgencies == null) {
 			return null;
@@ -385,22 +391,13 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return this.allAgencies != null;
 	}
 
-	@WorkerThread
+	@MainThread
 	private synchronized void initAgencyProperties() {
 		if (this.allAgencies != null) {
 			return; // too late
 		}
 		if (F_CACHE_DATA_SOURCES) {
-			try {
-				final CompletableFuture<Boolean> updatedListener = this.dataSourcesRepository.updateAsync();
-				final boolean updated = updatedListener.get();
-				this.allAgencies = new ArrayList<>(this.dataSourcesRepository.getAllAgencies()); // mark agency properties set
-				if (updated) {
-					triggerModulesUpdated();
-				}
-			} catch (Exception e) {
-				MTLog.w(this, e, "Error while updating data-sources from repository!");
-			}
+			initFromDataSourceRepository(true);
 			return;
 		}
 		try {
@@ -470,14 +467,11 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return this.allAgenciesAuthority.contains(authority);
 	}
 
-	@WorkerThread
+	@MainThread
 	@Nullable
 	public AgencyProperties getAgency(@SuppressWarnings("unused") @Nullable Context context, @NonNull String authority) {
 		if (!isAgencyPropertiesSet()) {
 			initAgencyProperties();
-		}
-		if (F_CACHE_DATA_SOURCES) {
-			return this.dataSourcesRepository.getAgency(authority);
 		}
 		if (this.allAgenciesByAuthority == null) {
 			return null;
@@ -485,7 +479,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return this.allAgenciesByAuthority.get(authority);
 	}
 
-	@WorkerThread
+	@MainThread
 	@Nullable
 	public ArrayList<AgencyProperties> getTypeDataSources(@SuppressWarnings("unused") @Nullable Context context, int typeId) {
 		final DataSourceType type = DataSourceType.parseId(typeId);
@@ -495,14 +489,11 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return getTypeDataSources(context, type);
 	}
 
-	@WorkerThread
+	@MainThread
 	@Nullable
 	public ArrayList<AgencyProperties> getTypeDataSources(@SuppressWarnings("unused") @Nullable Context context, @NonNull DataSourceType type) {
 		if (!isAgencyPropertiesSet()) {
 			initAgencyProperties();
-		}
-		if (F_CACHE_DATA_SOURCES) {
-			return new ArrayList<>(this.dataSourcesRepository.getTypeDataSources(type));
 		}
 		ArrayList<AgencyProperties> agencies = this.allAgenciesByTypeId == null ? null : this.allAgenciesByTypeId.get(type.getId());
 		if (agencies == null) {
@@ -511,22 +502,14 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return new ArrayList<>(agencies); // copy
 	}
 
-	@WorkerThread
+	@MainThread
 	@Nullable
 	@ColorInt
 	Integer getAgencyColorInt(@SuppressWarnings("unused") @Nullable Context context, @NonNull String authority) {
 		if (!isAgencyPropertiesSet()) {
 			initAgencyProperties();
 		}
-		if (F_CACHE_DATA_SOURCES) {
-			return this.dataSourcesRepository.getAgencyColorInt(authority);
-		}
 		return this.allAgenciesColorInts.get(authority);
-	}
-
-	@Nullable
-	public String getAgencyPkg(@NonNull String authority) {
-		return this.agenciesAuthorityPkg.get(authority);
 	}
 
 	@Nullable
@@ -590,7 +573,10 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return new HashSet<>(newsProviders); // copy
 	}
 
-	public void onDestroy() {
+	private void onDestroy() {
+		if (F_CACHE_DATA_SOURCES) {
+			return;
+		}
 		if (!isInitialized()) {
 			return; // already destroyed
 		}
@@ -627,11 +613,155 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		setInitialized(false);
 	}
 
+	@Nullable
+	private UpdateDataSourceRepositoryTask updateDataSourceRepositoryTask;
+
+	@SuppressWarnings("deprecation")
+	private static class UpdateDataSourceRepositoryTask extends MTCancellableAsyncTask<Void, Void, Boolean> {
+
+		private static final String LOG_TAG = UpdateDataSourceRepositoryTask.class.getSimpleName();
+
+		@NonNull
+		@Override
+		public String getLogTag() {
+			return LOG_TAG;
+		}
+
+		@NonNull
+		private final DataSourceProvider dataSourceProvider;
+		private final boolean forceUpdated;
+
+		private UpdateDataSourceRepositoryTask(@NonNull DataSourceProvider dataSourceProvider, boolean forceUpdated) {
+			this.dataSourceProvider = dataSourceProvider;
+			this.forceUpdated = forceUpdated;
+		}
+		@WorkerThread
+		@Nullable
+		@Override
+		protected Boolean doInBackgroundNotCancelledMT(@Nullable Void... voids) {
+			boolean updated = false;
+			try {
+				final CompletableFuture<Boolean> updatedListener = this.dataSourceProvider.dataSourcesRepository.updateAsync();
+				updated = updatedListener.get();
+				if (this.forceUpdated || updated) {
+					this.dataSourceProvider.applyNewValuesFromDataSourcesRepository();
+				}
+			} catch (Exception e) {
+				MTLog.w(this, e, "Error while updating data-sources from repository!");
+			}
+			return this.forceUpdated || updated;
+		}
+
+		@Override
+		protected void onPostExecuteNotCancelledMT(@Nullable Boolean updated) {
+			super.onPostExecuteNotCancelledMT(updated);
+			if (Boolean.TRUE.equals(updated)) {
+				DataSourceProvider.triggerModulesUpdated();
+			}
+		}
+	}
+
+	@WorkerThread
+	private synchronized void applyNewValuesFromDataSourcesRepository() {
+		this.allAgenciesByAuthority = new ArrayMap<>();
+		this.allAgenciesByTypeId = new SparseArray<>();
+		this.allAgenciesAuthority.clear();
+		this.agenciesAuthorityTypeId.clear();
+		this.agenciesAuthorityPkg.clear();
+		this.agenciesAuthorityIsRts.clear();
+		this.allAgencyTypes.clear();
+		this.allAgenciesByAuthority.clear();
+		this.allAgenciesByTypeId.clear();
+		this.allAgenciesColorInts.clear();
+		this.allAgencies = new ArrayList<>(this.dataSourcesRepository.getAllAgencies());
+		for (AgencyProperties agencyProperties : this.allAgencies) {
+			final String agencyAuthority = agencyProperties.getAuthority();
+			this.allAgenciesAuthority.add(agencyAuthority);
+			final int typeId = agencyProperties.getType().getId();
+			this.agenciesAuthorityTypeId.put(agencyAuthority, typeId);
+			this.agenciesAuthorityPkg.put(agencyAuthority, agencyProperties.getPkg());
+			this.agenciesAuthorityIsRts.put(agencyAuthority, agencyProperties.isRTS());
+			if (!this.allAgencyTypes.contains(agencyProperties.getType())) {
+				this.allAgencyTypes.add(agencyProperties.getType());
+			}
+			this.allAgenciesByAuthority.put(agencyAuthority, agencyProperties);
+			if (this.allAgenciesByTypeId.get(typeId) == null) {
+				this.allAgenciesByTypeId.put(typeId, new ArrayList<>());
+			}
+			this.allAgenciesByTypeId.get(typeId).add(agencyProperties);
+			this.allAgenciesColorInts.put(agencyAuthority, agencyProperties.hasColor() ? agencyProperties.getColorInt() : null);
+		}
+		CollectionUtils.sort(this.allAgencies, AgencyProperties.getSHORT_NAME_COMPARATOR());
+		for (int i = 0; i < this.allAgenciesByTypeId.size(); i++) {
+			CollectionUtils.sort(this.allAgenciesByTypeId.get(this.allAgenciesByTypeId.keyAt(i)), AgencyProperties.getSHORT_NAME_COMPARATOR());
+		}
+		this.allStatusProviders.clear();
+		this.allStatusProvidersByAuthority.clear();
+		this.statusProvidersByTargetAuthority.clear();
+		this.allStatusProviders.addAll(this.dataSourcesRepository.getAllStatusProviders());
+		for (StatusProviderProperties statusProviderProperties : this.allStatusProviders) {
+			this.allStatusProvidersByAuthority.put(statusProviderProperties.getAuthority(), statusProviderProperties);
+			HashSet<StatusProviderProperties> statusProviderPropertiesList = this.statusProvidersByTargetAuthority.get(statusProviderProperties.getTargetAuthority());
+			if (statusProviderPropertiesList == null) {
+				statusProviderPropertiesList = new HashSet<>();
+			}
+			statusProviderPropertiesList.add(statusProviderProperties);
+			this.statusProvidersByTargetAuthority.put(statusProviderProperties.getTargetAuthority(), statusProviderPropertiesList);
+		}
+		this.allScheduleProviders.clear();
+		this.allScheduleProvidersByAuthority.clear();
+		this.scheduleProvidersByTargetAuthority.clear();
+		this.allScheduleProviders.addAll(this.dataSourcesRepository.getAllScheduleProviders());
+		for (ScheduleProviderProperties scheduleProviderProperties : this.allScheduleProviders) {
+			this.allScheduleProvidersByAuthority.put(scheduleProviderProperties.getAuthority(), scheduleProviderProperties);
+			HashSet<ScheduleProviderProperties> scheduleProviderPropertiesList = this.scheduleProvidersByTargetAuthority.get(scheduleProviderProperties.getTargetAuthority());
+			if (scheduleProviderPropertiesList == null) {
+				scheduleProviderPropertiesList = new HashSet<>();
+			}
+			scheduleProviderPropertiesList.add(scheduleProviderProperties);
+			this.scheduleProvidersByTargetAuthority.put(scheduleProviderProperties.getTargetAuthority(), scheduleProviderPropertiesList);
+		}
+		this.allServiceUpdateProviders.clear();
+		this.allServiceUpdateProvidersByAuthority.clear();
+		this.serviceUpdateProvidersByTargetAuthority.clear();
+		this.allServiceUpdateProviders.addAll(this.dataSourcesRepository.getAllServiceUpdateProviders());
+		for (ServiceUpdateProviderProperties serviceUpdateProviderProperties : this.allServiceUpdateProviders) {
+			this.allServiceUpdateProvidersByAuthority.put(serviceUpdateProviderProperties.getAuthority(), serviceUpdateProviderProperties);
+			HashSet<ServiceUpdateProviderProperties> serviceUpdateProviderPropertiesList = this.serviceUpdateProvidersByTargetAuthority.get(
+					serviceUpdateProviderProperties.getTargetAuthority()
+			);
+			if (serviceUpdateProviderPropertiesList == null) {
+				serviceUpdateProviderPropertiesList = new HashSet<>();
+			}
+			serviceUpdateProviderPropertiesList.add(serviceUpdateProviderProperties);
+			this.serviceUpdateProvidersByTargetAuthority.put(serviceUpdateProviderProperties.getTargetAuthority(), serviceUpdateProviderPropertiesList);
+		}
+		this.allNewsProviders.clear();
+		this.allNewsProvidersByAuthority.clear();
+		this.newsProvidersByTargetAuthority.clear();
+		this.allNewsProviders.addAll(this.dataSourcesRepository.getAllNewsProviders());
+		for (NewsProviderProperties newsProviderProperties : this.allNewsProviders) {
+			this.allNewsProvidersByAuthority.put(newsProviderProperties.getAuthority(), newsProviderProperties);
+			HashSet<NewsProviderProperties> newsProviderPropertiesList = this.newsProvidersByTargetAuthority.get(newsProviderProperties.getTargetAuthority());
+			if (newsProviderPropertiesList == null) {
+				newsProviderPropertiesList = new HashSet<>();
+			}
+			newsProviderPropertiesList.add(newsProviderProperties);
+			this.newsProvidersByTargetAuthority.put(newsProviderProperties.getTargetAuthority(), newsProviderPropertiesList);
+		}
+		setInitialized(true);
+	}
+
+	@MainThread
 	@SuppressLint("QueryPermissionsNeeded")
 	private synchronized void init() {
 		try {
 			if (isInitialized()) {
 				return; // already initialized
+			}
+			if (F_CACHE_DATA_SOURCES) {
+				initFromDataSourceRepository(true);
+				return;
 			}
 			MTLog.i(this, "Initializing data-sources...");
 			Context context = requireContext();
@@ -739,6 +869,16 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 			destroy();
 		}
 		MTLog.i(this, "Initializing data-sources... DONE");
+	}
+
+	@MainThread
+	private void initFromDataSourceRepository(boolean forceUpdated) {
+		if (this.updateDataSourceRepositoryTask != null && this.updateDataSourceRepositoryTask.getStatus() == UpdateDataSourceRepositoryTask.Status.RUNNING) {
+			MTLog.d(this, "initFromDataSourceRepository() > SKIP (already running)");
+			return;
+		}
+		this.updateDataSourceRepositoryTask = new UpdateDataSourceRepositoryTask(this, forceUpdated);
+		TaskUtils.execute(this.updateDataSourceRepositoryTask);
 	}
 
 	@NonNull

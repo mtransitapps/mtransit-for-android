@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 
@@ -50,7 +51,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class AgencyPOIsFragment extends MTFragmentV4 implements
+public class AgencyPOIsFragment extends MTFragmentX implements
 		AgencyTypeFragment.AgencyFragment,
 		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		MTActivityWithLocation.UserLocationListener,
@@ -104,10 +105,10 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
 	private POIArrayAdapter adapter;
-	private String emptyText = null;
+	private final String emptyText = null;
 	private String authority;
 	private Integer colorInt;
-	private MapViewController mapViewController =
+	private final MapViewController mapViewController =
 			new MapViewController(TAG, this, this, true, true, true, false, false, false, 0, false, true, false, true, false);
 
 	@NonNull
@@ -435,6 +436,12 @@ public class AgencyPOIsFragment extends MTFragmentV4 implements
 			return null;
 		}
 		return getView().findViewById(id);
+	}
+
+	@NonNull
+	@Override
+	public LifecycleOwner getLifecycleOwner() {
+		return this;
 	}
 
 	@Override

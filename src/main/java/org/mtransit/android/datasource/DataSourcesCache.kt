@@ -10,11 +10,17 @@ class DataSourcesCache(private val dataSourcesDatabase: DataSourcesDatabase) {
 
     fun getAllAgencies() = agencyPropertiesDao().getAllAgencies()
 
+    fun readingAllAgencies() = agencyPropertiesDao().readingAllAgencies()
+
     fun getAllAgenciesCount() = agencyPropertiesDao().getAllAgenciesCount()
+
+    fun readingAllAgenciesCount() = agencyPropertiesDao().readingAllAgenciesCount()
 
     fun getAgency(authority: String) = agencyPropertiesDao().getAgency(authority)
 
     fun getAllDataSourceTypes() = agencyPropertiesDao().getAllDataSourceTypes()
+
+    fun readingAllDataSourceTypes() = agencyPropertiesDao().readingAllDataSourceTypes()
 
     fun getTypeDataSources(dst: DataSourceType) = agencyPropertiesDao().getTypeDataSources(dst)
 

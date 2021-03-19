@@ -1,12 +1,11 @@
 package org.mtransit.android.task;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import android.content.Context;
+
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.LocationUtils;
@@ -16,12 +15,19 @@ import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
 
-import android.content.Context;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
+public class NearbyPOIListLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
 	private static final String TAG = NearbyPOIListLoader.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -29,30 +35,30 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 
 	private ArrayList<POIManager> pois;
 
-	private String[] agenciesAuthority;
+	private final String[] agenciesAuthority;
 
-	private double lat;
+	private final double lat;
 
-	private double lng;
+	private final double lng;
 
-	private double aroundDiff;
+	private final double aroundDiff;
 
-	private int maxSize;
+	private final int maxSize;
 
-	private float minCoverageInMeters;
+	private final float minCoverageInMeters;
 
-	private boolean hideDescentOnly;
+	private final boolean hideDescentOnly;
 
-	private boolean avoidLoading;
+	private final boolean avoidLoading;
 
 	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, float minCoverageInMeters, int maxSize, boolean hideDescentOnly,
-			boolean avoidLoading, ArrayList<String> agenciesAuthority) {
+							   boolean avoidLoading, ArrayList<String> agenciesAuthority) {
 		this(context, lat, lng, aroundDiff, minCoverageInMeters, maxSize, hideDescentOnly, avoidLoading, agenciesAuthority == null ? null : agenciesAuthority
 				.toArray(new String[0]));
 	}
 
 	public NearbyPOIListLoader(Context context, double lat, double lng, double aroundDiff, float minCoverageInMeters, int maxSize, boolean hideDescentOnly,
-			boolean avoidLoading, String... agenciesAuthority) {
+							   boolean avoidLoading, String... agenciesAuthority) {
 		super(context);
 		this.agenciesAuthority = agenciesAuthority;
 		this.lat = lat;
@@ -111,7 +117,9 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		}
 	}
 
-	public static ArrayList<AgencyProperties> findTypeAgencies(Context context, int typeId, double lat, double lng, double aroundDiff, Double optLastAroundDiff) {
+	@MainThread
+	@WorkerThread
+	public static ArrayList<AgencyProperties> findTypeAgencies(@Nullable Context context, int typeId, double lat, double lng, double aroundDiff, @Nullable Double optLastAroundDiff) {
 		ArrayList<AgencyProperties> allTypeAgencies = DataSourceProvider.get(context).getTypeDataSources(context, typeId);
 		if (allTypeAgencies != null) {
 			LocationUtils.Area area = LocationUtils.getArea(lat, lng, aroundDiff);
@@ -129,7 +137,9 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 		return allTypeAgencies;
 	}
 
-	public static ArrayList<String> findTypeAgenciesAuthority(Context context, int typeId, double lat, double lng, double aroundDiff, Double optLastAroundDiff) {
+	@MainThread
+	@NonNull
+	public static ArrayList<String> findTypeAgenciesAuthority(@Nullable Context context, int typeId, double lat, double lng, double aroundDiff, @Nullable Double optLastAroundDiff) {
 		ArrayList<String> authorities = new ArrayList<>();
 		ArrayList<AgencyProperties> agencies = findTypeAgencies(context, typeId, lat, lng, aroundDiff, optLastAroundDiff);
 		if (agencies != null) {
@@ -141,7 +151,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManage
 	}
 
 	@Override
-	public void deliverResult(ArrayList<POIManager> data) {
+	public void deliverResult(@Nullable ArrayList<POIManager> data) {
 		this.pois = data;
 		if (isStarted()) {
 			super.deliverResult(data);

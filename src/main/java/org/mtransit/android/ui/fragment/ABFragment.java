@@ -1,6 +1,17 @@
 package org.mtransit.android.ui.fragment;
 
+import android.content.Context;
+import android.os.Bundle;
+import android.view.View;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LifecycleOwner;
+
 import org.mtransit.android.R;
+import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.data.DataSourceProvider;
@@ -9,18 +20,7 @@ import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MainActivity;
-import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.ui.view.common.IActivity;
-
-import android.content.Context;
-import android.os.Bundle;
-
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentActivity;
-
-import android.view.View;
 
 public abstract class ABFragment extends MTFragment implements AnalyticsManager.Trackable, IActivity, DataSourceProvider.ModulesUpdateListener {
 
@@ -43,12 +43,12 @@ public abstract class ABFragment extends MTFragment implements AnalyticsManager.
 	}
 
 	@Nullable
-	public CharSequence getABTitle(Context context) {
+	public CharSequence getABTitle(@Nullable Context context) {
 		return null;
 	}
 
 	@Nullable
-	public CharSequence getABSubtitle(Context context) {
+	public CharSequence getABSubtitle(@Nullable Context context) {
 		return null;
 	}
 
@@ -56,8 +56,9 @@ public abstract class ABFragment extends MTFragment implements AnalyticsManager.
 	@Nullable
 	private Integer defaultABBgColor = null;
 
+	@Nullable
 	@ColorInt
-	public Integer getABBgColor(Context context) {
+	public Integer getABBgColor(@Nullable Context context) {
 		if (this.defaultABBgColor == null && context != null) {
 			this.defaultABBgColor = ThemeUtils.resolveColorAttribute(context, R.attr.colorPrimary);
 		}
@@ -144,5 +145,11 @@ public abstract class ABFragment extends MTFragment implements AnalyticsManager.
 			return null;
 		}
 		return getView().findViewById(id);
+	}
+
+	@NonNull
+	@Override
+	public LifecycleOwner getLifecycleOwner() {
+		return this;
 	}
 }

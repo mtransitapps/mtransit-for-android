@@ -17,9 +17,9 @@ import androidx.loader.content.AsyncTaskLoader;
 /**
  * NO LOGIC HERE, just logs.
  */
-public abstract class MTAsyncTaskLoaderV4<D> extends AsyncTaskLoader<D> implements MTLog.Loggable {
+public abstract class MTAsyncTaskLoaderX<D> extends AsyncTaskLoader<D> implements MTLog.Loggable {
 
-	public MTAsyncTaskLoaderV4(@NonNull Context context) {
+	public MTAsyncTaskLoaderX(@NonNull Context context) {
 		super(context);
 		if (Constants.LOG_TASK_LIFECYCLE) {
 			MTLog.v(this, "%s()", getLogTag());

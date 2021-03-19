@@ -13,6 +13,7 @@ import android.view.Window;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 
@@ -31,7 +32,7 @@ import org.mtransit.android.util.LoaderUtils;
 
 import java.util.ArrayList;
 
-public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
+public class PickPOIDialogFragment extends MTDialogFragmentX implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		DataSourceProvider.ModulesUpdateListener, MTActivityWithLocation.UserLocationListener, POIArrayAdapter.OnClickHandledListener, IActivity {
 
 	private static final String TAG = PickPOIDialogFragment.class.getSimpleName();
@@ -305,5 +306,11 @@ public class PickPOIDialogFragment extends MTDialogFragmentV4 implements LoaderM
 			return null;
 		}
 		return getView().findViewById(id);
+	}
+
+	@NonNull
+	@Override
+	public LifecycleOwner getLifecycleOwner() {
+		return this;
 	}
 }

@@ -11,7 +11,7 @@ import org.mtransit.android.data.POIManager;
 import android.content.Context;
 import androidx.collection.ArrayMap;
 
-public class POIsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
+public class POIsLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
 	private static final String TAG = POIsLoader.class.getSimpleName();
 

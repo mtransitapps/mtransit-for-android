@@ -195,7 +195,8 @@ public class Injection {
 					adManager = new AdManager(
 							providesApplication(),
 							providesCrashReporter(),
-							providesLocationProvider()
+							providesLocationProvider(),
+							providesDataSourcesRepository()
 					);
 				}
 			}

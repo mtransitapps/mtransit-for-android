@@ -1,5 +1,6 @@
 package org.mtransit.android.datasource
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -19,6 +20,9 @@ interface AgencyPropertiesDao {
     @Query("SELECT * FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE")
     fun getAllAgencies(): List<AgencyProperties>
 
+    @Query("SELECT * FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE")
+    fun readingAllAgencies(): LiveData<List<AgencyProperties>>
+
     @Query("SELECT * FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE AND is_enabled = $BOOLEAN_TRUE")
     fun getAllEnabledAgencies(): List<AgencyProperties>
 
@@ -28,11 +32,17 @@ interface AgencyPropertiesDao {
     @Query("SELECT COUNT(*) FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE")
     fun getAllAgenciesCount(): Int
 
+    @Query("SELECT COUNT(*) FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE")
+    fun readingAllAgenciesCount(): LiveData<Int>
+
     @Query("SELECT COUNT(*) FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE AND is_enabled = $BOOLEAN_TRUE")
     fun getAllEnabledAgenciesCount(): Int
 
     @Query("SELECT DISTINCT type FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE")
     fun getAllDataSourceTypes(): List<DataSourceType>
+
+    @Query("SELECT DISTINCT type FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE")
+    fun readingAllDataSourceTypes(): LiveData<List<DataSourceType>>
 
     @Query("SELECT * FROM agency_properties WHERE id = :authority")
     fun getAgency(authority: String): AgencyProperties?

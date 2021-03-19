@@ -27,9 +27,9 @@ import org.mtransit.android.commons.MTLog;
 /**
  * NO LOGIC HERE, just logs.
  */
-public abstract class MTDialogFragmentV4 extends DialogFragment implements MTLog.Loggable {
+public abstract class MTDialogFragmentX extends DialogFragment implements MTLog.Loggable {
 
-	public MTDialogFragmentV4() {
+	public MTDialogFragmentX() {
 		super();
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "%s()", getLogTag());

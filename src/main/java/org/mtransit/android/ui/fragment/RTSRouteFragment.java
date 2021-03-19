@@ -404,11 +404,11 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			return LOG_TAG;
 		}
 
-		private String authority;
-		private Long routeId;
+		private final String authority;
+		private final Long routeId;
 		private long tripId;
 		@Nullable
-		private ArrayList<Trip> routeTrips;
+		private final ArrayList<Trip> routeTrips;
 
 		LoadLastPageSelectedFromUserPreference(RTSRouteFragment rtsRouteFragment,
 											   String authority,
@@ -639,8 +639,9 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	private static final StyleSpan TITLE_RSN_STYLE = SpanUtils.getNewBoldStyleSpan();
 	private static final TypefaceSpan TITLE_RLN_FONT = SpanUtils.getNewSansSerifLightTypefaceSpan();
 
+	@Nullable
 	@Override
-	public CharSequence getABTitle(Context context) {
+	public CharSequence getABTitle(@Nullable Context context) {
 		Route route = getRouteOrNull();
 		if (route == null) {
 			return super.getABTitle(context);
@@ -671,9 +672,10 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		return ssb;
 	}
 
+	@Nullable
 	@ColorInt
 	@Override
-	public Integer getABBgColor(Context context) {
+	public Integer getABBgColor(@Nullable Context context) {
 		return POIManager.getRouteColor(context, getRouteOrNull(), this.authority, super.getABBgColor(context));
 	}
 
@@ -794,7 +796,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 
 		private ArrayList<Trip> routeTrips;
-		private WeakReference<Context> contextWR;
+		private final WeakReference<Context> contextWR;
 		private int lastVisibleFragmentPosition = -1;
 		private String authority;
 		private int stopId;

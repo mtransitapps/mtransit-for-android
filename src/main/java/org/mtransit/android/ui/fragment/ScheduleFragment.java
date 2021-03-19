@@ -10,8 +10,10 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -35,11 +37,12 @@ import java.util.Calendar;
 
 public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChangeListener {
 
-	private static final String TAG = ScheduleFragment.class.getSimpleName();
+	private static final String LOG_TAG = ScheduleFragment.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	private static final String TRACKING_SCREEN_NAME = "Schedule";
@@ -54,11 +57,12 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	private static final String EXTRA_POI_UUID = "extra_poi_uuid";
 	private static final String EXTRA_COLOR_INT = "extra_color_int";
 
-	public static ScheduleFragment newInstance(String uuid, String authority, RouteTripStop optRts, Integer optColorInt) {
+	@NonNull
+	public static ScheduleFragment newInstance(@NonNull String uuid, @NonNull String authority, @Nullable RouteTripStop optRts, @Nullable Integer optColorInt) {
 		ScheduleFragment f = new ScheduleFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
-		f.authority = authority;
+		f.setAuthority(authority);
 		args.putString(EXTRA_POI_UUID, uuid);
 		f.uuid = uuid;
 		f.rts = optRts;
@@ -70,9 +74,12 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		return f;
 	}
 
+	@Nullable
 	private DayPagerAdapter adapter;
 	private int lastPageSelected = -1;
+	@Nullable
 	private String uuid;
+	@Nullable
 	private RouteTripStop rts;
 	@ColorInt
 	private Integer colorInt;
@@ -85,19 +92,22 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		return true;
 	}
 
+	@MainThread
 	private void initRtsAsync() {
 		if (this.loadRtsTask != null && this.loadRtsTask.getStatus() == LoadRtsTask.Status.RUNNING) {
 			return;
 		}
-		if (TextUtils.isEmpty(this.uuid) || TextUtils.isEmpty(this.authority)) {
+		if (TextUtils.isEmpty(this.uuid) || TextUtils.isEmpty(getAuthority())) {
 			return;
 		}
 		this.loadRtsTask = new LoadRtsTask(this);
 		TaskUtils.execute(this.loadRtsTask);
 	}
 
+	@Nullable
 	private LoadRtsTask loadRtsTask = null;
 
+	@SuppressWarnings("deprecation")
 	private static class LoadRtsTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, ScheduleFragment> {
 
 		@NonNull
@@ -127,6 +137,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		this.rts = null;
 	}
 
+	@Nullable
 	private RouteTripStop getRtsOrNull() {
 		if (!hasRts()) {
 			return null;
@@ -134,12 +145,14 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		return this.rts;
 	}
 
+	@WorkerThread
 	private boolean initRtsSync() {
 		if (this.rts != null) {
 			return false;
 		}
-		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
-			POIManager poim = DataSourceManager.findPOI(getContext(), this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
+		if (this.uuid != null && !this.uuid.isEmpty()
+				&& getAuthority() != null && !getAuthority().isEmpty()) {
+			POIManager poim = DataSourceManager.findPOI(requireContext(), getAuthority(), POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
 			if (poim != null && poim.poi instanceof RouteTripStop) {
 				this.rts = (RouteTripStop) poim.poi;
 			}
@@ -151,30 +164,43 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (this.rts == null) {
 			return;
 		}
-		getAbController().setABBgColor(this, getABBgColor(getContext()), false);
-		getAbController().setABSubtitle(this, getABSubtitle(getContext()), false);
-		getAbController().setABReady(this, isABReady(), true);
+		if (getAbController() != null) {
+			getAbController().setABBgColor(this, getABBgColor(getContext()), false);
+			getAbController().setABSubtitle(this, getABSubtitle(getContext()), false);
+			getAbController().setABReady(this, isABReady(), true);
+		}
 		if (this.adapter != null) {
 			this.adapter.setOptRts(this.rts);
 		}
 	}
 
+	@Nullable
 	private String authority;
+
+	@Nullable
+	private String getAuthority() {
+		return this.authority;
+	}
+
+	private void setAuthority(@Nullable String newAuthority) {
+		this.authority = newAuthority;
+	}
 
 	@Override
 	public void onAttach(@NonNull Activity activity) {
 		super.onAttach(activity);
-		initAdapters(activity);
+		initAdapters();
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_schedule, container, false);
 		setupView(view);
@@ -184,8 +210,8 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
-		if (!TextUtils.isEmpty(this.authority)) {
-			outState.putString(EXTRA_AUTHORITY, this.authority);
+		if (!TextUtils.isEmpty(getAuthority())) {
+			outState.putString(EXTRA_AUTHORITY, getAuthority());
 		}
 		if (!TextUtils.isEmpty(this.uuid)) {
 			outState.putString(EXTRA_POI_UUID, this.uuid);
@@ -198,12 +224,17 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 	private void restoreInstanceState(Bundle... bundles) {
 		String newAuthority = BundleUtils.getString(EXTRA_AUTHORITY, bundles);
-		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
-			this.authority = newAuthority;
+		if (newAuthority != null && !newAuthority.isEmpty()
+				&& !newAuthority.equals(getAuthority())) {
+			setAuthority(newAuthority);
+			if (this.adapter != null) {
+				this.adapter.setAuthority(newAuthority);
+			}
 			resetRts();
 		}
 		String newUuid = BundleUtils.getString(EXTRA_POI_UUID, bundles);
-		if (!TextUtils.isEmpty(newUuid) && !newUuid.equals(this.uuid)) {
+		if (newUuid != null && !newUuid.isEmpty()
+				&& !newUuid.equals(this.uuid)) {
 			this.uuid = newUuid;
 			resetRts();
 		}
@@ -211,15 +242,13 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (newColorInt != null) {
 			this.colorInt = newColorInt;
 		}
-		this.adapter.setUuid(this.uuid);
-		this.adapter.setAuthority(this.authority);
+		if (this.adapter != null) {
+			this.adapter.setUuid(this.uuid);
+		}
 	}
 
-	private void initAdapters(Activity activity) {
-		if (activity == null) {
-			return;
-		}
-		this.adapter = new DayPagerAdapter(this, UITimeUtils.getBeginningOfTodayInMs(), null, null, null);
+	private void initAdapters() {
+		this.adapter = new DayPagerAdapter(this, UITimeUtils.getBeginningOfTodayInMs(), this.uuid, this.authority, this.rts);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -249,6 +278,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 	@Override
 	public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+		// DO NOTHING
 	}
 
 	@Override
@@ -309,13 +339,15 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (!isResumed()) {
 			return;
 		}
-		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
+		//noinspection IfStatementWithIdenticalBranches
+		if (this.uuid != null && !this.uuid.isEmpty()
+				&& getAuthority() != null && !getAuthority().isEmpty()) {
 			FragmentActivity activity = getActivity();
 			if (activity == null) {
 				return;
 			}
 			POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewUUIDFilter(this.uuid);
-			POIManager newPoim = DataSourceManager.findPOI(activity, this.authority, poiFilter);
+			POIManager newPoim = DataSourceManager.findPOI(activity, getAuthority(), poiFilter);
 			if (newPoim == null || !(newPoim.poi instanceof RouteTripStop)) {
 				((MainActivity) activity).popFragmentFromStack(this); // close this fragment
 				this.modulesUpdated = false; // processed
@@ -386,20 +418,29 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		return hasRts();
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABTitle(Context context) {
+	public CharSequence getABTitle(@Nullable Context context) {
+		if (context == null) {
+			return super.getABTitle(context);
+		}
 		return context.getString(R.string.full_schedule);
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABSubtitle(Context context) {
+	public CharSequence getABSubtitle(@Nullable Context context) {
 		RouteTripStop rts = getRtsOrNull();
-		return POIManager.getOneLineDescription(getContext(), rts);
+		if (rts == null || context == null) {
+			return super.getABSubtitle(context);
+		}
+		return POIManager.getOneLineDescription(context, rts);
 	}
 
+	@Nullable
 	@ColorInt
 	@Override
-	public Integer getABBgColor(Context context) {
+	public Integer getABBgColor(@Nullable Context context) {
 		if (this.colorInt != null) {
 			return this.colorInt;
 		}
@@ -412,30 +453,34 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		TaskUtils.cancelQuietly(this.loadRtsTask, true);
 	}
 
+	@SuppressWarnings("deprecation")
 	private static class DayPagerAdapter extends FragmentStatePagerAdapter implements MTLog.Loggable {
 
-		private static final String TAG = ScheduleFragment.class.getSimpleName() + ">" + DayPagerAdapter.class.getSimpleName();
+		private static final String LOG_TAG = ScheduleFragment.class.getSimpleName() + ">" + DayPagerAdapter.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
-		private static int BEFORE_TODAY = 100;
+		private static final int BEFORE_TODAY = 100;
 
-		private static int COUNT = BEFORE_TODAY + 365; // should be enough
+		private static final int COUNT = BEFORE_TODAY + 365; // should be enough
 		private static final int STARTING_POSITION = BEFORE_TODAY > 0 ? BEFORE_TODAY : COUNT / 2;
 
-		private int todayPosition = STARTING_POSITION;
 		@SuppressWarnings("FieldCanBeLocal")
-		private long todayStartsAtInMs;
-		private Calendar todayStartsAtCal;
+		private final int todayPosition = STARTING_POSITION;
+		@SuppressWarnings("FieldCanBeLocal")
+		private final long todayStartsAtInMs;
+		private final Calendar todayStartsAtCal;
 		private int lastVisibleFragmentPosition = -1;
 		private String uuid;
 		private String authority;
+		@Nullable
 		private RouteTripStop optRts;
 
-		public DayPagerAdapter(ScheduleFragment scheduleFragment, long todayStartsAtInMs, String uuid, String authority, RouteTripStop optRts) {
+		DayPagerAdapter(ScheduleFragment scheduleFragment, long todayStartsAtInMs, String uuid, String authority, @Nullable RouteTripStop optRts) {
 			super(scheduleFragment.getChildFragmentManager());
 			this.uuid = uuid;
 			this.authority = authority;
@@ -456,11 +501,11 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			this.authority = authority;
 		}
 
-		public void setOptRts(RouteTripStop optRts) {
+		void setOptRts(@Nullable RouteTripStop optRts) {
 			this.optRts = optRts;
 		}
 
-		public void setLastVisibleFragmentPosition(int lastVisibleFragmentPosition) {
+		void setLastVisibleFragmentPosition(int lastVisibleFragmentPosition) {
 			this.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
 		}
 
@@ -470,6 +515,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			return pageDay;
 		}
 
+		@NonNull
 		@Override
 		public Fragment getItem(int position) {
 			return ScheduleDayFragment.newInstance( //

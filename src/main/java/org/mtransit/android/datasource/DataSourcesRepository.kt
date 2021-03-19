@@ -23,11 +23,17 @@ class DataSourcesRepository(
 
     fun getAllAgencies() = dataSourcesCache.getAllAgencies()
 
+    fun readingAllAgencies() = dataSourcesCache.readingAllAgencies();
+
     fun getAllAgenciesCount() = dataSourcesCache.getAllAgenciesCount()
+
+    fun readingAllAgenciesCount() = dataSourcesCache.readingAllAgenciesCount()
 
     fun getAgency(authority: String) = dataSourcesCache.getAgency(authority)
 
     fun getAllDataSourceTypes() = dataSourcesCache.getAllDataSourceTypes()
+
+    fun readingAllDataSourceTypes() = dataSourcesCache.readingAllDataSourceTypes()
 
     fun getTypeDataSources(dst: DataSourceType) = dataSourcesCache.getTypeDataSources(dst)
 

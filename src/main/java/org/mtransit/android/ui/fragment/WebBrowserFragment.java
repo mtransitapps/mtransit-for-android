@@ -230,18 +230,23 @@ public class WebBrowserFragment extends ABFragment {
 		}
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABSubtitle(Context context) {
+	public CharSequence getABSubtitle(@Nullable Context context) {
 		if (!TextUtils.isEmpty(this.currentUrl)) {
 			return this.currentUrl;
 		}
 		return super.getABSubtitle(context);
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABTitle(Context context) {
+	public CharSequence getABTitle(@Nullable Context context) {
 		if (!TextUtils.isEmpty(this.pageTitle)) {
 			return this.pageTitle;
+		}
+		if (context == null) {
+			return super.getABTitle(context);
 		}
 		return context.getString(R.string.web_browser);
 	}

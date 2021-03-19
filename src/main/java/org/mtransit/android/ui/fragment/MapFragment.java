@@ -561,8 +561,12 @@ public class MapFragment extends ABFragment implements
 		this.mapViewController.onDetach();
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABTitle(Context context) {
+	public CharSequence getABTitle(@Nullable Context context) {
+		if (context == null) {
+			return super.getABTitle(context);
+		}
 		StringBuilder sb = new StringBuilder(context.getString(R.string.map));
 		sb.append(" (");
 		Set<Integer> filterTypeIds = getFilterTypeIdsOrNull();
@@ -587,8 +591,9 @@ public class MapFragment extends ABFragment implements
 		return sb.toString();
 	}
 
+	@Nullable
 	@Override
-	public Integer getABBgColor(Context context) {
+	public Integer getABBgColor(@Nullable Context context) {
 		return Color.TRANSPARENT;
 	}
 

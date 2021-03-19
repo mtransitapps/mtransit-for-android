@@ -1,9 +1,12 @@
 package org.mtransit.android.task;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
+import androidx.collection.SimpleArrayMap;
+import androidx.collection.SparseArrayCompat;
 
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.data.POI;
@@ -12,17 +15,16 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.Favorite;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.util.UITimeUtils;
 
-import android.content.Context;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.collection.SimpleArrayMap;
-import androidx.collection.SparseArrayCompat;
-
-public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
+public class FavoritesLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
 	private static final String LOG_TAG = FavoritesLoader.class.getSimpleName();
 
@@ -34,11 +36,16 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 
 	@Nullable
 	private ArrayList<POIManager> pois;
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
 
-	public FavoritesLoader(@NonNull Context context) {
+	public FavoritesLoader(@NonNull Context context,
+						   @NonNull DataSourcesRepository dataSourcesRepository) {
 		super(context);
+		this.dataSourcesRepository = dataSourcesRepository;
 	}
 
+	@WorkerThread
 	@NonNull
 	@Override
 	public ArrayList<POIManager> loadInBackgroundMT() {
@@ -67,7 +74,7 @@ public class FavoritesLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> 
 				}
 			}
 		}
-		CollectionUtils.sort(this.pois, new DataSourceType.POIManagerTypeShortNameComparator(getContext()));
+		CollectionUtils.sort(this.pois, new DataSourceType.POIManagerTypeShortNameComparator(getContext(), this.dataSourcesRepository));
 		for (POIManager poim : this.pois) {
 			Integer favoriteFolderId = uuidToFavoriteFolderId.get(poim.poi.getUUID());
 			if (favoriteFolderId != null && favoriteFolderId > FavoriteManager.DEFAULT_FOLDER_ID) {

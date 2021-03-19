@@ -46,7 +46,7 @@ import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
-public class RTSAgencyRoutesFragment extends MTFragmentV4 implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<ArrayList<Route>>,
+public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<ArrayList<Route>>,
 		AdapterView.OnItemClickListener, CompoundButton.OnCheckedChangeListener {
 
 	private static final String TAG = RTSAgencyRoutesFragment.class.getSimpleName();

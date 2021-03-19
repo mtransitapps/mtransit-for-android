@@ -1,6 +1,5 @@
 package org.mtransit.android.ui;
 
-import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -468,29 +467,5 @@ public class MainActivity extends MTActivityWithLocation implements
 			return true; // handled
 		}
 		return super.onOptionsItemSelected(item);
-	}
-
-	@NonNull
-	@Override
-	public Context getContext() {
-		return this;
-	}
-
-	@NonNull
-	@Override
-	public Context requireContext() throws IllegalStateException {
-		return this;
-	}
-
-	@NonNull
-	@Override
-	public Activity getActivity() {
-		return this;
-	}
-
-	@NonNull
-	@Override
-	public Activity requireActivity() throws IllegalStateException {
-		return this;
 	}
 }

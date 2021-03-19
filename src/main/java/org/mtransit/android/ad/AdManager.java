@@ -37,6 +37,7 @@ import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.provider.location.MTLocationProvider;
 import org.mtransit.android.ui.view.common.IActivity;
@@ -47,6 +48,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Singleton;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
+
+@Singleton
 public class AdManager implements IAdManager, MTLog.Loggable {
 
 	private static final String LOG_TAG = AdManager.class.getSimpleName();
@@ -83,13 +89,24 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	private final CrashReporter crashReporter;
 	@NonNull
 	private final MTLocationProvider locationProvider;
+	@SuppressWarnings("FieldCanBeLocal")
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
 
 	public AdManager(@NonNull IApplication application,
 					 @NonNull CrashReporter crashReporter,
-					 @NonNull MTLocationProvider locationProvider) {
+					 @NonNull MTLocationProvider locationProvider,
+					 @NonNull DataSourcesRepository dataSourcesRepository) {
 		this.application = application;
 		this.crashReporter = crashReporter;
 		this.locationProvider = locationProvider;
+		this.dataSourcesRepository = dataSourcesRepository;
+		if (F_CACHE_DATA_SOURCES) {
+			this.dataSourcesRepository.readingAllAgenciesCount().observeForever(newNbAgencies -> { // SINGLETON
+						this.nbAgencies = newNbAgencies;
+					}
+			);
+		}
 	}
 
 	@Override
@@ -118,7 +135,9 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 	@Override
 	public void onModulesUpdated(@NonNull IActivity activity) {
-		nbAgencies = null; // reset
+		if (!F_CACHE_DATA_SOURCES) {
+			nbAgencies = null; // reset
+		}
 		refreshAdStatus(activity);
 	}
 
@@ -526,8 +545,10 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			return false;
 		}
 		if (nbAgencies == null) {
-			DataSourceProvider dataSourceProvider = DataSourceProvider.get();
-			nbAgencies = dataSourceProvider.isInitialized() ? dataSourceProvider.getAllAgenciesCount() : null;
+			if (!F_CACHE_DATA_SOURCES) {
+				DataSourceProvider dataSourceProvider = DataSourceProvider.get();
+				nbAgencies = dataSourceProvider.isInitialized() ? dataSourceProvider.getAllAgenciesCount() : null;
+			}
 		}
 		if (nbAgencies == null // number of agency unknown
 				|| nbAgencies <= MIN_AGENCIES_FOR_ADS) { // no (real) agency installed

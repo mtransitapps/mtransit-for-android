@@ -9,7 +9,7 @@ import org.mtransit.android.data.POIManager;
 
 import android.content.Context;
 
-public class AgencyPOIsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
+public class AgencyPOIsLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
 	private static final String TAG = AgencyPOIsLoader.class.getSimpleName();
 

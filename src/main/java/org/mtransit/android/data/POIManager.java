@@ -7,8 +7,10 @@ import android.graphics.Color;
 import android.text.TextUtils;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import androidx.collection.SparseArrayCompat;
 
 import org.mtransit.android.R;
@@ -51,6 +53,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	private static final String TAG = POIManager.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		if (this.poi != null) {
@@ -68,6 +71,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@NonNull
 	public final POI poi;
+	@Nullable
 	private CharSequence distanceString = null;
 	private float distance = -1;
 	@Nullable
@@ -78,6 +82,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	private long lastFindStatusTimestampMs = -1L;
 
+	@Nullable
 	private WeakReference<StatusLoader.StatusLoaderListener> statusLoaderListenerWR;
 
 	private int scheduleMaxDataRequests = ScheduleStatusFilter.MAX_DATA_REQUESTS_DEFAULT;
@@ -91,12 +96,13 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		this.status = status;
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
-		return new StringBuilder(POIManager.class.getSimpleName()).append('[')//
-				.append("poi:").append(this.poi).append(',') //
-				.append("status:").append(this.status).append(',') //
-				.append(']').toString();
+		return POIManager.class.getSimpleName() + '[' +//
+				"poi:" + this.poi + ',' + //
+				"status:" + this.status + ',' + //
+				']';
 	}
 
 	public void resetLastFindTimestamps() {
@@ -481,7 +487,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return defaultColor;
 	}
 
-	public static String getOneLineDescription(Context context, POI poi) {
+	@MainThread
+	@NonNull
+	public static String getOneLineDescription(@NonNull Context context, @NonNull POI poi) {
 		StringBuilder sb = new StringBuilder();
 		if (poi != null) {
 			sb.append(poi.getName());
@@ -583,16 +591,16 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return false; // NOT HANDLED
 	}
 
-	public boolean onActionItemLongClick(Activity activity, SparseArrayCompat<Favorite.Folder> favoriteFolders,
-										 FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	boolean onActionItemLongClick(Activity activity, SparseArrayCompat<Favorite.Folder> favoriteFolders,
+								  FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false;
 		}
 		return showPoiMenu(activity, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
 	}
 
-	public boolean onActionItemClick(Activity activity, SparseArrayCompat<Favorite.Folder> favoriteFolders,
-									 FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	boolean onActionItemClick(Activity activity, SparseArrayCompat<Favorite.Folder> favoriteFolders,
+							  FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false;
 		}
@@ -645,7 +653,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 	}
 
-	public static POIManager fromCursorStatic(Cursor cursor, String authority) {
+	static POIManager fromCursorStatic(Cursor cursor, String authority) {
 		switch (DefaultPOI.getTypeFromCursor(cursor)) {
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 			return new POIManager(DefaultPOI.fromCursorStatic(cursor, authority));

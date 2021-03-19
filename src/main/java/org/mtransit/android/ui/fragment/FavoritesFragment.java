@@ -24,6 +24,8 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.FavoritesLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
@@ -58,6 +60,13 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	private POIArrayAdapter adapter;
 	private CharSequence emptyText = null;
 	private Location userLocation;
+
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
+
+	public FavoritesFragment() {
+		dataSourcesRepository = Injection.providesDataSourcesRepository();
+	}
 
 	@Override
 	public void onAttach(@NonNull Activity activity) {
@@ -110,7 +119,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case FAVORITES_LOADER:
-			return new FavoritesLoader(requireContext());
+			return new FavoritesLoader(requireContext(), this.dataSourcesRepository);
 		default:
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			//noinspection ConstantConditions // FIXME
@@ -291,8 +300,12 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABTitle(Context context) {
+	public CharSequence getABTitle(@Nullable Context context) {
+		if (context == null) {
+			return super.getABTitle(context);
+		}
 		return context.getString(R.string.favorites);
 	}
 }

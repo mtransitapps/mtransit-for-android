@@ -18,6 +18,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 
 import com.android.billingclient.api.SkuDetails;
 
@@ -56,6 +58,9 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		return new PurchaseDialogFragment();
 	}
 
+	@Nullable
+	private Observer<Map<String, SkuDetails>> newSkuObserver;
+
 	@NonNull
 	private final IAdManager adManager;
 	@NonNull
@@ -89,7 +94,8 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		this.billingManager.getSkusWithSkuDetails().observeForever(this::onNewSku);
+		this.newSkuObserver = this::onNewSku;
+		this.billingManager.getSkusWithSkuDetails().observeForever(this.newSkuObserver); // NOT ANDROID X
 	}
 
 	@Override
@@ -133,10 +139,18 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		return activity;
 	}
 
+	@NonNull
+	@Override
+	public LifecycleOwner getLifecycleOwner() {
+		throw new IllegalStateException("Fragment " + this + " is NOT compatible with Lifecycle!"); // NOT ANDROID X
+	}
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		this.billingManager.getSkusWithSkuDetails().removeObserver(this::onNewSku);
+		if (this.newSkuObserver != null) {
+			this.billingManager.getSkusWithSkuDetails().removeObserver(this.newSkuObserver);
+		}
 	}
 
 	@Override

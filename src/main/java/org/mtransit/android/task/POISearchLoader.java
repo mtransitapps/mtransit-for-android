@@ -28,7 +28,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class POISearchLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
+public class POISearchLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
 	private static final String TAG = POISearchLoader.class.getSimpleName();
 

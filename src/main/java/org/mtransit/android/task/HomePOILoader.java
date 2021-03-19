@@ -25,7 +25,7 @@ import org.mtransit.android.ui.fragment.HomeFragment;
 import android.app.Activity;
 import android.content.Context;
 
-public class HomePOILoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
+public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
 	private static final String TAG = HomePOILoader.class.getSimpleName();
 

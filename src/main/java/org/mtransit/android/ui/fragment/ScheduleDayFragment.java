@@ -49,7 +49,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAwareFragment, DataSourceProvider.ModulesUpdateListener,
+public class ScheduleDayFragment extends MTFragmentX implements VisibilityAwareFragment, DataSourceProvider.ModulesUpdateListener,
 		LoaderManager.LoaderCallbacks<ArrayList<Timestamp>> {
 
 	private static final String LOG_TAG = ScheduleDayFragment.class.getSimpleName();
@@ -158,8 +158,10 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		TaskUtils.execute(this.loadRtsTask);
 	}
 
+	@Nullable
 	private LoadRtsTask loadRtsTask = null;
 
+	@SuppressWarnings("deprecation")
 	private static class LoadRtsTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, ScheduleDayFragment> {
 
 		@NonNull
@@ -315,7 +317,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 	}
 
 	@NonNull
-	private ThreadSafeDateFormatter dayDateFormat = new ThreadSafeDateFormatter("EEEE, MMM d, yyyy", Locale.getDefault());
+	private final ThreadSafeDateFormatter dayDateFormat = new ThreadSafeDateFormatter("EEEE, MMM d, yyyy", Locale.getDefault());
 
 	private CharSequence getDayDateString() {
 		CharSequence dateS;
@@ -594,7 +596,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		@NonNull
 		private final ArrayList<Date> hours = new ArrayList<>();
 
-		private LayoutInflater layoutInflater;
+		private final LayoutInflater layoutInflater;
 
 		private Calendar dayStartsAt;
 
@@ -791,7 +793,7 @@ public class ScheduleDayFragment extends MTFragmentV4 implements VisibilityAware
 		}
 
 		@NonNull
-		private Calendar todayStartsAt = UITimeUtils.getBeginningOfTodayCal();
+		private final Calendar todayStartsAt = UITimeUtils.getBeginningOfTodayCal();
 		@Nullable
 		private Calendar todayEndsAt = null;
 

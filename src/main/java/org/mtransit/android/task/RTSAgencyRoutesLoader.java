@@ -8,7 +8,7 @@ import org.mtransit.android.data.DataSourceManager;
 
 import android.content.Context;
 
-public class RTSAgencyRoutesLoader extends MTAsyncTaskLoaderV4<ArrayList<Route>> {
+public class RTSAgencyRoutesLoader extends MTAsyncTaskLoaderX<ArrayList<Route>> {
 
 	private static final String TAG = RTSAgencyRoutesLoader.class.getSimpleName();
 

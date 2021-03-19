@@ -23,7 +23,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class NewsLoader extends MTAsyncTaskLoaderV4<ArrayList<News>> {
+public class NewsLoader extends MTAsyncTaskLoaderX<ArrayList<News>> {
 
 	private static final String LOG_TAG = NewsLoader.class.getSimpleName();
 

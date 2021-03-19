@@ -13,7 +13,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class RTSTripStopsLoader extends MTAsyncTaskLoaderV4<ArrayList<POIManager>> {
+public class RTSTripStopsLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
 	private static final String LOG_TAG = RTSAgencyRoutesLoader.class.getSimpleName();
 

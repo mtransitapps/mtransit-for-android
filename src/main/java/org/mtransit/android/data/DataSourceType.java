@@ -10,9 +10,12 @@ import androidx.annotation.StringRes;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.datasource.DataSourcesRepository;
 
 import java.lang.ref.WeakReference;
 import java.util.Comparator;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public enum DataSourceType {
 
@@ -269,26 +272,36 @@ public enum DataSourceType {
 
 		@NonNull
 		private final WeakReference<Context> contextWR;
+		@NonNull
+		private final DataSourcesRepository dataSourcesRepository;
 
-		public POIManagerTypeShortNameComparator(@NonNull Context context) {
+		public POIManagerTypeShortNameComparator(@NonNull Context context, @NonNull DataSourcesRepository dataSourcesRepository) {
 			this.contextWR = new WeakReference<>(context);
+			this.dataSourcesRepository = dataSourcesRepository;
 		}
 
 		@Override
 		public int compare(@NonNull POIManager lPoim, @NonNull POIManager rPoim) {
-			Context context = this.contextWR.get();
+			final Context context = this.contextWR.get();
 			if (context == null) {
 				return 0;
 			}
-			AgencyProperties lAgency = DataSourceProvider.get(context).getAgency(context, lPoim.poi.getAuthority());
-			AgencyProperties rAgency = DataSourceProvider.get(context).getAgency(context, rPoim.poi.getAuthority());
+			final AgencyProperties lAgency;
+			final AgencyProperties rAgency;
+			if (F_CACHE_DATA_SOURCES) {
+				lAgency = this.dataSourcesRepository.getAgency(lPoim.poi.getAuthority());
+				rAgency = this.dataSourcesRepository.getAgency(rPoim.poi.getAuthority());
+			} else {
+				lAgency = DataSourceProvider.get(context).getAgency(context, lPoim.poi.getAuthority());
+				rAgency = DataSourceProvider.get(context).getAgency(context, rPoim.poi.getAuthority());
+			}
 			if (lAgency == null || rAgency == null) {
 				return 0;
 			}
-			int lShortNameResId = lAgency.getType().getShortNameResId();
-			int rShortNameResId = rAgency.getType().getShortNameResId();
-			String lShortName = context.getString(lShortNameResId);
-			String rShortName = context.getString(rShortNameResId);
+			final int lShortNameResId = lAgency.getType().getShortNameResId();
+			final int rShortNameResId = rAgency.getType().getShortNameResId();
+			final String lShortName = context.getString(lShortNameResId);
+			final String rShortName = context.getString(rShortNameResId);
 			return lShortName.compareTo(rShortName);
 		}
 	}

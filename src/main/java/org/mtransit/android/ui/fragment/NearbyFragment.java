@@ -463,7 +463,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		@Nullable
 		private Integer selectedTypeId;
 		@Nullable
-		private ArrayList<DataSourceType> newAgencyTypes;
+		private final ArrayList<DataSourceType> newAgencyTypes;
 
 		LoadLastPageSelectedFromUserPreference(@NonNull NearbyFragment nearbyFragment, @Nullable Integer selectedTypeId, @Nullable ArrayList<DataSourceType> newAgencyTypes) {
 			super(nearbyFragment);
@@ -663,7 +663,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 	}
 
-	private void broadcastNearbyLocationChanged(Location location) {
+	private void broadcastNearbyLocationChanged(@Nullable Location location) {
 		java.util.Set<Fragment> fragments = getChildFragments();
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
@@ -839,16 +839,21 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		return super.onOptionsItemSelected(item);
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABTitle(Context context) {
+	public CharSequence getABTitle(@Nullable Context context) {
 		if (isFixedOn()) {
 			return this.fixedOnName;
+		}
+		if (context == null) {
+			return super.getABTitle(context);
 		}
 		return context.getString(R.string.nearby);
 	}
 
+	@Nullable
 	@Override
-	public Integer getABBgColor(Context context) {
+	public Integer getABBgColor(@Nullable Context context) {
 		if (isFixedOn()) {
 			if (this.fixedOnColor != null) {
 				return this.fixedOnColor;
@@ -857,13 +862,14 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		return super.getABBgColor(context);
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABSubtitle(Context context) {
+	public CharSequence getABSubtitle(@Nullable Context context) {
 		return this.nearbyLocationAddress;
 	}
 
 	public interface NearbyLocationListener extends MTActivityWithLocation.UserLocationListener {
-		void onNearbyLocationChanged(Location location);
+		void onNearbyLocationChanged(@Nullable Location location);
 	}
 
 	private static class AgencyTypePagerAdapter extends FragmentStatePagerAdapter implements MTLog.Loggable {
@@ -876,10 +882,10 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 
 		private ArrayList<DataSourceType> availableAgencyTypes;
-		private WeakReference<Context> contextWR;
+		private final WeakReference<Context> contextWR;
 		private Location nearbyLocation;
 		private int lastVisibleFragmentPosition = -1;
-		private WeakReference<NearbyFragment> nearbyFragmentWR;
+		private final WeakReference<NearbyFragment> nearbyFragmentWR;
 		private int saveStateCount = -1;
 		private boolean swipeRefreshLayoutEnabled;
 
@@ -928,7 +934,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			return availableAgencyTypes;
 		}
 
-		private ArrayList<Integer> typeIds = new ArrayList<>();
+		private final ArrayList<Integer> typeIds = new ArrayList<>();
 
 		public void setAvailableAgencyTypes(ArrayList<DataSourceType> availableAgencyTypes) {
 			this.availableAgencyTypes = availableAgencyTypes;

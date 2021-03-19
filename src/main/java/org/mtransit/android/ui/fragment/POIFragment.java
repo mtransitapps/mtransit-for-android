@@ -776,7 +776,7 @@ public class POIFragment extends ABFragment implements
 						return;
 					}
 					Integer colorInt = poim.getColor(getContext());
-					String subtitle = POIManager.getOneLineDescription(getContext(), poim.poi);
+					String subtitle = POIManager.getOneLineDescription(view.getContext(), poim.poi);
 					((MainActivity) activity).addFragmentToStack( //
 							NewsFragment.newInstance( //
 									colorInt, subtitle, ArrayUtils.asArrayList(poim.poi.getAuthority()), null,
@@ -812,7 +812,7 @@ public class POIFragment extends ABFragment implements
 					}
 					((MainActivity) activity).addFragmentToStack( //
 							NearbyFragment.newFixedOnInstance( //
-									optTypeId, poim.getLat(), poim.getLng(), POIManager.getOneLineDescription(getContext(), poim.poi),
+									optTypeId, poim.getLat(), poim.getLng(), POIManager.getOneLineDescription(activity, poim.poi),
 									poim.getColor(getContext())), POIFragment.this);
 				}
 			});
@@ -1389,19 +1389,22 @@ public class POIFragment extends ABFragment implements
 		return hasAgency();
 	}
 
-	@NonNull
+	@Nullable
 	@Override
-	public CharSequence getABTitle(@NonNull Context context) {
+	public CharSequence getABTitle(@Nullable Context context) {
 		AgencyProperties agency = getAgencyOrNull();
 		if (agency != null) {
 			return agency.getShortName();
 		}
+		if (context == null) {
+			return super.getABTitle(context);
+		}
 		return context.getString(R.string.ellipsis);
 	}
 
-	@NonNull
+	@Nullable
 	@Override
-	public Integer getABBgColor(@NonNull Context context) {
+	public Integer getABBgColor(@Nullable Context context) {
 		return Color.TRANSPARENT;
 	}
 

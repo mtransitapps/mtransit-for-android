@@ -7,7 +7,7 @@ import org.mtransit.android.commons.MTLog;
 
 import androidx.fragment.app.Fragment;
 
-public abstract class MTFragment extends MTFragmentV4 implements IContext, MTLog.Loggable {
+public abstract class MTFragment extends MTFragmentX implements IContext, MTLog.Loggable {
 
 	private WeakHashMap<Fragment, Object> childFragmentsWR = new WeakHashMap<>();
 

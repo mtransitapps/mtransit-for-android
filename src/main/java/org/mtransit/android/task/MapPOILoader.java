@@ -29,7 +29,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class MapPOILoader extends MTAsyncTaskLoaderV4<Collection<MapViewController.POIMarker>> {
+public class MapPOILoader extends MTAsyncTaskLoaderX<Collection<MapViewController.POIMarker>> {
 
 	private static final String LOG_TAG = MapPOILoader.class.getSimpleName();
 

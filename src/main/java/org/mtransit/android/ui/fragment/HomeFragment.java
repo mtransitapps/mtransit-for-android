@@ -522,13 +522,18 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABTitle(Context context) {
+	public CharSequence getABTitle(@Nullable Context context) {
+		if (context == null) {
+			return super.getABTitle(context);
+		}
 		return context.getString(R.string.app_name);
 	}
 
+	@Nullable
 	@Override
-	public CharSequence getABSubtitle(Context context) {
+	public CharSequence getABSubtitle(@Nullable Context context) {
 		return this.nearbyLocationAddress;
 	}
 }

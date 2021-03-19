@@ -17,6 +17,7 @@ import android.view.MotionEvent;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -134,6 +135,7 @@ public final class LinkUtils implements MTLog.Loggable {
 		return org.mtransit.android.commons.LinkUtils.open(activity, intent, label);
 	}
 
+	@MainThread
 	public static void sendEmail(@NonNull Activity activity) {
 		Intent intent = new Intent(Intent.ACTION_SENDTO);
 		String email = activity.getString(R.string.send_feedback_email);
@@ -156,7 +158,7 @@ public final class LinkUtils implements MTLog.Loggable {
 						subjectSb //
 								.append(" - ").append(agencyProperties.getShortName()) //
 								.append(" ").append(activity.getString(agencyProperties.getType().getShortNameResId()));
-						final String pkg = dataSourceProvider.getAgencyPkg(agencyProperties.getAuthority());
+						final String pkg = agencyProperties.getPkg();
 						if (pkg != null && !pkg.isEmpty()) {
 							subjectSb //
 									.append(" v").append(PackageManagerUtils.getAppVersionName(activity, pkg)) //
