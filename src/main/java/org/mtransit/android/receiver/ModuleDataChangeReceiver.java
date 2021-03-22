@@ -1,17 +1,21 @@
 package org.mtransit.android.receiver;
 
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.receiver.DataChange;
-import org.mtransit.android.data.DataSourceProvider;
-import org.mtransit.android.dev.CrashReporter;
-import org.mtransit.android.di.Injection;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.receiver.DataChange;
+import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.dev.CrashReporter;
+import org.mtransit.android.di.Injection;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class ModuleDataChangeReceiver extends BroadcastReceiver implements MTLog.Loggable {
 
@@ -25,10 +29,13 @@ public class ModuleDataChangeReceiver extends BroadcastReceiver implements MTLog
 
 	@NonNull
 	private final CrashReporter crashReporter;
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
 
 	public ModuleDataChangeReceiver() {
 		super();
-		crashReporter = Injection.providesCrashReporter();
+		this.crashReporter = Injection.providesCrashReporter();
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 	}
 
 	@Override
@@ -45,12 +52,26 @@ public class ModuleDataChangeReceiver extends BroadcastReceiver implements MTLog
 		MTLog.i(this, "Broadcast received: %s", action);
 		Bundle extras = intent.getExtras();
 		boolean forceReset = extras != null && extras.getBoolean(DataChange.FORCE, false);
+		boolean repositoryUpdateTriggered = false;
 		if (forceReset) {
 			if (DataSourceProvider.isSet()) {
 				DataSourceProvider.triggerModulesUpdated();
 			}
 		} else {
-			DataSourceProvider.resetIfNecessary(context);
+			repositoryUpdateTriggered = DataSourceProvider.resetIfNecessary(context);
+		}
+		if (F_CACHE_DATA_SOURCES) {
+			if (!repositoryUpdateTriggered) { // DataSourceProvider already called method
+				if (DataSourceProvider.isSet()) {
+					DataSourceProvider.get().updateFromDataSourceRepository(false);
+				} else { // ELSE update cache for latter
+					try {
+						this.dataSourcesRepository.updateAsync().get(); // TODO ? filter by pkg? authority?
+					} catch (Exception e) {
+						MTLog.w(this, e, "Error while updating data-sources from repository!");
+					}
+				}
+			}
 		}
 	}
 }

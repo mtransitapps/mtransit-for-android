@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.util.SparseArray;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -33,7 +34,6 @@ import org.mtransit.android.di.Injection;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.WeakHashMap;
-import java.util.concurrent.CompletableFuture;
 
 import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
@@ -230,7 +230,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 			return true;
 		}
 		if (F_CACHE_DATA_SOURCES) {
-			current.initFromDataSourceRepository(false);
+			current.updateFromDataSourceRepository(false);
 			return false; // will be handled by initFromDataSourceRepository()
 		}
 		String agencyProviderMetaData = getAgencyProviderMetaData(context);
@@ -389,7 +389,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 			return; // too late
 		}
 		if (F_CACHE_DATA_SOURCES) {
-			initFromDataSourceRepository(true);
+			updateFromDataSourceRepository(true);
 			return;
 		}
 		try {
@@ -629,8 +629,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		protected Boolean doInBackgroundNotCancelledMT(@Nullable Void... voids) {
 			boolean updated = false;
 			try {
-				final CompletableFuture<Boolean> updatedListener = this.dataSourceProvider.dataSourcesRepository.updateAsync();
-				updated = updatedListener.get();
+				updated = this.dataSourceProvider.dataSourcesRepository.updateAsync().get();
 				if (this.forceUpdated || updated) {
 					this.dataSourceProvider.applyNewValuesFromDataSourcesRepository();
 				}
@@ -650,7 +649,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	@WorkerThread
-	private synchronized void applyNewValuesFromDataSourcesRepository() {
+	public synchronized void applyNewValuesFromDataSourcesRepository() {
 		this.allAgenciesByAuthority = new ArrayMap<>();
 		this.allAgenciesByTypeId = new SparseArray<>();
 		this.allAgenciesAuthority.clear();
@@ -661,7 +660,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		this.allAgenciesByAuthority.clear();
 		this.allAgenciesByTypeId.clear();
 		this.allAgenciesColorInts.clear();
-		this.allAgencies = new ArrayList<>(this.dataSourcesRepository.getAllAgencies());
+		this.allAgencies = new ArrayList<>(this.dataSourcesRepository.getAllAgencies()); // SORTED
 		for (AgencyProperties agencyProperties : this.allAgencies) {
 			final String agencyAuthority = agencyProperties.getAuthority();
 			this.allAgenciesAuthority.add(agencyAuthority);
@@ -679,9 +678,12 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 			this.allAgenciesByTypeId.get(typeId).add(agencyProperties);
 			this.allAgenciesColorInts.put(agencyAuthority, agencyProperties.hasColor() ? agencyProperties.getColorInt() : null);
 		}
-		CollectionUtils.sort(this.allAgencies, AgencyProperties.getSHORT_NAME_COMPARATOR());
 		for (int i = 0; i < this.allAgenciesByTypeId.size(); i++) {
 			CollectionUtils.sort(this.allAgenciesByTypeId.get(this.allAgenciesByTypeId.keyAt(i)), AgencyProperties.getSHORT_NAME_COMPARATOR());
+		}
+		final Context context = getContext();
+		if (context != null) {
+			CollectionUtils.sort(this.allAgencyTypes, new DataSourceType.DataSourceTypeShortNameComparator(context));
 		}
 		this.allStatusProviders.clear();
 		this.allStatusProvidersByAuthority.clear();
@@ -747,7 +749,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 				return; // already initialized
 			}
 			if (F_CACHE_DATA_SOURCES) {
-				initFromDataSourceRepository(true);
+				updateFromDataSourceRepository(true);
 				return;
 			}
 			MTLog.i(this, "Initializing data-sources...");
@@ -858,9 +860,10 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		MTLog.i(this, "Initializing data-sources... DONE");
 	}
 
-	private void initFromDataSourceRepository(boolean forceUpdated) {
+	@MainThread
+	public void updateFromDataSourceRepository(boolean forceUpdated) {
 		if (this.updateDataSourceRepositoryTask != null && this.updateDataSourceRepositoryTask.getStatus() == UpdateDataSourceRepositoryTask.Status.RUNNING) {
-			MTLog.d(this, "initFromDataSourceRepository() > SKIP (already running)");
+			MTLog.d(this, "updateFromDataSourceRepository() > SKIP (already running)");
 			return;
 		}
 		this.updateDataSourceRepositoryTask = new UpdateDataSourceRepositoryTask(this, forceUpdated);

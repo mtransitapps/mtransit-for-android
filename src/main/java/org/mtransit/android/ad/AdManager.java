@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -48,11 +49,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Singleton;
-
 import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
-@Singleton
 public class AdManager implements IAdManager, MTLog.Loggable {
 
 	private static final String LOG_TAG = AdManager.class.getSimpleName();
@@ -540,6 +538,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 	}
 
+	@MainThread
 	private boolean isShowingAds() {
 		if (!AD_ENABLED) {
 			return false;

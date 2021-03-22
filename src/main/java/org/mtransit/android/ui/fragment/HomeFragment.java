@@ -191,9 +191,9 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 
 		@Override
-		protected String doInBackgroundNotCancelledWithFragmentMT(@NonNull HomeFragment homeFragment, Location... locations) {
+		protected String doInBackgroundNotCancelledWithFragmentMT(@NonNull HomeFragment homeFragment, @Nullable Location... locations) {
 			Context context = homeFragment.getContext();
-			Location nearbyLocation = locations[0];
+			Location nearbyLocation = locations == null ? null : locations[0];
 			if (context == null || nearbyLocation == null) {
 				return null;
 			}

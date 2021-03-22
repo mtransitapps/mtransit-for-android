@@ -313,6 +313,7 @@ public class Injection {
 			synchronized (Injection.class) {
 				if (dataSourcesRepository == null) {
 					dataSourcesRepository = new DataSourcesRepository(
+							providesApplication(),
 							providesDataSourcesCache(),
 							providesDataSourcesReader()
 					);

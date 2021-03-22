@@ -63,29 +63,27 @@ public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 		this.pois = new ArrayList<>();
 		HashSet<String> favoriteUUIDs = FavoriteManager.findFavoriteUUIDs(getContext());
 		ArrayList<DataSourceType> availableAgencyTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
-		if (availableAgencyTypes != null) {
-			if (availableAgencyTypes.size() <= 2) {
-				this.nbMaxByType = NB_MAX_BY_TYPE_ONE_TYPE;
-			} else if (availableAgencyTypes.size() <= 3) {
-				this.nbMaxByType = NB_MAX_BY_TYPE_TWO_TYPES;
+		if (availableAgencyTypes.size() <= 2) {
+			this.nbMaxByType = NB_MAX_BY_TYPE_ONE_TYPE;
+		} else if (availableAgencyTypes.size() <= 3) {
+			this.nbMaxByType = NB_MAX_BY_TYPE_TWO_TYPES;
+		}
+		float minDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(this.lat, this.lng, LocationUtils.MIN_AROUND_DIFF);
+		if (minDistanceInMeters < LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS) {
+			minDistanceInMeters = LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS;
+		}
+		if (minDistanceInMeters < this.accuracyInMeters) {
+			minDistanceInMeters = this.accuracyInMeters;
+		}
+		for (DataSourceType type : availableAgencyTypes) {
+			if (!type.isHomeScreen()) {
+				continue;
 			}
-			float minDistanceInMeters = LocationUtils.getAroundCoveredDistanceInMeters(this.lat, this.lng, LocationUtils.MIN_AROUND_DIFF);
-			if (minDistanceInMeters < LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS) {
-				minDistanceInMeters = LocationUtils.MIN_NEARBY_LIST_COVERAGE_IN_METERS;
-			}
-			if (minDistanceInMeters < this.accuracyInMeters) {
-				minDistanceInMeters = this.accuracyInMeters;
-			}
-			for (DataSourceType type : availableAgencyTypes) {
-				if (!type.isHomeScreen()) {
-					continue;
-				}
-				ArrayList<POIManager> typePOIs = findAllNearby(getContext(), type, this.lat, this.lng, minDistanceInMeters, this.nbMaxByType);
-				filterTypePOIs(favoriteUUIDs, typePOIs, minDistanceInMeters);
-				CollectionUtils.sort(typePOIs, POIManager.POI_ALPHA_COMPARATOR);
-				deliverPartialResult(typePOIs);
-				this.pois.addAll(typePOIs);
-			}
+			ArrayList<POIManager> typePOIs = findAllNearby(getContext(), type, this.lat, this.lng, minDistanceInMeters, this.nbMaxByType);
+			filterTypePOIs(favoriteUUIDs, typePOIs, minDistanceInMeters);
+			CollectionUtils.sort(typePOIs, POIManager.POI_ALPHA_COMPARATOR);
+			deliverPartialResult(typePOIs);
+			this.pois.addAll(typePOIs);
 		}
 		return this.pois;
 	}
@@ -97,7 +95,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 			return;
 		}
 		activity.runOnUiThread(() -> {
-			HomeFragment homeFragment1 = HomePOILoader.this.homeFragmentWR == null ? null : HomePOILoader.this.homeFragmentWR.get();
+			HomeFragment homeFragment1 = HomePOILoader.this.homeFragmentWR.get();
 			if (homeFragment1 == null) {
 				return;
 			}

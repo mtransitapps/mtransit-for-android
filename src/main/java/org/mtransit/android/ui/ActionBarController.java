@@ -316,14 +316,9 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	private void initBgDrawable(ActionBar ab) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+		if (ab != null) {
 			this.bgDrawable = new ColorDrawable();
-			this.bgDrawable.setCallback(this);
-		} else {
-			if (ab != null) {
-				this.bgDrawable = new ColorDrawable();
-				ab.setBackgroundDrawable(this.bgDrawable);
-			}
+			ab.setBackgroundDrawable(this.bgDrawable);
 		}
 	}
 

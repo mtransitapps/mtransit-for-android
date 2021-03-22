@@ -1,14 +1,20 @@
 package org.mtransit.android.datasource
 
+import androidx.lifecycle.map
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.future.future
 import kotlinx.coroutines.withContext
+import org.mtransit.android.common.IApplication
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.AgencyProperties.Companion.SHORT_NAME_COMPARATOR
 import org.mtransit.android.data.DataSourceType
+import org.mtransit.android.data.DataSourceType.DataSourceTypeShortNameComparator
 import java.util.concurrent.CompletableFuture
 
 class DataSourcesRepository(
+    private val app: IApplication,
     private val dataSourcesCache: DataSourcesCache,
     private val dataSourcesReader: DataSourcesReader,
 ) : MTLog.Loggable {
@@ -19,11 +25,18 @@ class DataSourcesRepository(
 
     override fun getLogTag(): String = LOG_TAG
 
+    private val defaultAgencyComparator: Comparator<AgencyProperties> = SHORT_NAME_COMPARATOR
+
+    private val defaultDataSourceTypeComparator: Comparator<DataSourceType> by lazy { DataSourceTypeShortNameComparator(app.requireContext()) }
+
     // AGENCY
 
     fun getAllAgencies() = dataSourcesCache.getAllAgencies()
+        .sortedWith(defaultAgencyComparator)
 
-    fun readingAllAgencies() = dataSourcesCache.readingAllAgencies();
+    fun readingAllAgencies() = dataSourcesCache.readingAllAgencies().map {
+        it.sortedWith(defaultAgencyComparator)
+    }
 
     fun getAllAgenciesCount() = dataSourcesCache.getAllAgenciesCount()
 
@@ -32,10 +45,14 @@ class DataSourcesRepository(
     fun getAgency(authority: String) = dataSourcesCache.getAgency(authority)
 
     fun getAllDataSourceTypes() = dataSourcesCache.getAllDataSourceTypes()
+        .sortedWith(defaultDataSourceTypeComparator)
 
-    fun readingAllDataSourceTypes() = dataSourcesCache.readingAllDataSourceTypes()
+    fun readingAllDataSourceTypes() = dataSourcesCache.readingAllDataSourceTypes().map {
+        it.sortedWith(defaultDataSourceTypeComparator)
+    }
 
-    fun getTypeDataSources(dst: DataSourceType) = dataSourcesCache.getTypeDataSources(dst)
+    fun getTypeDataSources(dst: DataSourceType): List<AgencyProperties> = dataSourcesCache.getTypeDataSources(dst)
+        .sortedWith(defaultAgencyComparator)
 
     fun getAgencyPkg(authority: String) = dataSourcesCache.getAgencyPkg(authority)
 

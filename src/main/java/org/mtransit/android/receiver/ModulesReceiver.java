@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.ProviderInfo;
 import android.net.Uri;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -13,11 +14,14 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.di.Injection;
 
 import java.util.Arrays;
 import java.util.Collection;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable {
 
@@ -46,12 +50,16 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 
 	@NonNull
 	private final CrashReporter crashReporter;
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
 
 	public ModulesReceiver() {
 		super();
 		this.crashReporter = Injection.providesCrashReporter();
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 	}
 
+	@MainThread
 	@Override
 	public void onReceive(@Nullable Context context, @Nullable Intent intent) {
 		if (context == null) {
@@ -65,11 +73,14 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 		}
 		Uri data = intent == null ? null : intent.getData();
 		String pkg = data == null ? null : data.getSchemeSpecificPart();
+		boolean repositoryUpdateTriggered = false;
 		if (DataSourceProvider.isSet()) {
 			if (DataSourceProvider.isProvider(context, pkg)) {
 				MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
 				boolean didReset = DataSourceProvider.resetIfNecessary(context);
-				if (!didReset) {
+				if (didReset) {
+					repositoryUpdateTriggered = true;
+				} else {
 					ping(context, pkg);
 				}
 			} else {
@@ -77,12 +88,26 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 						|| Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
 					if (DataSourceProvider.resetIfNecessary(context)) {
 						MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
+						repositoryUpdateTriggered = true;
 					}
 				}
 			}
 		} else {
 			if (ping(context, pkg)) {
 				MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
+			}
+		}
+		if (F_CACHE_DATA_SOURCES) {
+			if (!repositoryUpdateTriggered) { // DataSourceProvider already called method
+				if (DataSourceProvider.isSet()) {
+					DataSourceProvider.get().updateFromDataSourceRepository(false);
+				} else { // ELSE update cache for latter
+					try {
+						this.dataSourcesRepository.updateAsync().get(); // TODO ? filter by pkg? authority?
+					} catch (Exception e) {
+						MTLog.w(this, e, "Error while updating data-sources from repository!");
+					}
+				}
 			}
 		}
 	}

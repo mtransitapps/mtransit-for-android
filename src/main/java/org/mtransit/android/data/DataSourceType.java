@@ -240,7 +240,7 @@ public enum DataSourceType {
 		@NonNull
 		private final WeakReference<Context> contextWR;
 
-		DataSourceTypeShortNameComparator(@NonNull Context context) {
+		public DataSourceTypeShortNameComparator(@NonNull Context context) {
 			this.contextWR = new WeakReference<>(context);
 		}
 
