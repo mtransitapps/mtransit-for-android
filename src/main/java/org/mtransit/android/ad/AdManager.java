@@ -1,5 +1,6 @@
 package org.mtransit.android.ad;
 
+import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.util.DisplayMetrics;
@@ -8,9 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdListener;
@@ -51,6 +54,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
+@SuppressLint("MissingPermission")
 public class AdManager implements IAdManager, MTLog.Loggable {
 
 	private static final String LOG_TAG = AdManager.class.getSimpleName();
@@ -538,7 +542,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 	}
 
-	@MainThread
+	@AnyThread
 	private boolean isShowingAds() {
 		if (!AD_ENABLED) {
 			return false;
@@ -723,6 +727,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			this.activityWR = new WeakReference<>(activity);
 		}
 
+		@WorkerThread
 		@Override
 		protected Boolean doInBackgroundNotCancelledMT(Void... params) {
 			if (!AD_ENABLED) {
@@ -731,6 +736,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			return !isCancelled() && this.adManager.isShowingAds();
 		}
 
+		@MainThread
 		@Override
 		protected void onPostExecuteNotCancelledMT(@Nullable Boolean result) {
 			IActivity activity = this.activityWR.get();
