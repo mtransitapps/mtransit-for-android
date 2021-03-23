@@ -12,7 +12,6 @@ import android.util.SparseArray;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.ColorInt;
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -472,7 +471,6 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		return this.allAgenciesAuthority.contains(authority);
 	}
 
-	@AnyThread
 	@Nullable
 	public AgencyProperties getAgency(@SuppressWarnings("unused") @Nullable Context context, @NonNull String authority) {
 		if (!isAgencyPropertiesSet()) {
@@ -826,7 +824,6 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		MTLog.i(this, "Initializing data-sources... DONE");
 	}
 
-	@MainThread
 	public void updateFromDataSourceRepository(boolean forceUpdated) {
 		if (this.updateDataSourceRepositoryTask != null && this.updateDataSourceRepositoryTask.getStatus() == UpdateDataSourceRepositoryTask.Status.RUNNING) {
 			MTLog.d(this, "updateFromDataSourceRepository() > SKIP (already running)");
