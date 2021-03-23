@@ -341,7 +341,7 @@ public class POIViewController implements MTLog.Loggable {
 				final Integer stopId = rts.getStop() == null ? null : rts.getStop().getId();
 				holder.rtsExtraV.setOnClickListener(new MTOnClickListener() {
 					@Override
-					public void onClickMT(View view) {
+					public void onClickMT(@NonNull View view) {
 						MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
 						if (mainActivity == null) {
 							return;

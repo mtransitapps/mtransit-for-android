@@ -642,7 +642,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 						holder.routeLongNameTv.setVisibility(View.VISIBLE);
 					}
 				}
-				holder.routeFL.setBackgroundColor(POIManager.getRouteColor(getContext(), route, this.authority, Color.BLACK));
+				holder.routeFL.setBackgroundColor(POIManager.getRouteColorNN(getContext(), route, this.authority, Color.BLACK));
 				holder.routeFL.setVisibility(View.VISIBLE);
 			}
 			return convertView;

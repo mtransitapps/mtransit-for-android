@@ -47,6 +47,9 @@ interface AgencyPropertiesDao {
     @Query("SELECT * FROM agency_properties WHERE id = :authority")
     fun getAgency(authority: String): AgencyProperties?
 
+    @Query("SELECT * FROM agency_properties WHERE id = :authority")
+    fun readingAgency(authority: String): LiveData<AgencyProperties?>
+
     @Query("SELECT pkg FROM agency_properties WHERE id = :authority")
     fun getAgencyPkg(authority: String): String
 

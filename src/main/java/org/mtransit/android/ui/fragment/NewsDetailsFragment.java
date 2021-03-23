@@ -204,7 +204,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		final String newWebURL = TextUtils.isEmpty(news.getWebURL()) ? news.getAuthorProfileURL() : news.getWebURL();
 		dateTv.setOnClickListener(new MTOnClickListener() {
 			@Override
-			public void onClickMT(View view) {
+			public void onClickMT(@NonNull View view) {
 				LinkUtils.open(getActivity(), newWebURL, getString(R.string.web_browser), true);
 			}
 		});

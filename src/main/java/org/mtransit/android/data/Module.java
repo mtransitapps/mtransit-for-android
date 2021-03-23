@@ -106,7 +106,7 @@ public class Module extends DefaultPOI {
 	@Override
 	public String getName() {
 		if (LocaleUtils.isFR()
-				&& !TextUtils.isEmpty(getNameFr())) {
+				&& getNameFr() != null) {
 			return getNameFr();
 		}
 		return super.getName();
@@ -168,6 +168,7 @@ public class Module extends DefaultPOI {
 	private static final String JSON_LOCATION = "location";
 	private static final String JSON_NAME_FR = "name_fr";
 
+	@Nullable
 	@Override
 	public JSONObject toJSON() {
 		try {
@@ -191,12 +192,14 @@ public class Module extends DefaultPOI {
 		}
 	}
 
+	@Nullable
 	@Override
 	public POI fromJSON(@NonNull JSONObject json) {
 		return fromJSONStatic(json);
 	}
 
-	public static Module fromJSONStatic(JSONObject json) {
+	@Nullable
+	public static Module fromJSONStatic(@NonNull JSONObject json) {
 		try {
 			Module module = new Module( //
 					DefaultPOI.getAuthorityFromJSON(json), //
@@ -223,7 +226,8 @@ public class Module extends DefaultPOI {
 		}
 	}
 
-	public static Module fromSimpleJSONStatic(JSONObject json, String authority) {
+	@Nullable
+	public static Module fromSimpleJSONStatic(@NonNull JSONObject json, @NonNull String authority) {
 		try {
 			Module module = new Module( //
 					authority, //
@@ -252,6 +256,7 @@ public class Module extends DefaultPOI {
 		}
 	}
 
+	@NonNull
 	@Override
 	public ContentValues toContentValues() {
 		ContentValues values = super.toContentValues();

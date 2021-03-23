@@ -30,7 +30,7 @@ public class Place extends DefaultPOI {
 
 	private long readAtInMs = -1L;
 
-	public Place(String authority, String providerId, String lang, long readAtInMs) {
+	public Place(@NonNull String authority, String providerId, String lang, long readAtInMs) {
 		super(authority, DST_ID, POI.ITEM_VIEW_TYPE_BASIC_POI, -1, POI.ITEM_ACTION_TYPE_PLACE);
 		setProviderId(providerId);
 		setLang(lang);

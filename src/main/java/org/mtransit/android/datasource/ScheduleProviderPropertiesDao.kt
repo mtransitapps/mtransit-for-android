@@ -1,5 +1,6 @@
 package org.mtransit.android.datasource
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -13,6 +14,9 @@ interface ScheduleProviderPropertiesDao {
 
     @Query("SELECT * FROM schedule_provider_properties")
     fun getAllScheduleProvider(): List<ScheduleProviderProperties>
+
+    @Query("SELECT * FROM schedule_provider_properties")
+    fun readingAllScheduleProvider(): LiveData<List<ScheduleProviderProperties>>
 
     @Query("SELECT * FROM schedule_provider_properties WHERE authority = :authority")
     fun getScheduleProvider(authority: String): ScheduleProviderProperties

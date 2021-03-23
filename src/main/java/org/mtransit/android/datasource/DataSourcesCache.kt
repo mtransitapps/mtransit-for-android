@@ -18,6 +18,8 @@ class DataSourcesCache(private val dataSourcesDatabase: DataSourcesDatabase) {
 
     fun getAgency(authority: String) = agencyPropertiesDao().getAgency(authority)
 
+    fun readingAgency(authority: String) = agencyPropertiesDao().readingAgency(authority)
+
     fun getAllDataSourceTypes() = agencyPropertiesDao().getAllDataSourceTypes()
 
     fun readingAllDataSourceTypes() = agencyPropertiesDao().readingAllDataSourceTypes()
@@ -34,6 +36,8 @@ class DataSourcesCache(private val dataSourcesDatabase: DataSourcesDatabase) {
 
     fun getAllStatusProviders() = statusProviderPropertiesDao().getAllStatusProvider()
 
+    fun readingAllStatusProviders() = statusProviderPropertiesDao().readingAllStatusProviders()
+
     fun getStatusProviders(targetAuthority: String) = statusProviderPropertiesDao().getTargetAuthorityStatusProvider(targetAuthority)
 
     fun getStatusProvider(authority: String) = statusProviderPropertiesDao().getStatusProvider(authority)
@@ -43,6 +47,8 @@ class DataSourcesCache(private val dataSourcesDatabase: DataSourcesDatabase) {
     private fun scheduleProviderPropertiesDao() = dataSourcesDatabase.scheduleProviderPropertiesDao()
 
     fun getAllScheduleProviders() = scheduleProviderPropertiesDao().getAllScheduleProvider()
+
+    fun readingAllScheduleProviders() = scheduleProviderPropertiesDao().readingAllScheduleProvider()
 
     fun getScheduleProviders(targetAuthority: String) = scheduleProviderPropertiesDao().getTargetAuthorityScheduleProvider(targetAuthority)
 
@@ -54,6 +60,8 @@ class DataSourcesCache(private val dataSourcesDatabase: DataSourcesDatabase) {
 
     fun getAllServiceUpdateProviders() = serviceUpdateProviderPropertiesDao().getAllServiceUpdateProvider()
 
+    fun readingAllServiceUpdateProviders() = serviceUpdateProviderPropertiesDao().readingAllServiceUpdateProvider()
+
     fun getServiceUpdateProviders(targetAuthority: String) = serviceUpdateProviderPropertiesDao().getTargetAuthorityServiceUpdateProvider(targetAuthority)
 
     fun getServiceUpdateProvider(authority: String) = serviceUpdateProviderPropertiesDao().getServiceUpdateProvider(authority)
@@ -63,6 +71,8 @@ class DataSourcesCache(private val dataSourcesDatabase: DataSourcesDatabase) {
     private fun newsProviderPropertiesDao() = dataSourcesDatabase.newsProviderPropertiesDao()
 
     fun getAllNewsProviders() = newsProviderPropertiesDao().getAllNewsProvider()
+
+    fun readingAllNewsProviders() = newsProviderPropertiesDao().readingAllNewsProvider()
 
     fun getNewsProviders(targetAuthority: String) = newsProviderPropertiesDao().getTargetAuthorityNewsProviders(targetAuthority)
 

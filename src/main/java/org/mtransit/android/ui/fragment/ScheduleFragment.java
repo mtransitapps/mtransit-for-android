@@ -27,6 +27,8 @@ import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
@@ -83,6 +85,13 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	private RouteTripStop rts;
 	@ColorInt
 	private Integer colorInt;
+
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
+
+	public ScheduleFragment() {
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+	}
 
 	private boolean hasRts() {
 		if (this.rts == null) {
@@ -248,7 +257,13 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private void initAdapters() {
-		this.adapter = new DayPagerAdapter(this, UITimeUtils.getBeginningOfTodayInMs(), this.uuid, this.authority, this.rts);
+		this.adapter = new DayPagerAdapter(
+				this,
+				UITimeUtils.getBeginningOfTodayInMs(),
+				this.uuid,
+				this.authority,
+				this.rts
+		);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -422,7 +437,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public CharSequence getABTitle(@Nullable Context context) {
 		if (context == null) {
-			return super.getABTitle(context);
+			return super.getABTitle(null);
 		}
 		return context.getString(R.string.full_schedule);
 	}
@@ -430,11 +445,11 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	@Nullable
 	@Override
 	public CharSequence getABSubtitle(@Nullable Context context) {
-		RouteTripStop rts = getRtsOrNull();
+		final RouteTripStop rts = getRtsOrNull();
 		if (rts == null || context == null) {
 			return super.getABSubtitle(context);
 		}
-		return POIManager.getOneLineDescription(context, rts);
+		return POIManager.getOneLineDescription(context, this.dataSourcesRepository, rts);
 	}
 
 	@Nullable

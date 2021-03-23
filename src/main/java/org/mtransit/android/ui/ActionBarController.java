@@ -389,7 +389,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 
 		@Override
-		public void onClickMT(View view) {
+		public void onClickMT(@NonNull View view) {
 			MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 			if (mainActivity != null) {
 				mainActivity.onUpIconClick();

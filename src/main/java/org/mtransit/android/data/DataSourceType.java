@@ -292,8 +292,8 @@ public enum DataSourceType {
 				lAgency = this.dataSourcesRepository.getAgency(lPoim.poi.getAuthority());
 				rAgency = this.dataSourcesRepository.getAgency(rPoim.poi.getAuthority());
 			} else {
-				lAgency = DataSourceProvider.get(context).getAgency(context, lPoim.poi.getAuthority());
-				rAgency = DataSourceProvider.get(context).getAgency(context, rPoim.poi.getAuthority());
+				lAgency = org.mtransit.android.data.DataSourceProvider.get(context).getAgency(context, lPoim.poi.getAuthority());
+				rAgency = org.mtransit.android.data.DataSourceProvider.get(context).getAgency(context, rPoim.poi.getAuthority());
 			}
 			if (lAgency == null || rAgency == null) {
 				return 0;

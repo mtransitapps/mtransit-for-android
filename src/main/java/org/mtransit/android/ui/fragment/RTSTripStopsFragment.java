@@ -101,7 +101,7 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 	private int fragmentPosition = -1;
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
-	private MapViewController mapViewController =
+	private final MapViewController mapViewController =
 			new MapViewController(getLogTag(), this, this, true, true, true, false, false, false, 0, false, true, false, true, false);
 
 	@NonNull

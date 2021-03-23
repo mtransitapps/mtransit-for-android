@@ -1,5 +1,6 @@
 package org.mtransit.android.datasource
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -13,6 +14,9 @@ interface StatusProviderPropertiesDao {
 
     @Query("SELECT * FROM status_provider_properties")
     fun getAllStatusProvider(): List<StatusProviderProperties>
+
+    @Query("SELECT * FROM status_provider_properties")
+    fun readingAllStatusProviders(): LiveData<List<StatusProviderProperties>>
 
     @Query("SELECT * FROM status_provider_properties WHERE authority = :authority")
     fun getStatusProvider(authority: String): StatusProviderProperties

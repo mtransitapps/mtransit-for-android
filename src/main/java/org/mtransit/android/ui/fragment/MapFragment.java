@@ -31,6 +31,7 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
@@ -98,10 +99,13 @@ public class MapFragment extends ABFragment implements
 
 	@NonNull
 	private final LocationPermissionProvider locationPermissionProvider;
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
 
 	public MapFragment() {
 		super();
 		this.locationPermissionProvider = Injection.providesLocationPermissionProvider();
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 	}
 
 	@Override
@@ -216,7 +220,7 @@ public class MapFragment extends ABFragment implements
 	public Loader<Collection<MapViewController.POIMarker>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
-			return new MapPOILoader(getContext(), getFilterTypeIdsOrNull(), this.loadingLatLngBounds, this.loadedLatLngBounds);
+			return new MapPOILoader(requireContext(), this.dataSourcesRepository, getFilterTypeIdsOrNull(), this.loadingLatLngBounds, this.loadedLatLngBounds);
 		default:
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			//noinspection ConstantConditions // TODO fix latter

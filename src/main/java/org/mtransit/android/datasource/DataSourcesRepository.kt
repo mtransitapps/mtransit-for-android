@@ -11,6 +11,11 @@ import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.AgencyProperties.Companion.SHORT_NAME_COMPARATOR
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.DataSourceType.DataSourceTypeShortNameComparator
+import org.mtransit.android.data.NewsProviderProperties
+import org.mtransit.android.data.ScheduleProviderProperties
+import org.mtransit.android.data.ServiceUpdateProviderProperties
+import org.mtransit.android.data.StatusProviderProperties
+import org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES
 import java.util.concurrent.CompletableFuture
 
 class DataSourcesRepository(
@@ -29,71 +34,110 @@ class DataSourcesRepository(
 
     private val defaultDataSourceTypeComparator: Comparator<DataSourceType> by lazy { DataSourceTypeShortNameComparator(app.requireContext()) }
 
+    // IN-MEMORY CACHE
+    private var _agencyProperties = listOf<AgencyProperties>()
+    private var _dataSourceTypes = listOf<DataSourceType>()
+    private var _statusProviderProperties = listOf<StatusProviderProperties>()
+    private var _scheduleProviderProperties = listOf<ScheduleProviderProperties>()
+    private var _serviceUpdateProviderProperties = listOf<ServiceUpdateProviderProperties>()
+    private var _newsProviderProperties = listOf<NewsProviderProperties>()
+
+    init {
+        if (F_CACHE_DATA_SOURCES) { // no-op injection <= WIP
+            // START LISTENING FOR CHANGE TO FILL IN-MEMORY CACHE
+            startListeningForChangesIntoMemory()
+        }
+    }
+
+    private fun startListeningForChangesIntoMemory() {
+        dataSourcesCache.readingAllAgencies().observeForever { // SINGLETON
+            this._agencyProperties = it.sortedWith(defaultAgencyComparator)
+        }
+        dataSourcesCache.readingAllDataSourceTypes().observeForever { // SINGLETON
+            this._dataSourceTypes = it.sortedWith(defaultDataSourceTypeComparator)
+        }
+        dataSourcesCache.readingAllStatusProviders().observeForever { // SINGLETON
+            this._statusProviderProperties = it
+        }
+        dataSourcesCache.readingAllScheduleProviders().observeForever { // SINGLETON
+            this._scheduleProviderProperties = it
+        }
+        dataSourcesCache.readingAllServiceUpdateProviders().observeForever { // SINGLETON
+            this._serviceUpdateProviderProperties = it
+        }
+        dataSourcesCache.readingAllNewsProviders().observeForever { // SINGLETON
+            this._newsProviderProperties = it
+        }
+    }
+
     // AGENCY
 
-    fun getAllAgencies() = dataSourcesCache.getAllAgencies()
-        .sortedWith(defaultAgencyComparator)
+    fun getAllAgencies() = this._agencyProperties
 
     fun readingAllAgencies() = dataSourcesCache.readingAllAgencies().map {
         it.sortedWith(defaultAgencyComparator)
     }
 
-    fun getAllAgenciesCount() = dataSourcesCache.getAllAgenciesCount()
+    fun getAllAgenciesCount() = this._agencyProperties.size
 
     fun readingAllAgenciesCount() = dataSourcesCache.readingAllAgenciesCount()
 
-    fun getAgency(authority: String) = dataSourcesCache.getAgency(authority)
+    fun getAgency(authority: String) = this._agencyProperties.singleOrNull { it.authority == authority }
 
-    fun getAllDataSourceTypes() = dataSourcesCache.getAllDataSourceTypes()
-        .sortedWith(defaultDataSourceTypeComparator)
+    fun readingAgency(authority: String) = dataSourcesCache.readingAgency(authority)
+
+    fun getAllDataSourceTypes() = this._dataSourceTypes
 
     fun readingAllDataSourceTypes() = dataSourcesCache.readingAllDataSourceTypes().map {
         it.sortedWith(defaultDataSourceTypeComparator)
     }
 
-    fun getTypeDataSources(dst: DataSourceType): List<AgencyProperties> = dataSourcesCache.getTypeDataSources(dst)
+    fun getTypeDataSources(dst: DataSourceType): List<AgencyProperties> = this._agencyProperties.filter { it.type == dst }
         .sortedWith(defaultAgencyComparator)
 
-    fun getAgencyPkg(authority: String) = dataSourcesCache.getAgencyPkg(authority)
+    fun getAgencyPkg(authority: String) = getAgency(authority)?.pkg
 
-    fun getAgencyColorInt(authority: String) = dataSourcesCache.getAgencyColorInt(authority)
+    fun getAgencyColorInt(authority: String) = getAgency(authority)?.colorInt
 
     // STATUS
 
-    fun getAllStatusProviders() = dataSourcesCache.getAllStatusProviders()
+    fun getAllStatusProviders() = this._statusProviderProperties
 
-    fun getStatusProviders(targetAuthority: String) = dataSourcesCache.getStatusProviders(targetAuthority)
+    fun getStatusProviders(targetAuthority: String) = this._statusProviderProperties.filter { it.targetAuthority == targetAuthority }
 
-    fun getStatusProvider(authority: String) = dataSourcesCache.getStatusProvider(authority)
+    fun getStatusProvider(authority: String) = this._statusProviderProperties.singleOrNull { it.authority == authority }
 
     // SCHEDULE
 
-    fun getAllScheduleProviders() = dataSourcesCache.getAllScheduleProviders()
+    fun getAllScheduleProviders() = this._scheduleProviderProperties
 
-    fun getScheduleProviders(targetAuthority: String) = dataSourcesCache.getScheduleProviders(targetAuthority)
+    fun getScheduleProviders(targetAuthority: String) = this._scheduleProviderProperties.filter { it.targetAuthority == targetAuthority }
 
-    fun getScheduleProvider(authority: String) = dataSourcesCache.getScheduleProvider(authority)
+    fun getScheduleProvider(authority: String) = this._scheduleProviderProperties.singleOrNull { it.authority == authority }
 
     // SERVICE UPDATE
 
-    fun getAllServiceUpdateProviders() = dataSourcesCache.getAllServiceUpdateProviders()
+    fun getAllServiceUpdateProviders() = this._serviceUpdateProviderProperties
 
-    fun getServiceUpdateProviders(targetAuthority: String) = dataSourcesCache.getServiceUpdateProviders(targetAuthority)
+    fun getServiceUpdateProviders(targetAuthority: String) = this._serviceUpdateProviderProperties.filter { it.targetAuthority == targetAuthority }
 
-    fun getServiceUpdateProvider(authority: String) = dataSourcesCache.getServiceUpdateProvider(authority)
+    fun getServiceUpdateProvider(authority: String) = this._serviceUpdateProviderProperties.singleOrNull { it.authority == authority }
 
     // NEWS
 
-    fun getAllNewsProviders() = dataSourcesCache.getAllNewsProviders()
+    fun getAllNewsProviders() = this._newsProviderProperties
 
-    fun getNewsProviders(targetAuthority: String) = dataSourcesCache.getNewsProviders(targetAuthority)
+    fun getNewsProviders(targetAuthority: String) = this._newsProviderProperties.filter { it.targetAuthority == targetAuthority }
 
-    fun getNewsProvider(authority: String) = dataSourcesCache.getNewsProvider(authority)
+    fun getNewsProvider(authority: String) = this._newsProviderProperties.singleOrNull { it.authority == authority }
 
     private var runningUpdate: Boolean = false
 
     @JvmOverloads
     fun updateAsync(force: Boolean = false): CompletableFuture<Boolean> { // JAVA
+        if (!F_CACHE_DATA_SOURCES) {
+            return GlobalScope.future { false }
+        }
         if (runningUpdate) {
             MTLog.d(this@DataSourcesRepository, "updateAsync() > SKIP (was running - before sync)")
             return GlobalScope.future { false }
@@ -118,6 +162,9 @@ class DataSourcesRepository(
     }
 
     suspend fun update(): Boolean {
+        if (!F_CACHE_DATA_SOURCES) {
+            return false
+        }
         var updated: Boolean
         withContext(Dispatchers.IO) {
             updated = dataSourcesReader.update()
@@ -126,6 +173,9 @@ class DataSourcesRepository(
     }
 
     fun isProvider(pkg: String): Boolean {
+        if (!F_CACHE_DATA_SOURCES) {
+            return false
+        }
         return this.dataSourcesReader.isProvider(pkg)
     }
 }

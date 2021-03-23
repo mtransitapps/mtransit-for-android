@@ -40,7 +40,6 @@ import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.provider.location.MTLocationProvider;
@@ -549,8 +548,10 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 		if (nbAgencies == null) {
 			if (!F_CACHE_DATA_SOURCES) {
-				DataSourceProvider dataSourceProvider = DataSourceProvider.get();
+				org.mtransit.android.data.DataSourceProvider dataSourceProvider = org.mtransit.android.data.DataSourceProvider.get();
 				nbAgencies = dataSourceProvider.isInitialized() ? dataSourceProvider.getAllAgenciesCount() : null;
+			} else {
+				nbAgencies = this.dataSourcesRepository.getAllAgenciesCount();
 			}
 		}
 		if (nbAgencies == null // number of agency unknown

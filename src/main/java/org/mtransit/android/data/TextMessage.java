@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,6 +13,7 @@ import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.provider.POIProviderContract;
 
+@SuppressWarnings("WeakerAccess")
 public class TextMessage extends DefaultPOI {
 
 	private static final String TAG = TextMessage.class.getSimpleName();
@@ -25,9 +27,11 @@ public class TextMessage extends DefaultPOI {
 	public static final String AUTHORITY = "org.mtransit.android.message";
 
 	private long messageId;
+	@SuppressWarnings("NotNullFieldNotInitialized")
+	@NonNull
 	private String message;
 
-	public TextMessage(long messageId, String message) {
+	public TextMessage(long messageId, @NonNull String message) {
 		super(AUTHORITY, -1, POI.ITEM_VIEW_TYPE_TEXT_MESSAGE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_NONE);
 		setMessageId(messageId);
 		setMessage(message);
@@ -41,10 +45,11 @@ public class TextMessage extends DefaultPOI {
 		return messageId;
 	}
 
-	public void setMessage(String message) {
+	public void setMessage(@NonNull String message) {
 		this.message = message;
 	}
 
+	@NonNull
 	public String getMessage() {
 		return this.message;
 	}
@@ -58,12 +63,12 @@ public class TextMessage extends DefaultPOI {
 	@NonNull
 	@Override
 	public String toString() {
-		return new StringBuilder().append(TextMessage.class.getSimpleName()).append(":[") //
-				.append("authority:").append(getAuthority()).append(',') //
-				.append("messageId:").append(getMessageId()).append(',') //
-				.append("message:").append(getMessage()).append(',') //
-				.append("id:").append(getId()).append(',') //
-				.append(']').toString();
+		return TextMessage.class.getSimpleName() + ":[" + //
+				"authority:" + getAuthority() + ',' + //
+				"messageId:" + getMessageId() + ',' + //
+				"message:" + getMessage() + ',' + //
+				"id:" + getId() + ',' + //
+				']';
 	}
 
 	@Override
@@ -86,6 +91,7 @@ public class TextMessage extends DefaultPOI {
 		return false;
 	}
 
+	@Nullable
 	private String uuid = null;
 
 	@NonNull
@@ -105,6 +111,7 @@ public class TextMessage extends DefaultPOI {
 	private static final String JSON_MESSAGE = "message";
 	private static final String JSON_MESSAGE_ID = "messageId";
 
+	@Nullable
 	@Override
 	public JSONObject toJSON() {
 		try {
@@ -119,12 +126,14 @@ public class TextMessage extends DefaultPOI {
 		}
 	}
 
+	@Nullable
 	@Override
 	public POI fromJSON(@NonNull JSONObject json) {
 		return fromJSONStatic(json);
 	}
 
-	public static TextMessage fromJSONStatic(JSONObject json) {
+	@Nullable
+	public static TextMessage fromJSONStatic(@NonNull JSONObject json) {
 		try {
 			TextMessage textMessage = new TextMessage( //
 					json.getLong(JSON_MESSAGE_ID), //
@@ -138,7 +147,9 @@ public class TextMessage extends DefaultPOI {
 		}
 	}
 
-	public static TextMessage fromSimpleJSONStatic(JSONObject json, String authority) {
+	@SuppressWarnings("unused")
+	@Nullable
+	public static TextMessage fromSimpleJSONStatic(@NonNull JSONObject json, @NonNull String authority) {
 		try {
 			return new TextMessage( //
 					json.getLong(JSON_MESSAGE_ID), //
@@ -150,6 +161,7 @@ public class TextMessage extends DefaultPOI {
 		}
 	}
 
+	@NonNull
 	@Override
 	public ContentValues toContentValues() {
 		ContentValues values = super.toContentValues();

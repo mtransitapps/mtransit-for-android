@@ -1,5 +1,6 @@
 package org.mtransit.android.datasource
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -12,6 +13,9 @@ interface NewsProviderPropertiesDao {
 
     @Query("SELECT * FROM news_provider_properties")
     fun getAllNewsProvider(): List<NewsProviderProperties>
+
+    @Query("SELECT * FROM news_provider_properties")
+    fun readingAllNewsProvider(): LiveData<List<NewsProviderProperties>>
 
     @Query("SELECT * FROM news_provider_properties WHERE authority = :authority")
     fun getNewsProvider(authority: String): NewsProviderProperties

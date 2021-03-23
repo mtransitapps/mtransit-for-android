@@ -56,6 +56,7 @@ import org.mtransit.android.data.NewsProviderProperties;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ScheduleProviderProperties;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
@@ -155,12 +156,15 @@ public class POIFragment extends ABFragment implements
 	private final MTSensorManager sensorManager;
 	@NonNull
 	private final IAdManager adManager;
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
 
 	public POIFragment() {
 		super();
 		this.locationPermissionProvider = Injection.providesLocationPermissionProvider();
 		this.sensorManager = Injection.providesSensorManager();
 		this.adManager = Injection.providesAdManager();
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 	}
 
 	private boolean hasAgency() {
@@ -182,8 +186,10 @@ public class POIFragment extends ABFragment implements
 		TaskUtils.execute(this.loadAgencyTask);
 	}
 
+	@Nullable
 	private LoadAgencyTask loadAgencyTask = null;
 
+	@SuppressWarnings("deprecation")
 	private static class LoadAgencyTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, POIFragment> {
 
 		@NonNull
@@ -274,6 +280,7 @@ public class POIFragment extends ABFragment implements
 
 	private LoadPoimTask loadPoimTask = null;
 
+	@SuppressWarnings("deprecation")
 	private static class LoadPoimTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, POIFragment> {
 
 		@NonNull
@@ -390,6 +397,7 @@ public class POIFragment extends ABFragment implements
 	@Nullable
 	private LoadNewsTask loadNewsTask = null;
 
+	@SuppressWarnings("deprecation")
 	private static class LoadNewsTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, POIFragment> {
 
 		@NonNull
@@ -734,7 +742,7 @@ public class POIFragment extends ABFragment implements
 			} else {
 				rtsScheduleBtn.setOnClickListener(new MTOnClickListener() {
 					@Override
-					public void onClickMT(View view) {
+					public void onClickMT(@NonNull View view) {
 						POIManager poim = getPoimOrNull();
 						if (poim == null || !(poim.poi instanceof RouteTripStop)) {
 							MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RTS)");
@@ -746,8 +754,12 @@ public class POIFragment extends ABFragment implements
 							return;
 						}
 						((MainActivity) activity).addFragmentToStack( //
-								ScheduleFragment.newInstance( //
-										POIFragment.this.uuid, POIFragment.this.authority, (RouteTripStop) poim.poi, poim.getColor(activity)), //
+								ScheduleFragment.newInstance(
+										POIFragment.this.uuid,
+										POIFragment.this.authority,
+										(RouteTripStop) poim.poi,
+										poim.getColor(activity)
+								), //
 								POIFragment.this);
 					}
 				});
@@ -765,7 +777,7 @@ public class POIFragment extends ABFragment implements
 		if (moreBtn != null) {
 			moreBtn.setOnClickListener(new MTOnClickListener() {
 				@Override
-				public void onClickMT(View view) {
+				public void onClickMT(@NonNull View view) {
 					POIManager poim = getPoimOrNull();
 					if (poim == null) {
 						return;
@@ -775,8 +787,8 @@ public class POIFragment extends ABFragment implements
 						MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
 						return;
 					}
-					Integer colorInt = poim.getColor(getContext());
-					String subtitle = POIManager.getOneLineDescription(view.getContext(), poim.poi);
+					Integer colorInt = poim.getColor(view.getContext());
+					String subtitle = POIManager.getOneLineDescription(view.getContext(), POIFragment.this.dataSourcesRepository, poim.poi);
 					((MainActivity) activity).addFragmentToStack( //
 							NewsFragment.newInstance( //
 									colorInt, subtitle, ArrayUtils.asArrayList(poim.poi.getAuthority()), null,
@@ -796,7 +808,7 @@ public class POIFragment extends ABFragment implements
 		if (moreBtn != null) {
 			moreBtn.setOnClickListener(new MTOnClickListener() {
 				@Override
-				public void onClickMT(View view) {
+				public void onClickMT(@NonNull View view) {
 					Activity activity = getActivity();
 					if (activity == null) {
 						return;
@@ -812,8 +824,12 @@ public class POIFragment extends ABFragment implements
 					}
 					((MainActivity) activity).addFragmentToStack( //
 							NearbyFragment.newFixedOnInstance( //
-									optTypeId, poim.getLat(), poim.getLng(), POIManager.getOneLineDescription(activity, poim.poi),
-									poim.getColor(getContext())), POIFragment.this);
+									optTypeId,
+									poim.getLat(),
+									poim.getLng(),
+									POIManager.getOneLineDescription(activity, POIFragment.this.dataSourcesRepository, poim.poi),
+									poim.getColor(view.getContext())
+							), POIFragment.this);
 				}
 			});
 			moreBtn.setVisibility(View.VISIBLE);
@@ -859,7 +875,7 @@ public class POIFragment extends ABFragment implements
 			((ViewStub) view.findViewById(R.id.poi_news_stub)).inflate(); // inflate
 			view.findViewById(R.id.the_poi_news).setOnClickListener(new MTOnClickListener() {
 				@Override
-				public void onClickMT(View view) {
+				public void onClickMT(@NonNull View view) {
 					ArrayList<News> news = getNewsOrNull();
 					if (news == null || news.size() == 0) {
 						return;
@@ -891,7 +907,7 @@ public class POIFragment extends ABFragment implements
 
 			view.findViewById(R.id.rewardedAdsBtn).setOnClickListener(new MTOnClickListener() {
 				@Override
-				public void onClickMT(View view) {
+				public void onClickMT(@NonNull View view) {
 					onRewardedAdButtonClick(view.getContext());
 				}
 			});
@@ -1397,7 +1413,7 @@ public class POIFragment extends ABFragment implements
 			return agency.getShortName();
 		}
 		if (context == null) {
-			return super.getABTitle(context);
+			return super.getABTitle(null);
 		}
 		return context.getString(R.string.ellipsis);
 	}

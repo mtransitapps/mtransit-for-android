@@ -49,6 +49,8 @@ import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.PickPOIDialogFragment;
 import org.mtransit.android.ui.view.map.ClusteringSettings;
@@ -161,6 +163,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private boolean locationPermissionGranted = false;
 
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
+
 	public MapViewController(String tag, MapMarkerProvider markerProvider, MapListener mapListener, boolean mapToolbarEnabled, boolean myLocationEnabled,
 							 boolean myLocationButtonEnabled, boolean indoorLevelPickerEnabled, boolean trafficEnabled, boolean indoorEnabled, int paddingTopSp,
 							 boolean followingUser, boolean hasButtons, boolean clusteringEnabled, boolean showAllMarkersWhenReady, boolean markerLabelShowExtra) {
@@ -179,6 +184,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.clusteringEnabled = clusteringEnabled;
 		this.showAllMarkersWhenReady = showAllMarkersWhenReady;
 		this.markerLabelShowExtra = markerLabelShowExtra;
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 	}
 
 	private void setMarkerProvider(MapMarkerProvider markerProvider) {
@@ -449,7 +455,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		setTypeSwitchImg();
 		this.typeSwitchView.setOnClickListener(new MTOnClickListener() {
 			@Override
-			public void onClickMT(View view) {
+			public void onClickMT(@NonNull View view) {
 				switchMapType();
 			}
 		});
@@ -1097,6 +1103,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	@Nullable
 	private LoadClusterItemsTask loadClusterItemsTask = null;
 
+	@SuppressWarnings("deprecation")
 	private static class LoadClusterItemsTask extends MTCancellableAsyncTask<Void, Void, Collection<POIMarker>> {
 
 		private final String LOG_TAG = MapViewController.class.getSimpleName() + ">" + LoadClusterItemsTask.class.getSimpleName();
@@ -1136,6 +1143,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			if (pois == null) {
 				return null;
 			}
+			DataSourcesRepository dataSourcesRepository = mapViewController.dataSourcesRepository;
 			ArrayMap<LatLng, POIMarker> clusterItems = new ArrayMap<>();
 			LatLng position;
 			LatLng positionTrunc;
@@ -1162,7 +1170,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				agencyShortName = mapViewController.markerLabelShowExtra ? agency.getShortName() : null;
 				uuid = poim.poi.getUUID();
 				authority = poim.poi.getAuthority();
-				color = POIManager.getColor(activity, poim.poi, null);
+				color = POIManager.getColor(activity, dataSourcesRepository, poim.poi, null);
 				secondaryColor = agency.getColorInt();
 				POIMarker currentItem = clusterItems.get(positionTrunc);
 				if (currentItem == null) {

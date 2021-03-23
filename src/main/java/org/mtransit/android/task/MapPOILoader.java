@@ -19,6 +19,7 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.ui.view.MapViewController;
 
 import java.util.ArrayList;
@@ -39,6 +40,8 @@ public class MapPOILoader extends MTAsyncTaskLoaderX<Collection<MapViewControlle
 		return LOG_TAG;
 	}
 
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
 	@Nullable
 	private final Collection<Integer> filterTypeIds;
 	@Nullable
@@ -46,13 +49,16 @@ public class MapPOILoader extends MTAsyncTaskLoaderX<Collection<MapViewControlle
 	@Nullable
 	private final LatLngBounds loadedLatLngBounds;
 
+	@Nullable
 	private Collection<MapViewController.POIMarker> poiMarkers;
 
 	public MapPOILoader(@NonNull Context context,
+						@NonNull DataSourcesRepository dataSourcesRepository,
 						@Nullable Collection<Integer> filterTypeIds,
 						@Nullable LatLngBounds latLngBounds,
 						@Nullable LatLngBounds loadedLatLngBounds) {
 		super(context);
+		this.dataSourcesRepository = dataSourcesRepository;
 		this.filterTypeIds = filterTypeIds;
 		this.latLngBounds = latLngBounds;
 		this.loadedLatLngBounds = loadedLatLngBounds;
@@ -91,7 +97,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderX<Collection<MapViewControlle
 					&& !this.filterTypeIds.contains(type.getId())) {
 				continue;
 			}
-			FindAgencyPOIsTask task = new FindAgencyPOIsTask(getContext(), agency, this.latLngBounds, this.loadedLatLngBounds);
+			FindAgencyPOIsTask task = new FindAgencyPOIsTask(getContext(), this.dataSourcesRepository, agency, this.latLngBounds, this.loadedLatLngBounds);
 			taskList.add(executor.submit(task));
 		}
 		ArrayMap<LatLng, MapViewController.POIMarker> positionToPoiMarkers = new ArrayMap<>();
@@ -153,13 +159,21 @@ public class MapPOILoader extends MTAsyncTaskLoaderX<Collection<MapViewControlle
 			return LOG_TAG;
 		}
 
+		@NonNull
 		private final Context context;
+		@NonNull
+		private final DataSourcesRepository dataSourcesRepository;
 		private final AgencyProperties agency;
 		private final LatLngBounds latLngBounds;
 		private final LatLngBounds loadedLatLngBounds;
 
-		FindAgencyPOIsTask(Context context, AgencyProperties agency, LatLngBounds latLngBounds, LatLngBounds loadedLatLngBounds) {
+		FindAgencyPOIsTask(@NonNull Context context,
+						   @NonNull DataSourcesRepository dataSourcesRepository,
+						   AgencyProperties agency,
+						   LatLngBounds latLngBounds,
+						   LatLngBounds loadedLatLngBounds) {
 			this.context = context;
+			this.dataSourcesRepository = dataSourcesRepository;
 			this.agency = agency;
 			this.latLngBounds = latLngBounds;
 			this.loadedLatLngBounds = loadedLatLngBounds;
@@ -209,7 +223,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderX<Collection<MapViewControlle
 					}
 					uuid = poim.poi.getUUID();
 					authority = poim.poi.getAuthority();
-					color = POIManager.getColor(this.context, poim.poi, null);
+					color = POIManager.getColor(this.context, this.dataSourcesRepository, poim.poi, null);
 					secondaryColor = agency.getColorInt();
 					MapViewController.POIMarker clusterItem = clusterItems.get(positionTrunc);
 					if (clusterItem == null) {

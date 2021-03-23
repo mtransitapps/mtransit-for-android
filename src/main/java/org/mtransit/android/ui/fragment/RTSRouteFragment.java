@@ -153,7 +153,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 	private void restoreInstanceState(Bundle... bundles) {
 		String newAuthority = BundleUtils.getString(EXTRA_AUTHORITY, bundles);
-		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
+		if (newAuthority != null && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
 			resetRouteTrips();
 		}
@@ -235,7 +235,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			return false;
 		}
 		if (this.routeId != null && !TextUtils.isEmpty(this.authority)) {
-			this.routeTrips = DataSourceManager.findRTSRouteTrips(getContext(), this.authority, this.routeId);
+			this.routeTrips = DataSourceManager.findRTSRouteTrips(requireContext(), this.authority, this.routeId);
 		}
 		return this.routeTrips != null;
 	}
@@ -316,7 +316,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			return false;
 		}
 		if (this.routeId != null && !TextUtils.isEmpty(this.authority)) {
-			this.route = DataSourceManager.findRTSRoute(getContext(), this.authority, this.routeId);
+			this.route = DataSourceManager.findRTSRoute(requireContext(), this.authority, this.routeId);
 		}
 		return this.route != null;
 	}
@@ -325,9 +325,11 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (this.route == null) {
 			return;
 		}
-		getAbController().setABBgColor(this, getABBgColor(getContext()), false);
-		getAbController().setABTitle(this, getABTitle(getContext()), false);
-		getAbController().setABReady(this, isABReady(), true);
+		if (getAbController() != null) {
+			getAbController().setABBgColor(this, getABBgColor(getContext()), false);
+			getAbController().setABTitle(this, getABTitle(getContext()), false);
+			getAbController().setABReady(this, isABReady(), true);
+		}
 		setupTabTheme(getView());
 		this.listMapToggleSelector = null; // force reset to use route color
 		if (getActivity() != null) {
@@ -372,7 +374,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			if (activity == null) {
 				return;
 			}
-			Route newRoute = DataSourceManager.findRTSRoute(getContext(), this.authority, this.routeId);
+			Route newRoute = DataSourceManager.findRTSRoute(requireContext(), this.authority, this.routeId);
 			if (newRoute == null) {
 				((MainActivity) activity).popFragmentFromStack(this); // close this fragment
 				this.modulesUpdated = false; // processed
@@ -676,6 +678,9 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	@ColorInt
 	@Override
 	public Integer getABBgColor(@Nullable Context context) {
+		if (context == null || this.authority == null) {
+			return super.getABBgColor(context);
+		}
 		return POIManager.getRouteColor(context, getRouteOrNull(), this.authority, super.getABBgColor(context));
 	}
 
@@ -698,7 +703,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	@NonNull
 	private StateListDrawable getListMapToggleSelector() {
 		if (listMapToggleSelector == null) {
-			Integer colorInt = POIManager.getRouteColor(getContext(), getRouteOrNull(), this.authority, null);
+			Integer colorInt = POIManager.getRouteColor(requireContext(), getRouteOrNull(), this.authority, null);
 			listMapToggleSelector = new StateListDrawable();
 			LayerDrawable listLayerDrawable = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.switch_thumb_list, requireContext().getTheme());
 			if (listLayerDrawable != null) {
@@ -858,14 +863,21 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			return this.routeTrips.get(position).getHeading(context).toUpperCase(Locale.ENGLISH);
 		}
 
+		@NonNull
 		@Override
 		public Fragment getItem(int position) {
 			Trip trip = getTrip(position);
 			if (trip == null) {
-				return null;
+				throw new RuntimeException("No item at position " + position + "!");
 			}
-			return RTSTripStopsFragment.newInstance( //
-					position, this.lastVisibleFragmentPosition, this.authority, trip.getId(), this.stopId, this.showingListInsteadOfMap);
+			return RTSTripStopsFragment.newInstance(
+					position,
+					this.lastVisibleFragmentPosition,
+					this.authority,
+					trip.getId(),
+					this.stopId,
+					this.showingListInsteadOfMap
+			);
 		}
 	}
 }
