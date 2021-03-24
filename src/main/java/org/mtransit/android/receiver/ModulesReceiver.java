@@ -10,10 +10,10 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.data.DataSourceManager;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.di.Injection;
@@ -48,6 +48,17 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 			Intent.ACTION_PACKAGE_VERIFIED
 	);
 
+	@Nullable
+	private static String agencyProviderMetaData;
+
+	@NonNull
+	private static String getAgencyProviderMetaData(@NonNull Context context) {
+		if (agencyProviderMetaData == null) {
+			agencyProviderMetaData = context.getString(R.string.agency_provider);
+		}
+		return agencyProviderMetaData;
+	}
+
 	@NonNull
 	private final CrashReporter crashReporter;
 	@NonNull
@@ -66,21 +77,41 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 			this.crashReporter.w(this, "Modules broadcast receiver with null context ignored!");
 			return;
 		}
-		String action = intent == null ? null : intent.getAction();
+		final String action = intent == null ? null : intent.getAction();
 		if (!ACTIONS.contains(action)) {
 			this.crashReporter.w(this, "Modules broadcast receiver with unexpected action '%s' ignored!", action);
 			return;
 		}
-		Uri data = intent == null ? null : intent.getData();
-		String pkg = data == null ? null : data.getSchemeSpecificPart();
-		boolean repositoryUpdateTriggered = false;
+		final Uri data = intent == null ? null : intent.getData();
+		final String pkg = data == null ? null : data.getSchemeSpecificPart();
+		if (F_CACHE_DATA_SOURCES) {
+			if (this.dataSourcesRepository.isAProvider(pkg)) {
+				if (ping(context, pkg)) {
+					MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
+				}
+			}
+			final boolean canBeAProvider = this.dataSourcesRepository.isAProvider(pkg)
+					|| Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(action)
+					|| Intent.ACTION_PACKAGE_REMOVED.equals(action);
+			if (!canBeAProvider) {
+				MTLog.d(this, "onReceive() > SKIP (can NOT be a provider: pkg:%s, action:%s)", pkg, action);
+				return;
+			}
+			if (org.mtransit.android.data.DataSourceProvider.isSet()) {
+			} else { // ELSE update cache for latter
+				try {
+					this.dataSourcesRepository.updateAsync().get(); // TODO ? filter by pkg? authority?
+				} catch (Exception e) {
+					MTLog.w(this, e, "Error while updating data-sources from repository!");
+				}
+			}
+			return;
+		}
 		if (org.mtransit.android.data.DataSourceProvider.isSet()) {
 			if (org.mtransit.android.data.DataSourceProvider.isProvider(context, pkg)) {
 				MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
 				boolean didReset = org.mtransit.android.data.DataSourceProvider.resetIfNecessary(context);
-				if (didReset) {
-					repositoryUpdateTriggered = true;
-				} else {
+				if (!didReset) {
 					ping(context, pkg);
 				}
 			} else {
@@ -88,7 +119,6 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 						|| Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
 					if (org.mtransit.android.data.DataSourceProvider.resetIfNecessary(context)) {
 						MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
-						repositoryUpdateTriggered = true;
 					}
 				}
 			}
@@ -97,25 +127,12 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 				MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
 			}
 		}
-		if (F_CACHE_DATA_SOURCES) {
-			if (!repositoryUpdateTriggered) { // DataSourceProvider already called method
-				if (org.mtransit.android.data.DataSourceProvider.isSet()) {
-					org.mtransit.android.data.DataSourceProvider.get().updateFromDataSourceRepository(false);
-				} else { // ELSE update cache for latter
-					try {
-						this.dataSourcesRepository.updateAsync().get(); // TODO ? filter by pkg? authority?
-					} catch (Exception e) {
-						MTLog.w(this, e, "Error while updating data-sources from repository!");
-					}
-				}
-			}
-		}
 	}
 
 	private boolean ping(@NonNull Context context, @Nullable String pkg) {
-		ProviderInfo[] providers = PackageManagerUtils.findContentProvidersWithMetaData(context, pkg);
+		final ProviderInfo[] providers = PackageManagerUtils.findContentProvidersWithMetaData(context, pkg);
 		if (providers != null) {
-			String agencyProviderMetaData = org.mtransit.android.data.DataSourceProvider.getAgencyProviderMetaData(context);
+			final String agencyProviderMetaData = getAgencyProviderMetaData(context);
 			for (ProviderInfo provider : providers) {
 				if (provider != null && provider.metaData != null) {
 					if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {

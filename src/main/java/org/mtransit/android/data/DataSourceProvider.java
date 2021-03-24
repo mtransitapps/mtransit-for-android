@@ -179,7 +179,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	public static boolean isProvider(@NonNull Context context, @Nullable String pkg) {
 		if (F_CACHE_DATA_SOURCES) {
 			//noinspection deprecation
-			return DataSourcesReader.isProvider(context, pkg);
+			return DataSourcesReader.isAProvider(context, pkg);
 		}
 		if (TextUtils.isEmpty(pkg)) {
 			return false;
@@ -402,7 +402,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 			return; // too late
 		}
 		if (F_CACHE_DATA_SOURCES) {
-			updateFromDataSourceRepository(true);
+			updateFromDataSourceRepository(false);
 			return;
 		}
 		try {
@@ -676,11 +676,11 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 
 		@NonNull
 		private final DataSourceProvider dataSourceProvider;
-		private final boolean forceUpdated;
+		private final boolean forceTriggerModulesUpdated;
 
-		private UpdateDataSourceRepositoryTask(@NonNull DataSourceProvider dataSourceProvider, boolean forceUpdated) {
+		private UpdateDataSourceRepositoryTask(@NonNull DataSourceProvider dataSourceProvider, boolean forceTriggerModulesUpdated) {
 			this.dataSourceProvider = dataSourceProvider;
-			this.forceUpdated = forceUpdated;
+			this.forceTriggerModulesUpdated = forceTriggerModulesUpdated;
 		}
 
 		@WorkerThread
@@ -695,7 +695,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 			} catch (Exception e) {
 				MTLog.w(this, e, "Error while updating data-sources from repository!");
 			}
-			return updated;
+			return this.forceTriggerModulesUpdated || updated;
 		}
 
 		@Override
@@ -714,7 +714,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 				return; // already initialized
 			}
 			if (F_CACHE_DATA_SOURCES) {
-				updateFromDataSourceRepository(true);
+				updateFromDataSourceRepository(false);
 				return;
 			}
 			MTLog.i(this, "Initializing data-sources...");
@@ -825,12 +825,12 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		MTLog.i(this, "Initializing data-sources... DONE");
 	}
 
-	public void updateFromDataSourceRepository(boolean forceUpdated) {
+	public void updateFromDataSourceRepository(boolean forceTriggerModulesUpdated) {
 		if (this.updateDataSourceRepositoryTask != null && this.updateDataSourceRepositoryTask.getStatus() == UpdateDataSourceRepositoryTask.Status.RUNNING) {
 			MTLog.d(this, "updateFromDataSourceRepository() > SKIP (already running)");
 			return;
 		}
-		this.updateDataSourceRepositoryTask = new UpdateDataSourceRepositoryTask(this, forceUpdated);
+		this.updateDataSourceRepositoryTask = new UpdateDataSourceRepositoryTask(this, forceTriggerModulesUpdated);
 		TaskUtils.execute(this.updateDataSourceRepositoryTask);
 	}
 

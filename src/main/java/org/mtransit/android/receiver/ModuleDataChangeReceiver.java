@@ -10,7 +10,6 @@ import androidx.annotation.Nullable;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.receiver.DataChange;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.di.Injection;
@@ -52,26 +51,24 @@ public class ModuleDataChangeReceiver extends BroadcastReceiver implements MTLog
 		MTLog.i(this, "Broadcast received: %s", action);
 		Bundle extras = intent.getExtras();
 		boolean forceReset = extras != null && extras.getBoolean(DataChange.FORCE, false);
-		boolean repositoryUpdateTriggered = false;
+		if (F_CACHE_DATA_SOURCES) {
+			if (forceReset && org.mtransit.android.data.DataSourceProvider.isSet()) {
+				org.mtransit.android.data.DataSourceProvider.get().updateFromDataSourceRepository(true); // trigger update (new current/next schedule)
+			} else {
+				try {
+					this.dataSourcesRepository.updateAsync().get(); // TODO ? filter by pkg? authority?
+				} catch (Exception e) {
+					MTLog.w(this, e, "Error while updating data-sources from repository!");
+				}
+			}
+			return;
+		}
 		if (forceReset) {
 			if (org.mtransit.android.data.DataSourceProvider.isSet()) {
 				org.mtransit.android.data.DataSourceProvider.triggerModulesUpdated();
 			}
 		} else {
-			repositoryUpdateTriggered = org.mtransit.android.data.DataSourceProvider.resetIfNecessary(context);
-		}
-		if (F_CACHE_DATA_SOURCES) {
-			if (!repositoryUpdateTriggered) { // DataSourceProvider already called method
-				if (org.mtransit.android.data.DataSourceProvider.isSet()) {
-					org.mtransit.android.data.DataSourceProvider.get().updateFromDataSourceRepository(false);
-				} else { // ELSE update cache for latter
-					try {
-						this.dataSourcesRepository.updateAsync().get(); // TODO ? filter by pkg? authority?
-					} catch (Exception e) {
-						MTLog.w(this, e, "Error while updating data-sources from repository!");
-					}
-				}
-			}
+			org.mtransit.android.data.DataSourceProvider.resetIfNecessary(context);
 		}
 	}
 }

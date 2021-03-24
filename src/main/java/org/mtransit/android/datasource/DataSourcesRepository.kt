@@ -174,10 +174,10 @@ class DataSourcesRepository(
         return updated
     }
 
-    fun isProvider(pkg: String): Boolean {
+    fun isAProvider(pkg: String): Boolean {
         if (!F_CACHE_DATA_SOURCES) {
             return false
         }
-        return this.dataSourcesReader.isProvider(pkg)
+        return this.dataSourcesReader.isAProvider(pkg)
     }
 }

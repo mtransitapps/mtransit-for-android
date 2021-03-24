@@ -35,7 +35,7 @@ class DataSourcesReader(
 
         @Deprecated(message = "Use non-static")
         @JvmStatic
-        fun isProvider(context: android.content.Context, pkg: String?): Boolean {
+        fun isAProvider(context: android.content.Context, pkg: String?): Boolean {
             val pm = context.applicationContext.packageManager
             val agencyProviderMetaData = context.getString(R.string.agency_provider)
             val statusProviderMetaData = context.getString(R.string.status_provider)
@@ -85,7 +85,7 @@ class DataSourcesReader(
     private val serviceUpdateProviderTargetMetaData by lazy { app.requireApplication().getString(R.string.service_update_provider_target) }
     private val newsProviderTargetMetaData by lazy { app.requireApplication().getString(R.string.news_provider_target) }
 
-    fun isProvider(pkg: String?): Boolean {
+    fun isAProvider(pkg: String?): Boolean {
         if (pkg.isNullOrBlank()) {
             return false
         }
