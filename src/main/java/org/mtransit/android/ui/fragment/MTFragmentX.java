@@ -1,12 +1,5 @@
 package org.mtransit.android.ui.fragment;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
-import org.mtransit.android.commons.Constants;
-import org.mtransit.android.commons.MTLog;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -21,11 +14,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import org.mtransit.android.commons.Constants;
+import org.mtransit.android.commons.MTLog;
+
 /**
  * NO LOGIC HERE, just logs.
  */
 public abstract class MTFragmentX extends Fragment implements MTLog.Loggable {
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -34,6 +35,7 @@ public abstract class MTFragmentX extends Fragment implements MTLog.Loggable {
 		super.onActivityCreated(savedInstanceState);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 		if (Constants.LOG_LIFECYCLE) {

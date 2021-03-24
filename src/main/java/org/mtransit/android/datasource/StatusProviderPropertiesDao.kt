@@ -6,7 +6,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
 
 @Dao

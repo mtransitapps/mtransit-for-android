@@ -45,6 +45,8 @@ import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
@@ -110,6 +112,13 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	private Long routeId;
 	private long tripId = -1L;
 	private int stopId = -1;
+
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
+
+	public RTSRouteFragment() {
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+	}
 
 	@Override
 	public void onAttach(@NonNull Activity activity) {
@@ -681,7 +690,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (context == null || this.authority == null) {
 			return super.getABBgColor(context);
 		}
-		return POIManager.getRouteColor(context, getRouteOrNull(), this.authority, super.getABBgColor(context));
+		return POIManager.getRouteColor(context, this.dataSourcesRepository, getRouteOrNull(), this.authority, super.getABBgColor(context));
 	}
 
 	private MenuItem listMapToggleMenuItem;
@@ -703,7 +712,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	@NonNull
 	private StateListDrawable getListMapToggleSelector() {
 		if (listMapToggleSelector == null) {
-			Integer colorInt = POIManager.getRouteColor(requireContext(), getRouteOrNull(), this.authority, null);
+			Integer colorInt = POIManager.getRouteColor(requireContext(), this.dataSourcesRepository, getRouteOrNull(), this.authority, null);
 			listMapToggleSelector = new StateListDrawable();
 			LayerDrawable listLayerDrawable = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.switch_thumb_list, requireContext().getTheme());
 			if (listLayerDrawable != null) {

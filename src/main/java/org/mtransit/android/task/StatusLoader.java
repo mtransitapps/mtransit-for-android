@@ -11,18 +11,21 @@ import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.provider.StatusProviderContract;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.StatusProviderProperties;
+import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.di.Injection;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class StatusLoader implements MTLog.Loggable {
 
@@ -45,8 +48,11 @@ public class StatusLoader implements MTLog.Loggable {
 		return instance;
 	}
 
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
+
 	private StatusLoader() {
-		// DO NOTHING
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 	}
 
 	@NonNull
@@ -92,12 +98,20 @@ public class StatusLoader implements MTLog.Loggable {
 		}
 	}
 
-	public boolean findStatus(@Nullable Context context, @NonNull POIManager poim, @NonNull StatusProviderContract.Filter statusFilter,
-							  @Nullable StatusLoader.StatusLoaderListener listener, boolean skipIfBusy) {
+	public boolean findStatus(@Nullable Context context,
+							  @NonNull POIManager poim,
+							  @NonNull StatusProviderContract.Filter statusFilter,
+							  @Nullable StatusLoader.StatusLoaderListener listener,
+							  boolean skipIfBusy) {
 		if (skipIfBusy && isBusy()) {
 			return false;
 		}
-		HashSet<StatusProviderProperties> providers = DataSourceProvider.get(context).getTargetAuthorityStatusProviders(poim.poi.getAuthority());
+		Set<StatusProviderProperties> providers;
+		if (F_CACHE_DATA_SOURCES) {
+			providers = this.dataSourcesRepository.getStatusProviders(poim.poi.getAuthority());
+		} else {
+			providers = org.mtransit.android.data.DataSourceProvider.get(context).getTargetAuthorityStatusProviders(poim.poi.getAuthority());
+		}
 		if (providers != null && providers.size() > 0) {
 			for (StatusProviderProperties provider : providers) {
 				if (provider == null) {

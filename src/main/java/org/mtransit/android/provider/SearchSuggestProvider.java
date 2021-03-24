@@ -21,14 +21,18 @@ import org.mtransit.android.commons.provider.MTSearchRecentSuggestionsProvider;
 import org.mtransit.android.commons.task.MTCallable;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
-import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.di.Injection;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 @SuppressLint("Registered")
 public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
@@ -60,7 +64,11 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 	private static final String SEARCH_SUGGEST_ICON = "android.resource://system/" + android.R.drawable.ic_menu_search;
 	private static final String RECENT_SEARCH_SUGGEST_ICON = "android.resource://system/" + android.R.drawable.ic_menu_recent_history;
 
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
+
 	public SearchSuggestProvider() {
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 		setupSuggestions(AUTHORITY, MODE);
 	}
 
@@ -95,7 +103,12 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 		HashSet<String> recentSearchSuggestions = DataSourceManager.getSearchSuggest(recentSearchCursor);
 		HashSet<String> suggestions = new HashSet<>();
 		if (!TextUtils.isEmpty(query)) {
-			ArrayList<AgencyProperties> agencies = DataSourceProvider.get(getContext()).getAllAgencies(getContext());
+			List<AgencyProperties> agencies;
+			if (F_CACHE_DATA_SOURCES) {
+				agencies = this.dataSourcesRepository.getAllAgencies();
+			} else {
+				agencies = org.mtransit.android.data.DataSourceProvider.get(getContext()).getAllAgencies(getContext());
+			}
 			ArrayList<Future<HashSet<String>>> taskList = new ArrayList<>();
 			if (agencies != null) {
 				for (AgencyProperties agency : agencies) {

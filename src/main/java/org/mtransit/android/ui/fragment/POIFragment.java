@@ -83,7 +83,6 @@ import org.mtransit.android.util.UITimeUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
@@ -436,7 +435,7 @@ public class POIFragment extends ABFragment implements
 			return false;
 		}
 		this.news = new ArrayList<>();
-		HashSet<NewsProviderProperties> poiNewsProviders = DataSourceProvider.get(context).getTargetAuthorityNewsProviders(poim.poi.getAuthority());
+		Collection<NewsProviderProperties> poiNewsProviders = DataSourceProvider.get(context).getTargetAuthorityNewsProviders(poim.poi.getAuthority());
 		if (CollectionUtils.getSize(poiNewsProviders) == 0) {
 			return true; // no news, need to apply
 		}
@@ -737,7 +736,7 @@ public class POIFragment extends ABFragment implements
 		if (rtsScheduleBtn != null) {
 			Collection<ScheduleProviderProperties> scheduleProviders = //
 					DataSourceProvider.get(getContext()).getTargetAuthorityScheduleProviders(this.authority);
-			if (CollectionUtils.getSize(scheduleProviders) == 0) {
+			if (scheduleProviders == null || scheduleProviders.isEmpty()) {
 				rtsScheduleBtn.setVisibility(View.GONE);
 			} else {
 				rtsScheduleBtn.setOnClickListener(new MTOnClickListener() {

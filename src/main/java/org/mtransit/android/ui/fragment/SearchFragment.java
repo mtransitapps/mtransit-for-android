@@ -33,6 +33,8 @@ import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.POISearchLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
@@ -67,7 +69,8 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	private static final String EXTRA_TYPE_FILTER = "extra_type_filter";
 	private static final String EXTRA_SEARCH_HAS_FOCUS = "extra_search_has_focus";
 
-	public static SearchFragment newInstance(String optQuery, Integer optTypeIdFilter, TypeFilter optTypeFilter) {
+	@NonNull
+	public static SearchFragment newInstance(@Nullable String optQuery, @Nullable Integer optTypeIdFilter, @Nullable TypeFilter optTypeFilter) {
 		SearchFragment f = new SearchFragment();
 		Bundle args = new Bundle();
 		if (!TextUtils.isEmpty(optQuery)) {
@@ -84,12 +87,24 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	}
 
 	private POIArrayAdapter adapter;
+	@Nullable
 	private CharSequence emptyText = null;
+	@Nullable
 	private Location userLocation;
+	@Nullable
 	private String query = null;
+	@Nullable
 	private Integer typeIdFilter = null;
+	@Nullable
 	private TypeFilter typeFilter = null;
 	private boolean searchHasFocus = true;
+
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
+
+	public SearchFragment() {
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+	}
 
 	private void resetTypeFilter() {
 		this.typeFilter = null;
@@ -193,6 +208,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		restartSearchLater();
 	}
 
+	@Nullable
 	private TypeFilter getTypeFilterOrNull() {
 		if (!hasTypeFilter()) {
 			return null;
@@ -274,11 +290,15 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-		setTypeFilterFromType(this.typeFiltersAdapter.getItem(position).getDataSourceTypeId());
+		final TypeFilter item = this.typeFiltersAdapter.getItem(position);
+		if (item != null) {
+			setTypeFilterFromType(item.getDataSourceTypeId());
+		}
 	}
 
 	@Override
 	public void onNothingSelected(AdapterView<?> parent) {
+		// DO NOTHING
 	}
 
 	private TypeFiltersAdapter typeFiltersAdapter = null;
@@ -290,7 +310,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			resetTypeFilter();
 		}
 		String newQuery = BundleUtils.getString(EXTRA_QUERY, bundles);
-		if (!TextUtils.isEmpty(newQuery) && !newQuery.equals(this.query)) {
+		if (newQuery != null && !newQuery.equals(this.query)) {
 			this.query = newQuery;
 		}
 		Boolean newSearchHasFocus = BundleUtils.getBoolean(EXTRA_SEARCH_HAS_FOCUS, bundles);
@@ -369,14 +389,15 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 	@NonNull
 	@Override
-	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<POIManager>> onCreateLoader(int id, @Nullable Bundle args) {
 		MTLog.v(this, "onCreateLoader(%s,%s)", id, args);
 		switch (id) {
 		case POI_SEARCH_LOADER:
 			TypeFilter typeFilter = getTypeFilterOrNull();
-			return new POISearchLoader(getContext(), this.query, typeFilter, this.userLocation);
+			return new POISearchLoader(requireContext(), this.dataSourcesRepository, this.query, typeFilter, this.userLocation);
 		default:
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
+			//noinspection ConstantConditions // FIXME
 			return null;
 		}
 	}
@@ -601,11 +622,11 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 		public static final TypeFilter ALL = new TypeFilter(-1, R.string.all, -1);
 
-		private int dataSourceTypeId;
+		private final int dataSourceTypeId;
 
-		private int nameResId;
+		private final int nameResId;
 
-		private int iconResId;
+		private final int iconResId;
 
 		public TypeFilter(int dataSourceTypeId, int nameResId, int iconResId) {
 			this.dataSourceTypeId = dataSourceTypeId;
@@ -674,7 +695,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			return TAG;
 		}
 
-		private LayoutInflater layoutInflater;
+		private final LayoutInflater layoutInflater;
 
 		public TypeFiltersAdapter(@NonNull Context context) {
 			super(context, -1);
@@ -686,11 +707,9 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			ArrayList<TypeFilter> typeFilters = new ArrayList<>();
 			typeFilters.add(TypeFilter.ALL);
 			ArrayList<DataSourceType> availableTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
-			if (availableTypes != null) {
-				for (DataSourceType dst : availableTypes) {
-					if (dst.isSearchable()) {
-						typeFilters.add(TypeFilter.fromDataSourceType(dst));
-					}
+			for (DataSourceType dst : availableTypes) {
+				if (dst.isSearchable()) {
+					typeFilters.add(TypeFilter.fromDataSourceType(dst));
 				}
 			}
 			addAll(typeFilters);
@@ -724,8 +743,12 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			}
 			TypeViewHolder holder = (TypeViewHolder) convertView.getTag();
 			TypeFilter type = getItem(position);
-			holder.nameTv.setText(type.getNameResId());
-			if (type.getIconResId() != -1) {
+			if (type != null) {
+				holder.nameTv.setText(type.getNameResId());
+			} else {
+				holder.nameTv.setText(null);
+			}
+			if (type != null && type.getIconResId() != -1) {
 				holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getIconResId(), 0, 0, 0);
 			} else {
 				holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);

@@ -1,8 +1,29 @@
 package org.mtransit.android.ui.fragment;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
+import android.app.Activity;
+import android.content.Context;
+import android.location.Location;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Parcelable;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.tabs.TabLayout;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -25,32 +46,9 @@ import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.NavigationDrawerController;
 import org.mtransit.android.util.CrashUtils;
 
-import android.app.Activity;
-import android.content.Context;
-import android.location.Location;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Parcelable;
-
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.google.android.material.tabs.TabLayout;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-
-import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageChangeListener, MTActivityWithLocation.UserLocationListener {
 
@@ -239,7 +237,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			int[] agencyColors = new int[agencies.size()];
 			for (int i = 0; i < agencies.size(); i++) {
 				AgencyProperties agency = agencies.get(i);
-				agencyColors[i] = agency.hasColor() ? agency.getColorInt() : defaultColor;
+				agencyColors[i] = agency.getColorInt() != null ? agency.getColorInt() : defaultColor;
 			}
 			this.abColorizer.setBgColors(agencyColors);
 		}
@@ -442,9 +440,9 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 
 		@Nullable
-		private Integer typeId;
+		private final Integer typeId;
 		@Nullable
-		private ArrayList<AgencyProperties> newAgencies;
+		private final ArrayList<AgencyProperties> newAgencies;
 
 		LoadLastPageSelectedFromUserPreference(@NonNull AgencyTypeFragment agencyTypeFragment, @Nullable Integer typeId, @Nullable ArrayList<AgencyProperties> newAgencies) {
 			super(agencyTypeFragment);
@@ -614,9 +612,9 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		restartUpdateABColorLater();
 	}
 
-	private Handler handler = new Handler();
+	private final Handler handler = new Handler();
 
-	private Runnable updateABColorLater = () ->
+	private final Runnable updateABColorLater = () ->
 			updateABColorNow(getView());
 
 	private void updateABColorNow(View view) {
@@ -641,15 +639,13 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	private void restartUpdateABColorLater() {
 		if (!this.updateABColorLaterScheduled) {
-			this.handler.postDelayed(this.updateABColorLater, TimeUnit.MILLISECONDS.toMillis(50));
+			this.handler.postDelayed(this.updateABColorLater, TimeUnit.MILLISECONDS.toMillis(50L));
 			this.updateABColorLaterScheduled = true;
 		}
 	}
 
 	private void cancelUpdateABColorLater() {
-		if (this.updateABColorLater != null) {
-			this.handler.removeCallbacks(this.updateABColorLater);
-		}
+		this.handler.removeCallbacks(this.updateABColorLater);
 		this.updateABColorLaterScheduled = false;
 	}
 
@@ -742,7 +738,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 
 		private ArrayList<AgencyProperties> agencies;
-		private WeakReference<Context> contextWR;
+		private final WeakReference<Context> contextWR;
 		private int lastVisibleFragmentPosition = -1;
 		private int saveStateCount = -1;
 
@@ -785,7 +781,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 
 		@NonNull
-		private ArrayList<String> agenciesAuthority = new ArrayList<>();
+		private final ArrayList<String> agenciesAuthority = new ArrayList<>();
 
 		public void setAgencies(ArrayList<AgencyProperties> agencies) {
 			this.agencies = agencies;
@@ -861,9 +857,9 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 			}
 			Integer optColorInt = agency == null || !agency.hasColor() ? null : agency.getColorInt();
 			String agencyAuthority = getAgencyAuthority(position);
-			if (TextUtils.isEmpty(agencyAuthority)) {
+			if (agencyAuthority == null || agencyAuthority.isEmpty()) {
 				CrashUtils.w(this, "No agency authority at position %d!", position);
-				return null;
+				throw new RuntimeException("No agency authority at position " + position + "!");
 			}
 			return AgencyPOIsFragment.newInstance(position, this.lastVisibleFragmentPosition, agencyAuthority, optColorInt, null);
 		}

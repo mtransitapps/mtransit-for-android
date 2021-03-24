@@ -25,6 +25,8 @@ import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
+import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.task.NewsLoader;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTOnItemClickListener;
@@ -97,6 +99,13 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	private CharSequence emptyText = null;
 	private NewsAdapter adapter;
 	private ListViewSwipeRefreshLayout swipeRefreshLayout;
+
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
+
+	public NewsFragment() {
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+	}
 
 	@Override
 	public void onAttach(@NonNull Activity activity) {
@@ -224,7 +233,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	public Loader<ArrayList<News>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case NEWS_LOADER:
-			return new NewsLoader(requireContext(), this.targetAuthorities, this.filterUUIDs, this.filterTargets);
+			return new NewsLoader(requireContext(), this.dataSourcesRepository, this.targetAuthorities, this.filterUUIDs, this.filterTargets);
 		default:
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			//noinspection ConstantConditions // FIXME

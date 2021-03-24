@@ -11,28 +11,34 @@ import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.DataSourceManager;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ServiceUpdateProviderProperties;
+import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.di.Injection;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class ServiceUpdateLoader implements MTLog.Loggable {
 
 	private static final String LOG_TAG = ServiceUpdateLoader.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return LOG_TAG;
 	}
 
+	@Nullable
 	private static ServiceUpdateLoader instance;
 
+	@NonNull
 	public static ServiceUpdateLoader get() {
 		if (instance == null) {
 			instance = new ServiceUpdateLoader();
@@ -40,7 +46,11 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		return instance;
 	}
 
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
+
 	private ServiceUpdateLoader() {
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 	}
 
 	private ThreadPoolExecutor fetchServiceUpdateExecutor;
@@ -48,7 +58,8 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	private static final int CORE_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES > 1 ? RuntimeUtils.NUMBER_OF_CORES / 2 : 1;
 	private static final int MAX_POOL_SIZE = RuntimeUtils.NUMBER_OF_CORES > 1 ? RuntimeUtils.NUMBER_OF_CORES / 2 : 1;
 
-	public ThreadPoolExecutor getFetchServiceUpdateExecutor() {
+	@NonNull
+	private ThreadPoolExecutor getFetchServiceUpdateExecutor() {
 		if (this.fetchServiceUpdateExecutor == null) {
 			this.fetchServiceUpdateExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS,
 					new LIFOBlockingDeque<>());
@@ -56,7 +67,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		return fetchServiceUpdateExecutor;
 	}
 
-	public boolean isBusy() {
+	private boolean isBusy() {
 		return this.fetchServiceUpdateExecutor != null && this.fetchServiceUpdateExecutor.getActiveCount() > 0;
 	}
 
@@ -67,12 +78,20 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 	}
 
-	public boolean findServiceUpdate(Context context, POIManager poim, ServiceUpdateProviderContract.Filter serviceUpdateFilter,
-									 ServiceUpdateLoader.ServiceUpdateLoaderListener listener, boolean skipIfBusy) {
+	public boolean findServiceUpdate(@NonNull Context context,
+									 @NonNull POIManager poim,
+									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
+									 @Nullable ServiceUpdateLoaderListener listener,
+									 boolean skipIfBusy) {
 		if (skipIfBusy && isBusy()) {
 			return false;
 		}
-		HashSet<ServiceUpdateProviderProperties> providers = DataSourceProvider.get(context).getTargetAuthorityServiceUpdateProviders(poim.poi.getAuthority());
+		Set<ServiceUpdateProviderProperties> providers;
+		if (F_CACHE_DATA_SOURCES) {
+			providers = this.dataSourcesRepository.getServiceUpdateProviders(poim.poi.getAuthority());
+		} else {
+			providers = org.mtransit.android.data.DataSourceProvider.get(context).getTargetAuthorityServiceUpdateProviders(poim.poi.getAuthority());
+		}
 		if (providers != null) {
 			if (providers.size() > 0) {
 				ServiceUpdateProviderProperties provider = providers.iterator().next();
@@ -83,6 +102,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		return true;
 	}
 
+	@SuppressWarnings("deprecation")
 	private static class ServiceUpdateFetcherCallable extends MTCancellableAsyncTask<Void, Void, ArrayList<ServiceUpdate>> {
 
 		private static final String LOG_TAG = ServiceUpdateLoader.LOG_TAG + '>' + ServiceUpdateFetcherCallable.class.getSimpleName();
@@ -99,8 +119,8 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		private final ServiceUpdateLoader.ServiceUpdateLoaderListener listener;
 		private final ServiceUpdateProviderContract.Filter serviceUpdateFilter;
 
-		public ServiceUpdateFetcherCallable(Context context, ServiceUpdateLoader.ServiceUpdateLoaderListener listener,
-											ServiceUpdateProviderProperties serviceUpdateProvider, POIManager poim, ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
+		ServiceUpdateFetcherCallable(Context context, ServiceUpdateLoader.ServiceUpdateLoaderListener listener,
+									 ServiceUpdateProviderProperties serviceUpdateProvider, POIManager poim, ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
 			this.contextWR = new WeakReference<>(context);
 			this.listener = listener;
 			this.serviceUpdateProvider = serviceUpdateProvider;

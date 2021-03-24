@@ -2,6 +2,8 @@
 
 package org.mtransit.android.task
 
+import androidx.annotation.MainThread
+import androidx.annotation.WorkerThread
 import androidx.fragment.app.Fragment
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.task.MTCancellableAsyncTask
@@ -18,6 +20,7 @@ abstract class MTCancellableFragmentAsyncTask<Params, Progress, Result, F : Frag
     val fragment: F?
         get() = fragmentWR.get()
 
+    @WorkerThread
     override fun doInBackgroundNotCancelledMT(vararg params: Params?): Result? {
         if (!FragmentUtils.isFragmentReady(fragment)) {
             MTLog.d(this, "onPostExecute() > SKIP (fragment not ready)")
@@ -28,11 +31,13 @@ abstract class MTCancellableFragmentAsyncTask<Params, Progress, Result, F : Frag
         }
     }
 
+    @WorkerThread
     protected abstract fun doInBackgroundNotCancelledWithFragmentMT(
         fragment: F,
         vararg params: Params?
     ): Result?
 
+    @MainThread
     override fun onProgressUpdateNotCancelledMT(vararg values: Progress?) {
         if (!FragmentUtils.isFragmentReady(fragment)) {
             MTLog.d(this, "onProgressUpdate() > SKIP (fragment not ready)")
@@ -44,6 +49,7 @@ abstract class MTCancellableFragmentAsyncTask<Params, Progress, Result, F : Frag
     }
 
     @Suppress("UNUSED_PARAMETER")
+    @MainThread
     protected open fun onProgressUpdateNotCancelledFragmentReadyMT(
         fragment: F,
         vararg values: Progress?
@@ -51,6 +57,7 @@ abstract class MTCancellableFragmentAsyncTask<Params, Progress, Result, F : Frag
         // not mandatory
     }
 
+    @MainThread
     override fun onPostExecuteNotCancelledMT(result: Result?) {
         if (!FragmentUtils.isFragmentReady(fragment)) {
             MTLog.d(this, "onPostExecute() > SKIP (fragment not ready)")
@@ -62,6 +69,7 @@ abstract class MTCancellableFragmentAsyncTask<Params, Progress, Result, F : Frag
     }
 
     @Suppress("UNUSED_PARAMETER")
+    @MainThread
     protected open fun onPostExecuteNotCancelledFragmentReadyMT(
         fragment: F, result: Result?
     ) {

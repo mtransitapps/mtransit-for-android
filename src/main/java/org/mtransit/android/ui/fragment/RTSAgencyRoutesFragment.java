@@ -1,24 +1,5 @@
 package org.mtransit.android.ui.fragment;
 
-import java.util.ArrayList;
-
-import org.mtransit.android.R;
-import org.mtransit.android.commons.BundleUtils;
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.PreferenceUtils;
-import org.mtransit.android.commons.data.Route;
-import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
-import org.mtransit.android.data.AgencyProperties;
-import org.mtransit.android.data.DataSourceProvider;
-import org.mtransit.android.data.JPaths;
-import org.mtransit.android.data.POIManager;
-import org.mtransit.android.task.RTSAgencyRoutesLoader;
-import org.mtransit.android.ui.MainActivity;
-import org.mtransit.android.ui.view.MTJPathsView;
-import org.mtransit.android.ui.view.MTOnItemClickListener;
-import org.mtransit.android.util.CrashUtils;
-import org.mtransit.android.util.LoaderUtils;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -26,12 +7,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.appcompat.widget.SwitchCompat;
 import android.text.TextUtils;
 import android.util.StateSet;
 import android.view.LayoutInflater;
@@ -46,6 +21,34 @@ import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
+
+import org.mtransit.android.R;
+import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.PreferenceUtils;
+import org.mtransit.android.commons.data.Route;
+import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
+import org.mtransit.android.data.AgencyProperties;
+import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.data.JPaths;
+import org.mtransit.android.data.POIManager;
+import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.di.Injection;
+import org.mtransit.android.task.RTSAgencyRoutesLoader;
+import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.view.MTJPathsView;
+import org.mtransit.android.ui.view.MTOnItemClickListener;
+import org.mtransit.android.util.CrashUtils;
+import org.mtransit.android.util.LoaderUtils;
+
+import java.util.ArrayList;
+
 public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<ArrayList<Route>>,
 		AdapterView.OnItemClickListener, CompoundButton.OnCheckedChangeListener {
 
@@ -53,12 +56,13 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 
 	private String tag = TAG;
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return this.tag;
 	}
 
-	public void setLogTag(String tag) {
+	void setLogTag(@NonNull String tag) {
 		this.tag = TAG + "-" + tag;
 	}
 
@@ -67,7 +71,11 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 	private static final String EXTRA_FRAGMENT_POSITION = "extra_fragment_position";
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 
-	public static RTSAgencyRoutesFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String agencyAuthority, Integer optColorInt) {
+	@NonNull
+	public static RTSAgencyRoutesFragment newInstance(int fragmentPosition,
+													  int lastVisibleFragmentPosition,
+													  String agencyAuthority,
+													  @Nullable Integer optColorInt) {
 		RTSAgencyRoutesFragment f = new RTSAgencyRoutesFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, agencyAuthority);
@@ -92,10 +100,18 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
 	private RTSAgencyRouteArrayAdapter adapter;
-	private String emptyText = null;
+	@Nullable
+	private final String emptyText = null;
 
 	private String authority;
 	private Integer colorInt;
+
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
+
+	public RTSAgencyRoutesFragment() {
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+	}
 
 	@Override
 	public String getAgencyAuthority() {
@@ -141,7 +157,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 
 	private void restoreInstanceState(Bundle... bundles) {
 		String newAuthority = BundleUtils.getString(EXTRA_AGENCY_AUTHORITY, bundles);
-		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
+		if (newAuthority != null && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
 		}
 		Integer newColorInt = BundleUtils.getInt(EXTRA_COLOR_INT, bundles);
@@ -166,8 +182,9 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 		}
 		this.adapter.setAuthority(this.authority);
 	}
+
 	private void initAdapters(Activity activity) {
-		this.adapter = new RTSAgencyRouteArrayAdapter(activity, this.authority, isShowingListInsteadOfGrid());
+		this.adapter = new RTSAgencyRouteArrayAdapter(activity, this.dataSourcesRepository, this.authority, isShowingListInsteadOfGrid());
 	}
 
 	private void setupView(View view) {
@@ -244,7 +261,6 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 		updateListGridToggleMenuItem();
 	}
 
-
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		MTOnItemClickListener.onItemClickS(parent, view, position, id, new MTOnItemClickListener() {
@@ -280,7 +296,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 				&& ((this.fragmentPosition == visibleFragmentPosition && this.fragmentVisible) //
 				|| //
 				(this.fragmentPosition != visibleFragmentPosition && !this.fragmentVisible)) //
-				) {
+		) {
 			return;
 		}
 		this.lastVisibleFragmentPosition = visibleFragmentPosition;
@@ -329,16 +345,18 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 
 	@NonNull
 	@Override
-	public Loader<ArrayList<Route>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<Route>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case ROUTES_LOADER:
 			if (TextUtils.isEmpty(this.authority) || getContext() == null) {
 				CrashUtils.w(this, "onCreateLoader() > skip (no authority or no activity)");
+				//noinspection ConstantConditions // FIXME
 				return null;
 			}
 			return new RTSAgencyRoutesLoader(getContext(), this.authority);
 		default:
 			CrashUtils.w(this, "Loader ID '%s' unknown!", id);
+			//noinspection ConstantConditions // FIXME
 			return null;
 		}
 	}
@@ -475,7 +493,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 				}
 				listGridToggleSelector.addState(new int[]{android.R.attr.state_checked}, listLayerDrawable);
 			}
-			LayerDrawable gridLayerDrawable = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.switch_thumb_grid,  requireContext().getTheme());
+			LayerDrawable gridLayerDrawable = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.switch_thumb_grid, requireContext().getTheme());
 			if (gridLayerDrawable != null) {
 				GradientDrawable gridOvalShape = (GradientDrawable) gridLayerDrawable.findDrawableByLayerId(R.id.switch_grid_oval_shape);
 				if (this.colorInt != null) {
@@ -534,14 +552,20 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 			return TAG;
 		}
 
+		@NonNull
+		private final DataSourcesRepository dataSourcesRepository;
 		@Nullable
 		private ArrayList<Route> routes = null;
-		private LayoutInflater layoutInflater;
+		private final LayoutInflater layoutInflater;
 		private String authority;
 		private boolean showingListInsteadOfGrid;
 
-		public RTSAgencyRouteArrayAdapter(Context context, String authority, boolean showingListInsteadOfGrid) {
+		public RTSAgencyRouteArrayAdapter(@NonNull Context context,
+										  @NonNull DataSourcesRepository dataSourcesRepository,
+										  @NonNull String authority,
+										  boolean showingListInsteadOfGrid) {
 			super(context, -1);
+			this.dataSourcesRepository = dataSourcesRepository;
 			this.layoutInflater = LayoutInflater.from(context);
 			this.authority = authority;
 			this.showingListInsteadOfGrid = showingListInsteadOfGrid;
@@ -642,7 +666,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 						holder.routeLongNameTv.setVisibility(View.VISIBLE);
 					}
 				}
-				holder.routeFL.setBackgroundColor(POIManager.getRouteColorNN(getContext(), route, this.authority, Color.BLACK));
+				holder.routeFL.setBackgroundColor(POIManager.getRouteColorNN(getContext(), this.dataSourcesRepository, route, this.authority, Color.BLACK));
 				holder.routeFL.setVisibility(View.VISIBLE);
 			}
 			return convertView;

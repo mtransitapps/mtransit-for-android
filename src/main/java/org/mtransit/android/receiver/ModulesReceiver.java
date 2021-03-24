@@ -74,10 +74,10 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 		Uri data = intent == null ? null : intent.getData();
 		String pkg = data == null ? null : data.getSchemeSpecificPart();
 		boolean repositoryUpdateTriggered = false;
-		if (DataSourceProvider.isSet()) {
-			if (DataSourceProvider.isProvider(context, pkg)) {
+		if (org.mtransit.android.data.DataSourceProvider.isSet()) {
+			if (org.mtransit.android.data.DataSourceProvider.isProvider(context, pkg)) {
 				MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
-				boolean didReset = DataSourceProvider.resetIfNecessary(context);
+				boolean didReset = org.mtransit.android.data.DataSourceProvider.resetIfNecessary(context);
 				if (didReset) {
 					repositoryUpdateTriggered = true;
 				} else {
@@ -86,7 +86,7 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 			} else {
 				if (Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(action) //
 						|| Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
-					if (DataSourceProvider.resetIfNecessary(context)) {
+					if (org.mtransit.android.data.DataSourceProvider.resetIfNecessary(context)) {
 						MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
 						repositoryUpdateTriggered = true;
 					}
@@ -99,8 +99,8 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 		}
 		if (F_CACHE_DATA_SOURCES) {
 			if (!repositoryUpdateTriggered) { // DataSourceProvider already called method
-				if (DataSourceProvider.isSet()) {
-					DataSourceProvider.get().updateFromDataSourceRepository(false);
+				if (org.mtransit.android.data.DataSourceProvider.isSet()) {
+					org.mtransit.android.data.DataSourceProvider.get().updateFromDataSourceRepository(false);
 				} else { // ELSE update cache for latter
 					try {
 						this.dataSourcesRepository.updateAsync().get(); // TODO ? filter by pkg? authority?
@@ -115,7 +115,7 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 	private boolean ping(@NonNull Context context, @Nullable String pkg) {
 		ProviderInfo[] providers = PackageManagerUtils.findContentProvidersWithMetaData(context, pkg);
 		if (providers != null) {
-			String agencyProviderMetaData = DataSourceProvider.getAgencyProviderMetaData(context);
+			String agencyProviderMetaData = org.mtransit.android.data.DataSourceProvider.getAgencyProviderMetaData(context);
 			for (ProviderInfo provider : providers) {
 				if (provider != null && provider.metaData != null) {
 					if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {

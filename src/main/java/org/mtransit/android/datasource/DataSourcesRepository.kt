@@ -35,12 +35,12 @@ class DataSourcesRepository(
     private val defaultDataSourceTypeComparator: Comparator<DataSourceType> by lazy { DataSourceTypeShortNameComparator(app.requireContext()) }
 
     // IN-MEMORY CACHE
-    private var _agencyProperties = listOf<AgencyProperties>()
-    private var _dataSourceTypes = listOf<DataSourceType>()
-    private var _statusProviderProperties = listOf<StatusProviderProperties>()
-    private var _scheduleProviderProperties = listOf<ScheduleProviderProperties>()
-    private var _serviceUpdateProviderProperties = listOf<ServiceUpdateProviderProperties>()
-    private var _newsProviderProperties = listOf<NewsProviderProperties>()
+    private var _agencyProperties = listOf<AgencyProperties>() // sorted
+    private var _dataSourceTypes = listOf<DataSourceType>() // sorted
+    private var _statusProviderProperties = setOf<StatusProviderProperties>() // not sorted
+    private var _scheduleProviderProperties = setOf<ScheduleProviderProperties>() // not sorted
+    private var _serviceUpdateProviderProperties = setOf<ServiceUpdateProviderProperties>() // not sorted
+    private var _newsProviderProperties = setOf<NewsProviderProperties>() // not sorted
 
     init {
         if (F_CACHE_DATA_SOURCES) { // no-op injection <= WIP
@@ -57,16 +57,16 @@ class DataSourcesRepository(
             this._dataSourceTypes = it.sortedWith(defaultDataSourceTypeComparator)
         }
         dataSourcesCache.readingAllStatusProviders().observeForever { // SINGLETON
-            this._statusProviderProperties = it
+            this._statusProviderProperties = it.toSet() // not sorted
         }
         dataSourcesCache.readingAllScheduleProviders().observeForever { // SINGLETON
-            this._scheduleProviderProperties = it
+            this._scheduleProviderProperties = it.toSet() // not sorted
         }
         dataSourcesCache.readingAllServiceUpdateProviders().observeForever { // SINGLETON
-            this._serviceUpdateProviderProperties = it
+            this._serviceUpdateProviderProperties = it.toSet() // not sorted
         }
         dataSourcesCache.readingAllNewsProviders().observeForever { // SINGLETON
-            this._newsProviderProperties = it
+            this._newsProviderProperties = it.toSet() // not sorted
         }
     }
 
@@ -92,8 +92,10 @@ class DataSourcesRepository(
         it.sortedWith(defaultDataSourceTypeComparator)
     }
 
-    fun getTypeDataSources(dst: DataSourceType): List<AgencyProperties> = this._agencyProperties.filter { it.type == dst }
+    fun getTypeDataSources(typeId: Int): List<AgencyProperties> = this._agencyProperties.filter { it.type.id == typeId }
         .sortedWith(defaultAgencyComparator)
+
+    fun getTypeDataSources(dst: DataSourceType) = getTypeDataSources(dst.id)
 
     fun getAgencyPkg(authority: String) = getAgency(authority)?.pkg
 
@@ -103,7 +105,7 @@ class DataSourcesRepository(
 
     fun getAllStatusProviders() = this._statusProviderProperties
 
-    fun getStatusProviders(targetAuthority: String) = this._statusProviderProperties.filter { it.targetAuthority == targetAuthority }
+    fun getStatusProviders(targetAuthority: String) = this._statusProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
 
     fun getStatusProvider(authority: String) = this._statusProviderProperties.singleOrNull { it.authority == authority }
 
@@ -111,7 +113,7 @@ class DataSourcesRepository(
 
     fun getAllScheduleProviders() = this._scheduleProviderProperties
 
-    fun getScheduleProviders(targetAuthority: String) = this._scheduleProviderProperties.filter { it.targetAuthority == targetAuthority }
+    fun getScheduleProviders(targetAuthority: String) = this._scheduleProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
 
     fun getScheduleProvider(authority: String) = this._scheduleProviderProperties.singleOrNull { it.authority == authority }
 
@@ -119,7 +121,7 @@ class DataSourcesRepository(
 
     fun getAllServiceUpdateProviders() = this._serviceUpdateProviderProperties
 
-    fun getServiceUpdateProviders(targetAuthority: String) = this._serviceUpdateProviderProperties.filter { it.targetAuthority == targetAuthority }
+    fun getServiceUpdateProviders(targetAuthority: String) = this._serviceUpdateProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
 
     fun getServiceUpdateProvider(authority: String) = this._serviceUpdateProviderProperties.singleOrNull { it.authority == authority }
 
@@ -127,7 +129,7 @@ class DataSourcesRepository(
 
     fun getAllNewsProviders() = this._newsProviderProperties
 
-    fun getNewsProviders(targetAuthority: String) = this._newsProviderProperties.filter { it.targetAuthority == targetAuthority }
+    fun getNewsProviders(targetAuthority: String) = this._newsProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
 
     fun getNewsProvider(authority: String) = this._newsProviderProperties.singleOrNull { it.authority == authority }
 

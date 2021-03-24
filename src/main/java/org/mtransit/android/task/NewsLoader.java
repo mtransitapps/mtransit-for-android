@@ -13,15 +13,18 @@ import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.commons.provider.NewsProviderContract.Filter;
 import org.mtransit.android.commons.task.MTCallable;
 import org.mtransit.android.data.DataSourceManager;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.NewsProviderProperties;
+import org.mtransit.android.datasource.DataSourcesRepository;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class NewsLoader extends MTAsyncTaskLoaderX<ArrayList<News>> {
 
@@ -41,12 +44,16 @@ public class NewsLoader extends MTAsyncTaskLoaderX<ArrayList<News>> {
 	private final ArrayList<String> filterUUIDs;
 	@Nullable
 	private final ArrayList<String> filterTargets;
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
 
 	public NewsLoader(@NonNull Context context,
+					  @NonNull DataSourcesRepository dataSourcesRepository,
 					  @Nullable ArrayList<String> optTargetAuthorities,
 					  @Nullable ArrayList<String> optFilterUUIDs,
 					  @Nullable ArrayList<String> optFilterTargets) {
 		super(context);
+		this.dataSourcesRepository = dataSourcesRepository;
 		this.targetAuthorities = optTargetAuthorities;
 		this.filterUUIDs = optFilterUUIDs;
 		this.filterTargets = optFilterTargets;
@@ -59,13 +66,22 @@ public class NewsLoader extends MTAsyncTaskLoaderX<ArrayList<News>> {
 			return this.news;
 		}
 		this.news = new ArrayList<>();
-		ArrayList<NewsProviderProperties> newsProviders;
+		Collection<NewsProviderProperties> newsProviders;
 		if (this.targetAuthorities == null || this.targetAuthorities.isEmpty()) {
-			newsProviders = DataSourceProvider.get(getContext()).getAllNewsProvider();
+			if (F_CACHE_DATA_SOURCES) {
+				newsProviders = this.dataSourcesRepository.getAllNewsProviders();
+			} else {
+				newsProviders = org.mtransit.android.data.DataSourceProvider.get(getContext()).getAllNewsProvider();
+			}
 		} else {
-			newsProviders = new ArrayList<>();
+			newsProviders = new HashSet<>();
 			for (String targetAuthority : this.targetAuthorities) {
-				final HashSet<NewsProviderProperties> targetAuthorityNewsProviders = DataSourceProvider.get(getContext()).getTargetAuthorityNewsProviders(targetAuthority);
+				final Collection<NewsProviderProperties> targetAuthorityNewsProviders;
+				if (F_CACHE_DATA_SOURCES) {
+					targetAuthorityNewsProviders = this.dataSourcesRepository.getNewsProviders(targetAuthority);
+				} else {
+					targetAuthorityNewsProviders = org.mtransit.android.data.DataSourceProvider.get(getContext()).getTargetAuthorityNewsProviders(targetAuthority);
+				}
 				if (targetAuthorityNewsProviders != null) {
 					newsProviders.addAll(targetAuthorityNewsProviders);
 				}

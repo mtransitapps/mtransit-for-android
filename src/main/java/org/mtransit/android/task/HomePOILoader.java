@@ -1,14 +1,10 @@
 package org.mtransit.android.task;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import android.app.Activity;
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
@@ -16,19 +12,30 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.data.AgencyProperties;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.ui.fragment.HomeFragment;
 
-import android.app.Activity;
-import android.content.Context;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
 	private static final String TAG = HomePOILoader.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -47,14 +54,19 @@ public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
 	private final WeakReference<HomeFragment> homeFragmentWR;
 
-	public HomePOILoader(HomeFragment homeFragment, Context context, double lat, double lng, float accuracyInMeters) {
-		super(context);
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
+
+	public HomePOILoader(@NonNull HomeFragment homeFragment, @NonNull DataSourcesRepository dataSourcesRepository, double lat, double lng, float accuracyInMeters) {
+		super(homeFragment.requireContext());
+		this.dataSourcesRepository = dataSourcesRepository;
 		this.lat = lat;
 		this.lng = lng;
 		this.accuracyInMeters = accuracyInMeters;
 		this.homeFragmentWR = new WeakReference<>(homeFragment);
 	}
 
+	@Nullable
 	@Override
 	public ArrayList<POIManager> loadInBackgroundMT() {
 		if (this.pois != null) {
@@ -62,7 +74,12 @@ public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 		}
 		this.pois = new ArrayList<>();
 		HashSet<String> favoriteUUIDs = FavoriteManager.findFavoriteUUIDs(getContext());
-		ArrayList<DataSourceType> availableAgencyTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
+		List<DataSourceType> availableAgencyTypes;
+		if (F_CACHE_DATA_SOURCES) {
+			availableAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
+		} else {
+			availableAgencyTypes = org.mtransit.android.data.DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
+		}
 		if (availableAgencyTypes.size() <= 2) {
 			this.nbMaxByType = NB_MAX_BY_TYPE_ONE_TYPE;
 		} else if (availableAgencyTypes.size() <= 3) {
@@ -79,7 +96,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 			if (!type.isHomeScreen()) {
 				continue;
 			}
-			ArrayList<POIManager> typePOIs = findAllNearby(getContext(), type, this.lat, this.lng, minDistanceInMeters, this.nbMaxByType);
+			ArrayList<POIManager> typePOIs = findAllNearby(getContext(), this.dataSourcesRepository, type, this.lat, this.lng, minDistanceInMeters, this.nbMaxByType);
 			filterTypePOIs(favoriteUUIDs, typePOIs, minDistanceInMeters);
 			CollectionUtils.sort(typePOIs, POIManager.POI_ALPHA_COMPARATOR);
 			deliverPartialResult(typePOIs);
@@ -137,14 +154,25 @@ public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 		}
 	}
 
-	private static ArrayList<POIManager> findAllNearby(Context context, DataSourceType type, double typeLat, double typeLng, float typeMinCoverageInMeters,
-			int nbMaxByType) {
+	@NonNull
+	private static ArrayList<POIManager> findAllNearby(@NonNull Context context,
+													   @NonNull DataSourcesRepository dataSourcesRepository,
+													   @NonNull DataSourceType type,
+													   double typeLat,
+													   double typeLng,
+													   float typeMinCoverageInMeters,
+													   int nbMaxByType) {
 		ArrayList<POIManager> typePOIs;
 		LocationUtils.AroundDiff typeAd = LocationUtils.getNewDefaultAroundDiff();
 		Double lastTypeAroundDiff = null;
 		int typeMaxSize = LocationUtils.MAX_NEARBY_LIST;
 		while (true) {
-			Collection<AgencyProperties> typeAgencies = DataSourceProvider.get(context).getTypeDataSources(context, type.getId());
+			Collection<AgencyProperties> typeAgencies;
+			if (F_CACHE_DATA_SOURCES) {
+				typeAgencies = dataSourcesRepository.getTypeDataSources(type);
+			} else {
+				typeAgencies = org.mtransit.android.data.DataSourceProvider.get(context).getTypeDataSources(context, type);
+			}
 			typePOIs = findNearby(context, typeLat, typeLng, typeAd, lastTypeAroundDiff, typeMaxSize, typeMinCoverageInMeters, typeAgencies);
 			if (LocationUtils.searchComplete(typeLat, typeLng, typeAd.aroundDiff)) {
 				break;
@@ -163,12 +191,18 @@ public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 		return typePOIs;
 	}
 
-	private static ArrayList<POIManager> findNearby( //
-			Context context, double typeLat, double typeLng, LocationUtils.AroundDiff typeAd, Double lastTypeAroundDiff, int typeMaxSize,
-			float typeMinCoverageInMeters, Collection<AgencyProperties> typeAgencies) {
+	@NonNull
+	private static ArrayList<POIManager> findNearby(@NonNull Context context,
+													double typeLat,
+													double typeLng,
+													@NonNull LocationUtils.AroundDiff typeAd,
+													@Nullable Double lastTypeAroundDiff,
+													int typeMaxSize,
+													float typeMinCoverageInMeters,
+													@Nullable Collection<AgencyProperties> typeAgencies) {
 		ArrayList<POIManager> typePOIs = new ArrayList<>();
-		NearbyPOIListLoader.filterAgencies(typeAgencies, typeLat, typeLng, typeAd, lastTypeAroundDiff);
-		if (typeAgencies == null || typeAgencies.size() == 0) {
+		typeAgencies = NearbyPOIListLoader.filterAgencies(typeAgencies, typeLat, typeLng, typeAd, lastTypeAroundDiff);
+		if (typeAgencies.size() == 0) {
 			return typePOIs;
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,
@@ -194,7 +228,6 @@ public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 		return typePOIs;
 	}
 
-
 	@Override
 	protected void onStartLoading() {
 		super.onStartLoading();
@@ -213,11 +246,10 @@ public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 	}
 
 	@Override
-	public void deliverResult(ArrayList<POIManager> data) {
+	public void deliverResult(@Nullable ArrayList<POIManager> data) {
 		this.pois = data;
 		if (isStarted()) {
 			super.deliverResult(data);
 		}
 	}
-
 }

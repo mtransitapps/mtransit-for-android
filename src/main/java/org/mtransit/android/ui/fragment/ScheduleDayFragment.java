@@ -36,6 +36,8 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.UISchedule;
+import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.ScheduleTimestampsLoader;
 import org.mtransit.android.util.CrashUtils;
@@ -101,6 +103,13 @@ public class ScheduleDayFragment extends MTFragmentX implements VisibilityAwareF
 	private long dayStartsAtInMs = -1L;
 	private Calendar dayStartsAtCal = null;
 	private Date dayStartsAtDate;
+
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
+
+	public ScheduleDayFragment() {
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+	}
 
 	private void resetDayStarts() {
 		this.dayStartsAtCal = null;
@@ -267,12 +276,12 @@ public class ScheduleDayFragment extends MTFragmentX implements VisibilityAwareF
 
 	private void restoreInstanceState(Bundle... bundles) {
 		String newAuthority = BundleUtils.getString(EXTRA_AUTHORITY, bundles);
-		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
+		if (newAuthority != null && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
 			resetRts();
 		}
 		String newUuid = BundleUtils.getString(EXTRA_POI_UUID, bundles);
-		if (!TextUtils.isEmpty(newUuid) && !newUuid.equals(this.uuid)) {
+		if (newUuid != null && !newUuid.equals(this.uuid)) {
 			this.uuid = newUuid;
 			resetRts();
 		}
@@ -445,7 +454,7 @@ public class ScheduleDayFragment extends MTFragmentX implements VisibilityAwareF
 				//noinspection ConstantConditions // FIXME
 				return null;
 			}
-			return new ScheduleTimestampsLoader(getContext(), rts, this.dayStartsAtInMs);
+			return new ScheduleTimestampsLoader(requireContext(), this.dataSourcesRepository, rts, this.dayStartsAtInMs);
 		default:
 			//noinspection deprecation FIXME
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);

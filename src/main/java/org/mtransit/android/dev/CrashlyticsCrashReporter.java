@@ -126,6 +126,8 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 
 		private static final List<String> USELESS_CLASSES = Arrays.asList(
 				"org.mtransit.android.dev.CrashlyticsCrashReporter",
+				"org.mtransit.android.dev.CrashlyticsCrashReporter.NoException",
+				"org.mtransit.android.dev.CrashlyticsCrashReporter$NoException",
 				"org.mtransit.android.util.CrashUtils"
 		);
 

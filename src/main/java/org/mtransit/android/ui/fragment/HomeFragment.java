@@ -33,6 +33,7 @@ import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.FavoriteManager;
@@ -88,11 +89,14 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	private final CrashReporter crashReporter;
 	@NonNull
 	private final IAdManager adManager;
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
 
 	public HomeFragment() {
 		super();
 		this.crashReporter = Injection.providesCrashReporter();
 		this.adManager = Injection.providesAdManager();
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 	}
 
 	@Override
@@ -102,14 +106,15 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 		restoreInstanceState(savedInstanceState, getArguments());
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_home, container, false);
 		setupView(view);
@@ -252,7 +257,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	@NonNull
 	@Override
-	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<POIManager>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
 			if (this.nearbyLocation == null) {
@@ -261,8 +266,13 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 				return null;
 			}
 			this.loadFinished = false;
-			return new HomePOILoader(this, getContext(), this.nearbyLocation.getLatitude(), this.nearbyLocation.getLongitude(),
-					this.nearbyLocation.getAccuracy());
+			return new HomePOILoader(
+					this,
+					this.dataSourcesRepository,
+					this.nearbyLocation.getLatitude(),
+					this.nearbyLocation.getLongitude(),
+					this.nearbyLocation.getAccuracy()
+			);
 		default:
 			this.crashReporter.w(this, "Loader id '%s' unknown!", id);
 			//noinspection ConstantConditions // FIXME

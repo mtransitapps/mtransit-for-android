@@ -54,16 +54,16 @@ public class ModuleDataChangeReceiver extends BroadcastReceiver implements MTLog
 		boolean forceReset = extras != null && extras.getBoolean(DataChange.FORCE, false);
 		boolean repositoryUpdateTriggered = false;
 		if (forceReset) {
-			if (DataSourceProvider.isSet()) {
-				DataSourceProvider.triggerModulesUpdated();
+			if (org.mtransit.android.data.DataSourceProvider.isSet()) {
+				org.mtransit.android.data.DataSourceProvider.triggerModulesUpdated();
 			}
 		} else {
-			repositoryUpdateTriggered = DataSourceProvider.resetIfNecessary(context);
+			repositoryUpdateTriggered = org.mtransit.android.data.DataSourceProvider.resetIfNecessary(context);
 		}
 		if (F_CACHE_DATA_SOURCES) {
 			if (!repositoryUpdateTriggered) { // DataSourceProvider already called method
-				if (DataSourceProvider.isSet()) {
-					DataSourceProvider.get().updateFromDataSourceRepository(false);
+				if (org.mtransit.android.data.DataSourceProvider.isSet()) {
+					org.mtransit.android.data.DataSourceProvider.get().updateFromDataSourceRepository(false);
 				} else { // ELSE update cache for latter
 					try {
 						this.dataSourcesRepository.updateAsync().get(); // TODO ? filter by pkg? authority?

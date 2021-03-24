@@ -521,13 +521,22 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@Nullable
 	@ColorInt
-	public static Integer getRouteColor(@NonNull Context context, @Nullable Route route, @NonNull String authority, @Nullable Integer defaultColor) {
+	public static Integer getRouteColor(@NonNull Context context,
+										@NonNull DataSourcesRepository dataSourcesRepository,
+										@Nullable Route route,
+										@NonNull String authority,
+										@Nullable Integer defaultColor) {
 		if (route != null) {
 			if (route.hasColor()) {
 				return route.getColorInt();
 			}
 		}
-		Integer agencyColorInt = DataSourceProvider.get(context).getAgencyColorInt(context, authority); // TODO F_CACHE_DATA_SOURCES?
+		Integer agencyColorInt;
+		if (F_CACHE_DATA_SOURCES) {
+			agencyColorInt = dataSourcesRepository.getAgencyColorInt(authority);
+		} else {
+			agencyColorInt = org.mtransit.android.data.DataSourceProvider.get(context).getAgencyColorInt(context, authority);
+		}
 		if (agencyColorInt != null) {
 			return agencyColorInt;
 		}
@@ -535,13 +544,22 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	@ColorInt
-	public static int getRouteColorNN(@NonNull Context context, @Nullable Route route, @NonNull String authority, int defaultColor) {
+	public static int getRouteColorNN(@NonNull Context context,
+									  @NonNull DataSourcesRepository dataSourcesRepository,
+									  @Nullable Route route,
+									  @NonNull String authority,
+									  int defaultColor) {
 		if (route != null) {
 			if (route.hasColor()) {
 				return route.getColorInt();
 			}
 		}
-		Integer agencyColorInt = DataSourceProvider.get(context).getAgencyColorInt(context, authority); // TODO F_CACHE_DATA_SOURCES?
+		Integer agencyColorInt;
+		if (F_CACHE_DATA_SOURCES) {
+			agencyColorInt = dataSourcesRepository.getAgencyColorInt(authority);
+		} else {
+			agencyColorInt = org.mtransit.android.data.DataSourceProvider.get(context).getAgencyColorInt(context, authority);
+		}
 		if (agencyColorInt != null) {
 			return agencyColorInt;
 		}

@@ -16,7 +16,6 @@ import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.task.MTCallable;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceManager;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
@@ -29,6 +28,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class MapPOILoader extends MTAsyncTaskLoaderX<Collection<MapViewController.POIMarker>> {
 
@@ -71,7 +72,12 @@ public class MapPOILoader extends MTAsyncTaskLoaderX<Collection<MapViewControlle
 			return this.poiMarkers;
 		}
 		this.poiMarkers = new HashSet<>();
-		ArrayList<AgencyProperties> agencies = DataSourceProvider.get(getContext()).getAllAgencies(getContext());
+		Collection<AgencyProperties> agencies;
+		if (F_CACHE_DATA_SOURCES) {
+			agencies = this.dataSourcesRepository.getAllAgencies();
+		} else {
+			agencies = org.mtransit.android.data.DataSourceProvider.get(getContext()).getAllAgencies(getContext());
+		}
 		if (agencies == null || agencies.isEmpty()) {
 			return this.poiMarkers;
 		}

@@ -33,6 +33,7 @@ import org.mtransit.android.di.Injection;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
@@ -365,7 +366,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	@NonNull
 	public ArrayList<DataSourceType> getAvailableAgencyTypes() {
 		if (F_CACHE_DATA_SOURCES) {
-			return new ArrayList<>(this.dataSourcesRepository.getAllDataSourceTypes());
+			return new ArrayList<>(this.dataSourcesRepository.getAllDataSourceTypes()); // FIXME
 		}
 		return new ArrayList<>(this.allAgencyTypes); // copy
 	}
@@ -383,7 +384,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 			initAgencyProperties();
 		}
 		if (F_CACHE_DATA_SOURCES) {
-			return new ArrayList<>(this.dataSourcesRepository.getAllAgencies());
+			return new ArrayList<>(this.dataSourcesRepository.getAllAgencies()); // FIXME
 		}
 		if (this.allAgencies == null) {
 			return null;
@@ -500,7 +501,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 			initAgencyProperties();
 		}
 		if (F_CACHE_DATA_SOURCES) {
-			return new ArrayList<>(this.dataSourcesRepository.getTypeDataSources(type));
+			return new ArrayList<>(this.dataSourcesRepository.getTypeDataSources(type)); // FIXME
 		}
 		ArrayList<AgencyProperties> agencies = this.allAgenciesByTypeId == null ? null : this.allAgenciesByTypeId.get(type.getId());
 		if (agencies == null) {
@@ -556,11 +557,11 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	@NonNull
-	public ArrayList<NewsProviderProperties> getAllNewsProvider() {
+	public Set<NewsProviderProperties> getAllNewsProvider() {
 		if (F_CACHE_DATA_SOURCES) {
-			return new ArrayList<>(this.dataSourcesRepository.getAllNewsProviders());
+			return this.dataSourcesRepository.getAllNewsProviders();
 		}
-		return new ArrayList<>(this.allNewsProviders); // copy
+		return new HashSet<>(this.allNewsProviders); // copy
 	}
 
 	@Nullable
@@ -572,9 +573,9 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	@Nullable
-	public HashSet<StatusProviderProperties> getTargetAuthorityStatusProviders(@NonNull String targetAuthority) {
+	public Set<StatusProviderProperties> getTargetAuthorityStatusProviders(@NonNull String targetAuthority) {
 		if (F_CACHE_DATA_SOURCES) {
-			return new HashSet<>(this.dataSourcesRepository.getStatusProviders(targetAuthority));
+			return this.dataSourcesRepository.getStatusProviders(targetAuthority);
 		}
 		HashSet<StatusProviderProperties> statusProviders = this.statusProvidersByTargetAuthority.get(targetAuthority);
 		if (statusProviders == null) {
@@ -584,9 +585,9 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	@Nullable
-	public HashSet<ScheduleProviderProperties> getTargetAuthorityScheduleProviders(@NonNull String targetAuthority) {
+	public Set<ScheduleProviderProperties> getTargetAuthorityScheduleProviders(@NonNull String targetAuthority) {
 		if (F_CACHE_DATA_SOURCES) {
-			return new HashSet<>(this.dataSourcesRepository.getScheduleProviders(targetAuthority));
+			return this.dataSourcesRepository.getScheduleProviders(targetAuthority);
 		}
 		HashSet<ScheduleProviderProperties> scheduleProviders = this.scheduleProvidersByTargetAuthority.get(targetAuthority);
 		if (scheduleProviders == null) {
@@ -596,9 +597,9 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	@Nullable
-	public HashSet<ServiceUpdateProviderProperties> getTargetAuthorityServiceUpdateProviders(@NonNull String targetAuthority) {
+	public Set<ServiceUpdateProviderProperties> getTargetAuthorityServiceUpdateProviders(@NonNull String targetAuthority) {
 		if (F_CACHE_DATA_SOURCES) {
-			return new HashSet<>(this.dataSourcesRepository.getServiceUpdateProviders(targetAuthority));
+			return this.dataSourcesRepository.getServiceUpdateProviders(targetAuthority);
 		}
 		HashSet<ServiceUpdateProviderProperties> serviceUpdateProviders = this.serviceUpdateProvidersByTargetAuthority.get(targetAuthority);
 		if (serviceUpdateProviders == null) {
@@ -608,9 +609,9 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	@Nullable
-	public HashSet<NewsProviderProperties> getTargetAuthorityNewsProviders(@NonNull String targetAuthority) {
+	public Set<NewsProviderProperties> getTargetAuthorityNewsProviders(@NonNull String targetAuthority) {
 		if (F_CACHE_DATA_SOURCES) {
-			return new HashSet<>(this.dataSourcesRepository.getNewsProviders(targetAuthority));
+			return this.dataSourcesRepository.getNewsProviders(targetAuthority);
 		}
 		HashSet<NewsProviderProperties> newsProviders = this.newsProvidersByTargetAuthority.get(targetAuthority);
 		if (newsProviders == null) {
@@ -701,7 +702,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 		protected void onPostExecuteNotCancelledMT(@Nullable Boolean updated) {
 			super.onPostExecuteNotCancelledMT(updated);
 			if (Boolean.TRUE.equals(updated)) {
-				DataSourceProvider.triggerModulesUpdated();
+				org.mtransit.android.data.DataSourceProvider.triggerModulesUpdated();
 			}
 		}
 	}
