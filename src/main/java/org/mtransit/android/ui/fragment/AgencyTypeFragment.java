@@ -100,10 +100,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 	@NonNull
 	private final LiveData<List<AgencyProperties>> allAgenciesLD;
-
 	@NonNull
-	private final MutableLiveData<DataSourceType> typeLD;
-
+	private final MutableLiveData<DataSourceType> typeLD = new MutableLiveData<>(this.type);
 	@NonNull
 	private final MediatorLiveData<List<AgencyProperties>> typeAgenciesLD = new MediatorLiveData<>();
 
@@ -111,13 +109,9 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		super();
 		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 		if (F_CACHE_DATA_SOURCES) {
-			this.typeLD = new MutableLiveData<>(this.type);
 			this.allAgenciesLD = this.dataSourcesRepository.readingAllAgencies();
 		} else {
-			//noinspection ConstantConditions
-			this.typeLD = null;
-			//noinspection ConstantConditions
-			this.allAgenciesLD = null;
+			this.allAgenciesLD = new MediatorLiveData<>();
 		}
 	}
 
