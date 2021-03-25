@@ -113,6 +113,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 	}
 
+	@Nullable
 	@Override
 	public String getAgencyAuthority() {
 		return this.authority;

@@ -875,7 +875,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	@Deprecated
-	public void updateDistancesNowSync(Location currentLocation) {
+	public void updateDistancesNowSync(@Nullable Location currentLocation) {
 		if (currentLocation != null) {
 			if (this.poisByType != null) {
 				for (ArrayList<POIManager> pois : this.poisByType.values()) {
@@ -887,17 +887,18 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		setLocation(currentLocation);
 	}
 
-	public void updateDistanceNowAsync(Location currentLocation) {
+	public void updateDistanceNowAsync(@Nullable Location currentLocation) {
 		this.location = null; // clear current location to force refresh
 		setLocation(currentLocation);
 	}
 
 	@Override
-	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+	public void onScroll(@NonNull AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+		// DO NOTHING
 	}
 
 	@Override
-	public void onScrollStateChanged(AbsListView view, int scrollState) {
+	public void onScrollStateChanged(@NonNull AbsListView view, int scrollState) {
 		setScrollState(scrollState);
 	}
 
@@ -1222,7 +1223,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				Activity activity = getActivity();
 				if (activity != null) {
 					leaving();
-					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(type.getId(), type));
+					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(type));
 				}
 			}
 			break;
@@ -1236,11 +1237,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			}
 			break;
 		case TypeHeaderButtonsClickListener.BUTTON_MORE:
+			//noinspection DuplicateBranchesInSwitch
 			if (type != null) {
 				Activity activity = getActivity();
 				if (activity != null) {
 					leaving();
-					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(type.getId(), type));
+					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(type));
 				}
 			}
 			break;
@@ -1257,7 +1259,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	@NonNull
-	private View getTypeHeaderView(final DataSourceType type, @Nullable View convertView, @NonNull ViewGroup parent) {
+	private View getTypeHeaderView(@NonNull final DataSourceType type, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			int layoutRes = getTypeHeaderLayoutResId();
 			convertView = this.layoutInflater.inflate(layoutRes, parent, false);
@@ -2110,6 +2112,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		int BUTTON_NEARBY = 1;
 		int BUTTON_ALL = 2;
 
-		boolean onTypeHeaderButtonClick(int buttonId, DataSourceType type);
+		boolean onTypeHeaderButtonClick(int buttonId, @NonNull DataSourceType type);
 	}
 }

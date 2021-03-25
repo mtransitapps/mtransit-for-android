@@ -1,5 +1,6 @@
 package org.mtransit.android.datasource
 
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -92,10 +93,18 @@ class DataSourcesRepository(
         it.sortedWith(defaultDataSourceTypeComparator)
     }
 
+    fun readingAllDataSourceTypesDistinct() = readingAllDataSourceTypes().distinctUntilChanged()
+
     fun getTypeDataSources(typeId: Int): List<AgencyProperties> = this._agencyProperties.filter { it.type.id == typeId }
         .sortedWith(defaultAgencyComparator)
 
     fun getTypeDataSources(dst: DataSourceType) = getTypeDataSources(dst.id)
+
+    fun readingTypeDataSources(dst: DataSourceType) = this.dataSourcesCache.readingTypeDataSources(dst).map {
+        it.sortedWith(defaultAgencyComparator)
+    }
+
+    fun readingTypeDataSourcesDistinct(dst: DataSourceType) = readingTypeDataSources(dst).distinctUntilChanged()
 
     fun getAgencyPkg(authority: String) = getAgency(authority)?.pkg
 

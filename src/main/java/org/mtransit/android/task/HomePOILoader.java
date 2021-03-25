@@ -201,7 +201,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 													float typeMinCoverageInMeters,
 													@Nullable Collection<AgencyProperties> typeAgencies) {
 		ArrayList<POIManager> typePOIs = new ArrayList<>();
-		typeAgencies = NearbyPOIListLoader.filterAgencies(typeAgencies, typeLat, typeLng, typeAd, lastTypeAroundDiff);
+		typeAgencies = NearbyPOIListLoader.filterAgenciesInArea(typeAgencies, typeLat, typeLng, typeAd, lastTypeAroundDiff);
 		if (typeAgencies.size() == 0) {
 			return typePOIs;
 		}

@@ -14,8 +14,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
+import androidx.fragment.app.FragmentActivity;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 
@@ -29,7 +32,6 @@ import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.di.Injection;
@@ -46,8 +48,10 @@ import org.mtransit.android.util.LoaderUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class MapFragment extends ABFragment implements
 		LoaderManager.LoaderCallbacks<Collection<MapViewController.POIMarker>>,
@@ -121,6 +125,14 @@ public class MapFragment extends ABFragment implements
 		setHasOptionsMenu(true);
 		restoreInstanceState(savedInstanceState, getArguments());
 		this.mapViewController.onCreate(savedInstanceState);
+		if (!F_CACHE_DATA_SOURCES) {
+			this.dataSourcesRepository.readingAllDataSourceTypesDistinct().observe(this, newAllDataSourceTypes -> {
+				if (hasFilterTypeIds()) {
+					resetTypeFilterIds();
+					initFilterTypeIdsAsync();
+				}
+			});
+		}
 	}
 
 	@Nullable
@@ -188,13 +200,16 @@ public class MapFragment extends ABFragment implements
 		if (!isResumed()) {
 			return;
 		}
-		if (hasFilterTypeIds()) {
-			resetTypeFilterIds();
-			initFilterTypeIdsAsync();
+		if (!F_CACHE_DATA_SOURCES) {
+			if (hasFilterTypeIds()) {
+				resetTypeFilterIds();
+				initFilterTypeIdsAsync();
+			}
 		}
 		this.modulesUpdated = false; // processed
 	}
 
+	@Nullable
 	private Location userLocation;
 
 	@Override
@@ -222,6 +237,7 @@ public class MapFragment extends ABFragment implements
 		case POIS_LOADER:
 			return new MapPOILoader(requireContext(), this.dataSourcesRepository, getFilterTypeIdsOrNull(), this.loadingLatLngBounds, this.loadedLatLngBounds);
 		default:
+			//noinspection deprecation
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			//noinspection ConstantConditions // TODO fix latter
 			return null;
@@ -262,12 +278,12 @@ public class MapFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onMapClick(LatLng position) {
+	public void onMapClick(@Nullable LatLng position) {
 		// DO NOTHING
 	}
 
 	@Override
-	public void onCameraChange(LatLngBounds latLngBounds) {
+	public void onCameraChange(@Nullable LatLngBounds latLngBounds) {
 		if (latLngBounds == null) {
 			return;
 		}
@@ -315,13 +331,16 @@ public class MapFragment extends ABFragment implements
 		inflater.inflate(R.menu.menu_map, menu);
 	}
 
+	@Nullable
 	private Integer includedTypeId = null;
+	@Nullable
 	private Set<Integer> filterTypeIds = null;
 
 	private void resetTypeFilterIds() {
 		this.filterTypeIds = null; // reset
 	}
 
+	@Nullable
 	private Set<Integer> getFilterTypeIdsOrNull() {
 		if (!hasFilterTypeIds()) {
 			return null;
@@ -348,6 +367,7 @@ public class MapFragment extends ABFragment implements
 	@Nullable
 	private LoadFilterTypeIdsTask loadFilterTypeIdsTask = null;
 
+	@SuppressWarnings("deprecation")
 	private static class LoadFilterTypeIdsTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, MapFragment> {
 
 		@NonNull
@@ -360,12 +380,14 @@ public class MapFragment extends ABFragment implements
 			super(mapFragment);
 		}
 
+		@WorkerThread
 		@Nullable
 		@Override
 		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull MapFragment mapFragment, @Nullable Void... params) {
 			return mapFragment.initFilterTypeIdsSync();
 		}
 
+		@MainThread
 		@Override
 		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull MapFragment mapFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
@@ -374,6 +396,7 @@ public class MapFragment extends ABFragment implements
 		}
 	}
 
+	@WorkerThread
 	private boolean initFilterTypeIdsSync() {
 		if (this.filterTypeIds != null) {
 			return false;
@@ -382,7 +405,7 @@ public class MapFragment extends ABFragment implements
 		if (context == null) {
 			return false;
 		}
-		ArrayList<DataSourceType> availableTypes = filterTypes(DataSourceProvider.get(context).getAvailableAgencyTypes());
+		List<DataSourceType> availableTypes = getNewFilteredAgencyTypes(context);
 		Set<String> filterTypeIdStrings = PreferenceUtils.getPrefLcl( //
 				context, PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS, PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT);
 		this.filterTypeIds = new HashSet<>();
@@ -390,7 +413,7 @@ public class MapFragment extends ABFragment implements
 		if (filterTypeIdStrings != null) {
 			for (String typeIdString : filterTypeIdStrings) {
 				try {
-					DataSourceType type = DataSourceType.parseId(Integer.parseInt(typeIdString));
+					final DataSourceType type = DataSourceType.parseId(Integer.parseInt(typeIdString));
 					if (type == null) {
 						hasChanged = true;
 						continue;
@@ -432,16 +455,18 @@ public class MapFragment extends ABFragment implements
 	}
 
 	@NonNull
-	private ArrayList<DataSourceType> filterTypes(@NonNull ArrayList<DataSourceType> availableTypes) {
-		Iterator<DataSourceType> it = availableTypes.iterator();
-		while (it.hasNext()) {
-			if (!it.next().isMapScreen()) {
-				it.remove();
+	private List<DataSourceType> filterTypes(@NonNull List<DataSourceType> availableTypes) {
+		List<DataSourceType> filteredTypes = new ArrayList<>();
+		for (DataSourceType type : availableTypes) {
+			if (!type.isMapScreen()) {
+				continue;
 			}
+			filteredTypes.add(type);
 		}
-		return availableTypes;
+		return filteredTypes;
 	}
 
+	@SuppressWarnings("SameParameterValue")
 	private void saveMapFilterTypeIdsSetting(boolean sync) {
 		Set<Integer> filterTypeIds = getFilterTypeIdsOrNull();
 		if (filterTypeIds == null) {
@@ -481,11 +506,12 @@ public class MapFragment extends ABFragment implements
 			if (filterTypeIds == null) {
 				return false;
 			}
+			final FragmentActivity activity = requireActivity();
 			ArrayList<CharSequence> typeNames = new ArrayList<>();
 			ArrayList<Boolean> checked = new ArrayList<>();
 			final ArrayList<Integer> typeIds = new ArrayList<>();
 			final HashSet<Integer> selectedItems = new HashSet<>();
-			ArrayList<DataSourceType> availableAgencyTypes = filterTypes(DataSourceProvider.get(getContext()).getAvailableAgencyTypes());
+			List<DataSourceType> availableAgencyTypes = getNewFilteredAgencyTypes(activity);
 			for (DataSourceType type : availableAgencyTypes) {
 				typeIds.add(type.getId());
 				typeNames.add(getString(type.getPoiShortNameResId()));
@@ -498,7 +524,7 @@ public class MapFragment extends ABFragment implements
 					selectedItems.add(c);
 				}
 			}
-			new MTDialog.Builder(requireActivity()) //
+			new MTDialog.Builder(activity) //
 					.setTitle(R.string.menu_action_filter) //
 					.setMultiChoiceItems( //
 							typeNames.toArray(new CharSequence[0]), //
@@ -525,6 +551,17 @@ public class MapFragment extends ABFragment implements
 			return true; // handled
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@NonNull
+	private List<DataSourceType> getNewFilteredAgencyTypes(@NonNull Context context) {
+		List<DataSourceType> allAgencyTypes;
+		if (F_CACHE_DATA_SOURCES) {
+			allAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
+		} else {
+			allAgencyTypes = org.mtransit.android.data.DataSourceProvider.get(context).getAvailableAgencyTypes();
+		}
+		return filterTypes(allAgencyTypes);
 	}
 
 	@Override
@@ -569,7 +606,7 @@ public class MapFragment extends ABFragment implements
 	@Override
 	public CharSequence getABTitle(@Nullable Context context) {
 		if (context == null) {
-			return super.getABTitle(context);
+			return super.getABTitle(null);
 		}
 		StringBuilder sb = new StringBuilder(context.getString(R.string.map));
 		sb.append(" (");

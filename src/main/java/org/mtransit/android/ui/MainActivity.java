@@ -1,5 +1,6 @@
 package org.mtransit.android.ui;
 
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -22,7 +23,7 @@ import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.fragment.ABFragment;
@@ -35,13 +36,15 @@ import org.mtransit.android.util.NightModeUtils;
 
 import java.util.WeakHashMap;
 
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
+
 public class MainActivity extends MTActivityWithLocation implements
 		FragmentManager.OnBackStackChangedListener,
 		AnalyticsManager.Trackable,
 		IBillingManager.OnBillingResultListener,
 		IActivity,
 		IAdManager.RewardedAdListener,
-		DataSourceProvider.ModulesUpdateListener {
+		org.mtransit.android.data.DataSourceProvider.ModulesUpdateListener {
 
 	private static final String TAG = "Stack-" + MainActivity.class.getSimpleName();
 
@@ -64,8 +67,10 @@ public class MainActivity extends MTActivityWithLocation implements
 		return new Intent(context, MainActivity.class);
 	}
 
+	@Nullable
 	private NavigationDrawerController navigationDrawerController;
 
+	@Nullable
 	private ActionBarController abController;
 
 	@NonNull
@@ -74,6 +79,8 @@ public class MainActivity extends MTActivityWithLocation implements
 	private final CrashReporter crashReporter;
 	@NonNull
 	private final IBillingManager billingManager;
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
 
 	private int currentUiMode = -1;
 
@@ -82,6 +89,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		adManager = Injection.providesAdManager();
 		crashReporter = Injection.providesCrashReporter();
 		billingManager = Injection.providesBillingManager();
+		dataSourcesRepository = Injection.providesDataSourcesRepository();
 	}
 
 	@Override
@@ -91,10 +99,16 @@ public class MainActivity extends MTActivityWithLocation implements
 		this.currentUiMode = getResources().getConfiguration().uiMode;
 		setContentView(R.layout.activity_main);
 		this.abController = new ActionBarController(this);
-		this.navigationDrawerController = new NavigationDrawerController(this, crashReporter);
+		this.navigationDrawerController = new NavigationDrawerController(this, crashReporter, this.dataSourcesRepository);
 		this.navigationDrawerController.onCreate(savedInstanceState);
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
-		DataSourceProvider.addModulesUpdateListener(this);
+		if (!F_CACHE_DATA_SOURCES) {
+			org.mtransit.android.data.DataSourceProvider.addModulesUpdateListener(this);
+		} else {
+			this.dataSourcesRepository.readingAllAgenciesCount().observe(this, nbAgencies ->
+					this.adManager.onNbAgenciesUpdated(this, nbAgencies) // ad-manager does not persist activity but listen for changes itself
+			);
+		}
 		MapUtils.fixScreenFlickering(findViewById(R.id.content_frame));
 	}
 
@@ -112,7 +126,9 @@ public class MainActivity extends MTActivityWithLocation implements
 		if (!this.resumed) {
 			return;
 		}
-		this.adManager.onModulesUpdated(this);
+		if (!F_CACHE_DATA_SOURCES) {
+			this.adManager.onModulesUpdated(this);
+		}
 		this.modulesUpdated = false; // processed
 	}
 
@@ -124,23 +140,26 @@ public class MainActivity extends MTActivityWithLocation implements
 		}
 	}
 
+	@Nullable
 	public ActionBarController getAbController() {
 		return abController;
 	}
 
+	@Nullable
 	public NavigationDrawerController getNavigationDrawerController() {
 		return navigationDrawerController;
 	}
 
 	@Override
-	protected void onNewIntent(Intent intent) {
+	protected void onNewIntent(@SuppressLint("UnknownNullness") Intent intent) {
 		super.onNewIntent(intent);
 		setIntent(intent);
 		processIntent(intent);
 	}
 
-	private boolean processIntent(Intent intent) {
-		if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+	@SuppressWarnings("UnusedReturnValue")
+	private boolean processIntent(@Nullable Intent intent) {
+		if (intent != null && Intent.ACTION_SEARCH.equals(intent.getAction())) {
 			onSearchQueryRequested(intent.getStringExtra(SearchManager.QUERY));
 			return true; // intent processed
 		}
@@ -153,7 +172,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		return true; // processed
 	}
 
-	public void onSearchQueryRequested(String query) {
+	public void onSearchQueryRequested(@Nullable String query) {
 		Fragment currentFragment = getCurrentFragment();
 		if (currentFragment instanceof SearchFragment) {
 			((SearchFragment) currentFragment).setSearchQuery(query, false);
@@ -201,14 +220,17 @@ public class MainActivity extends MTActivityWithLocation implements
 	protected void onPostResume() {
 		super.onPostResume();
 		this.resumed = true;
-		if (this.modulesUpdated) {
-			new Handler().post(() -> {
-				if (MainActivity.this.modulesUpdated) {
-					onModulesUpdated();
-				}
-			});
+		//noinspection PointlessBooleanExpression // TODO later
+		if (true || !F_CACHE_DATA_SOURCES) {
+			if (this.modulesUpdated) {
+				new Handler().post(() -> {
+					if (MainActivity.this.modulesUpdated) {
+						onModulesUpdated();
+					}
+				});
+			}
+			org.mtransit.android.data.DataSourceProvider.onResume();
 		}
-		DataSourceProvider.onResume();
 		if (this.currentUiMode != getResources().getConfiguration().uiMode) {
 			new Handler().post(() -> {
 				NightModeUtils.resetColorCache();
@@ -232,7 +254,10 @@ public class MainActivity extends MTActivityWithLocation implements
 		}
 		this.billingManager.removeListener(this);
 		this.adManager.pauseAd(this);
-		DataSourceProvider.onPause();
+		//noinspection PointlessBooleanExpression // TODO later
+		if (true || !F_CACHE_DATA_SOURCES) {
+			org.mtransit.android.data.DataSourceProvider.onPause();
+		}
 	}
 
 	@Override
@@ -246,14 +271,19 @@ public class MainActivity extends MTActivityWithLocation implements
 	@Override
 	protected void onRestart() {
 		super.onRestart();
-		DataSourceProvider.resetIfNecessary(this);
+		//noinspection PointlessBooleanExpression // TODO later
+		if (true || !F_CACHE_DATA_SOURCES) {
+			org.mtransit.android.data.DataSourceProvider.resetIfNecessary(this);
+		}
 		popFragmentsToPop();
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		DataSourceProvider.removeModulesUpdateListener(this);
+		if (!F_CACHE_DATA_SOURCES) {
+			org.mtransit.android.data.DataSourceProvider.removeModulesUpdateListener(this);
+		}
 		if (this.abController != null) {
 			this.abController.destroy();
 			this.abController = null;
@@ -263,7 +293,9 @@ public class MainActivity extends MTActivityWithLocation implements
 			this.navigationDrawerController = null;
 		}
 		this.fragmentsToPopWR.clear();
-		DataSourceProvider.destroy();
+		if (!F_CACHE_DATA_SOURCES) {
+			org.mtransit.android.data.DataSourceProvider.destroy();
+		}
 		this.adManager.destroyAd(this);
 		this.adManager.unlinkRewardedAd(this);
 	}
@@ -294,7 +326,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		FragmentUtils.clearFragmentBackStackImmediate(this, null);
 	}
 
-	public void showNewFragment(ABFragment newFragment, boolean addToStack, @Nullable Fragment optSource) {
+	public void showNewFragment(@NonNull ABFragment newFragment, boolean addToStack, @Nullable Fragment optSource) {
 		FragmentUtils.replaceFragment(this, R.id.content_frame, newFragment, addToStack, optSource);
 		if (addToStack) {
 			incBackEntryCount();
@@ -319,11 +351,11 @@ public class MainActivity extends MTActivityWithLocation implements
 		}
 	}
 
-	public void addFragmentToStack(ABFragment newFragment) {
+	public void addFragmentToStack(@NonNull ABFragment newFragment) {
 		addFragmentToStack(newFragment, getCurrentFragment());
 	}
 
-	public void addFragmentToStack(ABFragment newFragment, @Nullable Fragment optSource) {
+	public void addFragmentToStack(@NonNull ABFragment newFragment, @Nullable Fragment optSource) {
 		showNewFragment(newFragment, true, optSource);
 	}
 
@@ -371,12 +403,14 @@ public class MainActivity extends MTActivityWithLocation implements
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public void enableNavigationDrawerToggleIndicator() {
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.setDrawerToggleIndicatorEnabled(true);
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public boolean isDrawerOpen() {
 		return this.navigationDrawerController != null && this.navigationDrawerController.isDrawerOpen();
 	}

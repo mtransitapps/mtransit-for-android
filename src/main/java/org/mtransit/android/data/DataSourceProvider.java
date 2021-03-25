@@ -33,6 +33,7 @@ import org.mtransit.android.di.Injection;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -364,9 +365,9 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	@NonNull
-	public ArrayList<DataSourceType> getAvailableAgencyTypes() {
+	public List<DataSourceType> getAvailableAgencyTypes() {
 		if (F_CACHE_DATA_SOURCES) {
-			return new ArrayList<>(this.dataSourcesRepository.getAllDataSourceTypes()); // FIXME
+			return this.dataSourcesRepository.getAllDataSourceTypes();
 		}
 		return new ArrayList<>(this.allAgencyTypes); // copy
 	}
@@ -379,12 +380,12 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	@Nullable
-	public ArrayList<AgencyProperties> getAllAgencies(@SuppressWarnings("unused") @Nullable Context context) {
+	public List<AgencyProperties> getAllAgencies(@SuppressWarnings("unused") @Nullable Context context) {
 		if (!isAgencyPropertiesSet()) {
 			initAgencyProperties();
 		}
 		if (F_CACHE_DATA_SOURCES) {
-			return new ArrayList<>(this.dataSourcesRepository.getAllAgencies()); // FIXME
+			return this.dataSourcesRepository.getAllAgencies();
 		}
 		if (this.allAgencies == null) {
 			return null;
@@ -487,7 +488,7 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	@Nullable
-	public ArrayList<AgencyProperties> getTypeDataSources(@SuppressWarnings("unused") @Nullable Context context, int typeId) {
+	public List<AgencyProperties> getTypeDataSources(@SuppressWarnings("unused") @Nullable Context context, int typeId) {
 		final DataSourceType type = DataSourceType.parseId(typeId);
 		if (type == null) {
 			return null;
@@ -496,12 +497,12 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	@Nullable
-	public ArrayList<AgencyProperties> getTypeDataSources(@SuppressWarnings("unused") @Nullable Context context, @NonNull DataSourceType type) {
+	public List<AgencyProperties> getTypeDataSources(@SuppressWarnings("unused") @Nullable Context context, @NonNull DataSourceType type) {
 		if (!isAgencyPropertiesSet()) {
 			initAgencyProperties();
 		}
 		if (F_CACHE_DATA_SOURCES) {
-			return new ArrayList<>(this.dataSourcesRepository.getTypeDataSources(type)); // FIXME
+			return this.dataSourcesRepository.getTypeDataSources(type);
 		}
 		ArrayList<AgencyProperties> agencies = this.allAgenciesByTypeId == null ? null : this.allAgenciesByTypeId.get(type.getId());
 		if (agencies == null) {

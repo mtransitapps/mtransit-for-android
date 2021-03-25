@@ -42,7 +42,7 @@ class MTBillingManager(
 
     private var billingClientConnected: Boolean? = false
 
-    private var billingClient = BillingClient.newBuilder(appContext.requireContext())
+    private val billingClient = BillingClient.newBuilder(appContext.requireContext())
         .setListener(this)
         .enablePendingPurchases()
         .build()

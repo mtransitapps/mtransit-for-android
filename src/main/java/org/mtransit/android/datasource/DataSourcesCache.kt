@@ -26,6 +26,8 @@ class DataSourcesCache(private val dataSourcesDatabase: DataSourcesDatabase) {
 
     fun getTypeDataSources(dst: DataSourceType) = agencyPropertiesDao().getTypeDataSources(dst)
 
+    fun readingTypeDataSources(dst: DataSourceType) = agencyPropertiesDao().readingTypeDataSources(dst)
+
     fun getAgencyPkg(authority: String) = agencyPropertiesDao().getAgencyPkg(authority)
 
     fun getAgencyColorInt(authority: String) = agencyPropertiesDao().getAgencyColorInt(authority)

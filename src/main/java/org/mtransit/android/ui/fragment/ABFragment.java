@@ -14,7 +14,6 @@ import org.mtransit.android.R;
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.ThemeUtils;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
@@ -22,7 +21,9 @@ import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.common.IActivity;
 
-public abstract class ABFragment extends MTFragment implements AnalyticsManager.Trackable, IActivity, DataSourceProvider.ModulesUpdateListener {
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
+
+public abstract class ABFragment extends MTFragment implements AnalyticsManager.Trackable, IActivity, org.mtransit.android.data.DataSourceProvider.ModulesUpdateListener {
 
 	private static final boolean DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT = false;
 
@@ -102,7 +103,10 @@ public abstract class ABFragment extends MTFragment implements AnalyticsManager.
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		DataSourceProvider.addModulesUpdateListener(this);
+		//noinspection PointlessBooleanExpression // TODO later
+		if (true || !F_CACHE_DATA_SOURCES) {
+			org.mtransit.android.data.DataSourceProvider.addModulesUpdateListener(this);
+		}
 	}
 
 	@Override
@@ -130,7 +134,10 @@ public abstract class ABFragment extends MTFragment implements AnalyticsManager.
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		DataSourceProvider.removeModulesUpdateListener(this);
+		//noinspection PointlessBooleanExpression // TODO later
+		if (true || !F_CACHE_DATA_SOURCES) {
+			org.mtransit.android.data.DataSourceProvider.removeModulesUpdateListener(this);
+		}
 	}
 
 	@Override

@@ -45,6 +45,7 @@ import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.LoaderUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class SearchFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
@@ -244,7 +245,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	}
 
 	@Override
-	public boolean onTypeHeaderButtonClick(int buttonId, DataSourceType type) {
+	public boolean onTypeHeaderButtonClick(int buttonId, @NonNull DataSourceType type) {
 		if (buttonId == POIArrayAdapter.TypeHeaderButtonsClickListener.BUTTON_MORE) {
 			KeyboardUtils.hideKeyboard(getActivity(), getView());
 			setTypeFilterFromType(type.getId());
@@ -443,7 +444,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		restartSearchLater();
 	}
 
-	public void setSearchQuery(String query, boolean alreadyInSearchView) {
+	public void setSearchQuery(@Nullable String query, boolean alreadyInSearchView) {
 		if (this.query == null || !StringUtils.equals(StringUtils.trim(this.query), StringUtils.trim(query))) {
 			this.query = query == null ? StringUtils.EMPTY : query;
 			applyNewQuery();
@@ -706,7 +707,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		private void init() {
 			ArrayList<TypeFilter> typeFilters = new ArrayList<>();
 			typeFilters.add(TypeFilter.ALL);
-			ArrayList<DataSourceType> availableTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
+			List<DataSourceType> availableTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
 			for (DataSourceType dst : availableTypes) {
 				if (dst.isSearchable()) {
 					typeFilters.add(TypeFilter.fromDataSourceType(dst));

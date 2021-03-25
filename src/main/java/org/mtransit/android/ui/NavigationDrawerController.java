@@ -30,8 +30,8 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
@@ -47,9 +47,11 @@ import org.mtransit.android.util.MapUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 
-public class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNavigationItemSelectedListener, DataSourceProvider.ModulesUpdateListener {
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
+
+public class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNavigationItemSelectedListener, org.mtransit.android.data.DataSourceProvider.ModulesUpdateListener {
 
 	private static final String LOG_TAG = "Stack-" + NavigationDrawerController.class.getSimpleName();
 
@@ -77,6 +79,8 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	private final WeakReference<MainActivity> mainActivityWR;
 	@NonNull
 	private final CrashReporter crashReporter;
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
 	@Nullable
 	private DrawerLayout drawerLayout;
 	@Nullable
@@ -89,10 +93,20 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	private String currentSelectedScreenItemId = null;
 
 	NavigationDrawerController(@NonNull MainActivity mainActivity,
-							   @NonNull CrashReporter crashReporter) {
+							   @NonNull CrashReporter crashReporter,
+							   @NonNull DataSourcesRepository dataSourcesRepository) {
 		this.mainActivityWR = new WeakReference<>(mainActivity);
 		this.crashReporter = crashReporter;
-		DataSourceProvider.addModulesUpdateListener(this);
+		this.dataSourcesRepository = dataSourcesRepository;
+		if (F_CACHE_DATA_SOURCES) {
+			this.dataSourcesRepository.readingAllDataSourceTypesDistinct().observe(mainActivity, dataSourceTypes -> {
+				this.allAgencyTypes = filterAgencyTypes(dataSourceTypes);
+				setVisibleMenuItems();
+				onMenuUpdated();
+			});
+		} else {
+			org.mtransit.android.data.DataSourceProvider.addModulesUpdateListener(this);
+		}
 	}
 
 	public void onCreate(@SuppressWarnings("unused") @Nullable Bundle savedInstanceState) {
@@ -118,6 +132,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	}
 
 	private void finishSetupAsync() {
+		//noinspection deprecation
 		if (this.finishSetupTask != null && this.finishSetupTask.getStatus() == MTCancellableAsyncTask.Status.RUNNING) {
 			return;
 		}
@@ -128,6 +143,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	@Nullable
 	private FinishSetupTask finishSetupTask = null;
 
+	@SuppressWarnings("deprecation")
 	private static class FinishSetupTask extends MTCancellableAsyncTask<Void, String, String> {
 
 		private final String LOG_TAG = NavigationDrawerController.LOG_TAG + ">" + FinishSetupTask.class.getSimpleName();
@@ -221,10 +237,10 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	}
 
 	@Nullable
-	private ArrayList<DataSourceType> allAgencyTypes = null;
+	private List<DataSourceType> allAgencyTypes = null;
 
 	@Nullable
-	private ArrayList<DataSourceType> getAllAgencyTypes() {
+	private List<DataSourceType> getAllAgencyTypes() {
 		if (this.allAgencyTypes == null) {
 			initAllAgencyTypes();
 		}
@@ -232,23 +248,33 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	}
 
 	private void initAllAgencyTypes() {
-		Context context = this.mainActivityWR.get();
-		if (context != null) {
-			this.allAgencyTypes = filterAgencyTypes(DataSourceProvider.get(context).getAvailableAgencyTypes());
-		}
+		this.allAgencyTypes = getNewFilteredAgencyTypes();
 	}
 
-	@Nullable
-	private ArrayList<DataSourceType> filterAgencyTypes(@Nullable ArrayList<DataSourceType> availableAgencyTypes) {
+	@NonNull
+	private List<DataSourceType> getNewFilteredAgencyTypes() {
+		final List<DataSourceType> availableAgencyTypes;
+		if (F_CACHE_DATA_SOURCES) {
+			availableAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
+		} else {
+			final MainActivity mainActivity = this.mainActivityWR.get();
+			availableAgencyTypes = org.mtransit.android.data.DataSourceProvider.get(mainActivity).getAvailableAgencyTypes();
+		}
+		return filterAgencyTypes(availableAgencyTypes);
+	}
+
+	@NonNull
+	private List<DataSourceType> filterAgencyTypes(@Nullable List<DataSourceType> availableAgencyTypes) {
+		List<DataSourceType> filteredDataSourceTypes = new ArrayList<>();
 		if (availableAgencyTypes != null) {
-			Iterator<DataSourceType> it = availableAgencyTypes.iterator();
-			while (it.hasNext()) {
-				if (!it.next().isMenuList()) {
-					it.remove();
+			for (DataSourceType type : availableAgencyTypes) {
+				if (!type.isMenuList()) {
+					continue;
 				}
+				filteredDataSourceTypes.add(type);
 			}
 		}
-		return availableAgencyTypes;
+		return filteredDataSourceTypes;
 	}
 
 	private void setVisibleMenuItems() {
@@ -256,7 +282,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			MTLog.w(this, "setVisibleMenuItems() > skip (no navigation view)");
 			return;
 		}
-		ArrayList<DataSourceType> allAgencyTypes = getAllAgencyTypes();
+		List<DataSourceType> allAgencyTypes = getAllAgencyTypes();
 		for (DataSourceType dst : DataSourceType.values()) {
 			if (allAgencyTypes != null && allAgencyTypes.contains(dst)) {
 				continue;
@@ -380,9 +406,13 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			}
 		} else if (itemId.startsWith(ITEM_ID_AGENCY_TYPE_START_WITH)) {
 			try {
-				DataSourceType dst = DataSourceType.parseId(Integer.parseInt(itemId.substring(ITEM_ID_AGENCY_TYPE_START_WITH.length())));
+				final DataSourceType dst = DataSourceType.parseId(
+						Integer.parseInt(
+								itemId.substring(ITEM_ID_AGENCY_TYPE_START_WITH.length())
+						)
+				);
 				if (dst != null) {
-					ArrayList<DataSourceType> allAgencyTypes = getAllAgencyTypes();
+					final List<DataSourceType> allAgencyTypes = getAllAgencyTypes();
 					if (allAgencyTypes != null && allAgencyTypes.contains(dst)) {
 						return dst.getNavResId();
 					}
@@ -470,7 +500,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		}
 		DataSourceType dst = DataSourceType.parseNavResId(navItemId);
 		if (dst != null) {
-			return AgencyTypeFragment.newInstance(dst.getId(), dst);
+			return AgencyTypeFragment.newInstance(dst);
 		}
 		MTLog.w(this, "getNewStaticFragmentAt() > Unexpected screen nav item ID: %s", navItemId);
 		return null;
@@ -633,16 +663,19 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		if (!this.resumed) {
 			return;
 		}
-		MainActivity mainActivity = this.mainActivityWR.get();
-		ArrayList<DataSourceType> newAllAgencyTypes = filterAgencyTypes(DataSourceProvider.get(mainActivity).getAvailableAgencyTypes());
-		if (CollectionUtils.getSize(this.allAgencyTypes) != CollectionUtils.getSize(newAllAgencyTypes)) {
-			this.allAgencyTypes = newAllAgencyTypes; // force reset
-			setVisibleMenuItems();
-			onMenuUpdated();
-			this.modulesUpdated = false; // processed
-		} else {
-			this.modulesUpdated = false; // nothing to do
+		if (!F_CACHE_DATA_SOURCES) {
+			final List<DataSourceType> newAllAgencyTypes = getNewFilteredAgencyTypes();
+			//noinspection IfStatementWithIdenticalBranches
+			if (CollectionUtils.getSize(this.allAgencyTypes) != CollectionUtils.getSize(newAllAgencyTypes)) {
+				this.allAgencyTypes = newAllAgencyTypes; // force reset
+				setVisibleMenuItems();
+				onMenuUpdated();
+				this.modulesUpdated = false; // processed
+			} else {
+				this.modulesUpdated = false; // nothing to do
+			}
 		}
+		this.modulesUpdated = false;
 	}
 
 	void onStart() {
@@ -697,7 +730,9 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	}
 
 	void destroy() {
-		DataSourceProvider.removeModulesUpdateListener(this);
+		if (!F_CACHE_DATA_SOURCES) {
+			org.mtransit.android.data.DataSourceProvider.removeModulesUpdateListener(this);
+		}
 		this.mainActivityWR.clear();
 		this.currentSelectedScreenItemNavId = null;
 		this.currentSelectedScreenItemId = null;

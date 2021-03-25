@@ -46,6 +46,11 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 	@Nullable
 	private IAnalyticsManager analyticsManager = null;
 
+	public MTApplication() {
+		super();
+		application = this;
+	}
+
 	@Override
 	protected void attachBaseContext(@NonNull Context base) {
 		base = LocaleUtils.fixDefaultLocale(base);
@@ -63,7 +68,6 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 			getLeakDetector().setup(this);
 		}
 		NightModeUtils.setDefaultNightMode(this);
-		application = this;
 		getStrictMode().setup(BuildConfig.DEBUG);
 		getCrashReporter().setup(this, !BuildConfig.DEBUG);
 		getAdManager().init(this);

@@ -18,8 +18,10 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.PopupWindow;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -48,12 +50,15 @@ import org.mtransit.android.util.LoaderUtils;
 
 import java.util.ArrayList;
 
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
+
 public class HomeFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
 		FavoriteManager.FavoriteUpdateListener, SwipeRefreshLayout.OnRefreshListener, POIArrayAdapter.TypeHeaderButtonsClickListener,
 		POIArrayAdapter.InfiniteLoadingListener {
 
 	private static final String TAG = HomeFragment.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -69,7 +74,8 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	private static final String EXTRA_NEARBY_LOCATION = "extra_nearby_location";
 
-	public static HomeFragment newInstance(Location optNearbyLocation) {
+	@NonNull
+	public static HomeFragment newInstance(@Nullable Location optNearbyLocation) {
 		HomeFragment f = new HomeFragment();
 		Bundle args = new Bundle();
 		if (optNearbyLocation != null) {
@@ -79,10 +85,15 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		return f;
 	}
 
+	@Nullable
 	private POIArrayAdapter adapter;
+	@Nullable
 	private Location userLocation;
+	@Nullable
 	private Location nearbyLocation;
+	@Nullable
 	private String nearbyLocationAddress;
+	@Nullable
 	private ListViewSwipeRefreshLayout swipeRefreshLayout;
 
 	@NonNull
@@ -110,6 +121,12 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 		restoreInstanceState(savedInstanceState, getArguments());
+		if (F_CACHE_DATA_SOURCES) {
+			this.dataSourcesRepository.readingAllAgencies().observe(this, agencyProperties -> {
+				this.nearbyLocation = null; // force refresh
+				initiateRefresh();
+			});
+		}
 	}
 
 	@Nullable
@@ -143,12 +160,15 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (!isResumed()) {
 			return;
 		}
-		this.nearbyLocation = null; // force refresh
-		initiateRefresh();
+		if (!F_CACHE_DATA_SOURCES) {
+			this.nearbyLocation = null; // force refresh
+			initiateRefresh();
+		}
 		this.modulesUpdated = false; // processed
 	}
 
-	private void restoreInstanceState(Bundle... bundles) {
+	private void restoreInstanceState(@SuppressWarnings("unused") Bundle... bundles) {
+		// DO NOTHING
 	}
 
 	@Override
@@ -181,8 +201,10 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 	}
 
+	@Nullable
 	private FindNearbyLocationTask findNearbyLocationTask;
 
+	@SuppressWarnings("deprecation")
 	private static class FindNearbyLocationTask extends MTCancellableFragmentAsyncTask<Location, Void, String, HomeFragment> {
 
 		@NonNull
@@ -195,6 +217,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			super(homeFragment);
 		}
 
+		@WorkerThread
 		@Override
 		protected String doInBackgroundNotCancelledWithFragmentMT(@NonNull HomeFragment homeFragment, @Nullable Location... locations) {
 			Context context = homeFragment.getContext();
@@ -206,6 +229,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			return LocationUtils.getLocationString(context, null, address, nearbyLocation.getAccuracy());
 		}
 
+		@MainThread
 		@Override
 		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull HomeFragment homeFragment, @Nullable String newLocationAddress) {
 			boolean refreshRequired = newLocationAddress != null && !newLocationAddress.equals(homeFragment.nearbyLocationAddress);
@@ -288,19 +312,21 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.loadFinished = false;
 	}
 
-	public void onLoadPartial(ArrayList<POIManager> data) {
+	public void onLoadPartial(@Nullable ArrayList<POIManager> data) {
 		addPOIs(data);
 	}
 
 	@Override
-	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, @Nullable ArrayList<POIManager> data) {
 		this.loadFinished = true;
 		addPOIs(data);
-		this.adapter.updateDistanceNowAsync(this.userLocation);
+		if (this.adapter != null) {
+			this.adapter.updateDistanceNowAsync(this.userLocation);
+		}
 		findNearbyLocation();
 	}
 
-	private void addPOIs(ArrayList<POIManager> data) {
+	private void addPOIs(@Nullable ArrayList<POIManager> data) {
 		if (this.adapter == null) {
 			return; // too late
 		}
@@ -406,7 +432,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 	}
 
-	private void setSwipeRefreshLayoutRefreshing(boolean refreshing) {
+	private void setSwipeRefreshLayoutRefreshing(@SuppressWarnings("SameParameterValue") boolean refreshing) {
 		if (this.swipeRefreshLayout != null) {
 			if (refreshing) {
 				if (!this.swipeRefreshLayout.isRefreshing()) {
@@ -428,7 +454,9 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		if (item.getItemId() == R.id.menu_show_map) {
 			if (getActivity() != null) {
-				((MainActivity) getActivity()).addFragmentToStack(MapFragment.newInstance(null, null, null), this);
+				((MainActivity) getActivity()).addFragmentToStack(
+						MapFragment.newInstance(null, null, null),
+						this);
 			}
 			return true;
 		}
@@ -476,7 +504,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	@Override
-	public boolean onTypeHeaderButtonClick(int buttonId, DataSourceType type) {
+	public boolean onTypeHeaderButtonClick(int buttonId, @NonNull DataSourceType type) {
 		if (buttonId == POIArrayAdapter.TypeHeaderButtonsClickListener.BUTTON_MORE) {
 			if (getActivity() != null) {
 				((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newNearbyInstance(null, type.getId()), this);
@@ -536,7 +564,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public CharSequence getABTitle(@Nullable Context context) {
 		if (context == null) {
-			return super.getABTitle(context);
+			return super.getABTitle(null);
 		}
 		return context.getString(R.string.app_name);
 	}

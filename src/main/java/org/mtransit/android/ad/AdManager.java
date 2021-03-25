@@ -135,10 +135,20 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	}
 
 	@Override
-	public void onModulesUpdated(@NonNull IActivity activity) {
+	public void onNbAgenciesUpdated(@NonNull IActivity activity, int nbAgencies) {
 		if (!F_CACHE_DATA_SOURCES) {
-			nbAgencies = null; // reset
+			return;
 		}
+		this.nbAgencies = nbAgencies;
+		refreshAdStatus(activity);
+	}
+
+	@Override
+	public void onModulesUpdated(@NonNull IActivity activity) {
+		if (F_CACHE_DATA_SOURCES) {
+			return;
+		}
+		nbAgencies = null; // reset
 		refreshAdStatus(activity);
 	}
 
@@ -547,11 +557,11 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			return false;
 		}
 		if (nbAgencies == null) {
-			if (!F_CACHE_DATA_SOURCES) {
+			if (F_CACHE_DATA_SOURCES) {
+				nbAgencies = this.dataSourcesRepository.getAllAgenciesCount();
+			} else {
 				org.mtransit.android.data.DataSourceProvider dataSourceProvider = org.mtransit.android.data.DataSourceProvider.get();
 				nbAgencies = dataSourceProvider.isInitialized() ? dataSourceProvider.getAllAgenciesCount() : null;
-			} else {
-				nbAgencies = this.dataSourcesRepository.getAllAgenciesCount();
 			}
 		}
 		if (nbAgencies == null // number of agency unknown

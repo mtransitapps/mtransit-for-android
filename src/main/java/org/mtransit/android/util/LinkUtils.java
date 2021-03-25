@@ -33,7 +33,7 @@ import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.WebBrowserFragment;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -149,7 +149,7 @@ public final class LinkUtils implements MTLog.Loggable {
 		try {
 			if (DataSourceProvider.isSet()) {
 				DataSourceProvider dataSourceProvider = DataSourceProvider.get();
-				ArrayList<AgencyProperties> allAgencies = dataSourceProvider.getAllAgencies(activity);
+				List<AgencyProperties> allAgencies = dataSourceProvider.getAllAgencies(activity);
 				if (allAgencies != null) {
 					for (AgencyProperties agencyProperties : allAgencies) {
 						if (!agencyProperties.getType().isMapScreen()) {

@@ -18,8 +18,10 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.PopupWindow;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -52,7 +54,7 @@ import org.mtransit.android.util.MapUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class NearbyFragment extends ABFragment implements ViewPager.OnPageChangeListener, MTActivityWithLocation.UserLocationListener,
@@ -60,6 +62,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 	private static final String TAG = NearbyFragment.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -159,14 +162,15 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 		restoreInstanceState(savedInstanceState, getArguments());
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_nearby, container, false);
 		setupView(view);
@@ -205,7 +209,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			if (activity == null) {
 				return;
 			}
-			ArrayList<DataSourceType> newAvailableAgencyTypes = filterAgencyTypes(DataSourceProvider.get(getContext()).getAvailableAgencyTypes());
+			List<DataSourceType> newAvailableAgencyTypes = filterAgencyTypes(DataSourceProvider.get(getContext()).getAvailableAgencyTypes());
 			if (CollectionUtils.getSize(newAvailableAgencyTypes) == CollectionUtils.getSize(this.adapter.getAvailableAgencyTypes())) {
 				this.modulesUpdated = false; // nothing to do
 				return;
@@ -310,8 +314,10 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		TaskUtils.cancelQuietly(this.loadAvailableTypesTask, true);
 	}
 
+	@Nullable
 	private FindNearbyLocationTask findNearbyLocationTask;
 
+	@SuppressWarnings("deprecation")
 	private static class FindNearbyLocationTask extends MTCancellableFragmentAsyncTask<Location, Void, String, NearbyFragment> {
 
 		@NonNull
@@ -327,7 +333,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		@Override
 		protected String doInBackgroundNotCancelledWithFragmentMT(@NonNull NearbyFragment nearbyFragment, Location... locations) {
 			Context context = nearbyFragment.getActivity();
-			Location nearbyLocation = locations[0];
+			Location nearbyLocation = locations == null ? null : locations[0];
 			if (context == null || nearbyLocation == null) {
 				return null;
 			}
@@ -362,15 +368,18 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		TaskUtils.execute(this.findNearbyLocationTask, this.nearbyLocation);
 	}
 
-	private ArrayList<DataSourceType> availableTypes = null;
+	@Nullable
+	private List<DataSourceType> availableTypes = null;
 
-	private ArrayList<DataSourceType> getAvailableTypesOrNull() {
+	@Nullable
+	private List<DataSourceType> getAvailableTypesOrNull() {
 		if (!hasAvailableTypes()) {
 			return null;
 		}
 		return this.availableTypes;
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean hasAvailableTypes() {
 		if (this.availableTypes == null) {
 			initAvailableTypesAsync();
@@ -387,8 +396,10 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		TaskUtils.execute(this.loadAvailableTypesTask);
 	}
 
+	@Nullable
 	private LoadAvailableTypesTask loadAvailableTypesTask = null;
 
+	@SuppressWarnings("deprecation")
 	private static class LoadAvailableTypesTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, NearbyFragment> {
 
 		@NonNull
@@ -401,11 +412,13 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			super(nearbyFragment);
 		}
 
+		@WorkerThread
 		@Override
 		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull NearbyFragment nearbyFragment, Void... params) {
 			return nearbyFragment.initAvailableTypesSync();
 		}
 
+		@MainThread
 		@Override
 		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull NearbyFragment nearbyFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
@@ -414,12 +427,15 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 	}
 
+	@WorkerThread
 	private boolean initAvailableTypesSync() {
 		if (this.availableTypes != null) {
 			return false;
 		}
-		this.availableTypes = filterAgencyTypes(DataSourceProvider.get(getContext()).getAvailableAgencyTypes());
-		return this.availableTypes != null;
+		this.availableTypes = filterAgencyTypes(
+				DataSourceProvider.get(getContext()).getAvailableAgencyTypes()
+		);
+		return !this.availableTypes.isEmpty();
 	}
 
 	private void applyNewAvailableTypes() {
@@ -438,18 +454,21 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		this.availableTypes = null; // reset
 	}
 
-	private ArrayList<DataSourceType> filterAgencyTypes(ArrayList<DataSourceType> availableAgencyTypes) {
+	@NonNull
+	private List<DataSourceType> filterAgencyTypes(@Nullable List<DataSourceType> availableAgencyTypes) {
+		List<DataSourceType> filteredAgencyTypes = new ArrayList<>();
 		if (availableAgencyTypes != null) {
-			Iterator<DataSourceType> it = availableAgencyTypes.iterator();
-			while (it.hasNext()) {
-				if (!it.next().isNearbyScreen()) {
-					it.remove();
+			for (DataSourceType type : availableAgencyTypes) {
+				if (!type.isNearbyScreen()) {
+					continue;
 				}
+				filteredAgencyTypes.add(type);
 			}
 		}
-		return availableAgencyTypes;
+		return filteredAgencyTypes;
 	}
 
+	@SuppressWarnings("deprecation")
 	private static class LoadLastPageSelectedFromUserPreference extends MTCancellableFragmentAsyncTask<Void, Void, Integer, NearbyFragment> {
 
 		private static final String LOG_TAG = NearbyFragment.class.getSimpleName() + ">" + LoadLastPageSelectedFromUserPreference.class.getSimpleName();
@@ -463,9 +482,9 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		@Nullable
 		private Integer selectedTypeId;
 		@Nullable
-		private final ArrayList<DataSourceType> newAgencyTypes;
+		private final List<DataSourceType> newAgencyTypes;
 
-		LoadLastPageSelectedFromUserPreference(@NonNull NearbyFragment nearbyFragment, @Nullable Integer selectedTypeId, @Nullable ArrayList<DataSourceType> newAgencyTypes) {
+		LoadLastPageSelectedFromUserPreference(@NonNull NearbyFragment nearbyFragment, @Nullable Integer selectedTypeId, @Nullable List<DataSourceType> newAgencyTypes) {
 			super(nearbyFragment);
 			this.selectedTypeId = selectedTypeId;
 			this.newAgencyTypes = newAgencyTypes;
@@ -534,7 +553,10 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		if (view == null) {
 			return;
 		}
-		view.findViewById(R.id.tabs).setBackgroundColor(getABBgColor(getContext()));
+		final Integer abBgColor = getABBgColor(getContext());
+		if (abBgColor != null) {
+			view.findViewById(R.id.tabs).setBackgroundColor(abBgColor);
+		}
 	}
 
 	private void setupAdapters(View view) {
@@ -832,7 +854,9 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 				fixedOnLocation = LocationUtils.getNewLocation(this.fixedOnLat, this.fixedOnLng);
 			}
 			if (getActivity() != null) {
-				((MainActivity) getActivity()).addFragmentToStack(MapFragment.newInstance(fixedOnLocation, null, this.selectedTypeId), this);
+				((MainActivity) getActivity()).addFragmentToStack(
+						MapFragment.newInstance(fixedOnLocation, null, this.selectedTypeId),
+						this);
 			}
 			return true; // handled
 		}
@@ -881,7 +905,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			return TAG;
 		}
 
-		private ArrayList<DataSourceType> availableAgencyTypes;
+		private List<DataSourceType> availableAgencyTypes;
 		private final WeakReference<Context> contextWR;
 		private Location nearbyLocation;
 		private int lastVisibleFragmentPosition = -1;
@@ -930,13 +954,13 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			}
 		}
 
-		public ArrayList<DataSourceType> getAvailableAgencyTypes() {
+		public List<DataSourceType> getAvailableAgencyTypes() {
 			return availableAgencyTypes;
 		}
 
-		private final ArrayList<Integer> typeIds = new ArrayList<>();
+		private final List<Integer> typeIds = new ArrayList<>();
 
-		public void setAvailableAgencyTypes(ArrayList<DataSourceType> availableAgencyTypes) {
+		public void setAvailableAgencyTypes(List<DataSourceType> availableAgencyTypes) {
 			this.availableAgencyTypes = availableAgencyTypes;
 			this.typeIds.clear();
 			if (this.availableAgencyTypes != null) {
@@ -956,7 +980,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 
 		public Integer getTypeId(int position) {
-			return this.typeIds == null ? null : this.typeIds.get(position);
+			return this.typeIds.get(position);
 		}
 
 		public void setNearbyLocation(Location nearbyLocation) {
@@ -969,7 +993,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 
 		@Override
 		public int getCount() {
-			return this.typeIds == null ? 0 : this.typeIds.size();
+			return this.typeIds.size();
 		}
 
 		@Override
@@ -986,7 +1010,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			if (typeId == null) {
 				return POSITION_NONE;
 			}
-			int indexOf = this.typeIds == null ? -1 : this.typeIds.indexOf(typeId);
+			int indexOf = this.typeIds.indexOf(typeId);
 			if (indexOf < 0) {
 				return POSITION_NONE;
 			}

@@ -534,7 +534,11 @@ public class POIFragment extends ABFragment implements
 			return;
 		}
 		((MainActivity) activity).addFragmentToStack( //
-				MapFragment.newInstance(LocationUtils.getNewLocation(poim.getLat(), poim.getLng()), poim.poi.getUUID(), poim.poi.getDataSourceTypeId()), this);
+				MapFragment.newInstance(
+						LocationUtils.getNewLocation(poim.getLat(), poim.getLng()),
+						poim.poi.getUUID(),
+						poim.poi.getDataSourceTypeId()),
+				this);
 	}
 
 	private void resetPoim() {

@@ -119,6 +119,7 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 		this.locationPermissionProvider = Injection.providesLocationPermissionProvider();
 	}
 
+	@Nullable
 	@Override
 	public String getAgencyAuthority() {
 		return this.authority;

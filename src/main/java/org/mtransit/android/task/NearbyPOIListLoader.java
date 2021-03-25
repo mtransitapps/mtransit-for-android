@@ -5,7 +5,6 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
@@ -15,7 +14,6 @@ import org.mtransit.android.datasource.DataSourcesRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -34,8 +32,10 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager
 		return TAG;
 	}
 
+	@Nullable
 	private ArrayList<POIManager> pois;
 
+	@Nullable
 	private final String[] agenciesAuthority;
 
 	private final double lat;
@@ -60,7 +60,7 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager
 							   int maxSize,
 							   boolean hideDescentOnly,
 							   boolean avoidLoading,
-							   @Nullable ArrayList<String> agenciesAuthority) {
+							   @Nullable List<String> agenciesAuthority) {
 		this(
 				context,
 				lat,
@@ -100,15 +100,24 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager
 		if (this.pois == null) {
 			this.pois = new ArrayList<>();
 		}
-		if (ArrayUtils.getSize(this.agenciesAuthority) == 0) {
+		if (this.agenciesAuthority == null || this.agenciesAuthority.length == 0) {
 			return this.pois;
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,
 				new LinkedBlockingDeque<>(this.agenciesAuthority.length));
 		ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<>();
 		for (String agencyAuthority : this.agenciesAuthority) {
-			FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(getContext(), agencyAuthority, this.lat, this.lng, this.aroundDiff,
-					this.hideDescentOnly, this.avoidLoading, this.minCoverageInMeters, this.maxSize);
+			final FindNearbyAgencyPOIsTask task = new FindNearbyAgencyPOIsTask(
+					getContext(),
+					agencyAuthority,
+					this.lat,
+					this.lng,
+					this.aroundDiff,
+					this.hideDescentOnly,
+					this.avoidLoading,
+					this.minCoverageInMeters,
+					this.maxSize
+			);
 			taskList.add(executor.submit(task));
 		}
 		for (Future<ArrayList<POIManager>> future : taskList) {
@@ -128,11 +137,11 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager
 
 	@SuppressWarnings("WeakerAccess")
 	@NonNull
-	public static List<AgencyProperties> filterAgencies(@Nullable Collection<AgencyProperties> agencies,
-														double lat,
-														double lng,
-														@NonNull LocationUtils.AroundDiff ad,
-														@Nullable Double optLastAroundDiff) {
+	public static List<AgencyProperties> filterAgenciesInArea(@Nullable Collection<AgencyProperties> agencies,
+															  double lat,
+															  double lng,
+															  @NonNull LocationUtils.AroundDiff ad,
+															  @Nullable Double optLastAroundDiff) {
 		List<AgencyProperties> filteredAgencies = new ArrayList<>();
 		if (agencies != null) {
 			LocationUtils.Area area = LocationUtils.getArea(lat, lng, ad.aroundDiff);
@@ -149,53 +158,50 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager
 		return filteredAgencies;
 	}
 
-	@SuppressWarnings("WeakerAccess")
-	@Nullable
-	public static List<AgencyProperties> findTypeAgencies(@Nullable Context context,
-														  @NonNull DataSourcesRepository dataSourcesRepository,
-														  int typeId,
-														  double lat,
-														  double lng,
-														  double aroundDiff,
-														  @Nullable Double optLastAroundDiff) {
+	@NonNull
+	public static List<String> findTypeAgenciesAuthorityInArea(@Nullable Context context,
+															   @NonNull DataSourcesRepository dataSourcesRepository,
+															   int typeId,
+															   double lat,
+															   double lng,
+															   double aroundDiff,
+															   @Nullable Double optLastAroundDiff) {
 		List<AgencyProperties> allTypeAgencies;
 		if (F_CACHE_DATA_SOURCES) {
-			allTypeAgencies = new ArrayList<>(dataSourcesRepository.getTypeDataSources(typeId)); // toMutable()
+			allTypeAgencies = dataSourcesRepository.getTypeDataSources(typeId);
 		} else {
 			allTypeAgencies = org.mtransit.android.data.DataSourceProvider.get(context).getTypeDataSources(context, typeId);
 		}
-		if (allTypeAgencies != null) {
-			LocationUtils.Area area = LocationUtils.getArea(lat, lng, aroundDiff);
-			LocationUtils.Area optLastArea = optLastAroundDiff == null ? null : LocationUtils.getArea(lat, lng, optLastAroundDiff);
-			Iterator<AgencyProperties> it = allTypeAgencies.iterator();
-			while (it.hasNext()) {
-				AgencyProperties agency = it.next();
-				if (!agency.isInArea(area)) {
-					it.remove();
-				} else if (optLastArea != null && agency.isEntirelyInside(optLastArea)) {
-					// DO NOTHING
-				}
-			}
-		}
-		return allTypeAgencies;
+		return filterAgenciesAuthorityInArea(
+				allTypeAgencies,
+				lat,
+				lng,
+				aroundDiff,
+				optLastAroundDiff
+		);
 	}
 
 	@NonNull
-	public static ArrayList<String> findTypeAgenciesAuthority(@Nullable Context context,
-															  @NonNull DataSourcesRepository dataSourcesRepository,
-															  int typeId,
-															  double lat,
-															  double lng,
-															  double aroundDiff,
-															  @Nullable Double optLastAroundDiff) {
-		ArrayList<String> authorities = new ArrayList<>();
-		List<AgencyProperties> agencies = findTypeAgencies(context, dataSourcesRepository, typeId, lat, lng, aroundDiff, optLastAroundDiff);
-		if (agencies != null) {
-			for (AgencyProperties agency : agencies) {
-				authorities.add(agency.getAuthority());
+	public static List<String> filterAgenciesAuthorityInArea(@Nullable Collection<AgencyProperties> allTypeAgencies,
+															 double lat,
+															 double lng,
+															 double aroundDiff,
+															 @Nullable Double optLastAroundDiff) {
+
+		List<String> filteredTypeAgencyAuthorities = new ArrayList<>();
+		if (allTypeAgencies != null) {
+			LocationUtils.Area area = LocationUtils.getArea(lat, lng, aroundDiff);
+			LocationUtils.Area optLastArea = optLastAroundDiff == null ? null : LocationUtils.getArea(lat, lng, optLastAroundDiff);
+			for (AgencyProperties agency : allTypeAgencies) {
+				if (!agency.isInArea(area)) {
+					continue;
+				} else if (optLastArea != null && agency.isEntirelyInside(optLastArea)) {
+					// DO NOTHING
+				}
+				filteredTypeAgencyAuthorities.add(agency.getAuthority());
 			}
 		}
-		return authorities;
+		return filteredTypeAgencyAuthorities;
 	}
 
 	@Override

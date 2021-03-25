@@ -1,6 +1,9 @@
 package org.mtransit.android.task;
 
-import java.util.ArrayList;
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.provider.GTFSProviderContract;
@@ -9,29 +12,39 @@ import org.mtransit.android.commons.task.MTCallable;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 
-import android.content.Context;
+import java.util.ArrayList;
 
 public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> {
 
 	private static final String TAG = FindNearbyAgencyPOIsTask.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
 	}
 
-	private Context context;
-	private String authority;
-	private double lat;
-	private double lng;
-	private double aroundDiff;
-	private boolean hideDescentOnly;
-	private boolean avoidLoading;
-	private int maxSize;
-	private float minCoverageInMeters;
+	@NonNull
+	private final Context context;
+	@NonNull
+	private final String authority;
+	private final double lat;
+	private final double lng;
+	private final double aroundDiff;
+	private final boolean hideDescentOnly;
+	private final boolean avoidLoading;
+	private final int maxSize;
+	private final float minCoverageInMeters;
 
-	public FindNearbyAgencyPOIsTask(Context context, String authority, double lat, double lng, double aroundDiff, boolean hideDescentOnly,
-			boolean avoidLoading, float minCoverageInMeters, int maxSize) {
+	FindNearbyAgencyPOIsTask(@NonNull Context context,
+							 @NonNull String authority,
+							 double lat,
+							 double lng,
+							 double aroundDiff,
+							 boolean hideDescentOnly,
+							 boolean avoidLoading,
+							 float minCoverageInMeters,
+							 int maxSize) {
 		this.context = context;
 		this.authority = authority;
 		this.lat = lat;
@@ -43,6 +56,7 @@ public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> 
 		this.maxSize = maxSize;
 	}
 
+	@Nullable
 	@Override
 	public ArrayList<POIManager> callMT() {
 		POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewAroundFilter(this.lat, this.lng, this.aroundDiff);
