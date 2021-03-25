@@ -113,6 +113,11 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		if (F_CACHE_DATA_SOURCES) {
 			this.typeLD = new MutableLiveData<>(this.type);
 			this.allAgenciesLD = this.dataSourcesRepository.readingAllAgencies();
+		} else {
+			//noinspection ConstantConditions
+			this.typeLD = null;
+			//noinspection ConstantConditions
+			this.allAgenciesLD = null;
 		}
 	}
 

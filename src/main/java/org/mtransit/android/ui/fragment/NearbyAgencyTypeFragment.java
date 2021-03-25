@@ -125,6 +125,15 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 			this.allAgenciesLD = this.dataSourcesRepository.readingAllAgencies();
 			this.nearbyLocationLD = new MutableLiveData<>(this.nearbyLocation);
 			this.adLD = new MutableLiveData<>(this.ad);
+		} else {
+			//noinspection ConstantConditions
+			this.typeIdLD = null;
+			//noinspection ConstantConditions
+			this.allAgenciesLD = null;
+			//noinspection ConstantConditions
+			this.nearbyLocationLD = null;
+			//noinspection ConstantConditions
+			this.adLD = null;
 		}
 	}
 
