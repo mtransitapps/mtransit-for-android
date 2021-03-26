@@ -237,6 +237,17 @@ public class MainActivity extends MTActivityWithLocation implements
 				NightModeUtils.recreate(this);
 			});
 		}
+		if (F_CACHE_DATA_SOURCES) {
+			if (org.mtransit.android.data.DataSourceProvider.isSet()) {
+				org.mtransit.android.data.DataSourceProvider.get().updateFromDataSourceRepository(false);
+			} else {
+				try {
+					this.dataSourcesRepository.updateAsync().get();
+				} catch (Exception e) {
+					MTLog.w(this, e, "Error while updating data-sources from repository!");
+				}
+			}
+		}
 	}
 
 	private boolean resumed = false;

@@ -191,6 +191,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 			MTLog.d(this, "combine() > SKIP (missing data)");
 			return null;
 		}
+		if (allAgencies.isEmpty()) {
+			return null; // do NOT expand area
+		}
 		List<AgencyProperties> filteredAgencyType = new ArrayList<>();
 		for (AgencyProperties agency : allAgencies) { // already sorted
 			if (agency.getType().getId() != typeId) {
@@ -837,5 +840,15 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 			}
 			switchView(view);
 		}
+	}
+
+	@NonNull
+	@Override
+	public String toString() {
+		return NearbyAgencyTypeFragment.class.getSimpleName() + "{" +
+				"type=" + typeId +
+				", pos=" + fragmentPosition +
+				", visible=" + fragmentVisible +
+				'}';
 	}
 }

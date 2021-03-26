@@ -1,23 +1,42 @@
 package org.mtransit.android.ui.fragment;
 
-import java.util.WeakHashMap;
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentOnAttachListener;
 
 import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.MTLog;
 
-import androidx.fragment.app.Fragment;
+import java.util.WeakHashMap;
 
-public abstract class MTFragment extends MTFragmentX implements IContext, MTLog.Loggable {
+public abstract class MTFragment extends MTFragmentX implements IContext, MTLog.Loggable, FragmentOnAttachListener {
 
-	private WeakHashMap<Fragment, Object> childFragmentsWR = new WeakHashMap<>();
+	@NonNull
+	private final WeakHashMap<Fragment, Object> childFragmentsWR = new WeakHashMap<>();
 
 	@Override
-	public void onAttachFragment(Fragment childFragment) {
-		super.onAttachFragment(childFragment);
-		childFragmentsWR.put(childFragment, null);
+	public void onAttach(@NonNull Context context) {
+		super.onAttach(context);
+		getChildFragmentManager().addFragmentOnAttachListener(this);
 	}
 
-	public java.util.Set<Fragment> getChildFragments() {
+	@Override
+	public void onAttachFragment(@NonNull FragmentManager fragmentManager, @NonNull Fragment fragment) {
+		childFragmentsWR.put(fragment, null);
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		getChildFragmentManager().removeFragmentOnAttachListener(this);
+	}
+
+	@Nullable
+	java.util.Set<Fragment> getChildFragments() {
 		return childFragmentsWR.keySet();
 	}
 }
