@@ -517,6 +517,11 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return LocationUtils.THE_WORLD;
 	}
 
+	@Override
+	public int getAgencyMaxValidSec(@NonNull Context context) {
+		return 0; // unlimited
+	}
+
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */

@@ -40,6 +40,8 @@ data class AgencyProperties(
     val isRTS: Boolean = false,
     @ColumnInfo(name = "logo")
     val logo: JPaths? = null,
+    @ColumnInfo(name = "max_valid_sec")
+    val maxValidSec: Int = -1
 ) {
 
     companion object {
@@ -74,6 +76,7 @@ data class AgencyProperties(
         isEnabled: Boolean,
         isRTS: Boolean = false,
         logo: JPaths? = null,
+        maxValidSec: Int = -1
     ) : this(
         id,
         type,
@@ -87,6 +90,7 @@ data class AgencyProperties(
         isEnabled,
         isRTS,
         logo,
+        maxValidSec
     )
 
     @Ignore

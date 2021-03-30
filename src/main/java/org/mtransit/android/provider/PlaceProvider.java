@@ -94,7 +94,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 
 	@Nullable
 	@Override
-	public Cursor getSearchSuggest(String query) {
+	public Cursor getSearchSuggest(@Nullable String query) {
 		return null; // TODO implement Place/Query auto-complete
 	}
 
@@ -156,8 +156,10 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	@VisibleForTesting
 	@Nullable
 	protected static String getTextSearchUrlString(@NonNull String apiKey,
-												   @Nullable Double optLat, @Nullable Double optLng,
-												   @Nullable Integer optRadiusInMeters, String[] searchKeywords) {
+												   @Nullable Double optLat,
+												   @Nullable Double optLng,
+												   @Nullable Integer optRadiusInMeters,
+												   @Nullable String[] searchKeywords) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(TEXT_SEARCH_URL_PART_1_BEFORE_KEY).append(apiKey);
 		sb.append(TEXT_SEARCH_URL_PART_2_BEFORE_LANG).append(LocaleUtils.isFR() ? TEXT_SEARCH_URL_LANG_FRENCH : TEXT_SEARCH_URL_LANG_DEFAULT);
@@ -345,7 +347,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 
 	@Nullable
 	@Override
-	public Cursor getPOIFromDB(POIProviderContract.Filter poiFilter) {
+	public Cursor getPOIFromDB(@Nullable Filter poiFilter) {
 		return null;
 	}
 
@@ -355,12 +357,18 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		return LocationUtils.THE_WORLD;
 	}
 
+	@Override
+	public int getAgencyMaxValidSec(@NonNull Context context) {
+		return 0; // unlimited
+	}
+
 	@Nullable
 	private static String authority = null;
 
 	/**
 	 * Override if multiple {@link PlaceProvider} implementations in same app.
 	 */
+	@NonNull
 	public static String getAUTHORITY(@NonNull Context context) {
 		if (authority == null) {
 			authority = context.getResources().getString(R.string.place_authority);
@@ -374,6 +382,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	/**
 	 * Override if multiple {@link PlaceProvider} implementations in same app.
 	 */
+	@SuppressWarnings("unused")
 	@NonNull
 	public static Uri getAUTHORITYURI(@NonNull Context context) {
 		if (authorityUri == null) {

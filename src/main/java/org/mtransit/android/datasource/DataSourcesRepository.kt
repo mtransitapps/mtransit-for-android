@@ -94,6 +94,8 @@ class DataSourcesRepository(
 
     fun getAgency(authority: String) = this._agencyProperties.singleOrNull { it.authority == authority }
 
+    fun getAgencyForPkg(pkg: String) = this._agencyProperties.singleOrNull { it.pkg == pkg }
+
     fun readingAgency(authority: String) = dataSourcesCache.readingAgency(authority)
 
     fun getAllDataSourceTypes() = this._dataSourceTypes

@@ -39,6 +39,8 @@ import org.mtransit.android.commons.provider.StatusProviderContract;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
+
 @WorkerThread
 public final class DataSourceManager implements MTLog.Loggable {
 
@@ -241,6 +243,13 @@ public final class DataSourceManager implements MTLog.Loggable {
 					String longName = cursor.getString(cursor.getColumnIndexOrThrow(AgencyProviderContract.LABEL_PATH));
 					String color = cursor.getString(cursor.getColumnIndexOrThrow(AgencyProviderContract.COLOR_PATH));
 					Area area = Area.fromCursorNN(cursor);
+					int maxValidInSec = -1; // unknown
+					if (F_CACHE_DATA_SOURCES) {
+						final int maxValidSecIdx = cursor.getColumnIndex(AgencyProviderContract.MAX_VALID_SEC);
+						if (maxValidSecIdx >= 0) {
+							maxValidInSec = cursor.getInt(maxValidSecIdx);
+						}
+					}
 					result = new AgencyProperties(
 							authority,
 							dst,
@@ -253,7 +262,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 							true,
 							enabled,
 							isRTS,
-							logo
+							logo,
+							maxValidInSec
 					);
 				}
 			}
