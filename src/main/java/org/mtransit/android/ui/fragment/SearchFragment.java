@@ -27,15 +27,12 @@ import org.mtransit.android.commons.KeyboardUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.StringUtils;
-import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.di.Injection;
-import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.POISearchLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
@@ -48,11 +45,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
+
 public class SearchFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
 		POIArrayAdapter.TypeHeaderButtonsClickListener, AdapterView.OnItemSelectedListener {
 
 	private static final String TAG = SearchFragment.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -87,6 +87,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		return f;
 	}
 
+	@Nullable
 	private POIArrayAdapter adapter;
 	@Nullable
 	private CharSequence emptyText = null;
@@ -111,53 +112,6 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		this.typeFilter = null;
 	}
 
-	private boolean hasTypeFilter() {
-		if (this.typeFilter == null) {
-			initTypeFilterAsync();
-			return false;
-		}
-		return true;
-	}
-
-	private void initTypeFilterAsync() {
-		if (this.loadTypeFilterTask != null && this.loadTypeFilterTask.getStatus() == LoadTypeFilterTask.Status.RUNNING) {
-			return;
-		}
-		if (this.typeIdFilter == null) {
-			this.typeIdFilter = TypeFilter.ALL.getDataSourceTypeId(); // default
-		}
-		TaskUtils.cancelQuietly(this.loadTypeFilterTask, true);
-		this.loadTypeFilterTask = new LoadTypeFilterTask(this);
-		TaskUtils.execute(this.loadTypeFilterTask);
-	}
-
-	private LoadTypeFilterTask loadTypeFilterTask;
-
-	private static class LoadTypeFilterTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, SearchFragment> {
-
-		@NonNull
-		@Override
-		public String getLogTag() {
-			return SearchFragment.class.getSimpleName() + ">" + LoadTypeFilterTask.class.getSimpleName();
-		}
-
-		LoadTypeFilterTask(SearchFragment searchFragment) {
-			super(searchFragment);
-		}
-
-		@Override
-		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull SearchFragment searchFragment, Void... params) {
-			return searchFragment.initTypeFilterSync();
-		}
-
-		@Override
-		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull SearchFragment searchFragment, @Nullable Boolean result) {
-			if (Boolean.TRUE.equals(result)) {
-				searchFragment.applyNewTypeFilter();
-			}
-		}
-	}
-
 	private boolean initTypeFilterSync() {
 		if (this.typeFilter != null) {
 			return false;
@@ -166,7 +120,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			if (this.typeIdFilter.equals(TypeFilter.ALL.getDataSourceTypeId())) {
 				this.typeFilter = TypeFilter.ALL;
 			} else {
-				DataSourceType parseId = DataSourceType.parseId(this.typeIdFilter);
+				final DataSourceType parseId = DataSourceType.parseId(this.typeIdFilter);
 				if (parseId != null) {
 					this.typeFilter = TypeFilter.fromDataSourceType(parseId);
 				}
@@ -175,7 +129,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		return this.typeFilter != null;
 	}
 
-	private void setTypeFilterFromType(Integer newTypeId) {
+	private void setTypeFilterFromType(@Nullable Integer newTypeId) {
 		if (newTypeId == null) {
 			return;
 		}
@@ -194,13 +148,13 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 		LoaderUtils.destroyLoader(this, POI_SEARCH_LOADER); // cancel now
 		cancelRestartSearchLater();
-		View view = getView();
 		if (this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
 			this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);
 		} else {
 			this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_NONE);
 		}
-		int position = this.typeFiltersAdapter.getPosition(this.typeFilter);
+		final int position = this.typeFiltersAdapter.getPosition(this.typeFilter);
+		final View view = getView();
 		if (view != null) {
 			((Spinner) view.findViewById(R.id.typeFilters)).setSelection(position, true);
 		}
@@ -211,8 +165,12 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 	@Nullable
 	private TypeFilter getTypeFilterOrNull() {
-		if (!hasTypeFilter()) {
-			return null;
+		if (this.typeFilter == null) {
+			if (this.typeIdFilter == null) {
+				this.typeIdFilter = TypeFilter.ALL.getDataSourceTypeId(); // default
+			}
+			initTypeFilterSync();
+			applyNewTypeFilter();
 		}
 		return this.typeFilter;
 	}
@@ -224,20 +182,46 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
+		if (F_CACHE_DATA_SOURCES) {
+			this.dataSourcesRepository.readingAllDataSourceTypesDistinct().observe(this, newDataSourceTypes -> {
+				if (this.typeFiltersAdapter == null) {
+					return; // SKIP (should never happen)
+				}
+				this.typeFiltersAdapter.setData(
+						filterSearchable(newDataSourceTypes)
+				);
+				if (this.typeFilter != null) {
+					final int position = this.typeFiltersAdapter.getPosition(this.typeFilter);
+					if (position < 0) {
+						setTypeFilterFromType(TypeFilter.ALL.getDataSourceTypeId());
+					} else {
+						final View view = getView();
+						if (view != null) {
+							((Spinner) view.findViewById(R.id.typeFilters)).setSelection(position, false);
+						}
+					}
+				}
+			});
+			this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this, newAllAgencies -> {
+				cancelRestartSearchLater();
+				restartSearchLater();
+			});
+		}
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_search, container, false);
 		setupView(view);
 		return view;
 	}
 
-	private void initAdapters(IActivity activity) {
+	private void initAdapters(@NonNull IActivity activity) {
 		this.adapter = new POIArrayAdapter(activity);
 		this.adapter.setTag(getLogTag());
 		this.adapter.setOnTypeHeaderButtonsClickListener(this);
@@ -260,7 +244,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 		Spinner typeFiltersSpinner = view.findViewById(R.id.typeFilters);
 		TypeFilter typeFilter = getTypeFilterOrNull();
-		int position = this.typeFiltersAdapter.getPosition(typeFilter);
+		final int position = this.typeFiltersAdapter.getPosition(typeFilter);
 		typeFiltersSpinner.setSelection(position);
 		if (typeFiltersSpinner.getOnItemSelectedListener() == null) {
 			typeFiltersSpinner.setOnItemSelectedListener(this);
@@ -290,7 +274,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	}
 
 	@Override
-	public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+	public void onItemSelected(@Nullable AdapterView<?> parent, @Nullable View view, int position, long id) {
 		final TypeFilter item = this.typeFiltersAdapter.getItem(position);
 		if (item != null) {
 			setTypeFilterFromType(item.getDataSourceTypeId());
@@ -298,10 +282,11 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	}
 
 	@Override
-	public void onNothingSelected(AdapterView<?> parent) {
+	public void onNothingSelected(@Nullable AdapterView<?> parent) {
 		// DO NOTHING
 	}
 
+	@Nullable
 	private TypeFiltersAdapter typeFiltersAdapter = null;
 
 	private void restoreInstanceState(Bundle... bundles) {
@@ -354,6 +339,9 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 		switchView(getView());
 		this.adapter.onResume(this, this.userLocation);
+		if (!F_CACHE_DATA_SOURCES) {
+			setAvailableTypeFilters();
+		}
 		if (!this.adapter.isInitialized()) {
 			applyNewQuery();
 		}
@@ -378,12 +366,44 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		if (!isResumed()) {
 			return;
 		}
-		if (this.typeFiltersAdapter != null) {
-			this.typeFiltersAdapter.reset();
+		if (!F_CACHE_DATA_SOURCES) {
+			setAvailableTypeFilters();
+			cancelRestartSearchLater();
+			restartSearchLater();
 		}
-		cancelRestartSearchLater();
-		restartSearchLater();
 		this.modulesUpdated = false; // processed
+	}
+
+	private void setAvailableTypeFilters() {
+		if (this.typeFiltersAdapter == null) {
+			return;
+		}
+		final List<DataSourceType> availableTypes;
+		if (F_CACHE_DATA_SOURCES) {
+			availableTypes = this.dataSourcesRepository.getAllDataSourceTypes();
+		} else {
+			availableTypes = org.mtransit.android.data.DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
+		}
+		this.typeFiltersAdapter.setData(
+				filterSearchable(availableTypes)
+		);
+	}
+
+	@NonNull
+	private List<TypeFilter> filterSearchable(@Nullable List<DataSourceType> availableTypes) {
+		ArrayList<TypeFilter> typeFilters = new ArrayList<>();
+		typeFilters.add(TypeFilter.ALL);
+		if (availableTypes != null) {
+			for (DataSourceType dst : availableTypes) {
+				if (dst.isSearchable()) {
+					final TypeFilter typeFilter = TypeFilter.fromDataSourceType(dst);
+					if (typeFilter != null) {
+						typeFilters.add(typeFilter);
+					}
+				}
+			}
+		}
+		return typeFilters;
 	}
 
 	private static final int POI_SEARCH_LOADER = 0;
@@ -391,12 +411,12 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	@NonNull
 	@Override
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, @Nullable Bundle args) {
-		MTLog.v(this, "onCreateLoader(%s,%s)", id, args);
 		switch (id) {
 		case POI_SEARCH_LOADER:
 			TypeFilter typeFilter = getTypeFilterOrNull();
 			return new POISearchLoader(requireContext(), this.dataSourcesRepository, this.query, typeFilter, this.userLocation);
 		default:
+			//noinspection deprecation // FXIME
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			//noinspection ConstantConditions // FIXME
 			return null;
@@ -411,9 +431,11 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	}
 
 	@Override
-	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
-		this.adapter.setPois(data);
-		this.adapter.updateDistanceNowAsync(this.userLocation);
+	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, @Nullable ArrayList<POIManager> data) {
+		if (this.adapter != null) {
+			this.adapter.setPois(data);
+			this.adapter.updateDistanceNowAsync(this.userLocation);
+		}
 		switchView(getView());
 	}
 
@@ -444,15 +466,17 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		restartSearchLater();
 	}
 
-	public void setSearchQuery(@Nullable String query, boolean alreadyInSearchView) {
+	public void setSearchQuery(@Nullable String query, @SuppressWarnings("unused") boolean alreadyInSearchView) {
 		if (this.query == null || !StringUtils.equals(StringUtils.trim(this.query), StringUtils.trim(query))) {
 			this.query = query == null ? StringUtils.EMPTY : query;
 			applyNewQuery();
 		}
 	}
 
-	private Handler handler = new Handler();
+	@NonNull
+	private final Handler handler = new Handler();
 
+	@Nullable
 	private RestartSearchLater restartSearchLater = null;
 
 	private class RestartSearchLater implements Runnable {
@@ -467,7 +491,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 	private void restartSearchLater() {
 		this.restartSearchLater = new RestartSearchLater();
-		this.handler.postDelayed(this.restartSearchLater, TimeUnit.SECONDS.toMillis(1));
+		this.handler.postDelayed(this.restartSearchLater, TimeUnit.SECONDS.toMillis(1L));
 	}
 
 	private void cancelRestartSearchLater() {
@@ -574,13 +598,16 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 	}
 
+	@Nullable
 	@Override
 	public View getABCustomView() {
 		return getSearchView();
 	}
 
+	@Nullable
 	private MTSearchView searchView;
 
+	@Nullable
 	private MTSearchView getSearchView() {
 		if (this.searchView == null) {
 			initSearchView();
@@ -608,14 +635,13 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		super.onDestroy();
 		cancelRestartSearchLater();
 		this.searchView = null;
-		this.handler = null;
-		TaskUtils.cancelQuietly(this.loadTypeFilterTask, true);
 	}
 
 	public static class TypeFilter implements MTLog.Loggable {
 
 		private static final String TAG = SearchFragment.class.getSimpleName() + ">" + TypeFilter.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return TAG;
@@ -629,19 +655,20 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 		private final int iconResId;
 
-		public TypeFilter(int dataSourceTypeId, int nameResId, int iconResId) {
+		TypeFilter(int dataSourceTypeId, int nameResId, int iconResId) {
 			this.dataSourceTypeId = dataSourceTypeId;
 			this.nameResId = nameResId;
 			this.iconResId = iconResId;
 		}
 
+		@NonNull
 		@Override
 		public String toString() {
-			return new StringBuilder(TypeFilter.class.getSimpleName()).append('[') //
-					.append("dataSourceTypeId:").append(this.dataSourceTypeId).append(',') //
-					.append("nameResId:").append(this.nameResId).append(',') //
-					.append("iconResId:").append(this.iconResId).append(',') //
-					.append(']').toString();
+			return TypeFilter.class.getSimpleName() + '[' + //
+					"dataSourceTypeId:" + this.dataSourceTypeId + ',' + //
+					"nameResId:" + this.nameResId + ',' + //
+					"iconResId:" + this.iconResId + ',' + //
+					']';
 		}
 
 		@Override
@@ -667,11 +694,11 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			return result;
 		}
 
-		public int getNameResId() {
+		int getNameResId() {
 			return nameResId;
 		}
 
-		public int getIconResId() {
+		int getIconResId() {
 			return iconResId;
 		}
 
@@ -679,7 +706,8 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			return dataSourceTypeId;
 		}
 
-		public static TypeFilter fromDataSourceType(DataSourceType dst) {
+		@Nullable
+		static TypeFilter fromDataSourceType(@Nullable DataSourceType dst) {
 			if (dst == null) {
 				return null;
 			}
@@ -691,35 +719,18 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 		private static final String TAG = SearchFragment.class.getSimpleName() + ">" + TypeFiltersAdapter.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return TAG;
 		}
 
+		@NonNull
 		private final LayoutInflater layoutInflater;
 
-		public TypeFiltersAdapter(@NonNull Context context) {
+		TypeFiltersAdapter(@NonNull Context context) {
 			super(context, -1);
 			this.layoutInflater = LayoutInflater.from(context);
-			init();
-		}
-
-		private void init() {
-			ArrayList<TypeFilter> typeFilters = new ArrayList<>();
-			typeFilters.add(TypeFilter.ALL);
-			List<DataSourceType> availableTypes = DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
-			for (DataSourceType dst : availableTypes) {
-				if (dst.isSearchable()) {
-					typeFilters.add(TypeFilter.fromDataSourceType(dst));
-				}
-			}
-			addAll(typeFilters);
-		}
-
-		public void reset() {
-			clear();
-			init();
-			notifyDataSetChanged();
 		}
 
 		@NonNull
@@ -755,6 +766,17 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 				holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
 			}
 			return convertView;
+		}
+
+		public void setData(@NonNull List<TypeFilter> typeFilters) {
+			clearSilently();
+			addAll(typeFilters);
+		}
+
+		private void clearSilently() {
+			setNotifyOnChange(false);
+			clear(); // skip 1st notifyDataSetChanged()
+			setNotifyOnChange(true);
 		}
 
 		private static class TypeViewHolder {

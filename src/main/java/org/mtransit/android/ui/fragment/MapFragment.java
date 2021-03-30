@@ -278,7 +278,7 @@ public class MapFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onMapClick(@Nullable LatLng position) {
+	public void onMapClick(@NonNull LatLng position) {
 		// DO NOTHING
 	}
 

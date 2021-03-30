@@ -1,35 +1,44 @@
 package org.mtransit.android.task;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.collection.ArrayMap;
 
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 
-import android.content.Context;
-import androidx.collection.ArrayMap;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 public class POIsLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
 	private static final String TAG = POIsLoader.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
 	}
 
-	private ArrayList<String> uuids;
-	private ArrayList<String> authorities;
+	@NonNull
+	private final ArrayList<String> uuids;
+	@NonNull
+	private final ArrayList<String> authorities;
+	@Nullable
 	private ArrayList<POIManager> pois;
 
-	public POIsLoader(Context context, ArrayList<String> uuids, ArrayList<String> authorities) {
+	public POIsLoader(@NonNull Context context, @NonNull ArrayList<String> uuids, @NonNull ArrayList<String> authorities) {
 		super(context);
 		this.uuids = uuids;
 		this.authorities = authorities;
 	}
 
+	@Nullable
 	@Override
 	public ArrayList<POIManager> loadInBackgroundMT() {
 		if (this.pois != null) {
@@ -53,17 +62,16 @@ public class POIsLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 		return this.pois;
 	}
 
-	private ArrayMap<String, HashSet<String>> splitByAgency(ArrayList<String> uuids, ArrayList<String> authorities) {
+	@NonNull
+	private ArrayMap<String, HashSet<String>> splitByAgency(@NonNull List<String> uuids, @NonNull List<String> authorities) {
 		ArrayMap<String, HashSet<String>> authorityToUUIDs = new ArrayMap<>();
-		if (uuids != null) {
-			for (int i = 0; i < uuids.size(); i++) {
-				String uuid = uuids.get(i);
-				String authority = authorities.get(i);
-				if (!authorityToUUIDs.containsKey(authority)) {
-					authorityToUUIDs.put(authority, new HashSet<>());
-				}
-				authorityToUUIDs.get(authority).add(uuid);
+		for (int i = 0; i < uuids.size(); i++) {
+			String uuid = uuids.get(i);
+			String authority = authorities.get(i);
+			if (!authorityToUUIDs.containsKey(authority)) {
+				authorityToUUIDs.put(authority, new HashSet<>());
 			}
+			authorityToUUIDs.get(authority).add(uuid);
 		}
 		return authorityToUUIDs;
 	}
@@ -86,7 +94,7 @@ public class POIsLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 	}
 
 	@Override
-	public void deliverResult(ArrayList<POIManager> data) {
+	public void deliverResult(@Nullable ArrayList<POIManager> data) {
 		this.pois = data;
 		if (isStarted()) {
 			super.deliverResult(data);

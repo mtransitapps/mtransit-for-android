@@ -98,6 +98,7 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 				return;
 			}
 			if (org.mtransit.android.data.DataSourceProvider.isSet()) {
+				org.mtransit.android.data.DataSourceProvider.get().updateFromDataSourceRepository(false);
 			} else { // ELSE update cache for latter
 				try {
 					this.dataSourcesRepository.updateAsync().get(); // TODO ? filter by pkg? authority?

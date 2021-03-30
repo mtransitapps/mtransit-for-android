@@ -272,8 +272,9 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			} else {
 				this.modulesUpdated = false; // nothing to do
 			}
+		} else {
+			this.modulesUpdated = false; // processed
 		}
-		this.modulesUpdated = false; // processed
 	}
 
 	@Override

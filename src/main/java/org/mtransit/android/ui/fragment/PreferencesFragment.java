@@ -21,6 +21,7 @@ import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.MTDialog;
 import org.mtransit.android.ui.PreferencesActivity;
@@ -73,10 +74,13 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 
 	@NonNull
 	private final IBillingManager billingManager;
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
 
 	public PreferencesFragment() {
 		super();
 		this.billingManager = Injection.providesBillingManager();
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 	}
 
 	@Override
@@ -155,7 +159,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 				if (activity == null) {
 					return false; // not handled
 				}
-				LinkUtils.sendEmail(activity);
+				LinkUtils.sendEmail(activity, this.dataSourcesRepository);
 				return true; // handled
 			});
 		}

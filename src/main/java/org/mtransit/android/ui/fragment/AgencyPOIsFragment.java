@@ -63,6 +63,7 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 
 	private static final String TAG = AgencyPOIsFragment.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG + "-" + this.authority;
@@ -74,8 +75,12 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 	private static final String EXTRA_LAST_VISIBLE_FRAGMENT_POSITION = "extra_last_visible_fragment_position";
 	private static final String EXTRA_SHOWING_LIST_INSTEAD_OF_MAP = "extra_showing_list_instead_of_map";
 
-	public static AgencyPOIsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, @NonNull String agencyAuthority,
-												 @Nullable Integer optColorInt, @Nullable Boolean optShowingListInsteadOfMap) {
+	@NonNull
+	public static AgencyPOIsFragment newInstance(int fragmentPosition,
+												 int lastVisibleFragmentPosition,
+												 @NonNull String agencyAuthority,
+												 @Nullable Integer optColorInt,
+												 @Nullable Boolean optShowingListInsteadOfMap) {
 		AgencyPOIsFragment f = new AgencyPOIsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, agencyAuthority);
@@ -100,14 +105,20 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 		return f;
 	}
 
+	@Nullable
 	private Location userLocation;
 	private int fragmentPosition = -1;
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
+	@Nullable
 	private POIArrayAdapter adapter;
+	@Nullable
 	private final String emptyText = null;
+	@Nullable
 	private String authority;
+	@Nullable
 	private Integer colorInt;
+	@NonNull
 	private final MapViewController mapViewController =
 			new MapViewController(TAG, this, this, true, true, true, false, false, false, 0, false, true, false, true, false);
 
@@ -140,14 +151,15 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
 		this.mapViewController.onCreate(savedInstanceState);
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_agency_pois, container, false);
 		this.mapViewController.onCreateView(view, savedInstanceState);
@@ -155,7 +167,7 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 	}
 
 	@Override
-	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		setupView(view);
 		this.mapViewController.onViewCreated(view, savedInstanceState);
@@ -219,16 +231,19 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 		this.adapter = new POIArrayAdapter(activity);
 	}
 
+	@Nullable
 	@Override
 	public POIManager getClosestPOI() {
 		return this.adapter == null ? null : this.adapter.getClosestPOI();
 	}
 
+	@Nullable
 	@Override
-	public POIManager getPOI(String uuid) {
+	public POIManager getPOI(@Nullable String uuid) {
 		return this.adapter == null ? null : this.adapter.getItem(uuid);
 	}
 
+	@Nullable
 	@Override
 	public Collection<POIManager> getPOIs() {
 		if (this.adapter == null || !this.adapter.isInitialized()) {
@@ -243,6 +258,7 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 		return pois;
 	}
 
+	@Nullable
 	@Override
 	public Collection<MapViewController.POIMarker> getPOMarkers() {
 		return null;
@@ -255,12 +271,12 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 	}
 
 	@Override
-	public void onMapClick(LatLng position) {
+	public void onMapClick(@NonNull LatLng position) {
 		// DO NOTHING
 	}
 
 	@Override
-	public void onCameraChange(LatLngBounds latLngBounds) {
+	public void onCameraChange(@Nullable LatLngBounds latLngBounds) {
 		// DO NOTHING
 	}
 
@@ -359,16 +375,18 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 
 	@NonNull
 	@Override
-	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<POIManager>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
 			if (TextUtils.isEmpty(this.authority)) {
+				//noinspection deprecation
 				CrashUtils.w(this, "onCreateLoader() > skip (no authority)");
 				//noinspection ConstantConditions // FIXME
 				return null;
 			}
 			return new AgencyPOIsLoader(getActivity(), this.authority);
 		default:
+			//noinspection deprecation
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			//noinspection ConstantConditions // FIXME
 			return null;
@@ -384,7 +402,7 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 	}
 
 	@Override
-	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, @Nullable ArrayList<POIManager> data) {
 		this.adapter.setPois(data);
 		this.mapViewController.notifyMarkerChanged(this);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
@@ -600,7 +618,7 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 	}
 
 	@Override
-	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+	public void onCheckedChanged(@NonNull CompoundButton buttonView, boolean isChecked) {
 		if (!this.fragmentVisible) {
 			return;
 		}

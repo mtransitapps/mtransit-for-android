@@ -53,6 +53,7 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 
 	private static final String TAG = RTSTripStopsFragment.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG + "-" + this.tripId;
@@ -66,7 +67,12 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 	private static final String EXTRA_SHOWING_LIST_INSTEAD_OF_MAP = "extra_showing_list_instead_of_map";
 	private static final String EXTRA_CLOSEST_POI_SHOWN = "extra_closest_poi_shown";
 
-	public static RTSTripStopsFragment newInstance(int fragmentPosition, int lastVisibleFragmentPosition, String authority, long tripId, Integer optStopId,
+	@NonNull
+	public static RTSTripStopsFragment newInstance(int fragmentPosition,
+												   int lastVisibleFragmentPosition,
+												   @NonNull String authority,
+												   long tripId,
+												   @Nullable Integer optStopId,
 												   boolean showingListInsteadOfMap) {
 		RTSTripStopsFragment f = new RTSTripStopsFragment();
 		Bundle args = new Bundle();
@@ -92,15 +98,20 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 		return f;
 	}
 
+	@Nullable
 	private Long tripId;
 	private int stopId = -1;
 	private boolean closestPOIShow = false;
+	@Nullable
 	private String authority;
+	@Nullable
 	private POIArrayAdapter adapter;
+	@Nullable
 	private Location userLocation;
 	private int fragmentPosition = -1;
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
+	@NonNull
 	private final MapViewController mapViewController =
 			new MapViewController(getLogTag(), this, this, true, true, true, false, false, false, 0, false, true, false, true, false);
 
@@ -127,14 +138,15 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
 		this.mapViewController.onCreate(savedInstanceState);
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_rts_trip_stops, container, false);
 		this.mapViewController.onCreateView(view, savedInstanceState);
@@ -142,7 +154,7 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 	}
 
 	@Override
-	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		setupView(view);
 		this.mapViewController.onViewCreated(view, savedInstanceState);
@@ -217,16 +229,19 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 		this.adapter.setShowExtra(false);
 	}
 
+	@Nullable
 	@Override
 	public POIManager getClosestPOI() {
 		return this.adapter == null ? null : this.adapter.getClosestPOI();
 	}
 
+	@Nullable
 	@Override
-	public POIManager getPOI(String uuid) {
+	public POIManager getPOI(@Nullable String uuid) {
 		return this.adapter == null ? null : this.adapter.getItem(uuid);
 	}
 
+	@Nullable
 	@Override
 	public Collection<POIManager> getPOIs() {
 		if (this.adapter == null || !this.adapter.isInitialized()) {
@@ -241,6 +256,7 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 		return pois;
 	}
 
+	@Nullable
 	@Override
 	public Collection<MapViewController.POIMarker> getPOMarkers() {
 		return null;
@@ -253,12 +269,12 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 	}
 
 	@Override
-	public void onCameraChange(LatLngBounds latLngBounds) {
+	public void onCameraChange(@Nullable LatLngBounds latLngBounds) {
 		// DO NOTHING
 	}
 
 	@Override
-	public void onMapClick(LatLng position) {
+	public void onMapClick(@NonNull LatLng position) {
 		// DO NOTHING
 	}
 
@@ -357,12 +373,14 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 		switch (id) {
 		case POIS_LOADER:
 			if (this.tripId == null || TextUtils.isEmpty(this.authority)) {
+				//noinspection deprecation
 				CrashUtils.w(this, "onCreateLoader() > no trip '%s' or authority '%s' !", this.tripId, this.authority);
 				//noinspection ConstantConditions // FIXME
 				return null;
 			}
 			return new RTSTripStopsLoader(requireContext(), this.authority, this.tripId);
 		default:
+			//noinspection deprecation
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			//noinspection ConstantConditions // FIXME
 			return null;
@@ -378,7 +396,7 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 	}
 
 	@Override
-	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, @Nullable ArrayList<POIManager> data) {
 		Pair<Integer, String> currentSelectedItemIndexUuid = null;
 		if (this.stopId > 0 || !this.closestPOIShow) {
 			if (this.stopId > 0) {
@@ -577,9 +595,10 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
 
+	@Nullable
 	private Boolean showingListInsteadOfMap = null;
 
-	public void setShowingListInsteadOfMap(boolean newShowingListInsteadOfMap) {
+	void setShowingListInsteadOfMap(boolean newShowingListInsteadOfMap) {
 		if (this.showingListInsteadOfMap != null && this.showingListInsteadOfMap == newShowingListInsteadOfMap) {
 			return; // nothing changed
 		}

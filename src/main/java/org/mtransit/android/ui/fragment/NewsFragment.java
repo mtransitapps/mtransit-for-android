@@ -22,6 +22,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
@@ -37,6 +38,8 @@ import org.mtransit.android.util.UITimeUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class NewsFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<News>>, SwipeRefreshLayout.OnRefreshListener {
 
@@ -91,13 +94,21 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		return f;
 	}
 
+	@Nullable
 	private Integer colorInt;
+	@Nullable
 	private String subTitle;
+	@Nullable
 	private ArrayList<String> targetAuthorities;
+	@Nullable
 	private ArrayList<String> filterUUIDs;
+	@Nullable
 	private ArrayList<String> filterTargets;
+	@Nullable
 	private CharSequence emptyText = null;
+	@Nullable
 	private NewsAdapter adapter;
+	@Nullable
 	private ListViewSwipeRefreshLayout swipeRefreshLayout;
 
 	@NonNull
@@ -113,14 +124,19 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		initAdapters(activity);
 	}
 
-	private void initAdapters(Activity activity) {
+	private void initAdapters(@NonNull Activity activity) {
 		this.adapter = new NewsAdapter(activity);
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
+		if (F_CACHE_DATA_SOURCES) {
+			this.dataSourcesRepository.readingAllNewsProvidersDistinct().observe(this, newNewsProviders -> {
+				LoaderUtils.restartLoader(this, NEWS_LOADER, null, this);
+			});
+		}
 	}
 
 	private void restoreInstanceState(Bundle... bundles) {
@@ -166,8 +182,9 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		super.onSaveInstanceState(outState);
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_news, container, false);
 		setupView(view);
@@ -222,7 +239,9 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (!isResumed()) {
 			return;
 		}
-		LoaderUtils.restartLoader(this, NEWS_LOADER, null, this);
+		if (!F_CACHE_DATA_SOURCES) {
+			LoaderUtils.restartLoader(this, NEWS_LOADER, null, this);
+		}
 		this.modulesUpdated = false; // processed
 	}
 
@@ -235,6 +254,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		case NEWS_LOADER:
 			return new NewsLoader(requireContext(), this.dataSourcesRepository, this.targetAuthorities, this.filterUUIDs, this.filterTargets);
 		default:
+			//noinspection deprecation
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			//noinspection ConstantConditions // FIXME
 			return null;
@@ -271,7 +291,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		return true;
 	}
 
-	private void setSwipeRefreshLayoutRefreshing(boolean refreshing) {
+	private void setSwipeRefreshLayoutRefreshing(@SuppressWarnings("SameParameterValue") boolean refreshing) {
 		if (this.swipeRefreshLayout != null) {
 			if (refreshing) {
 				if (!this.swipeRefreshLayout.isRefreshing()) {
@@ -406,22 +426,21 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			return LOG_TAG;
 		}
 
+		@NonNull
 		private final LayoutInflater layoutInflater;
-		private WeakReference<Activity> activityWR;
+		@NonNull
+		private final WeakReference<Activity> activityWR;
 
 		@Nullable
 		private ArrayList<News> news;
 
-		private NewsAdapter(Activity activity) {
+		private NewsAdapter(@NonNull Activity activity) {
 			super(activity, -1);
-			setActivity(activity);
+			this.activityWR = new WeakReference<>(activity);
 			this.layoutInflater = LayoutInflater.from(getContext());
 		}
 
-		public void setActivity(Activity activity) {
-			this.activityWR = new WeakReference<>(activity);
-		}
-
+		@Nullable
 		private Activity getActivityOrNull() {
 			return this.activityWR == null ? null : this.activityWR.get();
 		}
@@ -439,6 +458,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			resetNowToTheMinute();
 		}
 
+		@NonNull
 		private final UITimeUtils.TimeChangedReceiver timeChangedReceiver = new UITimeUtils.TimeChangedReceiver(this);
 
 		private boolean timeChangedReceiverEnabled = false;
@@ -450,7 +470,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			}
 		}
 
-		private void disableTimeChangeddReceiver() {
+		private void disableTimeChangedReceiver() {
 			if (this.timeChangedReceiverEnabled) {
 				getContext().unregisterReceiver(this.timeChangedReceiver);
 				this.timeChangedReceiverEnabled = false;
@@ -495,7 +515,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 
 		public void onPause() {
-			disableTimeChangeddReceiver();
+			disableTimeChangedReceiver();
 		}
 
 		public void onResume() {
@@ -503,7 +523,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 
 		public void onDestroy() {
-			disableTimeChangeddReceiver();
+			disableTimeChangedReceiver();
 		}
 
 		@Override

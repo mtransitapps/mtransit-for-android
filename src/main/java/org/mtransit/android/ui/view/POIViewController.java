@@ -24,12 +24,12 @@ import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.data.AgencyProperties;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.JPaths;
 import org.mtransit.android.data.Module;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.UISchedule;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
@@ -40,6 +40,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class POIViewController implements MTLog.Loggable {
 
@@ -307,7 +309,12 @@ public class POIViewController implements MTLog.Loggable {
 					if (holder.routeTypeImg.hasPaths() && poim.poi.getAuthority().equals(holder.routeTypeImg.getTag())) {
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
-						AgencyProperties agency = DataSourceProvider.get(context).getAgency(context, poim.poi.getAuthority());
+						final AgencyProperties agency;
+						if (F_CACHE_DATA_SOURCES) {
+							agency = dataProvider.providesDataSourcesRepository().getAgency(poim.poi.getAuthority());
+						} else {
+							agency = org.mtransit.android.data.DataSourceProvider.get(context).getAgency(context, poim.poi.getAuthority());
+						}
 						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo();
 						if (rtsRouteLogo != null) {
 							holder.routeTypeImg.setJSON(rtsRouteLogo);
@@ -677,6 +684,9 @@ public class POIViewController implements MTLog.Loggable {
 		boolean hasLocation();
 
 		boolean isShowingServiceUpdates();
+
+		@NonNull
+		DataSourcesRepository providesDataSourcesRepository();
 	}
 
 	private static class CommonViewHolder {

@@ -33,7 +33,6 @@ import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.ui.widget.MTBaseAdapter;
 import org.mtransit.android.data.DataSourceManager;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.UISchedule;
 import org.mtransit.android.datasource.DataSourcesRepository;
@@ -51,7 +50,9 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class ScheduleDayFragment extends MTFragmentX implements VisibilityAwareFragment, DataSourceProvider.ModulesUpdateListener,
+public class ScheduleDayFragment extends MTFragmentX implements
+		VisibilityAwareFragment,
+		org.mtransit.android.data.DataSourceProvider.ModulesUpdateListener,
 		LoaderManager.LoaderCallbacks<ArrayList<Timestamp>> {
 
 	private static final String LOG_TAG = ScheduleDayFragment.class.getSimpleName();
@@ -95,13 +96,16 @@ public class ScheduleDayFragment extends MTFragmentX implements VisibilityAwareF
 		return f;
 	}
 
+	@Nullable
 	private TimeAdapter adapter;
 	private int fragmentPosition = -1;
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
 	private boolean scrolledToNow = false;
 	private long dayStartsAtInMs = -1L;
+	@Nullable
 	private Calendar dayStartsAtCal = null;
+	@Nullable
 	private Date dayStartsAtDate;
 
 	@NonNull
@@ -142,10 +146,13 @@ public class ScheduleDayFragment extends MTFragmentX implements VisibilityAwareF
 		}
 	}
 
+	@Nullable
 	private String authority;
 
+	@Nullable
 	private String uuid;
 
+	@Nullable
 	private RouteTripStop rts;
 
 	private boolean hasRts() {
@@ -363,6 +370,7 @@ public class ScheduleDayFragment extends MTFragmentX implements VisibilityAwareF
 
 	@Override
 	public void onModulesUpdated() {
+		// DO NOTHING (handler by parent fragment)
 	}
 
 	@Override

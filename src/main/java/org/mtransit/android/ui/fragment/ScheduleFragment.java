@@ -37,6 +37,8 @@ import org.mtransit.android.util.UITimeUtils;
 
 import java.util.Calendar;
 
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
+
 public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChangeListener {
 
 	private static final String LOG_TAG = ScheduleFragment.class.getSimpleName();
@@ -129,11 +131,13 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			super(scheduleFragment);
 		}
 
+		@WorkerThread
 		@Override
 		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull ScheduleFragment scheduleFragment, Void... params) {
 			return scheduleFragment.initRtsSync();
 		}
 
+		@MainThread
 		@Override
 		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull ScheduleFragment scheduleFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
@@ -162,11 +166,24 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (this.uuid != null && !this.uuid.isEmpty()
 				&& getAuthority() != null && !getAuthority().isEmpty()) {
 			POIManager poim = DataSourceManager.findPOI(requireContext(), getAuthority(), POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
+			if (F_CACHE_DATA_SOURCES) {
+				if (poim == null) {
+					onDataSourceRemoved();
+				}
+			}
 			if (poim != null && poim.poi instanceof RouteTripStop) {
 				this.rts = (RouteTripStop) poim.poi;
 			}
 		}
 		return this.rts != null;
+	}
+
+	private void onDataSourceRemoved() {
+		final MainActivity mainActivity = (MainActivity) getActivity();
+		if (mainActivity == null) {
+			return;
+		}
+		mainActivity.popFragmentFromStack(this); // close this fragment
 	}
 
 	private void applyNewRts() {
@@ -205,6 +222,12 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
+		if (F_CACHE_DATA_SOURCES) {
+			this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this, agencyProperties -> {
+				resetRts();
+				initRtsAsync();
+			});
+		}
 	}
 
 	@Nullable
@@ -354,23 +377,26 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (!isResumed()) {
 			return;
 		}
-		//noinspection IfStatementWithIdenticalBranches
-		if (this.uuid != null && !this.uuid.isEmpty()
-				&& getAuthority() != null && !getAuthority().isEmpty()) {
-			FragmentActivity activity = getActivity();
-			if (activity == null) {
-				return;
-			}
-			POIProviderContract.Filter poiFilter = POIProviderContract.Filter.getNewUUIDFilter(this.uuid);
-			POIManager newPoim = DataSourceManager.findPOI(activity, getAuthority(), poiFilter);
-			if (newPoim == null || !(newPoim.poi instanceof RouteTripStop)) {
-				((MainActivity) activity).popFragmentFromStack(this); // close this fragment
+		if (!F_CACHE_DATA_SOURCES) {
+			//noinspection IfStatementWithIdenticalBranches
+			if (this.uuid != null && !this.uuid.isEmpty()
+					&& getAuthority() != null && !getAuthority().isEmpty()) {
+				FragmentActivity activity = getActivity();
+				if (activity == null) {
+					return;
+				}
+				POIManager newPoim = DataSourceManager.findPOI(activity, getAuthority(), POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
+				if (newPoim == null || !(newPoim.poi instanceof RouteTripStop)) {
+					((MainActivity) activity).popFragmentFromStack(this); // close this fragment
+					this.modulesUpdated = false; // processed
+					return;
+				}
+				resetRts();
+				setupView(getView());
 				this.modulesUpdated = false; // processed
-				return;
+			} else {
+				this.modulesUpdated = false; // processed
 			}
-			resetRts();
-			setupView(getView());
-			this.modulesUpdated = false; // processed
 		} else {
 			this.modulesUpdated = false; // processed
 		}

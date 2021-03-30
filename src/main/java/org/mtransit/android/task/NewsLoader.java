@@ -175,7 +175,7 @@ public class NewsLoader extends MTAsyncTaskLoaderX<ArrayList<News>> {
 
 		@Override
 		public ArrayList<News> callMT() {
-			Filter newsFilter;
+			final Filter newsFilter;
 			if (CollectionUtils.getSize(this.filterUUIDs) > 0) {
 				newsFilter = NewsProviderContract.Filter.getNewUUIDsFilter(this.filterUUIDs);
 			} else if (CollectionUtils.getSize(this.filterTargets) > 0) {

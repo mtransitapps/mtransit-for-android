@@ -35,11 +35,14 @@ import org.mtransit.android.util.LoaderUtils;
 
 import java.util.ArrayList;
 
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
+
 public class FavoritesFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
 		FavoriteManager.FavoriteUpdateListener, IActivity {
 
 	private static final String TAG = FavoritesFragment.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -53,12 +56,16 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		return TRACKING_SCREEN_NAME;
 	}
 
+	@NonNull
 	public static FavoritesFragment newInstance() {
 		return new FavoritesFragment();
 	}
 
+	@Nullable
 	private POIArrayAdapter adapter;
+	@Nullable
 	private CharSequence emptyText = null;
+	@Nullable
 	private Location userLocation;
 
 	@NonNull
@@ -75,13 +82,22 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+		if (F_CACHE_DATA_SOURCES) {
+			this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this, newAgencies -> {
+				if (newAgencies == null) {
+					return;
+				}
+				LoaderUtils.restartLoader(this, FAVORITES_LOADER, null, this);
+			});
+		}
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_favorites, container, false);
 		setupView(view);
@@ -121,6 +137,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		case FAVORITES_LOADER:
 			return new FavoritesLoader(requireContext(), this.dataSourcesRepository);
 		default:
+			//noinspection deprecation
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			//noinspection ConstantConditions // FIXME
 			return null;
@@ -135,7 +152,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	}
 
 	@Override
-	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, @Nullable ArrayList<POIManager> data) {
 		this.emptyText = getString(R.string.no_favorites);
 		this.adapter.setPois(data);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
@@ -240,7 +257,9 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		if (!isResumed()) {
 			return;
 		}
-		LoaderUtils.restartLoader(this, FAVORITES_LOADER, null, this);
+		if (!F_CACHE_DATA_SOURCES) {
+			LoaderUtils.restartLoader(this, FAVORITES_LOADER, null, this);
+		}
 		this.modulesUpdated = false; // processed
 	}
 

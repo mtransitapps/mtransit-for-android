@@ -9,8 +9,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -19,16 +21,21 @@ import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.data.DataSourceManager;
+import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.UITimeUtils;
 
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
+
 public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeChangedReceiver.TimeChangedListener, LinkUtils.OnUrlClickListener {
 
 	private static final String TAG = NewsDetailsFragment.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -48,7 +55,8 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	private static final String EXTRA_AUTHORITY = "extra_agency_authority";
 	private static final String EXTRA_NEWS_UUID = "extra_news_uuid";
 
-	public static NewsDetailsFragment newInstance(String uuid, String authority, @Nullable News optNews) {
+	@NonNull
+	public static NewsDetailsFragment newInstance(@NonNull String uuid, @NonNull String authority, @Nullable News optNews) {
 		NewsDetailsFragment f = new NewsDetailsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
@@ -60,14 +68,31 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		return f;
 	}
 
+	@Nullable
 	private String authority;
+	@Nullable
 	private String uuid;
+	@Nullable
 	private News news;
 
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
+
+	public NewsDetailsFragment() {
+		super();
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+	}
+
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
+		if (F_CACHE_DATA_SOURCES) {
+			this.dataSourcesRepository.readingAllNewsProvidersDistinct().observe(this, newNewsProviders -> {
+				resetNews();
+				initNewsAsync();
+			});
+		}
 	}
 
 	private void restoreInstanceState(Bundle... bundles) {
@@ -93,15 +118,17 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		super.onSaveInstanceState(outState);
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_news_details, container, false);
 		setupView(view);
 		return view;
 	}
 
-	private void setupView(View view) {
+	private void setupView(@SuppressWarnings("unused") View view) {
+		// DO NOTHING
 	}
 
 	private boolean hasNews() {
@@ -123,8 +150,10 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		TaskUtils.execute(this.loadNewsTask);
 	}
 
+	@Nullable
 	private LoadNewsTask loadNewsTask = null;
 
+	@SuppressWarnings("deprecation")
 	private static class LoadNewsTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, NewsDetailsFragment> {
 
 		@NonNull
@@ -137,11 +166,13 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 			super(newsDetailsFragment);
 		}
 
+		@WorkerThread
 		@Override
 		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull NewsDetailsFragment newsDetailsFragment, Void... params) {
 			return newsDetailsFragment.initNewsSync();
 		}
 
+		@MainThread
 		@Override
 		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull NewsDetailsFragment newsDetailsFragment, @Nullable Boolean result) {
 			if (Boolean.TRUE.equals(result)) {
@@ -154,6 +185,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		this.news = null;
 	}
 
+	@Nullable
 	private News getNewsOrNull() {
 		if (!hasNews()) {
 			return null;
@@ -161,14 +193,31 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		return this.news;
 	}
 
+	@WorkerThread
 	private boolean initNewsSync() {
 		if (this.news != null) {
 			return false;
 		}
 		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
-			this.news = DataSourceManager.findANews(requireContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
+			final News newNewsArticle = DataSourceManager.findANews(requireContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
+			if (F_CACHE_DATA_SOURCES) {
+				if (newNewsArticle == null) {
+					onDataSourceRemoved();
+				}
+			}
+			this.news = newNewsArticle;
 		}
 		return this.news != null;
+	}
+
+	private void onDataSourceRemoved() {
+		final MainActivity activity = (MainActivity) getActivity();
+		if (activity == null) {
+			return;
+		}
+		if (activity.isMTResumed()) {
+			activity.popFragmentFromStack(this); // close this fragment
+		}
 	}
 
 	private void applyNewNews() {
@@ -176,10 +225,12 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 			return;
 		}
 		updateNewsView();
-		getAbController().setABBgColor(this, getABBgColor(getContext()), false);
-		getAbController().setABTitle(this, getABTitle(getContext()), false);
-		getAbController().setABSubtitle(this, getABSubtitle(getContext()), false);
-		getAbController().setABReady(this, isABReady(), true);
+		if (getAbController() != null) {
+			getAbController().setABBgColor(this, getABBgColor(getContext()), false);
+			getAbController().setABTitle(this, getABTitle(getContext()), false);
+			getAbController().setABSubtitle(this, getABSubtitle(getContext()), false);
+			getAbController().setABReady(this, isABReady(), true);
+		}
 	}
 
 	private void updateNewsView() {
@@ -211,7 +262,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	}
 
 	@Override
-	public boolean onURLClick(String url) {
+	public boolean onURLClick(@NonNull String url) {
 		return LinkUtils.open(requireActivity(), url, getString(R.string.web_browser), true);
 	}
 
@@ -237,7 +288,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		}
 	}
 
-	private void disableTimeChangeddReceiver() {
+	private void disableTimeChangedReceiver() {
 		if (this.timeChangedReceiverEnabled) {
 			if (getActivity() != null) {
 				getActivity().unregisterReceiver(this.timeChangedReceiver);
@@ -271,25 +322,29 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		if (!isResumed()) {
 			return;
 		}
-		MainActivity activity = (MainActivity) getActivity();
-		if (activity == null) {
-			return;
-		}
-		News newNews = DataSourceManager.findANews(requireContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
-		if (newNews == null) {
-			if (activity.isMTResumed()) {
-				activity.popFragmentFromStack(this); // close this fragment
-				this.modulesUpdated = false; // processed
+		if (!F_CACHE_DATA_SOURCES) {
+			MainActivity activity = (MainActivity) getActivity();
+			if (activity == null) {
+				return;
+			}
+			News newNews = DataSourceManager.findANews(requireContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
+			if (newNews == null) {
+				if (activity.isMTResumed()) {
+					activity.popFragmentFromStack(this); // close this fragment
+					this.modulesUpdated = false; // processed
+				}
+			} else {
+				this.modulesUpdated = false; // nothing to do
 			}
 		} else {
-			this.modulesUpdated = false; // nothing to do
+			this.modulesUpdated = false; // processed
 		}
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		disableTimeChangeddReceiver();
+		disableTimeChangedReceiver();
 	}
 
 	@Nullable

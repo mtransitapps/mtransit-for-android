@@ -78,5 +78,7 @@ class DataSourcesCache(private val dataSourcesDatabase: DataSourcesDatabase) {
 
     fun getNewsProviders(targetAuthority: String) = newsProviderPropertiesDao().getTargetAuthorityNewsProviders(targetAuthority)
 
+    fun readingNewsProviders(targetAuthority: String) = newsProviderPropertiesDao().readingTargetAuthorityNewsProviders(targetAuthority);
+
     fun getNewsProvider(authority: String) = newsProviderPropertiesDao().getNewsProvider(authority)
 }

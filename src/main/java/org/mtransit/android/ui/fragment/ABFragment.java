@@ -103,8 +103,7 @@ public abstract class ABFragment extends MTFragment implements AnalyticsManager.
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		//noinspection PointlessBooleanExpression // TODO later
-		if (true || !F_CACHE_DATA_SOURCES) {
+		if (!F_CACHE_DATA_SOURCES) {
 			org.mtransit.android.data.DataSourceProvider.addModulesUpdateListener(this);
 		}
 	}
@@ -134,8 +133,7 @@ public abstract class ABFragment extends MTFragment implements AnalyticsManager.
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		//noinspection PointlessBooleanExpression // TODO later
-		if (true || !F_CACHE_DATA_SOURCES) {
+		if (!F_CACHE_DATA_SOURCES) {
 			org.mtransit.android.data.DataSourceProvider.removeModulesUpdateListener(this);
 		}
 	}

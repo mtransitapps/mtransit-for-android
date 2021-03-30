@@ -28,7 +28,7 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.data.AgencyProperties;
-import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.WebBrowserFragment;
 
@@ -36,6 +36,8 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public final class LinkUtils implements MTLog.Loggable {
 
@@ -136,7 +138,7 @@ public final class LinkUtils implements MTLog.Loggable {
 	}
 
 	@MainThread
-	public static void sendEmail(@NonNull Activity activity) {
+	public static void sendEmail(@NonNull Activity activity, @NonNull DataSourcesRepository dataSourcesRepository) {
 		Intent intent = new Intent(Intent.ACTION_SENDTO);
 		String email = activity.getString(R.string.send_feedback_email);
 		intent.setData(Uri.parse(EMAIL_SCHEME + ":" + email)); // only email apps should handle this
@@ -147,23 +149,28 @@ public final class LinkUtils implements MTLog.Loggable {
 				.append(" v").append(PackageManagerUtils.getAppVersionName(activity)) //
 				.append(" (r").append(PackageManagerUtils.getAppVersionCode(activity)).append(")");
 		try {
-			if (DataSourceProvider.isSet()) {
-				DataSourceProvider dataSourceProvider = DataSourceProvider.get();
-				List<AgencyProperties> allAgencies = dataSourceProvider.getAllAgencies(activity);
-				if (allAgencies != null) {
-					for (AgencyProperties agencyProperties : allAgencies) {
-						if (!agencyProperties.getType().isMapScreen()) {
-							continue;
-						}
+			List<AgencyProperties> allAgencies;
+			if (F_CACHE_DATA_SOURCES) {
+				allAgencies = dataSourcesRepository.getAllAgencies();
+			} else {
+				if (org.mtransit.android.data.DataSourceProvider.isSet()) {
+					org.mtransit.android.data.DataSourceProvider dataSourceProvider = org.mtransit.android.data.DataSourceProvider.get();
+					allAgencies = dataSourceProvider.getAllAgencies(activity);
+				}
+			}
+			if (allAgencies != null) {
+				for (AgencyProperties agencyProperties : allAgencies) {
+					if (!agencyProperties.getType().isMapScreen()) {
+						continue;
+					}
+					subjectSb //
+							.append(" - ").append(agencyProperties.getShortName()) //
+							.append(" ").append(activity.getString(agencyProperties.getType().getShortNameResId()));
+					final String pkg = agencyProperties.getPkg();
+					if (pkg != null && !pkg.isEmpty()) {
 						subjectSb //
-								.append(" - ").append(agencyProperties.getShortName()) //
-								.append(" ").append(activity.getString(agencyProperties.getType().getShortNameResId()));
-						final String pkg = agencyProperties.getPkg();
-						if (pkg != null && !pkg.isEmpty()) {
-							subjectSb //
-									.append(" v").append(PackageManagerUtils.getAppVersionName(activity, pkg)) //
-									.append(" (r").append(PackageManagerUtils.getAppVersionCode(activity, pkg)).append(")");
-						}
+								.append(" v").append(PackageManagerUtils.getAppVersionName(activity, pkg)) //
+								.append(" (r").append(PackageManagerUtils.getAppVersionCode(activity, pkg)).append(")");
 					}
 				}
 			}

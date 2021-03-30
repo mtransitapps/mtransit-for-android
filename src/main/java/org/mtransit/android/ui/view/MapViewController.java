@@ -47,7 +47,6 @@ import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.AgencyProperties;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.di.Injection;
@@ -71,6 +70,8 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListener, ExtendedGoogleMap.OnInfoWindowClickListener,
 		ExtendedGoogleMap.OnMapLoadedCallback, ExtendedGoogleMap.OnMarkerClickListener, ExtendedGoogleMap.OnMyLocationButtonClickListener,
@@ -574,15 +575,18 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	@Override
-	public void onInfoWindowClick(IMarker imarker) {
+	public void onInfoWindowClick(@Nullable IMarker imarker) {
 		if (imarker != null && imarker.getData() != null && imarker.getData() instanceof POIMarkerIds) {
 			POIMarkerIds poiMarkerIds = imarker.getData();
 			if (poiMarkerIds.size() >= 1) {
 				Activity activity = getActivityOrNull();
 				if (activity instanceof MainActivity) {
-					FragmentUtils.replaceDialogFragment((MainActivity) activity, FragmentUtils.DIALOG_TAG, //
-							PickPOIDialogFragment.newInstance(poiMarkerIds.getMap()), //
-							null);
+					FragmentUtils.replaceDialogFragment(
+							(MainActivity) activity,
+							FragmentUtils.DIALOG_TAG,
+							PickPOIDialogFragment.newInstance(poiMarkerIds.getMap()),
+							null
+					);
 				}
 			}
 		}
@@ -916,7 +920,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		private static final String P1 = "(";
 		private static final String P2 = ")";
 
-		public String getSnippet() {
+		String getSnippet() {
 			StringBuilder sb = new StringBuilder();
 			boolean hasExtras = false;
 			CollectionUtils.sort(this.extras, MARKER_NAME_COMPARATOR);
@@ -951,11 +955,11 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return sb.toString();
 		}
 
-		public POIMarkerIds getUuidsAndAuthority() {
+		POIMarkerIds getUuidsAndAuthority() {
 			return uuidsAndAuthority;
 		}
 
-		public boolean hasUUID(String uuid) {
+		boolean hasUUID(String uuid) {
 			return this.uuidsAndAuthority.hasUUID(uuid);
 		}
 
@@ -1056,23 +1060,26 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 		private static final String TAG = MapViewController.class.getSimpleName() + ">" + POIMarkerIds.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return TAG;
 		}
 
-		public java.util.Set<ArrayMap.Entry<String, String>> entrySet() {
+		java.util.Set<ArrayMap.Entry<String, String>> entrySet() {
 			return this.uuidsAndAuthority.entrySet();
 		}
 
+		@NonNull
 		public ArrayMap<String, String> getMap() {
 			return this.uuidsAndAuthority;
 		}
 
-		public boolean hasUUID(String uuid) {
+		boolean hasUUID(String uuid) {
 			return this.uuidsAndAuthority.containsKey(uuid);
 		}
 
+		@NonNull
 		private final ArrayMap<String, String> uuidsAndAuthority = new ArrayMap<>();
 
 		public void put(String uuid, String authority) {
@@ -1083,13 +1090,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			}
 		}
 
-		public void putAll(SimpleArrayMap<String, String> newUuidsAndAuthority) {
+		void putAll(SimpleArrayMap<String, String> newUuidsAndAuthority) {
 			if (newUuidsAndAuthority != null) {
 				this.uuidsAndAuthority.putAll(newUuidsAndAuthority);
 			}
 		}
 
-		public void merge(POIMarkerIds poiMarkerIds) {
+		void merge(POIMarkerIds poiMarkerIds) {
 			if (poiMarkerIds != null) {
 				putAll(poiMarkerIds.getMap());
 			}
@@ -1160,7 +1167,11 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				positionTrunc = POIMarker.getLatLngTrunc(poim);
 				name = poim.poi.getName();
 				extra = null;
-				agency = DataSourceProvider.get(activity).getAgency(activity, poim.poi.getAuthority());
+				if (F_CACHE_DATA_SOURCES) {
+					agency = dataSourcesRepository.getAgency(poim.poi.getAuthority());
+				} else {
+					agency = org.mtransit.android.data.DataSourceProvider.get(activity).getAgency(activity, poim.poi.getAuthority());
+				}
 				if (agency == null) {
 					continue;
 				}
@@ -1422,19 +1433,24 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	public interface MapMarkerProvider {
 
+		@Nullable
 		Collection<POIMarker> getPOMarkers();
 
+		@Nullable
 		Collection<POIManager> getPOIs();
 
+		@Nullable
 		POIManager getClosestPOI();
 
-		POIManager getPOI(String uuid);
+		@SuppressWarnings("unused")
+		@Nullable
+		POIManager getPOI(@Nullable String uuid);
 	}
 
 	public interface MapListener {
 
-		void onMapClick(LatLng position);
+		void onMapClick(@NonNull LatLng position);
 
-		void onCameraChange(LatLngBounds latLngBounds);
+		void onCameraChange(@Nullable LatLngBounds latLngBounds);
 	}
 }

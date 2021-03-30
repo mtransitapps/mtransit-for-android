@@ -253,7 +253,7 @@ public class WebBrowserFragment extends ABFragment {
 
 	@Override
 	public void onModulesUpdated() {
-		// do nothing
+		// DO NOTHING
 	}
 
 	@Override
@@ -275,6 +275,7 @@ public class WebBrowserFragment extends ABFragment {
 
 		private static final String LOG_TAG = WebBrowserFragment.class.getSimpleName() + ">" + MTWebChromeClient.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return LOG_TAG;
@@ -319,6 +320,7 @@ public class WebBrowserFragment extends ABFragment {
 
 		private static final String LOG_TAG = WebBrowserFragment.class.getSimpleName() + ">" + MTWebViewClient.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return LOG_TAG;

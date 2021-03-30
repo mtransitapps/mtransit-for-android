@@ -79,6 +79,14 @@ class DataSourcesRepository(
         it.sortedWith(defaultAgencyComparator)
     }
 
+    fun readingAllAgenciesDistinct() = readingAllAgencies().distinctUntilChanged()
+
+    fun readingAllAgencyAuthorities() = readingAllAgencies().map { agencyList ->
+        agencyList.map { agency ->
+            agency.authority
+        }
+    }
+
     fun getAllAgenciesCount() = this._agencyProperties.size
 
     fun readingAllAgenciesCount() = dataSourcesCache.readingAllAgenciesCount()
@@ -138,7 +146,13 @@ class DataSourcesRepository(
 
     fun getAllNewsProviders() = this._newsProviderProperties
 
+    fun readingAllNewsProviders() = dataSourcesCache.readingAllNewsProviders()
+
+    fun readingAllNewsProvidersDistinct() = readingAllNewsProviders().distinctUntilChanged()
+
     fun getNewsProviders(targetAuthority: String) = this._newsProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
+
+    fun readingAllNewsProvidersDistinct(targetAuthority: String) = dataSourcesCache.readingNewsProviders(targetAuthority)
 
     fun getNewsProvider(authority: String) = this._newsProviderProperties.singleOrNull { it.authority == authority }
 

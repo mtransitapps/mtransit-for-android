@@ -220,8 +220,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	protected void onPostResume() {
 		super.onPostResume();
 		this.resumed = true;
-		//noinspection PointlessBooleanExpression // TODO later
-		if (true || !F_CACHE_DATA_SOURCES) {
+		if (!F_CACHE_DATA_SOURCES) {
 			if (this.modulesUpdated) {
 				new Handler().post(() -> {
 					if (MainActivity.this.modulesUpdated) {
@@ -265,8 +264,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		}
 		this.billingManager.removeListener(this);
 		this.adManager.pauseAd(this);
-		//noinspection PointlessBooleanExpression // TODO later
-		if (true || !F_CACHE_DATA_SOURCES) {
+		if (!F_CACHE_DATA_SOURCES) {
 			org.mtransit.android.data.DataSourceProvider.onPause();
 		}
 	}
@@ -282,8 +280,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	@Override
 	protected void onRestart() {
 		super.onRestart();
-		//noinspection PointlessBooleanExpression // TODO later
-		if (true || !F_CACHE_DATA_SOURCES) {
+		if (!F_CACHE_DATA_SOURCES) {
 			org.mtransit.android.data.DataSourceProvider.resetIfNecessary(this);
 		}
 		popFragmentsToPop();

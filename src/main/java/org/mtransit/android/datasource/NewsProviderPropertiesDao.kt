@@ -23,6 +23,9 @@ interface NewsProviderPropertiesDao {
     @Query("SELECT * FROM news_provider_properties WHERE target_authority = :targetAuthority")
     fun getTargetAuthorityNewsProviders(targetAuthority: String): List<NewsProviderProperties>
 
+    @Query("SELECT * FROM news_provider_properties WHERE target_authority = :targetAuthority")
+    fun readingTargetAuthorityNewsProviders(targetAuthority: String): LiveData<List<NewsProviderProperties>>
+
     @Insert
     fun insert(newsProviderProperties: NewsProviderProperties)
 

@@ -529,7 +529,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		} else if (navItemId == R.id.nav_settings) {
 			activity.startActivity(PreferencesActivity.newInstance(activity));
 		} else if (navItemId == R.id.nav_send_feedback) {
-			LinkUtils.sendEmail(activity);
+			LinkUtils.sendEmail(activity, this.dataSourcesRepository);
 		} else if (navItemId == R.id.nav_rate_review) {
 			StoreUtils.viewAppPage(activity, Constants.MAIN_APP_PACKAGE_NAME, activity.getString(R.string.google_play));
 		} else if (navItemId == R.id.nav_support) {
@@ -674,8 +674,9 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			} else {
 				this.modulesUpdated = false; // nothing to do
 			}
+		} else {
+			this.modulesUpdated = false;
 		}
-		this.modulesUpdated = false;
 	}
 
 	void onStart() {

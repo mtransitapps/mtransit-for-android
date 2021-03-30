@@ -9,6 +9,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import androidx.collection.SimpleArrayMap;
 
 import org.json.JSONObject;
@@ -38,6 +39,7 @@ import org.mtransit.android.commons.provider.StatusProviderContract;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+@WorkerThread
 public final class DataSourceManager implements MTLog.Loggable {
 
 	private static final String LOG_TAG = DataSourceManager.class.getSimpleName();

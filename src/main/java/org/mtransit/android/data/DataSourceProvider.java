@@ -862,6 +862,9 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	private static boolean triggerModulesUpdated = false;
 
 	public static void triggerModulesUpdated() {
+		if (F_CACHE_DATA_SOURCES) {
+			return;
+		}
 		triggerModulesUpdated = true;
 		if (!resumed) {
 			return;

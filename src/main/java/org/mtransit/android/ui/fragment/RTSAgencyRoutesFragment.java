@@ -35,7 +35,6 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.data.AgencyProperties;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.data.JPaths;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
@@ -49,6 +48,9 @@ import org.mtransit.android.util.LoaderUtils;
 
 import java.util.ArrayList;
 
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
+
+// list/grid of agency routes
 public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<ArrayList<Route>>,
 		AdapterView.OnItemClickListener, CompoundButton.OnCheckedChangeListener {
 
@@ -74,7 +76,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 	@NonNull
 	public static RTSAgencyRoutesFragment newInstance(int fragmentPosition,
 													  int lastVisibleFragmentPosition,
-													  String agencyAuthority,
+													  @NonNull String agencyAuthority,
 													  @Nullable Integer optColorInt) {
 		RTSAgencyRoutesFragment f = new RTSAgencyRoutesFragment();
 		Bundle args = new Bundle();
@@ -99,11 +101,14 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 	private int fragmentPosition = -1;
 	private int lastVisibleFragmentPosition = -1;
 	private boolean fragmentVisible = false;
+	@Nullable
 	private RTSAgencyRouteArrayAdapter adapter;
 	@Nullable
 	private final String emptyText = null;
 
+	@Nullable
 	private String authority;
+	@Nullable
 	private Integer colorInt;
 
 	@NonNull
@@ -126,13 +131,14 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_rts_agency_routes, container, false);
 		setupView(view);
@@ -181,10 +187,12 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 				this.lastVisibleFragmentPosition = -1;
 			}
 		}
-		this.adapter.setAuthority(this.authority);
+		if (this.adapter != null && this.authority != null) {
+			this.adapter.setAuthority(this.authority);
+		}
 	}
 
-	private void initAdapters(Activity activity) {
+	private void initAdapters(@NonNull Activity activity) {
 		this.adapter = new RTSAgencyRouteArrayAdapter(activity, this.dataSourcesRepository, this.authority, isShowingListInsteadOfGrid());
 	}
 
@@ -263,7 +271,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	public void onItemClick(@NonNull AdapterView<?> parent, @NonNull View view, int position, long id) {
 		MTOnItemClickListener.onItemClickS(parent, view, position, id, new MTOnItemClickListener() {
 			@Override
 			public void onItemClickMT(AdapterView<?> parent, View view, int position, long id) {
@@ -279,7 +287,13 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 					return;
 				}
 				((MainActivity) activity).addFragmentToStack(
-						RTSRouteFragment.newInstance(RTSAgencyRoutesFragment.this.authority, selectedRoute.getId(), null, null, selectedRoute),
+						RTSRouteFragment.newInstance(
+								RTSAgencyRoutesFragment.this.authority,
+								selectedRoute.getId(),
+								null,
+								null,
+								selectedRoute
+						),
 						RTSAgencyRoutesFragment.this);
 			}
 		});
@@ -350,12 +364,14 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 		switch (id) {
 		case ROUTES_LOADER:
 			if (TextUtils.isEmpty(this.authority) || getContext() == null) {
+				//noinspection deprecation
 				CrashUtils.w(this, "onCreateLoader() > skip (no authority or no activity)");
 				//noinspection ConstantConditions // FIXME
 				return null;
 			}
 			return new RTSAgencyRoutesLoader(getContext(), this.authority);
 		default:
+			//noinspection deprecation
 			CrashUtils.w(this, "Loader ID '%s' unknown!", id);
 			//noinspection ConstantConditions // FIXME
 			return null;
@@ -370,7 +386,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 	}
 
 	@Override
-	public void onLoadFinished(@NonNull Loader<ArrayList<Route>> loader, ArrayList<Route> data) {
+	public void onLoadFinished(@NonNull Loader<ArrayList<Route>> loader, @Nullable ArrayList<Route> data) {
 		this.adapter.setRoutes(data);
 		switchView(getView());
 	}
@@ -535,7 +551,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 	}
 
 	@Override
-	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+	public void onCheckedChanged(@NonNull CompoundButton buttonView, boolean isChecked) {
 		if (!this.fragmentVisible) {
 			return;
 		}
@@ -548,6 +564,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 
 		private static final String TAG = RTSAgencyRouteArrayAdapter.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return TAG;
@@ -557,14 +574,16 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 		private final DataSourcesRepository dataSourcesRepository;
 		@Nullable
 		private ArrayList<Route> routes = null;
+		@NonNull
 		private final LayoutInflater layoutInflater;
+		@NonNull
 		private String authority;
 		private boolean showingListInsteadOfGrid;
 
-		public RTSAgencyRouteArrayAdapter(@NonNull Context context,
-										  @NonNull DataSourcesRepository dataSourcesRepository,
-										  @NonNull String authority,
-										  boolean showingListInsteadOfGrid) {
+		RTSAgencyRouteArrayAdapter(@NonNull Context context,
+								   @NonNull DataSourcesRepository dataSourcesRepository,
+								   @NonNull String authority,
+								   boolean showingListInsteadOfGrid) {
 			super(context, -1);
 			this.dataSourcesRepository = dataSourcesRepository;
 			this.layoutInflater = LayoutInflater.from(context);
@@ -572,11 +591,11 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 			this.showingListInsteadOfGrid = showingListInsteadOfGrid;
 		}
 
-		public void seShowingListInsteadOfGrid(boolean showingListInsteadOfGrid) {
+		void seShowingListInsteadOfGrid(boolean showingListInsteadOfGrid) {
 			this.showingListInsteadOfGrid = showingListInsteadOfGrid;
 		}
 
-		public void setAuthority(String authority) {
+		public void setAuthority(@NonNull String authority) {
 			this.authority = authority;
 		}
 
@@ -630,6 +649,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 			return convertView;
 		}
 
+		@SuppressWarnings("UnusedReturnValue")
 		private View updateRouteView(int position, View convertView) {
 			Route route = getItem(position);
 			if (convertView == null) {
@@ -644,8 +664,13 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 					if (holder.routeTypeImg.hasPaths() && this.authority.equals(holder.routeTypeImg.getTag())) {
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
-						AgencyProperties agency = DataSourceProvider.get(getContext()).getAgency(getContext(), this.authority);
-						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo();
+						final AgencyProperties agency;
+						if (F_CACHE_DATA_SOURCES) {
+							agency = this.dataSourcesRepository.getAgency(this.authority);
+						} else {
+							agency = org.mtransit.android.data.DataSourceProvider.get(getContext()).getAgency(getContext(), this.authority);
+						}
+						final JPaths rtsRouteLogo = agency == null ? null : agency.getLogo();
 						if (rtsRouteLogo != null) {
 							holder.routeTypeImg.setJSON(rtsRouteLogo);
 							holder.routeTypeImg.setTag(this.authority);

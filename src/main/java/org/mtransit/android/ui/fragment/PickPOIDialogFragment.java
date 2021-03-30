@@ -21,9 +21,11 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
-import org.mtransit.android.data.DataSourceProvider;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.di.Injection;
 import org.mtransit.android.task.POIsLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.common.IActivity;
@@ -32,11 +34,18 @@ import org.mtransit.android.util.LoaderUtils;
 
 import java.util.ArrayList;
 
-public class PickPOIDialogFragment extends MTDialogFragmentX implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
-		DataSourceProvider.ModulesUpdateListener, MTActivityWithLocation.UserLocationListener, POIArrayAdapter.OnClickHandledListener, IActivity {
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
+
+public class PickPOIDialogFragment extends MTDialogFragmentX implements
+		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
+		org.mtransit.android.data.DataSourceProvider.ModulesUpdateListener,
+		MTActivityWithLocation.UserLocationListener,
+		POIArrayAdapter.OnClickHandledListener,
+		IActivity {
 
 	private static final String TAG = PickPOIDialogFragment.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -45,7 +54,8 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements LoaderMa
 	private static final String EXTRA_POI_UUIDS = "extra_poi_uuids";
 	private static final String EXTRA_POI_AUTHORITIES = "extra_poi_authorities";
 
-	public static PickPOIDialogFragment newInstance(ArrayMap<String, String> uuidsAndAuthorities) {
+	@NonNull
+	public static PickPOIDialogFragment newInstance(@NonNull ArrayMap<String, String> uuidsAndAuthorities) {
 		ArrayList<String> uuids = new ArrayList<>();
 		ArrayList<String> authorities = new ArrayList<>();
 		if (uuidsAndAuthorities != null) {
@@ -57,7 +67,8 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements LoaderMa
 		return newInstance(uuids, authorities);
 	}
 
-	public static PickPOIDialogFragment newInstance(ArrayList<String> uuids, ArrayList<String> authorities) {
+	@NonNull
+	public static PickPOIDialogFragment newInstance(@NonNull ArrayList<String> uuids, @NonNull ArrayList<String> authorities) {
 		PickPOIDialogFragment f = new PickPOIDialogFragment();
 		Bundle args = new Bundle();
 		args.putStringArrayList(EXTRA_POI_UUIDS, uuids);
@@ -68,11 +79,23 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements LoaderMa
 		return f;
 	}
 
+	@Nullable
 	private ArrayList<String> uuids = null;
+	@Nullable
 	private ArrayList<String> authorities = null;
+	@Nullable
 	private POIArrayAdapter adapter = null;
 	private boolean modulesUpdated = false;
+	@Nullable
 	private Location userLocation = null;
+
+	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
+
+	public PickPOIDialogFragment() {
+		super();
+		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+	}
 
 	@Override
 	public void onAttach(@NonNull Activity activity) {
@@ -80,7 +103,7 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements LoaderMa
 		initAdapters(this);
 	}
 
-	private void initAdapters(IActivity activity) {
+	private void initAdapters(@NonNull IActivity activity) {
 		this.adapter = new POIArrayAdapter(activity);
 		this.adapter.setOnClickHandledListener(this);
 		this.adapter.setTag(getLogTag());
@@ -92,10 +115,26 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements LoaderMa
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
-		DataSourceProvider.addModulesUpdateListener(this);
+		if (!F_CACHE_DATA_SOURCES) {
+			org.mtransit.android.data.DataSourceProvider.addModulesUpdateListener(this);
+		} else {
+			this.dataSourcesRepository.readingAllAgencyAuthorities().observe(this, agencyAuthorities -> {
+				if (this.authorities == null) {
+					return;
+				}
+				for (String authority : this.authorities) {
+					if (agencyAuthorities.contains(authority)) {
+						continue;
+					}
+					MTLog.d(this, "Authority %s doesn't exist anymore, dismissing dialog.", authority);
+					dismiss();
+					break;
+				}
+			});
+		}
 	}
 
 	private void restoreInstanceState(Bundle... bundles) {
@@ -115,11 +154,15 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements LoaderMa
 		if (!isResumed()) {
 			return;
 		}
-		dismiss();
+		if (!F_CACHE_DATA_SOURCES) {
+			dismiss();
+		}
+		this.modulesUpdated = false; // processed
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_dialog_pick_poi, container, false);
 		setupView(view);
@@ -128,7 +171,7 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements LoaderMa
 
 	@NonNull
 	@Override
-	public Dialog onCreateDialog(Bundle savedInstanceState) {
+	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
 		Dialog dialog = super.onCreateDialog(savedInstanceState);
 		dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		dialog.setCancelable(true);
@@ -246,11 +289,17 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements LoaderMa
 
 	@NonNull
 	@Override
-	public Loader<ArrayList<POIManager>> onCreateLoader(int id, Bundle args) {
+	public Loader<ArrayList<POIManager>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
-			return new POIsLoader(getContext(), this.uuids, this.authorities);
+			if (this.uuids == null || this.authorities == null) {
+				//noinspection deprecation
+				CrashUtils.w(this, "onCreateLoader() > skip (no authority)");
+				return null;
+			}
+			return new POIsLoader(requireContext(), this.uuids, this.authorities);
 		default:
+			//noinspection deprecation
 			CrashUtils.w(this, "Loader id '%s' unknown!", id);
 			//noinspection ConstantConditions // FIXME
 			return null;
@@ -265,10 +314,12 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements LoaderMa
 	}
 
 	@Override
-	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, ArrayList<POIManager> data) {
-		this.adapter.setPois(data);
-		this.adapter.updateDistanceNowAsync(this.userLocation);
-		this.adapter.initManual();
+	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, @Nullable ArrayList<POIManager> data) {
+		if (this.adapter != null) {
+			this.adapter.setPois(data);
+			this.adapter.updateDistanceNowAsync(this.userLocation);
+			this.adapter.initManual();
+		}
 		switchView(getView());
 	}
 
@@ -291,7 +342,9 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements LoaderMa
 			this.adapter.onDestroy();
 			this.adapter = null;
 		}
-		DataSourceProvider.removeModulesUpdateListener(this);
+		if (!F_CACHE_DATA_SOURCES) {
+			org.mtransit.android.data.DataSourceProvider.removeModulesUpdateListener(this);
+		}
 	}
 
 	@Override
