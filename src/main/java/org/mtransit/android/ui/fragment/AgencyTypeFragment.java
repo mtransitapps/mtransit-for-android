@@ -128,17 +128,15 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		setHasOptionsMenu(true); // child fragments options menus don't get updated when coming back from another activity
 		restoreInstanceState(savedInstanceState, getArguments());
 		if (F_CACHE_DATA_SOURCES) {
-			this.typeAgenciesLD.addSource(this.typeLD, newType -> {
-						this.typeAgenciesLD.setValue(
-								combine(newType, this.allAgenciesLD.getValue())
-						);
-					}
+			this.typeAgenciesLD.addSource(this.typeLD, newType ->
+					this.typeAgenciesLD.setValue(
+							combine(newType, this.allAgenciesLD.getValue())
+					)
 			);
-			this.typeAgenciesLD.addSource(this.allAgenciesLD, newAgencies -> {
-						this.typeAgenciesLD.setValue(
-								combine(this.typeLD.getValue(), newAgencies)
-						);
-					}
+			this.typeAgenciesLD.addSource(this.allAgenciesLD, newAgencies ->
+					this.typeAgenciesLD.setValue(
+							combine(this.typeLD.getValue(), newAgencies)
+					)
 			);
 			this.typeAgenciesLD.observe(this, newTypeAgencies -> {
 						if (this.typeAgencies != null && this.typeAgencies.equals(newTypeAgencies)) {

@@ -133,9 +133,9 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
 		if (F_CACHE_DATA_SOURCES) {
-			this.dataSourcesRepository.readingAllNewsProvidersDistinct().observe(this, newNewsProviders -> {
-				LoaderUtils.restartLoader(this, NEWS_LOADER, null, this);
-			});
+			this.dataSourcesRepository.readingAllNewsProvidersDistinct().observe(this, newNewsProviders ->
+					LoaderUtils.restartLoader(this, NEWS_LOADER, null, this)
+			);
 		}
 	}
 

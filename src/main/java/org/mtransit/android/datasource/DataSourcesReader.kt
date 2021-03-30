@@ -114,10 +114,15 @@ class DataSourcesReader(
     suspend fun update(): Boolean {
         var updated = false
         withContext(Dispatchers.IO) {
+            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
             updateKnownActiveDataSources { updated = true }
+            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
             updateReInstalledReEnabledDataSources { updated = true }
+            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
             lookForNewDataSources { updated = true }
+            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
         }
+        MTLog.d(this, "update() > $updated")
         return updated
     }
 

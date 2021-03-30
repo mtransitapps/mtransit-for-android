@@ -2,6 +2,7 @@ package org.mtransit.android.datasource
 
 import org.mtransit.android.data.DataSourceType
 
+@Suppress("unused")
 class DataSourcesCache(private val dataSourcesDatabase: DataSourcesDatabase) {
 
     // AGENCY

@@ -667,7 +667,11 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			((MainActivity) activity).addFragmentToStack(POIFragment.newInstance(this.poi.getUUID(), this.poi.getAuthority(), null, this));
+			AgencyProperties agencyProperties = null;
+			if (F_CACHE_DATA_SOURCES) {
+				agencyProperties = this.dataSourcesRepository.getAgency(this.poi.getAuthority());
+			}
+			((MainActivity) activity).addFragmentToStack(POIFragment.newInstance(this.poi.getUUID(), this.poi.getAuthority(), agencyProperties, this));
 			// reset to defaults so the POI is updated when coming back in the current screen
 			resetLastFindTimestamps();
 			return true; // HANDLED

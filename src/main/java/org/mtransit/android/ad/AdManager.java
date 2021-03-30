@@ -104,9 +104,8 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		this.dataSourcesRepository = dataSourcesRepository;
 		if (F_CACHE_DATA_SOURCES) {
 			this.dataSourcesRepository.readingAllAgenciesCount().observeForever(newNbAgencies -> { // SINGLETON
-						this.nbAgencies = newNbAgencies;
-					}
-			);
+				this.nbAgencies = newNbAgencies;
+			});
 		}
 	}
 

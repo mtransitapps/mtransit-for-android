@@ -112,6 +112,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		this.typeFilter = null;
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	private boolean initTypeFilterSync() {
 		if (this.typeFilter != null) {
 			return false;
@@ -131,9 +132,11 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 	private void setTypeFilterFromType(@Nullable Integer newTypeId) {
 		if (newTypeId == null) {
+			MTLog.d(this, "setTypeFilterFromType() > SKIP (null)");
 			return;
 		}
 		if (this.typeIdFilter != null && this.typeIdFilter.equals(newTypeId)) {
+			MTLog.d(this, "setTypeFilterFromType() > SKIP (same)");
 			return;
 		}
 		this.typeIdFilter = newTypeId;

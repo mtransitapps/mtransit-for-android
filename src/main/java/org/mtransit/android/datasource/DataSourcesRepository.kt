@@ -19,6 +19,7 @@ import org.mtransit.android.data.StatusProviderProperties
 import org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES
 import java.util.concurrent.CompletableFuture
 
+@Suppress("MemberVisibilityCanBePrivate", "unused")
 class DataSourcesRepository(
     private val app: IApplication,
     private val dataSourcesCache: DataSourcesCache,
@@ -158,9 +159,9 @@ class DataSourcesRepository(
 
     private var runningUpdate: Boolean = false
 
-    @JvmOverloads
-    fun updateAsync(force: Boolean = false): CompletableFuture<Boolean> { // JAVA
+    fun updateAsync(): CompletableFuture<Boolean> { // JAVA
         if (!F_CACHE_DATA_SOURCES) {
+            MTLog.d(this@DataSourcesRepository, "updateAsync() > SKIP (feature disabled)")
             return GlobalScope.future { false }
         }
         if (runningUpdate) {
@@ -181,6 +182,7 @@ class DataSourcesRepository(
                 } else {
                     MTLog.d(this@DataSourcesRepository, "updateAsync() > SKIP (was running - in future)")
                 }
+                MTLog.d(this@DataSourcesRepository, "updateAsync() > $updated")
                 updated
             }
         }
@@ -188,17 +190,20 @@ class DataSourcesRepository(
 
     suspend fun update(): Boolean {
         if (!F_CACHE_DATA_SOURCES) {
+            MTLog.d(this, "update() > SKIP (feature disabled)")
             return false
         }
         var updated: Boolean
         withContext(Dispatchers.IO) {
             updated = dataSourcesReader.update()
         }
+        MTLog.d(this, "update() > $updated")
         return updated
     }
 
     fun isAProvider(pkg: String): Boolean {
         if (!F_CACHE_DATA_SOURCES) {
+            MTLog.d(this, "isAProvider() > SKIP (feature disabled)")
             return false
         }
         return this.dataSourcesReader.isAProvider(pkg)

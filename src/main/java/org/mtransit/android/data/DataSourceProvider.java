@@ -39,7 +39,7 @@ import java.util.WeakHashMap;
 
 import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
-// TODO @Deprecated
+@Deprecated
 @SuppressWarnings("WeakerAccess")
 @AnyThread
 public class DataSourceProvider implements IContext, MTLog.Loggable {
@@ -77,6 +77,9 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 	}
 
 	public static boolean isSet() {
+		if (F_CACHE_DATA_SOURCES) {
+			return false;
+		}
 		DataSourceProvider instance = Injection.providesDataSourceProvider();
 		return instance.isInitialized();
 	}
