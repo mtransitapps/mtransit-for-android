@@ -149,13 +149,15 @@ public final class LinkUtils implements MTLog.Loggable {
 				.append(" v").append(PackageManagerUtils.getAppVersionName(activity)) //
 				.append(" (r").append(PackageManagerUtils.getAppVersionCode(activity)).append(")");
 		try {
-			List<AgencyProperties> allAgencies;
+			final List<AgencyProperties> allAgencies;
 			if (F_CACHE_DATA_SOURCES) {
 				allAgencies = dataSourcesRepository.getAllAgencies();
 			} else {
 				if (org.mtransit.android.data.DataSourceProvider.isSet()) {
 					org.mtransit.android.data.DataSourceProvider dataSourceProvider = org.mtransit.android.data.DataSourceProvider.get();
 					allAgencies = dataSourceProvider.getAllAgencies(activity);
+				} else {
+					allAgencies = null;
 				}
 			}
 			if (allAgencies != null) {
