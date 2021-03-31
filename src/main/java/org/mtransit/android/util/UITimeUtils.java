@@ -150,13 +150,12 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	@NonNull
-	public static CharSequence formatRelativeTime(@NonNull Context context, long timeInThePastInMs) {
-		return formatRelativeTime(context, timeInThePastInMs, currentTimeMillis());
+	public static CharSequence formatRelativeTime(long timeInThePastInMs) {
+		return formatRelativeTime(timeInThePastInMs, currentTimeMillis());
 	}
 
 	@NonNull
-	private static CharSequence formatRelativeTime(@SuppressWarnings("unused") @NonNull Context context,
-												   long timeInThePastInMs,
+	private static CharSequence formatRelativeTime(long timeInThePastInMs,
 												   long nowInMs) {
 		return DateUtils.getRelativeTimeSpanString(timeInThePastInMs, nowInMs, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
 	}

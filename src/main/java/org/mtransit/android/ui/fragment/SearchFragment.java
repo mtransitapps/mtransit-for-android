@@ -26,7 +26,9 @@ import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.KeyboardUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StringUtils;
+import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIArrayAdapter;
@@ -469,7 +471,18 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		restartSearchLater();
 	}
 
+	private static final String DEV_QUERY = "MTDEV";
+
+	@Nullable
+	private Boolean devEnabled = null;
+
 	public void setSearchQuery(@Nullable String query, @SuppressWarnings("unused") boolean alreadyInSearchView) {
+		if (DEV_QUERY.equals(query)) {
+			this.devEnabled = !Boolean.TRUE.equals(this.devEnabled); // flip
+			PreferenceUtils.savePrefLcl(getContext(), PreferenceUtils.PREFS_LCL_DEV_MODE_ENABLED, this.devEnabled, false); // ASYNC
+			ToastUtils.makeTextAndShowCentered(getContext(), "DEV MODE: " + this.devEnabled);
+			return;
+		}
 		if (this.query == null || !StringUtils.equals(StringUtils.trim(this.query), StringUtils.trim(query))) {
 			this.query = query == null ? StringUtils.EMPTY : query;
 			applyNewQuery();

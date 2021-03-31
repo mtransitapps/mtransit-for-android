@@ -2,7 +2,7 @@
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/preferences_fragment"
-    android:name="org.mtransit.android.ui.fragment.PreferencesFragment"
+    android:name="org.mtransit.android.ui.modules.ModulesFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.PreferencesActivity" />
+    tools:context=".ui.modules.ModulesActivity" />

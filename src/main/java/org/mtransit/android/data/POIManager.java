@@ -22,7 +22,6 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.StringUtils;
-import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.commons.data.DefaultPOI;
@@ -701,38 +700,18 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return poiScreenShow;
 	}
 
-	private static final ThreadSafeDateFormatter FORMAT_DATE = ThreadSafeDateFormatter.getDateInstance(ThreadSafeDateFormatter.MEDIUM);
-
 	private boolean showPoiMenu(final @NonNull Activity activity,
 								final SparseArrayCompat<Favorite.Folder> favoriteFolders,
 								final FavoriteManager.FavoriteUpdateListener favoriteUpdateListener,
 								final POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
-		if (activity == null) {
-			return false;
-		}
 		switch (this.poi.getType()) {
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 			return false; // no menu
 		case POI.ITEM_VIEW_TYPE_ROUTE_TRIP_STOP:
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 		case POI.ITEM_VIEW_TYPE_MODULE:
-			String title = this.poi.getName();
-			if (F_CACHE_DATA_SOURCES) {
-				if (this.poi.getActionsType() == POI.ITEM_ACTION_TYPE_APP) {
-					if (this.poi instanceof Module) {
-						AgencyProperties agency = this.dataSourcesRepository.getAgencyForPkg(((Module) this.poi).getPkg());
-						if (agency != null) {
-							int maxValidSec = agency.getMaxValidSec();
-							if (maxValidSec > 0) {
-								String dateS = FORMAT_DATE.formatThreadSafe(maxValidSec * 1000L);
-								title += "\n" + dateS;
-							}
-						}
-					}
-				}
-			}
 			new MTDialog.Builder(activity) //
-					.setTitle(title) //
+					.setTitle(this.poi.getName()) //
 					.setItems( //
 							getActionsItems( //
 									activity, //

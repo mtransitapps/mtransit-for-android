@@ -25,6 +25,7 @@ import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.MTDialog;
 import org.mtransit.android.ui.PreferencesActivity;
+import org.mtransit.android.ui.modules.ModulesActivity;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.NightModeUtils;
 
@@ -60,6 +61,9 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 
 	private static final String SOCIAL_FACEBOOK_PREF = "pSocialFacebook";
 	private static final String SOCIAL_TWITTER_PREF = "pSocialTwitter";
+
+	private static final String DEV_MODE_GROUP_PREF = "pDevMode";
+	private static final String DEV_MODE_MODULE_PREF = "pDevModeModule";
 
 	private static final String TWITTER_PAGE_URL = "https://twitter.com/montransit";
 	private static final String FACEBOOK_PAGE_URL = "https://facebook.com/MonTransit";
@@ -279,6 +283,17 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 				return true; // handled
 			});
 		}
+		final Preference devModeModulePref = findPreference(DEV_MODE_MODULE_PREF);
+		if (devModeModulePref != null) {
+			devModeModulePref.setOnPreferenceClickListener(preference -> {
+				Activity activity = getActivity();
+				if (activity == null) {
+					return false; // not handled
+				}
+				startActivity(ModulesActivity.newInstance(activity));
+				return true; // handled
+			});
+		}
 	}
 
 	@Override
@@ -380,6 +395,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 		setUnitSummary(getActivity());
 		setUseInternalWebBrowserSummary(getActivity());
 		setDeviceSettings();
+		setDevMode(getActivity());
 		setAppVersion(getActivity());
 		if (((PreferencesActivity) getActivity()).isShowSupport()) {
 			((PreferencesActivity) getActivity()).setShowSupport(false); // clear flag before showing dialog
@@ -402,6 +418,28 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 			if (deviceSettingsPref != null) {
 				((PreferenceCategory) deviceSettingsPref).removePreference(powerManagementPref);
 			}
+		}
+	}
+
+	private void setDevMode(Context context) {
+		PreferenceCategory devModeGroupPref = (PreferenceCategory) findPreference(DEV_MODE_GROUP_PREF);
+		if (devModeGroupPref == null) {
+			return;
+		}
+		Preference devModeModulePref = findPreference(DEV_MODE_MODULE_PREF);
+		if (devModeModulePref == null) {
+			return;
+		}
+		final boolean devModeEnabled = PreferenceUtils.getPrefLcl(context,
+				PreferenceUtils.PREFS_LCL_DEV_MODE_ENABLED, PreferenceUtils.PREFS_LCL_DEV_MODE_ENABLED_DEFAULT);
+		if (devModeEnabled) {
+			devModeGroupPref.setEnabled(true);
+			devModeModulePref.setEnabled(true);
+		} else {
+			devModeGroupPref.setEnabled(false);
+			devModeModulePref.setEnabled(false);
+			devModeGroupPref.removePreference(devModeGroupPref);
+			getPreferenceScreen().removePreference(devModeGroupPref);
 		}
 	}
 

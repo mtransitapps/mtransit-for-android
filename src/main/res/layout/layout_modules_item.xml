@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:background="?attr/colorSurface"
+    android:clipChildren="false"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:paddingStart="@dimen/poi_padding_left_no_extra"
+    android:paddingTop="@dimen/poi_padding_top"
+    android:paddingEnd="@dimen/poi_padding_right"
+    android:paddingBottom="@dimen/poi_padding_bottom">
+
+    <LinearLayout
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:minWidth="?android:attr/listPreferredItemHeight"
+        android:orientation="vertical"
+        android:visibility="invisible"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/status_line_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:ellipsize="marquee"
+            android:fontFamily="sans-serif"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textStyle="normal"
+            android:visibility="visible"
+            tools:text="STATUS 1 STATUS 1 STATUS 1 STATUS 1 STATUS 1 STATUS 1 STATUS 1 STATUS 1" />
+
+        <TextView
+            android:id="@+id/status_line_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:ellipsize="marquee"
+            android:fontFamily="sans-serif"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:attr/textColorTertiary"
+            android:textStyle="normal"
+            android:visibility="gone"
+            tools:text="STATUS 2 STATUS 2 STATUS 2 STATUS 2 STATUS 2 STATUS 2 STATUS 2 STATUS 2 "
+            tools:visibility="visible" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/module"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/status"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/poi_place_left_padding"
+        android:paddingRight="@dimen/poi_place_right_padding">
+
+        <TextView
+            android:id="@+id/nameTv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ellipsize="marquee"
+            android:fontFamily="sans-serif"
+            android:gravity="center_vertical|left"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textStyle="normal"
+            tools:text="NAME NAME NAME NAME NAME NAME NAME NAME NAME NAME NAME NAME" />
+
+        <TextView
+            android:id="@+id/descriptionTv"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:fontFamily="sans-serif"
+            android:gravity="center_vertical"
+            android:maxLines="1"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textStyle="normal"
+            android:visibility="gone"
+            tools:text="DESCRIPTION DESCRIPTION DESCRIPTION DESCRIPTION DESCRIPTION DESCRIPTION "
+            tools:visibility="visible" />
+
+    </LinearLayout>
+
+</RelativeLayout>

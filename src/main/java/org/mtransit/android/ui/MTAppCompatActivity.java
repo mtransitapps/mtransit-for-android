@@ -1,5 +1,6 @@
 package org.mtransit.android.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -30,7 +31,7 @@ public abstract class MTAppCompatActivity extends AppCompatActivity implements M
 	}
 
 	@Override
-	protected void onNewIntent(Intent intent) {
+	protected void onNewIntent(@SuppressLint("UnknownNullness") Intent intent) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onNewIntent(%s)", intent);
 		}

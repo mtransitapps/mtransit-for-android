@@ -559,7 +559,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 			} else {
 				holder.authorTv.setTextColor(ColorUtils.getTextColorSecondary(getContext()));
 			}
-			holder.dateTv.setText(UITimeUtils.formatRelativeTime(getContext(), news.getCreatedAtInMs()));
+			holder.dateTv.setText(UITimeUtils.formatRelativeTime(news.getCreatedAtInMs()));
 			holder.newsTv.setText(news.getText());
 			if (news.hasColor()) {
 				holder.newsTv.setLinkTextColor(news.getColorInt());

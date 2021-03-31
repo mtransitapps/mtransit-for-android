@@ -55,7 +55,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 				return R.layout.layout_poi_detail_status_availability_percent;
 			}
 		}
-		MTLog.w(TAG, "getLayoutResId() > Unknow view type for poi %s!", poim);
+		MTLog.w(TAG, "getLayoutResId() > Unknown view type for poi %s!", poim);
 		return null;
 	}
 
@@ -73,7 +73,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 			initAvailabilityPercentViewHolder(poim, view);
 			break;
 		default:
-			MTLog.w(TAG, "initViewHolder() > Unknow view status type for poi %s!", poim);
+			MTLog.w(TAG, "initViewHolder() > Unknown view status type for poi %s!", poim);
 		}
 	}
 

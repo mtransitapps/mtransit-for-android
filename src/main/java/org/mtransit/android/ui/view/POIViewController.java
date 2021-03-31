@@ -137,7 +137,7 @@ public class POIViewController implements MTLog.Loggable {
 			holder = initBasicViewHolder(poim, view);
 			break;
 		default:
-			MTLog.w(LOG_TAG, "initViewHolder() > Unknow view type for poi %s!", poim);
+			MTLog.w(LOG_TAG, "initViewHolder() > Unknown view type for poi %s!", poim);
 			holder = initBasicViewHolder(poim, view);
 		}
 		initCommonViewHolder(holder, view, poim.poi.getUUID());

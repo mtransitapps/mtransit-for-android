@@ -81,7 +81,7 @@ public class POINewsViewController implements MTLog.Loggable {
 		} else {
 			holder.authorTv.setTextColor(ColorUtils.getTextColorSecondary(context));
 		}
-		holder.dateTv.setText(UITimeUtils.formatRelativeTime(context, news.getCreatedAtInMs()), TextView.BufferType.SPANNABLE);
+		holder.dateTv.setText(UITimeUtils.formatRelativeTime(news.getCreatedAtInMs()), TextView.BufferType.SPANNABLE);
 		holder.newsTv.setText(news.getText());
 		if (news.hasColor()) {
 			holder.newsTv.setLinkTextColor(news.getColorInt());

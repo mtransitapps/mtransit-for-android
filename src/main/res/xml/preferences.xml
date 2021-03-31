@@ -144,4 +144,16 @@
             android:summary="@string/third_party_youtube_terms_of_service_pref_summary"
             android:title="@string/third_party_youtube_terms_of_service_pref_title" />
     </PreferenceCategory>
+    <!-- DEV -->
+    <PreferenceCategory
+        android:key="pDevMode"
+        android:title="@string/dev_mode_pref_cat_title">
+        <!-- GOOGLE PRIVACY POLICY -->
+        <Preference
+            android:enabled="false"
+            android:key="pDevModeModule"
+            android:summary="@string/dev_mode_pref_modules_pref_summary"
+            android:title="@string/dev_mode_pref_modules_pref_title"
+            tools:enabled="true" />
+    </PreferenceCategory>
 </PreferenceScreen>

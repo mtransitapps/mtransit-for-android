@@ -177,6 +177,9 @@
     <string name="third_party_google_privacy_policy_pref_summary">https://policies.google.com/privacy</string>
     <string name="third_party_youtube_terms_of_service_pref_title">Conditions d\'utilisation de YouTube</string>
     <string name="third_party_youtube_terms_of_service_pref_summary">https://www.youtube.com/t/terms</string>
+    <string name="dev_mode_pref_cat_title">DEV MODE</string>
+    <string name="dev_mode_pref_modules_pref_summary">MANAGE MODULES</string>
+    <string name="dev_mode_pref_modules_pref_title">MODULES</string>
     <string name="support_pref_cat_title">Supporter</string>
     <string name="support_subs_pref_title">Supporter MonTransit</string>
     <string name="support_subs_pref_summary">Cacher les publicités et supporter le développement de MonTransit.</string>

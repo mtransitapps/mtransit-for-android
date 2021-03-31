@@ -251,12 +251,12 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 			newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(view.getContext()));
 		}
 		TextView dateTv = view.findViewById(R.id.date);
-		dateTv.setText(UITimeUtils.formatRelativeTime(view.getContext(), news.getCreatedAtInMs()), TextView.BufferType.SPANNABLE);
+		dateTv.setText(UITimeUtils.formatRelativeTime(news.getCreatedAtInMs()), TextView.BufferType.SPANNABLE);
 		final String newWebURL = TextUtils.isEmpty(news.getWebURL()) ? news.getAuthorProfileURL() : news.getWebURL();
 		dateTv.setOnClickListener(new MTOnClickListener() {
 			@Override
 			public void onClickMT(@NonNull View view) {
-				LinkUtils.open(getActivity(), newWebURL, getString(R.string.web_browser), true);
+				LinkUtils.open(requireActivity(), newWebURL, getString(R.string.web_browser), true);
 			}
 		});
 	}
