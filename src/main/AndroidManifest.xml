@@ -83,6 +83,13 @@
         <activity
             android:name=".ui.PreferencesActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:exported="false"
+            android:theme="@style/MTThemePreferences" />
+        <!-- MODULES SCREEN -->
+        <activity
+            android:name=".ui.modules.ModulesActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+            android:exported="false"
             android:theme="@style/MTThemePreferences" />
         <!-- SEARCH -->
         <meta-data

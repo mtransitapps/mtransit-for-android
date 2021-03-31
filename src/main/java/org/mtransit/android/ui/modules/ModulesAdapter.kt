@@ -1,11 +1,11 @@
 package org.mtransit.android.ui.modules
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.graphics.Typeface
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ListAdapter
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
@@ -13,15 +13,15 @@ import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.ui.modules.ModulesAdapter.ModuleViewHolder
 import org.mtransit.android.ui.view.common.MTCommonViewHolder
 import java.util.concurrent.TimeUnit
 
 class ModulesAdapter :
-    ListAdapter<AgencyProperties, ModulesAdapter.ModuleViewHolder>(ModulesDiffCallback) {
+    ListAdapter<AgencyProperties, ModuleViewHolder>(ModulesDiffCallback) {
 
     override fun onBindViewHolder(holder: ModuleViewHolder, position: Int) {
         val item = getItem(position)
-
         holder.bindItem(item)
     }
 
@@ -31,7 +31,6 @@ class ModulesAdapter :
 
     class ModuleViewHolder private constructor(parent: ViewGroup) :
         MTCommonViewHolder<AgencyProperties>(parent, R.layout.layout_modules_item) {
-
 
         companion object {
             fun from(parent: ViewGroup): ModuleViewHolder {
@@ -88,32 +87,32 @@ class ModulesAdapter :
                         val tf: Typeface
                         val colorInt: Int
                         when {
-                            diffInDays > 365 -> {
-                                colorInt = Color.GREEN
+                            diffInDays > 365 -> { // 1 YEAR-....
+                                colorInt = ContextCompat.getColor(context, R.color.green_cf)
                                 tf = Typeface.DEFAULT
                             }
-                            diffInDays > 31 -> {
-                                colorInt = Color.GREEN
+                            diffInDays > 14 -> { // 2 WEEKS - 1 YEAR
+                                colorInt = ContextCompat.getColor(context, R.color.green_cf)
                                 tf = Typeface.DEFAULT_BOLD
                             }
-                            diffInDays > 7 -> {
-                                colorInt = Color.YELLOW
-                                tf = Typeface.DEFAULT
-                            }
-                            diffInDays > 4 -> {
-                                colorInt = Color.YELLOW
+                            diffInDays > 7 -> { // 1 WEEK - 2 WEEKS
+                                colorInt = ContextCompat.getColor(context, R.color.yellow_cf)
                                 tf = Typeface.DEFAULT_BOLD
                             }
-                            diffInDays > 2 -> {
-                                colorInt = Color.RED
-                                tf = Typeface.DEFAULT
-                            }
-                            diffInDays > 0 -> {
-                                colorInt = Color.RED
+                            diffInDays > 4 -> { // 4 DAYS - 7 DAYS
+                                colorInt = ContextCompat.getColor(context, R.color.orange_cf)
                                 tf = Typeface.DEFAULT_BOLD
                             }
-                            diffInDays <= 0 -> {
-                                colorInt = Color.RED
+                            diffInDays > 2 -> { // 2 DAYS - 4 DAYS
+                                colorInt = ContextCompat.getColor(context, R.color.orange_cf)
+                                tf = Typeface.DEFAULT_BOLD
+                            }
+                            diffInDays > 0 -> { // 0 DAYS - 2 DAYS
+                                colorInt = ContextCompat.getColor(context, R.color.red_cf)
+                                tf = Typeface.DEFAULT_BOLD
+                            }
+                            diffInDays <= 0 -> { // ... - 0 DAYS
+                                colorInt = ContextCompat.getColor(context, R.color.red_cf)
                                 tf = Typeface.DEFAULT_BOLD
                             }
                             else -> {

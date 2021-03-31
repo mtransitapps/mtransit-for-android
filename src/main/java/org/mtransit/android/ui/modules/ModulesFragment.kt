@@ -1,6 +1,9 @@
 package org.mtransit.android.ui.modules
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -22,9 +25,10 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.allAgencies.observe(this, { newAgencies ->
+        setHasOptionsMenu(true)
+        viewModel.agencies.observe(this, { newAgencies ->
             listAdapter.submitList(newAgencies)
-            if (newAgencies.isEmpty()) {
+            if (newAgencies.isNullOrEmpty()) {
                 view?.findViewById<View>(R.id.modules_linear_layout)?.visibility = View.GONE
                 view?.findViewById<View>(R.id.no_modules_layout)?.visibility = View.VISIBLE
             } else {
@@ -32,6 +36,19 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
                 view?.findViewById<View>(R.id.modules_linear_layout)?.visibility = View.VISIBLE
             }
         })
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_modules, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.menu_filter) {
+            viewModel.flipSort()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

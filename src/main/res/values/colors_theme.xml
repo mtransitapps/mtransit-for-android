@@ -25,4 +25,9 @@
     <color name="navigation_item_color_default">@color/color_on_background</color>
     <color name="navigation_item_color_checked">@color/color_primary</color>
 
+    <color name="green_cf">#1B5E20</color>
+    <color name="yellow_cf">#FFD600</color>
+    <color name="orange_cf">#FF6D00</color>
+    <color name="red_cf">#B71C1C</color>
+
 </resources>

@@ -101,6 +101,13 @@ data class AgencyProperties(
 
     fun hasColor() = this.colorInt != null
 
+    val maxValidSecSorted: Int
+        get() = if (this.maxValidSec == 0) {
+            Integer.MAX_VALUE // unlimited
+        } else {
+            this.maxValidSec
+        }
+
     fun isInArea(area: LocationUtils.Area?): Boolean {
         return LocationUtils.Area.areOverlapping(area, this.area)
     }
