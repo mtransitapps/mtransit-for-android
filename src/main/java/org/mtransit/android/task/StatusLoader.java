@@ -124,6 +124,7 @@ public class StatusLoader implements MTLog.Loggable {
 		return true;
 	}
 
+	@SuppressWarnings("deprecation")
 	private static class StatusFetcherCallable extends MTCancellableAsyncTask<Void, Void, POIStatus> {
 
 		private static final String LGO_TAG = StatusLoader.class.getSimpleName() + '>' + StatusFetcherCallable.class.getSimpleName();

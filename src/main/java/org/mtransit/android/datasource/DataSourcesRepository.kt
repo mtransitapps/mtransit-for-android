@@ -161,7 +161,8 @@ class DataSourcesRepository(
 
     private var runningUpdate: Boolean = false
 
-    fun updateAsync(): CompletableFuture<Boolean> { // JAVA
+    @JvmOverloads
+    fun updateAsync(forcePkg: String? = null): CompletableFuture<Boolean> { // JAVA
         if (!F_CACHE_DATA_SOURCES) {
             MTLog.d(this@DataSourcesRepository, "updateAsync() > SKIP (feature disabled)")
             return GlobalScope.future { false }
@@ -179,7 +180,7 @@ class DataSourcesRepository(
                 var updated = false
                 if (!runningUpdate) {
                     runningUpdate = true
-                    updated = update()
+                    updated = update(forcePkg)
                     runningUpdate = false
                 } else {
                     MTLog.d(this@DataSourcesRepository, "updateAsync() > SKIP (was running - in future)")
@@ -190,14 +191,14 @@ class DataSourcesRepository(
         }
     }
 
-    suspend fun update(): Boolean {
+    suspend fun update(forcePkg: String? = null): Boolean {
         if (!F_CACHE_DATA_SOURCES) {
             MTLog.d(this, "update() > SKIP (feature disabled)")
             return false
         }
         var updated: Boolean
         withContext(Dispatchers.IO) {
-            updated = dataSourcesReader.update()
+            updated = dataSourcesReader.update(forcePkg)
         }
         MTLog.d(this, "update() > $updated")
         return updated

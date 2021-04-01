@@ -2,14 +2,12 @@ package org.mtransit.android.datasource
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Update
+import org.mtransit.android.common.repository.BaseDao
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 
 @Dao
-interface ServiceUpdateProviderPropertiesDao {
+interface ServiceUpdateProviderPropertiesDao : BaseDao<ServiceUpdateProviderProperties> {
 
     @Query("SELECT * FROM service_update_provider_properties")
     fun getAllServiceUpdateProvider(): List<ServiceUpdateProviderProperties>
@@ -22,19 +20,4 @@ interface ServiceUpdateProviderPropertiesDao {
 
     @Query("SELECT * FROM service_update_provider_properties WHERE target_authority = :targetAuthority")
     fun getTargetAuthorityServiceUpdateProvider(targetAuthority: String): List<ServiceUpdateProviderProperties>
-
-    @Insert
-    fun insert(serviceUpdateProviderProperties: ServiceUpdateProviderProperties)
-
-    @Insert
-    fun insertAll(vararg serviceUpdateProviderProperties: ServiceUpdateProviderProperties)
-
-    @Update
-    fun update(serviceUpdateProviderProperties: ServiceUpdateProviderProperties)
-
-    @Update
-    fun updateAll(vararg serviceUpdateProviderProperties: ServiceUpdateProviderProperties)
-
-    @Delete
-    fun delete(serviceUpdateProviderProperties: ServiceUpdateProviderProperties)
 }

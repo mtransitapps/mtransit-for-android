@@ -2,14 +2,12 @@ package org.mtransit.android.datasource
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Update
+import org.mtransit.android.common.repository.BaseDao
 import org.mtransit.android.data.ScheduleProviderProperties
 
 @Dao
-interface ScheduleProviderPropertiesDao {
+interface ScheduleProviderPropertiesDao : BaseDao<ScheduleProviderProperties> {
 
     @Query("SELECT * FROM schedule_provider_properties")
     fun getAllScheduleProvider(): List<ScheduleProviderProperties>
@@ -22,19 +20,4 @@ interface ScheduleProviderPropertiesDao {
 
     @Query("SELECT * FROM schedule_provider_properties WHERE target_authority = :targetAuthority")
     fun getTargetAuthorityScheduleProvider(targetAuthority: String): List<ScheduleProviderProperties>
-
-    @Insert
-    fun insert(scheduleProviderProperties: ScheduleProviderProperties)
-
-    @Insert
-    fun insertAll(vararg scheduleProviderProperties: ScheduleProviderProperties)
-
-    @Update
-    fun update(scheduleProviderProperties: ScheduleProviderProperties)
-
-    @Update
-    fun updateAll(vararg scheduleProviderProperties: ScheduleProviderProperties)
-
-    @Delete
-    fun delete(scheduleProviderProperties: ScheduleProviderProperties)
 }

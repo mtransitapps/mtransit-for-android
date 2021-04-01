@@ -1,19 +1,22 @@
 package org.mtransit.android.provider;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+
+import androidx.annotation.NonNull;
+
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.provider.MTSQLiteOpenHelper;
 import org.mtransit.android.commons.provider.POIProvider;
 import org.mtransit.android.commons.provider.StatusProvider;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import androidx.annotation.NonNull;
-
+@SuppressWarnings("WeakerAccess")
 public class ModuleDbHelper extends MTSQLiteOpenHelper {
 
 	private static final String TAG = ModuleDbHelper.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -60,30 +63,32 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 		return DB_VERSION;
 	}
 
-	private Context context;
+	@NonNull
+	private final Context context;
 
-	public ModuleDbHelper(Context context) {
+	public ModuleDbHelper(@NonNull Context context) {
 		super(context, DB_NAME, null, getDbVersion());
 		this.context = context;
 	}
 
 	@Override
-	public void onCreateMT(SQLiteDatabase db) {
+	public void onCreateMT(@NonNull SQLiteDatabase db) {
 		initAllDbTables(db);
 	}
 
 	@Override
-	public void onUpgradeMT(SQLiteDatabase db, int oldVersion, int newVersion) {
+	public void onUpgradeMT(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
 		db.execSQL(T_MODULE_SQL_DROP);
 		db.execSQL(T_MODULE_STATUS_SQL_DROP);
 		initAllDbTables(db);
 	}
 
+	@SuppressWarnings("unused")
 	public boolean isDbExist(@NonNull Context context) {
 		return SqlUtils.isDbExist(context, DB_NAME);
 	}
 
-	private void initAllDbTables(SQLiteDatabase db) {
+	private void initAllDbTables(@NonNull SQLiteDatabase db) {
 		db.execSQL(T_MODULE_SQL_CREATE);
 		db.execSQL(T_MODULE_STATUS_SQL_CREATE);
 		PreferenceUtils.savePrefLcl(this.context, PREF_KEY_LAST_UPDATE_MS, 0L, true);

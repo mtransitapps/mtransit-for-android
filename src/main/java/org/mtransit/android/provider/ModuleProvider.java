@@ -38,12 +38,15 @@ import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.provider.StatusProvider;
 import org.mtransit.android.commons.provider.StatusProviderContract;
 import org.mtransit.android.data.Module;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.util.UITimeUtils;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
+
+import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 @SuppressWarnings("UnusedReturnValue")
 public class ModuleProvider extends AgencyProvider implements POIProviderContract, StatusProviderContract {
@@ -136,15 +139,44 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@NonNull
 	private IAnalyticsManager getAnalyticsManager() {
 		if (this.analyticsManager == null) {
-			analyticsManager = Injection.providesAnalyticsManager();
+			this.analyticsManager = Injection.providesAnalyticsManager();
 		}
 		return this.analyticsManager;
+	}
+
+	@Nullable
+	private DataSourcesRepository dataSourcesRepository;
+
+	@NonNull
+	private DataSourcesRepository dataSourcesRepository() {
+		if (this.dataSourcesRepository == null) {
+			this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+		}
+		return this.dataSourcesRepository;
 	}
 
 	@Override
 	public boolean onCreateMT() {
 		ping();
+		if (F_CACHE_DATA_SOURCES) {
+			dataSourcesRepository().readingAllAgenciesDistinct().observeForever(agencyProperties -> { // SINGLETON
+				MTLog.v(this, "onChanged()");
+				deleteAllModuleStatusData(); // force refresh
+			});
+		}
 		return true;
+	}
+
+	@SuppressWarnings("UnusedReturnValue")
+	protected int deleteAllModuleStatusData() {
+		MTLog.v(this, "deleteAllModuleStatusData()");
+		int affectedRows = 0;
+		try {
+			affectedRows = getWriteDB().delete(getStatusDbTableName(), null, null);
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while deleting all bike station status data!");
+		}
+		return affectedRows;
 	}
 
 	@Override
@@ -173,8 +205,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@NonNull
 	private SQLiteOpenHelper getDBHelper() {
-		//noinspection ConstantConditions // TODO requireContext()
-		return getDBHelper(getContext());
+		return getDBHelper(requireContextCompat());
 	}
 
 	@NonNull
@@ -300,7 +331,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	public void updateModuleDataIfRequired() {
-		long lastUpdateInMs = PreferenceUtils.getPrefLcl(getContext(), PREF_KEY_LAST_UPDATE_MS, 0L);
+		long lastUpdateInMs = PreferenceUtils.getPrefLcl(requireContextCompat(), PREF_KEY_LAST_UPDATE_MS, 0L);
 		long nowInMs = UITimeUtils.currentTimeMillis();
 		if (lastUpdateInMs + getPOIMaxValidityInMs() < nowInMs) { // too old to display?
 			deleteAllModuleData();
@@ -323,7 +354,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	private synchronized void updateAllModuleDataFromWWW(long oldLastUpdatedInMs) {
-		if (PreferenceUtils.getPrefLcl(getContext(), PREF_KEY_LAST_UPDATE_MS, 0L) > oldLastUpdatedInMs) {
+		if (PreferenceUtils.getPrefLcl(requireContextCompat(), PREF_KEY_LAST_UPDATE_MS, 0L) > oldLastUpdatedInMs) {
 			return; // too late, another thread already updated
 		}
 		loadDataFromWWW();
@@ -332,18 +363,15 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@Nullable
 	private HashSet<Module> loadDataFromWWW() {
 		try {
-			Context context = getContext();
-			if (context == null) {
-				return null;
-			}
-			long newLastUpdateInMs = UITimeUtils.currentTimeMillis();
-			int fileResId = R.raw.modules;
-			String jsonString = FileUtils.fromFileRes(context, fileResId);
-			HashSet<Module> modules = new HashSet<>();
-			JSONArray jsonArray = new JSONArray(jsonString);
+			final Context context = requireContextCompat();
+			final long newLastUpdateInMs = UITimeUtils.currentTimeMillis();
+			final int fileResId = R.raw.modules;
+			final String jsonString = FileUtils.fromFileRes(context, fileResId);
+			final HashSet<Module> modules = new HashSet<>();
+			final JSONArray jsonArray = new JSONArray(jsonString);
 			for (int i = 0; i < jsonArray.length(); i++) {
-				JSONObject jModule = jsonArray.getJSONObject(i);
-				Module module = Module.fromSimpleJSONStatic(jModule, getAUTHORITY(context));
+				final JSONObject jModule = jsonArray.getJSONObject(i);
+				final Module module = Module.fromSimpleJSONStatic(jModule, getAUTHORITY(context));
 				if (module == null) {
 					continue; // error while converting JSON to Module
 				}
@@ -397,17 +425,22 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@NonNull
 	public POIStatus getNewModuleStatus(@NonNull AppStatus.AppStatusFilter filter) {
 		long newLastUpdateInMs = UITimeUtils.currentTimeMillis();
-		//noinspection ConstantConditions // TODO requireContext()
-		final boolean appInstalled = PackageManagerUtils.isAppInstalled(getContext(), filter.getPkg());
-		final boolean appEnabled = PackageManagerUtils.isAppEnabled(getContext(), filter.getPkg());
+		final Context context = requireContextCompat();
+		final boolean appInstalled = PackageManagerUtils.isAppInstalled(context, filter.getPkg());
+		final boolean appEnabled = PackageManagerUtils.isAppEnabled(context, filter.getPkg());
 		if (appInstalled && !appEnabled) {
 			getAnalyticsManager().logEvent(AnalyticsEvents.FOUND_DISABLED_MODULE, new AnalyticsEventsParamsProvider()
 					.put(AnalyticsEvents.Params.PKG, filter.getPkg())
-					.put(AnalyticsEvents.Params.STATE, (long) PackageManagerUtils.getAppEnabledState(getContext(), filter.getPkg())));
+					.put(AnalyticsEvents.Params.STATE, (long) PackageManagerUtils.getAppEnabledState(context, filter.getPkg())));
 		}
-		return new AppStatus(filter.getTargetUUID(), newLastUpdateInMs, getStatusMaxValidityInMs(), newLastUpdateInMs,
+		return new AppStatus(
+				filter.getTargetUUID(),
+				newLastUpdateInMs,
+				getStatusMaxValidityInMs(),
+				newLastUpdateInMs,
 				appInstalled,
-				appEnabled);
+				appEnabled
+		);
 	}
 
 	@Override
@@ -434,8 +467,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@NonNull
 	@Override
 	public Uri getAuthorityUri() {
-		//noinspection ConstantConditions // TODO requireContext()
-		return getAUTHORITYURI(getContext());
+		return getAUTHORITYURI(requireContextCompat());
 	}
 
 	@NonNull
@@ -446,8 +478,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@Override
 	public boolean isAgencyDeployed() {
-		//noinspection ConstantConditions // TODO requireContext()
-		return SqlUtils.isDbExist(getContext(), getDbName());
+		return SqlUtils.isDbExist(requireContextCompat(), getDbName());
 	}
 
 	@Override
@@ -455,12 +486,11 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		if (currentDbVersion > 0 && currentDbVersion != getCurrentDbVersion()) {
 			return true; // live update required => update
 		}
-		//noinspection ConstantConditions // TODO requireContext()
-		if (!SqlUtils.isDbExist(getContext(), getDbName())) {
+		if (!SqlUtils.isDbExist(requireContextCompat(), getDbName())) {
 			return true; // not deployed => initialization
 		}
 		//noinspection RedundantIfStatement
-		if (SqlUtils.getCurrentDbVersion(getContext(), getDbName()) != getCurrentDbVersion()) {
+		if (SqlUtils.getCurrentDbVersion(requireContextCompat(), getDbName()) != getCurrentDbVersion()) {
 			return true; // update required => update
 		}
 		return false;
@@ -469,8 +499,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@NonNull
 	@Override
 	public UriMatcher getAgencyUriMatcher() {
-		//noinspection ConstantConditions // TODO requireContext()
-		return getURIMATCHER(getContext());
+		return getURIMATCHER(requireContextCompat());
 	}
 
 	@Override
@@ -533,8 +562,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@NonNull
 	@Override
 	public UriMatcher getURI_MATCHER() {
-		//noinspection ConstantConditions // TODO requireContext()
-		return getURIMATCHER(getContext());
+		return getURIMATCHER(requireContextCompat());
 	}
 
 	/**
@@ -580,8 +608,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@Override
 	public ArrayMap<String, String> getPOIProjectionMap() {
 		if (poiProjectionMap == null) {
-			//noinspection ConstantConditions // TODO requireContext()
-			poiProjectionMap = getNewPoiProjectionMap(getAUTHORITY(getContext()));
+			poiProjectionMap = getNewPoiProjectionMap(getAUTHORITY(requireContextCompat()));
 		}
 		return poiProjectionMap;
 	}

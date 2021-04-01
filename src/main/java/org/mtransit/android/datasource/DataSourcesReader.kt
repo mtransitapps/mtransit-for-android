@@ -111,22 +111,25 @@ class DataSourcesReader(
         return false
     }
 
-    suspend fun update(): Boolean {
+    suspend fun update(forcePkg: String? = null): Boolean {
         var updated = false
         withContext(Dispatchers.IO) {
             MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
-            updateKnownActiveDataSources { updated = true }
+            updateKnownActiveDataSources(forcePkg) { updated = true }
             MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
-            updateReInstalledReEnabledDataSources { updated = true }
+            updateReInstalledReEnabledDataSources(forcePkg) { updated = true }
             MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
-            lookForNewDataSources { updated = true }
+            lookForNewDataSources(forcePkg) { updated = true }
             MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
         }
         MTLog.d(this, "update() > $updated")
         return updated
     }
 
-    private fun lookForNewDataSources(markUpdated: () -> Unit) {
+    private fun lookForNewDataSources(
+        forcePkg: String? = null,
+        markUpdated: () -> Unit,
+    ) {
         val knownAgencyProperties = dataSourcesDatabase.agencyPropertiesDao().getAllAgencies()
         val knownStatusProviderProperties = dataSourcesDatabase.statusProviderPropertiesDao().getAllStatusProvider()
         val knownScheduleProviderProperties = dataSourcesDatabase.scheduleProviderPropertiesDao().getAllScheduleProvider()
@@ -150,6 +153,7 @@ class DataSourcesReader(
                             null, // NEW
                             pm.getAppLongVersionCode(pkg, DEFAULT_VERSION_CODE), // NEW
                             pkgProviders,
+                            forcePkg == pkg,
                             markUpdated
                         )
                     }
@@ -206,7 +210,10 @@ class DataSourcesReader(
         }
     }
 
-    private fun updateReInstalledReEnabledDataSources(markUpdated: () -> Unit) { // UPDATE IN-VISIBLE KNOWN DATA SOURCES (uninstalled | disabled & check version)
+    private fun updateReInstalledReEnabledDataSources(
+        forcePkg: String? = null,
+        markUpdated: () -> Unit
+    ) { // UPDATE IN-VISIBLE KNOWN DATA SOURCES (uninstalled | disabled & check version)
         // AGENCY: only apply to agency (other properties are deleted when uninstalled/disabled)
         dataSourcesDatabase.agencyPropertiesDao().getAllNotInstalledOrNotEnabledAgencies().forEach { agencyProperties ->
             val pkg = agencyProperties.pkg
@@ -234,13 +241,17 @@ class DataSourcesReader(
                     agencyProperties,
                     longVersionCode,
                     pm.getInstalledProvidersWithMetaData(pkg),
-                    markUpdated
+                    forcePkg == pkg,
+                    markUpdated,
                 )
             }
         }
     }
 
-    private fun updateKnownActiveDataSources(markUpdated: () -> Unit) { // UPDATE KNOWN ACTIVE DATA SOURCES (installed & enabled & check version)
+    private fun updateKnownActiveDataSources(
+        forcePkg: String? = null,
+        markUpdated: () -> Unit
+    ) { // UPDATE KNOWN ACTIVE DATA SOURCES (installed & enabled & check version)
         val knownStatusProviderProperties = dataSourcesDatabase.statusProviderPropertiesDao().getAllStatusProvider()
         val knownScheduleProviderProperties = dataSourcesDatabase.scheduleProviderPropertiesDao().getAllScheduleProvider()
         val knownServiceUpdateProviderProperties = dataSourcesDatabase.serviceUpdateProviderPropertiesDao().getAllServiceUpdateProvider()
@@ -258,14 +269,17 @@ class DataSourcesReader(
                 return@forEach
             }
             val longVersionCode = pm.getAppLongVersionCode(pkg, DEFAULT_VERSION_CODE)
-            if (longVersionCode != agencyProperties.longVersionCode) {
+            if (forcePkg == pkg
+                || longVersionCode != agencyProperties.longVersionCode
+            ) {
                 refreshAgencyProperties(
                     pkg,
                     authority,
                     agencyProperties,
                     longVersionCode,
                     pm.getInstalledProvidersWithMetaData(pkg),
-                    markUpdated
+                    forcePkg == pkg,
+                    markUpdated,
                 )
             } // ELSE no need to refresh == same data
         }
@@ -313,7 +327,8 @@ class DataSourcesReader(
         agencyProperties: AgencyProperties? = null, // NEW
         longVersionCode: Long = pm.getAppLongVersionCode(pkg, DEFAULT_VERSION_CODE), // NEW,
         pkgProviders: List<ProviderInfo>? = pm.getInstalledProvidersWithMetaData(pkg),
-        markUpdated: () -> Unit
+        triggerUpdate: Boolean = false,
+        markUpdated: () -> Unit,
     ) {
         if (pkgProviders.isNullOrEmpty()) {
             MTLog.d(this, "Agency '$agencyAuthority' invalid (no content providers).")
@@ -349,6 +364,7 @@ class DataSourcesReader(
         }
         val isRTS = providerMetaData.isKeyMT(rtsProviderMetaData)
         val logo = if (isRTS) DataSourceManager.findAgencyRTSRouteLogo(this.app.requireContext(), agencyAuthority) else null
+        val trigger = if (triggerUpdate) agencyProperties?.let { it.trigger + 1 } ?: 0 else 0
         val newAgencyProperties = DataSourceManager.findAgencyProperties(
             this.app.requireContext(),
             agencyAuthority,
@@ -357,7 +373,8 @@ class DataSourcesReader(
             logo,
             pkg,
             longVersionCode,
-            true
+            true,
+            trigger
         )
         if (newAgencyProperties == null) {
             MTLog.d(this, "Agency '$agencyAuthority' invalid (error while fetching new agency properties).")

@@ -122,7 +122,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		setHasOptionsMenu(true);
 		restoreInstanceState(savedInstanceState, getArguments());
 		if (F_CACHE_DATA_SOURCES) {
-			this.dataSourcesRepository.readingAllAgencies().observe(this, agencyProperties -> {
+			this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this, agencyProperties -> {
 				this.nearbyLocation = null; // force refresh
 				initiateRefresh();
 			});

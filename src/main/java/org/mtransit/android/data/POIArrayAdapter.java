@@ -179,10 +179,15 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.sensorManager = Injection.providesSensorManager();
 		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 		if (F_CACHE_DATA_SOURCES) {
-			this.dataSourcesRepository.readingAllAgencies().observe(activity.getLifecycleOwner(), newAgencies ->
-					this.allAgencies = newAgencies
-			);
-			this.dataSourcesRepository.readingAllDataSourceTypes().observe(activity.getLifecycleOwner(), newDataSourceTypes ->
+			this.dataSourcesRepository.readingAllAgenciesDistinct().observe(activity.getLifecycleOwner(), newAgencies -> {
+				if (newAgencies != null) {
+					if (resetModulesStatus()) {
+						notifyDataSetChanged(true);
+					}
+				}
+				this.allAgencies = newAgencies;
+			});
+			this.dataSourcesRepository.readingAllDataSourceTypesDistinct().observe(activity.getLifecycleOwner(), newDataSourceTypes ->
 					this.dataSourceTypes = newDataSourceTypes
 			);
 		}
@@ -823,6 +828,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private static class UpdateDistanceWithStringTask extends MTCancellableAsyncTask<Location, Void, Void> {
 
 		@NonNull
@@ -928,6 +934,21 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				notifyDataSetChanged(false);
 			}
 		}
+	}
+
+	private boolean resetModulesStatus() {
+		boolean reseted = false;
+		if (this.poisByType != null) {
+			for (ArrayList<POIManager> poims : this.poisByType.values()) {
+				for (POIManager poim : poims) {
+					if (poim.poi.getType() == POI.ITEM_VIEW_TYPE_MODULE) {
+						poim.resetLastFindTimestamps(); // force get status from provider
+						reseted = true;
+					}
+				}
+			}
+		}
+		return reseted;
 	}
 
 	public void notifyDataSetChanged(boolean force) {
@@ -1583,6 +1604,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		holder.moduleExtraTypeImg = convertView.findViewById(R.id.extra);
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	@NonNull
 	private View updateModuleView(@NonNull POIManager poim, @NonNull View convertView) {
 		ModuleViewHolder holder = (ModuleViewHolder) convertView.getTag();

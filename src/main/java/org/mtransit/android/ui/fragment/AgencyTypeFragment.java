@@ -110,7 +110,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		super();
 		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 		if (F_CACHE_DATA_SOURCES) {
-			this.allAgenciesLD = this.dataSourcesRepository.readingAllAgencies();
+			this.allAgenciesLD = this.dataSourcesRepository.readingAllAgenciesDistinct();
 		} else {
 			this.allAgenciesLD = new MediatorLiveData<>();
 		}
@@ -130,28 +130,27 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		if (F_CACHE_DATA_SOURCES) {
 			this.typeAgenciesLD.addSource(this.typeLD, newType ->
 					this.typeAgenciesLD.setValue(
-							combine(newType, this.allAgenciesLD.getValue())
-					)
-			);
+							makeTypeAgencies(newType, this.allAgenciesLD.getValue())
+					));
 			this.typeAgenciesLD.addSource(this.allAgenciesLD, newAgencies ->
 					this.typeAgenciesLD.setValue(
-							combine(this.typeLD.getValue(), newAgencies)
+							makeTypeAgencies(this.typeLD.getValue(), newAgencies)
 					)
 			);
 			this.typeAgenciesLD.observe(this, newTypeAgencies -> {
-						if (this.typeAgencies != null && this.typeAgencies.equals(newTypeAgencies)) {
-							return;
-						}
-						this.typeAgencies = newTypeAgencies;
-						applyNewTypeAgencies();
-					}
-			);
+				if (this.typeAgencies != null && this.typeAgencies.equals(newTypeAgencies)) {
+					MTLog.v(this, "onChanged() > SKIP (same type agencies)");
+					return;
+				}
+				this.typeAgencies = newTypeAgencies;
+				applyNewTypeAgencies();
+			});
 			this.typeLD.postValue(this.type); // trigger once DataSourcesReader
 		}
 	}
 
 	@Nullable
-	private List<AgencyProperties> combine(@Nullable DataSourceType dst, @Nullable List<AgencyProperties> allAgencies) {
+	private List<AgencyProperties> makeTypeAgencies(@Nullable DataSourceType dst, @Nullable List<AgencyProperties> allAgencies) {
 		if (dst == null || allAgencies == null) {
 			return null;
 		}
@@ -461,7 +460,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	}
 
 	private void initAdapters(@NonNull Activity activity) {
-		this.adapter = new AgencyPagerAdapter(activity, this, null);
+		this.adapter = new AgencyPagerAdapter(activity, this, this.typeAgencies);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -712,7 +711,8 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 	private Integer getNewABBgColor(Context context) {
 		if (getABColorizer(context) != null && this.selectedPosition >= 0) {
 			int color = getABColorizer(context).getBgColor(this.selectedPosition);
-			if (this.selectionOffset > 0f && this.selectedPosition < (this.adapter.getCount() - 1)) {
+			final int count = this.adapter == null ? 0 : this.adapter.getCount();
+			if (this.selectionOffset > 0f && this.selectedPosition < (count - 1)) {
 				int nextColor = getABColorizer(context).getBgColor(this.selectedPosition + 1);
 				if (color != nextColor) {
 					return ColorUtils.blendColors(nextColor, color, this.selectionOffset);
@@ -801,7 +801,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 		AgencyPagerAdapter(@NonNull Context context,
 						   @NonNull AgencyTypeFragment agencyTypeFragment,
-						   @Nullable ArrayList<AgencyProperties> agencies) {
+						   @Nullable List<AgencyProperties> agencies) {
 			super(agencyTypeFragment.getChildFragmentManager());
 			this.contextWR = new WeakReference<>(context);
 			setAgencies(agencies);
@@ -845,7 +845,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		@NonNull
 		private final ArrayList<String> agenciesAuthority = new ArrayList<>();
 
-		boolean setAgencies(List<AgencyProperties> agencies) {
+		boolean setAgencies(@Nullable List<AgencyProperties> agencies) {
 			if (this.agencies == null && agencies == null) {
 				MTLog.d(this, "setAgencies() > SKIP (same)");
 				return false; // not changed
@@ -870,7 +870,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		}
 
 		public AgencyProperties getAgency(int position) {
-			return this.agencies.size() == 0 ? null : this.agencies.get(position);
+			return this.agencies == null || this.agencies.size() == 0 ? null : this.agencies.get(position);
 		}
 
 		@Nullable
@@ -907,7 +907,7 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 
 		@Override
 		public CharSequence getPageTitle(int position) {
-			Context context = this.contextWR == null ? null : this.contextWR.get();
+			Context context = this.contextWR.get();
 			if (context == null) {
 				return StringUtils.EMPTY;
 			}

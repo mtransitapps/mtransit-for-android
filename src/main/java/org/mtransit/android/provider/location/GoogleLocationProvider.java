@@ -2,6 +2,7 @@ package org.mtransit.android.provider.location;
 
 import android.annotation.SuppressLint;
 import android.location.Location;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,7 +39,7 @@ public class GoogleLocationProvider
 		return LOG_TAG;
 	}
 
-	private static LocationRequest FOREGROUND_LOCATION_REQUEST = LocationRequest.create() //
+	private static final LocationRequest FOREGROUND_LOCATION_REQUEST = LocationRequest.create() //
 			.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY) // foreground app == high accuracy
 			.setInterval(LocationUtils.UPDATE_INTERVAL_IN_MS) //
 			.setFastestInterval(LocationUtils.FASTEST_INTERVAL_IN_MS);
@@ -53,7 +54,7 @@ public class GoogleLocationProvider
 	private boolean foregroundLocationUpdatesEnabled = false;
 
 	@NonNull
-	private WeakHashMap<OnLastLocationChangeListener, Object> onLastLocationChangeListeners = new WeakHashMap<>();
+	private final WeakHashMap<OnLastLocationChangeListener, Object> onLastLocationChangeListeners = new WeakHashMap<>();
 
 	@NonNull
 	private final IApplication application;
@@ -171,7 +172,7 @@ public class GoogleLocationProvider
 			this.foregroundLocationCallback = null;
 		}
 		this.foregroundLocationCallback = new MTLocationCallback(this);
-		getFusedLocationProviderClient().requestLocationUpdates(FOREGROUND_LOCATION_REQUEST, this.foregroundLocationCallback, null);
+		getFusedLocationProviderClient().requestLocationUpdates(FOREGROUND_LOCATION_REQUEST, this.foregroundLocationCallback, Looper.getMainLooper());
 	}
 
 	private void disableForegroundLocationUpdates() {
@@ -200,7 +201,7 @@ public class GoogleLocationProvider
 				.addOnSuccessListener(this::onNewLastLocation);
 	}
 
-	private void onNewLastLocation(@Nullable Location lastLocation) {
+	private void onNewLastLocation(@SuppressWarnings("ParameterCanBeLocal") @Nullable Location lastLocation) {
 		if (FakeLocation.ENABLED) {
 			lastLocation = FakeLocation.getLocation();
 		}
@@ -259,14 +260,14 @@ public class GoogleLocationProvider
 		}
 
 		@Override
-		public void onLocationAvailability(LocationAvailability locationAvailability) {
+		public void onLocationAvailability(@NonNull LocationAvailability locationAvailability) {
 			super.onLocationAvailability(locationAvailability);
 		}
 
 		@Override
-		public void onLocationResult(LocationResult locationResult) {
+		public void onLocationResult(@NonNull LocationResult locationResult) {
 			super.onLocationResult(locationResult);
-			this.googleLocationProvider.onNewLastLocation(locationResult == null ? null : locationResult.getLastLocation());
+			this.googleLocationProvider.onNewLastLocation(locationResult.getLastLocation());
 		}
 	}
 }

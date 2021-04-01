@@ -231,7 +231,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 														@Nullable JPaths logo,
 														@NonNull String pkg,
 														long longVersionCode,
-														boolean enabled) {
+														boolean enabled,
+														int trigger) {
 		AgencyProperties result = null;
 		Cursor cursor = null;
 		try {
@@ -263,7 +264,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 							enabled,
 							isRTS,
 							logo,
-							maxValidInSec
+							maxValidInSec,
+							trigger
 					);
 				}
 			}

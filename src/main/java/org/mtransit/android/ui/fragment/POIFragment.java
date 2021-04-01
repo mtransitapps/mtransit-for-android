@@ -620,6 +620,7 @@ public class POIFragment extends ABFragment implements
 				}
 			}).observe(this, newAgency -> {
 				if (this.agency != null && this.agency.equals(newAgency)) {
+					MTLog.d(this, "onChanged() > SKIP (same agency)");
 					return; // SKIP same agency
 				}
 				if (this.agency != null && newAgency == null) {
@@ -628,6 +629,7 @@ public class POIFragment extends ABFragment implements
 					return;
 				}
 				this.agency = newAgency;
+				resetPoim(); // force poi + status refresh
 				applyNewAgency();
 			});
 			this.authorityLD.postValue(this.authority); // force once

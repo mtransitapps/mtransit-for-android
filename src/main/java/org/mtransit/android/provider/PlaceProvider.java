@@ -83,13 +83,13 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	@NonNull
 	@Override
 	public UriMatcher getURI_MATCHER() {
-		return getURIMATCHER(getContext());
+		return getURIMATCHER(requireContextCompat());
 	}
 
 	@NonNull
 	@Override
 	public UriMatcher getAgencyUriMatcher() {
-		return getURIMATCHER(getContext());
+		return getURIMATCHER(requireContextCompat());
 	}
 
 	@Nullable
@@ -168,7 +168,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 			sb.append(TEXT_SEARCH_URL_PART_4_BEFORE_LAT_LONG).append(optLat).append(',').append(optLng);
 		}
 		int keywordMaxSize = -1;
-		if (ArrayUtils.getSize(searchKeywords) > 0
+		if (searchKeywords != null && searchKeywords.length > 0
 				&& !TextUtils.isEmpty(searchKeywords[0])) {
 			sb.append(TEXT_SEARCH_URL_PART_5_BEFORE_INPUT);
 			boolean isFirstKeyword = true;
@@ -236,10 +236,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 
 	@Nullable
 	private Cursor fetchTextSearchResults(@NonNull Filter poiFilter) {
-		Context context = getContext();
-		if (context == null) {
-			return ContentProviderConstants.EMPTY_CURSOR; // empty cursor = processed
-		}
+		final Context context = requireContextCompat();
 		Double lat = poiFilter.getExtraDouble("lat", null);
 		Double lng = poiFilter.getExtraDouble("lng", null);
 		String url = getTextSearchUrlString(getGOOGLE_PLACES_API_KEY(context), lat, lng, null, poiFilter.getSearchKeywords());
@@ -422,7 +419,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 
 	@Override
 	public boolean isAgencyDeployed() {
-		return SqlUtils.isDbExist(getContext(), getDbName());
+		return SqlUtils.isDbExist(requireContextCompat(), getDbName());
 	}
 
 	@Override
@@ -430,11 +427,11 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		if (currentDbVersion > 0 && currentDbVersion != getCurrentDbVersion()) {
 			return true; // live update required => update
 		}
-		if (!SqlUtils.isDbExist(getContext(), getDbName())) {
+		if (!SqlUtils.isDbExist(requireContextCompat(), getDbName())) {
 			return true; // not deployed => initialization
 		}
 		//noinspection RedundantIfStatement
-		if (SqlUtils.getCurrentDbVersion(getContext(), getDbName()) != getCurrentDbVersion()) {
+		if (SqlUtils.getCurrentDbVersion(requireContextCompat(), getDbName()) != getCurrentDbVersion()) {
 			return true; // update required => update
 		}
 		return false;
@@ -452,7 +449,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	@Override
 	public ArrayMap<String, String> getPOIProjectionMap() {
 		if (poiProjectionMap == null) {
-			poiProjectionMap = getNewPoiProjectionMap(getAUTHORITY(getContext()));
+			poiProjectionMap = getNewPoiProjectionMap(getAUTHORITY(requireContextCompat()));
 		}
 		return poiProjectionMap;
 	}
@@ -548,8 +545,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 
 	@NonNull
 	private SQLiteOpenHelper getDBHelper() {
-		//noinspection ConstantConditions // TODO requireContext()
-		return getDBHelper(getContext());
+		return getDBHelper(requireContextCompat());
 	}
 
 	@NonNull

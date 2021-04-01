@@ -112,8 +112,9 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 	private boolean fragmentVisible = false;
 	@Nullable
 	private POIArrayAdapter adapter;
+	@SuppressWarnings("FieldMayBeFinal")
 	@Nullable
-	private final String emptyText = null;
+	private String emptyText = null;
 	@Nullable
 	private String authority;
 	@Nullable
@@ -223,7 +224,9 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 				this.lastVisibleFragmentPosition = -1;
 			}
 		}
-		this.adapter.setTag(this.authority);
+		if (this.adapter != null && this.authority != null) {
+			this.adapter.setTag(this.authority);
+		}
 		this.mapViewController.setTag(getLogTag());
 	}
 
@@ -356,10 +359,12 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 			this.mapViewController.onResume();
 		}
 		switchView(getView());
-		if (!this.adapter.isInitialized()) {
-			LoaderUtils.restartLoader(this, POIS_LOADER, null, this);
-		} else {
-			this.adapter.onResume(this, this.userLocation);
+		if (this.adapter != null) {
+			if (!this.adapter.isInitialized()) {
+				LoaderUtils.restartLoader(this, POIS_LOADER, null, this);
+			} else {
+				this.adapter.onResume(this, this.userLocation);
+			}
 		}
 		checkIfShowingListInsteadOfMapChanged();
 		if (getActivity() != null) {
@@ -403,9 +408,13 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 
 	@Override
 	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, @Nullable ArrayList<POIManager> data) {
-		this.adapter.setPois(data);
+		if (this.adapter != null) {
+			this.adapter.setPois(data);
+		}
 		this.mapViewController.notifyMarkerChanged(this);
-		this.adapter.updateDistanceNowAsync(this.userLocation);
+		if (this.adapter != null) {
+			this.adapter.updateDistanceNowAsync(this.userLocation);
+		}
 		switchView(getView());
 	}
 
@@ -562,7 +571,7 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 					getContext(), //
 					PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET,
 					PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT);
-			this.showingListInsteadOfMap = TextUtils.isEmpty(this.authority) ? showingListInsteadOfMapLastSet : PreferenceUtils.getPrefDefault(getActivity(),
+			this.showingListInsteadOfMap = this.authority == null || this.authority.isEmpty() ? showingListInsteadOfMapLastSet : PreferenceUtils.getPrefDefault(getActivity(),
 					PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(this.authority), showingListInsteadOfMapLastSet);
 		}
 		return this.showingListInsteadOfMap;
@@ -574,7 +583,7 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 		}
 		boolean showingListInsteadOfMapLastSet = PreferenceUtils.getPrefDefault(getActivity(),
 				PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET, PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT);
-		boolean newShowingListInsteadOfMap = TextUtils.isEmpty(this.authority) ? showingListInsteadOfMapLastSet : PreferenceUtils.getPrefDefault(getActivity(),
+		boolean newShowingListInsteadOfMap = this.authority == null || this.authority.isEmpty() ? showingListInsteadOfMapLastSet : PreferenceUtils.getPrefDefault(getActivity(),
 				PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(this.authority), showingListInsteadOfMapLastSet);
 		if (newShowingListInsteadOfMap != this.showingListInsteadOfMap) {
 			setShowingListInsteadOfMap(newShowingListInsteadOfMap);
@@ -588,7 +597,7 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 		this.showingListInsteadOfMap = newShowingListInsteadOfMap; // switching
 		PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET, this.showingListInsteadOfMap,
 				false);
-		if (!TextUtils.isEmpty(this.authority)) {
+		if (this.authority != null && !this.authority.isEmpty()) {
 			PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(this.authority),
 					this.showingListInsteadOfMap, false);
 		}

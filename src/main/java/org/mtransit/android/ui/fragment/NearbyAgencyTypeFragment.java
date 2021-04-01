@@ -122,7 +122,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 	public NearbyAgencyTypeFragment() {
 		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 		if (F_CACHE_DATA_SOURCES) {
-			this.allAgenciesLD = this.dataSourcesRepository.readingAllAgencies();
+			this.allAgenciesLD = this.dataSourcesRepository.readingAllAgenciesDistinct();
 		} else {
 			this.allAgenciesLD = new MediatorLiveData<>();
 		}
@@ -144,22 +144,22 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 		if (F_CACHE_DATA_SOURCES) {
 			this.typeAgenciesLD.addSource(this.typeIdLD, newTypeId ->
 					this.typeAgenciesLD.setValue(
-							combine(newTypeId, this.allAgenciesLD.getValue(), this.nearbyLocationLD.getValue(), this.adLD.getValue())
+							makeTypeAgencies(newTypeId, this.allAgenciesLD.getValue(), this.nearbyLocationLD.getValue(), this.adLD.getValue())
 					)
 			);
 			this.typeAgenciesLD.addSource(this.allAgenciesLD, newAgencies ->
 					this.typeAgenciesLD.setValue(
-							combine(this.typeIdLD.getValue(), newAgencies, this.nearbyLocationLD.getValue(), this.adLD.getValue())
+							makeTypeAgencies(this.typeIdLD.getValue(), newAgencies, this.nearbyLocationLD.getValue(), this.adLD.getValue())
 					)
 			);
 			this.typeAgenciesLD.addSource(this.nearbyLocationLD, newNearbyLocation ->
 					this.typeAgenciesLD.setValue(
-							combine(this.typeIdLD.getValue(), this.allAgenciesLD.getValue(), newNearbyLocation, this.adLD.getValue())
+							makeTypeAgencies(this.typeIdLD.getValue(), this.allAgenciesLD.getValue(), newNearbyLocation, this.adLD.getValue())
 					)
 			);
 			this.typeAgenciesLD.addSource(this.adLD, newAd ->
 					this.typeAgenciesLD.setValue(
-							combine(this.typeIdLD.getValue(), this.allAgenciesLD.getValue(), this.nearbyLocationLD.getValue(), newAd)
+							makeTypeAgencies(this.typeIdLD.getValue(), this.allAgenciesLD.getValue(), this.nearbyLocationLD.getValue(), newAd)
 					)
 			);
 			this.typeAgenciesLD.observe(this, newTypeAgenciesAuthority -> {
@@ -181,10 +181,10 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 	}
 
 	@Nullable
-	private List<String> combine(@Nullable Integer typeId,
-								 @Nullable List<AgencyProperties> allAgencies,
-								 @Nullable Location nearbyLocation,
-								 @Nullable LocationUtils.AroundDiff ad) {
+	private List<String> makeTypeAgencies(@Nullable Integer typeId,
+										  @Nullable List<AgencyProperties> allAgencies,
+										  @Nullable Location nearbyLocation,
+										  @Nullable LocationUtils.AroundDiff ad) {
 		if (typeId == null || allAgencies == null || nearbyLocation == null || ad == null) {
 			MTLog.d(this, "combine() > SKIP (missing data)");
 			return null;

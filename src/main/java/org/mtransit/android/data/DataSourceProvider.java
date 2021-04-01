@@ -434,7 +434,8 @@ public class DataSourceProvider implements IContext, MTLog.Loggable {
 									logo,
 									pkg,
 									PackageManagerUtils.getAppLongVersionCode(context, pkg),
-									PackageManagerUtils.isAppEnabled(context, pkg)
+									PackageManagerUtils.isAppEnabled(context, pkg),
+									0
 							);
 							if (agency != null) {
 								allAgencies.add(agency);
