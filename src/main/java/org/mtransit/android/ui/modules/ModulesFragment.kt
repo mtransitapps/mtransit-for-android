@@ -1,17 +1,19 @@
 package org.mtransit.android.ui.modules
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.RecyclerView
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.databinding.FragmentModulesBinding
 
-class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
+class ModulesFragment : Fragment(), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = ModulesFragment::class.java.simpleName
@@ -23,19 +25,26 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
 
     private val listAdapter: ModulesAdapter by lazy { ModulesAdapter() }
 
+    private var binding: FragmentModulesBinding? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         viewModel.agencies.observe(this, { newAgencies ->
             listAdapter.submitList(newAgencies)
             if (newAgencies.isNullOrEmpty()) {
-                view?.findViewById<View>(R.id.modules_linear_layout)?.visibility = View.GONE
-                view?.findViewById<View>(R.id.no_modules_layout)?.visibility = View.VISIBLE
+                binding?.modulesLinearLayout?.visibility = View.GONE
+                binding?.noModulesLayout?.visibility = View.VISIBLE
             } else {
-                view?.findViewById<View>(R.id.no_modules_layout)?.visibility = View.GONE
-                view?.findViewById<View>(R.id.modules_linear_layout)?.visibility = View.VISIBLE
+                binding?.noModulesLayout?.visibility = View.GONE
+                binding?.modulesLinearLayout?.visibility = View.VISIBLE
             }
         })
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentModulesBinding.inflate(inflater, container, false)
+        return binding?.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -53,12 +62,17 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupListAdapter(view)
+        setupListAdapter()
     }
 
-    private fun setupListAdapter(view: View) {
-        view.findViewById<RecyclerView>(R.id.modules_list)?.let {
+    private fun setupListAdapter() {
+        binding?.modulesList?.let {
             it.adapter = listAdapter
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 }
