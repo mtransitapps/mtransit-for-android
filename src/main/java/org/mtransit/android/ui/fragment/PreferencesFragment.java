@@ -64,6 +64,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 
 	private static final String DEV_MODE_GROUP_PREF = "pDevMode";
 	private static final String DEV_MODE_MODULE_PREF = "pDevModeModule";
+	private static final String DEV_MODE_AD_MEDIATION_TEST_PREF = "pDevModeAdMediationTest";
 
 	private static final String TWITTER_PAGE_URL = "https://twitter.com/montransit";
 	private static final String FACEBOOK_PAGE_URL = "https://facebook.com/MonTransit";
@@ -294,6 +295,21 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 				return true; // handled
 			});
 		}
+		final Preference devModeAdMediationTestPref = findPreference(DEV_MODE_AD_MEDIATION_TEST_PREF);
+		if (devModeAdMediationTestPref != null) {
+			devModeAdMediationTestPref.setOnPreferenceClickListener(preference -> {
+				if (true) { // DANGEROUS !!!! ONLY FOR MANUAL TESTING
+					return false; // not handled
+				}
+				Activity activity = getActivity();
+				//noinspection RedundantIfStatement
+				if (activity == null) {
+					return false; // not handled
+				}
+				com.google.android.ads.mediationtestsuite.MediationTestSuite.launch(activity);
+				return true; // handle
+			});
+		}
 	}
 
 	@Override
@@ -430,15 +446,22 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 		if (devModeModulePref == null) {
 			return;
 		}
+		Preference devModeAdMediationTestPref = findPreference(DEV_MODE_AD_MEDIATION_TEST_PREF);
+		if (devModeAdMediationTestPref == null) {
+			return;
+		}
 		final boolean devModeEnabled = PreferenceUtils.getPrefLcl(context,
 				PreferenceUtils.PREFS_LCL_DEV_MODE_ENABLED, PreferenceUtils.PREFS_LCL_DEV_MODE_ENABLED_DEFAULT);
 		if (devModeEnabled) {
 			devModeGroupPref.setEnabled(true);
 			devModeModulePref.setEnabled(true);
+			devModeAdMediationTestPref.setEnabled(true);
 		} else {
 			devModeGroupPref.setEnabled(false);
 			devModeModulePref.setEnabled(false);
-			devModeGroupPref.removePreference(devModeGroupPref);
+			devModeAdMediationTestPref.setEnabled(false);
+			devModeGroupPref.removePreference(devModeModulePref);
+			devModeGroupPref.removePreference(devModeAdMediationTestPref);
 			getPreferenceScreen().removePreference(devModeGroupPref);
 		}
 	}

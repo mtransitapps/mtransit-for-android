@@ -43,6 +43,7 @@
         android:supportsRtl="false"
         android:theme="@style/MTTheme"
         tools:ignore="GoogleAppIndexingWarning"
+        tools:replace="android:supportsRtl"
         tools:targetApi="30">
         <!-- tools:replace="android:supportsRtl" -->
         <!-- SPLASH SCREEN (not visible) DO NOT CHANGE ANDROID:NAME OR LAUNCHER ICON REMOVED! -->
@@ -103,6 +104,10 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="@string/google_ads_app_id" />
+        <!-- GOOGLE MOBILE ADS REAL-TIME OPEN BIDDING -->
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.rtb_enabled"
+            android:value="true" />
         <!-- GOOGLE MAPS API KEY -->
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"

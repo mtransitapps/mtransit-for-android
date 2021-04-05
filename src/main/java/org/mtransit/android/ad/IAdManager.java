@@ -5,12 +5,11 @@ import android.content.res.Configuration;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.mtransit.android.common.IApplication;
 import org.mtransit.android.ui.view.common.IActivity;
 
 public interface IAdManager {
 
-	void init(@NonNull IApplication application);
+	void init(@NonNull IActivity activity);
 
 	void onNbAgenciesUpdated(@NonNull IActivity activity, int nbAgencies);
 

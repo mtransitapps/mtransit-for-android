@@ -148,12 +148,19 @@
     <PreferenceCategory
         android:key="pDevMode"
         android:title="@string/dev_mode_pref_cat_title">
-        <!-- GOOGLE PRIVACY POLICY -->
+        <!-- MODULES -->
         <Preference
             android:enabled="false"
             android:key="pDevModeModule"
             android:summary="@string/dev_mode_pref_modules_pref_summary"
             android:title="@string/dev_mode_pref_modules_pref_title"
+            tools:enabled="true" />
+        <!-- AD TEST MEDIATION -->
+        <Preference
+            android:enabled="false"
+            android:key="pDevModeAdMediationTest"
+            android:summary="@string/dev_mode_pref_ad_mediation_test_pref_summary"
+            android:title="@string/dev_mode_pref_ad_mediation_test_pref_title"
             tools:enabled="true" />
     </PreferenceCategory>
 </PreferenceScreen>

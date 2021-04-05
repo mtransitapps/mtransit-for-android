@@ -25,6 +25,9 @@ import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.OnUserEarnedRewardListener;
 import com.google.android.gms.ads.RequestConfiguration;
+import com.google.android.gms.ads.initialization.AdapterStatus;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
@@ -49,8 +52,21 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * TESTING:
+ * Requires real app ID & unit IDs in keys.xml
+ * AdMob test devices:
+ * - https://support.google.com/admob/answer/9691433
+ * - https://apps.admob.com/v2/settings/test-devices/list
+ * Audience Network test devices:
+ * - https://developers.facebook.com/docs/audience-network/guides/test
+ * - https://business.facebook.com/pub/testing
+ * MORE:
+ * - https://developers.google.com/admob/android/test-ads
+ */
 @SuppressLint("MissingPermission")
 public class AdManager implements IAdManager, MTLog.Loggable {
 
@@ -67,6 +83,9 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 	private static final boolean AD_ENABLED = true;
 	// private static final boolean AD_ENABLED = false; // DEBUG
+
+	private static final boolean IGNORE_REWARD_HIDING_BANNER = false;
+	// private static final boolean IGNORE_REWARD_HIDING_BANNER = true; // DEBUG
 
 	private static final int MIN_AGENCIES_FOR_ADS = 2;
 	// private static final int MIN_AGENCIES_FOR_ADS = 0; // DEBUG
@@ -105,19 +124,34 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		});
 	}
 
+	@Nullable
+	private Boolean initialized = false;
+
 	@Override
-	public void init(@NonNull IApplication application) {
+	public void init(@NonNull IActivity activity) {
 		if (!AD_ENABLED) {
 			return;
 		}
+		if (this.initialized == null // IN PROGRESS
+				|| Boolean.TRUE.equals(this.initialized)) {
+			MTLog.d(this, "init() > SKIP (init: %s)", this.initialized);
+			return; // SKIP
+		}
+		final android.app.Activity theActivity = activity.getActivity();
+		if (theActivity == null) {
+			MTLog.w(this, "Trying to initialized w/o activity!");
+			return; // SKIP
+		}
+		this.initialized = null; // IN PROGRESS
 		try {
 			MobileAds.initialize(
-					application.requireApplication().getApplicationContext()
+					theActivity, // some adapters require activity #MoPub
+					new MTOnInitializationCompleteListener(this, activity)
 			);
 			if (DEBUG) {
 				List<String> testDeviceIds = new ArrayList<>();
 				testDeviceIds.add(AdRequest.DEVICE_ID_EMULATOR);
-				testDeviceIds.addAll(Arrays.asList(application.requireContext().getResources().getStringArray(R.array.google_ads_test_devices_ids)));
+				testDeviceIds.addAll(Arrays.asList(this.application.requireContext().getResources().getStringArray(R.array.google_ads_test_devices_ids)));
 				MobileAds.setRequestConfiguration(
 						new RequestConfiguration.Builder()
 								.setTestDeviceIds(testDeviceIds)
@@ -126,6 +160,46 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			}
 		} catch (Exception e) {
 			this.crashReporter.w(this, e, "Error while initializing Ads!");
+		}
+	}
+
+	private static class MTOnInitializationCompleteListener implements OnInitializationCompleteListener, MTLog.Loggable {
+
+		private static final String LOG_TAG = AdManager.class.getSimpleName() + ">" + MTOnInitializationCompleteListener.class.getSimpleName();
+
+		@NonNull
+		@Override
+		public String getLogTag() {
+			return LOG_TAG;
+		}
+
+		@NonNull
+		private final AdManager adManager;
+		@NonNull
+		private final WeakReference<IActivity> activityWR;
+
+		MTOnInitializationCompleteListener(@NonNull AdManager adManager, @Nullable IActivity activity) {
+			this.adManager = adManager;
+			this.activityWR = new WeakReference<>(activity);
+		}
+
+		@Override
+		public void onInitializationComplete(InitializationStatus initializationStatus) {
+			MTLog.d(this, "onInitializationComplete()");
+			this.adManager.initialized = true;
+			final IActivity activity = this.activityWR.get();
+			if (activity != null) {
+				this.adManager.setupAd(activity);
+			}
+			Map<String, AdapterStatus> statusMap = initializationStatus.getAdapterStatusMap();
+			for (String adapterClass : statusMap.keySet()) {
+				AdapterStatus status = statusMap.get(adapterClass);
+				MTLog.d(this, "Adapter name: %s, Description: %s, Latency: %d",
+						adapterClass,
+						status.getDescription(),
+						status.getLatency()
+				);
+			}
 		}
 	}
 
@@ -542,6 +616,10 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		if (nbAgencies == null) {
 			nbAgencies = this.dataSourcesRepository.getAllAgenciesCount();
 		}
+		if (!Boolean.TRUE.equals(this.initialized)) {
+			MTLog.d(this, "isShowingAds() > Not showing ads (not initialized yet).");
+			return false; // not showing ads
+		}
 		if (nbAgencies == null // number of agency unknown
 				|| nbAgencies <= MIN_AGENCIES_FOR_ADS) { // no (real) agency installed
 			MTLog.d(this, "isShowingAds() > Not showing ads (no '%d' agency installed).", nbAgencies);
@@ -552,6 +630,9 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			return false; // not showing ads
 		}
 		MTLog.d(this, "isShowingAds() > Showing ads: '%s'.", showingAds);
+		if (IGNORE_REWARD_HIDING_BANNER) {
+			return showingAds;
+		}
 		if (isRewardedNow()) { // rewarded status
 			MTLog.d(this, "isShowingAds() > Not showing banner ads (rewarded until: %s).", this.rewardedUntilInMs);
 			return false; // not showing ads
@@ -727,12 +808,12 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 		@MainThread
 		@Override
-		protected void onPostExecuteNotCancelledMT(@Nullable Boolean result) {
+		protected void onPostExecuteNotCancelledMT(@Nullable Boolean isShowingAds) {
 			IActivity activity = this.activityWR.get();
 			if (activity == null) {
 				return;
 			}
-			if (Boolean.TRUE.equals(result) && !isCancelled()) { // show ads
+			if (Boolean.TRUE.equals(isShowingAds) && !isCancelled()) { // show ads
 				ViewGroup adLayout = activity.findViewById(R.id.ad_layout);
 				if (adLayout != null) {
 					AdView adView = adLayout.findViewById(R.id.ad);
@@ -786,6 +867,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 		@Override
 		public void onAdFailedToLoad(LoadAdError loadAdError) {
+			MTLog.d(this, "onAdFailedToLoad(%s)", loadAdError);
 			super.onAdFailedToLoad(loadAdError);
 			switch (loadAdError.getCode()) {
 			case AdRequest.ERROR_CODE_APP_ID_MISSING:
@@ -797,11 +879,17 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			case AdRequest.ERROR_CODE_INVALID_REQUEST:
 				this.crashReporter.w(this, "Failed to received ad! Invalid request error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
 				break;
+			case AdRequest.ERROR_CODE_REQUEST_ID_MISMATCH:
+				this.crashReporter.w(this, "Failed to received ad! Request ID mismatch error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
+				break;
 			case AdRequest.ERROR_CODE_NETWORK_ERROR:
 				MTLog.w(this, "Failed to received ad! Network error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
 				break;
+			case AdRequest.ERROR_CODE_MEDIATION_NO_FILL:
+				MTLog.w(this, "Failed to received ad! Mediation no fill error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
+				break;
 			case AdRequest.ERROR_CODE_NO_FILL:
-				this.crashReporter.w(this, "Failed to received ad! No fill error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
+				MTLog.w(this, "Failed to received ad! No fill error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
 				break;
 			default:
 				this.crashReporter.w(this, "Failed to received ad! Error code: '%s' (%s).", loadAdError.getCode(), loadAdError);
@@ -810,20 +898,23 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			this.adManager.adLoaded = null;
 			IActivity activity = this.activityWR.get();
 			if (activity == null) {
+				MTLog.d(this, "onAdFailedToLoad() > SKIP (no activity)");
 				return;
 			}
-			this.adManager.hideAds(activity);
+			this.adManager.hideAds(activity); // hiding ads until next AUTOMATIC ad refresh
 		}
 
 		@Override
 		public void onAdLoaded() {
 			super.onAdLoaded();
+			MTLog.d(this, "onAdLoaded()");
 			this.adManager.adLoaded = true;
 			IActivity activity = this.activityWR.get();
 			if (activity == null) {
+				MTLog.d(this, "onAdLoaded() > SKIP (no activity)");
 				return;
 			}
-			this.adManager.showAdsIfEnoughSpace(activity);
+			this.adManager.showAdsIfEnoughSpace(activity); // showing ads if hidden because of no-fill/network error
 		}
 
 		@Override

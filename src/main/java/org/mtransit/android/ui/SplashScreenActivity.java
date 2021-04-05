@@ -54,6 +54,8 @@ public class SplashScreenActivity extends MTActivity implements IActivity, IAnal
 
 	private void showHomeActivity() {
 		// if (true) {
+		// // ADD tools:replace="android:supportsRtl" to AndroidManifest.xml <application />
+		// // USE real Google Ads app ID & unit IDs in keys.xml
 		// com.google.android.ads.mediationtestsuite.MediationTestSuite.launch(this);
 		// finish();
 		// return;

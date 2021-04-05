@@ -92,6 +92,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		adManager.init(this);
 		NightModeUtils.resetColorCache(); // single activity, no cache can be trusted to be from the right theme
 		this.currentUiMode = getResources().getConfiguration().uiMode;
 		setContentView(R.layout.activity_main);

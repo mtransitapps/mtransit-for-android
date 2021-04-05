@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.mtransit.android.BuildConfig;
-import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.analytics.AnalyticsUserProperties;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.common.IApplication;
@@ -42,8 +41,6 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 	@Nullable
 	private IStrictMode strictMode = null;
 	@Nullable
-	private IAdManager adManager = null;
-	@Nullable
 	private IAnalyticsManager analyticsManager = null;
 
 	public MTApplication() {
@@ -55,9 +52,6 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 	protected void attachBaseContext(@NonNull Context base) {
 		base = LocaleUtils.fixDefaultLocale(base);
 		super.attachBaseContext(base);
-		// if (BuildConfig.DEBUG) {
-		// androidx.multidex.MultiDex.install(this);
-		// }
 	}
 
 	@Override
@@ -70,7 +64,6 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 		NightModeUtils.setDefaultNightMode(this);
 		getStrictMode().setup(BuildConfig.DEBUG);
 		getCrashReporter().setup(this, !BuildConfig.DEBUG);
-		getAdManager().init(this);
 		getAnalyticsManager().setUserProperty(AnalyticsUserProperties.DEVICE_MANUFACTURER, Build.MANUFACTURER);
 	}
 
@@ -101,14 +94,6 @@ public class MTApplication extends Application implements IApplication, MTLog.Lo
 			this.crashReporter = Injection.providesCrashReporter();
 		}
 		return this.crashReporter;
-	}
-
-	@NonNull
-	private IAdManager getAdManager() {
-		if (this.adManager == null) {
-			this.adManager = Injection.providesAdManager();
-		}
-		return this.adManager;
 	}
 
 	@NonNull
