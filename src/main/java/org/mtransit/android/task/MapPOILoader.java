@@ -29,8 +29,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class MapPOILoader extends MTAsyncTaskLoaderX<Collection<MapViewController.POIMarker>> {
 
 	private static final String LOG_TAG = MapPOILoader.class.getSimpleName();
@@ -72,13 +70,8 @@ public class MapPOILoader extends MTAsyncTaskLoaderX<Collection<MapViewControlle
 			return this.poiMarkers;
 		}
 		this.poiMarkers = new HashSet<>();
-		Collection<AgencyProperties> agencies;
-		if (F_CACHE_DATA_SOURCES) {
-			agencies = this.dataSourcesRepository.getAllAgencies();
-		} else {
-			agencies = org.mtransit.android.data.DataSourceProvider.get(getContext()).getAllAgencies(getContext());
-		}
-		if (agencies == null || agencies.isEmpty()) {
+		Collection<AgencyProperties> agencies = this.dataSourcesRepository.getAllAgencies();
+		if (agencies.isEmpty()) {
 			return this.poiMarkers;
 		}
 		if (this.latLngBounds == null) {

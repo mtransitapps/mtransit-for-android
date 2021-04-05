@@ -50,8 +50,6 @@ import org.mtransit.android.util.LoaderUtils;
 
 import java.util.ArrayList;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class HomeFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
 		FavoriteManager.FavoriteUpdateListener, SwipeRefreshLayout.OnRefreshListener, POIArrayAdapter.TypeHeaderButtonsClickListener,
 		POIArrayAdapter.InfiniteLoadingListener {
@@ -121,12 +119,10 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 		restoreInstanceState(savedInstanceState, getArguments());
-		if (F_CACHE_DATA_SOURCES) {
-			this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this, agencyProperties -> {
-				this.nearbyLocation = null; // force refresh
-				initiateRefresh();
-			});
-		}
+		this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this, agencyProperties -> {
+			this.nearbyLocation = null; // force refresh
+			initiateRefresh();
+		});
 	}
 
 	@Nullable
@@ -152,21 +148,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		return true;
 	}
 
-	private boolean modulesUpdated = false;
-
-	@Override
-	public void onModulesUpdated() {
-		this.modulesUpdated = true;
-		if (!isResumed()) {
-			return;
-		}
-		if (!F_CACHE_DATA_SOURCES) {
-			this.nearbyLocation = null; // force refresh
-			initiateRefresh();
-		}
-		this.modulesUpdated = false; // processed
-	}
-
 	private void restoreInstanceState(@SuppressWarnings("unused") Bundle... bundles) {
 		// DO NOTHING
 	}
@@ -183,15 +164,6 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	public void onResume() {
 		super.onResume();
 		View view = getView();
-		if (this.modulesUpdated) {
-			if (view != null) {
-				view.post(() -> {
-					if (HomeFragment.this.modulesUpdated) {
-						onModulesUpdated();
-					}
-				});
-			}
-		}
 		switchView(view);
 		if (this.adapter != null) {
 			this.adapter.onResume(this, this.userLocation);

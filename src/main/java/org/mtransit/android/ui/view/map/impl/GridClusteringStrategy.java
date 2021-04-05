@@ -9,15 +9,15 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.VisibleRegion;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.map.ClusterOptions;
 import org.mtransit.android.ui.view.map.ClusterOptionsProvider;
 import org.mtransit.android.ui.view.map.ClusteringSettings;
 import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.utils.SphericalMercator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {

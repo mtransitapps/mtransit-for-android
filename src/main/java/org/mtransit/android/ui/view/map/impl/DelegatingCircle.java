@@ -1,9 +1,9 @@
 package org.mtransit.android.ui.view.map.impl;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.mtransit.android.ui.view.map.Circle;
 import org.mtransit.android.ui.view.map.utils.LatLngUtils;
-
-import com.google.android.gms.maps.model.LatLng;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 @Deprecated

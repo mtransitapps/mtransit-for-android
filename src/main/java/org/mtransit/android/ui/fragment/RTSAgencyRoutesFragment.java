@@ -48,8 +48,6 @@ import org.mtransit.android.util.LoaderUtils;
 
 import java.util.ArrayList;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 // list/grid of agency routes
 public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFragment.AgencyFragment, LoaderManager.LoaderCallbacks<ArrayList<Route>>,
 		AdapterView.OnItemClickListener, CompoundButton.OnCheckedChangeListener {
@@ -103,8 +101,9 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 	private boolean fragmentVisible = false;
 	@Nullable
 	private RTSAgencyRouteArrayAdapter adapter;
+	@SuppressWarnings("FieldMayBeFinal")
 	@Nullable
-	private final String emptyText = null;
+	private String emptyText = null;
 
 	@Nullable
 	private String authority;
@@ -222,9 +221,11 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 	private boolean isShowingListInsteadOfGrid() {
 		if (this.showingListInsteadOfGrid == null) {
 			this.showingListInsteadOfGrid = isShowingListInsteadOfGridPref();
-			if (!TextUtils.isEmpty(this.authority)) {
-				PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(this.authority),
-						this.showingListInsteadOfGrid, true);
+			if (this.authority != null) {
+				PreferenceUtils.savePrefDefault(getActivity(),
+						PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(this.authority),
+						this.showingListInsteadOfGrid,
+						true);
 			}
 		}
 		return this.showingListInsteadOfGrid;
@@ -243,7 +244,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 	private boolean isShowingListInsteadOfGridPref() {
 		boolean showingListInsteadOfGridLastSet = PreferenceUtils.getPrefDefault(getActivity(), //
 				PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET, PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT);
-		if (TextUtils.isEmpty(this.authority)) {
+		if (this.authority == null) {
 			return showingListInsteadOfGridLastSet;
 		}
 		return PreferenceUtils.getPrefDefault(getActivity(), PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(this.authority),
@@ -257,7 +258,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 		this.showingListInsteadOfGrid = newShowingListInsteadOfGrid; // switching to grid
 		PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET, this.showingListInsteadOfGrid,
 				false);
-		if (!TextUtils.isEmpty(this.authority)) {
+		if (this.authority != null) {
 			PreferenceUtils.savePrefDefault(getActivity(), PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(this.authority),
 					this.showingListInsteadOfGrid, false);
 		}
@@ -279,7 +280,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 				if (activity == null) {
 					return;
 				}
-				if (TextUtils.isEmpty(RTSAgencyRoutesFragment.this.authority)) {
+				if (RTSAgencyRoutesFragment.this.authority == null) {
 					return;
 				}
 				Route selectedRoute = RTSAgencyRoutesFragment.this.adapter == null ? null : RTSAgencyRoutesFragment.this.adapter.getItem(position);
@@ -387,7 +388,9 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 
 	@Override
 	public void onLoadFinished(@NonNull Loader<ArrayList<Route>> loader, @Nullable ArrayList<Route> data) {
-		this.adapter.setRoutes(data);
+		if (this.adapter != null) {
+			this.adapter.setRoutes(data);
+		}
 		switchView(getView());
 	}
 
@@ -576,13 +579,13 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 		private ArrayList<Route> routes = null;
 		@NonNull
 		private final LayoutInflater layoutInflater;
-		@NonNull
+		@Nullable
 		private String authority;
 		private boolean showingListInsteadOfGrid;
 
 		RTSAgencyRouteArrayAdapter(@NonNull Context context,
 								   @NonNull DataSourcesRepository dataSourcesRepository,
-								   @NonNull String authority,
+								   @Nullable String authority,
 								   boolean showingListInsteadOfGrid) {
 			super(context, -1);
 			this.dataSourcesRepository = dataSourcesRepository;
@@ -595,7 +598,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 			this.showingListInsteadOfGrid = showingListInsteadOfGrid;
 		}
 
-		public void setAuthority(@NonNull String authority) {
+		public void setAuthority(@Nullable String authority) {
 			this.authority = authority;
 		}
 
@@ -656,7 +659,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 				return null;
 			}
 			RouteViewHolder holder = (RouteViewHolder) convertView.getTag();
-			if (route == null) {
+			if (route == null || this.authority == null) {
 				holder.routeFL.setVisibility(View.GONE);
 			} else {
 				if (TextUtils.isEmpty(route.getShortName())) {
@@ -664,12 +667,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 					if (holder.routeTypeImg.hasPaths() && this.authority.equals(holder.routeTypeImg.getTag())) {
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
-						final AgencyProperties agency;
-						if (F_CACHE_DATA_SOURCES) {
-							agency = this.dataSourcesRepository.getAgency(this.authority);
-						} else {
-							agency = org.mtransit.android.data.DataSourceProvider.get(getContext()).getAgency(getContext(), this.authority);
-						}
+						final AgencyProperties agency = this.dataSourcesRepository.getAgency(this.authority);
 						final JPaths rtsRouteLogo = agency == null ? null : agency.getLogo();
 						if (rtsRouteLogo != null) {
 							holder.routeTypeImg.setJSON(rtsRouteLogo);
@@ -692,7 +690,7 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 						holder.routeLongNameTv.setVisibility(View.VISIBLE);
 					}
 				}
-				holder.routeFL.setBackgroundColor(POIManager.getRouteColorNN(getContext(), this.dataSourcesRepository, route, this.authority, Color.BLACK));
+				holder.routeFL.setBackgroundColor(POIManager.getRouteColorNN(this.dataSourcesRepository, route, this.authority, Color.BLACK));
 				holder.routeFL.setVisibility(View.VISIBLE);
 			}
 			return convertView;

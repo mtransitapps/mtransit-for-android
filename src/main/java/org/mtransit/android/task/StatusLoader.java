@@ -25,8 +25,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class StatusLoader implements MTLog.Loggable {
 
 	private static final String LOG_TAG = StatusLoader.class.getSimpleName();
@@ -106,13 +104,8 @@ public class StatusLoader implements MTLog.Loggable {
 		if (skipIfBusy && isBusy()) {
 			return false;
 		}
-		Set<StatusProviderProperties> providers;
-		if (F_CACHE_DATA_SOURCES) {
-			providers = this.dataSourcesRepository.getStatusProviders(poim.poi.getAuthority());
-		} else {
-			providers = org.mtransit.android.data.DataSourceProvider.get(context).getTargetAuthorityStatusProviders(poim.poi.getAuthority());
-		}
-		if (providers != null && providers.size() > 0) {
+		Set<StatusProviderProperties> providers = this.dataSourcesRepository.getStatusProviders(poim.poi.getAuthority());
+		if (!providers.isEmpty()) {
 			for (StatusProviderProperties provider : providers) {
 				if (provider == null) {
 					continue;

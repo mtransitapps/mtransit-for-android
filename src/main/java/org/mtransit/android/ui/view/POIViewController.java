@@ -41,8 +41,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
+@SuppressWarnings({"WeakerAccess", "unused", "DuplicateBranchesInSwitch"})
 public class POIViewController implements MTLog.Loggable {
 
 	private static final String LOG_TAG = POIViewController.class.getSimpleName();
@@ -309,12 +308,7 @@ public class POIViewController implements MTLog.Loggable {
 					if (holder.routeTypeImg.hasPaths() && poim.poi.getAuthority().equals(holder.routeTypeImg.getTag())) {
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
-						final AgencyProperties agency;
-						if (F_CACHE_DATA_SOURCES) {
-							agency = dataProvider.providesDataSourcesRepository().getAgency(poim.poi.getAuthority());
-						} else {
-							agency = org.mtransit.android.data.DataSourceProvider.get(context).getAgency(context, poim.poi.getAuthority());
-						}
+						final AgencyProperties agency = dataProvider.providesDataSourcesRepository().getAgency(poim.poi.getAuthority());
 						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo();
 						if (rtsRouteLogo != null) {
 							holder.routeTypeImg.setJSON(rtsRouteLogo);
@@ -360,7 +354,7 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	public static void updatePOIStatus(Context context, @Nullable View view, @NonNull POIStatus status, @NonNull POIDataProvider dataProvider) {
+	public static void updatePOIStatus(@NonNull Context context, @Nullable View view, @NonNull POIStatus status, @NonNull POIDataProvider dataProvider) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
 			return;
 		}
@@ -540,7 +534,7 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	public static void updateServiceUpdatesView(@Nullable View view, ArrayList<ServiceUpdate> serviceUpdates, @NonNull POIDataProvider dataProvider) {
+	public static void updateServiceUpdatesView(@Nullable View view, @Nullable ArrayList<ServiceUpdate> serviceUpdates, @NonNull POIDataProvider dataProvider) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof CommonViewHolder)) {
 			return;
 		}
@@ -548,7 +542,7 @@ public class POIViewController implements MTLog.Loggable {
 		updateServiceUpdateViewHolder(holder.serviceUpdateViewHolder, ServiceUpdate.isSeverityWarning(serviceUpdates), dataProvider);
 	}
 
-	public static void updatePOIServiceUpdate(Context context, @Nullable View view, @NonNull POIManager poim, @NonNull POIDataProvider dataProvider) {
+	public static void updatePOIServiceUpdate(@NonNull Context context, @Nullable View view, @NonNull POIManager poim, @NonNull POIDataProvider dataProvider) {
 		if (view == null) {
 			return;
 		}
@@ -583,7 +577,7 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	public static void updatePOIDistanceAndCompass(@Nullable View view, POIManager poim, @NonNull POIDataProvider dataProvider) {
+	public static void updatePOIDistanceAndCompass(@Nullable View view, @NonNull POIManager poim, @NonNull POIDataProvider dataProvider) {
 		if (view == null) {
 			MTLog.d(LOG_TAG, "updatePOIDistanceAndCompass() > skip (no view)");
 			return;
@@ -599,7 +593,7 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		holder.compassV.setLatLng(poim.getLat(), poim.getLng());
-		if (!TextUtils.isEmpty(poim.getDistanceString())) {
+		if (poim.getDistanceString() != null) {
 			if (!poim.getDistanceString().equals(holder.distanceTv.getText())) {
 				holder.distanceTv.setText(poim.getDistanceString());
 			}
@@ -609,7 +603,7 @@ public class POIViewController implements MTLog.Loggable {
 			holder.distanceTv.setText(null);
 		}
 		if (holder.distanceTv.getVisibility() == View.VISIBLE) {
-			if (dataProvider.hasLocation() //
+			if (dataProvider.getLocation() != null //
 					&& dataProvider.hasLastCompassInDegree() //
 					&& dataProvider.getLocation().getAccuracy() <= poim.getDistance()) {
 				holder.compassV.generateAndSetHeading( //
@@ -661,15 +655,16 @@ public class POIViewController implements MTLog.Loggable {
 
 		boolean isShowingStatus();
 
+		@Nullable
 		Activity getActivity();
 
 		boolean isShowingExtra();
 
 		long getNowToTheMinute();
 
-		boolean isClosestPOI(String uuid);
+		boolean isClosestPOI(@NonNull String uuid);
 
-		boolean isFavorite(String uuid);
+		boolean isFavorite(@NonNull String uuid);
 
 		boolean isShowingFavorite();
 
@@ -677,6 +672,7 @@ public class POIViewController implements MTLog.Loggable {
 
 		int getLastCompassInDegree();
 
+		@Nullable
 		Location getLocation();
 
 		boolean hasLastCompassInDegree();

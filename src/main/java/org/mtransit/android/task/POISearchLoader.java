@@ -32,8 +32,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class POISearchLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
 	private static final String TAG = POISearchLoader.class.getSimpleName();
@@ -84,11 +82,7 @@ public class POISearchLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 		boolean keepAll;
 		List<DataSourceType> agencyTypes;
 		if (this.typeFilter == null || this.typeFilter.getDataSourceTypeId() == SearchFragment.TypeFilter.ALL.getDataSourceTypeId()) {
-			if (F_CACHE_DATA_SOURCES) {
-				agencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
-			} else {
-				agencyTypes = org.mtransit.android.data.DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
-			}
+			agencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
 			keepAll = false;
 		} else {
 			agencyTypes = new ArrayList<>();
@@ -216,18 +210,11 @@ public class POISearchLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 				return null;
 			}
 			clearFetchAgencySearchTasks();
-			List<AgencyProperties> agencies;
-			if (F_CACHE_DATA_SOURCES) {
-				agencies = this.dataSourcesRepository.getTypeDataSources(this.agencyType);
-			} else {
-				agencies = org.mtransit.android.data.DataSourceProvider.get(this.context).getTypeDataSources(this.context, this.agencyType);
-			}
+			List<AgencyProperties> agencies = this.dataSourcesRepository.getTypeDataSources(this.agencyType);
 			ArrayList<Future<ArrayList<POIManager>>> taskList = new ArrayList<>();
-			if (agencies != null) {
-				for (AgencyProperties agency : agencies) {
-					FindSearchTask task = new FindSearchTask(this.context, agency, this.query, this.userLocation);
-					taskList.add(getFetchAgencySearchExecutor().submit(task));
-				}
+			for (AgencyProperties agency : agencies) {
+				FindSearchTask task = new FindSearchTask(this.context, agency, this.query, this.userLocation);
+				taskList.add(getFetchAgencySearchExecutor().submit(task));
 			}
 			ArrayList<POIManager> typePois = new ArrayList<>();
 			for (Future<ArrayList<POIManager>> future : taskList) {

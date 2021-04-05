@@ -1,6 +1,9 @@
 package org.mtransit.android.task;
 
-import java.util.ArrayList;
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.provider.GTFSProviderContract;
@@ -8,10 +11,7 @@ import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 
-import android.content.Context;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import java.util.ArrayList;
 
 public class RTSTripStopsLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 

@@ -1,16 +1,16 @@
 package org.mtransit.android.ui.view.map;
 
+import android.content.Context;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.lang.ref.WeakReference;
-
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 
-import android.content.Context;
+import java.lang.ref.WeakReference;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 @SuppressWarnings("unused")

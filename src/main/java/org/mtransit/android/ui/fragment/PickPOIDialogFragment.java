@@ -34,11 +34,8 @@ import org.mtransit.android.util.LoaderUtils;
 
 import java.util.ArrayList;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class PickPOIDialogFragment extends MTDialogFragmentX implements
 		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
-		org.mtransit.android.data.DataSourceProvider.ModulesUpdateListener,
 		MTActivityWithLocation.UserLocationListener,
 		POIArrayAdapter.OnClickHandledListener,
 		IActivity {
@@ -58,11 +55,9 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements
 	public static PickPOIDialogFragment newInstance(@NonNull ArrayMap<String, String> uuidsAndAuthorities) {
 		ArrayList<String> uuids = new ArrayList<>();
 		ArrayList<String> authorities = new ArrayList<>();
-		if (uuidsAndAuthorities != null) {
-			for (ArrayMap.Entry<String, String> uuidAndAuthority : uuidsAndAuthorities.entrySet()) {
-				uuids.add(uuidAndAuthority.getKey());
-				authorities.add(uuidAndAuthority.getValue());
-			}
+		for (ArrayMap.Entry<String, String> uuidAndAuthority : uuidsAndAuthorities.entrySet()) {
+			uuids.add(uuidAndAuthority.getKey());
+			authorities.add(uuidAndAuthority.getValue());
 		}
 		return newInstance(uuids, authorities);
 	}
@@ -85,7 +80,6 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements
 	private ArrayList<String> authorities = null;
 	@Nullable
 	private POIArrayAdapter adapter = null;
-	private boolean modulesUpdated = false;
 	@Nullable
 	private Location userLocation = null;
 
@@ -118,23 +112,19 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
-		if (!F_CACHE_DATA_SOURCES) {
-			org.mtransit.android.data.DataSourceProvider.addModulesUpdateListener(this);
-		} else {
-			this.dataSourcesRepository.readingAllAgencyAuthorities().observe(this, agencyAuthorities -> {
-				if (this.authorities == null) {
-					return;
+		this.dataSourcesRepository.readingAllAgencyAuthorities().observe(this, agencyAuthorities -> {
+			if (this.authorities == null) {
+				return;
+			}
+			for (String authority : this.authorities) {
+				if (agencyAuthorities.contains(authority)) {
+					continue;
 				}
-				for (String authority : this.authorities) {
-					if (agencyAuthorities.contains(authority)) {
-						continue;
-					}
-					MTLog.d(this, "Authority %s doesn't exist anymore, dismissing dialog.", authority);
-					dismiss();
-					break;
-				}
-			});
-		}
+				MTLog.d(this, "Authority %s doesn't exist anymore, dismissing dialog.", authority);
+				dismiss();
+				break;
+			}
+		});
 	}
 
 	private void restoreInstanceState(Bundle... bundles) {
@@ -146,18 +136,6 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements
 		if (CollectionUtils.getSize(newAuthorities) > 0) {
 			this.authorities = newAuthorities;
 		}
-	}
-
-	@Override
-	public void onModulesUpdated() {
-		this.modulesUpdated = true;
-		if (!isResumed()) {
-			return;
-		}
-		if (!F_CACHE_DATA_SOURCES) {
-			dismiss();
-		}
-		this.modulesUpdated = false; // processed
 	}
 
 	@Nullable
@@ -184,8 +162,10 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements
 			return;
 		}
 		inflateList(view);
-		this.adapter.setManualScrollView(view.findViewById(R.id.scrollview));
-		this.adapter.setManualLayout(view.findViewById(R.id.list));
+		if (this.adapter != null) {
+			this.adapter.setManualScrollView(view.findViewById(R.id.scrollview));
+			this.adapter.setManualLayout(view.findViewById(R.id.list));
+		}
 		switchView(view);
 	}
 
@@ -265,15 +245,6 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements
 	public void onResume() {
 		super.onResume();
 		View view = getView();
-		if (this.modulesUpdated) {
-			if (view != null) {
-				view.post(() -> {
-					if (PickPOIDialogFragment.this.modulesUpdated) {
-						onModulesUpdated();
-					}
-				});
-			}
-		}
 		switchView(view);
 		if (this.adapter != null && this.adapter.isInitialized()) {
 			this.adapter.onResume(this, this.userLocation);
@@ -295,6 +266,7 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements
 			if (this.uuids == null || this.authorities == null) {
 				//noinspection deprecation
 				CrashUtils.w(this, "onCreateLoader() > skip (no authority)");
+				//noinspection ConstantConditions
 				return null;
 			}
 			return new POIsLoader(requireContext(), this.uuids, this.authorities);
@@ -341,9 +313,6 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements
 		if (this.adapter != null) {
 			this.adapter.onDestroy();
 			this.adapter = null;
-		}
-		if (!F_CACHE_DATA_SOURCES) {
-			org.mtransit.android.data.DataSourceProvider.removeModulesUpdateListener(this);
 		}
 	}
 

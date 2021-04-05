@@ -47,8 +47,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class SearchFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
 		POIArrayAdapter.TypeHeaderButtonsClickListener, AdapterView.OnItemSelectedListener {
 
@@ -153,17 +151,23 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 		LoaderUtils.destroyLoader(this, POI_SEARCH_LOADER); // cancel now
 		cancelRestartSearchLater();
-		if (this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
-			this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);
-		} else {
-			this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_NONE);
+		if (this.adapter != null) {
+			if (this.typeFilter.getDataSourceTypeId() == TypeFilter.ALL.getDataSourceTypeId()) {
+				this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);
+			} else {
+				this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_NONE);
+			}
 		}
-		final int position = this.typeFiltersAdapter.getPosition(this.typeFilter);
 		final View view = getView();
-		if (view != null) {
-			((Spinner) view.findViewById(R.id.typeFilters)).setSelection(position, true);
+		if (this.typeFiltersAdapter != null) {
+			final int position = this.typeFiltersAdapter.getPosition(this.typeFilter);
+			if (view != null) {
+				((Spinner) view.findViewById(R.id.typeFilters)).setSelection(position, true);
+			}
 		}
-		this.adapter.clear();
+		if (this.adapter != null) {
+			this.adapter.clear();
+		}
 		switchView(view);
 		restartSearchLater();
 	}
@@ -190,31 +194,29 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
-		if (F_CACHE_DATA_SOURCES) {
-			this.dataSourcesRepository.readingAllDataSourceTypesDistinct().observe(this, newDataSourceTypes -> {
-				if (this.typeFiltersAdapter == null) {
-					return; // SKIP (should never happen)
-				}
-				this.typeFiltersAdapter.setData(
-						filterSearchable(newDataSourceTypes)
-				);
-				if (this.typeFilter != null) {
-					final int position = this.typeFiltersAdapter.getPosition(this.typeFilter);
-					if (position < 0) {
-						setTypeFilterFromType(TypeFilter.ALL.getDataSourceTypeId());
-					} else {
-						final View view = getView();
-						if (view != null) {
-							((Spinner) view.findViewById(R.id.typeFilters)).setSelection(position, false);
-						}
+		this.dataSourcesRepository.readingAllDataSourceTypesDistinct().observe(this, newDataSourceTypes -> {
+			if (this.typeFiltersAdapter == null) {
+				return; // SKIP (should never happen)
+			}
+			this.typeFiltersAdapter.setData(
+					filterSearchable(newDataSourceTypes)
+			);
+			if (this.typeFilter != null) {
+				final int position = this.typeFiltersAdapter.getPosition(this.typeFilter);
+				if (position < 0) {
+					setTypeFilterFromType(TypeFilter.ALL.getDataSourceTypeId());
+				} else {
+					final View view = getView();
+					if (view != null) {
+						((Spinner) view.findViewById(R.id.typeFilters)).setSelection(position, false);
 					}
 				}
-			});
-			this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this, newAllAgencies -> {
-				cancelRestartSearchLater();
-				restartSearchLater();
-			});
-		}
+			}
+		});
+		this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this, newAllAgencies -> {
+			cancelRestartSearchLater();
+			restartSearchLater();
+		});
 	}
 
 	@Nullable
@@ -249,8 +251,10 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 		Spinner typeFiltersSpinner = view.findViewById(R.id.typeFilters);
 		TypeFilter typeFilter = getTypeFilterOrNull();
-		final int position = this.typeFiltersAdapter.getPosition(typeFilter);
-		typeFiltersSpinner.setSelection(position);
+		if (this.typeFiltersAdapter != null) {
+			final int position = this.typeFiltersAdapter.getPosition(typeFilter);
+			typeFiltersSpinner.setSelection(position);
+		}
 		if (typeFiltersSpinner.getOnItemSelectedListener() == null) {
 			typeFiltersSpinner.setOnItemSelectedListener(this);
 		}
@@ -280,9 +284,11 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 
 	@Override
 	public void onItemSelected(@Nullable AdapterView<?> parent, @Nullable View view, int position, long id) {
-		final TypeFilter item = this.typeFiltersAdapter.getItem(position);
-		if (item != null) {
-			setTypeFilterFromType(item.getDataSourceTypeId());
+		if (this.typeFiltersAdapter != null) {
+			final TypeFilter item = this.typeFiltersAdapter.getItem(position);
+			if (item != null) {
+				setTypeFilterFromType(item.getDataSourceTypeId());
+			}
 		}
 	}
 
@@ -312,10 +318,12 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			this.typeFilter = TypeFilter.ALL;
 			this.typeIdFilter = this.typeFilter.getDataSourceTypeId();
 		}
-		if (this.typeIdFilter == TypeFilter.ALL.getDataSourceTypeId()) {
-			this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);
-		} else {
-			this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_NONE);
+		if (this.adapter != null) {
+			if (this.typeIdFilter == TypeFilter.ALL.getDataSourceTypeId()) {
+				this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);
+			} else {
+				this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_NONE);
+			}
 		}
 	}
 
@@ -335,20 +343,12 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 	@Override
 	public void onResume() {
 		super.onResume();
-		if (this.modulesUpdated) {
-			new Handler().post(() -> {
-				if (SearchFragment.this.modulesUpdated) {
-					onModulesUpdated();
-				}
-			});
-		}
 		switchView(getView());
-		this.adapter.onResume(this, this.userLocation);
-		if (!F_CACHE_DATA_SOURCES) {
-			setAvailableTypeFilters();
-		}
-		if (!this.adapter.isInitialized()) {
-			applyNewQuery();
+		if (this.adapter != null) {
+			this.adapter.onResume(this, this.userLocation);
+			if (!this.adapter.isInitialized()) {
+				applyNewQuery();
+			}
 		}
 		if (getActivity() != null) {
 			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getLastLocation());
@@ -363,37 +363,6 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		}
 	}
 
-	private boolean modulesUpdated = false;
-
-	@Override
-	public void onModulesUpdated() {
-		this.modulesUpdated = true;
-		if (!isResumed()) {
-			return;
-		}
-		if (!F_CACHE_DATA_SOURCES) {
-			setAvailableTypeFilters();
-			cancelRestartSearchLater();
-			restartSearchLater();
-		}
-		this.modulesUpdated = false; // processed
-	}
-
-	private void setAvailableTypeFilters() {
-		if (this.typeFiltersAdapter == null) {
-			return;
-		}
-		final List<DataSourceType> availableTypes;
-		if (F_CACHE_DATA_SOURCES) {
-			availableTypes = this.dataSourcesRepository.getAllDataSourceTypes();
-		} else {
-			availableTypes = org.mtransit.android.data.DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
-		}
-		this.typeFiltersAdapter.setData(
-				filterSearchable(availableTypes)
-		);
-	}
-
 	@NonNull
 	private List<TypeFilter> filterSearchable(@Nullable List<DataSourceType> availableTypes) {
 		ArrayList<TypeFilter> typeFilters = new ArrayList<>();
@@ -402,9 +371,7 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 			for (DataSourceType dst : availableTypes) {
 				if (dst.isSearchable()) {
 					final TypeFilter typeFilter = TypeFilter.fromDataSourceType(dst);
-					if (typeFilter != null) {
-						typeFilters.add(typeFilter);
-					}
+					typeFilters.add(typeFilter);
 				}
 			}
 		}
@@ -461,12 +428,16 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		cancelRestartSearchLater();
 		if (TextUtils.isEmpty(this.query)) {
 			this.emptyText = getString(R.string.search_hint);
-			this.adapter.setPois(new ArrayList<>()); // empty search = no result
+			if (this.adapter != null) {
+				this.adapter.setPois(new ArrayList<>()); // empty search = no result
+			}
 			switchView(getView());
 			return;
 		}
 		this.emptyText = getString(R.string.search_no_result_for_and_query, this.query);
-		this.adapter.clear();
+		if (this.adapter != null) {
+			this.adapter.clear();
+		}
 		switchView(getView());
 		restartSearchLater();
 	}

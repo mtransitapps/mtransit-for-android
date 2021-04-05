@@ -1,10 +1,10 @@
 package org.mtransit.android.ui.view.map.impl;
 
-import java.util.List;
+import com.google.android.gms.maps.model.CameraPosition;
 
 import org.mtransit.android.ui.view.map.IMarker;
 
-import com.google.android.gms.maps.model.CameraPosition;
+import java.util.List;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 interface ClusteringStrategy {

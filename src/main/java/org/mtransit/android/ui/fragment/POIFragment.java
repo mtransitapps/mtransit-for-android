@@ -89,8 +89,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class POIFragment extends ABFragment implements
 		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		POIViewController.POIDataProvider,
@@ -131,8 +129,10 @@ public class POIFragment extends ABFragment implements
 	private static final String EXTRA_POI_UUID = "extra_poi_uuid";
 
 	@NonNull
-	public static POIFragment newInstance(@NonNull String uuid, @NonNull String authority, @Nullable AgencyProperties optAgency, @Nullable POIManager
-			optPoim) {
+	public static POIFragment newInstance(@NonNull String uuid,
+										  @NonNull String authority,
+										  @Nullable AgencyProperties optAgency,
+										  @Nullable POIManager optPoim) {
 		POIFragment f = new POIFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
@@ -149,7 +149,7 @@ public class POIFragment extends ABFragment implements
 	@Nullable
 	private String authority;
 	@NonNull
-	private final MutableLiveData<String> authorityLD = new MutableLiveData<>(this.authority);
+	private final MutableLiveData<String> authorityLD = new MutableLiveData<>();
 
 	@Nullable
 	private AgencyProperties agency;
@@ -175,82 +175,6 @@ public class POIFragment extends ABFragment implements
 		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 	}
 
-	private boolean hasAgency() {
-		if (this.agency == null) {
-			initAgencyAsync();
-			return false;
-		}
-		return true;
-	}
-
-	private void initAgencyAsync() {
-		if (F_CACHE_DATA_SOURCES) {
-			return;
-		}
-		if (this.loadAgencyTask != null && this.loadAgencyTask.getStatus() == LoadAgencyTask.Status.RUNNING) {
-			return;
-		}
-		if (TextUtils.isEmpty(this.authority)) {
-			return;
-		}
-		this.loadAgencyTask = new LoadAgencyTask(this);
-		TaskUtils.execute(this.loadAgencyTask);
-	}
-
-	@Nullable
-	private LoadAgencyTask loadAgencyTask = null;
-
-	@SuppressWarnings("deprecation")
-	private static class LoadAgencyTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, POIFragment> {
-
-		@NonNull
-		@Override
-		public String getLogTag() {
-			return POIFragment.class.getSimpleName() + ">" + LoadAgencyTask.class.getSimpleName();
-		}
-
-		LoadAgencyTask(POIFragment poiFragment) {
-			super(poiFragment);
-		}
-
-		@WorkerThread
-		@Override
-		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull POIFragment poiFragment, Void... params) {
-			return poiFragment.initAgencySync();
-		}
-
-		@MainThread
-		@Override
-		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull POIFragment poiFragment, @Nullable Boolean result) {
-			if (Boolean.TRUE.equals(result)) {
-				poiFragment.applyNewAgency();
-			}
-		}
-	}
-
-	@Nullable
-	private AgencyProperties getAgencyOrNull() {
-		if (!hasAgency()) {
-			return null;
-		}
-		return this.agency;
-	}
-
-	@WorkerThread
-	private boolean initAgencySync() {
-		if (this.agency != null) {
-			return false;
-		}
-		if (!TextUtils.isEmpty(this.authority)) {
-			if (F_CACHE_DATA_SOURCES) {
-				this.agency = this.dataSourcesRepository.getAgency(this.authority);
-			} else {
-				this.agency = org.mtransit.android.data.DataSourceProvider.get(getContext()).getAgency(getContext(), this.authority);
-			}
-		}
-		return this.agency != null;
-	}
-
 	private void applyNewAgency() {
 		if (this.agency == null) {
 			return;
@@ -267,13 +191,6 @@ public class POIFragment extends ABFragment implements
 			getAbController().setABTitle(this, getABTitle(context), false);
 			getAbController().setABReady(this, isABReady(), true);
 		}
-	}
-
-	private void resetAgency() {
-		if (F_CACHE_DATA_SOURCES) {
-			return;
-		}
-		this.agency = null;
 	}
 
 	@Nullable
@@ -345,12 +262,10 @@ public class POIFragment extends ABFragment implements
 		if (this.poim != null) {
 			return false;
 		}
-		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
+		if (this.uuid != null && this.authority != null) {
 			final POIManager newPOIM = DataSourceManager.findPOI(requireContext(), this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
-			if (F_CACHE_DATA_SOURCES) {
-				if (newPOIM == null) {
-					onDataSourceRemoved();
-				}
+			if (newPOIM == null) {
+				onDataSourceRemoved();
 			}
 			this.poim = newPOIM;
 		}
@@ -472,12 +387,7 @@ public class POIFragment extends ABFragment implements
 			return false;
 		}
 		this.news = new ArrayList<>();
-		Collection<NewsProviderProperties> poiNewsProviders;
-		if (F_CACHE_DATA_SOURCES) {
-			poiNewsProviders = this.dataSourcesRepository.getNewsProviders(poim.poi.getAuthority());
-		} else {
-			poiNewsProviders = org.mtransit.android.data.DataSourceProvider.get(context).getTargetAuthorityNewsProviders(poim.poi.getAuthority());
-		}
+		Collection<NewsProviderProperties> poiNewsProviders = this.dataSourcesRepository.getNewsProviders(poim.poi.getAuthority());
 		if (CollectionUtils.getSize(poiNewsProviders) == 0) {
 			return true; // no news, need to apply
 		}
@@ -487,16 +397,14 @@ public class POIFragment extends ABFragment implements
 				.getNewTargetFilter(poim.poi)
 				.setMinCreatedAtInMs(last2Weeks);
 		ArrayList<News> allNews = new ArrayList<>();
-		if (poiNewsProviders != null) {
-			for (NewsProviderProperties poiNewsProvider : poiNewsProviders) {
-				final ArrayList<News> providerNews = DataSourceManager.findNews(
-						context,
-						poiNewsProvider.getAuthority(),
-						newsFilter
-				);
-				if (providerNews != null) {
-					allNews.addAll(providerNews);
-				}
+		for (NewsProviderProperties poiNewsProvider : poiNewsProviders) {
+			final ArrayList<News> providerNews = DataSourceManager.findNews(
+					context,
+					poiNewsProvider.getAuthority(),
+					newsFilter
+			);
+			if (providerNews != null) {
+				allNews.addAll(providerNews);
 			}
 		}
 		if (CollectionUtils.getSize(allNews) == 0) {
@@ -611,29 +519,27 @@ public class POIFragment extends ABFragment implements
 		setHasOptionsMenu(true);
 		restoreInstanceState(savedInstanceState, getArguments());
 		this.mapViewController.onCreate(savedInstanceState);
-		if (F_CACHE_DATA_SOURCES) {
-			Transformations.switchMap(this.authorityLD, newAuthority -> {
-				if (newAuthority != null) {
-					return this.dataSourcesRepository.readingAgency(newAuthority);
-				} else {
-					return null;
-				}
-			}).observe(this, newAgency -> {
-				if (this.agency != null && this.agency.equals(newAgency)) {
-					MTLog.d(this, "onChanged() > SKIP (same agency)");
-					return; // SKIP same agency
-				}
-				if (this.agency != null && newAgency == null) {
-					MTLog.d(this, "onChanged() > Agency does not exist anymore > close screen (pop)");
-					onDataSourceRemoved();
-					return;
-				}
-				this.agency = newAgency;
-				resetPoim(); // force poi + status refresh
-				applyNewAgency();
-			});
-			this.authorityLD.postValue(this.authority); // force once
-		}
+		Transformations.switchMap(this.authorityLD, newAuthority -> {
+			if (newAuthority != null) {
+				return this.dataSourcesRepository.readingAgency(newAuthority);
+			} else {
+				return null;
+			}
+		}).observe(this, newAgency -> {
+			if (this.agency != null && this.agency.equals(newAgency)) {
+				MTLog.d(this, "onChanged() > SKIP (same agency)");
+				return; // SKIP same agency
+			}
+			if (this.agency != null && newAgency == null) {
+				MTLog.d(this, "onChanged() > Agency does not exist anymore > close screen (pop)");
+				onDataSourceRemoved();
+				return;
+			}
+			this.agency = newAgency;
+			resetPoim(); // force poi + status refresh
+			applyNewAgency();
+		});
+		this.authorityLD.postValue(this.authority); // force once
 	}
 
 	private void onDataSourceRemoved() {
@@ -679,7 +585,6 @@ public class POIFragment extends ABFragment implements
 		if (newAuthority != null && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
 			this.authorityLD.postValue(newAuthority);
-			resetAgency();
 		}
 		String newUuid = BundleUtils.getString(EXTRA_POI_UUID, bundles);
 		if (newUuid != null && !newUuid.equals(this.uuid)) {
@@ -818,13 +723,9 @@ public class POIFragment extends ABFragment implements
 		}
 		View rtsScheduleBtn = view.findViewById(R.id.fullScheduleBtn);
 		Collection<ScheduleProviderProperties> scheduleProviders;
-		if (rtsScheduleBtn != null) {
-			if (F_CACHE_DATA_SOURCES) {
-				scheduleProviders = this.dataSourcesRepository.getScheduleProviders(this.authority);
-			} else {
-				scheduleProviders = org.mtransit.android.data.DataSourceProvider.get(getContext()).getTargetAuthorityScheduleProviders(this.authority);
-			}
-			if (scheduleProviders == null || scheduleProviders.isEmpty()) {
+		if (rtsScheduleBtn != null && this.authority != null && this.uuid != null) {
+			scheduleProviders = this.dataSourcesRepository.getScheduleProviders(this.authority);
+			if (scheduleProviders.isEmpty()) {
 				rtsScheduleBtn.setVisibility(View.GONE);
 			} else {
 				rtsScheduleBtn.setOnClickListener(new MTOnClickListener() {
@@ -905,7 +806,7 @@ public class POIFragment extends ABFragment implements
 						return;
 					}
 					Integer optTypeId = null;
-					final AgencyProperties agency = getAgencyOrNull();
+					final AgencyProperties agency = POIFragment.this.agency;
 					if (agency != null) {
 						optTypeId = agency.getType().getId();
 					}
@@ -1135,46 +1036,10 @@ public class POIFragment extends ABFragment implements
 		}
 	}
 
-	private boolean modulesUpdated = false;
-
-	@Override
-	public void onModulesUpdated() {
-		this.modulesUpdated = true;
-		if (!isResumed()) {
-			return;
-		}
-		if (!F_CACHE_DATA_SOURCES) {
-			MainActivity activity = (MainActivity) getActivity();
-			if (activity == null) {
-				return;
-			}
-			POIManager newPoim = DataSourceManager.findPOI(requireContext(), this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
-			if (newPoim == null) {
-				if (activity.isMTResumed()) {
-					activity.popFragmentFromStack(this); // close this fragment
-					this.modulesUpdated = false; // processed
-				}
-			} else {
-				this.modulesUpdated = false; // nothing to do
-			}
-		} else {
-			this.modulesUpdated = false; // processed
-		}
-	}
-
 	@Override
 	public void onResume() {
 		super.onResume();
 		View view = getView();
-		if (this.modulesUpdated) {
-			if (view != null) {
-				view.post(() -> {
-					if (POIFragment.this.modulesUpdated) {
-						onModulesUpdated();
-					}
-				});
-			}
-		}
 		resetFavorite(); // force refresh
 		getFavoriteFolderId();
 		enableTimeChangedReceiver();
@@ -1499,15 +1364,14 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public boolean isABReady() {
-		return hasAgency();
+		return this.agency != null;
 	}
 
 	@Nullable
 	@Override
 	public CharSequence getABTitle(@Nullable Context context) {
-		AgencyProperties agency = getAgencyOrNull();
-		if (agency != null) {
-			return agency.getShortName();
+		if (this.agency != null) {
+			return this.agency.getShortName();
 		}
 		if (context == null) {
 			return super.getABTitle(null);
@@ -1541,7 +1405,6 @@ public class POIFragment extends ABFragment implements
 			this.adapter.onDestroy();
 			this.adapter = null;
 		}
-		TaskUtils.cancelQuietly(this.loadAgencyTask, true);
 		TaskUtils.cancelQuietly(this.loadPoimTask, true);
 		TaskUtils.cancelQuietly(this.loadNewsTask, true);
 	}

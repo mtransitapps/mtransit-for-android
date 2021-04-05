@@ -1,8 +1,8 @@
 package org.mtransit.android.provider.permission;
 
-import org.mtransit.android.commons.MTLog;
-
 import android.Manifest;
+
+import org.mtransit.android.commons.MTLog;
 
 public class LocationPermissionProvider extends PermissionProviderImpl implements MTLog.Loggable {
 

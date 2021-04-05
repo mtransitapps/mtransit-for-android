@@ -29,7 +29,6 @@ import androidx.annotation.WorkerThread;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
@@ -53,13 +52,10 @@ import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
-import org.mtransit.android.ui.MainActivity;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Locale;
-
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChangeListener, MTActivityWithLocation.UserLocationListener,
 		CompoundButton.OnCheckedChangeListener {
@@ -155,15 +151,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	public void onResume() {
 		super.onResume();
 		View view = getView();
-		if (this.modulesUpdated) {
-			if (view != null) {
-				view.post(() -> {
-					if (RTSRouteFragment.this.modulesUpdated) {
-						onModulesUpdated();
-					}
-				});
-			}
-		}
 		switchView(view);
 		if (getActivity() != null) {
 			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
@@ -190,8 +177,10 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (newStopId != null && !newStopId.equals(this.stopId)) {
 			this.stopId = newStopId;
 		}
-		this.adapter.setAuthority(this.authority);
-		this.adapter.setStopId(this.stopId);
+		if (this.adapter != null) {
+			this.adapter.setAuthority(this.authority);
+			this.adapter.setStopId(this.stopId);
+		}
 	}
 
 	@Nullable
@@ -261,7 +250,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (this.routeTrips != null) {
 			return false;
 		}
-		if (this.routeId != null && !TextUtils.isEmpty(this.authority)) {
+		if (this.routeId != null && this.authority != null) {
 			this.routeTrips = DataSourceManager.findRTSRouteTrips(requireContext(), this.authority, this.routeId);
 		}
 		return this.routeTrips != null;
@@ -349,7 +338,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (this.route != null) {
 			return false;
 		}
-		if (this.routeId != null && !TextUtils.isEmpty(this.authority)) {
+		if (this.routeId != null && this.authority != null) {
 			this.route = DataSourceManager.findRTSRoute(requireContext(), this.authority, this.routeId);
 		}
 		return this.route != null;
@@ -395,41 +384,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		this.stopId = -1; // set only once
 	}
 
-	private boolean modulesUpdated = false;
-
-	@Override
-	public void onModulesUpdated() {
-		this.modulesUpdated = true;
-		if (!isResumed()) {
-			return;
-		}
-		if (!F_CACHE_DATA_SOURCES) {
-			if (this.routeId != null && !TextUtils.isEmpty(this.authority)) {
-				FragmentActivity activity = getActivity();
-				if (activity == null) {
-					return;
-				}
-				Route newRoute = DataSourceManager.findRTSRoute(requireContext(), this.authority, this.routeId);
-				if (newRoute == null) {
-					((MainActivity) activity).popFragmentFromStack(this); // close this fragment
-					this.modulesUpdated = false; // processed
-					return;
-				}
-				boolean sameRoute = newRoute.equals(this.route);
-				if (sameRoute) {
-					this.modulesUpdated = false; // nothing to do
-					return;
-				}
-				resetRoute();
-				initAdapters(activity);
-				setupView(getView());
-				this.modulesUpdated = false; // processed
-			}
-		} else {
-			this.modulesUpdated = false; // processed
-		}
-	}
-
 	private void initAdapters(@NonNull Context context) {
 		this.adapter = new RouteTripPagerAdapter(context, this, null, this.authority, this.stopId, isShowingListInsteadOfMap());
 	}
@@ -470,7 +424,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			try {
 				Context context = rtsRouteFragment.getContext();
 				if (this.tripId < 0L) {
-					if (context != null) {
+					if (context != null && this.authority != null && this.routeId != null) {
 						String routePref = PreferenceUtils.getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(this.authority, this.routeId);
 						this.tripId = PreferenceUtils.getPrefLcl(context, routePref, PreferenceUtils.PREFS_LCL_RTS_ROUTE_TRIP_ID_TAB_DEFAULT);
 					} else {
@@ -635,8 +589,10 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			Trip trip = this.adapter.getTrip(position);
 			if (trip != null) {
 				this.tripId = trip.getId();
-				String routePref = PreferenceUtils.getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(this.authority, this.routeId);
-				PreferenceUtils.savePrefLcl(getContext(), routePref, this.tripId, false);
+				if (this.authority != null && this.routeId != null) {
+					String routePref = PreferenceUtils.getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(this.authority, this.routeId);
+					PreferenceUtils.savePrefLcl(getContext(), routePref, this.tripId, false);
+				}
 			}
 		}
 		setFragmentVisibleAtPosition(position);
@@ -724,7 +680,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (context == null || this.authority == null) {
 			return super.getABBgColor(context);
 		}
-		return POIManager.getRouteColor(context, this.dataSourcesRepository, getRouteOrNull(), this.authority, super.getABBgColor(context));
+		return POIManager.getRouteColor(this.dataSourcesRepository, getRouteOrNull(), this.authority, super.getABBgColor(context));
 	}
 
 	private MenuItem listMapToggleMenuItem;
@@ -741,12 +697,13 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		updateListMapToggleMenuItem();
 	}
 
+	@Nullable
 	private StateListDrawable listMapToggleSelector = null;
 
 	@NonNull
 	private StateListDrawable getListMapToggleSelector() {
 		if (listMapToggleSelector == null) {
-			Integer colorInt = POIManager.getRouteColor(requireContext(), this.dataSourcesRepository, getRouteOrNull(), this.authority, null);
+			Integer colorInt = POIManager.getRouteColor(this.dataSourcesRepository, getRouteOrNull(), this.authority, null);
 			listMapToggleSelector = new StateListDrawable();
 			LayerDrawable listLayerDrawable = (LayerDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.switch_thumb_list, requireContext().getTheme());
 			if (listLayerDrawable != null) {
@@ -906,7 +863,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 
 		@Override
 		public CharSequence getPageTitle(int position) {
-			Context context = this.contextWR == null ? null : this.contextWR.get();
+			Context context = this.contextWR.get();
 			if (context == null) {
 				return StringUtils.EMPTY;
 			}
@@ -920,7 +877,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		@Override
 		public Fragment getItem(int position) {
 			Trip trip = getTrip(position);
-			if (trip == null) {
+			if (trip == null || this.authority == null) {
 				throw new RuntimeException("No item at position " + position + "!");
 			}
 			return RTSTripStopsFragment.newInstance(

@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
@@ -36,8 +35,6 @@ import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.util.UITimeUtils;
 
 import java.util.Calendar;
-
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChangeListener {
 
@@ -166,10 +163,8 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		if (this.uuid != null && !this.uuid.isEmpty()
 				&& getAuthority() != null && !getAuthority().isEmpty()) {
 			POIManager poim = DataSourceManager.findPOI(requireContext(), getAuthority(), POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
-			if (F_CACHE_DATA_SOURCES) {
-				if (poim == null) {
-					onDataSourceRemoved();
-				}
+			if (poim == null) {
+				onDataSourceRemoved();
 			}
 			if (poim != null && poim.poi instanceof RouteTripStop) {
 				this.rts = (RouteTripStop) poim.poi;
@@ -222,12 +217,10 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
-		if (F_CACHE_DATA_SOURCES) {
-			this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this, agencyProperties -> {
-				resetRts();
-				initRtsAsync();
-			});
-		}
+		this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this, agencyProperties -> {
+			resetRts();
+			initRtsAsync();
+		});
 	}
 
 	@Nullable
@@ -351,54 +344,6 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 					visibilityAwareFragment.setFragmentVisibleAtPosition(position);
 				}
 			}
-		}
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		View view = getView();
-		if (this.modulesUpdated) {
-			if (view != null) {
-				view.post(() -> {
-					if (ScheduleFragment.this.modulesUpdated) {
-						onModulesUpdated();
-					}
-				});
-			}
-		}
-	}
-
-	private boolean modulesUpdated = false;
-
-	@Override
-	public void onModulesUpdated() {
-		this.modulesUpdated = true;
-		if (!isResumed()) {
-			return;
-		}
-		if (!F_CACHE_DATA_SOURCES) {
-			//noinspection IfStatementWithIdenticalBranches
-			if (this.uuid != null && !this.uuid.isEmpty()
-					&& getAuthority() != null && !getAuthority().isEmpty()) {
-				FragmentActivity activity = getActivity();
-				if (activity == null) {
-					return;
-				}
-				POIManager newPoim = DataSourceManager.findPOI(activity, getAuthority(), POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
-				if (newPoim == null || !(newPoim.poi instanceof RouteTripStop)) {
-					((MainActivity) activity).popFragmentFromStack(this); // close this fragment
-					this.modulesUpdated = false; // processed
-					return;
-				}
-				resetRts();
-				setupView(getView());
-				this.modulesUpdated = false; // processed
-			} else {
-				this.modulesUpdated = false; // processed
-			}
-		} else {
-			this.modulesUpdated = false; // processed
 		}
 	}
 

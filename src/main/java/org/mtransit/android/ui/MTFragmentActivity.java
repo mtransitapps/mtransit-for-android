@@ -1,13 +1,14 @@
 package org.mtransit.android.ui;
 
-import org.mtransit.android.commons.Constants;
-import org.mtransit.android.commons.MTLog;
-
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.fragment.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import androidx.fragment.app.FragmentActivity;
+
+import org.mtransit.android.commons.Constants;
+import org.mtransit.android.commons.MTLog;
 
 /**
  * NO LOGIC HERE, just logs.

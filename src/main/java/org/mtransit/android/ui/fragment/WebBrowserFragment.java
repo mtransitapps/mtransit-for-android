@@ -252,11 +252,6 @@ public class WebBrowserFragment extends ABFragment {
 	}
 
 	@Override
-	public void onModulesUpdated() {
-		// DO NOTHING
-	}
-
-	@Override
 	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.menu_web_browser, menu);

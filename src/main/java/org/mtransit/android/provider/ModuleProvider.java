@@ -46,8 +46,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 @SuppressWarnings("UnusedReturnValue")
 public class ModuleProvider extends AgencyProvider implements POIProviderContract, StatusProviderContract {
 
@@ -158,12 +156,9 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@Override
 	public boolean onCreateMT() {
 		ping();
-		if (F_CACHE_DATA_SOURCES) {
-			dataSourcesRepository().readingAllAgenciesDistinct().observeForever(agencyProperties -> { // SINGLETON
-				MTLog.v(this, "onChanged()");
-				deleteAllModuleStatusData(); // force refresh
-			});
-		}
+		dataSourcesRepository().readingAllAgenciesDistinct().observeForever(agencyProperties -> { // SINGLETON
+			deleteAllModuleStatusData(); // force refresh
+		});
 		return true;
 	}
 

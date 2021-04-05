@@ -10,7 +10,6 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.POIManager;
-import org.mtransit.android.datasource.DataSourcesRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,8 +18,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class NearbyPOIListLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
@@ -156,29 +153,6 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager
 			}
 		}
 		return filteredAgencies;
-	}
-
-	@NonNull
-	public static List<String> findTypeAgenciesAuthorityInArea(@Nullable Context context,
-															   @NonNull DataSourcesRepository dataSourcesRepository,
-															   int typeId,
-															   double lat,
-															   double lng,
-															   double aroundDiff,
-															   @Nullable Double optLastAroundDiff) {
-		List<AgencyProperties> allTypeAgencies;
-		if (F_CACHE_DATA_SOURCES) {
-			allTypeAgencies = dataSourcesRepository.getTypeDataSources(typeId);
-		} else {
-			allTypeAgencies = org.mtransit.android.data.DataSourceProvider.get(context).getTypeDataSources(context, typeId);
-		}
-		return filterAgenciesAuthorityInArea(
-				allTypeAgencies,
-				lat,
-				lng,
-				aroundDiff,
-				optLastAroundDiff
-		);
 	}
 
 	@NonNull

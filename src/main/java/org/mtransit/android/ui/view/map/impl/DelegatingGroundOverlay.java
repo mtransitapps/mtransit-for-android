@@ -1,10 +1,10 @@
 package org.mtransit.android.ui.view.map.impl;
 
-import org.mtransit.android.ui.view.map.GroundOverlay;
-
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+
+import org.mtransit.android.ui.view.map.GroundOverlay;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class DelegatingGroundOverlay implements GroundOverlay {

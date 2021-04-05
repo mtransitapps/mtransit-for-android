@@ -3,7 +3,6 @@ package org.mtransit.android.ui;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -26,10 +25,12 @@ import org.mtransit.android.ui.view.MTOnClickListener;
 
 import java.lang.ref.WeakReference;
 
+@SuppressWarnings({"WeakerAccess", "unused"})
 public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
 	private static final String TAG = "Stack-" + ActionBarController.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -69,6 +70,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		this.mainActivityWR = new WeakReference<>(mainActivity);
 	}
 
+	@Nullable
 	private Context getContextOrNull() {
 		ActionBar ab = getABOrNull();
 		if (ab != null) {
@@ -335,9 +337,11 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	public void onSaveState(Bundle outState) {
+		// DO NOTHING
 	}
 
 	public void onRestoreState(Bundle savedInstanceState) {
+		// DO NOTHING
 	}
 
 	public void destroy() {
@@ -382,15 +386,16 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
 	private static class UpOnClickListener extends MTOnClickListener {
 
-		private WeakReference<MainActivity> mainActivityWR;
+		@NonNull
+		private final WeakReference<MainActivity> mainActivityWR;
 
-		public UpOnClickListener(MainActivity mainActivity) {
+		UpOnClickListener(MainActivity mainActivity) {
 			this.mainActivityWR = new WeakReference<>(mainActivity);
 		}
 
 		@Override
 		public void onClickMT(@NonNull View view) {
-			MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+			final MainActivity mainActivity = this.mainActivityWR.get();
 			if (mainActivity != null) {
 				mainActivity.onUpIconClick();
 			}
@@ -410,7 +415,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			return bgColors[position % bgColors.length];
 		}
 
-		public void setBgColors(int... colors) {
+		public void setBgColors(@NonNull int... colors) {
 			bgColors = colors;
 		}
 	}

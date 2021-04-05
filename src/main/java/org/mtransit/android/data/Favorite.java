@@ -1,6 +1,9 @@
 package org.mtransit.android.data;
 
-import java.util.Comparator;
+import android.content.ContentValues;
+import android.database.Cursor;
+
+import androidx.collection.SparseArrayCompat;
 
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.StringUtils;
@@ -8,10 +11,7 @@ import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.FavoriteProvider;
 import org.mtransit.android.provider.FavoriteProvider.FavoriteColumns;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-
-import androidx.collection.SparseArrayCompat;
+import java.util.Comparator;
 
 public class Favorite {
 

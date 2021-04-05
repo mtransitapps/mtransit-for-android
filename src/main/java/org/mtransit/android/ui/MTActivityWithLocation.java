@@ -1,15 +1,16 @@
 package org.mtransit.android.ui;
 
+import android.location.Location;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.location.MTLocationProvider;
 import org.mtransit.android.ui.fragment.VisibilityAwareFragment;
 import org.mtransit.android.ui.view.common.ScreenWithLocationCommon;
-
-import android.location.Location;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
 public abstract class MTActivityWithLocation extends MTActivity implements
 		MTLocationProvider.ScreenWithLocationView,

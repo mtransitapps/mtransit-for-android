@@ -1,17 +1,17 @@
 package org.mtransit.android.provider;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.provider.BaseColumns;
+
+import androidx.annotation.NonNull;
+
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.provider.MTSQLiteOpenHelper;
 import org.mtransit.commons.sql.SQLCreateBuilder;
 import org.mtransit.commons.sql.SQLInsertBuilder;
-
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.provider.BaseColumns;
-
-import androidx.annotation.NonNull;
 
 public class FavoriteDbHelper extends MTSQLiteOpenHelper {
 

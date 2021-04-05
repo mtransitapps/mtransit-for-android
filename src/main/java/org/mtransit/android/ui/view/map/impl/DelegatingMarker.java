@@ -1,21 +1,20 @@
 package org.mtransit.android.ui.view.map.impl;
 
+import android.content.Context;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 
-import java.util.List;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.map.AnimationSettings;
 import org.mtransit.android.ui.view.map.IMarker;
 import org.mtransit.android.ui.view.map.lazy.LazyMarker;
 
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.LatLng;
-
-import android.content.Context;
-import android.util.Log;
+import java.util.List;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class DelegatingMarker implements IMarker, MTLog.Loggable {

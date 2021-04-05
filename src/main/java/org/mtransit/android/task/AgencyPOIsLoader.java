@@ -1,31 +1,39 @@
 package org.mtransit.android.task;
 
-import java.util.ArrayList;
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 
-import android.content.Context;
+import java.util.ArrayList;
 
 public class AgencyPOIsLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
 	private static final String TAG = AgencyPOIsLoader.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
 	}
 
-	private String authority;
+	@NonNull
+	private final String authority;
+
+	@Nullable
 	private ArrayList<POIManager> pois;
 
-	public AgencyPOIsLoader(Context context, String authority) {
+	public AgencyPOIsLoader(@NonNull Context context, @NonNull String authority) {
 		super(context);
 		this.authority = authority;
 	}
 
+	@Nullable
 	@Override
 	public ArrayList<POIManager> loadInBackgroundMT() {
 		if (this.pois != null) {
@@ -55,11 +63,10 @@ public class AgencyPOIsLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> 
 	}
 
 	@Override
-	public void deliverResult(ArrayList<POIManager> data) {
+	public void deliverResult(@Nullable ArrayList<POIManager> data) {
 		this.pois = data;
 		if (isStarted()) {
 			super.deliverResult(data);
 		}
 	}
-
 }

@@ -1,16 +1,5 @@
 package org.mtransit.android.ui.view.map.impl;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.ui.view.map.AnimationSettings;
-import org.mtransit.android.ui.view.map.ClusteringSettings;
-import org.mtransit.android.ui.view.map.ExtendedMarkerOptions;
-import org.mtransit.android.ui.view.map.IMarker;
-import org.mtransit.android.ui.view.map.lazy.LazyMarker;
-
 import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
@@ -19,6 +8,17 @@ import androidx.collection.ArrayMap;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.ui.view.map.AnimationSettings;
+import org.mtransit.android.ui.view.map.ClusteringSettings;
+import org.mtransit.android.ui.view.map.ExtendedMarkerOptions;
+import org.mtransit.android.ui.view.map.IMarker;
+import org.mtransit.android.ui.view.map.lazy.LazyMarker;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 @SuppressWarnings("WeakerAccess")

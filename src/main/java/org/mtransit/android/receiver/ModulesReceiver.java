@@ -21,8 +21,6 @@ import org.mtransit.android.di.Injection;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable {
 
 	private static final String LOG_TAG = ModulesReceiver.class.getSimpleName();
@@ -84,49 +82,22 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 		}
 		final Uri data = intent == null ? null : intent.getData();
 		final String pkg = data == null ? null : data.getSchemeSpecificPart();
-		if (F_CACHE_DATA_SOURCES) {
-			if (this.dataSourcesRepository.isAProvider(pkg)) {
-				if (ping(context, pkg)) {
-					MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
-				}
-			}
-			final boolean canBeAProvider = this.dataSourcesRepository.isAProvider(pkg)
-					|| Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(action)
-					|| Intent.ACTION_PACKAGE_REMOVED.equals(action);
-			if (!canBeAProvider) {
-				MTLog.d(this, "onReceive() > SKIP (can NOT be a provider: pkg:%s, action:%s)", pkg, action);
-				return;
-			}
-			if (org.mtransit.android.data.DataSourceProvider.isSet()) {
-				org.mtransit.android.data.DataSourceProvider.get().updateFromDataSourceRepository(false);
-			} else { // ELSE update cache for latter
-				try {
-					this.dataSourcesRepository.updateAsync().get(); // TODO ? filter by pkg? authority?
-				} catch (Exception e) {
-					MTLog.w(this, e, "Error while updating data-sources from repository!");
-				}
-			}
-			return;
-		}
-		if (org.mtransit.android.data.DataSourceProvider.isSet()) {
-			if (org.mtransit.android.data.DataSourceProvider.isProvider(context, pkg)) {
-				MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
-				boolean didReset = org.mtransit.android.data.DataSourceProvider.resetIfNecessary(context);
-				if (!didReset) {
-					ping(context, pkg);
-				}
-			} else {
-				if (Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(action) //
-						|| Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
-					if (org.mtransit.android.data.DataSourceProvider.resetIfNecessary(context)) {
-						MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
-					}
-				}
-			}
-		} else {
+		if (this.dataSourcesRepository.isAProvider(pkg)) {
 			if (ping(context, pkg)) {
 				MTLog.i(this, "Received broadcast %s for %s.", action, pkg);
 			}
+		}
+		final boolean canBeAProvider = this.dataSourcesRepository.isAProvider(pkg)
+				|| Intent.ACTION_PACKAGE_FULLY_REMOVED.equals(action)
+				|| Intent.ACTION_PACKAGE_REMOVED.equals(action);
+		if (!canBeAProvider) {
+			MTLog.d(this, "onReceive() > SKIP (can NOT be a provider: pkg:%s, action:%s)", pkg, action);
+			return;
+		}
+		try {
+			this.dataSourcesRepository.updateAsync().get();
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while updating data-sources from repository!");
 		}
 	}
 

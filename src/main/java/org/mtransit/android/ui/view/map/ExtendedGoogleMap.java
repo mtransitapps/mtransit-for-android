@@ -1,5 +1,11 @@
 package org.mtransit.android.ui.view.map;
 
+import android.graphics.Bitmap;
+import android.view.View;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
+
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.Projection;
@@ -9,12 +15,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 
 import java.util.List;
-
-import android.graphics.Bitmap;
-
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresPermission;
-import android.view.View;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 @SuppressWarnings("unused")

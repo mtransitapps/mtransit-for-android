@@ -1,11 +1,5 @@
 package org.mtransit.android.task;
 
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
-
-import org.mtransit.android.commons.Constants;
-import org.mtransit.android.commons.MTLog;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
@@ -13,6 +7,12 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.loader.content.AsyncTaskLoader;
+
+import org.mtransit.android.commons.Constants;
+import org.mtransit.android.commons.MTLog;
+
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 
 /**
  * NO LOGIC HERE, just logs.

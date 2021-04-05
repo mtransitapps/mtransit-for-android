@@ -2,10 +2,10 @@ package org.mtransit.android.ui.view.map.impl;
 
 import com.google.android.gms.maps.model.CameraPosition;
 
-import java.util.List;
-
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.map.IMarker;
+
+import java.util.List;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class NoClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {

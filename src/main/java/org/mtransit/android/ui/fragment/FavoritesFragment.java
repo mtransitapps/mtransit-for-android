@@ -35,8 +35,6 @@ import org.mtransit.android.util.LoaderUtils;
 
 import java.util.ArrayList;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class FavoritesFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
 		FavoriteManager.FavoriteUpdateListener, IActivity {
 
@@ -85,14 +83,12 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
-		if (F_CACHE_DATA_SOURCES) {
-			this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this, newAgencies -> {
-				if (newAgencies == null) {
-					return;
-				}
-				LoaderUtils.restartLoader(this, FAVORITES_LOADER, null, this);
-			});
-		}
+		this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this, newAgencies -> {
+			if (newAgencies == null) {
+				return;
+			}
+			LoaderUtils.restartLoader(this, FAVORITES_LOADER, null, this);
+		});
 	}
 
 	@Nullable
@@ -108,15 +104,6 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	public void onResume() {
 		super.onResume();
 		View view = getView();
-		if (this.modulesUpdated) {
-			if (view != null) {
-				view.post(() -> {
-					if (FavoritesFragment.this.modulesUpdated) {
-						onModulesUpdated();
-					}
-				});
-			}
-		}
 		switchView(view);
 		if (this.adapter != null && this.adapter.isInitialized()) {
 			this.adapter.onResume(this, this.userLocation);
@@ -154,8 +141,10 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	@Override
 	public void onLoadFinished(@NonNull Loader<ArrayList<POIManager>> loader, @Nullable ArrayList<POIManager> data) {
 		this.emptyText = getString(R.string.no_favorites);
-		this.adapter.setPois(data);
-		this.adapter.updateDistanceNowAsync(this.userLocation);
+		if (this.adapter != null) {
+			this.adapter.setPois(data);
+			this.adapter.updateDistanceNowAsync(this.userLocation);
+		}
 		switchView(getView());
 	}
 
@@ -249,20 +238,6 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 		LoaderUtils.restartLoader(this, FAVORITES_LOADER, null, this);
 	}
 
-	private boolean modulesUpdated = false;
-
-	@Override
-	public void onModulesUpdated() {
-		this.modulesUpdated = true;
-		if (!isResumed()) {
-			return;
-		}
-		if (!F_CACHE_DATA_SOURCES) {
-			LoaderUtils.restartLoader(this, FAVORITES_LOADER, null, this);
-		}
-		this.modulesUpdated = false; // processed
-	}
-
 	private void switchView(View view) {
 		if (view == null) {
 			return;
@@ -323,7 +298,7 @@ public class FavoritesFragment extends ABFragment implements LoaderManager.Loade
 	@Override
 	public CharSequence getABTitle(@Nullable Context context) {
 		if (context == null) {
-			return super.getABTitle(context);
+			return super.getABTitle(null);
 		}
 		return context.getString(R.string.favorites);
 	}

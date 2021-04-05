@@ -52,7 +52,6 @@ import java.util.TimeZone;
 
 public class ScheduleDayFragment extends MTFragmentX implements
 		VisibilityAwareFragment,
-		org.mtransit.android.data.DataSourceProvider.ModulesUpdateListener,
 		LoaderManager.LoaderCallbacks<ArrayList<Timestamp>> {
 
 	private static final String LOG_TAG = ScheduleDayFragment.class.getSimpleName();
@@ -218,7 +217,7 @@ public class ScheduleDayFragment extends MTFragmentX implements
 		if (this.rts != null) {
 			return false;
 		}
-		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
+		if (this.uuid != null && this.authority != null) {
 			POIManager poim = DataSourceManager.findPOI(requireContext(), this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
 			if (poim != null && poim.poi instanceof RouteTripStop) {
 				this.rts = (RouteTripStop) poim.poi;
@@ -317,7 +316,9 @@ public class ScheduleDayFragment extends MTFragmentX implements
 		if (newScrolledToNow != null) {
 			this.scrolledToNow = newScrolledToNow;
 		}
-		this.adapter.setDayStartsAt(getDayStartsAtCal());
+		if (this.adapter != null) {
+			this.adapter.setDayStartsAt(getDayStartsAtCal());
+		}
 	}
 
 	int getFragmentPosition() {
@@ -366,11 +367,6 @@ public class ScheduleDayFragment extends MTFragmentX implements
 		if (listView != null) {
 			((AbsListView) listView).setAdapter(this.adapter);
 		}
-	}
-
-	@Override
-	public void onModulesUpdated() {
-		// DO NOTHING (handler by parent fragment)
 	}
 
 	@Override
@@ -486,35 +482,39 @@ public class ScheduleDayFragment extends MTFragmentX implements
 			return; // too late
 		}
 		switchView(view);
-		this.adapter.setTimes(data);
-		if (!this.scrolledToNow) {
-			int compareToToday = this.adapter.compareToToday();
-			int selectPosition;
-			if (compareToToday < 0) { // past
-				selectPosition = this.adapter.getCount(); // scroll down
-			} else if (compareToToday > 0) { // future
-				selectPosition = 0; // scroll up
-			} else { // today
-				selectPosition = getTodaySelectPosition();
+		if (this.adapter != null) {
+			this.adapter.setTimes(data);
+			if (!this.scrolledToNow) {
+				int compareToToday = this.adapter.compareToToday();
+				int selectPosition;
+				if (compareToToday < 0) { // past
+					selectPosition = this.adapter.getCount(); // scroll down
+				} else if (compareToToday > 0) { // future
+					selectPosition = 0; // scroll up
+				} else { // today
+					selectPosition = getTodaySelectPosition();
+				}
+				((AbsListView) view.findViewById(R.id.list)).setSelection(selectPosition);
+				this.scrolledToNow = true;
 			}
-			((AbsListView) view.findViewById(R.id.list)).setSelection(selectPosition);
-			this.scrolledToNow = true;
 		}
 		switchView(view);
 	}
 
 	private int getTodaySelectPosition() {
-		Timestamp nextTime = this.adapter.getNextTimeInMs();
-		if (nextTime != null) {
-			int nextTimePosition = this.adapter.getPosition(nextTime);
-			if (nextTimePosition > 0) {
-				nextTimePosition--; // show 1 more time on top of the list
+		if (this.adapter != null) {
+			Timestamp nextTime = this.adapter.getNextTimeInMs();
+			if (nextTime != null) {
+				int nextTimePosition = this.adapter.getPosition(nextTime);
 				if (nextTimePosition > 0) {
 					nextTimePosition--; // show 1 more time on top of the list
+					if (nextTimePosition > 0) {
+						nextTimePosition--; // show 1 more time on top of the list
+					}
 				}
-			}
-			if (nextTimePosition >= 0) {
-				return nextTimePosition;
+				if (nextTimePosition >= 0) {
+					return nextTimePosition;
+				}
 			}
 		}
 		return 0;

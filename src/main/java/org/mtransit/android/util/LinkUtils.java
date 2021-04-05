@@ -37,8 +37,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public final class LinkUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = LinkUtils.class.getSimpleName();
@@ -149,31 +147,19 @@ public final class LinkUtils implements MTLog.Loggable {
 				.append(" v").append(PackageManagerUtils.getAppVersionName(activity)) //
 				.append(" (r").append(PackageManagerUtils.getAppVersionCode(activity)).append(")");
 		try {
-			final List<AgencyProperties> allAgencies;
-			if (F_CACHE_DATA_SOURCES) {
-				allAgencies = dataSourcesRepository.getAllAgencies();
-			} else {
-				if (org.mtransit.android.data.DataSourceProvider.isSet()) {
-					org.mtransit.android.data.DataSourceProvider dataSourceProvider = org.mtransit.android.data.DataSourceProvider.get();
-					allAgencies = dataSourceProvider.getAllAgencies(activity);
-				} else {
-					allAgencies = null;
+			final List<AgencyProperties> allAgencies = dataSourcesRepository.getAllAgencies();
+			for (AgencyProperties agencyProperties : allAgencies) {
+				if (!agencyProperties.getType().isMapScreen()) {
+					continue;
 				}
-			}
-			if (allAgencies != null) {
-				for (AgencyProperties agencyProperties : allAgencies) {
-					if (!agencyProperties.getType().isMapScreen()) {
-						continue;
-					}
+				subjectSb //
+						.append(" - ").append(agencyProperties.getShortName()) //
+						.append(" ").append(activity.getString(agencyProperties.getType().getShortNameResId()));
+				final String pkg = agencyProperties.getPkg();
+				if (!pkg.isEmpty()) {
 					subjectSb //
-							.append(" - ").append(agencyProperties.getShortName()) //
-							.append(" ").append(activity.getString(agencyProperties.getType().getShortNameResId()));
-					final String pkg = agencyProperties.getPkg();
-					if (pkg != null && !pkg.isEmpty()) {
-						subjectSb //
-								.append(" v").append(PackageManagerUtils.getAppVersionName(activity, pkg)) //
-								.append(" (r").append(PackageManagerUtils.getAppVersionCode(activity, pkg)).append(")");
-					}
+							.append(" v").append(PackageManagerUtils.getAppVersionName(activity, pkg)) //
+							.append(" (r").append(PackageManagerUtils.getAppVersionCode(activity, pkg)).append(")");
 				}
 			}
 		} catch (Exception e) {

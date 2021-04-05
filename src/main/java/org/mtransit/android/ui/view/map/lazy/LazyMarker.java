@@ -1,14 +1,11 @@
 package org.mtransit.android.ui.view.map.lazy;
 
+import android.content.Context;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import java.lang.ref.WeakReference;
-
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.util.MapUtils;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -16,8 +13,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import android.content.Context;
-import android.util.Log;
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.util.MapUtils;
+
+import java.lang.ref.WeakReference;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 @SuppressWarnings({"unused", "WeakerAccess"})

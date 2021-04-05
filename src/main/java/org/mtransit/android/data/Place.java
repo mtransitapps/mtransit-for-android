@@ -1,16 +1,17 @@
 package org.mtransit.android.data;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.provider.PlaceProvider;
-
-import android.content.ContentValues;
-import android.database.Cursor;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 public class Place extends DefaultPOI {
 

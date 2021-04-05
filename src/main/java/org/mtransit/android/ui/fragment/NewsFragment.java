@@ -22,7 +22,6 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
-import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
@@ -38,8 +37,6 @@ import org.mtransit.android.util.UITimeUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
 
 public class NewsFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<News>>, SwipeRefreshLayout.OnRefreshListener {
 
@@ -132,11 +129,9 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
-		if (F_CACHE_DATA_SOURCES) {
-			this.dataSourcesRepository.readingAllNewsProvidersDistinct().observe(this, newNewsProviders ->
-					LoaderUtils.restartLoader(this, NEWS_LOADER, null, this)
-			);
-		}
+		this.dataSourcesRepository.readingAllNewsProvidersDistinct().observe(this, newNewsProviders ->
+				LoaderUtils.restartLoader(this, NEWS_LOADER, null, this)
+		);
 	}
 
 	private void restoreInstanceState(Bundle... bundles) {
@@ -194,26 +189,20 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public void onResume() {
 		super.onResume();
-		View view = getView();
-		if (this.modulesUpdated) {
-			if (view != null) {
-				view.post(() -> {
-					if (NewsFragment.this.modulesUpdated) {
-						onModulesUpdated();
-					}
-				});
+		if (this.adapter != null) {
+			if (!this.adapter.isInitialized()) {
+				LoaderUtils.restartLoader(this, NEWS_LOADER, null, this);
 			}
+			this.adapter.onResume();
 		}
-		if (!this.adapter.isInitialized()) {
-			LoaderUtils.restartLoader(this, NEWS_LOADER, null, this);
-		}
-		this.adapter.onResume();
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		this.adapter.onPause();
+		if (this.adapter != null) {
+			this.adapter.onPause();
+		}
 	}
 
 	@Override
@@ -228,21 +217,9 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		this.adapter.onDestroy();
-	}
-
-	private boolean modulesUpdated = false;
-
-	@Override
-	public void onModulesUpdated() {
-		this.modulesUpdated = true;
-		if (!isResumed()) {
-			return;
+		if (this.adapter != null) {
+			this.adapter.onDestroy();
 		}
-		if (!F_CACHE_DATA_SOURCES) {
-			LoaderUtils.restartLoader(this, NEWS_LOADER, null, this);
-		}
-		this.modulesUpdated = false; // processed
 	}
 
 	private static final int NEWS_LOADER = 0;
@@ -271,7 +248,9 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public void onLoadFinished(@NonNull Loader<ArrayList<News>> loader, @Nullable ArrayList<News> data) {
 		this.emptyText = getString(R.string.no_news);
-		this.adapter.setNews(data);
+		if (this.adapter != null) {
+			this.adapter.setNews(data);
+		}
 		switchView(getView());
 	}
 
@@ -392,7 +371,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public CharSequence getABTitle(@Nullable Context context) {
 		if (context == null) {
-			return super.getABTitle(context);
+			return super.getABTitle(null);
 		}
 		return context.getString(R.string.news);
 	}
@@ -442,7 +421,7 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 
 		@Nullable
 		private Activity getActivityOrNull() {
-			return this.activityWR == null ? null : this.activityWR.get();
+			return this.activityWR.get();
 		}
 
 		public boolean isInitialized() {

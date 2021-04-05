@@ -50,8 +50,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	private static final String TAG = POIManager.class.getSimpleName();
@@ -505,16 +503,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			} else if (poi instanceof Module) {
 				return ((Module) poi).getColorInt();
 			}
-			if (F_CACHE_DATA_SOURCES) {
-				final AgencyProperties agency = dataSourcesRepository.getAgency(poi.getAuthority());
-				if (agency != null) {
-					return agency.getColorInt();
-				}
-			} else {
-				Integer agencyColorInt = org.mtransit.android.data.DataSourceProvider.get(context).getAgencyColorInt(context, poi.getAuthority());
-				if (agencyColorInt != null) {
-					return agencyColorInt;
-				}
+			final AgencyProperties agency = dataSourcesRepository.getAgency(poi.getAuthority());
+			if (agency != null) {
+				return agency.getColorInt();
 			}
 		}
 		return defaultColor;
@@ -522,31 +513,26 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@Nullable
 	@ColorInt
-	public static Integer getRouteColor(@NonNull Context context,
-										@NonNull DataSourcesRepository dataSourcesRepository,
+	public static Integer getRouteColor(@NonNull DataSourcesRepository dataSourcesRepository,
 										@Nullable Route route,
-										@NonNull String authority,
+										@Nullable String authority,
 										@Nullable Integer defaultColor) {
 		if (route != null) {
 			if (route.hasColor()) {
 				return route.getColorInt();
 			}
 		}
-		Integer agencyColorInt;
-		if (F_CACHE_DATA_SOURCES) {
-			agencyColorInt = dataSourcesRepository.getAgencyColorInt(authority);
-		} else {
-			agencyColorInt = org.mtransit.android.data.DataSourceProvider.get(context).getAgencyColorInt(context, authority);
-		}
-		if (agencyColorInt != null) {
-			return agencyColorInt;
+		if (authority != null) {
+			Integer agencyColorInt = dataSourcesRepository.getAgencyColorInt(authority);
+			if (agencyColorInt != null) {
+				return agencyColorInt;
+			}
 		}
 		return defaultColor;
 	}
 
 	@ColorInt
-	public static int getRouteColorNN(@NonNull Context context,
-									  @NonNull DataSourcesRepository dataSourcesRepository,
+	public static int getRouteColorNN(@NonNull DataSourcesRepository dataSourcesRepository,
 									  @Nullable Route route,
 									  @NonNull String authority,
 									  int defaultColor) {
@@ -555,12 +541,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				return route.getColorInt();
 			}
 		}
-		Integer agencyColorInt;
-		if (F_CACHE_DATA_SOURCES) {
-			agencyColorInt = dataSourcesRepository.getAgencyColorInt(authority);
-		} else {
-			agencyColorInt = org.mtransit.android.data.DataSourceProvider.get(context).getAgencyColorInt(context, authority);
-		}
+		Integer agencyColorInt = dataSourcesRepository.getAgencyColorInt(authority);
 		if (agencyColorInt != null) {
 			return agencyColorInt;
 		}
@@ -588,12 +569,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				sb.append(rts.getRoute().getLongName());
 			}
 		}
-		AgencyProperties agency;
-		if (F_CACHE_DATA_SOURCES) {
-			agency = dataSourcesRepository.getAgency(poi.getAuthority());
-		} else {
-			agency = org.mtransit.android.data.DataSourceProvider.get(context).getAgency(context, poi.getAuthority());
-		}
+		AgencyProperties agency = dataSourcesRepository.getAgency(poi.getAuthority());
 		if (agency != null) {
 			if (sb.length() > 0) {
 				sb.append(StringUtils.SPACE_STRING).append("-").append(StringUtils.SPACE_STRING);
@@ -668,10 +644,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			AgencyProperties agencyProperties = null;
-			if (F_CACHE_DATA_SOURCES) {
-				agencyProperties = this.dataSourcesRepository.getAgency(this.poi.getAuthority());
-			}
+			AgencyProperties agencyProperties = this.dataSourcesRepository.getAgency(this.poi.getAuthority());
 			((MainActivity) activity).addFragmentToStack(POIFragment.newInstance(this.poi.getUUID(), this.poi.getAuthority(), agencyProperties, this));
 			// reset to defaults so the POI is updated when coming back in the current screen
 			resetLastFindTimestamps();

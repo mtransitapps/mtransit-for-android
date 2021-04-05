@@ -1,12 +1,12 @@
 package org.mtransit.android.task;
 
-import java.util.ArrayList;
+import android.content.Context;
 
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.data.DataSourceManager;
 
-import android.content.Context;
+import java.util.ArrayList;
 
 public class RTSAgencyRoutesLoader extends MTAsyncTaskLoaderX<ArrayList<Route>> {
 

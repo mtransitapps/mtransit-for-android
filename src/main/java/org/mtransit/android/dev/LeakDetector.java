@@ -1,8 +1,8 @@
 package org.mtransit.android.dev;
 
-import org.mtransit.android.common.IApplication;
-
 import androidx.annotation.NonNull;
+
+import org.mtransit.android.common.IApplication;
 
 public interface LeakDetector {
 

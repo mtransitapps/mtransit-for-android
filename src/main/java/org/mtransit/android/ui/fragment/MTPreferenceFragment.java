@@ -1,10 +1,5 @@
 package org.mtransit.android.ui.fragment;
 
-import androidx.annotation.Nullable;
-
-import org.mtransit.android.commons.Constants;
-import org.mtransit.android.commons.MTLog;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -23,6 +18,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.Nullable;
+
+import org.mtransit.android.commons.Constants;
+import org.mtransit.android.commons.MTLog;
 
 /**
  * NO LOGIC HERE, just logs.

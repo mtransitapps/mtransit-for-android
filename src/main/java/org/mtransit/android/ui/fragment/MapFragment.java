@@ -51,8 +51,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class MapFragment extends ABFragment implements
 		LoaderManager.LoaderCallbacks<Collection<MapViewController.POIMarker>>,
 		MTActivityWithLocation.UserLocationListener,
@@ -125,14 +123,12 @@ public class MapFragment extends ABFragment implements
 		setHasOptionsMenu(true);
 		restoreInstanceState(savedInstanceState, getArguments());
 		this.mapViewController.onCreate(savedInstanceState);
-		if (!F_CACHE_DATA_SOURCES) {
-			this.dataSourcesRepository.readingAllDataSourceTypesDistinct().observe(this, newAllDataSourceTypes -> {
-				if (hasFilterTypeIds()) {
-					resetTypeFilterIds();
-					initFilterTypeIdsAsync();
-				}
-			});
-		}
+		this.dataSourcesRepository.readingAllDataSourceTypesDistinct().observe(this, newAllDataSourceTypes -> {
+			if (hasFilterTypeIds()) {
+				resetTypeFilterIds();
+				initFilterTypeIdsAsync();
+			}
+		});
 	}
 
 	@Nullable
@@ -175,38 +171,12 @@ public class MapFragment extends ABFragment implements
 	public void onResume() {
 		super.onResume();
 		View view = getView();
-		if (this.modulesUpdated) {
-			if (view != null) {
-				view.post(() -> {
-					if (MapFragment.this.modulesUpdated) {
-						onModulesUpdated();
-					}
-				});
-			}
-		}
 		this.mapViewController.onResume();
 		hasFilterTypeIds(); // triggers markers loading if necessary
 		this.mapViewController.showMap(view);
 		if (getActivity() != null) {
 			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getLastLocation());
 		}
-	}
-
-	private boolean modulesUpdated = false;
-
-	@Override
-	public void onModulesUpdated() {
-		this.modulesUpdated = true;
-		if (!isResumed()) {
-			return;
-		}
-		if (!F_CACHE_DATA_SOURCES) {
-			if (hasFilterTypeIds()) {
-				resetTypeFilterIds();
-				initFilterTypeIdsAsync();
-			}
-		}
-		this.modulesUpdated = false; // processed
 	}
 
 	@Nullable
@@ -405,7 +375,7 @@ public class MapFragment extends ABFragment implements
 		if (context == null) {
 			return false;
 		}
-		List<DataSourceType> availableTypes = getNewFilteredAgencyTypes(context);
+		List<DataSourceType> availableTypes = getNewFilteredAgencyTypes();
 		Set<String> filterTypeIdStrings = PreferenceUtils.getPrefLcl( //
 				context, PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS, PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT);
 		this.filterTypeIds = new HashSet<>();
@@ -511,7 +481,7 @@ public class MapFragment extends ABFragment implements
 			ArrayList<Boolean> checked = new ArrayList<>();
 			final ArrayList<Integer> typeIds = new ArrayList<>();
 			final HashSet<Integer> selectedItems = new HashSet<>();
-			List<DataSourceType> availableAgencyTypes = getNewFilteredAgencyTypes(activity);
+			List<DataSourceType> availableAgencyTypes = getNewFilteredAgencyTypes();
 			for (DataSourceType type : availableAgencyTypes) {
 				typeIds.add(type.getId());
 				typeNames.add(getString(type.getPoiShortNameResId()));
@@ -554,13 +524,8 @@ public class MapFragment extends ABFragment implements
 	}
 
 	@NonNull
-	private List<DataSourceType> getNewFilteredAgencyTypes(@NonNull Context context) {
-		List<DataSourceType> allAgencyTypes;
-		if (F_CACHE_DATA_SOURCES) {
-			allAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
-		} else {
-			allAgencyTypes = org.mtransit.android.data.DataSourceProvider.get(context).getAvailableAgencyTypes();
-		}
+	private List<DataSourceType> getNewFilteredAgencyTypes() {
+		final List<DataSourceType> allAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
 		return filterTypes(allAgencyTypes);
 	}
 

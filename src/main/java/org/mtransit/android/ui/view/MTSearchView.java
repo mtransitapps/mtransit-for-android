@@ -1,16 +1,16 @@
 package org.mtransit.android.ui.view;
 
-import java.lang.ref.WeakReference;
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.view.View;
+import android.widget.SearchView;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.KeyboardUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.MainActivity;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.view.View;
-import android.widget.SearchView;
+import java.lang.ref.WeakReference;
 
 @SuppressLint("ViewConstructor")
 public class MTSearchView extends SearchView implements MTLog.Loggable, View.OnFocusChangeListener, SearchView.OnCloseListener, SearchView.OnQueryTextListener {

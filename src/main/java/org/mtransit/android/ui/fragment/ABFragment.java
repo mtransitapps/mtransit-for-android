@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
@@ -21,9 +20,7 @@ import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.common.IActivity;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
-public abstract class ABFragment extends MTFragment implements AnalyticsManager.Trackable, IActivity, org.mtransit.android.data.DataSourceProvider.ModulesUpdateListener {
+public abstract class ABFragment extends MTFragment implements AnalyticsManager.Trackable, IActivity {
 
 	private static final boolean DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT = false;
 
@@ -101,14 +98,6 @@ public abstract class ABFragment extends MTFragment implements AnalyticsManager.
 	}
 
 	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		if (!F_CACHE_DATA_SOURCES) {
-			org.mtransit.android.data.DataSourceProvider.addModulesUpdateListener(this);
-		}
-	}
-
-	@Override
 	public void onResume() {
 		super.onResume();
 		analyticsManager.trackScreenView(this, this);
@@ -128,14 +117,6 @@ public abstract class ABFragment extends MTFragment implements AnalyticsManager.
 		super.onPause();
 		StatusLoader.get().clearAllTasks();
 		ServiceUpdateLoader.get().clearAllTasks();
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		if (!F_CACHE_DATA_SOURCES) {
-			org.mtransit.android.data.DataSourceProvider.removeModulesUpdateListener(this);
-		}
 	}
 
 	@Override

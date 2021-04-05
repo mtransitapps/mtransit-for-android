@@ -32,8 +32,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 @SuppressLint("Registered")
 public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 
@@ -103,18 +101,11 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 		HashSet<String> recentSearchSuggestions = DataSourceManager.getSearchSuggest(recentSearchCursor);
 		HashSet<String> suggestions = new HashSet<>();
 		if (!TextUtils.isEmpty(query)) {
-			List<AgencyProperties> agencies;
-			if (F_CACHE_DATA_SOURCES) {
-				agencies = this.dataSourcesRepository.getAllAgencies();
-			} else {
-				agencies = org.mtransit.android.data.DataSourceProvider.get(getContext()).getAllAgencies(getContext());
-			}
+			List<AgencyProperties> agencies = this.dataSourcesRepository.getAllAgencies();
 			ArrayList<Future<HashSet<String>>> taskList = new ArrayList<>();
-			if (agencies != null) {
-				for (AgencyProperties agency : agencies) {
-					FindSearchSuggestTask task = new FindSearchSuggestTask(getContext(), agency, query);
-					taskList.add(getFetchSuggestExecutor().submit(task));
-				}
+			for (AgencyProperties agency : agencies) {
+				FindSearchSuggestTask task = new FindSearchSuggestTask(getContext(), agency, query);
+				taskList.add(getFetchSuggestExecutor().submit(task));
 			}
 			for (Future<HashSet<String>> future : taskList) {
 				try {

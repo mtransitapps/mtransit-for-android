@@ -1,6 +1,19 @@
 package org.mtransit.android.ui.view.map.impl;
 
-import java.util.List;
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.view.View;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
+
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.LocationSource;
+import com.google.android.gms.maps.Projection;
+import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.MapStyleOptions;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.map.Circle;
@@ -19,20 +32,7 @@ import org.mtransit.android.ui.view.map.PolylineOptions;
 import org.mtransit.android.ui.view.map.TileOverlay;
 import org.mtransit.android.ui.view.map.TileOverlayOptions;
 
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.LocationSource;
-import com.google.android.gms.maps.Projection;
-import com.google.android.gms.maps.UiSettings;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.MapStyleOptions;
-
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.graphics.Bitmap;
-
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresPermission;
-import android.view.View;
+import java.util.List;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {

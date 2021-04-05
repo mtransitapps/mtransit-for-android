@@ -71,8 +71,6 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListener, ExtendedGoogleMap.OnInfoWindowClickListener,
 		ExtendedGoogleMap.OnMapLoadedCallback, ExtendedGoogleMap.OnMarkerClickListener, ExtendedGoogleMap.OnMyLocationButtonClickListener,
 		ExtendedGoogleMap.OnMapClickListener, LocationSource, OnMapReadyCallback, ViewTreeObserver.OnGlobalLayoutListener, MTLog.Loggable {
@@ -1167,11 +1165,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				positionTrunc = POIMarker.getLatLngTrunc(poim);
 				name = poim.poi.getName();
 				extra = null;
-				if (F_CACHE_DATA_SOURCES) {
-					agency = dataSourcesRepository.getAgency(poim.poi.getAuthority());
-				} else {
-					agency = org.mtransit.android.data.DataSourceProvider.get(activity).getAgency(activity, poim.poi.getAuthority());
-				}
+				agency = dataSourcesRepository.getAgency(poim.poi.getAuthority());
 				if (agency == null) {
 					continue;
 				}

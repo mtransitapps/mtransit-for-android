@@ -1,8 +1,8 @@
 package org.mtransit.android.dev;
 
-import androidx.annotation.Nullable;
-
 import android.location.Location;
+
+import androidx.annotation.Nullable;
 
 public final class FakeLocation {
 

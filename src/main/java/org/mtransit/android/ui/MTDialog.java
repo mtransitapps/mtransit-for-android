@@ -1,15 +1,15 @@
 package org.mtransit.android.ui;
 
+import android.app.Activity;
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
-import java.lang.ref.WeakReference;
-
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import android.app.Activity;
-import android.content.Context;
+import java.lang.ref.WeakReference;
 
 public final class MTDialog {
 

@@ -24,8 +24,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class NewsLoader extends MTAsyncTaskLoaderX<ArrayList<News>> {
 
 	private static final String LOG_TAG = NewsLoader.class.getSimpleName();
@@ -68,23 +66,12 @@ public class NewsLoader extends MTAsyncTaskLoaderX<ArrayList<News>> {
 		this.news = new ArrayList<>();
 		Collection<NewsProviderProperties> newsProviders;
 		if (this.targetAuthorities == null || this.targetAuthorities.isEmpty()) {
-			if (F_CACHE_DATA_SOURCES) {
-				newsProviders = this.dataSourcesRepository.getAllNewsProviders();
-			} else {
-				newsProviders = org.mtransit.android.data.DataSourceProvider.get(getContext()).getAllNewsProvider();
-			}
+			newsProviders = this.dataSourcesRepository.getAllNewsProviders();
 		} else {
 			newsProviders = new HashSet<>();
 			for (String targetAuthority : this.targetAuthorities) {
-				final Collection<NewsProviderProperties> targetAuthorityNewsProviders;
-				if (F_CACHE_DATA_SOURCES) {
-					targetAuthorityNewsProviders = this.dataSourcesRepository.getNewsProviders(targetAuthority);
-				} else {
-					targetAuthorityNewsProviders = org.mtransit.android.data.DataSourceProvider.get(getContext()).getTargetAuthorityNewsProviders(targetAuthority);
-				}
-				if (targetAuthorityNewsProviders != null) {
-					newsProviders.addAll(targetAuthorityNewsProviders);
-				}
+				final Collection<NewsProviderProperties> targetAuthorityNewsProviders = this.dataSourcesRepository.getNewsProviders(targetAuthority);
+				newsProviders.addAll(targetAuthorityNewsProviders);
 			}
 		}
 		if (CollectionUtils.getSize(newsProviders) == 0) {

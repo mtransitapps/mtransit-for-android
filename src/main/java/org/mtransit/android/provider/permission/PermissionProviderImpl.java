@@ -1,13 +1,14 @@
 package org.mtransit.android.provider.permission;
 
+import android.content.pm.PackageManager;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+
 import org.mtransit.android.common.IContext;
 import org.mtransit.android.common.RequestCodes;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.common.IActivity;
-
-import android.content.pm.PackageManager;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 
 public abstract class PermissionProviderImpl implements PermissionProvider, MTLog.Loggable {
 

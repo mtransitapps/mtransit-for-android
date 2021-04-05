@@ -29,8 +29,6 @@ import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.UITimeUtils;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeChangedReceiver.TimeChangedListener, LinkUtils.OnUrlClickListener {
 
 	private static final String TAG = NewsDetailsFragment.class.getSimpleName();
@@ -87,21 +85,19 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
-		if (F_CACHE_DATA_SOURCES) {
-			this.dataSourcesRepository.readingAllNewsProvidersDistinct().observe(this, newNewsProviders -> {
-				resetNews();
-				initNewsAsync();
-			});
-		}
+		this.dataSourcesRepository.readingAllNewsProvidersDistinct().observe(this, newNewsProviders -> {
+			resetNews();
+			initNewsAsync();
+		});
 	}
 
 	private void restoreInstanceState(Bundle... bundles) {
 		String newAuthority = BundleUtils.getString(EXTRA_AUTHORITY, bundles);
-		if (!TextUtils.isEmpty(newAuthority) && !newAuthority.equals(this.authority)) {
+		if (newAuthority != null && !newAuthority.equals(this.authority)) {
 			this.authority = newAuthority;
 		}
 		String newUUID = BundleUtils.getString(EXTRA_NEWS_UUID, bundles);
-		if (!TextUtils.isEmpty(newUUID) && !newUUID.equals(this.uuid)) {
+		if (newUUID != null && !newUUID.equals(this.uuid)) {
 			this.uuid = newUUID;
 			resetNews();
 		}
@@ -198,12 +194,10 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		if (this.news != null) {
 			return false;
 		}
-		if (!TextUtils.isEmpty(this.uuid) && !TextUtils.isEmpty(this.authority)) {
+		if (this.uuid != null && this.authority != null) {
 			final News newNewsArticle = DataSourceManager.findANews(requireContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
-			if (F_CACHE_DATA_SOURCES) {
-				if (newNewsArticle == null) {
-					onDataSourceRemoved();
-				}
+			if (newNewsArticle == null) {
+				onDataSourceRemoved();
 			}
 			this.news = newNewsArticle;
 		}
@@ -300,45 +294,8 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	@Override
 	public void onResume() {
 		super.onResume();
-		View view = getView();
-		if (this.modulesUpdated) {
-			if (view != null) {
-				view.post(() -> {
-					if (NewsDetailsFragment.this.modulesUpdated) {
-						onModulesUpdated();
-					}
-				});
-			}
-		}
 		updateNewsView();
 		enableTimeChangedReceiver();
-	}
-
-	private boolean modulesUpdated = false;
-
-	@Override
-	public void onModulesUpdated() {
-		this.modulesUpdated = true;
-		if (!isResumed()) {
-			return;
-		}
-		if (!F_CACHE_DATA_SOURCES) {
-			MainActivity activity = (MainActivity) getActivity();
-			if (activity == null) {
-				return;
-			}
-			News newNews = DataSourceManager.findANews(requireContext(), this.authority, NewsProviderContract.Filter.getNewUUIDFilter(this.uuid));
-			if (newNews == null) {
-				if (activity.isMTResumed()) {
-					activity.popFragmentFromStack(this); // close this fragment
-					this.modulesUpdated = false; // processed
-				}
-			} else {
-				this.modulesUpdated = false; // nothing to do
-			}
-		} else {
-			this.modulesUpdated = false; // processed
-		}
 	}
 
 	@Override

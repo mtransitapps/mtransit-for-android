@@ -5,10 +5,10 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.mtransit.android.ui.view.map.utils.SphericalMercator;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.mtransit.android.ui.view.map.utils.SphericalMercator;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class DebugHelper {

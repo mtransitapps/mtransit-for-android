@@ -15,8 +15,6 @@ import org.mtransit.android.datasource.DataSourcesRepository;
 import java.lang.ref.WeakReference;
 import java.util.Comparator;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public enum DataSourceType {
 
 	TYPE_LIGHT_RAIL(0, // GTFS - Tram, Streetcar
@@ -286,15 +284,8 @@ public enum DataSourceType {
 			if (context == null) {
 				return 0;
 			}
-			final AgencyProperties lAgency;
-			final AgencyProperties rAgency;
-			if (F_CACHE_DATA_SOURCES) {
-				lAgency = this.dataSourcesRepository.getAgency(lPoim.poi.getAuthority());
-				rAgency = this.dataSourcesRepository.getAgency(rPoim.poi.getAuthority());
-			} else {
-				lAgency = org.mtransit.android.data.DataSourceProvider.get(context).getAgency(context, lPoim.poi.getAuthority());
-				rAgency = org.mtransit.android.data.DataSourceProvider.get(context).getAgency(context, rPoim.poi.getAuthority());
-			}
+			final AgencyProperties lAgency = this.dataSourcesRepository.getAgency(lPoim.poi.getAuthority());
+			final AgencyProperties rAgency = this.dataSourcesRepository.getAgency(rPoim.poi.getAuthority());
 			if (lAgency == null || rAgency == null) {
 				return 0;
 			}

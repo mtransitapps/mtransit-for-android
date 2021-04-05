@@ -23,8 +23,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class ServiceUpdateLoader implements MTLog.Loggable {
 
 	private static final String LOG_TAG = ServiceUpdateLoader.class.getSimpleName();
@@ -86,18 +84,11 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		if (skipIfBusy && isBusy()) {
 			return false;
 		}
-		Set<ServiceUpdateProviderProperties> providers;
-		if (F_CACHE_DATA_SOURCES) {
-			providers = this.dataSourcesRepository.getServiceUpdateProviders(poim.poi.getAuthority());
-		} else {
-			providers = org.mtransit.android.data.DataSourceProvider.get(context).getTargetAuthorityServiceUpdateProviders(poim.poi.getAuthority());
-		}
-		if (providers != null) {
-			if (providers.size() > 0) {
-				ServiceUpdateProviderProperties provider = providers.iterator().next();
-				ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, provider, poim, serviceUpdateFilter);
-				task.executeOnExecutor(getFetchServiceUpdateExecutor());
-			}
+		Set<ServiceUpdateProviderProperties> providers = this.dataSourcesRepository.getServiceUpdateProviders(poim.poi.getAuthority());
+		if (!providers.isEmpty()) {
+			ServiceUpdateProviderProperties firstProvider = providers.iterator().next();
+			ServiceUpdateFetcherCallable task = new ServiceUpdateFetcherCallable(context, listener, firstProvider, poim, serviceUpdateFilter);
+			task.executeOnExecutor(getFetchServiceUpdateExecutor());
 		}
 		return true;
 	}

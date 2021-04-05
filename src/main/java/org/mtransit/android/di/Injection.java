@@ -13,7 +13,6 @@ import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.billing.MTBillingManager;
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.common.repository.LocalPreferenceRepository;
-import org.mtransit.android.data.DataSourceProvider;
 import org.mtransit.android.datasource.DataSourcesCache;
 import org.mtransit.android.datasource.DataSourcesDatabase;
 import org.mtransit.android.datasource.DataSourcesReader;
@@ -63,9 +62,6 @@ public class Injection {
 
 	@Nullable
 	private static IAnalyticsManager analyticsManager;
-
-	@Nullable
-	private static DataSourceProvider dataSourceProvider;
 
 	@Nullable
 	private static LocalPreferenceRepository localPreferenceRepository;
@@ -216,21 +212,6 @@ public class Injection {
 			}
 		}
 		return analyticsManager;
-	}
-
-	@NonNull
-	public static DataSourceProvider providesDataSourceProvider() {
-		if (dataSourceProvider == null) {
-			synchronized (Injection.class) {
-				if (dataSourceProvider == null) {
-					dataSourceProvider = new DataSourceProvider(
-							providesApplication(),
-							providesAnalyticsManager()
-					);
-				}
-			}
-		}
-		return dataSourceProvider;
 	}
 
 	@NonNull

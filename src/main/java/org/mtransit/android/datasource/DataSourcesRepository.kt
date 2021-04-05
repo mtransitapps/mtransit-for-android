@@ -16,7 +16,6 @@ import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
-import org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES
 import java.util.concurrent.CompletableFuture
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
@@ -45,10 +44,8 @@ class DataSourcesRepository(
     private var _newsProviderProperties = setOf<NewsProviderProperties>() // not sorted
 
     init {
-        if (F_CACHE_DATA_SOURCES) { // no-op injection <= WIP
-            // START LISTENING FOR CHANGE TO FILL IN-MEMORY CACHE
-            startListeningForChangesIntoMemory()
-        }
+        // START LISTENING FOR CHANGE TO FILL IN-MEMORY CACHE
+        startListeningForChangesIntoMemory()
     }
 
     private fun startListeningForChangesIntoMemory() {
@@ -163,10 +160,6 @@ class DataSourcesRepository(
 
     @JvmOverloads
     fun updateAsync(forcePkg: String? = null): CompletableFuture<Boolean> { // JAVA
-        if (!F_CACHE_DATA_SOURCES) {
-            MTLog.d(this@DataSourcesRepository, "updateAsync() > SKIP (feature disabled)")
-            return GlobalScope.future { false }
-        }
         if (runningUpdate) {
             MTLog.d(this@DataSourcesRepository, "updateAsync() > SKIP (was running - before sync)")
             return GlobalScope.future { false }
@@ -192,10 +185,6 @@ class DataSourcesRepository(
     }
 
     suspend fun update(forcePkg: String? = null): Boolean {
-        if (!F_CACHE_DATA_SOURCES) {
-            MTLog.d(this, "update() > SKIP (feature disabled)")
-            return false
-        }
         var updated: Boolean
         withContext(Dispatchers.IO) {
             updated = dataSourcesReader.update(forcePkg)
@@ -204,11 +193,7 @@ class DataSourcesRepository(
         return updated
     }
 
-    fun isAProvider(pkg: String): Boolean {
-        if (!F_CACHE_DATA_SOURCES) {
-            MTLog.d(this, "isAProvider() > SKIP (feature disabled)")
-            return false
-        }
+    fun isAProvider(pkg: String?): Boolean {
         return this.dataSourcesReader.isAProvider(pkg)
     }
 }

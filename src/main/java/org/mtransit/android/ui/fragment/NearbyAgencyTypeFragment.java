@@ -12,8 +12,6 @@ import android.widget.AbsListView;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.WorkerThread;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -26,14 +24,12 @@ import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.di.Injection;
-import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.view.common.IActivity;
@@ -45,12 +41,9 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityAwareFragment,
 		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		NearbyFragment.NearbyLocationListener,
-		org.mtransit.android.data.DataSourceProvider.ModulesUpdateListener,
 		POIArrayAdapter.InfiniteLoadingListener,
 		IActivity {
 
@@ -87,6 +80,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 		return f;
 	}
 
+	@Nullable
 	private POIArrayAdapter adapter;
 	@NonNull
 	private LocationUtils.AroundDiff ad = LocationUtils.getNewDefaultAroundDiff();
@@ -96,6 +90,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 	private Location nearbyLocation;
 	@Nullable
 	private Location userLocation;
+	@Nullable
 	private ListViewSwipeRefreshLayout swipeRefreshLayout;
 	private boolean swipeRefreshLayoutEnabled = true;
 	private int fragmentPosition = -1;
@@ -104,6 +99,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 	@Nullable
 	private WeakReference<NearbyFragment> nearbyFragmentWR;
 
+	@SuppressWarnings("FieldCanBeLocal")
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 
@@ -121,11 +117,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 
 	public NearbyAgencyTypeFragment() {
 		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
-		if (F_CACHE_DATA_SOURCES) {
-			this.allAgenciesLD = this.dataSourcesRepository.readingAllAgenciesDistinct();
-		} else {
-			this.allAgenciesLD = new MediatorLiveData<>();
-		}
+		this.allAgenciesLD = this.dataSourcesRepository.readingAllAgenciesDistinct();
 	}
 
 	@Override
@@ -138,46 +130,41 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
-		if (!F_CACHE_DATA_SOURCES) {
-			org.mtransit.android.data.DataSourceProvider.addModulesUpdateListener(this);
-		}
-		if (F_CACHE_DATA_SOURCES) {
-			this.typeAgenciesLD.addSource(this.typeIdLD, newTypeId ->
-					this.typeAgenciesLD.setValue(
-							makeTypeAgencies(newTypeId, this.allAgenciesLD.getValue(), this.nearbyLocationLD.getValue(), this.adLD.getValue())
-					)
-			);
-			this.typeAgenciesLD.addSource(this.allAgenciesLD, newAgencies ->
-					this.typeAgenciesLD.setValue(
-							makeTypeAgencies(this.typeIdLD.getValue(), newAgencies, this.nearbyLocationLD.getValue(), this.adLD.getValue())
-					)
-			);
-			this.typeAgenciesLD.addSource(this.nearbyLocationLD, newNearbyLocation ->
-					this.typeAgenciesLD.setValue(
-							makeTypeAgencies(this.typeIdLD.getValue(), this.allAgenciesLD.getValue(), newNearbyLocation, this.adLD.getValue())
-					)
-			);
-			this.typeAgenciesLD.addSource(this.adLD, newAd ->
-					this.typeAgenciesLD.setValue(
-							makeTypeAgencies(this.typeIdLD.getValue(), this.allAgenciesLD.getValue(), this.nearbyLocationLD.getValue(), newAd)
-					)
-			);
-			this.typeAgenciesLD.observe(this, newTypeAgenciesAuthority -> {
-						if (CollectionUtils.getSize(this.typeAgenciesAuthority) != CollectionUtils.getSize(newTypeAgenciesAuthority)) {
-							this.typeAgenciesAuthority = newTypeAgenciesAuthority;
-							useNewNearbyLocation(this.nearbyLocation, true); // force
-							applyNewTypeAgenciesAuthority();
-						} else if (newTypeAgenciesAuthority != null && this.typeAgenciesAuthority == null) { // not agencies in area, need to increase area
-							MTLog.d(this, "onChanged() > increase area (because no agencies in current area)");
-							LocationUtils.incAroundDiff(this.ad); // increase covered area
-							this.adLD.postValue(this.ad); // triggering new combine
-						}
+		this.typeAgenciesLD.addSource(this.typeIdLD, newTypeId ->
+				this.typeAgenciesLD.setValue(
+						makeTypeAgencies(newTypeId, this.allAgenciesLD.getValue(), this.nearbyLocationLD.getValue(), this.adLD.getValue())
+				)
+		);
+		this.typeAgenciesLD.addSource(this.allAgenciesLD, newAgencies ->
+				this.typeAgenciesLD.setValue(
+						makeTypeAgencies(this.typeIdLD.getValue(), newAgencies, this.nearbyLocationLD.getValue(), this.adLD.getValue())
+				)
+		);
+		this.typeAgenciesLD.addSource(this.nearbyLocationLD, newNearbyLocation ->
+				this.typeAgenciesLD.setValue(
+						makeTypeAgencies(this.typeIdLD.getValue(), this.allAgenciesLD.getValue(), newNearbyLocation, this.adLD.getValue())
+				)
+		);
+		this.typeAgenciesLD.addSource(this.adLD, newAd ->
+				this.typeAgenciesLD.setValue(
+						makeTypeAgencies(this.typeIdLD.getValue(), this.allAgenciesLD.getValue(), this.nearbyLocationLD.getValue(), newAd)
+				)
+		);
+		this.typeAgenciesLD.observe(this, newTypeAgenciesAuthority -> {
+					if (CollectionUtils.getSize(this.typeAgenciesAuthority) != CollectionUtils.getSize(newTypeAgenciesAuthority)) {
+						this.typeAgenciesAuthority = newTypeAgenciesAuthority;
+						useNewNearbyLocation(this.nearbyLocation, true); // force
+						applyNewTypeAgenciesAuthority();
+					} else if (newTypeAgenciesAuthority != null && this.typeAgenciesAuthority == null) { // not agencies in area, need to increase area
+						MTLog.d(this, "onChanged() > increase area (because no agencies in current area)");
+						LocationUtils.incAroundDiff(this.ad); // increase covered area
+						this.adLD.postValue(this.ad); // triggering new combine
 					}
-			);
-			this.typeIdLD.postValue(this.typeId); // trigger once
-			this.nearbyLocationLD.postValue(this.nearbyLocation); // trigger once
-			this.adLD.postValue(this.ad); // trigger once
-		}
+				}
+		);
+		this.typeIdLD.postValue(this.typeId); // trigger once
+		this.nearbyLocationLD.postValue(this.nearbyLocation); // trigger once
+		this.adLD.postValue(this.ad); // trigger once
 	}
 
 	@Nullable
@@ -199,6 +186,10 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 				continue;
 			}
 			filteredAgencyType.add(agency);
+		}
+		if (filteredAgencyType.isEmpty()) {
+			MTLog.d(this, "combine() > SKIP (no more type agency installed)");
+			return null; // do NOT expand area
 		}
 		return NearbyPOIListLoader.filterAgenciesAuthorityInArea(
 				filteredAgencyType,
@@ -243,94 +234,6 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 	@Nullable
 	private List<String> typeAgenciesAuthority;
 
-	private void resetTypeAgenciesAuthority() {
-		if (F_CACHE_DATA_SOURCES) {
-			return;
-		}
-		this.typeAgenciesAuthority = null;
-	}
-
-	@Nullable
-	private List<String> getTypeAgenciesAuthorityOrNull() {
-		if (!hasTypeAgenciesAuthority()) {
-			return null;
-		}
-		return this.typeAgenciesAuthority;
-	}
-
-	private boolean hasTypeAgenciesAuthority() {
-		if (this.typeAgenciesAuthority == null) {
-			initTypeAgenciesAuthorityAsync();
-			return false;
-		}
-		return true;
-	}
-
-	private void initTypeAgenciesAuthorityAsync() {
-		if (F_CACHE_DATA_SOURCES) {
-			return;
-		}
-		if (this.loadTypeAgenciesAuthorityAsyncTask != null
-				&& this.loadTypeAgenciesAuthorityAsyncTask.getStatus() == LoadTypeAgenciesAuthorityAsyncTask.Status.RUNNING) {
-			return;
-		}
-		if (this.nearbyLocation == null || this.typeId == null) {
-			return;
-		}
-		this.loadTypeAgenciesAuthorityAsyncTask = new LoadTypeAgenciesAuthorityAsyncTask(this);
-		TaskUtils.execute(this.loadTypeAgenciesAuthorityAsyncTask);
-	}
-
-	@Nullable
-	private LoadTypeAgenciesAuthorityAsyncTask loadTypeAgenciesAuthorityAsyncTask = null;
-
-	@SuppressWarnings("deprecation")
-	private static class LoadTypeAgenciesAuthorityAsyncTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, NearbyAgencyTypeFragment> {
-
-		@NonNull
-		@Override
-		public String getLogTag() {
-			return NearbyAgencyTypeFragment.class.getSimpleName() + ">" + LoadTypeAgenciesAuthorityAsyncTask.class.getSimpleName();
-		}
-
-		LoadTypeAgenciesAuthorityAsyncTask(NearbyAgencyTypeFragment nearbyAgencyTypeFragment) {
-			super(nearbyAgencyTypeFragment);
-		}
-
-		@WorkerThread
-		@Override
-		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull NearbyAgencyTypeFragment nearbyAgencyTypeFragment, Void... params) {
-			return nearbyAgencyTypeFragment.initTypeAgenciesAuthoritySync();
-		}
-
-		@MainThread
-		@Override
-		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull NearbyAgencyTypeFragment nearbyAgencyTypeFragment, @Nullable Boolean result) {
-			if (Boolean.TRUE.equals(result)) {
-				nearbyAgencyTypeFragment.applyNewTypeAgenciesAuthority();
-			}
-		}
-	}
-
-	@WorkerThread
-	private boolean initTypeAgenciesAuthoritySync() {
-		if (this.typeAgenciesAuthority != null) {
-			return false;
-		}
-		if (this.nearbyLocation != null && this.typeId != null) {
-			this.typeAgenciesAuthority = NearbyPOIListLoader.findTypeAgenciesAuthorityInArea(
-					getContext(),
-					this.dataSourcesRepository,
-					this.typeId,
-					this.nearbyLocation.getLatitude(),
-					this.nearbyLocation.getLongitude(),
-					this.ad.aroundDiff,
-					this.lastEmptyAroundDiff
-			);
-		}
-		return this.typeAgenciesAuthority != null;
-	}
-
 	@MainThread
 	private void applyNewTypeAgenciesAuthority() {
 		if (this.typeAgenciesAuthority == null) {
@@ -369,7 +272,6 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 		if (newTypeId != null && !newTypeId.equals(this.typeId)) {
 			this.typeId = newTypeId;
 			this.typeIdLD.postValue(this.typeId);
-			resetTypeAgenciesAuthority();
 		}
 		Integer fragmentPosition = BundleUtils.getInt(EXTRA_FRAGMENT_POSITION, bundles);
 		if (fragmentPosition != null) {
@@ -529,16 +431,6 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 	@Override
 	public void onResume() {
 		super.onResume();
-		View view = getView();
-		if (this.modulesUpdated) {
-			if (view != null) {
-				view.post(() -> {
-					if (NearbyAgencyTypeFragment.this.modulesUpdated) {
-						onModulesUpdated();
-					}
-				});
-			}
-		}
 		if (this.fragmentPosition >= 0 && this.fragmentPosition == this.lastVisibleFragmentPosition) {
 			onFragmentVisible();
 		} // ELSE will be called later
@@ -557,14 +449,10 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		if (!F_CACHE_DATA_SOURCES) {
-			org.mtransit.android.data.DataSourceProvider.removeModulesUpdateListener(this);
-		}
 		if (this.adapter != null) {
 			this.adapter.onDestroy();
 			this.adapter = null;
 		}
-		TaskUtils.cancelQuietly(this.loadTypeAgenciesAuthorityAsyncTask, true);
 	}
 
 	@Override
@@ -618,51 +506,8 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 			this.adapter.clear();
 		}
 		switchView(getView());
-		resetTypeAgenciesAuthority();
-		if (F_CACHE_DATA_SOURCES) {
-			if (this.nearbyLocation != null && this.typeAgenciesAuthority != null) {
-				LoaderUtils.restartLoader(this, NEARBY_POIS_LOADER, null, this);
-			}
-			return;
-		}
-		if (this.nearbyLocation != null && hasTypeAgenciesAuthority()) {
+		if (this.nearbyLocation != null && this.typeAgenciesAuthority != null) {
 			LoaderUtils.restartLoader(this, NEARBY_POIS_LOADER, null, this);
-		}
-	}
-
-	private boolean modulesUpdated = false;
-
-	@Override
-	public void onModulesUpdated() {
-		this.modulesUpdated = true;
-		if (!isResumed()) {
-			return;
-		}
-		if (!F_CACHE_DATA_SOURCES) {
-			//noinspection IfStatementWithIdenticalBranches
-			if (this.adapter != null && this.nearbyLocation != null && this.typeId != null) {
-				final FragmentActivity activity = getActivity();
-				if (activity == null) {
-					return;
-				}
-				final List<String> newTypeAgenciesAuthority = NearbyPOIListLoader.findTypeAgenciesAuthorityInArea(
-						activity,
-						this.dataSourcesRepository,
-						this.typeId,
-						this.nearbyLocation.getLatitude(),
-						this.nearbyLocation.getLongitude(),
-						this.ad.aroundDiff,
-						this.lastEmptyAroundDiff
-				);
-				if (CollectionUtils.getSize(this.typeAgenciesAuthority) != CollectionUtils.getSize(newTypeAgenciesAuthority)) {
-					useNewNearbyLocation(this.nearbyLocation, true); // force
-				}
-				this.modulesUpdated = false; // processed
-			} else {
-				this.modulesUpdated = false; // processed
-			}
-		} else {
-			this.modulesUpdated = false; // processed
 		}
 	}
 
@@ -754,7 +599,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case NEARBY_POIS_LOADER:
-			if (this.nearbyLocation == null || this.typeId == null || getTypeAgenciesAuthorityOrNull() == null) {
+			if (this.nearbyLocation == null || this.typeId == null || this.typeAgenciesAuthority == null) {
 				//noinspection deprecation
 				CrashUtils.w(this, "onCreateLoader() > nearby location or type not available yet.");
 				//noinspection ConstantConditions // FIXME
@@ -769,7 +614,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 					this.maxSize,
 					false,
 					true,
-					getTypeAgenciesAuthorityOrNull()
+					this.typeAgenciesAuthority
 			);
 		default:
 			//noinspection deprecation
@@ -820,11 +665,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 			}
 			LocationUtils.incAroundDiff(this.ad); // increase covered area
 			this.adLD.postValue(this.ad);
-			resetTypeAgenciesAuthority();
-			initTypeAgenciesAuthorityAsync(); // look for new agencies in this area (loader will be restarted after)
-			if (F_CACHE_DATA_SOURCES) {
-				applyNewTypeAgenciesAuthority();
-			}
+			applyNewTypeAgenciesAuthority();
 		} else {
 			this.distanceCoveredInMeters = this.minCoverageInMeters;
 			this.sizeCovered = data == null ? 0 : data.size();

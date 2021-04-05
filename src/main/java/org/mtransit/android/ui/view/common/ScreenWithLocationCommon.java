@@ -1,12 +1,12 @@
 package org.mtransit.android.ui.view.common;
 
+import androidx.annotation.NonNull;
+
 import org.mtransit.android.R;
 import org.mtransit.android.commons.DeviceUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.provider.location.MTLocationProvider;
 import org.mtransit.android.ui.MTDialog;
-
-import androidx.annotation.NonNull;
 
 public final class ScreenWithLocationCommon implements MTLog.Loggable {
 

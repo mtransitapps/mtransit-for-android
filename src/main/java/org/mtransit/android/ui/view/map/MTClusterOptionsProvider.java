@@ -1,12 +1,14 @@
 package org.mtransit.android.ui.view.map;
 
+import android.content.Context;
+import android.graphics.Color;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.lang.ref.WeakReference;
-import java.util.List;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
@@ -14,10 +16,8 @@ import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.util.MapUtils;
 
-import com.google.android.gms.maps.model.BitmapDescriptor;
-
-import android.content.Context;
-import android.graphics.Color;
+import java.lang.ref.WeakReference;
+import java.util.List;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 public class MTClusterOptionsProvider implements ClusterOptionsProvider, MTLog.Loggable {

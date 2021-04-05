@@ -1,16 +1,16 @@
 package org.mtransit.android.ui.view.map.impl;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.VisibleRegion;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.map.IMarker;
 
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.VisibleRegion;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class DynamicNoClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {

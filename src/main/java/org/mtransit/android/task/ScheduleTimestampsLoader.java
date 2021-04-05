@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class ScheduleTimestampsLoader extends MTAsyncTaskLoaderX<ArrayList<Timestamp>> {
 
 	private static final String TAG = ScheduleTimestampsLoader.class.getSimpleName();
@@ -57,18 +55,11 @@ public class ScheduleTimestampsLoader extends MTAsyncTaskLoaderX<ArrayList<Times
 		this.timestamps = new ArrayList<>();
 		long endsAtInMs = this.startsAtInMs + TimeUnit.DAYS.toMillis(1);
 		ScheduleTimestampsProviderContract.Filter scheduleFilter = new ScheduleTimestampsProviderContract.Filter(this.rts, this.startsAtInMs, endsAtInMs);
-		Collection<ScheduleProviderProperties> scheduleProviders;
-		if (F_CACHE_DATA_SOURCES) {
-			scheduleProviders = this.dataSourcesRepository.getScheduleProviders(this.rts.getAuthority());
-		} else {
-			scheduleProviders = org.mtransit.android.data.DataSourceProvider.get(getContext()).getTargetAuthorityScheduleProviders(this.rts.getAuthority());
-		}
-		if (scheduleProviders != null) {
-			for (ScheduleProviderProperties scheduleProvider : scheduleProviders) {
-				ScheduleTimestamps scheduleTimestamps = DataSourceManager.findScheduleTimestamps(getContext(), scheduleProvider.getAuthority(), scheduleFilter);
-				if (scheduleTimestamps != null && scheduleTimestamps.getTimestampsCount() > 0) {
-					this.timestamps = scheduleTimestamps.getTimestamps();
-				}
+		Collection<ScheduleProviderProperties> scheduleProviders = this.dataSourcesRepository.getScheduleProviders(this.rts.getAuthority());
+		for (ScheduleProviderProperties scheduleProvider : scheduleProviders) {
+			ScheduleTimestamps scheduleTimestamps = DataSourceManager.findScheduleTimestamps(getContext(), scheduleProvider.getAuthority(), scheduleFilter);
+			if (scheduleTimestamps != null && scheduleTimestamps.getTimestampsCount() > 0) {
+				this.timestamps = scheduleTimestamps.getTimestamps();
 			}
 		}
 		return this.timestamps;

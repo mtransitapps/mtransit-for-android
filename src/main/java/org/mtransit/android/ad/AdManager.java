@@ -51,8 +51,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 @SuppressLint("MissingPermission")
 public class AdManager implements IAdManager, MTLog.Loggable {
 
@@ -102,11 +100,9 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		this.crashReporter = crashReporter;
 		this.locationProvider = locationProvider;
 		this.dataSourcesRepository = dataSourcesRepository;
-		if (F_CACHE_DATA_SOURCES) {
-			this.dataSourcesRepository.readingAllAgenciesCount().observeForever(newNbAgencies -> { // SINGLETON
-				this.nbAgencies = newNbAgencies;
-			});
-		}
+		this.dataSourcesRepository.readingAllAgenciesCount().observeForever(newNbAgencies -> { // SINGLETON
+			this.nbAgencies = newNbAgencies;
+		});
 	}
 
 	@Override
@@ -135,19 +131,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 	@Override
 	public void onNbAgenciesUpdated(@NonNull IActivity activity, int nbAgencies) {
-		if (!F_CACHE_DATA_SOURCES) {
-			return;
-		}
 		this.nbAgencies = nbAgencies;
-		refreshAdStatus(activity);
-	}
-
-	@Override
-	public void onModulesUpdated(@NonNull IActivity activity) {
-		if (F_CACHE_DATA_SOURCES) {
-			return;
-		}
-		nbAgencies = null; // reset
 		refreshAdStatus(activity);
 	}
 
@@ -556,12 +540,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			return false;
 		}
 		if (nbAgencies == null) {
-			if (F_CACHE_DATA_SOURCES) {
-				nbAgencies = this.dataSourcesRepository.getAllAgenciesCount();
-			} else {
-				org.mtransit.android.data.DataSourceProvider dataSourceProvider = org.mtransit.android.data.DataSourceProvider.get();
-				nbAgencies = dataSourceProvider.isInitialized() ? dataSourceProvider.getAllAgenciesCount() : null;
-			}
+			nbAgencies = this.dataSourcesRepository.getAllAgenciesCount();
 		}
 		if (nbAgencies == null // number of agency unknown
 				|| nbAgencies <= MIN_AGENCIES_FOR_ADS) { // no (real) agency installed

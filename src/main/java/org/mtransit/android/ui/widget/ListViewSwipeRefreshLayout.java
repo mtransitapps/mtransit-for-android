@@ -1,14 +1,15 @@
 package org.mtransit.android.ui.widget;
 
-import java.lang.ref.WeakReference;
-
-import org.mtransit.android.commons.MTLog;
-
 import android.content.Context;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AbsListView;
+
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import org.mtransit.android.commons.MTLog;
+
+import java.lang.ref.WeakReference;
 
 public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MTLog.Loggable {
 

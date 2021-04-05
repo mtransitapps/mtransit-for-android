@@ -77,8 +77,6 @@ import java.util.Locale;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSensorManager.CompassListener, AdapterView.OnItemClickListener,
 		AdapterView.OnItemLongClickListener, SensorEventListener, AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener,
 		ServiceUpdateLoader.ServiceUpdateLoaderListener, FavoriteManager.FavoriteUpdateListener, MTSensorManager.SensorTaskCompleted,
@@ -163,14 +161,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@NonNull
 	private final MTSensorManager sensorManager;
-	@SuppressWarnings("FieldCanBeLocal")
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
-
-	@Nullable
-	private List<AgencyProperties> allAgencies;
-	@Nullable
-	private List<DataSourceType> dataSourceTypes;
 
 	public POIArrayAdapter(@NonNull IActivity activity) {
 		super(activity.requireContext(), -1);
@@ -178,19 +170,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.layoutInflater = LayoutInflater.from(getContext());
 		this.sensorManager = Injection.providesSensorManager();
 		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
-		if (F_CACHE_DATA_SOURCES) {
-			this.dataSourcesRepository.readingAllAgenciesDistinct().observe(activity.getLifecycleOwner(), newAgencies -> {
-				if (newAgencies != null) {
-					if (resetModulesStatus()) {
-						notifyDataSetChanged(true);
-					}
-				}
-				this.allAgencies = newAgencies;
-			});
-			this.dataSourcesRepository.readingAllDataSourceTypesDistinct().observe(activity.getLifecycleOwner(), newDataSourceTypes ->
-					this.dataSourceTypes = newDataSourceTypes
-			);
-		}
 	}
 
 	public void setManualLayout(ViewGroup manualLayout) {
@@ -496,30 +475,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private int nbAgencyTypes = -1;
 
 	private View getBrowseHeaderSectionView(@Nullable View convertView, @NonNull ViewGroup parent) {
-		org.mtransit.android.data.DataSourceProvider dataSourceProvider;
-		if (F_CACHE_DATA_SOURCES) {
-			dataSourceProvider = null;
-		} else {
-			dataSourceProvider = org.mtransit.android.data.DataSourceProvider.get(parent.getContext());
-		}
-		int agenciesCount;
-		if (F_CACHE_DATA_SOURCES) {
-			agenciesCount = this.allAgencies == null ? 0 : this.allAgencies.size();
-		} else {
-			agenciesCount = !dataSourceProvider.isInitialized() ? 0 : dataSourceProvider.getAllAgenciesCount();
-		}
+		final int agenciesCount = this.dataSourcesRepository.getAllAgenciesCount();
 		if (convertView == null || this.nbAgencyTypes != agenciesCount) {
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header, parent, false);
 			}
 			LinearLayout gridLL = convertView.findViewById(R.id.gridLL);
 			gridLL.removeAllViews();
-			List<DataSourceType> allAgencyTypes;
-			if (F_CACHE_DATA_SOURCES) {
-				allAgencyTypes = this.dataSourceTypes;
-			} else {
-				allAgencyTypes = !dataSourceProvider.isInitialized() ? null : dataSourceProvider.getAvailableAgencyTypes();
-			}
+			final List<DataSourceType> allAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
 			this.nbAgencyTypes = CollectionUtils.getSize(allAgencyTypes);
 			if (allAgencyTypes == null) {
 				gridLL.setVisibility(View.GONE);
@@ -1712,20 +1675,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 					if (holder.routeTypeImg.hasPaths() && poim.poi.getAuthority().equals(holder.routeTypeImg.getTag())) {
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
-						AgencyProperties agency = null;
-						if (F_CACHE_DATA_SOURCES) {
-							if (this.allAgencies != null) {
-								for (AgencyProperties agencyProperties : this.allAgencies) {
-									if (agencyProperties.getAuthority().equals(poim.poi.getAuthority())) {
-										agency = agencyProperties;
-										break;
-									}
-								}
-							}
-						} else {
-							agency = org.mtransit.android.data.DataSourceProvider.get(getContext()).getAgency(getContext(), poim.poi.getAuthority());
-						}
-						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo();
+						final AgencyProperties agency = this.dataSourcesRepository.getAgency(poim.poi.getAuthority());
+						final JPaths rtsRouteLogo = agency == null ? null : agency.getLogo();
 						if (rtsRouteLogo != null) {
 							holder.routeTypeImg.setJSON(rtsRouteLogo);
 							holder.routeTypeImg.setTag(poim.poi.getAuthority());

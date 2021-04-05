@@ -29,8 +29,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
 	private static final String TAG = HomePOILoader.class.getSimpleName();
@@ -74,12 +72,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 		}
 		this.pois = new ArrayList<>();
 		HashSet<String> favoriteUUIDs = FavoriteManager.findFavoriteUUIDs(getContext());
-		List<DataSourceType> availableAgencyTypes;
-		if (F_CACHE_DATA_SOURCES) {
-			availableAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
-		} else {
-			availableAgencyTypes = org.mtransit.android.data.DataSourceProvider.get(getContext()).getAvailableAgencyTypes();
-		}
+		List<DataSourceType> availableAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
 		if (availableAgencyTypes.size() <= 2) {
 			this.nbMaxByType = NB_MAX_BY_TYPE_ONE_TYPE;
 		} else if (availableAgencyTypes.size() <= 3) {
@@ -167,12 +160,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 		Double lastTypeAroundDiff = null;
 		int typeMaxSize = LocationUtils.MAX_NEARBY_LIST;
 		while (true) {
-			Collection<AgencyProperties> typeAgencies;
-			if (F_CACHE_DATA_SOURCES) {
-				typeAgencies = dataSourcesRepository.getTypeDataSources(type);
-			} else {
-				typeAgencies = org.mtransit.android.data.DataSourceProvider.get(context).getTypeDataSources(context, type);
-			}
+			Collection<AgencyProperties> typeAgencies = dataSourcesRepository.getTypeDataSources(type);
 			typePOIs = findNearby(context, typeLat, typeLng, typeAd, lastTypeAroundDiff, typeMaxSize, typeMinCoverageInMeters, typeAgencies);
 			if (LocationUtils.searchComplete(typeLat, typeLng, typeAd.aroundDiff)) {
 				break;

@@ -1,24 +1,24 @@
 package org.mtransit.android.ui.view;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.util.Pair;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.mtransit.android.R;
-import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.ThemeUtils;
-import org.mtransit.android.commons.ui.view.MTView;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
+
+import org.mtransit.android.R;
+import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.ThemeUtils;
+import org.mtransit.android.commons.ui.view.MTView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MTPieChartPercentView extends MTView {
 

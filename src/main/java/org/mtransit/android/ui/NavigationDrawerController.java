@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,7 +22,6 @@ import com.google.android.material.navigation.NavigationView;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
-import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
@@ -49,9 +47,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
-public class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNavigationItemSelectedListener, org.mtransit.android.data.DataSourceProvider.ModulesUpdateListener {
+public class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNavigationItemSelectedListener {
 
 	private static final String LOG_TAG = "Stack-" + NavigationDrawerController.class.getSimpleName();
 
@@ -98,15 +94,11 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		this.mainActivityWR = new WeakReference<>(mainActivity);
 		this.crashReporter = crashReporter;
 		this.dataSourcesRepository = dataSourcesRepository;
-		if (F_CACHE_DATA_SOURCES) {
-			this.dataSourcesRepository.readingAllDataSourceTypesDistinct().observe(mainActivity, dataSourceTypes -> {
-				this.allAgencyTypes = filterAgencyTypes(dataSourceTypes);
-				setVisibleMenuItems();
-				onMenuUpdated();
-			});
-		} else {
-			org.mtransit.android.data.DataSourceProvider.addModulesUpdateListener(this);
-		}
+		this.dataSourcesRepository.readingAllDataSourceTypesDistinct().observe(mainActivity, dataSourceTypes -> {
+			this.allAgencyTypes = filterAgencyTypes(dataSourceTypes);
+			setVisibleMenuItems();
+			onMenuUpdated();
+		});
 	}
 
 	public void onCreate(@SuppressWarnings("unused") @Nullable Bundle savedInstanceState) {
@@ -253,13 +245,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 
 	@NonNull
 	private List<DataSourceType> getNewFilteredAgencyTypes() {
-		final List<DataSourceType> availableAgencyTypes;
-		if (F_CACHE_DATA_SOURCES) {
-			availableAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
-		} else {
-			final MainActivity mainActivity = this.mainActivityWR.get();
-			availableAgencyTypes = org.mtransit.android.data.DataSourceProvider.get(mainActivity).getAvailableAgencyTypes();
-		}
+		final List<DataSourceType> availableAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
 		return filterAgencyTypes(availableAgencyTypes);
 	}
 
@@ -655,52 +641,18 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		setCurrentSelectedItemChecked(backStackEntryCount == 0);
 	}
 
-	private boolean modulesUpdated = false;
-
-	@Override
-	public void onModulesUpdated() {
-		this.modulesUpdated = true;
-		if (!this.resumed) {
-			return;
-		}
-		if (!F_CACHE_DATA_SOURCES) {
-			final List<DataSourceType> newAllAgencyTypes = getNewFilteredAgencyTypes();
-			//noinspection IfStatementWithIdenticalBranches
-			if (CollectionUtils.getSize(this.allAgencyTypes) != CollectionUtils.getSize(newAllAgencyTypes)) {
-				this.allAgencyTypes = newAllAgencyTypes; // force reset
-				setVisibleMenuItems();
-				onMenuUpdated();
-				this.modulesUpdated = false; // processed
-			} else {
-				this.modulesUpdated = false; // nothing to do
-			}
-		} else {
-			this.modulesUpdated = false;
-		}
-	}
-
 	void onStart() {
 		setup();
 	}
 
-	private boolean resumed = false;
-
 	public void onResume() {
-		this.resumed = true;
 		if (this.menuUpdated) {
 			onMenuUpdated();
-		}
-		if (this.modulesUpdated) {
-			new Handler().post(() -> {
-				if (NavigationDrawerController.this.modulesUpdated) {
-					onModulesUpdated();
-				}
-			});
 		}
 	}
 
 	public void onPause() {
-		this.resumed = false;
+		// DO NOTHING
 	}
 
 	void onStop() {
@@ -731,9 +683,6 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	}
 
 	void destroy() {
-		if (!F_CACHE_DATA_SOURCES) {
-			org.mtransit.android.data.DataSourceProvider.removeModulesUpdateListener(this);
-		}
 		this.mainActivityWR.clear();
 		this.currentSelectedScreenItemNavId = null;
 		this.currentSelectedScreenItemId = null;

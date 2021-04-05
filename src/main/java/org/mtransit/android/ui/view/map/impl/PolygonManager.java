@@ -1,12 +1,12 @@
 package org.mtransit.android.ui.view.map.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import androidx.collection.ArrayMap;
 
 import org.mtransit.android.ui.view.map.Polygon;
 import org.mtransit.android.ui.view.map.PolygonOptions;
 
-import androidx.collection.ArrayMap;
+import java.util.ArrayList;
+import java.util.List;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class PolygonManager {

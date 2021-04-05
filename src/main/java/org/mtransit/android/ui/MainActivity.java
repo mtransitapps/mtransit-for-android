@@ -36,15 +36,12 @@ import org.mtransit.android.util.NightModeUtils;
 
 import java.util.WeakHashMap;
 
-import static org.mtransit.commons.FeatureFlags.F_CACHE_DATA_SOURCES;
-
 public class MainActivity extends MTActivityWithLocation implements
 		FragmentManager.OnBackStackChangedListener,
 		AnalyticsManager.Trackable,
 		IBillingManager.OnBillingResultListener,
 		IActivity,
-		IAdManager.RewardedAdListener,
-		org.mtransit.android.data.DataSourceProvider.ModulesUpdateListener {
+		IAdManager.RewardedAdListener {
 
 	private static final String TAG = "Stack-" + MainActivity.class.getSimpleName();
 
@@ -102,13 +99,9 @@ public class MainActivity extends MTActivityWithLocation implements
 		this.navigationDrawerController = new NavigationDrawerController(this, crashReporter, this.dataSourcesRepository);
 		this.navigationDrawerController.onCreate(savedInstanceState);
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
-		if (!F_CACHE_DATA_SOURCES) {
-			org.mtransit.android.data.DataSourceProvider.addModulesUpdateListener(this);
-		} else {
-			this.dataSourcesRepository.readingAllAgenciesCount().observe(this, nbAgencies ->
-					this.adManager.onNbAgenciesUpdated(this, nbAgencies) // ad-manager does not persist activity but listen for changes itself
-			);
-		}
+		this.dataSourcesRepository.readingAllAgenciesCount().observe(this, nbAgencies ->
+				this.adManager.onNbAgenciesUpdated(this, nbAgencies) // ad-manager does not persist activity but listen for changes itself
+		);
 		MapUtils.fixScreenFlickering(findViewById(R.id.content_frame));
 	}
 
@@ -116,20 +109,6 @@ public class MainActivity extends MTActivityWithLocation implements
 	protected void attachBaseContext(@NonNull Context newBase) {
 		newBase = LocaleUtils.fixDefaultLocale(newBase);
 		super.attachBaseContext(newBase);
-	}
-
-	private boolean modulesUpdated = false;
-
-	@Override
-	public void onModulesUpdated() {
-		this.modulesUpdated = true;
-		if (!this.resumed) {
-			return;
-		}
-		if (!F_CACHE_DATA_SOURCES) {
-			this.adManager.onModulesUpdated(this);
-		}
-		this.modulesUpdated = false; // processed
 	}
 
 	@Override
@@ -143,11 +122,6 @@ public class MainActivity extends MTActivityWithLocation implements
 	@Nullable
 	public ActionBarController getAbController() {
 		return abController;
-	}
-
-	@Nullable
-	public NavigationDrawerController getNavigationDrawerController() {
-		return navigationDrawerController;
 	}
 
 	@Override
@@ -220,32 +194,16 @@ public class MainActivity extends MTActivityWithLocation implements
 	protected void onPostResume() {
 		super.onPostResume();
 		this.resumed = true;
-		if (!F_CACHE_DATA_SOURCES) {
-			if (this.modulesUpdated) {
-				new Handler().post(() -> {
-					if (MainActivity.this.modulesUpdated) {
-						onModulesUpdated();
-					}
-				});
-			}
-			org.mtransit.android.data.DataSourceProvider.onResume();
-		}
 		if (this.currentUiMode != getResources().getConfiguration().uiMode) {
 			new Handler().post(() -> {
 				NightModeUtils.resetColorCache();
 				NightModeUtils.recreate(this);
 			});
 		}
-		if (F_CACHE_DATA_SOURCES) {
-			if (org.mtransit.android.data.DataSourceProvider.isSet()) {
-				org.mtransit.android.data.DataSourceProvider.get().updateFromDataSourceRepository(false);
-			} else {
-				try {
-					this.dataSourcesRepository.updateAsync().get();
-				} catch (Exception e) {
-					MTLog.w(this, e, "Error while updating data-sources from repository!");
-				}
-			}
+		try {
+			this.dataSourcesRepository.updateAsync().get();
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while updating data-sources from repository!");
 		}
 	}
 
@@ -264,9 +222,6 @@ public class MainActivity extends MTActivityWithLocation implements
 		}
 		this.billingManager.removeListener(this);
 		this.adManager.pauseAd(this);
-		if (!F_CACHE_DATA_SOURCES) {
-			org.mtransit.android.data.DataSourceProvider.onPause();
-		}
 	}
 
 	@Override
@@ -280,18 +235,12 @@ public class MainActivity extends MTActivityWithLocation implements
 	@Override
 	protected void onRestart() {
 		super.onRestart();
-		if (!F_CACHE_DATA_SOURCES) {
-			org.mtransit.android.data.DataSourceProvider.resetIfNecessary(this);
-		}
 		popFragmentsToPop();
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		if (!F_CACHE_DATA_SOURCES) {
-			org.mtransit.android.data.DataSourceProvider.removeModulesUpdateListener(this);
-		}
 		if (this.abController != null) {
 			this.abController.destroy();
 			this.abController = null;
@@ -301,9 +250,6 @@ public class MainActivity extends MTActivityWithLocation implements
 			this.navigationDrawerController = null;
 		}
 		this.fragmentsToPopWR.clear();
-		if (!F_CACHE_DATA_SOURCES) {
-			org.mtransit.android.data.DataSourceProvider.destroy();
-		}
 		this.adManager.destroyAd(this);
 		this.adManager.unlinkRewardedAd(this);
 	}

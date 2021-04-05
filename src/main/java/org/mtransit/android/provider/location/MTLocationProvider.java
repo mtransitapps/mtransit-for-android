@@ -1,10 +1,11 @@
 package org.mtransit.android.provider.location;
 
-import org.mtransit.android.ui.view.common.IActivity;
-
 import android.location.Location;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import org.mtransit.android.ui.view.common.IActivity;
 
 public interface MTLocationProvider {
 

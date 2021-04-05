@@ -1,7 +1,5 @@
 package org.mtransit.android.ui.view.map.impl;
 
-import org.mtransit.android.commons.MTLog;
-
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 
@@ -37,6 +35,8 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
+
+import org.mtransit.android.commons.MTLog;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 class GoogleMapWrapper implements IGoogleMap, MTLog.Loggable {

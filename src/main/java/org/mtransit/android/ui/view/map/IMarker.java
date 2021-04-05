@@ -1,14 +1,14 @@
 package org.mtransit.android.ui.view.map;
 
+import android.content.Context;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
-
-import java.util.List;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 
-import android.content.Context;
+import java.util.List;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
 public interface IMarker {
