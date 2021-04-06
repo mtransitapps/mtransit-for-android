@@ -58,7 +58,7 @@ public class ModuleDataChangeReceiver extends BroadcastReceiver implements MTLog
 		final boolean forceReset = extras != null && extras.getBoolean(DataChange.FORCE, false);
 		final String pkg = extras == null ? null : extras.getString(DataChange.PKG, null);
 		try {
-			this.dataSourcesRepository.updateAsync(forceReset ? pkg : null).get();
+			this.dataSourcesRepository.startUpdateAsync(forceReset ? pkg : null);
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while updating data-sources from repository!");
 		}

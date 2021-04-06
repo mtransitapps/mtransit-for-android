@@ -1,5 +1,7 @@
 package org.mtransit.android.datasource
 
+import androidx.annotation.AnyThread
+import androidx.annotation.WorkerThread
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import kotlinx.coroutines.Dispatchers
@@ -8,6 +10,7 @@ import kotlinx.coroutines.future.future
 import kotlinx.coroutines.withContext
 import org.mtransit.android.common.IApplication
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.TaskUtils
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.AgencyProperties.Companion.SHORT_NAME_COMPARATOR
 import org.mtransit.android.data.DataSourceType
@@ -17,6 +20,7 @@ import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
 import java.util.concurrent.CompletableFuture
+
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 class DataSourcesRepository(
@@ -158,8 +162,39 @@ class DataSourcesRepository(
 
     private var runningUpdate: Boolean = false
 
+    private var startUpdateAsyncTask: StartUpdateAsyncTask? = null // JAVA
+
+    @Suppress("DEPRECATION")
+    @AnyThread
     @JvmOverloads
-    fun updateAsync(forcePkg: String? = null): CompletableFuture<Boolean> { // JAVA
+    fun startUpdateAsync(forcePkg: String? = null) { // JAVA
+        if (startUpdateAsyncTask?.status == android.os.AsyncTask.Status.RUNNING) {
+            MTLog.d(this, "startUpdateAsync() > SKIP (already running)")
+            return
+        }
+        this.startUpdateAsyncTask = StartUpdateAsyncTask(this, forcePkg)
+        TaskUtils.execute(this.startUpdateAsyncTask)
+    }
+
+    @Suppress("DEPRECATION")
+    private class StartUpdateAsyncTask(
+        private val dataSourcesRepository: DataSourcesRepository,
+        private val forcePkg: String?
+    ) : org.mtransit.android.commons.task.MTCancellableAsyncTask<Void, Void, Boolean>() { // JAVA
+
+        companion object {
+            private val LOG_TAG = DataSourcesRepository.LOG_TAG + ">" + StartUpdateAsyncTask::class.java.simpleName
+        }
+
+        override fun getLogTag(): String = LOG_TAG
+
+        @WorkerThread
+        override fun doInBackgroundNotCancelledMT(vararg params: Void?): Boolean? {
+            return dataSourcesRepository.updateAsync(forcePkg).get()
+        }
+    }
+
+    private fun updateAsync(forcePkg: String? = null): CompletableFuture<Boolean> { // JAVA
         if (runningUpdate) {
             MTLog.d(this@DataSourcesRepository, "updateAsync() > SKIP (was running - before sync)")
             return GlobalScope.future { false }
@@ -187,7 +222,9 @@ class DataSourcesRepository(
     suspend fun update(forcePkg: String? = null): Boolean {
         var updated: Boolean
         withContext(Dispatchers.IO) {
+            MTLog.i(this@DataSourcesRepository, "update() > Updating... ")
             updated = dataSourcesReader.update(forcePkg)
+            MTLog.i(this@DataSourcesRepository, "update() > Updating...  DONE")
         }
         MTLog.d(this, "update() > $updated")
         return updated

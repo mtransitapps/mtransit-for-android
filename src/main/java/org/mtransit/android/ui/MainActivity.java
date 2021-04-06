@@ -202,7 +202,7 @@ public class MainActivity extends MTActivityWithLocation implements
 			});
 		}
 		try {
-			this.dataSourcesRepository.updateAsync().get();
+			this.dataSourcesRepository.startUpdateAsync();
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while updating data-sources from repository!");
 		}

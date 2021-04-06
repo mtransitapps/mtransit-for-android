@@ -95,7 +95,7 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 			return;
 		}
 		try {
-			this.dataSourcesRepository.updateAsync().get();
+			this.dataSourcesRepository.startUpdateAsync();
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while updating data-sources from repository!");
 		}
