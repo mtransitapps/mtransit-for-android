@@ -22,6 +22,8 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
+import org.mtransit.android.commons.Constants;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
@@ -69,23 +71,33 @@ public class NewsFragment extends ABFragment implements LoaderManager.LoaderCall
 		Bundle args = new Bundle();
 		if (optColorInt != null) {
 			args.putInt(EXTRA_COLOR_INT, optColorInt);
-			f.colorInt = optColorInt;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.colorInt = optColorInt;
+			}
 		}
 		if (!TextUtils.isEmpty(optSubtitle)) {
 			args.putString(EXTRA_SUB_TITLE, optSubtitle);
-			f.subTitle = optSubtitle;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.subTitle = optSubtitle;
+			}
 		}
 		if (CollectionUtils.getSize(optTargetAuthorities) > 0) {
 			args.putStringArrayList(EXTRA_FILTER_TARGET_AUTHORITIES, optTargetAuthorities);
-			f.targetAuthorities = optTargetAuthorities;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.targetAuthorities = optTargetAuthorities;
+			}
 		}
 		if (CollectionUtils.getSize(optFilterUUIDs) > 0) {
 			args.putStringArrayList(EXTRA_FILTER_UUIDS, optFilterUUIDs);
-			f.filterUUIDs = optFilterUUIDs;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.filterUUIDs = optFilterUUIDs;
+			}
 		}
 		if (CollectionUtils.getSize(optFilterTargets) > 0) {
 			args.putStringArrayList(EXTRA_FILTER_TARGETS, optFilterTargets);
-			f.filterTargets = optFilterTargets;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.filterTargets = optFilterTargets;
+			}
 		}
 		f.setArguments(args);
 		return f;

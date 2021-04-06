@@ -20,6 +20,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
@@ -63,13 +64,19 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		ScheduleFragment f = new ScheduleFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
-		f.setAuthority(authority);
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.setAuthority(authority);
+		}
 		args.putString(EXTRA_POI_UUID, uuid);
-		f.uuid = uuid;
-		f.rts = optRts;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.uuid = uuid;
+			f.rts = optRts;
+		}
 		if (optColorInt != null) {
 			args.putInt(EXTRA_COLOR_INT, optColorInt);
-			f.colorInt = optColorInt;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.colorInt = optColorInt;
+			}
 		}
 		f.setArguments(args);
 		return f;
@@ -94,21 +101,25 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 	private boolean hasRts() {
 		if (this.rts == null) {
-			initRtsAsync();
+			initRtsAsync(false);
 			return false;
 		}
 		return true;
 	}
 
 	@MainThread
-	private void initRtsAsync() {
+	private void initRtsAsync(boolean force) {
 		if (this.loadRtsTask != null && this.loadRtsTask.getStatus() == LoadRtsTask.Status.RUNNING) {
-			return;
+			if (!force) {
+				MTLog.d(this, "initRtsAsync() > SKIP (already running)");
+				return;
+			}
 		}
 		if (TextUtils.isEmpty(this.uuid) || TextUtils.isEmpty(getAuthority())) {
+			MTLog.d(this, "initNewsAsync() > SKIP (no UUID or no authority)");
 			return;
 		}
-		this.loadRtsTask = new LoadRtsTask(this);
+		this.loadRtsTask = new LoadRtsTask(this, force);
 		TaskUtils.execute(this.loadRtsTask);
 	}
 
@@ -124,14 +135,17 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 			return ScheduleFragment.class.getSimpleName() + ">" + LoadRtsTask.class.getSimpleName();
 		}
 
-		LoadRtsTask(ScheduleFragment scheduleFragment) {
+		private final boolean force;
+
+		LoadRtsTask(ScheduleFragment scheduleFragment, boolean force) {
 			super(scheduleFragment);
+			this.force = force;
 		}
 
 		@WorkerThread
 		@Override
 		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull ScheduleFragment scheduleFragment, Void... params) {
-			return scheduleFragment.initRtsSync();
+			return scheduleFragment.initRtsSync(this.force);
 		}
 
 		@MainThread
@@ -156,8 +170,9 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	@WorkerThread
-	private boolean initRtsSync() {
-		if (this.rts != null) {
+	private boolean initRtsSync(boolean force) {
+		if (!force && this.rts != null) {
+			MTLog.d(this, "initRtsSync() > SKIP (already loaded)");
 			return false;
 		}
 		if (this.uuid != null && !this.uuid.isEmpty()
@@ -183,6 +198,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 
 	private void applyNewRts() {
 		if (this.rts == null) {
+			MTLog.d(this, "applyNewRts() > SKIP (no RTS)");
 			return;
 		}
 		if (getAbController() != null) {
@@ -218,8 +234,7 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
 		this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this, agencyProperties -> {
-			resetRts();
-			initRtsAsync();
+			initRtsAsync(true);
 		});
 	}
 

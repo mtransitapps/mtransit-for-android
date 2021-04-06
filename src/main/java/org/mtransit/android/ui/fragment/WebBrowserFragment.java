@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.util.LinkUtils;
@@ -57,7 +58,9 @@ public class WebBrowserFragment extends ABFragment {
 		WebBrowserFragment f = new WebBrowserFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_URL_INITIAL, url);
-		f.initialUrl = url;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.initialUrl = url;
+		}
 		f.setArguments(args);
 		return f;
 	}
@@ -246,7 +249,7 @@ public class WebBrowserFragment extends ABFragment {
 			return this.pageTitle;
 		}
 		if (context == null) {
-			return super.getABTitle(context);
+			return super.getABTitle(null);
 		}
 		return context.getString(R.string.web_browser);
 	}

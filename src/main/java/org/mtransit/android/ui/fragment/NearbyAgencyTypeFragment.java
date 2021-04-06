@@ -22,6 +22,7 @@ import androidx.loader.content.Loader;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ThemeUtils;
@@ -67,14 +68,20 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 		NearbyAgencyTypeFragment f = new NearbyAgencyTypeFragment();
 		Bundle args = new Bundle();
 		args.putInt(EXTRA_TYPE_ID, typeId);
-		f.typeId = typeId;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.typeId = typeId;
+		}
 		if (fragmentPosition >= 0) {
 			args.putInt(EXTRA_FRAGMENT_POSITION, fragmentPosition);
-			f.fragmentPosition = fragmentPosition;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.fragmentPosition = fragmentPosition;
+			}
 		}
 		if (lastVisibleFragmentPosition >= 0) {
 			args.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, lastVisibleFragmentPosition);
-			f.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
+			}
 		}
 		f.setArguments(args);
 		return f;
@@ -289,7 +296,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 				this.lastVisibleFragmentPosition = -1;
 			}
 		}
-		this.adapter.setTag(String.valueOf(this.typeId));
+		if (this.adapter != null) {
+			this.adapter.setTag(String.valueOf(this.typeId));
+		}
 	}
 
 	private void initAdapters(IActivity activity) {
@@ -434,7 +443,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 		if (this.fragmentPosition >= 0 && this.fragmentPosition == this.lastVisibleFragmentPosition) {
 			onFragmentVisible();
 		} // ELSE will be called later
-		this.adapter.setActivity(this);
+		if (this.adapter != null) {
+			this.adapter.setActivity(this);
+		}
 	}
 
 	@Override
@@ -553,7 +564,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 	private void inflateList(View view) {
 		if (view.findViewById(R.id.list) == null) { // IF NOT present/inflated DO
 			((ViewStub) view.findViewById(R.id.list_stub)).inflate(); // inflate
-			this.swipeRefreshLayout.setListViewWR(view.findViewById(R.id.list));
+			if (this.swipeRefreshLayout != null) {
+				this.swipeRefreshLayout.setListViewWR(view.findViewById(R.id.list));
+			}
 		}
 	}
 
@@ -564,7 +577,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 		if (view.findViewById(R.id.empty) != null) { // IF inflated/present DO
 			view.findViewById(R.id.empty).setVisibility(View.GONE); // hide
 		}
-		this.swipeRefreshLayout.setLoadingViewWR(view.findViewById(R.id.loading));
+		if (this.swipeRefreshLayout != null) {
+			this.swipeRefreshLayout.setLoadingViewWR(view.findViewById(R.id.loading));
+		}
 		view.findViewById(R.id.loading).setVisibility(View.VISIBLE); // show
 	}
 
@@ -577,7 +592,9 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 		}
 		if (view.findViewById(R.id.empty) == null) { // IF NOT present/inflated DO
 			((ViewStub) view.findViewById(R.id.empty_stub)).inflate(); // inflate
-			this.swipeRefreshLayout.setEmptyViewWR(view.findViewById(R.id.empty));
+			if (this.swipeRefreshLayout != null) {
+				this.swipeRefreshLayout.setEmptyViewWR(view.findViewById(R.id.empty));
+			}
 		}
 		view.findViewById(R.id.empty).setVisibility(View.VISIBLE); // show
 	}
@@ -669,16 +686,18 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 		} else {
 			this.distanceCoveredInMeters = this.minCoverageInMeters;
 			this.sizeCovered = data == null ? 0 : data.size();
-			boolean scrollToTop = this.adapter.getPoisCount() == 0;
-			this.adapter.appendPois(data);
 			View view = getView();
-			if (scrollToTop && view != null && view.findViewById(R.id.list) != null) {
-				((AbsListView) view.findViewById(R.id.list)).setSelection(0);
-			}
-			if (this.fragmentVisible) {
-				this.adapter.updateDistanceNowAsync(this.userLocation);
-			} else {
-				this.adapter.onPause();
+			if (this.adapter != null) {
+				boolean scrollToTop = this.adapter.getPoisCount() == 0;
+				this.adapter.appendPois(data);
+				if (scrollToTop && view != null && view.findViewById(R.id.list) != null) {
+					((AbsListView) view.findViewById(R.id.list)).setSelection(0);
+				}
+				if (this.fragmentVisible) {
+					this.adapter.updateDistanceNowAsync(this.userLocation);
+				} else {
+					this.adapter.onPause();
+				}
 			}
 			switchView(view);
 		}

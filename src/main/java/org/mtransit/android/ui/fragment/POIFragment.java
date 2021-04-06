@@ -136,12 +136,16 @@ public class POIFragment extends ABFragment implements
 		POIFragment f = new POIFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
-		f.authority = authority;
-		f.agency = optAgency;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.authority = authority;
+			f.agency = optAgency;
+		}
 		args.putString(EXTRA_POI_UUID, uuid);
-		f.uuid = uuid;
-		f.poim = optPoim;
-		f.setPOIProperties();
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.uuid = uuid;
+			f.poim = optPoim;
+			f.setPOIProperties();
+		}
 		f.setArguments(args);
 		return f;
 	}
@@ -201,20 +205,23 @@ public class POIFragment extends ABFragment implements
 
 	private boolean hasPoim() {
 		if (this.poim == null) {
-			initPoimAsync();
+			initPoimAsync(false);
 			return false;
 		}
 		return true;
 	}
 
-	private void initPoimAsync() {
+	private void initPoimAsync(boolean force) {
 		if (this.loadPoimTask != null && this.loadPoimTask.getStatus() == LoadPoimTask.Status.RUNNING) {
-			return;
+			if (!force) {
+				MTLog.d(this, "initPoimAsync() > SKIP (already running)");
+				return;
+			}
 		}
 		if (TextUtils.isEmpty(this.uuid) || TextUtils.isEmpty(this.authority)) {
 			return;
 		}
-		this.loadPoimTask = new LoadPoimTask(this);
+		this.loadPoimTask = new LoadPoimTask(this, force);
 		TaskUtils.execute(this.loadPoimTask);
 	}
 
@@ -230,14 +237,17 @@ public class POIFragment extends ABFragment implements
 			return POIFragment.class.getSimpleName() + ">" + LoadPoimTask.class.getSimpleName();
 		}
 
-		LoadPoimTask(@NonNull POIFragment poiFragment) {
+		private final boolean force;
+
+		LoadPoimTask(@NonNull POIFragment poiFragment, boolean force) {
 			super(poiFragment);
+			this.force = force;
 		}
 
 		@WorkerThread
 		@Override
 		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull POIFragment poiFragment, @Nullable Void... params) {
-			return poiFragment.initPoimSync();
+			return poiFragment.initPoimSync(this.force);
 		}
 
 		@MainThread
@@ -258,8 +268,9 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@WorkerThread
-	private boolean initPoimSync() {
-		if (this.poim != null) {
+	private boolean initPoimSync(boolean force) {
+		if (!force && this.poim != null) {
+			MTLog.d(this, "initPoimSync() > SKIP (already loaded)");
 			return false;
 		}
 		if (this.uuid != null && this.authority != null) {
@@ -282,10 +293,12 @@ public class POIFragment extends ABFragment implements
 
 	private void applyNewPoim() {
 		if (this.poim == null) {
+			MTLog.d(this, "applyNewPoim() > SKIP (no poi)");
 			return;
 		}
 		final Context context = getContext();
 		if (context == null) {
+			MTLog.d(this, "applyNewPoim() > SKIP (no context)");
 			return;
 		}
 		setPOIProperties();
@@ -376,14 +389,17 @@ public class POIFragment extends ABFragment implements
 	@WorkerThread
 	private boolean initNewsSync() {
 		if (this.news != null) {
+			MTLog.d(this, "initNewsSync() > SKIP (already loaded)");
 			return false;
 		}
 		POIManager poim = getPoimOrNull();
 		if (poim == null) {
+			MTLog.d(this, "initNewsSync() > SKIP (no POI)");
 			return false;
 		}
 		Context context = getContext();
 		if (context == null) {
+			MTLog.d(this, "initNewsSync() > SKIP (no context)");
 			return false;
 		}
 		this.news = new ArrayList<>();
@@ -411,8 +427,8 @@ public class POIFragment extends ABFragment implements
 			return true; // no news, need to apply
 		}
 		CollectionUtils.sort(allNews, News.NEWS_SEVERITY_COMPARATOR);
-		int noteworthiness = 1;
-		while (this.news.isEmpty() && noteworthiness < 7) {
+		long noteworthiness = 1L;
+		while (this.news.isEmpty() && noteworthiness < 10L) {
 			for (News news : allNews) {
 				if (news.getCreatedAtInMs() + news.getNoteworthyInMs() * noteworthiness < nowInMs) {
 					continue; // news too old to be worthy
@@ -427,10 +443,12 @@ public class POIFragment extends ABFragment implements
 
 	private void applyNewNews() {
 		if (this.news == null) {
+			MTLog.d(this, "applyNewNews() > SKIP (no news)");
 			return;
 		}
 		final Context context = getContext();
 		if (context == null) {
+			MTLog.d(this, "applyNewNews() > SKIP (no context)");
 			return;
 		}
 		POINewsViewController.updateView(context, getPOINewsView(getView()), this.news);
@@ -536,8 +554,8 @@ public class POIFragment extends ABFragment implements
 				return;
 			}
 			this.agency = newAgency;
-			resetPoim(); // force poi + status refresh
 			applyNewAgency();
+			initPoimAsync(true); // force poi + status refresh
 		});
 		this.authorityLD.postValue(this.authority); // force once
 	}

@@ -282,6 +282,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	}
 
 	public void showNewFragment(@NonNull ABFragment newFragment, boolean addToStack, @Nullable Fragment optSource) {
+		MTLog.d(this, "showNewFragment(%s, %s, %s)", newFragment, addToStack, optSource);
 		FragmentUtils.replaceFragment(this, R.id.content_frame, newFragment, addToStack, optSource);
 		if (addToStack) {
 			incBackEntryCount();

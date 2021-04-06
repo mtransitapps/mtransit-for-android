@@ -35,6 +35,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
@@ -110,18 +111,28 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		Bundle args = new Bundle();
 		if (optTypeId != null) {
 			args.putInt(EXTRA_SELECTED_TYPE, optTypeId);
-			f.selectedTypeId = optTypeId;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.selectedTypeId = optTypeId;
+			}
 		}
 		if (optFixedOnLat != null && optFixedOnLng != null && !TextUtils.isEmpty(optFixedOnName)) {
 			args.putDouble(EXTRA_FIXED_ON_LAT, optFixedOnLat);
-			f.fixedOnLat = optFixedOnLat;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.fixedOnLat = optFixedOnLat;
+			}
 			args.putDouble(EXTRA_FIXED_ON_LNG, optFixedOnLng);
-			f.fixedOnLng = optFixedOnLng;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.fixedOnLng = optFixedOnLng;
+			}
 			args.putString(EXTRA_FIXED_ON_NAME, optFixedOnName);
-			f.fixedOnName = optFixedOnName;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.fixedOnName = optFixedOnName;
+			}
 			if (optFixedOnColor != null) {
 				args.putInt(EXTRA_FIXED_ON_COLOR, optFixedOnColor);
-				f.fixedOnColor = optFixedOnColor;
+				if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+					f.fixedOnColor = optFixedOnColor;
+				}
 			}
 		}
 		f.setArguments(args);

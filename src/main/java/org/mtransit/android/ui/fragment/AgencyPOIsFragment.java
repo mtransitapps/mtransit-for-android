@@ -34,6 +34,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import org.mtransit.android.R;
 import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.data.POIArrayAdapter;
@@ -84,22 +85,32 @@ public class AgencyPOIsFragment extends MTFragmentX implements
 		AgencyPOIsFragment f = new AgencyPOIsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, agencyAuthority);
-		f.authority = agencyAuthority;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.authority = agencyAuthority;
+		}
 		if (fragmentPosition >= 0) {
 			args.putInt(EXTRA_FRAGMENT_POSITION, fragmentPosition);
-			f.fragmentPosition = fragmentPosition;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.fragmentPosition = fragmentPosition;
+			}
 		}
 		if (lastVisibleFragmentPosition >= 0) {
 			args.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, lastVisibleFragmentPosition);
-			f.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
+			}
 		}
 		if (optColorInt != null) {
 			args.putInt(EXTRA_COLOR_INT, optColorInt);
-			f.colorInt = optColorInt;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.colorInt = optColorInt;
+			}
 		}
 		if (optShowingListInsteadOfMap != null) {
 			args.putBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, optShowingListInsteadOfMap);
-			f.showingListInsteadOfMap = optShowingListInsteadOfMap;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.showingListInsteadOfMap = optShowingListInsteadOfMap;
+			}
 		}
 		f.setArguments(args);
 		return f;

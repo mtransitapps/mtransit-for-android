@@ -6,7 +6,8 @@
     android:layout_height="@dimen/header_height"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:paddingTop="@dimen/title_top_padding"
-    android:paddingRight="@dimen/title_right_padding">
+    android:paddingEnd="@dimen/title_right_padding"
+    tools:ignore="RtlSymmetry">
 
     <FrameLayout
         android:id="@+id/moreBtn"

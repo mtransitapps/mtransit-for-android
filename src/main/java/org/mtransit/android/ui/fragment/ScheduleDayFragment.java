@@ -23,6 +23,7 @@ import androidx.loader.content.Loader;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.TaskUtils;
@@ -77,19 +78,29 @@ public class ScheduleDayFragment extends MTFragmentX implements
 		ScheduleDayFragment f = new ScheduleDayFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
-		f.authority = authority;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.authority = authority;
+		}
 		args.putString(EXTRA_POI_UUID, uuid);
-		f.uuid = uuid;
-		f.rts = optRts;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.uuid = uuid;
+			f.rts = optRts;
+		}
 		args.putLong(EXTRA_DAY_START_AT_IN_MS, dayStartsAtInMs);
-		f.dayStartsAtInMs = dayStartsAtInMs;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.dayStartsAtInMs = dayStartsAtInMs;
+		}
 		if (fragmentPosition >= 0) {
 			args.putInt(EXTRA_FRAGMENT_POSITION, fragmentPosition);
-			f.fragmentPosition = fragmentPosition;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.fragmentPosition = fragmentPosition;
+			}
 		}
 		if (lastVisibleFragmentPosition >= 0) {
 			args.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, lastVisibleFragmentPosition);
-			f.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
+			}
 		}
 		f.setArguments(args);
 		return f;

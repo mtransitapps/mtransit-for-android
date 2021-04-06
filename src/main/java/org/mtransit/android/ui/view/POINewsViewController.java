@@ -46,45 +46,49 @@ public class POINewsViewController implements MTLog.Loggable {
 		);
 	}
 
-	private static void updateView(@NonNull Context context, @Nullable View view, @Nullable News news) {
+	private static void updateView(@NonNull Context context, @Nullable View view, @Nullable News newsArticle) {
 		if (view == null) {
+			MTLog.d(LOG_TAG, "updateView() > SKIP (no view)");
 			return;
 		}
 		if (view.getTag() == null || !(view.getTag() instanceof NewsViewHolder)) {
 			initViewHolder(view);
 		}
 		NewsViewHolder newsViewHolder = (NewsViewHolder) view.getTag();
-		updateView(context, newsViewHolder, news);
+		updateView(context, newsViewHolder, newsArticle);
 	}
 
-	private static void updateView(Context context, NewsViewHolder newsViewHolder, News news) {
-		if (news == null || newsViewHolder == null) {
+	private static void updateView(Context context, NewsViewHolder newsViewHolder, News newsArticle) {
+		if (newsArticle == null || newsViewHolder == null) {
 			if (newsViewHolder != null) {
 				newsViewHolder.layout.setVisibility(View.GONE);
 			}
+			MTLog.d(LOG_TAG, "updateView() > SKIP (no news article or no view holder)");
 			return;
 		}
-		updateNewsView(context, newsViewHolder, news);
+		updateNewsView(context, newsViewHolder, newsArticle);
 	}
 
-	private static void updateNewsView(@NonNull Context context, NewsViewHolder holder, @Nullable News news) {
+	private static void updateNewsView(@NonNull Context context, NewsViewHolder holder, @Nullable News newsArticle) {
 		if (holder == null) {
+			MTLog.d(LOG_TAG, "updateNewsView() > SKIP (no view holder)");
 			return;
 		}
-		if (news == null) {
+		if (newsArticle == null) {
+			MTLog.d(LOG_TAG, "updateNewsView() > SKIP (no news article)");
 			holder.layout.setVisibility(View.GONE);
 			return;
 		}
-		holder.authorTv.setText(context.getString(R.string.news_shared_on_and_author_and_source, news.getAuthorOneLine(), news.getSourceLabel()));
-		if (news.hasColor()) {
-			holder.authorTv.setTextColor(ColorUtils.adaptColorToTheme(context, news.getColorInt()));
+		holder.authorTv.setText(context.getString(R.string.news_shared_on_and_author_and_source, newsArticle.getAuthorOneLine(), newsArticle.getSourceLabel()));
+		if (newsArticle.hasColor()) {
+			holder.authorTv.setTextColor(ColorUtils.adaptColorToTheme(context, newsArticle.getColorInt()));
 		} else {
 			holder.authorTv.setTextColor(ColorUtils.getTextColorSecondary(context));
 		}
-		holder.dateTv.setText(UITimeUtils.formatRelativeTime(news.getCreatedAtInMs()), TextView.BufferType.SPANNABLE);
-		holder.newsTv.setText(news.getText());
-		if (news.hasColor()) {
-			holder.newsTv.setLinkTextColor(news.getColorInt());
+		holder.dateTv.setText(UITimeUtils.formatRelativeTime(newsArticle.getCreatedAtInMs()), TextView.BufferType.SPANNABLE);
+		holder.newsTv.setText(newsArticle.getText());
+		if (newsArticle.hasColor()) {
+			holder.newsTv.setLinkTextColor(newsArticle.getColorInt());
 		} else {
 			holder.newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(context));
 		}

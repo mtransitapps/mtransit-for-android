@@ -30,6 +30,7 @@ import androidx.loader.content.Loader;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.data.Route;
@@ -79,18 +80,26 @@ public class RTSAgencyRoutesFragment extends MTFragmentX implements AgencyTypeFr
 		RTSAgencyRoutesFragment f = new RTSAgencyRoutesFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, agencyAuthority);
-		f.authority = agencyAuthority;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.authority = agencyAuthority;
+		}
 		if (optColorInt != null) {
 			args.putInt(EXTRA_COLOR_INT, optColorInt);
-			f.colorInt = optColorInt;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.colorInt = optColorInt;
+			}
 		}
 		if (fragmentPosition >= 0) {
 			args.putInt(EXTRA_FRAGMENT_POSITION, fragmentPosition);
-			f.fragmentPosition = fragmentPosition;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.fragmentPosition = fragmentPosition;
+			}
 		}
 		if (lastVisibleFragmentPosition >= 0) {
 			args.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, lastVisibleFragmentPosition);
-			f.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
+			}
 		}
 		f.setArguments(args);
 		return f;

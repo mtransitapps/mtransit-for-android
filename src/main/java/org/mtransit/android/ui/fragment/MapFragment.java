@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import org.mtransit.android.R;
 import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
@@ -89,7 +90,9 @@ public class MapFragment extends ABFragment implements
 		}
 		if (optIncludeTypeId != null) {
 			args.putInt(EXTRA_INCLUDE_TYPE_ID, optIncludeTypeId);
-			f.includedTypeId = optIncludeTypeId;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.includedTypeId = optIncludeTypeId;
+			}
 		}
 		f.setArguments(args);
 		return f;
@@ -125,8 +128,7 @@ public class MapFragment extends ABFragment implements
 		this.mapViewController.onCreate(savedInstanceState);
 		this.dataSourcesRepository.readingAllDataSourceTypesDistinct().observe(this, newAllDataSourceTypes -> {
 			if (hasFilterTypeIds()) {
-				resetTypeFilterIds();
-				initFilterTypeIdsAsync();
+				initFilterTypeIdsAsync(true);
 			}
 		});
 	}
@@ -306,6 +308,7 @@ public class MapFragment extends ABFragment implements
 	@Nullable
 	private Set<Integer> filterTypeIds = null;
 
+	@SuppressWarnings("unused")
 	private void resetTypeFilterIds() {
 		this.filterTypeIds = null; // reset
 	}
@@ -320,17 +323,20 @@ public class MapFragment extends ABFragment implements
 
 	private boolean hasFilterTypeIds() {
 		if (this.filterTypeIds == null) {
-			initFilterTypeIdsAsync();
+			initFilterTypeIdsAsync(false);
 			return false;
 		}
 		return true;
 	}
 
-	private void initFilterTypeIdsAsync() {
+	private void initFilterTypeIdsAsync(boolean force) {
 		if (this.loadFilterTypeIdsTask != null && this.loadFilterTypeIdsTask.getStatus() == LoadFilterTypeIdsTask.Status.RUNNING) {
-			return;
+			if (!force) {
+				MTLog.d(this, "initFilterTypeIdsAsync() > SKIP (already running)");
+				return;
+			}
 		}
-		this.loadFilterTypeIdsTask = new LoadFilterTypeIdsTask(this);
+		this.loadFilterTypeIdsTask = new LoadFilterTypeIdsTask(this, force);
 		TaskUtils.execute(this.loadFilterTypeIdsTask);
 	}
 
@@ -346,15 +352,18 @@ public class MapFragment extends ABFragment implements
 			return MapFragment.class.getSimpleName() + ">" + LoadFilterTypeIdsTask.class.getSimpleName();
 		}
 
-		LoadFilterTypeIdsTask(@NonNull MapFragment mapFragment) {
+		private final boolean force;
+
+		LoadFilterTypeIdsTask(@NonNull MapFragment mapFragment, boolean force) {
 			super(mapFragment);
+			this.force = force;
 		}
 
 		@WorkerThread
 		@Nullable
 		@Override
 		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull MapFragment mapFragment, @Nullable Void... params) {
-			return mapFragment.initFilterTypeIdsSync();
+			return mapFragment.initFilterTypeIdsSync(this.force);
 		}
 
 		@MainThread
@@ -367,12 +376,14 @@ public class MapFragment extends ABFragment implements
 	}
 
 	@WorkerThread
-	private boolean initFilterTypeIdsSync() {
-		if (this.filterTypeIds != null) {
+	private boolean initFilterTypeIdsSync(boolean force) {
+		if (!force && this.filterTypeIds != null) {
+			MTLog.d(this, "initFilterTypeIdsSync() > SKIP (already loaded)");
 			return false;
 		}
 		final Context context = getContext();
 		if (context == null) {
+			MTLog.d(this, "initFilterTypeIdsSync() > SKIP (no context)");
 			return false;
 		}
 		List<DataSourceType> availableTypes = getNewFilteredAgencyTypes();

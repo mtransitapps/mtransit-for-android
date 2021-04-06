@@ -32,6 +32,7 @@ import com.google.android.material.tabs.TabLayout;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ColorUtils;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StringUtils;
@@ -82,13 +83,16 @@ public class AgencyTypeFragment extends ABFragment implements ViewPager.OnPageCh
 		AgencyTypeFragment f = new AgencyTypeFragment();
 		Bundle args = new Bundle();
 		args.putInt(EXTRA_TYPE_ID, dst.getId());
-		f.type = dst;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.type = dst;
+		}
 		f.setArguments(args);
 		return f;
 	}
 
 	@Nullable
 	private AgencyPagerAdapter adapter;
+
 	private int lastPageSelected = -1;
 
 	@NonNull

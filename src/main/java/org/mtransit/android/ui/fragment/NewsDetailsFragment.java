@@ -17,6 +17,8 @@ import androidx.annotation.WorkerThread;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.ColorUtils;
+import org.mtransit.android.commons.Constants;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.provider.NewsProviderContract;
@@ -58,10 +60,14 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		NewsDetailsFragment f = new NewsDetailsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
-		f.authority = authority;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.authority = authority;
+		}
 		args.putString(EXTRA_NEWS_UUID, uuid);
-		f.uuid = uuid;
-		f.news = optNews;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.uuid = uuid;
+			f.news = optNews;
+		}
 		f.setArguments(args);
 		return f;
 	}
@@ -86,8 +92,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
 		this.dataSourcesRepository.readingAllNewsProvidersDistinct().observe(this, newNewsProviders -> {
-			resetNews();
-			initNewsAsync();
+			initNewsAsync(true); // force to check if news article still exists
 		});
 	}
 
@@ -129,20 +134,24 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 
 	private boolean hasNews() {
 		if (this.news == null) {
-			initNewsAsync();
+			initNewsAsync(false);
 			return false;
 		}
 		return true;
 	}
 
-	private void initNewsAsync() {
+	private void initNewsAsync(boolean force) {
 		if (this.loadNewsTask != null && this.loadNewsTask.getStatus() == LoadNewsTask.Status.RUNNING) {
-			return;
+			if (!force) {
+				MTLog.d(this, "initNewsAsync() > SKIP (already running)");
+				return;
+			}
 		}
 		if (TextUtils.isEmpty(this.uuid) || TextUtils.isEmpty(this.authority)) {
+			MTLog.d(this, "initNewsAsync() > SKIP (no UUID or no authority)");
 			return;
 		}
-		this.loadNewsTask = new LoadNewsTask(this);
+		this.loadNewsTask = new LoadNewsTask(this, force);
 		TaskUtils.execute(this.loadNewsTask);
 	}
 
@@ -158,14 +167,17 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 			return NewsDetailsFragment.class.getSimpleName() + ">" + LoadNewsTask.class.getSimpleName();
 		}
 
-		LoadNewsTask(NewsDetailsFragment newsDetailsFragment) {
+		private final boolean force;
+
+		LoadNewsTask(NewsDetailsFragment newsDetailsFragment, boolean force) {
 			super(newsDetailsFragment);
+			this.force = force;
 		}
 
 		@WorkerThread
 		@Override
 		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull NewsDetailsFragment newsDetailsFragment, Void... params) {
-			return newsDetailsFragment.initNewsSync();
+			return newsDetailsFragment.initNewsSync(this.force);
 		}
 
 		@MainThread
@@ -190,8 +202,9 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	}
 
 	@WorkerThread
-	private boolean initNewsSync() {
-		if (this.news != null) {
+	private boolean initNewsSync(boolean force) {
+		if (!force && this.news != null) {
+			MTLog.d(this, "initNewsSync() > SKIP (news already loaded)");
 			return false;
 		}
 		if (this.uuid != null && this.authority != null) {
@@ -216,6 +229,7 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 
 	private void applyNewNews() {
 		if (this.news == null) {
+			MTLog.d(this, "applyNewNews() > SKIP (no news)");
 			return;
 		}
 		updateNewsView();
@@ -230,10 +244,12 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	private void updateNewsView() {
 		News news = getNewsOrNull();
 		if (news == null) {
+			MTLog.d(this, "updateNewsView() > SKIP (no news)");
 			return;
 		}
 		View view = getView();
 		if (view == null) {
+			MTLog.d(this, "updateNewsView() > SKIP (no view)");
 			return;
 		}
 		TextView newsTv = view.findViewById(R.id.newsText);

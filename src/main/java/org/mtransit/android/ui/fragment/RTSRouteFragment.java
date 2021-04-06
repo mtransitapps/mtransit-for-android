@@ -37,6 +37,7 @@ import com.google.android.material.tabs.TabLayout;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SpanUtils;
@@ -92,17 +93,25 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		RTSRouteFragment f = new RTSRouteFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AUTHORITY, authority);
-		f.authority = authority;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.authority = authority;
+		}
 		args.putLong(EXTRA_ROUTE_ID, routeId);
-		f.routeId = routeId;
-		f.route = optRoute;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.routeId = routeId;
+			f.route = optRoute;
+		}
 		if (optTripId != null) {
 			args.putLong(EXTRA_TRIP_ID, optTripId);
-			f.tripId = optTripId;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.tripId = optTripId;
+			}
 		}
 		if (optStopId != null) {
 			args.putInt(EXTRA_STOP_ID, optStopId);
-			f.stopId = optStopId;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.stopId = optStopId;
+			}
 		}
 		f.setArguments(args);
 		return f;

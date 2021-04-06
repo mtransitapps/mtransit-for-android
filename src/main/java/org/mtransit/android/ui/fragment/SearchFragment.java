@@ -23,6 +23,7 @@ import androidx.loader.content.Loader;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.KeyboardUtils;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
@@ -76,13 +77,19 @@ public class SearchFragment extends ABFragment implements LoaderManager.LoaderCa
 		Bundle args = new Bundle();
 		if (!TextUtils.isEmpty(optQuery)) {
 			args.putString(EXTRA_QUERY, optQuery);
-			f.query = optQuery;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.query = optQuery;
+			}
 		}
 		if (optTypeIdFilter != null) {
 			args.putInt(EXTRA_TYPE_FILTER, optTypeIdFilter);
-			f.typeIdFilter = optTypeIdFilter;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.typeIdFilter = optTypeIdFilter;
+			}
 		}
-		f.typeFilter = optTypeFilter;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.typeFilter = optTypeFilter;
+		}
 		f.setArguments(args);
 		return f;
 	}

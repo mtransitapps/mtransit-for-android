@@ -20,6 +20,7 @@ import androidx.loader.content.Loader;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.data.POIArrayAdapter;
@@ -67,9 +68,13 @@ public class PickPOIDialogFragment extends MTDialogFragmentX implements
 		PickPOIDialogFragment f = new PickPOIDialogFragment();
 		Bundle args = new Bundle();
 		args.putStringArrayList(EXTRA_POI_UUIDS, uuids);
-		f.uuids = uuids;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.uuids = uuids;
+		}
 		args.putStringArrayList(EXTRA_POI_AUTHORITIES, authorities);
-		f.authorities = authorities;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.authorities = authorities;
+		}
 		f.setArguments(args);
 		return f;
 	}

@@ -25,6 +25,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.data.POIArrayAdapter;
@@ -77,23 +78,35 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 		RTSTripStopsFragment f = new RTSTripStopsFragment();
 		Bundle args = new Bundle();
 		args.putString(EXTRA_AGENCY_AUTHORITY, authority);
-		f.authority = authority;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.authority = authority;
+		}
 		args.putLong(EXTRA_TRIP_ID, tripId);
-		f.tripId = tripId;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.tripId = tripId;
+		}
 		if (fragmentPosition >= 0) {
 			args.putInt(EXTRA_FRAGMENT_POSITION, fragmentPosition);
-			f.fragmentPosition = fragmentPosition;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.fragmentPosition = fragmentPosition;
+			}
 		}
 		if (lastVisibleFragmentPosition >= 0) {
 			args.putInt(EXTRA_LAST_VISIBLE_FRAGMENT_POSITION, lastVisibleFragmentPosition);
-			f.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.lastVisibleFragmentPosition = lastVisibleFragmentPosition;
+			}
 		}
 		if (optStopId != null) {
 			args.putInt(EXTRA_TRIP_STOP_ID, optStopId);
-			f.stopId = optStopId;
+			if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+				f.stopId = optStopId;
+			}
 		}
 		args.putBoolean(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, showingListInsteadOfMap);
-		f.showingListInsteadOfMap = showingListInsteadOfMap;
+		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
+			f.showingListInsteadOfMap = showingListInsteadOfMap;
+		}
 		f.setArguments(args);
 		return f;
 	}
@@ -220,7 +233,9 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 				this.lastVisibleFragmentPosition = -1;
 			}
 		}
-		this.adapter.setTag(this.authority + "-" + this.tripId);
+		if (this.adapter != null) {
+			this.adapter.setTag(this.authority + "-" + this.tripId);
+		}
 		this.mapViewController.setTag(getLogTag());
 	}
 
@@ -292,7 +307,7 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 		if (view == null) {
 			return;
 		}
-		if (this.showingListInsteadOfMap) { // list
+		if (Boolean.TRUE.equals(this.showingListInsteadOfMap)) { // list
 			inflateList(view); // inflate ASAP for view state restore
 			switchView(view);
 		}
@@ -332,7 +347,7 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 		if (this.adapter != null) {
 			this.adapter.onPause();
 		}
-		if (!this.showingListInsteadOfMap) { // map
+		if (Boolean.FALSE.equals(this.showingListInsteadOfMap)) { // map
 			this.mapViewController.onPause();
 		}
 	}
@@ -350,7 +365,7 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 			return;
 		}
 		this.fragmentVisible = true;
-		if (!this.showingListInsteadOfMap) { // map
+		if (Boolean.FALSE.equals(this.showingListInsteadOfMap)) { // map
 			this.mapViewController.onResume();
 		}
 		View view = getView();
@@ -372,7 +387,7 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
-			if (this.tripId == null || TextUtils.isEmpty(this.authority)) {
+			if (this.tripId == null || this.authority == null) {
 				//noinspection deprecation
 				CrashUtils.w(this, "onCreateLoader() > no trip '%s' or authority '%s' !", this.tripId, this.authority);
 				//noinspection ConstantConditions // FIXME
@@ -410,11 +425,13 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 			this.stopId = -1; // can only be used once
 			this.closestPOIShow = true; // only the 1rst time
 		}
-		this.adapter.setPois(data);
+		if (this.adapter != null) {
+			this.adapter.setPois(data);
+		}
 		this.mapViewController.notifyMarkerChanged(this);
 		this.adapter.updateDistanceNowAsync(this.userLocation);
 		View view = getView();
-		if (this.showingListInsteadOfMap) { // list
+		if (Boolean.TRUE.equals(this.showingListInsteadOfMap)) { // list
 			Integer selectedPosition = currentSelectedItemIndexUuid == null ? null : currentSelectedItemIndexUuid.first;
 			if (selectedPosition != null && selectedPosition > 0) {
 				if (view != null) {
@@ -426,13 +443,16 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 		switchView(view);
 	}
 
-	private Pair<Integer, String> findStopIndexUuid(int stopId, ArrayList<POIManager> pois) {
-		for (int i = 0; i < pois.size(); i++) {
-			POIManager poim = pois.get(i);
-			if (poim != null && poim.poi instanceof RouteTripStop) {
-				RouteTripStop rts = (RouteTripStop) poim.poi;
-				if (rts.getStop().getId() == stopId) {
-					return new Pair<>(i, poim.poi.getUUID());
+	@Nullable
+	private Pair<Integer, String> findStopIndexUuid(int stopId, @Nullable ArrayList<POIManager> pois) {
+		if (pois != null) {
+			for (int i = 0; i < pois.size(); i++) {
+				POIManager poim = pois.get(i);
+				if (poim != null && poim.poi instanceof RouteTripStop) {
+					RouteTripStop rts = (RouteTripStop) poim.poi;
+					if (rts.getStop().getId() == stopId) {
+						return new Pair<>(i, poim.poi.getUUID());
+					}
 				}
 			}
 		}
@@ -545,7 +565,7 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 	}
 
 	private void showListOrMap(View view) {
-		if (this.showingListInsteadOfMap) { // list
+		if (Boolean.TRUE.equals(this.showingListInsteadOfMap)) { // list
 			this.mapViewController.hideMap();
 			inflateList(view);
 			view.findViewById(R.id.list).setVisibility(View.VISIBLE); // show
@@ -606,7 +626,7 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 		if (this.adapter != null) {
 			View view = getView();
 			setupView(view);
-			if (!this.showingListInsteadOfMap) { // map
+			if (Boolean.FALSE.equals(this.showingListInsteadOfMap)) { // map
 				this.mapViewController.onResume();
 			} else { // list
 				this.mapViewController.onPause();

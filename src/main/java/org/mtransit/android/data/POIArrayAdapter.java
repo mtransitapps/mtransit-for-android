@@ -484,7 +484,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			gridLL.removeAllViews();
 			final List<DataSourceType> allAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
 			this.nbAgencyTypes = CollectionUtils.getSize(allAgencyTypes);
-			if (allAgencyTypes == null) {
+			if (allAgencyTypes.isEmpty()) {
 				gridLL.setVisibility(View.GONE);
 			} else {
 				int availableButtons = 0;
