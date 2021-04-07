@@ -475,15 +475,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private int nbAgencyTypes = -1;
 
 	private View getBrowseHeaderSectionView(@Nullable View convertView, @NonNull ViewGroup parent) {
-		final int agenciesCount = this.dataSourcesRepository.getAllAgenciesCount();
-		if (convertView == null || this.nbAgencyTypes != agenciesCount) {
+		final List<DataSourceType> allAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
+		if (convertView == null || this.nbAgencyTypes != allAgencyTypes.size()) {
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header, parent, false);
 			}
 			LinearLayout gridLL = convertView.findViewById(R.id.gridLL);
 			gridLL.removeAllViews();
-			final List<DataSourceType> allAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
-			this.nbAgencyTypes = CollectionUtils.getSize(allAgencyTypes);
+			this.nbAgencyTypes = allAgencyTypes.size();
 			if (allAgencyTypes.isEmpty()) {
 				gridLL.setVisibility(View.GONE);
 			} else {
@@ -493,9 +492,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				TextView btnTv;
 				for (final DataSourceType dst : allAgencyTypes) {
 					if (dst.getId() == DataSourceType.TYPE_MODULE.getId() && availableButtons == 0 && allAgencyTypes.size() > 2) {
+						MTLog.d(this, "getBrowseHeaderSectionView() > SKIP modules (no room)");
 						continue;
 					}
 					if (dst.getId() == DataSourceType.TYPE_PLACE.getId()) {
+						MTLog.d(this, "getBrowseHeaderSectionView() > SKIP place");
 						continue;
 					}
 					if (availableButtons == 0) {

@@ -5,6 +5,7 @@ import android.content.pm.ProviderInfo
 import android.os.Bundle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.common.IApplication
 import org.mtransit.android.commons.MTLog
@@ -33,6 +34,24 @@ class DataSourcesReader(
     companion object {
         val LOG_TAG: String = DataSourcesReader::class.java.simpleName
 
+        private val NOT_SUPPORTED_APPS_PKG: List<String> = if (BuildConfig.DEBUG) listOf(
+            "org.mtransit.android.ca_deux_montagnes_mrcdm_bus.debug", // not supported anymore
+            "org.mtransit.android.ca_joliette_ctjm_bus.debug", // not supported anymore
+            "org.mtransit.android.ca_lanaudiere_crtl_bus.debug", // not supported anymore
+            "org.mtransit.android.ca_maritime_bus.debug", // not supported anymore
+            "org.mtransit.android.ca_montreal_amt_bus", // not supported anymore
+            "org.mtransit.android.ca_vancouver_translink_ferry.debug", // migrated to v2
+            "org.mtransit.android.ca_west_coast_express_bus.debug", // not supported anymore
+        ) else listOf(
+            "org.mtransit.android.ca_deux_montagnes_mrcdm_bus", // not supported anymore
+            "org.mtransit.android.ca_joliette_ctjm_bus", // not supported anymore
+            "org.mtransit.android.ca_lanaudiere_crtl_bus", // not supported anymore
+            "org.mtransit.android.ca_maritime_bus", // not supported anymore
+            "org.mtransit.android.ca_montreal_amt_bus", // not supported anymore
+            "org.mtransit.android.ca_vancouver_translink_ferry", // migrated to v2
+            "org.mtransit.android.ca_west_coast_express_bus", // not supported anymore
+        )
+
         @Deprecated(message = "Use non-static")
         @JvmStatic
         fun isAProvider(context: android.content.Context, pkg: String?): Boolean {
@@ -43,6 +62,10 @@ class DataSourcesReader(
             val serviceUpdateProviderMetaData = context.getString(R.string.service_update_provider)
             val newsProviderMetaData = context.getString(R.string.news_provider)
             if (pkg.isNullOrBlank()) {
+                return false
+            }
+            if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+                MTLog.d(LOG_TAG, "isAProvider() > SKIP not supported '$pkg .")
                 return false
             }
             pm.getInstalledProvidersWithMetaData(pkg)?.forEach { providerInfo ->
@@ -87,6 +110,10 @@ class DataSourcesReader(
 
     fun isAProvider(pkg: String?): Boolean {
         if (pkg.isNullOrBlank()) {
+            return false
+        }
+        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+            MTLog.d(this, "isAProvider() > SKIP not supported '$pkg .")
             return false
         }
         pm.getInstalledProvidersWithMetaData(pkg)?.forEach { providerInfo ->
@@ -139,6 +166,10 @@ class DataSourcesReader(
             val pkg = packageInfo.packageName
             if (!pm.isAppEnabled(pkg)) {
                 return@pkg // skip unknown disabled (processed before)
+            }
+            if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+                MTLog.d(this, "lookForNewDataSources() > SKIP not supported '$pkg .")
+                return@pkg // skip not supported
             }
             val pkgProviders: List<ProviderInfo> = packageInfo.providers?.toList() ?: return@pkg
             pkgProviders.forEach provider@{ provider ->
@@ -213,10 +244,19 @@ class DataSourcesReader(
     private fun updateReInstalledReEnabledDataSources(
         forcePkg: String? = null,
         markUpdated: () -> Unit
-    ) { // UPDATE IN-VISIBLE KNOWN DATA SOURCES (uninstalled | disabled & check version)
+    ) { // UPDATE NOT-VISIBLE KNOWN DATA SOURCES (uninstalled | disabled & check version)
         // AGENCY: only apply to agency (other properties are deleted when uninstalled/disabled)
         dataSourcesDatabase.agencyPropertiesDao().getAllNotInstalledOrNotEnabledAgencies().forEach { agencyProperties ->
             val pkg = agencyProperties.pkg
+            if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+                agencyProperties.let {
+                    MTLog.d(this, "Agency '${agencyProperties.authority}' not supported (removed).")
+                    dataSourcesDatabase.agencyPropertiesDao().delete(it)
+                    markUpdated()
+                }
+                MTLog.d(this, "updateReInstalledReEnabledDataSources() > SKIP not supported '$pkg .")
+                return@forEach // skip not supported
+            }
             val authority = agencyProperties.authority
             if (!pm.isAppInstalled(pkg)) { // APP UNINSTALLED
                 updateUninstalledAgencyProperties(agencyProperties, authority, markUpdated)
@@ -260,6 +300,15 @@ class DataSourcesReader(
         dataSourcesDatabase.agencyPropertiesDao().getAllEnabledAgencies().forEach { agencyProperties ->
             val pkg = agencyProperties.pkg
             val authority = agencyProperties.authority
+            if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+                agencyProperties.let {
+                    MTLog.d(this, "Agency '$authority' not supported (removed).")
+                    dataSourcesDatabase.agencyPropertiesDao().delete(it)
+                    markUpdated()
+                }
+                MTLog.d(this, "updateKnownActiveDataSources > SKIP not supported '$pkg .")
+                return@forEach // skip not supported
+            }
             if (!pm.isAppInstalled(pkg)) { // APP UNINSTALLED
                 updateUninstalledAgencyProperties(agencyProperties, authority, markUpdated)
                 return@forEach
@@ -398,6 +447,12 @@ class DataSourcesReader(
     private fun refreshStatusProviderProperties(statusProviderProperties: StatusProviderProperties, markUpdated: () -> Unit) {
         val pkg = statusProviderProperties.pkg
         val authority = statusProviderProperties.authority
+        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+            MTLog.d(this, "Status '$authority' not supported")
+            dataSourcesDatabase.statusProviderPropertiesDao().delete(statusProviderProperties)
+            markUpdated()
+            return
+        }
         if (!pm.isAppInstalled(pkg)
             || !pm.isAppEnabled(pkg)
         ) {
@@ -433,6 +488,12 @@ class DataSourcesReader(
     private fun refreshScheduleProviderProperties(scheduleProviderProperties: ScheduleProviderProperties, markUpdated: () -> Unit) {
         val pkg = scheduleProviderProperties.pkg
         val authority = scheduleProviderProperties.authority
+        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+            MTLog.d(this, "Schedule '$authority' not supported")
+            dataSourcesDatabase.scheduleProviderPropertiesDao().delete(scheduleProviderProperties)
+            markUpdated()
+            return
+        }
         if (!pm.isAppInstalled(pkg)
             || !pm.isAppEnabled(pkg)
         ) {
@@ -468,6 +529,12 @@ class DataSourcesReader(
     private fun refreshServiceUpdateProviderProperties(serviceUpdateProviderProperties: ServiceUpdateProviderProperties, markUpdated: () -> Unit) {
         val pkg = serviceUpdateProviderProperties.pkg
         val authority = serviceUpdateProviderProperties.authority
+        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+            MTLog.d(this, "Service Update '$authority' not supported")
+            dataSourcesDatabase.serviceUpdateProviderPropertiesDao().delete(serviceUpdateProviderProperties)
+            markUpdated()
+            return
+        }
         if (!pm.isAppInstalled(pkg)
             || !pm.isAppEnabled(pkg)
         ) {
@@ -503,6 +570,12 @@ class DataSourcesReader(
     private fun refreshNewsProviderProperties(newsProviderProperties: NewsProviderProperties, markUpdated: () -> Unit) {
         val pkg = newsProviderProperties.pkg
         val authority = newsProviderProperties.authority
+        if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+            MTLog.d(this, "News '$authority' not supported")
+            dataSourcesDatabase.newsProviderPropertiesDao().delete(newsProviderProperties)
+            markUpdated()
+            return
+        }
         if (!pm.isAppInstalled(pkg)
             || !pm.isAppEnabled(pkg)
         ) {

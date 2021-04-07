@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mtransit.android.BuildConfig;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.MTLog;
@@ -53,6 +54,9 @@ public class Module extends DefaultPOI {
 
 	@NonNull
 	public String getPkg() {
+		if (BuildConfig.DEBUG) {
+			return pkg + ".debug";
+		}
 		return pkg;
 	}
 
@@ -152,7 +156,7 @@ public class Module extends DefaultPOI {
 	@Override
 	public String getUUID() {
 		if (this.uuid == null) {
-			this.uuid = POI.POIUtils.getUUID(getAuthority(), getPkg());
+			this.uuid = POI.POIUtils.getUUID(getAuthority(), this.pkg);
 		}
 		return this.uuid;
 	}
@@ -173,16 +177,16 @@ public class Module extends DefaultPOI {
 	public JSONObject toJSON() {
 		try {
 			JSONObject json = new JSONObject();
-			json.put(JSON_PKG, getPkg());
-			json.put(JSON_TARGET_TYPE_ID, getTargetTypeId());
-			if (!TextUtils.isEmpty(getColor())) {
-				json.put(JSON_COLOR, getColor());
+			json.put(JSON_PKG, this.pkg);
+			json.put(JSON_TARGET_TYPE_ID, this.targetTypeId);
+			if (!TextUtils.isEmpty(this.color)) {
+				json.put(JSON_COLOR, this.color);
 			}
-			if (!TextUtils.isEmpty(getLocation())) {
-				json.put(JSON_LOCATION, getLocation());
+			if (!TextUtils.isEmpty(this.location)) {
+				json.put(JSON_LOCATION, this.location);
 			}
-			if (!TextUtils.isEmpty(getNameFr())) {
-				json.put(JSON_NAME_FR, getNameFr());
+			if (!TextUtils.isEmpty(this.nameFr)) {
+				json.put(JSON_NAME_FR, this.nameFr);
 			}
 			DefaultPOI.toJSON(this, json);
 			return json;
@@ -260,11 +264,11 @@ public class Module extends DefaultPOI {
 	@Override
 	public ContentValues toContentValues() {
 		ContentValues values = super.toContentValues();
-		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_PKG, getPkg());
-		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_TARGET_TYPE_ID, getTargetTypeId());
-		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_COLOR, getColor());
-		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_LOCATION, getLocation());
-		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_NAME_FR, getNameFr());
+		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_PKG, this.pkg);
+		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_TARGET_TYPE_ID, this.targetTypeId);
+		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_COLOR, this.color);
+		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_LOCATION, this.location);
+		values.put(ModuleProvider.ModuleColumns.T_MODULE_K_NAME_FR, this.nameFr);
 		return values;
 	}
 
