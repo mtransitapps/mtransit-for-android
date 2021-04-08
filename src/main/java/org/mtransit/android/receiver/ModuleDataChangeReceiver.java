@@ -8,11 +8,15 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.mtransit.android.common.MTContinuationJ;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.receiver.DataChange;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.di.Injection;
+
+import kotlin.coroutines.CoroutineContext;
+import kotlin.coroutines.EmptyCoroutineContext;
 
 /*
  TO TEST: REMOVE PERMISSION FROM MANIFEST
@@ -58,7 +62,24 @@ public class ModuleDataChangeReceiver extends BroadcastReceiver implements MTLog
 		final boolean forceReset = extras != null && extras.getBoolean(DataChange.FORCE, false);
 		final String pkg = extras == null ? null : extras.getString(DataChange.PKG, null);
 		try {
-			this.dataSourcesRepository.startUpdateAsync(forceReset ? pkg : null);
+			this.dataSourcesRepository.updateLock(forceReset ? pkg : null, new MTContinuationJ<Boolean>() {
+
+				@NonNull
+				@Override
+				public CoroutineContext getContext() {
+					return EmptyCoroutineContext.INSTANCE;
+				}
+
+				@Override
+				public void resumeWithException(@NonNull Throwable t) {
+					MTLog.w(ModuleDataChangeReceiver.this, t, "Error while running update...");
+				}
+
+				@Override
+				public void resume(Boolean result) {
+					MTLog.d(ModuleDataChangeReceiver.this, "Update run with result: %s", result);
+				}
+			});
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while updating data-sources from repository!");
 		}

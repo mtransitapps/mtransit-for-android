@@ -21,6 +21,7 @@ import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.billing.IBillingManager;
+import org.mtransit.android.common.MTContinuationJ;
 import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.datasource.DataSourcesRepository;
@@ -35,6 +36,9 @@ import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.NightModeUtils;
 
 import java.util.WeakHashMap;
+
+import kotlin.coroutines.CoroutineContext;
+import kotlin.coroutines.EmptyCoroutineContext;
 
 public class MainActivity extends MTActivityWithLocation implements
 		FragmentManager.OnBackStackChangedListener,
@@ -202,7 +206,24 @@ public class MainActivity extends MTActivityWithLocation implements
 			});
 		}
 		try {
-			this.dataSourcesRepository.startUpdateAsync();
+			this.dataSourcesRepository.updateLock(new MTContinuationJ<Boolean>() {
+
+				@NonNull
+				@Override
+				public CoroutineContext getContext() {
+					return EmptyCoroutineContext.INSTANCE;
+				}
+
+				@Override
+				public void resumeWithException(@NonNull Throwable t) {
+					MTLog.w(MainActivity.this, t, "Error while running update...");
+				}
+
+				@Override
+				public void resume(Boolean result) {
+					MTLog.d(MainActivity.this, "Update run with result: %s", result);
+				}
+			});
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while updating data-sources from repository!");
 		}
