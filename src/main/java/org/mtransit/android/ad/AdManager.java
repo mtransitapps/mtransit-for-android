@@ -57,6 +57,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * TESTING:
+ * Add tools:replace="android:supportsRtl" in AndroidManifest.xml
  * Requires real app ID & unit IDs in keys.xml
  * AdMob test devices:
  * - https://support.google.com/admob/answer/9691433

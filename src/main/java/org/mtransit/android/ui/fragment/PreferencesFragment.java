@@ -306,7 +306,8 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 				if (activity == null) {
 					return false; // not handled
 				}
-				com.google.android.ads.mediationtestsuite.MediationTestSuite.launch(activity);
+				// Add tools:replace="android:supportsRtl" in AndroidManifest.xml
+				// com.google.android.ads.mediationtestsuite.MediationTestSuite.launch(activity);  // adds WRITE_EXTERNAL_STORAGE, READ_PHONE_STATE...
 				return true; // handle
 			});
 		}
