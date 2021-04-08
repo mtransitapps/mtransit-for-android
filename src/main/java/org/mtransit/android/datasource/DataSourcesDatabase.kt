@@ -4,7 +4,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import org.mtransit.android.common.IApplication
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.ScheduleProviderProperties
@@ -19,7 +22,7 @@ import org.mtransit.android.data.StatusProviderProperties
         ServiceUpdateProviderProperties::class,
         NewsProviderProperties::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(DataSourcesConverters::class)
@@ -39,6 +42,18 @@ abstract class DataSourcesDatabase : RoomDatabase() {
 
         private const val DB_NAME = "data_sources.db"
 
+        val LOG_TAG = DataSourcesDatabase::class.simpleName
+
+        private val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                MTLog.i(LOG_TAG, "DB migration from version 1 to 2...")
+                database.execSQL(
+                    "ALTER TABLE agency_properties ADD COLUMN available_version_code INTEGER NOT NULL DEFAULT -1"
+                )
+                MTLog.i(LOG_TAG, "DB migration from version 1 to 2... DONE")
+            }
+        }
+
         @Volatile
         private var instance: DataSourcesDatabase? = null
 
@@ -56,6 +71,8 @@ abstract class DataSourcesDatabase : RoomDatabase() {
                     DataSourcesDatabase::class.java,
                     DB_NAME
                 )
+                .addMigrations(MIGRATION_1_2)
+                .fallbackToDestructiveMigration()
                 .build()
         }
     }

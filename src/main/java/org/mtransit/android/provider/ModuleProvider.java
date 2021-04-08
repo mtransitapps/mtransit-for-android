@@ -546,6 +546,11 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return 0; // unlimited
 	}
 
+	@Override
+	public int getAvailableVersionCode(@NonNull Context context) {
+		return 0; // main app in-app update not supported yet
+	}
+
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */

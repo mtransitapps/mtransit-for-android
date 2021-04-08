@@ -14,7 +14,8 @@ class AgencyPropertiesTests {
         const val LONG_NAME = "longName"
         val AREA = LocationUtils.THE_WORLD
         const val PKG = "com.package.app"
-        const val VERSION = -1L
+        const val VERSION = -1
+        const val LONG_VERSION = -1L
         const val IS_INSTALLED = true
         const val IS_ENABLED = true
     }
@@ -23,9 +24,9 @@ class AgencyPropertiesTests {
     fun testShortNameComparator() {
         // Arrange
         val agencies = listOf(
-            AgencyProperties(ID, DST, "A", LONG_NAME, color = null, AREA, PKG, VERSION, IS_INSTALLED, IS_ENABLED),
-            AgencyProperties(ID, DST, "Z", LONG_NAME, color = null, AREA, PKG, VERSION, IS_INSTALLED, IS_ENABLED),
-            AgencyProperties(ID, DST, "b", LONG_NAME, color = null, AREA, PKG, VERSION, IS_INSTALLED, IS_ENABLED),
+            AgencyProperties(ID, DST, "A", LONG_NAME, color = null, AREA, PKG, LONG_VERSION, VERSION, IS_INSTALLED, IS_ENABLED),
+            AgencyProperties(ID, DST, "Z", LONG_NAME, color = null, AREA, PKG, LONG_VERSION, VERSION, IS_INSTALLED, IS_ENABLED),
+            AgencyProperties(ID, DST, "b", LONG_NAME, color = null, AREA, PKG, LONG_VERSION, VERSION, IS_INSTALLED, IS_ENABLED),
         )
         // Act
         CollectionUtils.sort(
@@ -43,11 +44,11 @@ class AgencyPropertiesTests {
     fun testRemoveType() {
         // Arrange
         val agencies = mutableListOf(
-            AgencyProperties(ID, DataSourceType.TYPE_BUS, SHORT_NAME, LONG_NAME, color = null, AREA, PKG, VERSION, IS_INSTALLED, IS_ENABLED),
-            AgencyProperties(ID, DataSourceType.TYPE_RAIL, SHORT_NAME, LONG_NAME, color = null, AREA, PKG, VERSION, IS_INSTALLED, IS_ENABLED),
-            AgencyProperties(ID, DataSourceType.TYPE_BUS, SHORT_NAME, LONG_NAME, color = null, AREA, PKG, VERSION, IS_INSTALLED, IS_ENABLED),
-            AgencyProperties(ID, DataSourceType.TYPE_BIKE, SHORT_NAME, LONG_NAME, color = null, AREA, PKG, VERSION, IS_INSTALLED, IS_ENABLED),
-            AgencyProperties(ID, DataSourceType.TYPE_BUS, SHORT_NAME, LONG_NAME, color = null, AREA, PKG, VERSION, IS_INSTALLED, IS_ENABLED),
+            AgencyProperties(ID, DataSourceType.TYPE_BUS, SHORT_NAME, LONG_NAME, color = null, AREA, PKG, LONG_VERSION, VERSION, IS_INSTALLED, IS_ENABLED),
+            AgencyProperties(ID, DataSourceType.TYPE_RAIL, SHORT_NAME, LONG_NAME, color = null, AREA, PKG, LONG_VERSION, VERSION, IS_INSTALLED, IS_ENABLED),
+            AgencyProperties(ID, DataSourceType.TYPE_BUS, SHORT_NAME, LONG_NAME, color = null, AREA, PKG, LONG_VERSION, VERSION, IS_INSTALLED, IS_ENABLED),
+            AgencyProperties(ID, DataSourceType.TYPE_BIKE, SHORT_NAME, LONG_NAME, color = null, AREA, PKG, LONG_VERSION, VERSION, IS_INSTALLED, IS_ENABLED),
+            AgencyProperties(ID, DataSourceType.TYPE_BUS, SHORT_NAME, LONG_NAME, color = null, AREA, PKG, LONG_VERSION, VERSION, IS_INSTALLED, IS_ENABLED),
         )
         // Act
         AgencyProperties.removeType(agencies, DataSourceType.TYPE_BUS)

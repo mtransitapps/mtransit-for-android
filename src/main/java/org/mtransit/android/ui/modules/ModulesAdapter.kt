@@ -52,10 +52,13 @@ class ModulesAdapter :
         @SuppressLint("SetTextI18n")
         fun bind(item: AgencyProperties?) {
             val context = binding.root.context
-            binding.nameTv.text =
-                item?.let { "${it.shortName} ${context.getString(it.type.shortNameResId)} v${PackageManagerUtils.getAppVersionName(context, it.pkg)}" }
+            binding.nameTv.text = item?.let {
+                "${it.shortName} ${context.getString(it.type.shortNameResId)} v${PackageManagerUtils.getAppVersionName(context, it.pkg)}"
+            }
             binding.descriptionTv.apply {
-                text = item?.pkg?.substringAfter(PKG_COMMON)
+                text = item?.let {
+                    "${it.pkg.substringAfter(PKG_COMMON)} (${it.availableVersionCode})"
+                }
                 visibility = View.VISIBLE
             }
             item?.let {

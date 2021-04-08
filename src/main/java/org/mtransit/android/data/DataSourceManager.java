@@ -39,6 +39,8 @@ import org.mtransit.android.commons.provider.StatusProviderContract;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import static org.mtransit.commons.FeatureFlags.F_APP_UPDATE;
+
 @WorkerThread
 public final class DataSourceManager implements MTLog.Loggable {
 
@@ -247,6 +249,13 @@ public final class DataSourceManager implements MTLog.Loggable {
 					if (maxValidSecIdx >= 0) {
 						maxValidInSec = cursor.getInt(maxValidSecIdx);
 					}
+					int availableVersionCode = -1;
+					if (F_APP_UPDATE) {
+						final int availableVersionCodeIdx = cursor.getColumnIndex(AgencyProviderContract.AVAILABLE_VERSION_CODE);
+						if (availableVersionCodeIdx >= 0) {
+							availableVersionCode = cursor.getInt(availableVersionCodeIdx);
+						}
+					}
 					result = new AgencyProperties(
 							authority,
 							dst,
@@ -256,6 +265,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 							area,
 							pkg,
 							longVersionCode,
+							availableVersionCode,
 							true,
 							enabled,
 							isRTS,

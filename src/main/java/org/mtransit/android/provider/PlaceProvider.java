@@ -359,6 +359,11 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		return 0; // unlimited
 	}
 
+	@Override
+	public int getAvailableVersionCode(@NonNull Context context) {
+		return 0; // main app in-app update not supported yet
+	}
+
 	@Nullable
 	private static String authority = null;
 

@@ -31,7 +31,9 @@ data class AgencyProperties(
     @ColumnInfo(name = "pkg")
     val pkg: String,
     @ColumnInfo(name = "long_version_code")
-    val longVersionCode: Long = DEFAULT_VERSION_CODE,
+    val longVersionCode: Long = DEFAULT_LONG_VERSION_CODE,
+    @ColumnInfo(name = "available_version_code")
+    val availableVersionCode: Int = DEFAULT_VERSION_CODE,
     @ColumnInfo(name = "is_installed")
     val isInstalled: Boolean = true,
     @ColumnInfo(name = "is_enabled")
@@ -48,7 +50,9 @@ data class AgencyProperties(
 
     companion object {
 
-        const val DEFAULT_VERSION_CODE = -1L
+        const val DEFAULT_VERSION_CODE = -1
+
+        const val DEFAULT_LONG_VERSION_CODE = -1L
 
         @JvmStatic
         val SHORT_NAME_COMPARATOR: Comparator<AgencyProperties> = Comparator { lap, rap ->
@@ -74,6 +78,7 @@ data class AgencyProperties(
         area: LocationUtils.Area,
         pkg: String,
         longVersionCode: Long,
+        availableVersionCode: Int,
         isInstalled: Boolean,
         isEnabled: Boolean,
         isRTS: Boolean = false,
@@ -89,6 +94,7 @@ data class AgencyProperties(
         area,
         pkg,
         longVersionCode,
+        availableVersionCode,
         isInstalled,
         isEnabled,
         isRTS,
