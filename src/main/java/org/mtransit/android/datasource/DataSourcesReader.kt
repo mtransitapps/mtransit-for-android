@@ -51,44 +51,6 @@ class DataSourcesReader(
             "org.mtransit.android.ca_vancouver_translink_ferry", // migrated to v2
             "org.mtransit.android.ca_west_coast_express_bus", // not supported anymore
         )
-
-        @Deprecated(message = "Use non-static")
-        @JvmStatic
-        fun isAProvider(context: android.content.Context, pkg: String?): Boolean {
-            val pm = context.applicationContext.packageManager
-            val agencyProviderMetaData = context.getString(R.string.agency_provider)
-            val statusProviderMetaData = context.getString(R.string.status_provider)
-            val scheduleProviderMetaData = context.getString(R.string.schedule_provider)
-            val serviceUpdateProviderMetaData = context.getString(R.string.service_update_provider)
-            val newsProviderMetaData = context.getString(R.string.news_provider)
-            if (pkg.isNullOrBlank()) {
-                return false
-            }
-            if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
-                MTLog.d(LOG_TAG, "isAProvider() > SKIP not supported '$pkg .")
-                return false
-            }
-            pm.getInstalledProvidersWithMetaData(pkg)?.forEach { providerInfo ->
-                val providerMetaData: Bundle = providerInfo.metaData ?: return@forEach
-                if (providerMetaData.isKeyMT(agencyProviderMetaData)) {
-                    return true
-                }
-                if (providerMetaData.isKeyMT(statusProviderMetaData)) {
-                    return true
-                }
-                if (providerMetaData.isKeyMT(scheduleProviderMetaData)) {
-                    return true
-                }
-                if (providerMetaData.isKeyMT(serviceUpdateProviderMetaData)) {
-                    return true
-                }
-                if (providerMetaData.isKeyMT(newsProviderMetaData)) {
-                    return true
-                }
-                return false
-            }
-            return false
-        }
     }
 
     override fun getLogTag(): String = LOG_TAG
