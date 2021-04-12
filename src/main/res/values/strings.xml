@@ -180,6 +180,8 @@
     <string name="dev_mode_pref_cat_title">DEV MODE</string>
     <string name="dev_mode_pref_modules_pref_summary">MANAGE MODULES</string>
     <string name="dev_mode_pref_modules_pref_title">MODULES</string>
+    <string name="dev_mode_pref_reset_rewarded_pref_summary">SHOW BANNER ADS</string>
+    <string name="dev_mode_pref_reset_rewarded_pref_title">RESET REWARDED</string>
     <string name="dev_mode_pref_ad_mediation_test_pref_summary">TEST MEDIATION</string>
     <string name="dev_mode_pref_ad_mediation_test_pref_title">ADS</string>
     <string name="support_pref_cat_title">Support</string>

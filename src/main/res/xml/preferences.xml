@@ -155,6 +155,13 @@
             android:summary="@string/dev_mode_pref_modules_pref_summary"
             android:title="@string/dev_mode_pref_modules_pref_title"
             tools:enabled="true" />
+        <!-- REWARDED RESET -->
+        <Preference
+            android:enabled="false"
+            android:key="pDevModeRewardedReset"
+            android:summary="@string/dev_mode_pref_reset_rewarded_pref_summary"
+            android:title="@string/dev_mode_pref_reset_rewarded_pref_title"
+            tools:enabled="true" />
         <!-- AD TEST MEDIATION -->
         <Preference
             android:enabled="false"

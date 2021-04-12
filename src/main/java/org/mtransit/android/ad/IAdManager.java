@@ -42,6 +42,8 @@ public interface IAdManager {
 
 	long getRewardedUntilInMs();
 
+	void resetRewarded();
+
 	boolean isRewardedNow();
 
 	void setRewardedAdListener(@Nullable RewardedAdListener rewardedAdListener);

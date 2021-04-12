@@ -245,6 +245,11 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	}
 
 	@Override
+	public void resetRewarded() {
+		setRewardedUntilInMs(PreferenceUtils.PREF_USER_REWARDED_UNTIL_DEFAULT);
+	}
+
+	@Override
 	public boolean isRewardedNow() {
 		if (!AD_ENABLED) {
 			return true;

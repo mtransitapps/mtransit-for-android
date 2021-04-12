@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.mtransit.android.R;
+import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.billing.BillingUtils;
 import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.commons.Constants;
@@ -64,6 +65,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 
 	private static final String DEV_MODE_GROUP_PREF = "pDevMode";
 	private static final String DEV_MODE_MODULE_PREF = "pDevModeModule";
+	private static final String DEV_MODE_REWARDED_RESET_PREF = "pDevModeRewardedReset";
 	private static final String DEV_MODE_AD_MEDIATION_TEST_PREF = "pDevModeAdMediationTest";
 
 	private static final String TWITTER_PAGE_URL = "https://twitter.com/montransit";
@@ -80,11 +82,14 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 	@NonNull
 	private final IBillingManager billingManager;
 	@NonNull
+	private final IAdManager adManager;
+	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 
 	public PreferencesFragment() {
 		super();
 		this.billingManager = Injection.providesBillingManager();
+		this.adManager = Injection.providesAdManager();
 		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 	}
 
@@ -295,6 +300,17 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 				return true; // handled
 			});
 		}
+		final Preference devModeRewardedResetPref = findPreference(DEV_MODE_REWARDED_RESET_PREF);
+		if (devModeRewardedResetPref != null) {
+			devModeRewardedResetPref.setOnPreferenceClickListener(preference -> {
+				Activity activity = getActivity();
+				if (activity == null) {
+					return false; // not handled
+				}
+				this.adManager.resetRewarded();
+				return true; // handled
+			});
+		}
 		final Preference devModeAdMediationTestPref = findPreference(DEV_MODE_AD_MEDIATION_TEST_PREF);
 		if (devModeAdMediationTestPref != null) {
 			devModeAdMediationTestPref.setOnPreferenceClickListener(preference -> {
@@ -447,6 +463,10 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 		if (devModeModulePref == null) {
 			return;
 		}
+		Preference devModeResetRewardedPref = findPreference(DEV_MODE_REWARDED_RESET_PREF);
+		if (devModeResetRewardedPref == null) {
+			return;
+		}
 		Preference devModeAdMediationTestPref = findPreference(DEV_MODE_AD_MEDIATION_TEST_PREF);
 		if (devModeAdMediationTestPref == null) {
 			return;
@@ -456,12 +476,15 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 		if (devModeEnabled) {
 			devModeGroupPref.setEnabled(true);
 			devModeModulePref.setEnabled(true);
+			devModeResetRewardedPref.setEnabled(true);
 			devModeAdMediationTestPref.setEnabled(true);
 		} else {
 			devModeGroupPref.setEnabled(false);
 			devModeModulePref.setEnabled(false);
+			devModeResetRewardedPref.setEnabled(false);
 			devModeAdMediationTestPref.setEnabled(false);
 			devModeGroupPref.removePreference(devModeModulePref);
+			devModeGroupPref.removePreference(devModeResetRewardedPref);
 			devModeGroupPref.removePreference(devModeAdMediationTestPref);
 			getPreferenceScreen().removePreference(devModeGroupPref);
 		}
