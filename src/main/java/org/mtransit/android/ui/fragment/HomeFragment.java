@@ -22,6 +22,8 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -29,9 +31,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.commons.LocationUtils;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.ToastUtils;
+import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
@@ -49,6 +53,7 @@ import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 import org.mtransit.android.util.LoaderUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class HomeFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
 		FavoriteManager.FavoriteUpdateListener, SwipeRefreshLayout.OnRefreshListener, POIArrayAdapter.TypeHeaderButtonsClickListener,
@@ -87,8 +92,12 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	private POIArrayAdapter adapter;
 	@Nullable
 	private Location userLocation;
-	@Nullable
-	private Location nearbyLocation;
+	@NonNull
+	private final MutableLiveData<List<AgencyProperties>> allAgencyPropertiesLD = new MutableLiveData<>();
+	@NonNull
+	private final MutableLiveData<Location> nearbyLocationLD = new MutableLiveData<>();
+	@NonNull
+	private final MediatorLiveData<Void> poiLoaderLD = new MediatorLiveData<>();
 	@Nullable
 	private String nearbyLocationAddress;
 	@Nullable
@@ -119,10 +128,39 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 		restoreInstanceState(savedInstanceState, getArguments());
-		this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this, agencyProperties -> {
-			this.nearbyLocation = null; // force refresh
-			initiateRefresh();
+		this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this,
+				this.allAgencyPropertiesLD::postValue
+		);
+		this.poiLoaderLD.addSource(this.nearbyLocationLD, nearbyLocation ->
+				shouldRestartPOILoader(nearbyLocation, this.allAgencyPropertiesLD.getValue())
+		);
+		this.poiLoaderLD.addSource(this.allAgencyPropertiesLD, allAgencyProperties ->
+				shouldRestartPOILoader(this.nearbyLocationLD.getValue(), allAgencyProperties)
+		);
+		this.poiLoaderLD.observe(this, aVoid -> { // required to trigger mediator live data
+			// DO NOTHING
 		});
+	}
+
+	private void shouldRestartPOILoader(@Nullable Location nearbyLocation,
+										@Nullable List<AgencyProperties> allAgencyProperties) {
+		if (nearbyLocation == null || allAgencyProperties == null) {
+			MTLog.d(this, "shouldRestartPOILoader() > SKIP (missing nearby location or agencies or data source types)");
+			return;
+		}
+		if (this.adapter != null) {
+			this.adapter.clear();
+		}
+		this.loadFinished = false;
+		switchView(getView());
+		LoaderUtils.restartLoader(this, POIS_LOADER, null, this);
+		hideLocationToast();
+		setSwipeRefreshLayoutRefreshing(false);
+		this.nearbyLocationAddress = null;
+		if (getAbController() != null) {
+			getAbController().setABSubtitle(this, getABSubtitle(getContext()), false);
+			getAbController().setABReady(this, isABReady(), true);
+		}
 	}
 
 	@Nullable
@@ -140,11 +178,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	private boolean initiateRefresh() {
-		if (LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation, LocationUtils.LOCATION_CHANGED_ALLOW_REFRESH_IN_METERS)) {
-			setSwipeRefreshLayoutRefreshing(false);
-			return false;
-		}
-		useNewNearbyLocation(this.userLocation);
+		useNewNearbyLocation(this.userLocation, true);
 		return true;
 	}
 
@@ -154,8 +188,9 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
-		if (this.nearbyLocation != null) {
-			outState.putParcelable(EXTRA_NEARBY_LOCATION, this.nearbyLocation);
+		Location nearbyLocation = this.nearbyLocationLD.getValue();
+		if (nearbyLocation != null) {
+			outState.putParcelable(EXTRA_NEARBY_LOCATION, nearbyLocation);
 		}
 		super.onSaveInstanceState(outState);
 	}
@@ -225,7 +260,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		}
 		TaskUtils.cancelQuietly(this.findNearbyLocationTask, true);
 		this.findNearbyLocationTask = new FindNearbyLocationTask(this);
-		TaskUtils.execute(this.findNearbyLocationTask, this.nearbyLocation);
+		TaskUtils.execute(this.findNearbyLocationTask, this.nearbyLocationLD.getValue());
 	}
 
 	@Override
@@ -256,18 +291,18 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	public Loader<ArrayList<POIManager>> onCreateLoader(int id, @Nullable Bundle args) {
 		switch (id) {
 		case POIS_LOADER:
-			if (this.nearbyLocation == null) {
-				this.crashReporter.w(this, "onCreateLoader() > skip (no nearby location)");
+			final List<AgencyProperties> allAgencyProperties = this.allAgencyPropertiesLD.getValue();
+			final Location nearbyLocation = this.nearbyLocationLD.getValue();
+			if (allAgencyProperties == null || nearbyLocation == null) {
+				this.crashReporter.w(this, "onCreateLoader() > skip (no nearby location or no agencies or no types)");
 				//noinspection ConstantConditions // FIXME
 				return null;
 			}
 			this.loadFinished = false;
 			return new HomePOILoader(
 					this,
-					this.dataSourcesRepository,
-					this.nearbyLocation.getLatitude(),
-					this.nearbyLocation.getLongitude(),
-					this.nearbyLocation.getAccuracy()
+					allAgencyProperties,
+					nearbyLocation
 			);
 		default:
 			this.crashReporter.w(this, "Loader id '%s' unknown!", id);
@@ -300,6 +335,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	private void addPOIs(@Nullable ArrayList<POIManager> data) {
 		if (this.adapter == null) {
+			MTLog.d(this, "addPOIs() > SKIP (no adapter)");
 			return; // too late
 		}
 		boolean scrollToTop = this.adapter.getPoisCount() == 0;
@@ -313,6 +349,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	@Override
 	public void onUserLocationChanged(@Nullable Location newLocation) {
 		if (newLocation == null) {
+			MTLog.d(this, "onUserLocationChanged() > SKIP (no location)");
 			return;
 		}
 		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
@@ -321,20 +358,23 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 				this.adapter.setLocation(newLocation);
 			}
 		}
-		if (this.nearbyLocation == null) {
-			useNewNearbyLocation(newLocation);
+		final Location nearbyLocation = this.nearbyLocationLD.getValue();
+		if (nearbyLocation == null) {
+			useNewNearbyLocation(newLocation, false);
+			return;
+		}
+		if (this.adapter != null && this.adapter.isInitialized() //
+				&& !LocationUtils.areAlmostTheSame(nearbyLocation, this.userLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)) {
+			showLocationToast();
 		} else {
-			if (this.adapter != null && this.adapter.isInitialized() //
-					&& !LocationUtils.areAlmostTheSame(this.nearbyLocation, this.userLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)) {
-				showLocationToast();
-			} else {
-				hideLocationToast();
-			}
+			hideLocationToast();
 		}
 	}
 
+	@Nullable
 	private PopupWindow locationToast = null;
 
+	@Nullable
 	private PopupWindow getLocationToast() {
 		if (this.locationToast == null) {
 			initLocationPopup();
@@ -379,29 +419,23 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.toastShown = false;
 	}
 
-	private void useNewNearbyLocation(Location newNearbyLocation) {
+	private void useNewNearbyLocation(@Nullable Location newNearbyLocation, boolean manual) {
 		if (newNearbyLocation == null) {
 			return;
 		}
-		if (LocationUtils.areTheSame(newNearbyLocation, this.nearbyLocation)) {
-			return;
+		if (manual) {
+			if (LocationUtils.areAlmostTheSame(this.nearbyLocationLD.getValue(), this.userLocation, LocationUtils.LOCATION_CHANGED_ALLOW_REFRESH_IN_METERS)) {
+				setSwipeRefreshLayoutRefreshing(false);
+				MTLog.d(this, "useNewNearbyLocation() > SKIP (location are almost the same)");
+				return;
+			}
+		} else {
+			if (LocationUtils.areTheSame(newNearbyLocation, this.nearbyLocationLD.getValue())) {
+				MTLog.d(this, "useNewNearbyLocation() > SKIP (location are the same)");
+				return;
+			}
 		}
-		this.nearbyLocation = newNearbyLocation;
-		if (this.adapter != null) {
-			this.adapter.clear();
-		}
-		this.loadFinished = false;
-		switchView(getView());
-		if (this.nearbyLocation != null) {
-			LoaderUtils.restartLoader(this, POIS_LOADER, null, this);
-		}
-		hideLocationToast();
-		setSwipeRefreshLayoutRefreshing(false);
-		this.nearbyLocationAddress = null;
-		if (getAbController() != null) {
-			getAbController().setABSubtitle(this, getABSubtitle(getContext()), false);
-			getAbController().setABReady(this, isABReady(), true);
-		}
+		this.nearbyLocationLD.postValue(newNearbyLocation);
 	}
 
 	private void setSwipeRefreshLayoutRefreshing(@SuppressWarnings("SameParameterValue") boolean refreshing) {

@@ -665,9 +665,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	public void appendPois(@Nullable ArrayList<POIManager> pois) {
 		boolean dataSetChanged = append(pois, false);
-		if (dataSetChanged) {
-			notifyDataSetChanged();
+		if (!dataSetChanged) {
+			MTLog.d(this, "appendPois() > SKIP (data not changed)");
+			return;
 		}
+		notifyDataSetChanged();
 	}
 
 	private boolean append(@Nullable ArrayList<POIManager> pois, boolean dataSetChanged) {
