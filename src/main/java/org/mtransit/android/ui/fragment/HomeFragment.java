@@ -421,6 +421,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	private void useNewNearbyLocation(@Nullable Location newNearbyLocation, boolean manual) {
 		if (newNearbyLocation == null) {
+			MTLog.d(this, "useNewNearbyLocation() > SKIP (no location)");
 			return;
 		}
 		if (manual) {
