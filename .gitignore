@@ -34,6 +34,8 @@ proguard/
 *.donotpublish
 
 # Shared files
+/app-signing-debug-keys.properties
+/app-signing-debug-keystore.keystore
 /build.gradle
 /build.sh
 /decrypt_file.sh
@@ -50,7 +52,7 @@ proguard/
 /publish_*.sh
 /src/main/play/default-language.txt
 
-# Kays (encrypted files)
+# Keys (encrypted files)
 /app-signing-release-keys.properties
 /app-signing-release-keystore-encrypted.keystore
 /app-signing-release-keystore.keystore
