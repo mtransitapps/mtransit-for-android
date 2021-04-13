@@ -111,6 +111,15 @@ data class AgencyProperties(
 
     fun hasColor() = this.colorInt != null
 
+    @Ignore
+    val versionCode: Int = this.longVersionCode.toInt()
+
+    @Ignore
+    val versionCodeMajor: Int = (this.longVersionCode shr 32).toInt()
+
+    val updateAvailable: Boolean
+        get() = this.versionCode < this.availableVersionCode
+
     val maxValidSecSorted: Int
         get() = if (this.maxValidSec == 0) {
             Integer.MAX_VALUE // unlimited
