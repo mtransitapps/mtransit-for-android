@@ -114,6 +114,7 @@ data class AgencyProperties(
     @Ignore
     val versionCode: Int = this.longVersionCode.toInt()
 
+    @Suppress("unused")
     @Ignore
     val versionCodeMajor: Int = (this.longVersionCode shr 32).toInt()
 
