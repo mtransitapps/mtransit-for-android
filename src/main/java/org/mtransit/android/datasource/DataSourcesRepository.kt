@@ -190,6 +190,14 @@ class DataSourcesRepository(
         return updated
     }
 
+    suspend fun forceRefreshAvailableVersions(): Boolean {
+        var updated = false
+        withContext(Dispatchers.IO) {
+            dataSourcesReader.refreshAvailableVersions(force = true) { updated = true }
+        }
+        return updated
+    }
+
     fun isAProvider(pkg: String?): Boolean {
         return this.dataSourcesReader.isAProvider(pkg)
     }

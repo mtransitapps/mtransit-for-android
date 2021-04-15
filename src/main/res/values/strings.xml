@@ -117,6 +117,8 @@
     <string name="menu_action_www">Open Web Browser</string>
     <string name="menu_action_filter">Filter</string>
     <string name="menu_action_show_directions">Directions</string>
+    <string name="menu_action_sort">Sort</string>
+    <string name="menu_action_refresh_available_version">&#8635; available versions</string>
     <string name="menu_action_add_favorite">Add to favorites</string>
     <string name="menu_action_remove_favorite">Remove from favorites</string>
     <string name="menu_action_edit_favorite">Edit favorite</string>

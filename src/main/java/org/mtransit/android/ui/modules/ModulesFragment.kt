@@ -53,8 +53,11 @@ class ModulesFragment : Fragment(), MTLog.Loggable {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_filter) {
+        if (item.itemId == R.id.menu_sort) {
             viewModel.flipSort()
+            return true
+        } else if (item.itemId == R.id.menu_refresh_available_version) {
+            viewModel.forceRefreshAvailableVersions()
             return true
         }
         return super.onOptionsItemSelected(item)

@@ -4,8 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="org.mtransit.android.MainActivity">
     <item
-        android:id="@+id/menu_filter"
+        android:id="@+id/menu_sort"
         android:icon="@drawable/ic_filter_list_black_24dp"
-        android:title="@string/menu_action_filter"
+        android:title="@string/menu_action_sort"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_refresh_available_version"
+        android:title="@string/menu_action_refresh_available_version"
+        app:showAsAction="never|withText" />
 </menu>

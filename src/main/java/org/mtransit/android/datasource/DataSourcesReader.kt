@@ -124,7 +124,8 @@ class DataSourcesReader(
         return updated
     }
 
-    private fun refreshAvailableVersions(
+    internal fun refreshAvailableVersions(
+        force: Boolean = false,
         markUpdated: () -> Unit,
     ) {
         if (!F_APP_UPDATE) {
@@ -134,7 +135,7 @@ class DataSourcesReader(
         val context: Context = app.application ?: return
         val lastCheckInMs = PreferenceUtils.getPrefLcl(context, PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
         val twentyFourHoursAgo = TimeUtils.currentTimeMillis() - TimeUnit.DAYS.toMillis(1L)
-        if (twentyFourHoursAgo < lastCheckInMs) {
+        if (!force && twentyFourHoursAgo < lastCheckInMs) {
             val timeLapsedInHours = TimeUnit.MILLISECONDS.toHours(TimeUtils.currentTimeMillis() - lastCheckInMs)
             MTLog.d(this, "refreshAvailableVersions() > SKIP (last successful refresh too recent ($timeLapsedInHours hours)")
             return

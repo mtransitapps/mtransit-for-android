@@ -4,6 +4,8 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -48,5 +50,11 @@ class ModulesViewModel : ViewModel() {
 
     fun flipSort() {
         this.sortByPkgOrMaxValid.postValue(this.sortByPkgOrMaxValid.value == false)
+    }
+
+    fun forceRefreshAvailableVersions() {
+        viewModelScope.launch {
+            dataSourcesRepository.forceRefreshAvailableVersions()
+        }
     }
 }
