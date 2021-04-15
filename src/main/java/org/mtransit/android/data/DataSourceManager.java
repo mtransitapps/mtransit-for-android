@@ -202,7 +202,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 					result = AppStatus.fromCursorWithExtra(cursor);
 					break;
 				default:
-					MTLog.w(LOG_TAG, "findStatus() > Unexpected status '%s'!", status);
+					MTLog.w(LOG_TAG, "getPOIStatus() > Unexpected status '%s'!", status);
 					result = null;
 					break;
 				}
@@ -221,6 +221,34 @@ public final class DataSourceManager implements MTLog.Loggable {
 		} finally {
 			SqlUtils.closeQuietly(cursor);
 		}
+	}
+
+	public static int findAgencyAvailableVersionCode(@NonNull Context context, @NonNull String authority) {
+		int availableVersionCode = -1;
+		if (!F_APP_UPDATE) {
+			MTLog.d(LOG_TAG, "findAgencyAvailableVersionCode() > SKIP (feature disabled)");
+			return availableVersionCode;
+		}
+		Cursor cursor = null;
+		try {
+			Uri uri = Uri.withAppendedPath(getUri(authority), AgencyProviderContract.AVAILABLE_VERSION_CODE);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					final int availableVersionCodeIdx = cursor.getColumnIndex(AgencyProviderContract.AVAILABLE_VERSION_CODE);
+					if (availableVersionCodeIdx >= 0) {
+						availableVersionCode = cursor.getInt(availableVersionCodeIdx);
+					}
+				}
+			}
+		} catch (IllegalArgumentException iae) {
+			MTLog.d(LOG_TAG, iae, "IAE: feature not supported yet?");
+		} catch (Exception e) {
+			MTLog.w(LOG_TAG, e, "Error!");
+		} finally {
+			SqlUtils.closeQuietly(cursor);
+		}
+		return availableVersionCode;
 	}
 
 	@Nullable

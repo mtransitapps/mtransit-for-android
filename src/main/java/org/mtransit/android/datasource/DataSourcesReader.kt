@@ -1,5 +1,6 @@
 package org.mtransit.android.datasource
 
+import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.ProviderInfo
 import android.os.Bundle
@@ -9,6 +10,8 @@ import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.common.IApplication
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.PreferenceUtils
+import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.getAllInstalledProvidersWithMetaData
 import org.mtransit.android.commons.getAppLongVersionCode
 import org.mtransit.android.commons.getInstalledProviderWithMetaData
@@ -24,6 +27,8 @@ import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
+import org.mtransit.commons.FeatureFlags.F_APP_UPDATE
+import java.util.concurrent.TimeUnit
 
 class DataSourcesReader(
     private val app: IApplication,
@@ -51,6 +56,8 @@ class DataSourcesReader(
             "org.mtransit.android.ca_vancouver_translink_ferry", // migrated to v2
             "org.mtransit.android.ca_west_coast_express_bus", // not supported anymore
         )
+
+        private const val PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS = "pLclAvailableVersionLastCheck"
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -110,9 +117,45 @@ class DataSourcesReader(
             MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
             lookForNewDataSources(forcePkg) { updated = true }
             MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
+            refreshAvailableVersions { updated = true }
+            MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
         }
         MTLog.d(this, "update() > $updated")
         return updated
+    }
+
+    private fun refreshAvailableVersions(
+        markUpdated: () -> Unit,
+    ) {
+        if (!F_APP_UPDATE) {
+            MTLog.d(this, "refreshAvailableVersions() > SKIP (feature disabled)")
+            return
+        }
+        val context: Context = app.application ?: return
+        val lastCheckInMs = PreferenceUtils.getPrefLcl(context, PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
+        val twentyFourHoursAgo = TimeUtils.currentTimeMillis() - TimeUnit.DAYS.toMillis(1L)
+        if (twentyFourHoursAgo < lastCheckInMs) {
+            val timeLapsedInHours = TimeUnit.MILLISECONDS.toHours(TimeUtils.currentTimeMillis() - lastCheckInMs)
+            MTLog.d(this, "refreshAvailableVersions() > SKIP (last successful refresh too recent ($timeLapsedInHours hours)")
+            return
+        }
+        dataSourcesDatabase.agencyPropertiesDao().getAllEnabledAgencies().forEach { agencyProperties ->
+            val pkg = agencyProperties.pkg
+            val authority = agencyProperties.authority
+            if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
+                MTLog.d(this, "refreshAvailableVersions > SKIP not supported '$pkg .")
+                return@forEach // skip not supported
+            }
+            val newAvailableVersionCode = DataSourceManager.findAgencyAvailableVersionCode(context, authority)
+            if (agencyProperties.availableVersionCode != newAvailableVersionCode) {
+                MTLog.d(this, "Agency '$authority' > new version: r$newAvailableVersionCode.")
+                dataSourcesDatabase.agencyPropertiesDao().update(
+                    agencyProperties.copy(availableVersionCode = newAvailableVersionCode)
+                )
+                markUpdated()
+            }
+        }
+        PreferenceUtils.savePrefLcl(context, PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis(), false) // ASYNC
     }
 
     private fun lookForNewDataSources(
