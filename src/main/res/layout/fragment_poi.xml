@@ -33,25 +33,36 @@
                 android:id="@+id/this_poi_stub"
                 android:layout_width="match_parent"
                 android:layout_height="?android:attr/listPreferredItemHeight"
-                android:inflatedId="@+id/this_poi" />
+                android:inflatedId="@+id/this_poi"
+                tools:layout="@layout/layout_poi_basic" />
 
             <ViewStub
                 android:id="@+id/poi_status_detail_stub"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inflatedId="@+id/poi_status_detail" />
+                android:inflatedId="@+id/poi_status_detail"
+                tools:layout="@layout/layout_poi_detail_status_app" />
 
             <ViewStub
                 android:id="@+id/poi_service_update_stub"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inflatedId="@+id/poi_service_update" />
+                android:inflatedId="@+id/poi_service_update"
+                tools:layout="@layout/layout_poi_service_update" />
+
+            <ViewStub
+                android:id="@+id/poi_app_update_stub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inflatedId="@+id/poi_app_update"
+                android:layout="@layout/layout_poi_app_update" />
 
             <ViewStub
                 android:id="@+id/poi_news_stub"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inflatedId="@+id/poi_news" />
+                android:inflatedId="@+id/poi_news"
+                tools:layout="@layout/layout_poi_news" />
 
             <ViewStub
                 android:id="@+id/poi_rewarded_ad_stub"
@@ -76,5 +87,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <include layout="@layout/layout_shadow" />
+    <include
+        layout="@layout/layout_shadow"
+        tools:visibility="gone" />
 </FrameLayout>

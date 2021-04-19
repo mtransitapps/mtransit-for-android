@@ -216,6 +216,9 @@
     <string name="support_watch_rewarded_ad_not_ready">Aucune pub disponible actuellement :(</string>
     <string name="support_watch_rewarded_ad_successful_message">Merci :)</string>
 
+    <string name="app_update_title_text">Mise à jour disponible</string>
+    <string name="app_update_btn_text">Télécharger la mise à jour pour obtenir les dernières informations de l\'agence de transport</string>
+
     <string name="watch_rewarded_ad_title_text">Sans-pub</string>
     <string name="watch_rewarded_ad_title_text_and_date">Sans-pub jusqu\'au %s</string>
     <plurals name="watch_rewarded_ad_title_text_and_days_quantity">

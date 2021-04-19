@@ -216,6 +216,9 @@
     <string name="support_watch_rewarded_ad_not_ready">No ad available at this time :(</string>
     <string name="support_watch_rewarded_ad_successful_message">Thank You :)</string>
 
+    <string name="app_update_title_text">Update available</string>
+    <string name="app_update_btn_text">Download the update to get the latest information from the transit agency.</string>
+
     <string name="watch_rewarded_ad_title_text">Ad-free</string>
     <string name="watch_rewarded_ad_title_text_and_date">Ad-free until %s</string>
     <plurals name="watch_rewarded_ad_title_text_and_days_quantity">

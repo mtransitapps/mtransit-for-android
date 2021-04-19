@@ -42,6 +42,7 @@ import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.TimeUtils;
@@ -195,6 +196,7 @@ public class POIFragment extends ABFragment implements
 			getAbController().setABTitle(this, getABTitle(context), false);
 			getAbController().setABReady(this, isABReady(), true);
 		}
+		refreshAppUpdateLayout(getView());
 	}
 
 	@Nullable
@@ -871,6 +873,31 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
+	private View getPOIAppUpdateView(@Nullable View view) {
+		if (view == null) {
+			return null;
+		}
+		if (view.findViewById(R.id.poi_app_update) == null) { // IF NOT present/inflated DO
+			((ViewStub) view.findViewById(R.id.poi_app_update_stub)).inflate(); // inflate
+			view.findViewById(R.id.appUpdateBtn).setOnClickListener(new MTOnClickListener() {
+				@Override
+				public void onClickMT(@NonNull View view) {
+					final Activity activity = getActivity();
+					if (activity == null) {
+						return;
+					}
+					if (POIFragment.this.agency == null) {
+						return;
+					}
+					final String pkg = POIFragment.this.agency.getPkg();
+					StoreUtils.viewAppPage(activity, pkg, activity.getString(R.string.google_play));
+				}
+			});
+		}
+		return view.findViewById(R.id.poi_app_update);
+	}
+
+	@Nullable
 	private View getPOINewsView(@Nullable View view) {
 		if (view == null) {
 			return null;
@@ -1085,6 +1112,7 @@ public class POIFragment extends ABFragment implements
 		this.adManager.setRewardedAdListener(this);
 		this.adManager.refreshRewardedAdStatus(this);
 		refreshRewardedLayout(getView());
+		refreshAppUpdateLayout(getView());
 	}
 
 	@Override
@@ -1116,42 +1144,54 @@ public class POIFragment extends ABFragment implements
 
 	private void refreshRewardedLayout(@Nullable View view) {
 		final View rewardedLayout = getPOIRewardedAdView(view);
-		if (rewardedLayout != null) {
-			final TextView rewardedAdTitleTv = rewardedLayout.findViewById(R.id.rewardAdTitle);
-			final TextView rewardedAdsBtn = rewardedLayout.findViewById(R.id.rewardedAdsBtn);
-
-			final boolean availableToShow = this.adManager.isRewardedAdAvailableToShow();
-			final boolean rewardedNow = this.adManager.isRewardedNow();
-			final long rewardedUntilInMs = this.adManager.getRewardedUntilInMs();
-			final int rewardedAmount = this.adManager.getRewardedAdAmount();
-
-			rewardedLayout.setVisibility(availableToShow ? View.VISIBLE : View.GONE);
-
-			if (rewardedNow) {
-				rewardedAdTitleTv.setText(getString(
-						R.string.watch_rewarded_ad_title_text_and_date,
-						this.rewardedAdDateFormatter.formatThreadSafe(rewardedUntilInMs)
-				));
-			} else {
-				rewardedAdTitleTv.setText(getString(
-						R.string.watch_rewarded_ad_title_text
-				));
-			}
-			rewardedAdTitleTv.setVisibility(View.VISIBLE);
-
-			rewardedAdsBtn.setText(getString(
-					rewardedNow ?
-							R.string.watch_rewarded_ad_btn_more_and_days :
-							R.string.watch_rewarded_ad_btn_and_days,
-					rewardedAmount
-			));
-			if (availableToShow) { // only if NOT paying user
-				rewardedAdsBtn.setEnabled(true);
-				rewardedAdsBtn.setVisibility(View.VISIBLE);
-			} else {
-				rewardedAdsBtn.setEnabled(false); // keep but disable
-			}
+		if (rewardedLayout == null) {
+			return;
 		}
+		final TextView rewardedAdTitleTv = rewardedLayout.findViewById(R.id.rewardAdTitle);
+		final TextView rewardedAdsBtn = rewardedLayout.findViewById(R.id.rewardedAdsBtn);
+
+		final boolean availableToShow = this.adManager.isRewardedAdAvailableToShow();
+		final boolean rewardedNow = this.adManager.isRewardedNow();
+		final long rewardedUntilInMs = this.adManager.getRewardedUntilInMs();
+		final int rewardedAmount = this.adManager.getRewardedAdAmount();
+
+		rewardedLayout.setVisibility(availableToShow ? View.VISIBLE : View.GONE);
+
+		if (rewardedNow) {
+			rewardedAdTitleTv.setText(getString(
+					R.string.watch_rewarded_ad_title_text_and_date,
+					this.rewardedAdDateFormatter.formatThreadSafe(rewardedUntilInMs)
+			));
+		} else {
+			rewardedAdTitleTv.setText(getString(
+					R.string.watch_rewarded_ad_title_text
+			));
+		}
+		rewardedAdTitleTv.setVisibility(View.VISIBLE);
+
+		rewardedAdsBtn.setText(getString(
+				rewardedNow ?
+						R.string.watch_rewarded_ad_btn_more_and_days :
+						R.string.watch_rewarded_ad_btn_and_days,
+				rewardedAmount
+		));
+		if (availableToShow) { // only if NOT paying user
+			rewardedAdsBtn.setEnabled(true);
+			rewardedAdsBtn.setVisibility(View.VISIBLE);
+		} else {
+			rewardedAdsBtn.setEnabled(false); // keep but disable
+		}
+	}
+
+	private void refreshAppUpdateLayout(@Nullable View view) {
+		final View appUpdateLayout = getPOIAppUpdateView(view);
+		if (appUpdateLayout == null) {
+			return;
+		}
+
+		final boolean appUpdateAvailable = this.agency != null && this.agency.getUpdateAvailable();
+
+		appUpdateLayout.setVisibility(appUpdateAvailable ? View.VISIBLE : View.GONE);
 	}
 
 	@Override
