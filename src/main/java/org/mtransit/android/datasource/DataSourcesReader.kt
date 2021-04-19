@@ -125,7 +125,7 @@ class DataSourcesReader(
     }
 
     internal fun refreshAvailableVersions(
-        skipTimeCheck : Boolean = false,
+        skipTimeCheck: Boolean = false,
         forceRefresh: Boolean = false,
         inFocus: Boolean = false,
         markUpdated: () -> Unit,

@@ -162,7 +162,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 						this.typeAgenciesAuthority = newTypeAgenciesAuthority;
 						useNewNearbyLocation(this.nearbyLocation, true); // force
 						applyNewTypeAgenciesAuthority();
-					} else if (newTypeAgenciesAuthority != null && this.typeAgenciesAuthority == null) { // not agencies in area, need to increase area
+					} else if (newTypeAgenciesAuthority != null && this.typeAgenciesAuthority == null) { // no agencies in area, need to increase area
 						MTLog.d(this, "onChanged() > increase area (because no agencies in current area)");
 						LocationUtils.incAroundDiff(this.ad); // increase covered area
 						this.adLD.postValue(this.ad); // triggering new combine
@@ -180,11 +180,11 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 										  @Nullable Location nearbyLocation,
 										  @Nullable LocationUtils.AroundDiff ad) {
 		if (typeId == null || allAgencies == null || nearbyLocation == null || ad == null) {
-			MTLog.d(this, "combine() > SKIP (missing data)");
+			MTLog.d(this, "makeTypeAgencies() > SKIP (missing data)");
 			return null;
 		}
 		if (allAgencies.isEmpty()) {
-			MTLog.d(this, "combine() > SKIP (no more agency installed)");
+			MTLog.d(this, "makeTypeAgencies() > SKIP (no more agency installed)");
 			return null; // do NOT expand area
 		}
 		List<AgencyProperties> filteredAgencyType = new ArrayList<>();
@@ -195,7 +195,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 			filteredAgencyType.add(agency);
 		}
 		if (filteredAgencyType.isEmpty()) {
-			MTLog.d(this, "combine() > SKIP (no more type agency installed)");
+			MTLog.d(this, "makeTypeAgencies() > SKIP (no more type agency installed)");
 			return null; // do NOT expand area
 		}
 		return NearbyPOIListLoader.filterAgenciesAuthorityInArea(

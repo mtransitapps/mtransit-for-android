@@ -170,6 +170,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.layoutInflater = LayoutInflater.from(getContext());
 		this.sensorManager = Injection.providesSensorManager();
 		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+		this.dataSourcesRepository.readingAllAgenciesDistinct().observe(activity.getLifecycleOwner(), agencyProperties -> {
+			resetModulesStatus();
+		});
 	}
 
 	public void setManualLayout(ViewGroup manualLayout) {
