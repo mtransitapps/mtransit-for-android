@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- ACCESS_FINE_LOCATION: required to display distance & compass -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- REQUEST_DELETE_PACKAGES: request uninstall modules -->
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
     <!-- READ_PROVIDER: required to read modules data -->
     <uses-permission android:name="${permission_provider_read}" />
     <!-- USES FEATURE (not required) -->
