@@ -52,7 +52,7 @@ public class ModuleDataChangeReceiver extends BroadcastReceiver implements MTLog
 			this.crashReporter.w(this, "Modules data change broadcast receiver with null context ignored!");
 			return;
 		}
-		String action = intent == null ? null : intent.getAction();
+		final String action = intent == null ? null : intent.getAction();
 		if (!DataChange.ACTION_DATA_CHANGE.equals(action)) {
 			this.crashReporter.shouldNotHappen("Wrong receiver action '%s'!", action);
 			return;
