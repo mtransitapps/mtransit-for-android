@@ -54,15 +54,15 @@ class ModulesAdapter :
             val context = binding.root.context
             binding.nameTv.apply {
                 text = item?.let {
-                    "${it.shortName} ${context.getString(it.type.shortNameResId)} ${
-                        if (it.updateAvailable) "(UPDATE: r${it.availableVersionCode})" else ""
-                    }"
+                    "${
+                        if (it.updateAvailable) "(UPDATE: r${it.availableVersionCode}) " else ""
+                    }${it.shortName} ${context.getString(it.type.shortNameResId)}"
                 }
                 typeface = if (item?.updateAvailable == true) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
             }
             binding.descriptionTv.apply {
                 text = item?.let {
-                    "${it.pkg.substringAfter(PKG_COMMON)} v${PackageManagerUtils.getAppVersionName(context, it.pkg)} (r${it.versionCode})"
+                    "${it.pkg.substringAfter(PKG_COMMON)} r${it.versionCode} v${PackageManagerUtils.getAppVersionName(context, it.pkg)}"
                 }
                 visibility = View.VISIBLE
             }
