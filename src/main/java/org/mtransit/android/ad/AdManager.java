@@ -565,6 +565,17 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	}
 
 	@Override
+	public void openAdInspector() {
+		MobileAds.openAdInspector(this.application.requireContext(), error -> {
+			if (error == null) {
+				MTLog.d(AdManager.this, "Ad inspector closed.");
+			} else {
+				MTLog.w(AdManager.this, "Ad inspector closed: %d > %s!", error.getCode(), error);
+			}
+		});
+	}
+
+	@Override
 	public int getBannerHeightInPx(@Nullable IActivity activity) {
 		if (adLoaded == null || !adLoaded) {
 			return 0; // ad not loaded

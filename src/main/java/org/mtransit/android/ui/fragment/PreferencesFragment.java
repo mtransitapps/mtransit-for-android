@@ -66,6 +66,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 	private static final String DEV_MODE_GROUP_PREF = "pDevMode";
 	private static final String DEV_MODE_MODULE_PREF = "pDevModeModule";
 	private static final String DEV_MODE_REWARDED_RESET_PREF = "pDevModeRewardedReset";
+	private static final String DEV_MODE_AD_INSPECTOR_PREF = "pDevModeAdInspector";
 	private static final String DEV_MODE_AD_MEDIATION_TEST_PREF = "pDevModeAdMediationTest";
 
 	private static final String TWITTER_PAGE_URL = "https://twitter.com/montransit";
@@ -311,6 +312,18 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 				return true; // handled
 			});
 		}
+		final Preference devModeAdInspectorPref = findPreference(DEV_MODE_AD_INSPECTOR_PREF);
+		if (devModeAdInspectorPref != null) {
+			devModeAdInspectorPref.setOnPreferenceClickListener(preference -> {
+				Activity activity = getActivity();
+				//noinspection RedundantIfStatement
+				if (activity == null) {
+					return false; // not handled
+				}
+				this.adManager.openAdInspector();
+				return true; // handle
+			});
+		}
 		final Preference devModeAdMediationTestPref = findPreference(DEV_MODE_AD_MEDIATION_TEST_PREF);
 		if (devModeAdMediationTestPref != null) {
 			devModeAdMediationTestPref.setOnPreferenceClickListener(preference -> {
@@ -467,6 +480,10 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 		if (devModeResetRewardedPref == null) {
 			return;
 		}
+		Preference devModeAdInspectorPref = findPreference(DEV_MODE_AD_INSPECTOR_PREF);
+		if (devModeAdInspectorPref == null) {
+			return;
+		}
 		Preference devModeAdMediationTestPref = findPreference(DEV_MODE_AD_MEDIATION_TEST_PREF);
 		if (devModeAdMediationTestPref == null) {
 			return;
@@ -477,14 +494,17 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 			devModeGroupPref.setEnabled(true);
 			devModeModulePref.setEnabled(true);
 			devModeResetRewardedPref.setEnabled(true);
+			devModeAdInspectorPref.setEnabled(true);
 			devModeAdMediationTestPref.setEnabled(true);
 		} else {
 			devModeGroupPref.setEnabled(false);
 			devModeModulePref.setEnabled(false);
 			devModeResetRewardedPref.setEnabled(false);
+			devModeAdInspectorPref.setEnabled(false);
 			devModeAdMediationTestPref.setEnabled(false);
 			devModeGroupPref.removePreference(devModeModulePref);
 			devModeGroupPref.removePreference(devModeResetRewardedPref);
+			devModeGroupPref.removePreference(devModeAdInspectorPref);
 			devModeGroupPref.removePreference(devModeAdMediationTestPref);
 			getPreferenceScreen().removePreference(devModeGroupPref);
 		}

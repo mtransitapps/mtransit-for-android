@@ -48,6 +48,8 @@ public interface IAdManager {
 
 	void setRewardedAdListener(@Nullable RewardedAdListener rewardedAdListener);
 
+	void openAdInspector();
+
 	interface RewardedAdListener {
 		void onRewardedAdStatusChanged();
 

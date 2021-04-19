@@ -162,6 +162,13 @@
             android:summary="@string/dev_mode_pref_reset_rewarded_pref_summary"
             android:title="@string/dev_mode_pref_reset_rewarded_pref_title"
             tools:enabled="true" />
+        <!-- AD INSPECTOR -->
+        <Preference
+            android:enabled="false"
+            android:key="pDevModeAdInspector"
+            android:summary="@string/dev_mode_pref_ad_inspector_pref_summary"
+            android:title="@string/dev_mode_pref_ad_inspector_pref_title"
+            tools:enabled="true" />
         <!-- AD TEST MEDIATION -->
         <Preference
             android:enabled="false"
