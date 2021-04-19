@@ -36,6 +36,7 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 	// private static final boolean ANALYTICS_ENABLED = false; // DEBUG
 
 	private static final boolean DEBUG = false;
+	// private static final boolean DEBUG = true; // DEBUG
 
 	@NonNull
 	private final FirebaseAnalytics firebaseAnalytics;

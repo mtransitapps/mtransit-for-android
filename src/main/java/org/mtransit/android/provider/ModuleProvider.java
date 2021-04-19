@@ -37,6 +37,7 @@ import org.mtransit.android.commons.provider.POIProvider;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.commons.provider.StatusProvider;
 import org.mtransit.android.commons.provider.StatusProviderContract;
+import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.Module;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.di.Injection;
@@ -419,14 +420,21 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 
 	@NonNull
 	public POIStatus getNewModuleStatus(@NonNull AppStatus.AppStatusFilter filter) {
-		long newLastUpdateInMs = UITimeUtils.currentTimeMillis();
+		final long newLastUpdateInMs = UITimeUtils.currentTimeMillis();
 		final Context context = requireContextCompat();
 		final boolean appInstalled = PackageManagerUtils.isAppInstalled(context, filter.getPkg());
 		final boolean appEnabled = PackageManagerUtils.isAppEnabled(context, filter.getPkg());
+		final AgencyProperties agencyProperties = dataSourcesRepository().getAgencyForPkg(filter.getPkg());
+		final boolean updateAvailable = agencyProperties != null && agencyProperties.getUpdateAvailable();
 		if (appInstalled && !appEnabled) {
 			getAnalyticsManager().logEvent(AnalyticsEvents.FOUND_DISABLED_MODULE, new AnalyticsEventsParamsProvider()
 					.put(AnalyticsEvents.Params.PKG, filter.getPkg())
 					.put(AnalyticsEvents.Params.STATE, (long) PackageManagerUtils.getAppEnabledState(context, filter.getPkg())));
+		}
+		if (updateAvailable) {
+			getAnalyticsManager().logEvent(AnalyticsEvents.FOUND_APP_UPDATE, new AnalyticsEventsParamsProvider()
+					.put(AnalyticsEvents.Params.PKG, filter.getPkg())
+			);
 		}
 		return new AppStatus(
 				filter.getTargetUUID(),
@@ -434,7 +442,8 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 				getStatusMaxValidityInMs(),
 				newLastUpdateInMs,
 				appInstalled,
-				appEnabled
+				appEnabled,
+				updateAvailable
 		);
 	}
 
