@@ -57,6 +57,9 @@ class ModulesFragment : Fragment(), MTLog.Loggable {
             viewModel.flipSort()
             return true
         } else if (item.itemId == R.id.menu_refresh_available_version) {
+            viewModel.refreshAvailableVersions()
+            return true
+        } else if (item.itemId == R.id.menu_force_refresh_available_version) {
             viewModel.forceRefreshAvailableVersions()
             return true
         }

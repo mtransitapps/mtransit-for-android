@@ -125,7 +125,9 @@ class DataSourcesReader(
     }
 
     internal fun refreshAvailableVersions(
-        force: Boolean = false,
+        skipTimeCheck : Boolean = false,
+        forceRefresh: Boolean = false,
+        inFocus: Boolean = false,
         markUpdated: () -> Unit,
     ) {
         if (!F_APP_UPDATE) {
@@ -134,8 +136,8 @@ class DataSourcesReader(
         }
         val context: Context = app.application ?: return
         val lastCheckInMs = PreferenceUtils.getPrefLcl(context, PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
-        val twentyFourHoursAgo = TimeUtils.currentTimeMillis() - TimeUnit.DAYS.toMillis(1L)
-        if (!force && twentyFourHoursAgo < lastCheckInMs) {
+        val shortTimeAgo = TimeUtils.currentTimeMillis() - TimeUnit.HOURS.toMillis(if (inFocus) 6L else 24L)
+        if (!skipTimeCheck && shortTimeAgo < lastCheckInMs) {
             val timeLapsedInHours = TimeUnit.MILLISECONDS.toHours(TimeUtils.currentTimeMillis() - lastCheckInMs)
             MTLog.d(this, "refreshAvailableVersions() > SKIP (last successful refresh too recent ($timeLapsedInHours hours)")
             return
@@ -147,7 +149,7 @@ class DataSourcesReader(
                 MTLog.d(this, "refreshAvailableVersions > SKIP not supported '$pkg .")
                 return@forEach // skip not supported
             }
-            val newAvailableVersionCode = DataSourceManager.findAgencyAvailableVersionCode(context, authority)
+            val newAvailableVersionCode = DataSourceManager.findAgencyAvailableVersionCode(context, authority, forceRefresh, inFocus)
             if (agencyProperties.availableVersionCode != newAvailableVersionCode) {
                 MTLog.d(this, "Agency '$authority' > new version: r$newAvailableVersionCode.")
                 dataSourcesDatabase.agencyPropertiesDao().update(

@@ -13,6 +13,7 @@ import androidx.annotation.WorkerThread;
 import androidx.collection.SimpleArrayMap;
 
 import org.json.JSONObject;
+import org.mtransit.android.commons.AppUpdateUtils;
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SqlUtils;
@@ -223,7 +224,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
-	public static int findAgencyAvailableVersionCode(@NonNull Context context, @NonNull String authority) {
+	public static int findAgencyAvailableVersionCode(@NonNull Context context, @NonNull String authority, boolean forceRefresh, boolean inFocus) {
 		int availableVersionCode = -1;
 		if (!F_APP_UPDATE) {
 			MTLog.d(LOG_TAG, "findAgencyAvailableVersionCode() > SKIP (feature disabled)");
@@ -231,8 +232,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 		Cursor cursor = null;
 		try {
+			String appUpdateFilterString = AppUpdateUtils.AppUpdateFilter.toString(new AppUpdateUtils.AppUpdateFilter(forceRefresh, inFocus));
 			Uri uri = Uri.withAppendedPath(getUri(authority), AgencyProviderContract.AVAILABLE_VERSION_CODE);
-			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
+			cursor = queryContentResolver(context.getContentResolver(), uri, null, appUpdateFilterString, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					final int availableVersionCodeIdx = cursor.getColumnIndex(AgencyProviderContract.AVAILABLE_VERSION_CODE);

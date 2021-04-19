@@ -52,9 +52,15 @@ class ModulesViewModel : ViewModel() {
         this.sortByPkgOrMaxValid.postValue(this.sortByPkgOrMaxValid.value == false)
     }
 
+    fun refreshAvailableVersions() {
+        viewModelScope.launch {
+            dataSourcesRepository.refreshAvailableVersions() // time check skipped
+        }
+    }
+
     fun forceRefreshAvailableVersions() {
         viewModelScope.launch {
-            dataSourcesRepository.forceRefreshAvailableVersions()
+            dataSourcesRepository.refreshAvailableVersions(forceRefresh = true) // time check skipped
         }
     }
 }
