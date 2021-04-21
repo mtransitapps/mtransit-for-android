@@ -1132,10 +1132,6 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			if (mapViewController == null) {
 				return null;
 			}
-			Activity activity = mapViewController.getActivityOrNull();
-			if (activity == null) {
-				return null;
-			}
 			MapMarkerProvider markerProvider = mapViewController.markerProviderWR == null ? null : mapViewController.markerProviderWR.get();
 			if (markerProvider == null) {
 				return null;
@@ -1175,7 +1171,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				agencyShortName = mapViewController.markerLabelShowExtra ? agency.getShortName() : null;
 				uuid = poim.poi.getUUID();
 				authority = poim.poi.getAuthority();
-				color = POIManager.getColor(activity, dataSourcesRepository, poim.poi, null);
+				color = POIManager.getColor(dataSourcesRepository, poim.poi, null);
 				secondaryColor = agency.getColorInt();
 				POIMarker currentItem = clusterItems.get(positionTrunc);
 				if (currentItem == null) {

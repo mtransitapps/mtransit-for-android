@@ -92,7 +92,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 		availabilityPercentStatusViewHolder.textTv2 = view.findViewById(R.id.progress_text2);
 		availabilityPercentStatusViewHolder.progressBar = view.findViewById(R.id.progress_bar);
 		if (poim != null) {
-			availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter(poim.getColor(view.getContext()), PorterDuff.Mode.SRC_IN);
+			availabilityPercentStatusViewHolder.progressBar.getProgressDrawable().setColorFilter(poim.getColor(), PorterDuff.Mode.SRC_IN);
 		}
 		view.setTag(availabilityPercentStatusViewHolder);
 	}

@@ -20,6 +20,7 @@ import org.mtransit.android.commons.DeviceUtils;
 import org.mtransit.android.commons.LocationUtils.LocationPOI;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
+import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.data.AppStatus;
@@ -40,6 +41,7 @@ import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTDialog;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
 import org.mtransit.android.ui.fragment.POIFragment;
 import org.mtransit.android.ui.fragment.RTSRouteFragment;
@@ -463,10 +465,10 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			((MainActivity) activity).addFragmentToStack( //
 					NearbyFragment.newFixedOnInstance(
 							null,
-							poi.getLat(),
-							poi.getLng(),
-							getOneLineDescription(activity, this.dataSourcesRepository, this.poi),
-							getColor(activity)
+							this.poi.getLat(),
+							this.poi.getLng(),
+							getOneLineDescription(this.dataSourcesRepository, this.poi),
+							getColor()
 					)
 			);
 			return true; // HANDLED
@@ -479,9 +481,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private Integer color = null;
 
 	@ColorInt
-	public int getColor(@NonNull Context context) {
+	public int getColor() {
 		if (color == null) {
-			color = getColor(context, this.dataSourcesRepository, this.poi, null);
+			color = getColor(this.dataSourcesRepository, this.poi, null);
 		}
 		if (color == null) {
 			return Color.BLACK; // default
@@ -491,8 +493,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@Nullable
 	@ColorInt
-	public static Integer getColor(@NonNull Context context,
-								   @NonNull DataSourcesRepository dataSourcesRepository,
+	public static Integer getColor(@NonNull DataSourcesRepository dataSourcesRepository,
 								   @Nullable POI poi,
 								   @Nullable Integer defaultColor) {
 		if (poi != null) {
@@ -550,8 +551,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@MainThread
 	@NonNull
-	public static String getOneLineDescription(@NonNull Context context,
-											   @NonNull DataSourcesRepository dataSourcesRepository,
+	public static String getOneLineDescription(@NonNull DataSourcesRepository dataSourcesRepository,
 											   @NonNull POI poi) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(poi.getName());
@@ -631,13 +631,24 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			StoreUtils.viewAppPage(activity, ((Module) poi).getPkg(), activity.getString(R.string.google_play));
+			final Module module = (Module) this.poi;
+			final String pkg = module.getPkg();
+			if (PackageManagerUtils.isAppInstalled(activity, pkg)
+					&& PackageManagerUtils.isAppEnabled(activity, pkg)) {
+				final AgencyProperties agency = this.dataSourcesRepository.getAgencyForPkg(pkg);
+				if (agency != null && !agency.getUpdateAvailable()) {
+					PreferenceUtils.savePrefLcl(activity, PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(agency.getType().getId()), agency.getAuthority(), false);
+					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(agency.getType()));
+					return true; // handled
+				}
+			}
+			StoreUtils.viewAppPage(activity, pkg, activity.getString(R.string.google_play));
 			return true; // handled
 		case POI.ITEM_ACTION_TYPE_PLACE:
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			((MainActivity) activity).addFragmentToStack(NearbyFragment.newFixedOnInstance(null, poi.getLat(), poi.getLng(), poi.getName(), null));
+			((MainActivity) activity).addFragmentToStack(NearbyFragment.newFixedOnInstance(null, this.poi.getLat(), this.poi.getLng(), this.poi.getName(), null));
 			return true; // nearby screen shown
 		}
 		if (activity instanceof MainActivity) {
@@ -646,7 +657,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			}
 			AgencyProperties agencyProperties = this.dataSourcesRepository.getAgency(this.poi.getAuthority());
 			((MainActivity) activity).addFragmentToStack(POIFragment.newInstance(this.poi.getUUID(), this.poi.getAuthority(), agencyProperties, this));
-			// reset to defaults so the POI is updated when coming back in the current screen
+			// reset to defaults, so the POI is updated when coming back in the current screen
 			resetLastFindTimestamps();
 			return true; // HANDLED
 		}

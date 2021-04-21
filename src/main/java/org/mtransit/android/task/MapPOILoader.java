@@ -222,7 +222,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderX<Collection<MapViewControlle
 					}
 					uuid = poim.poi.getUUID();
 					authority = poim.poi.getAuthority();
-					color = POIManager.getColor(this.context, this.dataSourcesRepository, poim.poi, null);
+					color = POIManager.getColor(this.dataSourcesRepository, poim.poi, null);
 					secondaryColor = agency.getColorInt();
 					MapViewController.POIMarker clusterItem = clusterItems.get(positionTrunc);
 					if (clusterItem == null) {

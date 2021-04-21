@@ -258,7 +258,7 @@ public class POIViewController implements MTLog.Loggable {
 			updateRTSExtra(context, poim, (RouteTripStopViewHolder) holder, dataProvider);
 			break;
 		case POI.ITEM_VIEW_TYPE_MODULE:
-			updateModuleExtra(context, poim, (ModuleViewHolder) holder, dataProvider);
+			updateModuleExtra(poim, (ModuleViewHolder) holder, dataProvider);
 			break;
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 			break;
@@ -269,10 +269,10 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateModuleExtra(Context context, @NonNull POIManager poim, @NonNull ModuleViewHolder holder, @NonNull POIDataProvider dataProvider) {
+	private static void updateModuleExtra(@NonNull POIManager poim, @NonNull ModuleViewHolder holder, @NonNull POIDataProvider dataProvider) {
 		if (poim.poi instanceof Module) {
 			Module module = (Module) poim.poi;
-			holder.moduleExtraTypeImg.setBackgroundColor(poim.getColor(context));
+			holder.moduleExtraTypeImg.setBackgroundColor(poim.getColor());
 			DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
 			if (moduleType != null) {
 				holder.moduleExtraTypeImg.setImageResource(moduleType.getIconResId());
@@ -337,7 +337,7 @@ public class POIViewController implements MTLog.Loggable {
 					holder.tripHeadingTv.setSelected(true); // marquee forever
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}
-				holder.rtsExtraV.setBackgroundColor(poim.getColor(context));
+				holder.rtsExtraV.setBackgroundColor(poim.getColor());
 				//noinspection ConstantConditions // stop always non-null?
 				final Integer stopId = rts.getStop() == null ? null : rts.getStop().getId();
 				holder.rtsExtraV.setOnClickListener(new MTOnClickListener() {

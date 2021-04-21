@@ -772,7 +772,7 @@ public class POIFragment extends ABFragment implements
 										POIFragment.this.uuid,
 										POIFragment.this.authority,
 										(RouteTripStop) poim.poi,
-										poim.getColor(activity)
+										poim.getColor()
 								), //
 								POIFragment.this);
 					}
@@ -801,8 +801,8 @@ public class POIFragment extends ABFragment implements
 						MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
 						return;
 					}
-					Integer colorInt = poim.getColor(view.getContext());
-					String subtitle = POIManager.getOneLineDescription(view.getContext(), POIFragment.this.dataSourcesRepository, poim.poi);
+					Integer colorInt = poim.getColor();
+					String subtitle = POIManager.getOneLineDescription(POIFragment.this.dataSourcesRepository, poim.poi);
 					((MainActivity) activity).addFragmentToStack( //
 							NewsFragment.newInstance( //
 									colorInt, subtitle, ArrayUtils.asArrayList(poim.poi.getAuthority()), null,
@@ -841,8 +841,8 @@ public class POIFragment extends ABFragment implements
 									optTypeId,
 									poim.getLat(),
 									poim.getLng(),
-									POIManager.getOneLineDescription(activity, POIFragment.this.dataSourcesRepository, poim.poi),
-									poim.getColor(view.getContext())
+									POIManager.getOneLineDescription(POIFragment.this.dataSourcesRepository, poim.poi),
+									poim.getColor()
 							), POIFragment.this);
 				}
 			});

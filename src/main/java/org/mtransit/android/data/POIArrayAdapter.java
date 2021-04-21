@@ -170,9 +170,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.layoutInflater = LayoutInflater.from(getContext());
 		this.sensorManager = Injection.providesSensorManager();
 		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
-		this.dataSourcesRepository.readingAllAgenciesDistinct().observe(activity.getLifecycleOwner(), agencyProperties -> {
-			resetModulesStatus();
-		});
+		this.dataSourcesRepository.readingAllAgenciesDistinct().observe(activity.getLifecycleOwner(), agencyProperties ->
+				resetModulesStatus()
+		);
 	}
 
 	public void setManualLayout(ViewGroup manualLayout) {
@@ -183,10 +183,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.favoriteUpdateListener = favoriteUpdateListener;
 	}
 
+	@SuppressWarnings("unused")
 	public void setShowStatus(boolean showData) {
 		this.showStatus = showData;
 	}
 
+	@SuppressWarnings("unused")
 	public void setShowServiceUpdate(boolean showServiceUpdate) {
 		this.showServiceUpdate = showServiceUpdate;
 	}
@@ -1587,7 +1589,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private void updateModuleExtra(POIManager poim, ModuleViewHolder holder) {
 		if (this.showExtra && poim.poi instanceof Module) {
 			Module module = (Module) poim.poi;
-			holder.moduleExtraTypeImg.setBackgroundColor(poim.getColor(getContext()));
+			holder.moduleExtraTypeImg.setBackgroundColor(poim.getColor());
 			DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
 			if (moduleType != null) {
 				holder.moduleExtraTypeImg.setImageResource(moduleType.getIconResId());
@@ -1702,7 +1704,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				final long tripId = rts.getTrip().getId();
 				holder.tripHeadingTv.setText(rts.getTrip().getHeading(getContext()).toUpperCase(Locale.getDefault()));
 				holder.tripHeadingBg.setVisibility(View.VISIBLE);
-				holder.rtsExtraV.setBackgroundColor(poim.getColor(getContext()));
+				holder.rtsExtraV.setBackgroundColor(poim.getColor());
 				final int stopId = rts.getStop().getId();
 				holder.rtsExtraV.setOnClickListener(new MTOnClickListener() {
 					@Override

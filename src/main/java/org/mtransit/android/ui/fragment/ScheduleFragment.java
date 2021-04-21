@@ -233,9 +233,9 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		restoreInstanceState(savedInstanceState, getArguments());
-		this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this, agencyProperties -> {
-			initRtsAsync(true);
-		});
+		this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this, agencyProperties ->
+				initRtsAsync(true)
+		);
 	}
 
 	@Nullable
@@ -432,10 +432,10 @@ public class ScheduleFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public CharSequence getABSubtitle(@Nullable Context context) {
 		final RouteTripStop rts = getRtsOrNull();
-		if (rts == null || context == null) {
+		if (rts == null) {
 			return super.getABSubtitle(context);
 		}
-		return POIManager.getOneLineDescription(context, this.dataSourcesRepository, rts);
+		return POIManager.getOneLineDescription(this.dataSourcesRepository, rts);
 	}
 
 	@Nullable
