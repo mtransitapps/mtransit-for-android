@@ -35,6 +35,9 @@ import com.google.android.gms.maps.model.LatLngBounds;
 
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
+import org.mtransit.android.analytics.AnalyticsEvents;
+import org.mtransit.android.analytics.AnalyticsEventsParamsProvider;
+import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.BundleUtils;
@@ -171,6 +174,8 @@ public class POIFragment extends ABFragment implements
 	private final IAdManager adManager;
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
+	@NonNull
+	private final IAnalyticsManager analyticsManager;
 
 	public POIFragment() {
 		super();
@@ -178,6 +183,7 @@ public class POIFragment extends ABFragment implements
 		this.sensorManager = Injection.providesSensorManager();
 		this.adManager = Injection.providesAdManager();
 		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+		this.analyticsManager = Injection.providesAnalyticsManager();
 	}
 
 	private void applyNewAgency() {
@@ -890,6 +896,9 @@ public class POIFragment extends ABFragment implements
 						return;
 					}
 					final String pkg = POIFragment.this.agency.getPkg();
+					POIFragment.this.analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
+							.put(AnalyticsEvents.Params.PKG, pkg)
+					);
 					StoreUtils.viewAppPage(activity, pkg, activity.getString(R.string.google_play));
 				}
 			});
@@ -1186,12 +1195,26 @@ public class POIFragment extends ABFragment implements
 	private void refreshAppUpdateLayout(@Nullable View view) {
 		final View appUpdateLayout = getPOIAppUpdateView(view);
 		if (appUpdateLayout == null) {
+			MTLog.d(this, "refreshAppUpdateLayout() > SKIP (no layout)");
 			return;
 		}
-
 		final boolean appUpdateAvailable = this.agency != null && this.agency.getUpdateAvailable();
-
-		appUpdateLayout.setVisibility(appUpdateAvailable ? View.VISIBLE : View.GONE);
+		final String pkg = this.agency == null ? "" : this.agency.getPkg();
+		if (appUpdateAvailable) {
+			if (appUpdateLayout.getVisibility() != View.VISIBLE) {
+				appUpdateLayout.setVisibility(View.VISIBLE);
+				this.analyticsManager.logEvent(AnalyticsEvents.SHOWED_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
+						.put(AnalyticsEvents.Params.PKG, pkg)
+				);
+			}
+		} else {
+			if (appUpdateLayout.getVisibility() != View.GONE) {
+				appUpdateLayout.setVisibility(View.GONE);
+				this.analyticsManager.logEvent(AnalyticsEvents.HIDDEN_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
+						.put(AnalyticsEvents.Params.PKG, pkg)
+				);
+			}
+		}
 	}
 
 	@Override
