@@ -10,6 +10,7 @@ import androidx.loader.app.LoaderManager;
 
 import org.mtransit.android.commons.MTLog;
 
+@SuppressWarnings("WeakerAccess")
 public final class LoaderUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = LoaderUtils.class.getSimpleName();

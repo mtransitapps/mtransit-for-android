@@ -13,6 +13,7 @@ import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.billing.MTBillingManager;
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.common.repository.LocalPreferenceRepository;
+import org.mtransit.android.datasource.DataSourceRequestManager;
 import org.mtransit.android.datasource.DataSourcesCache;
 import org.mtransit.android.datasource.DataSourcesDatabase;
 import org.mtransit.android.datasource.DataSourcesReader;
@@ -23,6 +24,7 @@ import org.mtransit.android.dev.IStrictMode;
 import org.mtransit.android.dev.LeakCanaryDetector;
 import org.mtransit.android.dev.LeakDetector;
 import org.mtransit.android.dev.StrictModeImpl;
+import org.mtransit.android.provider.FavoriteRepository;
 import org.mtransit.android.provider.location.GoogleLocationProvider;
 import org.mtransit.android.provider.location.MTLocationProvider;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
@@ -80,6 +82,12 @@ public class Injection {
 
 	@Nullable
 	private static DataSourcesRepository dataSourcesRepository;
+
+	@Nullable
+	private static DataSourceRequestManager dataSourceRequestManager;
+
+	@Nullable
+	private static FavoriteRepository favoriteRepository;
 
 	@NonNull
 	private static IApplication providesApplication() {
@@ -279,8 +287,8 @@ public class Injection {
 					dataSourcesReader = new DataSourcesReader(
 							providesApplication(),
 							providesPackageManager(),
-							providesDataSourcesDatabase()
-							// providesDataSourcesCache()
+							providesDataSourcesDatabase(),
+							providesDataSourceRequestManager()
 					);
 				}
 			}
@@ -303,4 +311,33 @@ public class Injection {
 		}
 		return dataSourcesRepository;
 	}
+
+	@NonNull
+	public static DataSourceRequestManager providesDataSourceRequestManager() {
+		if (dataSourceRequestManager == null) {
+			synchronized (Injection.class) {
+				if (dataSourceRequestManager == null) {
+					dataSourceRequestManager = new DataSourceRequestManager(
+							providesApplication()
+					);
+				}
+			}
+		}
+		return dataSourceRequestManager;
+	}
+
+	@NonNull
+	public static FavoriteRepository providesFavoriteRepository() {
+		if (favoriteRepository == null) {
+			synchronized (Injection.class) {
+				if (favoriteRepository == null) {
+					favoriteRepository = new FavoriteRepository(
+							providesApplication()
+					);
+				}
+			}
+		}
+		return favoriteRepository;
+	}
+
 }

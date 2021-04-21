@@ -22,7 +22,6 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
@@ -49,6 +48,7 @@ import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.common.IActivity;
+import org.mtransit.android.ui.view.common.PairMediatorLiveData;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
 import org.mtransit.android.util.LoaderUtils;
 
@@ -97,7 +97,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	@NonNull
 	private final MutableLiveData<Location> nearbyLocationLD = new MutableLiveData<>();
 	@NonNull
-	private final MediatorLiveData<Void> poiLoaderLD = new MediatorLiveData<>();
+	private final PairMediatorLiveData<Location, List<AgencyProperties>> poiLoaderLD = new PairMediatorLiveData<>(this.nearbyLocationLD, this.allAgencyPropertiesLD);
 	@Nullable
 	private String nearbyLocationAddress;
 	@Nullable
@@ -131,21 +131,15 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		this.dataSourcesRepository.readingAllAgenciesDistinct().observe(this,
 				this.allAgencyPropertiesLD::postValue
 		);
-		this.poiLoaderLD.addSource(this.nearbyLocationLD, nearbyLocation ->
-				shouldRestartPOILoader(nearbyLocation, this.allAgencyPropertiesLD.getValue())
+		this.poiLoaderLD.observe(this, nearbyLocationAndAgencies ->
+				shouldRestartPOILoader(nearbyLocationAndAgencies.getFirst(), nearbyLocationAndAgencies.getSecond())
 		);
-		this.poiLoaderLD.addSource(this.allAgencyPropertiesLD, allAgencyProperties ->
-				shouldRestartPOILoader(this.nearbyLocationLD.getValue(), allAgencyProperties)
-		);
-		this.poiLoaderLD.observe(this, aVoid -> { // required to trigger mediator live data
-			// DO NOTHING
-		});
 	}
 
 	private void shouldRestartPOILoader(@Nullable Location nearbyLocation,
 										@Nullable List<AgencyProperties> allAgencyProperties) {
 		if (nearbyLocation == null || allAgencyProperties == null) {
-			MTLog.d(this, "shouldRestartPOILoader() > SKIP (missing nearby location or agencies or data source types)");
+			MTLog.d(this, "shouldRestartPOILoader() > SKIP (missing nearby location or agencies)");
 			return;
 		}
 		if (this.adapter != null) {

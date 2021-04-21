@@ -2,6 +2,7 @@ package org.mtransit.android.ui.fragment;
 
 import android.content.Context;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -18,6 +19,7 @@ public abstract class MTFragment extends MTFragmentX implements IContext, MTLog.
 	@NonNull
 	private final WeakHashMap<Fragment, Object> childFragmentsWR = new WeakHashMap<>();
 
+	@CallSuper
 	@Override
 	public void onAttach(@NonNull Context context) {
 		super.onAttach(context);

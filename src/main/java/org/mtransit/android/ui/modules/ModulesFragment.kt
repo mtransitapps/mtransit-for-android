@@ -1,3 +1,4 @@
+@file:JvmName("ModulesFragment") // ANALYTICS
 package org.mtransit.android.ui.modules
 
 import android.os.Bundle
@@ -47,25 +48,6 @@ class ModulesFragment : Fragment(), MTLog.Loggable {
         return binding?.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_modules, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_sort) {
-            viewModel.flipSort()
-            return true
-        } else if (item.itemId == R.id.menu_refresh_available_version) {
-            viewModel.refreshAvailableVersions()
-            return true
-        } else if (item.itemId == R.id.menu_force_refresh_available_version) {
-            viewModel.forceRefreshAvailableVersions()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupListAdapter()
@@ -74,6 +56,29 @@ class ModulesFragment : Fragment(), MTLog.Loggable {
     private fun setupListAdapter() {
         binding?.modulesList?.let {
             it.adapter = listAdapter
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_modules, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_sort -> {
+                viewModel.flipSort()
+                true
+            }
+            R.id.menu_refresh_available_version -> {
+                viewModel.refreshAvailableVersions()
+                true
+            }
+            R.id.menu_force_refresh_available_version -> {
+                viewModel.forceRefreshAvailableVersions()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

@@ -652,7 +652,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		refreshFavorites();
 	}
 
-	public void setPois(@Nullable ArrayList<POIManager> pois) {
+	public void setPois(@Nullable List<POIManager> pois) {
 		if (this.poisByType != null) {
 			this.poisByType.clear();
 		}
@@ -666,7 +666,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@NonNull
 	private final HashSet<String> poiUUID = new HashSet<>();
 
-	public void appendPois(@Nullable ArrayList<POIManager> pois) {
+	public void appendPois(@Nullable List<POIManager> pois) {
 		boolean dataSetChanged = append(pois, false);
 		if (!dataSetChanged) {
 			MTLog.d(this, "appendPois() > SKIP (data not changed)");
@@ -675,7 +675,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		notifyDataSetChanged();
 	}
 
-	private boolean append(@Nullable ArrayList<POIManager> pois, boolean dataSetChanged) {
+	private boolean append(@Nullable List<POIManager> pois, boolean dataSetChanged) {
 		if (pois != null) {
 			if (this.poisByType == null) {
 				this.poisByType = new LinkedHashMap<>();
@@ -1038,17 +1038,18 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		});
 	}
 
-	public void setLocation(Location newLocation) {
-		if (newLocation != null) {
-			if (this.location == null || LocationUtils.isMoreRelevant(getLogTag(), this.location, newLocation)) {
-				this.location = newLocation;
-				this.locationDeclination = this.sensorManager.getLocationDeclination(this.location);
-				if (!this.compassUpdatesEnabled) {
-					this.sensorManager.registerCompassListener(this);
-					this.compassUpdatesEnabled = true;
-				}
-				updateDistances(this.location);
+	public void setLocation(@Nullable Location newLocation) {
+		if (newLocation == null) {
+			return;
+		}
+		if (this.location == null || LocationUtils.isMoreRelevant(getLogTag(), this.location, newLocation)) {
+			this.location = newLocation;
+			this.locationDeclination = this.sensorManager.getLocationDeclination(this.location);
+			if (!this.compassUpdatesEnabled) {
+				this.sensorManager.registerCompassListener(this);
+				this.compassUpdatesEnabled = true;
 			}
+			updateDistances(this.location);
 		}
 	}
 

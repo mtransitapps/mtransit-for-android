@@ -29,7 +29,7 @@ import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.POIFragment;
-import org.mtransit.android.ui.fragment.SearchFragment;
+import org.mtransit.android.ui.search.SearchFragment;
 import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
@@ -156,7 +156,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		if (currentFragment instanceof SearchFragment) {
 			((SearchFragment) currentFragment).setSearchQuery(query, false);
 		} else {
-			addFragmentToStack(SearchFragment.newInstance(query, null, null), currentFragment);
+			addFragmentToStack(SearchFragment.newInstance(query, null), currentFragment);
 		}
 	}
 

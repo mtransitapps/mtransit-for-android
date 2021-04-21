@@ -1,3 +1,4 @@
+@file:JvmName("ModulesActivity") // ANALYTICS
 package org.mtransit.android.ui.modules
 
 import android.content.Context

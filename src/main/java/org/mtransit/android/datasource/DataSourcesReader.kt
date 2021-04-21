@@ -21,7 +21,6 @@ import org.mtransit.android.commons.isAppInstalled
 import org.mtransit.android.commons.isKeyMT
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.AgencyProperties.Companion.DEFAULT_LONG_VERSION_CODE
-import org.mtransit.android.data.DataSourceManager
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.ScheduleProviderProperties
@@ -34,6 +33,7 @@ class DataSourcesReader(
     private val app: IApplication,
     private val pm: PackageManager,
     private val dataSourcesDatabase: DataSourcesDatabase,
+    private val dataSourceRequestManager: DataSourceRequestManager,
 ) : MTLog.Loggable {
 
     companion object {
@@ -149,7 +149,7 @@ class DataSourcesReader(
                 MTLog.d(this, "refreshAvailableVersions > SKIP not supported '$pkg .")
                 return@forEach // skip not supported
             }
-            val newAvailableVersionCode = DataSourceManager.findAgencyAvailableVersionCode(context, authority, forceRefresh, inFocus)
+            val newAvailableVersionCode = this.dataSourceRequestManager.findAgencyAvailableVersionCode(authority, forceRefresh, inFocus)
             if (agencyProperties.availableVersionCode != newAvailableVersionCode) {
                 MTLog.d(this, "Agency '$authority' > new version: r$newAvailableVersionCode.")
                 dataSourcesDatabase.agencyPropertiesDao().update(
@@ -420,10 +420,9 @@ class DataSourcesReader(
             return
         }
         val isRTS = providerMetaData.isKeyMT(rtsProviderMetaData)
-        val logo = if (isRTS) DataSourceManager.findAgencyRTSRouteLogo(this.app.requireContext(), agencyAuthority) else null
+        val logo = if (isRTS) this.dataSourceRequestManager.findAgencyRTSRouteLogo(agencyAuthority) else null
         val trigger = if (triggerUpdate) agencyProperties?.let { it.trigger + 1 } ?: 0 else 0
-        val newAgencyProperties = DataSourceManager.findAgencyProperties(
-            this.app.requireContext(),
+        val newAgencyProperties = this.dataSourceRequestManager.findAgencyProperties(
             agencyAuthority,
             agencyType,
             isRTS,
