@@ -14,9 +14,9 @@ public interface IAnalyticsManager {
 
 	void setUserProperty(@NonNull @Size(min = 1L, max = 24L) String name, @NonNull String value);
 
-	void logEvent(@NonNull String name);
+	void logEvent(@NonNull @Size(min = 1L, max = 40L) String name);
 
-	void logEvent(@NonNull String name, @Nullable AnalyticsEventsParamsProvider params);
+	void logEvent(@NonNull @Size(min = 1L, max = 40L) String name, @Nullable AnalyticsEventsParamsProvider params);
 
 	@MainThread
 	void trackScreenView(@NonNull IActivity activity, @NonNull Trackable page);

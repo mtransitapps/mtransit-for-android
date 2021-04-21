@@ -21,6 +21,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.material.navigation.NavigationView;
 
 import org.mtransit.android.R;
+import org.mtransit.android.analytics.AnalyticsEvents;
+import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
@@ -76,6 +78,8 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	@NonNull
 	private final CrashReporter crashReporter;
 	@NonNull
+	private final IAnalyticsManager analyticsManager;
+	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 	@Nullable
 	private DrawerLayout drawerLayout;
@@ -90,10 +94,12 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 
 	NavigationDrawerController(@NonNull MainActivity mainActivity,
 							   @NonNull CrashReporter crashReporter,
+							   @NonNull IAnalyticsManager analyticsManager,
 							   @NonNull DataSourcesRepository dataSourcesRepository) {
 		this.mainActivityWR = new WeakReference<>(mainActivity);
 		this.crashReporter = crashReporter;
 		this.dataSourcesRepository = dataSourcesRepository;
+		this.analyticsManager = analyticsManager;
 		this.dataSourcesRepository.readingAllDataSourceTypesDistinct().observe(mainActivity, dataSourceTypes -> {
 			this.allAgencyTypes = filterAgencyTypes(dataSourceTypes);
 			setVisibleMenuItems();
@@ -412,6 +418,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		return ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT;
 	}
 
+	@SuppressWarnings("unused")
 	public void forceReset() {
 		if (this.currentSelectedScreenItemNavId == null) {
 			return;
@@ -511,6 +518,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 					optSrcLng = lastLocation.getLongitude();
 				}
 			}
+			this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
 			MapUtils.showDirection(activity, null, null, optSrcLat, optSrcLng, null);
 		} else if (navItemId == R.id.nav_settings) {
 			activity.startActivity(PreferencesActivity.newInstance(activity));

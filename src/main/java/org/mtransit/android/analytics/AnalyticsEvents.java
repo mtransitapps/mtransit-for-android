@@ -7,6 +7,7 @@ public interface AnalyticsEvents {
 	String SHOWED_APP_UPDATE_POI = "mt_showed_app_update_poi";
 	String HIDDEN_APP_UPDATE_POI = "mt_hidden_app_update_poi";
 	String CLICK_APP_UPDATE_POI = "mt_click_app_update_poi";
+	String OPENED_GOOGLE_MAPS_TRIP_PLANNER = "mt_open_google_maps_trip_planner";
 
 	interface Params {
 		String PKG = "mt_pkg";

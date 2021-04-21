@@ -124,7 +124,7 @@ public final class MapUtils implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static LruCache<Pair<Integer, Integer>, BitmapDescriptor> cache = new LruCache<>(128);
+	private static final LruCache<Pair<Integer, Integer>, BitmapDescriptor> cache = new LruCache<>(128);
 
 	@NonNull
 	public static BitmapDescriptor getIcon(@Nullable Context context, @DrawableRes int iconResId, @ColorInt int color, boolean replaceColor) {

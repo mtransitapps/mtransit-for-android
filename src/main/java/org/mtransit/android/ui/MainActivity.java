@@ -20,6 +20,7 @@ import androidx.fragment.app.FragmentManager;
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.analytics.AnalyticsManager;
+import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.common.MTContinuationJ;
 import org.mtransit.android.commons.LocaleUtils;
@@ -77,6 +78,8 @@ public class MainActivity extends MTActivityWithLocation implements
 	@NonNull
 	private final IAdManager adManager;
 	@NonNull
+	private final IAnalyticsManager analyticsManager;
+	@NonNull
 	private final CrashReporter crashReporter;
 	@NonNull
 	private final IBillingManager billingManager;
@@ -88,6 +91,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	public MainActivity() {
 		super();
 		adManager = Injection.providesAdManager();
+		analyticsManager = Injection.providesAnalyticsManager();
 		crashReporter = Injection.providesCrashReporter();
 		billingManager = Injection.providesBillingManager();
 		dataSourcesRepository = Injection.providesDataSourcesRepository();
@@ -101,7 +105,12 @@ public class MainActivity extends MTActivityWithLocation implements
 		this.currentUiMode = getResources().getConfiguration().uiMode;
 		setContentView(R.layout.activity_main);
 		this.abController = new ActionBarController(this);
-		this.navigationDrawerController = new NavigationDrawerController(this, crashReporter, this.dataSourcesRepository);
+		this.navigationDrawerController = new NavigationDrawerController(
+				this,
+				this.crashReporter,
+				this.analyticsManager,
+				this.dataSourcesRepository
+		);
 		this.navigationDrawerController.onCreate(savedInstanceState);
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
 		this.dataSourcesRepository.readingAllAgenciesCount().observe(this, nbAgencies ->

@@ -33,6 +33,8 @@ import com.google.android.material.tabs.TabLayout;
 
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
+import org.mtransit.android.analytics.AnalyticsEvents;
+import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.Constants;
@@ -164,11 +166,14 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	@NonNull
 	private final IAdManager adManager;
 	@NonNull
+	private final IAnalyticsManager analyticsManager;
+	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 
 	public NearbyFragment() {
 		super();
 		this.adManager = Injection.providesAdManager();
+		this.analyticsManager = Injection.providesAnalyticsManager();
 		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
 	}
 
@@ -809,6 +814,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		int itemId = item.getItemId();
 		if (itemId == R.id.menu_show_directions) {
 			if (this.fixedOnLat != null && this.fixedOnLng != null) {
+				this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
 				MapUtils.showDirection(requireActivity(), this.fixedOnLat, this.fixedOnLng, null, null, this.fixedOnName);
 				return true; // handled
 			}

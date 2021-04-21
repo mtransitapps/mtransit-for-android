@@ -76,7 +76,7 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 	}
 
 	@Override
-	public void logEvent(@NonNull String name) {
+	public void logEvent(@NonNull @Size(min = 1L, max = 40L) String name) {
 		if (!ANALYTICS_ENABLED) {
 			return;
 		}
@@ -84,7 +84,8 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 	}
 
 	@Override
-	public void logEvent(@NonNull String name, @Nullable AnalyticsEventsParamsProvider params) {
+	public void logEvent(@NonNull @Size(min = 1L, max = 40L) String name,
+						 @Nullable AnalyticsEventsParamsProvider params) {
 		if (!ANALYTICS_ENABLED) {
 			return;
 		}
