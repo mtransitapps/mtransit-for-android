@@ -8,9 +8,9 @@ import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.JPaths
 import org.mtransit.android.data.POIManager
 
-class DataSourceRequestManager(app: IApplication) {
+class DataSourceRequestManager(private val app: IApplication) {
 
-    private val context = app.requireContext()
+    private val context get() = app.requireContext()
 
     fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POIManager>? {
         return DataSourceManager.findPOIs(context, authority, poiFilter)

@@ -287,6 +287,7 @@ public class Injection {
 					dataSourcesReader = new DataSourcesReader(
 							providesApplication(),
 							providesPackageManager(),
+							providesAnalyticsManager(),
 							providesDataSourcesDatabase(),
 							providesDataSourceRequestManager()
 					);

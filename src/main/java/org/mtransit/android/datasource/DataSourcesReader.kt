@@ -8,6 +8,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
+import org.mtransit.android.analytics.AnalyticsUserProperties
+import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.IApplication
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PreferenceUtils
@@ -32,6 +34,7 @@ import java.util.concurrent.TimeUnit
 class DataSourcesReader(
     private val app: IApplication,
     private val pm: PackageManager,
+    private val analyticsManager: IAnalyticsManager,
     private val dataSourcesDatabase: DataSourcesDatabase,
     private val dataSourceRequestManager: DataSourceRequestManager,
 ) : MTLog.Loggable {
@@ -119,6 +122,12 @@ class DataSourcesReader(
             MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
             refreshAvailableVersions { updated = true }
             MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
+            if (updated) {
+                analyticsManager.setUserProperty(
+                    AnalyticsUserProperties.MODULES_COUNT,
+                    dataSourcesDatabase.agencyPropertiesDao().getAllAgenciesInclNotInstalled().size
+                )
+            }
         }
         MTLog.d(this, "update() > $updated")
         return updated
