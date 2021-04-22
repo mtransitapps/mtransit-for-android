@@ -120,7 +120,7 @@ class DataSourcesReader(
             MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
             lookForNewDataSources(forcePkg) { updated = true }
             MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
-            refreshAvailableVersions { updated = true }
+            refreshAvailableVersions(skipTimeCheck = false, forceAppUpdateRefresh = true) { updated = true }
             MTLog.d(this@DataSourcesReader, "update() > updated: $updated")
             if (updated) {
                 analyticsManager.setUserProperty(
@@ -135,8 +135,7 @@ class DataSourcesReader(
 
     internal fun refreshAvailableVersions(
         skipTimeCheck: Boolean = false,
-        forceRefresh: Boolean = false,
-        inFocus: Boolean = false,
+        forceAppUpdateRefresh: Boolean = false,
         markUpdated: () -> Unit,
     ) {
         if (!F_APP_UPDATE) {
@@ -145,7 +144,7 @@ class DataSourcesReader(
         }
         val context: Context = app.application ?: return
         val lastCheckInMs = PreferenceUtils.getPrefLcl(context, PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
-        val shortTimeAgo = TimeUtils.currentTimeMillis() - TimeUnit.HOURS.toMillis(if (inFocus) 6L else 24L)
+        val shortTimeAgo = TimeUtils.currentTimeMillis() - TimeUnit.HOURS.toMillis(24L)
         if (!skipTimeCheck && shortTimeAgo < lastCheckInMs) {
             val timeLapsedInHours = TimeUnit.MILLISECONDS.toHours(TimeUtils.currentTimeMillis() - lastCheckInMs)
             MTLog.d(this, "refreshAvailableVersions() > SKIP (last successful refresh too recent ($timeLapsedInHours hours)")
@@ -158,7 +157,7 @@ class DataSourcesReader(
                 MTLog.d(this, "refreshAvailableVersions > SKIP not supported '$pkg .")
                 return@forEach // skip not supported
             }
-            val newAvailableVersionCode = this.dataSourceRequestManager.findAgencyAvailableVersionCode(authority, forceRefresh, inFocus)
+            val newAvailableVersionCode = this.dataSourceRequestManager.findAgencyAvailableVersionCode(authority, forceAppUpdateRefresh)
             if (agencyProperties.availableVersionCode != newAvailableVersionCode) {
                 MTLog.d(this, "Agency '$authority' > new version: r$newAvailableVersionCode.")
                 dataSourcesDatabase.agencyPropertiesDao().update(

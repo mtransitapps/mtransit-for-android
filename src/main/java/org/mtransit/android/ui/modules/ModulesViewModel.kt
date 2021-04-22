@@ -60,7 +60,7 @@ class ModulesViewModel : ViewModel() {
 
     fun forceRefreshAvailableVersions() {
         viewModelScope.launch {
-            dataSourcesRepository.refreshAvailableVersions(forceRefresh = true) // time check skipped
+            dataSourcesRepository.refreshAvailableVersions(forceAppUpdateRefresh = true) // time check skipped
         }
     }
 }

@@ -16,8 +16,8 @@ class DataSourceRequestManager(private val app: IApplication) {
         return DataSourceManager.findPOIs(context, authority, poiFilter)
     }
 
-    fun findAgencyAvailableVersionCode(authority: String, forceRefresh: Boolean, inFocus: Boolean): Int {
-        return DataSourceManager.findAgencyAvailableVersionCode(context, authority, forceRefresh, inFocus)
+    fun findAgencyAvailableVersionCode(authority: String, forceAppUpdateRefresh: Boolean = false, inFocus: Boolean = false): Int {
+        return DataSourceManager.findAgencyAvailableVersionCode(context, authority, forceAppUpdateRefresh, inFocus)
     }
 
     fun findAgencyRTSRouteLogo(agencyAuthority: String): JPaths? {

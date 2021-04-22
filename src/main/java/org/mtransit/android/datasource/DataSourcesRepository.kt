@@ -190,10 +190,10 @@ class DataSourcesRepository(
         return updated
     }
 
-    suspend fun refreshAvailableVersions(forceRefresh: Boolean = false): Boolean {
+    suspend fun refreshAvailableVersions(forceAppUpdateRefresh: Boolean = false): Boolean {
         var updated = false
         withContext(Dispatchers.IO) {
-            dataSourcesReader.refreshAvailableVersions(skipTimeCheck = true, forceRefresh = forceRefresh) { updated = true }
+            dataSourcesReader.refreshAvailableVersions(skipTimeCheck = true, forceAppUpdateRefresh = forceAppUpdateRefresh) { updated = true }
         }
         return updated
     }
