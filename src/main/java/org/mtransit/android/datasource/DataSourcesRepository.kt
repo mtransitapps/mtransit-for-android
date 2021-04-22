@@ -33,7 +33,7 @@ class DataSourcesRepository(
 
     private val defaultAgencyComparator: Comparator<AgencyProperties> = SHORT_NAME_COMPARATOR
 
-    private val defaultDataSourceTypeComparator: Comparator<DataSourceType> by lazy { DataSourceTypeShortNameComparator(app.requireContext()) }
+    val defaultDataSourceTypeComparator: Comparator<DataSourceType> by lazy { DataSourceTypeShortNameComparator(app.requireContext()) }
 
     // IN-MEMORY CACHE
     private var _agencyProperties = listOf<AgencyProperties>() // sorted

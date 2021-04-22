@@ -29,7 +29,7 @@ import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.di.Injection
 import org.mtransit.android.provider.FavoriteRepository
-import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 
 class SearchViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(), MTLog.Loggable {
 
@@ -52,6 +52,10 @@ class SearchViewModel(private val savedStateHandle: SavedStateHandle) : ViewMode
 
     val searchableDataSourceTypes: LiveData<List<DataSourceType>> = this.dataSourcesRepository.readingAllDataSourceTypesDistinct().map { list ->
         list.filter { dst -> dst.isSearchable }
+    }
+
+    private val _searchableAgencies: LiveData<List<AgencyProperties>> = this.dataSourcesRepository.readingAllAgenciesDistinct().map { list ->
+        list.filter { agency -> agency.type.isSearchable }
     }
 
     private val _deviceLocation = MutableLiveData<Location?>()
@@ -119,31 +123,39 @@ class SearchViewModel(private val savedStateHandle: SavedStateHandle) : ViewMode
 
     val searchHasFocus: LiveData<Boolean> = _searchHasFocus
 
-    private val _searchParameters = PairMediatorLiveData<String, Int?>(query, _typeFilterId)
+    private val _searchParameters = TripleMediatorLiveData<String, Int?, List<AgencyProperties>>(query, _typeFilterId, _searchableAgencies)
 
     val searchResults: LiveData<List<POIManager>> =
-        _searchParameters.switchMap { (query, typeFilterId) ->
+        _searchParameters.switchMap { (query, typeFilterId, searchableAgencies) ->
             liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-                emit(getFilteredData(query, typeFilterId))
+                emit(getFilteredData(query, typeFilterId, searchableAgencies))
                 _loading.postValue(false)
             }
         }
 
 
-    private suspend fun getFilteredData(query: String?, typeFilterId: Int?): List<POIManager> {
+    private suspend fun getFilteredData(query: String?, typeFilterId: Int?, searchableAgencies: List<AgencyProperties>?): List<POIManager> {
         if (query.isNullOrBlank()) {
             MTLog.d(this, "getFilteredData() > SKIP (no query)")
             return emptyList()
         }
-        val dataSourceTypes = this.dataSourcesRepository.getAllDataSourceTypes()
-            .filter { it.isSearchable && (typeFilterId == null || typeFilterId == it.id) }
-        if (dataSourceTypes.isEmpty()) {
+        if (searchableAgencies.isNullOrEmpty()) {
+            MTLog.d(this, "getFilteredData() > SKIP (no searchable agencies)")
+            return emptyList()
+        }
+        val filteredAgencies = searchableAgencies.filter { agency -> typeFilterId == null || typeFilterId == agency.type.id }
+        if (filteredAgencies.isNullOrEmpty()) {
+            MTLog.d(this, "getFilteredData() > SKIP (no filtered agencies)")
+            return emptyList()
+        }
+        val dstToAgencies = filteredAgencies.groupBy { it.type }.toSortedMap(this.dataSourcesRepository.defaultDataSourceTypeComparator)
+        if (dstToAgencies.keys.isEmpty()) {
             MTLog.d(this, "getFilteredData() > SKIP (no data source type)")
             return emptyList()
         }
         _loading.postValue(true)
 
-        val keepAll = dataSourceTypes.size == 1
+        val keepAll = dstToAgencies.keys.size == 1
 
         val deviceLocation = _deviceLocation.value
 
@@ -152,9 +164,9 @@ class SearchViewModel(private val savedStateHandle: SavedStateHandle) : ViewMode
 
         val pois = mutableListOf<POIManager>()
 
-        dataSourceTypes.forEach { dst ->
+        dstToAgencies.forEach { (_, agencies) ->
             pois.addAll(
-                getFilteredDataType(dst, query, deviceLocation, keepAll, poiSearchComparator)
+                getFilteredDataType(agencies, query, deviceLocation, keepAll, poiSearchComparator)
             )
         }
 
@@ -162,14 +174,13 @@ class SearchViewModel(private val savedStateHandle: SavedStateHandle) : ViewMode
     }
 
     private suspend fun getFilteredDataType(
-        dst: DataSourceType,
+        agencies: List<AgencyProperties>,
         query: String,
         deviceLocation: Location?,
         keepAll: Boolean,
         poiSearchComparator: Comparator<POIManager?>
     ): List<POIManager> {
 
-        val agencies = this.dataSourcesRepository.getTypeDataSources(dst)
         var typePois = mutableListOf<POIManager>()
         agencies.forEach { agency ->
             typePois.addAll(getFilteredDataTypeAgency(agency, query, deviceLocation))

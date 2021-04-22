@@ -76,16 +76,24 @@ class SearchFragment : ABFragment(), UserLocationListener, TypeHeaderButtonsClic
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         super.onCreateView(inflater, container, savedInstanceState)
-        val newBinding = FragmentSearchBinding.inflate(inflater, container, false)
-        this.binding = newBinding
-        newBinding.emptyStub.setOnInflateListener { _, inflated ->
-            emptyBinding = LayoutEmptyBinding.bind(inflated)
-        }
-        newBinding.listStub.setOnInflateListener { _, inflated ->
-            listBinding = LayoutPoiListBinding.bind(inflated)
-        }
-        setupView(newBinding)
-        return newBinding.root
+        return FragmentSearchBinding.inflate(inflater, container, false).also { newBinding ->
+            newBinding.emptyStub.setOnInflateListener { _, inflated ->
+                emptyBinding = LayoutEmptyBinding.bind(inflated)
+            }
+            newBinding.listStub.setOnInflateListener { _, inflated ->
+                listBinding = LayoutPoiListBinding.bind(inflated)
+            }
+            newBinding.typeFilters.onItemSelectedListener = this
+            if (listBinding == null) { // IF NOT present/inflated DO
+                newBinding.listStub.inflate() // inflate
+                listBinding?.root?.visibility = View.GONE // hide by default
+            }
+            listBinding?.let { listView ->
+                adapter.setListView(listView.root)
+            }
+            newBinding.typeFilters.adapter = typeFilterAdapter
+            this.binding = newBinding
+        }.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -158,18 +166,6 @@ class SearchFragment : ABFragment(), UserLocationListener, TypeHeaderButtonsClic
         return false // not handled
     }
 
-    private fun setupView(binding: FragmentSearchBinding) {
-        binding.typeFilters.onItemSelectedListener = this
-        if (listBinding == null) { // IF NOT present/inflated DO
-            binding.listStub.inflate() // inflate
-            listBinding?.root?.visibility = View.GONE // hide by default
-        }
-        listBinding?.let { listView ->
-            adapter.setListView(listView.root)
-        }
-        binding.typeFilters.adapter = typeFilterAdapter
-    }
-
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         val dst = typeFilterAdapter.getItem(position)
         viewModel.setTypeFilter(dst)
@@ -228,14 +224,15 @@ class SearchFragment : ABFragment(), UserLocationListener, TypeHeaderButtonsClic
     }
 
     private fun searchHasFocus(): Boolean {
-        refreshSearchHasFocus()
-        return viewModel.searchHasFocus.value == true
+        return refreshSearchHasFocus()
     }
 
-    private fun refreshSearchHasFocus() {
-        searchView?.let {
-            viewModel.setSearchHasFocus(it.hasFocus())
-        }
+    private fun refreshSearchHasFocus(): Boolean {
+        return searchView?.let {
+            val focus = it.hasFocus()
+            viewModel.setSearchHasFocus(focus)
+            focus
+        } ?: false
     }
 
     override fun getABCustomView(): View? {
