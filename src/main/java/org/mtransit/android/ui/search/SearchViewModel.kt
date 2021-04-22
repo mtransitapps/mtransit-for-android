@@ -4,7 +4,6 @@ import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
@@ -29,9 +28,10 @@ import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.di.Injection
 import org.mtransit.android.provider.FavoriteRepository
+import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 
-class SearchViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(), MTLog.Loggable {
+class SearchViewModel(private val savedStateHandle: SavedStateHandle) : MTViewModelWithLocation(), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = SearchViewModel::class.java.simpleName
@@ -56,19 +56,6 @@ class SearchViewModel(private val savedStateHandle: SavedStateHandle) : ViewMode
 
     private val _searchableAgencies: LiveData<List<AgencyProperties>> = this.dataSourcesRepository.readingAllAgenciesDistinct().map { list ->
         list.filter { agency -> agency.type.isSearchable }
-    }
-
-    private val _deviceLocation = MutableLiveData<Location?>()
-
-    val deviceLocation: LiveData<Location?> = _deviceLocation
-
-    fun onDeviceLocationChanged(newDeviceLocation: Location?) {
-        newDeviceLocation?.let {
-            val currentDeviceLocation = _deviceLocation.value
-            if (currentDeviceLocation == null || LocationUtils.isMoreRelevant(logTag, currentDeviceLocation, it)) {
-                _deviceLocation.value = it
-            }
-        }
     }
 
     private val _loading = MutableLiveData(false)
@@ -157,7 +144,7 @@ class SearchViewModel(private val savedStateHandle: SavedStateHandle) : ViewMode
 
         val keepAll = dstToAgencies.keys.size == 1
 
-        val deviceLocation = _deviceLocation.value
+        val deviceLocation = deviceLocation.value
 
         val favoriteUUIDs: Set<String> = favoriteRepository.findFavoriteUUIDs()
         val poiSearchComparator = POISearchComparator(favoriteUUIDs)

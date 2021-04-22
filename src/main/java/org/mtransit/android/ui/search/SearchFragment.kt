@@ -124,7 +124,7 @@ class SearchFragment : ABFragment(), UserLocationListener, TypeHeaderButtonsClic
                 binding?.loading?.root?.visibility = View.VISIBLE // show
             }
         })
-        viewModel.searchResults.observe(viewLifecycleOwner, { searchResults: List<POIManager> ->
+        viewModel.searchResults.observe(viewLifecycleOwner, { searchResults ->
             adapter.setPois(searchResults)
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
             binding?.loading?.root?.visibility = View.GONE // hide
@@ -270,6 +270,6 @@ class SearchFragment : ABFragment(), UserLocationListener, TypeHeaderButtonsClic
 
     override fun onDestroy() {
         super.onDestroy()
-        searchView = null
+        searchView = null // part of the activity
     }
 }

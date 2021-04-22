@@ -3,6 +3,8 @@ package org.mtransit.android.data;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.collection.SparseArrayCompat;
 
 import org.mtransit.android.commons.ArrayUtils;
@@ -17,37 +19,46 @@ public class Favorite {
 
 	private static final int KEY_TYPE_VALUE_AUTHORITY_POI = 1;
 
-	private int id = -1;
-	private String fkId;
-	private int type;
-	private int folder_id;
+	private final int id;
+	@NonNull
+	private final String fkId;
+	private final int type;
+	private final int folder_id;
 
-	private Favorite() {
+	public Favorite(@NonNull String fkId, int folderId) {
+		this(-1, fkId, KEY_TYPE_VALUE_AUTHORITY_POI, folderId);
 	}
 
-	public Favorite(String fkId, int folderId) {
-		this.type = KEY_TYPE_VALUE_AUTHORITY_POI;
+	@SuppressWarnings("WeakerAccess")
+	public Favorite(int id, @NonNull String fkId, int type, int folderId) {
+		this.id = id;
 		this.fkId = fkId;
+		this.type = type;
 		this.folder_id = folderId;
 	}
 
-	public static Favorite fromCursor(Cursor c) {
-		Favorite favorite = new Favorite();
-		favorite.id = c.getInt(c.getColumnIndexOrThrow(FavoriteColumns.T_FAVORITE_K_ID));
-		favorite.type = c.getInt(c.getColumnIndexOrThrow(FavoriteColumns.T_FAVORITE_K_TYPE));
-		favorite.fkId = c.getString(c.getColumnIndexOrThrow(FavoriteColumns.T_FAVORITE_K_FK_ID));
-		int folderIdColumnInx = c.getColumnIndex(FavoriteColumns.T_FAVORITE_K_FOLDER_ID);
-		if (folderIdColumnInx >= 0) {
-			favorite.folder_id = c.getInt(folderIdColumnInx);
+	@NonNull
+	public static Favorite fromCursor(@NonNull Cursor c) {
+		final int folderId;
+		final int folderIdColumnInx = c.getColumnIndex(FavoriteColumns.T_FAVORITE_K_FOLDER_ID);
+		if (folderIdColumnInx > FavoriteManager.DEFAULT_FOLDER_ID) {
+			folderId = c.getInt(folderIdColumnInx);
 		} else {
-			favorite.folder_id = FavoriteManager.DEFAULT_FOLDER_ID;
+			folderId = FavoriteManager.DEFAULT_FOLDER_ID;
 		}
-		return favorite;
+		return new Favorite(
+				c.getInt(c.getColumnIndexOrThrow(FavoriteColumns.T_FAVORITE_K_ID)),
+				c.getString(c.getColumnIndexOrThrow(FavoriteColumns.T_FAVORITE_K_FK_ID)),
+				c.getInt(c.getColumnIndexOrThrow(FavoriteColumns.T_FAVORITE_K_TYPE)),
+				folderId
+		);
 	}
 
-	public static ContentValues toContentValues(Favorite favorite) {
+	@SuppressWarnings("WeakerAccess")
+	@NonNull
+	public static ContentValues toContentValues(@NonNull Favorite favorite) {
 		ContentValues values = new ContentValues();
-		if (favorite.getId() > 0) {
+		if (favorite.getId() >= 0) {
 			values.put(FavoriteColumns.T_FAVORITE_K_ID, favorite.id);
 		} // ELSE IF no ID yet, let SQLite choose the ID
 		values.put(FavoriteColumns.T_FAVORITE_K_TYPE, favorite.type);
@@ -56,6 +67,7 @@ public class Favorite {
 		return values;
 	}
 
+	@NonNull
 	public ContentValues toContentValues() {
 		return toContentValues(this);
 	}
@@ -64,23 +76,26 @@ public class Favorite {
 		return id;
 	}
 
+	@NonNull
 	public String getFkId() {
 		return fkId;
 	}
+
 	public int getFolderId() {
 		return folder_id;
 	}
 
 	public static class FavoriteFolderNameComparator implements Comparator<POIManager> {
 
-		private SparseArrayCompat<Favorite.Folder> favoriteFolders;
+		@NonNull
+		private final SparseArrayCompat<Favorite.Folder> favoriteFolders;
 
-		public FavoriteFolderNameComparator(SparseArrayCompat<Folder> favoriteFolders) {
+		public FavoriteFolderNameComparator(@NonNull SparseArrayCompat<Folder> favoriteFolders) {
 			this.favoriteFolders = favoriteFolders;
 		}
 
 		@Override
-		public int compare(POIManager lPoim, POIManager rPoim) {
+		public int compare(@NonNull POIManager lPoim, @NonNull POIManager rPoim) {
 			String lFavoriteFolderName = StringUtils.EMPTY;
 			if (FavoriteManager.isFavoriteDataSourceId(lPoim.poi.getDataSourceTypeId())) {
 				int favoriteFolderId = FavoriteManager.extractFavoriteFolderId(lPoim.poi.getDataSourceTypeId());
@@ -99,6 +114,7 @@ public class Favorite {
 		}
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		return Favorite.class.getSimpleName() + "[" + this.id + "," + this.fkId + "," + this.folder_id + "]";
@@ -106,31 +122,33 @@ public class Favorite {
 
 	public static class Folder {
 
+		@NonNull
 		public static FavoriteFolderNameComparator NAME_COMPARATOR = new FavoriteFolderNameComparator();
 
-		private int id = -1;
-		private String name;
+		private final int id;
+		@NonNull
+		private final String name;
 
-		private Folder() {
+		public Folder(@NonNull String name) {
+			this(-1, name);
 		}
 
-		public Folder(String name) {
-			this.name = name;
-		}
-
-		public Folder(int id, String name) {
+		public Folder(int id, @NonNull String name) {
 			this.id = id;
 			this.name = name;
 		}
 
-		public static Favorite.Folder fromCursor(Cursor c) {
-			Favorite.Folder favoriteFolder = new Favorite.Folder();
-			favoriteFolder.id = c.getInt(c.getColumnIndexOrThrow(FavoriteProvider.FavoriteFolderColumns.T_FAVORITE_FOLDER_K_ID));
-			favoriteFolder.name = c.getString(c.getColumnIndexOrThrow(FavoriteProvider.FavoriteFolderColumns.T_FAVORITE_FOLDER_K_NAME));
-			return favoriteFolder;
+		@NonNull
+		public static Favorite.Folder fromCursor(@NonNull Cursor c) {
+			return new Favorite.Folder(
+					c.getInt(c.getColumnIndexOrThrow(FavoriteProvider.FavoriteFolderColumns.T_FAVORITE_FOLDER_K_ID)),
+					c.getString(c.getColumnIndexOrThrow(FavoriteProvider.FavoriteFolderColumns.T_FAVORITE_FOLDER_K_NAME))
+			);
 		}
 
-		public static ContentValues toContentValues(Favorite.Folder favoriteFolder) {
+		@SuppressWarnings("WeakerAccess")
+		@NonNull
+		public static ContentValues toContentValues(@NonNull Favorite.Folder favoriteFolder) {
 			ContentValues values = new ContentValues();
 			if (favoriteFolder.getId() >= 0) {
 				values.put(FavoriteProvider.FavoriteFolderColumns.T_FAVORITE_FOLDER_K_ID, favoriteFolder.id);
@@ -139,6 +157,7 @@ public class Favorite {
 			return values;
 		}
 
+		@NonNull
 		public ContentValues toContentValues() {
 			return toContentValues(this);
 		}
@@ -147,10 +166,12 @@ public class Favorite {
 			return this.id;
 		}
 
+		@NonNull
 		public String getName() {
 			return this.name;
 		}
 
+		@NonNull
 		@Override
 		public String toString() {
 			return "Favorite." + Favorite.Folder.class.getSimpleName() + "[" + this.id + "," + this.name + "]";
@@ -159,7 +180,7 @@ public class Favorite {
 		private static class FavoriteFolderNameComparator implements Comparator<Favorite.Folder> {
 
 			@Override
-			public int compare(Favorite.Folder lFolder, Favorite.Folder rFolder) {
+			public int compare(@Nullable Favorite.Folder lFolder, @Nullable Favorite.Folder rFolder) {
 				String lFolderName = lFolder == null ? StringUtils.EMPTY : lFolder.getName();
 				String rFolderName = rFolder == null ? StringUtils.EMPTY : rFolder.getName();
 				return lFolderName.compareTo(rFolderName);

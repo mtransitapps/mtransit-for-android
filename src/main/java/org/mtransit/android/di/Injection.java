@@ -90,7 +90,7 @@ public class Injection {
 	private static FavoriteRepository favoriteRepository;
 
 	@NonNull
-	private static IApplication providesApplication() {
+	public static IApplication providesApplication() {
 		if (application == null) {
 			synchronized (Injection.class) {
 				if (application == null) {

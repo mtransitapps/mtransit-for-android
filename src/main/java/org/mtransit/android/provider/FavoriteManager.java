@@ -423,6 +423,35 @@ public class FavoriteManager implements MTLog.Loggable {
 		return result;
 	}
 
+	@NonNull
+	public static List<Favorite.Folder> findFoldersList(@NonNull Context context) {
+		List<Favorite.Folder> result = new ArrayList<>();
+		Cursor cursor = null;
+		try {
+			cursor = DataSourceManager.queryContentResolver( //
+					context.getContentResolver(), //
+					getFolderContentUri(context), //
+					FavoriteProvider.PROJECTION_FOLDER, //
+					null, //
+					null, //
+					null //
+			);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					do {
+						Favorite.Folder favoriteFolder = Favorite.Folder.fromCursor(cursor);
+						result.add(favoriteFolder);
+					} while (cursor.moveToNext());
+				}
+			}
+		} catch (Exception e) {
+			MTLog.w(LOG_TAG, e, "Error!");
+		} finally {
+			SqlUtils.closeQuietly(cursor);
+		}
+		return result;
+	}
+
 	public static void showAddFolderDialog(final @NonNull Activity activity,
 										   final @Nullable FavoriteUpdateListener listener,
 										   final @Nullable String optUpdatedFkId,
