@@ -91,19 +91,28 @@ class FavoritesFragment : ABFragment(), UserLocationListener, FavoriteUpdateList
         viewModel.favoritePOIs.observe(viewLifecycleOwner, { favoritePOIS ->
             adapter.setPois(favoritePOIS)
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
-            binding?.loading?.root?.visibility = View.GONE // hide
-            if (favoritePOIS.isEmpty()) { // SHOW EMPTY
-                listBinding?.root?.visibility = View.GONE // hide (if inflated)
-                if (emptyBinding == null) { // IF NOT present/inflated DO
-                    binding?.emptyStub?.inflate() // inflate
+            when {
+                favoritePOIS == null -> { // LOADING
+                    listBinding?.root?.visibility = View.GONE // hide (if inflated)
+                    emptyBinding?.root?.visibility = View.GONE // hide (if inflated)
+                    binding?.loading?.root?.visibility = View.VISIBLE // show
                 }
-                emptyBinding?.root?.visibility = View.VISIBLE // show
-            } else { // SHOW LIST
-                emptyBinding?.root?.visibility = View.GONE // hide (if inflated)
-                if (listBinding == null) { // IF NOT present/inflated DO
-                    binding?.listStub?.inflate()  // inflate
+                favoritePOIS.isEmpty() -> { // EMPTY
+                    binding?.loading?.root?.visibility = View.GONE // hide
+                    listBinding?.root?.visibility = View.GONE // hide (if inflated)
+                    if (emptyBinding == null) { // IF NOT present/inflated DO
+                        binding?.emptyStub?.inflate() // inflate
+                    }
+                    emptyBinding?.root?.visibility = View.VISIBLE // show
                 }
-                listBinding?.root?.visibility = View.VISIBLE // show
+                else -> { // LIST
+                    binding?.loading?.root?.visibility = View.GONE // hide
+                    emptyBinding?.root?.visibility = View.GONE // hide (if inflated)
+                    if (listBinding == null) { // IF NOT present/inflated DO
+                        binding?.listStub?.inflate()  // inflate
+                    }
+                    listBinding?.root?.visibility = View.VISIBLE // show
+                }
             }
         })
         viewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation: Location? ->

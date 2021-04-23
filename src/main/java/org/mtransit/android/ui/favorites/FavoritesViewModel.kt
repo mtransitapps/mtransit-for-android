@@ -57,22 +57,22 @@ class FavoritesViewModel : MTViewModelWithLocation() {
 
     private val _agencies = this.dataSourcesRepository.readingAllAgenciesDistinct()
 
-    val favoritePOIs: LiveData<List<POIManager>> =
+    val favoritePOIs: LiveData<List<POIManager>?> =
         PairMediatorLiveData(_favoriteUpdatedTrigger, _agencies).switchMap { (_, agencies) ->
             liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
                 emit(getFavorites(agencies))
             }
         }
 
-    private fun getFavorites(agencies: List<AgencyProperties>?): List<POIManager> {
+    private fun getFavorites(agencies: List<AgencyProperties>?): List<POIManager>? {
         if (agencies.isNullOrEmpty()) {
             MTLog.d(this, "getFavorites() > SKIP (no agencies)")
-            return emptyList()
+            return null // loading
         }
         val favorites = this.favoriteRepository.findFavorites()
         if (favorites.isNullOrEmpty()) {
             MTLog.d(this, "getFavorites() > SKIP (no favorites)")
-            return emptyList()
+            return emptyList() // empty (no favorites)
         }
         val pois = mutableListOf<POIManager>()
         val authorityToUUIDs = favorites.groupBy({ POI.POIUtils.extractAuthorityFromUUID(it.fkId).orEmpty() }, { it.fkId })

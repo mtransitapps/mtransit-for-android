@@ -17,7 +17,6 @@ import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIArrayAdapter.TypeHeaderButtonsClickListener
-import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentSearchBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.databinding.LayoutPoiListBinding
