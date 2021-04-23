@@ -14,6 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.ContentView;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -25,6 +27,16 @@ import org.mtransit.android.commons.MTLog;
  * NO LOGIC HERE, just logs.
  */
 public abstract class MTFragmentX extends Fragment implements MTLog.Loggable {
+
+	public MTFragmentX() {
+		super();
+	}
+
+	@SuppressWarnings("WeakerAccess")
+	@ContentView
+	public MTFragmentX(@LayoutRes int contentLayoutId) {
+		super(contentLayoutId);
+	}
 
 	@SuppressWarnings("deprecation")
 	@Override

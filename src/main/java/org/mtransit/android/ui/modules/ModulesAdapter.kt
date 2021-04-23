@@ -3,9 +3,9 @@ package org.mtransit.android.ui.modules
 import android.annotation.SuppressLint
 import android.graphics.Typeface
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.mtransit.android.R
@@ -64,7 +64,7 @@ class ModulesAdapter :
                 text = item?.let {
                     "${it.pkg.substringAfter(PKG_COMMON)} r${it.versionCode} v${PackageManagerUtils.getAppVersionName(context, it.pkg)}"
                 }
-                visibility = View.VISIBLE
+                isVisible = true
             }
             item?.let {
                 when {
@@ -77,7 +77,7 @@ class ModulesAdapter :
                         binding.statusLine2.apply {
                             text = "UNKNOWN"
                             setTextColor(ColorUtils.getTextColorPrimary(context))
-                            visibility = View.VISIBLE
+                            isVisible = true
                         }
                     }
                     it.maxValidSec == 0 -> {
@@ -89,7 +89,7 @@ class ModulesAdapter :
                         binding.statusLine2.apply {
                             text = "UNLIMITED"
                             setTextColor(ColorUtils.getTextColorSecondary(context))
-                            visibility = View.VISIBLE
+                            isVisible = true
                         }
                     }
                     else -> {
@@ -139,13 +139,13 @@ class ModulesAdapter :
                         binding.statusLine2.apply {
                             text = FORMAT_DATE.formatThreadSafe(maxValidMs)
                             setTextColor(colorInt)
-                            visibility = View.VISIBLE
+                            isVisible = true
                         }
                     }
                 }
-                binding.status.visibility = View.VISIBLE
+                binding.status.isVisible = true
             } ?: run {
-                binding.status.visibility = View.GONE
+                binding.status.isVisible = false
             }
         }
     }

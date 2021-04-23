@@ -8,6 +8,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import org.mtransit.android.R
@@ -34,11 +35,11 @@ class ModulesFragment : Fragment(), MTLog.Loggable {
         viewModel.agencies.observe(this, { newAgencies ->
             listAdapter.submitList(newAgencies)
             if (newAgencies.isNullOrEmpty()) {
-                binding?.modulesLinearLayout?.visibility = View.GONE
-                binding?.noModulesLayout?.visibility = View.VISIBLE
+                binding?.modulesLinearLayout?.isVisible = false
+                binding?.noModulesLayout?.isVisible = true
             } else {
-                binding?.noModulesLayout?.visibility = View.GONE
-                binding?.modulesLinearLayout?.visibility = View.VISIBLE
+                binding?.noModulesLayout?.isVisible = false
+                binding?.modulesLinearLayout?.isVisible = true
             }
         })
     }

@@ -4,11 +4,10 @@ package org.mtransit.android.ui.search
 import android.content.Context
 import android.location.Location
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import org.mtransit.android.R
 import org.mtransit.android.commons.KeyboardUtils.Companion.hideKeyboard
@@ -26,7 +25,7 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.MTSearchView
 
-class SearchFragment : ABFragment(), UserLocationListener, TypeHeaderButtonsClickListener, OnItemSelectedListener {
+class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListener, TypeHeaderButtonsClickListener, OnItemSelectedListener {
 
     companion object {
         private val LOG_TAG = SearchFragment::class.java.simpleName
@@ -73,34 +72,31 @@ class SearchFragment : ABFragment(), UserLocationListener, TypeHeaderButtonsClic
         this.adapter.setActivity(this)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        super.onCreateView(inflater, container, savedInstanceState)
-        return FragmentSearchBinding.inflate(inflater, container, false).also { newBinding ->
-            newBinding.emptyStub.setOnInflateListener { _, inflated ->
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding = FragmentSearchBinding.bind(view).apply {
+            emptyStub.setOnInflateListener { _, inflated ->
                 emptyBinding = LayoutEmptyBinding.bind(inflated)
             }
-            newBinding.listStub.setOnInflateListener { _, inflated ->
+            listStub.setOnInflateListener { _, inflated ->
                 listBinding = LayoutPoiListBinding.bind(inflated)
             }
-            newBinding.typeFilters.onItemSelectedListener = this
             if (listBinding == null) { // IF NOT present/inflated DO
-                newBinding.listStub.inflate() // inflate
-                listBinding?.root?.visibility = View.GONE // hide by default
+                listStub.inflate() // inflate
+                listBinding?.root?.isVisible = false // hide by default
             }
             listBinding?.let { listView ->
                 adapter.setListView(listView.root)
             }
-            newBinding.typeFilters.adapter = typeFilterAdapter
-            this.binding = newBinding
-        }.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+            typeFilters.apply {
+                onItemSelectedListener = this@SearchFragment
+                adapter = typeFilterAdapter
+            }
+        }
         viewModel.query.observe(viewLifecycleOwner, { query: String? ->
             if (emptyBinding == null) {
                 binding?.emptyStub?.inflate() // inflate
-                emptyBinding?.root?.visibility = View.GONE // hide by default
+                emptyBinding?.root?.isVisible = false // hide by default
             }
             emptyBinding?.emptyText?.text = if (query.isNullOrEmpty()) {
                 getString(R.string.search_hint)
@@ -109,36 +105,35 @@ class SearchFragment : ABFragment(), UserLocationListener, TypeHeaderButtonsClic
             }
             if (query.isNullOrEmpty()) {
                 adapter.setPois(emptyList()) // empty search = no result
-                binding?.loading?.root?.visibility = View.GONE // hide
-                listBinding?.root?.visibility = View.GONE // hide (if inflated)
-                emptyBinding?.root?.visibility = View.VISIBLE // show
+                binding?.loading?.root?.isVisible = false // hide
+                listBinding?.root?.isVisible = false // hide (if inflated)
+                emptyBinding?.root?.isVisible = true // show
             }
-
         })
         viewModel.loading.observe(viewLifecycleOwner, { loading: Boolean ->
             if (loading) {
                 adapter.clear() // mark not initialized == loading
-                listBinding?.root?.visibility = View.GONE // hide (if inflated)
-                emptyBinding?.root?.visibility = View.GONE // hide (if inflated)
-                binding?.loading?.root?.visibility = View.VISIBLE // show
+                listBinding?.root?.isVisible = false // hide (if inflated)
+                emptyBinding?.root?.isVisible = false // hide (if inflated)
+                binding?.loading?.root?.isVisible = true // show
             }
         })
         viewModel.searchResults.observe(viewLifecycleOwner, { searchResults ->
             adapter.setPois(searchResults)
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
-            binding?.loading?.root?.visibility = View.GONE // hide
+            binding?.loading?.root?.isVisible = false // hide
             if (searchResults.isEmpty()) { // SHOW EMPTY
-                listBinding?.root?.visibility = View.GONE // hide (if inflated)
+                listBinding?.root?.isVisible = false // hide (if inflated)
                 if (emptyBinding == null) { // IF NOT present/inflated DO
                     binding?.emptyStub?.inflate() // inflate
                 }
-                emptyBinding?.root?.visibility = View.VISIBLE // show
+                emptyBinding?.root?.isVisible = true // show
             } else { // SHOW LIST
-                emptyBinding?.root?.visibility = View.GONE // hide (if inflated)
+                emptyBinding?.root?.isVisible = false // hide (if inflated)
                 if (listBinding == null) { // IF NOT present/inflated DO
                     binding?.listStub?.inflate()  // inflate
                 }
-                listBinding?.root?.visibility = View.VISIBLE // show
+                listBinding?.root?.isVisible = true // show
             }
         })
         viewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation: Location? ->
@@ -150,7 +145,7 @@ class SearchFragment : ABFragment(), UserLocationListener, TypeHeaderButtonsClic
         viewModel.typeFilter.observe(viewLifecycleOwner, { dst: DataSourceType? ->
             binding?.typeFilters?.apply {
                 setSelection(typeFilterAdapter.getPosition(dst))
-                visibility = if (dst == null) View.GONE else View.VISIBLE
+                isVisible = dst != null
             }
             adapter.setShowTypeHeader(if (dst == null) POIArrayAdapter.TYPE_HEADER_MORE else POIArrayAdapter.TYPE_HEADER_NONE)
         })

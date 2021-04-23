@@ -39,7 +39,6 @@ import org.mtransit.android.analytics.AnalyticsEvents;
 import org.mtransit.android.analytics.AnalyticsEventsParamsProvider;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.common.IContext;
-import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.Constants;
@@ -72,6 +71,7 @@ import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.news.NewsListFragment;
 import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.POINewsViewController;
@@ -803,11 +803,16 @@ public class POIFragment extends ABFragment implements
 					}
 					Integer colorInt = poim.getColor();
 					String subtitle = POIManager.getOneLineDescription(POIFragment.this.dataSourcesRepository, poim.poi);
-					((MainActivity) activity).addFragmentToStack( //
-							NewsFragment.newInstance( //
-									colorInt, subtitle, ArrayUtils.asArrayList(poim.poi.getAuthority()), null,
-									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()), //
-							POIFragment.this);
+					((MainActivity) activity).addFragmentToStack(
+							NewsListFragment.newInstance(
+									colorInt,
+									subtitle,
+									Collections.singletonList(poim.poi.getAuthority()),
+									null,
+									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
+							),
+							POIFragment.this
+					);
 				}
 			});
 			moreBtn.setVisibility(View.VISIBLE);
@@ -931,7 +936,7 @@ public class POIFragment extends ABFragment implements
 						return;
 					}
 					((MainActivity) activity).addFragmentToStack( //
-							NewsDetailsFragment.newInstance(lastNews.getUUID(), lastNews.getAuthority(), lastNews), //
+							NewsDetailsFragment.newInstance(lastNews), //
 							POIFragment.this);
 				}
 			});

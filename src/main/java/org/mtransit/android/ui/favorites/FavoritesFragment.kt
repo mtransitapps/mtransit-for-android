@@ -1,14 +1,14 @@
+@file:JvmName("FavoritesFragment") // ANALYTICS
 package org.mtransit.android.ui.favorites
 
 import android.content.Context
 import android.location.Location
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import org.mtransit.android.R
 import org.mtransit.android.data.POIArrayAdapter
@@ -21,7 +21,7 @@ import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.fragment.ABFragment
 
-class FavoritesFragment : ABFragment(), UserLocationListener, FavoriteUpdateListener {
+class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationListener, FavoriteUpdateListener {
 
     companion object {
         private val LOG_TAG = FavoritesFragment::class.java.simpleName
@@ -63,55 +63,47 @@ class FavoritesFragment : ABFragment(), UserLocationListener, FavoriteUpdateList
         this.adapter.setActivity(this)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        super.onCreateView(inflater, container, savedInstanceState)
-        return onBindingCreated(FragmentFavoritesBinding.inflate(inflater, container, false)).root
-    }
-
-    private fun onBindingCreated(newBinding: FragmentFavoritesBinding): FragmentFavoritesBinding {
-        newBinding.emptyStub.setOnInflateListener { _, inflated ->
-            emptyBinding = LayoutEmptyBinding.bind(inflated)
-        }
-        newBinding.listStub.setOnInflateListener { _, inflated ->
-            listBinding = LayoutPoiListBinding.bind(inflated)
-        }
-        if (listBinding == null) { // IF NOT present/inflated DO
-            newBinding.listStub.inflate() // inflate
-            listBinding?.root?.visibility = View.GONE // hide by default
-        }
-        listBinding?.let { listView ->
-            adapter.setListView(listView.root)
-        }
-        this.binding = newBinding
-        return newBinding
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding = FragmentFavoritesBinding.bind(view).apply {
+            emptyStub.setOnInflateListener { _, inflated ->
+                emptyBinding = LayoutEmptyBinding.bind(inflated)
+            }
+            listStub.setOnInflateListener { _, inflated ->
+                listBinding = LayoutPoiListBinding.bind(inflated)
+            }
+            if (listBinding == null) { // IF NOT present/inflated DO
+                listStub.inflate() // inflate
+                listBinding?.root?.isVisible = false // hide by default
+            }
+            listBinding?.let { listView ->
+                adapter.setListView(listView.root)
+            }
+        }
         viewModel.favoritePOIs.observe(viewLifecycleOwner, { favoritePOIS ->
             adapter.setPois(favoritePOIS)
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
             when {
                 favoritePOIS == null -> { // LOADING
-                    listBinding?.root?.visibility = View.GONE // hide (if inflated)
-                    emptyBinding?.root?.visibility = View.GONE // hide (if inflated)
-                    binding?.loading?.root?.visibility = View.VISIBLE // show
+                    listBinding?.root?.isVisible = false // hide (if inflated)
+                    emptyBinding?.root?.isVisible = false // hide (if inflated)
+                    binding?.loading?.root?.isVisible = true // show
                 }
                 favoritePOIS.isEmpty() -> { // EMPTY
-                    binding?.loading?.root?.visibility = View.GONE // hide
-                    listBinding?.root?.visibility = View.GONE // hide (if inflated)
+                    binding?.loading?.root?.isVisible = false // hide
+                    listBinding?.root?.isVisible = false // hide (if inflated)
                     if (emptyBinding == null) { // IF NOT present/inflated DO
                         binding?.emptyStub?.inflate() // inflate
                     }
-                    emptyBinding?.root?.visibility = View.VISIBLE // show
+                    emptyBinding?.root?.isVisible = true // show
                 }
                 else -> { // LIST
-                    binding?.loading?.root?.visibility = View.GONE // hide
-                    emptyBinding?.root?.visibility = View.GONE // hide (if inflated)
+                    binding?.loading?.root?.isVisible = false // hide
+                    emptyBinding?.root?.isVisible = false // hide (if inflated)
                     if (listBinding == null) { // IF NOT present/inflated DO
                         binding?.listStub?.inflate()  // inflate
                     }
-                    listBinding?.root?.visibility = View.VISIBLE // show
+                    listBinding?.root?.isVisible = true // show
                 }
             }
         })
@@ -127,8 +119,8 @@ class FavoritesFragment : ABFragment(), UserLocationListener, FavoriteUpdateList
     override fun onResume() {
         super.onResume()
         adapter.onResume(this, viewModel.deviceLocation.value)
-        activity?.let {
-            onUserLocationChanged((it as MTActivityWithLocation).lastLocation)
+        (activity as? MTActivityWithLocation)?.let {
+            onUserLocationChanged(it.lastLocation)
         }
     }
 
@@ -147,16 +139,16 @@ class FavoritesFragment : ABFragment(), UserLocationListener, FavoriteUpdateList
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_add_favorite_folder) {
-            FavoriteManager.showAddFolderDialog(requireActivity(), this, null, null)
-            return true
+        return when (item.itemId) {
+            R.id.menu_add_favorite_folder -> {
+                FavoriteManager.showAddFolderDialog(requireActivity(), this, null, null)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 
-    override fun getABTitle(context: Context?): CharSequence? {
-        return context?.let { context.getString(R.string.favorites) } ?: super.getABTitle(context)
-    }
+    override fun getABTitle(context: Context?) = context?.getString(R.string.favorites) ?: super.getABTitle(context)
 
     override fun onDestroyView() {
         super.onDestroyView()

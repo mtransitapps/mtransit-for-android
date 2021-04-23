@@ -56,6 +56,15 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	private static final String EXTRA_NEWS_UUID = "extra_news_uuid";
 
 	@NonNull
+	public static NewsDetailsFragment newInstance(@NonNull News newsArticle) {
+		return newInstance(
+				newsArticle.getUUID(),
+				newsArticle.getAuthority(),
+				newsArticle
+		);
+	}
+
+	@NonNull
 	public static NewsDetailsFragment newInstance(@NonNull String uuid, @NonNull String authority, @Nullable News optNews) {
 		NewsDetailsFragment f = new NewsDetailsFragment();
 		Bundle args = new Bundle();

@@ -1,6 +1,8 @@
 package org.mtransit.android.datasource
 
 import org.mtransit.android.common.IApplication
+import org.mtransit.android.commons.data.News
+import org.mtransit.android.commons.provider.NewsProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceManager
@@ -35,5 +37,9 @@ class DataSourceRequestManager(private val app: IApplication) {
         trigger: Int
     ): AgencyProperties? {
         return DataSourceManager.findAgencyProperties(context, agencyAuthority, agencyType, rts, logo, pkg, longVersionCode, b, trigger)
+    }
+
+    fun findNews(authority: String, newsFilter: NewsProviderContract.Filter? = null): List<News>? {
+        return DataSourceManager.findNews(context, authority, newsFilter)
     }
 }

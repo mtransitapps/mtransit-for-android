@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:fontFamily="sans-serif-condensed"
         android:maxLines="1"
         android:paddingLeft="1dp"
@@ -36,7 +36,6 @@
         android:textStyle="bold"
         tools:text="AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR AUTHOR" />
 
-    <!-- NAME -->
     <TextView
         android:id="@+id/newsText"
         android:layout_width="match_parent"

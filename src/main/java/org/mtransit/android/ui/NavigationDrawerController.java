@@ -41,7 +41,7 @@ import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 import org.mtransit.android.ui.fragment.HomeFragment;
 import org.mtransit.android.ui.fragment.MapFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
-import org.mtransit.android.ui.fragment.NewsFragment;
+import org.mtransit.android.ui.news.NewsListFragment;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.MapUtils;
 
@@ -489,7 +489,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		} else if (navItemId == R.id.nav_map) {
 			return MapFragment.newInstance(null, null, null);
 		} else if (navItemId == R.id.nav_news) {
-			return NewsFragment.newInstance(null, null, null, null, null);
+			return NewsListFragment.newInstance();
 		}
 		DataSourceType dst = DataSourceType.parseNavResId(navItemId);
 		if (dst != null) {
