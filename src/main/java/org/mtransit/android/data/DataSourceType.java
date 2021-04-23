@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 
 import org.mtransit.android.R;
+import org.mtransit.android.common.IApplication;
 import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.datasource.DataSourcesRepository;
@@ -269,18 +270,18 @@ public enum DataSourceType {
 	public static class POIManagerTypeShortNameComparator implements Comparator<POIManager> {
 
 		@NonNull
-		private final WeakReference<Context> contextWR;
+		private final IApplication app;
 		@NonNull
 		private final DataSourcesRepository dataSourcesRepository;
 
-		public POIManagerTypeShortNameComparator(@NonNull Context context, @NonNull DataSourcesRepository dataSourcesRepository) {
-			this.contextWR = new WeakReference<>(context);
+		public POIManagerTypeShortNameComparator(@NonNull IApplication app, @NonNull DataSourcesRepository dataSourcesRepository) {
+			this.app = app;
 			this.dataSourcesRepository = dataSourcesRepository;
 		}
 
 		@Override
 		public int compare(@NonNull POIManager lPoim, @NonNull POIManager rPoim) {
-			final Context context = this.contextWR.get();
+			final Context context = this.app.getContext();
 			if (context == null) {
 				return 0;
 			}

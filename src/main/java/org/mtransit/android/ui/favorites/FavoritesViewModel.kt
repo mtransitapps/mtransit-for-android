@@ -6,7 +6,6 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import org.mtransit.android.common.IApplication
 import org.mtransit.android.commons.ComparatorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.StringUtils
@@ -34,20 +33,13 @@ class FavoritesViewModel : MTViewModelWithLocation() {
 
     override fun getLogTag(): String = LOG_TAG
 
-    private val app: IApplication by lazy { Injection.providesApplication() }
-
     private val dataSourcesRepository: DataSourcesRepository by lazy { Injection.providesDataSourcesRepository() }
 
     private val dataSourceRequestManager: DataSourceRequestManager by lazy { Injection.providesDataSourceRequestManager() }
 
     private val favoriteRepository: FavoriteRepository by lazy { Injection.providesFavoriteRepository() }
 
-    private val poiTypeShortNameComparator: POIManagerTypeShortNameComparator by lazy {
-        POIManagerTypeShortNameComparator(
-            this.app.requireContext(),
-            this.dataSourcesRepository
-        )
-    }
+    private val poiTypeShortNameComparator: POIManagerTypeShortNameComparator by lazy { Injection.providesPOIManagerTypeShortNameComparator() }
 
     fun onFavoriteUpdated() {
         _favoriteUpdatedTrigger.value = (_favoriteUpdatedTrigger.value ?: 0) + 1

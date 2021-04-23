@@ -13,6 +13,7 @@ import org.mtransit.android.billing.IBillingManager;
 import org.mtransit.android.billing.MTBillingManager;
 import org.mtransit.android.common.IApplication;
 import org.mtransit.android.common.repository.LocalPreferenceRepository;
+import org.mtransit.android.data.DataSourceType.POIManagerTypeShortNameComparator;
 import org.mtransit.android.datasource.DataSourceRequestManager;
 import org.mtransit.android.datasource.DataSourcesCache;
 import org.mtransit.android.datasource.DataSourcesDatabase;
@@ -89,8 +90,11 @@ public class Injection {
 	@Nullable
 	private static FavoriteRepository favoriteRepository;
 
+	@Nullable
+	private static POIManagerTypeShortNameComparator poiManagerTypeShortNameComparator;
+
 	@NonNull
-	public static IApplication providesApplication() {
+	private static IApplication providesApplication() {
 		if (application == null) {
 			synchronized (Injection.class) {
 				if (application == null) {
@@ -341,4 +345,18 @@ public class Injection {
 		return favoriteRepository;
 	}
 
+	@NonNull
+	public static POIManagerTypeShortNameComparator providesPOIManagerTypeShortNameComparator() {
+		if (poiManagerTypeShortNameComparator == null) {
+			synchronized (Injection.class) {
+				if (poiManagerTypeShortNameComparator == null) {
+					poiManagerTypeShortNameComparator = new POIManagerTypeShortNameComparator(
+							providesApplication(),
+							providesDataSourcesRepository()
+					);
+				}
+			}
+		}
+		return poiManagerTypeShortNameComparator;
+	}
 }
