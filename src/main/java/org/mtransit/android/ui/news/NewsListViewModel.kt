@@ -61,8 +61,13 @@ class NewsListViewModel(savedStateHandle: SavedStateHandle) : ViewModel(), MTLog
         _refreshRequestedTrigger.value = (_refreshRequestedTrigger.value ?: 0) + 1
     }
 
+    private val _loading = MutableLiveData(true)
+
+    val loading: LiveData<Boolean> = _loading
+
     val newsArticles: LiveData<List<News>?> =
         TripleMediatorLiveData(_allNewsProviders, _filters, _refreshRequestedTrigger).switchMap { (allNewsProviders, filters) ->
+            _loading.value = true
             liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
                 emit(
                     getNewsArticles(
@@ -87,12 +92,16 @@ class NewsListViewModel(savedStateHandle: SavedStateHandle) : ViewModel(), MTLog
         }
         val newsArticles = mutableListOf<News>()
 
-        val filter = if (!filterUUIDs.isNullOrEmpty()) {
-            NewsProviderContract.Filter.getNewUUIDsFilter(filterUUIDs)
-        } else if (!filterTargets.isNullOrEmpty()) {
-            NewsProviderContract.Filter.getNewTargetsFilter(filterTargets)
-        } else {
-            NewsProviderContract.Filter.getNewEmptyFilter()
+        val filter = when {
+            !filterUUIDs.isNullOrEmpty() -> {
+                NewsProviderContract.Filter.getNewUUIDsFilter(filterUUIDs)
+            }
+            !filterTargets.isNullOrEmpty() -> {
+                NewsProviderContract.Filter.getNewTargetsFilter(filterTargets)
+            }
+            else -> {
+                NewsProviderContract.Filter.getNewEmptyFilter()
+            }
         }
 
         val newsUUIDs = mutableSetOf<String>() // found articles (duplicate can occurs between similar providers in big cities)
@@ -108,6 +117,7 @@ class NewsListViewModel(savedStateHandle: SavedStateHandle) : ViewModel(), MTLog
             }
         }
         newsArticles.sortWith(News.NEWS_COMPARATOR)
+        _loading.postValue(false)
         MTLog.d(this, "getNewsArticles() > ${newsArticles.size}")
         return newsArticles
     }

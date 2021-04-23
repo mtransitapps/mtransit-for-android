@@ -106,24 +106,14 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
         viewModel.colorInt.observe(viewLifecycleOwner, {
             abController?.setABBgColor(this, getABBgColor(context), false)
         })
+        viewModel.loading.observe(viewLifecycleOwner, { loading ->
+            binding?.refreshLayout?.isRefreshing = loading
+        })
         viewModel.newsArticles.observe(viewLifecycleOwner, { newsArticles ->
             listAdapter.submitList(newsArticles)
-            when {
-                newsArticles == null -> { // LOADING
-                    binding?.newsContainerLayout?.noNewsLayout?.isVisible = false
-                    binding?.newsContainerLayout?.newsLinearLayout?.isVisible = false
-                    binding?.refreshLayout?.isRefreshing = true
-                }
-                newsArticles.isEmpty() -> { // NONE
-                    binding?.refreshLayout?.isRefreshing = false
-                    binding?.newsContainerLayout?.newsLinearLayout?.isVisible = false
-                    binding?.newsContainerLayout?.noNewsLayout?.isVisible = true
-                }
-                else -> { // LIST
-                    binding?.refreshLayout?.isRefreshing = false
-                    binding?.newsContainerLayout?.noNewsLayout?.isVisible = false
-                    binding?.newsContainerLayout?.newsLinearLayout?.isVisible = true
-                }
+            binding?.newsContainerLayout?.apply {
+                newsLinearLayout.isVisible = !newsArticles.isNullOrEmpty()
+                noNewsLayout.isVisible = newsArticles.isNullOrEmpty()
             }
         })
     }
@@ -146,6 +136,7 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding?.refreshLayout?.setOnRefreshListener(null)
         binding = null
     }
 
