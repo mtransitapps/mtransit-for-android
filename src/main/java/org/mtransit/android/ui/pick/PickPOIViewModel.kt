@@ -1,0 +1,90 @@
+package org.mtransit.android.ui.pick
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.liveData
+import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.data.POIManager
+import org.mtransit.android.datasource.DataSourceRequestManager
+import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.di.Injection
+import org.mtransit.android.ui.MTViewModelWithLocation
+import org.mtransit.android.ui.favorites.FavoritesViewModel
+import org.mtransit.android.ui.view.common.Event
+import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import java.util.ArrayList
+import kotlin.math.min
+
+class PickPOIViewModel(savedStateHandle: SavedStateHandle) : MTViewModelWithLocation() {
+
+    companion object {
+        private val LOG_TAG = PickPOIViewModel::class.java.simpleName
+
+        const val EXTRA_POI_UUIDS = "extra_poi_uuids"
+        const val EXTRA_POI_AUTHORITIES = "extra_poi_authorities"
+
+        private val POI_ALPHA_COMPARATOR = FavoritesViewModel.POIAlphaComparator()
+    }
+
+    override fun getLogTag(): String = LOG_TAG
+
+    private val dataSourcesRepository: DataSourcesRepository by lazy { Injection.providesDataSourcesRepository() }
+
+    private val dataSourceRequestManager: DataSourceRequestManager by lazy { Injection.providesDataSourceRequestManager() }
+
+    private val _uuids: LiveData<ArrayList<String>?> =
+        savedStateHandle.getLiveData<ArrayList<String>?>(EXTRA_POI_UUIDS).distinctUntilChanged()
+
+    private val _authorities: LiveData<ArrayList<String>?> =
+        savedStateHandle.getLiveData<ArrayList<String>?>(EXTRA_POI_AUTHORITIES).distinctUntilChanged()
+
+    private val _allAgencyAuthorities = dataSourcesRepository.readingAllAgencyAuthorities()
+
+    val dataSourceRemovedEvent: LiveData<Event<Boolean?>> =
+        PairMediatorLiveData(_authorities, _allAgencyAuthorities).switchMap { (authorities, allAgencyAuthorities) ->
+            liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+                emit(Event(checkForDataSourceRemoved(authorities, allAgencyAuthorities)))
+            }
+        }
+
+    private fun checkForDataSourceRemoved(authorities: List<String>?, allAgencyAuthorities: List<String>?): Boolean? {
+        if (authorities == null || allAgencyAuthorities == null) {
+            return null // SKIP
+        }
+        authorities.firstOrNull { !allAgencyAuthorities.contains(it) }?.let {
+            MTLog.d(this, "Authority $it doesn't exist anymore, dismissing dialog.")
+            return true
+        }
+        return false
+    }
+
+    val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(_uuids, _authorities).switchMap { (uuids, authorities) ->
+        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+            emit(getPOIList(uuids, authorities))
+        }
+    }
+
+    private fun getPOIList(uuids: List<String>?, authorities: List<String>?): List<POIManager>? {
+        if (uuids == null || authorities == null) {
+            return null
+        }
+        val size = min(uuids.size, authorities.size)
+        val authorityToUUIDs = mutableMapOf<String, MutableList<String>>()
+        for (i in 0 until size) {
+            authorityToUUIDs.getOrPut(authorities[i]) { mutableListOf() }.add(uuids[i])
+        }
+        val poiList = mutableListOf<POIManager>()
+        authorityToUUIDs.forEach { (authority, uuids) ->
+            dataSourceRequestManager.findPOIs(authority, POIProviderContract.Filter.getNewUUIDsFilter(uuids))?.let {
+                poiList.addAll(it)
+            }
+        }
+        poiList.sortWith(POI_ALPHA_COMPARATOR)
+        return poiList
+    }
+}

@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,10 +28,20 @@ import org.mtransit.android.commons.MTLog;
 /**
  * NO LOGIC HERE, just logs.
  */
+@SuppressWarnings("deprecation")
 public abstract class MTDialogFragmentX extends DialogFragment implements MTLog.Loggable {
 
 	public MTDialogFragmentX() {
 		super();
+		if (Constants.LOG_LIFECYCLE) {
+			MTLog.v(this, "%s()", getLogTag());
+		}
+	}
+
+	// ACTUALLY NOT WORKING (requires custom FragmentFactory)
+	@SuppressWarnings("unused")
+	private MTDialogFragmentX(@LayoutRes int contentLayoutId) {
+		super(contentLayoutId);
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "%s()", getLogTag());
 		}
@@ -94,7 +105,6 @@ public abstract class MTDialogFragmentX extends DialogFragment implements MTLog.
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onAttach(@NonNull Activity activity) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -161,7 +171,6 @@ public abstract class MTDialogFragmentX extends DialogFragment implements MTLog.
 		super.onDetach();
 	}
 
-	@SuppressWarnings("deprecation")
 	@UiThread
 	@CallSuper
 	@Override

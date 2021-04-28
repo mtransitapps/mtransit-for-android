@@ -51,7 +51,7 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.MainActivity;
-import org.mtransit.android.ui.fragment.PickPOIDialogFragment;
+import org.mtransit.android.ui.pick.PickPOIDialogFragment;
 import org.mtransit.android.ui.view.map.ClusteringSettings;
 import org.mtransit.android.ui.view.map.ExtendedGoogleMap;
 import org.mtransit.android.ui.view.map.ExtendedMarkerOptions;

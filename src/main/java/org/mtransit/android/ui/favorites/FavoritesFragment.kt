@@ -8,6 +8,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.AbsListView
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import org.mtransit.android.R
@@ -72,12 +73,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
             listStub.setOnInflateListener { _, inflated ->
                 listBinding = LayoutPoiListBinding.bind(inflated)
             }
-            if (listBinding == null) { // IF NOT present/inflated DO
-                listStub.inflate() // inflate
-                listBinding?.root?.isVisible = false // hide by default
-            }
-            listBinding?.let { listView ->
-                adapter.setListView(listView.root)
+            (listBinding?.root ?: listStub.inflate() as AbsListView).let { listView ->
+                listView.isVisible = false // hide by default
+                adapter.setListView(listView)
             }
         }
         viewModel.favoritePOIs.observe(viewLifecycleOwner, { favoritePOIS ->
@@ -85,29 +83,23 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
             when {
                 favoritePOIS == null -> { // LOADING
-                    listBinding?.root?.isVisible = false // hide (if inflated)
-                    emptyBinding?.root?.isVisible = false // hide (if inflated)
-                    binding?.loading?.root?.isVisible = true // show
+                    listBinding?.root?.isVisible = false
+                    emptyBinding?.root?.isVisible = false
+                    binding?.loading?.root?.isVisible = true
                 }
                 favoritePOIS.isEmpty() -> { // EMPTY
-                    binding?.loading?.root?.isVisible = false // hide
-                    listBinding?.root?.isVisible = false // hide (if inflated)
-                    if (emptyBinding == null) { // IF NOT present/inflated DO
-                        binding?.emptyStub?.inflate() // inflate
-                    }
-                    emptyBinding?.root?.isVisible = true // show
+                    binding?.loading?.root?.isVisible = false
+                    listBinding?.root?.isVisible = false
+                    (emptyBinding?.root ?: binding?.emptyStub?.inflate())?.isVisible = true
                 }
                 else -> { // LIST
-                    binding?.loading?.root?.isVisible = false // hide
-                    emptyBinding?.root?.isVisible = false // hide (if inflated)
-                    if (listBinding == null) { // IF NOT present/inflated DO
-                        binding?.listStub?.inflate()  // inflate
-                    }
-                    listBinding?.root?.isVisible = true // show
+                    binding?.loading?.root?.isVisible = false
+                    emptyBinding?.root?.isVisible = false
+                    (listBinding?.root ?: binding?.listStub?.inflate())?.isVisible = true
                 }
             }
         })
-        viewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation: Location? ->
+        viewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation ->
             adapter.setLocation(deviceLocation)
         })
     }

@@ -5,6 +5,7 @@ import android.content.Context
 import android.location.Location
 import android.os.Bundle
 import android.view.View
+import android.widget.AbsListView
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.core.view.isVisible
@@ -81,23 +82,17 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
             listStub.setOnInflateListener { _, inflated ->
                 listBinding = LayoutPoiListBinding.bind(inflated)
             }
-            if (listBinding == null) { // IF NOT present/inflated DO
-                listStub.inflate() // inflate
-                listBinding?.root?.isVisible = false // hide by default
-            }
-            listBinding?.let { listView ->
-                adapter.setListView(listView.root)
+            (listBinding?.root ?: listStub.inflate() as AbsListView).let { listView ->
+                listView.isVisible = false // hide by default
+                adapter.setListView(listView)
             }
             typeFilters.apply {
                 onItemSelectedListener = this@SearchFragment
                 adapter = typeFilterAdapter
             }
         }
-        viewModel.query.observe(viewLifecycleOwner, { query: String? ->
-            if (emptyBinding == null) {
-                binding?.emptyStub?.inflate() // inflate
-                emptyBinding?.root?.isVisible = false // hide by default
-            }
+        viewModel.query.observe(viewLifecycleOwner, { query ->
+            (emptyBinding?.root ?: binding?.emptyStub?.inflate())?.isVisible = false // hide by default
             emptyBinding?.emptyText?.text = if (query.isNullOrEmpty()) {
                 getString(R.string.search_hint)
             } else {
@@ -110,7 +105,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
                 emptyBinding?.root?.isVisible = true // show
             }
         })
-        viewModel.loading.observe(viewLifecycleOwner, { loading: Boolean ->
+        viewModel.loading.observe(viewLifecycleOwner, { loading ->
             if (loading) {
                 adapter.clear() // mark not initialized == loading
                 listBinding?.root?.isVisible = false // hide (if inflated)
@@ -121,28 +116,22 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
         viewModel.searchResults.observe(viewLifecycleOwner, { searchResults ->
             adapter.setPois(searchResults)
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
-            binding?.loading?.root?.isVisible = false // hide
+            binding?.loading?.root?.isVisible = false
             if (searchResults.isEmpty()) { // SHOW EMPTY
-                listBinding?.root?.isVisible = false // hide (if inflated)
-                if (emptyBinding == null) { // IF NOT present/inflated DO
-                    binding?.emptyStub?.inflate() // inflate
-                }
-                emptyBinding?.root?.isVisible = true // show
+                listBinding?.root?.isVisible = false
+                (emptyBinding?.root ?: binding?.emptyStub?.inflate())?.isVisible = true
             } else { // SHOW LIST
-                emptyBinding?.root?.isVisible = false // hide (if inflated)
-                if (listBinding == null) { // IF NOT present/inflated DO
-                    binding?.listStub?.inflate()  // inflate
-                }
-                listBinding?.root?.isVisible = true // show
+                emptyBinding?.root?.isVisible = false
+                (listBinding?.root ?: binding?.listStub?.inflate())?.isVisible = true
             }
         })
-        viewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation: Location? ->
+        viewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation ->
             adapter.setLocation(deviceLocation)
         })
-        viewModel.searchableDataSourceTypes.observe(viewLifecycleOwner, { dstList: List<DataSourceType> ->
+        viewModel.searchableDataSourceTypes.observe(viewLifecycleOwner, { dstList ->
             typeFilterAdapter.setData(dstList)
         })
-        viewModel.typeFilter.observe(viewLifecycleOwner, { dst: DataSourceType? ->
+        viewModel.typeFilter.observe(viewLifecycleOwner, { dst ->
             binding?.typeFilters?.apply {
                 setSelection(typeFilterAdapter.getPosition(dst))
                 isVisible = dst != null
