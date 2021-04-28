@@ -72,6 +72,7 @@ import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.news.NewsListFragment;
+import org.mtransit.android.ui.schedule.ScheduleFragment;
 import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.POINewsViewController;
@@ -771,7 +772,6 @@ public class POIFragment extends ABFragment implements
 								ScheduleFragment.newInstance(
 										POIFragment.this.uuid,
 										POIFragment.this.authority,
-										(RouteTripStop) poim.poi,
 										poim.getColor()
 								), //
 								POIFragment.this);

@@ -26,19 +26,19 @@ import org.mtransit.android.commons.MTLog;
 /**
  * NO LOGIC HERE, just logs.
  */
+@SuppressWarnings("deprecation")
 public abstract class MTFragmentX extends Fragment implements MTLog.Loggable {
 
 	public MTFragmentX() {
 		super();
 	}
 
-	@SuppressWarnings("WeakerAccess")
 	@ContentView
 	public MTFragmentX(@LayoutRes int contentLayoutId) {
 		super(contentLayoutId);
 	}
 
-	@SuppressWarnings("deprecation")
+	@Deprecated
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -47,7 +47,7 @@ public abstract class MTFragmentX extends Fragment implements MTLog.Loggable {
 		super.onActivityCreated(savedInstanceState);
 	}
 
-	@SuppressWarnings("deprecation")
+	@Deprecated
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -56,7 +56,7 @@ public abstract class MTFragmentX extends Fragment implements MTLog.Loggable {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	@SuppressWarnings("deprecation")
+	@Deprecated
 	@Override
 	public void onAttach(@NonNull Activity activity) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -122,7 +122,7 @@ public abstract class MTFragmentX extends Fragment implements MTLog.Loggable {
 		super.onDetach();
 	}
 
-	@SuppressWarnings("deprecation")
+	@Deprecated
 	@Override
 	public void onInflate(@NonNull Activity activity, @NonNull AttributeSet attrs, @Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {

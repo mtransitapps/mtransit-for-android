@@ -1,31 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingTop="@dimen/action_bar_size_static" >
+    android:paddingTop="@dimen/action_bar_size_static">
     <!-- LOADING -->
     <include
         android:id="@+id/loading"
+        layout="@layout/layout_loading_large"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        layout="@layout/layout_loading_large"
         android:visibility="visible" />
     <!-- VIEWPAGER -->
-    <androidx.viewpager.widget.ViewPager
+    <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
         android:visibility="gone"
-        tools:context="org.mtransit.android.MainActivity" />
-    <!-- EMPTY -->
-    <ViewStub
-        android:id="@+id/empty_stub"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:inflatedId="@+id/empty"
-        android:layout="@layout/layout_empty"
-        android:visibility="gone" />
+        tools:context="org.mtransit.android.MainActivity"
+        tools:visibility="visible" />
 </LinearLayout>

@@ -553,6 +553,16 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	@NonNull
 	public static String getOneLineDescription(@NonNull DataSourcesRepository dataSourcesRepository,
 											   @NonNull POI poi) {
+		return getOneLineDescription(
+				dataSourcesRepository.getAgency(poi.getAuthority()),
+				poi
+		);
+	}
+
+	@MainThread
+	@NonNull
+	public static String getOneLineDescription(@Nullable AgencyProperties agency,
+											   @NonNull POI poi) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(poi.getName());
 		if (poi instanceof RouteTripStop) {
@@ -569,7 +579,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				sb.append(rts.getRoute().getLongName());
 			}
 		}
-		AgencyProperties agency = dataSourcesRepository.getAgency(poi.getAuthority());
 		if (agency != null) {
 			if (sb.length() > 0) {
 				sb.append(StringUtils.SPACE_STRING).append("-").append(StringUtils.SPACE_STRING);

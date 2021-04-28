@@ -2,12 +2,10 @@
 package org.mtransit.android.ui.modules
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -15,7 +13,7 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.databinding.FragmentModulesBinding
 
-class ModulesFragment : Fragment(), MTLog.Loggable {
+class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = ModulesFragment::class.java.simpleName
@@ -44,19 +42,10 @@ class ModulesFragment : Fragment(), MTLog.Loggable {
         })
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentModulesBinding.inflate(inflater, container, false)
-        return binding?.root
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupListAdapter()
-    }
-
-    private fun setupListAdapter() {
-        binding?.modulesList?.let {
-            it.adapter = listAdapter
+        binding = FragmentModulesBinding.bind(view).apply {
+            modulesList.adapter = listAdapter
         }
     }
 

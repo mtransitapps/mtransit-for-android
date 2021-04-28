@@ -2,8 +2,10 @@ package org.mtransit.android.datasource
 
 import org.mtransit.android.common.IApplication
 import org.mtransit.android.commons.data.News
+import org.mtransit.android.commons.data.ScheduleTimestamps
 import org.mtransit.android.commons.provider.NewsProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceManager
 import org.mtransit.android.data.DataSourceType
@@ -13,6 +15,10 @@ import org.mtransit.android.data.POIManager
 class DataSourceRequestManager(private val app: IApplication) {
 
     private val context get() = app.requireContext()
+
+    fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POIManager? {
+        return DataSourceManager.findPOI(context, authority, poiFilter)
+    }
 
     fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POIManager>? {
         return DataSourceManager.findPOIs(context, authority, poiFilter)
@@ -37,6 +43,10 @@ class DataSourceRequestManager(private val app: IApplication) {
         trigger: Int
     ): AgencyProperties? {
         return DataSourceManager.findAgencyProperties(context, agencyAuthority, agencyType, rts, logo, pkg, longVersionCode, b, trigger)
+    }
+
+    fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?): ScheduleTimestamps? {
+        return DataSourceManager.findScheduleTimestamps(context, authority, scheduleTimestampsFilter)
     }
 
     fun findNews(authority: String, newsFilter: NewsProviderContract.Filter? = null): List<News>? {

@@ -132,7 +132,11 @@ class DataSourcesRepository(
 
     fun getScheduleProviders(targetAuthority: String) = this._scheduleProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
 
+    fun readingScheduleProviders(targetAuthority: String) = dataSourcesCache.readingScheduleProviders(targetAuthority)
+
     fun getScheduleProvider(authority: String) = this._scheduleProviderProperties.singleOrNull { it.authority == authority }
+
+    fun readingScheduleProvider(authority: String) = dataSourcesCache.readingScheduleProvider(authority)
 
     // SERVICE UPDATE
 

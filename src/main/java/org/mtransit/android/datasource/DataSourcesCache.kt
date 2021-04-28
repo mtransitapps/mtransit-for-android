@@ -53,9 +53,13 @@ class DataSourcesCache(private val dataSourcesDatabase: DataSourcesDatabase) {
 
     fun readingAllScheduleProviders() = scheduleProviderPropertiesDao().readingAllScheduleProvider()
 
-    fun getScheduleProviders(targetAuthority: String) = scheduleProviderPropertiesDao().getTargetAuthorityScheduleProvider(targetAuthority)
+    fun getScheduleProviders(targetAuthority: String) = scheduleProviderPropertiesDao().getTargetAuthorityScheduleProviders(targetAuthority)
+
+    fun readingScheduleProviders(targetAuthority: String) = scheduleProviderPropertiesDao().readingTargetAuthorityScheduleProviders(targetAuthority)
 
     fun getScheduleProvider(authority: String) = scheduleProviderPropertiesDao().getScheduleProvider(authority)
+
+    fun readingScheduleProvider(authority: String) = scheduleProviderPropertiesDao().readingScheduleProvider(authority)
 
     // SERVICE UPDATE
 

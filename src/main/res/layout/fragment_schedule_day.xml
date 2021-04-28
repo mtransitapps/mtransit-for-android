@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -21,7 +22,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
-
         <!-- LOADING -->
         <include
             android:id="@+id/loading"
@@ -29,26 +29,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="visible" />
-
         <!-- LIST -->
-        <ViewStub
-            android:id="@+id/list_stub"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/times_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout="@layout/layout_time_list"
-            android:visibility="gone" />
+            android:visibility="gone"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/layout_poi_detail_status_schedule_time"
+            tools:visibility="visible" />
 
         <include layout="@layout/layout_shadow" />
-
-        <!-- EMPTY -->
-        <ViewStub
-            android:id="@+id/empty_stub"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:inflatedId="@+id/empty"
-            android:layout="@layout/layout_empty"
-            android:visibility="gone" />
-
     </FrameLayout>
-
 </LinearLayout>
