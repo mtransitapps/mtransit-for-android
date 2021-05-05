@@ -32,13 +32,8 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
         setHasOptionsMenu(true)
         viewModel.agencies.observe(this, { newAgencies ->
             listAdapter.submitList(newAgencies)
-            if (newAgencies.isNullOrEmpty()) {
-                binding?.modulesLinearLayout?.isVisible = false
-                binding?.noModulesLayout?.isVisible = true
-            } else {
-                binding?.noModulesLayout?.isVisible = false
-                binding?.modulesLinearLayout?.isVisible = true
-            }
+            binding?.modulesLinearLayout?.isVisible = !newAgencies.isNullOrEmpty()
+            binding?.noModulesLayout?.isVisible = newAgencies.isNullOrEmpty()
         })
     }
 

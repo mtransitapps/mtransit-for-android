@@ -36,6 +36,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		return TAG;
 	}
 
+	@Nullable
 	private WeakReference<MainActivity> mainActivityWR;
 
 	private boolean fragmentReady = false;
@@ -47,6 +48,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	@ColorInt
 	private Integer fragmentBgColor = null;
 
+	@Nullable
 	private View fragmentCustomView = null;
 
 	private boolean fragmentCustomViewFocusable = false;
@@ -57,16 +59,17 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
 	private boolean fragmentShowSearchMenuItem = ABFragment.DEFAULT_SHOW_SEARCH_MENU_ITEM;
 
+	@Nullable
 	private UpOnClickListener upOnClickListener;
 
 	private ColorDrawable bgDrawable;
 
-	public ActionBarController(MainActivity mainActivity) {
+	public ActionBarController(@Nullable MainActivity mainActivity) {
 		setMainActivity(mainActivity);
 		init();
 	}
 
-	public void setMainActivity(MainActivity mainActivity) {
+	public void setMainActivity(@Nullable MainActivity mainActivity) {
 		this.mainActivityWR = new WeakReference<>(mainActivity);
 	}
 
@@ -79,10 +82,12 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		return getMainActivityOrNull();
 	}
 
+	@Nullable
 	private MainActivity getMainActivityOrNull() {
 		return this.mainActivityWR == null ? null : this.mainActivityWR.get();
 	}
 
+	@Nullable
 	private ActionBar getABOrNull() {
 		MainActivity mainActivity = getMainActivityOrNull();
 		return mainActivity == null ? null : mainActivity.getSupportActionBar();
@@ -91,7 +96,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	private final Handler handler = new Handler();
 
 	@Override
-	public void invalidateDrawable(Drawable who) {
+	public void invalidateDrawable(@Nullable Drawable who) {
 		ActionBar ab = getABOrNull();
 		if (ab != null) {
 			ab.setBackgroundDrawable(who);
@@ -99,12 +104,12 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	@Override
-	public void scheduleDrawable(Drawable who, Runnable what, long when) {
+	public void scheduleDrawable(@NonNull Drawable who, @NonNull Runnable what, long when) {
 		this.handler.postAtTime(what, when);
 	}
 
 	@Override
-	public void unscheduleDrawable(Drawable who, Runnable what) {
+	public void unscheduleDrawable(@NonNull Drawable who, @NonNull Runnable what) {
 		this.handler.removeCallbacks(what);
 	}
 
@@ -149,12 +154,13 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		this.fragmentReady = fragmentReady;
 	}
 
-	private boolean isCurrentFragmentVisible(Fragment source) {
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+	private boolean isCurrentFragmentVisible(@Nullable Fragment source) {
 		MainActivity mainActivity = getMainActivityOrNull();
 		return mainActivity != null && mainActivity.isCurrentFragmentVisible(source);
 	}
 
-	public void setABReady(Fragment source, boolean ready, boolean update) {
+	public void setABReady(@Nullable Fragment source, boolean ready, boolean update) {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
@@ -164,7 +170,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
-	public void setABTitle(Fragment source, CharSequence title, boolean update) {
+	public void setABTitle(@Nullable Fragment source, @Nullable CharSequence title, boolean update) {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
@@ -174,7 +180,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
-	public void setABSubtitle(Fragment source, CharSequence subtitle, boolean update) {
+	public void setABSubtitle(@Nullable Fragment source, @Nullable CharSequence subtitle, boolean update) {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
@@ -184,7 +190,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
-	public void setABBgColor(Fragment source, @ColorInt Integer bgColor, boolean update) {
+	public void setABBgColor(@Nullable Fragment source, @ColorInt @Nullable Integer bgColor, boolean update) {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
@@ -194,7 +200,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
-	public void setABCustomView(Fragment source, View customView, boolean update) {
+	public void setABCustomView(@Nullable Fragment source, @Nullable View customView, boolean update) {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
@@ -204,7 +210,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
-	public void setABCustomViewFocusable(Fragment source, boolean fragmentCustomViewFocusable, boolean update) {
+	public void setABCustomViewFocusable(@Nullable Fragment source, boolean fragmentCustomViewFocusable, boolean update) {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
@@ -214,7 +220,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
-	public void setABCustomViewRequestFocus(Fragment source, boolean fragmentCustomViewRequestFocus, boolean update) {
+	public void setABCustomViewRequestFocus(@Nullable Fragment source, boolean fragmentCustomViewRequestFocus, boolean update) {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
@@ -224,7 +230,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
-	public void setABDisplayHomeAsUpEnabled(Fragment source, boolean displayHomeAsUpEnabled, boolean update) {
+	public void setABDisplayHomeAsUpEnabled(@Nullable Fragment source, boolean displayHomeAsUpEnabled, boolean update) {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
@@ -234,7 +240,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
-	public void setABShowSearchMenuItem(Fragment source, boolean showSearchMenuItem, boolean update) {
+	public void setABShowSearchMenuItem(@Nullable Fragment source, boolean showSearchMenuItem, boolean update) {
 		if (!isCurrentFragmentVisible(source)) {
 			return;
 		}
@@ -336,11 +342,11 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		return this.upOnClickListener;
 	}
 
-	public void onSaveState(Bundle outState) {
+	public void onSaveState(@NonNull Bundle outState) {
 		// DO NOTHING
 	}
 
-	public void onRestoreState(Bundle savedInstanceState) {
+	public void onRestoreState(@NonNull Bundle savedInstanceState) {
 		// DO NOTHING
 	}
 
@@ -368,7 +374,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
-	public boolean onOptionsItemSelected(MenuItem item) {
+	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		MainActivity mainActivity = getMainActivityOrNull();
 		if (mainActivity != null) {
 			if (item.getItemId() == android.R.id.home) {

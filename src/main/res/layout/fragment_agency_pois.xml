@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/viewFlipper"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
     <!-- MAP -->
-    <com.google.android.gms.maps.MapView
+    <org.mtransit.android.ui.view.common.MapViewInScroll
         android:id="@+id/map"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -19,6 +19,7 @@
         app:uiZoomControls="true"
         app:uiZoomGestures="true"
         tools:visibility="visible" />
+
     <include layout="@layout/view_map_type_switch" />
     <!-- LIST -->
     <ViewStub
@@ -27,13 +28,13 @@
         android:layout_height="match_parent"
         android:layout="@layout/layout_poi_list"
         android:visibility="gone" />
-    <include layout="@layout/layout_shadow" />
+
     <!-- LOADING -->
     <include
         android:id="@+id/loading"
+        layout="@layout/layout_loading_large"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        layout="@layout/layout_loading_large"
         android:visibility="visible" />
     <!-- EMPTY -->
     <ViewStub
@@ -43,4 +44,6 @@
         android:inflatedId="@+id/empty"
         android:layout="@layout/layout_empty"
         android:visibility="gone" />
+
+    <include layout="@layout/layout_shadow" />
 </RelativeLayout>

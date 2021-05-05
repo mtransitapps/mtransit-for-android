@@ -227,7 +227,7 @@ public class Injection {
 	}
 
 	@NonNull
-	private static LocalPreferenceRepository providesLocalPreferenceRepository() {
+	public static LocalPreferenceRepository providesLocalPreferenceRepository() {
 		if (localPreferenceRepository == null) {
 			synchronized (Injection.class) {
 				if (localPreferenceRepository == null) {

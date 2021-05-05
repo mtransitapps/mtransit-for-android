@@ -7,10 +7,11 @@
     android:layout_height="@dimen/poi_extra_height"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:orientation="horizontal"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp">
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp">
 
     <FrameLayout
+        android:id="@+id/rsn_or_logo"
         android:layout_width="@dimen/poi_extra_width"
         android:layout_height="match_parent"
         android:layout_gravity="center"

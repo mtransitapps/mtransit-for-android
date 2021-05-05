@@ -166,7 +166,7 @@ public class MapFragment extends ABFragment implements
 		if (newIncludedTypeId != null) {
 			this.includedTypeId = newIncludedTypeId;
 		}
-		this.mapViewController.setTag(getLogTag());
+		this.mapViewController.setLogTag(getLogTag());
 	}
 
 	@Override

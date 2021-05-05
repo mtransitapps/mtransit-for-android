@@ -51,9 +51,9 @@ import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
-import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
 import org.mtransit.android.ui.fragment.RTSRouteFragment;
+import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.ui.view.MTCompassView;
 import org.mtransit.android.ui.view.MTJPathsView;
 import org.mtransit.android.ui.view.MTOnClickListener;
@@ -84,16 +84,17 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	private static final String LOG_TAG = POIArrayAdapter.class.getSimpleName();
 
-	private String tag = LOG_TAG;
+	@NonNull
+	private String logTag = LOG_TAG;
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return tag;
+		return logTag;
 	}
 
-	public void setTag(@NonNull String tag) {
-		this.tag = LOG_TAG + "-" + tag;
+	public void setLogTag(@NonNull String tag) {
+		this.logTag = LOG_TAG + "-" + tag;
 	}
 
 	public static final int TYPE_HEADER_NONE = 0;
@@ -368,8 +369,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	@Nullable
-	public POIManager getItem(String uuid) {
-		if (this.poisByType != null) {
+	public POIManager getItem(@Nullable String uuid) {
+		if (this.poisByType != null
+				&& uuid != null && !uuid.isEmpty()) {
 			for (Integer type : this.poisByType.keySet()) {
 				final ArrayList<POIManager> typePOIMs = this.poisByType.get(type);
 				if (typePOIMs != null) {
@@ -780,6 +782,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return poim != null && this.closestPoiUuids.contains(poim.poi.getUUID());
 	}
 
+	@Nullable
 	public POIManager getClosestPOI() {
 		if (this.closestPoiUuids == null || this.closestPoiUuids.size() == 0) {
 			return null;
@@ -1069,11 +1072,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		disableTimeChangedReceiver();
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
-		return new StringBuilder().append(POIArrayAdapter.class.getSimpleName()) //
-				.append(getLogTag()) //
-				.toString();
+		return POIArrayAdapter.class.getSimpleName() + getLogTag();
 	}
 
 	public void onResume(@NonNull IActivity activity, Location userLocation) {

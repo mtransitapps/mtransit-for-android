@@ -21,13 +21,13 @@ import java.util.concurrent.TimeUnit
 class ModulesAdapter :
     ListAdapter<AgencyProperties, ModuleViewHolder>(ModulesDiffCallback) {
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ModuleViewHolder {
+        return ModuleViewHolder.from(parent)
+    }
+
     override fun onBindViewHolder(holder: ModuleViewHolder, position: Int) {
         val item = getItem(position)
         holder.bind(item)
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ModuleViewHolder {
-        return ModuleViewHolder.from(parent)
     }
 
     class ModuleViewHolder private constructor(

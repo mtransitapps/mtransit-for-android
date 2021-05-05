@@ -1,6 +1,6 @@
 package org.mtransit.android.ui.modules
 
-import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
@@ -10,6 +10,7 @@ import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.di.Injection
+import org.mtransit.android.ui.view.common.PairMediatorLiveData
 
 class ModulesViewModel : ViewModel() {
 
@@ -22,31 +23,16 @@ class ModulesViewModel : ViewModel() {
         }
     }
 
-    val agencies = MediatorLiveData<List<AgencyProperties>>()
-
     private val sortByPkgOrMaxValid = MutableLiveData(true)
 
-    init {
-        this.agencies.addSource(this.filteredAgencies) { newAllAgencies ->
-            makeAgencies(this.sortByPkgOrMaxValid.value, newAllAgencies)?.let {
-                this.agencies.postValue(it)
+    val agencies: LiveData<List<AgencyProperties>?> =
+        PairMediatorLiveData(filteredAgencies, sortByPkgOrMaxValid).map { (newFilteredAgencies, newSortByPkgOrMaxValid) ->
+            if (newSortByPkgOrMaxValid != false) {
+                newFilteredAgencies?.sortedBy { it.pkg }
+            } else {
+                newFilteredAgencies?.sortedBy { it.maxValidSecSorted }
             }
         }
-        this.agencies.addSource(this.sortByPkgOrMaxValid) { newSortByPkgOrMaxValid ->
-            makeAgencies(newSortByPkgOrMaxValid, this.filteredAgencies.value)?.let {
-                this.agencies.postValue(it)
-            }
-        }
-    }
-
-    private fun makeAgencies(
-        newSortByPkgOrMaxValid: Boolean?,
-        newAllAgencies: List<AgencyProperties>?
-    ) = if (newSortByPkgOrMaxValid != false) {
-        newAllAgencies?.sortedBy { it.pkg }
-    } else {
-        newAllAgencies?.sortedBy { it.maxValidSecSorted }
-    }
 
     fun flipSort() {
         this.sortByPkgOrMaxValid.postValue(this.sortByPkgOrMaxValid.value == false)

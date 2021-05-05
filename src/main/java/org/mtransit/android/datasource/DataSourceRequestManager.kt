@@ -2,6 +2,7 @@ package org.mtransit.android.datasource
 
 import org.mtransit.android.common.IApplication
 import org.mtransit.android.commons.data.News
+import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.ScheduleTimestamps
 import org.mtransit.android.commons.provider.NewsProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
@@ -30,6 +31,10 @@ class DataSourceRequestManager(private val app: IApplication) {
 
     fun findAgencyRTSRouteLogo(agencyAuthority: String): JPaths? {
         return DataSourceManager.findAgencyRTSRouteLogo(context, agencyAuthority)
+    }
+
+    fun findAllRTSAgencyRoutes(agencyAuthority: String): List<Route>? {
+        return DataSourceManager.findAllRTSAgencyRoutes(context, agencyAuthority)
     }
 
     fun findAgencyProperties(

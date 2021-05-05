@@ -58,5 +58,5 @@ interface AgencyPropertiesDao : BaseDao<AgencyProperties> {
     fun getTypeDataSources(dst: DataSourceType): List<AgencyProperties>
 
     @Query("SELECT * FROM agency_properties WHERE type = :dst")
-    fun readingTypeDataSources(dst: DataSourceType): LiveData<List<AgencyProperties>>
+    fun readingTypeDataSources(dst: DataSourceType): LiveData<List<AgencyProperties>?>
 }

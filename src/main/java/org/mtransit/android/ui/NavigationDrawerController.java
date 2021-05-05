@@ -37,11 +37,11 @@ import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.favorites.FavoritesFragment;
 import org.mtransit.android.ui.fragment.ABFragment;
-import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 import org.mtransit.android.ui.fragment.HomeFragment;
 import org.mtransit.android.ui.fragment.MapFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListFragment;
+import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.MapUtils;
 

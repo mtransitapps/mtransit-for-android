@@ -47,7 +47,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
 
     private val adapter: POIArrayAdapter by lazy {
         POIArrayAdapter(this).apply {
-            setTag(logTag)
+            logTag = logTag
             setShowFavorite(false) // all items in this screen are favorites
             setFavoriteUpdateListener(this@FavoritesFragment)
             setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_ALL_NEARBY)
@@ -111,9 +111,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
     override fun onResume() {
         super.onResume()
         adapter.onResume(this, viewModel.deviceLocation.value)
-        (activity as? MTActivityWithLocation)?.let {
-            onUserLocationChanged(it.lastLocation)
-        }
+        (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
     }
 
     override fun onPause() {

@@ -482,7 +482,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 
 	private void initAdapters(IActivity activity) {
 		this.adapter = new POIArrayAdapter(activity);
-		this.adapter.setTag(getLogTag());
+		this.adapter.setLogTag(getLogTag());
 		this.adapter.setFavoriteUpdateListener(this);
 		this.adapter.setShowBrowseHeaderSection(true);
 		this.adapter.setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE);

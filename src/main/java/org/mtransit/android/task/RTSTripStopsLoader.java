@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 public class RTSTripStopsLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
-	private static final String LOG_TAG = RTSAgencyRoutesLoader.class.getSimpleName();
+	private static final String LOG_TAG = RTSTripStopsLoader.class.getSimpleName();
 
 	@NonNull
 	@Override

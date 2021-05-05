@@ -41,10 +41,10 @@ import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTDialog;
 import org.mtransit.android.ui.MainActivity;
-import org.mtransit.android.ui.fragment.AgencyTypeFragment;
 import org.mtransit.android.ui.fragment.NearbyFragment;
 import org.mtransit.android.ui.fragment.POIFragment;
 import org.mtransit.android.ui.fragment.RTSRouteFragment;
+import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.util.UITimeUtils;
 
 import java.lang.ref.WeakReference;

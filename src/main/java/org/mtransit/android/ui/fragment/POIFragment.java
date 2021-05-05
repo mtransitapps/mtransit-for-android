@@ -731,7 +731,7 @@ public class POIFragment extends ABFragment implements
 
 	private void initAdapters(IActivity activity) {
 		this.adapter = new POIArrayAdapter(activity);
-		this.adapter.setTag(getLogTag());
+		this.adapter.setLogTag(getLogTag());
 	}
 
 	private void setupView(View view) {

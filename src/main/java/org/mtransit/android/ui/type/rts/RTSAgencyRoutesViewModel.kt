@@ -1,0 +1,76 @@
+package org.mtransit.android.ui.type.rts
+
+import androidx.core.content.edit
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.liveData
+import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.PreferenceUtils
+import org.mtransit.android.commons.data.Route
+import org.mtransit.android.commons.pref.liveData
+import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.datasource.DataSourceRequestManager
+import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.di.Injection
+
+class RTSAgencyRoutesViewModel(savedStateHandle: SavedStateHandle) : ViewModel(), MTLog.Loggable {
+
+    companion object {
+        private val LOG_TAG = RTSAgencyRoutesViewModel::class.java.simpleName
+
+        const val EXTRA_AGENCY_AUTHORITY = "extra_agency_authority"
+        const val EXTRA_COLOR_INT = "extra_color_int"
+    }
+
+    override fun getLogTag(): String = agency.value?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
+
+    private val dataSourcesRepository: DataSourcesRepository by lazy { Injection.providesDataSourcesRepository() }
+
+    private val dataSourceRequestManager: DataSourceRequestManager by lazy { Injection.providesDataSourceRequestManager() }
+
+    private val lclPrefRepository: LocalPreferenceRepository by lazy { Injection.providesLocalPreferenceRepository() }
+
+    private val _authority = savedStateHandle.getLiveData<String?>(EXTRA_AGENCY_AUTHORITY, null).distinctUntilChanged()
+
+    val colorInt = savedStateHandle.getLiveData<Int?>(EXTRA_COLOR_INT, null).distinctUntilChanged()
+
+    val agency: LiveData<AgencyProperties?> = this._authority.switchMap { authority ->
+        authority?.let {
+            this.dataSourcesRepository.readingAgency(authority)
+        } ?: MutableLiveData(null)
+    }
+
+    val routes: LiveData<List<Route>?> = this._authority.switchMap { authority ->
+        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+            emit(dataSourceRequestManager.findAllRTSAgencyRoutes(authority))
+        }
+    }
+
+    val showingListInsteadOfGrid: LiveData<Boolean?> = _authority.switchMap { authority ->
+        authority?.let {
+            lclPrefRepository.pref.liveData(
+                PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(it),
+                lclPrefRepository.getValue(
+                    PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET,
+                    PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT
+                )
+            )
+        } ?: MutableLiveData(null)
+    }.distinctUntilChanged()
+
+    fun saveShowingListInsteadOfGrid(showingListInsteadOfGrid: Boolean) {
+        lclPrefRepository.pref.edit {
+            putBoolean(PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET, showingListInsteadOfGrid)
+            _authority.value?.let { authority ->
+                putBoolean(PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority), showingListInsteadOfGrid)
+            }
+        }
+    }
+}

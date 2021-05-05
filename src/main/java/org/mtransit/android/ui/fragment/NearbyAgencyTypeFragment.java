@@ -297,7 +297,7 @@ public class NearbyAgencyTypeFragment extends MTFragmentX implements VisibilityA
 			}
 		}
 		if (this.adapter != null) {
-			this.adapter.setTag(String.valueOf(this.typeId));
+			this.adapter.setLogTag(String.valueOf(this.typeId));
 		}
 	}
 

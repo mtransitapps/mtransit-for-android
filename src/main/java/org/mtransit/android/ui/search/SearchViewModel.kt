@@ -110,10 +110,8 @@ class SearchViewModel(private val savedStateHandle: SavedStateHandle) : MTViewMo
 
     val searchHasFocus: LiveData<Boolean> = _searchHasFocus
 
-    private val _searchParameters = TripleMediatorLiveData<String, Int?, List<AgencyProperties>>(query, _typeFilterId, _searchableAgencies)
-
     val searchResults: LiveData<List<POIManager>> =
-        _searchParameters.switchMap { (query, typeFilterId, searchableAgencies) ->
+        TripleMediatorLiveData(query, _typeFilterId, _searchableAgencies).switchMap { (query, typeFilterId, searchableAgencies) ->
             liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
                 emit(getFilteredData(query, typeFilterId, searchableAgencies))
                 _loading.postValue(false)

@@ -60,7 +60,7 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
     private val adapter: POIArrayAdapter by lazy {
         POIArrayAdapter(this).apply {
             setOnClickHandledListener { dismiss() }
-            setTag(logTag)
+            setLogTag(logTag)
         }
     }
 

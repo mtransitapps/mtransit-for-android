@@ -60,7 +60,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
 
     private val adapter: POIArrayAdapter by lazy {
         POIArrayAdapter(this).apply {
-            setTag(logTag)
+            setLogTag(logTag)
             setOnTypeHeaderButtonsClickListener(this@SearchFragment)
             setPois(emptyList()) // empty search = no result
         }

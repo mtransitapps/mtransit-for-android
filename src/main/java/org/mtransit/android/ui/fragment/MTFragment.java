@@ -50,7 +50,7 @@ public abstract class MTFragment extends MTFragmentX implements IContext, MTLog.
 	}
 
 	@Nullable
-	java.util.Set<Fragment> getChildFragments() {
+	public java.util.Set<Fragment> getChildFragments() {
 		return childFragmentsWR.keySet();
 	}
 }

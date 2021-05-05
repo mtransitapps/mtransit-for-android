@@ -29,12 +29,14 @@
         android:layout_height="match_parent"
         android:visibility="visible" />
     <!-- VIEWPAGER -->
-    <androidx.viewpager.widget.ViewPager
+    <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="horizontal"
         android:visibility="gone"
-        tools:context="org.mtransit.android.MainActivity" />
+        tools:context="org.mtransit.android.MainActivity"
+        tools:visibility="visible" />
     <!-- EMPTY -->
     <ViewStub
         android:id="@+id/empty_stub"
@@ -42,5 +44,6 @@
         android:layout_height="match_parent"
         android:inflatedId="@+id/empty"
         android:layout="@layout/layout_empty"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:visibility="visible" />
 </LinearLayout>

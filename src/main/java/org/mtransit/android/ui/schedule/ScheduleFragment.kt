@@ -11,6 +11,8 @@ import androidx.viewpager2.widget.ViewPager2
 import org.mtransit.android.R
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentScheduleBinding
+import org.mtransit.android.task.ServiceUpdateLoader
+import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
@@ -53,16 +55,18 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
 
     private var lastPageSelected: Int = SchedulePagerAdapter.STARTING_POSITION
 
-    private val adapter: SchedulePagerAdapter by lazy {
-        SchedulePagerAdapter(this).apply {
-            setUUID(viewModel.uuid.value)
-            setAuthority(viewModel.authority.value)
-        }
+    private var adapter: SchedulePagerAdapter? = null
+
+    private fun makeAdapter() = SchedulePagerAdapter(this).apply {
+        setUUID(viewModel.uuid.value)
+        setAuthority(viewModel.authority.value)
     }
 
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
+            StatusLoader.get().clearAllTasks()
+            ServiceUpdateLoader.get().clearAllTasks()
             lastPageSelected = position
         }
     }
@@ -72,18 +76,22 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
         binding = FragmentScheduleBinding.bind(view).apply {
             viewpager.offscreenPageLimit = 2
             viewpager.registerOnPageChangeCallback(onPageChangeCallback)
-            viewpager.adapter = adapter
+            viewpager.adapter = adapter ?: makeAdapter().also { adapter = it } // cannot re-use Adapter w/ ViewPager
             viewpager.setCurrentItem(lastPageSelected, false)
         }
         viewModel.authority.observe(viewLifecycleOwner, { authority ->
-            val wasReady = adapter.isReady()
-            adapter.setAuthority(authority)
-            updateViews(wasReady)
+            adapter?.apply {
+                val wasReady = isReady()
+                setAuthority(authority)
+                updateViews(wasReady)
+            }
         })
         viewModel.uuid.observe(viewLifecycleOwner, { uuid ->
-            val wasReady = adapter.isReady()
-            adapter.setUUID(uuid)
-            updateViews(wasReady)
+            adapter?.apply {
+                val wasReady = isReady()
+                setUUID(uuid)
+                updateViews(wasReady)
+            }
         })
         viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
             if (removed) {
@@ -105,11 +113,11 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
 
     private fun updateViews(wasReady: Boolean) {
         binding?.apply {
-            if (!wasReady && adapter.isReady()) {
+            if (!wasReady && adapter?.isReady() == true) {
                 viewpager.setCurrentItem(lastPageSelected, false)
             }
-            loading.root.isVisible = !adapter.isReady()
-            viewpager.isVisible = adapter.isReady()
+            loading.root.isVisible = adapter?.isReady() == false
+            viewpager.isVisible = adapter?.isReady() == true
         }
     }
 
@@ -126,6 +134,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
     override fun onDestroyView() {
         super.onDestroyView()
         binding?.viewpager?.unregisterOnPageChangeCallback(onPageChangeCallback)
+        binding?.viewpager?.adapter = null // cannot re-use Adapter w/ ViewPager
+        adapter = null // cannot re-use Adapter w/ ViewPager
         binding = null
     }
 }

@@ -77,13 +77,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private static final String LOG_TAG = MapViewController.class.getSimpleName();
 
-	@Nullable
-	private String tag;
+	@NonNull
+	private String logTag = LOG_TAG;
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return LOG_TAG + "-" + this.tag;
+		return this.logTag;
 	}
 
 	private static final String EXTRA_LAST_CAMERA_POSITION = "extra_last_camera_position";
@@ -165,10 +165,10 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 
-	public MapViewController(String tag, MapMarkerProvider markerProvider, MapListener mapListener, boolean mapToolbarEnabled, boolean myLocationEnabled,
+	public MapViewController(String logTag, MapMarkerProvider markerProvider, MapListener mapListener, boolean mapToolbarEnabled, boolean myLocationEnabled,
 							 boolean myLocationButtonEnabled, boolean indoorLevelPickerEnabled, boolean trafficEnabled, boolean indoorEnabled, int paddingTopSp,
 							 boolean followingUser, boolean hasButtons, boolean clusteringEnabled, boolean showAllMarkersWhenReady, boolean markerLabelShowExtra) {
-		this.tag = tag;
+		setLogTag(logTag);
 		setMarkerProvider(markerProvider);
 		setMapListener(mapListener);
 		this.mapToolbarEnabled = mapToolbarEnabled;
@@ -194,8 +194,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.mapListenerWR = new WeakReference<>(mapListener);
 	}
 
-	public void setTag(String tag) {
-		this.tag = tag;
+	public void setLogTag(@NonNull String tag) {
+		this.logTag = LOG_TAG + "-" + tag;
 	}
 
 	public void onAttach(@NonNull Activity activity) {
@@ -226,16 +226,19 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.lastSavedInstanceState = savedInstanceState;
 	}
 
+	@Nullable
 	private Bundle lastSavedInstanceState = null;
 
 	private boolean hasMapView() {
 		return this.mapView != null;
 	}
 
+	@Nullable
 	private MapView getMapViewOrNull() {
 		return this.mapView;
 	}
 
+	@Nullable
 	private MapView getMapViewOrNull(View view) {
 		if (this.mapView == null) {
 			initMapViewAsync(view);
@@ -243,7 +246,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		return this.mapView;
 	}
 
-	private void initMapViewAsync(View view) {
+	private void initMapViewAsync(@Nullable View view) {
 		if (this.initMapViewTask != null && this.initMapViewTask.getStatus() == InitMapViewTask.Status.RUNNING) {
 			return;
 		}
@@ -511,7 +514,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 	}
 
-	public boolean showMap(View view) {
+	public boolean showMap(@Nullable View view) {
 		this.mapVisible = true;
 		return showMapInternal(view);
 	}

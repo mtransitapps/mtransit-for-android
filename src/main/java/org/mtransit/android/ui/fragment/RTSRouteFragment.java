@@ -515,7 +515,6 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		}
 		ViewPager viewPager = view.findViewById(R.id.viewpager);
 		viewPager.setCurrentItem(this.lastPageSelected);
-		MTLog.d(this, "showSelectedTab() > switchView()");
 		switchView(view);
 	}
 

@@ -3,46 +3,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/viewFlipper"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
     <!-- LOADING -->
     <include
         android:id="@+id/loading"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         layout="@layout/layout_loading_large"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:visibility="visible" />
-    <!-- LIST -->
-    <GridView
-        android:id="@+id/grid"
+    <!-- LIST / GRID -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/routes_list_grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:columnWidth="@dimen/poi_extra_width"
-        android:drawSelectorOnTop="true"
         android:fastScrollAlwaysVisible="false"
         android:fastScrollEnabled="false"
-        android:horizontalSpacing="@dimen/grid_view_spacing"
-        android:listSelector="?android:attr/selectableItemBackground"
-        android:numColumns="auto_fit"
-        android:scrollbarStyle="insideOverlay"
-        android:scrollbars="vertical"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="@dimen/grid_view_spacing"
-        android:visibility="gone"
-        tools:context=".ui.MainActivity"
-        tools:listitem="@layout/layout_rts_route_grid_item" />
-    <ListView
-        android:id="@+id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:drawSelectorOnTop="true"
-        android:fastScrollAlwaysVisible="false"
-        android:fastScrollEnabled="false"
-        android:listSelector="?android:attr/selectableItemBackground"
         android:scrollbarStyle="insideOverlay"
         android:visibility="gone"
-        tools:context=".ui.MainActivity"
-        tools:listitem="@layout/layout_rts_route_list_item" />
-    <include layout="@layout/layout_shadow" />
+        tools:listitem="@layout/layout_rts_route_item"
+        tools:visibility="visible" />
     <!-- EMPTY -->
     <ViewStub
         android:id="@+id/empty_stub"
@@ -50,5 +29,8 @@
         android:layout_height="match_parent"
         android:inflatedId="@+id/empty"
         android:layout="@layout/layout_empty"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <include layout="@layout/layout_shadow" />
 </FrameLayout>

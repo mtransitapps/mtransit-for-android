@@ -1,5 +1,7 @@
 package org.mtransit.android.common.repository;
 
+import android.content.SharedPreferences;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -42,5 +44,10 @@ public class LocalPreferenceRepository extends PreferenceRepository {
 	@Override
 	public void saveAsync(@NonNull String key, @Nullable String value) {
 		PreferenceUtils.savePrefLcl(requireContext(), key, value, false);
+	}
+
+	@NonNull
+	public SharedPreferences getPref() {
+		return PreferenceUtils.getPrefLcl(requireContext());
 	}
 }

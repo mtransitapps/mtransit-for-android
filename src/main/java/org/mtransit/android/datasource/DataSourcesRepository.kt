@@ -109,7 +109,7 @@ class DataSourcesRepository(
     fun getTypeDataSources(dst: DataSourceType) = getTypeDataSources(dst.id)
 
     fun readingTypeDataSources(dst: DataSourceType) = this.dataSourcesCache.readingTypeDataSources(dst).map {
-        it.sortedWith(defaultAgencyComparator)
+        it?.sortedWith(defaultAgencyComparator)
     }
 
     fun readingTypeDataSourcesDistinct(dst: DataSourceType) = readingTypeDataSources(dst).distinctUntilChanged()

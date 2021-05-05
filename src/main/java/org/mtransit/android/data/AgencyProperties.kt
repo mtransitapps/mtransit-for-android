@@ -107,7 +107,7 @@ data class AgencyProperties(
     val authority = id
 
     val shortNameLC: String
-        get() = shortName.toLowerCase(Locale.getDefault()) // device language used
+        get() = shortName.lowercase(Locale.getDefault()) // device language used
 
     fun hasColor() = this.colorInt != null
 

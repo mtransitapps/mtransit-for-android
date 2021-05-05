@@ -234,9 +234,9 @@ public class RTSTripStopsFragment extends MTFragmentX implements
 			}
 		}
 		if (this.adapter != null) {
-			this.adapter.setTag(this.authority + "-" + this.tripId);
+			this.adapter.setLogTag(this.authority + "-" + this.tripId);
 		}
-		this.mapViewController.setTag(getLogTag());
+		this.mapViewController.setLogTag(getLogTag());
 	}
 
 	private void initAdapters(IActivity activity) {
