@@ -12,6 +12,8 @@ import org.mtransit.android.provider.location.MTLocationProvider;
 import org.mtransit.android.ui.fragment.VisibilityAwareFragment;
 import org.mtransit.android.ui.view.common.ScreenWithLocationCommon;
 
+import java.util.Collection;
+
 public abstract class MTActivityWithLocation extends MTActivity implements
 		MTLocationProvider.ScreenWithLocationView,
 		MTLocationProvider.OnLastLocationChangeListener {
@@ -56,7 +58,7 @@ public abstract class MTActivityWithLocation extends MTActivity implements
 		return this.locationProvider.getLastLocationOrNull();
 	}
 
-	public static void broadcastUserLocationChanged(MTLog.Loggable loggable, @Nullable java.util.Set<Fragment> fragments, @Nullable Location newLocation) {
+	public static void broadcastUserLocationChanged(MTLog.Loggable loggable, @Nullable Collection<Fragment> fragments, @Nullable Location newLocation) {
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment == null) {

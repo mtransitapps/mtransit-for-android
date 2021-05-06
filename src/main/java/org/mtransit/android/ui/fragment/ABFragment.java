@@ -22,7 +22,7 @@ import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.common.IActivity;
 
-public abstract class ABFragment extends MTFragment implements AnalyticsManager.Trackable, IActivity {
+public abstract class ABFragment extends MTFragmentX implements AnalyticsManager.Trackable, IActivity {
 
 	private static final boolean DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT = false;
 

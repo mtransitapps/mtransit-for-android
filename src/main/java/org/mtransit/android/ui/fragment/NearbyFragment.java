@@ -193,9 +193,9 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	@Override
-	public void onAttach(@NonNull Activity activity) {
-		super.onAttach(activity);
-		initAdapters(activity);
+	public void onAttach(@NonNull Context context) {
+		super.onAttach(context);
+		initAdapters(requireActivity());
 	}
 
 	private void initAdapters(@NonNull Activity activity) {
@@ -302,7 +302,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		super.onResume();
 		View view = getView();
 		if (this.lastPageSelected >= 0) {
-			onPageSelected(this.lastPageSelected); // tell current page it's selected
+			onPageSelected(this.lastPageSelected); // tell the current page it's selected
 		}
 		switchView(view);
 		if (isFixedOn() && this.fixedOnLat != null && this.fixedOnLng != null) {
@@ -461,7 +461,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		@Override
 		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull NearbyFragment nearbyFragment, @Nullable Integer lastPageSelected) {
 			if (nearbyFragment.lastPageSelected >= 0) {
-				return; // user has manually move to another page before, too late
+				return; // user has manually moved to another page before, too late
 			}
 			if (lastPageSelected == null) {
 				nearbyFragment.lastPageSelected = 0;
@@ -470,7 +470,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 			}
 			View view = nearbyFragment.getView();
 			nearbyFragment.showSelectedTab(view);
-			nearbyFragment.onPageSelected(nearbyFragment.lastPageSelected); // tell current page it's selected
+			nearbyFragment.onPageSelected(nearbyFragment.lastPageSelected); // tell the current page it's selected
 		}
 	}
 
@@ -542,7 +542,7 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 		}
 		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 			this.userLocation = newLocation;
-			MTActivityWithLocation.broadcastUserLocationChanged(this, getChildFragments(), newLocation);
+			MTActivityWithLocation.broadcastUserLocationChanged(this, getChildFragmentManager().getFragments(), newLocation);
 		}
 		if (!isFixedOn()) {
 			if (this.nearbyLocation == null) {
@@ -632,12 +632,10 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void broadcastNearbyLocationChanged(@Nullable Location location) {
-		java.util.Set<Fragment> fragments = getChildFragments();
-		if (fragments != null) {
-			for (Fragment fragment : fragments) {
-				if (fragment instanceof NearbyLocationListener) {
-					((NearbyFragment.NearbyLocationListener) fragment).onNearbyLocationChanged(location);
-				}
+		final Collection<Fragment> fragments = getChildFragmentManager().getFragments();
+		for (Fragment fragment : fragments) {
+			if (fragment instanceof NearbyLocationListener) {
+				((NearbyLocationListener) fragment).onNearbyLocationChanged(location);
 			}
 		}
 	}
@@ -726,14 +724,12 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void setFragmentVisibleAtPosition(int position) {
-		java.util.Set<Fragment> fragments = getChildFragments();
-		if (fragments != null) {
-			for (Fragment fragment : fragments) {
-				if (fragment instanceof NearbyAgencyTypeFragment) {
-					NearbyAgencyTypeFragment nearbyAgencyTypeFragment = (NearbyAgencyTypeFragment) fragment;
-					nearbyAgencyTypeFragment.setNearbyFragment(this);
-					nearbyAgencyTypeFragment.setFragmentVisibleAtPosition(position);
-				}
+		final Collection<Fragment> fragments = getChildFragmentManager().getFragments();
+		for (Fragment fragment : fragments) {
+			if (fragment instanceof NearbyAgencyTypeFragment) {
+				NearbyAgencyTypeFragment nearbyAgencyTypeFragment = (NearbyAgencyTypeFragment) fragment;
+				nearbyAgencyTypeFragment.setNearbyFragment(this);
+				nearbyAgencyTypeFragment.setFragmentVisibleAtPosition(position);
 			}
 		}
 	}
@@ -744,44 +740,38 @@ public class NearbyFragment extends ABFragment implements ViewPager.OnPageChange
 	}
 
 	private void setFragmentPosition() {
-		java.util.Set<Fragment> fragments = getChildFragments();
-		if (fragments != null) {
-			for (Fragment fragment : fragments) {
-				if (fragment instanceof NearbyAgencyTypeFragment) {
-					NearbyAgencyTypeFragment nearbyAgencyTypeFragment = (NearbyAgencyTypeFragment) fragment;
-					nearbyAgencyTypeFragment.setNearbyFragment(this);
-					int newPosition = PagerAdapter.POSITION_NONE;
-					if (this.adapter != null) {
-						newPosition = this.adapter.getItemPosition(nearbyAgencyTypeFragment);
-					}
-					nearbyAgencyTypeFragment.setFragmentPosition(newPosition);
+		final Collection<Fragment> fragments = getChildFragmentManager().getFragments();
+		for (Fragment fragment : fragments) {
+			if (fragment instanceof NearbyAgencyTypeFragment) {
+				NearbyAgencyTypeFragment nearbyAgencyTypeFragment = (NearbyAgencyTypeFragment) fragment;
+				nearbyAgencyTypeFragment.setNearbyFragment(this);
+				int newPosition = PagerAdapter.POSITION_NONE;
+				if (this.adapter != null) {
+					newPosition = this.adapter.getItemPosition(nearbyAgencyTypeFragment);
 				}
+				nearbyAgencyTypeFragment.setFragmentPosition(newPosition);
 			}
 		}
 	}
 
 	private void setSwipeRefreshLayoutRefreshing(@SuppressWarnings("SameParameterValue") boolean refreshing) {
-		java.util.Set<Fragment> fragments = getChildFragments();
-		if (fragments != null) {
-			for (Fragment fragment : fragments) {
-				if (fragment instanceof NearbyAgencyTypeFragment) {
-					NearbyAgencyTypeFragment nearbyAgencyTypeFragment = (NearbyAgencyTypeFragment) fragment;
-					nearbyAgencyTypeFragment.setNearbyFragment(this);
-					nearbyAgencyTypeFragment.setSwipeRefreshLayoutRefreshing(refreshing);
-				}
+		final Collection<Fragment> fragments = getChildFragmentManager().getFragments();
+		for (Fragment fragment : fragments) {
+			if (fragment instanceof NearbyAgencyTypeFragment) {
+				NearbyAgencyTypeFragment nearbyAgencyTypeFragment = (NearbyAgencyTypeFragment) fragment;
+				nearbyAgencyTypeFragment.setNearbyFragment(this);
+				nearbyAgencyTypeFragment.setSwipeRefreshLayoutRefreshing(refreshing);
 			}
 		}
 	}
 
 	private void setSwipeRefreshLayoutEnabled(boolean enabled) {
-		java.util.Set<Fragment> fragments = getChildFragments();
-		if (fragments != null) {
-			for (Fragment fragment : fragments) {
-				if (fragment instanceof NearbyAgencyTypeFragment) {
-					NearbyAgencyTypeFragment nearbyAgencyTypeFragment = (NearbyAgencyTypeFragment) fragment;
-					nearbyAgencyTypeFragment.setNearbyFragment(this);
-					nearbyAgencyTypeFragment.setSwipeRefreshLayoutEnabled(enabled);
-				}
+		final Collection<Fragment> fragments = getChildFragmentManager().getFragments();
+		for (Fragment fragment : fragments) {
+			if (fragment instanceof NearbyAgencyTypeFragment) {
+				NearbyAgencyTypeFragment nearbyAgencyTypeFragment = (NearbyAgencyTypeFragment) fragment;
+				nearbyAgencyTypeFragment.setNearbyFragment(this);
+				nearbyAgencyTypeFragment.setSwipeRefreshLayoutEnabled(enabled);
 			}
 		}
 	}

@@ -145,6 +145,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), UserLocat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         this.mapViewController.onCreate(savedInstanceState)
     }
 

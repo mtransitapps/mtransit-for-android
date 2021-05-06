@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
@@ -56,6 +55,7 @@ import org.mtransit.android.ui.MTActivityWithLocation;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Locale;
 
 public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChangeListener, MTActivityWithLocation.UserLocationListener,
@@ -135,9 +135,9 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	@Override
-	public void onAttach(@NonNull Activity activity) {
-		super.onAttach(activity);
-		initAdapters(activity);
+	public void onAttach(@NonNull Context context) {
+		super.onAttach(context);
+		initAdapters(context);
 	}
 
 	@Override
@@ -456,7 +456,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		@Override
 		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull RTSRouteFragment rtsRouteFragment, @Nullable Integer lastPageSelected) {
 			if (rtsRouteFragment.lastPageSelected >= 0) {
-				return; // user has manually move to another page before, too late
+				return; // user has manually moved to another page before, too late
 			}
 			if (lastPageSelected == null) {
 				rtsRouteFragment.lastPageSelected = 0;
@@ -465,7 +465,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 			}
 			View view = rtsRouteFragment.getView();
 			rtsRouteFragment.showSelectedTab(view);
-			rtsRouteFragment.onPageSelected(rtsRouteFragment.lastPageSelected); // tell current page it's selected
+			rtsRouteFragment.onPageSelected(rtsRouteFragment.lastPageSelected); // tell the current page it's selected
 		}
 	}
 
@@ -532,7 +532,7 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	@Override
 	public void onUserLocationChanged(@Nullable Location newLocation) {
 		if (newLocation != null) {
-			MTActivityWithLocation.broadcastUserLocationChanged(this, getChildFragments(), newLocation);
+			MTActivityWithLocation.broadcastUserLocationChanged(this, getChildFragmentManager().getFragments(), newLocation);
 		}
 	}
 
@@ -628,13 +628,11 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 	}
 
 	private void setFragmentVisibleAtPosition(int position) {
-		java.util.Set<Fragment> fragments = getChildFragments();
-		if (fragments != null) {
-			for (Fragment fragment : fragments) {
-				if (fragment instanceof VisibilityAwareFragment) {
-					VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
-					visibilityAwareFragment.setFragmentVisibleAtPosition(position);
-				}
+		final Collection<Fragment> fragments = getChildFragmentManager().getFragments();
+		for (Fragment fragment : fragments) {
+			if (fragment instanceof VisibilityAwareFragment) {
+				VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
+				visibilityAwareFragment.setFragmentVisibleAtPosition(position);
 			}
 		}
 	}
@@ -766,12 +764,10 @@ public class RTSRouteFragment extends ABFragment implements ViewPager.OnPageChan
 		if (this.adapter != null) {
 			this.adapter.setShowingListInsteadOfMap(this.showingListInsteadOfMap);
 		}
-		java.util.Set<Fragment> fragments = getChildFragments();
-		if (fragments != null) {
-			for (Fragment fragment : fragments) {
-				if (fragment instanceof RTSTripStopsFragment) {
-					((RTSTripStopsFragment) fragment).setShowingListInsteadOfMap(this.showingListInsteadOfMap);
-				}
+		final Collection<Fragment> fragments = getChildFragmentManager().getFragments();
+		for (Fragment fragment : fragments) {
+			if (fragment instanceof RTSTripStopsFragment) {
+				((RTSTripStopsFragment) fragment).setShowingListInsteadOfMap(this.showingListInsteadOfMap);
 			}
 		}
 	}

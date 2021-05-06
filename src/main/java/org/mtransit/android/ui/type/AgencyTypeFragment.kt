@@ -201,10 +201,8 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_agency_type, menu)
-        if (this.pageScrollStateIdle) {
-            childFragments?.forEach { fragment -> // TODO really?
-                fragment?.onCreateOptionsMenu(menu, inflater)  // TODO really?
-            }
+        childFragmentManager.fragments.forEach { fragment ->
+            fragment.setHasOptionsMenu(this.pageScrollStateIdle)
         }
     }
 
@@ -215,13 +213,6 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
                 this
             )
             return true // handled
-        }
-        if (this.pageScrollStateIdle) {
-            childFragments?.forEach { fragment -> // TODO really?
-                if (fragment?.onOptionsItemSelected(item) == true) {
-                    return true // handled
-                }
-            }
         }
         return super.onOptionsItemSelected(item)
     }
