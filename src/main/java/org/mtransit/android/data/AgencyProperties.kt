@@ -106,8 +106,9 @@ data class AgencyProperties(
     @Ignore
     val authority = id
 
+    @Suppress("DEPRECATION") // Wait for 1.5.0+ (memory leak)
     val shortNameLC: String
-        get() = shortName.lowercase(Locale.getDefault()) // device language used
+        get() = shortName.toLowerCase(Locale.getDefault()) // device language used
 
     fun hasColor() = this.colorInt != null
 
