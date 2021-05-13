@@ -6,6 +6,7 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
@@ -239,6 +240,18 @@ public class GoogleLocationProvider
 			this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this.application.requireApplication());
 		}
 		return this.fusedLocationProviderClient;
+	}
+
+	@WorkerThread
+	@NonNull
+	@Override
+	public String getLocationAddressString(@NonNull Location location) {
+		return LocationUtils.getLocationString(
+				application.requireContext(),
+				null,
+				LocationUtils.getLocationAddress(application.requireContext(), location),
+				location.getAccuracy()
+		);
 	}
 
 	private static class MTLocationCallback extends LocationCallback implements MTLog.Loggable {

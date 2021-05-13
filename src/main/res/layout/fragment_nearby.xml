@@ -30,10 +30,11 @@
         android:visibility="visible"
         tools:visibility="gone" />
     <!-- VIEWPAGER -->
-    <androidx.viewpager.widget.ViewPager
+    <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="horizontal"
         android:visibility="gone"
         tools:context="org.mtransit.android.MainActivity"
         tools:visibility="visible" />

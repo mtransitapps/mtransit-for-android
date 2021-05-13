@@ -31,7 +31,7 @@ import org.mtransit.android.ui.ActionBarController.SimpleActionBarColorizer
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
-import org.mtransit.android.ui.fragment.NearbyFragment
+import org.mtransit.android.ui.nearby.NearbyFragment
 import kotlin.math.abs
 
 class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivityWithLocation.UserLocationListener {
@@ -208,10 +208,12 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.menu_nearby) {
-            (activity as? MainActivity)?.addFragmentToStack(
-                NearbyFragment.newNearbyInstance(null, viewModel.type.value?.id),
-                this
-            )
+            viewModel.type.value?.let { type ->
+                (activity as? MainActivity)?.addFragmentToStack(
+                    NearbyFragment.newNearbyInstance(type.id),
+                    this
+                )
+            }
             return true // handled
         }
         return super.onOptionsItemSelected(item)

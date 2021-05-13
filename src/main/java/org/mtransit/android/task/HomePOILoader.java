@@ -111,7 +111,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 	}
 
 	private void deliverPartialResult(final ArrayList<POIManager> typePOIs) {
-		final HomeFragment homeFragment = this.homeFragmentWR == null ? null : this.homeFragmentWR.get();
+		final HomeFragment homeFragment = this.homeFragmentWR.get();
 		final Activity activity = homeFragment == null ? null : homeFragment.getActivity();
 		if (activity == null) {
 			MTLog.d(this, "deliverPartialResult() > SKIP (no activity)");

@@ -14,6 +14,8 @@ import org.mtransit.android.data.POIManager;
 
 import java.util.ArrayList;
 
+// @Deprecated for nearby
+// TODO: home
 public class FindNearbyAgencyPOIsTask extends MTCallable<ArrayList<POIManager>> {
 
 	private static final String TAG = FindNearbyAgencyPOIsTask.class.getSimpleName();

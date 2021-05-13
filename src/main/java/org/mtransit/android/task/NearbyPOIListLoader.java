@@ -19,6 +19,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+// @Deprecated for nearby
+// TODO: home + POI
 public class NearbyPOIListLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
 	private static final String TAG = NearbyPOIListLoader.class.getSimpleName();

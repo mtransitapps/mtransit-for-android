@@ -29,10 +29,10 @@ class ScheduleDayViewModel(private val savedStateHandle: SavedStateHandle) : Vie
     companion object {
         private val LOG_TAG = ScheduleDayViewModel::class.java.simpleName
 
-        const val EXTRA_AUTHORITY = "extra_agency_authority"
-        const val EXTRA_POI_UUID = "extra_poi_uuid"
-        const val EXTRA_DAY_START_AT_IN_MS = "extra_day_starts_at_ms"
-        const val EXTRA_SCROLLED_TO_NOW = "extra_scrolled_to_now"
+        internal const val EXTRA_AUTHORITY = "extra_agency_authority"
+        internal const val EXTRA_POI_UUID = "extra_poi_uuid"
+        internal const val EXTRA_DAY_START_AT_IN_MS = "extra_day_starts_at_ms"
+        internal const val EXTRA_SCROLLED_TO_NOW = "extra_scrolled_to_now"
     }
 
     private val yearMonthDayFormat by lazy { ThreadSafeDateFormatter("yyyy-MM-dd", Locale.getDefault()) }
@@ -59,7 +59,7 @@ class ScheduleDayViewModel(private val savedStateHandle: SavedStateHandle) : Vie
         savedStateHandle[EXTRA_SCROLLED_TO_NOW] = scrolledToNow
     }
 
-    private val _scheduleProviders: LiveData<List<ScheduleProviderProperties>?> = this.authority.switchMap { authority ->
+    private val _scheduleProviders: LiveData<List<ScheduleProviderProperties>> = this.authority.switchMap { authority ->
         this.dataSourcesRepository.readingScheduleProviders(authority)
     }
 

@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -65,6 +66,7 @@ public abstract class MTFragmentX extends Fragment implements MTLog.Loggable {
 		super.onAttach(activity);
 	}
 
+	@CallSuper
 	@Override
 	public void onAttach(@NonNull Context context) {
 		if (Constants.LOG_LIFECYCLE) {

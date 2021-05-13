@@ -25,8 +25,8 @@ class RTSAgencyRoutesViewModel(savedStateHandle: SavedStateHandle) : ViewModel()
     companion object {
         private val LOG_TAG = RTSAgencyRoutesViewModel::class.java.simpleName
 
-        const val EXTRA_AGENCY_AUTHORITY = "extra_agency_authority"
-        const val EXTRA_COLOR_INT = "extra_color_int"
+        internal const val EXTRA_AGENCY_AUTHORITY = "extra_agency_authority"
+        internal const val EXTRA_COLOR_INT = "extra_color_int"
     }
 
     override fun getLogTag(): String = agency.value?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG

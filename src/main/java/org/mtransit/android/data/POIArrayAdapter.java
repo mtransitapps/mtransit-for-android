@@ -51,8 +51,8 @@ import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
-import org.mtransit.android.ui.fragment.NearbyFragment;
 import org.mtransit.android.ui.fragment.RTSRouteFragment;
+import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.ui.view.MTCompassView;
 import org.mtransit.android.ui.view.MTJPathsView;
@@ -1227,7 +1227,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				Activity activity = getActivity();
 				if (activity != null) {
 					leaving();
-					((MainActivity) activity).addFragmentToStack(NearbyFragment.newNearbyInstance(null, type.getId()));
+					((MainActivity) activity).addFragmentToStack(NearbyFragment.newNearbyInstance(type.getId()));
 				}
 			}
 			break;

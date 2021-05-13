@@ -41,9 +41,9 @@ import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTDialog;
 import org.mtransit.android.ui.MainActivity;
-import org.mtransit.android.ui.fragment.NearbyFragment;
 import org.mtransit.android.ui.fragment.POIFragment;
 import org.mtransit.android.ui.fragment.RTSRouteFragment;
+import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.util.UITimeUtils;
 
@@ -657,7 +657,13 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			((MainActivity) activity).addFragmentToStack(NearbyFragment.newFixedOnInstance(null, this.poi.getLat(), this.poi.getLng(), this.poi.getName(), null));
+			((MainActivity) activity).addFragmentToStack(NearbyFragment.newFixedOnInstance(
+					null,
+					this.poi.getLat(),
+					this.poi.getLng(),
+					this.poi.getName(),
+					null
+			));
 			return true; // nearby screen shown
 		}
 		if (activity instanceof MainActivity) {

@@ -71,6 +71,7 @@ import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.NearbyPOIListLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
 import org.mtransit.android.ui.view.MTOnClickListener;

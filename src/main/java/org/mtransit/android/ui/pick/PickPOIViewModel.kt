@@ -25,8 +25,8 @@ class PickPOIViewModel(savedStateHandle: SavedStateHandle) : MTViewModelWithLoca
     companion object {
         private val LOG_TAG = PickPOIViewModel::class.java.simpleName
 
-        const val EXTRA_POI_UUIDS = "extra_poi_uuids"
-        const val EXTRA_POI_AUTHORITIES = "extra_poi_authorities"
+        internal const val EXTRA_POI_UUIDS = "extra_poi_uuids"
+        internal const val EXTRA_POI_AUTHORITIES = "extra_poi_authorities"
 
         private val POI_ALPHA_COMPARATOR = FavoritesViewModel.POIAlphaComparator()
     }

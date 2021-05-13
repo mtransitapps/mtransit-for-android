@@ -24,11 +24,11 @@ class NewsListViewModel(savedStateHandle: SavedStateHandle) : ViewModel(), MTLog
     companion object {
         private val LOG_TAG = NewsListViewModel::class.java.simpleName
 
-        const val EXTRA_COLOR_INT = "extra_color_int"
-        const val EXTRA_SUB_TITLE = "extra_subtitle"
-        const val EXTRA_FILTER_TARGET_AUTHORITIES = "extra_filter_target_authorities"
-        const val EXTRA_FILTER_TARGETS = "extra_filter_targets"
-        const val EXTRA_FILTER_UUIDS = "extra_filter_uuids"
+        internal const val EXTRA_COLOR_INT = "extra_color_int"
+        internal const val EXTRA_SUB_TITLE = "extra_subtitle"
+        internal const val EXTRA_FILTER_TARGET_AUTHORITIES = "extra_filter_target_authorities"
+        internal const val EXTRA_FILTER_TARGETS = "extra_filter_targets"
+        internal const val EXTRA_FILTER_UUIDS = "extra_filter_uuids"
     }
 
     override fun getLogTag(): String = LOG_TAG

@@ -32,7 +32,6 @@ import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.fragment.RTSRouteFragment
 import org.mtransit.android.ui.view.common.SpacesItemDecoration
 
-
 class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes) {
 
     companion object {

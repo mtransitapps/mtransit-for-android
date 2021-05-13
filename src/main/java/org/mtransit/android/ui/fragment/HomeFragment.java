@@ -47,6 +47,7 @@ import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.ui.view.common.PairMediatorLiveData;
 import org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout;
@@ -508,7 +509,10 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	public boolean onTypeHeaderButtonClick(int buttonId, @NonNull DataSourceType type) {
 		if (buttonId == POIArrayAdapter.TypeHeaderButtonsClickListener.BUTTON_MORE) {
 			if (getActivity() != null) {
-				((MainActivity) getActivity()).addFragmentToStack(NearbyFragment.newNearbyInstance(null, type.getId()), this);
+				((MainActivity) getActivity()).addFragmentToStack(
+						NearbyFragment.newNearbyInstance(type.getId()),
+						this
+				);
 			}
 			return true; // handled
 		}

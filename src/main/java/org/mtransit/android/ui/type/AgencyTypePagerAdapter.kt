@@ -17,14 +17,14 @@ class AgencyTypePagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Logga
 
     private var agencies: MutableList<AgencyProperties>? = null
 
-    fun setAgencies(agencies: List<AgencyProperties>?): Boolean {
+    fun setAgencies(newAgencies: List<AgencyProperties>?): Boolean { // TODO DiffUtil
         var changed = false
         if (!this.agencies.isNullOrEmpty()) {
             this.agencies?.clear()
             this.agencies = null // loading
             changed = true
         }
-        agencies?.let {
+        newAgencies?.let {
             this.agencies = mutableListOf<AgencyProperties>().apply {
                 changed = addAll(it)
             }

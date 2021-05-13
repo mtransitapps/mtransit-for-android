@@ -4,6 +4,7 @@ import android.location.Location;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 
 import org.mtransit.android.ui.view.common.IActivity;
 
@@ -26,6 +27,10 @@ public interface MTLocationProvider {
 	void addOnLastLocationChangeListener(@NonNull OnLastLocationChangeListener onLastLocationChangeListener);
 
 	void removeOnLastLocationChangeListener(@NonNull OnLastLocationChangeListener onLastLocationChangeListener);
+
+	@WorkerThread
+	@NonNull
+	String getLocationAddressString(@NonNull Location location);
 
 	interface OnPermissionsPreRequest {
 		void onPermissionsPreRequestPositiveBtnClick(@NonNull ScreenWithLocationView screenWithLocationView);

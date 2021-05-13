@@ -83,10 +83,7 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
         binding = FragmentNewsListBinding.bind(view).apply {
             refreshLayout.apply {
                 setColorSchemeColors(
-                    ThemeUtils.resolveColorAttribute(
-                        rootView.context,
-                        R.attr.colorAccent
-                    )
+                    ThemeUtils.resolveColorAttribute(rootView.context, R.attr.colorAccent)
                 )
                 setOnRefreshListener(viewModel::onRefreshRequested)
             }

@@ -5,11 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.pref.liveData
@@ -25,7 +22,7 @@ class AgencyTypeViewModel(savedStateHandle: SavedStateHandle) : MTViewModelWithL
     companion object {
         private val LOG_TAG = AgencyTypeViewModel::class.java.simpleName
 
-        const val EXTRA_TYPE_ID = "extra_type_id"
+        internal const val EXTRA_TYPE_ID = "extra_type_id"
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -54,19 +51,18 @@ class AgencyTypeViewModel(savedStateHandle: SavedStateHandle) : MTViewModelWithL
             )
         } ?: MutableLiveData(null)
     }
-    val selectedTypeAgencyPosition: LiveData<Int?> = PairMediatorLiveData(selectedTypeAgencyAuthority, typeAgencies).switchMap { (agencyAuthority, agencies) ->
-        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-            if (agencyAuthority == null || agencies == null) {
-                emit(null)
-            } else {
-                emit(agencies.indexOfFirst { it.authority == agencyAuthority }.coerceAtLeast(0))
-            }
+
+    val selectedTypeAgencyPosition: LiveData<Int?> = PairMediatorLiveData(selectedTypeAgencyAuthority, typeAgencies).map { (agencyAuthority, agencies) ->
+        if (agencyAuthority == null || agencies == null) {
+            null
+        } else {
+            agencies.indexOfFirst { it.authority == agencyAuthority }.coerceAtLeast(0)
         }
     }
 
     fun saveSelectedTypeAgency(position: Int) {
         saveSelectedTypeAgency(
-            typeAgencies.value?.get(position) ?: return
+            typeAgencies.value?.getOrNull(position) ?: return
         )
     }
 

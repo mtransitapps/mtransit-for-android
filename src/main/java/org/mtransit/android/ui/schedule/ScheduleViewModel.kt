@@ -24,9 +24,9 @@ class ScheduleViewModel(savedStateHandle: SavedStateHandle) : ViewModel(), MTLog
     companion object {
         private val LOG_TAG = ScheduleViewModel::class.java.simpleName
 
-        const val EXTRA_AUTHORITY = "extra_agency_authority"
-        const val EXTRA_POI_UUID = "extra_poi_uuid"
-        const val EXTRA_COLOR_INT = "extra_color_int"
+        internal const val EXTRA_AUTHORITY = "extra_agency_authority"
+        internal const val EXTRA_POI_UUID = "extra_poi_uuid"
+        internal const val EXTRA_COLOR_INT = "extra_color_int"
     }
 
     override fun getLogTag(): String = LOG_TAG

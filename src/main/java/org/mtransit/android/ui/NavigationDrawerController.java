@@ -39,7 +39,7 @@ import org.mtransit.android.ui.favorites.FavoritesFragment;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.HomeFragment;
 import org.mtransit.android.ui.fragment.MapFragment;
-import org.mtransit.android.ui.fragment.NearbyFragment;
+import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.util.LinkUtils;
@@ -485,7 +485,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		} else if (navItemId == R.id.nav_favorites) {
 			return FavoritesFragment.newInstance();
 		} else if (navItemId == R.id.nav_nearby) {
-			return NearbyFragment.newNearbyInstance(null, null);
+			return NearbyFragment.newNearbyInstance(null);
 		} else if (navItemId == R.id.nav_map) {
 			return MapFragment.newInstance(null, null, null);
 		} else if (navItemId == R.id.nav_news) {

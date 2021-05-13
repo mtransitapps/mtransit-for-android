@@ -36,10 +36,10 @@ class SearchViewModel(private val savedStateHandle: SavedStateHandle) : MTViewMo
     companion object {
         private val LOG_TAG = SearchViewModel::class.java.simpleName
 
-        const val EXTRA_QUERY = "extra_query"
-        const val EXTRA_QUERY_DEFAULT = StringUtils.EMPTY
-        const val EXTRA_TYPE_FILTER = "extra_type_filter"
-        const val EXTRA_SEARCH_HAS_FOCUS = "extra_search_has_focus"
+        internal const val EXTRA_QUERY = "extra_query"
+        internal const val EXTRA_QUERY_DEFAULT = StringUtils.EMPTY
+        internal const val EXTRA_TYPE_FILTER = "extra_type_filter"
+        internal const val EXTRA_SEARCH_HAS_FOCUS = "extra_search_has_focus"
     }
 
     override fun getLogTag(): String = LOG_TAG
