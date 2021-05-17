@@ -29,7 +29,7 @@ import org.mtransit.android.databinding.FragmentRtsAgencyRoutesBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
-import org.mtransit.android.ui.fragment.RTSRouteFragment
+import org.mtransit.android.ui.rts.route.RTSRouteFragment
 import org.mtransit.android.ui.view.common.SpacesItemDecoration
 
 class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes) {
@@ -93,9 +93,6 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
             RTSRouteFragment.newInstance(
                 agency.authority,
                 route.id,
-                null,
-                null,
-                route
             ),
             this
         )

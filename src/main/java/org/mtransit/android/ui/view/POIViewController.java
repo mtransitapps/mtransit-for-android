@@ -33,7 +33,7 @@ import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
-import org.mtransit.android.ui.fragment.RTSRouteFragment;
+import org.mtransit.android.ui.rts.route.RTSRouteFragment;
 import org.mtransit.android.util.LinkUtils;
 
 import java.util.ArrayList;
@@ -347,7 +347,7 @@ public class POIViewController implements MTLog.Loggable {
 						if (mainActivity == null) {
 							return;
 						}
-						mainActivity.addFragmentToStack(RTSRouteFragment.newInstance(authority, route.getId(), tripId, stopId, route));
+						mainActivity.addFragmentToStack(RTSRouteFragment.newInstance(rts));
 					}
 				});
 			}

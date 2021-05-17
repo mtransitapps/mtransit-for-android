@@ -4,6 +4,7 @@ import org.mtransit.android.common.IApplication
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.ScheduleTimestamps
+import org.mtransit.android.commons.data.Trip
 import org.mtransit.android.commons.provider.NewsProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract
@@ -35,6 +36,14 @@ class DataSourceRequestManager(private val app: IApplication) {
 
     fun findAllRTSAgencyRoutes(agencyAuthority: String): List<Route>? {
         return DataSourceManager.findAllRTSAgencyRoutes(context, agencyAuthority)
+    }
+
+    fun findRTSRoute(agencyAuthority: String, routeId: Long): Route? {
+        return DataSourceManager.findRTSRoute(context, agencyAuthority, routeId)
+    }
+
+    fun findRTSRouteTrips(agencyAuthority: String, routeId: Long): List<Trip>? {
+        return DataSourceManager.findRTSRouteTrips(context, agencyAuthority, routeId)
     }
 
     fun findAgencyProperties(

@@ -25,6 +25,7 @@ import org.mtransit.android.databinding.FragmentNearbyBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
+import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
@@ -341,7 +342,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     override fun onResume() {
         super.onResume()
         switchView()
-        onUserLocationChanged((activity as? MainActivity)?.lastLocation)
+        (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
     }
 
     override fun onDestroyView() {

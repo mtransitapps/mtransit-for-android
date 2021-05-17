@@ -1,53 +1,49 @@
-@file:JvmName("AgencyPOIsFragment") // ANALYTICS
-package org.mtransit.android.ui.type.poi
+@file:JvmName("RTSTripStopsFragment") // ANALYTICS
+package org.mtransit.android.ui.rts.route.trip
 
 import android.content.Context
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.LayerDrawable
-import android.graphics.drawable.StateListDrawable
+import android.location.Location
 import android.os.Bundle
-import android.util.StateSet
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.widget.AbsListView
-import android.widget.CompoundButton
-import androidx.appcompat.widget.SwitchCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import org.mtransit.android.R
+import org.mtransit.android.commons.CollectionUtils
+import org.mtransit.android.commons.LocationUtils
+import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.databinding.FragmentAgencyPoisBinding
+import org.mtransit.android.databinding.FragmentRtsTripStopsBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.databinding.LayoutPoiListBinding
 import org.mtransit.android.di.Injection
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.ui.fragment.MTFragmentX
-import org.mtransit.android.ui.type.AgencyTypeViewModel
+import org.mtransit.android.ui.rts.route.RTSRouteViewModel
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.MapViewController.POIMarker
 import org.mtransit.android.ui.view.common.IActivity
+import java.util.ArrayList
 
-class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity {
+class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IActivity {
 
     companion object {
-        private val LOG_TAG = AgencyPOIsFragment::class.java.simpleName
+        private val LOG_TAG = RTSTripStopsFragment::class.java.simpleName
 
         @JvmStatic
         fun newInstance(
             agencyAuthority: String,
-            optColorInt: Int? = null,
-        ): AgencyPOIsFragment {
-            return AgencyPOIsFragment().apply {
+            tripId: Long,
+            optSelectedStopId: Int? = null,
+        ): RTSTripStopsFragment {
+            return RTSTripStopsFragment().apply {
                 arguments = bundleOf(
-                    AgencyPOIsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
-                    AgencyPOIsViewModel.EXTRA_COLOR_INT to optColorInt,
+                    RTSTripStopsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
+                    RTSTripStopsViewModel.EXTRA_TRIP_ID to tripId,
+                    RTSTripStopsViewModel.EXTRA_SELECTED_TRIP_STOP_ID to optSelectedStopId,
                 )
             }
         }
@@ -57,34 +53,18 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
 
     override fun getLogTag(): String = this.theLogTag
 
-    private val viewModel by viewModels<AgencyPOIsViewModel>()
-    private val parentViewModel by viewModels<AgencyTypeViewModel>({ requireParentFragment() })
+    private val viewModel by viewModels<RTSTripStopsViewModel>()
+    private val parentViewModel by viewModels<RTSRouteViewModel>({ requireParentFragment() })
 
-    private var binding: FragmentAgencyPoisBinding? = null
+    private var binding: FragmentRtsTripStopsBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
     private var listBinding: LayoutPoiListBinding? = null
-
-    private var listMapToggleMenuItem: MenuItem? = null
-    private var listMapSwitchMenuItem: SwitchCompat? = null
-
-    private val listMapToggleSelector: StateListDrawable by lazy {
-        StateListDrawable().apply {
-            (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_list, requireContext().theme) as? LayerDrawable)?.apply {
-                viewModel.colorInt.value?.let { (findDrawableByLayerId(R.id.switch_list_oval_shape) as? GradientDrawable)?.setColor(it) }
-                addState(intArrayOf(android.R.attr.state_checked), this)
-            }
-            (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_map, requireContext().theme) as? LayerDrawable)?.apply {
-                viewModel.colorInt.value?.let { (findDrawableByLayerId(R.id.switch_map_oval_shape) as? GradientDrawable)?.setColor(it) }
-                addState(StateSet.WILD_CARD, this)
-            }
-        }
-    }
 
     private val locationPermissionProvider: LocationPermissionProvider by lazy { Injection.providesLocationPermissionProvider() }
 
     private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
 
-        override fun getPOMarkers(): Collection<POIMarker>? = null
+        override fun getPOMarkers(): Collection<MapViewController.POIMarker>? = null
 
         override fun getPOIs(): Collection<POIManager>? {
             if (!adapter.isInitialized) {
@@ -130,28 +110,27 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
             true,
             false
         ).apply {
-            setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(this@AgencyPOIsFragment))
+            setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(this@RTSTripStopsFragment))
         }
     }
 
     private val adapter: POIArrayAdapter by lazy {
         POIArrayAdapter(this).apply {
             logTag = logTag
-            setPois(viewModel.poiList.value)
+            setShowExtra(false)
             setLocation(parentViewModel.deviceLocation.value)
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         this.mapViewController.onCreate(savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         this.mapViewController.onViewCreated(view, savedInstanceState)
-        binding = FragmentAgencyPoisBinding.bind(view).apply {
+        binding = FragmentRtsTripStopsBinding.bind(view).apply {
             emptyStub.setOnInflateListener { _, inflated ->
                 emptyBinding = LayoutEmptyBinding.bind(inflated)
             }
@@ -163,13 +142,8 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
                 adapter.setListView(listView)
             }
         }
-        viewModel.colorInt.observe(viewLifecycleOwner, { colorInt ->
-            colorInt?.let {
-                activity?.invalidateOptionsMenu() // initialize action bar list/map switch icon
-            }
-        })
-        viewModel.agency.observe(viewLifecycleOwner, { agency ->
-            theLogTag = agency?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
+        viewModel.tripId.observe(viewLifecycleOwner, { tripId ->
+            theLogTag = tripId?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
             adapter.logTag = logTag
             mapViewController.logTag = logTag
         })
@@ -177,7 +151,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
             mapViewController.onUserLocationChanged(deviceLocation)
             adapter.setLocation(deviceLocation)
         })
-        viewModel.showingListInsteadOfMap.observe(viewLifecycleOwner, { showingListInsteadOfMap ->
+        parentViewModel.showingListInsteadOfMap.observe(viewLifecycleOwner, { showingListInsteadOfMap ->
             showingListInsteadOfMap?.let { listInsteadOfMap ->
                 if (listInsteadOfMap) { // LIST
                     mapViewController.onPause()
@@ -186,18 +160,73 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
                 }
             }
             switchView(showingListInsteadOfMap)
-            updateListMapToggleMenuItem()
-
+        })
+        viewModel.selectedTripStopId.observe(viewLifecycleOwner, { selectedTripStopId ->
+            // DO NOTHING
+        })
+        viewModel.closestPOIShown.observe(viewLifecycleOwner, { closestPOIShown ->
+            // DO NOTHING
         })
         viewModel.poiList.observe(viewLifecycleOwner, { poiList ->
+            var currentSelectedItemIndexUuid: Pair<Int?, String?>? = null
+            val selectedStopId = viewModel.selectedTripStopId.value
+            val closestPOIShow = viewModel.closestPOIShown.value
+            if (selectedStopId != null || closestPOIShow != true) {
+                if (selectedStopId != null) {
+                    currentSelectedItemIndexUuid = findStopIndexUuid(selectedStopId, poiList)
+                }
+                if (currentSelectedItemIndexUuid == null) {
+                    if (closestPOIShow == false) {
+                        currentSelectedItemIndexUuid = findClosestPOIIndexUuid(poiList)
+                    }
+                }
+                viewModel.setSelectedOrClosestStopShown()
+            }
+
             adapter.setPois(poiList)
             adapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
             mapViewController.notifyMarkerChanged(mapMarkerProvider)
+            if (parentViewModel.showingListInsteadOfMap.value == true) { // LIST
+                val selectedPosition = currentSelectedItemIndexUuid?.first ?: -1
+                if (selectedPosition > 0) {
+                    binding?.apply {
+                        (listBinding?.root ?: listStub.inflate() as AbsListView).setSelection(selectedPosition - 1) // show 1 more stop on top of the list
+                    }
+                }
+            }
             switchView()
         })
     }
 
-    private fun switchView(showingListInsteadOfMap: Boolean? = viewModel.showingListInsteadOfMap.value) {
+    private fun findStopIndexUuid(stopId: Int, pois: List<POIManager>?): Pair<Int?, String?>? {
+        return pois
+            ?.withIndex()
+            ?.firstOrNull { (it.value.poi as? RouteTripStop)?.stop?.id == stopId }
+            ?.let {
+                it.index to it.value.poi.uuid
+            }
+    }
+
+    private fun findClosestPOIIndexUuid(
+        pois: List<POIManager>?,
+        deviceLocation: Location? = parentViewModel.deviceLocation.value
+    ): Pair<Int?, String?>? {
+        if (deviceLocation != null && pois?.isNotEmpty() == true) {
+            LocationUtils.updateDistance(pois, deviceLocation.latitude, deviceLocation.longitude)
+            val sortedPOIs = ArrayList(pois)
+            CollectionUtils.sort(sortedPOIs, LocationUtils.POI_DISTANCE_COMPARATOR)
+            val closestPoiUuid = sortedPOIs.getOrNull(0)?.poi?.uuid ?: return null
+            for (idx in pois.indices) {
+                val poim = pois[idx]
+                if (poim.poi.uuid == closestPoiUuid) {
+                    return idx to poim.poi.uuid
+                }
+            }
+        }
+        return null
+    }
+
+    fun switchView(showingListInsteadOfMap: Boolean? = parentViewModel.showingListInsteadOfMap.value) {
         binding?.apply {
             when {
                 !adapter.isInitialized || showingListInsteadOfMap == null -> {
@@ -227,55 +256,6 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        if (isResumed) {
-            if (menu.findItem(R.id.menu_toggle_list_map) == null) {
-                inflater.inflate(R.menu.menu_agency_pois, menu)
-            }
-            listMapToggleMenuItem = menu.findItem(R.id.menu_toggle_list_map)
-            listMapSwitchMenuItem = listMapToggleMenuItem?.actionView?.findViewById(R.id.action_bar_switch_list_map)
-            listMapSwitchMenuItem?.thumbDrawable = listMapToggleSelector
-        } else {
-            listMapSwitchMenuItem?.setOnCheckedChangeListener(null)
-            listMapSwitchMenuItem?.visibility = View.GONE
-            listMapSwitchMenuItem = null
-            listMapToggleMenuItem?.isVisible = false
-            listMapToggleMenuItem = null
-        }
-        updateListMapToggleMenuItem()
-    }
-
-    private fun updateListMapToggleMenuItem() {
-        if (!isResumed) {
-            return
-        }
-        listMapSwitchMenuItem?.isChecked = viewModel.showingListInsteadOfMap.value != false
-        listMapSwitchMenuItem?.setOnCheckedChangeListener { buttonView: CompoundButton, isChecked: Boolean ->
-            onCheckedChanged(buttonView, isChecked)
-        }
-        listMapSwitchMenuItem?.isVisible = viewModel.showingListInsteadOfMap.value != null
-        listMapToggleMenuItem?.isVisible = viewModel.showingListInsteadOfMap.value != null
-    }
-
-    private fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
-        if (!isResumed) {
-            return
-        }
-        if (buttonView.id == R.id.action_bar_switch_list_map) {
-            viewModel.saveShowingListInsteadOfMap(isChecked)
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (!isResumed) {
-            if (item.itemId == R.id.action_bar_switch_list_map) {
-                viewModel.saveShowingListInsteadOfMap(viewModel.showingListInsteadOfMap.value == false) // switching
-                return true // handled
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -294,13 +274,11 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
 
     override fun onResume() {
         super.onResume()
-        if (viewModel.showingListInsteadOfMap.value == false) { // MAP
+        if (parentViewModel.showingListInsteadOfMap.value == false) { // MAP
             mapViewController.onResume()
         }
         adapter.onResume(this, parentViewModel.deviceLocation.value)
         switchView()
-        activity?.invalidateOptionsMenu() // initialize action bar list/map switch icon
-        updateListMapToggleMenuItem()
     }
 
     override fun onPause() {
@@ -317,8 +295,8 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
     override fun onDestroyView() {
         super.onDestroyView()
         mapViewController.onDestroyView()
-        listBinding = null
         emptyBinding = null
+        listBinding = null
         binding = null
     }
 

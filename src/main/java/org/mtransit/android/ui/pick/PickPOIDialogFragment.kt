@@ -128,9 +128,7 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
     override fun onResume() {
         super.onResume()
         this.adapter.onResume(this, viewModel.deviceLocation.value)
-        activity?.let {
-            onUserLocationChanged((it as MTActivityWithLocation).lastLocation)
-        }
+        (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {

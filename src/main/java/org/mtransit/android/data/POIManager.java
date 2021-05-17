@@ -42,8 +42,8 @@ import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTDialog;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.POIFragment;
-import org.mtransit.android.ui.fragment.RTSRouteFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
+import org.mtransit.android.ui.rts.route.RTSRouteFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.util.UITimeUtils;
 
@@ -596,8 +596,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				onClickHandledListener.onLeaving();
 			}
 			RouteTripStop rts = (RouteTripStop) poi;
-			((MainActivity) activity).addFragmentToStack( //
-					RTSRouteFragment.newInstance(rts.getAuthority(), rts.getRoute().getId(), rts.getTrip().getId(), rts.getStop().getId(), rts.getRoute()));
+			((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts));
 			return true; // HANDLED
 		case 2:
 			return FavoriteManager.get(activity).addRemoveFavorite(activity, this.poi.getUUID(), listener);

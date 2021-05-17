@@ -5,6 +5,7 @@ import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
@@ -19,12 +20,11 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.di.Injection
-import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import kotlin.math.max
 
-class NearbyAgencyTypeViewModel(savedStateHandle: SavedStateHandle) : MTViewModelWithLocation() {
+class NearbyAgencyTypeViewModel(savedStateHandle: SavedStateHandle) : ViewModel(), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = NearbyAgencyTypeViewModel::class.java.simpleName

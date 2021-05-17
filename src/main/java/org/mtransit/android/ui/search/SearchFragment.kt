@@ -161,9 +161,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
     override fun onResume() {
         super.onResume()
         adapter.onResume(this, viewModel.deviceLocation.value)
-        activity?.let {
-            onUserLocationChanged((it as MTActivityWithLocation).lastLocation)
-        }
+        (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
     }
 
     override fun onPause() {

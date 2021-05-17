@@ -4,12 +4,14 @@ import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.POIProviderContract
@@ -18,9 +20,8 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.di.Injection
-import org.mtransit.android.ui.MTViewModelWithLocation
 
-class AgencyPOIsViewModel(savedStateHandle: SavedStateHandle) : MTViewModelWithLocation() {
+class AgencyPOIsViewModel(savedStateHandle: SavedStateHandle) : ViewModel(), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = AgencyPOIsViewModel::class.java.simpleName

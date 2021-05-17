@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.nearby.type
 
-import android.location.Location
 import android.os.Bundle
 import android.view.View
 import android.widget.AbsListView
@@ -14,13 +13,11 @@ import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentNearbyAgencyTypeBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.databinding.LayoutPoiListBinding
-import org.mtransit.android.ui.MTActivityWithLocation
-import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.nearby.NearbyViewModel
 import org.mtransit.android.ui.view.common.IActivity
 
-class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_type), UserLocationListener, IActivity {
+class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_type), IActivity {
 
     companion object {
         private val LOG_TAG = NearbyAgencyTypeFragment::class.java.simpleName
@@ -69,7 +66,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             setInfiniteLoading(true)
             setInfiniteLoadingListener(infiniteLoadingListener)
             setPois(viewModel.nearbyPOIs.value)
-            setLocation(viewModel.deviceLocation.value)
+            setLocation(parentViewModel.deviceLocation.value)
         }
     }
 
@@ -113,7 +110,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             theLogTag = typeId?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
             adapter.logTag = logTag
         })
-        viewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation ->
+        parentViewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation ->
             adapter.setLocation(deviceLocation)
         })
         viewModel.nearbyPOIs.observe(viewLifecycleOwner, { poiList ->
@@ -123,7 +120,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
                 listBinding?.root?.setSelection(0)
             }
             if (isResumed) {
-                adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
+                adapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
             } else {
                 adapter.onPause()
             }
@@ -158,15 +155,10 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
         }
     }
 
-    override fun onUserLocationChanged(location: Location?) {
-        viewModel.onDeviceLocationChanged(location)
-    }
-
     override fun onResume() {
         super.onResume()
-        this.adapter.onResume(this, viewModel.deviceLocation.value)
+        this.adapter.onResume(this, parentViewModel.deviceLocation.value)
         switchView()
-        (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
     }
 
     override fun onPause() {
