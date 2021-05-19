@@ -6,6 +6,7 @@ import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThreadSafeDateFormatter
@@ -14,6 +15,7 @@ import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.util.UITimeUtils
 import java.util.Locale
 
+@AndroidEntryPoint
 class ScheduleDayFragment : MTFragmentX(R.layout.fragment_schedule_day), MTLog.Loggable {
 
     companion object {

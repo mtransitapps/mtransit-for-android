@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.SparseArrayCompat;
 
-import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.FavoriteProvider;
@@ -88,26 +87,32 @@ public class Favorite {
 	public static class FavoriteFolderNameComparator implements Comparator<POIManager> {
 
 		@NonNull
+		private final FavoriteManager favoriteManager;
+		@NonNull
 		private final SparseArrayCompat<Favorite.Folder> favoriteFolders;
 
-		public FavoriteFolderNameComparator(@NonNull SparseArrayCompat<Folder> favoriteFolders) {
+		public FavoriteFolderNameComparator(@NonNull FavoriteManager favoriteManager,
+											@NonNull SparseArrayCompat<Folder> favoriteFolders) {
+			this.favoriteManager = favoriteManager;
 			this.favoriteFolders = favoriteFolders;
 		}
 
 		@Override
 		public int compare(@NonNull POIManager lPoim, @NonNull POIManager rPoim) {
 			String lFavoriteFolderName = StringUtils.EMPTY;
-			if (FavoriteManager.isFavoriteDataSourceId(lPoim.poi.getDataSourceTypeId())) {
-				int favoriteFolderId = FavoriteManager.extractFavoriteFolderId(lPoim.poi.getDataSourceTypeId());
-				if (ArrayUtils.containsKey(this.favoriteFolders, favoriteFolderId)) {
-					lFavoriteFolderName = this.favoriteFolders.get(favoriteFolderId).getName();
+			if (this.favoriteManager.isFavoriteDataSourceId(lPoim.poi.getDataSourceTypeId())) {
+				final int favoriteFolderId = this.favoriteManager.extractFavoriteFolderId(lPoim.poi.getDataSourceTypeId());
+				final Folder favFolder = this.favoriteFolders.get(favoriteFolderId);
+				if (favFolder != null) {
+					lFavoriteFolderName = favFolder.getName();
 				}
 			}
 			String rFavoriteFolderName = StringUtils.EMPTY;
-			if (FavoriteManager.isFavoriteDataSourceId(rPoim.poi.getDataSourceTypeId())) {
-				int favoriteFolderId = FavoriteManager.extractFavoriteFolderId(rPoim.poi.getDataSourceTypeId());
-				if (ArrayUtils.containsKey(this.favoriteFolders, favoriteFolderId)) {
-					rFavoriteFolderName = this.favoriteFolders.get(favoriteFolderId).getName();
+			if (this.favoriteManager.isFavoriteDataSourceId(rPoim.poi.getDataSourceTypeId())) {
+				final int favoriteFolderId = this.favoriteManager.extractFavoriteFolderId(rPoim.poi.getDataSourceTypeId());
+				final Folder favFolder = this.favoriteFolders.get(favoriteFolderId);
+				if (favFolder != null) {
+					rFavoriteFolderName = favFolder.getName();
 				}
 			}
 			return lFavoriteFolderName.compareTo(rFavoriteFolderName);

@@ -10,6 +10,7 @@ import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.KeyboardUtils.Companion.hideKeyboard
 import org.mtransit.android.commons.PreferenceUtils
@@ -20,12 +21,19 @@ import org.mtransit.android.data.POIArrayAdapter.TypeHeaderButtonsClickListener
 import org.mtransit.android.databinding.FragmentSearchBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.databinding.LayoutPoiListBinding
+import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.provider.sensor.MTSensorManager
+import org.mtransit.android.task.ServiceUpdateLoader
+import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.MTSearchView
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListener, TypeHeaderButtonsClickListener, OnItemSelectedListener {
 
     companion object {
@@ -54,13 +62,35 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
 
     private val viewModel by viewModels<SearchViewModel>()
 
+    @Inject
+    lateinit var sensorManager: MTSensorManager
+
+    @Inject
+    lateinit var dataSourcesRepository: DataSourcesRepository
+
+    @Inject
+    lateinit var favoriteManager: FavoriteManager
+
+    @Inject
+    lateinit var statusLoader: StatusLoader
+
+    @Inject
+    lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
     private var binding: FragmentSearchBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
     private var listBinding: LayoutPoiListBinding? = null
 
     private val adapter: POIArrayAdapter by lazy {
-        POIArrayAdapter(this).apply {
-            setLogTag(logTag)
+        POIArrayAdapter(
+            this,
+            this.sensorManager,
+            this.dataSourcesRepository,
+            this.favoriteManager,
+            this.statusLoader,
+            this.serviceUpdateLoader
+        ).apply {
+            logTag = logTag
             setOnTypeHeaderButtonsClickListener(this@SearchFragment)
             setPois(emptyList()) // empty search = no result
         }

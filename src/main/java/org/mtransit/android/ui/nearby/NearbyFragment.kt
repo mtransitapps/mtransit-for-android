@@ -18,13 +18,12 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
+import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.databinding.FragmentNearbyBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
-import org.mtransit.android.task.ServiceUpdateLoader
-import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.MainActivity
@@ -32,6 +31,7 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.fragment.MapFragment
 import org.mtransit.android.util.MapUtils
 
+@AndroidEntryPoint
 class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListener {
 
     companion object {
@@ -107,9 +107,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
-            StatusLoader.get().clearAllTasks()
-            ServiceUpdateLoader.get().clearAllTasks()
-            viewModel.saveSelectedTypePosition(position)
+            viewModel.onPagetSelected(position)
             lastPageSelected = position
         }
 

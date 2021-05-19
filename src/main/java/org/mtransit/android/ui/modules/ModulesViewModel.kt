@@ -5,16 +5,18 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.di.Injection
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import javax.inject.Inject
 
-class ModulesViewModel : ViewModel() {
-
-    private val dataSourcesRepository: DataSourcesRepository by lazy { Injection.providesDataSourcesRepository() }
+@HiltViewModel
+class ModulesViewModel @Inject constructor(
+    private val dataSourcesRepository: DataSourcesRepository,
+) : ViewModel() {
 
     private val filteredAgencies = dataSourcesRepository.readingAllAgenciesDistinct().map { agencies ->
         agencies.filter { agency ->

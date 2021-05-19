@@ -15,6 +15,9 @@ import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.util.NightModeUtils;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class PreferencesActivity extends MTActivity {
 
 	private static final String LOG_TAG = PreferencesActivity.class.getSimpleName();

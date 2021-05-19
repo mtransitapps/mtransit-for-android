@@ -1,9 +1,14 @@
 package org.mtransit.android.datasource
 
 import org.mtransit.android.data.DataSourceType
+import javax.inject.Inject
+import javax.inject.Singleton
 
 @Suppress("unused")
-class DataSourcesCache(private val dataSourcesDatabase: DataSourcesDatabase) {
+@Singleton
+class DataSourcesCache @Inject constructor(
+    private val dataSourcesDatabase: DataSourcesDatabase,
+) {
 
     // AGENCY
 

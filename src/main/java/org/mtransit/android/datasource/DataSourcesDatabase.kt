@@ -1,12 +1,12 @@
 package org.mtransit.android.datasource
 
+import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import org.mtransit.android.common.IApplication
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.NewsProviderProperties
@@ -58,16 +58,16 @@ abstract class DataSourcesDatabase : RoomDatabase() {
         private var instance: DataSourcesDatabase? = null
 
         @JvmStatic
-        fun getInstance(app: IApplication): DataSourcesDatabase {
+        fun getInstance(appContext: Context): DataSourcesDatabase {
             return instance ?: synchronized(this) {
-                instance ?: buildDatabase(app).also { instance = it }
+                instance ?: buildDatabase(appContext).also { instance = it }
             }
         }
 
-        private fun buildDatabase(app: IApplication): DataSourcesDatabase {
+        private fun buildDatabase(appContext: Context): DataSourcesDatabase {
             return Room
                 .databaseBuilder(
-                    app.requireApplication(),
+                    appContext,
                     DataSourcesDatabase::class.java,
                     DB_NAME
                 )

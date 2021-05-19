@@ -3,6 +3,7 @@ package org.mtransit.android.ui.view.map;
 import android.graphics.Bitmap;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 
@@ -148,10 +149,12 @@ public interface ExtendedGoogleMap {
 		View getInfoWindow(IMarker marker);
 	}
 
+	// FIXME
+	@SuppressWarnings("deprecation")
 	interface OnCameraChangeListener extends com.google.android.gms.maps.GoogleMap.OnCameraChangeListener {
 
 		@Override
-		void onCameraChange(CameraPosition cameraPosition);
+		void onCameraChange(@NonNull CameraPosition cameraPosition);
 	}
 
 	interface OnInfoWindowClickListener {
@@ -162,7 +165,7 @@ public interface ExtendedGoogleMap {
 	interface OnMapClickListener extends com.google.android.gms.maps.GoogleMap.OnMapClickListener {
 
 		@Override
-		void onMapClick(LatLng position);
+		void onMapClick(@NonNull LatLng position);
 	}
 
 	interface OnMapLoadedCallback extends com.google.android.gms.maps.GoogleMap.OnMapLoadedCallback {
@@ -174,7 +177,7 @@ public interface ExtendedGoogleMap {
 	interface OnMapLongClickListener extends com.google.android.gms.maps.GoogleMap.OnMapLongClickListener {
 
 		@Override
-		void onMapLongClick(LatLng position);
+		void onMapLongClick(@NonNull LatLng position);
 	}
 
 	interface OnMarkerClickListener {
@@ -200,6 +203,6 @@ public interface ExtendedGoogleMap {
 	interface SnapshotReadyCallback extends com.google.android.gms.maps.GoogleMap.SnapshotReadyCallback {
 
 		@Override
-		void onSnapshotReady(Bitmap snapshot);
+		void onSnapshotReady(@Nullable Bitmap snapshot);
 	}
 }

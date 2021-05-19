@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.location.Address;
 import android.location.Location;
@@ -40,8 +39,8 @@ import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
-import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.FavoriteManager;
+import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.HomePOILoader;
 import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.ui.ActionBarController;
@@ -56,6 +55,11 @@ import org.mtransit.android.util.LoaderUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class HomeFragment extends ABFragment implements LoaderManager.LoaderCallbacks<ArrayList<POIManager>>, MTActivityWithLocation.UserLocationListener,
 		FavoriteManager.FavoriteUpdateListener, SwipeRefreshLayout.OnRefreshListener, POIArrayAdapter.TypeHeaderButtonsClickListener,
 		POIArrayAdapter.InfiniteLoadingListener {
@@ -101,26 +105,24 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	private final PairMediatorLiveData<Location, List<AgencyProperties>> poiLoaderLD = new PairMediatorLiveData<>(this.nearbyLocationLD, this.allAgencyPropertiesLD);
 	@Nullable
 	private String nearbyLocationAddress;
+	@SuppressWarnings("deprecation") // FIXME
 	@Nullable
 	private ListViewSwipeRefreshLayout swipeRefreshLayout;
 
-	@NonNull
-	private final CrashReporter crashReporter;
-	@NonNull
-	private final IAdManager adManager;
-	@NonNull
-	private final DataSourcesRepository dataSourcesRepository;
-
-	public HomeFragment() {
-		super();
-		this.crashReporter = Injection.providesCrashReporter();
-		this.adManager = Injection.providesAdManager();
-		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
-	}
+	@Inject
+	CrashReporter crashReporter;
+	@Inject
+	IAdManager adManager;
+	@Inject
+	DataSourcesRepository dataSourcesRepository;
+	@Inject
+	FavoriteManager favoriteManager;
+	@Inject
+	MTSensorManager sensorManager;
 
 	@Override
-	public void onAttach(@NonNull Activity activity) {
-		super.onAttach(activity);
+	public void onAttach(@NonNull Context context) {
+		super.onAttach(context);
 		initAdapters(this);
 	}
 
@@ -297,7 +299,8 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 			return new HomePOILoader(
 					this,
 					allAgencyProperties,
-					nearbyLocation
+					nearbyLocation,
+					this.favoriteManager
 			);
 		default:
 			this.crashReporter.w(this, "Loader id '%s' unknown!", id);
@@ -482,7 +485,14 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 	}
 
 	private void initAdapters(IActivity activity) {
-		this.adapter = new POIArrayAdapter(activity);
+		this.adapter = new POIArrayAdapter(
+				activity,
+				this.sensorManager,
+				this.dataSourcesRepository,
+				this.favoriteManager,
+				this.statusLoader,
+				this.serviceUpdateLoader
+		);
 		this.adapter.setLogTag(getLogTag());
 		this.adapter.setFavoriteUpdateListener(this);
 		this.adapter.setShowBrowseHeaderSection(true);

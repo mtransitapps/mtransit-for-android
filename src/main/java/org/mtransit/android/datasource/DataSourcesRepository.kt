@@ -1,12 +1,13 @@
 package org.mtransit.android.datasource
 
+import android.content.Context
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import org.mtransit.android.common.IApplication
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.AgencyProperties.Companion.SHORT_NAME_COMPARATOR
@@ -16,11 +17,14 @@ import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
+import javax.inject.Inject
+import javax.inject.Singleton
 
 
 @Suppress("MemberVisibilityCanBePrivate", "unused")
-class DataSourcesRepository(
-    private val app: IApplication,
+@Singleton
+class DataSourcesRepository @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val dataSourcesCache: DataSourcesCache,
     private val dataSourcesReader: DataSourcesReader,
 ) : MTLog.Loggable {
@@ -33,7 +37,7 @@ class DataSourcesRepository(
 
     private val defaultAgencyComparator: Comparator<AgencyProperties> = SHORT_NAME_COMPARATOR
 
-    val defaultDataSourceTypeComparator: Comparator<DataSourceType> by lazy { DataSourceTypeShortNameComparator(app.requireContext()) }
+    val defaultDataSourceTypeComparator: Comparator<DataSourceType> by lazy { DataSourceTypeShortNameComparator(appContext) }
 
     // IN-MEMORY CACHE
     private var _agencyProperties = listOf<AgencyProperties>() // sorted

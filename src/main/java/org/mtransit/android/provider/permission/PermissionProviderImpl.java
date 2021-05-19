@@ -1,11 +1,11 @@
 package org.mtransit.android.provider.permission;
 
+import android.content.Context;
 import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
-import org.mtransit.android.common.IContext;
 import org.mtransit.android.common.RequestCodes;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.common.IActivity;
@@ -19,8 +19,8 @@ public abstract class PermissionProviderImpl implements PermissionProvider, MTLo
 	abstract String[] getAllPermissions();
 
 	@Override
-	public boolean permissionsGranted(@NonNull IContext context) {
-		return ActivityCompat.checkSelfPermission(context.requireContext(), getMainPermission()) == PackageManager.PERMISSION_GRANTED;
+	public boolean permissionsGranted(@NonNull Context context) {
+		return ActivityCompat.checkSelfPermission(context, getMainPermission()) == PackageManager.PERMISSION_GRANTED;
 	}
 
 	@Override
@@ -40,8 +40,10 @@ public abstract class PermissionProviderImpl implements PermissionProvider, MTLo
 	}
 
 	@Override
-	public boolean handleRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults,
-			@NonNull OnPermissionGrantedListener onPermissionGrantedListener) {
+	public boolean handleRequestPermissionsResult(int requestCode,
+												  @NonNull String[] permissions,
+												  @NonNull int[] grantResults,
+												  @NonNull OnPermissionGrantedListener onPermissionGrantedListener) {
 		if (requestCode == RequestCodes.PERMISSIONS_LOCATION_RC) {
 			if (grantResults.length > 0
 					&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {

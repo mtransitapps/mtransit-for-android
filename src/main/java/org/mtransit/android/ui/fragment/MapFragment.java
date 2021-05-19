@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -35,7 +34,6 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.datasource.DataSourcesRepository;
-import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.MapPOILoader;
@@ -52,6 +50,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class MapFragment extends ABFragment implements
 		LoaderManager.LoaderCallbacks<Collection<MapViewController.POIMarker>>,
 		MTActivityWithLocation.UserLocationListener,
@@ -100,24 +103,36 @@ public class MapFragment extends ABFragment implements
 
 	@NonNull
 	private final MapViewController mapViewController =
-			new MapViewController(LOG_TAG, null, this, true, true, true, false, false, false, 64, false, true, true, false, true);
+			new MapViewController(
+					LOG_TAG,
+					null,
+					this,
+					true,
+					true,
+					true,
+					false,
+					false,
+					false,
+					64,
+					false,
+					true,
+					true,
+					false,
+					true,
+					null
+			);
 
-	@NonNull
-	private final LocationPermissionProvider locationPermissionProvider;
-	@NonNull
-	private final DataSourcesRepository dataSourcesRepository;
-
-	public MapFragment() {
-		super();
-		this.locationPermissionProvider = Injection.providesLocationPermissionProvider();
-		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
-	}
+	@Inject
+	LocationPermissionProvider locationPermissionProvider;
+	@Inject
+	DataSourcesRepository dataSourcesRepository;
 
 	@Override
-	public void onAttach(@NonNull Activity activity) {
-		super.onAttach(activity);
-		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
-		this.mapViewController.onAttach(activity);
+	public void onAttach(@NonNull Context context) {
+		super.onAttach(context);
+		this.mapViewController.setDataSourcesRepository(this.dataSourcesRepository);
+		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(context));
+		this.mapViewController.onAttach(requireActivity());
 	}
 
 	@Override
@@ -190,9 +205,12 @@ public class MapFragment extends ABFragment implements
 			return;
 		}
 		if (this.userLocation == null) {
-			this.mapViewController.clearMarkers(); // previous marker for unspecific location
+			this.mapViewController.clearMarkers(); // previous markers for unspecific location
 			this.loadedLatLngBounds = null; // reset loaded marker area
-			this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
+			final Context context = getContext();
+			if (context != null) {
+				this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(context));
+			}
 		}
 		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 			this.userLocation = newLocation;

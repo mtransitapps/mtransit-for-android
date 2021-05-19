@@ -8,6 +8,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DividerItemDecoration
+import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.data.News
@@ -16,6 +17,7 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.fragment.NewsDetailsFragment
 
+@AndroidEntryPoint
 class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
     companion object {

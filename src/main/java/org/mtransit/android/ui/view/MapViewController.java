@@ -15,8 +15,10 @@ import android.widget.ImageView;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import androidx.collection.ArrayMap;
 import androidx.collection.SimpleArrayMap;
 
@@ -49,7 +51,6 @@ import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
-import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.pick.PickPOIDialogFragment;
 import org.mtransit.android.ui.view.map.ClusteringSettings;
@@ -162,12 +163,25 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private boolean locationPermissionGranted = false;
 
-	@NonNull
-	private final DataSourcesRepository dataSourcesRepository;
+	@Nullable
+	private DataSourcesRepository dataSourcesRepository;
 
-	public MapViewController(String logTag, MapMarkerProvider markerProvider, MapListener mapListener, boolean mapToolbarEnabled, boolean myLocationEnabled,
-							 boolean myLocationButtonEnabled, boolean indoorLevelPickerEnabled, boolean trafficEnabled, boolean indoorEnabled, int paddingTopSp,
-							 boolean followingUser, boolean hasButtons, boolean clusteringEnabled, boolean showAllMarkersWhenReady, boolean markerLabelShowExtra) {
+	public MapViewController(@NonNull String logTag,
+							 @Nullable MapMarkerProvider markerProvider,
+							 @Nullable MapListener mapListener,
+							 boolean mapToolbarEnabled,
+							 boolean myLocationEnabled,
+							 boolean myLocationButtonEnabled,
+							 boolean indoorLevelPickerEnabled,
+							 boolean trafficEnabled,
+							 boolean indoorEnabled,
+							 int paddingTopSp,
+							 boolean followingUser,
+							 boolean hasButtons,
+							 boolean clusteringEnabled,
+							 boolean showAllMarkersWhenReady,
+							 boolean markerLabelShowExtra,
+							 @Nullable DataSourcesRepository dataSourcesRepository) {
 		setLogTag(logTag);
 		setMarkerProvider(markerProvider);
 		setMapListener(mapListener);
@@ -183,14 +197,14 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.clusteringEnabled = clusteringEnabled;
 		this.showAllMarkersWhenReady = showAllMarkersWhenReady;
 		this.markerLabelShowExtra = markerLabelShowExtra;
-		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+		this.dataSourcesRepository = dataSourcesRepository;
 	}
 
-	private void setMarkerProvider(MapMarkerProvider markerProvider) {
+	private void setMarkerProvider(@Nullable MapMarkerProvider markerProvider) {
 		this.markerProviderWR = new WeakReference<>(markerProvider);
 	}
 
-	private void setMapListener(MapListener mapListener) {
+	private void setMapListener(@Nullable MapListener mapListener) {
 		this.mapListenerWR = new WeakReference<>(mapListener);
 	}
 
@@ -202,12 +216,16 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		setActivity(activity);
 	}
 
-	public void onCreate(Bundle savedInstanceState) {
+	public void setDataSourcesRepository(@Nullable DataSourcesRepository dataSourcesRepository) {
+		this.dataSourcesRepository = dataSourcesRepository;
+	}
+
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		restoreInstanceState(savedInstanceState);
 		this.lastSavedInstanceState = savedInstanceState;
 	}
 
-	private void restoreInstanceState(Bundle savedInstanceState) {
+	private void restoreInstanceState(@Nullable Bundle savedInstanceState) {
 		CameraPosition newLastCameraPosition = BundleUtils.getParcelable(EXTRA_LAST_CAMERA_POSITION, savedInstanceState);
 		if (newLastCameraPosition != null) {
 			this.lastCameraPosition = newLastCameraPosition;
@@ -218,11 +236,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 	}
 
-	public void onCreateView(View view, Bundle savedInstanceState) {
+	public void onCreateView(@SuppressWarnings("unused") @NonNull View view,
+							 @Nullable Bundle savedInstanceState) {
 		this.lastSavedInstanceState = savedInstanceState;
 	}
 
-	public void onViewCreated(View view, Bundle savedInstanceState) {
+	public void onViewCreated(@SuppressWarnings("unused") @NonNull View view,
+							  @Nullable Bundle savedInstanceState) {
 		this.lastSavedInstanceState = savedInstanceState;
 	}
 
@@ -260,6 +280,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	@Nullable
 	private InitMapViewTask initMapViewTask = null;
 
+	@SuppressWarnings("deprecation") // FIXME
 	private static class InitMapViewTask extends MTCancellableAsyncTask<Object, Void, Boolean> {
 
 		@NonNull
@@ -279,6 +300,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			this.viewWR = new WeakReference<>(view);
 		}
 
+		@WorkerThread
 		@Override
 		protected Boolean doInBackgroundNotCancelledMT(Object... params) {
 			View view = this.viewWR.get();
@@ -294,9 +316,10 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			}
 		}
 
+		@MainThread
 		@Override
 		protected void onPostExecuteNotCancelledMT(Boolean result) {
-			MapViewController mapViewController = this.mapViewControllerWR.get();
+			final MapViewController mapViewController = this.mapViewControllerWR.get();
 			if (mapViewController == null) {
 				return;
 			}
@@ -307,6 +330,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 	}
 
+	@MainThread
 	private void applyNewMapView(@Nullable View view) {
 		if (this.mapView != null) {
 			return;
@@ -342,7 +366,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 	}
 
-	public void onActivityCreated(Bundle savedInstanceState) {
+	public void onActivityCreated(@SuppressWarnings("unused") @Nullable Bundle savedInstanceState) {
+		// DO NOTHING
 	}
 
 	private boolean hasGoogleMap() {
@@ -358,16 +383,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	@Override
-	public void onMapReady(GoogleMap googleMap) {
+	public void onMapReady(@NonNull GoogleMap googleMap) {
 		setupGoogleMap(googleMap);
 	}
 
 	private boolean clusterManagerItemsLoaded = false;
 
-	private void setupGoogleMap(GoogleMap googleMap) {
-		if (googleMap == null) {
-			return;
-		}
+	private void setupGoogleMap(@NonNull GoogleMap googleMap) {
 		this.extendedGoogleMap = ExtendedMapFactory.create(googleMap, getActivityOrNull());
 		applyMapType();
 		applyMapStyle();
@@ -568,8 +590,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	@Override
-	public void onMapClick(LatLng position) {
-		MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
+	public void onMapClick(@NonNull LatLng position) {
+		final MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
 		if (mapListener != null) {
 			mapListener.onMapClick(position);
 		}
@@ -596,7 +618,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	private static final float MARKER_ZOOM_INC = 2.0f;
 
 	@Override
-	public boolean onMarkerClick(IMarker imarker) {
+	public boolean onMarkerClick(@Nullable IMarker imarker) {
 		if (imarker != null && !imarker.isCluster() && imarker.getData() != null && imarker.getData() instanceof POIMarkerIds) {
 			POIMarkerIds poiMarkerIds = imarker.getData();
 			ArrayMap.Entry<String, String> uuidAndAuthority = poiMarkerIds.entrySet().iterator().next();
@@ -614,7 +636,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	@Override
-	public void onCameraChange(CameraPosition cameraPosition) {
+	public void onCameraChange(@NonNull CameraPosition cameraPosition) {
 		this.showingMyLocation = this.showingMyLocation == null;
 		notifyNewCameraPosition();
 	}
@@ -632,13 +654,17 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		mapListener.onCameraChange(visibleRegion.latLngBounds);
 	}
 
-	public void onConfigurationChanged(@NonNull Configuration newConfig) {
+	public void onConfigurationChanged(@SuppressWarnings("unused") @NonNull Configuration newConfig) {
 		notifyNewCameraPosition();
 		applyMapStyle();
 	}
 
-	public LatLngBounds getBigCameraPosition(Activity activity, float factor) {
-		ExtendedGoogleMap googleMap = getGoogleMapOrNull();
+	@Nullable
+	public LatLngBounds getBigCameraPosition(@Nullable Activity activity, float factor) {
+		if (activity == null) {
+			return null;
+		}
+		final ExtendedGoogleMap googleMap = getGoogleMapOrNull();
 		if (googleMap == null) {
 			return null;
 		}
@@ -718,6 +744,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(llb.build(), paddingInPx);
 			return updateMapCamera(anim, cameraUpdate);
 		} catch (Exception e) {
+			//noinspection deprecation // FIXME
 			CrashUtils.w(this, "Error while computing camera update to show markers!", e);
 			return false;
 		}
@@ -865,21 +892,32 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return LOG_TAG;
 		}
 
+		@NonNull
 		private LatLng position;
+		@NonNull
 		private final ArrayList<String> names = new ArrayList<>();
+		@NonNull
 		private final ArrayList<String> agencies = new ArrayList<>();
+		@NonNull
 		private final ArrayList<String> extras = new ArrayList<>();
+		@Nullable
 		@ColorInt
 		private Integer color;
+		@Nullable
 		@ColorInt
 		private Integer secondaryColor;
 		@NonNull
 		private final POIMarkerIds uuidsAndAuthority = new POIMarkerIds();
 
-		public POIMarker(LatLng position, String name, String agency, String extra,
-						 @ColorInt Integer color, @ColorInt Integer secondaryColor,
-						 String uuid, String authority) {
-			addPosition(position);
+		public POIMarker(@NonNull LatLng position,
+						 @Nullable String name,
+						 @Nullable String agency,
+						 @Nullable String extra,
+						 @Nullable @ColorInt Integer color,
+						 @Nullable @ColorInt Integer secondaryColor,
+						 @NonNull String uuid,
+						 @NonNull String authority) {
+			this.position = position;
 			addName(name);
 			addAgency(agency);
 			addExtras(extra);
@@ -894,16 +932,19 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return Double.parseDouble(String.format(Locale.US, AROUND_TRUNC, loc));
 		}
 
-		public static LatLng getLatLng(POIManager poim) {
+		@NonNull
+		public static LatLng getLatLng(@NonNull POIManager poim) {
 			return new LatLng(poim.poi.getLat(), poim.poi.getLng());
 		}
 
-		public static LatLng getLatLngTrunc(POIManager poim) {
+		@NonNull
+		public static LatLng getLatLngTrunc(@NonNull POIManager poim) {
 			return new LatLng(POIMarker.truncAround(poim.poi.getLat()), POIMarker.truncAround(poim.poi.getLng()));
 		}
 
 		private static final String SLASH = " / ";
 
+		@NonNull
 		public String getTitle() {
 			StringBuilder sb = new StringBuilder();
 			CollectionUtils.sort(this.names, MARKER_NAME_COMPARATOR);
@@ -956,6 +997,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return sb.toString();
 		}
 
+		@NonNull
 		POIMarkerIds getUuidsAndAuthority() {
 			return uuidsAndAuthority;
 		}
@@ -964,7 +1006,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return this.uuidsAndAuthority.hasUUID(uuid);
 		}
 
-		public void merge(POIMarker poiMarker) {
+		public void merge(@NonNull POIMarker poiMarker) {
 			addPosition(poiMarker.position);
 			for (String name : poiMarker.names) {
 				addName(name);
@@ -988,9 +1030,14 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			this.uuidsAndAuthority.merge(poiMarker.uuidsAndAuthority);
 		}
 
-		public void merge(LatLng position, String name, String agency, String extra,
-						  @ColorInt Integer color, @ColorInt Integer secondaryColor,
-						  String uuid, String authority) {
+		public void merge(@NonNull LatLng position,
+						  @Nullable String name,
+						  @Nullable String agency,
+						  @Nullable String extra,
+						  @Nullable @ColorInt Integer color,
+						  @Nullable @ColorInt Integer secondaryColor,
+						  @NonNull String uuid,
+						  @NonNull String authority) {
 			addPosition(position);
 			addName(name);
 			addAgency(agency);
@@ -1008,17 +1055,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			this.uuidsAndAuthority.put(uuid, authority);
 		}
 
-		private void addPosition(LatLng position) {
-			if (this.position == null) {
-				this.position = position;
-			} else {
-				this.position = new LatLng( //
-						(this.position.latitude + position.latitude) / 2d, //
-						(this.position.longitude + position.longitude) / 2d);
-			}
+		private void addPosition(@NonNull LatLng position) {
+			this.position = new LatLng(
+					(this.position.latitude + position.latitude) / 2d,
+					(this.position.longitude + position.longitude) / 2d);
 		}
 
-		private void addExtras(String extra) {
+		private void addExtras(@Nullable String extra) {
 			if (!TextUtils.isEmpty(extra)) {
 				if (!this.extras.contains(extra)) {
 					this.extras.add(extra);
@@ -1026,7 +1069,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			}
 		}
 
-		private void addAgency(String agency) {
+		private void addAgency(@Nullable String agency) {
 			if (!TextUtils.isEmpty(agency)) {
 				if (!this.agencies.contains(agency)) {
 					this.agencies.add(agency);
@@ -1034,7 +1077,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			}
 		}
 
-		private void addName(String name) {
+		private void addName(@Nullable String name) {
 			if (!TextUtils.isEmpty(name)) {
 				if (!this.names.contains(name)) {
 					this.names.add(name);
@@ -1087,6 +1130,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			try {
 				this.uuidsAndAuthority.put(uuid, authority);
 			} catch (Exception e) {
+				//noinspection deprecation // FIXME
 				CrashUtils.w(this, e, "Error while adding POI marker ID %s:%s", uuid, authority);
 			}
 		}
@@ -1148,6 +1192,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				return null;
 			}
 			DataSourcesRepository dataSourcesRepository = mapViewController.dataSourcesRepository;
+			if (dataSourcesRepository == null) {
+				return null;
+			}
 			ArrayMap<LatLng, POIMarker> clusterItems = new ArrayMap<>();
 			LatLng position;
 			LatLng positionTrunc;
@@ -1174,7 +1221,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				agencyShortName = mapViewController.markerLabelShowExtra ? agency.getShortName() : null;
 				uuid = poim.poi.getUUID();
 				authority = poim.poi.getAuthority();
-				color = POIManager.getColor(dataSourcesRepository, poim.poi, null);
+				color = POIManager.getNewColor(dataSourcesRepository, poim.poi, null);
 				secondaryColor = agency.getColorInt();
 				POIMarker currentItem = clusterItems.get(positionTrunc);
 				if (currentItem == null) {
@@ -1258,7 +1305,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	@Override
-	public void activate(OnLocationChangedListener onLocationChangedListener) {
+	public void activate(@NonNull OnLocationChangedListener onLocationChangedListener) {
 		this.locationChangedListener = onLocationChangedListener;
 		if (this.userLocation != null) {
 			this.locationChangedListener.onLocationChanged(this.userLocation);
@@ -1344,14 +1391,14 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		resetMapType();
 	}
 
-	public void setInitialSelectedUUID(String uuid) {
+	public void setInitialSelectedUUID(@Nullable String uuid) {
 		if (TextUtils.isEmpty(uuid)) {
 			return;
 		}
 		this.lastSelectedUUID = uuid;
 	}
 
-	public void setInitialLocation(Location initialLocation) {
+	public void setInitialLocation(@Nullable Location initialLocation) {
 		if (initialLocation == null) {
 			return;
 		}
@@ -1361,8 +1408,8 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				.build();
 	}
 
-	public void onSaveInstanceState(Bundle outState) {
-		MapView mapView = getMapViewOrNull();
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		final MapView mapView = getMapViewOrNull();
 		if (mapView != null) {
 			mapView.onSaveInstanceState(outState);
 		}
@@ -1374,7 +1421,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 	}
 
-	public void notifyMarkerChanged(MapMarkerProvider markerProvider) {
+	public void notifyMarkerChanged(@Nullable MapMarkerProvider markerProvider) {
 		if (markerProvider == null) {
 			return;
 		}

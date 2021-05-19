@@ -81,6 +81,10 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	private final IAnalyticsManager analyticsManager;
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
+	@NonNull
+	private final StatusLoader statusLoader;
+	@NonNull
+	private final ServiceUpdateLoader serviceUpdateLoader;
 	@Nullable
 	private DrawerLayout drawerLayout;
 	@Nullable
@@ -95,11 +99,15 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	NavigationDrawerController(@NonNull MainActivity mainActivity,
 							   @NonNull CrashReporter crashReporter,
 							   @NonNull IAnalyticsManager analyticsManager,
-							   @NonNull DataSourcesRepository dataSourcesRepository) {
+							   @NonNull DataSourcesRepository dataSourcesRepository,
+							   @NonNull StatusLoader statusLoader,
+							   @NonNull ServiceUpdateLoader serviceUpdateLoader) {
 		this.mainActivityWR = new WeakReference<>(mainActivity);
 		this.crashReporter = crashReporter;
 		this.dataSourcesRepository = dataSourcesRepository;
 		this.analyticsManager = analyticsManager;
+		this.statusLoader = statusLoader;
+		this.serviceUpdateLoader = serviceUpdateLoader;
 		this.dataSourcesRepository.readingAllDataSourceTypesDistinct().observe(mainActivity, dataSourceTypes -> {
 			this.allAgencyTypes = filterAgencyTypes(dataSourceTypes);
 			setVisibleMenuItems();
@@ -223,7 +231,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 						PreferenceUtils.PREF_USER_LEARNED_DRAWER_DEFAULT);
 			}
 		}
-		return this.userLearnedDrawer == null ? false : this.userLearnedDrawer;
+		return this.userLearnedDrawer != null && this.userLearnedDrawer;
 	}
 
 	private void setUserLearnedDrawer() {
@@ -466,8 +474,8 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		this.currentSelectedScreenItemNavId = navItemId;
 		this.currentSelectedScreenItemId = getScreenItemId(navItemId);
 		mainActivity.clearFragmentBackStackImmediate(); // root screen
-		StatusLoader.get().clearAllTasks();
-		ServiceUpdateLoader.get().clearAllTasks();
+		this.statusLoader.clearAllTasks();
+		this.serviceUpdateLoader.clearAllTasks();
 		mainActivity.showNewFragment(newFragment, false, null);
 		if (isRootScreen(navItemId)) {
 			PreferenceUtils.savePrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId, false);

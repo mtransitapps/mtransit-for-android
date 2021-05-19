@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
+import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.data.AgencyProperties
@@ -32,6 +33,7 @@ import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rts.route.RTSRouteFragment
 import org.mtransit.android.ui.view.common.SpacesItemDecoration
 
+@AndroidEntryPoint
 class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes) {
 
     companion object {

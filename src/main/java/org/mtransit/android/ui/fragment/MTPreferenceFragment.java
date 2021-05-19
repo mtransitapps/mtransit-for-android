@@ -27,6 +27,8 @@ import org.mtransit.android.commons.MTLog;
 /**
  * NO LOGIC HERE, just logs.
  */
+@SuppressWarnings("deprecation")
+@Deprecated
 public abstract class MTPreferenceFragment extends PreferenceFragment implements MTLog.Loggable {
 
 	@Override

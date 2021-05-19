@@ -1,5 +1,6 @@
 package org.mtransit.android.billing
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
@@ -12,18 +13,19 @@ import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.SkuDetails
 import com.android.billingclient.api.SkuDetailsParams
 import com.android.billingclient.api.SkuDetailsResponseListener
+import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
-import org.mtransit.android.common.IApplication
-import org.mtransit.android.common.repository.IKeyValueRepository
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.ui.view.common.IActivity
 import java.util.WeakHashMap
+import javax.inject.Inject
 
 
 // DEBUG: adb shell setprop log.tag.BillingClient VERBOSE
-class MTBillingManager(
-    appContext: IApplication,
-    private val cacheRepository: IKeyValueRepository
+class MTBillingManager @Inject constructor(
+    @ApplicationContext appContext: Context,
+    private val lclPrefRepository: LocalPreferenceRepository
 ) : MTLog.Loggable,
     IBillingManager,
     BillingClientStateListener, // connection to billing
@@ -42,7 +44,7 @@ class MTBillingManager(
 
     private var billingClientConnected: Boolean? = false
 
-    private val billingClient = BillingClient.newBuilder(appContext.requireContext())
+    private val billingClient = BillingClient.newBuilder(appContext)
         .setListener(this)
         .enablePendingPurchases()
         .build()
@@ -261,8 +263,8 @@ class MTBillingManager(
 
     override fun getCurrentSubscription(): String? {
         if (_currentSubSku == null) {
-            if (this.cacheRepository.hasKey(PREF_KEY_SUBSCRIPTION)) {
-                _currentSubSku = this.cacheRepository.getValueNN(PREF_KEY_SUBSCRIPTION, PREF_KEY_SUBSCRIPTION_DEFAULT)
+            if (this.lclPrefRepository.hasKey(PREF_KEY_SUBSCRIPTION)) {
+                _currentSubSku = this.lclPrefRepository.getValueNN(PREF_KEY_SUBSCRIPTION, PREF_KEY_SUBSCRIPTION_DEFAULT)
             }
         }
         return _currentSubSku
@@ -273,7 +275,7 @@ class MTBillingManager(
             return // same
         }
         _currentSubSku = sku
-        this.cacheRepository.saveAsync(PREF_KEY_SUBSCRIPTION, sku)
+        this.lclPrefRepository.saveAsync(PREF_KEY_SUBSCRIPTION, sku)
         broadcastCurrentSkuChanged()
     }
 

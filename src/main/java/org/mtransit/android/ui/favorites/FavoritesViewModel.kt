@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.ComparatorUtils
 import org.mtransit.android.commons.MTLog
@@ -17,13 +18,19 @@ import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.di.Injection
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.util.UITimeUtils
+import javax.inject.Inject
 
-class FavoritesViewModel : MTViewModelWithLocation() {
+@HiltViewModel
+class FavoritesViewModel @Inject constructor(
+    private val dataSourcesRepository: DataSourcesRepository,
+    private val dataSourceRequestManager: DataSourceRequestManager,
+    private val favoriteRepository: FavoriteRepository,
+    private val poiTypeShortNameComparator: POIManagerTypeShortNameComparator,
+) : MTViewModelWithLocation() {
 
     companion object {
         private val LOG_TAG = FavoritesViewModel::class.java.simpleName
@@ -32,14 +39,6 @@ class FavoritesViewModel : MTViewModelWithLocation() {
     }
 
     override fun getLogTag(): String = LOG_TAG
-
-    private val dataSourcesRepository: DataSourcesRepository by lazy { Injection.providesDataSourcesRepository() }
-
-    private val dataSourceRequestManager: DataSourceRequestManager by lazy { Injection.providesDataSourceRequestManager() }
-
-    private val favoriteRepository: FavoriteRepository by lazy { Injection.providesFavoriteRepository() }
-
-    private val poiTypeShortNameComparator: POIManagerTypeShortNameComparator by lazy { Injection.providesPOIManagerTypeShortNameComparator() }
 
     fun onFavoriteUpdated() {
         _favoriteUpdatedTrigger.value = (_favoriteUpdatedTrigger.value ?: 0) + 1

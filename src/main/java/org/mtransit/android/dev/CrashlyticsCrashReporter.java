@@ -6,13 +6,14 @@ import androidx.annotation.Nullable;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.mtransit.android.BuildConfig;
-import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.MTLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.inject.Inject;
 
 // - enable debug logging:
 // adb shell setprop log.tag.FirebaseCrashlytics DEBUG
@@ -29,8 +30,13 @@ public class CrashlyticsCrashReporter implements CrashReporter, MTLog.Loggable {
 		return LOG_TAG;
 	}
 
+	@Inject
+	public CrashlyticsCrashReporter() {
+		// DO NOTHING
+	}
+
 	@Override
-	public void setup(@NonNull IContext context, boolean enabled) {
+	public void setup(boolean enabled) {
 		if (!CRASHLYTICS_ENABLED) {
 			return;
 		}

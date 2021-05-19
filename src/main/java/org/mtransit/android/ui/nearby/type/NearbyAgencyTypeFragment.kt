@@ -6,6 +6,7 @@ import android.widget.AbsListView
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.data.DataSourceType
@@ -13,10 +14,17 @@ import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentNearbyAgencyTypeBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.databinding.LayoutPoiListBinding
+import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.provider.sensor.MTSensorManager
+import org.mtransit.android.task.ServiceUpdateLoader
+import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.nearby.NearbyViewModel
 import org.mtransit.android.ui.view.common.IActivity
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_type), IActivity {
 
     companion object {
@@ -48,6 +56,21 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     private val viewModel by viewModels<NearbyAgencyTypeViewModel>()
     private val parentViewModel by viewModels<NearbyViewModel>({ requireParentFragment() })
 
+    @Inject
+    lateinit var sensorManager: MTSensorManager
+
+    @Inject
+    lateinit var dataSourcesRepository: DataSourcesRepository
+
+    @Inject
+    lateinit var favoriteManager: FavoriteManager
+
+    @Inject
+    lateinit var statusLoader: StatusLoader
+
+    @Inject
+    lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
     private var binding: FragmentNearbyAgencyTypeBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
     private var listBinding: LayoutPoiListBinding? = null
@@ -61,7 +84,14 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     }
 
     private val adapter: POIArrayAdapter by lazy {
-        POIArrayAdapter(this).apply {
+        POIArrayAdapter(
+            this,
+            this.sensorManager,
+            this.dataSourcesRepository,
+            this.favoriteManager,
+            this.statusLoader,
+            this.serviceUpdateLoader
+        ).apply {
             logTag = logTag
             setInfiniteLoading(true)
             setInfiniteLoadingListener(infiniteLoadingListener)

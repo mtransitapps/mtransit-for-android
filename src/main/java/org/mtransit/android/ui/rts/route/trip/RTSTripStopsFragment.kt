@@ -11,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.CollectionUtils
 import org.mtransit.android.commons.LocationUtils
@@ -20,14 +21,20 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentRtsTripStopsBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.databinding.LayoutPoiListBinding
-import org.mtransit.android.di.Injection
+import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.provider.FavoriteManager
 import org.mtransit.android.provider.permission.LocationPermissionProvider
+import org.mtransit.android.provider.sensor.MTSensorManager
+import org.mtransit.android.task.ServiceUpdateLoader
+import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rts.route.RTSRouteViewModel
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.IActivity
 import java.util.ArrayList
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IActivity {
 
     companion object {
@@ -60,7 +67,23 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
     private var emptyBinding: LayoutEmptyBinding? = null
     private var listBinding: LayoutPoiListBinding? = null
 
-    private val locationPermissionProvider: LocationPermissionProvider by lazy { Injection.providesLocationPermissionProvider() }
+    @Inject
+    lateinit var sensorManager: MTSensorManager
+
+    @Inject
+    lateinit var dataSourcesRepository: DataSourcesRepository
+
+    @Inject
+    lateinit var favoriteManager: FavoriteManager
+
+    @Inject
+    lateinit var statusLoader: StatusLoader
+
+    @Inject
+    lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
+    @Inject
+    lateinit var locationPermissionProvider: LocationPermissionProvider
 
     private val mapMarkerProvider = object : MapViewController.MapMarkerProvider {
 
@@ -108,14 +131,22 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
             true,
             false,
             true,
-            false
+            false,
+            this.dataSourcesRepository
         ).apply {
-            setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(this@RTSTripStopsFragment))
+            setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(requireContext()))
         }
     }
 
     private val adapter: POIArrayAdapter by lazy {
-        POIArrayAdapter(this).apply {
+        POIArrayAdapter(
+            this,
+            this.sensorManager,
+            this.dataSourcesRepository,
+            this.favoriteManager,
+            this.statusLoader,
+            this.serviceUpdateLoader
+        ).apply {
             logTag = logTag
             setShowExtra(false)
             setLocation(parentViewModel.deviceLocation.value)

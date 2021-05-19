@@ -26,6 +26,8 @@ import org.mtransit.android.commons.MTLog;
 /**
  * NO LOGIC HERE, just logs.
  */
+@SuppressWarnings("DeprecatedIsStillUsed")
+@Deprecated
 public abstract class MTDialogFragment extends DialogFragment implements MTLog.Loggable {
 
 	public MTDialogFragment() {

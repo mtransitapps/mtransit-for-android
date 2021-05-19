@@ -1,32 +1,39 @@
 package org.mtransit.android.provider
 
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.R
-import org.mtransit.android.common.IApplication
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.TextMessage
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class FavoriteRepository(private val app: IApplication) {
+@Singleton
+class FavoriteRepository @Inject constructor(
+    @ApplicationContext private val appContext: Context,
+    private val favoriteManager: FavoriteManager
+) {
 
     companion object {
         const val DEFAULT_FOLDER_ID = FavoriteManager.DEFAULT_FOLDER_ID
     }
 
     fun findFavoriteUUIDs(): Set<String> {
-        return FavoriteManager.findFavoriteUUIDs(app.requireContext())
+        return favoriteManager.findFavoriteUUIDs(appContext)
     }
 
     fun findFavorites(): List<Favorite> {
-        return FavoriteManager.findFavorites(app.requireContext())
+        return favoriteManager.findFavorites(appContext)
     }
 
     fun findFoldersList(): List<Favorite.Folder> {
-        return FavoriteManager.findFoldersList(app.requireContext())
+        return favoriteManager.findFoldersList(appContext)
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
     fun isFavoriteDataSourceId(favoriteFolderId: Int): Boolean {
-        return FavoriteManager.isFavoriteDataSourceId(favoriteFolderId)
+        return favoriteManager.isFavoriteDataSourceId(favoriteFolderId)
     }
 
     fun getFavoriteDataSourceIdOrNull(favoriteFolderId: Int): Int? {
@@ -39,14 +46,14 @@ class FavoriteRepository(private val app: IApplication) {
 
     @Suppress("MemberVisibilityCanBePrivate")
     fun extractFavoriteFolderId(favoriteFolderId: Int): Int {
-        return FavoriteManager.extractFavoriteFolderId(favoriteFolderId)
+        return favoriteManager.extractFavoriteFolderId(favoriteFolderId)
     }
 
     fun generateFavoriteFolderId(favoriteFolderId: Int): Int {
-        return FavoriteManager.generateFavoriteFolderId(favoriteFolderId)
+        return favoriteManager.generateFavoriteFolderId(favoriteFolderId)
     }
 
     fun generateFavEmptyFavPOI(textMessageId: Long): POI {
-        return TextMessage(textMessageId, app.requireContext().getString(R.string.favorite_folder_empty))
+        return TextMessage(textMessageId, appContext.getString(R.string.favorite_folder_empty))
     }
 }

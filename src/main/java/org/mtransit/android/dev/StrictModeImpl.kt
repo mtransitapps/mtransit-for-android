@@ -3,8 +3,11 @@ package org.mtransit.android.dev
 import android.os.StrictMode
 import android.os.StrictMode.VmPolicy
 import org.mtransit.android.commons.Constants
+import javax.inject.Inject
 
-class StrictModeImpl : IStrictMode {
+class StrictModeImpl @Inject constructor(
+) : IStrictMode {
+
 
     override fun setup(enabled: Boolean) {
         if (Constants.FORCE_STRICT_MODE_OFF) {

@@ -1,5 +1,6 @@
 package org.mtransit.android.analytics;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.MainThread;
@@ -9,11 +10,14 @@ import androidx.annotation.Size;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 
-import org.mtransit.android.common.IApplication;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.common.IActivity;
 
 import java.util.Map;
+
+import javax.inject.Inject;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
 
 // ENABLE:
 // - DEBUG logging:
@@ -52,13 +56,14 @@ public class AnalyticsManager implements IAnalyticsManager, MTLog.Loggable {
 	@NonNull
 	private final FirebaseAnalytics firebaseAnalytics;
 
-	public AnalyticsManager(@NonNull IApplication application) {
+	@Inject
+	public AnalyticsManager(@NonNull @ApplicationContext Context appContext) {
 		if (!ANALYTICS_ENABLED) {
 			//noinspection ConstantConditions
 			firebaseAnalytics = null;
 			return;
 		}
-		firebaseAnalytics = FirebaseAnalytics.getInstance(application.requireContext());
+		firebaseAnalytics = FirebaseAnalytics.getInstance(appContext);
 		if (DEBUG) {
 			// DEBUG adb shell setprop debug.firebase.analytics.app org.mtransit.android
 			// DEBUG adb shell setprop log.tag.FA VERBOSE

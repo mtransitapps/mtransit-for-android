@@ -10,6 +10,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.analytics.AnalyticsEvents
@@ -21,15 +22,27 @@ import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.di.Injection
 import org.mtransit.android.provider.location.MTLocationProvider
+import org.mtransit.android.task.ServiceUpdateLoader
+import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import javax.inject.Inject
 
-class NearbyViewModel(savedStateHandle: SavedStateHandle) : MTViewModelWithLocation() {
+@HiltViewModel
+class NearbyViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val analyticsManager: IAnalyticsManager,
+    private val adManager: IAdManager,
+    private val locationProvider: MTLocationProvider,
+    private val dataSourcesRepository: DataSourcesRepository,
+    private val lclPrefRepository: LocalPreferenceRepository,
+    private val statusLoader: StatusLoader,
+    private val serviceUpdateLoader: ServiceUpdateLoader,
+) : MTViewModelWithLocation() {
 
     companion object {
         private val LOG_TAG = NearbyViewModel::class.java.simpleName
@@ -45,16 +58,6 @@ class NearbyViewModel(savedStateHandle: SavedStateHandle) : MTViewModelWithLocat
     }
 
     override fun getLogTag(): String = LOG_TAG
-
-    private val analyticsManager: IAnalyticsManager by lazy { Injection.providesAnalyticsManager() }
-
-    private val adManager: IAdManager by lazy { Injection.providesAdManager() }
-
-    private val locationProvider: MTLocationProvider by lazy { Injection.providesLocationProvider() }
-
-    private val dataSourcesRepository: DataSourcesRepository by lazy { Injection.providesDataSourcesRepository() }
-
-    private val lclPrefRepository: LocalPreferenceRepository by lazy { Injection.providesLocalPreferenceRepository() }
 
     private val _selectedTypeId = savedStateHandle.getLiveData<Int?>(EXTRA_SELECTED_TYPE, null).distinctUntilChanged()
 
@@ -142,13 +145,19 @@ class NearbyViewModel(savedStateHandle: SavedStateHandle) : MTViewModelWithLocat
         selectedType?.let { types?.indexOf(it) }
     }
 
-    fun saveSelectedTypePosition(position: Int) {
+    fun onPagetSelected(position: Int) {
+        this.statusLoader.clearAllTasks()
+        this.serviceUpdateLoader.clearAllTasks()
+        saveSelectedTypePosition(position)
+    }
+
+    private fun saveSelectedTypePosition(position: Int) {
         saveSelectedType(
             types.value?.getOrNull(position) ?: return
         )
     }
 
-    fun saveSelectedType(dst: DataSourceType) {
+    private fun saveSelectedType(dst: DataSourceType) {
         lclPrefRepository.pref.edit {
             putInt(PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE, dst.id)
         }

@@ -6,21 +6,27 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.di.Injection
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.favorites.FavoritesViewModel
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import java.util.ArrayList
+import javax.inject.Inject
 import kotlin.math.min
 
-class PickPOIViewModel(savedStateHandle: SavedStateHandle) : MTViewModelWithLocation() {
+@HiltViewModel
+class PickPOIViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val dataSourcesRepository: DataSourcesRepository,
+    private val dataSourceRequestManager: DataSourceRequestManager,
+) : MTViewModelWithLocation() {
 
     companion object {
         private val LOG_TAG = PickPOIViewModel::class.java.simpleName
@@ -32,10 +38,6 @@ class PickPOIViewModel(savedStateHandle: SavedStateHandle) : MTViewModelWithLoca
     }
 
     override fun getLogTag(): String = LOG_TAG
-
-    private val dataSourcesRepository: DataSourcesRepository by lazy { Injection.providesDataSourcesRepository() }
-
-    private val dataSourceRequestManager: DataSourceRequestManager by lazy { Injection.providesDataSourceRequestManager() }
 
     private val _uuids: LiveData<ArrayList<String>?> =
         savedStateHandle.getLiveData<ArrayList<String>?>(EXTRA_POI_UUIDS).distinctUntilChanged()

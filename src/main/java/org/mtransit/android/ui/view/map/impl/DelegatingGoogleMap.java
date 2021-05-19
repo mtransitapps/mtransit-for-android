@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 
@@ -39,13 +40,14 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 
 	private static final String TAG = DelegatingGoogleMap.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
 	}
 
-	private IGoogleMap real;
-	private Context context;
+	private final IGoogleMap real;
+	private final Context context;
 
 	private InfoWindowAdapter infoWindowAdapter;
 	private OnCameraChangeListener onCameraChangeListener;
@@ -354,6 +356,7 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 		return real.hashCode();
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		return real.toString();
@@ -379,14 +382,16 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 
 	private void assignMapListeners() {
 		real.setInfoWindowAdapter(new DelegatingInfoWindowAdapter());
+		//noinspection deprecation // FIXME
 		real.setOnCameraChangeListener(new DelegatingOnCameraChangeListener());
 		real.setOnMarkerDragListener(new DelegatingOnMarkerDragListener());
 	}
 
+	@SuppressWarnings("deprecation") // FIXME
 	private class DelegatingOnCameraChangeListener implements com.google.android.gms.maps.GoogleMap.OnCameraChangeListener {
 
 		@Override
-		public void onCameraChange(CameraPosition cameraPosition) {
+		public void onCameraChange(@NonNull CameraPosition cameraPosition) {
 			markerManager.onCameraChange(cameraPosition);
 			if (onCameraChangeListener != null) {
 				onCameraChangeListener.onCameraChange(cameraPosition);
@@ -398,13 +403,14 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 
 		private final String TAG = DelegatingGoogleMap.this.getLogTag() + ">" + DelegatingInfoWindowAdapter.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return TAG;
 		}
 
 		@Override
-		public View getInfoWindow(com.google.android.gms.maps.model.Marker marker) {
+		public View getInfoWindow(@NonNull com.google.android.gms.maps.model.Marker marker) {
 			IMarker mapped = markerManager.map(marker);
 			markerManager.setMarkerShowingInfoWindow(mapped);
 			if (infoWindowAdapter != null) {
@@ -414,7 +420,7 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 		}
 
 		@Override
-		public View getInfoContents(com.google.android.gms.maps.model.Marker marker) {
+		public View getInfoContents(@NonNull com.google.android.gms.maps.model.Marker marker) {
 			if (infoWindowAdapter != null) {
 				return infoWindowAdapter.getInfoContents(markerManager.map(marker));
 			}
@@ -426,6 +432,7 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 
 		private final String TAG = DelegatingGoogleMap.this.getLogTag() + ">" + DelegatingOnInfoWindowClickListener.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return TAG;
@@ -433,12 +440,12 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 
 		private final OnInfoWindowClickListener onInfoWindowClickListener;
 
-		public DelegatingOnInfoWindowClickListener(OnInfoWindowClickListener onInfoWindowClickListener) {
+		DelegatingOnInfoWindowClickListener(OnInfoWindowClickListener onInfoWindowClickListener) {
 			this.onInfoWindowClickListener = onInfoWindowClickListener;
 		}
 
 		@Override
-		public void onInfoWindowClick(com.google.android.gms.maps.model.Marker marker) {
+		public void onInfoWindowClick(@NonNull com.google.android.gms.maps.model.Marker marker) {
 			IMarker imarker = markerManager.map(marker);
 			onInfoWindowClickListener.onInfoWindowClick(imarker);
 		}
@@ -448,6 +455,7 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 
 		private final String TAG = DelegatingGoogleMap.this.getLogTag() + ">" + DelegatingOnMarkerClickListener.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return TAG;
@@ -455,12 +463,12 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 
 		private final OnMarkerClickListener onMarkerClickListener;
 
-		public DelegatingOnMarkerClickListener(OnMarkerClickListener onMarkerClickListener) {
+		DelegatingOnMarkerClickListener(OnMarkerClickListener onMarkerClickListener) {
 			this.onMarkerClickListener = onMarkerClickListener;
 		}
 
 		@Override
-		public boolean onMarkerClick(com.google.android.gms.maps.model.Marker marker) {
+		public boolean onMarkerClick(@NonNull com.google.android.gms.maps.model.Marker marker) {
 			return onMarkerClickListener.onMarkerClick(markerManager.map(marker));
 		}
 	}
@@ -468,7 +476,7 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 	private class DelegatingOnMarkerDragListener implements com.google.android.gms.maps.GoogleMap.OnMarkerDragListener {
 
 		@Override
-		public void onMarkerDragStart(com.google.android.gms.maps.model.Marker marker) {
+		public void onMarkerDragStart(@NonNull com.google.android.gms.maps.model.Marker marker) {
 			DelegatingMarker delegating = markerManager.mapToDelegatingMarker(marker);
 			delegating.clearCachedPosition();
 			markerManager.onDragStart(delegating);
@@ -478,7 +486,7 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 		}
 
 		@Override
-		public void onMarkerDrag(com.google.android.gms.maps.model.Marker marker) {
+		public void onMarkerDrag(@NonNull com.google.android.gms.maps.model.Marker marker) {
 			DelegatingMarker delegating = markerManager.mapToDelegatingMarker(marker);
 			delegating.clearCachedPosition();
 			if (onMarkerDragListener != null) {
@@ -487,7 +495,7 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 		}
 
 		@Override
-		public void onMarkerDragEnd(com.google.android.gms.maps.model.Marker marker) {
+		public void onMarkerDragEnd(@NonNull com.google.android.gms.maps.model.Marker marker) {
 			DelegatingMarker delegating = markerManager.mapToDelegatingMarker(marker);
 			delegating.clearCachedPosition();
 			markerManager.onPositionChange(delegating);

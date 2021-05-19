@@ -8,6 +8,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThreadSafeDateFormatter
@@ -18,13 +19,18 @@ import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.di.Injection
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class ScheduleDayViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(), MTLog.Loggable {
+@HiltViewModel
+class ScheduleDayViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
+    private val dataSourcesRepository: DataSourcesRepository,
+    private val dataSourceRequestManager: DataSourceRequestManager,
+) : ViewModel(), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = ScheduleDayViewModel::class.java.simpleName
@@ -38,10 +44,6 @@ class ScheduleDayViewModel(private val savedStateHandle: SavedStateHandle) : Vie
     private val yearMonthDayFormat by lazy { ThreadSafeDateFormatter("yyyy-MM-dd", Locale.getDefault()) }
 
     override fun getLogTag(): String = yearMonthDay.value?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
-
-    private val dataSourcesRepository: DataSourcesRepository by lazy { Injection.providesDataSourcesRepository() }
-
-    private val dataSourceRequestManager: DataSourceRequestManager by lazy { Injection.providesDataSourceRequestManager() }
 
     private val authority = savedStateHandle.getLiveData<String?>(EXTRA_AUTHORITY, null).distinctUntilChanged()
 

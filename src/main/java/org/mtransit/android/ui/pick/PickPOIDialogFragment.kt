@@ -13,14 +13,22 @@ import androidx.collection.ArrayMap
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentDialogPickPoiBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
+import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.provider.FavoriteManager
+import org.mtransit.android.provider.sensor.MTSensorManager
+import org.mtransit.android.task.ServiceUpdateLoader
+import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.fragment.MTDialogFragmentX
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.IActivity
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLocationListener, IActivity {
 
     companion object {
@@ -54,11 +62,33 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
 
     private val viewModel by viewModels<PickPOIViewModel>()
 
+    @Inject
+    lateinit var sensorManager: MTSensorManager
+
+    @Inject
+    lateinit var dataSourcesRepository: DataSourcesRepository
+
+    @Inject
+    lateinit var favoriteManager: FavoriteManager
+
+    @Inject
+    lateinit var statusLoader: StatusLoader
+
+    @Inject
+    lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
     private var binding: FragmentDialogPickPoiBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
 
     private val adapter: POIArrayAdapter by lazy {
-        POIArrayAdapter(this).apply {
+        POIArrayAdapter(
+            this,
+            this.sensorManager,
+            this.dataSourcesRepository,
+            this.favoriteManager,
+            this.statusLoader,
+            this.serviceUpdateLoader
+        ).apply {
             setOnClickHandledListener { dismiss() }
             logTag = logTag
         }

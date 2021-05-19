@@ -4,13 +4,13 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.ProviderInfo
 import android.os.Bundle
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
-import org.mtransit.android.common.IApplication
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.TimeUtils
@@ -30,9 +30,12 @@ import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
 import org.mtransit.commons.FeatureFlags.F_APP_UPDATE
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class DataSourcesReader(
-    private val app: IApplication,
+@Singleton
+class DataSourcesReader @Inject constructor(
+    @ApplicationContext private val appContext: Context,
     private val pm: PackageManager,
     private val analyticsManager: IAnalyticsManager,
     private val dataSourcesDatabase: DataSourcesDatabase,
@@ -65,20 +68,20 @@ class DataSourcesReader(
 
     override fun getLogTag(): String = LOG_TAG
 
-    private val agencyProviderMetaData by lazy { app.requireApplication().getString(R.string.agency_provider) }
+    private val agencyProviderMetaData by lazy { appContext.getString(R.string.agency_provider) }
 
-    private val statusProviderMetaData by lazy { app.requireApplication().getString(R.string.status_provider) }
-    private val scheduleProviderMetaData by lazy { app.requireApplication().getString(R.string.schedule_provider) }
-    private val serviceUpdateProviderMetaData by lazy { app.requireApplication().getString(R.string.service_update_provider) }
-    private val newsProviderMetaData by lazy { app.requireApplication().getString(R.string.news_provider) }
+    private val statusProviderMetaData by lazy { appContext.getString(R.string.status_provider) }
+    private val scheduleProviderMetaData by lazy { appContext.getString(R.string.schedule_provider) }
+    private val serviceUpdateProviderMetaData by lazy { appContext.getString(R.string.service_update_provider) }
+    private val newsProviderMetaData by lazy { appContext.getString(R.string.news_provider) }
 
-    private val agencyProviderTypeMetaData by lazy { app.requireApplication().getString(R.string.agency_provider_type) }
-    private val rtsProviderMetaData by lazy { app.requireApplication().getString(R.string.rts_provider) }
+    private val agencyProviderTypeMetaData by lazy { appContext.getString(R.string.agency_provider_type) }
+    private val rtsProviderMetaData by lazy { appContext.getString(R.string.rts_provider) }
 
-    private val statusProviderTargetMetaData by lazy { app.requireApplication().getString(R.string.status_provider_target) }
-    private val scheduleProviderTargetMetaData by lazy { app.requireApplication().getString(R.string.schedule_provider_target) }
-    private val serviceUpdateProviderTargetMetaData by lazy { app.requireApplication().getString(R.string.service_update_provider_target) }
-    private val newsProviderTargetMetaData by lazy { app.requireApplication().getString(R.string.news_provider_target) }
+    private val statusProviderTargetMetaData by lazy { appContext.getString(R.string.status_provider_target) }
+    private val scheduleProviderTargetMetaData by lazy { appContext.getString(R.string.schedule_provider_target) }
+    private val serviceUpdateProviderTargetMetaData by lazy { appContext.getString(R.string.service_update_provider_target) }
+    private val newsProviderTargetMetaData by lazy { appContext.getString(R.string.news_provider_target) }
 
     fun isAProvider(pkg: String?): Boolean {
         if (pkg.isNullOrBlank()) {
@@ -142,7 +145,7 @@ class DataSourcesReader(
             MTLog.d(this, "refreshAvailableVersions() > SKIP (feature disabled)")
             return
         }
-        val context: Context = app.application ?: return
+        val context: Context = appContext
         val lastCheckInMs = PreferenceUtils.getPrefLcl(context, PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
         val shortTimeAgo = TimeUtils.currentTimeMillis() - TimeUnit.HOURS.toMillis(24L)
         if (!skipTimeCheck && shortTimeAgo < lastCheckInMs) {

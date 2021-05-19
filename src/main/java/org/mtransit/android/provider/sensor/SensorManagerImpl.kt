@@ -9,15 +9,18 @@ import android.hardware.SensorManager
 import android.location.Location
 import android.view.Surface
 import android.widget.AbsListView
-import org.mtransit.android.common.IApplication
+import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.api.SupportFactory
 import org.mtransit.android.ui.view.common.IActivity
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import kotlin.math.abs
 
 
-class SensorManagerImpl(appContext: IApplication) : MTSensorManager, MTLog.Loggable {
+class SensorManagerImpl @Inject constructor(
+    @ApplicationContext private val appContext: Context,
+) : MTSensorManager, MTLog.Loggable {
 
     companion object {
         private val LOG_TAG: String = SensorManagerImpl::class.java.simpleName
@@ -28,7 +31,7 @@ class SensorManagerImpl(appContext: IApplication) : MTSensorManager, MTLog.Logga
     }
 
     private val sensorManager =
-        appContext.requireApplication().getSystemService(Context.SENSOR_SERVICE) as SensorManager?
+        appContext.getSystemService(Context.SENSOR_SERVICE) as SensorManager?
 
     override fun getLogTag() = LOG_TAG
 

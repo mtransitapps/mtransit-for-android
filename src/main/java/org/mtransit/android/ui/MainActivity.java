@@ -27,7 +27,8 @@ import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
-import org.mtransit.android.di.Injection;
+import org.mtransit.android.task.ServiceUpdateLoader;
+import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.fragment.POIFragment;
 import org.mtransit.android.ui.search.SearchFragment;
@@ -38,9 +39,13 @@ import org.mtransit.android.util.NightModeUtils;
 
 import java.util.WeakHashMap;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
 
+@AndroidEntryPoint
 public class MainActivity extends MTActivityWithLocation implements
 		FragmentManager.OnBackStackChangedListener,
 		AnalyticsManager.Trackable,
@@ -75,27 +80,22 @@ public class MainActivity extends MTActivityWithLocation implements
 	@Nullable
 	private ActionBarController abController;
 
-	@NonNull
-	private final IAdManager adManager;
-	@NonNull
-	private final IAnalyticsManager analyticsManager;
-	@NonNull
-	private final CrashReporter crashReporter;
-	@NonNull
-	private final IBillingManager billingManager;
-	@NonNull
-	private final DataSourcesRepository dataSourcesRepository;
+	@Inject
+	IAdManager adManager;
+	@Inject
+	IAnalyticsManager analyticsManager;
+	@Inject
+	CrashReporter crashReporter;
+	@Inject
+	IBillingManager billingManager;
+	@Inject
+	DataSourcesRepository dataSourcesRepository;
+	@Inject
+	StatusLoader statusLoader;
+	@Inject
+	ServiceUpdateLoader serviceUpdateLoader;
 
 	private int currentUiMode = -1;
-
-	public MainActivity() {
-		super();
-		adManager = Injection.providesAdManager();
-		analyticsManager = Injection.providesAnalyticsManager();
-		crashReporter = Injection.providesCrashReporter();
-		billingManager = Injection.providesBillingManager();
-		dataSourcesRepository = Injection.providesDataSourcesRepository();
-	}
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -109,7 +109,9 @@ public class MainActivity extends MTActivityWithLocation implements
 				this,
 				this.crashReporter,
 				this.analyticsManager,
-				this.dataSourcesRepository
+				this.dataSourcesRepository,
+				this.statusLoader,
+				this.serviceUpdateLoader
 		);
 		this.navigationDrawerController.onCreate(savedInstanceState);
 		getSupportFragmentManager().addOnBackStackChangedListener(this);

@@ -1,6 +1,7 @@
 package org.mtransit.android.ad;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.util.DisplayMetrics;
@@ -34,7 +35,6 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 
 import org.mtransit.android.BuildConfig;
 import org.mtransit.android.R;
-import org.mtransit.android.common.IApplication;
 import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.MTLog;
@@ -54,6 +54,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
 
 /**
  * TESTING:
@@ -103,7 +107,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	private Boolean adLoaded = null;
 
 	@NonNull
-	private final IApplication application;
+	private final Context appContext;
 	@NonNull
 	private final CrashReporter crashReporter;
 	@NonNull
@@ -112,11 +116,12 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 
-	public AdManager(@NonNull IApplication application,
+	@Inject
+	public AdManager(@NonNull @ApplicationContext Context appContext,
 					 @NonNull CrashReporter crashReporter,
 					 @NonNull MTLocationProvider locationProvider,
 					 @NonNull DataSourcesRepository dataSourcesRepository) {
-		this.application = application;
+		this.appContext = appContext;
 		this.crashReporter = crashReporter;
 		this.locationProvider = locationProvider;
 		this.dataSourcesRepository = dataSourcesRepository;
@@ -152,7 +157,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			if (DEBUG) {
 				List<String> testDeviceIds = new ArrayList<>();
 				testDeviceIds.add(AdRequest.DEVICE_ID_EMULATOR);
-				testDeviceIds.addAll(Arrays.asList(this.application.requireContext().getResources().getStringArray(R.array.google_ads_test_devices_ids)));
+				testDeviceIds.addAll(Arrays.asList(theActivity.getResources().getStringArray(R.array.google_ads_test_devices_ids)));
 				MobileAds.setRequestConfiguration(
 						new RequestConfiguration.Builder()
 								.setTestDeviceIds(testDeviceIds)
@@ -185,7 +190,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 
 		@Override
-		public void onInitializationComplete(InitializationStatus initializationStatus) {
+		public void onInitializationComplete(@NonNull InitializationStatus initializationStatus) {
 			MTLog.d(this, "onInitializationComplete()");
 			this.adManager.initialized = true;
 			final IActivity activity = this.activityWR.get();
@@ -197,8 +202,8 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 				AdapterStatus status = statusMap.get(adapterClass);
 				MTLog.d(this, "Adapter name: %s, Description: %s, Latency: %d",
 						adapterClass,
-						status.getDescription(),
-						status.getLatency()
+						status == null ? null : status.getDescription(),
+						status == null ? null : status.getLatency()
 				);
 			}
 		}
@@ -227,7 +232,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 		if (this.rewardedUntilInMs == null) {
 			this.rewardedUntilInMs = PreferenceUtils.getPrefDefault(
-					this.application.requireContext(),
+					this.appContext,
 					PreferenceUtils.PREF_USER_REWARDED_UNTIL,
 					PreferenceUtils.PREF_USER_REWARDED_UNTIL_DEFAULT);
 		}
@@ -237,7 +242,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	private void setRewardedUntilInMs(long newRewardedUntilInMs) {
 		this.rewardedUntilInMs = newRewardedUntilInMs;
 		PreferenceUtils.savePrefDefault(
-				this.application.requireContext(),
+				this.appContext,
 				PreferenceUtils.PREF_USER_REWARDED_UNTIL,
 				rewardedUntilInMs,
 				false // asynchronous
@@ -374,7 +379,10 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	@NonNull
 	private AdRequest getAdRequest(@NonNull IContext context) {
 		AdRequest.Builder adRequestBd = new AdRequest.Builder();
-		adRequestBd.setLocation(getLastLocation());
+		Location lastLocation = getLastLocation();
+		if (lastLocation != null) {
+			adRequestBd.setLocation(lastLocation);
+		}
 		for (String keyword : KEYWORDS) {
 			adRequestBd.addKeyword(keyword);
 		}
@@ -523,7 +531,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 
 		@Override
-		public void onAdFailedToShowFullScreenContent(AdError adError) {
+		public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
 			super.onAdFailedToShowFullScreenContent(adError);
 			this.crashReporter.w(this, "Failed to show rewarded ad! %s: '%s' (%s).", adError.getCode(), adError.getMessage(), adError.getDomain());
 		}
@@ -566,7 +574,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 	@Override
 	public void openAdInspector() {
-		MobileAds.openAdInspector(this.application.requireContext(), error -> {
+		MobileAds.openAdInspector(this.appContext, error -> {
 			if (error == null) {
 				MTLog.d(AdManager.this, "Ad inspector closed.");
 			} else {
@@ -637,8 +645,8 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			MTLog.d(this, "isShowingAds() > Not showing ads (not initialized yet).");
 			return false; // not showing ads
 		}
-		if (nbAgencies == null // number of agency unknown
-				|| nbAgencies <= MIN_AGENCIES_FOR_ADS) { // no (real) agency installed
+		// number of agency unknown
+		if (nbAgencies <= MIN_AGENCIES_FOR_ADS) { // no (real) agency installed
 			MTLog.d(this, "isShowingAds() > Not showing ads (no '%d' agency installed).", nbAgencies);
 			return false; // not showing ads
 		}
@@ -883,7 +891,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 
 		@Override
-		public void onAdFailedToLoad(LoadAdError loadAdError) {
+		public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
 			MTLog.d(this, "onAdFailedToLoad(%s)", loadAdError);
 			super.onAdFailedToLoad(loadAdError);
 			switch (loadAdError.getCode()) {

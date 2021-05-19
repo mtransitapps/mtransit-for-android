@@ -15,13 +15,17 @@ import org.mtransit.android.R;
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.ThemeUtils;
-import org.mtransit.android.di.Injection;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.common.IActivity;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public abstract class ABFragment extends MTFragmentX implements AnalyticsManager.Trackable, IActivity {
 
 	private static final boolean DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT = false;
@@ -30,18 +34,20 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 
 	public static final boolean DEFAULT_SHOW_SEARCH_MENU_ITEM = true;
 
-	@NonNull
-	private final IAnalyticsManager analyticsManager;
+	@Inject
+	IAnalyticsManager analyticsManager;
+	@Inject
+	StatusLoader statusLoader;
+	@Inject
+	ServiceUpdateLoader serviceUpdateLoader;
 
 	public ABFragment() {
 		super();
-		analyticsManager = Injection.providesAnalyticsManager();
 	}
 
 	@ContentView
 	public ABFragment(@LayoutRes int contentLayoutId) {
 		super(contentLayoutId);
-		analyticsManager = Injection.providesAnalyticsManager();
 	}
 
 	public boolean isABReady() {
@@ -123,8 +129,8 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 	@Override
 	public void onPause() {
 		super.onPause();
-		StatusLoader.get().clearAllTasks();
-		ServiceUpdateLoader.get().clearAllTasks();
+		this.statusLoader.clearAllTasks();
+		this.serviceUpdateLoader.clearAllTasks();
 	}
 
 	@Override

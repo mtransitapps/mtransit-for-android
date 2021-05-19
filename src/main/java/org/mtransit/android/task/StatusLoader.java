@@ -14,7 +14,6 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.StatusProviderProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
-import org.mtransit.android.di.Injection;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -25,6 +24,10 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class StatusLoader implements MTLog.Loggable {
 
 	private static final String LOG_TAG = StatusLoader.class.getSimpleName();
@@ -35,22 +38,12 @@ public class StatusLoader implements MTLog.Loggable {
 		return LOG_TAG;
 	}
 
-	@Nullable
-	private static StatusLoader instance;
-
-	@NonNull
-	public static StatusLoader get() {
-		if (instance == null) {
-			instance = new StatusLoader();
-		}
-		return instance;
-	}
-
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 
-	private StatusLoader() {
-		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+	@Inject
+	public StatusLoader(@NonNull DataSourcesRepository dataSourcesRepository) {
+		this.dataSourcesRepository = dataSourcesRepository;
 	}
 
 	@NonNull

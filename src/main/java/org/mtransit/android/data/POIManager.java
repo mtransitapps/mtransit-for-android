@@ -35,7 +35,6 @@ import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.provider.StatusProviderContract;
 import org.mtransit.android.datasource.DataSourcesRepository;
-import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
@@ -91,17 +90,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	private int scheduleMaxDataRequests = ScheduleStatusFilter.MAX_DATA_REQUESTS_DEFAULT;
 
-	@NonNull
-	private final DataSourcesRepository dataSourcesRepository;
-
 	public POIManager(@NonNull POI poi) {
-		this(poi, null);
-	}
-
-	public POIManager(@NonNull POI poi, @Nullable POIStatus status) {
 		this.poi = poi;
-		this.status = status;
-		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+		this.status = null;
 	}
 
 	@NonNull
@@ -212,15 +203,17 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	@Nullable
-	public POIStatus getStatus(@Nullable Context context) {
+	public POIStatus getStatus(@Nullable Context context,
+							   @NonNull StatusLoader statusLoader) {
 		if (this.status == null || this.lastFindStatusTimestampMs < 0L || this.inFocus || !this.status.isUseful()) {
-			findStatus(context, false);
+			findStatus(context, statusLoader, false);
 		}
 		return this.status;
 	}
 
 	@SuppressWarnings("UnusedReturnValue")
 	private boolean findStatus(@Nullable Context context,
+							   @NonNull StatusLoader statusLoader,
 							   @SuppressWarnings("SameParameterValue") boolean skipIfBusy) {
 		long findStatusTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
@@ -229,7 +222,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (filter != null) {
 				filter.setInFocus(this.inFocus);
 				StatusLoader.StatusLoaderListener listener = this.statusLoaderListenerWR == null ? null : this.statusLoaderListenerWR.get();
-				isNotSkipped = StatusLoader.get().findStatus(context, this, filter, listener, skipIfBusy);
+				isNotSkipped = statusLoader.findStatus(context, this, filter, listener, skipIfBusy);
 				if (isNotSkipped) {
 					this.lastFindStatusTimestampMs = findStatusTimestampMs;
 				}
@@ -303,17 +296,19 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return this.serviceUpdates;
 	}
 
-	public boolean isServiceUpdateWarning(@NonNull Context context) {
+	public boolean isServiceUpdateWarning(@NonNull Context context,
+										  @NonNull ServiceUpdateLoader serviceUpdateLoader) {
 		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
-			findServiceUpdates(context, false);
+			findServiceUpdates(context, serviceUpdateLoader, false);
 		}
 		return ServiceUpdate.isSeverityWarning(this.serviceUpdates);
 	}
 
 	@Nullable
-	public ArrayList<ServiceUpdate> getServiceUpdates(@NonNull Context context) {
+	public ArrayList<ServiceUpdate> getServiceUpdates(@NonNull Context context,
+													  @NonNull ServiceUpdateLoader serviceUpdateLoader) {
 		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
-			findServiceUpdates(context, false);
+			findServiceUpdates(context, serviceUpdateLoader, false);
 		}
 		return this.serviceUpdates;
 	}
@@ -333,7 +328,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private long lastFindServiceUpdateTimestampMs = -1;
 
 	@SuppressWarnings("UnusedReturnValue")
-	private boolean findServiceUpdates(@NonNull Context context, @SuppressWarnings("SameParameterValue") boolean skipIfBusy) {
+	private boolean findServiceUpdates(@NonNull Context context,
+									   @NonNull ServiceUpdateLoader serviceUpdateLoader,
+									   @SuppressWarnings("SameParameterValue") boolean skipIfBusy) {
 		long findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
 		boolean isNotSkipped = false;
 		if (this.lastFindServiceUpdateTimestampMs != findServiceUpdateTimestampMs) { // IF not same minute as last findStatus() call DO
@@ -341,7 +338,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			filter.setInFocus(this.inFocus);
 			ServiceUpdateLoader.ServiceUpdateLoaderListener listener = //
 					this.serviceUpdateLoaderListenerWR == null ? null : this.serviceUpdateLoaderListenerWR.get();
-			isNotSkipped = ServiceUpdateLoader.get().findServiceUpdate(context, this, filter, listener, skipIfBusy);
+			isNotSkipped = serviceUpdateLoader.findServiceUpdate(context, this, filter, listener, skipIfBusy);
 			if (isNotSkipped) {
 				this.lastFindServiceUpdateTimestampMs = findServiceUpdateTimestampMs;
 			}
@@ -351,6 +348,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@NonNull
 	private CharSequence[] getActionsItems(@NonNull Context context,
+										   @NonNull FavoriteManager favoriteManager,
 										   CharSequence defaultAction,
 										   @SuppressWarnings("unused") SparseArrayCompat<Favorite.Folder> favoriteFolders) {
 		switch (this.poi.getActionsType()) {
@@ -359,8 +357,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
 			return new CharSequence[]{ //
 					defaultAction, //
-					FavoriteManager.isFavorite(context, this.poi.getUUID()) ? //
-							FavoriteManager.get(context).isUsingFavoriteFolders() ? //
+					favoriteManager.isFavorite(context, this.poi.getUUID()) ? //
+							favoriteManager.isUsingFavoriteFolders() ? //
 									context.getString(R.string.edit_fav) : //
 									context.getString(R.string.remove_fav) : //
 							context.getString(R.string.add_fav) //
@@ -372,8 +370,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 					TextUtils.isEmpty(rts.getRoute().getShortName()) ? //
 							context.getString(R.string.view_stop_route) : //
 							context.getString(R.string.view_stop_route_and_route, rts.getRoute().getShortName()), //
-					FavoriteManager.isFavorite(context, this.poi.getUUID()) ? //
-							FavoriteManager.get(context).isUsingFavoriteFolders() ? //
+					favoriteManager.isFavorite(context, this.poi.getUUID()) ? //
+							favoriteManager.isUsingFavoriteFolders() ? //
 									context.getString(R.string.edit_fav) : //
 									context.getString(R.string.remove_fav) : //
 							context.getString(R.string.add_fav) //
@@ -406,6 +404,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	private boolean onActionsItemClick(@NonNull Activity activity,
+									   @NonNull FavoriteManager favoriteManager,
+									   @NonNull DataSourcesRepository dataSourcesRepository,
 									   int itemClicked,
 									   @SuppressWarnings("unused") SparseArrayCompat<Favorite.Folder> favoriteFolders,
 									   FavoriteManager.FavoriteUpdateListener listener,
@@ -414,13 +414,13 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_ACTION_TYPE_NONE:
 			return false; // NOT HANDLED
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
-			return onActionsItemClickFavoritable(activity, itemClicked, listener, onClickHandledListener);
+			return onActionsItemClickFavoritable(activity, favoriteManager, itemClicked, listener, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
-			return onActionsItemClickRTS(activity, itemClicked, listener, onClickHandledListener);
+			return onActionsItemClickRTS(activity, favoriteManager, itemClicked, listener, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_APP:
 			return onActionsItemClickApp(activity, itemClicked, listener, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_PLACE:
-			return onActionsItemClickPlace(activity, itemClicked, listener, onClickHandledListener);
+			return onActionsItemClickPlace(activity, dataSourcesRepository, itemClicked, listener, onClickHandledListener);
 		default:
 			MTLog.w(this, "unexpected action type '%s'!", this.poi.getActionsType());
 			return false; // NOT HANDLED
@@ -454,6 +454,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	private boolean onActionsItemClickPlace(@NonNull Activity activity,
+											@NonNull DataSourcesRepository dataSourcesRepository,
 											int itemClicked,
 											@SuppressWarnings("unused") FavoriteManager.FavoriteUpdateListener listener,
 											POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
@@ -467,8 +468,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 							null,
 							this.poi.getLat(),
 							this.poi.getLng(),
-							getOneLineDescription(this.dataSourcesRepository, this.poi),
-							getColor()
+							getOneLineDescription(dataSourcesRepository, this.poi),
+							getColor(dataSourcesRepository)
 					)
 			);
 			return true; // HANDLED
@@ -481,21 +482,21 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private Integer color = null;
 
 	@ColorInt
-	public int getColor() {
-		if (color == null) {
-			color = getColor(this.dataSourcesRepository, this.poi, null);
+	public int getColor(@NonNull DataSourcesRepository dataSourcesRepository) {
+		if (this.color == null) {
+			this.color = getNewColor(dataSourcesRepository, this.poi, null);
 		}
-		if (color == null) {
+		if (this.color == null) {
 			return Color.BLACK; // default
 		}
-		return color;
+		return this.color;
 	}
 
 	@Nullable
 	@ColorInt
-	public static Integer getColor(@NonNull DataSourcesRepository dataSourcesRepository,
-								   @Nullable POI poi,
-								   @Nullable Integer defaultColor) {
+	public static Integer getNewColor(@NonNull DataSourcesRepository dataSourcesRepository,
+									  @Nullable POI poi,
+									  @Nullable Integer defaultColor) {
 		if (poi != null) {
 			if (poi instanceof RouteTripStop) {
 				if (((RouteTripStop) poi).getRoute().hasColor()) {
@@ -514,10 +515,10 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@Nullable
 	@ColorInt
-	public static Integer getRouteColor(@NonNull DataSourcesRepository dataSourcesRepository,
-										@Nullable Route route,
-										@Nullable String authority,
-										@Nullable Integer defaultColor) {
+	public static Integer getNewRouteColor(@NonNull DataSourcesRepository dataSourcesRepository,
+										   @Nullable Route route,
+										   @Nullable String authority,
+										   @Nullable Integer defaultColor) {
 		if (route != null) {
 			if (route.hasColor()) {
 				return route.getColorInt();
@@ -588,7 +589,10 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return sb.toString();
 	}
 
-	private boolean onActionsItemClickRTS(@NonNull Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
+	private boolean onActionsItemClickRTS(@NonNull Activity activity,
+										  @NonNull FavoriteManager favoriteManager,
+										  int itemClicked,
+										  FavoriteManager.FavoriteUpdateListener listener,
 										  POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
 		case 1:
@@ -599,16 +603,19 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts));
 			return true; // HANDLED
 		case 2:
-			return FavoriteManager.get(activity).addRemoveFavorite(activity, this.poi.getUUID(), listener);
+			return favoriteManager.addRemoveFavorite(activity, this.poi.getUUID(), listener);
 		}
 		return false; // NOT HANDLED
 	}
 
-	private boolean onActionsItemClickFavoritable(Activity activity, int itemClicked, FavoriteManager.FavoriteUpdateListener listener,
+	private boolean onActionsItemClickFavoritable(Activity activity,
+												  @NonNull FavoriteManager favoriteManager,
+												  int itemClicked,
+												  FavoriteManager.FavoriteUpdateListener listener,
 												  @SuppressWarnings("unused") POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
 		case 1:
-			return FavoriteManager.get(activity).addRemoveFavorite(activity, this.poi.getUUID(), listener);
+			return favoriteManager.addRemoveFavorite(activity, this.poi.getUUID(), listener);
 		}
 		return false; // NOT HANDLED
 	}
@@ -628,7 +635,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 	}
 
-	private boolean showPoiViewerScreen(Activity activity, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	private boolean showPoiViewerScreen(Activity activity,
+										DataSourcesRepository dataSourcesRepository,
+										POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false; // show long-click menu
 		}
@@ -643,7 +652,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			final String pkg = module.getPkg();
 			if (PackageManagerUtils.isAppInstalled(activity, pkg)
 					&& PackageManagerUtils.isAppEnabled(activity, pkg)) {
-				final AgencyProperties agency = this.dataSourcesRepository.getAgencyForPkg(pkg);
+				final AgencyProperties agency = dataSourcesRepository.getAgencyForPkg(pkg);
 				if (agency != null && !agency.getUpdateAvailable()) {
 					PreferenceUtils.savePrefLcl(activity, PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(agency.getType().getId()), agency.getAuthority(), false);
 					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(agency.getType()));
@@ -669,7 +678,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			AgencyProperties agencyProperties = this.dataSourcesRepository.getAgency(this.poi.getAuthority());
+			AgencyProperties agencyProperties = dataSourcesRepository.getAgency(this.poi.getAuthority());
 			((MainActivity) activity).addFragmentToStack(POIFragment.newInstance(this.poi.getUUID(), this.poi.getAuthority(), agencyProperties, this));
 			// reset to defaults, so the POI is updated when coming back in the current screen
 			resetLastFindTimestamps();
@@ -678,27 +687,37 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return false; // NOT HANDLED
 	}
 
-	boolean onActionItemLongClick(Activity activity, SparseArrayCompat<Favorite.Folder> favoriteFolders,
-								  FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	boolean onActionItemLongClick(Activity activity,
+								  FavoriteManager favoriteManager,
+								  DataSourcesRepository dataSourcesRepository,
+								  SparseArrayCompat<Favorite.Folder> favoriteFolders,
+								  FavoriteManager.FavoriteUpdateListener favoriteUpdateListener,
+								  POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false;
 		}
-		return showPoiMenu(activity, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
+		return showPoiMenu(activity, favoriteManager, dataSourcesRepository, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
 	}
 
-	boolean onActionItemClick(Activity activity, SparseArrayCompat<Favorite.Folder> favoriteFolders,
-							  FavoriteManager.FavoriteUpdateListener favoriteUpdateListener, POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+	boolean onActionItemClick(Activity activity,
+							  FavoriteManager favoriteManager,
+							  DataSourcesRepository dataSourcesRepository,
+							  SparseArrayCompat<Favorite.Folder> favoriteFolders,
+							  FavoriteManager.FavoriteUpdateListener favoriteUpdateListener,
+							  POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false;
 		}
-		boolean poiScreenShow = showPoiViewerScreen(activity, onClickHandledListener);
+		boolean poiScreenShow = showPoiViewerScreen(activity, dataSourcesRepository, onClickHandledListener);
 		if (!poiScreenShow) {
-			poiScreenShow = showPoiMenu(activity, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
+			poiScreenShow = showPoiMenu(activity, favoriteManager, dataSourcesRepository, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
 		}
 		return poiScreenShow;
 	}
 
 	private boolean showPoiMenu(final @NonNull Activity activity,
+								final @NonNull FavoriteManager favoriteManager,
+								final @NonNull DataSourcesRepository dataSourcesRepository,
 								final SparseArrayCompat<Favorite.Folder> favoriteFolders,
 								final FavoriteManager.FavoriteUpdateListener favoriteUpdateListener,
 								final POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
@@ -713,17 +732,24 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 					.setItems( //
 							getActionsItems( //
 									activity, //
+									favoriteManager,
 									activity.getString(R.string.view_details), //
 									favoriteFolders //
 							), //
 							(dialog, item) -> {
-								boolean handled = onActionsItemClick(activity, item, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
+								boolean handled = onActionsItemClick(activity,
+										favoriteManager,
+										dataSourcesRepository,
+										item,
+										favoriteFolders,
+										favoriteUpdateListener,
+										onClickHandledListener);
 								if (handled) {
 									return;
 								}
 								switch (item) {
 								case 0:
-									showPoiViewerScreen(activity, onClickHandledListener);
+									showPoiViewerScreen(activity, dataSourcesRepository, onClickHandledListener);
 									break;
 								default:
 									MTLog.w(POIManager.this, "Unexpected action item '%s'!", item);

@@ -23,13 +23,18 @@ import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.datasource.DataSourcesRepository;
-import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.MTDialog;
 import org.mtransit.android.ui.PreferencesActivity;
 import org.mtransit.android.ui.modules.ModulesActivity;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.NightModeUtils;
 
+import dagger.hilt.EntryPoint;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.EntryPointAccessors;
+import dagger.hilt.components.SingletonComponent;
+
+@SuppressWarnings("deprecation")
 public class PreferencesFragment extends MTPreferenceFragment implements
 		IBillingManager.OnBillingResultListener,
 		SharedPreferences.OnSharedPreferenceChangeListener {
@@ -80,18 +85,21 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 	private static final String GOOGLE_PRIVACY_POLICY_PAGE_URL = "https://policies.google.com/privacy";
 	private static final String YOUTUBE_TERMS_OF_SERVICE_PAGE_URL = "https://www.youtube.com/t/terms";
 
-	@NonNull
-	private final IBillingManager billingManager;
-	@NonNull
-	private final IAdManager adManager;
-	@NonNull
-	private final DataSourcesRepository dataSourcesRepository;
+	// TODO migrate to 100% Hilt after migrating to AndroidX
+	// TODO @InstallIn(FragmentComponent.class) ?
+	@EntryPoint
+	@InstallIn(SingletonComponent.class)
+	interface PreferenceFragmentEntryPoint {
+		IBillingManager billingManager();
 
-	public PreferencesFragment() {
-		super();
-		this.billingManager = Injection.providesBillingManager();
-		this.adManager = Injection.providesAdManager();
-		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+		IAdManager adManager();
+
+		DataSourcesRepository dataSourcesRepository();
+	}
+
+	@NonNull
+	private PreferenceFragmentEntryPoint getEntryPoint(@NonNull Context context) {
+		return EntryPointAccessors.fromApplication(context.getApplicationContext(), PreferenceFragmentEntryPoint.class);
 	}
 
 	@Override
@@ -170,7 +178,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 				if (activity == null) {
 					return false; // not handled
 				}
-				LinkUtils.sendEmail(activity, this.dataSourcesRepository);
+				LinkUtils.sendEmail(activity, getEntryPoint(activity).dataSourcesRepository());
 				return true; // handled
 			});
 		}
@@ -192,7 +200,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 				if (activity == null) {
 					return false; // not handled
 				}
-				String currentSubscription = this.billingManager.getCurrentSubscription();
+				String currentSubscription = getEntryPoint(activity).billingManager().getCurrentSubscription();
 				Boolean hasSubscription = currentSubscription == null ? null : !currentSubscription.isEmpty();
 				if (hasSubscription == null) { // unknown status
 					// DO NOTHING
@@ -308,7 +316,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 				if (activity == null) {
 					return false; // not handled
 				}
-				this.adManager.resetRewarded();
+				getEntryPoint(activity).adManager().resetRewarded();
 				return true; // handled
 			});
 		}
@@ -320,14 +328,15 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 				if (activity == null) {
 					return false; // not handled
 				}
-				this.adManager.openAdInspector();
+				getEntryPoint(activity).adManager().openAdInspector();
 				return true; // handle
 			});
 		}
 		final Preference devModeAdMediationTestPref = findPreference(DEV_MODE_AD_MEDIATION_TEST_PREF);
 		if (devModeAdMediationTestPref != null) {
 			devModeAdMediationTestPref.setOnPreferenceClickListener(preference -> {
-				if (true) { // DANGEROUS !!!! ONLY FOR MANUAL TESTING
+				//noinspection ConstantConditions
+				if (true) { // DANGEROUS !!!! ONLY FOR MANUAL TESTING!
 					return false; // not handled
 				}
 				Activity activity = getActivity();
@@ -435,8 +444,9 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 	@Override
 	public void onResume() {
 		super.onResume();
-		this.billingManager.addListener(this);
-		this.billingManager.refreshPurchases();
+		final IBillingManager billingManager = getEntryPoint(getActivity()).billingManager();
+		billingManager.addListener(this);
+		billingManager.refreshPurchases();
 		PreferenceUtils.getPrefDefault(getActivity()).registerOnSharedPreferenceChangeListener(this);
 		setUnitSummary(getActivity());
 		setUseInternalWebBrowserSummary(getActivity());
@@ -445,7 +455,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 		setAppVersion(getActivity());
 		if (((PreferencesActivity) getActivity()).isShowSupport()) {
 			((PreferencesActivity) getActivity()).setShowSupport(false); // clear flag before showing dialog
-			Boolean hasSubscription = this.billingManager.isHasSubscription();
+			Boolean hasSubscription = billingManager.isHasSubscription();
 			if (hasSubscription != null && !hasSubscription) {
 				BillingUtils.showPurchaseDialog(getActivity());
 			}
@@ -524,6 +534,6 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 	public void onPause() {
 		super.onPause();
 		PreferenceUtils.getPrefDefault(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
-		this.billingManager.removeListener(this);
+		getEntryPoint(getActivity()).billingManager().removeListener(this);
 	}
 }

@@ -3,7 +3,6 @@ package org.mtransit.android.dev;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.mtransit.android.common.IContext;
 import org.mtransit.android.commons.MTLog;
 
 @SuppressWarnings("unused")
@@ -12,7 +11,7 @@ public interface CrashReporter {
 	boolean CRASHLYTICS_ENABLED = true;
 	// boolean CRASHLYTICS_ENABLED = false; // DEBUG
 
-	void setup(@NonNull IContext context, boolean enabled);
+	void setup(boolean enabled);
 
 	void reportNonFatal(@Nullable Throwable throwable);
 

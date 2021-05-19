@@ -17,14 +17,17 @@ import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
-import org.mtransit.android.di.Injection;
 
 import java.util.Arrays;
 import java.util.Collection;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
 
+@AndroidEntryPoint
 public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable {
 
 	private static final String LOG_TAG = ModulesReceiver.class.getSimpleName();
@@ -61,16 +64,10 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 		return agencyProviderMetaData;
 	}
 
-	@NonNull
-	private final CrashReporter crashReporter;
-	@NonNull
-	private final DataSourcesRepository dataSourcesRepository;
-
-	public ModulesReceiver() {
-		super();
-		this.crashReporter = Injection.providesCrashReporter();
-		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
-	}
+	@Inject
+	CrashReporter crashReporter;
+	@Inject
+	DataSourcesRepository dataSourcesRepository;
 
 	@MainThread
 	@Override

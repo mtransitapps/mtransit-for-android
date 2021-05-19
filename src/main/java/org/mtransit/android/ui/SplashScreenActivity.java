@@ -9,9 +9,13 @@ import org.mtransit.android.R;
 import org.mtransit.android.analytics.AnalyticsUserProperties;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.PreferenceUtils;
-import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.view.common.IActivity;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class SplashScreenActivity extends MTActivity implements IActivity, IAnalyticsManager.Trackable {
 
 	private static final String LOG_TAG = SplashScreenActivity.class.getSimpleName();
@@ -24,13 +28,8 @@ public class SplashScreenActivity extends MTActivity implements IActivity, IAnal
 
 	private static final String TRACKING_SCREEN_NAME = "Splash";
 
-	@NonNull
-	private final IAnalyticsManager analyticsManager;
-
-	public SplashScreenActivity() {
-		super();
-		analyticsManager = Injection.providesAnalyticsManager();
-	}
+	@Inject
+	IAnalyticsManager analyticsManager;
 
 	@NonNull
 	@Override

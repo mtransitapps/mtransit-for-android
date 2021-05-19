@@ -40,12 +40,16 @@ import org.mtransit.android.commons.provider.StatusProviderContract;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.Module;
 import org.mtransit.android.datasource.DataSourcesRepository;
-import org.mtransit.android.di.Injection;
 import org.mtransit.android.util.UITimeUtils;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
+
+import dagger.hilt.EntryPoint;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.EntryPointAccessors;
+import dagger.hilt.components.SingletonComponent;
 
 @SuppressWarnings("UnusedReturnValue")
 public class ModuleProvider extends AgencyProvider implements POIProviderContract, StatusProviderContract {
@@ -132,26 +136,27 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return authorityUri;
 	}
 
-	@Nullable
-	private IAnalyticsManager analyticsManager;
+	@EntryPoint
+	@InstallIn(SingletonComponent.class)
+	interface ModuleProviderEntryPoint {
+		IAnalyticsManager analyticsManager();
+
+		DataSourcesRepository dataSourcesRepository();
+	}
+
+	@NonNull
+	private ModuleProviderEntryPoint getEntryPoint(@NonNull Context context) {
+		return EntryPointAccessors.fromApplication(context.getApplicationContext(), ModuleProviderEntryPoint.class);
+	}
 
 	@NonNull
 	private IAnalyticsManager getAnalyticsManager() {
-		if (this.analyticsManager == null) {
-			this.analyticsManager = Injection.providesAnalyticsManager();
-		}
-		return this.analyticsManager;
+		return getEntryPoint(requireContextCompat()).analyticsManager();
 	}
-
-	@Nullable
-	private DataSourcesRepository dataSourcesRepository;
 
 	@NonNull
 	private DataSourcesRepository dataSourcesRepository() {
-		if (this.dataSourcesRepository == null) {
-			this.dataSourcesRepository = Injection.providesDataSourcesRepository();
-		}
-		return this.dataSourcesRepository;
+		return getEntryPoint(requireContextCompat()).dataSourcesRepository();
 	}
 
 	@Override

@@ -9,10 +9,12 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.databinding.FragmentModulesBinding
 
+@AndroidEntryPoint
 class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
 
     companion object {

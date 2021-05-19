@@ -10,7 +10,10 @@ import org.mtransit.android.commons.ui.widget.MTArrayAdapter
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.databinding.LayoutPoiTypeItemBinding
 
-class SearchTypeFilterAdapter @JvmOverloads constructor(context: Context, @LayoutRes resource: Int = -1) : MTArrayAdapter<DataSourceType?>(context, resource) {
+class SearchTypeFilterAdapter @JvmOverloads constructor(
+    context: Context,
+    @LayoutRes resource: Int = -1
+) : MTArrayAdapter<DataSourceType?>(context, resource) {
 
     companion object {
         private val LOG_TAG = SearchTypeFilterAdapter::class.java.simpleName

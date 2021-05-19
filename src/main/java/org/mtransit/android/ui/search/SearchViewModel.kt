@@ -9,6 +9,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -26,12 +27,18 @@ import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.di.Injection
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import javax.inject.Inject
 
-class SearchViewModel(private val savedStateHandle: SavedStateHandle) : MTViewModelWithLocation(), MTLog.Loggable {
+@HiltViewModel
+class SearchViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
+    private val dataSourcesRepository: DataSourcesRepository,
+    private val dataSourceRequestManager: DataSourceRequestManager,
+    private val favoriteRepository: FavoriteRepository,
+) : MTViewModelWithLocation(), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = SearchViewModel::class.java.simpleName
@@ -43,12 +50,6 @@ class SearchViewModel(private val savedStateHandle: SavedStateHandle) : MTViewMo
     }
 
     override fun getLogTag(): String = LOG_TAG
-
-    private val dataSourcesRepository: DataSourcesRepository by lazy { Injection.providesDataSourcesRepository() }
-
-    private val dataSourceRequestManager: DataSourceRequestManager by lazy { Injection.providesDataSourceRequestManager() }
-
-    private val favoriteRepository: FavoriteRepository by lazy { Injection.providesFavoriteRepository() }
 
     val searchableDataSourceTypes: LiveData<List<DataSourceType>> = this.dataSourcesRepository.readingAllDataSourceTypesDistinct().map { list ->
         list.filter { dst -> dst.isSearchable }

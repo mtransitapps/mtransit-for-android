@@ -7,6 +7,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SqlUtils
@@ -14,11 +15,15 @@ import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
-import org.mtransit.android.di.Injection
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import javax.inject.Inject
 
 
-class RTSTripStopsViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel(), MTLog.Loggable {
+@HiltViewModel
+class RTSTripStopsViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
+    private val dataSourceRequestManager: DataSourceRequestManager,
+) : ViewModel(), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = RTSTripStopsViewModel::class.java.simpleName
@@ -31,8 +36,6 @@ class RTSTripStopsViewModel(private val savedStateHandle: SavedStateHandle) : Vi
     }
 
     override fun getLogTag(): String = tripId.value?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
-
-    private val dataSourceRequestManager: DataSourceRequestManager by lazy { Injection.providesDataSourceRequestManager() }
 
     val agencyAuthority = savedStateHandle.getLiveData<String?>(EXTRA_AGENCY_AUTHORITY, null).distinctUntilChanged()
 

@@ -5,4 +5,7 @@
     android:name="org.mtransit.android.ui.fragment.PreferencesFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.PreferencesActivity" />
+    tools:context=".ui.PreferencesActivity"
+    tools:ignore="FragmentTagUsage">
+    <!-- FragmentTagUsage: need to convert to AndroidX -->
+</fragment>

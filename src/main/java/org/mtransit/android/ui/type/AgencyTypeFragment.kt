@@ -15,6 +15,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -25,8 +26,6 @@ import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.databinding.FragmentAgencyTypeBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
-import org.mtransit.android.task.ServiceUpdateLoader
-import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.ActionBarController.SimpleActionBarColorizer
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MainActivity
@@ -34,6 +33,7 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
 import kotlin.math.abs
 
+@AndroidEntryPoint
 class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivityWithLocation.UserLocationListener {
 
     companion object {
@@ -82,9 +82,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
-            StatusLoader.get().clearAllTasks()
-            ServiceUpdateLoader.get().clearAllTasks()
-            viewModel.saveSelectedTypeAgency(position)
+            viewModel.onPagetSelected(position)
             lastPageSelected = position
         }
 

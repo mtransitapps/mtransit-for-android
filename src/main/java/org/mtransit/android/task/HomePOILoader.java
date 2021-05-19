@@ -49,6 +49,8 @@ public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 	private final float accuracyInMeters;
 	@NonNull
 	private final List<AgencyProperties> allAgencyProperties;
+	@NonNull
+	private final FavoriteManager favoriteManager;
 
 	@Nullable
 	private ArrayList<POIManager> pois;
@@ -58,12 +60,14 @@ public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
 	public HomePOILoader(@NonNull HomeFragment homeFragment,
 						 @NonNull List<AgencyProperties> allAgencyProperties,
-						 @NonNull Location nearbyLocation) {
+						 @NonNull Location nearbyLocation,
+						 @NonNull FavoriteManager favoriteManager) {
 		super(homeFragment.requireContext());
 		this.lat = nearbyLocation.getLatitude();
 		this.lng = nearbyLocation.getLongitude();
 		this.accuracyInMeters = nearbyLocation.getAccuracy();
 		this.allAgencyProperties = allAgencyProperties;
+		this.favoriteManager = favoriteManager;
 		this.homeFragmentWR = new WeakReference<>(homeFragment);
 	}
 
@@ -75,7 +79,7 @@ public class HomePOILoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 			return this.pois;
 		}
 		this.pois = new ArrayList<>();
-		HashSet<String> favoriteUUIDs = FavoriteManager.findFavoriteUUIDs(getContext());
+		HashSet<String> favoriteUUIDs = this.favoriteManager.findFavoriteUUIDs(getContext());
 		List<DataSourceType> availableAgencyTypes = getAllDataSourceTypes();
 		if (availableAgencyTypes.size() <= 2) {
 			this.nbMaxByType = NB_MAX_BY_TYPE_ONE_TYPE;

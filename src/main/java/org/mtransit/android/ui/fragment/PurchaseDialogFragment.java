@@ -33,7 +33,6 @@ import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.ToastUtils;
-import org.mtransit.android.di.Injection;
 import org.mtransit.android.ui.view.common.IActivity;
 
 import java.util.ArrayList;
@@ -41,6 +40,12 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import dagger.hilt.EntryPoint;
+import dagger.hilt.InstallIn;
+import dagger.hilt.android.EntryPointAccessors;
+import dagger.hilt.components.SingletonComponent;
+
+@SuppressWarnings("deprecation")
 public class PurchaseDialogFragment extends MTDialogFragment implements IActivity, IAdManager.RewardedAdListener {
 
 	private static final String LOG_TAG = PurchaseDialogFragment.class.getSimpleName();
@@ -61,15 +66,19 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@Nullable
 	private Observer<Map<String, SkuDetails>> newSkuObserver;
 
-	@NonNull
-	private final IAdManager adManager;
-	@NonNull
-	private final IBillingManager billingManager;
+	// TODO migrate to 100% Hilt after migrating to AndroidX
+	// TODO @InstallIn(FragmentComponent.class) ?
+	@EntryPoint
+	@InstallIn(SingletonComponent.class)
+	interface PurchaseDialogEntryPoint {
+		IBillingManager billingManager();
 
-	public PurchaseDialogFragment() {
-		super();
-		this.adManager = Injection.providesAdManager();
-		this.billingManager = Injection.providesBillingManager();
+		IAdManager adManager();
+	}
+
+	@NonNull
+	private PurchaseDialogEntryPoint getEntryPoint(@NonNull Context context) {
+		return EntryPointAccessors.fromApplication(context.getApplicationContext(), PurchaseDialogEntryPoint.class);
 	}
 
 	@Nullable
@@ -95,7 +104,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.newSkuObserver = this::onNewSku;
-		this.billingManager.getSkusWithSkuDetails().observeForever(this.newSkuObserver); // NOT ANDROID X
+		getEntryPoint(requireContext()).billingManager().getSkusWithSkuDetails().observeForever(this.newSkuObserver); // NOT ANDROID X
 	}
 
 	@Override
@@ -149,7 +158,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	public void onDestroy() {
 		super.onDestroy();
 		if (this.newSkuObserver != null) {
-			this.billingManager.getSkusWithSkuDetails().removeObserver(this.newSkuObserver);
+			getEntryPoint(requireContext()).billingManager().getSkusWithSkuDetails().removeObserver(this.newSkuObserver);
 		}
 	}
 
@@ -175,12 +184,12 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_watch_rewarded_ad_default_failure_message);
 				return;
 			}
-			if (!this.adManager.isRewardedAdAvailableToShow()) {
+			if (!getEntryPoint(context).adManager().isRewardedAdAvailableToShow()) {
 				MTLog.w(this, "onRewardedAdButtonClick() > skip (no ad available)");
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_watch_rewarded_ad_not_ready);
 				return;
 			}
-			this.adManager.showRewardedAd(this);
+			getEntryPoint(context).adManager().showRewardedAd(this);
 			final View view = getView();
 			if (view != null) {
 				view.findViewById(R.id.rewardedAdsBtn).setEnabled(false);
@@ -260,7 +269,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
-			final boolean billingFlowLaunched = this.billingManager.launchBillingFlow(this, sku);
+			final boolean billingFlowLaunched = getEntryPoint(context).billingManager().launchBillingFlow(this, sku);
 			if (!billingFlowLaunched) {
 				MTLog.w(this, "onBuyBtnClick() > skip (can not launch billing flow for: %s)", sku);
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
@@ -282,10 +291,12 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@Override
 	public void onResume() {
 		super.onResume();
-		this.billingManager.refreshAvailableSubscriptions();
-		this.adManager.setRewardedAdListener(this);
-		this.adManager.linkRewardedAd(this);
-		this.adManager.refreshRewardedAdStatus(this);
+		final PurchaseDialogEntryPoint entryPoint = getEntryPoint(requireContext());
+		entryPoint.billingManager().refreshAvailableSubscriptions();
+		final IAdManager iAdManager = entryPoint.adManager();
+		iAdManager.setRewardedAdListener(this);
+		iAdManager.linkRewardedAd(this);
+		iAdManager.refreshRewardedAdStatus(this);
 		showLoading();
 		View view = getView();
 		if (view != null) {
@@ -300,14 +311,15 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@Override
 	public void onPause() {
 		super.onPause();
-		this.adManager.setRewardedAdListener(null);
+		getEntryPoint(requireContext()).adManager().setRewardedAdListener(null);
 	}
 
 	private void refreshRewardedLayout(@NonNull View view) {
-		final boolean availableToShow = this.adManager.isRewardedAdAvailableToShow();
-		final boolean rewardedNow = this.adManager.isRewardedNow();
-		final long rewardedUntilInMs = this.adManager.getRewardedUntilInMs();
-		final int rewardedAmount = this.adManager.getRewardedAdAmount();
+		final IAdManager adManager = getEntryPoint(view.getContext()).adManager();
+		final boolean availableToShow = adManager.isRewardedAdAvailableToShow();
+		final boolean rewardedNow = adManager.isRewardedNow();
+		final long rewardedUntilInMs = adManager.getRewardedUntilInMs();
+		final int rewardedAmount = adManager.getRewardedAdAmount();
 
 		final View rewardedDivider = view.findViewById(R.id.paidTasksDivider2);
 		final TextView rewardedAdStatusTv = view.findViewById(R.id.rewardedAdText);
@@ -342,13 +354,14 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 
 	@Override
 	public boolean skipRewardedAd() {
-		if (!this.adManager.isRewardedNow()) {
+		final IAdManager adManager = getEntryPoint(requireContext()).adManager();
+		if (!adManager.isRewardedNow()) {
 			return false; // never skip for non-rewarded users
 		}
-		final long rewardedUntilInMs = this.adManager.getRewardedUntilInMs();
+		final long rewardedUntilInMs = adManager.getRewardedUntilInMs();
 		final long skipRewardedAdUntilInMs = TimeUtils.currentTimeMillis()
 				- TimeUnit.HOURS.toMillis(1L) // accounts for "recent" rewards
-				+ this.adManager.getRewardedAdAmount() * this.adManager.getRewardedAdAmountInMs(); // not unlimited
+				+ adManager.getRewardedAdAmount() * adManager.getRewardedAdAmountInMs(); // not unlimited
 		return rewardedUntilInMs > skipRewardedAdUntilInMs;
 	}
 
@@ -363,7 +376,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		this.adManager.unlinkRewardedAd(this);
+		getEntryPoint(requireContext()).adManager().unlinkRewardedAd(this);
 	}
 
 	private void showLoading() {

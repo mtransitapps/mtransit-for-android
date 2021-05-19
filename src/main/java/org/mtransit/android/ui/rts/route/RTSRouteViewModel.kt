@@ -9,6 +9,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.PreferenceUtils
@@ -18,11 +19,21 @@ import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.di.Injection
+import org.mtransit.android.task.ServiceUpdateLoader
+import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import javax.inject.Inject
 
-class RTSRouteViewModel(private val savedStateHandle: SavedStateHandle) : MTViewModelWithLocation() {
+@HiltViewModel
+class RTSRouteViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
+    private val dataSourceRequestManager: DataSourceRequestManager,
+    private val dataSourcesRepository: DataSourcesRepository,
+    private val lclPrefRepository: LocalPreferenceRepository,
+    private val statusLoader: StatusLoader,
+    private val serviceUpdateLoader: ServiceUpdateLoader,
+) : MTViewModelWithLocation() {
 
     companion object {
         private val LOG_TAG = RTSRouteViewModel::class.java.simpleName
@@ -36,12 +47,6 @@ class RTSRouteViewModel(private val savedStateHandle: SavedStateHandle) : MTView
     }
 
     override fun getLogTag(): String = LOG_TAG
-
-    private val dataSourcesRepository: DataSourcesRepository by lazy { Injection.providesDataSourcesRepository() }
-
-    private val dataSourceRequestManager: DataSourceRequestManager by lazy { Injection.providesDataSourceRequestManager() }
-
-    private val lclPrefRepository: LocalPreferenceRepository by lazy { Injection.providesLocalPreferenceRepository() }
 
     val authority = savedStateHandle.getLiveData<String?>(EXTRA_AUTHORITY, null).distinctUntilChanged()
     val routeId = savedStateHandle.getLiveData<Long?>(EXTRA_ROUTE_ID, null).distinctUntilChanged()
@@ -92,13 +97,19 @@ class RTSRouteViewModel(private val savedStateHandle: SavedStateHandle) : MTView
         }
     }
 
-    fun saveSelectedRouteTripIdPosition(position: Int) {
+    fun onPagetSelected(position: Int) {
+        this.statusLoader.clearAllTasks()
+        this.serviceUpdateLoader.clearAllTasks()
+        saveSelectedRouteTripIdPosition(position)
+    }
+
+    private fun saveSelectedRouteTripIdPosition(position: Int) {
         saveSelectedRouteTripId(
             routeTrips.value?.getOrNull(position) ?: return
         )
     }
 
-    fun saveSelectedRouteTripId(trip: Trip) {
+    private fun saveSelectedRouteTripId(trip: Trip) {
         val authority: String = this.authority.value ?: return
         val routeId: Long = this.routeId.value ?: return
         lclPrefRepository.pref.edit {

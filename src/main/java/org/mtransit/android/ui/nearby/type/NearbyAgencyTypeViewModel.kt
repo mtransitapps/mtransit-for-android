@@ -11,6 +11,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
@@ -19,12 +20,17 @@ import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.di.Injection
 import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import javax.inject.Inject
 import kotlin.math.max
 
-class NearbyAgencyTypeViewModel(savedStateHandle: SavedStateHandle) : ViewModel(), MTLog.Loggable {
+@HiltViewModel
+class NearbyAgencyTypeViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val dataSourcesRepository: DataSourcesRepository,
+    private val dataSourceRequestManager: DataSourceRequestManager,
+) : ViewModel(), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = NearbyAgencyTypeViewModel::class.java.simpleName
@@ -35,10 +41,6 @@ class NearbyAgencyTypeViewModel(savedStateHandle: SavedStateHandle) : ViewModel(
     }
 
     override fun getLogTag(): String = typeId.value?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
-
-    private val dataSourcesRepository: DataSourcesRepository by lazy { Injection.providesDataSourcesRepository() }
-
-    private val dataSourceRequestManager: DataSourceRequestManager by lazy { Injection.providesDataSourceRequestManager() }
 
     val typeId = savedStateHandle.getLiveData<Int?>(AgencyTypeViewModel.EXTRA_TYPE_ID, null).distinctUntilChanged()
 

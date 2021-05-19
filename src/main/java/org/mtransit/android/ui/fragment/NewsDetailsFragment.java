@@ -24,13 +24,17 @@ import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
-import org.mtransit.android.di.Injection;
 import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.UITimeUtils;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeChangedReceiver.TimeChangedListener, LinkUtils.OnUrlClickListener {
 
 	private static final String TAG = NewsDetailsFragment.class.getSimpleName();
@@ -88,13 +92,8 @@ public class NewsDetailsFragment extends ABFragment implements UITimeUtils.TimeC
 	@Nullable
 	private News news;
 
-	@NonNull
-	private final DataSourcesRepository dataSourcesRepository;
-
-	public NewsDetailsFragment() {
-		super();
-		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
-	}
+	@Inject
+	DataSourcesRepository dataSourcesRepository;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {

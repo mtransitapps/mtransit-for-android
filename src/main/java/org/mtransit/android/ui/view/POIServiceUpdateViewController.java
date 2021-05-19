@@ -35,14 +35,18 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		return R.layout.layout_poi_service_update;
 	}
 
-	public static void initViewHolder(POIManager poim, @NonNull View view) {
+	public static void initViewHolder(@SuppressWarnings("unused") @NonNull POIManager poim,
+									  @NonNull View view) {
 		ServiceUpdatesListViewHolder serviceUpdatesListViewHolder = new ServiceUpdatesListViewHolder();
 		serviceUpdatesListViewHolder.layout = view;
 		serviceUpdatesListViewHolder.messagesTv = view.findViewById(R.id.service_udapte_text);
 		view.setTag(serviceUpdatesListViewHolder);
 	}
 
-	public static void updateView(@NonNull Context context, View view, POIManager poim, POIViewController.POIDataProvider dataProvider) {
+	public static void updateView(@NonNull Context context,
+								  @Nullable View view,
+								  @NonNull POIManager poim,
+								  @NonNull POIViewController.POIDataProvider dataProvider) {
 		if (view == null) {
 			return;
 		}
@@ -53,9 +57,11 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		updateView(context, holder, poim, dataProvider);
 	}
 
-	private static void updateView(@NonNull Context context, ServiceUpdatesListViewHolder serviceUpdatesListViewHolder, POIManager poim,
-								   POIViewController.POIDataProvider dataProvider) {
-		if (dataProvider == null || !dataProvider.isShowingStatus() || poim == null || serviceUpdatesListViewHolder == null) {
+	private static void updateView(@NonNull Context context,
+								   @Nullable ServiceUpdatesListViewHolder serviceUpdatesListViewHolder,
+								   @NonNull POIManager poim,
+								   @NonNull POIViewController.POIDataProvider dataProvider) {
+		if (!dataProvider.isShowingStatus() || serviceUpdatesListViewHolder == null) {
 			if (serviceUpdatesListViewHolder != null) {
 				serviceUpdatesListViewHolder.layout.setVisibility(View.GONE);
 			}
@@ -64,8 +70,10 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		updateServiceUpdatesView(context, serviceUpdatesListViewHolder, poim, dataProvider);
 	}
 
-	public static void updateServiceUpdate(@NonNull Context context, View view, ArrayList<ServiceUpdate> serviceUpdates,
-										   POIViewController.POIDataProvider dataProvider) {
+	public static void updateServiceUpdate(@NonNull Context context,
+										   @Nullable View view,
+										   @Nullable ArrayList<ServiceUpdate> serviceUpdates,
+										   @NonNull POIViewController.POIDataProvider dataProvider) {
 		if (view == null || view.getTag() == null || !(view.getTag() instanceof ServiceUpdatesListViewHolder)) {
 			return;
 		}
@@ -73,12 +81,19 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 		updateServiceUpdatesView(context, holder, serviceUpdates, dataProvider);
 	}
 
-	private static void updateServiceUpdatesView(@NonNull Context context, ServiceUpdatesListViewHolder serviceUpdatesListViewHolder, POIManager poim,
-												 POIViewController.POIDataProvider dataProvider) {
+	private static void updateServiceUpdatesView(@NonNull Context context,
+												 @Nullable ServiceUpdatesListViewHolder serviceUpdatesListViewHolder,
+												 @NonNull POIManager poim,
+												 @NonNull POIViewController.POIDataProvider dataProvider) {
 		if (serviceUpdatesListViewHolder != null) {
-			if (dataProvider != null && dataProvider.isShowingServiceUpdates() && poim != null) {
+			if (dataProvider.isShowingServiceUpdates()) {
 				poim.setServiceUpdateLoaderListener(dataProvider);
-				updateServiceUpdatesView(context, serviceUpdatesListViewHolder, poim.getServiceUpdates(context), dataProvider);
+				updateServiceUpdatesView(
+						context,
+						serviceUpdatesListViewHolder,
+						poim.getServiceUpdates(context, dataProvider.providesServiceUpdateLoader()),
+						dataProvider
+				);
 			} else {
 				serviceUpdatesListViewHolder.layout.setVisibility(View.GONE);
 			}
@@ -86,12 +101,12 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 	}
 
 	private static void updateServiceUpdatesView(@NonNull Context context,
-												 ServiceUpdatesListViewHolder serviceUpdatesListViewHolder,
+												 @NonNull ServiceUpdatesListViewHolder serviceUpdatesListViewHolder,
 												 @Nullable ArrayList<ServiceUpdate> serviceUpdates,
-												 POIViewController.POIDataProvider dataProvider) {
+												 @NonNull POIViewController.POIDataProvider dataProvider) {
 		int serviceMessageDisplayed = 0;
 		boolean isWarning = false;
-		if (dataProvider != null && CollectionUtils.getSize(serviceUpdates) != 0) {
+		if (CollectionUtils.getSize(serviceUpdates) != 0) {
 			StringBuilder ssb = new StringBuilder();
 			if (serviceUpdates != null) {
 				for (ServiceUpdate serviceUpdate : serviceUpdates) {

@@ -63,12 +63,13 @@ import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ScheduleProviderProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
-import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.NearbyPOIListLoader;
+import org.mtransit.android.task.ServiceUpdateLoader;
+import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.nearby.NearbyFragment;
@@ -95,6 +96,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class POIFragment extends ABFragment implements
 		LoaderManager.LoaderCallbacks<ArrayList<POIManager>>,
 		POIViewController.POIDataProvider,
@@ -164,29 +170,39 @@ public class POIFragment extends ABFragment implements
 	@Nullable
 	private AgencyProperties agency;
 
+	@Inject
+	LocationPermissionProvider locationPermissionProvider;
+	@Inject
+	MTSensorManager sensorManager;
+	@Inject
+	IAdManager adManager;
+	@Inject
+	DataSourcesRepository dataSourcesRepository;
+	@Inject
+	IAnalyticsManager analyticsManager;
+	@Inject
+	FavoriteManager favoriteManager;
+
 	@NonNull
 	private final MapViewController mapViewController =
-			new MapViewController(LOG_TAG, this, this, false, true, false, false, false, false, 32, true, false, true, true, false);
-
-	@NonNull
-	private final LocationPermissionProvider locationPermissionProvider;
-	@NonNull
-	private final MTSensorManager sensorManager;
-	@NonNull
-	private final IAdManager adManager;
-	@NonNull
-	private final DataSourcesRepository dataSourcesRepository;
-	@NonNull
-	private final IAnalyticsManager analyticsManager;
-
-	public POIFragment() {
-		super();
-		this.locationPermissionProvider = Injection.providesLocationPermissionProvider();
-		this.sensorManager = Injection.providesSensorManager();
-		this.adManager = Injection.providesAdManager();
-		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
-		this.analyticsManager = Injection.providesAnalyticsManager();
-	}
+			new MapViewController(
+					LOG_TAG,
+					this,
+					this,
+					false,
+					true,
+					false,
+					false,
+					false,
+					false,
+					32,
+					true,
+					false,
+					true,
+					true,
+					false,
+					null
+			);
 
 	private void applyNewAgency() {
 		if (this.agency == null) {
@@ -528,11 +544,12 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onAttach(@NonNull Activity activity) {
-		super.onAttach(activity);
+	public void onAttach(@NonNull Context context) {
+		super.onAttach(context);
 		initAdapters(this);
-		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
-		this.mapViewController.onAttach(activity);
+		this.mapViewController.setDataSourcesRepository(this.dataSourcesRepository);
+		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(context));
+		this.mapViewController.onAttach(requireActivity());
 	}
 
 	@Override
@@ -731,7 +748,14 @@ public class POIFragment extends ABFragment implements
 	}
 
 	private void initAdapters(IActivity activity) {
-		this.adapter = new POIArrayAdapter(activity);
+		this.adapter = new POIArrayAdapter(
+				activity,
+				this.sensorManager,
+				this.dataSourcesRepository,
+				this.favoriteManager,
+				this.statusLoader,
+				this.serviceUpdateLoader
+		);
 		this.adapter.setLogTag(getLogTag());
 	}
 
@@ -773,7 +797,7 @@ public class POIFragment extends ABFragment implements
 								ScheduleFragment.newInstance(
 										POIFragment.this.uuid,
 										POIFragment.this.authority,
-										poim.getColor()
+										poim.getColor(dataSourcesRepository)
 								), //
 								POIFragment.this);
 					}
@@ -802,7 +826,7 @@ public class POIFragment extends ABFragment implements
 						MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
 						return;
 					}
-					Integer colorInt = poim.getColor();
+					Integer colorInt = poim.getColor(dataSourcesRepository);
 					String subtitle = POIManager.getOneLineDescription(POIFragment.this.dataSourcesRepository, poim.poi);
 					((MainActivity) activity).addFragmentToStack(
 							NewsListFragment.newInstance(
@@ -848,7 +872,7 @@ public class POIFragment extends ABFragment implements
 									poim.getLat(),
 									poim.getLng(),
 									POIManager.getOneLineDescription(POIFragment.this.dataSourcesRepository, poim.poi),
-									poim.getColor()
+									poim.getColor(dataSourcesRepository)
 							), POIFragment.this);
 				}
 			});
@@ -856,6 +880,7 @@ public class POIFragment extends ABFragment implements
 		}
 	}
 
+	@Nullable
 	private View getPOIStatusView(View view) {
 		POIManager poim = getPoimOrNull();
 		if (view == null || poim == null) {
@@ -1035,8 +1060,9 @@ public class POIFragment extends ABFragment implements
 		if (newLocation == null) {
 			return;
 		}
-		if (this.userLocation == null) {
-			this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(this));
+		final Context context = getContext();
+		if (this.userLocation == null && context != null) {
+			this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(context));
 		}
 		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
 			this.userLocation = newLocation;
@@ -1047,7 +1073,7 @@ public class POIFragment extends ABFragment implements
 			}
 			POIManager poim = getPoimOrNull();
 			if (poim != null) {
-				LocationUtils.updateDistanceWithString(getContext(), poim, newLocation);
+				LocationUtils.updateDistanceWithString(requireContext(), poim, newLocation);
 				POIViewController.updatePOIDistanceAndCompass(getPOIView(getView()), poim, this);
 			}
 			this.mapViewController.onUserLocationChanged(this.userLocation);
@@ -1336,7 +1362,7 @@ public class POIFragment extends ABFragment implements
 		if (this.favoriteFolderId == null) {
 			POIManager poim = getPoimOrNull();
 			if (poim != null) {
-				this.favoriteFolderId = FavoriteManager.findFavoriteFolderId(requireContext(), poim.poi.getUUID());
+				this.favoriteFolderId = this.favoriteManager.findFavoriteFolderId(requireContext(), poim.poi.getUUID());
 			}
 		}
 		return this.favoriteFolderId;
@@ -1346,7 +1372,7 @@ public class POIFragment extends ABFragment implements
 		if (this.favoriteFolderId == null) {
 			POIManager poim = getPoimOrNull();
 			if (poim != null) {
-				this.favoriteFolderId = FavoriteManager.findFavoriteFolderId(requireContext(), poim.poi.getUUID());
+				this.favoriteFolderId = this.favoriteManager.findFavoriteFolderId(requireContext(), poim.poi.getUUID());
 			}
 		}
 		return getFavoriteFolderId() != null && getFavoriteFolderId() >= 0;
@@ -1362,7 +1388,7 @@ public class POIFragment extends ABFragment implements
 		if (poim != null && poim.poi.getUUID().equals(uuid)) {
 			return isFavorite();
 		}
-		return FavoriteManager.isFavorite(requireContext(), uuid);
+		return this.favoriteManager.isFavorite(requireContext(), uuid);
 	}
 
 	@Override
@@ -1391,6 +1417,18 @@ public class POIFragment extends ABFragment implements
 		return this.dataSourcesRepository;
 	}
 
+	@NonNull
+	@Override
+	public StatusLoader providesStatusLoader() {
+		return this.statusLoader;
+	}
+
+	@NonNull
+	@Override
+	public ServiceUpdateLoader providesServiceUpdateLoader() {
+		return this.serviceUpdateLoader;
+	}
+
 	private MenuItem addRemoveFavoriteMenuItem;
 
 	@Override
@@ -1410,7 +1448,7 @@ public class POIFragment extends ABFragment implements
 			boolean isFav = isFavorite();
 			this.addRemoveFavoriteMenuItem.setIcon(isFav ? R.drawable.ic_star_black_24dp : R.drawable.ic_star_border_black_24dp);
 			this.addRemoveFavoriteMenuItem.setTitle(isFav ? //
-					FavoriteManager.get(requireContext()).isUsingFavoriteFolders() ? //
+					this.favoriteManager.isUsingFavoriteFolders() ? //
 							R.string.menu_action_edit_favorite //
 							: R.string.menu_action_remove_favorite //
 					: R.string.menu_action_add_favorite);
@@ -1426,7 +1464,7 @@ public class POIFragment extends ABFragment implements
 		if (itemId == R.id.menu_add_remove_favorite) {
 			POIManager poim = getPoimOrNull();
 			if (poim != null && poim.isFavoritable()) {
-				return FavoriteManager.get(requireActivity()).addRemoveFavorite(requireActivity(), poim.poi.getUUID(), this);
+				return this.favoriteManager.addRemoveFavorite(requireActivity(), poim.poi.getUUID(), this);
 			}
 		} else if (itemId == R.id.menu_show_directions) {
 			POIManager poim2 = getPoimOrNull();

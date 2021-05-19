@@ -7,24 +7,23 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.location.MTLocationProvider;
 import org.mtransit.android.ui.fragment.VisibilityAwareFragment;
 import org.mtransit.android.ui.view.common.ScreenWithLocationCommon;
 
 import java.util.Collection;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public abstract class MTActivityWithLocation extends MTActivity implements
 		MTLocationProvider.ScreenWithLocationView,
 		MTLocationProvider.OnLastLocationChangeListener {
 
-	@NonNull
-	private final MTLocationProvider locationProvider;
-
-	public MTActivityWithLocation() {
-		super();
-		this.locationProvider = Injection.providesLocationProvider();
-	}
+	@Inject
+	MTLocationProvider locationProvider;
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

@@ -9,6 +9,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
@@ -19,9 +20,15 @@ import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.di.Injection
+import javax.inject.Inject
 
-class AgencyPOIsViewModel(savedStateHandle: SavedStateHandle) : ViewModel(), MTLog.Loggable {
+@HiltViewModel
+class AgencyPOIsViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val dataSourcesRepository: DataSourcesRepository,
+    private val dataSourceRequestManager: DataSourceRequestManager,
+    private val lclPrefRepository: LocalPreferenceRepository,
+) : ViewModel(), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = AgencyPOIsViewModel::class.java.simpleName
@@ -31,12 +38,6 @@ class AgencyPOIsViewModel(savedStateHandle: SavedStateHandle) : ViewModel(), MTL
     }
 
     override fun getLogTag(): String = agency.value?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
-
-    private val dataSourcesRepository: DataSourcesRepository by lazy { Injection.providesDataSourcesRepository() }
-
-    private val dataSourceRequestManager: DataSourceRequestManager by lazy { Injection.providesDataSourceRequestManager() }
-
-    private val lclPrefRepository: LocalPreferenceRepository by lazy { Injection.providesLocalPreferenceRepository() }
 
     private val _authority = savedStateHandle.getLiveData<String?>(EXTRA_AGENCY_AUTHORITY, null).distinctUntilChanged()
 

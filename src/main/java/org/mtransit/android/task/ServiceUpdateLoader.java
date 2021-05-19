@@ -1,5 +1,6 @@
 package org.mtransit.android.task;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -14,7 +15,6 @@ import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ServiceUpdateProviderProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
-import org.mtransit.android.di.Injection;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -23,6 +23,10 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class ServiceUpdateLoader implements MTLog.Loggable {
 
 	private static final String LOG_TAG = ServiceUpdateLoader.class.getSimpleName();
@@ -33,22 +37,12 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		return LOG_TAG;
 	}
 
-	@Nullable
-	private static ServiceUpdateLoader instance;
-
-	@NonNull
-	public static ServiceUpdateLoader get() {
-		if (instance == null) {
-			instance = new ServiceUpdateLoader();
-		}
-		return instance;
-	}
-
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 
-	private ServiceUpdateLoader() {
-		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+	@Inject
+	public ServiceUpdateLoader(@NonNull DataSourcesRepository dataSourcesRepository) {
+		this.dataSourcesRepository = dataSourcesRepository;
 	}
 
 	private ThreadPoolExecutor fetchServiceUpdateExecutor;
@@ -93,7 +87,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		return true;
 	}
 
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings("deprecation") // FIXME
 	private static class ServiceUpdateFetcherCallable extends MTCancellableAsyncTask<Void, Void, ArrayList<ServiceUpdate>> {
 
 		private static final String LOG_TAG = ServiceUpdateLoader.LOG_TAG + '>' + ServiceUpdateFetcherCallable.class.getSimpleName();
@@ -162,10 +156,12 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 	}
 
+	@SuppressLint("UnknownNullness") // FIXME
 	public static class LIFOBlockingDeque<E> extends LinkedBlockingDeque<E> implements MTLog.Loggable {
 
 		private static final String TAG = LIFOBlockingDeque.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
 			return TAG;

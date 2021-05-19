@@ -8,13 +8,17 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 
 import org.mtransit.android.R;
-import org.mtransit.android.common.IApplication;
 import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.datasource.DataSourcesRepository;
 
 import java.lang.ref.WeakReference;
 import java.util.Comparator;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
 
 public enum DataSourceType {
 
@@ -267,24 +271,23 @@ public enum DataSourceType {
 		}
 	}
 
+	@Singleton
 	public static class POIManagerTypeShortNameComparator implements Comparator<POIManager> {
 
 		@NonNull
-		private final IApplication app;
+		private final Context appContext;
 		@NonNull
 		private final DataSourcesRepository dataSourcesRepository;
 
-		public POIManagerTypeShortNameComparator(@NonNull IApplication app, @NonNull DataSourcesRepository dataSourcesRepository) {
-			this.app = app;
+		@Inject
+		public POIManagerTypeShortNameComparator(@NonNull @ApplicationContext Context appContext,
+												 @NonNull DataSourcesRepository dataSourcesRepository) {
+			this.appContext = appContext;
 			this.dataSourcesRepository = dataSourcesRepository;
 		}
 
 		@Override
 		public int compare(@NonNull POIManager lPoim, @NonNull POIManager rPoim) {
-			final Context context = this.app.getContext();
-			if (context == null) {
-				return 0;
-			}
 			final AgencyProperties lAgency = this.dataSourcesRepository.getAgency(lPoim.poi.getAuthority());
 			final AgencyProperties rAgency = this.dataSourcesRepository.getAgency(rPoim.poi.getAuthority());
 			if (lAgency == null || rAgency == null) {
@@ -292,8 +295,8 @@ public enum DataSourceType {
 			}
 			final int lShortNameResId = lAgency.getType().getShortNameResId();
 			final int rShortNameResId = rAgency.getType().getShortNameResId();
-			final String lShortName = context.getString(lShortNameResId);
-			final String rShortName = context.getString(rShortNameResId);
+			final String lShortName = this.appContext.getString(lShortNameResId);
+			final String rShortName = this.appContext.getString(rShortNameResId);
 			return lShortName.compareTo(rShortName);
 		}
 	}

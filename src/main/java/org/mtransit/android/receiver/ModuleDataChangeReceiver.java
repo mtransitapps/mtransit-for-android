@@ -13,8 +13,10 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.receiver.DataChange;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
-import org.mtransit.android.di.Injection;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
 
@@ -25,6 +27,7 @@ import kotlin.coroutines.EmptyCoroutineContext;
  --ez force true \
  --es pkg "org.mtransit.android.ca_montreal_stm_subway.debug"
  */
+@AndroidEntryPoint
 public class ModuleDataChangeReceiver extends BroadcastReceiver implements MTLog.Loggable {
 
 	private static final String LOG_TAG = ModuleDataChangeReceiver.class.getSimpleName();
@@ -35,16 +38,10 @@ public class ModuleDataChangeReceiver extends BroadcastReceiver implements MTLog
 		return LOG_TAG;
 	}
 
-	@NonNull
-	private final CrashReporter crashReporter;
-	@NonNull
-	private final DataSourcesRepository dataSourcesRepository;
-
-	public ModuleDataChangeReceiver() {
-		super();
-		this.crashReporter = Injection.providesCrashReporter();
-		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
-	}
+	@Inject
+	CrashReporter crashReporter;
+	@Inject
+	DataSourcesRepository dataSourcesRepository;
 
 	@Override
 	public void onReceive(@Nullable Context context, @Nullable Intent intent) {

@@ -8,6 +8,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteTripStop
@@ -15,11 +16,20 @@ import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.di.Injection
+import org.mtransit.android.task.ServiceUpdateLoader
+import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import javax.inject.Inject
 
-class ScheduleViewModel(savedStateHandle: SavedStateHandle) : ViewModel(), MTLog.Loggable {
+@HiltViewModel
+class ScheduleViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val dataSourceRequestManager: DataSourceRequestManager,
+    private val dataSourcesRepository: DataSourcesRepository,
+    private val statusLoader: StatusLoader,
+    private val serviceUpdateLoader: ServiceUpdateLoader,
+) : ViewModel(), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = ScheduleViewModel::class.java.simpleName
@@ -30,10 +40,6 @@ class ScheduleViewModel(savedStateHandle: SavedStateHandle) : ViewModel(), MTLog
     }
 
     override fun getLogTag(): String = LOG_TAG
-
-    private val dataSourcesRepository: DataSourcesRepository by lazy { Injection.providesDataSourcesRepository() }
-
-    private val dataSourceRequestManager: DataSourceRequestManager by lazy { Injection.providesDataSourceRequestManager() }
 
     val authority = savedStateHandle.getLiveData<String?>(EXTRA_AUTHORITY, null).distinctUntilChanged()
 
@@ -70,5 +76,10 @@ class ScheduleViewModel(savedStateHandle: SavedStateHandle) : ViewModel(), MTLog
             dataSourceRemovedEvent.postValue(Event(true))
             null
         }
+    }
+
+    fun onPagetSelected(@Suppress("UNUSED_PARAMETER") position: Int) {
+        this.statusLoader.clearAllTasks()
+        this.serviceUpdateLoader.clearAllTasks()
     }
 }

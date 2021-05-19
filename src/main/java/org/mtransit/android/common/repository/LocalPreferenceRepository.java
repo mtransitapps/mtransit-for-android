@@ -1,16 +1,23 @@
 package org.mtransit.android.common.repository;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.mtransit.android.common.IApplication;
 import org.mtransit.android.commons.PreferenceUtils;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
+
+@Singleton
 public class LocalPreferenceRepository extends PreferenceRepository {
 
-	public LocalPreferenceRepository(@NonNull IApplication appContext) {
+	@Inject
+	public LocalPreferenceRepository(@NonNull @ApplicationContext Context appContext) {
 		super(appContext);
 	}
 

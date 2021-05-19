@@ -11,17 +11,24 @@ import android.view.View
 import android.widget.AbsListView
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentFavoritesBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.databinding.LayoutPoiListBinding
+import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.FavoriteManager
 import org.mtransit.android.provider.FavoriteManager.FavoriteUpdateListener
+import org.mtransit.android.provider.sensor.MTSensorManager
+import org.mtransit.android.task.ServiceUpdateLoader
+import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.fragment.ABFragment
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationListener, FavoriteUpdateListener {
 
     companion object {
@@ -41,12 +48,34 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
 
     private val viewModel by viewModels<FavoritesViewModel>()
 
+    @Inject
+    lateinit var sensorManager: MTSensorManager
+
+    @Inject
+    lateinit var dataSourcesRepository: DataSourcesRepository
+
+    @Inject
+    lateinit var favoriteManager: FavoriteManager
+
+    @Inject
+    lateinit var statusLoader: StatusLoader
+
+    @Inject
+    lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
     private var binding: FragmentFavoritesBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
     private var listBinding: LayoutPoiListBinding? = null
 
     private val adapter: POIArrayAdapter by lazy {
-        POIArrayAdapter(this).apply {
+        POIArrayAdapter(
+            this,
+            this.sensorManager,
+            this.dataSourcesRepository,
+            this.favoriteManager,
+            this.statusLoader,
+            this.serviceUpdateLoader
+        ).apply {
             logTag = logTag
             setShowFavorite(false) // all items in this screen are favorites
             setFavoriteUpdateListener(this@FavoritesFragment)
@@ -131,7 +160,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_add_favorite_folder -> {
-                FavoriteManager.showAddFolderDialog(requireActivity(), this, null, null)
+                this.favoriteManager.showAddFolderDialog(requireActivity(), this, null, null)
                 true
             }
             else -> super.onOptionsItemSelected(item)

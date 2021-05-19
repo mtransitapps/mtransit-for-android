@@ -8,15 +8,16 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
+import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentScheduleBinding
-import org.mtransit.android.task.ServiceUpdateLoader
-import org.mtransit.android.task.StatusLoader
+import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
 
+@AndroidEntryPoint
 class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
 
     companion object {
@@ -25,11 +26,14 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
         private const val TRACKING_SCREEN_NAME = "Schedule"
 
         @JvmStatic
-        fun newInstance(poim: POIManager): ScheduleFragment {
+        fun newInstance(
+            poim: POIManager,
+            dataSourcesRepository: DataSourcesRepository,
+        ): ScheduleFragment {
             return newInstance(
                 poim.poi.uuid,
                 poim.poi.authority,
-                poim.color,
+                poim.getColor(dataSourcesRepository),
             )
         }
 
@@ -65,8 +69,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
-            StatusLoader.get().clearAllTasks()
-            ServiceUpdateLoader.get().clearAllTasks()
+            viewModel.onPagetSelected(position)
             lastPageSelected = position
         }
     }

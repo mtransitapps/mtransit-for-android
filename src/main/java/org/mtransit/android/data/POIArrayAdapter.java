@@ -45,7 +45,6 @@ import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.datasource.DataSourcesRepository;
-import org.mtransit.android.di.Injection;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
@@ -77,6 +76,8 @@ import java.util.Locale;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 
+@SuppressLint("UnknownNullness") // FIXME
+@SuppressWarnings("deprecation") // FIXME
 public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSensorManager.CompassListener, AdapterView.OnItemClickListener,
 		AdapterView.OnItemLongClickListener, SensorEventListener, AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener,
 		ServiceUpdateLoader.ServiceUpdateLoaderListener, FavoriteManager.FavoriteUpdateListener, MTSensorManager.SensorTaskCompleted,
@@ -164,13 +165,27 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private final MTSensorManager sensorManager;
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
+	@NonNull
+	private final FavoriteManager favoriteManager;
+	@NonNull
+	private final StatusLoader statusLoader;
+	@NonNull
+	private final ServiceUpdateLoader serviceUpdateLoader;
 
-	public POIArrayAdapter(@NonNull IActivity activity) {
+	public POIArrayAdapter(@NonNull IActivity activity,
+						   @NonNull MTSensorManager sensorManager,
+						   @NonNull DataSourcesRepository dataSourcesRepository,
+						   @NonNull FavoriteManager favoriteManager,
+						   @NonNull StatusLoader statusLoader,
+						   @NonNull ServiceUpdateLoader serviceUpdateLoader) {
 		super(activity.requireContext(), -1);
 		setActivity(activity);
 		this.layoutInflater = LayoutInflater.from(getContext());
-		this.sensorManager = Injection.providesSensorManager();
-		this.dataSourcesRepository = Injection.providesDataSourcesRepository();
+		this.sensorManager = sensorManager;
+		this.dataSourcesRepository = dataSourcesRepository;
+		this.favoriteManager = favoriteManager;
+		this.statusLoader = statusLoader;
+		this.serviceUpdateLoader = serviceUpdateLoader;
 		this.dataSourcesRepository.readingAllAgenciesDistinct().observe(activity.getLifecycleOwner(), agencyProperties ->
 				resetModulesStatus()
 		);
@@ -252,7 +267,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				if (this.poisByType != null) {
 					Integer typeId = getItemTypeHeader(position);
 					if (typeId != null) {
-						if (FavoriteManager.isFavoriteDataSourceId(typeId)) {
+						if (this.favoriteManager.isFavoriteDataSourceId(typeId)) {
 							return 10; // TYPE FAVORITE FOLDER
 						}
 						return 8; // TYPE HEADER
@@ -417,17 +432,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				return getInfiniteLoadingView(convertView, parent);
 			}
 			if (this.showTypeHeader != TYPE_HEADER_NONE) {
-				Integer typeId = getItemTypeHeader(position);
+				final Integer typeId = getItemTypeHeader(position);
 				if (typeId != null) {
-					if (FavoriteManager.isFavoriteDataSourceId(typeId)) {
-						int favoriteFolderId = FavoriteManager.extractFavoriteFolderId(typeId);
-						final FavoriteManager favoriteManager = FavoriteManager.get(getContext());
-						final Favorite.Folder favoriteFolder = favoriteManager.getFolder(favoriteFolderId);
+					if (this.favoriteManager.isFavoriteDataSourceId(typeId)) {
+						final int favoriteFolderId = this.favoriteManager.extractFavoriteFolderId(typeId);
+						final Favorite.Folder favoriteFolder = this.favoriteManager.getFolder(favoriteFolderId);
 						if (favoriteFolder != null) {
 							return getFavoriteFolderHeaderView(favoriteFolder, convertView, parent);
 						}
 					}
-					DataSourceType dst = DataSourceType.parseId(typeId);
+					final DataSourceType dst = DataSourceType.parseId(typeId);
 					if (dst != null) {
 						return getTypeHeaderView(dst, convertView, parent);
 					}
@@ -537,6 +551,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return convertView;
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	@NonNull
 	private View updateCommonViewManual(@NonNull POIManager poim, @NonNull View convertView) {
 		if (!(convertView.getTag() instanceof CommonViewHolder)) {
@@ -636,7 +651,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			return false;
 		}
 		OnClickHandledListener listener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
-		return poim.onActionItemClick(activity, FavoriteManager.get(getContext()).getFavoriteFolders(), this.favoriteUpdateListener, listener);
+		return poim.onActionItemClick(activity, this.favoriteManager, this.dataSourcesRepository, this.favoriteManager.getFavoriteFolders(), this.favoriteUpdateListener, listener);
 	}
 
 	private boolean showPoiMenu(POIManager poim) {
@@ -648,7 +663,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			return false;
 		}
 		OnClickHandledListener listener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
-		return poim.onActionItemLongClick(activity, FavoriteManager.get(getContext()).getFavoriteFolders(), this.favoriteUpdateListener, listener);
+		return poim.onActionItemLongClick(activity, this.favoriteManager, this.dataSourcesRepository, this.favoriteManager.getFavoriteFolders(), this.favoriteUpdateListener, listener);
 	}
 
 	@Override
@@ -899,7 +914,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	@Override
-	public void onServiceUpdatesLoaded(String targetUUID, ArrayList<ServiceUpdate> serviceUpdates) {
+	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @Nullable ArrayList<ServiceUpdate> serviceUpdates) {
 		if (this.showServiceUpdate) {
 			CommonStatusViewHolder statusViewHolder = this.poiStatusViewHoldersWR.get(targetUUID);
 			if (statusViewHolder != null && targetUUID.equals(statusViewHolder.uuid)) {
@@ -910,6 +925,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	private boolean resetModulesStatus() {
 		boolean reseted = false;
 		if (this.poisByType != null) {
@@ -929,16 +945,19 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		notifyDataSetChanged(force, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
 	}
 
+	@NonNull
 	private final Handler handler = new Handler();
 
+	@NonNull
 	private final Runnable notifyDataSetChangedLater = () -> {
-		notifyDataSetChanged(true); // still really need to show new data
+		notifyDataSetChanged(true); // it still really needs to show new data
 	};
 
 	public void notifyDataSetChanged(boolean force, long minAdapterThresholdInMs) {
 		long now = UITimeUtils.currentTimeMillis();
 		long adapterThreshold = Math.max(minAdapterThresholdInMs, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS);
-		if (this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE && (force || (now - this.lastNotifyDataSetChanged) > adapterThreshold)) {
+		if (this.scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE
+				&& (force || (now - this.lastNotifyDataSetChanged) > adapterThreshold)) {
 			notifyDataSetChanged();
 			notifyDataSetChangedManual();
 			this.lastNotifyDataSetChanged = now;
@@ -970,7 +989,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 	}
 
-	public void setListView(AbsListView listView) {
+	public void setListView(@NonNull AbsListView listView) {
 		listView.setOnItemClickListener(this);
 		listView.setOnItemLongClickListener(this);
 		listView.setOnScrollListener(this);
@@ -1078,7 +1097,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return POIArrayAdapter.class.getSimpleName() + getLogTag();
 	}
 
-	public void onResume(@NonNull IActivity activity, Location userLocation) {
+	public void onResume(@NonNull IActivity activity, @Nullable Location userLocation) {
 		setActivity(activity);
 		this.location = null; // clear current location to force refresh
 		setLocation(userLocation);
@@ -1316,7 +1335,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				@Override
 				public void onClickMT(@NonNull View view) {
 					Activity activity = POIArrayAdapter.this.getActivity();
-					FavoriteManager.showUpdateFolderDialog(activity, POIArrayAdapter.this.layoutInflater, favoriteFolder,
+					favoriteManager.showUpdateFolderDialog(activity, POIArrayAdapter.this.layoutInflater, favoriteFolder,
 							POIArrayAdapter.this.favoriteUpdateListener);
 				}
 			});
@@ -1326,7 +1345,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				@Override
 				public void onClickMT(@NonNull View view) {
 					Activity activity = POIArrayAdapter.this.getActivity();
-					FavoriteManager.showDeleteFolderDialog(activity, favoriteFolder, POIArrayAdapter.this.favoriteUpdateListener);
+					favoriteManager.showDeleteFolderDialog(activity, favoriteFolder, POIArrayAdapter.this.favoriteUpdateListener);
 				}
 			});
 		}
@@ -1409,6 +1428,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private final WeakHashMap<MTCompassView, View> compassImgsWR = new WeakHashMap<>();
 
 	private void initCommonViewHolder(CommonViewHolder holder, View convertView, String poiUUID) {
+		holder.uuid = poiUUID;
 		holder.view = convertView;
 		holder.nameTv = convertView.findViewById(R.id.name);
 		holder.favImg = convertView.findViewById(R.id.fav);
@@ -1422,6 +1442,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		holder.warningImg = convertView.findViewById(R.id.service_update_warning);
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	@NonNull
 	private View updateBasicPOIView(@NonNull POIManager poim, @NonNull View convertView) {
 		BasicPOIViewHolder holder = (BasicPOIViewHolder) convertView.getTag();
@@ -1433,13 +1454,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private void updateAppStatus(CommonStatusViewHolder statusViewHolder, POIManager poim) {
 		if (this.showStatus && poim != null && statusViewHolder instanceof AppStatusViewHolder) {
 			poim.setStatusLoaderListener(this);
-			updateAppStatus(statusViewHolder, poim.getStatus(getContext()));
+			updateAppStatus(statusViewHolder, poim.getStatus(getContext(), statusLoader));
 		} else {
 			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
 		if (poim != null) {
 			poim.setServiceUpdateLoaderListener(this);
-			updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext()));
+			updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext(), serviceUpdateLoader));
 		}
 	}
 
@@ -1469,13 +1490,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private void updateAvailabilityPercent(CommonStatusViewHolder statusViewHolder, POIManager poim) {
 		if (this.showStatus && poim != null && statusViewHolder instanceof AvailabilityPercentStatusViewHolder) {
 			poim.setStatusLoaderListener(this);
-			updateAvailabilityPercent(statusViewHolder, poim.getStatus(getContext()));
+			updateAvailabilityPercent(statusViewHolder, poim.getStatus(getContext(), statusLoader));
 		} else {
 			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
 		if (poim != null) {
 			poim.setServiceUpdateLoaderListener(this);
-			updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext()));
+			updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext(), serviceUpdateLoader));
 		}
 	}
 
@@ -1553,6 +1574,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return convertView;
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	@NonNull
 	private View updateTextMessageView(@NonNull POIManager poim, @NonNull View convertView) {
 		TextViewViewHolder holder = (TextViewViewHolder) convertView.getTag();
@@ -1588,10 +1610,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return convertView;
 	}
 
-	private void updateModuleExtra(POIManager poim, ModuleViewHolder holder) {
+	private void updateModuleExtra(@NonNull POIManager poim, @NonNull ModuleViewHolder holder) {
 		if (this.showExtra && poim.poi instanceof Module) {
 			Module module = (Module) poim.poi;
-			holder.moduleExtraTypeImg.setBackgroundColor(poim.getColor());
+			holder.moduleExtraTypeImg.setBackgroundColor(poim.getColor(dataSourcesRepository));
 			DataSourceType moduleType = DataSourceType.parseId(module.getTargetTypeId());
 			if (moduleType != null) {
 				holder.moduleExtraTypeImg.setImageResource(moduleType.getIconResId());
@@ -1644,6 +1666,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		holder.tripHeadingBg = convertView.findViewById(R.id.trip_heading_bg);
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	@UiThread
 	@NonNull
 	private View updateRouteTripStopView(@NonNull POIManager poim, @NonNull View convertView) {
@@ -1679,7 +1702,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 					holder.tripHeadingBg.setVisibility(View.GONE);
 				}
 			} else {
-				final String authority = rts.getAuthority();
 				final Route route = rts.getRoute();
 				if (TextUtils.isEmpty(route.getShortName())) {
 					holder.routeShortNameTv.setVisibility(View.INVISIBLE);
@@ -1703,11 +1725,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setVisibility(View.VISIBLE);
-				final long tripId = rts.getTrip().getId();
 				holder.tripHeadingTv.setText(rts.getTrip().getHeading(getContext()).toUpperCase(Locale.getDefault()));
 				holder.tripHeadingBg.setVisibility(View.VISIBLE);
-				holder.rtsExtraV.setBackgroundColor(poim.getColor());
-				final int stopId = rts.getStop().getId();
+				holder.rtsExtraV.setBackgroundColor(poim.getColor(dataSourcesRepository));
 				holder.rtsExtraV.setOnClickListener(new MTOnClickListener() {
 					@Override
 					public void onClickMT(@NonNull View view) {
@@ -1779,13 +1799,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private void updateRTSSchedule(CommonStatusViewHolder statusViewHolder, POIManager poim) {
 		if (this.showStatus && poim != null && statusViewHolder instanceof ScheduleStatusViewHolder) {
 			poim.setStatusLoaderListener(this);
-			updateRTSSchedule(statusViewHolder, poim.getStatus(getContext()));
+			updateRTSSchedule(statusViewHolder, poim.getStatus(getContext(), statusLoader));
 		} else {
 			statusViewHolder.statusV.setVisibility(View.INVISIBLE);
 		}
 		if (poim != null) {
 			poim.setServiceUpdateLoaderListener(this);
-			updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext()));
+			updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext(), serviceUpdateLoader));
 		}
 	}
 
@@ -1940,7 +1960,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			return POIArrayAdapter.class.getSimpleName() + ">" + RefreshFavoritesTask.class.getSimpleName();
 		}
 
-		private RefreshFavoritesTask(POIArrayAdapter poiArrayAdapter) {
+		private RefreshFavoritesTask(@Nullable POIArrayAdapter poiArrayAdapter) {
 			this.poiArrayAdapterWR = new WeakReference<>(poiArrayAdapter);
 		}
 
@@ -1950,7 +1970,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			if (poiArrayAdapter == null) {
 				return null;
 			}
-			return FavoriteManager.findFavorites(poiArrayAdapter.getContext());
+			return poiArrayAdapter.favoriteManager.findFavorites(poiArrayAdapter.getContext());
 		}
 
 		@Override
