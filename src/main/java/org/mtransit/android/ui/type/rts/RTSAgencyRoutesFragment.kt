@@ -224,7 +224,6 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
         updateListGridToggleMenuItem()
     }
 
-
     override fun onDestroyView() {
         super.onDestroyView()
         emptyBinding = null

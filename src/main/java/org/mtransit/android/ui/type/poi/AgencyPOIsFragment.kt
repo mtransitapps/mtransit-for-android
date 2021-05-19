@@ -18,8 +18,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.data.POIArrayAdapter
@@ -125,21 +123,11 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
         override fun getPOI(uuid: String?) = adapter.getItem(uuid)
     }
 
-    private val mapListener = object : MapViewController.MapListener {
-        override fun onMapClick(position: LatLng) {
-            // DO NOTHING
-        }
-
-        override fun onCameraChange(latLngBounds: LatLngBounds?) {
-            // DO NOTHING
-        }
-    }
-
     private val mapViewController: MapViewController by lazy {
         MapViewController(
             logTag,
             mapMarkerProvider,
-            mapListener,
+            null, // DO NOTHING (map click, camera change)
             true,
             true,
             true,

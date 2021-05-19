@@ -9,8 +9,6 @@ import android.widget.AbsListView
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.CollectionUtils
@@ -105,21 +103,11 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
         override fun getPOI(uuid: String?) = adapter.getItem(uuid)
     }
 
-    private val mapListener = object : MapViewController.MapListener {
-        override fun onMapClick(position: LatLng) {
-            // DO NOTHING
-        }
-
-        override fun onCameraChange(latLngBounds: LatLngBounds?) {
-            // DO NOTHING
-        }
-    }
-
     private val mapViewController: MapViewController by lazy {
         MapViewController(
             logTag,
             mapMarkerProvider,
-            mapListener,
+            null, // DO NOTHING (map click, camera change)
             true,
             true,
             true,
@@ -192,10 +180,10 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
             }
             switchView(showingListInsteadOfMap)
         })
-        viewModel.selectedTripStopId.observe(viewLifecycleOwner, { selectedTripStopId ->
+        viewModel.selectedTripStopId.observe(viewLifecycleOwner, {
             // DO NOTHING
         })
-        viewModel.closestPOIShown.observe(viewLifecycleOwner, { closestPOIShown ->
+        viewModel.closestPOIShown.observe(viewLifecycleOwner, {
             // DO NOTHING
         })
         viewModel.poiList.observe(viewLifecycleOwner, { poiList ->
@@ -290,7 +278,11 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        mapViewController.onAttach(requireActivity())
+        mapViewController.apply {
+            setDataSourcesRepository(dataSourcesRepository)
+            onAttach(requireActivity())
+            setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(context))
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

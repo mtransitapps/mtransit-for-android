@@ -88,12 +88,15 @@ class NearbyViewModel @Inject constructor(
     private fun getNearbyLocation(fixedOnLocation: Location?, lastDeviceLocation: Location?, forceReset: Boolean): Location? {
         if (!forceReset) {
             nearbyLocation.value?.let {
+                MTLog.d(this, "getNearbyLocation() > keep same ($it)")
                 return it
             }
         }
         if (fixedOnLocation != null) {
+            MTLog.d(this, "getNearbyLocation() > use fixed ON ($fixedOnLocation)")
             return fixedOnLocation
         }
+        MTLog.d(this, "getNearbyLocation() > use last device location ($lastDeviceLocation)")
         return lastDeviceLocation
     }
 
@@ -181,6 +184,7 @@ class NearbyViewModel @Inject constructor(
             return false
         }
         this.nearbyLocationForceReset.value = Event(true)
+        MTLog.d(this, "initiateRefresh() > use NEW location")
         return true
     }
 
