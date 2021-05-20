@@ -93,14 +93,9 @@ class NewsListAdapter(private val onClick: (News) -> Unit) : ListAdapter<News, N
                     )
                     setTextColor(
                         if (newsArticle.hasColor()) {
-                            ColorUtils.adaptColorToTheme(
-                                context,
-                                newsArticle.colorInt
-                            )
+                            ColorUtils.adaptColorToTheme(context, newsArticle.colorInt)
                         } else {
-                            ColorUtils.getTextColorSecondary(
-                                context
-                            )
+                            ColorUtils.getTextColorSecondary(context)
                         }
                     )
                 }

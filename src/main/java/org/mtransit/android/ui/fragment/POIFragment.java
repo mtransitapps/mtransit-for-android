@@ -74,6 +74,7 @@ import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListFragment;
+import org.mtransit.android.ui.news.details.NewsDetailsFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
 import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.ui.view.MapViewController;
@@ -94,6 +95,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -949,21 +951,22 @@ public class POIFragment extends ABFragment implements
 			view.findViewById(R.id.the_poi_news).setOnClickListener(new MTOnClickListener() {
 				@Override
 				public void onClickMT(@NonNull View view) {
-					ArrayList<News> news = getNewsOrNull();
+					final List<News> news = getNewsOrNull();
 					if (news == null || news.size() == 0) {
 						return;
 					}
-					News lastNews = news.get(0);
+					final News lastNews = news.get(0);
 					if (lastNews == null) {
 						return;
 					}
-					Activity activity = getActivity();
+					final Activity activity = getActivity();
 					if (activity == null) {
 						return;
 					}
-					((MainActivity) activity).addFragmentToStack( //
-							NewsDetailsFragment.newInstance(lastNews), //
-							POIFragment.this);
+					((MainActivity) activity).addFragmentToStack(
+							NewsDetailsFragment.newInstance(lastNews),
+							POIFragment.this
+					);
 				}
 			});
 		}

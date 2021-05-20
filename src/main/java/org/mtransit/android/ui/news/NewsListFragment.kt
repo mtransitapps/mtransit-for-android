@@ -15,7 +15,7 @@ import org.mtransit.android.commons.data.News
 import org.mtransit.android.databinding.FragmentNewsListBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
-import org.mtransit.android.ui.fragment.NewsDetailsFragment
+import org.mtransit.android.ui.news.details.NewsDetailsFragment
 
 @AndroidEntryPoint
 class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
@@ -74,9 +74,7 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
     private fun openNewsDetails(newsArticle: News) {
         (activity as? MainActivity)?.addFragmentToStack(
-            NewsDetailsFragment.newInstance(
-                newsArticle
-            )
+            NewsDetailsFragment.newInstance(newsArticle)
         )
     }
 

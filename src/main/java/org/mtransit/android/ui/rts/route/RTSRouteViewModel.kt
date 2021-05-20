@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.Trip
@@ -22,6 +23,7 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTViewModelWithLocation
+import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import javax.inject.Inject
 
@@ -55,18 +57,35 @@ class RTSRouteViewModel @Inject constructor(
 
     val listInsteadOfMap = savedStateHandle.getLiveData<Boolean?>(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, null).distinctUntilChanged()
 
-    val route: LiveData<Route?> = PairMediatorLiveData(authority, routeId).switchMap { (authority, routeId) ->
+    val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
+
+    private val _agency: LiveData<AgencyProperties?> = authority.switchMap { authority ->
+        this.dataSourcesRepository.readingAgency(authority) // #onModulesUpdated
+    }
+
+    val route: LiveData<Route?> = PairMediatorLiveData(_agency, routeId).switchMap { (agency, routeId) ->
         liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-            if (routeId == null || authority == null) {
-                emit(null)
-            } else {
-                emit(dataSourceRequestManager.findRTSRoute(authority, routeId))
-            }
+            emit(getRoute(agency, routeId))
         }
     }
 
-    private val _agency: LiveData<AgencyProperties?> = authority.switchMap { authority ->
-        this.dataSourcesRepository.readingAgency(authority)
+    private fun getRoute(agency: AgencyProperties?, routeId: Long?): Route? {
+        if (routeId == null) {
+            return null
+        }
+        if (agency == null) {
+            if (route.value != null) {
+                MTLog.d(this, "getRoute() > data source removed (no more agency)")
+                dataSourceRemovedEvent.postValue(Event(true))
+            }
+            return null
+        }
+        val newRoute = dataSourceRequestManager.findRTSRoute(agency.authority, routeId)
+        if (newRoute == null) {
+            MTLog.d(this, "getRoute() > data source updated (no more route)")
+            dataSourceRemovedEvent.postValue(Event(true))
+        }
+        return newRoute
     }
 
     val colorInt: LiveData<Int?> = PairMediatorLiveData(route, _agency).map { (route, agency) ->

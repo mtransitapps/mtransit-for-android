@@ -67,6 +67,10 @@ class DataSourceRequestManager @Inject constructor(
         return DataSourceManager.findScheduleTimestamps(appContext, authority, scheduleTimestampsFilter)
     }
 
+    fun findANews(authority: String, newsFilter: NewsProviderContract.Filter? = null): News? {
+        return DataSourceManager.findANews(appContext, authority, newsFilter)
+    }
+
     fun findNews(authority: String, newsFilter: NewsProviderContract.Filter? = null): List<News>? {
         return DataSourceManager.findNews(appContext, authority, newsFilter)
     }

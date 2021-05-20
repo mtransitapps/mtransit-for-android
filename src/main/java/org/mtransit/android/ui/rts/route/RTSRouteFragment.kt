@@ -33,7 +33,9 @@ import org.mtransit.android.databinding.FragmentRtsRouteBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
+import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.view.common.EventObserver
 import java.util.Locale
 import kotlin.math.abs
 
@@ -201,6 +203,11 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
         })
         viewModel.showingListInsteadOfMap.observe(viewLifecycleOwner, {
             updateListMapToggleMenuItem()
+        })
+        viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
+            if (removed) {
+                (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
+            }
         })
     }
 
