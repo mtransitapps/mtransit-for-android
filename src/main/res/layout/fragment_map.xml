@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent">
+
     <com.google.android.gms.maps.MapView
         android:id="@+id/map"
         android:layout_width="match_parent"
@@ -17,15 +18,18 @@
         app:uiZoomControls="true"
         app:uiZoomGestures="true"
         tools:visibility="visible" />
+
     <include layout="@layout/view_map_type_switch" />
+
     <include
         android:id="@+id/map_loading"
+        layout="@layout/layout_loading_large"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerInParent="true"
-        layout="@layout/layout_loading_large"
         android:focusable="false"
         android:focusableInTouchMode="false"
         android:visibility="visible"
         tools:visibility="visible" />
+
 </RelativeLayout>

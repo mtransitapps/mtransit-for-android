@@ -236,6 +236,7 @@ public class MapFragment extends ABFragment implements
 
 	@Override
 	public void onLoaderReset(@NonNull Loader<Collection<MapViewController.POIMarker>> loader) {
+		// DO NOTHING
 	}
 
 	@Override
@@ -273,10 +274,7 @@ public class MapFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onCameraChange(@Nullable LatLngBounds latLngBounds) {
-		if (latLngBounds == null) {
-			return;
-		}
+	public void onCameraChange(@NonNull LatLngBounds latLngBounds) {
 		boolean loaded = this.loadedLatLngBounds != null //
 				&& this.loadedLatLngBounds.contains(latLngBounds.northeast) //
 				&& this.loadedLatLngBounds.contains(latLngBounds.southwest);

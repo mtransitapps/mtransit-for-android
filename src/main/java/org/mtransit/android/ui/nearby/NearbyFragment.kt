@@ -39,6 +39,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
 
         private const val TRACKING_SCREEN_NAME = "Nearby"
 
+        @JvmOverloads
         @JvmStatic
         fun newNearbyInstance(
             optTypeId: Int? = null,
@@ -48,6 +49,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
             )
         }
 
+        @JvmOverloads
         @JvmStatic
         fun newFixedOnInstance(
             optTypeId: Int? = null,
@@ -64,7 +66,6 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
                 optFixedOnColorInt = optFixedOnColorInt
             )
         }
-
 
         private fun newInstance(
             optTypeId: Int? = null,

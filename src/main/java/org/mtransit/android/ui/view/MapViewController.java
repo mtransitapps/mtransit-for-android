@@ -69,6 +69,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -939,7 +940,12 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 		@NonNull
 		public static LatLng getLatLngTrunc(@NonNull POIManager poim) {
-			return new LatLng(POIMarker.truncAround(poim.poi.getLat()), POIMarker.truncAround(poim.poi.getLng()));
+			return getLatLngTrunc(poim.poi.getLat(), poim.poi.getLng());
+		}
+
+		@NonNull
+		public static LatLng getLatLngTrunc(double lat, double lng) {
+			return new LatLng(POIMarker.truncAround(lat), POIMarker.truncAround(lng));
 		}
 
 		private static final String SLASH = " / ";
@@ -1061,6 +1067,11 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 					(this.position.longitude + position.longitude) / 2d);
 		}
 
+		@NonNull
+		public LatLng getPosition() {
+			return position;
+		}
+
 		private void addExtras(@Nullable String extra) {
 			if (!TextUtils.isEmpty(extra)) {
 				if (!this.extras.contains(extra)) {
@@ -1083,6 +1094,35 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 					this.names.add(name);
 				}
 			}
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+
+			POIMarker poiMarker = (POIMarker) o;
+
+			if (!position.equals(poiMarker.position)) return false;
+			if (!names.equals(poiMarker.names)) return false;
+			if (!agencies.equals(poiMarker.agencies)) return false;
+			if (!extras.equals(poiMarker.extras)) return false;
+			if (!Objects.equals(color, poiMarker.color)) return false;
+			if (!Objects.equals(secondaryColor, poiMarker.secondaryColor)) return false;
+			return uuidsAndAuthority.equals(poiMarker.uuidsAndAuthority);
+		}
+
+		@Override
+		public int hashCode() {
+			int result = 0;
+			result = 31 * result + position.hashCode();
+			result = 31 * result + names.hashCode();
+			result = 31 * result + agencies.hashCode();
+			result = 31 * result + extras.hashCode();
+			result = 31 * result + (color != null ? color.hashCode() : 0);
+			result = 31 * result + (secondaryColor != null ? secondaryColor.hashCode() : 0);
+			result = 31 * result + uuidsAndAuthority.hashCode();
+			return result;
 		}
 
 		@NonNull
@@ -1276,13 +1316,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		return R.drawable.map_icon_place_white_slim_original;
 	}
 
-	public void addMarkers(@Nullable Collection<POIMarker> result) {
+	public void addMarkers(@Nullable Collection<POIMarker> poiMarkers) {
 		if (MapViewController.this.extendedGoogleMap == null) {
 			return;
 		}
 		ExtendedMarkerOptions options = new ExtendedMarkerOptions();
-		if (result != null) {
-			for (POIMarker poiMarker : result) {
+		if (poiMarkers != null) {
+			for (POIMarker poiMarker : poiMarkers) {
 				options.position(poiMarker.position);
 				options.title(poiMarker.getTitle());
 				if (this.markerLabelShowExtra) {
@@ -1491,6 +1531,6 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 		void onMapClick(@NonNull LatLng position);
 
-		void onCameraChange(@Nullable LatLngBounds latLngBounds);
+		void onCameraChange(@NonNull LatLngBounds latLngBounds);
 	}
 }

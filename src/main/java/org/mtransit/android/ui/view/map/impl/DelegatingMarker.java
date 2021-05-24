@@ -27,8 +27,8 @@ class DelegatingMarker implements IMarker, MTLog.Loggable {
 		return LOG_TAG;
 	}
 
-	private LazyMarker real;
-	private MarkerManager manager;
+	private final LazyMarker real;
+	private final MarkerManager manager;
 
 	private int clusterGroup;
 	private Object data;

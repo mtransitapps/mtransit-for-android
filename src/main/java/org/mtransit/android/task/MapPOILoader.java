@@ -44,7 +44,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderX<Collection<MapViewControlle
 	@Nullable
 	private final Collection<Integer> filterTypeIds;
 	@Nullable
-	private final LatLngBounds latLngBounds;
+	private final LatLngBounds loadingLatLngBounds;
 	@Nullable
 	private final LatLngBounds loadedLatLngBounds;
 
@@ -54,12 +54,12 @@ public class MapPOILoader extends MTAsyncTaskLoaderX<Collection<MapViewControlle
 	public MapPOILoader(@NonNull Context context,
 						@NonNull DataSourcesRepository dataSourcesRepository,
 						@Nullable Collection<Integer> filterTypeIds,
-						@Nullable LatLngBounds latLngBounds,
+						@Nullable LatLngBounds loadingLatLngBounds,
 						@Nullable LatLngBounds loadedLatLngBounds) {
 		super(context);
 		this.dataSourcesRepository = dataSourcesRepository;
 		this.filterTypeIds = filterTypeIds;
-		this.latLngBounds = latLngBounds;
+		this.loadingLatLngBounds = loadingLatLngBounds;
 		this.loadedLatLngBounds = loadedLatLngBounds;
 	}
 
@@ -74,7 +74,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderX<Collection<MapViewControlle
 		if (agencies.isEmpty()) {
 			return this.poiMarkers;
 		}
-		if (this.latLngBounds == null) {
+		if (this.loadingLatLngBounds == null) {
 			return this.poiMarkers;
 		}
 		ThreadPoolExecutor executor = new ThreadPoolExecutor(RuntimeUtils.NUMBER_OF_CORES, RuntimeUtils.NUMBER_OF_CORES, 1, TimeUnit.SECONDS,
@@ -85,7 +85,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderX<Collection<MapViewControlle
 			if (!type.isMapScreen()) {
 				continue;
 			}
-			if (!agency.isInArea(this.latLngBounds)) {
+			if (!agency.isInArea(this.loadingLatLngBounds)) {
 				continue;
 			}
 			if (agency.isEntirelyInside(this.loadedLatLngBounds)) {
@@ -96,7 +96,7 @@ public class MapPOILoader extends MTAsyncTaskLoaderX<Collection<MapViewControlle
 					&& !this.filterTypeIds.contains(type.getId())) {
 				continue;
 			}
-			FindAgencyPOIsTask task = new FindAgencyPOIsTask(getContext(), this.dataSourcesRepository, agency, this.latLngBounds, this.loadedLatLngBounds);
+			FindAgencyPOIsTask task = new FindAgencyPOIsTask(getContext(), this.dataSourcesRepository, agency, this.loadingLatLngBounds, this.loadedLatLngBounds);
 			taskList.add(executor.submit(task));
 		}
 		ArrayMap<LatLng, MapViewController.POIMarker> positionToPoiMarkers = new ArrayMap<>();

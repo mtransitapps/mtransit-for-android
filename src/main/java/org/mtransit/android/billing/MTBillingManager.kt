@@ -9,6 +9,7 @@ import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.Purchase
+import com.android.billingclient.api.PurchasesResponseListener
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.SkuDetails
 import com.android.billingclient.api.SkuDetailsParams
@@ -22,13 +23,14 @@ import java.util.WeakHashMap
 import javax.inject.Inject
 
 
-// DEBUG: adb shell setprop log.tag.BillingClient VERBOSE
+// DEBUG: `adb shell setprop log.tag.BillingClient VERBOSE`
 class MTBillingManager @Inject constructor(
     @ApplicationContext appContext: Context,
     private val lclPrefRepository: LocalPreferenceRepository
 ) : MTLog.Loggable,
     IBillingManager,
     BillingClientStateListener, // connection to billing
+    PurchasesResponseListener, // purchases requested
     PurchasesUpdatedListener, // purchases updated
     SkuDetailsResponseListener { // sku details (name, price...)
 
@@ -177,16 +179,14 @@ class MTBillingManager @Inject constructor(
             }
             return
         }
-        val purchasesResult = billingClient.queryPurchases(BillingClient.SkuType.SUBS)
-        val billingResult = purchasesResult.billingResult
+        billingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS, this)
+    }
+
+    override fun onQueryPurchasesResponse(billingResult: BillingResult, purchasesList: List<Purchase>) {
         if (billingResult.responseCode != BillingResponseCode.OK) {
             MTLog.w(this, "Error while querying purchases! ${billingResult.responseCode}: ${billingResult.debugMessage}")
         }
-        if (purchasesResult.purchasesList == null) {
-            processPurchases(null)
-        } else {
-            processPurchases(purchasesResult.purchasesList)
-        }
+        processPurchases(purchasesList)
     }
 
     private fun processPurchases(purchasesList: List<Purchase>?) {
@@ -200,8 +200,8 @@ class MTBillingManager @Inject constructor(
             }
         }
         setCurrentSubscription(
-            purchasesList?.map { purchase ->
-                purchase.sku
+            purchasesList?.flatMap { purchase ->
+                purchase.skus
             }?.firstOrNull { sku ->
                 sku.isNotEmpty()
             }.orEmpty()
@@ -242,7 +242,12 @@ class MTBillingManager @Inject constructor(
         if (!purchase.isAcknowledged) {
             acknowledgePurchase(purchase.purchaseToken)
         }
-        setCurrentSubscription(purchase.sku)
+        setCurrentSubscription(
+            purchase.skus
+                .firstOrNull { sku ->
+                    sku.isNotEmpty()
+                }.orEmpty()
+        )
     }
 
     private fun acknowledgePurchase(purchaseToken: String) {
