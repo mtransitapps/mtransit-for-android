@@ -4,11 +4,13 @@ import android.content.Context;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.map.AnimationSettings;
 import org.mtransit.android.ui.view.map.IMarker;
 
@@ -16,17 +18,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
-class ClusterMarker implements IMarker {
+class ClusterMarker implements IMarker, MTLog.Loggable {
+
+	private static final String LOG_TAG = ClusterMarker.class.getSimpleName();
+
+	@NonNull
+	@Override
+	public String getLogTag() {
+		return LOG_TAG;
+	}
 
 	private int lastCount = -1;
 
-	private GridClusteringStrategy strategy;
+	private final GridClusteringStrategy strategy;
 
 	private com.google.android.gms.maps.model.Marker virtual;
 
-	private List<DelegatingMarker> markers = new ArrayList<>();
+	private final List<DelegatingMarker> markers = new ArrayList<>();
 
-	public ClusterMarker(GridClusteringStrategy strategy) {
+	ClusterMarker(GridClusteringStrategy strategy) {
 		this.strategy = strategy;
 	}
 
@@ -319,6 +329,7 @@ class ClusterMarker implements IMarker {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	void setVirtualPosition(LatLng position) {
 		int count = markers.size();
 		if (count == 0) {

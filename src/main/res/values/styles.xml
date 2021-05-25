@@ -7,6 +7,11 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="MTCircularProgressIndicatorLarge" parent="@style/Widget.MaterialComponents.CircularProgressIndicator">
+        <item name="indicatorSize">@dimen/baseline_64</item>
+        <item name="thickness">6dp</item>
+    </style>
+
     <style name="MTSwitch" parent="Theme.MaterialComponents">
         <item name="colorControlActivated">@color/switch_track_tint</item>
         <item name="android:colorForeground">@color/switch_track_tint</item>

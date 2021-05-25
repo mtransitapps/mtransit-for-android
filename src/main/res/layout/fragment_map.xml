@@ -23,7 +23,7 @@
 
     <include
         android:id="@+id/map_loading"
-        layout="@layout/layout_loading_large"
+        layout="@layout/layout_loading_large_on_surface"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerInParent="true"

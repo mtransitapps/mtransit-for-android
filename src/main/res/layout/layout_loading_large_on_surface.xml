@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:indeterminate="true"
-        app:indicatorColor="?android:attr/textColorPrimary"
+        app:indicatorColor="?attr/colorOnSurface"
         tools:visibility="visible" />
 
 </FrameLayout>

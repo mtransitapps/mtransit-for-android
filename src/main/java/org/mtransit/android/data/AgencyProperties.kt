@@ -5,10 +5,11 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.LocationUtils
+import org.mtransit.android.util.containsEntirely
+import org.mtransit.android.util.toLatLngBounds
 import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
@@ -129,14 +130,16 @@ data class AgencyProperties(
             this.maxValidSec
         }
 
+    @Ignore
+    val areaLatLngBounds: LatLngBounds = this.area.toLatLngBounds()
+
     fun isInArea(area: LocationUtils.Area?): Boolean {
         return LocationUtils.Area.areOverlapping(area, this.area)
     }
 
     fun isEntirelyInside(area: LatLngBounds?): Boolean {
         return area?.let {
-            it.contains(LatLng(this.area.minLat, this.area.minLng))
-                    && it.contains(LatLng(this.area.maxLat, this.area.maxLng))
+            it.containsEntirely(this.areaLatLngBounds)
         } ?: false
     }
 
@@ -185,7 +188,7 @@ data class AgencyProperties(
     }
 
     private fun areCompletelyOverlapping(area1: LatLngBounds, area2: LocationUtils.Area): Boolean {
-        val area1MinLat = area1.southwest.latitude.coerceAtMost(area1.northeast.latitude)
+        val area1MinLat = min(area1.southwest.latitude, area1.northeast.latitude)
         val area1MaxLat = max(area1.southwest.latitude, area1.northeast.latitude)
         val area1MinLng = min(area1.southwest.longitude, area1.northeast.longitude)
         val area1MaxLng = max(area1.southwest.longitude, area1.northeast.longitude)

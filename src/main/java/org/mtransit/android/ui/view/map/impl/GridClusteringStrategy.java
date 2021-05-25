@@ -1,6 +1,7 @@
 package org.mtransit.android.ui.view.map.impl;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 
 import com.google.android.gms.maps.model.CameraPosition;
@@ -24,6 +25,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 
 	private static final String TAG = GridClusteringStrategy.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -34,20 +36,20 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 
 	private final MarkerOptions markerOptions = new MarkerOptions();
 
-	private boolean addMarkersDynamically;
-	private double baseClusterSize;
-	private IGoogleMap map;
-	private ArrayMap<DelegatingMarker, ClusterMarker> markers;
+	private final boolean addMarkersDynamically;
+	private final double baseClusterSize;
+	private final IGoogleMap map;
+	private final ArrayMap<DelegatingMarker, ClusterMarker> markers;
 	private double clusterSize;
 	private int oldZoom, zoom;
-	private int[] visibleClusters = new int[4];
+	private final int[] visibleClusters = new int[4];
 
 	private ArrayMap<ClusterKey, ClusterMarker> clusters = new ArrayMap<>();
 
-	private ClusterRefresher refresher;
-	private ClusterOptionsProvider clusterOptionsProvider;
+	private final ClusterRefresher refresher;
+	private final ClusterOptionsProvider clusterOptionsProvider;
 
-	public GridClusteringStrategy(ClusteringSettings settings, IGoogleMap map, List<DelegatingMarker> markers, ClusterRefresher refresher) {
+	GridClusteringStrategy(ClusteringSettings settings, IGoogleMap map, List<DelegatingMarker> markers, ClusterRefresher refresher) {
 		this.clusterOptionsProvider = settings.getClusterOptionsProvider();
 		this.addMarkersDynamically = settings.isAddMarkersDynamically();
 		this.baseClusterSize = settings.getClusterSize();
@@ -167,6 +169,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 		addMarker(marker);
 	}
 
+	@Nullable
 	@Override
 	public IMarker map(com.google.android.gms.maps.model.Marker original) {
 		for (ClusterMarker cluster : clusters.values()) {
@@ -178,7 +181,8 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 	}
 
 	@Override
-	public List<IMarker> getDisplayedMarkers() {
+	public @Nullable
+	List<IMarker> getDisplayedMarkers() {
 		List<IMarker> displayedMarkers = new ArrayList<>();
 		for (ClusterMarker cluster : clusters.values()) {
 			IMarker displayedMarker = cluster.getDisplayedMarker();
@@ -253,9 +257,10 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 	@Override
 	public void onShowInfoWindow(DelegatingMarker marker) {
 		if (!marker.isVisible()) {
+			MTLog.d(this, "onShowInfoWindow() > SKIP (marker not visible)");
 			return;
 		}
-		ClusterMarker cluster = markers.get(marker);
+		final ClusterMarker cluster = markers.get(marker);
 		if (cluster == null) {
 			marker.forceShowInfoWindow();
 		} else if (cluster.getMarkersInternal().size() == 1) {
@@ -356,7 +361,10 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 			clusterList.add(cluster);
 		}
 		for (ClusterKey key : oldClusters.keySet()) {
-			List<ClusterMarker> clusterList = oldClusters.get(key);
+			final List<ClusterMarker> clusterList = oldClusters.get(key);
+			if (clusterList == null) {
+				continue; // show never happen
+			}
 			if (clusterList.size() == 1) {
 				ClusterMarker cluster = clusterList.get(0);
 				newClusters.put(key, cluster);
@@ -439,7 +447,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 		private final int latitudeId;
 		private final int longitudeId;
 
-		public ClusterKey(int group, int latitudeId, int longitudeId) {
+		ClusterKey(int group, int latitudeId, int longitudeId) {
 			this.group = group;
 			this.latitudeId = latitudeId;
 			this.longitudeId = longitudeId;
@@ -462,6 +470,7 @@ class GridClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 			if (latitudeId != that.latitudeId) {
 				return false;
 			}
+			//noinspection RedundantIfStatement
 			if (longitudeId != that.longitudeId) {
 				return false;
 			}

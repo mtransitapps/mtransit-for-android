@@ -32,7 +32,8 @@ public interface ExtendedGoogleMap {
 
 	GroundOverlay addGroundOverlay(GroundOverlayOptions groundOverlayOptions);
 
-	IMarker addMarker(ExtendedMarkerOptions markerOptions);
+	@NonNull
+	IMarker addMarker(@NonNull ExtendedMarkerOptions markerOptions);
 
 	Polygon addPolygon(PolygonOptions polygonOptions);
 
@@ -44,7 +45,7 @@ public interface ExtendedGoogleMap {
 
 	void animateCamera(CameraUpdate cameraUpdate, int time, CancelableCallback cancelableCallback);
 
-	void animateCamera(CameraUpdate cameraUpdate);
+	void animateCamera(@NonNull CameraUpdate cameraUpdate);
 
 	void clear();
 
@@ -86,7 +87,7 @@ public interface ExtendedGoogleMap {
 
 	boolean isTrafficEnabled();
 
-	void moveCamera(CameraUpdate cameraUpdate);
+	void moveCamera(@NonNull CameraUpdate cameraUpdate);
 
 	void setBuildingsEnabled(boolean buildingsEnabled);
 

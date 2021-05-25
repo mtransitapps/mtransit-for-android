@@ -45,7 +45,6 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TaskUtils;
-import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.AgencyProperties;
@@ -108,15 +107,15 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	@Nullable
 	private LocationSource.OnLocationChangedListener locationChangedListener;
 	@Nullable
-	private Location userLocation;
+	private Location deviceLocation;
 	private boolean waitingForGlobalLayout = false;
 
 	@Override
 	public void onGlobalLayout() {
 		this.waitingForGlobalLayout = false;
-		MapView mapView = getMapViewOrNull();
+		final MapView mapView = getMapViewOrNull();
 		if (mapView != null) {
-			SupportFactory.get().removeOnGlobalLayoutListener(mapView.getViewTreeObserver(), this);
+			mapView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 			this.mapLayoutReady = true;
 			showMapInternal(null);
 		}
@@ -126,20 +125,23 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private void setupInitialCamera() {
 		if (this.initialMapCameraSetup) {
+			MTLog.d(this, "setupInitialCamera() > SKIP (already setup)");
 			return;
 		}
 		if (!this.mapLayoutReady || !hasMapView() || !hasGoogleMap()) {
+			MTLog.d(this, "setupInitialCamera() > SKIP (map not ready)");
 			return;
 		}
 		if (!this.mapVisible) {
+			MTLog.d(this, "setupInitialCamera() > SKIP (map NOT visible)");
 			return;
 		}
 		this.initialMapCameraSetup = showLastCameraPosition();
 		if (!this.initialMapCameraSetup) {
-			this.initialMapCameraSetup = showMarkers(false, this.followingUser);
+			this.initialMapCameraSetup = showMarkers(false, this.followingDevice);
 		}
 		if (!this.initialMapCameraSetup) {
-			this.initialMapCameraSetup = showUserLocation(false);
+			this.initialMapCameraSetup = showDeviceLocation(false);
 		}
 	}
 
@@ -152,7 +154,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	private final boolean trafficEnabled;
 	private final boolean indoorEnabled;
 	private final int paddingTopSp;
-	private final boolean followingUser;
+	private final boolean followingDevice;
 	private final boolean hasButtons;
 	private final boolean clusteringEnabled;
 	private final boolean showAllMarkersWhenReady;
@@ -177,7 +179,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 							 boolean trafficEnabled,
 							 boolean indoorEnabled,
 							 int paddingTopSp,
-							 boolean followingUser,
+							 boolean followingDevice,
 							 boolean hasButtons,
 							 boolean clusteringEnabled,
 							 boolean showAllMarkersWhenReady,
@@ -193,7 +195,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.trafficEnabled = trafficEnabled;
 		this.indoorEnabled = indoorEnabled;
 		this.paddingTopSp = paddingTopSp;
-		this.followingUser = followingUser;
+		this.followingDevice = followingDevice;
 		this.hasButtons = hasButtons;
 		this.clusteringEnabled = clusteringEnabled;
 		this.showAllMarkersWhenReady = showAllMarkersWhenReady;
@@ -227,24 +229,20 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	private void restoreInstanceState(@Nullable Bundle savedInstanceState) {
-		CameraPosition newLastCameraPosition = BundleUtils.getParcelable(EXTRA_LAST_CAMERA_POSITION, savedInstanceState);
+		final CameraPosition newLastCameraPosition = BundleUtils.getParcelable(EXTRA_LAST_CAMERA_POSITION, savedInstanceState);
 		if (newLastCameraPosition != null) {
 			this.lastCameraPosition = newLastCameraPosition;
 		}
-		String newLastSelectedUUID = BundleUtils.getString(EXTRA_LAST_SELECTED_UUID, savedInstanceState);
+		final String newLastSelectedUUID = BundleUtils.getString(EXTRA_LAST_SELECTED_UUID, savedInstanceState);
 		if (!TextUtils.isEmpty(newLastSelectedUUID)) {
-			this.lastSelectedUUID = newLastSelectedUUID;
+			this.lastSelectedUUID = newLastSelectedUUID; // restore from saved state
 		}
-	}
-
-	public void onCreateView(@SuppressWarnings("unused") @NonNull View view,
-							 @Nullable Bundle savedInstanceState) {
-		this.lastSavedInstanceState = savedInstanceState;
 	}
 
 	public void onViewCreated(@SuppressWarnings("unused") @NonNull View view,
 							  @Nullable Bundle savedInstanceState) {
 		this.lastSavedInstanceState = savedInstanceState;
+		restoreInstanceState(savedInstanceState);
 	}
 
 	@Nullable
@@ -260,7 +258,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	@Nullable
-	private MapView getMapViewOrNull(View view) {
+	private MapView getMapViewOrNull(@Nullable View view) {
 		if (this.mapView == null) {
 			initMapViewAsync(view);
 		}
@@ -269,9 +267,11 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private void initMapViewAsync(@Nullable View view) {
 		if (this.initMapViewTask != null && this.initMapViewTask.getStatus() == InitMapViewTask.Status.RUNNING) {
+			MTLog.d(this, "initMapViewAsync() > SKIP (already running)");
 			return;
 		}
 		if (view == null) {
+			MTLog.d(this, "initMapViewAsync() > SKIP (no view)");
 			return;
 		}
 		this.initMapViewTask = new InitMapViewTask(this, view);
@@ -304,8 +304,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		@WorkerThread
 		@Override
 		protected Boolean doInBackgroundNotCancelledMT(Object... params) {
-			View view = this.viewWR.get();
+			final View view = this.viewWR.get();
 			if (view == null) {
+				MTLog.d(this, "doInBackgroundNotCancelledMT() > SKIP (no view)");
 				return false;
 			}
 			try {
@@ -322,10 +323,11 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		protected void onPostExecuteNotCancelledMT(Boolean result) {
 			final MapViewController mapViewController = this.mapViewControllerWR.get();
 			if (mapViewController == null) {
+				MTLog.d(this, "onPostExecuteNotCancelledMT() > SKIP (no controller)");
 				return;
 			}
 			if (result) {
-				View view = this.viewWR.get();
+				final View view = this.viewWR.get();
 				mapViewController.applyNewMapView(view);
 			}
 		}
@@ -334,9 +336,11 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	@MainThread
 	private void applyNewMapView(@Nullable View view) {
 		if (this.mapView != null) {
+			MTLog.d(this, "applyNewMapView() > SKIP (already set)");
 			return;
 		}
 		if (view == null) {
+			MTLog.d(this, "applyNewMapView() > SKIP (no view)");
 			return;
 		}
 		this.mapView = view.findViewById(R.id.map);
@@ -356,7 +360,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			this.lastSavedInstanceState = null;
 			this.mapView.getMapAsync(this);
 		}
-		hideShowLoading();
+		showHideLoading();
 		initTypeSwitch();
 	}
 
@@ -379,6 +383,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.extendedGoogleMap = null;
 	}
 
+	@Nullable
 	private ExtendedGoogleMap getGoogleMapOrNull() {
 		return this.extendedGoogleMap;
 	}
@@ -412,9 +417,13 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.extendedGoogleMap.setClustering(settings);
 		clearMarkers();
 		if (this.paddingTopSp > 0) {
-			Context context = getActivityOrNull();
+			final Context context = getActivityOrNull();
 			int paddingTop = (int) ResourceUtils.convertSPtoPX(context, this.paddingTopSp); // action bar
 			this.extendedGoogleMap.setPadding(0, paddingTop, 0, 0);
+		}
+		final MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
+		if (mapListener != null) {
+			mapListener.onMapReady();
 		}
 		showMapInternal(null);
 	}
@@ -441,7 +450,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 	}
 
-	private void hideShowLoading() {
+	private void showHideLoading() {
 		if (this.clusterManagerItemsLoaded) {
 			hideLoading();
 		} else {
@@ -513,18 +522,19 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	private void applyMapType() {
-		ExtendedGoogleMap map = getGoogleMapOrNull();
-		if (map != null) {
-			map.setMapType(getMapType());
-		}
-	}
-
-	private void applyMapStyle() {
-		ExtendedGoogleMap map = getGoogleMapOrNull();
+		final ExtendedGoogleMap map = getGoogleMapOrNull();
 		if (map == null) {
 			return;
 		}
-		Context context = getActivityOrNull();
+		map.setMapType(getMapType());
+	}
+
+	private void applyMapStyle() {
+		final ExtendedGoogleMap map = getGoogleMapOrNull();
+		if (map == null) {
+			return;
+		}
+		final Context context = getActivityOrNull();
 		if (context == null) {
 			return;
 		}
@@ -543,14 +553,16 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	private boolean showMapInternal(@Nullable View optView) {
-		MapView mapView = getMapViewOrNull(optView);
+		final MapView mapView = getMapViewOrNull(optView);
 		if (mapView == null) {
+			MTLog.d(this, "showMapInternal() > SKIP (no map)");
 			return false; // not shown
 		}
 		if (!this.mapVisible) {
+			MTLog.d(this, "showMapInternal() > SKIP (map not visible)");
 			return false; // not shown
 		}
-		hideShowLoading();
+		showHideLoading();
 		showTypeSwitch();
 		if (this.mapLayoutReady) {
 			if (!this.initialMapCameraSetup) {
@@ -576,7 +588,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	public void hideMap() {
 		this.mapVisible = false;
-		MapView mapView = getMapViewOrNull();
+		final MapView mapView = getMapViewOrNull();
 		if (mapView != null) {
 			if (mapView.getVisibility() == View.VISIBLE) {
 				mapView.setVisibility(View.INVISIBLE); // hide
@@ -596,14 +608,17 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (mapListener != null) {
 			mapListener.onMapClick(position);
 		}
+		this.lastSelectedUUID = null; // not selected anymore (map click)
 	}
 
 	@Override
-	public void onInfoWindowClick(@Nullable IMarker imarker) {
-		if (imarker != null && imarker.getData() != null && imarker.getData() instanceof POIMarkerIds) {
-			POIMarkerIds poiMarkerIds = imarker.getData();
+	public void onInfoWindowClick(@Nullable IMarker marker) {
+		if (marker != null && marker.getData() != null && marker.getData() instanceof POIMarkerIds) {
+			final POIMarkerIds poiMarkerIds = marker.getData();
+			final ArrayMap.Entry<String, String> uuidAndAuthority = poiMarkerIds.entrySet().iterator().next();
+			this.lastSelectedUUID = uuidAndAuthority.getKey(); // keep selected if leaving the screen
 			if (poiMarkerIds.size() >= 1) {
-				Activity activity = getActivityOrNull();
+				final Activity activity = getActivityOrNull();
 				if (activity instanceof MainActivity) {
 					FragmentUtils.replaceDialogFragment(
 							(MainActivity) activity,
@@ -619,20 +634,22 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	private static final float MARKER_ZOOM_INC = 2.0f;
 
 	@Override
-	public boolean onMarkerClick(@Nullable IMarker imarker) {
-		if (imarker != null && !imarker.isCluster() && imarker.getData() != null && imarker.getData() instanceof POIMarkerIds) {
-			POIMarkerIds poiMarkerIds = imarker.getData();
-			ArrayMap.Entry<String, String> uuidAndAuthority = poiMarkerIds.entrySet().iterator().next();
-			String uuid = uuidAndAuthority.getKey();
-			if (!TextUtils.isEmpty(uuid)) {
-				this.lastSelectedUUID = uuid;
-			}
-		} else if (imarker != null && imarker.isCluster()) {
+	public boolean onMarkerClick(@Nullable IMarker marker) {
+		String newSelectedUUID = null;
+		if (marker != null
+				&& !marker.isCluster()
+				&& marker.getData() != null
+				&& marker.getData() instanceof POIMarkerIds) {
+			final POIMarkerIds poiMarkerIds = marker.getData();
+			final ArrayMap.Entry<String, String> uuidAndAuthority = poiMarkerIds.entrySet().iterator().next();
+			newSelectedUUID = uuidAndAuthority.getKey();
+		} else if (marker != null && marker.isCluster()) {
 			if (this.extendedGoogleMap != null) {
-				float zoom = this.extendedGoogleMap.getCameraPosition().zoom + MARKER_ZOOM_INC;
-				return updateMapCamera(true, CameraUpdateFactory.newLatLngZoom(imarker.getPosition(), zoom));
+				final float zoom = this.extendedGoogleMap.getCameraPosition().zoom + MARKER_ZOOM_INC;
+				return updateMapCamera(true, CameraUpdateFactory.newLatLngZoom(marker.getPosition(), zoom));
 			}
 		}
+		this.lastSelectedUUID = newSelectedUUID; // marker clicked (OR cluster OR else)
 		return false; // not handled
 	}
 
@@ -643,15 +660,17 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	private void notifyNewCameraPosition() {
-		MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
+		final MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
 		if (mapListener == null) {
+			MTLog.d(this, "notifyNewCameraPosition() > SKIP (no listener)");
 			return;
 		}
-		ExtendedGoogleMap googleMap = getGoogleMapOrNull();
+		final ExtendedGoogleMap googleMap = getGoogleMapOrNull();
 		if (googleMap == null) {
+			MTLog.d(this, "notifyNewCameraPosition() > SKIP (no map)");
 			return;
 		}
-		VisibleRegion visibleRegion = googleMap.getProjection().getVisibleRegion();
+		final VisibleRegion visibleRegion = googleMap.getProjection().getVisibleRegion();
 		mapListener.onCameraChange(visibleRegion.latLngBounds);
 	}
 
@@ -696,53 +715,55 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 		boolean handled = showClosestPOI();
 		if (!handled) {
-			handled = showUserLocation(true);
+			handled = showDeviceLocation(true);
 		}
 		return handled;
 	}
 
 	private boolean showClosestPOI() {
-		if (this.userLocation == null) {
+		if (this.deviceLocation == null) {
 			return false; // not handled
 		}
-		MapMarkerProvider markerProvider = this.markerProviderWR == null ? null : this.markerProviderWR.get();
-		POIManager poim = markerProvider == null ? null : markerProvider.getClosestPOI();
+		final MapMarkerProvider markerProvider = this.markerProviderWR == null ? null : this.markerProviderWR.get();
+		final POIManager poim = markerProvider == null ? null : markerProvider.getClosestPOI();
 		if (poim == null) {
 			return false; // not handled
 		}
-		LatLngBounds.Builder llb = LatLngBounds.builder();
-		includeLocationAccuracyBounds(llb, this.userLocation);
+		final LatLngBounds.Builder llb = LatLngBounds.builder();
+		includeLocationAccuracyBounds(llb, this.deviceLocation);
 		llb.include(POIMarker.getLatLng(poim));
-		Context context = getActivityOrNull();
-		boolean success = updateMapCamera(true, CameraUpdateFactory.newLatLngBounds(llb.build(), MapUtils.getMapWithButtonsCameraPaddingInPx(context)));
+		final Context context = getActivityOrNull();
+		final boolean success = updateMapCamera(true,
+				CameraUpdateFactory.newLatLngBounds(llb.build(), MapUtils.getMapWithButtonsCameraPaddingInPx(context))
+		);
 		this.showingMyLocation = null;
 		return success; // handled or not
 	}
 
-	private boolean showMarkers(boolean anim, boolean includeUserLocation) {
+	private boolean showMarkers(boolean anim, boolean includeDeviceLocation) {
 		if (!this.mapLayoutReady) {
 			return false;
 		}
 		if (!this.mapVisible) {
 			return false;
 		}
-		LatLngBounds.Builder llb = LatLngBounds.builder();
-		boolean markersFound = includeMarkersInLatLngBounds(llb);
+		final LatLngBounds.Builder llb = LatLngBounds.builder();
+		final boolean markersFound = includeMarkersInLatLngBounds(llb);
 		if (!markersFound) {
 			return false; // not shown
 		}
-		if (includeUserLocation) {
-			includeLocationAccuracyBounds(llb, this.userLocation);
+		if (includeDeviceLocation) {
+			includeLocationAccuracyBounds(llb, this.deviceLocation);
 		}
-		Context context = getActivityOrNull();
-		int paddingInPx;
+		final Context context = getActivityOrNull();
+		final int paddingInPx;
 		if (this.hasButtons) {
 			paddingInPx = MapUtils.getMapWithButtonsCameraPaddingInPx(context);
 		} else {
 			paddingInPx = MapUtils.getMapWithoutButtonsCameraPaddingInPx(context);
 		}
 		try {
-			CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(llb.build(), paddingInPx);
+			final CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(llb.build(), paddingInPx);
 			return updateMapCamera(anim, cameraUpdate);
 		} catch (Exception e) {
 			//noinspection deprecation // FIXME
@@ -794,27 +815,39 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		return false;
 	}
 
-	private boolean showUserLocation(boolean anim) {
+	public boolean zoomIn() {
+		return updateMapCamera(false, CameraUpdateFactory.zoomIn());
+	}
+
+	public boolean zoomOut() {
+		return updateMapCamera(false, CameraUpdateFactory.zoomOut());
+	}
+
+	private boolean showDeviceLocation(boolean anim) {
 		if (!this.mapLayoutReady) {
 			return false;
 		}
-		if (this.userLocation == null) {
+		if (this.deviceLocation == null) {
 			return false;
 		}
-		return updateMapCamera(anim, CameraUpdateFactory.newLatLngZoom( //
-				LatLngUtils.fromLocation(this.userLocation), //
-				USER_LOCATION_ZOOM) //
+		return updateMapCamera(anim,
+				CameraUpdateFactory.newLatLngZoom(
+						LatLngUtils.fromLocation(this.deviceLocation),
+						DEVICE_LOCATION_ZOOM
+				)
 		);
 	}
 
-	private static final float USER_LOCATION_ZOOM = 17f;
+	private static final float DEVICE_LOCATION_ZOOM = MapUtils.MAP_ZOOM_LEVEL_STREETS_BUSY_BUSY;
 
-	private boolean updateMapCamera(boolean anim, CameraUpdate cameraUpdate) {
-		ExtendedGoogleMap googleMap = getGoogleMapOrNull();
+	private boolean updateMapCamera(boolean anim, @NonNull CameraUpdate cameraUpdate) {
+		final ExtendedGoogleMap googleMap = getGoogleMapOrNull();
 		if (googleMap == null) {
+			MTLog.d(this, "updateMapCamera() > SKIP (no map)");
 			return false;
 		}
 		if (!this.mapLayoutReady) {
+			MTLog.d(this, "updateMapCamera() > SKIP (map layout not ready)");
 			return false;
 		}
 		try {
@@ -835,12 +868,15 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private void initMapMarkers() {
 		if (this.clusterManagerItemsLoaded) {
+			MTLog.d(this, "initMapMarkers() > SKIP (already loaded)");
 			return;
 		}
 		if (this.extendedGoogleMap == null) {
+			MTLog.d(this, "initMapMarkers() > SKIP (no map)");
 			return;
 		}
 		if (this.loadClusterItemsTask != null && this.loadClusterItemsTask.getStatus() == LoadClusterItemsTask.Status.RUNNING) {
+			MTLog.d(this, "initMapMarkers() > SKIP (already running)");
 			return;
 		}
 		this.loadClusterItemsTask = new LoadClusterItemsTask(this);
@@ -1190,6 +1226,29 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		public int size() {
 			return this.uuidsAndAuthority.size();
 		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+
+			POIMarkerIds that = (POIMarkerIds) o;
+
+			return uuidsAndAuthority.equals(that.uuidsAndAuthority);
+		}
+
+		@Override
+		public int hashCode() {
+			return uuidsAndAuthority.hashCode();
+		}
+
+		@NonNull
+		@Override
+		public String toString() {
+			return POIMarkerIds.class.getSimpleName() + "{" +
+					"uuidsAndAuthority=" + uuidsAndAuthority +
+					'}';
+		}
 	}
 
 	@Nullable
@@ -1213,6 +1272,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			this.mapViewControllerWR = new WeakReference<>(mapViewController);
 		}
 
+		@WorkerThread
 		@Override
 		protected Collection<POIMarker> doInBackgroundNotCancelledMT(Void... params) {
 			MapViewController mapViewController = this.mapViewControllerWR.get();
@@ -1279,26 +1339,32 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return clusterItems.values();
 		}
 
+		@MainThread
 		@Override
 		protected void onPostExecuteNotCancelledMT(@Nullable Collection<POIMarker> result) {
 			MapViewController mapViewController = this.mapViewControllerWR.get();
 			if (mapViewController == null) {
+				MTLog.d(this, "clearClusterManagerItems() > SKIP (no controller)");
 				return;
 			}
 			if (result == null) {
+				MTLog.d(this, "clearClusterManagerItems() > SKIP (no result)");
 				return;
 			}
 			if (mapViewController.extendedGoogleMap == null) {
+				MTLog.d(this, "clearClusterManagerItems() > SKIP (no extended map)");
+				return;
+			}
+			if (mapViewController.mapView == null) {
+				MTLog.d(this, "clearClusterManagerItems() > SKIP (no map)");
 				return;
 			}
 			ExtendedMarkerOptions options = new ExtendedMarkerOptions();
+			final Context context = mapViewController.mapView.getContext();
 			for (POIMarker poiMarker : result) {
 				options.position(poiMarker.position);
 				options.title(poiMarker.getTitle());
-				if (mapViewController.markerLabelShowExtra) {
-					options.snippet(poiMarker.getSnippet());
-				}
-				final Context context = mapViewController.getActivityOrNull();
+				options.snippet(mapViewController.markerLabelShowExtra ? poiMarker.getSnippet() : null);
 				options.icon(context, getPlaceIconRes(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
 				options.data(poiMarker.getUuidsAndAuthority());
 				mapViewController.extendedGoogleMap.addMarker(options);
@@ -1306,7 +1372,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			mapViewController.clusterManagerItemsLoaded = true;
 			mapViewController.hideLoading();
 			if (mapViewController.showAllMarkersWhenReady) {
-				mapViewController.showMarkers(false, mapViewController.followingUser);
+				mapViewController.showMarkers(false, mapViewController.followingDevice);
 			}
 		}
 	}
@@ -1316,39 +1382,48 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		return R.drawable.map_icon_place_white_slim_original;
 	}
 
-	public void addMarkers(@Nullable Collection<POIMarker> poiMarkers) {
-		if (MapViewController.this.extendedGoogleMap == null) {
-			return;
+	public boolean addMarkers(@Nullable Collection<POIMarker> poiMarkers) {
+		final Context context = getActivityOrNull();
+		if (context == null) {
+			MTLog.d(this, "addMarkers() > SKIP (no context)");
+			return false;
 		}
-		ExtendedMarkerOptions options = new ExtendedMarkerOptions();
+		return addMarkers(context, poiMarkers);
+	}
+
+	public boolean addMarkers(@NonNull Context context, @Nullable Collection<POIMarker> poiMarkers) {
+		if (MapViewController.this.extendedGoogleMap == null) {
+			MTLog.d(this, "addMarkers() > SKIP (no map)");
+			return false;
+		}
+		final ExtendedMarkerOptions options = new ExtendedMarkerOptions();
 		if (poiMarkers != null) {
 			for (POIMarker poiMarker : poiMarkers) {
 				options.position(poiMarker.position);
 				options.title(poiMarker.getTitle());
-				if (this.markerLabelShowExtra) {
-					options.snippet(poiMarker.getSnippet());
-				}
-				final Context context = getActivityOrNull();
+				options.snippet(this.markerLabelShowExtra ? poiMarker.getSnippet() : null);
 				options.icon(context, getPlaceIconRes(), poiMarker.color, poiMarker.secondaryColor, Color.BLACK);
 				options.data(poiMarker.getUuidsAndAuthority());
-				IMarker marker = this.extendedGoogleMap.addMarker(options);
+				final IMarker marker = this.extendedGoogleMap.addMarker(options);
 				if (poiMarker.hasUUID(this.lastSelectedUUID)) {
 					marker.showInfoWindow();
+					this.lastSelectedUUID = null; // select once only
 				}
 			}
 		}
 		this.clusterManagerItemsLoaded = true;
 		hideLoading();
 		if (this.showAllMarkersWhenReady) {
-			showMarkers(false, this.followingUser);
+			showMarkers(false, this.followingDevice);
 		}
+		return true;
 	}
 
 	@Override
 	public void activate(@NonNull OnLocationChangedListener onLocationChangedListener) {
 		this.locationChangedListener = onLocationChangedListener;
-		if (this.userLocation != null) {
-			this.locationChangedListener.onLocationChanged(this.userLocation);
+		if (this.deviceLocation != null) {
+			this.locationChangedListener.onLocationChanged(this.deviceLocation);
 		}
 	}
 
@@ -1357,17 +1432,17 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.locationChangedListener = null;
 	}
 
-	public void onUserLocationChanged(@Nullable Location newLocation) {
+	public void onDeviceLocationChanged(@Nullable Location newLocation) {
 		if (newLocation == null) {
 			return;
 		}
-		boolean firstLocation = this.userLocation == null;
-		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
-			this.userLocation = newLocation;
+		final boolean firstLocation = this.deviceLocation == null;
+		if (this.deviceLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.deviceLocation, newLocation)) {
+			this.deviceLocation = newLocation;
 			if (this.locationChangedListener != null) {
 				this.locationChangedListener.onLocationChanged(newLocation);
 			}
-			if (this.followingUser) {
+			if (this.followingDevice) {
 				showMarkers(true, true);
 			} else if (firstLocation) {
 				this.initialMapCameraSetup = false;
@@ -1380,8 +1455,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	public boolean onResume() {
 		this.needToResumeMap = true;
-		MapView mapView = getMapViewOrNull();
+		final MapView mapView = getMapViewOrNull();
 		if (mapView == null) {
+			MTLog.d(this, "onResume() > SKIP (no map)");
 			return false;
 		}
 		mapView.onResume();
@@ -1395,7 +1471,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (this.lastCameraPosition == null) {
 			return false; // nothing shown
 		}
-		boolean success = updateMapCamera(false, CameraUpdateFactory.newCameraPosition(this.lastCameraPosition));
+		final boolean success = updateMapCamera(false, CameraUpdateFactory.newCameraPosition(this.lastCameraPosition));
 		if (success) {
 			this.lastCameraPosition = null; // clear
 		}
@@ -1420,11 +1496,11 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	public void onPause() {
 		this.needToResumeMap = false;
-		MapView mapView = getMapViewOrNull();
+		final MapView mapView = getMapViewOrNull();
 		if (mapView != null) {
 			mapView.onPause();
 		}
-		ExtendedGoogleMap googleMap = getGoogleMapOrNull();
+		final ExtendedGoogleMap googleMap = getGoogleMapOrNull();
 		if (googleMap != null) {
 			this.lastCameraPosition = googleMap.getCameraPosition();
 		}
@@ -1435,7 +1511,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		if (TextUtils.isEmpty(uuid)) {
 			return;
 		}
-		this.lastSelectedUUID = uuid;
+		this.lastSelectedUUID = uuid; // initial
 	}
 
 	public void setInitialLocation(@Nullable Location initialLocation) {
@@ -1444,7 +1520,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		}
 		this.lastCameraPosition = CameraPosition.builder() //
 				.target(LatLngUtils.fromLocation(initialLocation)) //
-				.zoom(USER_LOCATION_ZOOM) //
+				.zoom(DEVICE_LOCATION_ZOOM) //
 				.build();
 	}
 
@@ -1474,7 +1550,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	public void onLowMemory() {
-		MapView mapView = getMapViewOrNull();
+		final MapView mapView = getMapViewOrNull();
 		if (mapView != null) {
 			mapView.onLowMemory();
 		}
@@ -1532,5 +1608,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		void onMapClick(@NonNull LatLng position);
 
 		void onCameraChange(@NonNull LatLngBounds latLngBounds);
+
+		void onMapReady();
 	}
 }

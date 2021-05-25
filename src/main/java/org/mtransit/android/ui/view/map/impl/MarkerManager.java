@@ -3,6 +3,7 @@ package org.mtransit.android.ui.view.map.impl;
 import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 
 import com.google.android.gms.maps.model.CameraPosition;
@@ -50,7 +51,8 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		this.createdMarkers = new ArrayMap<>();
 	}
 
-	public IMarker addMarker(ExtendedMarkerOptions markerOptions) {
+	@NonNull
+	public IMarker addMarker(@NonNull ExtendedMarkerOptions markerOptions) {
 		boolean visible = markerOptions.isVisible();
 		markerOptions.visible(false);
 		DelegatingMarker marker = createMarker(markerOptions.getReal());
@@ -73,7 +75,8 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		);
 	}
 
-	private DelegatingMarker createMarker(com.google.android.gms.maps.model.MarkerOptions markerOptions) {
+	@NonNull
+	private DelegatingMarker createMarker(@NonNull com.google.android.gms.maps.model.MarkerOptions markerOptions) {
 		LazyMarker realMarker = new LazyMarker(factory.getMap(), markerOptions, this);
 		DelegatingMarker marker = new DelegatingMarker(realMarker, this);
 		// TODO CRASH SimpleArrayMap ClassCastException: String cannot be cast to Object[]
@@ -185,16 +188,18 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		createdMarkers.put(marker.getMarker(), marker);
 	}
 
+	@Nullable
 	public IMarker map(com.google.android.gms.maps.model.Marker marker) {
-		IMarker cluster = clusteringStrategy.map(marker);
+		final IMarker cluster = clusteringStrategy.map(marker);
 		if (cluster != null) {
 			return cluster;
 		}
 		return mapToDelegatingMarker(marker);
 	}
 
+	@Nullable
 	public DelegatingMarker mapToDelegatingMarker(com.google.android.gms.maps.model.Marker marker) {
-		LazyMarker lazy = createdMarkers.get(marker);
+		final LazyMarker lazy = createdMarkers.get(marker);
 		return markers.get(lazy);
 	}
 }

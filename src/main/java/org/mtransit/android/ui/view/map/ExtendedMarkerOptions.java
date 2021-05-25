@@ -20,11 +20,16 @@ public class ExtendedMarkerOptions {
 	private final com.google.android.gms.maps.model.MarkerOptions real = new com.google.android.gms.maps.model.MarkerOptions();
 	@Nullable
 	private WeakReference<Context> realContextWR;
+	@Nullable
 	@DrawableRes
 	private Integer realIconResId;
+	@Nullable
 	private Integer realColor;
+	@Nullable
 	private Integer realSecondaryColor;
+	@Nullable
 	private Integer realDefaultColor;
+	@Nullable
 	private Object data;
 	private int clusterGroup;
 
@@ -38,21 +43,25 @@ public class ExtendedMarkerOptions {
 		return this.realContextWR == null ? null : this.realContextWR.get();
 	}
 
+	@Nullable
 	@DrawableRes
 	public Integer getIconResId() {
 		return this.realIconResId;
 	}
 
+	@Nullable
 	@ColorInt
 	public Integer getColor() {
 		return this.realColor;
 	}
 
+	@Nullable
 	@ColorInt
 	public Integer getSecondaryColor() {
 		return this.realSecondaryColor;
 	}
 
+	@Nullable
 	@ColorInt
 	public Integer getDefaultColor() {
 		return this.realDefaultColor;
@@ -77,7 +86,7 @@ public class ExtendedMarkerOptions {
 	}
 
 	@NonNull
-	public ExtendedMarkerOptions data(Object data) {
+	public ExtendedMarkerOptions data(@Nullable Object data) {
 		this.data = data;
 		return this;
 	}
@@ -110,10 +119,12 @@ public class ExtendedMarkerOptions {
 		return clusterGroup;
 	}
 
+	@Nullable
 	public Object getData() {
 		return data;
 	}
 
+	@Nullable
 	public BitmapDescriptor getIcon() {
 		return real.getIcon();
 	}
@@ -126,6 +137,7 @@ public class ExtendedMarkerOptions {
 		return real.getInfoWindowAnchorV();
 	}
 
+	@NonNull
 	public LatLng getPosition() {
 		return real.getPosition();
 	}
@@ -134,22 +146,28 @@ public class ExtendedMarkerOptions {
 		return real.getRotation();
 	}
 
+	@Nullable
 	public String getSnippet() {
 		return real.getSnippet();
 	}
 
+	@Nullable
 	public String getTitle() {
 		return real.getTitle();
 	}
 
 	@NonNull
-	public ExtendedMarkerOptions icon(BitmapDescriptor icon) {
+	public ExtendedMarkerOptions icon(@Nullable BitmapDescriptor icon) {
 		real.icon(icon);
 		return this;
 	}
 
 	@NonNull
-	public ExtendedMarkerOptions icon(Context context, @DrawableRes int iconResId, @ColorInt Integer color, @ColorInt Integer secondaryColor, @ColorInt int defaultColor) {
+	public ExtendedMarkerOptions icon(@NonNull Context context,
+									  @DrawableRes int iconResId,
+									  @ColorInt @Nullable Integer color,
+									  @ColorInt @Nullable Integer secondaryColor,
+									  @ColorInt int defaultColor) {
 		real.icon(null);
 		realContextWR = new WeakReference<>(context);
 		realIconResId = iconResId;
@@ -178,7 +196,7 @@ public class ExtendedMarkerOptions {
 	}
 
 	@NonNull
-	public ExtendedMarkerOptions position(LatLng position) {
+	public ExtendedMarkerOptions position(@NonNull LatLng position) {
 		real.position(position);
 		return this;
 	}
@@ -190,13 +208,13 @@ public class ExtendedMarkerOptions {
 	}
 
 	@NonNull
-	public ExtendedMarkerOptions snippet(String snippet) {
+	public ExtendedMarkerOptions snippet(@Nullable String snippet) {
 		real.snippet(snippet);
 		return this;
 	}
 
 	@NonNull
-	public ExtendedMarkerOptions title(String title) {
+	public ExtendedMarkerOptions title(@Nullable String title) {
 		real.title(title);
 		return this;
 	}

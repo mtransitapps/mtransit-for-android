@@ -34,6 +34,13 @@ public final class MapUtils implements MTLog.Loggable {
 		return LOG_TAG;
 	}
 
+	public static final float MAP_ZOOM_LEVEL_WORLD = 1f;
+	public static final float MAP_ZOOM_LEVEL_CONTINENT = 5f;
+	public static final float MAP_ZOOM_LEVEL_CITY = 10f;
+	public static final float MAP_ZOOM_LEVEL_STREETS = 15f;
+	public static final float MAP_ZOOM_LEVEL_STREETS_BUSY = 16f;
+	public static final float MAP_ZOOM_LEVEL_STREETS_BUSY_BUSY = 17f;
+
 	public static final int MAP_TYPE_NORMAL = GoogleMap.MAP_TYPE_NORMAL;
 	public static final int MAP_TYPE_SATELLITE = GoogleMap.MAP_TYPE_HYBRID;
 
@@ -53,7 +60,7 @@ public final class MapUtils implements MTLog.Loggable {
 	public static void showDirection(@NonNull Activity activity, //
 									 @Nullable Double optDestLat, @Nullable Double optDestLng, //
 									 @Nullable Double optSrcLat, @Nullable Double optSrcLng, //
-									 @Nullable String optQuery) {
+									 @SuppressWarnings("unused") @Nullable String optQuery) {
 		Uri gmmIntentUri = Uri.parse(MAP_DIRECTION_URL_PART_1);
 		if (optSrcLat != null && optSrcLng != null) {
 			gmmIntentUri = gmmIntentUri //
@@ -115,7 +122,7 @@ public final class MapUtils implements MTLog.Loggable {
 		return mapWithoutButtonsCameraPaddingInPx;
 	}
 
-	public static void fixScreenFlickering(ViewGroup viewGroup) {
+	public static void fixScreenFlickering(@Nullable ViewGroup viewGroup) {
 		// https://code.google.com/p/gmaps-api-issues/issues/detail?id=4639
 		if (viewGroup == null) {
 			return;
@@ -126,16 +133,19 @@ public final class MapUtils implements MTLog.Loggable {
 	@NonNull
 	private static final LruCache<Pair<Integer, Integer>, BitmapDescriptor> cache = new LruCache<>(128);
 
-	@NonNull
+	@Nullable
 	public static BitmapDescriptor getIcon(@Nullable Context context, @DrawableRes int iconResId, @ColorInt int color, boolean replaceColor) {
-		Pair<Integer, Integer> key = new Pair<>(iconResId, color);
+		final Pair<Integer, Integer> key = new Pair<>(iconResId, color);
 		color = ColorUtils.adaptColorToTheme(context, color);
-		BitmapDescriptor cachedBitmap = cache.get(key);
+		final BitmapDescriptor cachedBitmap = cache.get(key);
 		if (cachedBitmap != null) {
 			return cachedBitmap;
 		}
-		Bitmap newBase = ColorUtils.colorizeBitmapResource(context, color, iconResId, replaceColor);
-		BitmapDescriptor newBitmapDescriptor = BitmapDescriptorFactory.fromBitmap(newBase);
+		final Bitmap newBase = ColorUtils.colorizeBitmapResource(context, color, iconResId, replaceColor);
+		if (newBase == null) {
+			return null;
+		}
+		final BitmapDescriptor newBitmapDescriptor = BitmapDescriptorFactory.fromBitmap(newBase);
 		cache.put(key, newBitmapDescriptor);
 		return newBitmapDescriptor;
 	}

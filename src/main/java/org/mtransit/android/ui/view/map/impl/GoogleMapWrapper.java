@@ -3,6 +3,7 @@ package org.mtransit.android.ui.view.map.impl;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 
@@ -43,14 +44,16 @@ class GoogleMapWrapper implements IGoogleMap, MTLog.Loggable {
 
 	private static final String TAG = GoogleMapWrapper.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
 	}
 
-	private GoogleMap map;
+	@NonNull
+	private final GoogleMap map;
 
-	public GoogleMapWrapper(GoogleMap map) {
+	GoogleMapWrapper(@NonNull GoogleMap map) {
 		this.map = map;
 	}
 
@@ -95,7 +98,7 @@ class GoogleMapWrapper implements IGoogleMap, MTLog.Loggable {
 	}
 
 	@Override
-	public final void animateCamera(CameraUpdate update) {
+	public final void animateCamera(@NonNull CameraUpdate update) {
 		map.animateCamera(update);
 	}
 
@@ -155,7 +158,7 @@ class GoogleMapWrapper implements IGoogleMap, MTLog.Loggable {
 	}
 
 	@Override
-	public final void moveCamera(CameraUpdate update) {
+	public final void moveCamera(@NonNull CameraUpdate update) {
 		map.moveCamera(update);
 	}
 

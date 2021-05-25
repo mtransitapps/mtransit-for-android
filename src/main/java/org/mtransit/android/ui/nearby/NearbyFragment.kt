@@ -28,7 +28,7 @@ import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
-import org.mtransit.android.ui.fragment.MapFragment
+import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.util.MapUtils
 
 @AndroidEntryPoint

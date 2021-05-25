@@ -1,5 +1,8 @@
 package org.mtransit.android.ui.view.map.impl;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.VisibleRegion;
@@ -17,16 +20,17 @@ class DynamicNoClusteringStrategy implements ClusteringStrategy, MTLog.Loggable 
 
 	private static final String TAG = DynamicNoClusteringStrategy.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
 	}
 
-	private IGoogleMap map;
-	private Set<DelegatingMarker> markers = new HashSet<>();
+	private final IGoogleMap map;
+	private final Set<DelegatingMarker> markers = new HashSet<>();
 	private LatLngBounds visibleRegionBounds;
 
-	public DynamicNoClusteringStrategy(IGoogleMap map, List<DelegatingMarker> markers) {
+	DynamicNoClusteringStrategy(IGoogleMap map, List<DelegatingMarker> markers) {
 		this.map = map;
 		for (DelegatingMarker marker : markers) {
 			if (marker.isVisible()) {
@@ -48,7 +52,7 @@ class DynamicNoClusteringStrategy implements ClusteringStrategy, MTLog.Loggable 
 
 	@Override
 	public void onClusterGroupChange(DelegatingMarker marker) {
-
+		// DO NOTHING
 	}
 
 	@Override
@@ -93,6 +97,7 @@ class DynamicNoClusteringStrategy implements ClusteringStrategy, MTLog.Loggable 
 	@Override
 	public void onShowInfoWindow(DelegatingMarker marker) {
 		if (!marker.isVisible()) {
+			MTLog.d(this, "onShowInfoWindow() > SKIP (marker not visible)");
 			return;
 		}
 		if (markers.remove(marker)) {
@@ -101,11 +106,13 @@ class DynamicNoClusteringStrategy implements ClusteringStrategy, MTLog.Loggable 
 		marker.forceShowInfoWindow();
 	}
 
+	@Nullable
 	@Override
 	public IMarker map(com.google.android.gms.maps.model.Marker original) {
 		return null;
 	}
 
+	@Nullable
 	@Override
 	public List<IMarker> getDisplayedMarkers() {
 		return null;

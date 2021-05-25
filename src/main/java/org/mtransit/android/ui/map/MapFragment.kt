@@ -1,0 +1,301 @@
+@file:JvmName("MapFragment") // ANALYTICS
+package org.mtransit.android.ui.map
+
+import android.content.Context
+import android.content.res.Configuration
+import android.graphics.Color
+import android.location.Location
+import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import androidx.core.os.bundleOf
+import androidx.fragment.app.viewModels
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import dagger.hilt.android.AndroidEntryPoint
+import org.mtransit.android.R
+import org.mtransit.android.data.DataSourceType
+import org.mtransit.android.databinding.FragmentMapBinding
+import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.provider.permission.LocationPermissionProvider
+import org.mtransit.android.ui.MTActivityWithLocation
+import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
+import org.mtransit.android.ui.MTDialog
+import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.view.MapViewController
+import javax.inject.Inject
+
+@AndroidEntryPoint
+class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
+
+    companion object {
+        private val LOG_TAG = MapFragment::class.java.simpleName
+
+        private const val TRACKING_SCREEN_NAME = "Map"
+
+        @JvmStatic
+        @JvmOverloads
+        fun newInstance(
+            optInitialLocation: Location? = null,
+            optSelectedUUID: String? = null,
+            optIncludeTypeId: Int? = null,
+        ): MapFragment {
+            return MapFragment().apply {
+                arguments = bundleOf(
+                    MapViewModel.EXTRA_INITIAL_LOCATION to optInitialLocation,
+                    MapViewModel.EXTRA_SELECTED_UUID to optSelectedUUID,
+                    MapViewModel.EXTRA_INCLUDE_TYPE_ID to optIncludeTypeId,
+                )
+            }
+        }
+    }
+
+    override fun getLogTag(): String = LOG_TAG
+
+    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+
+    private val viewModel by viewModels<MapViewModel>()
+
+    private var binding: FragmentMapBinding? = null
+
+    var loadingLatLngBounds: LatLngBounds? = null
+    var loadedLatLngBounds: LatLngBounds? = null
+
+    @Inject
+    lateinit var dataSourcesRepository: DataSourcesRepository
+
+    @Inject
+    lateinit var locationPermissionProvider: LocationPermissionProvider
+
+    private val mapListener = object : MapViewController.MapListener {
+
+        override fun onMapClick(position: LatLng) {
+            // DO NOTHING
+        }
+
+        override fun onCameraChange(latLngBounds: LatLngBounds) {
+            viewModel.onCameraChange(latLngBounds) {
+                mapViewController.getBigCameraPosition(activity, 1.0f)
+            }
+        }
+
+        override fun onMapReady() {
+            viewModel.poiMarkers.value?.let {
+                mapViewController.clearMarkers()
+                mapViewController.addMarkers(it)
+                mapViewController.showMap(view)
+            }
+        }
+    }
+
+    private val mapViewController: MapViewController by lazy {
+        MapViewController(
+            logTag,
+            null, // DO NOTHING (not linked with list adapter)
+            mapListener,
+            true,
+            true,
+            true,
+            false,
+            false,
+            false,
+            64,
+            false,
+            true,
+            true,
+            false,
+            true,
+            this.dataSourcesRepository
+        ).apply {
+            logTag = this@MapFragment.logTag
+            setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(requireContext()))
+        }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mapViewController.apply {
+            setDataSourcesRepository(dataSourcesRepository)
+            onAttach(requireActivity())
+            setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(context))
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+        mapViewController.onCreate(savedInstanceState)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        this.mapViewController.onViewCreated(view, savedInstanceState)
+        binding = FragmentMapBinding.bind(view).apply {
+            // DO NOTHING
+        }
+        viewModel.initialLocation.observe(viewLifecycleOwner, { location ->
+            location?.let {
+                mapViewController.setInitialLocation(it)
+                viewModel.onInitialLocationSet()
+            }
+        })
+        viewModel.selectedUUID.observe(viewLifecycleOwner, {
+            it?.let {
+                mapViewController.setInitialSelectedUUID(it)
+                viewModel.onSelectedUUIDSet()
+            }
+        })
+        viewModel.deviceLocation.observe(viewLifecycleOwner, {
+            context?.let { context ->
+                mapViewController.setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(context))
+            }
+            mapViewController.onDeviceLocationChanged(it)
+        })
+        viewModel.filterTypeIds.observe(viewLifecycleOwner, {
+            abController?.setABTitle(this, getABTitle(context), true)
+        })
+        viewModel.typeMapAgencies.observe(viewLifecycleOwner, {
+            viewModel.resetLoadedPOIMarkers()
+        })
+        viewModel.poiMarkersTrigger.observe(viewLifecycleOwner, {
+            // DO NOTHING
+        })
+        viewModel.loaded.observe(viewLifecycleOwner, {
+            if (it == false) {
+                mapViewController.showLoading()
+            } else if (it == true) {
+                mapViewController.hideLoading()
+            }
+        })
+        viewModel.poiMarkers.observe(viewLifecycleOwner, {
+            mapViewController.clearMarkers() // new types -> RESET
+            it?.let { poiMarkers ->
+                mapViewController.addMarkers(poiMarkers)
+                mapViewController.showMap(view)
+            }
+        })
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        mapViewController.onSaveInstanceState(outState)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        this.mapViewController.onDetach()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        mapViewController.onConfigurationChanged(newConfig)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mapViewController.onResume()
+        mapViewController.showMap(view)
+        (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
+    }
+
+    override fun onUserLocationChanged(newLocation: Location?) {
+        viewModel.onDeviceLocationChanged(newLocation)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mapViewController.onPause()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        mapViewController.onLowMemory()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_map, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (item.itemId == R.id.menu_filter) {
+            showMenuFilterDialog()
+        } else super.onOptionsItemSelected(item)
+    }
+
+    private fun showMenuFilterDialog(): Boolean {
+        val filterTypeIds = viewModel.filterTypeIds.value ?: return false
+        val activity = requireActivity()
+        val typeNames = mutableListOf<CharSequence>()
+        val checked = mutableListOf<Boolean>()
+        val typeIds = mutableListOf<Int>()
+        val selectedItems = mutableSetOf<Int>()
+        viewModel.mapTypes.value?.forEach { type ->
+            typeIds.add(type.id)
+            typeNames.add(getString(type.poiShortNameResId))
+            checked.add(filterTypeIds.isEmpty() || filterTypeIds.contains(type.id))
+        }
+        val checkedItems = BooleanArray(checked.size)
+        for (c in checked.indices) {
+            checkedItems[c] = checked[c]
+            if (checkedItems[c]) {
+                selectedItems.add(c)
+            }
+        }
+        MTDialog.Builder(activity)
+            .setTitle(R.string.menu_action_filter)
+            .setMultiChoiceItems(typeNames.toTypedArray(), checkedItems) { _, which, isChecked ->
+                selectedItems.apply { if (isChecked) add(which) else remove(which) }
+            }
+            .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                applyNewFilter(typeIds, selectedItems)
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setCancelable(true)
+            .create()
+            .show()
+        return true // handled
+    }
+
+    private fun applyNewFilter(availableTypeIds: List<Int>, selectedTypesIdx: Set<Int>) {
+        viewModel.saveFilterTypeIdsPref(
+            if (selectedTypesIdx.isEmpty() || selectedTypesIdx.size == availableTypeIds.size) { // ALL SELECTED
+                null
+            } else { // NOT ALL SELECTED
+                availableTypeIds.filterIndexed { idx, _ ->
+                    selectedTypesIdx.contains(idx)
+                }
+            }
+        )
+    }
+
+    override fun getABBgColor(context: Context?) = Color.TRANSPARENT
+
+    override fun getABTitle(context: Context?): CharSequence? {
+        return context?.let { makeABTitle() } ?: super.getABTitle(context)
+    }
+
+    private fun makeABTitle(): CharSequence {
+        return (viewModel.filterTypeIds.value?.let { if (it.isEmpty()) null else it } // empty = all
+            ?.mapNotNull { typeId ->
+                DataSourceType.parseId(typeId)?.allStringResId?.let { getString(it) }
+            } ?: listOf(getString(R.string.all)))
+            .joinToString(prefix = "${getString(R.string.map)} (", separator = ", ", postfix = ")")
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        mapViewController.onDestroyView()
+        binding = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mapViewController.onDestroy()
+    }
+}

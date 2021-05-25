@@ -193,7 +193,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
             mapViewController.logTag = logTag
         })
         parentViewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation ->
-            mapViewController.onUserLocationChanged(deviceLocation)
+            mapViewController.onDeviceLocationChanged(deviceLocation)
             adapter.setLocation(deviceLocation)
         })
         viewModel.showingListInsteadOfMap.observe(viewLifecycleOwner, { showingListInsteadOfMap ->

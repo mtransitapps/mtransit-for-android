@@ -1,5 +1,7 @@
 package org.mtransit.android.ui.view.map.impl;
 
+import androidx.annotation.Nullable;
+
 import com.google.android.gms.maps.model.CameraPosition;
 
 import org.mtransit.android.ui.view.map.IMarker;
@@ -25,8 +27,10 @@ interface ClusteringStrategy {
 
 	void onShowInfoWindow(DelegatingMarker marker);
 
+	@Nullable
 	IMarker map(com.google.android.gms.maps.model.Marker original);
 
+	@Nullable
 	List<IMarker> getDisplayedMarkers();
 
 	float getMinZoomLevelNotClustered(IMarker marker);

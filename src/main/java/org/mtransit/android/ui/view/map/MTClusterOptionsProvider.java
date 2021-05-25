@@ -31,7 +31,7 @@ public class MTClusterOptionsProvider implements ClusterOptionsProvider, MTLog.L
 	}
 
 	@NonNull
-	private ClusterOptions clusterOptions = new ClusterOptions().anchor(0.5f, 0.5f);
+	private final ClusterOptions clusterOptions = new ClusterOptions().anchor(0.5f, 0.5f);
 
 	@NonNull
 	private final WeakReference<Context> contextWR;
@@ -48,15 +48,15 @@ public class MTClusterOptionsProvider implements ClusterOptionsProvider, MTLog.L
 		return this.clusterOptions;
 	}
 
-
 	@DrawableRes
 	private static int getClusterIconRes() {
 		return R.drawable.map_icon_cluster_blur_white;
 	}
 
+	@Nullable
 	private BitmapDescriptor getClusterIcon(@NonNull List<IMarker> markers) {
-		Context context = this.contextWR.get();
-		Integer color = getColor(context, markers);
+		final Context context = this.contextWR.get();
+		final Integer color = getColor(context, markers);
 		return MapUtils.getIcon(context, getClusterIconRes(), color, false);
 	}
 

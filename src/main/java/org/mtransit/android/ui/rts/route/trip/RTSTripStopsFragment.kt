@@ -167,7 +167,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
             mapViewController.logTag = logTag
         })
         parentViewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation ->
-            mapViewController.onUserLocationChanged(deviceLocation)
+            mapViewController.onDeviceLocationChanged(deviceLocation)
             adapter.setLocation(deviceLocation)
         })
         parentViewModel.showingListInsteadOfMap.observe(viewLifecycleOwner, { showingListInsteadOfMap ->

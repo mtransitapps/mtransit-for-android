@@ -275,6 +275,7 @@ class DelegatingMarker implements IMarker, MTLog.Loggable {
 		return real.hashCode();
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		return real.toString();

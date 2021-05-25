@@ -1,5 +1,7 @@
 package org.mtransit.android.ui.view.map.impl;
 
+import androidx.annotation.Nullable;
+
 import com.google.android.gms.maps.model.CameraPosition;
 
 import org.mtransit.android.commons.MTLog;
@@ -65,11 +67,13 @@ class NoClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 		marker.forceShowInfoWindow();
 	}
 
+	@Nullable
 	@Override
 	public IMarker map(com.google.android.gms.maps.model.Marker original) {
 		return null;
 	}
 
+	@Nullable
 	@Override
 	public List<IMarker> getDisplayedMarkers() {
 		return null;

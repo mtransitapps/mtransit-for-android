@@ -72,6 +72,7 @@ import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.map.MapFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListFragment;
 import org.mtransit.android.ui.news.details.NewsDetailsFragment;
@@ -521,6 +522,11 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
+	public void onMapReady() {
+		// DO NOTHING
+	}
+
+	@Override
 	public void onMapClick(@NonNull LatLng position) {
 		if (!FragmentUtils.isFragmentReady(this)) {
 			return;
@@ -604,7 +610,6 @@ public class POIFragment extends ABFragment implements
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.fragment_poi, container, false);
-		this.mapViewController.onCreateView(view, savedInstanceState);
 		return view;
 	}
 
@@ -1079,7 +1084,7 @@ public class POIFragment extends ABFragment implements
 				LocationUtils.updateDistanceWithString(requireContext(), poim, newLocation);
 				POIViewController.updatePOIDistanceAndCompass(getPOIView(getView()), poim, this);
 			}
-			this.mapViewController.onUserLocationChanged(this.userLocation);
+			this.mapViewController.onDeviceLocationChanged(this.userLocation);
 			if (this.adapter != null) {
 				this.adapter.setLocation(newLocation);
 			}

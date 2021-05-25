@@ -46,6 +46,7 @@ import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.map.MapFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.ui.view.common.PairMediatorLiveData;
@@ -460,7 +461,7 @@ public class HomeFragment extends ABFragment implements LoaderManager.LoaderCall
 		if (item.getItemId() == R.id.menu_show_map) {
 			if (getActivity() != null) {
 				((MainActivity) getActivity()).addFragmentToStack(
-						MapFragment.newInstance(null, null, null),
+						MapFragment.newInstance(),
 						this);
 			}
 			return true;

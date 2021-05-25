@@ -78,8 +78,9 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 		return groundOverlayManager.addGroundOverlay(groundOverlayOptions);
 	}
 
+	@NonNull
 	@Override
-	public IMarker addMarker(ExtendedMarkerOptions markerOptions) {
+	public IMarker addMarker(@NonNull ExtendedMarkerOptions markerOptions) {
 		return markerManager.addMarker(markerOptions);
 	}
 
@@ -109,7 +110,7 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 	}
 
 	@Override
-	public void animateCamera(CameraUpdate cameraUpdate) {
+	public void animateCamera(@NonNull CameraUpdate cameraUpdate) {
 		real.animateCamera(cameraUpdate);
 	}
 
@@ -215,7 +216,7 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 	}
 
 	@Override
-	public void moveCamera(CameraUpdate cameraUpdate) {
+	public void moveCamera(@NonNull CameraUpdate cameraUpdate) {
 		real.moveCamera(cameraUpdate);
 	}
 
@@ -478,6 +479,9 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 		@Override
 		public void onMarkerDragStart(@NonNull com.google.android.gms.maps.model.Marker marker) {
 			DelegatingMarker delegating = markerManager.mapToDelegatingMarker(marker);
+			if (delegating == null) {
+				return;
+			}
 			delegating.clearCachedPosition();
 			markerManager.onDragStart(delegating);
 			if (onMarkerDragListener != null) {
@@ -488,6 +492,9 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 		@Override
 		public void onMarkerDrag(@NonNull com.google.android.gms.maps.model.Marker marker) {
 			DelegatingMarker delegating = markerManager.mapToDelegatingMarker(marker);
+			if (delegating == null) {
+				return;
+			}
 			delegating.clearCachedPosition();
 			if (onMarkerDragListener != null) {
 				onMarkerDragListener.onMarkerDrag(delegating);

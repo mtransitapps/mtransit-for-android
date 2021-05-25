@@ -1,5 +1,8 @@
 package org.mtransit.android.ui.view.map;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.google.android.gms.maps.model.BitmapDescriptor;
 
 // based on Maciej Górski's Android Maps Extensions library (Apache License, Version 2.0)
@@ -20,17 +23,20 @@ public class ClusterOptions {
 	private float infoWindowAnchorV = DEFAULT_INFO_WINDOW_ANCHOR_V;
 	private float rotation;
 
+	@NonNull
 	public ClusterOptions alpha(float alpha) {
 		this.alpha = alpha;
 		return this;
 	}
 
+	@NonNull
 	public ClusterOptions anchor(float anchorU, float anchorV) {
 		this.anchorU = anchorU;
 		this.anchorV = anchorV;
 		return this;
 	}
 
+	@NonNull
 	public ClusterOptions flat(boolean flat) {
 		this.flat = flat;
 		return this;
@@ -48,6 +54,7 @@ public class ClusterOptions {
 		return anchorV;
 	}
 
+	@Nullable
 	public BitmapDescriptor getIcon() {
 		return icon;
 	}
@@ -64,11 +71,13 @@ public class ClusterOptions {
 		return rotation;
 	}
 
-	public ClusterOptions icon(BitmapDescriptor icon) {
+	@NonNull
+	public ClusterOptions icon(@Nullable BitmapDescriptor icon) {
 		this.icon = icon;
 		return this;
 	}
 
+	@NonNull
 	public ClusterOptions infoWindowAnchor(float u, float v) {
 		this.infoWindowAnchorU = u;
 		this.infoWindowAnchorV = v;
@@ -79,6 +88,7 @@ public class ClusterOptions {
 		return flat;
 	}
 
+	@NonNull
 	public ClusterOptions rotation(float rotation) {
 		this.rotation = rotation;
 		return this;

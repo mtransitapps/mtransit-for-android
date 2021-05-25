@@ -2,6 +2,7 @@ package org.mtransit.android.ui.view.map.impl;
 
 import android.graphics.Bitmap;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 
@@ -52,7 +53,7 @@ interface IGoogleMap {
 
 	void animateCamera(CameraUpdate update, int durationMs, CancelableCallback callback);
 
-	void animateCamera(CameraUpdate update);
+	void animateCamera(@NonNull CameraUpdate update);
 
 	void clear();
 
@@ -76,7 +77,7 @@ interface IGoogleMap {
 
 	boolean isTrafficEnabled();
 
-	void moveCamera(CameraUpdate update);
+	void moveCamera(@NonNull CameraUpdate update);
 
 	void setBuildingsEnabled(boolean enabled);
 
