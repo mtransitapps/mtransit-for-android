@@ -17,6 +17,10 @@ open class Event<out T>(private val content: T) {
     }
 
     fun peekContent(): T = content
+
+    override fun toString(): String {
+        return "Event($content, handled=$hasBeenHandled)"
+    }
 }
 
 class EventObserver<T>(private val onEventUnhandledContent: (T) -> Unit) : Observer<Event<T>> {

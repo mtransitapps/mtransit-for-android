@@ -129,15 +129,13 @@ class NearbyAgencyTypeViewModel @Inject constructor(
         val lng = nearbyLocation.longitude
         val aroundDiff = ad.aroundDiff
         val nearbyPOIs = mutableListOf<POIManager>()
+        val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
+            addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
+        }
         typeAgencies
             .filter { it.isInArea(area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->
-                dataSourceRequestManager.findPOIs(
-                    agency.authority,
-                    POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
-                        addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-                    }
-                )?.let { agencyPOIs ->
+                dataSourceRequestManager.findPOIs(agency.authority, poiFilter)?.let { agencyPOIs ->
                     LocationUtils.updateDistance(agencyPOIs, lat, lng)
                     LocationUtils.removeTooFar(agencyPOIs, maxDistance)
                     LocationUtils.removeTooMuchWhenNotInCoverage(agencyPOIs, minCoverageInMeters, maxSize)

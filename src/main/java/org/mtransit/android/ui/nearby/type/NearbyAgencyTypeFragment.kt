@@ -143,6 +143,9 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
         parentViewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation ->
             adapter.setLocation(deviceLocation)
         })
+        parentViewModel.nearbyLocationForceReset.observe(viewLifecycleOwner, {
+            adapter.clear()
+        })
         viewModel.nearbyPOIs.observe(viewLifecycleOwner, { poiList ->
             val scrollToTop = adapter.poisCount <= 0
             adapter.appendPois(poiList)

@@ -8,19 +8,17 @@ import androidx.annotation.Nullable;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.RuntimeUtils;
-import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.POIManager;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-// @Deprecated for nearby
-// TODO: home + POI
+// @Deprecated for nearby + home
+// TODO: POI
 public class NearbyPOIListLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager>> {
 
 	private static final String TAG = NearbyPOIListLoader.class.getSimpleName();
@@ -132,52 +130,6 @@ public class NearbyPOIListLoader extends MTAsyncTaskLoaderX<ArrayList<POIManager
 		executor.shutdown();
 		LocationUtils.removeTooMuchWhenNotInCoverage(this.pois, this.minCoverageInMeters, this.maxSize);
 		return this.pois;
-	}
-
-	@SuppressWarnings("WeakerAccess")
-	@NonNull
-	public static List<AgencyProperties> filterAgenciesInArea(@Nullable Collection<AgencyProperties> agencies,
-															  double lat,
-															  double lng,
-															  @NonNull LocationUtils.AroundDiff ad,
-															  @Nullable Double optLastAroundDiff) {
-		List<AgencyProperties> filteredAgencies = new ArrayList<>();
-		if (agencies != null) {
-			LocationUtils.Area area = LocationUtils.getArea(lat, lng, ad.aroundDiff);
-			LocationUtils.Area optLastArea = optLastAroundDiff == null ? null : LocationUtils.getArea(lat, lng, optLastAroundDiff);
-			for (AgencyProperties agency : agencies) {
-				if (!agency.isInArea(area)) {
-					continue; // SKIP (outside area)
-				} else if (optLastArea != null && agency.isEntirelyInside(optLastArea)) {
-					// DO NOTHING
-				}
-				filteredAgencies.add(agency);
-			}
-		}
-		return filteredAgencies;
-	}
-
-	@NonNull
-	public static List<String> filterAgenciesAuthorityInArea(@Nullable Collection<AgencyProperties> allTypeAgencies,
-															 double lat,
-															 double lng,
-															 double aroundDiff,
-															 @Nullable Double optLastAroundDiff) {
-
-		List<String> filteredTypeAgencyAuthorities = new ArrayList<>();
-		if (allTypeAgencies != null) {
-			LocationUtils.Area area = LocationUtils.getArea(lat, lng, aroundDiff);
-			LocationUtils.Area optLastArea = optLastAroundDiff == null ? null : LocationUtils.getArea(lat, lng, optLastAroundDiff);
-			for (AgencyProperties agency : allTypeAgencies) {
-				if (!agency.isInArea(area)) {
-					continue;
-				} else if (optLastArea != null && agency.isEntirelyInside(optLastArea)) {
-					// DO NOTHING
-				}
-				filteredTypeAgencyAuthorities.add(agency.getAuthority());
-			}
-		}
-		return filteredTypeAgencyAuthorities;
 	}
 
 	@Override

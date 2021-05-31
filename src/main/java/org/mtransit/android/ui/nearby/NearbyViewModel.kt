@@ -72,10 +72,11 @@ class NearbyViewModel @Inject constructor(
         }
     }.distinctUntilChanged()
 
-    val nearbyLocationForceReset = MutableLiveData(Event(false))
+    private val _nearbyLocationForceReset = MutableLiveData(Event(false))
+    val nearbyLocationForceReset = _nearbyLocationForceReset
 
     val nearbyLocation: LiveData<Location?> =
-        TripleMediatorLiveData(fixedOnLocation, deviceLocation, nearbyLocationForceReset).switchMap { (fixedOnLocation, lastDeviceLocation, forceResetEvent) ->
+        TripleMediatorLiveData(fixedOnLocation, deviceLocation, _nearbyLocationForceReset).switchMap { (fixedOnLocation, lastDeviceLocation, forceResetEvent) ->
             liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
                 val forceReset: Boolean = forceResetEvent?.getContentIfNotHandled() ?: false
                 if (forceReset) {
@@ -183,7 +184,7 @@ class NearbyViewModel @Inject constructor(
             MTLog.d(this, "initiateRefresh() > SKIP (same location)")
             return false
         }
-        this.nearbyLocationForceReset.value = Event(true)
+        this._nearbyLocationForceReset.value = Event(true)
         MTLog.d(this, "initiateRefresh() > use NEW location")
         return true
     }
