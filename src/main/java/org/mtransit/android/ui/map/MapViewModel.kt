@@ -25,7 +25,6 @@ import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
-import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
@@ -299,7 +298,7 @@ class MapViewModel @Inject constructor(
             loadedArea?.let { max(it.northeast.longitude, it.southwest.longitude) },
         )
         coroutineScope.ensureActive()
-        val agencyPOIs = dataSourceRequestManager.findPOIs(agency.authority, poiFilter)
+        val agencyPOIs = dataSourceRequestManager.findPOIMs(agency.authority, poiFilter)
         val agencyShortName = agency.shortName
         var positionTrunc: LatLng
         var name: String
@@ -320,7 +319,7 @@ class MapViewModel @Inject constructor(
             extra = (poim.poi as? RouteTripStop)?.route?.shortestName
             uuid = poim.poi.uuid
             authority = poim.poi.authority
-            color = POIManager.getNewColor(dataSourcesRepository, poim.poi, null)
+            color = poim.getColor(dataSourcesRepository)
             secondaryColor = agency.colorInt
             clusterItems[positionTrunc] = clusterItems[positionTrunc]?.apply {
                 merge(position, name, agencyShortName, extra, color, secondaryColor, uuid, authority)

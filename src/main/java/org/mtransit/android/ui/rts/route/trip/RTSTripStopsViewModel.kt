@@ -70,7 +70,7 @@ class RTSTripStopsViewModel @Inject constructor(
                 SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE)
             )
         }
-        return this.dataSourceRequestManager.findPOIs(
+        return this.dataSourceRequestManager.findPOIMs(
             agencyAuthority,
             poiFilter
         )

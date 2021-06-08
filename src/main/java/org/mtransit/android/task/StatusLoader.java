@@ -79,9 +79,9 @@ public class StatusLoader implements MTLog.Loggable {
 	}
 
 	public void clearAllTasks() {
-		Iterator<Map.Entry<String, ThreadPoolExecutor>> it = this.fetchStatusExecutors.entrySet().iterator();
+		final Iterator<Map.Entry<String, ThreadPoolExecutor>> it = this.fetchStatusExecutors.entrySet().iterator();
 		while (it.hasNext()) {
-			Map.Entry<String, ThreadPoolExecutor> fetchStatusExecutor = it.next();
+			final Map.Entry<String, ThreadPoolExecutor> fetchStatusExecutor = it.next();
 			if (fetchStatusExecutor.getValue() != null) {
 				fetchStatusExecutor.getValue().shutdown();
 			}
@@ -97,13 +97,13 @@ public class StatusLoader implements MTLog.Loggable {
 		if (skipIfBusy && isBusy()) {
 			return false;
 		}
-		Set<StatusProviderProperties> providers = this.dataSourcesRepository.getStatusProviders(poim.poi.getAuthority());
+		final Set<StatusProviderProperties> providers = this.dataSourcesRepository.getStatusProviders(poim.poi.getAuthority());
 		if (!providers.isEmpty()) {
 			for (StatusProviderProperties provider : providers) {
 				if (provider == null) {
 					continue;
 				}
-				StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter);
+				final StatusFetcherCallable task = new StatusFetcherCallable(context, listener, provider, poim, statusFilter);
 				task.executeOnExecutor(getFetchStatusExecutor(provider.getAuthority()));
 			}
 		}
@@ -159,13 +159,13 @@ public class StatusLoader implements MTLog.Loggable {
 			if (result == null) {
 				return;
 			}
-			POIManager poim = this.poiWR.get();
+			final POIManager poim = this.poiWR.get();
 			if (poim == null) {
 				return;
 			}
-			boolean statusChanged = poim.setStatus(result);
+			final boolean statusChanged = poim.setStatus(result);
 			if (statusChanged) {
-				StatusLoader.StatusLoaderListener listener = this.listenerWR.get();
+				final StatusLoader.StatusLoaderListener listener = this.listenerWR.get();
 				if (listener == null) {
 					return;
 				}
@@ -175,11 +175,11 @@ public class StatusLoader implements MTLog.Loggable {
 
 		@Nullable
 		POIStatus call() {
-			Context context = this.contextWR.get();
+			final Context context = this.contextWR.get();
 			if (context == null) {
 				return null;
 			}
-			POIManager poim = this.poiWR.get();
+			final POIManager poim = this.poiWR.get();
 			if (poim == null) {
 				return null;
 			}

@@ -71,7 +71,7 @@ class FavoritesViewModel @Inject constructor(
             .filterKeys { it.isNotEmpty() }
             .filterValues { it.isNotEmpty() }
             .forEach { (authority, authorityUUIDs) ->
-                this.dataSourceRequestManager.findPOIs(authority, POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs))
+                this.dataSourceRequestManager.findPOIMs(authority, POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs))
                     .takeIf { !it.isNullOrEmpty() }
                     ?.let { agencyPOIs ->
                         agencyPOIs.sortedWith(POI_ALPHA_COMPARATOR)

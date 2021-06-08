@@ -61,7 +61,6 @@ class HomeViewModel @Inject constructor(
     override fun getLogTag(): String = LOG_TAG
 
     private val _nearbyLocationForceReset = MutableLiveData(Event(false))
-    val nearbyLocationForceReset = _nearbyLocationForceReset
 
     val nearbyLocation: LiveData<Location?> =
         PairMediatorLiveData(deviceLocation, _nearbyLocationForceReset).switchMap { (lastDeviceLocation, forceResetEvent) ->
@@ -98,20 +97,27 @@ class HomeViewModel @Inject constructor(
     }
 
     val newLocationAvailable: LiveData<Boolean?> =
-        PairMediatorLiveData(nearbyLocation, deviceLocation).map { (nearbyLocation, deviceLocation) ->
-            nearbyLocation != null
-                    && deviceLocation != null
-                    && !LocationUtils.areAlmostTheSame(nearbyLocation, deviceLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)
-        }
+        PairMediatorLiveData(nearbyLocation, deviceLocation).map { (nearbyLocation, newDeviceLocation) ->
+            if (nearbyLocation == null) {
+                null // not new if current unknown
+            } else {
+                newDeviceLocation != null
+                        && !LocationUtils.areAlmostTheSame(nearbyLocation, newDeviceLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)
+            }
+        }.distinctUntilChanged()
 
     private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesDistinct() // #onModulesUpdated
 
     private val _dstToHomeAgencies: LiveData<SortedMap<DataSourceType, List<AgencyProperties>>?> = _allAgencies.map { allAgencies ->
-        allAgencies
-            .filter { it.type.isHomeScreen }
-            .groupBy { it.type }
-            .toSortedMap(this.dataSourcesRepository.defaultDataSourceTypeComparator)
-    }
+        if (allAgencies.isNullOrEmpty()) {
+            null
+        } else {
+            allAgencies
+                .filter { it.type.isHomeScreen }
+                .groupBy { it.type }
+                .toSortedMap(dataSourcesRepository.defaultDataSourceTypeComparator)
+        }
+    }.distinctUntilChanged()
 
     private val _loadingPOIs = MutableLiveData(false)
     val loadingPOIs: LiveData<Boolean?> = _loadingPOIs
@@ -258,7 +264,7 @@ class HomeViewModel @Inject constructor(
             .filter { it.isInArea(area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->
                 scope.ensureActive()
-                dataSourceRequestManager.findPOIs(agency.authority, poiFilter)?.let { agencyPOIs ->
+                dataSourceRequestManager.findPOIMs(agency.authority, poiFilter)?.let { agencyPOIs ->
                     scope.ensureActive()
                     LocationUtils.updateDistance(agencyPOIs, lat, lng)
                     LocationUtils.removeTooFar(agencyPOIs, maxDistance)

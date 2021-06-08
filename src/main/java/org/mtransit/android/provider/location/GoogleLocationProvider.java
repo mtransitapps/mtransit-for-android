@@ -259,6 +259,11 @@ public class GoogleLocationProvider
 		);
 	}
 
+	@Override
+	public void updateDistanceWithString(@Nullable LocationUtils.LocationPOI poi, @Nullable Location currentLocation) {
+		LocationUtils.updateDistanceWithString(this.appContext, poi, currentLocation);
+	}
+
 	private static class MTLocationCallback extends LocationCallback implements MTLog.Loggable {
 
 		private static final String LOG_TAG = MTLocationCallback.class.getSimpleName();

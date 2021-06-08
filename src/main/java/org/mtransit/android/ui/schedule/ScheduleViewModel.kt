@@ -64,7 +64,7 @@ class ScheduleViewModel @Inject constructor(
             MTLog.d(this, "getRouteTripStop() > SKIP (no uuid OR no authority)")
             return null
         }
-        return this.dataSourceRequestManager.findPOI(authority, POIProviderContract.Filter.getNewUUIDFilter(uuid))?.let { poim ->
+        return this.dataSourceRequestManager.findPOIM(authority, POIProviderContract.Filter.getNewUUIDFilter(uuid))?.let { poim ->
             if (poim.poi is RouteTripStop) {
                 poim.poi
             } else {

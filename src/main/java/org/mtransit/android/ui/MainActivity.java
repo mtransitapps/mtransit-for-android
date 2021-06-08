@@ -30,7 +30,6 @@ import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.fragment.ABFragment;
-import org.mtransit.android.ui.fragment.POIFragment;
 import org.mtransit.android.ui.search.SearchFragment;
 import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.util.FragmentUtils;
@@ -203,7 +202,7 @@ public class MainActivity extends MTActivityWithLocation implements
 
 	@Override
 	public boolean skipRewardedAd() {
-		return POIFragment.shouldSkipRewardedAd(this.adManager);
+		return this.adManager.shouldSkipRewardedAd();
 	}
 
 	@Override

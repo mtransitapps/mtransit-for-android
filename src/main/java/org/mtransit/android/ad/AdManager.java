@@ -290,6 +290,18 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 	}
 
+	@Override
+	public boolean shouldSkipRewardedAd() {
+		if (!isRewardedNow()) {
+			return false; // never skip for non-rewarded users
+		}
+		final long rewardedUntilInMs = getRewardedUntilInMs();
+		final long skipRewardedAdUntilInMs = TimeUtils.currentTimeMillis()
+				- TimeUnit.HOURS.toMillis(1L) // accounts for "recent" rewards
+				+ 2L * getRewardedAdAmountInMs();
+		return rewardedUntilInMs > skipRewardedAdUntilInMs;
+	}
+
 	@Nullable
 	private RewardedAdListener getRewardedAdListener() {
 		return this.rewardedAdListenerWR == null ? null : this.rewardedAdListenerWR.get();

@@ -3,6 +3,7 @@ package org.mtransit.android.datasource
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.commons.data.News
+import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.ScheduleTimestamps
 import org.mtransit.android.commons.data.Trip
@@ -13,6 +14,7 @@ import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceManager
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.JPaths
+import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.POIManager
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,11 +24,19 @@ class DataSourceRequestManager @Inject constructor(
     @ApplicationContext private val appContext: Context,
 ) {
 
-    fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POIManager? {
+    fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? {
+        return DataSourceManager.findPOI(appContext, authority, poiFilter)?.poi
+    }
+
+    fun findPOIM(authority: String, poiFilter: POIProviderContract.Filter): POIManager? {
         return DataSourceManager.findPOI(appContext, authority, poiFilter)
     }
 
-    fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POIManager>? {
+    fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI>? {
+        return DataSourceManager.findPOIs(appContext, authority, poiFilter)?.map { it.poi }
+    }
+
+    fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): List<POIManager>? {
         return DataSourceManager.findPOIs(appContext, authority, poiFilter)
     }
 
@@ -70,6 +80,8 @@ class DataSourceRequestManager @Inject constructor(
     fun findANews(authority: String, newsFilter: NewsProviderContract.Filter? = null): News? {
         return DataSourceManager.findANews(appContext, authority, newsFilter)
     }
+
+    fun findNews(newsProvider: NewsProviderProperties, newsFilter: NewsProviderContract.Filter? = null) = findNews(newsProvider.authority, newsFilter)
 
     fun findNews(authority: String, newsFilter: NewsProviderContract.Filter? = null): List<News>? {
         return DataSourceManager.findNews(appContext, authority, newsFilter)

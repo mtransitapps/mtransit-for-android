@@ -1321,7 +1321,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 				agencyShortName = mapViewController.markerLabelShowExtra ? agency.getShortName() : null;
 				uuid = poim.poi.getUUID();
 				authority = poim.poi.getAuthority();
-				color = POIManager.getNewColor(dataSourcesRepository, poim.poi, null);
+				color = poim.getColor(dataSourcesRepository);
 				secondaryColor = agency.getColorInt();
 				POIMarker currentItem = clusterItems.get(positionTrunc);
 				if (currentItem == null) {

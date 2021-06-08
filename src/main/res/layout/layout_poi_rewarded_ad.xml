@@ -5,7 +5,9 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <include layout="@layout/layout_poi_rewarded_ad_title" />
+    <include
+        android:id="@+id/rewardedAdsTitleLayout"
+        layout="@layout/layout_poi_rewarded_ad_title" />
 
     <TextView
         android:id="@+id/rewardedAdsBtn"

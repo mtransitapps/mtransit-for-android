@@ -9,11 +9,13 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.AgencyProperties.Companion.SHORT_NAME_COMPARATOR
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.DataSourceType.DataSourceTypeShortNameComparator
 import org.mtransit.android.data.NewsProviderProperties
+import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
@@ -134,9 +136,9 @@ class DataSourcesRepository @Inject constructor(
 
     fun getAllScheduleProviders() = this._scheduleProviderProperties
 
-    fun getScheduleProviders(targetAuthority: String) = this._scheduleProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
+    fun getScheduleProviders(targetAuthority: String?) = this._scheduleProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
 
-    fun readingScheduleProviders(targetAuthority: String) = dataSourcesCache.readingScheduleProviders(targetAuthority)
+    fun readingScheduleProviders(targetAuthority: String?) = dataSourcesCache.readingScheduleProviders(targetAuthority)
 
     fun getScheduleProvider(authority: String) = this._scheduleProviderProperties.singleOrNull { it.authority == authority }
 
@@ -157,6 +159,10 @@ class DataSourcesRepository @Inject constructor(
     fun readingAllNewsProviders() = dataSourcesCache.readingAllNewsProviders()
 
     fun readingAllNewsProvidersDistinct() = readingAllNewsProviders().distinctUntilChanged()
+
+    fun getNewsProviders(poim: POIManager) = getNewsProviders(poim.poi)
+
+    fun getNewsProviders(poi: POI) = getNewsProviders(poi.authority)
 
     fun getNewsProviders(targetAuthority: String) = this._newsProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
 

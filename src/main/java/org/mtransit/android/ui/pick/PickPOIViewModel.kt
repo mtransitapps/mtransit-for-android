@@ -82,7 +82,7 @@ class PickPOIViewModel @Inject constructor(
         }
         val poiList = mutableListOf<POIManager>()
         authorityToUUIDs.forEach { (authority, uuids) ->
-            dataSourceRequestManager.findPOIs(authority, POIProviderContract.Filter.getNewUUIDsFilter(uuids))?.let {
+            dataSourceRequestManager.findPOIMs(authority, POIProviderContract.Filter.getNewUUIDsFilter(uuids))?.let {
                 poiList.addAll(it)
             }
         }

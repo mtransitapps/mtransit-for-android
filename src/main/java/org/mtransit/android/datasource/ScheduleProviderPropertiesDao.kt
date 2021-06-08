@@ -25,5 +25,5 @@ interface ScheduleProviderPropertiesDao : BaseDao<ScheduleProviderProperties> {
     fun getTargetAuthorityScheduleProviders(targetAuthority: String): List<ScheduleProviderProperties>
 
     @Query("SELECT * FROM schedule_provider_properties WHERE target_authority = :targetAuthority")
-    fun readingTargetAuthorityScheduleProviders(targetAuthority: String): LiveData<List<ScheduleProviderProperties>>
+    fun readingTargetAuthorityScheduleProviders(targetAuthority: String?): LiveData<List<ScheduleProviderProperties>>
 }

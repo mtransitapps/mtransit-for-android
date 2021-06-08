@@ -2,19 +2,22 @@ package org.mtransit.android.ui.view;
 
 import android.content.Context;
 import android.view.View;
+import android.view.ViewStub;
 import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.viewbinding.ViewBinding;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.News;
+import org.mtransit.android.databinding.LayoutPoiNewsBinding;
 import org.mtransit.android.util.UITimeUtils;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class POINewsViewController implements MTLog.Loggable {
 
@@ -24,6 +27,12 @@ public class POINewsViewController implements MTLog.Loggable {
 	@Override
 	public String getLogTag() {
 		return LOG_TAG;
+	}
+
+	@NonNull
+	public static ViewBinding getLayoutViewBinding(@NonNull ViewStub viewStub) {
+		viewStub.setLayoutResource(getLayoutResId());
+		return LayoutPoiNewsBinding.bind(viewStub.inflate());
 	}
 
 	@LayoutRes
@@ -40,13 +49,13 @@ public class POINewsViewController implements MTLog.Loggable {
 		convertView.setTag(holder);
 	}
 
-	public static void updateView(@NonNull Context context, @Nullable View view, @Nullable ArrayList<News> news) {
-		updateView(context, view,
+	public static void updateView(@Nullable View view, @Nullable List<News> news) {
+		updateView(view,
 				news == null || news.size() == 0 ? null : news.get(0)
 		);
 	}
 
-	private static void updateView(@NonNull Context context, @Nullable View view, @Nullable News newsArticle) {
+	public static void updateView(@Nullable View view, @Nullable News newsArticle) {
 		if (view == null) {
 			MTLog.d(LOG_TAG, "updateView() > SKIP (no view)");
 			return;
@@ -55,10 +64,10 @@ public class POINewsViewController implements MTLog.Loggable {
 			initViewHolder(view);
 		}
 		NewsViewHolder newsViewHolder = (NewsViewHolder) view.getTag();
-		updateView(context, newsViewHolder, newsArticle);
+		updateView(view.getContext(), newsViewHolder, newsArticle);
 	}
 
-	private static void updateView(Context context, NewsViewHolder newsViewHolder, News newsArticle) {
+	private static void updateView(@NonNull Context context, @Nullable NewsViewHolder newsViewHolder, @Nullable News newsArticle) {
 		if (newsArticle == null || newsViewHolder == null) {
 			if (newsViewHolder != null) {
 				newsViewHolder.layout.setVisibility(View.GONE);
@@ -69,7 +78,7 @@ public class POINewsViewController implements MTLog.Loggable {
 		updateNewsView(context, newsViewHolder, newsArticle);
 	}
 
-	private static void updateNewsView(@NonNull Context context, NewsViewHolder holder, @Nullable News newsArticle) {
+	private static void updateNewsView(@NonNull Context context, @Nullable NewsViewHolder holder, @Nullable News newsArticle) {
 		if (holder == null) {
 			MTLog.d(LOG_TAG, "updateNewsView() > SKIP (no view holder)");
 			return;

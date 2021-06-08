@@ -18,6 +18,7 @@ import org.mtransit.android.datasource.DataSourcesRepository;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -70,7 +71,7 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 		}
 	}
 
-	public boolean findServiceUpdate(@NonNull Context context,
+	public boolean findServiceUpdate(@Nullable Context context,
 									 @NonNull POIManager poim,
 									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter,
 									 @Nullable ServiceUpdateLoaderListener listener,
@@ -98,16 +99,24 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 			return LOG_TAG;
 		}
 
+		@NonNull
 		private final WeakReference<Context> contextWR;
+		@NonNull
 		private final ServiceUpdateProviderProperties serviceUpdateProvider;
+		@NonNull
 		private final WeakReference<POIManager> poiWR;
-		private final ServiceUpdateLoader.ServiceUpdateLoaderListener listener;
+		@NonNull
+		private final WeakReference<ServiceUpdateLoader.ServiceUpdateLoaderListener> listenerWR;
+		@NonNull
 		private final ServiceUpdateProviderContract.Filter serviceUpdateFilter;
 
-		ServiceUpdateFetcherCallable(Context context, ServiceUpdateLoader.ServiceUpdateLoaderListener listener,
-									 ServiceUpdateProviderProperties serviceUpdateProvider, POIManager poim, ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
+		ServiceUpdateFetcherCallable(@Nullable Context context,
+									 @Nullable ServiceUpdateLoader.ServiceUpdateLoaderListener listener,
+									 @NonNull ServiceUpdateProviderProperties serviceUpdateProvider,
+									 @Nullable POIManager poim,
+									 @NonNull ServiceUpdateProviderContract.Filter serviceUpdateFilter) {
 			this.contextWR = new WeakReference<>(context);
-			this.listener = listener;
+			this.listenerWR = new WeakReference<>(listener);
 			this.serviceUpdateProvider = serviceUpdateProvider;
 			this.poiWR = new WeakReference<>(poim);
 			this.serviceUpdateFilter = serviceUpdateFilter;
@@ -128,11 +137,12 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 			if (result == null) {
 				return;
 			}
-			POIManager poim = this.poiWR == null ? null : this.poiWR.get();
+			final POIManager poim = this.poiWR.get();
 			if (poim == null) {
 				return;
 			}
 			poim.setServiceUpdates(result);
+			final ServiceUpdateLoader.ServiceUpdateLoaderListener listener = this.listenerWR.get();
 			if (listener == null) {
 				return;
 			}
@@ -141,15 +151,12 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 
 		@Nullable
 		ArrayList<ServiceUpdate> call() {
-			Context context = this.contextWR == null ? null : this.contextWR.get();
+			final Context context = this.contextWR.get();
 			if (context == null) {
 				return null;
 			}
-			POIManager poim = this.poiWR == null ? null : this.poiWR.get();
+			final POIManager poim = this.poiWR.get();
 			if (poim == null) {
-				return null;
-			}
-			if (this.serviceUpdateFilter == null) {
 				return null;
 			}
 			return DataSourceManager.findServiceUpdates(context, this.serviceUpdateProvider.getAuthority(), this.serviceUpdateFilter);
@@ -191,6 +198,6 @@ public class ServiceUpdateLoader implements MTLog.Loggable {
 	}
 
 	public interface ServiceUpdateLoaderListener {
-		void onServiceUpdatesLoaded(@NonNull String targetUUID, @Nullable ArrayList<ServiceUpdate> serviceUpdates);
+		void onServiceUpdatesLoaded(@NonNull String targetUUID, @Nullable List<ServiceUpdate> serviceUpdates);
 	}
 }

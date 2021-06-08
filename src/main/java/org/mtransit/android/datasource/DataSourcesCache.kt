@@ -60,7 +60,7 @@ class DataSourcesCache @Inject constructor(
 
     fun getScheduleProviders(targetAuthority: String) = scheduleProviderPropertiesDao().getTargetAuthorityScheduleProviders(targetAuthority)
 
-    fun readingScheduleProviders(targetAuthority: String) = scheduleProviderPropertiesDao().readingTargetAuthorityScheduleProviders(targetAuthority)
+    fun readingScheduleProviders(targetAuthority: String?) = scheduleProviderPropertiesDao().readingTargetAuthorityScheduleProviders(targetAuthority)
 
     fun getScheduleProvider(authority: String) = scheduleProviderPropertiesDao().getScheduleProvider(authority)
 

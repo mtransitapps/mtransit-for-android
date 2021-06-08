@@ -50,17 +50,23 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	private static final String TAG = POIManager.class.getSimpleName();
+
+	private static final String PKG_COMMON = "org.mtransit.android.";
 
 	@SuppressWarnings("ConstantConditions")
 	@NonNull
 	@Override
 	public String getLogTag() {
 		if (this.poi != null) {
-			return TAG + "-" + this.poi.getUUID();
+			final String uuid = this.poi.getUUID();
+			final int index = uuid.indexOf(PKG_COMMON);
+			return TAG + "-" + (index == -1 ? uuid : uuid.substring(index + PKG_COMMON.length()));
 		}
 		return TAG;
 	}
@@ -292,11 +298,11 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	@Nullable
-	public ArrayList<ServiceUpdate> getServiceUpdatesOrNull() {
+	public List<ServiceUpdate> getServiceUpdatesOrNull() {
 		return this.serviceUpdates;
 	}
 
-	public boolean isServiceUpdateWarning(@NonNull Context context,
+	public boolean isServiceUpdateWarning(@Nullable Context context,
 										  @NonNull ServiceUpdateLoader serviceUpdateLoader) {
 		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
 			findServiceUpdates(context, serviceUpdateLoader, false);
@@ -305,7 +311,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	@Nullable
-	public ArrayList<ServiceUpdate> getServiceUpdates(@NonNull Context context,
+	public ArrayList<ServiceUpdate> getServiceUpdates(@Nullable Context context,
 													  @NonNull ServiceUpdateLoader serviceUpdateLoader) {
 		if (this.serviceUpdates == null || this.lastFindServiceUpdateTimestampMs < 0L || this.inFocus || !areServiceUpdatesUseful()) {
 			findServiceUpdates(context, serviceUpdateLoader, false);
@@ -328,7 +334,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private long lastFindServiceUpdateTimestampMs = -1;
 
 	@SuppressWarnings("UnusedReturnValue")
-	private boolean findServiceUpdates(@NonNull Context context,
+	private boolean findServiceUpdates(@Nullable Context context,
 									   @NonNull ServiceUpdateLoader serviceUpdateLoader,
 									   @SuppressWarnings("SameParameterValue") boolean skipIfBusy) {
 		long findServiceUpdateTimestampMs = UITimeUtils.currentTimeToTheMinuteMillis();
@@ -468,7 +474,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 							null,
 							this.poi.getLat(),
 							this.poi.getLng(),
-							getOneLineDescription(dataSourcesRepository, this.poi),
+							getNewOneLineDescription(this.poi, dataSourcesRepository),
 							getColor(dataSourcesRepository)
 					)
 			);
@@ -482,20 +488,55 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private Integer color = null;
 
 	@ColorInt
-	public int getColor(@NonNull DataSourcesRepository dataSourcesRepository) {
+	public int getColor(@Nullable DataSourcesRepository dataSourcesRepository) {
+		return getColor(() -> dataSourcesRepository != null ? dataSourcesRepository.getAgency(poi.getAuthority()) : null);
+	}
+
+	@ColorInt
+	public int getColor(@NonNull AgencyResolver agencyResolver) {
 		if (this.color == null) {
-			this.color = getNewColor(dataSourcesRepository, this.poi, null);
-		}
-		if (this.color == null) {
-			return Color.BLACK; // default
+			this.color = getNewColor(this.poi, agencyResolver);
 		}
 		return this.color;
 	}
 
+	@ColorInt
+	public static int getNewColor(@NonNull POI poi, @NonNull AgencyResolver agencyResolver) {
+		final Integer newColor = getNewColor(poi, agencyResolver, null);
+		if (newColor == null) {
+			return Color.BLACK; // default
+		}
+		return newColor;
+	}
+
 	@Nullable
 	@ColorInt
-	public static Integer getNewColor(@NonNull DataSourcesRepository dataSourcesRepository,
-									  @Nullable POI poi,
+	public static Integer getNewColor(@Nullable POI poi,
+									  @Nullable DataSourcesRepository dataSourcesRepository,
+									  @Nullable Integer defaultColor) {
+		return getNewColor(
+				poi,
+				() -> dataSourcesRepository != null && poi != null ? dataSourcesRepository.getAgency(poi.getAuthority()) : null,
+				defaultColor
+		);
+	}
+
+	@Nullable
+	@ColorInt
+	public static Integer getNewColor(@Nullable POI poi,
+									  @Nullable AgencyProperties agency,
+									  @Nullable Integer defaultColor) {
+		return getNewColor(
+				poi,
+				() -> agency,
+				defaultColor
+		);
+	}
+
+	@Nullable
+	@ColorInt
+	public static Integer getNewColor(@Nullable POI poi,
+									  @NonNull AgencyResolver agencyResolver,
 									  @Nullable Integer defaultColor) {
 		if (poi != null) {
 			if (poi instanceof RouteTripStop) {
@@ -505,7 +546,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			} else if (poi instanceof Module) {
 				return ((Module) poi).getColorInt();
 			}
-			final AgencyProperties agency = dataSourcesRepository.getAgency(poi.getAuthority());
+			final AgencyProperties agency = agencyResolver.getAgency();
 			if (agency != null) {
 				return agency.getColorInt();
 			}
@@ -515,35 +556,50 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@Nullable
 	@ColorInt
-	public static Integer getNewRouteColor(@NonNull DataSourcesRepository dataSourcesRepository,
+	public static Integer getNewRouteColor(@Nullable DataSourcesRepository dataSourcesRepository,
 										   @Nullable Route route,
 										   @Nullable String authority,
 										   @Nullable Integer defaultColor) {
+		return getNewRouteColor(route, defaultColor, () -> dataSourcesRepository != null && authority != null ? dataSourcesRepository.getAgency(authority) : null);
+	}
+
+	@Nullable
+	@ColorInt
+	public static Integer getNewRouteColor(@Nullable Route route,
+										   @Nullable Integer defaultColor,
+										   @NonNull AgencyResolver agencyResolver) {
 		if (route != null) {
 			if (route.hasColor()) {
 				return route.getColorInt();
 			}
 		}
-		if (authority != null) {
-			Integer agencyColorInt = dataSourcesRepository.getAgencyColorInt(authority);
-			if (agencyColorInt != null) {
-				return agencyColorInt;
-			}
+		final AgencyProperties agency = agencyResolver.getAgency();
+		final Integer agencyColorInt = agency == null ? null : agency.getColorInt();
+		if (agencyColorInt != null) {
+			return agencyColorInt;
 		}
 		return defaultColor;
 	}
 
 	@ColorInt
-	public static int getRouteColorNN(@NonNull DataSourcesRepository dataSourcesRepository,
+	public static int getRouteColorNN(@Nullable DataSourcesRepository dataSourcesRepository,
 									  @Nullable Route route,
-									  @NonNull String authority,
+									  @Nullable String authority,
 									  int defaultColor) {
+		return getRouteColorNN(route, defaultColor, () -> dataSourcesRepository != null && authority != null ? dataSourcesRepository.getAgency(authority) : null);
+	}
+
+	@ColorInt
+	public static int getRouteColorNN(@Nullable Route route,
+									  int defaultColor,
+									  @NonNull AgencyResolver agencyResolver) {
 		if (route != null) {
 			if (route.hasColor()) {
 				return route.getColorInt();
 			}
 		}
-		Integer agencyColorInt = dataSourcesRepository.getAgencyColorInt(authority);
+		final AgencyProperties agency = agencyResolver.getAgency();
+		final Integer agencyColorInt = agency == null ? null : agency.getColorInt();
 		if (agencyColorInt != null) {
 			return agencyColorInt;
 		}
@@ -552,18 +608,29 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@MainThread
 	@NonNull
-	public static String getOneLineDescription(@NonNull DataSourcesRepository dataSourcesRepository,
-											   @NonNull POI poi) {
-		return getOneLineDescription(
-				dataSourcesRepository.getAgency(poi.getAuthority()),
-				poi
-		);
+	public String getNewOneLineDescription(@NonNull DataSourcesRepository dataSourcesRepository) {
+		return getNewOneLineDescription(this.poi, dataSourcesRepository);
 	}
 
 	@MainThread
 	@NonNull
-	public static String getOneLineDescription(@Nullable AgencyProperties agency,
-											   @NonNull POI poi) {
+	public static String getNewOneLineDescription(@NonNull POI poi, @NonNull DataSourcesRepository dataSourcesRepository) {
+		return getNewOneLineDescription(poi, () -> dataSourcesRepository.getAgency(poi.getAuthority()));
+	}
+
+	@MainThread
+	@NonNull
+	public String getNewOneLineDescription(@Nullable AgencyProperties agency) {
+		return getNewOneLineDescription(this.poi, agency);
+	}
+
+	@NonNull
+	public static String getNewOneLineDescription(@NonNull POI poi, @Nullable AgencyProperties agency) {
+		return getNewOneLineDescription(poi, () -> agency);
+	}
+
+	@NonNull
+	public static String getNewOneLineDescription(@NonNull POI poi, @NonNull AgencyResolver agencyResolver) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(poi.getName());
 		if (poi instanceof RouteTripStop) {
@@ -580,6 +647,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				sb.append(rts.getRoute().getLongName());
 			}
 		}
+		final AgencyProperties agency = agencyResolver.getAgency();
 		if (agency != null) {
 			if (sb.length() > 0) {
 				sb.append(StringUtils.SPACE_STRING).append("-").append(StringUtils.SPACE_STRING);
@@ -621,7 +689,11 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	public boolean isFavoritable() {
-		switch (this.poi.getActionsType()) {
+		return isFavoritable(this.poi);
+	}
+
+	public static boolean isFavoritable(@NonNull POI poi) {
+		switch (poi.getActionsType()) {
 		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
 		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
 			return true;
@@ -630,7 +702,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_ACTION_TYPE_PLACE:
 			return false;
 		default:
-			MTLog.w(this, "unexpected action type '%s'!", this.poi.getActionsType());
+			MTLog.w(TAG, "unexpected action type '%s'!", poi.getActionsType());
 			return false;
 		}
 	}
@@ -678,8 +750,13 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			AgencyProperties agencyProperties = dataSourcesRepository.getAgency(this.poi.getAuthority());
-			((MainActivity) activity).addFragmentToStack(POIFragment.newInstance(this.poi.getUUID(), this.poi.getAuthority(), agencyProperties, this));
+			// AgencyProperties agencyProperties = dataSourcesR epository.getAgency(this.poi.getAuthority());
+			((MainActivity) activity).addFragmentToStack(POIFragment.newInstance(
+					this.poi.getUUID(),
+					this.poi.getAuthority(),
+					dataSourcesRepository.getAgency(this.poi.getAuthority()),
+					this
+			));
 			// reset to defaults, so the POI is updated when coming back in the current screen
 			resetLastFindTimestamps();
 			return true; // HANDLED
@@ -765,7 +842,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 	}
 
-	static POIManager fromCursorStatic(Cursor cursor, String authority) {
+	@NonNull
+	static POIManager fromCursorStatic(@NonNull Cursor cursor, @NonNull String authority) {
 		switch (DefaultPOI.getTypeFromCursor(cursor)) {
 		case POI.ITEM_VIEW_TYPE_BASIC_POI:
 			return new POIManager(DefaultPOI.fromCursorStatic(cursor, authority));
@@ -796,6 +874,46 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return this.poi.hasLocation();
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		POIManager that = (POIManager) o;
+
+		if (Float.compare(that.distance, distance) != 0) return false;
+		if (inFocus != that.inFocus) return false;
+		if (lastFindStatusTimestampMs != that.lastFindStatusTimestampMs) return false;
+		if (scheduleMaxDataRequests != that.scheduleMaxDataRequests) return false;
+		if (lastFindServiceUpdateTimestampMs != that.lastFindServiceUpdateTimestampMs) return false;
+		if (!poi.equals(that.poi)) return false;
+		if (!Objects.equals(distanceString, that.distanceString)) return false;
+		if (!Objects.equals(status, that.status)) return false;
+		if (!Objects.equals(serviceUpdates, that.serviceUpdates)) return false;
+		if (!Objects.equals(statusLoaderListenerWR, that.statusLoaderListenerWR)) return false;
+		if (!Objects.equals(serviceUpdateLoaderListenerWR, that.serviceUpdateLoaderListenerWR))
+			return false;
+		return Objects.equals(color, that.color);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = 0;
+		result = 31 * result + poi.hashCode();
+		result = 31 * result + (distanceString != null ? distanceString.hashCode() : 0);
+		result = 31 * result + (distance != +0.0f ? Float.floatToIntBits(distance) : 0);
+		result = 31 * result + (status != null ? status.hashCode() : 0);
+		result = 31 * result + (serviceUpdates != null ? serviceUpdates.hashCode() : 0);
+		result = 31 * result + (inFocus ? 1 : 0);
+		result = 31 * result + (int) (lastFindStatusTimestampMs ^ (lastFindStatusTimestampMs >>> 32));
+		result = 31 * result + (statusLoaderListenerWR != null ? statusLoaderListenerWR.hashCode() : 0);
+		result = 31 * result + scheduleMaxDataRequests;
+		result = 31 * result + (serviceUpdateLoaderListenerWR != null ? serviceUpdateLoaderListenerWR.hashCode() : 0);
+		result = 31 * result + (int) (lastFindServiceUpdateTimestampMs ^ (lastFindServiceUpdateTimestampMs >>> 32));
+		result = 31 * result + (color != null ? color.hashCode() : 0);
+		return result;
+	}
+
 	private static class POIAlphaComparator implements Comparator<POIManager> {
 		@Override
 		public int compare(POIManager lhs, POIManager rhs) {
@@ -811,5 +929,10 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			}
 			return lhsPoi.compareToAlpha(null, rhsPoi);
 		}
+	}
+
+	public interface AgencyResolver {
+		@Nullable
+		AgencyProperties getAgency();
 	}
 }

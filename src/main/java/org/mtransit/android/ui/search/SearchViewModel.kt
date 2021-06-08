@@ -192,7 +192,7 @@ class SearchViewModel @Inject constructor(
         }
         val pois: List<POIManager>
         withContext(Dispatchers.IO) {
-            pois = dataSourceRequestManager.findPOIs(agency.authority, poiFilter).orEmpty()
+            pois = dataSourceRequestManager.findPOIMs(agency.authority, poiFilter).orEmpty()
         }
         return pois
     }

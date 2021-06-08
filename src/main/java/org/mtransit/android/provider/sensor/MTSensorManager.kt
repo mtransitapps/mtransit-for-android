@@ -23,12 +23,12 @@ interface MTSensorManager {
 
     fun updateCompass(
         force: Boolean,
-        userLocation: Location?,
+        deviceLocation: Location?,
         roundedOrientation: Int,
         now: Long,
         scrollState: Int,
         lastCompassChanged: Long,
-        lastCompassInDegree: Int,
+        lastCompassInDegree: Int?,
         minThresholdInMs: Long,
         sensorTaskCompleted: SensorTaskCompleted
     )

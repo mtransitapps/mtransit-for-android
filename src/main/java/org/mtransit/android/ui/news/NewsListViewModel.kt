@@ -111,7 +111,7 @@ class NewsListViewModel @Inject constructor(
         allNewsProviders.filter {
             targetAuthorities == null || targetAuthorities.contains(it.targetAuthority)
         }.forEach { newsProvider ->
-            dataSourceRequestManager.findNews(newsProvider.authority, filter)?.forEach { providerNewsArticle ->
+            dataSourceRequestManager.findNews(newsProvider, filter)?.forEach { providerNewsArticle ->
                 if (!newsUUIDs.contains(providerNewsArticle.uuid)) {
                     newsArticles.add(providerNewsArticle)
                     newsUUIDs.add(providerNewsArticle.uuid)

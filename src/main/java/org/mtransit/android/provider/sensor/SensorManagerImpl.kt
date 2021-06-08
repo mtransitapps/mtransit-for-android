@@ -185,16 +185,16 @@ class SensorManagerImpl @Inject constructor(
 
     override fun updateCompass(
         force: Boolean,
-        userLocation: Location?,
+        deviceLocation: Location?,
         roundedOrientation: Int,
         now: Long,
         scrollState: Int,
         lastCompassChanged: Long,
-        lastCompassInDegree: Int,
+        lastCompassInDegree: Int?,
         minThresholdInMs: Long,
         sensorTaskCompleted: MTSensorManager.SensorTaskCompleted
     ) {
-        if (userLocation == null || roundedOrientation < 0) {
+        if (deviceLocation == null || roundedOrientation < 0 || lastCompassInDegree == null) {
             sensorTaskCompleted.onSensorTaskCompleted(false, roundedOrientation, now)
             return
         }

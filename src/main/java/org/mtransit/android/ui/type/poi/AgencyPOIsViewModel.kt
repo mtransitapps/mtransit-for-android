@@ -59,7 +59,7 @@ class AgencyPOIsViewModel @Inject constructor(
         if (authority.isNullOrEmpty()) {
             return null
         }
-        return dataSourceRequestManager.findPOIs(authority, POIProviderContract.Filter.getNewEmptyFilter())
+        return dataSourceRequestManager.findPOIMs(authority, POIProviderContract.Filter.getNewEmptyFilter())
     }
 
     val showingListInsteadOfMap: LiveData<Boolean?> = _authority.switchMap { authority ->

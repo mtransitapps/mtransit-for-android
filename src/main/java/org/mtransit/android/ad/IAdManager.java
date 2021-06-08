@@ -50,6 +50,8 @@ public interface IAdManager {
 
 	void openAdInspector();
 
+	boolean shouldSkipRewardedAd();
+
 	interface RewardedAdListener {
 		void onRewardedAdStatusChanged();
 

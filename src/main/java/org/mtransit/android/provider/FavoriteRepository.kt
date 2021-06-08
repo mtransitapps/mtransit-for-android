@@ -1,6 +1,7 @@
 package org.mtransit.android.provider
 
 import android.content.Context
+import androidx.annotation.WorkerThread
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.R
 import org.mtransit.android.commons.data.POI
@@ -29,6 +30,11 @@ class FavoriteRepository @Inject constructor(
 
     fun findFoldersList(): List<Favorite.Folder> {
         return favoriteManager.findFoldersList(appContext)
+    }
+
+    @WorkerThread
+    fun isFavorite(fkId: String): Boolean {
+        return favoriteManager.isFavorite(appContext, fkId)
     }
 
     @Suppress("MemberVisibilityCanBePrivate")

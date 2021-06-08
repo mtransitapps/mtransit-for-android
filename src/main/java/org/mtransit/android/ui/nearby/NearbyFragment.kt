@@ -22,6 +22,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ToastUtils
+import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentNearbyBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.ui.MTActivityWithLocation
@@ -46,6 +48,21 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         ): NearbyFragment {
             return newInstance(
                 optTypeId = optTypeId,
+            )
+        }
+
+        @JvmOverloads
+        @JvmStatic
+        fun newFixedOnInstance(
+            poim: POIManager,
+            optAgency: AgencyProperties? = null,
+        ): NearbyFragment {
+            return newFixedOnInstance(
+                optTypeId = optAgency?.type?.id,
+                fixedOnLat = poim.lat,
+                fixedOnLng = poim.lng,
+                fixedOnName = poim.getNewOneLineDescription(optAgency),
+                optFixedOnColorInt = poim.getColor { optAgency }
             )
         }
 

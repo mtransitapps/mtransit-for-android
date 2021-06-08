@@ -506,8 +506,8 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 					getShortTimeSpanStringStyle(context, shortTimeSpan2SSB, isOldSchedule));
 		} else { // < 99 minutes
 			if (isOldSchedule) {
-				shortTimeSpan1SSB = SpanUtils.setAllNN(shortTimeSpan1SSB, SpanUtils.getNewItalicStyleSpan());
-				shortTimeSpan2SSB = SpanUtils.setAllNN(shortTimeSpan2SSB, SpanUtils.getNewItalicStyleSpan());
+				SpanUtils.setAllNN(shortTimeSpan1SSB, SpanUtils.getNewItalicStyleSpan());
+				SpanUtils.setAllNN(shortTimeSpan2SSB, SpanUtils.getNewItalicStyleSpan());
 			}
 			return new Pair<>(shortTimeSpan1SSB, shortTimeSpan2SSB);
 		}

@@ -13,6 +13,7 @@ import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import androidx.collection.SparseArrayCompat;
 
 import org.mtransit.android.R;
@@ -123,6 +124,7 @@ public class FavoriteManager implements MTLog.Loggable {
 		return favoriteFolderId + DataSourceType.MAX_ID;
 	}
 
+	@WorkerThread
 	public int findFavoriteFolderId(@NonNull Context context, @NonNull String fkId) {
 		Favorite favorite = findFavorite(context, fkId);
 		if (favorite == null) {
@@ -131,6 +133,7 @@ public class FavoriteManager implements MTLog.Loggable {
 		return favorite.getFolderId();
 	}
 
+	@WorkerThread
 	public boolean isFavorite(@NonNull Context context, @NonNull String fkId) {
 		return findFavorite(context, fkId) != null;
 	}
@@ -142,6 +145,7 @@ public class FavoriteManager implements MTLog.Loggable {
 		return new POIManager(textMessage);
 	}
 
+	@WorkerThread
 	@Nullable
 	private Favorite findFavorite(@NonNull Context context, @NonNull String fkId) {
 		Favorite favorite = null;
@@ -164,6 +168,7 @@ public class FavoriteManager implements MTLog.Loggable {
 	}
 
 	@SuppressWarnings("SameParameterValue")
+	@WorkerThread
 	@Nullable
 	private static Favorite findFavorite(@NonNull Context context, @NonNull Uri uri, @Nullable String selection) {
 		Favorite cache = null;
@@ -199,6 +204,7 @@ public class FavoriteManager implements MTLog.Loggable {
 		return favoriteUUIDs;
 	}
 
+	@WorkerThread
 	@NonNull
 	public ArrayList<Favorite> findFavorites(@NonNull Context context) {
 		ArrayList<Favorite> result = new ArrayList<>();
@@ -314,6 +320,7 @@ public class FavoriteManager implements MTLog.Loggable {
 	}
 
 	@SuppressWarnings("SameParameterValue")
+	@WorkerThread
 	private void addOrDeleteFavorite(@NonNull Context context, boolean isFavorite, String fkId, int folderId, @Nullable FavoriteUpdateListener listener) {
 		if (isFavorite) { // WAS FAVORITE => TRY TO DELETE
 			deleteFavorite(context, fkId, folderId, listener);
@@ -350,6 +357,7 @@ public class FavoriteManager implements MTLog.Loggable {
 		return findFavorite(context, uri, null);
 	}
 
+	@WorkerThread
 	private void deleteFavorite(@NonNull Context context, String fkId, int folderId, @Nullable FavoriteUpdateListener listener) {
 		Favorite findFavorite = findFavorite(context, fkId);
 		if (findFavorite == null) {
@@ -383,6 +391,7 @@ public class FavoriteManager implements MTLog.Loggable {
 		return Uri.withAppendedPath(getAuthorityUri(context), FAVORITE_CONTENT_DIRECTORY);
 	}
 
+	@WorkerThread
 	@NonNull
 	public static SparseArrayCompat<Favorite.Folder> findFolders(@NonNull Context context) {
 		SparseArrayCompat<Favorite.Folder> result = new SparseArrayCompat<>();
@@ -412,6 +421,7 @@ public class FavoriteManager implements MTLog.Loggable {
 		return result;
 	}
 
+	@WorkerThread
 	@NonNull
 	public List<Favorite.Folder> findFoldersList(@NonNull Context context) {
 		List<Favorite.Folder> result = new ArrayList<>();
@@ -470,6 +480,7 @@ public class FavoriteManager implements MTLog.Loggable {
 				.show();
 	}
 
+	@WorkerThread
 	@Nullable
 	private Favorite.Folder addFolder(@NonNull Context context, @NonNull String newFolderName, @Nullable FavoriteUpdateListener listener) {
 		if (TextUtils.isEmpty(newFolderName)) {
@@ -494,6 +505,7 @@ public class FavoriteManager implements MTLog.Loggable {
 	}
 
 	@SuppressWarnings("SameParameterValue")
+	@WorkerThread
 	@Nullable
 	private Favorite.Folder findFolder(@NonNull Context context, @NonNull Uri uri, @Nullable String selection) {
 		Favorite.Folder cache = null;

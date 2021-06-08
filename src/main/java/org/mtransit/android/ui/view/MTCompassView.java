@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -7,6 +8,9 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.location.Location;
 import android.util.AttributeSet;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
@@ -19,6 +23,7 @@ public class MTCompassView extends MTView {
 
 	private static final String TAG = MTCompassView.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;
@@ -36,17 +41,17 @@ public class MTCompassView extends MTView {
 
 	private Path headingArrayPath;
 
-	public MTCompassView(Context context) {
+	public MTCompassView(@NonNull Context context) {
 		super(context);
 		init();
 	}
 
-	public MTCompassView(Context context, AttributeSet attrs) {
+	public MTCompassView(@NonNull Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
 		init();
 	}
 
-	public MTCompassView(Context context, AttributeSet attrs, int defStyle) {
+	public MTCompassView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		init();
 	}
@@ -67,7 +72,7 @@ public class MTCompassView extends MTView {
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas) {
+	protected void onDraw(@SuppressLint("UnknownNullness") Canvas canvas) {
 		super.onDraw(canvas);
 		if (this.headingInDegree >= 0) {
 			canvas.rotate(this.headingInDegree, this.boundsExactCenterX, this.boundsExactCenterY);
@@ -118,10 +123,19 @@ public class MTCompassView extends MTView {
 		return path;
 	}
 
+	@Nullable
 	private Double lat;
+	@Nullable
 	private Double lng;
 
-	public void generateAndSetHeading(Location location, int lastCompassInDegree, float locationDeclination) {
+	public void generateAndSetHeadingN(@Nullable Location location, @Nullable Integer lastCompassInDegree, @Nullable Float locationDeclination) {
+		if (locationDeclination == null || lastCompassInDegree == null) {
+			return;
+		}
+		generateAndSetHeading(location, lastCompassInDegree, locationDeclination);
+	}
+
+	public void generateAndSetHeading(@Nullable Location location, int lastCompassInDegree, float locationDeclination) {
 		if (this.lat == null || this.lng == null || location == null) {
 			return;
 		}
@@ -129,7 +143,7 @@ public class MTCompassView extends MTView {
 		setHeadingInDegree((int) compassRotation);
 	}
 
-	public void setLatLng(Double lat, Double lng) {
+	public void setLatLng(@Nullable Double lat, @Nullable Double lng) {
 		this.lat = lat;
 		this.lng = lng;
 	}

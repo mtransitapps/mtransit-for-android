@@ -914,7 +914,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	@Override
-	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @Nullable ArrayList<ServiceUpdate> serviceUpdates) {
+	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @Nullable List<ServiceUpdate> serviceUpdates) {
 		if (this.showServiceUpdate) {
 			CommonStatusViewHolder statusViewHolder = this.poiStatusViewHoldersWR.get(targetUUID);
 			if (statusViewHolder != null && targetUUID.equals(statusViewHolder.uuid)) {

@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentScheduleBinding
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -31,9 +32,20 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
             dataSourcesRepository: DataSourcesRepository,
         ): ScheduleFragment {
             return newInstance(
-                poim.poi.uuid,
-                poim.poi.authority,
+                poim.poi,
                 poim.getColor(dataSourcesRepository),
+            )
+        }
+
+        @JvmStatic
+        fun newInstance(
+            poi: POI,
+            colorInt: Int?,
+        ): ScheduleFragment {
+            return newInstance(
+                poi.uuid,
+                poi.authority,
+                colorInt,
             )
         }
 
@@ -129,7 +141,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
     override fun getABTitle(context: Context?) = context?.getString(R.string.full_schedule) ?: super.getABTitle(context)
 
     override fun getABSubtitle(context: Context?) = viewModel.rts.value?.let { rts ->
-        POIManager.getOneLineDescription(viewModel.agency.value, rts)
+        POIManager.getNewOneLineDescription(rts, viewModel.agency.value)
     } ?: super.getABSubtitle(context)
 
     override fun getABBgColor(context: Context?) = viewModel.colorInt.value ?: super.getABBgColor(context)
