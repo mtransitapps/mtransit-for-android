@@ -3,22 +3,28 @@ package org.mtransit.android.ui.fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
+import org.mtransit.android.commons.provider.NewsProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
+import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.util.UITimeUtils
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
 class POIViewModel @Inject constructor(
+    private val dataSourcesRepository: DataSourcesRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
 ) : ViewModel(), MTLog.Loggable {
 
@@ -92,5 +98,41 @@ class POIViewModel @Inject constructor(
             }
         }
         return nearbyPOIs.take(LocationUtils.MAX_POI_NEARBY_POIS_LIST)
+    }
+
+    val latestNewsArticleList: LiveData<List<News>?> = poi.switchMap { poi ->
+        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+            emit(getLatestNewsArticles(poi))
+        }
+    }
+
+    private fun getLatestNewsArticles(poi: POI?): List<News>? {
+        if (poi == null) {
+            return null
+        }
+        val nowInMs = UITimeUtils.currentTimeMillis()
+        val last2Weeks = nowInMs - TimeUnit.DAYS.toMillis(14L)
+        val newsFilter = NewsProviderContract.Filter
+            .getNewTargetFilter(poi)
+            .setMinCreatedAtInMs(last2Weeks)
+        val allNews = dataSourcesRepository.getNewsProviders(poi)
+            .mapNotNull { newsProvider ->
+                this.dataSourceRequestManager.findNews(newsProvider, newsFilter)
+            }.flatten()
+            .toMutableList()
+        allNews.sortWith(News.NEWS_SEVERITY_COMPARATOR)
+        val selectedNews = mutableListOf<News>()
+        var noteworthiness = 1L
+        while (selectedNews.isEmpty() && noteworthiness < 10L) {
+            for (news in allNews) {
+                if (news.createdAtInMs + news.noteworthyInMs * noteworthiness < nowInMs) {
+                    continue  // news too old to be worthy
+                }
+                selectedNews.add(0, news)
+                break // found news article
+            }
+            noteworthiness++
+        }
+        return selectedNews
     }
 }
