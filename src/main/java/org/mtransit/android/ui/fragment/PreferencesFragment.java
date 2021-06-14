@@ -12,6 +12,7 @@ import android.preference.PreferenceFragment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.mtransit.android.BuildConfig;
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
 import org.mtransit.android.billing.BillingUtils;
@@ -525,9 +526,11 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 		if (aboutAppVersionPref == null) {
 			return;
 		}
-		aboutAppVersionPref.setSummary("" //
-				+ " v" + PackageManagerUtils.getAppVersionName(context) //
-				+ " (" + PackageManagerUtils.getAppVersionCode(context) + ")");
+		aboutAppVersionPref.setSummary("" +
+				" v" + PackageManagerUtils.getAppVersionName(context) +
+				" r" + PackageManagerUtils.getAppVersionCode(context) +
+				" (" + BuildConfig.GIT_HASH + ")"
+		);
 	}
 
 	@Override
