@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.commons.provider.POIProviderContract
-import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -49,8 +49,8 @@ class ScheduleViewModel @Inject constructor(
 
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
 
-    val agency: LiveData<AgencyProperties?> = this.authority.switchMap { authority ->
-        this.dataSourcesRepository.readingAgency(authority)
+    val agency: LiveData<AgencyBaseProperties?> = this.authority.switchMap { authority ->
+        this.dataSourcesRepository.readingAgencyBase(authority)
     }
 
     val rts: LiveData<RouteTripStop?> = PairMediatorLiveData(authority, uuid).switchMap { (authority, uuid) ->
@@ -78,7 +78,7 @@ class ScheduleViewModel @Inject constructor(
         }
     }
 
-    fun onPagetSelected(@Suppress("UNUSED_PARAMETER") position: Int) {
+    fun onPageSelected(@Suppress("UNUSED_PARAMETER") position: Int) {
         this.statusLoader.clearAllTasks()
         this.serviceUpdateLoader.clearAllTasks()
     }

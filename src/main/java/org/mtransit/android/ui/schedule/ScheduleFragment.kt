@@ -81,7 +81,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
-            viewModel.onPagetSelected(position)
+            viewModel.onPageSelected(position)
             lastPageSelected = position
         }
     }

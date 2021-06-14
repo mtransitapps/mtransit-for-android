@@ -22,7 +22,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ToastUtils
-import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentNearbyBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
@@ -55,7 +55,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         @JvmStatic
         fun newFixedOnInstance(
             poim: POIManager,
-            optAgency: AgencyProperties? = null,
+            optAgency: IAgencyUIProperties? = null,
         ): NearbyFragment {
             return newFixedOnInstance(
                 optTypeId = optAgency?.type?.id,
@@ -125,7 +125,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
-            viewModel.onPagetSelected(position)
+            viewModel.onPageSelected(position)
             lastPageSelected = position
         }
 

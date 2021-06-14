@@ -47,7 +47,7 @@ import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
-import org.mtransit.android.data.AgencyProperties;
+import org.mtransit.android.data.IAgencyUIProperties;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.ui.MainActivity;
@@ -1305,7 +1305,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			String authority;
 			Integer color;
 			Integer secondaryColor;
-			AgencyProperties agency;
+			IAgencyUIProperties agency;
 			for (POIManager poim : pois) {
 				position = POIMarker.getLatLng(poim);
 				positionTrunc = POIMarker.getLatLngTrunc(poim);

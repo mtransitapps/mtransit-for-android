@@ -2,7 +2,6 @@ package org.mtransit.android.ui.type.rts
 
 import androidx.recyclerview.widget.DiffUtil
 import org.mtransit.android.commons.data.Route
-import org.mtransit.android.data.AgencyProperties
 
 object RoutesDiffCallback : DiffUtil.ItemCallback<Route>() {
 

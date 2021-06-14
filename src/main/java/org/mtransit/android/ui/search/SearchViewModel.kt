@@ -22,8 +22,8 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
-import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -55,7 +55,7 @@ class SearchViewModel @Inject constructor(
         list.filter { dst -> dst.isSearchable }
     }
 
-    private val _searchableAgencies: LiveData<List<AgencyProperties>> = this.dataSourcesRepository.readingAllAgenciesDistinct().map { list ->
+    private val _searchableAgencies: LiveData<List<IAgencyProperties>> = this.dataSourcesRepository.readingAllAgenciesBaseDistinct().map { list ->
         list.filter { agency -> agency.type.isSearchable }
     }
 
@@ -120,7 +120,7 @@ class SearchViewModel @Inject constructor(
         }
 
 
-    private suspend fun getFilteredData(query: String?, typeFilterId: Int?, searchableAgencies: List<AgencyProperties>?): List<POIManager> {
+    private suspend fun getFilteredData(query: String?, typeFilterId: Int?, searchableAgencies: List<IAgencyProperties>?): List<POIManager> {
         if (query.isNullOrBlank()) {
             MTLog.d(this, "getFilteredData() > SKIP (no query)")
             return emptyList()
@@ -160,7 +160,7 @@ class SearchViewModel @Inject constructor(
     }
 
     private suspend fun getFilteredDataType(
-        agencies: List<AgencyProperties>,
+        agencies: List<IAgencyProperties>,
         query: String,
         deviceLocation: Location?,
         keepAll: Boolean,
@@ -180,7 +180,7 @@ class SearchViewModel @Inject constructor(
     }
 
     private suspend fun getFilteredDataTypeAgency(
-        agency: AgencyProperties,
+        agency: IAgencyProperties,
         query: String,
         deviceLocation: Location?
     ): List<POIManager> {

@@ -11,8 +11,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.pref.liveData
-import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
+import org.mtransit.android.data.IAgencyProperties
+import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
@@ -45,7 +46,7 @@ class AgencyTypeViewModel @Inject constructor(
 
     private val allAvailableAgencies = this.dataSourcesRepository.readingAllAgenciesDistinct() // #onModulesUpdated
 
-    val typeAgencies: LiveData<List<AgencyProperties>?> = PairMediatorLiveData(type, allAvailableAgencies).map { (dst, allAgencies) ->
+    val typeAgencies: LiveData<List<IAgencyUIProperties>?> = PairMediatorLiveData(type, allAvailableAgencies).map { (dst, allAgencies) ->
         allAgencies?.filter { it.type == dst }
     }
 
@@ -66,7 +67,7 @@ class AgencyTypeViewModel @Inject constructor(
         }
     }
 
-    fun onPagetSelected(position: Int) {
+    fun onPageSelected(position: Int) {
         this.statusLoader.clearAllTasks()
         this.serviceUpdateLoader.clearAllTasks()
         saveSelectedTypeAgency(position)
@@ -78,7 +79,7 @@ class AgencyTypeViewModel @Inject constructor(
         )
     }
 
-    private fun saveSelectedTypeAgency(agency: AgencyProperties) {
+    private fun saveSelectedTypeAgency(agency: IAgencyProperties) {
         val typeId: Int = _typeId.value ?: return
         lclPrefRepository.pref.edit {
             putString(PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(typeId), agency.authority)

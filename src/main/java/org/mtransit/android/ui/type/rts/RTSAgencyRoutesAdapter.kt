@@ -13,10 +13,11 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.dp
 import org.mtransit.android.commons.getDimensionInt
-import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.IAgencyProperties
+import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.databinding.LayoutRtsRouteItemBinding
 
-class RTSAgencyRoutesAdapter(private val onClick: (Route, AgencyProperties) -> Unit) :
+class RTSAgencyRoutesAdapter(private val onClick: (Route, IAgencyProperties) -> Unit) :
     ListAdapter<Route, RTSAgencyRoutesAdapter.RouteViewHolder>(RoutesDiffCallback),
     MTLog.Loggable {
 
@@ -28,11 +29,11 @@ class RTSAgencyRoutesAdapter(private val onClick: (Route, AgencyProperties) -> U
 
     override fun getLogTag(): String = this.theLogTag
 
-    private var _agency: AgencyProperties? = null
+    private var _agency: IAgencyUIProperties? = null
 
     private var _showingListInsteadOfGrid: Boolean? = null
 
-    fun setAgency(agency: AgencyProperties?) {
+    fun setAgency(agency: IAgencyUIProperties?) {
         if (_agency == agency) {
             MTLog.d(this, "setAgency() > SKIP (same: $agency)")
             return
@@ -87,9 +88,9 @@ class RTSAgencyRoutesAdapter(private val onClick: (Route, AgencyProperties) -> U
 
         fun bind(
             route: Route?,
-            agency: AgencyProperties?,
+            agency: IAgencyUIProperties?,
             showingListInsteadOfGrid: Boolean?,
-            onClick: (Route, AgencyProperties) -> Unit
+            onClick: (Route, IAgencyProperties) -> Unit
         ) {
             if (route == null || agency == null || showingListInsteadOfGrid == null) {
                 MTLog.d(LOG_TAG, "onBindViewHolder() > SKIP (missing data)")

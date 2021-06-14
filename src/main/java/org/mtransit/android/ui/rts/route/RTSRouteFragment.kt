@@ -127,7 +127,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
-            viewModel.onPagetSelected(position)
+            viewModel.onPageSelected(position)
             lastPageSelected = position
         }
 

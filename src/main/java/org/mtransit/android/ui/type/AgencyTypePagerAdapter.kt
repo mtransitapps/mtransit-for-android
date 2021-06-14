@@ -3,7 +3,7 @@ package org.mtransit.android.ui.type
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.ui.type.poi.AgencyPOIsFragment
 import org.mtransit.android.ui.type.rts.RTSAgencyRoutesFragment
 
@@ -15,9 +15,9 @@ class AgencyTypePagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Logga
 
     override fun getLogTag(): String = LOG_TAG
 
-    private var agencies: MutableList<AgencyProperties>? = null
+    private var agencies: MutableList<IAgencyUIProperties>? = null
 
-    fun setAgencies(newAgencies: List<AgencyProperties>?): Boolean { // TODO DiffUtil
+    fun setAgencies(newAgencies: List<IAgencyUIProperties>?): Boolean { // TODO DiffUtil
         var changed = false
         if (!this.agencies.isNullOrEmpty()) {
             this.agencies?.clear()
@@ -25,7 +25,7 @@ class AgencyTypePagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Logga
             changed = true
         }
         newAgencies?.let {
-            this.agencies = mutableListOf<AgencyProperties>().apply {
+            this.agencies = mutableListOf<IAgencyUIProperties>().apply {
                 changed = addAll(it)
             }
         }

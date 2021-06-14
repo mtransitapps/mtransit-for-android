@@ -17,7 +17,8 @@ import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.Trip
 import org.mtransit.android.commons.pref.liveData
-import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.AgencyBaseProperties
+import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -59,8 +60,8 @@ class RTSRouteViewModel @Inject constructor(
 
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
 
-    private val _agency: LiveData<AgencyProperties?> = authority.switchMap { authority ->
-        this.dataSourcesRepository.readingAgency(authority) // #onModulesUpdated
+    private val _agency: LiveData<AgencyBaseProperties?> = authority.switchMap { authority ->
+        this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
     }
 
     val route: LiveData<Route?> = PairMediatorLiveData(_agency, routeId).switchMap { (agency, routeId) ->
@@ -69,7 +70,7 @@ class RTSRouteViewModel @Inject constructor(
         }
     }
 
-    private fun getRoute(agency: AgencyProperties?, routeId: Long?): Route? {
+    private fun getRoute(agency: IAgencyUIProperties?, routeId: Long?): Route? {
         if (routeId == null) {
             return null
         }
@@ -116,7 +117,7 @@ class RTSRouteViewModel @Inject constructor(
         }
     }
 
-    fun onPagetSelected(position: Int) {
+    fun onPageSelected(position: Int) {
         this.statusLoader.clearAllTasks()
         this.serviceUpdateLoader.clearAllTasks()
         saveSelectedRouteTripIdPosition(position)

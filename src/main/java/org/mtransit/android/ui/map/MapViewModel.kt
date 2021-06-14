@@ -23,8 +23,8 @@ import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.POIProviderContract
-import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
+import org.mtransit.android.data.IAgencyNearbyUIProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
@@ -160,9 +160,9 @@ class MapViewModel @Inject constructor(
         this._poiMarkersReset.value = Event(true)
     }
 
-    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesDistinct() // #onModulesUpdated
+    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBaseDistinct() // #onModulesUpdated
 
-    val typeMapAgencies: LiveData<List<AgencyProperties>?> = PairMediatorLiveData(_allAgencies, filterTypeIds).map { (allAgencies, filterTypeIds) ->
+    val typeMapAgencies: LiveData<List<IAgencyNearbyUIProperties>?> = PairMediatorLiveData(_allAgencies, filterTypeIds).map { (allAgencies, filterTypeIds) ->
         filterTypeIds?.let { theFilterTypeIds ->
             allAgencies?.filter { agency ->
                 agency.type.isMapScreen
@@ -170,7 +170,7 @@ class MapViewModel @Inject constructor(
             }
         }
     }
-    val areaTypeMapAgencies: LiveData<List<AgencyProperties>?> =
+    val areaTypeMapAgencies: LiveData<List<IAgencyNearbyUIProperties>?> =
         PairMediatorLiveData(typeMapAgencies, _loadingArea).map { (typeMapAgencies, loadingArea) ->
             loadingArea?.let { theLoadingArea -> // loading area REQUIRED
                 typeMapAgencies?.filter { agency ->
@@ -235,7 +235,7 @@ class MapViewModel @Inject constructor(
             _poiMarkers.value = null
         }
         poiMarkersLoadJob = viewModelScope.launch(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-            val areaTypeMapAgencies: List<AgencyProperties>? = areaTypeMapAgencies.value
+            val areaTypeMapAgencies: List<IAgencyNearbyUIProperties>? = areaTypeMapAgencies.value
             val loadedArea: LatLngBounds? = _loadedArea.value
             val loadingArea: LatLngBounds? = _loadingArea.value
             val currentPOIMarkers: Collection<POIMarker>? = _poiMarkers.value
@@ -281,7 +281,7 @@ class MapViewModel @Inject constructor(
     }
 
     private fun getAgencyPOIMarkers(
-        agency: AgencyProperties,
+        agency: IAgencyNearbyUIProperties,
         loadingArea: LatLngBounds,
         loadedArea: LatLngBounds? = null,
         coroutineScope: CoroutineScope,

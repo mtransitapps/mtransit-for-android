@@ -28,6 +28,7 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.data.AgencyProperties;
+import org.mtransit.android.data.IAgencyProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.WebBrowserFragment;
@@ -148,7 +149,7 @@ public final class LinkUtils implements MTLog.Loggable {
 				.append(" (r").append(PackageManagerUtils.getAppVersionCode(activity)).append(")");
 		try {
 			final List<AgencyProperties> allAgencies = dataSourcesRepository.getAllAgencies();
-			for (AgencyProperties agencyProperties : allAgencies) {
+			for (IAgencyProperties agencyProperties : allAgencies) {
 				if (!agencyProperties.getType().isMapScreen()) {
 					continue;
 				}

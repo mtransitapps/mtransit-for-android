@@ -19,6 +19,7 @@ import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.provider.NewsProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
@@ -51,7 +52,7 @@ class POIViewModel @Inject constructor(
 
     val agency: LiveData<AgencyProperties?> = this._authority.switchMap { authority ->
         authority?.let {
-            this.dataSourcesRepository.readingAgency(authority) // #onModulesUpdated
+            this.dataSourcesRepository.readingAgency(authority) // #onModulesUpdated // UPDATE-ABLE
         } ?: MutableLiveData(null)
     }
 
@@ -63,7 +64,7 @@ class POIViewModel @Inject constructor(
         }
     }
 
-    private fun getPOIManager(agency: AgencyProperties?, uuid: String?): POIManager? {
+    private fun getPOIManager(agency: IAgencyProperties?, uuid: String?): POIManager? {
         if (uuid.isNullOrEmpty()) {
             MTLog.d(this, "getPOI() > SKIP (no uuid)")
             return null

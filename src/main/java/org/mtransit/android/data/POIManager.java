@@ -546,7 +546,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			} else if (poi instanceof Module) {
 				return ((Module) poi).getColorInt();
 			}
-			final AgencyProperties agency = agencyResolver.getAgency();
+			final IAgencyUIProperties agency = agencyResolver.getAgency();
 			if (agency != null) {
 				return agency.getColorInt();
 			}
@@ -573,7 +573,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				return route.getColorInt();
 			}
 		}
-		final AgencyProperties agency = agencyResolver.getAgency();
+		final IAgencyUIProperties agency = agencyResolver.getAgency();
 		final Integer agencyColorInt = agency == null ? null : agency.getColorInt();
 		if (agencyColorInt != null) {
 			return agencyColorInt;
@@ -598,7 +598,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				return route.getColorInt();
 			}
 		}
-		final AgencyProperties agency = agencyResolver.getAgency();
+		final IAgencyUIProperties agency = agencyResolver.getAgency();
 		final Integer agencyColorInt = agency == null ? null : agency.getColorInt();
 		if (agencyColorInt != null) {
 			return agencyColorInt;
@@ -620,12 +620,12 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@MainThread
 	@NonNull
-	public String getNewOneLineDescription(@Nullable AgencyProperties agency) {
+	public String getNewOneLineDescription(@Nullable IAgencyUIProperties agency) {
 		return getNewOneLineDescription(this.poi, agency);
 	}
 
 	@NonNull
-	public static String getNewOneLineDescription(@NonNull POI poi, @Nullable AgencyProperties agency) {
+	public static String getNewOneLineDescription(@NonNull POI poi, @Nullable IAgencyUIProperties agency) {
 		return getNewOneLineDescription(poi, () -> agency);
 	}
 
@@ -647,7 +647,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				sb.append(rts.getRoute().getLongName());
 			}
 		}
-		final AgencyProperties agency = agencyResolver.getAgency();
+		final IAgencyUIProperties agency = agencyResolver.getAgency();
 		if (agency != null) {
 			if (sb.length() > 0) {
 				sb.append(StringUtils.SPACE_STRING).append("-").append(StringUtils.SPACE_STRING);
@@ -932,6 +932,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	public interface AgencyResolver {
 		@Nullable
-		AgencyProperties getAgency();
+		IAgencyUIProperties getAgency();
 	}
 }

@@ -18,6 +18,8 @@ class DataSourcesCache @Inject constructor(
 
     fun readingAllAgencies() = agencyPropertiesDao().readingAllAgencies()
 
+    fun readingAllAgenciesBase() = agencyPropertiesDao().readingAllAgenciesBase()
+
     fun getAllAgenciesCount() = agencyPropertiesDao().getAllAgenciesCount()
 
     fun readingAllAgenciesCount() = agencyPropertiesDao().readingAllAgenciesCount()
@@ -25,6 +27,8 @@ class DataSourcesCache @Inject constructor(
     fun getAgency(authority: String) = agencyPropertiesDao().getAgency(authority)
 
     fun readingAgency(authority: String) = agencyPropertiesDao().readingAgency(authority)
+
+    fun readingAgencyBase(authority: String) = agencyPropertiesDao().readingAgencyBase(authority)
 
     fun getAllDataSourceTypes() = agencyPropertiesDao().getAllDataSourceTypes()
 
@@ -88,7 +92,7 @@ class DataSourcesCache @Inject constructor(
 
     fun getNewsProviders(targetAuthority: String) = newsProviderPropertiesDao().getTargetAuthorityNewsProviders(targetAuthority)
 
-    fun readingNewsProviders(targetAuthority: String) = newsProviderPropertiesDao().readingTargetAuthorityNewsProviders(targetAuthority);
+    fun readingNewsProviders(targetAuthority: String) = newsProviderPropertiesDao().readingTargetAuthorityNewsProviders(targetAuthority)
 
     fun getNewsProvider(authority: String) = newsProviderPropertiesDao().getNewsProvider(authority)
 }

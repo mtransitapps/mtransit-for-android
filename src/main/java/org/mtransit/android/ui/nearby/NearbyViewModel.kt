@@ -149,7 +149,7 @@ class NearbyViewModel @Inject constructor(
         selectedType?.let { types?.indexOf(it) }
     }
 
-    fun onPagetSelected(position: Int) {
+    fun onPageSelected(position: Int) {
         this.statusLoader.clearAllTasks()
         this.serviceUpdateLoader.clearAllTasks()
         saveSelectedTypePosition(position)

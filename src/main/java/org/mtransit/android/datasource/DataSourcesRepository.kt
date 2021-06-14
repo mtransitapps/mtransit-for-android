@@ -11,13 +11,14 @@ import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.AgencyProperties
-import org.mtransit.android.data.AgencyProperties.Companion.SHORT_NAME_COMPARATOR
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.DataSourceType.DataSourceTypeShortNameComparator
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
+import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.StatusProviderProperties
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -37,12 +38,13 @@ class DataSourcesRepository @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    private val defaultAgencyComparator: Comparator<AgencyProperties> = SHORT_NAME_COMPARATOR
+    private val defaultAgencyComparator: Comparator<IAgencyProperties> = IAgencyProperties.SHORT_NAME_COMPARATOR
 
     val defaultDataSourceTypeComparator: Comparator<DataSourceType> by lazy { DataSourceTypeShortNameComparator(appContext) }
 
     // IN-MEMORY CACHE
     private var _agencyProperties = listOf<AgencyProperties>() // sorted
+    private var _agencyBaseProperties = listOf<AgencyBaseProperties>() // sorted
     private var _dataSourceTypes = listOf<DataSourceType>() // sorted
     private var _statusProviderProperties = setOf<StatusProviderProperties>() // not sorted
     private var _scheduleProviderProperties = setOf<ScheduleProviderProperties>() // not sorted
@@ -57,6 +59,9 @@ class DataSourcesRepository @Inject constructor(
     private fun startListeningForChangesIntoMemory() {
         dataSourcesCache.readingAllAgencies().observeForever { // SINGLETON
             this._agencyProperties = it.sortedWith(defaultAgencyComparator)
+        }
+        dataSourcesCache.readingAllAgenciesBase().observeForever { // SINGLETON
+            this._agencyBaseProperties = it.sortedWith(defaultAgencyComparator)
         }
         dataSourcesCache.readingAllDataSourceTypes().observeForever { // SINGLETON
             this._dataSourceTypes = it.sortedWith(defaultDataSourceTypeComparator)
@@ -83,7 +88,13 @@ class DataSourcesRepository @Inject constructor(
         it.sortedWith(defaultAgencyComparator)
     }
 
+    fun readingAllAgenciesBase() = dataSourcesCache.readingAllAgenciesBase().map {
+        it.sortedWith(defaultAgencyComparator)
+    }
+
     fun readingAllAgenciesDistinct() = readingAllAgencies().distinctUntilChanged()
+
+    fun readingAllAgenciesBaseDistinct() = readingAllAgenciesBase().distinctUntilChanged()
 
     fun readingAllAgencyAuthorities() = readingAllAgencies().map { agencyList ->
         agencyList.map { agency ->
@@ -100,6 +111,8 @@ class DataSourcesRepository @Inject constructor(
     fun getAgencyForPkg(pkg: String) = this._agencyProperties.singleOrNull { it.pkg == pkg }
 
     fun readingAgency(authority: String) = dataSourcesCache.readingAgency(authority)
+
+    fun readingAgencyBase(authority: String) = dataSourcesCache.readingAgencyBase(authority)
 
     fun getAllDataSourceTypes() = this._dataSourceTypes
 

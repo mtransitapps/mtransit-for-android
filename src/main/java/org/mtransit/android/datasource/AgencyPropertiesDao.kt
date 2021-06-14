@@ -3,9 +3,11 @@ package org.mtransit.android.datasource
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.RewriteQueriesToDropUnusedColumns
 import org.mtransit.android.common.repository.BaseDao
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
+import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.commons.sql.SQLUtils.BOOLEAN_FALSE
 import org.mtransit.commons.sql.SQLUtils.BOOLEAN_TRUE
 
@@ -20,6 +22,10 @@ interface AgencyPropertiesDao : BaseDao<AgencyProperties> {
 
     @Query("SELECT * FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE")
     fun readingAllAgencies(): LiveData<List<AgencyProperties>>
+
+    @RewriteQueriesToDropUnusedColumns
+    @Query("SELECT * FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE")
+    fun readingAllAgenciesBase(): LiveData<List<AgencyBaseProperties>>
 
     @Query("SELECT * FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE AND is_enabled = $BOOLEAN_TRUE")
     fun getAllEnabledAgencies(): List<AgencyProperties>
@@ -47,6 +53,10 @@ interface AgencyPropertiesDao : BaseDao<AgencyProperties> {
 
     @Query("SELECT * FROM agency_properties WHERE id = :authority AND is_installed = $BOOLEAN_TRUE")
     fun readingAgency(authority: String): LiveData<AgencyProperties?>
+
+    @RewriteQueriesToDropUnusedColumns
+    @Query("SELECT * FROM agency_properties WHERE id = :authority AND is_installed = $BOOLEAN_TRUE")
+    fun readingAgencyBase(authority: String): LiveData<AgencyBaseProperties?>
 
     @Query("SELECT pkg FROM agency_properties WHERE id = :authority")
     fun getAgencyPkg(authority: String): String

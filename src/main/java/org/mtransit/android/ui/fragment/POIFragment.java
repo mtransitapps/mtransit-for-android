@@ -48,6 +48,8 @@ import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.NewsProviderContract;
 import org.mtransit.android.data.AgencyProperties;
+import org.mtransit.android.data.IAgencyProperties;
+import org.mtransit.android.data.IAgencyUpdatableProperties;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ScheduleProviderProperties;
@@ -589,7 +591,7 @@ public class POIFragment extends ABFragment implements
 						return;
 					}
 					Integer optTypeId = null;
-					final AgencyProperties agency = POIFragment.this.getAgencyOrNull();
+					final IAgencyProperties agency = POIFragment.this.getAgencyOrNull();
 					if (agency != null) {
 						optTypeId = agency.getType().getId();
 					}
@@ -650,7 +652,7 @@ public class POIFragment extends ABFragment implements
 					if (activity == null) {
 						return;
 					}
-					final AgencyProperties agency = getAgencyOrNull();
+					final IAgencyProperties agency = getAgencyOrNull();
 					if (agency == null) {
 						return;
 					}
@@ -832,8 +834,8 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public void updateCompass(float orientation, boolean force) {
-		long now = UITimeUtils.currentTimeMillis();
-		int roundedOrientation = DegreeUtils.convertToPositive360Degree((int) orientation);
+		final long now = UITimeUtils.currentTimeMillis();
+		final int roundedOrientation = DegreeUtils.convertToPositive360Degree((int) orientation);
 		sensorManager.updateCompass(
 				force,
 				this.deviceLocation,
@@ -958,7 +960,7 @@ public class POIFragment extends ABFragment implements
 			MTLog.d(this, "refreshAppUpdateLayout() > SKIP (no layout)");
 			return;
 		}
-		final AgencyProperties agency = getAgencyOrNull();
+		final IAgencyUpdatableProperties agency = getAgencyOrNull();
 		final boolean appUpdateAvailable = agency != null && agency.getUpdateAvailable();
 		final String pkg = agency == null ? "" : agency.getPkg();
 		if (appUpdateAvailable) {

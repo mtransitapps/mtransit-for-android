@@ -3,11 +3,11 @@ package org.mtransit.android.ui.nearby.type
 import android.location.Location
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.provider.POIProviderContract
-import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.AgencyBaseProperties
 
 data class NearbyParams(
     val typeId: Int? = null,
-    val allAgencies: List<AgencyProperties>? = null,
+    val allAgencies: List<AgencyBaseProperties>? = null,
     val ad: LocationUtils.AroundDiff? = LocationUtils.getNewDefaultAroundDiff(),
     val nearbyLocation: Location? = null,
     val minCoverageInMeters: Float? = null,
@@ -15,7 +15,7 @@ data class NearbyParams(
     val maxSize: Int? = null,
     // TODO ? val lastEmptyAroundDiff: Double? = null,
 ) {
-    val typeAgencies: List<AgencyProperties>?
+    val typeAgencies: List<AgencyBaseProperties>?
         get() = typeId?.let { dstId -> allAgencies?.filter { agency -> agency.type.id == dstId } }
 
     val area: LocationUtils.Area?

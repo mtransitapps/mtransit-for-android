@@ -16,7 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.provider.POIProviderContract
-import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.IAgencyNearbyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -44,7 +44,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
 
     val typeId = savedStateHandle.getLiveData<Int?>(AgencyTypeViewModel.EXTRA_TYPE_ID, null).distinctUntilChanged()
 
-    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesDistinct()
+    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBaseDistinct() // #onModuleChanged
 
     val typeAgencies = PairMediatorLiveData(typeId, _allAgencies).map { (typeId, allAgencies) ->
         val currentParams = this.params.value ?: NearbyParams()
@@ -117,7 +117,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
             MTLog.d(this, "getNearbyPOIs() > SKIP (not ready)")
             return null
         }
-        val typeAgencies: List<AgencyProperties> = currentParams.typeAgencies ?: return null
+        val typeAgencies: List<IAgencyNearbyProperties> = currentParams.typeAgencies ?: return null
         val nearbyLocation: Location = currentParams.nearbyLocation ?: return null
         val ad: LocationUtils.AroundDiff = currentParams.ad ?: return null
         val minCoverageInMeters: Float = currentParams.minCoverageInMeters ?: return null

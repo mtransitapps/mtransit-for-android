@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.data.Route
-import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.databinding.FragmentRtsAgencyRoutesBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.ui.MainActivity
@@ -90,7 +90,7 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
         }
     }
 
-    private fun openRouteScreen(route: Route, agency: AgencyProperties) {
+    private fun openRouteScreen(route: Route, agency: IAgencyProperties) {
         (activity as? MainActivity)?.addFragmentToStack(
             RTSRouteFragment.newInstance(
                 agency.authority,

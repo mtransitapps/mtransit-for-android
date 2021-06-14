@@ -22,8 +22,8 @@ import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.isAppInstalled
 import org.mtransit.android.commons.isKeyMT
 import org.mtransit.android.data.AgencyProperties
-import org.mtransit.android.data.AgencyProperties.Companion.DEFAULT_LONG_VERSION_CODE
 import org.mtransit.android.data.DataSourceType
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
@@ -201,7 +201,7 @@ class DataSourcesReader @Inject constructor(
                             pkg,
                             providerAuthority,
                             null, // NEW
-                            pm.getAppLongVersionCode(pkg, DEFAULT_LONG_VERSION_CODE), // NEW
+                            pm.getAppLongVersionCode(pkg, IAgencyProperties.DEFAULT_LONG_VERSION_CODE), // NEW
                             pkgProviders,
                             forcePkg == pkg,
                             markUpdated
@@ -286,7 +286,7 @@ class DataSourcesReader @Inject constructor(
                 return@forEach
             }
             // App RE-installed OR RE-enabled
-            val longVersionCode = pm.getAppLongVersionCode(pkg, DEFAULT_LONG_VERSION_CODE)
+            val longVersionCode = pm.getAppLongVersionCode(pkg, IAgencyProperties.DEFAULT_LONG_VERSION_CODE)
             if (longVersionCode == agencyProperties.longVersionCode) {
                 MTLog.d(this, "Agency '$authority' re-installed / re-enabled.")
                 dataSourcesDatabase.agencyPropertiesDao().update(
@@ -336,7 +336,7 @@ class DataSourcesReader @Inject constructor(
                 updateDisabledAgencyProperties(agencyProperties, authority, markUpdated)
                 return@forEach
             }
-            val longVersionCode = pm.getAppLongVersionCode(pkg, DEFAULT_LONG_VERSION_CODE)
+            val longVersionCode = pm.getAppLongVersionCode(pkg, IAgencyProperties.DEFAULT_LONG_VERSION_CODE)
             if (forcePkg == pkg
                 || longVersionCode != agencyProperties.longVersionCode
             ) {
@@ -393,7 +393,7 @@ class DataSourcesReader @Inject constructor(
         pkg: String,
         agencyAuthority: String,
         agencyProperties: AgencyProperties? = null, // NEW
-        longVersionCode: Long = pm.getAppLongVersionCode(pkg, DEFAULT_LONG_VERSION_CODE), // NEW,
+        longVersionCode: Long = pm.getAppLongVersionCode(pkg, IAgencyProperties.DEFAULT_LONG_VERSION_CODE), // NEW,
         pkgProviders: List<ProviderInfo>? = pm.getInstalledProvidersWithMetaData(pkg),
         triggerUpdate: Boolean = false,
         markUpdated: () -> Unit,

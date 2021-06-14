@@ -12,9 +12,9 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.provider.POIProviderContract
-import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType.POIManagerTypeShortNameComparator
 import org.mtransit.android.data.Favorite
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -46,7 +46,7 @@ class FavoritesViewModel @Inject constructor(
 
     private val _favoriteUpdatedTrigger = MutableLiveData(0)
 
-    private val _agencies = this.dataSourcesRepository.readingAllAgenciesDistinct()
+    private val _agencies = this.dataSourcesRepository.readingAllAgenciesBaseDistinct() // #onModuleChanged
 
     val favoritePOIs: LiveData<List<POIManager>?> =
         PairMediatorLiveData(_favoriteUpdatedTrigger, _agencies).switchMap { (_, agencies) ->
@@ -55,7 +55,7 @@ class FavoritesViewModel @Inject constructor(
             }
         }
 
-    private fun getFavorites(agencies: List<AgencyProperties>?): List<POIManager>? {
+    private fun getFavorites(agencies: List<IAgencyProperties>?): List<POIManager>? {
         if (agencies.isNullOrEmpty()) {
             MTLog.d(this, "getFavorites() > SKIP (no agencies)")
             return null // loading

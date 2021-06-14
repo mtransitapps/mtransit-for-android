@@ -16,7 +16,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.pref.liveData
-import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import javax.inject.Inject
@@ -42,9 +42,9 @@ class RTSAgencyRoutesViewModel @Inject constructor(
 
     val colorInt = savedStateHandle.getLiveData<Int?>(EXTRA_COLOR_INT, null).distinctUntilChanged()
 
-    val agency: LiveData<AgencyProperties?> = this._authority.switchMap { authority ->
+    val agency: LiveData<AgencyBaseProperties?> = this._authority.switchMap { authority ->
         authority?.let {
-            this.dataSourcesRepository.readingAgency(authority)
+            this.dataSourcesRepository.readingAgencyBase(authority)
         } ?: MutableLiveData(null)
     }
 

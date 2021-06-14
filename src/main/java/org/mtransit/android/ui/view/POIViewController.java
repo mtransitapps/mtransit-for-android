@@ -23,8 +23,8 @@ import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Route;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.ServiceUpdate;
-import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.DataSourceType;
+import org.mtransit.android.data.IAgencyUIProperties;
 import org.mtransit.android.data.JPaths;
 import org.mtransit.android.data.Module;
 import org.mtransit.android.data.POIManager;
@@ -496,7 +496,7 @@ public class POIViewController implements MTLog.Loggable {
 					if (holder.routeTypeImg.hasPaths() && poi.getAuthority().equals(holder.routeTypeImg.getTag())) {
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
-						final AgencyProperties agency = dataProvider.providesDataSourcesRepository().getAgency(poi.getAuthority());
+						final IAgencyUIProperties agency = dataProvider.providesDataSourcesRepository().getAgency(poi.getAuthority());
 						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo();
 						if (rtsRouteLogo != null) {
 							holder.routeTypeImg.setJSON(rtsRouteLogo);
@@ -581,7 +581,7 @@ public class POIViewController implements MTLog.Loggable {
 					if (holder.routeTypeImg.hasPaths() && poi.getAuthority().equals(holder.routeTypeImg.getTag())) {
 						holder.routeTypeImg.setVisibility(View.VISIBLE);
 					} else {
-						final AgencyProperties agency = dataProvider.providesDataSourcesRepository().getAgency(poi.getAuthority());
+						final IAgencyUIProperties agency = dataProvider.providesDataSourcesRepository().getAgency(poi.getAuthority());
 						JPaths rtsRouteLogo = agency == null ? null : agency.getLogo();
 						if (rtsRouteLogo != null) {
 							holder.routeTypeImg.setJSON(rtsRouteLogo);

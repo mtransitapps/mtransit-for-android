@@ -21,8 +21,9 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
-import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
+import org.mtransit.android.data.IAgencyNearbyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -106,9 +107,9 @@ class HomeViewModel @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesDistinct() // #onModulesUpdated
+    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBaseDistinct() // #onModulesUpdated
 
-    private val _dstToHomeAgencies: LiveData<SortedMap<DataSourceType, List<AgencyProperties>>?> = _allAgencies.map { allAgencies ->
+    private val _dstToHomeAgencies: LiveData<SortedMap<DataSourceType, List<AgencyBaseProperties>>?> = _allAgencies.map { allAgencies ->
         if (allAgencies.isNullOrEmpty()) {
             null
         } else {
@@ -141,7 +142,7 @@ class HomeViewModel @Inject constructor(
 
     private fun getNearbyPOIs(
         scope: CoroutineScope,
-        dstToHomeAgencies: SortedMap<DataSourceType, List<AgencyProperties>>?,
+        dstToHomeAgencies: SortedMap<DataSourceType, List<AgencyBaseProperties>>?,
         nearbyLocation: Location?
     ) {
         if (dstToHomeAgencies.isNullOrEmpty() || nearbyLocation == null) {
@@ -214,7 +215,7 @@ class HomeViewModel @Inject constructor(
 
     private fun getTypeNearbyPOIs(
         scope: CoroutineScope,
-        typeAgencies: List<AgencyProperties>,
+        typeAgencies: List<IAgencyNearbyProperties>,
         typeLat: Double,
         typeLng: Double,
         typeMinCoverageInMeters: Float,
@@ -228,11 +229,11 @@ class HomeViewModel @Inject constructor(
             scope.ensureActive()
             typePOIs = getAreaTypeNearbyPOIs(scope, typeLat, typeLng, typeAd, lastTypeAroundDiff, typeMaxSize, typeMinCoverageInMeters, typeAgencies)
             if (LocationUtils.searchComplete(typeLat, typeLng, typeAd.aroundDiff)) {
-                break
+                break // world exploration completed
             } else if (typePOIs.size > nbMaxByType
                 && LocationUtils.getAroundCoveredDistanceInMeters(typeLat, typeLng, typeAd.aroundDiff) >= typeMinCoverageInMeters
             ) {
-                break
+                break // enough POIs / type & enough distance covered
             } else {
                 lastTypeAroundDiff = if (typePOIs.isNullOrEmpty()) typeAd.aroundDiff else null
                 LocationUtils.incAroundDiff(typeAd)
@@ -249,7 +250,7 @@ class HomeViewModel @Inject constructor(
         @Suppress("UNUSED_PARAMETER") optLastAroundDiff: Double? = null,
         @Suppress("SameParameterValue") maxSize: Int,
         typeMinCoverageInMeters: Float,
-        typeAgencies: List<AgencyProperties>
+        typeAgencies: List<IAgencyNearbyProperties>
     ): MutableList<POIManager> {
         val typePOIs = mutableListOf<POIManager>()
         val area = LocationUtils.getArea(lat, lng, ad.aroundDiff)
@@ -261,7 +262,7 @@ class HomeViewModel @Inject constructor(
             addExtra(GTFSProviderContract.POI_FILTER_EXTRA_DESCENT_ONLY, true)
         }
         typeAgencies
-            .filter { it.isInArea(area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
+            .filter { LocationUtils.Area.areOverlapping(it.area, area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->
                 scope.ensureActive()
                 dataSourceRequestManager.findPOIMs(agency.authority, poiFilter)?.let { agencyPOIs ->

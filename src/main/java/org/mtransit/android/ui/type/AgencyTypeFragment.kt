@@ -82,7 +82,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
-            viewModel.onPagetSelected(position)
+            viewModel.onPageSelected(position)
             lastPageSelected = position
         }
 
