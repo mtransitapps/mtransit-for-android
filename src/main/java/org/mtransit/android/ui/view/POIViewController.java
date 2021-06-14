@@ -478,6 +478,7 @@ public class POIViewController implements MTLog.Loggable {
 									   @NonNull final POIDataProvider dataProvider) {
 		if (poi instanceof RouteTripStop) {
 			RouteTripStop rts = (RouteTripStop) poi;
+			//noinspection ConstantConditions // route is always non-null?
 			if (dataProvider.isShowingExtra() && rts.getRoute() == null) {
 				if (holder.rtsExtraV != null) {
 					holder.rtsExtraV.setVisibility(View.GONE);

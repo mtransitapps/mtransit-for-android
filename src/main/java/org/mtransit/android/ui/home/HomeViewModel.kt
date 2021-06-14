@@ -148,6 +148,7 @@ class HomeViewModel @Inject constructor(
         nearbyLocation: Location?
     ) {
         if (dstToHomeAgencies.isNullOrEmpty() || nearbyLocation == null) {
+            MTLog.d(this@HomeViewModel, "loadNearbyPOIs() > SKIP (no agencies OR no location)")
             _loadingPOIs.postValue(false)
             _nearbyPOIs.postValue(null)
             return

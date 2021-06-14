@@ -92,16 +92,16 @@ class MapViewModel @Inject constructor(
 
     val filterTypeIds: LiveData<Collection<Int>?> =
         TripleMediatorLiveData(mapTypes, filterTypeIdsPref, includedTypeId).map { (mapTypes, filterTypeIdsPref, includedTypeId) ->
-            makeFileterTypeId(mapTypes, filterTypeIdsPref, includedTypeId)
+            makeFilterTypeId(mapTypes, filterTypeIdsPref, includedTypeId)
         }.distinctUntilChanged()
 
-    private fun makeFileterTypeId(
+    private fun makeFilterTypeId(
         availableTypes: List<DataSourceType>?,
         filterTypeIdsPref: Set<String>?,
         inclTypeId: Int?
     ): Collection<Int>? {
         if (filterTypeIdsPref == null || availableTypes == null) {
-            MTLog.d(this, "makeFileterTypeId() > SKIP (no pref or available types")
+            MTLog.d(this, "makeFilterTypeId() > SKIP (no pref or available types")
             return null
         }
         val filterTypeIds = mutableSetOf<Int>()
@@ -110,12 +110,12 @@ class MapViewModel @Inject constructor(
             try {
                 val type = DataSourceType.parseId(typeIdString.toInt())
                 if (type == null) {
-                    MTLog.d(this, "makeFileterTypeId() > '$typeIdString' not valid")
+                    MTLog.d(this, "makeFilterTypeId() > '$typeIdString' not valid")
                     prefHasChanged = true
                     return@forEach
                 }
                 if (!availableTypes.contains(type)) {
-                    MTLog.d(this, "makeFileterTypeId() > '$type' not available (in map screen)")
+                    MTLog.d(this, "makeFilterTypeId() > '$type' not available (in map screen)")
                     prefHasChanged = true
                     return@forEach
                 }
@@ -130,11 +130,11 @@ class MapViewModel @Inject constructor(
                 prefHasChanged = try {
                     val type = DataSourceType.parseId(includedTypeId)
                     if (type == null) {
-                        MTLog.d(this, "makeFileterTypeId() > included '$includedTypeId' not valid")
+                        MTLog.d(this, "makeFilterTypeId() > included '$includedTypeId' not valid")
                         return@let // DO NOTHING
                     }
                     if (!availableTypes.contains(type)) {
-                        MTLog.d(this, "makeFileterTypeId() > included '$includedTypeId' not available")
+                        MTLog.d(this, "makeFilterTypeId() > included '$includedTypeId' not available")
                         return@let  // DO NOTHING
                     }
                     filterTypeIds.add(type.id)
