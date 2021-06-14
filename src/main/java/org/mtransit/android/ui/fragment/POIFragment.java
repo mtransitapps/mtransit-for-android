@@ -20,13 +20,9 @@ import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.TextView;
 
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.WorkerThread;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -38,13 +34,11 @@ import org.mtransit.android.analytics.AnalyticsEvents;
 import org.mtransit.android.analytics.AnalyticsEventsParamsProvider;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.common.IContext;
-import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.StoreUtils;
-import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.data.News;
@@ -53,9 +47,7 @@ import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.NewsProviderContract;
-import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.AgencyProperties;
-import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ScheduleProviderProperties;
@@ -63,7 +55,6 @@ import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.provider.sensor.MTSensorManager;
-import org.mtransit.android.task.MTCancellableFragmentAsyncTask;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
@@ -80,6 +71,7 @@ import org.mtransit.android.ui.view.POINewsViewController;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
+import org.mtransit.android.ui.view.common.EventObserver;
 import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.FragmentUtils;
@@ -112,11 +104,15 @@ public class POIFragment extends ABFragment implements
 
 	private static final String LOG_TAG = POIFragment.class.getSimpleName();
 
+	private static final String PKG_COMMON = "org.mtransit.android.";
+
 	@NonNull
 	@Override
 	public String getLogTag() {
-		if (!TextUtils.isEmpty(this.uuid)) {
-			return LOG_TAG + "-" + this.uuid;
+		final String uuid = viewModel == null ? null : viewModel.getUuid().getValue();
+		if (uuid != null && !uuid.isEmpty()) {
+			final int index = uuid.indexOf(PKG_COMMON);
+			return LOG_TAG + "-" + (index == -1 ? uuid : uuid.substring(index + PKG_COMMON.length()));
 		}
 		return LOG_TAG;
 	}
@@ -126,44 +122,28 @@ public class POIFragment extends ABFragment implements
 	@NonNull
 	@Override
 	public String getScreenName() {
-		if (!TextUtils.isEmpty(this.uuid)) {
-			return TRACKING_SCREEN_NAME + "/" + this.uuid;
+		final String uuid = viewModel == null ? null : viewModel.getUuid().getValue();
+		if (!TextUtils.isEmpty(uuid)) {
+			return TRACKING_SCREEN_NAME + "/" + uuid;
 		}
 		return TRACKING_SCREEN_NAME;
 	}
 
-	private static final String EXTRA_AUTHORITY = "extra_agency_authority";
-	private static final String EXTRA_POI_UUID = "extra_poi_uuid";
-
 	@NonNull
 	public static POIFragment newInstance(@NonNull String uuid,
 										  @NonNull String authority,
-										  @Nullable AgencyProperties optAgency,
 										  @Nullable POIManager optPoim) {
 		POIFragment f = new POIFragment();
 		Bundle args = new Bundle();
-		args.putString(EXTRA_AUTHORITY, authority);
+		args.putString(POIViewModel.EXTRA_AUTHORITY, authority);
+		args.putString(POIViewModel.EXTRA_POI_UUID, uuid);
 		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
-			f.authority = authority;
-			f.agency = optAgency;
-		}
-		args.putString(EXTRA_POI_UUID, uuid);
-		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
-			f.uuid = uuid;
 			f.poim = optPoim;
 			f.setPOIProperties();
 		}
 		f.setArguments(args);
 		return f;
 	}
-
-	@Nullable
-	private String authority;
-	@NonNull
-	private final MutableLiveData<String> authorityLD = new MutableLiveData<>();
-
-	@Nullable
-	private AgencyProperties agency;
 
 	@Nullable
 	private POIViewModel viewModel;
@@ -202,8 +182,12 @@ public class POIFragment extends ABFragment implements
 					null // this.dataSourcesRepository
 			);
 
+	private void onAgencyLoaded(@Nullable AgencyProperties agency) {
+		applyNewAgency();
+	}
+
 	private void applyNewAgency() {
-		if (this.agency == null) {
+		if (getAgencyOrNull() == null) {
 			return;
 		}
 		final Context context = getContext();
@@ -222,66 +206,16 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
-	private String uuid;
+	private AgencyProperties getAgencyOrNull() {
+		return this.viewModel == null ? null : this.viewModel.getAgency().getValue();
+	}
 
 	@Nullable
-	private POIManager poim;
+	private POIManager poim; // kept for now because it can be updated anywhere #GodObject
 
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean hasPoim() {
-		if (this.poim == null) {
-			initPoimAsync(false);
-			return false;
-		}
-		return true;
-	}
-
-	private void initPoimAsync(boolean force) {
-		if (this.loadPoimTask != null && this.loadPoimTask.getStatus() == LoadPoimTask.Status.RUNNING) {
-			if (!force) {
-				MTLog.d(this, "initPoimAsync() > SKIP (already running)");
-				return;
-			}
-		}
-		if (TextUtils.isEmpty(this.uuid) || TextUtils.isEmpty(this.authority)) {
-			return;
-		}
-		this.loadPoimTask = new LoadPoimTask(this, force);
-		TaskUtils.execute(this.loadPoimTask);
-	}
-
-	@Nullable
-	private LoadPoimTask loadPoimTask = null;
-
-	@SuppressWarnings("deprecation")
-	private static class LoadPoimTask extends MTCancellableFragmentAsyncTask<Void, Void, Boolean, POIFragment> {
-
-		@NonNull
-		@Override
-		public String getLogTag() {
-			return POIFragment.class.getSimpleName() + ">" + LoadPoimTask.class.getSimpleName();
-		}
-
-		private final boolean force;
-
-		LoadPoimTask(@NonNull POIFragment poiFragment, boolean force) {
-			super(poiFragment);
-			this.force = force;
-		}
-
-		@WorkerThread
-		@Override
-		protected Boolean doInBackgroundNotCancelledWithFragmentMT(@NonNull POIFragment poiFragment, @Nullable Void... params) {
-			return poiFragment.initPoimSync(this.force);
-		}
-
-		@MainThread
-		@Override
-		protected void onPostExecuteNotCancelledFragmentReadyMT(@NonNull POIFragment poiFragment, @Nullable Boolean result) {
-			if (Boolean.TRUE.equals(result)) {
-				poiFragment.applyNewPoim();
-			}
-		}
+		return this.poim != null;
 	}
 
 	@Nullable
@@ -292,28 +226,26 @@ public class POIFragment extends ABFragment implements
 		return this.poim;
 	}
 
-	@WorkerThread
-	private boolean initPoimSync(boolean force) {
-		if (!force && this.poim != null) {
-			MTLog.d(this, "initPoimSync() > SKIP (already loaded)");
-			return false;
-		}
-		if (this.uuid != null && this.authority != null) {
-			final POIManager newPOIM = DataSourceManager.findPOI(requireContext(), this.authority, POIProviderContract.Filter.getNewUUIDFilter(this.uuid));
-			if (newPOIM == null) {
-				onDataSourceRemoved();
-			}
-			this.poim = newPOIM;
-		}
-		return this.poim != null;
-	}
-
 	private void setPOIProperties() {
 		if (this.poim != null) {
 			this.poim.setInFocus(true);
 			this.poim.setScheduleMaxDataRequests(ScheduleStatusFilter.DATA_REQUEST_MONTHS);
 			this.poim.resetLastFindTimestamps();
 		}
+	}
+
+	private void onPOIMLoaded(@Nullable POIManager newPOIM) {
+		if (newPOIM == null) {
+			MTLog.d(this, "applyNewPoim() > SKIP (no POI)");
+			return; // SKIP
+		}
+		if (this.poim != null
+				&& this.poim.poi.equals(newPOIM.poi)) {
+			MTLog.d(this, "applyNewPoim() > SKIP (same POI)");
+			return; // SKIP
+		}
+		this.poim = newPOIM;
+		applyNewPoim();
 	}
 
 	private void applyNewPoim() {
@@ -327,8 +259,8 @@ public class POIFragment extends ABFragment implements
 			return;
 		}
 		setPOIProperties();
-		if (this.userLocation != null) {
-			LocationUtils.updateDistanceWithString(context, this.poim, this.userLocation);
+		if (this.deviceLocation != null) {
+			LocationUtils.updateDistanceWithString(context, this.poim, this.deviceLocation);
 		}
 		if (this.adapter != null) {
 			this.adapter.clear();
@@ -348,7 +280,6 @@ public class POIFragment extends ABFragment implements
 		}
 		setupNearbyList();
 	}
-
 
 	private void onNewsLoaded(@Nullable List<News> news) {
 		if (news == null) {
@@ -422,10 +353,6 @@ public class POIFragment extends ABFragment implements
 				this);
 	}
 
-	private void resetPoim() {
-		this.poim = null;
-	}
-
 	@Override
 	public void onAttach(@NonNull Context context) {
 		super.onAttach(context);
@@ -445,29 +372,7 @@ public class POIFragment extends ABFragment implements
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
-		restoreInstanceState(savedInstanceState, getArguments());
 		this.mapViewController.onCreate(savedInstanceState);
-		Transformations.switchMap(this.authorityLD, newAuthority -> {
-			if (newAuthority != null) {
-				return this.dataSourcesRepository.readingAgency(newAuthority);
-			} else {
-				return null;
-			}
-		}).observe(this, newAgency -> {
-			if (this.agency != null && this.agency.equals(newAgency)) {
-				MTLog.d(this, "onChanged() > SKIP (same agency)");
-				return; // SKIP same agency
-			}
-			if (this.agency != null && newAgency == null) {
-				MTLog.d(this, "onChanged() > Agency does not exist anymore > close screen (pop)");
-				onDataSourceRemoved();
-				return;
-			}
-			this.agency = newAgency;
-			applyNewAgency();
-			initPoimAsync(true); // force poi + status refresh
-		});
-		this.authorityLD.postValue(this.authority); // force once
 	}
 
 	private void onDataSourceRemoved() {
@@ -491,36 +396,25 @@ public class POIFragment extends ABFragment implements
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		viewModel = new ViewModelProvider(this).get(POIViewModel.class);
+		viewModel.getDataSourceRemovedEvent().observe(getViewLifecycleOwner(), new EventObserver<>(removed -> {
+			if (removed) {
+				onDataSourceRemoved();
+			}
+			return null;
+		}));
+		viewModel.getAgency().observe(getViewLifecycleOwner(), this::onAgencyLoaded);
+		viewModel.getPoim().observe(getViewLifecycleOwner(), this::onPOIMLoaded);
+		viewModel.getScheduleProviders().observe(getViewLifecycleOwner(), scheduleProviders -> setupRTSFullScheduleBtn(getView()));
 		viewModel.getNearbyPOIs().observe(getViewLifecycleOwner(), this::onNearbyPOIsLoaded);
 		viewModel.getLatestNewsArticleList().observe(getViewLifecycleOwner(), this::onNewsLoaded);
-		viewModel.onNewPOI(getPoimOrNull());
 		setupView(view);
 		this.mapViewController.onViewCreated(view, savedInstanceState);
 	}
 
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
-		if (!TextUtils.isEmpty(this.uuid)) {
-			outState.putString(EXTRA_POI_UUID, this.uuid);
-		}
-		if (!TextUtils.isEmpty(this.authority)) {
-			outState.putString(EXTRA_AUTHORITY, this.authority);
-		}
 		this.mapViewController.onSaveInstanceState(outState);
 		super.onSaveInstanceState(outState);
-	}
-
-	private void restoreInstanceState(Bundle... bundles) {
-		String newAuthority = BundleUtils.getString(EXTRA_AUTHORITY, bundles);
-		if (newAuthority != null && !newAuthority.equals(this.authority)) {
-			this.authority = newAuthority;
-			this.authorityLD.postValue(newAuthority);
-		}
-		String newUuid = BundleUtils.getString(EXTRA_POI_UUID, bundles);
-		if (newUuid != null && !newUuid.equals(this.uuid)) {
-			this.uuid = newUuid;
-			resetPoim();
-		}
 	}
 
 	@Nullable
@@ -532,12 +426,6 @@ public class POIFragment extends ABFragment implements
 			return;
 		}
 		hideNearbyList(true);
-		if (Constants.FORCE_NEARBY_POI_LIST_OFF) {
-			return;
-		}
-		if (viewModel != null) {
-			viewModel.onNewPOI(getPoimOrNull());
-		}
 	}
 
 	private void onNearbyPOIsLoaded(@Nullable List<POIManager> nearbyPOIs) {
@@ -558,7 +446,7 @@ public class POIFragment extends ABFragment implements
 		}
 		if (this.adapter != null) {
 			this.adapter.setPois(nearbyPOIs);
-			this.adapter.updateDistanceNowAsync(this.userLocation);
+			this.adapter.updateDistanceNowAsync(this.deviceLocation);
 			this.adapter.initManual();
 			if (this.adapter.getPoisCount() > 0) {
 				showNearbyList();
@@ -614,28 +502,28 @@ public class POIFragment extends ABFragment implements
 		}
 		View rtsScheduleBtn = view.findViewById(R.id.fullScheduleBtn);
 		Collection<ScheduleProviderProperties> scheduleProviders;
-		if (rtsScheduleBtn != null && this.authority != null && this.uuid != null) {
-			scheduleProviders = this.dataSourcesRepository.getScheduleProviders(this.authority);
-			if (scheduleProviders.isEmpty()) {
+		if (rtsScheduleBtn != null) {
+			scheduleProviders = this.viewModel == null ? null : this.viewModel.getScheduleProviders().getValue();
+			if (scheduleProviders == null || scheduleProviders.isEmpty()) {
 				rtsScheduleBtn.setVisibility(View.GONE);
 			} else {
 				rtsScheduleBtn.setOnClickListener(new MTOnClickListener() {
 					@Override
 					public void onClickMT(@NonNull View view) {
-						POIManager poim = getPoimOrNull();
+						final POIManager poim = getPoimOrNull();
 						if (poim == null || !(poim.poi instanceof RouteTripStop)) {
 							MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RTS)");
 							return;
 						}
-						FragmentActivity activity = getActivity();
+						final FragmentActivity activity = getActivity();
 						if (activity == null) {
 							MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
 							return;
 						}
 						((MainActivity) activity).addFragmentToStack( //
 								ScheduleFragment.newInstance(
-										POIFragment.this.uuid,
-										POIFragment.this.authority,
+										poim.poi.getUUID(),
+										poim.poi.getAuthority(),
 										poim.getColor(dataSourcesRepository)
 								), //
 								POIFragment.this);
@@ -701,7 +589,7 @@ public class POIFragment extends ABFragment implements
 						return;
 					}
 					Integer optTypeId = null;
-					final AgencyProperties agency = POIFragment.this.agency;
+					final AgencyProperties agency = POIFragment.this.getAgencyOrNull();
 					if (agency != null) {
 						optTypeId = agency.getType().getId();
 					}
@@ -762,10 +650,11 @@ public class POIFragment extends ABFragment implements
 					if (activity == null) {
 						return;
 					}
-					if (POIFragment.this.agency == null) {
+					final AgencyProperties agency = getAgencyOrNull();
+					if (agency == null) {
 						return;
 					}
-					final String pkg = POIFragment.this.agency.getPkg();
+					final String pkg = agency.getPkg();
 					POIFragment.this.analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
 							.put(AnalyticsEvents.Params.PKG, pkg)
 					);
@@ -887,12 +776,12 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
-	private Location userLocation;
+	private Location deviceLocation;
 
 	@Nullable
 	@Override
 	public Location getLocation() {
-		return this.userLocation;
+		return this.deviceLocation;
 	}
 
 	@Override
@@ -901,22 +790,22 @@ public class POIFragment extends ABFragment implements
 			return;
 		}
 		final Context context = getContext();
-		if (this.userLocation == null && context != null) {
+		if (this.deviceLocation == null && context != null) {
 			this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(context));
 		}
-		if (this.userLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.userLocation, newLocation)) {
-			this.userLocation = newLocation;
+		if (this.deviceLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.deviceLocation, newLocation)) {
+			this.deviceLocation = newLocation;
 			this.locationDeclination = sensorManager.getLocationDeclination(newLocation);
 			if (!this.compassUpdatesEnabled) {
 				sensorManager.registerCompassListener(this);
 				this.compassUpdatesEnabled = true;
 			}
-			POIManager poim = getPoimOrNull();
+			final POIManager poim = getPoimOrNull();
 			if (poim != null) {
 				LocationUtils.updateDistanceWithString(requireContext(), poim, newLocation);
 				POIViewController.updatePOIDistanceAndCompass(getPOIView(getView()), poim, this);
 			}
-			this.mapViewController.onDeviceLocationChanged(this.userLocation);
+			this.mapViewController.onDeviceLocationChanged(this.deviceLocation);
 			if (this.adapter != null) {
 				this.adapter.setLocation(newLocation);
 			}
@@ -945,21 +834,32 @@ public class POIFragment extends ABFragment implements
 	public void updateCompass(float orientation, boolean force) {
 		long now = UITimeUtils.currentTimeMillis();
 		int roundedOrientation = DegreeUtils.convertToPositive360Degree((int) orientation);
-		sensorManager.updateCompass(force, this.userLocation, roundedOrientation, now, AbsListView.OnScrollListener.SCROLL_STATE_IDLE, this.lastCompassChanged,
-				this.lastCompassInDegree, Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS, this);
+		sensorManager.updateCompass(
+				force,
+				this.deviceLocation,
+				roundedOrientation,
+				now,
+				AbsListView.OnScrollListener.SCROLL_STATE_IDLE,
+				this.lastCompassChanged,
+				this.lastCompassInDegree,
+				Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS,
+				this
+		);
 	}
 
 	@Override
 	public void onSensorTaskCompleted(boolean result, int roundedOrientation, long now) {
-		if (result) {
-			this.lastCompassInDegree = roundedOrientation;
-			this.lastCompassChanged = now;
-			if (this.compassUpdatesEnabled && this.userLocation != null && this.lastCompassInDegree >= 0) {
-				POIManager poim = getPoimOrNull();
-				if (poim != null) {
-					POIViewController.updatePOIDistanceAndCompass(getPOIView(getView()), poim, this);
-				}
-			}
+		if (!result) {
+			return;
+		}
+		this.lastCompassInDegree = roundedOrientation;
+		this.lastCompassChanged = now;
+		if (!this.compassUpdatesEnabled || this.deviceLocation == null || this.lastCompassInDegree < 0) {
+			return;
+		}
+		final POIManager poim = getPoimOrNull();
+		if (poim != null) {
+			POIViewController.updatePOIDistanceAndCompass(getPOIView(getView()), poim, this);
 		}
 	}
 
@@ -972,7 +872,7 @@ public class POIFragment extends ABFragment implements
 		enableTimeChangedReceiver();
 		this.mapViewController.onResume();
 		if (this.adapter != null) {
-			this.adapter.onResume(this, this.userLocation);
+			this.adapter.onResume(this, this.deviceLocation);
 		}
 		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
@@ -1058,8 +958,9 @@ public class POIFragment extends ABFragment implements
 			MTLog.d(this, "refreshAppUpdateLayout() > SKIP (no layout)");
 			return;
 		}
-		final boolean appUpdateAvailable = this.agency != null && this.agency.getUpdateAvailable();
-		final String pkg = this.agency == null ? "" : this.agency.getPkg();
+		final AgencyProperties agency = getAgencyOrNull();
+		final boolean appUpdateAvailable = agency != null && agency.getUpdateAvailable();
+		final String pkg = agency == null ? "" : agency.getPkg();
 		if (appUpdateAvailable) {
 			if (appUpdateLayout.getVisibility() != View.VISIBLE) {
 				appUpdateLayout.setVisibility(View.VISIBLE);
@@ -1151,7 +1052,7 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public boolean hasLocation() {
-		return this.userLocation != null;
+		return this.deviceLocation != null;
 	}
 
 	@Nullable
@@ -1317,14 +1218,15 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public boolean isABReady() {
-		return this.agency != null;
+		return getAgencyOrNull() != null;
 	}
 
 	@Nullable
 	@Override
 	public CharSequence getABTitle(@Nullable Context context) {
-		if (this.agency != null) {
-			return this.agency.getShortName();
+		final AgencyProperties agency = getAgencyOrNull();
+		if (agency != null) {
+			return agency.getShortName();
 		}
 		if (context == null) {
 			return super.getABTitle(null);
@@ -1358,6 +1260,5 @@ public class POIFragment extends ABFragment implements
 			this.adapter.onDestroy();
 			this.adapter = null;
 		}
-		TaskUtils.cancelQuietly(this.loadPoimTask, true);
 	}
 }

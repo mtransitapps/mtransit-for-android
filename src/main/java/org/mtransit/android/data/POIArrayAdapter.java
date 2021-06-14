@@ -117,9 +117,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@Nullable
 	private Location location;
 
-	private int lastCompassInDegree = -1;
+	@Nullable
+	private Integer lastCompassInDegree = null;
 
-	private float locationDeclination;
+	@Nullable
+	private Float locationDeclination = null;
 
 	private HashSet<String> closestPoiUuids;
 
@@ -1130,7 +1132,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		disableTimeChangedReceiver();
 		this.compassImgsWR.clear();
 		this.lastCompassChanged = -1;
-		this.lastCompassInDegree = -1;
+		this.lastCompassInDegree = null;
 		this.accelerometerValues = new float[3];
 		this.magneticFieldValues = new float[3];
 		this.lastNotifyDataSetChanged = -1L;
@@ -1139,7 +1141,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		TaskUtils.cancelQuietly(this.refreshFavoritesTask, true);
 		TaskUtils.cancelQuietly(this.updateDistanceWithStringTask, true);
 		this.location = null;
-		this.locationDeclination = 0f;
+		this.locationDeclination = null;
 		super.clear();
 	}
 
@@ -1169,8 +1171,17 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 		long now = UITimeUtils.currentTimeMillis();
 		int roundedOrientation = DegreeUtils.convertToPositive360Degree((int) orientation);
-		this.sensorManager.updateCompass(force, this.location, roundedOrientation, now, this.scrollState, this.lastCompassChanged, this.lastCompassInDegree,
-				Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS, this);
+		this.sensorManager.updateCompass(
+				force,
+				this.location,
+				roundedOrientation,
+				now,
+				this.scrollState,
+				this.lastCompassChanged,
+				this.lastCompassInDegree,
+				Constants.ADAPTER_NOTIFY_THRESHOLD_IN_MS,
+				this
+		);
 	}
 
 	@Override
@@ -1186,7 +1197,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		for (WeakHashMap.Entry<MTCompassView, View> compassAndDistance : this.compassImgsWR.entrySet()) {
 			MTCompassView compassView = compassAndDistance.getKey();
 			if (compassView != null && compassView.isHeadingSet()) {
-				compassView.generateAndSetHeading(this.location, this.lastCompassInDegree, this.locationDeclination);
+				compassView.generateAndSetHeadingN(this.location, this.lastCompassInDegree, this.locationDeclination);
 			}
 		}
 	}
@@ -1891,8 +1902,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 		if (holder.compassV != null) {
 			if (holder.distanceTv != null && holder.distanceTv.getVisibility() == View.VISIBLE) {
-				if (this.location != null && this.lastCompassInDegree >= 0 && this.location.getAccuracy() <= poim.getDistance()) {
-					holder.compassV.generateAndSetHeading(this.location, this.lastCompassInDegree, this.locationDeclination);
+				if (this.location != null
+						&& this.lastCompassInDegree != null
+						&& this.location.getAccuracy() <= poim.getDistance()) {
+					holder.compassV.generateAndSetHeadingN(this.location, this.lastCompassInDegree, this.locationDeclination);
 				} else {
 					holder.compassV.resetHeading();
 				}

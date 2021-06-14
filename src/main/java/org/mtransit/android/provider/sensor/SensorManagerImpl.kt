@@ -194,7 +194,7 @@ class SensorManagerImpl @Inject constructor(
         minThresholdInMs: Long,
         sensorTaskCompleted: MTSensorManager.SensorTaskCompleted
     ) {
-        if (deviceLocation == null || roundedOrientation < 0 || lastCompassInDegree == null) {
+        if (deviceLocation == null || roundedOrientation < 0) {
             sensorTaskCompleted.onSensorTaskCompleted(false, roundedOrientation, now)
             return
         }
@@ -209,7 +209,7 @@ class SensorManagerImpl @Inject constructor(
                 sensorTaskCompleted.onSensorTaskCompleted(false, roundedOrientation, now)
                 return
             }
-            val diffInDegree: Float = abs(lastCompassInDegree - roundedOrientation).toFloat()
+            val diffInDegree: Float = abs(lastCompassInDegree ?: 0 - roundedOrientation).toFloat()
             val notDifferentEnough = diffInDegree <= COMPASS_DEGREE_UPDATE_THRESHOLD
             if (notDifferentEnough) {
                 sensorTaskCompleted.onSensorTaskCompleted(false, roundedOrientation, now)

@@ -107,7 +107,7 @@ public class MTCompassView extends MTView {
 
 	private Path getHeadingArrow() {
 		Path path = new Path();
-		// we want to crossing between the inner circle and the quarter of the width or the circle
+		// we want to cross between the inner circle and the quarter of the width or the circle
 		float innerCircleWidth = this.bounds.right - this.bounds.left;
 		float innerCircleRadius = innerCircleWidth / 2;
 		float x = this.bounds.left + -(innerCircleWidth / 4);
@@ -129,8 +129,11 @@ public class MTCompassView extends MTView {
 	private Double lng;
 
 	public void generateAndSetHeadingN(@Nullable Location location, @Nullable Integer lastCompassInDegree, @Nullable Float locationDeclination) {
-		if (locationDeclination == null || lastCompassInDegree == null) {
+		if (locationDeclination == null) {
 			return;
+		}
+		if (lastCompassInDegree == null) {
+			lastCompassInDegree = 0;
 		}
 		generateAndSetHeading(location, lastCompassInDegree, locationDeclination);
 	}

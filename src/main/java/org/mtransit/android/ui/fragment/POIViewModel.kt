@@ -2,8 +2,11 @@ package org.mtransit.android.ui.fragment
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
+import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,37 +18,81 @@ import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.provider.NewsProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.ui.view.common.Event
+import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.util.UITimeUtils
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
 class POIViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = POIViewModel::class.java.simpleName
+
+        internal const val EXTRA_AUTHORITY = "extra_agency_authority"
+        internal const val EXTRA_POI_UUID = "extra_poi_uuid"
     }
 
     override fun getLogTag(): String = LOG_TAG
 
-    private val poi = MutableLiveData<POI>(null)
+    val uuid: LiveData<String?> = savedStateHandle.getLiveData<String?>(EXTRA_POI_UUID).distinctUntilChanged()
 
-    fun onNewPOI(poim: POIManager?) {
-        onNewPOI(poim?.poi)
+    private val _authority: LiveData<String?> = savedStateHandle.getLiveData<String?>(EXTRA_AUTHORITY).distinctUntilChanged()
+
+    val agency: LiveData<AgencyProperties?> = this._authority.switchMap { authority ->
+        authority?.let {
+            this.dataSourcesRepository.readingAgency(authority) // #onModulesUpdated
+        } ?: MutableLiveData(null)
     }
 
-    fun onNewPOI(poi: POI?) {
-        this.poi.postValue(poi)
+    val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
+
+    val poim: LiveData<POIManager?> = PairMediatorLiveData(agency, uuid).switchMap { (agency, uuid) -> // use agency == #onModulesUpdated
+        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+            emit(getPOIManager(agency, uuid))
+        }
+    }
+
+    private fun getPOIManager(agency: AgencyProperties?, uuid: String?): POIManager? {
+        if (uuid.isNullOrEmpty()) {
+            MTLog.d(this, "getPOI() > SKIP (no uuid)")
+            return null
+        }
+        if (agency == null) {
+            if (poim.value != null) {
+                MTLog.d(this, "getPOI() > data source removed (no more agency)")
+                dataSourceRemovedEvent.postValue(Event(true))
+            }
+            return null
+        }
+        return this.dataSourceRequestManager.findPOIM(agency.authority, POIProviderContract.Filter.getNewUUIDFilter(uuid))
+            ?: run {
+                MTLog.d(this, "getPOI() > SKIP (data source removed!)")
+                dataSourceRemovedEvent.postValue(Event(true))
+                null
+            }
+    }
+
+    private val _poi = this.poim.map {
+        it?.poi
+    }
+
+    val scheduleProviders: LiveData<List<ScheduleProviderProperties>> = _authority.switchMap { authority ->
+        this.dataSourcesRepository.readingScheduleProviders(authority)
     }
 
     // like Home screen (no infinite loading like in Nearby screen)
-    val nearbyPOIs: LiveData<List<POIManager>?> = poi.switchMap { poi ->
+    val nearbyPOIs: LiveData<List<POIManager>?> = _poi.switchMap { poi ->
         liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
             emit(getNearbyPOIs(poi))
         }
@@ -56,10 +103,10 @@ class POIViewModel @Inject constructor(
     }
 
     private fun getNearbyPOIs(
-        authority: String? = poi.value?.authority,
-        lat: Double? = poi.value?.lat,
-        lng: Double? = poi.value?.lng,
-        excludedUUID: String? = poi.value?.uuid
+        authority: String? = _poi.value?.authority,
+        lat: Double? = _poi.value?.lat,
+        lng: Double? = _poi.value?.lng,
+        excludedUUID: String? = _poi.value?.uuid
     ): List<POIManager>? {
         if (Constants.FORCE_NEARBY_POI_LIST_OFF) {
             MTLog.d(this, "getNearbyPOIs() > SKIP (feature disabled)")
@@ -100,7 +147,7 @@ class POIViewModel @Inject constructor(
         return nearbyPOIs.take(LocationUtils.MAX_POI_NEARBY_POIS_LIST)
     }
 
-    val latestNewsArticleList: LiveData<List<News>?> = poi.switchMap { poi ->
+    val latestNewsArticleList: LiveData<List<News>?> = _poi.switchMap { poi ->
         liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
             emit(getLatestNewsArticles(poi))
         }
