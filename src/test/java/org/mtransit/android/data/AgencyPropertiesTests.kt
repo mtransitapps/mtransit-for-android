@@ -31,7 +31,7 @@ class AgencyPropertiesTests {
         // Act
         CollectionUtils.sort(
             agencies,
-            AgencyProperties.SHORT_NAME_COMPARATOR
+            IAgencyProperties.SHORT_NAME_COMPARATOR
         )
         // Assert
         assertEquals(3, agencies.size)
@@ -51,7 +51,7 @@ class AgencyPropertiesTests {
             AgencyProperties(ID, DataSourceType.TYPE_BUS, SHORT_NAME, LONG_NAME, color = null, AREA, PKG, LONG_VERSION, VERSION, IS_INSTALLED, IS_ENABLED),
         )
         // Act
-        AgencyProperties.removeType(agencies, DataSourceType.TYPE_BUS)
+        IAgencyProperties.removeType(agencies, DataSourceType.TYPE_BUS)
         // Assert
         assertEquals(2, agencies.size)
     }

@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import org.mtransit.android.ad.IAdManager
@@ -34,6 +35,7 @@ import org.mtransit.android.ui.favorites.FavoritesViewModel
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.util.toLatLngS
 import java.util.SortedMap
 import javax.inject.Inject
 
@@ -140,7 +142,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getNearbyPOIs(
+    private suspend fun getNearbyPOIs(
         scope: CoroutineScope,
         dstToHomeAgencies: SortedMap<DataSourceType, List<AgencyBaseProperties>>?,
         nearbyLocation: Location?
@@ -151,6 +153,9 @@ class HomeViewModel @Inject constructor(
             return
         }
         _loadingPOIs.postValue(true)
+        if (!_nearbyPOIs.value.isNullOrEmpty()) {
+            delay(333L) // debounce / throttle (agencies being updated)
+        }
         val favoriteUUIDs = favoriteRepository.findFavoriteUUIDs()
         val nbMaxByType = when (dstToHomeAgencies.keys.size) {
             in 0..2 -> NB_MAX_BY_TYPE_ONE_TYPE

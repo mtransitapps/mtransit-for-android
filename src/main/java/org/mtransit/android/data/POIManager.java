@@ -750,7 +750,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			// AgencyProperties agencyProperties = dataSourcesR epository.getAgency(this.poi.getAuthority());
 			((MainActivity) activity).addFragmentToStack(POIFragment.newInstance(
 					this.poi.getUUID(),
 					this.poi.getAuthority(),
