@@ -11,7 +11,7 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.pref.liveData
@@ -27,7 +27,7 @@ class AgencyPOIsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
-    private val lclPrefRepository: LocalPreferenceRepository,
+    private val defaultPrefRepository: DefaultPreferenceRepository,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -62,9 +62,9 @@ class AgencyPOIsViewModel @Inject constructor(
 
     val showingListInsteadOfMap: LiveData<Boolean?> = _authority.switchMap { authority ->
         authority?.let {
-            lclPrefRepository.pref.liveData(
+            defaultPrefRepository.pref.liveData(
                 PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(it),
-                lclPrefRepository.getValue(
+                defaultPrefRepository.getValue(
                     PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET,
                     PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
                 )
@@ -73,7 +73,7 @@ class AgencyPOIsViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     fun saveShowingListInsteadOfMap(showingListInsteadOfMap: Boolean) {
-        lclPrefRepository.pref.edit {
+        defaultPrefRepository.pref.edit {
             putBoolean(PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET, showingListInsteadOfMap)
             _authority.value?.let { authority ->
                 putBoolean(PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority), showingListInsteadOfMap)

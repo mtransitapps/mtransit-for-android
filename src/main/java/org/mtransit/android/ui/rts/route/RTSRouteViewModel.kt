@@ -150,7 +150,7 @@ class RTSRouteViewModel @Inject constructor(
     }
 
     private val _listInsteadOfMapDefault: LiveData<Boolean?> = MutableLiveData(
-        PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
+        PreferenceUtils.PREFS_LCL_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
     )
 
     val showingListInsteadOfMap: LiveData<Boolean?> = PairMediatorLiveData(listInsteadOfMap, _listInsteadOfMapDefault).map { (listInsteadOfMap, default) ->

@@ -161,9 +161,10 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
 
     private fun switchView() {
         binding?.apply {
-            loading.root.isVisible = viewModel.showingListInsteadOfGrid.value == null
-            routesListGrid.isVisible = viewModel.showingListInsteadOfGrid.value != null && adapter.itemCount > 0
-            (emptyBinding?.root ?: emptyStub.inflate()).isVisible = viewModel.showingListInsteadOfGrid.value != null && adapter.itemCount == 0
+            val listInsteadOfGrid = viewModel.showingListInsteadOfGrid.value
+            loading.root.isVisible = listInsteadOfGrid == null
+            routesListGrid.isVisible = listInsteadOfGrid != null && adapter.itemCount > 0
+            (emptyBinding?.root ?: emptyStub.inflate()).isVisible = listInsteadOfGrid != null && adapter.itemCount == 0
         }
     }
 
@@ -190,12 +191,13 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
         if (!isResumed) {
             return
         }
-        listGridSwitchMenuItem?.isChecked = viewModel.showingListInsteadOfGrid.value != false
+        val listInsteadOfGrid = viewModel.showingListInsteadOfGrid.value
+        listGridSwitchMenuItem?.isChecked = listInsteadOfGrid != false
         listGridSwitchMenuItem?.setOnCheckedChangeListener { buttonView: CompoundButton, isChecked: Boolean ->
             onCheckedChanged(buttonView, isChecked)
         }
-        listGridSwitchMenuItem?.isVisible = viewModel.showingListInsteadOfGrid.value != null
-        listGridToggleMenuItem?.isVisible = viewModel.showingListInsteadOfGrid.value != null
+        listGridSwitchMenuItem?.isVisible = listInsteadOfGrid != null
+        listGridToggleMenuItem?.isVisible = listInsteadOfGrid != null
     }
 
     private fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
