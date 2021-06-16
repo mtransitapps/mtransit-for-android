@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
@@ -17,6 +16,7 @@ import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import java.util.ArrayList
 import javax.inject.Inject
 
@@ -39,22 +39,19 @@ class NewsListViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val colorInt: LiveData<Int?> = savedStateHandle.getLiveData<Int?>(EXTRA_COLOR_INT).distinctUntilChanged()
+    val colorInt = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_COLOR_INT)
 
-    val subTitle: LiveData<String?> = savedStateHandle.getLiveData<String?>(EXTRA_SUB_TITLE).distinctUntilChanged()
+    val subTitle = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SUB_TITLE)
 
-    private val _targetAuthorities: LiveData<ArrayList<String>?> =
-        savedStateHandle.getLiveData<ArrayList<String>?>(EXTRA_FILTER_TARGET_AUTHORITIES).distinctUntilChanged()
+    private val _targetAuthorities = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_FILTER_TARGET_AUTHORITIES)
 
-    private val _filterTargets: LiveData<ArrayList<String>?> =
-        savedStateHandle.getLiveData<ArrayList<String>?>(EXTRA_FILTER_TARGETS).distinctUntilChanged()
+    private val _filterTargets = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_FILTER_TARGETS)
 
-    private val _filterUUIDs: LiveData<ArrayList<String>?> =
-        savedStateHandle.getLiveData<ArrayList<String>?>(EXTRA_FILTER_UUIDS).distinctUntilChanged()
+    private val _filterUUIDs = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_FILTER_UUIDS)
 
     private val _filters = TripleMediatorLiveData(_targetAuthorities, _filterTargets, _filterUUIDs)
 
-    private val _allNewsProviders = this.dataSourcesRepository.readingAllNewsProvidersDistinct()
+    private val _allNewsProviders = this.dataSourcesRepository.readingAllNewsProviders() // #onModulesUpdated
 
     private val _refreshRequestedTrigger = MutableLiveData(0)
 

@@ -35,7 +35,6 @@ import org.mtransit.android.ui.favorites.FavoritesViewModel
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
-import org.mtransit.android.util.toLatLngS
 import java.util.SortedMap
 import javax.inject.Inject
 
@@ -109,7 +108,7 @@ class HomeViewModel @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBaseDistinct() // #onModulesUpdated
+    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
     private val _dstToHomeAgencies: LiveData<SortedMap<DataSourceType, List<AgencyBaseProperties>>?> = _allAgencies.map { allAgencies ->
         if (allAgencies.isNullOrEmpty()) {

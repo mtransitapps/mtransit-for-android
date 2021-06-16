@@ -108,7 +108,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		this.analyticsManager = analyticsManager;
 		this.statusLoader = statusLoader;
 		this.serviceUpdateLoader = serviceUpdateLoader;
-		this.dataSourcesRepository.readingAllDataSourceTypesDistinct().observe(mainActivity, dataSourceTypes -> {
+		this.dataSourcesRepository.readingAllDataSourceTypes().observe(mainActivity, dataSourceTypes -> {
 			this.allAgencyTypes = filterAgencyTypes(dataSourceTypes);
 			setVisibleMenuItems();
 			onMenuUpdated();
@@ -259,6 +259,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 
 	@NonNull
 	private List<DataSourceType> getNewFilteredAgencyTypes() {
+		//noinspection deprecation // FIXME
 		final List<DataSourceType> availableAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
 		return filterAgencyTypes(availableAgencyTypes);
 	}

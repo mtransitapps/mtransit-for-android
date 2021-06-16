@@ -2,6 +2,7 @@ package org.mtransit.android.datasource
 
 import android.content.Context
 import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -9,26 +10,18 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.data.POI
-import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.DataSourceType.DataSourceTypeShortNameComparator
 import org.mtransit.android.data.IAgencyProperties
-import org.mtransit.android.data.NewsProviderProperties
-import org.mtransit.android.data.POIManager
-import org.mtransit.android.data.ScheduleProviderProperties
-import org.mtransit.android.data.ServiceUpdateProviderProperties
-import org.mtransit.android.data.AgencyBaseProperties
-import org.mtransit.android.data.StatusProviderProperties
 import javax.inject.Inject
 import javax.inject.Singleton
 
 
-@Suppress("MemberVisibilityCanBePrivate", "unused")
 @Singleton
 class DataSourcesRepository @Inject constructor(
     @ApplicationContext private val appContext: Context,
-    private val dataSourcesCache: DataSourcesCache,
+    private val dataSourcesInMemoryCache: DataSourcesInMemoryCache,
+    private val dataSourcesIOCache: DataSourcesCache, // I/O - DB
     private val dataSourcesReader: DataSourcesReader,
 ) : MTLog.Loggable {
 
@@ -42,59 +35,17 @@ class DataSourcesRepository @Inject constructor(
 
     val defaultDataSourceTypeComparator: Comparator<DataSourceType> by lazy { DataSourceTypeShortNameComparator(appContext) }
 
-    // IN-MEMORY CACHE
-    private var _agencyProperties = listOf<AgencyProperties>() // sorted
-    private var _agencyBaseProperties = listOf<AgencyBaseProperties>() // sorted
-    private var _dataSourceTypes = listOf<DataSourceType>() // sorted
-    private var _statusProviderProperties = setOf<StatusProviderProperties>() // not sorted
-    private var _scheduleProviderProperties = setOf<ScheduleProviderProperties>() // not sorted
-    private var _serviceUpdateProviderProperties = setOf<ServiceUpdateProviderProperties>() // not sorted
-    private var _newsProviderProperties = setOf<NewsProviderProperties>() // not sorted
-
-    init {
-        // START LISTENING FOR CHANGE TO FILL IN-MEMORY CACHE
-        startListeningForChangesIntoMemory()
-    }
-
-    private fun startListeningForChangesIntoMemory() {
-        dataSourcesCache.readingAllAgencies().observeForever { // SINGLETON
-            this._agencyProperties = it.sortedWith(defaultAgencyComparator)
-        }
-        dataSourcesCache.readingAllAgenciesBase().observeForever { // SINGLETON
-            this._agencyBaseProperties = it.sortedWith(defaultAgencyComparator)
-        }
-        dataSourcesCache.readingAllDataSourceTypes().observeForever { // SINGLETON
-            this._dataSourceTypes = it.sortedWith(defaultDataSourceTypeComparator)
-        }
-        dataSourcesCache.readingAllStatusProviders().observeForever { // SINGLETON
-            this._statusProviderProperties = it.toSet() // not sorted
-        }
-        dataSourcesCache.readingAllScheduleProviders().observeForever { // SINGLETON
-            this._scheduleProviderProperties = it.toSet() // not sorted
-        }
-        dataSourcesCache.readingAllServiceUpdateProviders().observeForever { // SINGLETON
-            this._serviceUpdateProviderProperties = it.toSet() // not sorted
-        }
-        dataSourcesCache.readingAllNewsProviders().observeForever { // SINGLETON
-            this._newsProviderProperties = it.toSet() // not sorted
-        }
-    }
-
     // AGENCY
 
-    fun getAllAgencies() = this._agencyProperties
+    fun getAllAgencies() = this.dataSourcesInMemoryCache.getAllAgencies()
 
-    fun readingAllAgencies() = dataSourcesCache.readingAllAgencies().map {
+    fun readingAllAgencies() = dataSourcesIOCache.readingAllAgencies().map {
         it.sortedWith(defaultAgencyComparator)
-    }
+    }.distinctUntilChanged()
 
-    fun readingAllAgenciesBase() = dataSourcesCache.readingAllAgenciesBase().map {
+    fun readingAllAgenciesBase() = dataSourcesIOCache.readingAllAgenciesBase().map {
         it.sortedWith(defaultAgencyComparator)
-    }
-
-    fun readingAllAgenciesDistinct() = readingAllAgencies().distinctUntilChanged()
-
-    fun readingAllAgenciesBaseDistinct() = readingAllAgenciesBase().distinctUntilChanged()
+    }.distinctUntilChanged()
 
     fun readingAllAgencyAuthorities() = readingAllAgencies().map { agencyList ->
         agencyList.map { agency ->
@@ -102,86 +53,114 @@ class DataSourcesRepository @Inject constructor(
         }
     }
 
-    fun getAllAgenciesCount() = this._agencyProperties.size
+    @Deprecated(message = "Use live data")
+    fun getAllAgenciesCount() = this.dataSourcesInMemoryCache.getAllAgencies().size
 
-    fun readingAllAgenciesCount() = dataSourcesCache.readingAllAgenciesCount()
+    fun readingAllAgenciesCount() = liveData {
+        emit(dataSourcesInMemoryCache.getAllAgencies().size)
+        emitSource(dataSourcesIOCache.readingAllAgenciesCount()) // #onModulesUpdated
+    }
 
-    fun getAgency(authority: String) = this._agencyProperties.singleOrNull { it.authority == authority }
+    fun getAgency(authority: String) = dataSourcesInMemoryCache.getAgency(authority)
 
-    fun getAgencyForPkg(pkg: String) = this._agencyProperties.singleOrNull { it.pkg == pkg }
+    fun getAgencyBase(authority: String) = dataSourcesInMemoryCache.getAgencyBase(authority)
 
-    fun readingAgency(authority: String) = dataSourcesCache.readingAgency(authority)
+    fun getAgencyForPkg(pkg: String) = dataSourcesInMemoryCache.getAgencyForPkg(pkg)
 
-    fun readingAgencyBase(authority: String) = dataSourcesCache.readingAgencyBase(authority)
+    fun readingAgency(authority: String?) = liveData {
+        authority?.let {
+            emit(dataSourcesInMemoryCache.getAgency(it))
+            emitSource(dataSourcesIOCache.readingAgency(it)) // #onModulesUpdated
+        }
+    }.distinctUntilChanged()
 
-    fun getAllDataSourceTypes() = this._dataSourceTypes
+    fun readingAgencyBase(authority: String?) = liveData {
+        authority?.let {
+            emit(dataSourcesInMemoryCache.getAgencyBase(it))
+            emitSource(dataSourcesIOCache.readingAgencyBase(it)) // #onModulesUpdated
+        }
+    }.distinctUntilChanged()
 
-    fun readingAllDataSourceTypes() = dataSourcesCache.readingAllDataSourceTypes().map {
+    @Deprecated(message = "Use live data")
+    fun getAllDataSourceTypes() = this.dataSourcesInMemoryCache.getAllDataSourceTypes()
+
+    private fun readingAllDataSourceTypesIO() = dataSourcesIOCache.readingAllDataSourceTypes().map {
         it.sortedWith(defaultDataSourceTypeComparator)
     }
 
-    fun readingAllDataSourceTypesDistinct() = readingAllDataSourceTypes().distinctUntilChanged()
+    fun readingAllDataSourceTypes() = liveData {
+        emit(dataSourcesInMemoryCache.getAllDataSourceTypes())
+        emitSource(readingAllDataSourceTypesIO()) // #onModulesUpdated
+    }.distinctUntilChanged()
 
-    fun getTypeDataSources(typeId: Int): List<AgencyProperties> = this._agencyProperties.filter { it.type.id == typeId }
-        .sortedWith(defaultAgencyComparator)
-
-    fun getTypeDataSources(dst: DataSourceType) = getTypeDataSources(dst.id)
-
-    fun readingTypeDataSources(dst: DataSourceType) = this.dataSourcesCache.readingTypeDataSources(dst).map {
+    private fun readingTypeDataSourcesIO(dst: DataSourceType) = this.dataSourcesIOCache.readingTypeDataSources(dst).map {
         it.sortedWith(defaultAgencyComparator)
     }
 
-    fun readingTypeDataSourcesDistinct(dst: DataSourceType) = readingTypeDataSources(dst).distinctUntilChanged()
-
-    fun getAgencyPkg(authority: String) = getAgency(authority)?.pkg
-
-    fun getAgencyColorInt(authority: String) = getAgency(authority)?.colorInt
+    fun readingTypeDataSources(dst: DataSourceType?) = liveData {
+        dst?.let {
+            emit(dataSourcesInMemoryCache.getTypeDataSources(it))
+            emitSource(readingTypeDataSourcesIO(it)) // #onModulesUpdated
+        }
+    }.distinctUntilChanged()
 
     // STATUS
 
-    fun getAllStatusProviders() = this._statusProviderProperties
+    fun getAllStatusProviders() = this.dataSourcesInMemoryCache.getAllStatusProviders()
 
-    fun getStatusProviders(targetAuthority: String) = this._statusProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
+    fun getStatusProviders(targetAuthority: String) = this.dataSourcesInMemoryCache.getStatusProviders(targetAuthority)
 
-    fun getStatusProvider(authority: String) = this._statusProviderProperties.singleOrNull { it.authority == authority }
+    fun getStatusProvider(authority: String) = this.dataSourcesInMemoryCache.getStatusProvider(authority)
 
     // SCHEDULE
 
-    fun getAllScheduleProviders() = this._scheduleProviderProperties
+    fun getAllScheduleProviders() = this.dataSourcesInMemoryCache.getAllScheduleProviders()
 
-    fun getScheduleProviders(targetAuthority: String?) = this._scheduleProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
+    fun getScheduleProviders(targetAuthority: String?) = this.dataSourcesInMemoryCache.getScheduleProviders(targetAuthority)
 
-    fun readingScheduleProviders(targetAuthority: String?) = dataSourcesCache.readingScheduleProviders(targetAuthority)
+    fun readingScheduleProviders(targetAuthority: String?) = liveData {
+        targetAuthority?.let {
+            emit(dataSourcesInMemoryCache.getScheduleProvidersList(it))
+            emitSource(dataSourcesIOCache.readingScheduleProviders(it)) // #onModulesUpdated
+        }
+    }.distinctUntilChanged()
 
-    fun getScheduleProvider(authority: String) = this._scheduleProviderProperties.singleOrNull { it.authority == authority }
+    fun getScheduleProvider(authority: String) = this.dataSourcesInMemoryCache.getScheduleProvider(authority)
 
-    fun readingScheduleProvider(authority: String) = dataSourcesCache.readingScheduleProvider(authority)
+    fun readingScheduleProvider(authority: String?) = liveData {
+        authority?.let {
+            emit(dataSourcesInMemoryCache.getScheduleProvider(it))
+            emitSource(dataSourcesIOCache.readingScheduleProvider(it)) // #onModulesUpdated
+        }
+    }.distinctUntilChanged()
 
     // SERVICE UPDATE
 
-    fun getAllServiceUpdateProviders() = this._serviceUpdateProviderProperties
+    fun getAllServiceUpdateProviders() = this.dataSourcesInMemoryCache.getAllServiceUpdateProviders()
 
-    fun getServiceUpdateProviders(targetAuthority: String) = this._serviceUpdateProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
+    fun getServiceUpdateProviders(targetAuthority: String) = this.dataSourcesInMemoryCache.getServiceUpdateProviders(targetAuthority)
 
-    fun getServiceUpdateProvider(authority: String) = this._serviceUpdateProviderProperties.singleOrNull { it.authority == authority }
+    fun getServiceUpdateProvider(authority: String) = this.dataSourcesInMemoryCache.getServiceUpdateProvider(authority)
 
     // NEWS
 
-    fun getAllNewsProviders() = this._newsProviderProperties
+    fun getAllNewsProviders() = this.dataSourcesInMemoryCache.getAllNewsProviders()
 
-    fun readingAllNewsProviders() = dataSourcesCache.readingAllNewsProviders()
+    fun readingAllNewsProviders() = liveData {
+        emit(dataSourcesInMemoryCache.getAllNewsProviders().toList())
+        emitSource(dataSourcesIOCache.readingAllNewsProviders()) // #onModulesUpdated
+    }.distinctUntilChanged()
 
-    fun readingAllNewsProvidersDistinct() = readingAllNewsProviders().distinctUntilChanged()
+    fun getNewsProviders(targetAuthority: String) = this.dataSourcesInMemoryCache.getNewsProviders(targetAuthority)
 
-    fun getNewsProviders(poim: POIManager) = getNewsProviders(poim.poi)
+    fun readingNewsProviders(targetAuthority: String?) = liveData {
+        targetAuthority?.let {
+            emit(dataSourcesInMemoryCache.getNewsProvidersList(it))
+            emitSource(dataSourcesIOCache.readingNewsProviders(it)) // #onModulesUpdated
+        }
+    }.distinctUntilChanged()
 
-    fun getNewsProviders(poi: POI) = getNewsProviders(poi.authority)
-
-    fun getNewsProviders(targetAuthority: String) = this._newsProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
-
-    fun readingAllNewsProvidersDistinct(targetAuthority: String) = dataSourcesCache.readingNewsProviders(targetAuthority)
-
-    fun getNewsProvider(authority: String) = this._newsProviderProperties.singleOrNull { it.authority == authority }
+    fun getNewsProvider(authority: String) = this.dataSourcesInMemoryCache.getNewsProvider(authority)
 
     private var runningUpdate: Boolean = false
 

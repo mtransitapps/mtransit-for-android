@@ -26,6 +26,7 @@ import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
 @HiltViewModel
@@ -51,12 +52,12 @@ class RTSRouteViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val authority = savedStateHandle.getLiveData<String?>(EXTRA_AUTHORITY, null).distinctUntilChanged()
-    val routeId = savedStateHandle.getLiveData<Long?>(EXTRA_ROUTE_ID, null).distinctUntilChanged()
-    private val _selectedTripId = savedStateHandle.getLiveData<Long?>(EXTRA_SELECTED_TRIP_ID, null).distinctUntilChanged()
-    val selectedStopId = savedStateHandle.getLiveData<Int?>(EXTRA_SELECTED_STOP_ID, null).distinctUntilChanged()
+    val authority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AUTHORITY)
+    val routeId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_ROUTE_ID)
+    private val _selectedTripId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_SELECTED_TRIP_ID)
+    val selectedStopId = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_SELECTED_STOP_ID)
 
-    val listInsteadOfMap = savedStateHandle.getLiveData<Boolean?>(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, null).distinctUntilChanged()
+    val listInsteadOfMap = savedStateHandle.getLiveDataDistinct<Boolean?>(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP)
 
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
 

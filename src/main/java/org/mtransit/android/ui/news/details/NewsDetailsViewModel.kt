@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
@@ -19,6 +18,7 @@ import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,13 +37,13 @@ class NewsDetailsViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val uuid: LiveData<String?> = savedStateHandle.getLiveData<String?>(EXTRA_NEWS_UUID).distinctUntilChanged()
+    val uuid = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_NEWS_UUID)
 
-    private val authority: LiveData<String?> = savedStateHandle.getLiveData<String?>(EXTRA_AUTHORITY).distinctUntilChanged()
+    private val authority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AUTHORITY)
 
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
 
-    private val allNewsProviders = this.dataSourcesRepository.readingAllNewsProvidersDistinct() // #onModulesUpdated
+    private val allNewsProviders = this.dataSourcesRepository.readingAllNewsProviders() // #onModulesUpdated
 
     private val thisNewsProvider: LiveData<NewsProviderProperties?> = PairMediatorLiveData(allNewsProviders, authority).map { (allNewsProviders, authority) ->
         if (allNewsProviders != null && authority != null) {

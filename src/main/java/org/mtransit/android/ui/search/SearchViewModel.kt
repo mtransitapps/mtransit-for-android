@@ -4,7 +4,6 @@ import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
@@ -30,6 +29,7 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
 @HiltViewModel
@@ -51,11 +51,11 @@ class SearchViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val searchableDataSourceTypes: LiveData<List<DataSourceType>> = this.dataSourcesRepository.readingAllDataSourceTypesDistinct().map { list ->
+    val searchableDataSourceTypes: LiveData<List<DataSourceType>> = this.dataSourcesRepository.readingAllDataSourceTypes().map { list ->
         list.filter { dst -> dst.isSearchable }
     }
 
-    private val _searchableAgencies: LiveData<List<IAgencyProperties>> = this.dataSourcesRepository.readingAllAgenciesBaseDistinct().map { list ->
+    private val _searchableAgencies: LiveData<List<IAgencyProperties>> = this.dataSourcesRepository.readingAllAgenciesBase().map { list ->
         list.filter { agency -> agency.type.isSearchable }
     }
 
@@ -87,7 +87,7 @@ class SearchViewModel @Inject constructor(
         savedStateHandle[EXTRA_QUERY] = query.trim()
     }
 
-    val query = savedStateHandle.getLiveData(EXTRA_QUERY, EXTRA_QUERY_DEFAULT).distinctUntilChanged()
+    val query = savedStateHandle.getLiveDataDistinct(EXTRA_QUERY, EXTRA_QUERY_DEFAULT)
 
     fun setTypeFilter(typeFilter: DataSourceType?) {
         setTypeFilterId(typeFilter?.id)
@@ -97,7 +97,7 @@ class SearchViewModel @Inject constructor(
         savedStateHandle[EXTRA_TYPE_FILTER] = typeFilterId
     }
 
-    private val _typeFilterId = savedStateHandle.getLiveData<Int?>(EXTRA_TYPE_FILTER, null).distinctUntilChanged()
+    private val _typeFilterId = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_TYPE_FILTER)
 
     val typeFilter: LiveData<DataSourceType?> = _typeFilterId.map { typeId ->
         typeId?.let { DataSourceType.parseId(typeId) }
@@ -107,7 +107,7 @@ class SearchViewModel @Inject constructor(
         savedStateHandle[EXTRA_SEARCH_HAS_FOCUS] = focus
     }
 
-    private val _searchHasFocus = savedStateHandle.getLiveData(EXTRA_SEARCH_HAS_FOCUS, true)
+    private val _searchHasFocus = savedStateHandle.getLiveDataDistinct(EXTRA_SEARCH_HAS_FOCUS, true)
 
     val searchHasFocus: LiveData<Boolean> = _searchHasFocus
 

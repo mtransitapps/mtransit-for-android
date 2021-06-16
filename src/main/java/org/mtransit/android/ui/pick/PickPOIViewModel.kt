@@ -2,7 +2,6 @@ package org.mtransit.android.ui.pick
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
@@ -17,6 +16,7 @@ import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.favorites.FavoritesViewModel
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import java.util.ArrayList
 import javax.inject.Inject
 import kotlin.math.min
@@ -24,7 +24,7 @@ import kotlin.math.min
 @HiltViewModel
 class PickPOIViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val dataSourcesRepository: DataSourcesRepository,
+    dataSourcesRepository: DataSourcesRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
 ) : MTViewModelWithLocation() {
 
@@ -39,11 +39,9 @@ class PickPOIViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    private val _uuids: LiveData<ArrayList<String>?> =
-        savedStateHandle.getLiveData<ArrayList<String>?>(EXTRA_POI_UUIDS).distinctUntilChanged()
+    private val _uuids = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_POI_UUIDS)
 
-    private val _authorities: LiveData<ArrayList<String>?> =
-        savedStateHandle.getLiveData<ArrayList<String>?>(EXTRA_POI_AUTHORITIES).distinctUntilChanged()
+    private val _authorities = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_POI_AUTHORITIES)
 
     private val _allAgencyAuthorities = dataSourcesRepository.readingAllAgencyAuthorities()
 

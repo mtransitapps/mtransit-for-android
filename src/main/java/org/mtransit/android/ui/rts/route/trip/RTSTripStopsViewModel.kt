@@ -3,7 +3,6 @@ package org.mtransit.android.ui.rts.route.trip
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
@@ -16,6 +15,7 @@ import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
 
@@ -37,13 +37,13 @@ class RTSTripStopsViewModel @Inject constructor(
 
     override fun getLogTag(): String = tripId.value?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
 
-    val agencyAuthority = savedStateHandle.getLiveData<String?>(EXTRA_AGENCY_AUTHORITY, null).distinctUntilChanged()
+    val agencyAuthority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AGENCY_AUTHORITY)
 
-    val tripId = savedStateHandle.getLiveData<Long?>(EXTRA_TRIP_ID, null).distinctUntilChanged()
+    val tripId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_TRIP_ID)
 
-    val selectedTripStopId = savedStateHandle.getLiveData<Int?>(EXTRA_SELECTED_TRIP_STOP_ID, null).distinctUntilChanged()
+    val selectedTripStopId = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_SELECTED_TRIP_STOP_ID)
 
-    val closestPOIShown = savedStateHandle.getLiveData(EXTRA_CLOSEST_POI_SHOWN, false).distinctUntilChanged()
+    val closestPOIShown = savedStateHandle.getLiveDataDistinct(EXTRA_CLOSEST_POI_SHOWN, false)
 
     fun setSelectedOrClosestStopShown() {
         savedStateHandle[EXTRA_SELECTED_TRIP_STOP_ID] = null

@@ -45,6 +45,7 @@ class DataSourcesReader @Inject constructor(
     companion object {
         val LOG_TAG: String = DataSourcesReader::class.java.simpleName
 
+        @Suppress("SpellCheckingInspection")
         private val NOT_SUPPORTED_APPS_PKG: List<String> = if (BuildConfig.DEBUG) listOf(
             "org.mtransit.android.ca_deux_montagnes_mrcdm_bus.debug", // not supported anymore
             "org.mtransit.android.ca_joliette_ctjm_bus.debug", // not supported anymore

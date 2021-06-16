@@ -2,7 +2,6 @@ package org.mtransit.android.ui.type.rts
 
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
@@ -19,6 +18,7 @@ import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,32 +38,36 @@ class RTSAgencyRoutesViewModel @Inject constructor(
 
     override fun getLogTag(): String = agency.value?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
 
-    private val _authority = savedStateHandle.getLiveData<String?>(EXTRA_AGENCY_AUTHORITY, null).distinctUntilChanged()
+    private val _authority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AGENCY_AUTHORITY)
 
-    val colorInt = savedStateHandle.getLiveData<Int?>(EXTRA_COLOR_INT, null).distinctUntilChanged()
+    val colorInt = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_COLOR_INT)
 
     val agency: LiveData<AgencyBaseProperties?> = this._authority.switchMap { authority ->
-        authority?.let {
-            this.dataSourcesRepository.readingAgencyBase(authority)
-        } ?: MutableLiveData(null)
+        this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
     }
 
     val routes: LiveData<List<Route>?> = this._authority.switchMap { authority ->
         liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(dataSourceRequestManager.findAllRTSAgencyRoutes(authority))
+            authority?.let {
+                emit(dataSourceRequestManager.findAllRTSAgencyRoutes(authority))
+            }
         }
     }
 
-    val showingListInsteadOfGrid: LiveData<Boolean?> = _authority.switchMap { authority ->
-        authority?.let {
-            defaultPrefRepository.pref.liveData(
-                PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(it),
-                defaultPrefRepository.getValue(
-                    PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET,
-                    PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT
+    val showingListInsteadOfGrid: LiveData<Boolean> = _authority.switchMap { authority ->
+        liveData {
+            authority?.let {
+                emitSource(
+                    defaultPrefRepository.pref.liveData(
+                        PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(it),
+                        defaultPrefRepository.getValue(
+                            PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET,
+                            PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT
+                        )
+                    )
                 )
-            )
-        } ?: MutableLiveData(null)
+            }
+        }
     }.distinctUntilChanged()
 
     fun saveShowingListInsteadOfGrid(showingListInsteadOfGrid: Boolean) {

@@ -195,7 +195,7 @@ public class POIFragment extends ABFragment implements
 		if (context == null) {
 			return;
 		}
-		POIManager poim = getPoimOrNull();
+		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
 			POIStatusDetailViewController.updateView(getPOIStatusView(getView()), poim, this);
 		}
@@ -237,12 +237,12 @@ public class POIFragment extends ABFragment implements
 
 	private void onPOIMLoaded(@Nullable POIManager newPOIM) {
 		if (newPOIM == null) {
-			MTLog.d(this, "applyNewPoim() > SKIP (no POI)");
+			MTLog.d(this, "onPOIMLoaded() > SKIP (no POI)");
 			return; // SKIP
 		}
 		if (this.poim != null
 				&& this.poim.poi.equals(newPOIM.poi)) {
-			MTLog.d(this, "applyNewPoim() > SKIP (same POI)");
+			MTLog.d(this, "onPOIMLoaded() > SKIP (same POI)");
 			return; // SKIP
 		}
 		this.poim = newPOIM;

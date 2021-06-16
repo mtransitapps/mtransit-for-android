@@ -3,7 +3,6 @@ package org.mtransit.android.ui.schedule.day
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
@@ -21,6 +20,7 @@ import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -45,17 +45,17 @@ class ScheduleDayViewModel @Inject constructor(
 
     override fun getLogTag(): String = yearMonthDay.value?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
 
-    private val authority = savedStateHandle.getLiveData<String?>(EXTRA_AUTHORITY, null).distinctUntilChanged()
+    private val authority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AUTHORITY)
 
-    private val uuid = savedStateHandle.getLiveData<String?>(EXTRA_POI_UUID, null).distinctUntilChanged()
+    private val uuid = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_POI_UUID)
 
-    val dayStartsAtInMs = savedStateHandle.getLiveData<Long?>(EXTRA_DAY_START_AT_IN_MS, null).distinctUntilChanged()
+    val dayStartsAtInMs = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_DAY_START_AT_IN_MS)
 
     val yearMonthDay: LiveData<String?> = dayStartsAtInMs.map {
         it?.let { yearMonthDayFormat.formatThreadSafe(it) }
     }
 
-    val scrolledToNow = savedStateHandle.getLiveData(EXTRA_SCROLLED_TO_NOW, false).distinctUntilChanged()
+    val scrolledToNow = savedStateHandle.getLiveDataDistinct(EXTRA_SCROLLED_TO_NOW, false)
 
     fun setScrolledToNow(scrolledToNow: Boolean) {
         savedStateHandle[EXTRA_SCROLLED_TO_NOW] = scrolledToNow

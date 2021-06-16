@@ -30,6 +30,7 @@ import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
 @HiltViewModel
@@ -59,10 +60,10 @@ class NearbyViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    private val _selectedTypeId = savedStateHandle.getLiveData<Int?>(EXTRA_SELECTED_TYPE, null).distinctUntilChanged()
+    private val _selectedTypeId = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_SELECTED_TYPE)
 
-    private val _fixedOnLat = savedStateHandle.getLiveData<Double?>(EXTRA_FIXED_ON_LAT, null).distinctUntilChanged()
-    private val _fixedOnLng = savedStateHandle.getLiveData<Double?>(EXTRA_FIXED_ON_LNG, null).distinctUntilChanged()
+    private val _fixedOnLat = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LAT)
+    private val _fixedOnLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LNG)
 
     val fixedOnLocation: LiveData<Location?> = PairMediatorLiveData(_fixedOnLat, _fixedOnLng).map { (fixedOnLat, fixedOnLng) ->
         if (fixedOnLat == null || fixedOnLng == null) {
@@ -113,7 +114,7 @@ class NearbyViewModel @Inject constructor(
         }
     }
 
-    val fixedOnName: LiveData<String?> = savedStateHandle.getLiveData<String?>(EXTRA_FIXED_ON_NAME, null).distinctUntilChanged()
+    val fixedOnName = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_FIXED_ON_NAME)
 
     val isFixedOn: LiveData<Boolean?> = TripleMediatorLiveData(_fixedOnLat, _fixedOnLng, fixedOnName).map { (lat, lng, name) ->
         lat != null && lng != null && !name.isNullOrBlank()
@@ -127,9 +128,9 @@ class NearbyViewModel @Inject constructor(
                     && !LocationUtils.areAlmostTheSame(nearbyLocation, deviceLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)
         }
 
-    val fixedOnColorInt = savedStateHandle.getLiveData<Int?>(EXTRA_FIXED_ON_COLOR, null).distinctUntilChanged()
+    val fixedOnColorInt = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_FIXED_ON_COLOR)
 
-    val types: LiveData<List<DataSourceType>?> = this.dataSourcesRepository.readingAllDataSourceTypesDistinct().map { // #onModulesUpdated
+    val types: LiveData<List<DataSourceType>?> = this.dataSourcesRepository.readingAllDataSourceTypes().map { // #onModulesUpdated
         it.filter { dst -> dst.isNearbyScreen }
     }
 

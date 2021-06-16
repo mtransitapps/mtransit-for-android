@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
@@ -22,6 +21,7 @@ import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -42,9 +42,9 @@ class NearbyAgencyTypeViewModel @Inject constructor(
 
     override fun getLogTag(): String = typeId.value?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
 
-    val typeId = savedStateHandle.getLiveData<Int?>(AgencyTypeViewModel.EXTRA_TYPE_ID, null).distinctUntilChanged()
+    val typeId = savedStateHandle.getLiveDataDistinct<Int?>(AgencyTypeViewModel.EXTRA_TYPE_ID)
 
-    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBaseDistinct() // #onModuleChanged
+    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModuleChanged
 
     val typeAgencies = PairMediatorLiveData(typeId, _allAgencies).map { (typeId, allAgencies) ->
         val currentParams = this.params.value ?: NearbyParams()

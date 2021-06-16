@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
@@ -20,6 +19,7 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,16 +41,16 @@ class ScheduleViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val authority = savedStateHandle.getLiveData<String?>(EXTRA_AUTHORITY, null).distinctUntilChanged()
+    val authority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AUTHORITY)
 
-    val uuid = savedStateHandle.getLiveData<String?>(EXTRA_POI_UUID, null).distinctUntilChanged()
+    val uuid = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_POI_UUID)
 
-    val colorInt = savedStateHandle.getLiveData<Int?>(EXTRA_COLOR_INT, null).distinctUntilChanged()
+    val colorInt = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_COLOR_INT)
 
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
 
     val agency: LiveData<AgencyBaseProperties?> = this.authority.switchMap { authority ->
-        this.dataSourcesRepository.readingAgencyBase(authority)
+        this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
     }
 
     val rts: LiveData<RouteTripStop?> = PairMediatorLiveData(authority, uuid).switchMap { (authority, uuid) ->

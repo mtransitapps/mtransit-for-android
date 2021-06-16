@@ -162,7 +162,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@Override
 	public boolean onCreateMT() {
 		ping();
-		dataSourcesRepository().readingAllAgenciesDistinct().observeForever(agencyProperties -> { // SINGLETON
+		dataSourcesRepository().readingAllAgencies().observeForever(agencyProperties -> { // SINGLETON
 			deleteAllModuleStatusData(); // force refresh
 		});
 		return true;

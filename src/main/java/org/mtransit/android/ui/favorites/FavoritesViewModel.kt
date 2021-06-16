@@ -46,7 +46,7 @@ class FavoritesViewModel @Inject constructor(
 
     private val _favoriteUpdatedTrigger = MutableLiveData(0)
 
-    private val _agencies = this.dataSourcesRepository.readingAllAgenciesBaseDistinct() // #onModuleChanged
+    private val _agencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModuleChanged
 
     val favoritePOIs: LiveData<List<POIManager>?> =
         PairMediatorLiveData(_favoriteUpdatedTrigger, _agencies).switchMap { (_, agencies) ->

@@ -188,7 +188,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.favoriteManager = favoriteManager;
 		this.statusLoader = statusLoader;
 		this.serviceUpdateLoader = serviceUpdateLoader;
-		this.dataSourcesRepository.readingAllAgenciesDistinct().observe(activity.getLifecycleOwner(), agencyProperties ->
+		this.dataSourcesRepository.readingAllAgencies().observe(activity.getLifecycleOwner(), agencyProperties ->
 				resetModulesStatus()
 		);
 	}
@@ -498,6 +498,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private int nbAgencyTypes = -1;
 
 	private View getBrowseHeaderSectionView(@Nullable View convertView, @NonNull ViewGroup parent) {
+		//noinspection deprecation // FIXME
 		final List<DataSourceType> allAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
 		if (convertView == null || this.nbAgencyTypes != allAgencyTypes.size()) {
 			if (convertView == null) {

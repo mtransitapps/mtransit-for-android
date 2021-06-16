@@ -18,7 +18,7 @@ class ModulesViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
 ) : ViewModel() {
 
-    private val filteredAgencies = dataSourcesRepository.readingAllAgenciesDistinct().map { agencies ->
+    private val filteredAgencies = dataSourcesRepository.readingAllAgencies().map { agencies ->
         agencies.filter { agency ->
             agency.type != DataSourceType.TYPE_PLACE
                     && agency.type != DataSourceType.TYPE_MODULE

@@ -2,9 +2,9 @@ package org.mtransit.android.ui.type
 
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +19,7 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,26 +39,30 @@ class AgencyTypeViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    private val _typeId = savedStateHandle.getLiveData<Int?>(EXTRA_TYPE_ID, null).distinctUntilChanged()
+    private val _typeId = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_TYPE_ID)
 
     val type: LiveData<DataSourceType?> = _typeId.map { typeId ->
         DataSourceType.parseId(typeId)
     }
 
-    private val allAvailableAgencies = this.dataSourcesRepository.readingAllAgenciesDistinct() // #onModulesUpdated
+    private val allAvailableAgencies = this.dataSourcesRepository.readingAllAgencies() // #onModulesUpdated
 
     val typeAgencies: LiveData<List<IAgencyUIProperties>?> = PairMediatorLiveData(type, allAvailableAgencies).map { (dst, allAgencies) ->
         allAgencies?.filter { it.type == dst }
     }
 
-    private val selectedTypeAgencyAuthority: LiveData<String?> = _typeId.switchMap { typeId ->
-        typeId?.let {
-            lclPrefRepository.pref.liveData(
-                PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(it),
-                PreferenceUtils.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
-            )
-        } ?: MutableLiveData(null)
-    }
+    private val selectedTypeAgencyAuthority: LiveData<String> = _typeId.switchMap { typeId ->
+        liveData {
+            typeId?.let {
+                emitSource(
+                    lclPrefRepository.pref.liveData(
+                        PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(it),
+                        PreferenceUtils.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
+                    )
+                )
+            }
+        }
+    }.distinctUntilChanged()
 
     val selectedTypeAgencyPosition: LiveData<Int?> = PairMediatorLiveData(selectedTypeAgencyAuthority, typeAgencies).map { (agencyAuthority, agencies) ->
         if (agencyAuthority == null || agencies == null) {

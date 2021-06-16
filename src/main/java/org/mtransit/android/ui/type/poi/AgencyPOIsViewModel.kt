@@ -2,7 +2,6 @@ package org.mtransit.android.ui.type.poi
 
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
@@ -20,6 +19,7 @@ import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,12 +39,12 @@ class AgencyPOIsViewModel @Inject constructor(
 
     override fun getLogTag(): String = agency.value?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
 
-    private val _authority = savedStateHandle.getLiveData<String?>(EXTRA_AGENCY_AUTHORITY, null).distinctUntilChanged()
+    private val _authority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AGENCY_AUTHORITY)
 
-    val colorInt = savedStateHandle.getLiveData<Int?>(EXTRA_COLOR_INT, null).distinctUntilChanged()
+    val colorInt = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_COLOR_INT)
 
     val agency: LiveData<AgencyBaseProperties?> = this._authority.switchMap { authority ->
-        this.dataSourcesRepository.readingAgencyBase(authority)
+        this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
     }
 
     val poiList: LiveData<List<POIManager>?> = _authority.switchMap { authority ->
@@ -60,16 +60,20 @@ class AgencyPOIsViewModel @Inject constructor(
         return dataSourceRequestManager.findPOIMs(authority, POIProviderContract.Filter.getNewEmptyFilter())
     }
 
-    val showingListInsteadOfMap: LiveData<Boolean?> = _authority.switchMap { authority ->
-        authority?.let {
-            defaultPrefRepository.pref.liveData(
-                PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(it),
-                defaultPrefRepository.getValue(
-                    PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET,
-                    PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
+    val showingListInsteadOfMap: LiveData<Boolean> = _authority.switchMap { authority ->
+        liveData {
+            authority?.let {
+                emitSource(
+                    defaultPrefRepository.pref.liveData(
+                        PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(it),
+                        defaultPrefRepository.getValue(
+                            PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET,
+                            PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
+                        )
+                    )
                 )
-            )
-        } ?: MutableLiveData(null)
+            }
+        }
     }.distinctUntilChanged()
 
     fun saveShowingListInsteadOfMap(showingListInsteadOfMap: Boolean) {

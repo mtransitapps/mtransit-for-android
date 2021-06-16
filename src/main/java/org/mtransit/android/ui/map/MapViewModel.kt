@@ -33,6 +33,7 @@ import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.containsEntirely
 import java.util.HashSet
 import javax.inject.Inject
@@ -57,25 +58,25 @@ class MapViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val initialLocation = savedStateHandle.getLiveData<Location?>(EXTRA_INITIAL_LOCATION, null)
+    val initialLocation = savedStateHandle.getLiveDataDistinct<Location?>(EXTRA_INITIAL_LOCATION)
 
     fun onInitialLocationSet() {
-        savedStateHandle.set(EXTRA_INITIAL_LOCATION, null) // set once only
+        savedStateHandle[EXTRA_INITIAL_LOCATION] = null // set once only
     }
 
-    val selectedUUID = savedStateHandle.getLiveData<String?>(EXTRA_SELECTED_UUID, null)
+    val selectedUUID = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SELECTED_UUID)
 
     fun onSelectedUUIDSet() {
-        savedStateHandle.set(EXTRA_SELECTED_UUID, null) // set once only (then manage by map controller
+        savedStateHandle[EXTRA_SELECTED_UUID] = null // set once only (then manage by map controller
     }
 
-    private val allTypes = this.dataSourcesRepository.readingAllDataSourceTypesDistinct() // #onModulesUpdated
+    private val allTypes = this.dataSourcesRepository.readingAllDataSourceTypes() // #onModulesUpdated
 
     val mapTypes = allTypes.map {
         it.filter { dst -> dst.isMapScreen }
     }
 
-    private val includedTypeId = savedStateHandle.getLiveData<Int?>(EXTRA_INCLUDE_TYPE_ID, null)
+    private val includedTypeId = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_INCLUDE_TYPE_ID)
 
     private val filterTypeIdsPref: LiveData<Set<String>> = lclPrefRepository.pref.liveData(
         PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS, PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT
@@ -144,7 +145,7 @@ class MapViewModel @Inject constructor(
                     true
                 }
             }
-            this.includedTypeId.postValue(null) // only once
+            savedStateHandle[EXTRA_INCLUDE_TYPE_ID] = null // only once
         }
         if (prefHasChanged) { // old setting not valid anymore
             saveFilterTypeIdsPref(if (filterTypeIds.size == availableTypes.size) null else filterTypeIds) // asynchronous
@@ -160,7 +161,7 @@ class MapViewModel @Inject constructor(
         this._poiMarkersReset.value = Event(true)
     }
 
-    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBaseDistinct() // #onModulesUpdated
+    private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
     val typeMapAgencies: LiveData<List<IAgencyNearbyUIProperties>?> = PairMediatorLiveData(_allAgencies, filterTypeIds).map { (allAgencies, filterTypeIds) ->
         filterTypeIds?.let { theFilterTypeIds ->

@@ -651,6 +651,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			return false;
 		}
 		if (nbAgencies == null) {
+			//noinspection deprecation // FIXME
 			nbAgencies = this.dataSourcesRepository.getAllAgenciesCount();
 		}
 		if (!Boolean.TRUE.equals(this.initialized)) {

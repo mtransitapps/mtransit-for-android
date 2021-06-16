@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
@@ -20,12 +19,14 @@ import org.mtransit.android.commons.provider.NewsProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.IAgencyProperties
+import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UITimeUtils
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -46,14 +47,12 @@ class POIViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val uuid: LiveData<String?> = savedStateHandle.getLiveData<String?>(EXTRA_POI_UUID).distinctUntilChanged()
+    val uuid = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_POI_UUID)
 
-    private val _authority: LiveData<String?> = savedStateHandle.getLiveData<String?>(EXTRA_AUTHORITY).distinctUntilChanged()
+    private val _authority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AUTHORITY)
 
     val agency: LiveData<AgencyProperties?> = this._authority.switchMap { authority ->
-        authority?.let {
-            this.dataSourcesRepository.readingAgency(authority) // #onModulesUpdated // UPDATE-ABLE
-        } ?: MutableLiveData(null)
+        this.dataSourcesRepository.readingAgency(authority) // #onModulesUpdated // UPDATE-ABLE
     }
 
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
@@ -148,14 +147,18 @@ class POIViewModel @Inject constructor(
         return nearbyPOIs.take(LocationUtils.MAX_POI_NEARBY_POIS_LIST)
     }
 
-    val latestNewsArticleList: LiveData<List<News>?> = _poi.switchMap { poi ->
+    private val _newsProviders = _authority.switchMap {
+        dataSourcesRepository.readingNewsProviders(it) // #onModulesUpdated
+    }
+
+    val latestNewsArticleList: LiveData<List<News>?> = PairMediatorLiveData(_poi, _newsProviders).switchMap { (poi, newsProviders) ->
         liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getLatestNewsArticles(poi))
+            emit(getLatestNewsArticles(poi, newsProviders))
         }
     }
 
-    private fun getLatestNewsArticles(poi: POI?): List<News>? {
-        if (poi == null) {
+    private fun getLatestNewsArticles(poi: POI?, newsProviders: List<NewsProviderProperties>?): List<News>? {
+        if (poi == null || newsProviders == null) {
             return null
         }
         val nowInMs = UITimeUtils.currentTimeMillis()
@@ -163,7 +166,7 @@ class POIViewModel @Inject constructor(
         val newsFilter = NewsProviderContract.Filter
             .getNewTargetFilter(poi)
             .setMinCreatedAtInMs(last2Weeks)
-        val allNews = dataSourcesRepository.getNewsProviders(poi)
+        val allNews = newsProviders
             .mapNotNull { newsProvider ->
                 this.dataSourceRequestManager.findNews(newsProvider, newsFilter)
             }.flatten()
