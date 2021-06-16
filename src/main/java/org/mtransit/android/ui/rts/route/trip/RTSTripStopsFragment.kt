@@ -20,6 +20,7 @@ import org.mtransit.android.databinding.FragmentRtsTripStopsBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.databinding.LayoutPoiListBinding
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteManager
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
@@ -70,6 +71,9 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
 
     @Inject
     lateinit var dataSourcesRepository: DataSourcesRepository
+
+    @Inject
+    lateinit var poiRepository: POIRepository
 
     @Inject
     lateinit var favoriteManager: FavoriteManager
@@ -131,6 +135,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
             this,
             this.sensorManager,
             this.dataSourcesRepository,
+            this.poiRepository,
             this.favoriteManager,
             this.statusLoader,
             this.serviceUpdateLoader

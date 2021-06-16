@@ -35,6 +35,7 @@ import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.provider.StatusProviderContract;
 import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
@@ -469,14 +470,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			((MainActivity) activity).addFragmentToStack( //
-					NearbyFragment.newFixedOnInstance(
-							null,
-							this.poi.getLat(),
-							this.poi.getLng(),
-							getNewOneLineDescription(this.poi, dataSourcesRepository),
-							getColor(dataSourcesRepository)
-					)
+			((MainActivity) activity).addFragmentToStack(
+					NearbyFragment.newFixedOnInstance(this, dataSourcesRepository, true) // PLACE SEARCH RESULT
 			);
 			return true; // HANDLED
 		}
@@ -709,6 +704,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	private boolean showPoiViewerScreen(Activity activity,
 										DataSourcesRepository dataSourcesRepository,
+										POIRepository poiRepository,
 										POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false; // show long-click menu
@@ -737,22 +733,17 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			((MainActivity) activity).addFragmentToStack(NearbyFragment.newFixedOnInstance(
-					null,
-					this.poi.getLat(),
-					this.poi.getLng(),
-					this.poi.getName(),
-					null
-			));
+			((MainActivity) activity).addFragmentToStack(
+					NearbyFragment.newFixedOnInstance(this, dataSourcesRepository, true) // PLACE SEARCH RESULT
+			);
 			return true; // nearby screen shown
 		}
 		if (activity instanceof MainActivity) {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
+			poiRepository.push(this);
 			((MainActivity) activity).addFragmentToStack(POIFragment.newInstance(
-					this.poi.getUUID(),
-					this.poi.getAuthority(),
 					this
 			));
 			// reset to defaults, so the POI is updated when coming back in the current screen
@@ -765,27 +756,29 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	boolean onActionItemLongClick(Activity activity,
 								  FavoriteManager favoriteManager,
 								  DataSourcesRepository dataSourcesRepository,
+								  POIRepository poiRepository,
 								  SparseArrayCompat<Favorite.Folder> favoriteFolders,
 								  FavoriteManager.FavoriteUpdateListener favoriteUpdateListener,
 								  POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false;
 		}
-		return showPoiMenu(activity, favoriteManager, dataSourcesRepository, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
+		return showPoiMenu(activity, favoriteManager, dataSourcesRepository, poiRepository, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
 	}
 
 	boolean onActionItemClick(Activity activity,
 							  FavoriteManager favoriteManager,
 							  DataSourcesRepository dataSourcesRepository,
+							  POIRepository poiRepository,
 							  SparseArrayCompat<Favorite.Folder> favoriteFolders,
 							  FavoriteManager.FavoriteUpdateListener favoriteUpdateListener,
 							  POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		if (activity == null) {
 			return false;
 		}
-		boolean poiScreenShow = showPoiViewerScreen(activity, dataSourcesRepository, onClickHandledListener);
+		boolean poiScreenShow = showPoiViewerScreen(activity, dataSourcesRepository, poiRepository, onClickHandledListener);
 		if (!poiScreenShow) {
-			poiScreenShow = showPoiMenu(activity, favoriteManager, dataSourcesRepository, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
+			poiScreenShow = showPoiMenu(activity, favoriteManager, dataSourcesRepository, poiRepository, favoriteFolders, favoriteUpdateListener, onClickHandledListener);
 		}
 		return poiScreenShow;
 	}
@@ -793,6 +786,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private boolean showPoiMenu(final @NonNull Activity activity,
 								final @NonNull FavoriteManager favoriteManager,
 								final @NonNull DataSourcesRepository dataSourcesRepository,
+								final @NonNull POIRepository poiRepository,
 								final SparseArrayCompat<Favorite.Folder> favoriteFolders,
 								final FavoriteManager.FavoriteUpdateListener favoriteUpdateListener,
 								final POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
@@ -824,7 +818,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 								}
 								switch (item) {
 								case 0:
-									showPoiViewerScreen(activity, dataSourcesRepository, onClickHandledListener);
+									showPoiViewerScreen(activity, dataSourcesRepository, poiRepository, onClickHandledListener);
 									break;
 								default:
 									MTLog.w(POIManager.this, "Unexpected action item '%s'!", item);

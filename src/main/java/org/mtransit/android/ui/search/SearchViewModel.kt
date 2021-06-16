@@ -24,8 +24,8 @@ import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
@@ -36,7 +36,7 @@ import javax.inject.Inject
 class SearchViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
-    private val dataSourceRequestManager: DataSourceRequestManager,
+    private val poiRepository: POIRepository,
     private val favoriteRepository: FavoriteRepository,
 ) : MTViewModelWithLocation(), MTLog.Loggable {
 
@@ -192,7 +192,7 @@ class SearchViewModel @Inject constructor(
         }
         val pois: List<POIManager>
         withContext(Dispatchers.IO) {
-            pois = dataSourceRequestManager.findPOIMs(agency.authority, poiFilter).orEmpty()
+            pois = poiRepository.findPOIMs(agency.authority, poiFilter).orEmpty()
         }
         return pois
     }

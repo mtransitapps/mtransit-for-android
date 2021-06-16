@@ -26,8 +26,8 @@ import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyNearbyProperties
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.location.MTLocationProvider
 import org.mtransit.android.ui.MTViewModelWithLocation
@@ -41,7 +41,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
-    private val dataSourceRequestManager: DataSourceRequestManager,
+    private val poiRepository: POIRepository,
     private val locationProvider: MTLocationProvider,
     private val favoriteRepository: FavoriteRepository,
     private val adManager: IAdManager,
@@ -270,7 +270,7 @@ class HomeViewModel @Inject constructor(
             .filter { LocationUtils.Area.areOverlapping(it.area, area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->
                 scope.ensureActive()
-                dataSourceRequestManager.findPOIMs(agency.authority, poiFilter)?.let { agencyPOIs ->
+                poiRepository.findPOIMs(agency.authority, poiFilter)?.let { agencyPOIs ->
                     scope.ensureActive()
                     LocationUtils.updateDistance(agencyPOIs, lat, lng)
                     LocationUtils.removeTooFar(agencyPOIs, maxDistance)

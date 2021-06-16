@@ -23,6 +23,7 @@ import org.mtransit.android.databinding.FragmentSearchBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.databinding.LayoutPoiListBinding
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteManager
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -68,6 +69,9 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
+    lateinit var poiRepository: POIRepository
+
+    @Inject
     lateinit var favoriteManager: FavoriteManager
 
     @Inject
@@ -85,6 +89,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
             this,
             this.sensorManager,
             this.dataSourcesRepository,
+            this.poiRepository,
             this.favoriteManager,
             this.statusLoader,
             this.serviceUpdateLoader

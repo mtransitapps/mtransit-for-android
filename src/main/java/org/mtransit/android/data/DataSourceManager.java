@@ -39,6 +39,7 @@ import org.mtransit.android.commons.provider.StatusProviderContract;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import static org.mtransit.commons.FeatureFlags.F_APP_UPDATE;
 
@@ -438,12 +439,12 @@ public final class DataSourceManager implements MTLog.Loggable {
 
 	@Nullable
 	public static POIManager findPOI(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
-		ArrayList<POIManager> pois = findPOIs(context, authority, poiFilter);
+		final List<POIManager> pois = findPOIs(context, authority, poiFilter);
 		return pois == null || pois.size() == 0 ? null : pois.get(0);
 	}
 
 	@Nullable
-	public static ArrayList<POIManager> findPOIs(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
+	public static List<POIManager> findPOIs(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
 		Cursor cursor = null;
 		try {
 			JSONObject filterJSON = POIProviderContract.Filter.toJSON(poiFilter);
@@ -464,7 +465,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static ArrayList<POIManager> getPOIs(@Nullable Cursor cursor, @NonNull String authority) {
+	private static List<POIManager> getPOIs(@Nullable Cursor cursor, @NonNull String authority) {
 		ArrayList<POIManager> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {

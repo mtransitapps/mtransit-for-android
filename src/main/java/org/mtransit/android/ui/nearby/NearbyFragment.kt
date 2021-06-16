@@ -22,10 +22,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ToastUtils
-import org.mtransit.android.data.IAgencyUIProperties
+import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentNearbyBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
+import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.MainActivity
@@ -41,28 +42,18 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
 
         private const val TRACKING_SCREEN_NAME = "Nearby"
 
-        @JvmOverloads
-        @JvmStatic
-        fun newNearbyInstance(
-            optTypeId: Int? = null,
-        ): NearbyFragment {
-            return newInstance(
-                optTypeId = optTypeId,
-            )
-        }
-
-        @JvmOverloads
         @JvmStatic
         fun newFixedOnInstance(
             poim: POIManager,
-            optAgency: IAgencyUIProperties? = null,
+            dataSourcesRepository: DataSourcesRepository,
+            simple: Boolean, // true = place...
         ): NearbyFragment {
             return newFixedOnInstance(
-                optTypeId = optAgency?.type?.id,
+                optTypeId = poim.poi.type,
                 fixedOnLat = poim.lat,
                 fixedOnLng = poim.lng,
-                fixedOnName = poim.getNewOneLineDescription(optAgency),
-                optFixedOnColorInt = poim.getColor { optAgency }
+                fixedOnName = if (simple) poim.poi.name else poim.getNewOneLineDescription(dataSourcesRepository),
+                optFixedOnColorInt = if (simple) null else poim.getColor(dataSourcesRepository)
             )
         }
 
@@ -84,6 +75,25 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
             )
         }
 
+        @JvmOverloads
+        @JvmStatic
+        fun newNearbyInstance(
+            optType: DataSourceType? = null,
+        ): NearbyFragment {
+            return newNearbyInstance(
+                optTypeId = optType?.id,
+            )
+        }
+
+        @JvmStatic
+        fun newNearbyInstance(
+            optTypeId: Int? = null,
+        ): NearbyFragment {
+            return newInstance(
+                optTypeId = optTypeId,
+            )
+        }
+
         private fun newInstance(
             optTypeId: Int? = null,
             optFixedOnLat: Double? = null,
@@ -92,8 +102,9 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
             @ColorInt optFixedOnColorInt: Int? = null,
         ): NearbyFragment {
             return NearbyFragment().apply {
+                val validNearbyTypeId: Int? = optTypeId?.takeIf { DataSourceType.parseId(it)?.isNearbyScreen == true }
                 arguments = bundleOf(
-                    NearbyViewModel.EXTRA_SELECTED_TYPE to optTypeId,
+                    NearbyViewModel.EXTRA_SELECTED_TYPE to validNearbyTypeId,
                     NearbyViewModel.EXTRA_FIXED_ON_LAT to optFixedOnLat,
                     NearbyViewModel.EXTRA_FIXED_ON_LNG to optFixedOnLng,
                     NearbyViewModel.EXTRA_FIXED_ON_NAME to optFixedOnName,

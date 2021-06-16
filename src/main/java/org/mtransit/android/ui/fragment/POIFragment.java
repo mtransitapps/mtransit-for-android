@@ -53,6 +53,7 @@ import org.mtransit.android.data.POIArrayAdapter;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ScheduleProviderProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.provider.sensor.MTSensorManager;
@@ -131,17 +132,20 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@NonNull
+	public static POIFragment newInstance(@NonNull POIManager poim) {
+		return newInstance(
+				poim.poi.getUUID(),
+				poim.poi.getAuthority()
+		);
+	}
+
+	@NonNull
 	public static POIFragment newInstance(@NonNull String uuid,
-										  @NonNull String authority,
-										  @Nullable POIManager optPoim) {
+										  @NonNull String authority) {
 		POIFragment f = new POIFragment();
 		Bundle args = new Bundle();
 		args.putString(POIViewModel.EXTRA_AUTHORITY, authority);
 		args.putString(POIViewModel.EXTRA_POI_UUID, uuid);
-		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
-			f.poim = optPoim;
-			f.setPOIProperties();
-		}
 		f.setArguments(args);
 		return f;
 	}
@@ -157,6 +161,8 @@ public class POIFragment extends ABFragment implements
 	IAdManager adManager;
 	@Inject
 	DataSourcesRepository dataSourcesRepository;
+	@Inject
+	POIRepository poiRepository;
 	@Inject
 	IAnalyticsManager analyticsManager;
 	@Inject
@@ -480,6 +486,7 @@ public class POIFragment extends ABFragment implements
 				activity,
 				this.sensorManager,
 				this.dataSourcesRepository,
+				this.poiRepository,
 				this.favoriteManager,
 				this.statusLoader,
 				this.serviceUpdateLoader
@@ -521,12 +528,9 @@ public class POIFragment extends ABFragment implements
 							MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
 							return;
 						}
+						poiRepository.push(poim);
 						((MainActivity) activity).addFragmentToStack( //
-								ScheduleFragment.newInstance(
-										poim.poi.getUUID(),
-										poim.poi.getAuthority(),
-										poim.getColor(dataSourcesRepository)
-								), //
+								ScheduleFragment.newInstance(poim, dataSourcesRepository),
 								POIFragment.this);
 					}
 				});
@@ -581,27 +585,18 @@ public class POIFragment extends ABFragment implements
 			moreBtn.setOnClickListener(new MTOnClickListener() {
 				@Override
 				public void onClickMT(@NonNull View view) {
-					Activity activity = getActivity();
+					final Activity activity = getActivity();
 					if (activity == null) {
 						return;
 					}
-					POIManager poim = getPoimOrNull();
+					final POIManager poim = getPoimOrNull();
 					if (poim == null) {
 						return;
 					}
-					Integer optTypeId = null;
-					final IAgencyProperties agency = POIFragment.this.getAgencyOrNull();
-					if (agency != null) {
-						optTypeId = agency.getType().getId();
-					}
-					((MainActivity) activity).addFragmentToStack( //
-							NearbyFragment.newFixedOnInstance( //
-									optTypeId,
-									poim.getLat(),
-									poim.getLng(),
-									POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
-									poim.getColor(dataSourcesRepository)
-							), POIFragment.this);
+					((MainActivity) activity).addFragmentToStack(
+							NearbyFragment.newFixedOnInstance(poim, dataSourcesRepository, false),
+							POIFragment.this
+					);
 				}
 			});
 			moreBtn.setVisibility(View.VISIBLE);

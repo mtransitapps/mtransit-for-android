@@ -25,8 +25,8 @@ import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyNearbyUIProperties
-import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.view.MapViewController.POIMarker
 import org.mtransit.android.ui.view.common.Event
@@ -44,7 +44,7 @@ import kotlin.math.min
 class MapViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
-    private val dataSourceRequestManager: DataSourceRequestManager,
+    private val poiRepository: POIRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
 ) : MTViewModelWithLocation() {
 
@@ -299,7 +299,7 @@ class MapViewModel @Inject constructor(
             loadedArea?.let { max(it.northeast.longitude, it.southwest.longitude) },
         )
         coroutineScope.ensureActive()
-        val agencyPOIs = dataSourceRequestManager.findPOIMs(agency.authority, poiFilter)
+        val agencyPOIs = poiRepository.findPOIMs(agency.authority, poiFilter)
         val agencyShortName = agency.shortName
         var positionTrunc: LatLng
         var name: String

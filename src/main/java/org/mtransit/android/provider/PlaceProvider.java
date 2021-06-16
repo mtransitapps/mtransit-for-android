@@ -319,6 +319,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 					}
 				}
 			}
+			MTLog.i(this, "Loaded %d places.", result.size());
 			return getTextSearchResults(result);
 		} catch (Exception e) {
 			MTLog.w(this, e, "Error while parsing JSON '%s'!", jsonString);

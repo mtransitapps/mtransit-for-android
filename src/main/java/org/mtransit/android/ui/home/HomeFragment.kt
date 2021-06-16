@@ -23,6 +23,7 @@ import org.mtransit.android.databinding.FragmentHomeBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.databinding.LayoutPoiListBinding
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteManager
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -62,6 +63,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
+    lateinit var poiRepository: POIRepository
+
+    @Inject
     lateinit var favoriteManager: FavoriteManager
 
     @Inject
@@ -89,7 +93,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
         when (buttonId) {
             POIArrayAdapter.TypeHeaderButtonsClickListener.BUTTON_MORE -> {
                 (activity as? MainActivity)?.addFragmentToStack(
-                    NearbyFragment.newNearbyInstance(type.id),
+                    NearbyFragment.newNearbyInstance(type),
                     this@HomeFragment
                 )
                 true
@@ -103,6 +107,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
             this,
             this.sensorManager,
             this.dataSourcesRepository,
+            this.poiRepository,
             this.favoriteManager,
             this.statusLoader,
             this.serviceUpdateLoader

@@ -16,8 +16,8 @@ import org.mtransit.android.data.DataSourceType.POIManagerTypeShortNameComparato
 import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
@@ -27,7 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
-    private val dataSourceRequestManager: DataSourceRequestManager,
+    private val poiRepository: POIRepository,
     private val favoriteRepository: FavoriteRepository,
     private val poiTypeShortNameComparator: POIManagerTypeShortNameComparator,
 ) : MTViewModelWithLocation() {
@@ -71,7 +71,7 @@ class FavoritesViewModel @Inject constructor(
             .filterKeys { it.isNotEmpty() }
             .filterValues { it.isNotEmpty() }
             .forEach { (authority, authorityUUIDs) ->
-                this.dataSourceRequestManager.findPOIMs(authority, POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs))
+                this.poiRepository.findPOIMs(authority, POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs))
                     .takeIf { !it.isNullOrEmpty() }
                     ?.let { agencyPOIs ->
                         agencyPOIs.sortedWith(POI_ALPHA_COMPARATOR)

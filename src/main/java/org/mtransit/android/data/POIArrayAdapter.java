@@ -45,6 +45,7 @@ import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
 import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
@@ -168,6 +169,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 	@NonNull
+	private final POIRepository poiRepository;
+	@NonNull
 	private final FavoriteManager favoriteManager;
 	@NonNull
 	private final StatusLoader statusLoader;
@@ -177,6 +180,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	public POIArrayAdapter(@NonNull IActivity activity,
 						   @NonNull MTSensorManager sensorManager,
 						   @NonNull DataSourcesRepository dataSourcesRepository,
+						   @NonNull POIRepository poiRepository,
 						   @NonNull FavoriteManager favoriteManager,
 						   @NonNull StatusLoader statusLoader,
 						   @NonNull ServiceUpdateLoader serviceUpdateLoader) {
@@ -185,6 +189,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.layoutInflater = LayoutInflater.from(getContext());
 		this.sensorManager = sensorManager;
 		this.dataSourcesRepository = dataSourcesRepository;
+		this.poiRepository = poiRepository;
 		this.favoriteManager = favoriteManager;
 		this.statusLoader = statusLoader;
 		this.serviceUpdateLoader = serviceUpdateLoader;
@@ -654,7 +659,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			return false;
 		}
 		OnClickHandledListener listener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
-		return poim.onActionItemClick(activity, this.favoriteManager, this.dataSourcesRepository, this.favoriteManager.getFavoriteFolders(), this.favoriteUpdateListener, listener);
+		return poim.onActionItemClick(activity,
+				this.favoriteManager,
+				this.dataSourcesRepository,
+				this.poiRepository,
+				this.favoriteManager.getFavoriteFolders(),
+				this.favoriteUpdateListener,
+				listener);
 	}
 
 	private boolean showPoiMenu(POIManager poim) {
@@ -666,7 +677,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			return false;
 		}
 		OnClickHandledListener listener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
-		return poim.onActionItemLongClick(activity, this.favoriteManager, this.dataSourcesRepository, this.favoriteManager.getFavoriteFolders(), this.favoriteUpdateListener, listener);
+		return poim.onActionItemLongClick(activity,
+				this.favoriteManager,
+				this.dataSourcesRepository,
+				this.poiRepository,
+				this.favoriteManager.getFavoriteFolders(),
+				this.favoriteUpdateListener,
+				listener);
 	}
 
 	@Override
@@ -1258,7 +1275,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				Activity activity = getActivity();
 				if (activity != null) {
 					leaving();
-					((MainActivity) activity).addFragmentToStack(NearbyFragment.newNearbyInstance(type.getId()));
+					((MainActivity) activity).addFragmentToStack(
+							NearbyFragment.newNearbyInstance(type)
+					);
 				}
 			}
 			break;

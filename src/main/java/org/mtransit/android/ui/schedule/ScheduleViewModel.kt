@@ -4,17 +4,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
+import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteTripStop
-import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.AgencyBaseProperties
-import org.mtransit.android.datasource.DataSourceRequestManager
+import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.view.common.Event
@@ -25,8 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val dataSourceRequestManager: DataSourceRequestManager,
     private val dataSourcesRepository: DataSourcesRepository,
+    private val poiRepository: POIRepository,
     private val statusLoader: StatusLoader,
     private val serviceUpdateLoader: ServiceUpdateLoader,
 ) : ViewModel(), MTLog.Loggable {
@@ -53,30 +51,17 @@ class ScheduleViewModel @Inject constructor(
         this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
     }
 
-    val rts: LiveData<RouteTripStop?> = PairMediatorLiveData(authority, uuid).switchMap { (authority, uuid) ->
-        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getRouteTripStop(authority, uuid))
-        }
+    private val _agencyAuthority = this.agency.map { it?.authority } // #onModulesUpdated
+
+    val poim: LiveData<POIManager?> = PairMediatorLiveData(_agencyAuthority, uuid).switchMap { (agencyAuthority, uuid) -> // #onModulesUpdated
+        getPOIManager(agencyAuthority, uuid)
     }
 
-    private fun getRouteTripStop(authority: String?, uuid: String?): RouteTripStop? {
-        if (authority.isNullOrEmpty() || uuid.isNullOrEmpty()) {
-            MTLog.d(this, "getRouteTripStop() > SKIP (no uuid OR no authority)")
-            return null
-        }
-        return this.dataSourceRequestManager.findPOIM(authority, POIProviderContract.Filter.getNewUUIDFilter(uuid))?.let { poim ->
-            if (poim.poi is RouteTripStop) {
-                poim.poi
-            } else {
-                MTLog.d(this, "getRouteTripStop() > SKIP (POI is not RTS!)")
-                null
-            }
-        } ?: run {
-            MTLog.d(this, "getRouteTripStop() > SKIP (data source removed!)")
-            dataSourceRemovedEvent.postValue(Event(true))
-            null
-        }
+    private fun getPOIManager(agencyAuthority: String?, uuid: String?) = poiRepository.readingPOIM(agencyAuthority, uuid, poim.value) {
+        dataSourceRemovedEvent.postValue(Event(true))
     }
+
+    val rts: LiveData<RouteTripStop?> = this.poim.map { it?.let { if (it.poi is RouteTripStop) it.poi else null } }
 
     fun onPageSelected(@Suppress("UNUSED_PARAMETER") position: Int) {
         this.statusLoader.clearAllTasks()

@@ -18,12 +18,12 @@ import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.provider.NewsProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.AgencyProperties
-import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
@@ -36,6 +36,7 @@ class POIViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
+    private val poiRepository: POIRepository,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -55,32 +56,16 @@ class POIViewModel @Inject constructor(
         this.dataSourcesRepository.readingAgency(authority) // #onModulesUpdated // UPDATE-ABLE
     }
 
+    private val _agencyAuthority = this.agency.map { it?.authority } // #onModulesUpdated
+
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
 
-    val poim: LiveData<POIManager?> = PairMediatorLiveData(agency, uuid).switchMap { (agency, uuid) -> // use agency == #onModulesUpdated
-        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getPOIManager(agency, uuid))
-        }
+    val poim: LiveData<POIManager?> = PairMediatorLiveData(_agencyAuthority, uuid).switchMap { (agencyAuthority, uuid) -> // #onModulesUpdated
+        getPOIManager(agencyAuthority, uuid)
     }
 
-    private fun getPOIManager(agency: IAgencyProperties?, uuid: String?): POIManager? {
-        if (uuid.isNullOrEmpty()) {
-            MTLog.d(this, "getPOI() > SKIP (no uuid)")
-            return null
-        }
-        if (agency == null) {
-            if (poim.value != null) {
-                MTLog.d(this, "getPOI() > data source removed (no more agency)")
-                dataSourceRemovedEvent.postValue(Event(true))
-            }
-            return null
-        }
-        return this.dataSourceRequestManager.findPOIM(agency.authority, POIProviderContract.Filter.getNewUUIDFilter(uuid))
-            ?: run {
-                MTLog.d(this, "getPOI() > SKIP (data source removed!)")
-                dataSourceRemovedEvent.postValue(Event(true))
-                null
-            }
+    private fun getPOIManager(agencyAuthority: String?, uuid: String?) = poiRepository.readingPOIM(agencyAuthority, uuid, poim.value) {
+        dataSourceRemovedEvent.postValue(Event(true))
     }
 
     private val _poi = this.poim.map {
@@ -127,7 +112,7 @@ class POIViewModel @Inject constructor(
             val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
                 addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
             }
-            dataSourceRequestManager.findPOIMs(authority, poiFilter)
+            poiRepository.findPOIMs(authority, poiFilter)
                 ?.filterNot { it.poi.uuid == excludedUUID }
                 ?.let { agencyPOIs ->
                     LocationUtils.updateDistance(agencyPOIs, lat, lng)

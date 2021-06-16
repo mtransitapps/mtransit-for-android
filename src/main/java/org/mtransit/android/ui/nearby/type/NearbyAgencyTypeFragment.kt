@@ -15,6 +15,7 @@ import org.mtransit.android.databinding.FragmentNearbyAgencyTypeBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.databinding.LayoutPoiListBinding
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteManager
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -63,6 +64,9 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
+    lateinit var poiRepository: POIRepository
+
+    @Inject
     lateinit var favoriteManager: FavoriteManager
 
     @Inject
@@ -88,6 +92,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             this,
             this.sensorManager,
             this.dataSourcesRepository,
+            this.poiRepository,
             this.favoriteManager,
             this.statusLoader,
             this.serviceUpdateLoader

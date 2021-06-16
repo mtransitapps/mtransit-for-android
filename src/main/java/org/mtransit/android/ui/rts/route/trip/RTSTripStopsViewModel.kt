@@ -13,7 +13,7 @@ import org.mtransit.android.commons.SqlUtils
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.datasource.DataSourceRequestManager
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
@@ -22,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RTSTripStopsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val dataSourceRequestManager: DataSourceRequestManager,
+    private val poiRepository: POIRepository,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -70,7 +70,7 @@ class RTSTripStopsViewModel @Inject constructor(
                 SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE)
             )
         }
-        return this.dataSourceRequestManager.findPOIMs(
+        return this.poiRepository.findPOIMs(
             agencyAuthority,
             poiFilter
         )

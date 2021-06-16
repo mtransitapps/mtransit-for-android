@@ -67,10 +67,10 @@ class DataSourceRequestManager @Inject constructor(
         logo: JPaths?,
         pkg: String,
         longVersionCode: Long,
-        b: Boolean,
+        enabled: Boolean,
         trigger: Int
     ): AgencyProperties? {
-        return DataSourceManager.findAgencyProperties(appContext, agencyAuthority, agencyType, rts, logo, pkg, longVersionCode, b, trigger)
+        return DataSourceManager.findAgencyProperties(appContext, agencyAuthority, agencyType, rts, logo, pkg, longVersionCode, enabled, trigger)
     }
 
     fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?): ScheduleTimestamps? {

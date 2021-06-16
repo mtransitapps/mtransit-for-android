@@ -16,9 +16,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
@@ -208,7 +210,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
         if (item.itemId == R.id.menu_nearby) {
             viewModel.type.value?.let { type ->
                 (activity as? MainActivity)?.addFragmentToStack(
-                    NearbyFragment.newNearbyInstance(type.id),
+                    NearbyFragment.newNearbyInstance(type),
                     this
                 )
             }
@@ -232,13 +234,22 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
     }
 
     fun updateABColor(delayInMs: Long = 50L) {
+        if (updateABColorJob?.isActive == true) {
+            return // SKIP (already planned)
+        }
         updateABColorJob = viewLifecycleOwner.lifecycleScope.launch {
-            delay(delayInMs) // debounce
-            abBgColor = getNewABBgColor()?.also { abBgColor ->
-                binding?.tabs?.setBackgroundColor(abBgColor)
-                abController?.apply {
-                    setABBgColor(this@AgencyTypeFragment, getNewABBgColor(), false)
-                    updateABBgColor()
+            if (abBgColor != null && delayInMs > 0L) {
+                delay(delayInMs) // debounce
+            }
+            withContext(Dispatchers.Default) { // CPU
+                abBgColor = getNewABBgColor()?.also { abBgColor ->
+                    withContext(Dispatchers.Main) { // UI
+                        binding?.tabs?.setBackgroundColor(abBgColor)
+                        abController?.apply {
+                            setABBgColor(this@AgencyTypeFragment, abBgColor, false)
+                            updateABBgColor()
+                        }
+                    }
                 }
             }
             updateABColorJob?.cancel()

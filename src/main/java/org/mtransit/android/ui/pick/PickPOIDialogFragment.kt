@@ -18,6 +18,7 @@ import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentDialogPickPoiBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteManager
 import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
@@ -69,6 +70,9 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
+    lateinit var poiRepository: POIRepository
+
+    @Inject
     lateinit var favoriteManager: FavoriteManager
 
     @Inject
@@ -85,6 +89,7 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
             this,
             this.sensorManager,
             this.dataSourcesRepository,
+            this.poiRepository,
             this.favoriteManager,
             this.statusLoader,
             this.serviceUpdateLoader

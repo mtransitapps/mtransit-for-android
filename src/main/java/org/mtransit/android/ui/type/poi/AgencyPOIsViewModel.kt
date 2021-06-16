@@ -17,8 +17,8 @@ import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
@@ -26,7 +26,7 @@ import javax.inject.Inject
 class AgencyPOIsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
-    private val dataSourceRequestManager: DataSourceRequestManager,
+    private val poiRepository: POIRepository,
     private val defaultPrefRepository: DefaultPreferenceRepository,
 ) : ViewModel(), MTLog.Loggable {
 
@@ -57,7 +57,7 @@ class AgencyPOIsViewModel @Inject constructor(
         if (authority.isNullOrEmpty()) {
             return null
         }
-        return dataSourceRequestManager.findPOIMs(authority, POIProviderContract.Filter.getNewEmptyFilter())
+        return poiRepository.findPOIMs(authority, POIProviderContract.Filter.getNewEmptyFilter())
     }
 
     val showingListInsteadOfMap: LiveData<Boolean> = _authority.switchMap { authority ->

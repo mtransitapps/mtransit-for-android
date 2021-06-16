@@ -17,8 +17,8 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.IAgencyNearbyProperties
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
@@ -29,7 +29,7 @@ import kotlin.math.max
 class NearbyAgencyTypeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
-    private val dataSourceRequestManager: DataSourceRequestManager,
+    private val poiRepository: POIRepository,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -135,7 +135,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
         typeAgencies
             .filter { it.isInArea(area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->
-                dataSourceRequestManager.findPOIMs(agency.authority, poiFilter)?.let { agencyPOIs ->
+                poiRepository.findPOIMs(agency.authority, poiFilter)?.let { agencyPOIs ->
                     LocationUtils.updateDistance(agencyPOIs, lat, lng)
                     LocationUtils.removeTooFar(agencyPOIs, maxDistance)
                     LocationUtils.removeTooMuchWhenNotInCoverage(agencyPOIs, minCoverageInMeters, maxSize)

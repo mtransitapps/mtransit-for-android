@@ -13,11 +13,12 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.commons.data.Schedule
-import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract
+import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
@@ -30,6 +31,7 @@ class ScheduleDayViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
+    private val poiRepository: POIRepository,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -65,26 +67,15 @@ class ScheduleDayViewModel @Inject constructor(
         this.dataSourcesRepository.readingScheduleProviders(authority)
     }
 
-    val rts: LiveData<RouteTripStop?> = PairMediatorLiveData(authority, uuid).switchMap { (authority, uuid) ->
-        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getRouteTripStop(authority, uuid))
-        }
+    val poim: LiveData<POIManager?> = PairMediatorLiveData(authority, uuid).switchMap { (agencyAuthority, uuid) -> // #onModulesUpdated
+        getPOIManager(agencyAuthority, uuid)
     }
 
-    private fun getRouteTripStop(authority: String?, uuid: String?): RouteTripStop? {
-        if (authority.isNullOrEmpty() || uuid.isNullOrEmpty()) {
-            MTLog.d(this, "getRouteTripStop() > SKIP (no uuid OR no authority)")
-            return null
-        }
-        return this.dataSourceRequestManager.findPOIM(authority, POIProviderContract.Filter.getNewUUIDFilter(uuid))?.let { poim ->
-            if (poim.poi is RouteTripStop) {
-                poim.poi
-            } else {
-                MTLog.d(this, "getRouteTripStop() > SKIP (POI is not RTS!)")
-                null
-            }
-        }
+    private fun getPOIManager(agencyAuthority: String?, uuid: String?) = poiRepository.readingPOIM(agencyAuthority, uuid, poim.value) {
+        // DO NOTHING
     }
+
+    val rts: LiveData<RouteTripStop?> = this.poim.map { it?.let { if (it.poi is RouteTripStop) it.poi else null } }
 
     val timestamps: LiveData<List<Schedule.Timestamp>?> =
         TripleMediatorLiveData(rts, dayStartsAtInMs, _scheduleProviders).switchMap { (rts, dayStartsAtInMs, scheduleProviders) ->

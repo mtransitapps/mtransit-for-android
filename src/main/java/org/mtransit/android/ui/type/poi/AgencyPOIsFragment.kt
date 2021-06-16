@@ -26,6 +26,7 @@ import org.mtransit.android.databinding.FragmentAgencyPoisBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.databinding.LayoutPoiListBinding
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteManager
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.provider.sensor.MTSensorManager
@@ -92,6 +93,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
+    lateinit var poiRepository: POIRepository
+
+    @Inject
     lateinit var favoriteManager: FavoriteManager
 
     @Inject
@@ -151,6 +155,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
             this,
             this.sensorManager,
             this.dataSourcesRepository,
+            this.poiRepository,
             this.favoriteManager,
             this.statusLoader,
             this.serviceUpdateLoader

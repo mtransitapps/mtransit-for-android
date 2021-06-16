@@ -18,6 +18,7 @@ import org.mtransit.android.databinding.FragmentFavoritesBinding
 import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.databinding.LayoutPoiListBinding
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteManager
 import org.mtransit.android.provider.FavoriteManager.FavoriteUpdateListener
 import org.mtransit.android.provider.sensor.MTSensorManager
@@ -55,6 +56,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
+    lateinit var poiRepository: POIRepository
+
+    @Inject
     lateinit var favoriteManager: FavoriteManager
 
     @Inject
@@ -72,6 +76,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
             this,
             this.sensorManager,
             this.dataSourcesRepository,
+            this.poiRepository,
             this.favoriteManager,
             this.statusLoader,
             this.serviceUpdateLoader

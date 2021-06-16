@@ -10,8 +10,8 @@ import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.favorites.FavoritesViewModel
 import org.mtransit.android.ui.view.common.Event
@@ -25,7 +25,7 @@ import kotlin.math.min
 class PickPOIViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     dataSourcesRepository: DataSourcesRepository,
-    private val dataSourceRequestManager: DataSourceRequestManager,
+    private val poiRepository: POIRepository,
 ) : MTViewModelWithLocation() {
 
     companion object {
@@ -80,7 +80,7 @@ class PickPOIViewModel @Inject constructor(
         }
         val poiList = mutableListOf<POIManager>()
         authorityToUUIDs.forEach { (authority, uuids) ->
-            dataSourceRequestManager.findPOIMs(authority, POIProviderContract.Filter.getNewUUIDsFilter(uuids))?.let {
+            poiRepository.findPOIMs(authority, POIProviderContract.Filter.getNewUUIDsFilter(uuids))?.let {
                 poiList.addAll(it)
             }
         }
