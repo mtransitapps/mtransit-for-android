@@ -165,18 +165,20 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
         viewModel.nearbyPOIsTrigger.observe(viewLifecycleOwner, {
             adapter.clear()
         })
-        viewModel.nearbyPOIs.observe(viewLifecycleOwner, { poiList ->
-            val scrollToTop = adapter.poisCount <= 0
-            adapter.appendPois(poiList)
-            if (scrollToTop) {
-                listBinding?.root?.setSelection(0)
+        viewModel.nearbyPOIs.observe(viewLifecycleOwner, {
+            it?.let {
+                val scrollToTop = adapter.poisCount <= 0
+                adapter.appendPois(it)
+                if (scrollToTop) {
+                    listBinding?.root?.setSelection(0)
+                }
+                if (isResumed) {
+                    adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
+                } else {
+                    adapter.onPause()
+                }
+                switchView()
             }
-            if (isResumed) {
-                adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
-            } else {
-                adapter.onPause()
-            }
-            switchView()
         })
         viewModel.loadingPOIs.observe(viewLifecycleOwner, {
             if (it == false) {

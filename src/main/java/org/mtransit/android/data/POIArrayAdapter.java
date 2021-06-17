@@ -106,7 +106,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	private final LayoutInflater layoutInflater;
 
-	private LinkedHashMap<Integer, ArrayList<POIManager>> poisByType;
+	private LinkedHashMap<Integer, List<POIManager>> poisByType;
 
 	private HashSet<String> favUUIDs;
 
@@ -336,7 +336,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				if (this.showTypeHeader != TYPE_HEADER_NONE) {
 					this.count++;
 				}
-				final ArrayList<POIManager> typePOIMs = this.poisByType.get(type);
+				final List<POIManager> typePOIMs = this.poisByType.get(type);
 				this.count += typePOIMs == null ? 0 : typePOIMs.size();
 			}
 		}
@@ -356,7 +356,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				if (this.showTypeHeader != TYPE_HEADER_NONE) {
 					position++;
 				}
-				final ArrayList<POIManager> typePOIMs = this.poisByType.get(type);
+				final List<POIManager> typePOIMs = this.poisByType.get(type);
 				int indexOf = typePOIMs == null ? -1 : typePOIMs.indexOf(item);
 				if (indexOf >= 0) {
 					return position + indexOf;
@@ -379,7 +379,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				if (this.showTypeHeader != TYPE_HEADER_NONE) {
 					index++;
 				}
-				final ArrayList<POIManager> typePOIMs = this.poisByType.get(type);
+				final List<POIManager> typePOIMs = this.poisByType.get(type);
 				final int typePOIMCount = typePOIMs == null ? 0 : typePOIMs.size();
 				if (position >= index && position < index + typePOIMCount) {
 					return typePOIMs.get(position - index);
@@ -395,7 +395,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (this.poisByType != null
 				&& uuid != null && !uuid.isEmpty()) {
 			for (Integer type : this.poisByType.keySet()) {
-				final ArrayList<POIManager> typePOIMs = this.poisByType.get(type);
+				final List<POIManager> typePOIMs = this.poisByType.get(type);
 				if (typePOIMs != null) {
 					for (POIManager poim : typePOIMs) {
 						if (poim.poi.getUUID().equals(uuid)) {
@@ -420,7 +420,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 					return type;
 				}
 				index++;
-				final ArrayList<POIManager> typePOIMs = this.poisByType.get(type);
+				final List<POIManager> typePOIMs = this.poisByType.get(type);
 				index += typePOIMs == null ? 0 : typePOIMs.size();
 			}
 		}
@@ -706,7 +706,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private final HashSet<String> poiUUID = new HashSet<>();
 
 	public void appendPois(@Nullable List<POIManager> pois) {
-		boolean dataSetChanged = append(pois, false);
+		final boolean dataSetChanged = append(pois, false);
 		if (!dataSetChanged) {
 			MTLog.d(this, "appendPois() > SKIP (data not changed)");
 			return;
@@ -720,7 +720,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				this.poisByType = new LinkedHashMap<>();
 			}
 			for (POIManager poim : pois) {
-				ArrayList<POIManager> typePOIMs = this.poisByType.get(poim.poi.getDataSourceTypeId());
+				List<POIManager> typePOIMs = this.poisByType.get(poim.poi.getDataSourceTypeId());
 				if (typePOIMs == null) {
 					typePOIMs = new ArrayList<>();
 				}
@@ -764,7 +764,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.poisCount = 0;
 		if (this.poisByType != null) {
 			for (Integer type : this.poisByType.keySet()) {
-				final ArrayList<POIManager> typePOIMs = this.poisByType.get(type);
+				final List<POIManager> typePOIMs = this.poisByType.get(type);
 				this.poisCount += typePOIMs == null ? 0 : typePOIMs.size();
 			}
 		}
@@ -782,11 +782,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.closestPoiUuids = new HashSet<>();
 		if (this.poisByType != null) {
 			for (Integer type : this.poisByType.keySet()) {
-				ArrayList<POIManager> poiManagers = this.poisByType.get(type);
+				List<POIManager> poiManagers = this.poisByType.get(type);
 				if (poiManagers == null || poiManagers.size() == 0) {
 					continue;
 				}
-				ArrayList<POIManager> orderedPoims = new ArrayList<>(poiManagers);
+				List<POIManager> orderedPoims = new ArrayList<>(poiManagers);
 				if (orderedPoims.size() > 0) {
 					CollectionUtils.sort(orderedPoims, LocationUtils.POI_DISTANCE_COMPARATOR);
 					POIManager theClosestOne = orderedPoims.get(0);
@@ -862,7 +862,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			}
 			try {
 				if (poiArrayAdapter.poisByType != null) {
-					for (ArrayList<POIManager> poiManagers : poiArrayAdapter.poisByType.values()) {
+					for (List<POIManager> poiManagers : poiArrayAdapter.poisByType.values()) {
 						if (isCancelled()) {
 							break;
 						}
@@ -893,7 +893,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	public void updateDistancesNowSync(@Nullable Location currentLocation) {
 		if (currentLocation != null) {
 			if (this.poisByType != null) {
-				for (ArrayList<POIManager> pois : this.poisByType.values()) {
+				for (List<POIManager> pois : this.poisByType.values()) {
 					LocationUtils.updateDistanceWithString(getContext(), pois, currentLocation, null);
 				}
 			}
@@ -949,7 +949,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private boolean resetModulesStatus() {
 		boolean reseted = false;
 		if (this.poisByType != null) {
-			for (ArrayList<POIManager> poims : this.poisByType.values()) {
+			for (List<POIManager> poims : this.poisByType.values()) {
 				for (POIManager poim : poims) {
 					if (poim.poi.getType() == POI.ITEM_VIEW_TYPE_MODULE) {
 						poim.resetLastFindTimestamps(); // force get status from provider
@@ -1040,7 +1040,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				});
 				frameLayout.setOnLongClickListener(new MTOnLongClickListener() {
 					@Override
-					public boolean onLongClickkMT(View view) {
+					public boolean onLongClickMT(View view) {
 						return showPoiMenu(position);
 					}
 				});

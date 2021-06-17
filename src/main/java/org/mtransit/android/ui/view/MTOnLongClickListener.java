@@ -9,17 +9,17 @@ public abstract class MTOnLongClickListener implements View.OnLongClickListener 
 		return onLongClickS(view, this);
 	}
 
-	public abstract boolean onLongClickkMT(View view);
+	public abstract boolean onLongClickMT(View view);
 
 	public static boolean onLongClickS(final View view, final MTOnLongClickListener listener) {
 		if (listener == null) {
 			return false; // not handled
 		}
 		if (view == null) {
-			return listener.onLongClickkMT(null);
+			return listener.onLongClickMT(null);
 		}
 		view.post(() ->
-				listener.onLongClickkMT(view)
+				listener.onLongClickMT(view)
 		);
 		return true; // handled
 	}

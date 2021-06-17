@@ -121,12 +121,15 @@ class HomeViewModel @Inject constructor(
         }
     }.distinctUntilChanged()
 
-    private val _loadingPOIs = MutableLiveData(false)
+    private val _loadingPOIs = MutableLiveData(true)
     val loadingPOIs: LiveData<Boolean?> = _loadingPOIs
 
-    val nearbyPOIsTrigger: LiveData<Any?> = PairMediatorLiveData(_dstToHomeAgencies, nearbyLocation).map {
-        loadNearbyPOIs()
-        null
+    val nearbyPOIsTrigger: LiveData<Any?> = PairMediatorLiveData(_dstToHomeAgencies, nearbyLocation).switchMap { (dstToHomeAgencies, nearbyLocation) ->
+        liveData {
+            if (dstToHomeAgencies?.isNotEmpty() == true && nearbyLocation != null) {
+                loadNearbyPOIs()
+            }
+        }
     }
 
     private val _nearbyPOIs = MutableLiveData<List<POIManager>?>(null)
