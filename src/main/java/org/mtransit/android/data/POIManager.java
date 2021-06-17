@@ -58,16 +58,14 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	private static final String TAG = POIManager.class.getSimpleName();
 
-	private static final String PKG_COMMON = "org.mtransit.android.";
-
 	@SuppressWarnings("ConstantConditions")
 	@NonNull
 	@Override
 	public String getLogTag() {
 		if (this.poi != null) {
 			final String uuid = this.poi.getUUID();
-			final int index = uuid.indexOf(PKG_COMMON);
-			return TAG + "-" + (index == -1 ? uuid : uuid.substring(index + PKG_COMMON.length()));
+			final int index = uuid.indexOf(IAgencyProperties.PKG_COMMON);
+			return TAG + "-" + (index == -1 ? uuid : uuid.substring(index + IAgencyProperties.PKG_COMMON.length()));
 		}
 		return TAG;
 	}

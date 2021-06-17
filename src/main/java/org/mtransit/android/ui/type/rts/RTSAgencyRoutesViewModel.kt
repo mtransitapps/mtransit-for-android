@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
+import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,6 +17,7 @@ import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.AgencyBaseProperties
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
@@ -40,6 +42,10 @@ class RTSAgencyRoutesViewModel @Inject constructor(
 
     private val _authority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AGENCY_AUTHORITY)
 
+    val authorityShort: LiveData<String?> = _authority.map {
+        it?.substringAfter(IAgencyProperties.PKG_COMMON)
+    }
+
     val colorInt = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_COLOR_INT)
 
     val agency: LiveData<AgencyBaseProperties?> = this._authority.switchMap { authority ->
@@ -49,7 +55,10 @@ class RTSAgencyRoutesViewModel @Inject constructor(
     val routes: LiveData<List<Route>?> = this._authority.switchMap { authority ->
         liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
             authority?.let {
-                emit(dataSourceRequestManager.findAllRTSAgencyRoutes(authority))
+                emit(
+                    dataSourceRequestManager.findAllRTSAgencyRoutes(authority)
+                        ?.sortedWith(Route.SHORT_NAME_COMPARATOR)
+                )
             }
         }
     }

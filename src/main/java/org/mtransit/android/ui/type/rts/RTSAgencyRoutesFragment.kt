@@ -118,9 +118,14 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
                 activity?.invalidateOptionsMenu() // initialize action bar list/grid switch icon
             }
         })
+        viewModel.authorityShort.observe(viewLifecycleOwner, {
+            theLogTag = it?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
+        })
         viewModel.agency.observe(viewLifecycleOwner, { agency ->
-            adapter.setAgency(agency)
-            theLogTag = agency?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
+            agency?.let {
+                adapter.setAgency(agency)
+                switchView()
+            }
         })
         viewModel.showingListInsteadOfGrid.observe(viewLifecycleOwner, { showingListInsteadOfGrid ->
             showingListInsteadOfGrid?.let { listInsteadOfGrid ->
@@ -143,13 +148,15 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
                         scrollToPosition(scrollPosition)
                     }
                 }
+                adapter.setShowingListInsteadOfGrid(showingListInsteadOfGrid)
+                switchView()
             }
-            adapter.setShowingListInsteadOfGrid(showingListInsteadOfGrid)
-            switchView()
         })
         viewModel.routes.observe(viewLifecycleOwner, { routes ->
-            adapter.submitList(routes)
-            switchView()
+            routes?.let {
+                adapter.setList(routes)
+                switchView()
+            }
         })
     }
 
@@ -161,10 +168,23 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
 
     private fun switchView() {
         binding?.apply {
-            val listInsteadOfGrid = viewModel.showingListInsteadOfGrid.value
-            loading.root.isVisible = listInsteadOfGrid == null
-            routesListGrid.isVisible = listInsteadOfGrid != null && adapter.itemCount > 0
-            (emptyBinding?.root ?: emptyStub.inflate()).isVisible = listInsteadOfGrid != null && adapter.itemCount == 0
+            when {
+                adapter.itemCount < 0 -> {
+                    emptyBinding?.root?.isVisible = false
+                    routesListGrid.isVisible = false
+                    loading.root.isVisible = true
+                }
+                adapter.itemCount == 0 -> {
+                    loading.root.isVisible = false
+                    routesListGrid.isVisible = false
+                    (emptyBinding?.root ?: emptyStub.inflate()).isVisible = true
+                }
+                else -> {
+                    emptyBinding?.root?.isVisible = false
+                    loading.root.isVisible = false
+                    routesListGrid.isVisible = true
+                }
+            }
         }
     }
 
@@ -177,6 +197,7 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
             listGridToggleMenuItem = menu.findItem(R.id.menu_toggle_list_grid)
             listGridSwitchMenuItem = listGridToggleMenuItem?.actionView?.findViewById(R.id.action_bar_switch_list_grid)
             listGridSwitchMenuItem?.thumbDrawable = listGridToggleSelector
+            updateListGridToggleMenuItem()
         } else {
             listGridSwitchMenuItem?.setOnCheckedChangeListener(null)
             listGridSwitchMenuItem?.visibility = View.GONE
@@ -184,7 +205,6 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
             listGridToggleMenuItem?.isVisible = false
             listGridToggleMenuItem = null
         }
-        updateListGridToggleMenuItem()
     }
 
     private fun updateListGridToggleMenuItem() {
@@ -222,8 +242,6 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
     override fun onResume() {
         super.onResume()
         switchView()
-        activity?.invalidateOptionsMenu() // initialize action bar list/grid switch icon
-        updateListGridToggleMenuItem()
     }
 
     override fun onDestroyView() {

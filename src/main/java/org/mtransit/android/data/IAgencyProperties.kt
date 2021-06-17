@@ -10,6 +10,8 @@ interface IAgencyProperties {
 
         const val DEFAULT_LONG_VERSION_CODE = -1L
 
+        const val PKG_COMMON = "org.mtransit.android."
+
         @JvmStatic
         val SHORT_NAME_COMPARATOR: Comparator<IAgencyProperties> = Comparator { lap, rap ->
             lap.shortName.lowercase(Locale.getDefault())

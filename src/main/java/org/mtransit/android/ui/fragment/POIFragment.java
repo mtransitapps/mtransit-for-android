@@ -106,15 +106,13 @@ public class POIFragment extends ABFragment implements
 
 	private static final String LOG_TAG = POIFragment.class.getSimpleName();
 
-	private static final String PKG_COMMON = "org.mtransit.android.";
-
 	@NonNull
 	@Override
 	public String getLogTag() {
 		final String uuid = viewModel == null ? null : viewModel.getUuid().getValue();
 		if (uuid != null && !uuid.isEmpty()) {
-			final int index = uuid.indexOf(PKG_COMMON);
-			return LOG_TAG + "-" + (index == -1 ? uuid : uuid.substring(index + PKG_COMMON.length()));
+			final int index = uuid.indexOf(IAgencyProperties.PKG_COMMON);
+			return LOG_TAG + "-" + (index == -1 ? uuid : uuid.substring(index + IAgencyProperties.PKG_COMMON.length()));
 		}
 		return LOG_TAG;
 	}

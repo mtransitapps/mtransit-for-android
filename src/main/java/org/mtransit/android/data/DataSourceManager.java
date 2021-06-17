@@ -390,7 +390,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			Uri uri = getRTSRoutesUri(authority);
 			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.RouteColumns.T_ROUTE_K_ID, routeId);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_ROUTE, selection, null, null);
-			ArrayList<Route> rtsRoutes = getRTSRoutes(cursor);
+			List<Route> rtsRoutes = getRTSRoutes(cursor);
 			return rtsRoutes.size() == 0 ? null : rtsRoutes.get(0);
 		} catch (Exception e) {
 			MTLog.w(LOG_TAG, e, "Error!");
@@ -409,7 +409,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static ArrayList<Route> findAllRTSAgencyRoutes(@NonNull Context context, @NonNull String authority) {
+	public static List<Route> findAllRTSAgencyRoutes(@NonNull Context context, @NonNull String authority) {
 		Cursor cursor = null;
 		try {
 			Uri uri = getRTSRoutesUri(authority);
@@ -424,12 +424,12 @@ public final class DataSourceManager implements MTLog.Loggable {
 	}
 
 	@NonNull
-	private static ArrayList<Route> getRTSRoutes(@Nullable Cursor cursor) {
-		ArrayList<Route> result = new ArrayList<>();
+	private static List<Route> getRTSRoutes(@Nullable Cursor cursor) {
+		final List<Route> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {
-					Route fromCursor = Route.fromCursor(cursor);
+					final Route fromCursor = Route.fromCursor(cursor);
 					result.add(fromCursor);
 				} while (cursor.moveToNext());
 			}

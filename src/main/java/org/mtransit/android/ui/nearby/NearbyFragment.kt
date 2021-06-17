@@ -17,7 +17,6 @@ import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
@@ -32,6 +31,7 @@ import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.map.MapFragment
+import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.util.MapUtils
 
 @AndroidEntryPoint
@@ -164,7 +164,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
             viewpager.offscreenPageLimit = 3
             viewpager.registerOnPageChangeCallback(onPageChangeCallback)
             viewpager.adapter = adapter ?: makeAdapter().also { adapter = it } // cannot re-use Adapter w/ ViewPager
-            TabLayoutMediator(tabs, viewpager) { tab, position ->
+            MTTabLayoutMediator(tabs, viewpager, autoRefresh = true, smoothScroll = true) { tab, position ->
                 tab.text = viewModel.availableTypes.value?.get(position)?.shortNameResId?.let { viewpager.context.getString(it) }
             }.attach()
             showSelectedTab()

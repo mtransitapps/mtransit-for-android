@@ -14,7 +14,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -33,6 +32,7 @@ import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
+import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import kotlin.math.abs
 
 @AndroidEntryPoint
@@ -120,10 +120,10 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
             emptyStub.setOnInflateListener { _, inflated ->
                 emptyBinding = LayoutEmptyBinding.bind(inflated)
             }
-            viewpager.offscreenPageLimit = 3
+            viewpager.offscreenPageLimit = 2
             viewpager.registerOnPageChangeCallback(onPageChangeCallback)
             viewpager.adapter = adapter ?: makeAdapter().also { adapter = it } // cannot re-use Adapter w/ ViewPager
-            TabLayoutMediator(tabs, viewpager) { tab, position ->
+            MTTabLayoutMediator(tabs, viewpager, autoRefresh = true, smoothScroll = true) { tab, position ->
                 tab.text = viewModel.typeAgencies.value?.get(position)?.shortName
             }.attach()
             showSelectedTab()

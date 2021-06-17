@@ -33,6 +33,8 @@ class RTSAgencyRoutesAdapter(private val onClick: (Route, IAgencyProperties) -> 
 
     private var _showingListInsteadOfGrid: Boolean? = null
 
+    private var _listSet: Boolean? = null
+
     fun setAgency(agency: IAgencyUIProperties?) {
         if (_agency == agency) {
             MTLog.d(this, "setAgency() > SKIP (same: $agency)")
@@ -52,8 +54,18 @@ class RTSAgencyRoutesAdapter(private val onClick: (Route, IAgencyProperties) -> 
         notifyDataSetChanged()
     }
 
+    fun setList(list: List<Route>?) {
+        submitList(list)
+        if (_listSet == (list != null)) {
+            MTLog.d(this, "setListSet() > SKIP (same: $_listSet)")
+            return
+        }
+        _listSet = list != null
+        notifyDataSetChanged()
+    }
+
     override fun getItemCount(): Int {
-        if (_agency == null || _showingListInsteadOfGrid == null) {
+        if (_agency == null || _showingListInsteadOfGrid == null || _listSet == null) {
             return -1
         }
         return super.getItemCount()

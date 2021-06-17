@@ -14,6 +14,7 @@ import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.databinding.LayoutModulesItemBinding
 import org.mtransit.android.ui.modules.ModulesAdapter.ModuleViewHolder
 import java.util.concurrent.TimeUnit
@@ -45,8 +46,6 @@ class ModulesAdapter :
             }
 
             private val FORMAT_DATE = ThreadSafeDateFormatter.getDateInstance(ThreadSafeDateFormatter.MEDIUM)
-
-            private const val PKG_COMMON = "org.mtransit.android."
         }
 
         @SuppressLint("SetTextI18n")
@@ -62,7 +61,7 @@ class ModulesAdapter :
             }
             binding.descriptionTv.apply {
                 text = item?.let {
-                    "${it.pkg.substringAfter(PKG_COMMON)} r${it.versionCode} v${PackageManagerUtils.getAppVersionName(context, it.pkg)}"
+                    "${it.pkg.substringAfter(IAgencyProperties.PKG_COMMON)} r${it.versionCode} v${PackageManagerUtils.getAppVersionName(context, it.pkg)}"
                 }
                 isVisible = true
             }

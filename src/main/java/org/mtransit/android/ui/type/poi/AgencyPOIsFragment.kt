@@ -327,8 +327,6 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
         }
         adapter.onResume(this, parentViewModel.deviceLocation.value)
         switchView()
-        activity?.invalidateOptionsMenu() // initialize action bar list/map switch icon
-        updateListMapToggleMenuItem()
     }
 
     override fun onPause() {

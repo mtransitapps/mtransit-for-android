@@ -21,7 +21,6 @@ import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
@@ -36,6 +35,7 @@ import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
+import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import java.util.Locale
 import kotlin.math.abs
 
@@ -154,9 +154,8 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
             viewpager.offscreenPageLimit = 1
             viewpager.registerOnPageChangeCallback(onPageChangeCallback)
             viewpager.adapter = adapter ?: makeAdapter().also { adapter = it } // cannot re-use Adapter w/ ViewPager
-            TabLayoutMediator(tabs, viewpager) { tab, position ->
-                @Suppress("DEPRECATION") // TODO Kotlin 1.5.10
-                tab.text = viewModel.routeTrips.value?.get(position)?.getHeading(viewpager.context)?.toUpperCase(Locale.getDefault())
+            MTTabLayoutMediator(tabs, viewpager, autoRefresh = true, smoothScroll = true) { tab, position ->
+                tab.text = viewModel.routeTrips.value?.get(position)?.getHeading(viewpager.context)?.uppercase(Locale.getDefault())
             }.attach()
             getABBgColor(tabs.context)?.let { tabs.setBackgroundColor(it) }
             showSelectedTab()
