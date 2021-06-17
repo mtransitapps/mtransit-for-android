@@ -22,6 +22,7 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.nearby.NearbyViewModel
+import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.IActivity
 import javax.inject.Inject
 
@@ -148,8 +149,10 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
         parentViewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation ->
             adapter.setLocation(deviceLocation)
         })
-        parentViewModel.nearbyLocationForceReset.observe(viewLifecycleOwner, {
-            adapter.clear()
+        parentViewModel.nearbyLocationForceReset.observe(viewLifecycleOwner, EventObserver { reset ->
+            if (reset) {
+                adapter.clear()
+            }
         })
         viewModel.nearbyPOIs.observe(viewLifecycleOwner, { poiList ->
             val scrollToTop = adapter.poisCount <= 0
