@@ -471,7 +471,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				onClickHandledListener.onLeaving();
 			}
 			((MainActivity) activity).addFragmentToStack(
-					NearbyFragment.newFixedOnInstance(this, dataSourcesRepository, true) // PLACE SEARCH RESULT
+					NearbyFragment.newFixedOnPOIInstance(this, dataSourcesRepository, true) // PLACE SEARCH RESULT
 			);
 			return true; // HANDLED
 		}
@@ -734,7 +734,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				onClickHandledListener.onLeaving();
 			}
 			((MainActivity) activity).addFragmentToStack(
-					NearbyFragment.newFixedOnInstance(this, dataSourcesRepository, true) // PLACE SEARCH RESULT
+					NearbyFragment.newFixedOnPOIInstance(this, dataSourcesRepository, true) // PLACE SEARCH RESULT
 			);
 			return true; // nearby screen shown
 		}

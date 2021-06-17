@@ -594,7 +594,7 @@ public class POIFragment extends ABFragment implements
 						return;
 					}
 					((MainActivity) activity).addFragmentToStack(
-							NearbyFragment.newFixedOnInstance(poim, dataSourcesRepository, false),
+							NearbyFragment.newFixedOnPOIInstance(poim, dataSourcesRepository, false),
 							POIFragment.this
 					);
 				}

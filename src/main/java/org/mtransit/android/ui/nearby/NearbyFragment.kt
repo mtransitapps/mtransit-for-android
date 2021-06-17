@@ -43,13 +43,13 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         private const val TRACKING_SCREEN_NAME = "Nearby"
 
         @JvmStatic
-        fun newFixedOnInstance(
+        fun newFixedOnPOIInstance(
             poim: POIManager,
             dataSourcesRepository: DataSourcesRepository,
             simple: Boolean, // true = place...
         ): NearbyFragment {
             return newFixedOnInstance(
-                optTypeId = poim.poi.type,
+                optTypeId = if (simple) null else poim.poi.dataSourceTypeId,
                 fixedOnLat = poim.lat,
                 fixedOnLng = poim.lng,
                 fixedOnName = if (simple) poim.poi.name else poim.getNewOneLineDescription(dataSourcesRepository),
@@ -147,7 +147,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     }
 
     private fun makeAdapter() = NearbyPagerAdapter(this).apply {
-        setTypes(viewModel.types.value)
+        setTypes(viewModel.availableTypes.value)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -165,18 +165,18 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
             viewpager.registerOnPageChangeCallback(onPageChangeCallback)
             viewpager.adapter = adapter ?: makeAdapter().also { adapter = it } // cannot re-use Adapter w/ ViewPager
             TabLayoutMediator(tabs, viewpager) { tab, position ->
-                tab.text = viewModel.types.value?.get(position)?.shortNameResId?.let { viewpager.context.getString(it) }
+                tab.text = viewModel.availableTypes.value?.get(position)?.shortNameResId?.let { viewpager.context.getString(it) }
             }.attach()
             showSelectedTab()
             switchView()
         }
-        viewModel.types.observe(viewLifecycleOwner, { types ->
-            adapter?.setTypes(types)
+        viewModel.availableTypes.observe(viewLifecycleOwner, {
+            adapter?.setTypes(it)
             showSelectedTab()
             switchView()
         })
-        viewModel.selectedTypePosition.observe(viewLifecycleOwner, { selectedTypePosition ->
-            selectedTypePosition?.let {
+        viewModel.selectedTypePosition.observe(viewLifecycleOwner, {
+            it?.let {
                 if (this.lastPageSelected < 0) {
                     this.lastPageSelected = it
                     showSelectedTab()
@@ -185,8 +185,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
                 }
             }
         })
-        viewModel.isFixedOn.observe(viewLifecycleOwner, { isFixedOn ->
-            updateDirectionsMenuItem(isFixedOn)
+        viewModel.isFixedOn.observe(viewLifecycleOwner, {
+            updateDirectionsMenuItem(it)
         })
         viewModel.fixedOnName.observe(viewLifecycleOwner, {
             abController?.setABTitle(this, getABTitle(context), false)
@@ -199,8 +199,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             abController?.setABReady(this, isABReady, true)
         })
-        viewModel.newLocationAvailable.observe(viewLifecycleOwner, { newLocationAvailable ->
-            if (newLocationAvailable == true) {
+        viewModel.newLocationAvailable.observe(viewLifecycleOwner, {
+            if (it == true) {
                 showLocationToast()
             } else {
                 hideLocationToast()

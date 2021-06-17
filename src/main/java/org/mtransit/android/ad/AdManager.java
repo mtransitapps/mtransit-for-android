@@ -280,7 +280,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	public void setRewardedAdListener(@Nullable RewardedAdListener rewardedAdListener) {
 		if (rewardedAdListener == null) {
 			if (this.rewardedAdListenerWR != null) {
-				MTLog.d(this, "setRewardedAdListener() > clearing %s...", this.rewardedAdListenerWR);
+				MTLog.d(this, "setRewardedAdListener() > clearing %s...", this.rewardedAdListenerWR.get());
 				this.rewardedAdListenerWR.clear();
 			}
 			this.rewardedAdListenerWR = null;
