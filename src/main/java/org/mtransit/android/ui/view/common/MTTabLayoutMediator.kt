@@ -200,7 +200,11 @@ class MTTabLayoutMediator @JvmOverloads constructor(
                 } else {
                     item + (MAX_SMOOTH_SCROLL_DIFF - 1)
                 }
-                viewPager.setCurrentItem(nearbyItem, false)
+                viewPager.setCurrentItem(nearbyItem, false) // INSTANT from far away to nearby
+                viewPager.post {
+                    viewPager.setCurrentItem(item, true) // SMOOTH from nearby to item
+                }
+                return
             }
             // MT CHANGES - END ----------
             viewPager.setCurrentItem(item, smoothScroll)
