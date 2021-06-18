@@ -595,9 +595,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		void onLeaving();
 	}
 
+	@Nullable
 	private WeakReference<OnClickHandledListener> onClickHandledListenerWR;
 
-	public void setOnClickHandledListener(OnClickHandledListener onClickHandledListener) {
+	public void setOnClickHandledListener(@Nullable OnClickHandledListener onClickHandledListener) {
 		this.onClickHandledListenerWR = new WeakReference<>(onClickHandledListener);
 	}
 

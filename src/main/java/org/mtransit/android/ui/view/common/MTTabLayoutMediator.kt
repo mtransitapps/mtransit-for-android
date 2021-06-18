@@ -30,6 +30,7 @@ class MTTabLayoutMediator @JvmOverloads constructor(
 
         /**
          * see [ViewPager2.setCurrentItem]
+         * https://issuetracker.google.com/issues/114361680
          */
         private const val MAX_SMOOTH_SCROLL_DIFF = 2
     }
