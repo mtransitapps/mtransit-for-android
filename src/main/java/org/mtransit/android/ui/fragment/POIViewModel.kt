@@ -118,7 +118,9 @@ class POIViewModel @Inject constructor(
                     LocationUtils.updateDistance(agencyPOIs, lat, lng)
                     LocationUtils.removeTooFar(agencyPOIs, maxDistance)
                     LocationUtils.removeTooMuchWhenNotInCoverage(agencyPOIs, minCoverageInMeters, maxSize)
-                    nearbyPOIs.addAll(agencyPOIs)
+                    nearbyPOIs.addAll(
+                        agencyPOIs.filter { !nearbyPOIs.contains(it) } // distinct
+                    )
                 }
             if (nearbyPOIs.size > LocationUtils.MIN_NEARBY_LIST // enough POI
                 || LocationUtils.searchComplete(lat, lng, aroundDiff) // world explored

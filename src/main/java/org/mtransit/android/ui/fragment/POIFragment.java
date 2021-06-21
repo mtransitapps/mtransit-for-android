@@ -436,10 +436,11 @@ public class POIFragment extends ABFragment implements
 	private void onNearbyPOIsLoaded(@Nullable List<POIManager> nearbyPOIs) {
 		final POIManager poim = getPoimOrNull();
 		if (poim != null && nearbyPOIs != null) {
+			final String uuid = poim.poi.getUUID();
 			int i = 0;
-			Iterator<POIManager> it = nearbyPOIs.iterator();
+			final Iterator<POIManager> it = nearbyPOIs.iterator();
 			while (it.hasNext()) {
-				if (it.next().poi.getUUID().equals(poim.poi.getUUID())) {
+				if (it.next().poi.getUUID().equals(uuid)) {
 					it.remove();
 					continue;
 				}
