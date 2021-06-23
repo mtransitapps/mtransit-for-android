@@ -53,19 +53,11 @@ class SchedulePagerAdapter(
 
     fun isReady() = _uuid != null && _authority != null
 
-    override fun getItemCount(): Int = if (!isReady()) -1 else COUNT
+    override fun getItemCount() = COUNT
 
     override fun createFragment(position: Int): Fragment = ScheduleDayFragment.newInstance(
         this._uuid ?: throw RuntimeException("Trying to create schedule day fragment w/o UUID!"),
         this._authority ?: throw RuntimeException("Trying to create schedule day fragment w/o authority!"),
         getPageDayCal(position).timeInMillis,
     )
-
-    override fun getItemId(position: Int): Long { // used by DiffUtil ()
-        return getPageDayCal(position).timeInMillis // return position; // DEFAULT IMPLEMENTATION
-    }
-
-    override fun containsItem(itemId: Long): Boolean { // used by DiffUtil
-        return itemId in 0 until itemCount // DEFAULT IMPLEMENTATION
-    }
 }

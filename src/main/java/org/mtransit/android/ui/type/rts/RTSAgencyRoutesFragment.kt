@@ -169,7 +169,7 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
     private fun switchView() {
         binding?.apply {
             when {
-                adapter.itemCount < 0 -> {
+                !adapter.isReady() -> {
                     emptyBinding?.root?.isVisible = false
                     routesListGrid.isVisible = false
                     loading.root.isVisible = true

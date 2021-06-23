@@ -37,13 +37,15 @@ public final class FragmentUtils implements MTLog.Loggable {
 	}
 
 	public static boolean isFragmentReady(@Nullable Fragment fragment) {
-		return fragment != null && fragment.isAdded() && !fragment.isDetached() && !fragment.isRemoving();
+		return fragment != null
+				&& fragment.isAdded() && fragment.isResumed()
+				&& !fragment.isDetached() && !fragment.isRemoving();
 	}
 
 	public static boolean isFragmentReady(@Nullable FragmentActivity fa,
 										  @NonNull @IdRes Integer fragmentResId) {
 		Fragment fragment = getFragment(fa, fragmentResId);
-		return fragment != null && fragment.isAdded() && !fragment.isDetached() && !fragment.isRemoving();
+		return isFragmentReady(fragment);
 	}
 
 	@Nullable
@@ -53,6 +55,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 		return fm == null ? null : fm.findFragmentById(fragmentResId);
 	}
 
+	@Deprecated
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public static boolean isFragmentReady(@Nullable android.app.Fragment fragment) {
 		return fragment != null && fragment.isAdded() && !fragment.isDetached() && !fragment.isRemoving();
@@ -149,6 +152,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 		}
 	}
 
+	@Deprecated
 	public static void replaceDialogFragment(@Nullable android.app.Activity fa,
 											 @Nullable String tag,
 											 @Nullable android.app.DialogFragment dialogFragment,

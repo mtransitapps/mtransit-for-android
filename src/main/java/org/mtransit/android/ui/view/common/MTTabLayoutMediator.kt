@@ -111,8 +111,8 @@ class MTTabLayoutMediator @JvmOverloads constructor(
 
     fun populateTabsFromPagerAdapter() {
         tabLayout.removeAllTabs()
-        if (adapter != null) {
-            val adapterCount = adapter!!.itemCount
+        adapter?.let {
+            val adapterCount = it.itemCount
             for (i in 0 until adapterCount) {
                 val tab = tabLayout.newTab()
                 tabConfigurationStrategy.onConfigureTab(tab, i)

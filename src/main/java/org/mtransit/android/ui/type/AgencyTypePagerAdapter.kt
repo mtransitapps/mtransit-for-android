@@ -35,7 +35,9 @@ class AgencyTypePagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Logga
         return changed
     }
 
-    override fun getItemCount() = agencies?.size ?: -1
+    fun isReady() = agencies != null
+
+    override fun getItemCount() = agencies?.size ?: 0
 
     override fun createFragment(position: Int): Fragment {
         val agency = agencies?.getOrNull(position) ?: throw RuntimeException("Trying to create fragment at $position!")

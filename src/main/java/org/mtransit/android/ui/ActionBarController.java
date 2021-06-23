@@ -134,9 +134,18 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	public void setAB(@Nullable ABFragment abf) {
 		Context context = getContextOrNull();
 		if (abf != null && context != null) {
-			setAB(abf.getABTitle(context), abf.getABSubtitle(context), abf.getABBgColor(context), abf.getABCustomView(), abf.isABCustomViewFocusable(),
-					abf.isABCustomViewRequestFocus(), abf.isABThemeDarkInsteadOfThemeLight(), abf.isABDisplayHomeAsUpEnabled(), abf.isABShowSearchMenuItem(),
-					abf.isABReady());
+			setAB(
+					abf.getABTitle(context),
+					abf.getABSubtitle(context),
+					abf.getABBgColor(context),
+					abf.getABCustomView(),
+					abf.isABCustomViewFocusable(),
+					abf.isABCustomViewRequestFocus(),
+					abf.isABThemeDarkInsteadOfThemeLight(),
+					abf.isABDisplayHomeAsUpEnabled(),
+					abf.isABShowSearchMenuItem(),
+					abf.isABReady()
+			);
 		}
 	}
 

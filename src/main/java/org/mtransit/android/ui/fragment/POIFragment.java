@@ -342,11 +342,11 @@ public class POIFragment extends ABFragment implements
 		if (!FragmentUtils.isFragmentReady(this)) {
 			return;
 		}
-		POIManager poim = getPoimOrNull();
+		final POIManager poim = getPoimOrNull();
 		if (poim == null) {
 			return;
 		}
-		FragmentActivity activity = getActivity();
+		final FragmentActivity activity = getActivity();
 		if (activity == null) {
 			return;
 		}

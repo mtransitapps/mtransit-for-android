@@ -74,8 +74,8 @@ class ScheduleDayFragment : MTFragmentX(R.layout.fragment_schedule_day), MTLog.L
                 }
                 viewModel.setScrolledToNow(true)
             }
-            binding?.loading?.root?.isVisible = adapter.itemCount < 0
-            binding?.timesList?.isVisible = adapter.itemCount >= 0
+            binding?.loading?.root?.isVisible = !adapter.isReady()
+            binding?.timesList?.isVisible = adapter.isReady()
         })
         viewModel.rts.observe(viewLifecycleOwner, { rts ->
             adapter.setRTS(rts)

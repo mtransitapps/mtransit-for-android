@@ -173,8 +173,10 @@ class ScheduleDayAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLo
         this.nextTimestamp = null
     }
 
+    fun isReady() = this.timesCount != COUNT_UNKNOWN
+
     override fun getItemCount(): Int {
-        return if (this.timesCount == COUNT_UNKNOWN) COUNT_UNKNOWN else this.timesCount + HOUR_SEPARATORS_COUNT
+        return if (isReady()) this.timesCount + HOUR_SEPARATORS_COUNT else 0
     }
 
     private fun getItem(position: Int): Schedule.Timestamp? {

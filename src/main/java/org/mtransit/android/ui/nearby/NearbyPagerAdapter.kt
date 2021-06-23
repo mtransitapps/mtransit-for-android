@@ -34,7 +34,9 @@ class NearbyPagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Loggable 
         return changed
     }
 
-    override fun getItemCount() = types?.size ?: -1
+    fun isReady() = types != null
+
+    override fun getItemCount() = types?.size ?: 0
 
     override fun createFragment(position: Int): Fragment {
         val dst = types?.getOrNull(position) ?: throw RuntimeException("Trying to create fragment at $position!")

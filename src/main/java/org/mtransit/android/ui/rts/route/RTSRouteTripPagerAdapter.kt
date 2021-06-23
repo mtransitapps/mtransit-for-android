@@ -53,7 +53,9 @@ class RTSRouteTripPagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Log
         this.selectedStopId = newSelectedStopId // NICE TO HAVE -> not triggering notifyDataSetChanged()
     }
 
-    override fun getItemCount() = authority?.let { routeTrips?.size } ?: -1
+    fun isReady() = authority != null && routeTrips != null
+
+    override fun getItemCount() = routeTrips?.size ?: 0
 
     override fun createFragment(position: Int): Fragment {
         val authority: String = this.authority ?: throw RuntimeException("Trying to create fragment w/ authority at $position!")

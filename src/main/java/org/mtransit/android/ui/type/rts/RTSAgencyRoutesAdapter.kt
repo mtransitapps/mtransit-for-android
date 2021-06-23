@@ -64,12 +64,7 @@ class RTSAgencyRoutesAdapter(private val onClick: (Route, IAgencyProperties) -> 
         notifyDataSetChanged()
     }
 
-    override fun getItemCount(): Int {
-        if (_agency == null || _showingListInsteadOfGrid == null || _listSet == null) {
-            return -1
-        }
-        return super.getItemCount()
-    }
+    fun isReady() = _agency != null && _showingListInsteadOfGrid != null && _listSet != null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RouteViewHolder {
         return RouteViewHolder.from(parent)

@@ -226,7 +226,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     private fun switchView() {
         binding?.apply {
             when {
-                lastPageSelected < 0 || adapter?.itemCount ?: 0 < 0 -> { // LOADING
+                lastPageSelected < 0 || adapter?.isReady() != true -> { // LOADING
                     emptyBinding?.root?.isVisible = false
                     viewpager.isVisible = false
                     tabs.isVisible = false
@@ -249,7 +249,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     }
 
     private fun showSelectedTab() {
-        if (this.adapter?.itemCount ?: -1 <= 0) {
+        if (this.adapter?.isReady() != true) {
             MTLog.d(this, "showSelectedTab() > SKIP (no adapter items)")
             return
         }
