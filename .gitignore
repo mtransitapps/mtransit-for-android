@@ -52,6 +52,8 @@ proguard/
 /publish_*.sh
 /src/main/play/default-language.txt
 
+# trigger change 1
+
 # Keys (encrypted files)
 /app-signing-release-keys.properties
 /app-signing-release-keystore-encrypted.keystore
