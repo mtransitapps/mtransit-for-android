@@ -242,10 +242,13 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
         return refreshSearchHasFocus()
     }
 
+    private val addedViewModel: SearchViewModel?
+        get() = if (isAdded) viewModel else null
+
     private fun refreshSearchHasFocus(): Boolean {
         return searchView?.let {
             val focus = it.hasFocus()
-            viewModel.setSearchHasFocus(focus)
+            addedViewModel?.setSearchHasFocus(focus)
             focus
         } ?: false
     }
@@ -269,8 +272,8 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
         val supportActionBar = mainActivity.supportActionBar
         val context = if (supportActionBar == null) mainActivity else supportActionBar.themedContext
         searchView = MTSearchView(mainActivity, context).apply {
-            setQuery(viewModel.query.value, false)
-            if (viewModel.searchHasFocus.value == false) {
+            setQuery(addedViewModel?.query?.value, false)
+            if (addedViewModel?.searchHasFocus?.value == false) {
                 clearFocus()
             }
         }

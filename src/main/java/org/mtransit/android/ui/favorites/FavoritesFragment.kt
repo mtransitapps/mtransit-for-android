@@ -172,6 +172,10 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
         }
     }
 
+    @Suppress("unused")
+    private val addedViewModel: FavoritesViewModel?
+        get() = if (isAdded) viewModel else null
+
     override fun getABTitle(context: Context?) = context?.getString(R.string.favorites) ?: super.getABTitle(context)
 
     override fun onDestroyView() {

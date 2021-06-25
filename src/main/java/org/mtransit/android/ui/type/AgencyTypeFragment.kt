@@ -256,12 +256,13 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
         }
     }
 
-    override fun isABReady(): Boolean {
-        return viewModel.type.value != null
-    }
+    private val addedViewModel: AgencyTypeViewModel?
+        get() = if (isAdded) viewModel else null
+
+    override fun isABReady() = addedViewModel?.type?.value != null
 
     override fun getABTitle(context: Context?): CharSequence? {
-        return viewModel.type.value?.let { context?.getString(it.allStringResId) }
+        return addedViewModel?.type?.value?.let { context?.getString(it.allStringResId) }
             ?: context?.getString(R.string.ellipsis)
             ?: super.getABTitle(context)
     }

@@ -136,15 +136,18 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
         }
     }
 
-    override fun isABReady() = viewModel.rts.value != null
+    private val addedViewModel: ScheduleViewModel?
+        get() = if (isAdded) viewModel else null
+
+    override fun isABReady() = addedViewModel?.rts?.value != null
 
     override fun getABTitle(context: Context?) = context?.getString(R.string.full_schedule) ?: super.getABTitle(context)
 
-    override fun getABSubtitle(context: Context?) = viewModel.rts.value?.let { rts ->
+    override fun getABSubtitle(context: Context?) = addedViewModel?.rts?.value?.let { rts ->
         POIManager.getNewOneLineDescription(rts, viewModel.agency.value)
     } ?: super.getABSubtitle(context)
 
-    override fun getABBgColor(context: Context?) = viewModel.colorInt.value ?: super.getABBgColor(context)
+    override fun getABBgColor(context: Context?) = addedViewModel?.colorInt?.value ?: super.getABBgColor(context)
 
     override fun onDestroyView() {
         super.onDestroyView()

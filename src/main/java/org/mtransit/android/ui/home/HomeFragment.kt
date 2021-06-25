@@ -275,10 +275,13 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
         }
     }
 
+    private val addedViewModel: HomeViewModel?
+        get() = if (isAdded) viewModel else null
+
     override fun getABTitle(context: Context?) = context?.getString(R.string.app_name) ?: super.getABTitle(context)
 
     override fun getABSubtitle(context: Context?) =
-        this.viewModel.nearbyLocationAddress.value ?: context?.getString(R.string.ellipsis) ?: super.getABSubtitle(context)
+        this.addedViewModel?.nearbyLocationAddress?.value ?: context?.getString(R.string.ellipsis) ?: super.getABSubtitle(context)
 
     override fun onDestroyView() {
         super.onDestroyView()

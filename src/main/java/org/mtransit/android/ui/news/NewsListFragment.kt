@@ -115,11 +115,14 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
         })
     }
 
+    private val addedViewModel: NewsListViewModel?
+        get() = if (isAdded) viewModel else null
+
     override fun getABTitle(context: Context?) = context?.getString(R.string.news) ?: super.getABTitle(context)
 
-    override fun getABSubtitle(context: Context?) = viewModel.subTitle.value ?: super.getABSubtitle(context)
+    override fun getABSubtitle(context: Context?) = addedViewModel?.subTitle?.value ?: super.getABSubtitle(context)
 
-    override fun getABBgColor(context: Context?) = viewModel.colorInt.value ?: super.getABBgColor(context)
+    override fun getABBgColor(context: Context?) = addedViewModel?.colorInt?.value ?: super.getABBgColor(context)
 
     override fun onResume() {
         super.onResume()

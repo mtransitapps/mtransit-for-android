@@ -212,7 +212,7 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	private AgencyProperties getAgencyOrNull() {
-		return this.viewModel == null ? null : this.viewModel.getAgency().getValue();
+		return getAddedViewModel() == null ? null : getAddedViewModel().getAgency().getValue();
 	}
 
 	@Nullable
@@ -1209,6 +1209,11 @@ public class POIFragment extends ABFragment implements
 		if (poim != null) {
 			POIViewController.updateView(getPOIView(getView()), poim, this);
 		}
+	}
+
+	@Nullable
+	private POIViewModel getAddedViewModel() {
+		return isAdded() ? this.viewModel : null;
 	}
 
 	@Override

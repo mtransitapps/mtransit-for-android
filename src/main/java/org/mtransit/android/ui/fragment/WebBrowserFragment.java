@@ -233,6 +233,12 @@ public class WebBrowserFragment extends ABFragment {
 		}
 	}
 
+	// TODO later view model
+	// @Nullable
+	// private POIViewModel getAddedViewModel() {
+	// return isAdded() ? this.viewModel : null;
+	// }
+	//
 	@Nullable
 	@Override
 	public CharSequence getABSubtitle(@Nullable Context context) {

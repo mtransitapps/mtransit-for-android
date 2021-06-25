@@ -137,13 +137,16 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
         }
     }
 
-    override fun getABBgColor(context: Context?) = viewModel.newsArticle.value?.colorIntOrNull ?: super.getABBgColor(context)
+    private val addedViewModel: NewsDetailsViewModel?
+        get() = if (isAdded) viewModel else null
 
-    override fun getABTitle(context: Context?) = viewModel.newsArticle.value?.authorOneLine ?: super.getABTitle(context)
+    override fun getABBgColor(context: Context?) = addedViewModel?.newsArticle?.value?.colorIntOrNull ?: super.getABBgColor(context)
 
-    override fun getABSubtitle(context: Context?) = viewModel.newsArticle.value?.sourceLabel ?: super.getABTitle(context)
+    override fun getABTitle(context: Context?) = addedViewModel?.newsArticle?.value?.authorOneLine ?: super.getABTitle(context)
 
-    override fun isABReady() = viewModel.newsArticle.value != null
+    override fun getABSubtitle(context: Context?) = addedViewModel?.newsArticle?.value?.sourceLabel ?: super.getABTitle(context)
+
+    override fun isABReady() = addedViewModel?.newsArticle?.value != null
 
     override fun onDetach() {
         super.onDetach()

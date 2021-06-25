@@ -264,7 +264,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	public void updateABDrawerClosed() {
-		ActionBar ab = getABOrNull();
+		final ActionBar ab = getABOrNull();
 		if (ab == null) {
 			return;
 		}

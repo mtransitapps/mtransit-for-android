@@ -346,19 +346,22 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         }
     }
 
+    private val addedViewModel: NearbyViewModel?
+        get() = if (isAdded) viewModel else null
+
     override fun getABTitle(context: Context?): CharSequence? {
-        return viewModel.fixedOnName.value
+        return addedViewModel?.fixedOnName?.value
             ?: context?.getString(R.string.nearby)
             ?: super.getABTitle(context)
     }
 
     override fun getABBgColor(context: Context?): Int? {
-        return viewModel.fixedOnColorInt.value
+        return addedViewModel?.fixedOnColorInt?.value
             ?: super.getABBgColor(context)
     }
 
     override fun getABSubtitle(context: Context?): CharSequence? {
-        return viewModel.nearbyLocationAddress.value ?: super.getABSubtitle(context)
+        return addedViewModel?.nearbyLocationAddress?.value ?: super.getABSubtitle(context)
     }
 
     override fun onPause() {

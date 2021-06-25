@@ -274,6 +274,9 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
         )
     }
 
+    private val addedViewModel: MapViewModel?
+        get() = if (isAdded) viewModel else null
+
     override fun getABBgColor(context: Context?) = Color.TRANSPARENT
 
     override fun getABTitle(context: Context?): CharSequence? {
@@ -281,7 +284,7 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
     }
 
     private fun makeABTitle(): CharSequence {
-        return (viewModel.filterTypeIds.value?.let { if (it.isEmpty()) null else it } // empty = all
+        return (addedViewModel?.filterTypeIds?.value?.let { if (it.isEmpty()) null else it } // empty = all
             ?.mapNotNull { typeId ->
                 DataSourceType.parseId(typeId)?.allStringResId?.let { getString(it) }
             } ?: listOf(getString(R.string.all)))

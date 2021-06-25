@@ -298,12 +298,15 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
         return super.onOptionsItemSelected(item)
     }
 
-    override fun isABReady() = viewModel.route.value != null
+    private val addedViewModel: RTSRouteViewModel?
+        get() = if (isAdded) viewModel else null
 
-    override fun getABBgColor(context: Context?) = viewModel.colorInt.value ?: super.getABBgColor(context)
+    override fun isABReady() = addedViewModel?.route?.value != null
+
+    override fun getABBgColor(context: Context?) = addedViewModel?.colorInt?.value ?: super.getABBgColor(context)
 
     override fun getABTitle(context: Context?): CharSequence? {
-        return viewModel.route.value?.let { makeABTitle(it) }
+        return addedViewModel?.route?.value?.let { makeABTitle(it) }
             ?: super.getABTitle(context)
     }
 
