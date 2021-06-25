@@ -238,6 +238,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
         if (this.toastShown) {
             return // SKIP
         }
+        if (activity?.isFinishing != false) {
+            return; // SKIP
+        }
         (this.locationToast ?: makeLocationToast().also { this.locationToast = it })?.let { locationToast ->
             this.toastShown = ToastUtils.showTouchableToastPx(
                 context,
