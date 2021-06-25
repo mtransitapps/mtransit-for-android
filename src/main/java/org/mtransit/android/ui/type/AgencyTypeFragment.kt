@@ -275,10 +275,10 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
 
     private fun getNewABBgColor(): Int? {
         if (this.selectedPosition >= 0) {
-            val colorInt = abColorizer.getBgColor(this.selectedPosition)
+            val colorInt = abColorizer.getBgColor(this.selectedPosition) ?: return null
             val count = this.adapter?.itemCount ?: 0
             if (this.selectionOffset > 0f && this.selectedPosition < (count - 1)) {
-                val nextColorInt = abColorizer.getBgColor(this.selectedPosition + 1)
+                val nextColorInt = abColorizer.getBgColor(this.selectedPosition + 1) ?: return null
                 if (colorInt != nextColorInt) {
                     return ColorUtils.blendColors(nextColorInt, colorInt, selectionOffset)
                 }
