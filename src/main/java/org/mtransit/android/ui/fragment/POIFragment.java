@@ -297,6 +297,7 @@ public class POIFragment extends ABFragment implements
 			return;
 		}
 		POINewsViewController.updateView(getPOINewsView(getView()), news);
+		setupMoreNewsButton(getView());
 	}
 
 	@Nullable
