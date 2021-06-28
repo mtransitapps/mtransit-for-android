@@ -42,7 +42,7 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
         binding = FragmentModulesBinding.bind(view).apply {
             modulesList.adapter = listAdapter
         }
-        viewModel.agencies.observe(this, { newAgencies ->
+        viewModel.agencies.observe(viewLifecycleOwner, { newAgencies ->
             listAdapter.submitList(newAgencies)
             binding?.modulesLinearLayout?.isVisible = !newAgencies.isNullOrEmpty()
             binding?.noModulesLayout?.isVisible = newAgencies.isNullOrEmpty()
