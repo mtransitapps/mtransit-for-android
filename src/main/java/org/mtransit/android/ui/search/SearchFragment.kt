@@ -61,6 +61,8 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<SearchViewModel>()
+    private val addedViewModel: SearchViewModel?
+        get() = if (isAdded) viewModel else null
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -204,7 +206,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        viewModel.onDeviceLocationChanged(newLocation)
+        addedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
     private var devEnabled: Boolean? = null
@@ -241,9 +243,6 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
     private fun searchHasFocus(): Boolean {
         return refreshSearchHasFocus()
     }
-
-    private val addedViewModel: SearchViewModel?
-        get() = if (isAdded) viewModel else null
 
     private fun refreshSearchHasFocus(): Boolean {
         return searchView?.let {

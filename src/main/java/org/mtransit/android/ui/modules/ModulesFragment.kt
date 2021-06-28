@@ -24,6 +24,9 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
     override fun getLogTag(): String = LOG_TAG
 
     private val viewModel by viewModels<ModulesViewModel>()
+    @Suppress("unused")
+    private val addedViewModel: ModulesViewModel?
+        get() = if (isAdded) viewModel else null
 
     private val listAdapter: ModulesAdapter by lazy { ModulesAdapter() }
 
@@ -32,11 +35,6 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        viewModel.agencies.observe(this, { newAgencies ->
-            listAdapter.submitList(newAgencies)
-            binding?.modulesLinearLayout?.isVisible = !newAgencies.isNullOrEmpty()
-            binding?.noModulesLayout?.isVisible = newAgencies.isNullOrEmpty()
-        })
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -44,6 +42,11 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
         binding = FragmentModulesBinding.bind(view).apply {
             modulesList.adapter = listAdapter
         }
+        viewModel.agencies.observe(this, { newAgencies ->
+            listAdapter.submitList(newAgencies)
+            binding?.modulesLinearLayout?.isVisible = !newAgencies.isNullOrEmpty()
+            binding?.noModulesLayout?.isVisible = newAgencies.isNullOrEmpty()
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

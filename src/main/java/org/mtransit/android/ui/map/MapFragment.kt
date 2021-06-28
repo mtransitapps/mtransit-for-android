@@ -57,6 +57,8 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<MapViewModel>()
+    private val addedViewModel: MapViewModel?
+        get() = if (isAdded) viewModel else null
 
     private var binding: FragmentMapBinding? = null
 
@@ -76,13 +78,13 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
         }
 
         override fun onCameraChange(latLngBounds: LatLngBounds) {
-            viewModel.onCameraChange(latLngBounds) {
+            addedViewModel?.onCameraChange(latLngBounds) {
                 mapViewController.getBigCameraPosition(activity, 1.0f)
             }
         }
 
         override fun onMapReady() {
-            viewModel.poiMarkers.value?.let {
+            addedViewModel?.poiMarkers?.value?.let {
                 mapViewController.clearMarkers()
                 mapViewController.addMarkers(it)
                 mapViewController.showMap(view)
@@ -201,7 +203,7 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        viewModel.onDeviceLocationChanged(newLocation)
+        addedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
     override fun onPause() {
@@ -226,13 +228,13 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
     }
 
     private fun showMenuFilterDialog(): Boolean {
-        val filterTypeIds = viewModel.filterTypeIds.value ?: return false
+        val filterTypeIds = addedViewModel?.filterTypeIds?.value ?: return false
         val activity = requireActivity()
         val typeNames = mutableListOf<CharSequence>()
         val checked = mutableListOf<Boolean>()
         val typeIds = mutableListOf<Int>()
         val selectedItems = mutableSetOf<Int>()
-        viewModel.mapTypes.value?.forEach { type ->
+        addedViewModel?.mapTypes?.value?.forEach { type ->
             typeIds.add(type.id)
             typeNames.add(getString(type.poiShortNameResId))
             checked.add(filterTypeIds.isEmpty() || filterTypeIds.contains(type.id))
@@ -273,9 +275,6 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
             }
         )
     }
-
-    private val addedViewModel: MapViewModel?
-        get() = if (isAdded) viewModel else null
 
     override fun getABBgColor(context: Context?) = Color.TRANSPARENT
 

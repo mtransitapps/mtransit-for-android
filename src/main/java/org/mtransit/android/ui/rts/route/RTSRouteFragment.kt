@@ -84,8 +84,8 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     override fun getLogTag(): String = LOG_TAG
 
     override fun getScreenName(): String {
-        val authority = viewModel.authority.value
-        val routeId = viewModel.routeId.value
+        val authority = addedViewModel?.authority?.value
+        val routeId = addedViewModel?.routeId?.value
         if (authority != null && routeId != null) {
             return "$TRACKING_SCREEN_NAME/$authority/$routeId"
         }
@@ -93,6 +93,8 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     }
 
     private val viewModel by viewModels<RTSRouteViewModel>()
+    private val addedViewModel: RTSRouteViewModel?
+        get() = if (isAdded) viewModel else null
 
     private var binding: FragmentRtsRouteBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
@@ -103,11 +105,11 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     private val listMapToggleSelector: StateListDrawable by lazy {
         StateListDrawable().apply {
             (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_list, requireContext().theme) as? LayerDrawable)?.apply {
-                viewModel.colorInt.value?.let { (findDrawableByLayerId(R.id.switch_list_oval_shape) as? GradientDrawable)?.setColor(it) }
+                addedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_list_oval_shape) as? GradientDrawable)?.setColor(it) }
                 addState(intArrayOf(android.R.attr.state_checked), this)
             }
             (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_map, requireContext().theme) as? LayerDrawable)?.apply {
-                viewModel.colorInt.value?.let { (findDrawableByLayerId(R.id.switch_map_oval_shape) as? GradientDrawable)?.setColor(it) }
+                addedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_map_oval_shape) as? GradientDrawable)?.setColor(it) }
                 addState(StateSet.WILD_CARD, this)
             }
         }
@@ -119,9 +121,9 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     private var adapter: RTSRouteTripPagerAdapter? = null
 
     private fun makeAdapter() = RTSRouteTripPagerAdapter(this).apply {
-        setSelectedStopId(viewModel.selectedStopId.value)
-        setAuthority(viewModel.authority.value)
-        setRouteTrips(viewModel.routeTrips.value)
+        setSelectedStopId(addedViewModel?.selectedStopId?.value)
+        setAuthority(addedViewModel?.authority?.value)
+        setRouteTrips(addedViewModel?.routeTrips?.value)
     }
 
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
@@ -219,7 +221,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        viewModel.onDeviceLocationChanged(newLocation)
+        addedViewModel?.onDeviceLocationChanged(newLocation)
         MTActivityWithLocation.broadcastUserLocationChanged(this, childFragmentManager.fragments, newLocation) // TODO remove later
     }
 
@@ -297,9 +299,6 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
         }
         return super.onOptionsItemSelected(item)
     }
-
-    private val addedViewModel: RTSRouteViewModel?
-        get() = if (isAdded) viewModel else null
 
     override fun isABReady() = addedViewModel?.route?.value != null
 

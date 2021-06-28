@@ -55,6 +55,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<HomeViewModel>()
+    private val addedViewModel: HomeViewModel?
+        get() = if (isAdded) viewModel else null
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -83,7 +85,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
 
     private val infiniteLoadingListener = object : POIArrayAdapter.InfiniteLoadingListener {
         override fun isLoadingMore(): Boolean {
-            return viewModel.loadingPOIs.value == true
+            return addedViewModel?.loadingPOIs?.value == true
         }
 
         override fun showingDone() = false
@@ -120,8 +122,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
             setInfiniteLoading(true)
             setInfiniteLoadingListener(infiniteLoadingListener)
             setOnTypeHeaderButtonsClickListener(typeHeaderButtonsClickListener)
-            setPois(viewModel.nearbyPOIs.value)
-            setLocation(viewModel.deviceLocation.value)
+            setPois(addedViewModel?.nearbyPOIs?.value)
+            setLocation(addedViewModel?.deviceLocation?.value)
         }
     }
 
@@ -221,7 +223,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
             setTouchInterceptor { _, me ->
                 when (me.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        val handled = viewModel.initiateRefresh()
+                        val handled = addedViewModel?.initiateRefresh() == true
                         hideLocationToast()
                         handled
                     }
@@ -239,14 +241,14 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
             return // SKIP
         }
         if (activity?.isFinishing != false) {
-            return; // SKIP
+            return // SKIP
         }
         (this.locationToast ?: makeLocationToast().also { this.locationToast = it })?.let { locationToast ->
             this.toastShown = ToastUtils.showTouchableToastPx(
                 context,
                 locationToast,
                 view,
-                this.viewModel.getAdBannerHeightInPx(this)
+                addedViewModel?.getAdBannerHeightInPx(this) ?: 0
             )
         }
     }
@@ -257,7 +259,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        viewModel.onDeviceLocationChanged(newLocation)
+        addedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -277,9 +279,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
             else -> super.onOptionsItemSelected(item)
         }
     }
-
-    private val addedViewModel: HomeViewModel?
-        get() = if (isAdded) viewModel else null
 
     override fun getABTitle(context: Context?) = context?.getString(R.string.app_name) ?: super.getABTitle(context)
 

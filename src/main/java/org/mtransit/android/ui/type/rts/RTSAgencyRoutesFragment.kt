@@ -58,6 +58,8 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
     override fun getLogTag(): String = this.theLogTag
 
     private val viewModel by viewModels<RTSAgencyRoutesViewModel>()
+    private val addedViewModel: RTSAgencyRoutesViewModel?
+        get() = if (isAdded) viewModel else null
 
     private var binding: FragmentRtsAgencyRoutesBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
@@ -68,11 +70,11 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
     private val listGridToggleSelector: StateListDrawable by lazy {
         StateListDrawable().apply {
             (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_list, requireContext().theme) as? LayerDrawable)?.apply {
-                viewModel.colorInt.value?.let { (findDrawableByLayerId(R.id.switch_list_oval_shape) as? GradientDrawable)?.setColor(it) }
+                addedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_list_oval_shape) as? GradientDrawable)?.setColor(it) }
                 addState(intArrayOf(android.R.attr.state_checked), this)
             }
             (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_grid, requireContext().theme) as? LayerDrawable)?.apply {
-                viewModel.colorInt.value?.let { (findDrawableByLayerId(R.id.switch_grid_oval_shape) as? GradientDrawable)?.setColor(it) }
+                addedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_grid_oval_shape) as? GradientDrawable)?.setColor(it) }
                 addState(StateSet.WILD_CARD, this)
             }
         }
@@ -84,9 +86,9 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
 
     private val adapter: RTSAgencyRoutesAdapter by lazy {
         RTSAgencyRoutesAdapter(this::openRouteScreen).apply {
-            setAgency(viewModel.agency.value)
-            setShowingListInsteadOfGrid(viewModel.showingListInsteadOfGrid.value)
-            submitList(viewModel.routes.value)
+            setAgency(addedViewModel?.agency?.value)
+            setShowingListInsteadOfGrid(addedViewModel?.showingListInsteadOfGrid?.value)
+            submitList(addedViewModel?.routes?.value)
         }
     }
 

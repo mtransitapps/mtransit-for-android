@@ -62,6 +62,8 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
     override fun getLogTag(): String = LOG_TAG
 
     private val viewModel by viewModels<PickPOIViewModel>()
+    private val addedViewModel: PickPOIViewModel?
+        get() = if (isAdded) viewModel else null
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -167,7 +169,7 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        viewModel.onDeviceLocationChanged(newLocation)
+        addedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
     override fun onPause() {

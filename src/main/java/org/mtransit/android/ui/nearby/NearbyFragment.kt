@@ -119,6 +119,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<NearbyViewModel>()
+    private val addedViewModel: NearbyViewModel?
+        get() = if (isAdded) viewModel else null
 
     private var binding: FragmentNearbyBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
@@ -136,7 +138,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
-            viewModel.onPageSelected(position)
+            addedViewModel?.onPageSelected(position)
             lastPageSelected = position
         }
 
@@ -147,7 +149,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     }
 
     private fun makeAdapter() = NearbyPagerAdapter(this).apply {
-        setTypes(viewModel.availableTypes.value)
+        setTypes(addedViewModel?.availableTypes?.value)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -214,7 +216,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
             setTouchInterceptor { _, me ->
                 when (me.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        val handled = viewModel.initiateRefresh()
+                        val handled = addedViewModel?.initiateRefresh() == true
                         hideLocationToast()
                         handled
                     }
@@ -232,14 +234,14 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
             return // SKIP
         }
         if (activity?.isFinishing != false) {
-            return; // SKIP
+            return // SKIP
         }
         (this.locationToast ?: makeLocationToast().also { this.locationToast = it })?.let { locationToast ->
             this.toastShown = ToastUtils.showTouchableToastPx(
                 context,
                 locationToast,
                 view,
-                this.viewModel.getAdBannerHeightInPx(this)
+                addedViewModel?.getAdBannerHeightInPx(this) ?: 0
             )
         }
     }
@@ -300,7 +302,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        viewModel.onDeviceLocationChanged(newLocation)
+        addedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -348,9 +350,6 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
             else -> super.onOptionsItemSelected(item)
         }
     }
-
-    private val addedViewModel: NearbyViewModel?
-        get() = if (isAdded) viewModel else null
 
     override fun getABTitle(context: Context?): CharSequence? {
         return addedViewModel?.fixedOnName?.value

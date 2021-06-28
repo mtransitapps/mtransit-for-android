@@ -52,9 +52,11 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
 
     override fun getLogTag(): String = LOG_TAG
 
-    override fun getScreenName(): String = viewModel.uuid.value?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
+    override fun getScreenName(): String = addedViewModel?.uuid?.value?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<NewsDetailsViewModel>()
+    private val addedViewModel: NewsDetailsViewModel?
+        get() = if (isAdded) viewModel else null
 
     private var binding: FragmentNewsDetailsBinding? = null
 
@@ -136,9 +138,6 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
             updateNewsView() // mark time as not updating anymore
         }
     }
-
-    private val addedViewModel: NewsDetailsViewModel?
-        get() = if (isAdded) viewModel else null
 
     override fun getABBgColor(context: Context?) = addedViewModel?.newsArticle?.value?.colorIntOrNull ?: super.getABBgColor(context)
 

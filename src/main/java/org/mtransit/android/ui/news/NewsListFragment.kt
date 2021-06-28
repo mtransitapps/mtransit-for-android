@@ -67,6 +67,8 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<NewsListViewModel>()
+    private val addedViewModel: NewsListViewModel?
+        get() = if (isAdded) viewModel else null
 
     private var binding: FragmentNewsListBinding? = null
 
@@ -114,9 +116,6 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
             }
         })
     }
-
-    private val addedViewModel: NewsListViewModel?
-        get() = if (isAdded) viewModel else null
 
     override fun getABTitle(context: Context?) = context?.getString(R.string.news) ?: super.getABTitle(context)
 

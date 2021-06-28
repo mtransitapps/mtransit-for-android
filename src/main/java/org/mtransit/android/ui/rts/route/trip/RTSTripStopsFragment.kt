@@ -60,7 +60,13 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
     override fun getLogTag(): String = this.theLogTag
 
     private val viewModel by viewModels<RTSTripStopsViewModel>()
+    @Suppress("unused")
+    private val addedViewModel: RTSTripStopsViewModel?
+        get() = if (isAdded) viewModel else null
+
     private val parentViewModel by viewModels<RTSRouteViewModel>({ requireParentFragment() })
+    private val addedParentViewModel: RTSRouteViewModel?
+        get() = if (isAdded) parentViewModel else null
 
     private var binding: FragmentRtsTripStopsBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
@@ -142,7 +148,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
         ).apply {
             logTag = logTag
             setShowExtra(false)
-            setLocation(parentViewModel.deviceLocation.value)
+            setLocation(addedParentViewModel?.deviceLocation?.value)
         }
     }
 

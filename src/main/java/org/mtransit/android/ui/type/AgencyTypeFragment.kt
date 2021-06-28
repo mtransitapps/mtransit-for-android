@@ -55,9 +55,11 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
 
     override fun getLogTag(): String = LOG_TAG
 
-    override fun getScreenName(): String = viewModel.type.value?.let { type -> "$TRACKING_SCREEN_NAME/${type.id}" } ?: TRACKING_SCREEN_NAME
+    override fun getScreenName(): String = addedViewModel?.type?.value?.let { type -> "$TRACKING_SCREEN_NAME/${type.id}" } ?: TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<AgencyTypeViewModel>()
+    private val addedViewModel: AgencyTypeViewModel?
+        get() = if (isAdded) viewModel else null
 
     private var binding: FragmentAgencyTypeBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
@@ -78,13 +80,13 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
     private var adapter: AgencyTypePagerAdapter? = null
 
     private fun makeAdapter() = AgencyTypePagerAdapter(this).apply {
-        setAgencies(viewModel.typeAgencies.value)
+        setAgencies(addedViewModel?.typeAgencies?.value)
     }
 
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
-            viewModel.onPageSelected(position)
+            addedViewModel?.onPageSelected(position)
             lastPageSelected = position
         }
 
@@ -226,7 +228,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        viewModel.onDeviceLocationChanged(newLocation)
+        addedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
     private fun updateABColorNow() {
@@ -255,9 +257,6 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
             updateABColorJob?.cancel()
         }
     }
-
-    private val addedViewModel: AgencyTypeViewModel?
-        get() = if (isAdded) viewModel else null
 
     override fun isABReady() = addedViewModel?.type?.value != null
 

@@ -66,6 +66,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<ScheduleViewModel>()
+    private val addedViewModel: ScheduleViewModel?
+        get() = if (isAdded) viewModel else null
 
     private var binding: FragmentScheduleBinding? = null
 
@@ -74,14 +76,14 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
     private var adapter: SchedulePagerAdapter? = null
 
     private fun makeAdapter() = SchedulePagerAdapter(this).apply {
-        setUUID(viewModel.uuid.value)
-        setAuthority(viewModel.authority.value)
+        setUUID(addedViewModel?.uuid?.value)
+        setAuthority(addedViewModel?.authority?.value)
     }
 
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
-            viewModel.onPageSelected(position)
+            addedViewModel?.onPageSelected(position)
             lastPageSelected = position
         }
     }
@@ -136,15 +138,12 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
         }
     }
 
-    private val addedViewModel: ScheduleViewModel?
-        get() = if (isAdded) viewModel else null
-
     override fun isABReady() = addedViewModel?.rts?.value != null
 
     override fun getABTitle(context: Context?) = context?.getString(R.string.full_schedule) ?: super.getABTitle(context)
 
     override fun getABSubtitle(context: Context?) = addedViewModel?.rts?.value?.let { rts ->
-        POIManager.getNewOneLineDescription(rts, viewModel.agency.value)
+        POIManager.getNewOneLineDescription(rts, addedViewModel?.agency?.value)
     } ?: super.getABSubtitle(context)
 
     override fun getABBgColor(context: Context?) = addedViewModel?.colorInt?.value ?: super.getABBgColor(context)

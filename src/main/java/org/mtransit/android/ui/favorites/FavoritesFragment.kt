@@ -48,6 +48,8 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<FavoritesViewModel>()
+    private val addedViewModel: FavoritesViewModel?
+        get() = if (isAdded) viewModel else null
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -139,7 +141,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
     }
 
     override fun onFavoriteUpdated() {
-        this.viewModel.onFavoriteUpdated()
+        addedViewModel?.onFavoriteUpdated()
     }
 
     override fun onResume() {
@@ -154,7 +156,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        viewModel.onDeviceLocationChanged(newLocation)
+        addedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -171,10 +173,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
             else -> super.onOptionsItemSelected(item)
         }
     }
-
-    @Suppress("unused")
-    private val addedViewModel: FavoritesViewModel?
-        get() = if (isAdded) viewModel else null
 
     override fun getABTitle(context: Context?) = context?.getString(R.string.favorites) ?: super.getABTitle(context)
 

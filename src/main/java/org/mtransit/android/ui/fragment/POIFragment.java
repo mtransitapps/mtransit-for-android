@@ -151,6 +151,11 @@ public class POIFragment extends ABFragment implements
 	@Nullable
 	private POIViewModel viewModel;
 
+	@Nullable
+	private POIViewModel getAddedViewModel() {
+		return isAdded() ? this.viewModel : null;
+	}
+
 	@Inject
 	LocationPermissionProvider locationPermissionProvider;
 	@Inject
@@ -1209,11 +1214,6 @@ public class POIFragment extends ABFragment implements
 		if (poim != null) {
 			POIViewController.updateView(getPOIView(getView()), poim, this);
 		}
-	}
-
-	@Nullable
-	private POIViewModel getAddedViewModel() {
-		return isAdded() ? this.viewModel : null;
 	}
 
 	@Override
