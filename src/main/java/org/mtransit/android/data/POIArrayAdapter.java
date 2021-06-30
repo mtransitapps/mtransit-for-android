@@ -56,15 +56,13 @@ import org.mtransit.android.ui.rts.route.RTSRouteFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.ui.view.MTCompassView;
 import org.mtransit.android.ui.view.MTJPathsView;
-import org.mtransit.android.ui.view.MTOnClickListener;
-import org.mtransit.android.ui.view.MTOnItemClickListener;
-import org.mtransit.android.ui.view.MTOnItemLongClickListener;
-import org.mtransit.android.ui.view.MTOnLongClickListener;
 import org.mtransit.android.ui.view.MTPieChartPercentView;
 import org.mtransit.android.ui.view.common.IActivity;
+import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.UITimeUtils;
+import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -430,7 +428,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@NonNull
 	@Override
 	public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-		POIManager poim = getItem(position);
+		final POIManager poim = getItem(position);
 		if (poim == null) {
 			if (this.showBrowseHeaderSection && position == 0) {
 				return getBrowseHeaderSectionView(convertView, parent);
@@ -541,12 +539,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 					} else {
 						btnTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
 					}
-					btn.setOnClickListener(new MTOnClickListener() {
-						@Override
-						public void onClickMT(@NonNull View view) {
-							onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_ALL, dst);
-						}
-					});
+					btn.setOnClickListener(v ->
+							onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_ALL, dst)
+					);
 					btn.setVisibility(View.VISIBLE);
 					availableButtons--;
 				}
@@ -573,22 +568,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		MTOnItemClickListener.onItemClickS(parent, view, position, id, new MTOnItemClickListener() {
-			@Override
-			public void onItemClickMT(AdapterView<?> parent, View view, int position, long id) {
-				showPoiViewerScreen(position);
-			}
-		});
+		showPoiViewerScreen(view, position);
 	}
 
 	@Override
 	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-		return MTOnItemLongClickListener.onItemLongClickS(parent, view, position, id, new MTOnItemLongClickListener() {
-			@Override
-			public boolean onItemLongClickMT(AdapterView<?> parent, View view, int position, long id) {
-				return showPoiMenu(position);
-			}
-		});
+		return showPoiMenu(view, position);
 	}
 
 	public interface OnClickHandledListener {
@@ -614,27 +599,27 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.onPoiSelectedListenerWR = new WeakReference<>(onPoiSelectedListener);
 	}
 
-	public boolean showPoiViewerScreen(int position) {
+	public boolean showPoiViewerScreen(View view, int position) {
 		boolean handled = false;
-		POIManager poim = getItem(position);
+		final POIManager poim = getItem(position);
 		if (poim != null) {
 			OnPOISelectedListener listener = this.onPoiSelectedListenerWR == null ? null : this.onPoiSelectedListenerWR.get();
 			handled = listener != null && listener.onPOISelected(poim);
 			if (!handled) {
-				handled = showPoiViewerScreen(poim);
+				handled = showPoiViewerScreen(view, poim);
 			}
 		}
 		return handled;
 	}
 
-	private boolean showPoiMenu(int position) {
+	private boolean showPoiMenu(View view, int position) {
 		boolean handled = false;
-		POIManager poim = getItem(position);
+		final POIManager poim = getItem(position);
 		if (poim != null) {
 			OnPOISelectedListener listener = this.onPoiSelectedListenerWR == null ? null : this.onPoiSelectedListenerWR.get();
 			handled = listener != null && listener.onPOILongSelected(poim);
 			if (!handled) {
-				handled = showPoiMenu(poim);
+				handled = showPoiMenu(view, poim);
 			}
 		}
 		return handled;
@@ -651,25 +636,27 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return getItemTypeHeader(position) == null; // is NOT separator
 	}
 
-	public boolean showPoiViewerScreen(POIManager poim) {
+	public boolean showPoiViewerScreen(View view, POIManager poim) {
 		if (poim == null) {
 			return false;
 		}
-		Activity activity = getActivity();
+		final Activity activity = getActivity();
 		if (activity == null) {
 			return false;
 		}
-		OnClickHandledListener listener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
-		return poim.onActionItemClick(activity,
+		return poim.onActionItemClick(
+				activity,
+				view,
 				this.favoriteManager,
 				this.dataSourcesRepository,
 				this.poiRepository,
 				this.favoriteManager.getFavoriteFolders(),
 				this.favoriteUpdateListener,
-				listener);
+				this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get()
+		);
 	}
 
-	private boolean showPoiMenu(POIManager poim) {
+	private boolean showPoiMenu(View view, POIManager poim) {
 		if (poim == null) {
 			return false;
 		}
@@ -678,13 +665,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			return false;
 		}
 		OnClickHandledListener listener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
-		return poim.onActionItemLongClick(activity,
+		return poim.onActionItemLongClick(
+				activity,
+				view,
 				this.favoriteManager,
 				this.dataSourcesRepository,
 				this.poiRepository,
 				this.favoriteManager.getFavoriteFolders(),
 				this.favoriteUpdateListener,
-				listener);
+				listener
+		);
 	}
 
 	@Override
@@ -1033,18 +1023,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				selectorView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 				frameLayout.addView(selectorView);
 				final int position = i;
-				frameLayout.setOnClickListener(new MTOnClickListener() {
-					@Override
-					public void onClickMT(@NonNull View view) {
-						showPoiViewerScreen(position);
-					}
-				});
-				frameLayout.setOnLongClickListener(new MTOnLongClickListener() {
-					@Override
-					public boolean onLongClickMT(View view) {
-						return showPoiMenu(position);
-					}
-				});
+				frameLayout.setOnClickListener(v ->
+						showPoiViewerScreen(v, position)
+				);
+				frameLayout.setOnLongClickListener(v ->
+						showPoiMenu(v, position)
+				);
 				this.manualLayout.addView(frameLayout);
 			}
 		}
@@ -1323,28 +1307,19 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getIconResId(), 0, 0, 0);
 		}
 		if (holder.allBtn != null) {
-			holder.allBtn.setOnClickListener(new MTOnClickListener() {
-				@Override
-				public void onClickMT(@NonNull View view) {
-					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_ALL, type);
-				}
-			});
+			holder.allBtn.setOnClickListener(v ->
+					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_ALL, type)
+			);
 		}
 		if (holder.nearbyBtn != null) {
-			holder.nearbyBtn.setOnClickListener(new MTOnClickListener() {
-				@Override
-				public void onClickMT(@NonNull View view) {
-					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_NEARBY, type);
-				}
-			});
+			holder.nearbyBtn.setOnClickListener(v ->
+					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_NEARBY, type)
+			);
 		}
 		if (holder.moreBtn != null) {
-			holder.moreBtn.setOnClickListener(new MTOnClickListener() {
-				@Override
-				public void onClickMT(@NonNull View view) {
-					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_MORE, type);
-				}
-			});
+			holder.moreBtn.setOnClickListener(v ->
+					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_MORE, type)
+			);
 		}
 		return convertView;
 	}
@@ -1363,22 +1338,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		FavoriteFolderHeaderViewHolder holder = (FavoriteFolderHeaderViewHolder) convertView.getTag();
 		holder.nameTv.setText(favoriteFolder.getName());
 		if (holder.renameBtn != null) {
-			holder.renameBtn.setOnClickListener(new MTOnClickListener() {
-				@Override
-				public void onClickMT(@NonNull View view) {
-					Activity activity = POIArrayAdapter.this.getActivity();
-					favoriteManager.showUpdateFolderDialog(activity, POIArrayAdapter.this.layoutInflater, favoriteFolder,
-							POIArrayAdapter.this.favoriteUpdateListener);
-				}
+			holder.renameBtn.setOnClickListener(v -> {
+				final Activity activity = POIArrayAdapter.this.getActivity();
+				favoriteManager.showUpdateFolderDialog(activity, POIArrayAdapter.this.layoutInflater, favoriteFolder,
+						POIArrayAdapter.this.favoriteUpdateListener);
 			});
 		}
 		if (holder.deleteBtn != null) {
-			holder.deleteBtn.setOnClickListener(new MTOnClickListener() {
-				@Override
-				public void onClickMT(@NonNull View view) {
-					Activity activity = POIArrayAdapter.this.getActivity();
-					favoriteManager.showDeleteFolderDialog(activity, favoriteFolder, POIArrayAdapter.this.favoriteUpdateListener);
-				}
+			holder.deleteBtn.setOnClickListener(v -> {
+				final Activity activity = POIArrayAdapter.this.getActivity();
+				favoriteManager.showDeleteFolderDialog(activity, favoriteFolder, POIArrayAdapter.this.favoriteUpdateListener);
 			});
 		}
 		return convertView;
@@ -1760,17 +1729,18 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				holder.tripHeadingTv.setText(rts.getTrip().getHeading(getContext()).toUpperCase(Locale.getDefault()));
 				holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setBackgroundColor(poim.getColor(dataSourcesRepository));
-				holder.rtsExtraV.setOnClickListener(new MTOnClickListener() {
-					@Override
-					public void onClickMT(@NonNull View view) {
-						Activity activity = POIArrayAdapter.this.getActivity();
-						if (!(activity instanceof MainActivity)) {
-							MTLog.w(POIArrayAdapter.this, "No activity available to open RTS fragment!");
-							return;
-						}
-						leaving();
-						((MainActivity) activity).addFragmentToStack(RTSRouteFragment.newInstance(rts));
+				MTTransitions.setTransitionName(holder.rtsExtraV, "r_" + rts.getAuthority() + "_" + rts.getRoute().getId());
+				holder.rtsExtraV.setOnClickListener(v -> {
+					final Activity activity = POIArrayAdapter.this.getActivity();
+					if (!(activity instanceof MainActivity)) {
+						MTLog.w(POIArrayAdapter.this, "No activity available to open RTS fragment!");
+						return;
 					}
+					leaving();
+					((MainActivity) activity).addFragmentToStack(
+							RTSRouteFragment.newInstance(rts),
+							v
+					);
 				});
 			}
 		}
@@ -1901,6 +1871,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 		final POI poi = poim.poi;
 		holder.uuid = poi.getUUID();
+		MTTransitions.setTransitionName(holder.view, "poi_" + poi.getUUID());
 		if (holder.statusViewHolder != null) {
 			holder.statusViewHolder.uuid = holder.uuid;
 		}

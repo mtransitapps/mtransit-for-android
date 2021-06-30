@@ -114,6 +114,9 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        // if (FeatureFlags.F_TRANSITION) {
+        // exitTransition = MTTransitions.newHoldTransition() // not working with AdapterView // FIXME #RecyclerView
+        // }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

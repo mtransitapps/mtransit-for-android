@@ -15,6 +15,7 @@ import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.databinding.LayoutPoiNewsBinding;
+import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.util.UITimeUtils;
 
 import java.util.List;
@@ -102,6 +103,7 @@ public class POINewsViewController implements MTLog.Loggable {
 			holder.newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(context));
 		}
 		holder.layout.setVisibility(View.VISIBLE);
+		MTTransitions.setTransitionName(holder.layout, "new_" + newsArticle.getUUID());
 	}
 
 	private static final class NewsViewHolder {

@@ -5,7 +5,7 @@
     android:id="@+id/extra"
     android:layout_width="@dimen/poi_extra_width"
     android:layout_height="@dimen/poi_extra_height"
-    android:layout_alignParentLeft="true"
+    android:layout_alignParentStart="true"
     android:layout_marginRight="@dimen/poi_extra_margin_right">
     <!-- ROUTE TRIP -->
     <LinearLayout

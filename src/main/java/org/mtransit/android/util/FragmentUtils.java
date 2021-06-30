@@ -1,5 +1,7 @@
 package org.mtransit.android.util;
 
+import android.view.View;
+
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -10,6 +12,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.commons.FeatureFlags;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public final class FragmentUtils implements MTLog.Loggable {
@@ -66,6 +69,16 @@ public final class FragmentUtils implements MTLog.Loggable {
 									   @NonNull Fragment fragment,
 									   boolean addToStack,
 									   @Nullable Fragment optSource) {
+		replaceFragment(fa, containerViewId, fragment, addToStack, optSource, null, null);
+	}
+
+	public static void replaceFragment(@Nullable FragmentActivity fa,
+									   @IdRes int containerViewId,
+									   @NonNull Fragment fragment,
+									   boolean addToStack,
+									   @Nullable Fragment optSource,
+									   @Nullable View optTransitionSharedElement,
+									   @Nullable String optTransitionName) {
 		try {
 			if (fa == null || fa.isFinishing()) {
 				MTLog.d(LOG_TAG, "replaceFragment() > SKIP (activity is null/finishing)");
@@ -78,14 +91,22 @@ public final class FragmentUtils implements MTLog.Loggable {
 			}
 			FragmentManager fm = fa.getSupportFragmentManager();
 			FragmentTransaction ft = fm.beginTransaction();
+			if (FeatureFlags.F_TRANSITION
+					&& optTransitionSharedElement != null
+					&& optTransitionName != null) {
+				ft.setReorderingAllowed(true);
+				ft.addSharedElement(optTransitionSharedElement, optTransitionName);
+			}
 			ft.replace(containerViewId, fragment);
 			if (addToStack) {
 				ft.addToBackStack(null);
 			}
 			ft.commit();
 		} catch (IllegalStateException ise) {
+			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, ise, "Illegal State Exception while replacing fragment '%s' from '%s' in '%s'!", fragment, optSource, fa);
 		} catch (Exception e) {
+			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, e, "Unexpected error while replacing fragment '%s' from '%s' in '%s'!", fragment, optSource, fa);
 		}
 	}
@@ -113,8 +134,10 @@ public final class FragmentUtils implements MTLog.Loggable {
 			}
 			ft.commit();
 		} catch (IllegalStateException ise) {
+			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, ise, "Illegal State Exception while replacing fragment '%s'!", fragment);
 		} catch (Exception e) {
+			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, e, "Unexpected error while replacing fragment '%s'!", fragment);
 		}
 	}
@@ -146,8 +169,10 @@ public final class FragmentUtils implements MTLog.Loggable {
 				dialogFragment.show(ft, tag);
 			}
 		} catch (IllegalStateException ise) {
+			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, ise, "Illegal State Exception while replacing support dialog fragment '%s'!", dialogFragment);
 		} catch (Exception e) {
+			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, e, "Unexpected error while replacing support dialog fragment '%s'!", dialogFragment);
 		}
 	}
@@ -199,8 +224,10 @@ public final class FragmentUtils implements MTLog.Loggable {
 			}
 			fa.getSupportFragmentManager().executePendingTransactions();
 		} catch (IllegalStateException ise) {
+			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, ise, "Illegal State Exception while executing pending transactions!");
 		} catch (Exception e) {
+			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, e, "Unexpected error while executing pending transactions!");
 		}
 	}
@@ -219,8 +246,10 @@ public final class FragmentUtils implements MTLog.Loggable {
 			}
 			fa.getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 		} catch (IllegalStateException ise) {
+			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, ise, "Illegal State Exception while clearing fragment back stack immediately!");
 		} catch (Exception e) {
+			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, e, "Unexpected error while clearing fragment back stack immediately!");
 		}
 	}
@@ -242,8 +271,10 @@ public final class FragmentUtils implements MTLog.Loggable {
 				fa.getSupportFragmentManager().popBackStack();
 			}
 		} catch (IllegalStateException ise) {
+			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, ise, "Illegal State Exception while popping fragment '%s' from stack!", fragment);
 		} catch (Exception e) {
+			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, e, "Unexpected error while popping fragment '%s' from stack!", fragment);
 		}
 	}
@@ -266,9 +297,11 @@ public final class FragmentUtils implements MTLog.Loggable {
 			}
 			return false; // not handled
 		} catch (IllegalStateException ise) {
+			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, ise, "Illegal State Exception while popping latest entry from stack!");
 			return false; // not handled
 		} catch (Exception e) {
+			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, e, "Unexpected error while popping fragment latest entry from stack!");
 			return false; // not handled
 		}

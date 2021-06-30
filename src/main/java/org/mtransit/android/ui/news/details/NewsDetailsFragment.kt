@@ -4,6 +4,7 @@ package org.mtransit.android.ui.news.details
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
@@ -15,6 +16,7 @@ import org.mtransit.android.databinding.FragmentNewsDetailsBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
+import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.UITimeUtils
 
@@ -64,8 +66,14 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
 
     private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver { updateNewsView() }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        MTTransitions.setContainerTransformTransition(this)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        MTTransitions.postponeEnterTransition(this)
         binding = FragmentNewsDetailsBinding.bind(view).apply {
             // DO NOTHING
         }
@@ -77,6 +85,7 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
                 setABSubtitle(this@NewsDetailsFragment, getABSubtitle(context), false)
                 setABReady(this@NewsDetailsFragment, isABReady, true)
             }
+            MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
         })
         viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
             if (removed) {
@@ -88,6 +97,7 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
     private fun updateNewsView(newsArticle: News? = viewModel.newsArticle.value) {
         binding?.apply {
             newsArticle?.let { newsArticle ->
+                MTTransitions.setTransitionName(root, "new_" + newsArticle.uuid)
                 newsText.apply {
                     setText(LinkUtils.linkifyHtml(newsArticle.textHTML, true), TextView.BufferType.SPANNABLE)
                     movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { url ->

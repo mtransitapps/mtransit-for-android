@@ -92,13 +92,14 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
         }
     }
 
-    private fun openRouteScreen(route: Route, agency: IAgencyProperties) {
+    private fun openRouteScreen(view: View?, route: Route, agency: IAgencyProperties) {
         (activity as? MainActivity)?.addFragmentToStack(
             RTSRouteFragment.newInstance(
                 agency.authority,
                 route.id,
             ),
-            this
+            this,
+            view,
         )
     }
 

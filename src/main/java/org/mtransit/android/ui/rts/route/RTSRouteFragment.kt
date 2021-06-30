@@ -13,6 +13,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.CompoundButton
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.res.ResourcesCompat
@@ -36,6 +37,7 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
+import org.mtransit.android.ui.view.common.MTTransitions
 import java.util.Locale
 import kotlin.math.abs
 
@@ -145,10 +147,12 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        MTTransitions.setContainerTransformTransition(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        MTTransitions.postponeEnterTransition(this)
         binding = FragmentRtsRouteBinding.bind(view).apply {
             emptyStub.setOnInflateListener { _, inflated ->
                 emptyBinding = LayoutEmptyBinding.bind(inflated)
@@ -168,14 +172,31 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
         viewModel.authority.observe(viewLifecycleOwner, { authority ->
             this.adapter?.setAuthority(authority)
             switchView()
+            MTTransitions.setTransitionName(
+                binding?.root,
+                authority?.let {
+                    viewModel.route.value?.id?.let { routeId ->
+                        "r_" + authority + "_" + routeId
+                    }
+                }
+            )
         })
-        viewModel.route.observe(viewLifecycleOwner, {
+        viewModel.route.observe(viewLifecycleOwner, { route ->
+            MTTransitions.setTransitionName(
+                binding?.root,
+                route?.id?.let { routeId ->
+                    viewModel.authority.value?.let { authority ->
+                        "r_" + authority + "_" + routeId
+                    }
+                }
+            )
             binding?.apply {
                 getABBgColor(tabs.context)?.let { tabs.setBackgroundColor(it) }
             }
             abController?.setABBgColor(this, getABBgColor(context), false)
             abController?.setABTitle(this, getABTitle(context), false)
             abController?.setABReady(this, isABReady, true)
+            MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
         })
         viewModel.colorInt.observe(viewLifecycleOwner, {
             binding?.apply {

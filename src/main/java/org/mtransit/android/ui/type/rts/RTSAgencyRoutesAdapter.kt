@@ -16,8 +16,9 @@ import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.databinding.LayoutRtsRouteItemBinding
+import org.mtransit.android.ui.view.common.MTTransitions
 
-class RTSAgencyRoutesAdapter(private val onClick: (Route, IAgencyProperties) -> Unit) :
+class RTSAgencyRoutesAdapter(private val onClick: (View?, Route, IAgencyProperties) -> Unit) :
     ListAdapter<Route, RTSAgencyRoutesAdapter.RouteViewHolder>(RoutesDiffCallback),
     MTLog.Loggable {
 
@@ -97,13 +98,14 @@ class RTSAgencyRoutesAdapter(private val onClick: (Route, IAgencyProperties) -> 
             route: Route?,
             agency: IAgencyUIProperties?,
             showingListInsteadOfGrid: Boolean?,
-            onClick: (Route, IAgencyProperties) -> Unit
+            onClick: (View?, Route, IAgencyProperties) -> Unit
         ) {
             if (route == null || agency == null || showingListInsteadOfGrid == null) {
                 MTLog.d(LOG_TAG, "onBindViewHolder() > SKIP (missing data)")
                 binding.route.isVisible = false
                 return
             }
+            MTTransitions.setTransitionName(binding.route, "r_" + agency.authority + "_" + route.id)
             // SHORT NAME & LOGO
             if (route.shortName.isBlank()) { // NO RSN
                 binding.routeShortName.visibility = View.INVISIBLE // keep size
@@ -148,8 +150,10 @@ class RTSAgencyRoutesAdapter(private val onClick: (Route, IAgencyProperties) -> 
             // BG COLOR
             binding.route.setBackgroundColor((if (route.hasColor()) route.colorInt else null) ?: agency.colorInt ?: Color.BLACK)
             binding.route.isVisible = true
-            binding.root.apply {
-                setOnClickListener { onClick(route, agency) }
+            binding.route.apply {
+                setOnClickListener { view ->
+                    onClick(view, route, agency)
+                }
             }
         }
     }

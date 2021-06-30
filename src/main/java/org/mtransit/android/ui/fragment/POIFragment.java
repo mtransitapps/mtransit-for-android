@@ -66,7 +66,6 @@ import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListFragment;
 import org.mtransit.android.ui.news.details.NewsDetailsFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
-import org.mtransit.android.ui.view.MTOnClickListener;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.POIDataProvider;
 import org.mtransit.android.ui.view.POINewsViewController;
@@ -75,6 +74,7 @@ import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
 import org.mtransit.android.ui.view.common.EventObserver;
 import org.mtransit.android.ui.view.common.IActivity;
+import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
@@ -252,10 +252,12 @@ public class POIFragment extends ABFragment implements
 		if (this.poim != null
 				&& this.poim.poi.equals(newPOIM.poi)) {
 			MTLog.d(this, "onPOIMLoaded() > SKIP (same POI)");
+			MTTransitions.startPostponedEnterTransitionOnPreDraw(getView(), this);
 			return; // SKIP
 		}
 		this.poim = newPOIM;
 		applyNewPoim();
+		MTTransitions.startPostponedEnterTransitionOnPreDraw(getView(), this);
 	}
 
 	private void applyNewPoim() {
@@ -383,6 +385,7 @@ public class POIFragment extends ABFragment implements
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
+		MTTransitions.setContainerTransformTransition(this);
 		this.mapViewController.onCreate(savedInstanceState);
 	}
 
@@ -406,6 +409,7 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		MTTransitions.postponeEnterTransition(this);
 		viewModel = new ViewModelProvider(this).get(POIViewModel.class);
 		viewModel.getDataSourceRemovedEvent().observe(getViewLifecycleOwner(), new EventObserver<>(removed -> {
 			if (removed) {
@@ -520,24 +524,21 @@ public class POIFragment extends ABFragment implements
 			if (scheduleProviders == null || scheduleProviders.isEmpty()) {
 				rtsScheduleBtn.setVisibility(View.GONE);
 			} else {
-				rtsScheduleBtn.setOnClickListener(new MTOnClickListener() {
-					@Override
-					public void onClickMT(@NonNull View view) {
-						final POIManager poim = getPoimOrNull();
-						if (poim == null || !(poim.poi instanceof RouteTripStop)) {
-							MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RTS)");
-							return;
-						}
-						final FragmentActivity activity = getActivity();
-						if (activity == null) {
-							MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
-							return;
-						}
-						poiRepository.push(poim);
-						((MainActivity) activity).addFragmentToStack( //
-								ScheduleFragment.newInstance(poim, dataSourcesRepository),
-								POIFragment.this);
+				rtsScheduleBtn.setOnClickListener(v -> {
+					final POIManager poim = getPoimOrNull();
+					if (poim == null || !(poim.poi instanceof RouteTripStop)) {
+						MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RTS)");
+						return;
 					}
+					final FragmentActivity activity = getActivity();
+					if (activity == null) {
+						MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
+						return;
+					}
+					poiRepository.push(poim);
+					((MainActivity) activity).addFragmentToStack( //
+							ScheduleFragment.newInstance(poim, dataSourcesRepository),
+							POIFragment.this);
 				});
 				rtsScheduleBtn.setVisibility(View.VISIBLE);
 			}
@@ -551,31 +552,28 @@ public class POIFragment extends ABFragment implements
 		View newsView = view.findViewById(R.id.poi_news);
 		View moreBtn = newsView == null ? null : newsView.findViewById(R.id.moreBtn);
 		if (moreBtn != null) {
-			moreBtn.setOnClickListener(new MTOnClickListener() {
-				@Override
-				public void onClickMT(@NonNull View view) {
-					POIManager poim = getPoimOrNull();
-					if (poim == null) {
-						return;
-					}
-					FragmentActivity activity = getActivity();
-					if (activity == null) {
-						MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
-						return;
-					}
-					Integer colorInt = poim.getColor(dataSourcesRepository);
-					String subtitle = POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository);
-					((MainActivity) activity).addFragmentToStack(
-							NewsListFragment.newInstance(
-									colorInt,
-									subtitle,
-									Collections.singletonList(poim.poi.getAuthority()),
-									null,
-									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
-							),
-							POIFragment.this
-					);
+			moreBtn.setOnClickListener(v -> {
+				final POIManager poim = getPoimOrNull();
+				if (poim == null) {
+					return;
 				}
+				final FragmentActivity activity = getActivity();
+				if (activity == null) {
+					MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
+					return;
+				}
+				final Integer colorInt = poim.getColor(dataSourcesRepository);
+				final String subtitle = POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository);
+				((MainActivity) activity).addFragmentToStack(
+						NewsListFragment.newInstance(
+								colorInt,
+								subtitle,
+								Collections.singletonList(poim.poi.getAuthority()),
+								null,
+								NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
+						),
+						POIFragment.this
+				);
 			});
 			moreBtn.setVisibility(View.VISIBLE);
 		}
@@ -587,22 +585,19 @@ public class POIFragment extends ABFragment implements
 		}
 		View moreBtn = view.findViewById(R.id.poi_nearby_pois_title).findViewById(R.id.moreBtn);
 		if (moreBtn != null) {
-			moreBtn.setOnClickListener(new MTOnClickListener() {
-				@Override
-				public void onClickMT(@NonNull View view) {
-					final Activity activity = getActivity();
-					if (activity == null) {
-						return;
-					}
-					final POIManager poim = getPoimOrNull();
-					if (poim == null) {
-						return;
-					}
-					((MainActivity) activity).addFragmentToStack(
-							NearbyFragment.newFixedOnPOIInstance(poim, dataSourcesRepository, false),
-							POIFragment.this
-					);
+			moreBtn.setOnClickListener(v -> {
+				final Activity activity = getActivity();
+				if (activity == null) {
+					return;
 				}
+				final POIManager poim = getPoimOrNull();
+				if (poim == null) {
+					return;
+				}
+				((MainActivity) activity).addFragmentToStack(
+						NearbyFragment.newFixedOnPOIInstance(poim, dataSourcesRepository, false),
+						POIFragment.this
+				);
 			});
 			moreBtn.setVisibility(View.VISIBLE);
 		}
@@ -644,23 +639,20 @@ public class POIFragment extends ABFragment implements
 		}
 		if (view.findViewById(R.id.poi_app_update) == null) { // IF NOT present/inflated DO
 			((ViewStub) view.findViewById(R.id.poi_app_update_stub)).inflate(); // inflate
-			view.findViewById(R.id.appUpdateBtn).setOnClickListener(new MTOnClickListener() {
-				@Override
-				public void onClickMT(@NonNull View view) {
-					final Activity activity = getActivity();
-					if (activity == null) {
-						return;
-					}
-					final IAgencyProperties agency = getAgencyOrNull();
-					if (agency == null) {
-						return;
-					}
-					final String pkg = agency.getPkg();
-					POIFragment.this.analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
-							.put(AnalyticsEvents.Params.PKG, pkg)
-					);
-					StoreUtils.viewAppPage(activity, pkg, activity.getString(R.string.google_play));
+			view.findViewById(R.id.appUpdateBtn).setOnClickListener(v -> {
+				final Activity activity = getActivity();
+				if (activity == null) {
+					return;
 				}
+				final IAgencyProperties agency = getAgencyOrNull();
+				if (agency == null) {
+					return;
+				}
+				final String pkg = agency.getPkg();
+				POIFragment.this.analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
+						.put(AnalyticsEvents.Params.PKG, pkg)
+				);
+				StoreUtils.viewAppPage(activity, pkg, activity.getString(R.string.google_play));
 			});
 		}
 		return view.findViewById(R.id.poi_app_update);
@@ -675,26 +667,23 @@ public class POIFragment extends ABFragment implements
 			int layoutResId = POINewsViewController.getLayoutResId();
 			((ViewStub) view.findViewById(R.id.poi_news_stub)).setLayoutResource(layoutResId);
 			((ViewStub) view.findViewById(R.id.poi_news_stub)).inflate(); // inflate
-			view.findViewById(R.id.the_poi_news).setOnClickListener(new MTOnClickListener() {
-				@Override
-				public void onClickMT(@NonNull View view) {
-					final List<News> news = viewModel == null ? null : viewModel.getLatestNewsArticleList().getValue();
-					if (news == null || news.size() == 0) {
-						return;
-					}
-					final News lastNews = news.get(0);
-					if (lastNews == null) {
-						return;
-					}
-					final Activity activity = getActivity();
-					if (activity == null) {
-						return;
-					}
-					((MainActivity) activity).addFragmentToStack(
-							NewsDetailsFragment.newInstance(lastNews),
-							POIFragment.this
-					);
+			view.findViewById(R.id.the_poi_news).setOnClickListener(v -> {
+				final List<News> news = viewModel == null ? null : viewModel.getLatestNewsArticleList().getValue();
+				if (news == null || news.size() == 0) {
+					return;
 				}
+				final News lastNews = news.get(0);
+				if (lastNews == null) {
+					return;
+				}
+				final Activity activity = getActivity();
+				if (activity == null) {
+					return;
+				}
+				((MainActivity) activity).addFragmentToStack(
+						NewsDetailsFragment.newInstance(lastNews),
+						POIFragment.this
+				);
 			});
 		}
 		return view.findViewById(R.id.poi_news);
@@ -708,12 +697,9 @@ public class POIFragment extends ABFragment implements
 		if (view.findViewById(R.id.poi_rewarded_ad) == null) { // IF NOT present/inflated DO
 			((ViewStub) view.findViewById(R.id.poi_rewarded_ad_stub)).inflate(); // inflate
 
-			view.findViewById(R.id.rewardedAdsBtn).setOnClickListener(new MTOnClickListener() {
-				@Override
-				public void onClickMT(@NonNull View view) {
-					onRewardedAdButtonClick(view.getContext());
-				}
-			});
+			view.findViewById(R.id.rewardedAdsBtn).setOnClickListener(v ->
+					onRewardedAdButtonClick(view.getContext())
+			);
 		}
 		return view.findViewById(R.id.poi_rewarded_ad);
 	}

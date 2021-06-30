@@ -130,6 +130,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        // if (FeatureFlags.F_TRANSITION) {
+        // exitTransition = MTTransitions.newHoldTransition() // not working with AdapterView // FIXME #RecyclerView
+        // }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

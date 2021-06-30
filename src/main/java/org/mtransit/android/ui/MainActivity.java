@@ -312,9 +312,19 @@ public class MainActivity extends MTActivityWithLocation implements
 		FragmentUtils.clearFragmentBackStackImmediate(this, null);
 	}
 
-	public void showNewFragment(@NonNull ABFragment newFragment, boolean addToStack, @Nullable Fragment optSource) {
-		MTLog.d(this, "showNewFragment(%s, %s, %s)", newFragment, addToStack, optSource);
-		FragmentUtils.replaceFragment(this, R.id.content_frame, newFragment, addToStack, optSource);
+	public void showNewFragment(@NonNull ABFragment newFragment,
+								boolean addToStack,
+								@Nullable Fragment optSource) {
+		showNewFragment(newFragment, addToStack, optSource, null, null);
+	}
+
+	public void showNewFragment(@NonNull ABFragment newFragment,
+								boolean addToStack,
+								@Nullable Fragment optSource,
+								@Nullable View optTransitionSharedElement,
+								@Nullable String optTransitionName) {
+		MTLog.d(this, "showNewFragment(%s, %s, %s, %s, %s)", newFragment, addToStack, optSource, optTransitionSharedElement, optTransitionName);
+		FragmentUtils.replaceFragment(this, R.id.content_frame, newFragment, addToStack, optSource, optTransitionSharedElement, optTransitionName);
 		if (addToStack) {
 			incBackEntryCount();
 		}
@@ -343,7 +353,38 @@ public class MainActivity extends MTActivityWithLocation implements
 	}
 
 	public void addFragmentToStack(@NonNull ABFragment newFragment, @Nullable Fragment optSource) {
-		showNewFragment(newFragment, true, optSource);
+		addFragmentToStack(
+				newFragment,
+				optSource,
+				null
+		);
+	}
+
+	public void addFragmentToStack(@NonNull ABFragment newFragment,
+								   @Nullable View optTransitionSharedElement) {
+		addFragmentToStack(
+				newFragment,
+				null,
+				optTransitionSharedElement
+		);
+	}
+
+	public void addFragmentToStack(@NonNull ABFragment newFragment,
+								   @Nullable Fragment optSource,
+								   @Nullable View optTransitionSharedElement) {
+		addFragmentToStack(
+				newFragment,
+				optSource,
+				optTransitionSharedElement,
+				optTransitionSharedElement == null ? null : optTransitionSharedElement.getTransitionName()
+		);
+	}
+
+	public void addFragmentToStack(@NonNull ABFragment newFragment,
+								   @Nullable Fragment optSource,
+								   @Nullable View optTransitionSharedElement,
+								   @Nullable String optTransitionName) {
+		showNewFragment(newFragment, true, optSource, optTransitionSharedElement, optTransitionName);
 	}
 
 	@Override

@@ -37,6 +37,7 @@ import org.mtransit.android.databinding.LayoutPoiRtsBinding;
 import org.mtransit.android.databinding.LayoutPoiRtsWithScheduleBinding;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.rts.route.RTSRouteFragment;
+import org.mtransit.android.ui.view.common.MTTransitions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -300,6 +301,8 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static void initCommonViewHolder(@NonNull CommonViewHolder holder, @NonNull View view) {
+		holder.uuid = null;
+		holder.view = view;
 		holder.nameTv = view.findViewById(R.id.name);
 		holder.favImg = view.findViewById(R.id.fav);
 		holder.distanceTv = view.findViewById(R.id.distance);
@@ -525,15 +528,16 @@ public class POIViewController implements MTLog.Loggable {
 				}
 				//noinspection ConstantConditions // stop always non-null?
 				final Integer stopId = rts.getStop() == null ? null : rts.getStop().getId();
-				holder.rtsExtraV.setOnClickListener(new MTOnClickListener() {
-					@Override
-					public void onClickMT(@NonNull View view) {
-						MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
-						if (mainActivity == null) {
-							return;
-						}
-						mainActivity.addFragmentToStack(RTSRouteFragment.newInstance(rts));
+				MTTransitions.setTransitionName(holder.rtsExtraV, "r_" + rts.getAuthority() + "_" + rts.getRoute().getId());
+				holder.rtsExtraV.setOnClickListener(v -> {
+					final MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
+					if (mainActivity == null) {
+						return;
 					}
+					mainActivity.addFragmentToStack(
+							RTSRouteFragment.newInstance(rts),
+							v
+					);
 				});
 			}
 		}
@@ -611,15 +615,16 @@ public class POIViewController implements MTLog.Loggable {
 				holder.rtsExtraV.setBackgroundColor(poim.getColor(dataProvider.providesDataSourcesRepository()));
 				//noinspection ConstantConditions // stop always non-null?
 				final Integer stopId = rts.getStop() == null ? null : rts.getStop().getId();
-				holder.rtsExtraV.setOnClickListener(new MTOnClickListener() {
-					@Override
-					public void onClickMT(@NonNull View view) {
-						MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
-						if (mainActivity == null) {
-							return;
-						}
-						mainActivity.addFragmentToStack(RTSRouteFragment.newInstance(rts));
+				MTTransitions.setTransitionName(holder.rtsExtraV, "r_" + rts.getAuthority() + "_" + rts.getRoute().getId());
+				holder.rtsExtraV.setOnClickListener(v -> {
+					final MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
+					if (mainActivity == null) {
+						return;
 					}
+					mainActivity.addFragmentToStack(
+							RTSRouteFragment.newInstance(rts),
+							v
+					);
 				});
 			}
 		}
@@ -985,6 +990,8 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		final POI poi = poim.poi;
+		holder.uuid = poi.getUUID();
+		MTTransitions.setTransitionName(holder.view, "poi_" + poi.getUUID());
 		holder.nameTv.setText(poi.getLabel());
 		holder.nameTv.setSingleLine(true); // marquee forever
 		holder.nameTv.setSelected(true); // marquee forever
@@ -1013,6 +1020,8 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static class CommonViewHolder {
+		String uuid;
+		View view;
 		TextView nameTv;
 		TextView distanceTv;
 		ImageView favImg;

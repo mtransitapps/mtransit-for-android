@@ -21,7 +21,6 @@ import androidx.fragment.app.Fragment;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.fragment.ABFragment;
-import org.mtransit.android.ui.view.MTOnClickListener;
 
 import java.lang.ref.WeakReference;
 
@@ -339,7 +338,8 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
-	private UpOnClickListener getUpOnClickListener(MainActivity mainActivity) {
+	@Nullable
+	private UpOnClickListener getUpOnClickListener(@Nullable MainActivity mainActivity) {
 		if (this.upOnClickListener == null) {
 			if (mainActivity == null) {
 				mainActivity = getMainActivityOrNull();
@@ -399,7 +399,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		return false; // not handled
 	}
 
-	private static class UpOnClickListener extends MTOnClickListener {
+	private static class UpOnClickListener implements View.OnClickListener {
 
 		@NonNull
 		private final WeakReference<MainActivity> mainActivityWR;
@@ -409,7 +409,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 
 		@Override
-		public void onClickMT(@NonNull View view) {
+		public void onClick(@NonNull View view) {
 			final MainActivity mainActivity = this.mainActivityWR.get();
 			if (mainActivity != null) {
 				mainActivity.onUpIconClick();

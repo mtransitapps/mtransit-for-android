@@ -487,12 +487,9 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return;
 		}
 		setTypeSwitchImg();
-		this.typeSwitchView.setOnClickListener(new MTOnClickListener() {
-			@Override
-			public void onClickMT(@NonNull View view) {
-				switchMapType();
-			}
-		});
+		this.typeSwitchView.setOnClickListener(v ->
+				switchMapType()
+		);
 		this.typeSwitchView.setVisibility(View.VISIBLE);
 	}
 
