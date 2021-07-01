@@ -188,7 +188,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
                 listBinding = LayoutPoiListBinding.bind(inflated)
             }
             (listBinding?.root ?: listStub.inflate() as AbsListView).let { listView ->
-                listView.isVisible = false // hide by default
+                listView.isVisible = adapter.isInitialized
                 adapter.setListView(listView)
             }
         }
@@ -216,7 +216,6 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
             }
             switchView(showingListInsteadOfMap)
             updateListMapToggleMenuItem()
-
         })
         viewModel.poiList.observe(viewLifecycleOwner, { poiList ->
             adapter.setPois(poiList)

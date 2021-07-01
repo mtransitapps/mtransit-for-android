@@ -60,6 +60,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
     override fun getLogTag(): String = this.theLogTag
 
     private val viewModel by viewModels<RTSTripStopsViewModel>()
+
     @Suppress("unused")
     private val addedViewModel: RTSTripStopsViewModel?
         get() = if (isAdded) viewModel else null
@@ -168,7 +169,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
                 listBinding = LayoutPoiListBinding.bind(inflated)
             }
             (listBinding?.root ?: listStub.inflate() as AbsListView).let { listView ->
-                listView.isVisible = false // hide by default
+                listView.isVisible = adapter.isInitialized
                 adapter.setListView(listView)
             }
         }

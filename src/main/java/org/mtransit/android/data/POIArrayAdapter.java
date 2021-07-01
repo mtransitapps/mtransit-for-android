@@ -62,7 +62,6 @@ import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.UITimeUtils;
-import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -1729,17 +1728,17 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				holder.tripHeadingTv.setText(rts.getTrip().getHeading(getContext()).toUpperCase(Locale.getDefault()));
 				holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setBackgroundColor(poim.getColor(dataSourcesRepository));
-				MTTransitions.setTransitionName(holder.rtsExtraV, "r_" + rts.getAuthority() + "_" + rts.getRoute().getId());
-				holder.rtsExtraV.setOnClickListener(v -> {
+				holder.rtsExtraV.setOnClickListener(view -> {
 					final Activity activity = POIArrayAdapter.this.getActivity();
 					if (!(activity instanceof MainActivity)) {
 						MTLog.w(POIArrayAdapter.this, "No activity available to open RTS fragment!");
 						return;
 					}
 					leaving();
+					MTTransitions.setTransitionName(view, "r_" + rts.getAuthority() + "_" + rts.getRoute().getId());
 					((MainActivity) activity).addFragmentToStack(
 							RTSRouteFragment.newInstance(rts),
-							v
+							view
 					);
 				});
 			}

@@ -123,7 +123,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
                 }
             }
             (listBinding?.root ?: listStub.inflate() as AbsListView).let { listView ->
-                listView.isVisible = false // hide by default
+                listView.isVisible = adapter.isInitialized
                 adapter.setListView(listView)
             }
             swiperefresh.apply {

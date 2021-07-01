@@ -10,6 +10,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.annotation.ColorInt
 import androidx.core.os.bundleOf
@@ -32,6 +33,7 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
+import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.util.MapUtils
 
 @AndroidEntryPoint
@@ -155,10 +157,12 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        MTTransitions.setContainerTransformTransition(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        MTTransitions.postponeEnterTransition(this)
         binding = FragmentNearbyBinding.bind(view).apply {
             emptyStub.setOnInflateListener { _, inflated ->
                 emptyBinding = LayoutEmptyBinding.bind(inflated)
@@ -200,6 +204,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner, {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             abController?.setABReady(this, isABReady, true)
+            MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
         })
         viewModel.newLocationAvailable.observe(viewLifecycleOwner, {
             if (it == true) {

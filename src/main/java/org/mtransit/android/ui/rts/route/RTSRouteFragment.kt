@@ -173,7 +173,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
             this.adapter?.setAuthority(authority)
             switchView()
             MTTransitions.setTransitionName(
-                binding?.root,
+                view,
                 authority?.let {
                     viewModel.route.value?.id?.let { routeId ->
                         "r_" + authority + "_" + routeId
@@ -183,7 +183,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
         })
         viewModel.route.observe(viewLifecycleOwner, { route ->
             MTTransitions.setTransitionName(
-                binding?.root,
+                view,
                 route?.id?.let { routeId ->
                     viewModel.authority.value?.let { authority ->
                         "r_" + authority + "_" + routeId
@@ -196,9 +196,8 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
             abController?.setABBgColor(this, getABBgColor(context), false)
             abController?.setABTitle(this, getABTitle(context), false)
             abController?.setABReady(this, isABReady, true)
-            MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
         })
-        viewModel.colorInt.observe(viewLifecycleOwner, {
+        viewModel.colorInt.observe(viewLifecycleOwner, { colorInt ->
             binding?.apply {
                 getABBgColor(tabs.context)?.let { tabs.setBackgroundColor(it) }
             }
@@ -212,6 +211,9 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
                 abController?.setABBgColor(this, getABBgColor(context), true)
             } else {
                 switchView()
+            }
+            routeTrips?.let {
+                MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
             }
         })
         viewModel.selectedRouteTripPosition.observe(viewLifecycleOwner, { newSelectedRouteTripPosition ->
@@ -321,7 +323,9 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
         return super.onOptionsItemSelected(item)
     }
 
-    override fun isABReady() = addedViewModel?.route?.value != null
+    override fun isABReady(): Boolean {
+        return addedViewModel?.route?.value != null
+    }
 
     override fun getABBgColor(context: Context?) = addedViewModel?.colorInt?.value ?: super.getABBgColor(context)
 

@@ -119,7 +119,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
                 listBinding = LayoutPoiListBinding.bind(inflated)
             }
             (listBinding?.root ?: listStub.inflate() as AbsListView).let { listView ->
-                listView.isVisible = false // hide by default
+                listView.isVisible = adapter.isInitialized
                 adapter.setListView(listView)
             }
             typeFilters.apply {

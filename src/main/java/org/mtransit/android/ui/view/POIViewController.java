@@ -528,15 +528,15 @@ public class POIViewController implements MTLog.Loggable {
 				}
 				//noinspection ConstantConditions // stop always non-null?
 				final Integer stopId = rts.getStop() == null ? null : rts.getStop().getId();
-				MTTransitions.setTransitionName(holder.rtsExtraV, "r_" + rts.getAuthority() + "_" + rts.getRoute().getId());
-				holder.rtsExtraV.setOnClickListener(v -> {
+				holder.rtsExtraV.setOnClickListener(view -> {
 					final MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
 					if (mainActivity == null) {
 						return;
 					}
+					MTTransitions.setTransitionName(view, "r_" + rts.getAuthority() + "_" + rts.getRoute().getId());
 					mainActivity.addFragmentToStack(
 							RTSRouteFragment.newInstance(rts),
-							v
+							view
 					);
 				});
 			}
@@ -615,15 +615,15 @@ public class POIViewController implements MTLog.Loggable {
 				holder.rtsExtraV.setBackgroundColor(poim.getColor(dataProvider.providesDataSourcesRepository()));
 				//noinspection ConstantConditions // stop always non-null?
 				final Integer stopId = rts.getStop() == null ? null : rts.getStop().getId();
-				MTTransitions.setTransitionName(holder.rtsExtraV, "r_" + rts.getAuthority() + "_" + rts.getRoute().getId());
-				holder.rtsExtraV.setOnClickListener(v -> {
+				holder.rtsExtraV.setOnClickListener(view -> {
 					final MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
 					if (mainActivity == null) {
 						return;
 					}
+					MTTransitions.setTransitionName(view, "r_" + rts.getAuthority() + "_" + rts.getRoute().getId());
 					mainActivity.addFragmentToStack(
 							RTSRouteFragment.newInstance(rts),
-							v
+							view
 					);
 				});
 			}

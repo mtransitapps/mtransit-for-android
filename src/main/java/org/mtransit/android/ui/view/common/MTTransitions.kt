@@ -11,7 +11,7 @@ import androidx.transition.Transition
 import com.google.android.material.transition.Hold
 import com.google.android.material.transition.MaterialContainerTransform
 import org.mtransit.android.R
-import org.mtransit.android.commons.Constants
+import org.mtransit.android.commons.MTLog
 import org.mtransit.commons.FeatureFlags
 
 /**
@@ -24,6 +24,7 @@ import org.mtransit.commons.FeatureFlags
  * https://material.io/develop/android/theming/motion#container-transform
  * https://material.io/develop/android/theming/motion#customization
  * Blog:
+ * https://chris.banes.dev/fragmented-transitions/
  * https://wykorijnsburger.nl/dev/2019/04/30/shared-element-transition/
  *
  * TODO:
@@ -31,17 +32,33 @@ import org.mtransit.commons.FeatureFlags
  *  - POI scree
  *  - Home screen
  */
-object MTTransitions {
+object MTTransitions : MTLog.Loggable {
+
+    private val LOG_TAG = MTTransitions::class.java.simpleName
+
+    override fun getLogTag(): String = LOG_TAG
+
+    const val DEBUG_TRANSITION = false
+    // const val DEBUG_TRANSITION = true // DEBUG
 
     const val DURATION_FACTOR = 1L
-    const val OVERRIDE_SCRIM_COLOR = false
+    // const val DURATION_FACTOR = 2L
+
+    const val CAN_OVERRIDE_SCRIM_COLOR = false
+
+    val OVERRIDE_SCRIM_COLOR: Int? = if (!DEBUG_TRANSITION) null else Color.TRANSPARENT
+    // const val OVERRIDE_SCRIM_COLOR = true
 
     @JvmStatic
-    fun setTransitionName(view: View?, transitionName: String?) {
+    fun setTransitionName(view: View?, newTransitionName: String?) {
         if (!FeatureFlags.F_TRANSITION) {
             return
         }
-        view?.transitionName = transitionName
+        view?.apply {
+            if (transitionName != newTransitionName) {
+                transitionName = newTransitionName
+            }
+        }
     }
 
     @JvmStatic
@@ -57,7 +74,7 @@ object MTTransitions {
         if (!FeatureFlags.F_TRANSITION) {
             return
         }
-        fragment.enterTransition = newContainerTransformTransition(fragment.context)
+        fragment.sharedElementEnterTransition = newContainerTransformTransition(fragment.context)
     }
 
     @JvmOverloads
@@ -71,18 +88,20 @@ object MTTransitions {
         }
         return MaterialContainerTransform().apply {
             duration *= DURATION_FACTOR
-            if (OVERRIDE_SCRIM_COLOR) {
+            if (CAN_OVERRIDE_SCRIM_COLOR) {
                 transitionScrimColor?.let {
                     scrimColor = transitionScrimColor
                 }
+            } else if (OVERRIDE_SCRIM_COLOR != null) {
+                scrimColor = OVERRIDE_SCRIM_COLOR
             }
-            if (Constants.DEBUG_TRANSITION) {
+            if (DEBUG_TRANSITION) {
                 isDrawDebugEnabled = true
                 // TODO ? drawingViewId = R.id.scrollview
                 // TODO ? pathMotion = ArcMotion()
                 duration *= DURATION_FACTOR // double factor
-                if (OVERRIDE_SCRIM_COLOR) {
-                    scrimColor = Color.RED
+                if (OVERRIDE_SCRIM_COLOR != null) {
+                    scrimColor = OVERRIDE_SCRIM_COLOR
                 }
             }
         }
@@ -97,12 +116,12 @@ object MTTransitions {
     }
 
     @JvmStatic
-    fun startPostponedEnterTransitionOnPreDraw(view: View?, fragment: Fragment) {
+    fun startPostponedEnterTransitionOnPreDraw(view: View?, fragment: Fragment?) {
         if (!FeatureFlags.F_TRANSITION) {
             return
         }
         (view as? ViewGroup)?.doOnPreDraw {
-            fragment.startPostponedEnterTransition()
+            fragment?.startPostponedEnterTransition()
         }
     }
 }

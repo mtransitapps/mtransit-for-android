@@ -51,7 +51,7 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 	}
 
 	public boolean isABReady() {
-		return true;
+		return true; // default = true = ready
 	}
 
 	@Nullable

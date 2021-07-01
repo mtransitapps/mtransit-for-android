@@ -97,7 +97,7 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
     private fun updateNewsView(newsArticle: News? = viewModel.newsArticle.value) {
         binding?.apply {
             newsArticle?.let { newsArticle ->
-                MTTransitions.setTransitionName(root, "new_" + newsArticle.uuid)
+                MTTransitions.setTransitionName(root, "news_" + newsArticle.uuid)
                 newsText.apply {
                     setText(LinkUtils.linkifyHtml(newsArticle.textHTML, true), TextView.BufferType.SPANNABLE)
                     movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { url ->
@@ -155,7 +155,9 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
 
     override fun getABSubtitle(context: Context?) = addedViewModel?.newsArticle?.value?.sourceLabel ?: super.getABTitle(context)
 
-    override fun isABReady() = addedViewModel?.newsArticle?.value != null
+    override fun isABReady(): Boolean {
+        return addedViewModel?.newsArticle?.value != null
+    }
 
     override fun onDetach() {
         super.onDetach()

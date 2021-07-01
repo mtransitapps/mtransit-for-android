@@ -103,7 +103,7 @@ public class POINewsViewController implements MTLog.Loggable {
 			holder.newsTv.setLinkTextColor(ColorUtils.getTextColorPrimary(context));
 		}
 		holder.layout.setVisibility(View.VISIBLE);
-		MTTransitions.setTransitionName(holder.layout, "new_" + newsArticle.getUUID());
+		MTTransitions.setTransitionName(holder.layout, "news_" + newsArticle.getUUID());
 	}
 
 	private static final class NewsViewHolder {

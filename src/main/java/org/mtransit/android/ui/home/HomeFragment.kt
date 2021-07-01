@@ -10,12 +10,14 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.AbsListView
 import android.widget.PopupWindow
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.data.POIArrayAdapter
@@ -34,6 +36,7 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
+import org.mtransit.android.ui.view.common.MTTransitions
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -130,6 +133,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        MTTransitions.setContainerTransformTransition(this)
         // if (FeatureFlags.F_TRANSITION) {
         // exitTransition = MTTransitions.newHoldTransition() // not working with AdapterView // FIXME #RecyclerView
         // }
@@ -137,6 +141,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        MTTransitions.postponeEnterTransition(this)
         binding = FragmentHomeBinding.bind(view).apply {
             emptyStub.setOnInflateListener { _, inflated ->
                 emptyBinding = LayoutEmptyBinding.bind(inflated)
@@ -147,8 +152,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
                 }
             }
             (listBinding?.root ?: listStub.inflate() as AbsListView).let { listView ->
-                listView.isVisible = false // hide by default
+                listView.isVisible = adapter.isInitialized
                 adapter.setListView(listView)
+                MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this@HomeFragment)
             }
             swiperefresh.apply {
                 setColorSchemeColors(

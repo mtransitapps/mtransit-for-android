@@ -8,6 +8,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
@@ -33,6 +34,7 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
+import org.mtransit.android.ui.view.common.MTTransitions
 import kotlin.math.abs
 
 @AndroidEntryPoint
@@ -114,6 +116,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        MTTransitions.setContainerTransformTransition(this)
         // if (FeatureFlags.F_TRANSITION) {
         // exitTransition = MTTransitions.newHoldTransition() // not working with AdapterView // FIXME #RecyclerView
         // }
@@ -121,6 +124,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        MTTransitions.postponeEnterTransition(this)
         binding = FragmentAgencyTypeBinding.bind(view).apply {
             emptyStub.setOnInflateListener { _, inflated ->
                 emptyBinding = LayoutEmptyBinding.bind(inflated)
@@ -141,6 +145,9 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
                 abController?.setABBgColor(this, getABBgColor(context), true)
             } else {
                 switchView()
+            }
+            agencies?.let {
+                MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
             }
         })
         viewModel.type.observe(viewLifecycleOwner, { type ->
