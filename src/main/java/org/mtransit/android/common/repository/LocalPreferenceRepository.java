@@ -53,6 +53,16 @@ public class LocalPreferenceRepository extends PreferenceRepository {
 		PreferenceUtils.savePrefLcl(requireContext(), key, value, false);
 	}
 
+	@Override
+	public int getValue(@NonNull String key, int defaultValue) {
+		return PreferenceUtils.getPrefLcl(requireContext(), key, defaultValue);
+	}
+
+	@Override
+	public void saveAsync(@NonNull String key, int value) {
+		PreferenceUtils.savePrefLcl(requireContext(), key, value, false);
+	}
+
 	@NonNull
 	public SharedPreferences getPref() {
 		return PreferenceUtils.getPrefLcl(requireContext());

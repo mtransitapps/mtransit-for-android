@@ -36,5 +36,7 @@
             android:visibility="gone" />
 
         <include layout="@layout/layout_shadow" />
+
     </FrameLayout>
+
 </org.mtransit.android.ui.widget.ListViewSwipeRefreshLayout>

@@ -279,15 +279,15 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
     override fun getABBgColor(context: Context?) = Color.TRANSPARENT
 
     override fun getABTitle(context: Context?): CharSequence? {
-        return context?.let { makeABTitle() } ?: super.getABTitle(context)
+        return context?.let { makeABTitle(it) } ?: super.getABTitle(context)
     }
 
-    private fun makeABTitle(): CharSequence {
+    private fun makeABTitle(context: Context): CharSequence {
         return (addedViewModel?.filterTypeIds?.value?.let { if (it.isEmpty()) null else it } // empty = all
             ?.mapNotNull { typeId ->
-                DataSourceType.parseId(typeId)?.allStringResId?.let { getString(it) }
-            } ?: listOf(getString(R.string.all)))
-            .joinToString(prefix = "${getString(R.string.map)} (", separator = ", ", postfix = ")")
+                DataSourceType.parseId(typeId)?.allStringResId?.let { context.getString(it) }
+            } ?: listOf(context.getString(R.string.all)))
+            .joinToString(prefix = "${context.getString(R.string.map)} (", separator = ", ", postfix = ")")
     }
 
     override fun onDestroyView() {

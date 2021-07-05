@@ -536,7 +536,7 @@ public class POIFragment extends ABFragment implements
 						return;
 					}
 					poiRepository.push(poim);
-					((MainActivity) activity).addFragmentToStack( //
+					((MainActivity) activity).addFragmentToStack(
 							ScheduleFragment.newInstance(poim, dataSourcesRepository),
 							POIFragment.this);
 				});

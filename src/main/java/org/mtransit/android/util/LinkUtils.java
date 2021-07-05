@@ -73,10 +73,12 @@ public final class LinkUtils implements MTLog.Loggable {
 			return true;
 		}
 		if (www) {
-			boolean useInternalWebBrowser = PreferenceUtils.getPrefDefault(activity, //
+			boolean useInternalWebBrowser = PreferenceUtils.getPrefDefault(activity,
 					PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT);
 			if (useInternalWebBrowser) {
-				((MainActivity) activity).addFragmentToStack(WebBrowserFragment.newInstance(url));
+				((MainActivity) activity).addFragmentToStack(
+						WebBrowserFragment.newInstance(url)
+				);
 				return true;
 			}
 		}

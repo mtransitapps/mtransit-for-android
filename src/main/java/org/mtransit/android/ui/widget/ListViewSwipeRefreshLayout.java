@@ -58,6 +58,9 @@ public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MT
 
 	@Override
 	public boolean canChildScrollUp() {
+		if (isInEditMode()) {
+			return super.canChildScrollUp();
+		}
 		if (!this.refreshEnabled) {
 			return true;
 		}

@@ -343,9 +343,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
                 locationPick?.let { location ->
                     (activity as? MainActivity)?.addFragmentToStack(
                         MapFragment.newInstance(
-                            location,
-                            null,
-                            viewModel.selectedTypeId.value
+                            optInitialLocation = location,
+                            optIncludeTypeId = viewModel.selectedTypeId.value
                         ),
                         this
                     )

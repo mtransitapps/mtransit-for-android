@@ -18,4 +18,9 @@ public interface IKeyValueRepository {
 	String getValueNN(@NonNull String key, @NonNull String defaultValue);
 
 	void saveAsync(@NonNull String key, @Nullable String value);
+
+	int getValue(@NonNull String key, int defaultValue);
+
+	void saveAsync(@NonNull String key, int value);
+
 }

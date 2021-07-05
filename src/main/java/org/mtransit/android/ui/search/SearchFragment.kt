@@ -43,8 +43,12 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
 
         private const val TRACKING_SCREEN_NAME = "Search"
 
+        @JvmOverloads
         @JvmStatic
-        fun newInstance(optQuery: String?, optTypeIdFilter: Int?): SearchFragment {
+        fun newInstance(
+            optQuery: String? = null,
+            optTypeIdFilter: Int? = null
+        ): SearchFragment {
             return SearchFragment().apply {
                 arguments = bundleOf(
                     SearchViewModel.EXTRA_QUERY to (optQuery?.trim() ?: SearchViewModel.EXTRA_QUERY_DEFAULT),

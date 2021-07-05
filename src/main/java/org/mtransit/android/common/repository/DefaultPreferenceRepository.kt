@@ -36,6 +36,14 @@ class DefaultPreferenceRepository @Inject constructor(
         PreferenceUtils.savePrefDefault(requireContext(), key, value, false)
     }
 
+    override fun getValue(key: String, defaultValue: Int): Int {
+        return PreferenceUtils.getPrefDefault(requireContext(), key, defaultValue)
+    }
+
+    override fun saveAsync(key: String, value: Int) {
+        PreferenceUtils.savePrefDefault(requireContext(), key, value, false)
+    }
+
     val pref: SharedPreferences
         get() = PreferenceUtils.getPrefDefault(requireContext())
 }

@@ -1250,7 +1250,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				Activity activity = getActivity();
 				if (activity != null) {
 					leaving();
-					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(type));
+					((MainActivity) activity).addFragmentToStack(
+							AgencyTypeFragment.newInstance(type)
+					);
 				}
 			}
 			break;
@@ -1271,7 +1273,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				Activity activity = getActivity();
 				if (activity != null) {
 					leaving();
-					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(type));
+					((MainActivity) activity).addFragmentToStack(
+							AgencyTypeFragment.newInstance(type)
+					);
 				}
 			}
 			break;

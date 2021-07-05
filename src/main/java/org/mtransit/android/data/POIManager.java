@@ -728,7 +728,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				final AgencyProperties agency = dataSourcesRepository.getAgencyForPkg(pkg);
 				if (agency != null && !agency.getUpdateAvailable()) {
 					PreferenceUtils.savePrefLcl(activity, PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(agency.getType().getId()), agency.getAuthority(), false);
-					((MainActivity) activity).addFragmentToStack(AgencyTypeFragment.newInstance(agency.getType()));
+					((MainActivity) activity).addFragmentToStack(
+							AgencyTypeFragment.newInstance(agency.getType())
+					);
 					return true; // handled
 				}
 			}
