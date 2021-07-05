@@ -102,7 +102,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		adManager.init(this);
 		NightModeUtils.resetColorCache(); // single activity, no cache can be trusted to be from the right theme
 		this.currentUiMode = getResources().getConfiguration().uiMode;
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_main_old);
 		this.abController = new ActionBarController(this);
 		this.navigationDrawerController = new NavigationDrawerController(
 				this,

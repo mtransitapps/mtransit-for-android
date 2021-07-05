@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav_graph"
+    app:startDestination="@id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="org.mtransit.android.ui.home.HomeFragment"
+        android:label="@string/home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/nav_to_poi_screen"
+            app:destination="@id/nav_poi" />
+        <action
+            android:id="@+id/nav_to_nearby_screen"
+            app:destination="@id/nav_nearby" />
+        <action
+            android:id="@+id/nav_to_favorites_screen"
+            app:destination="@id/nav_favorites" />
+        <action
+            android:id="@+id/nav_to_news_screen"
+            app:destination="@id/nav_news" />
+        <action
+            android:id="@+id/nav_to_search_screen"
+            app:destination="@id/nav_search" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_favorites"
+        android:name="org.mtransit.android.ui.favorites.FavoritesFragment"
+        android:label="@string/favorites">
+        <action
+            android:id="@+id/nav_to_nearby_screen"
+            app:destination="@id/nav_nearby" />
+        <action
+            android:id="@+id/nav_to_search_screen"
+            app:destination="@id/nav_search" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_nearby"
+        android:name="org.mtransit.android.ui.nearby.NearbyFragment"
+        android:label="@string/nearby">
+        <action
+            android:id="@+id/nav_to_poi_screen"
+            app:destination="@id/nav_poi" />
+        <action
+            android:id="@+id/nav_to_search_screen"
+            app:destination="@id/nav_search" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_map"
+        android:name="org.mtransit.android.ui.map.MapFragment"
+        android:label="@string/map">
+        <action
+            android:id="@+id/nav_to_poi_screen"
+            app:destination="@id/nav_poi" />
+        <action
+            android:id="@+id/nav_to_search_screen"
+            app:destination="@id/nav_search" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_news"
+        android:name="org.mtransit.android.ui.news.NewsListFragment"
+        android:label="@string/news">
+        <action
+            android:id="@+id/nav_to_search_screen"
+            app:destination="@id/nav_search" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_bike"
+        android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
+        android:label="@string/agency_type_bike_all">
+        <argument
+            android:name="extra_type_id"
+            android:defaultValue="100"
+            app:argType="int" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_bus"
+        android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
+        android:label="@string/agency_type_bus_all">
+        <argument
+            android:name="extra_type_id"
+            android:defaultValue="3"
+            app:argType="int" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_poi"
+        android:name="org.mtransit.android.ui.fragment.POIFragment"
+        android:label="@string/ellipsis"
+        tools:layout="@layout/fragment_poi">
+        <argument
+            android:name="extra_agency_authority"
+            app:argType="string" />
+        <argument
+            android:name="extra_poi_uuid"
+            app:argType="string" />
+
+        <action
+            android:id="@+id/nav_to_search_screen"
+            app:destination="@id/nav_search" />
+        <action
+            android:id="@+id/nav_to_news_screen"
+            app:destination="@id/nav_news" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_search"
+        android:name="org.mtransit.android.ui.search.SearchFragment"
+        android:label="@string/menu_action_search">
+        <action
+            android:id="@+id/nav_to_poi_screen"
+            app:destination="@id/nav_poi" />
+    </fragment>
+
+</navigation>

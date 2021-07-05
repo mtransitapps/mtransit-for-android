@@ -13,19 +13,15 @@
             android:id="@+id/ad_layout"
             layout="@layout/layout_ad" />
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/main_content"
-            android:name="androidx.navigation.fragment.NavHostFragment"
+        <FrameLayout
+            android:id="@+id/content_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/ad_layout"
-            android:visibility="gone"
-            app:defaultNavHost="true"
-            app:navGraph="@navigation/main_nav_graph"
-            tools:visibility="visible" />
+            android:visibility="gone" />
 
         <include
-            android:id="@+id/main_content_loading"
+            android:id="@+id/content_frame_loading"
             layout="@layout/layout_loading_large"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
