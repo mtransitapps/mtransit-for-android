@@ -2,6 +2,7 @@
 package org.mtransit.android.ui.home
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.location.Location
 import android.os.Bundle
@@ -249,17 +250,19 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
         if (this.toastShown) {
             return // SKIP
         }
-        if (activity?.isFinishing != false) {
+        val theActivity: Activity? = activity
+        if (theActivity == null || theActivity.isFinishing) {
             return // SKIP
         }
-        (this.locationToast ?: makeLocationToast().also { this.locationToast = it })?.let { locationToast ->
-            this.toastShown = ToastUtils.showTouchableToastPx(
-                context,
-                locationToast,
-                view,
-                addedViewModel?.getAdBannerHeightInPx(this) ?: 0
-            )
-        }
+        (this.locationToast ?: makeLocationToast().also { this.locationToast = it })
+            ?.let { locationToast ->
+                this.toastShown = ToastUtils.showTouchableToastPx(
+                    context,
+                    locationToast,
+                    view,
+                    addedViewModel?.getAdBannerHeightInPx(this) ?: 0
+                )
+            }
     }
 
     private fun hideLocationToast() {
