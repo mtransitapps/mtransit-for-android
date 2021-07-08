@@ -98,8 +98,8 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
                 MTTransitions.setTransitionName(root, "news_" + newsArticle.uuid)
                 newsText.apply {
                     setText(LinkUtils.linkifyHtml(newsArticle.textHTML, true), TextView.BufferType.SPANNABLE)
-                    movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { url ->
-                        LinkUtils.open(requireActivity(), url, getString(R.string.web_browser), true)
+                    movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
+                        LinkUtils.open(view, requireActivity(), url, getString(R.string.web_browser), true)
                     }
                     setLinkTextColor(
                         if (newsArticle.hasColor()) {
@@ -112,8 +112,8 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
                 date.apply {
                     setText(UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs), TextView.BufferType.SPANNABLE)
                     val newWebURL = if (newsArticle.webURL.isBlank()) newsArticle.authorProfileURL else newsArticle.webURL
-                    setOnClickListener {
-                        LinkUtils.open(requireActivity(), newWebURL, getString(R.string.web_browser), true)
+                    setOnClickListener { view ->
+                        LinkUtils.open(view, requireActivity(), newWebURL, getString(R.string.web_browser), true)
                     }
                 }
             }

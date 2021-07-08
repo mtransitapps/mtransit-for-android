@@ -14,12 +14,16 @@ import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.view.MotionEvent;
+import android.view.View;
 import android.webkit.WebView;
 import android.widget.TextView;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
@@ -32,6 +36,7 @@ import org.mtransit.android.data.IAgencyProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.WebBrowserFragment;
+import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -48,7 +53,8 @@ public final class LinkUtils implements MTLog.Loggable {
 		return LOG_TAG;
 	}
 
-	public static CharSequence linkifyHtml(String originalText, boolean isHTML) {
+	@NonNull
+	public static CharSequence linkifyHtml(@NonNull String originalText, boolean isHTML) {
 		try {
 			Spanned text = isHTML ? Html.fromHtml(originalText) : new SpannedString(originalText);
 			URLSpan[] currentSpans = text.getSpans(0, text.length(), URLSpan.class);
@@ -64,7 +70,7 @@ public final class LinkUtils implements MTLog.Loggable {
 		}
 	}
 
-	public static boolean open(@NonNull Activity activity, @Nullable String url, @Nullable String label, boolean www) {
+	public static boolean open(@Nullable View view, @NonNull Activity activity, @Nullable String url, @Nullable String label, boolean www) {
 		MTLog.v(LOG_TAG, "open(%s)", url);
 		if (url == null || url.isEmpty()) {
 			return false;
@@ -72,13 +78,29 @@ public final class LinkUtils implements MTLog.Loggable {
 		if (intercept(activity, url)) {
 			return true;
 		}
-		if (www) {
+		if (www && view != null) {
 			boolean useInternalWebBrowser = PreferenceUtils.getPrefDefault(activity,
 					PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT);
 			if (useInternalWebBrowser) {
-				((MainActivity) activity).addFragmentToStack(
-						WebBrowserFragment.newInstance(url)
-				);
+				if (FeatureFlags.F_NAVIGATION) {
+					final NavController navController = Navigation.findNavController(view);
+					FragmentNavigator.Extras extras = null;
+					if (FeatureFlags.F_TRANSITION) {
+						extras = new FragmentNavigator.Extras.Builder()
+								// TODO ? .addSharedElement(view, view.getTransitionName())
+								.build();
+					}
+					navController.navigate(
+							R.id.nav_to_web_screen,
+							WebBrowserFragment.newInstanceArgs(url),
+							null,
+							extras
+					);
+				} else {
+					((MainActivity) activity).addFragmentToStack(
+							WebBrowserFragment.newInstance(url)
+					);
+				}
 				return true;
 			}
 		}
@@ -130,11 +152,11 @@ public final class LinkUtils implements MTLog.Loggable {
 		return false; // not intercepted
 	}
 
-	public static boolean open(@NonNull Activity activity, Uri uri, String label, boolean www) {
+	public static boolean open(@NonNull Activity activity, @Nullable Uri uri, @Nullable String label, @SuppressWarnings("unused") boolean www) {
 		return org.mtransit.android.commons.LinkUtils.open(activity, uri, label);
 	}
 
-	public static boolean open(@NonNull Activity activity, Intent intent, String label, boolean www) {
+	public static boolean open(@NonNull Activity activity, @Nullable Intent intent, @Nullable String label, @SuppressWarnings("unused") boolean www) {
 		return org.mtransit.android.commons.LinkUtils.open(activity, intent, label);
 	}
 
@@ -181,6 +203,7 @@ public final class LinkUtils implements MTLog.Loggable {
 
 	private static boolean isEmailIntent(Uri uri) {
 		if (uri != null) {
+			//noinspection RedundantIfStatement
 			if (EMAIL_SCHEME.equals(uri.getScheme())) {
 				return true;
 			}
@@ -196,6 +219,7 @@ public final class LinkUtils implements MTLog.Loggable {
 
 	private static boolean isPhoneNumberIntent(Uri uri) {
 		if (uri != null) {
+			//noinspection RedundantIfStatement
 			if (TEL_SCHEME.equals(uri.getScheme())) {
 				return true;
 			}
@@ -207,6 +231,7 @@ public final class LinkUtils implements MTLog.Loggable {
 
 	private static boolean isPDFIntent(String url) {
 		if (url != null) {
+			//noinspection RedundantIfStatement
 			if (url.toLowerCase(Locale.ENGLISH).endsWith(EXT_PDF)) {
 				return true;
 			}
@@ -253,16 +278,19 @@ public final class LinkUtils implements MTLog.Loggable {
 
 	public static class LinkMovementMethodInterceptor extends LinkMovementMethod implements MTLog.Loggable {
 
-		private static final String TAG = LinkMovementMethodInterceptor.class.getSimpleName();
+		private static final String LOG_TAG = LinkMovementMethodInterceptor.class.getSimpleName();
 
+		@NonNull
 		@Override
 		public String getLogTag() {
-			return TAG;
+			return LOG_TAG;
 		}
 
+		@Nullable
 		private static LinkMovementMethodInterceptor sInstance;
 
-		public static LinkMovementMethodInterceptor getInstance(OnUrlClickListener onUrlClickListener) {
+		@NonNull
+		public static LinkMovementMethodInterceptor getInstance(@Nullable OnUrlClickListener onUrlClickListener) {
 			if (sInstance == null) {
 				sInstance = new LinkMovementMethodInterceptor(onUrlClickListener);
 			} else {
@@ -271,19 +299,20 @@ public final class LinkUtils implements MTLog.Loggable {
 			return sInstance;
 		}
 
+		@Nullable
 		private WeakReference<OnUrlClickListener> onUrlClickListenerWR;
 
-		LinkMovementMethodInterceptor(OnUrlClickListener onUrlClickListener) {
+		LinkMovementMethodInterceptor(@Nullable OnUrlClickListener onUrlClickListener) {
 			setOnUrlClickListener(onUrlClickListener);
 		}
 
-		private void setOnUrlClickListener(OnUrlClickListener onUrlClickListener) {
+		private void setOnUrlClickListener(@Nullable OnUrlClickListener onUrlClickListener) {
 			this.onUrlClickListenerWR = new WeakReference<>(onUrlClickListener);
 		}
 
 		@Override
-		public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
-			int action = event.getAction();
+		public boolean onTouchEvent(@NonNull TextView widget, @NonNull Spannable buffer, @NonNull MotionEvent event) {
+			final int action = event.getAction();
 			if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN) {
 				int x = (int) event.getX();
 				int y = (int) event.getY();
@@ -301,7 +330,7 @@ public final class LinkUtils implements MTLog.Loggable {
 						if (listener != null) {
 							if (link[0] instanceof URLSpan) {
 								String url = ((URLSpan) link[0]).getURL();
-								if (listener.onURLClick(url)) {
+								if (listener.onURLClick(widget, url)) {
 									return true;
 								}
 							}
@@ -315,6 +344,6 @@ public final class LinkUtils implements MTLog.Loggable {
 	}
 
 	public interface OnUrlClickListener {
-		boolean onURLClick(@NonNull String url);
+		boolean onURLClick(@NonNull View view, @NonNull String url);
 	}
 }

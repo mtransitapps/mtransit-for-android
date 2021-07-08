@@ -152,7 +152,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 						.setMessage(R.string.battery_optimization_issue_message)
 						.setPositiveButton(R.string.battery_optimization_issue_act, (dialog, which) -> {
 							dialog.dismiss();
-							Activity activity12 = getActivity();
+							final Activity activity12 = getActivity();
 							if (activity12 == null) {
 								return;
 							}
@@ -160,11 +160,11 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 						})
 						.setNeutralButton(R.string.battery_optimization_issue_learn_more, (dialog, which) -> {
 							dialog.dismiss();
-							Activity activity1 = getActivity();
+							final Activity activity1 = getActivity();
 							if (activity1 == null) {
 								return;
 							}
-							LinkUtils.open(activity1, DO_NOT_KILL_MY_APP_URL, DO_NOT_KILL_MY_APP_URL, false);
+							LinkUtils.open(null, activity1, DO_NOT_KILL_MY_APP_URL, DO_NOT_KILL_MY_APP_URL, false);
 						})
 						.setCancelable(true)
 						.create()
@@ -220,7 +220,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 				if (activity == null) {
 					return false; // not handled
 				}
-				LinkUtils.open(activity, FACEBOOK_PAGE_URL, activity.getString(R.string.facebook), false);
+				LinkUtils.open(null, activity, FACEBOOK_PAGE_URL, activity.getString(R.string.facebook), false);
 				return true; // handled
 			});
 		}
@@ -231,7 +231,7 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 				if (activity == null) {
 					return false; // not handled
 				}
-				LinkUtils.open(activity, TWITTER_PAGE_URL, activity.getString(R.string.twitter), false);
+				LinkUtils.open(null, activity, TWITTER_PAGE_URL, activity.getString(R.string.twitter), false);
 				return true; // handled
 			});
 		}
@@ -242,7 +242,9 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 				if (activity == null) {
 					return false; // not handled
 				}
-				LinkUtils.open(activity,
+				LinkUtils.open(
+						null,
+						activity,
 						LocaleUtils.isFR() ?
 								PRIVACY_POLICY_FR_PAGE_URL :
 								PRIVACY_POLICY_PAGE_URL,
@@ -259,7 +261,9 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 				if (activity == null) {
 					return false; // not handled
 				}
-				LinkUtils.open(activity,
+				LinkUtils.open(
+						null,
+						activity,
 						LocaleUtils.isFR() ?
 								TERMS_OF_USE_FR_PAGE_URL :
 								TERMS_OF_USE_PAGE_URL,
@@ -276,7 +280,9 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 				if (activity == null) {
 					return false; // not handled
 				}
-				LinkUtils.open(activity,
+				LinkUtils.open(
+						null,
+						activity,
 						GOOGLE_PRIVACY_POLICY_PAGE_URL,
 						null,
 						false // open in external web browser
@@ -291,7 +297,9 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 				if (activity == null) {
 					return false; // not handled
 				}
-				LinkUtils.open(activity,
+				LinkUtils.open(
+						null,
+						activity,
 						YOUTUBE_TERMS_OF_SERVICE_PAGE_URL,
 						null,
 						false // open in external web browser

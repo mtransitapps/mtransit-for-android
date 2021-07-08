@@ -56,13 +56,18 @@ public class WebBrowserFragment extends ABFragment {
 	@NonNull
 	public static WebBrowserFragment newInstance(@NonNull String url) {
 		WebBrowserFragment f = new WebBrowserFragment();
-		Bundle args = new Bundle();
-		args.putString(EXTRA_URL_INITIAL, url);
 		if (!Constants.FORCE_FRAGMENT_USE_ARGS) {
 			f.initialUrl = url;
 		}
-		f.setArguments(args);
+		f.setArguments(newInstanceArgs(url));
 		return f;
+	}
+
+	@NonNull
+	public static Bundle newInstanceArgs(@NonNull String url) {
+		Bundle args = new Bundle();
+		args.putString(EXTRA_URL_INITIAL, url);
+		return args;
 	}
 
 	private String initialUrl;
@@ -236,7 +241,7 @@ public class WebBrowserFragment extends ABFragment {
 	// TODO later view model
 	// @Nullable
 	// private POIViewModel getAddedViewModel() {
-	// return isAdded() ? this.viewModel : null;
+	// return isAttached() ? this.viewModel : null;
 	// }
 	//
 	@Nullable
@@ -269,7 +274,7 @@ public class WebBrowserFragment extends ABFragment {
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		if (item.getItemId() == R.id.menu_open_www) {
-			LinkUtils.open(requireActivity(), this.currentUrl, getString(R.string.web_browser), false);
+			LinkUtils.open(null, requireActivity(), this.currentUrl, getString(R.string.web_browser), false);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);

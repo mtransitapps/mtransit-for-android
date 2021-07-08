@@ -829,8 +829,8 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public boolean onURLClick(@NonNull String url) {
-		return LinkUtils.open(requireActivity(), url, getString(R.string.web_browser), true);
+	public boolean onURLClick(@NonNull View view, @NonNull String url) {
+		return LinkUtils.open(view, requireActivity(), url, getString(R.string.web_browser), true);
 	}
 
 	@Nullable
