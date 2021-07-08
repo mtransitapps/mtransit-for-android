@@ -33,6 +33,7 @@ import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.MTSearchView
+import org.mtransit.android.ui.view.common.attached
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -65,8 +66,6 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<SearchViewModel>()
-    private val addedViewModel: SearchViewModel?
-        get() = if (isAdded) viewModel else null
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -210,7 +209,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        addedViewModel?.onDeviceLocationChanged(newLocation)
+        attached { viewModel }?.onDeviceLocationChanged(newLocation)
     }
 
     private var devEnabled: Boolean? = null
@@ -251,7 +250,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
     private fun refreshSearchHasFocus(): Boolean {
         return searchView?.let {
             val focus = it.hasFocus()
-            addedViewModel?.setSearchHasFocus(focus)
+            attached { viewModel }?.setSearchHasFocus(focus)
             focus
         } ?: false
     }
@@ -275,8 +274,8 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
         val supportActionBar = mainActivity.supportActionBar
         val context = if (supportActionBar == null) mainActivity else supportActionBar.themedContext
         searchView = MTSearchView(mainActivity, context).apply {
-            setQuery(addedViewModel?.query?.value, false)
-            if (addedViewModel?.searchHasFocus?.value == false) {
+            setQuery(attached { viewModel }?.query?.value, false)
+            if (attached { viewModel }?.searchHasFocus?.value == false) {
                 clearFocus()
             }
         }

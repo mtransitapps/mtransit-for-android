@@ -16,7 +16,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.data.DataSourceType
+import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentMapBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
@@ -25,6 +27,7 @@ import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.MTDialog
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.MapViewController
+import org.mtransit.android.ui.view.common.attached
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -36,6 +39,13 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
         private const val TRACKING_SCREEN_NAME = "Map"
 
         @JvmStatic
+        fun newInstance(poim: POIManager) = newInstance(
+            LocationUtils.getNewLocation(poim.lat, poim.lng),
+            poim.poi.uuid,
+            poim.poi.dataSourceTypeId
+        )
+
+        @JvmStatic
         @JvmOverloads
         fun newInstance(
             optInitialLocation: Location? = null,
@@ -43,13 +53,28 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
             optIncludeTypeId: Int? = null,
         ): MapFragment {
             return MapFragment().apply {
-                arguments = bundleOf(
-                    MapViewModel.EXTRA_INITIAL_LOCATION to optInitialLocation,
-                    MapViewModel.EXTRA_SELECTED_UUID to optSelectedUUID,
-                    MapViewModel.EXTRA_INCLUDE_TYPE_ID to optIncludeTypeId,
-                )
+                arguments = newInstanceArgs(optInitialLocation, optSelectedUUID, optIncludeTypeId)
             }
         }
+
+        @JvmStatic
+        fun newInstanceArgs(poim: POIManager) = newInstanceArgs(
+            LocationUtils.getNewLocation(poim.lat, poim.lng),
+            poim.poi.uuid,
+            poim.poi.dataSourceTypeId
+        )
+
+        @JvmStatic
+        @JvmOverloads
+        fun newInstanceArgs(
+            optInitialLocation: Location? = null,
+            optSelectedUUID: String? = null,
+            optIncludeTypeId: Int? = null,
+        ) = bundleOf(
+            MapViewModel.EXTRA_INITIAL_LOCATION to optInitialLocation,
+            MapViewModel.EXTRA_SELECTED_UUID to optSelectedUUID,
+            MapViewModel.EXTRA_INCLUDE_TYPE_ID to (optIncludeTypeId ?: MapViewModel.EXTRA_INCLUDE_TYPE_ID_DEFAULT),
+        )
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -57,8 +82,6 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<MapViewModel>()
-    private val addedViewModel: MapViewModel?
-        get() = if (isAdded) viewModel else null
 
     private var binding: FragmentMapBinding? = null
 
@@ -78,13 +101,13 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
         }
 
         override fun onCameraChange(latLngBounds: LatLngBounds) {
-            addedViewModel?.onCameraChange(latLngBounds) {
+            attached { viewModel }?.onCameraChange(latLngBounds) {
                 mapViewController.getBigCameraPosition(activity, 1.0f)
             }
         }
 
         override fun onMapReady() {
-            addedViewModel?.poiMarkers?.value?.let {
+            attached { viewModel }?.poiMarkers?.value?.let {
                 mapViewController.clearMarkers()
                 mapViewController.addMarkers(it)
                 mapViewController.showMap(view)
@@ -203,7 +226,7 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        addedViewModel?.onDeviceLocationChanged(newLocation)
+        attached { viewModel }?.onDeviceLocationChanged(newLocation)
     }
 
     override fun onPause() {
@@ -228,13 +251,13 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
     }
 
     private fun showMenuFilterDialog(): Boolean {
-        val filterTypeIds = addedViewModel?.filterTypeIds?.value ?: return false
+        val filterTypeIds = attached { viewModel }?.filterTypeIds?.value ?: return false
         val activity = requireActivity()
         val typeNames = mutableListOf<CharSequence>()
         val checked = mutableListOf<Boolean>()
         val typeIds = mutableListOf<Int>()
         val selectedItems = mutableSetOf<Int>()
-        addedViewModel?.mapTypes?.value?.forEach { type ->
+        attached { viewModel }?.mapTypes?.value?.forEach { type ->
             typeIds.add(type.id)
             typeNames.add(getString(type.poiShortNameResId))
             checked.add(filterTypeIds.isEmpty() || filterTypeIds.contains(type.id))
@@ -283,7 +306,7 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
     }
 
     private fun makeABTitle(context: Context): CharSequence {
-        return (addedViewModel?.filterTypeIds?.value?.let { if (it.isEmpty()) null else it } // empty = all
+        return (attached { viewModel }?.filterTypeIds?.value?.let { if (it.isEmpty()) null else it } // empty = all
             ?.mapNotNull { typeId ->
                 DataSourceType.parseId(typeId)?.allStringResId?.let { context.getString(it) }
             } ?: listOf(context.getString(R.string.all)))

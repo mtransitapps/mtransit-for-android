@@ -12,6 +12,9 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 import androidx.viewbinding.ViewBinding;
 
 import org.mtransit.android.R;
@@ -38,6 +41,7 @@ import org.mtransit.android.databinding.LayoutPoiRtsWithScheduleBinding;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.rts.route.RTSRouteFragment;
 import org.mtransit.android.ui.view.common.MTTransitions;
+import org.mtransit.commons.FeatureFlags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -529,15 +533,31 @@ public class POIViewController implements MTLog.Loggable {
 				//noinspection ConstantConditions // stop always non-null?
 				final Integer stopId = rts.getStop() == null ? null : rts.getStop().getId();
 				holder.rtsExtraV.setOnClickListener(view -> {
-					final MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
-					if (mainActivity == null) {
-						return;
-					}
 					MTTransitions.setTransitionName(view, "r_" + rts.getAuthority() + "_" + rts.getRoute().getId());
-					mainActivity.addFragmentToStack(
-							RTSRouteFragment.newInstance(rts),
-							view
-					);
+					if (FeatureFlags.F_NAVIGATION) {
+						final NavController navController = Navigation.findNavController(view);
+						FragmentNavigator.Extras extras = null;
+						if (FeatureFlags.F_TRANSITION) {
+							extras = new FragmentNavigator.Extras.Builder()
+									.addSharedElement(view, view.getTransitionName())
+									.build();
+						}
+						navController.navigate(
+								R.id.nav_to_rts_route_screen,
+								RTSRouteFragment.newInstanceArgs(rts),
+								null,
+								extras
+						);
+					} else {
+						final MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
+						if (mainActivity == null) {
+							return;
+						}
+						mainActivity.addFragmentToStack(
+								RTSRouteFragment.newInstance(rts),
+								view
+						);
+					}
 				});
 			}
 		}
@@ -616,15 +636,31 @@ public class POIViewController implements MTLog.Loggable {
 				//noinspection ConstantConditions // stop always non-null?
 				final Integer stopId = rts.getStop() == null ? null : rts.getStop().getId();
 				holder.rtsExtraV.setOnClickListener(view -> {
-					final MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
-					if (mainActivity == null) {
-						return;
-					}
 					MTTransitions.setTransitionName(view, "r_" + rts.getAuthority() + "_" + rts.getRoute().getId());
-					mainActivity.addFragmentToStack(
-							RTSRouteFragment.newInstance(rts),
-							view
-					);
+					if (FeatureFlags.F_NAVIGATION) {
+						final NavController navController = Navigation.findNavController(view);
+						FragmentNavigator.Extras extras = null;
+						if (FeatureFlags.F_TRANSITION) {
+							extras = new FragmentNavigator.Extras.Builder()
+									.addSharedElement(view, view.getTransitionName())
+									.build();
+						}
+						navController.navigate(
+								R.id.nav_to_rts_route_screen,
+								RTSRouteFragment.newInstanceArgs(rts),
+								null,
+								extras
+						);
+					} else {
+						final MainActivity mainActivity = (MainActivity) dataProvider.getActivity();
+						if (mainActivity == null) {
+							return;
+						}
+						mainActivity.addFragmentToStack(
+								RTSRouteFragment.newInstance(rts),
+								view
+						);
+					}
 				});
 			}
 		}

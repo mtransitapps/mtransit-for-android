@@ -16,6 +16,7 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.analytics.AnalyticsEvents
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PreferenceUtils
@@ -52,18 +53,23 @@ class NearbyViewModel @Inject constructor(
         // private const val IGNORE_SAME_LOCATION_CHECK = true // DEBUG
 
         internal const val EXTRA_SELECTED_TYPE = "extra_selected_type"
+        internal const val EXTRA_SELECTED_TYPE_DEFAULT: Int = -1
         internal const val EXTRA_FIXED_ON_LAT = "extra_fixed_on_lat"
+        internal const val EXTRA_FIXED_ON_LAT_DEFAULT: Float = -1f
         internal const val EXTRA_FIXED_ON_LNG = "extra_fixed_on_lng"
+        internal const val EXTRA_FIXED_ON_LNG_DEFAULT: Float = -1f
         internal const val EXTRA_FIXED_ON_NAME = "extra_fixed_on_name"
+        internal val EXTRA_FIXED_ON_NAME_DEFAULT: String? = null
         internal const val EXTRA_FIXED_ON_COLOR = "extra_fixed_on_color"
+        internal val EXTRA_FIXED_ON_COLOR_DEFAULT: String? = null
     }
 
     override fun getLogTag(): String = LOG_TAG
 
-    private val _selectedTypeId = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_SELECTED_TYPE)
+    private val _selectedTypeId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_TYPE, EXTRA_SELECTED_TYPE_DEFAULT).map { if (it < 0) null else it }
 
-    private val _fixedOnLat = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LAT)
-    private val _fixedOnLng = savedStateHandle.getLiveDataDistinct<Double?>(EXTRA_FIXED_ON_LNG)
+    private val _fixedOnLat = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_LAT, EXTRA_FIXED_ON_LAT_DEFAULT).map { if (it < 0f) null else it.toDouble() }
+    private val _fixedOnLng = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_LNG, EXTRA_FIXED_ON_LNG_DEFAULT).map { if (it < 0f) null else it.toDouble() }
 
     val fixedOnLocation: LiveData<Location?> = PairMediatorLiveData(_fixedOnLat, _fixedOnLng).map { (fixedOnLat, fixedOnLng) ->
         if (fixedOnLat == null || fixedOnLng == null) {
@@ -114,7 +120,7 @@ class NearbyViewModel @Inject constructor(
         }
     }
 
-    val fixedOnName = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_FIXED_ON_NAME)
+    val fixedOnName = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_FIXED_ON_NAME, EXTRA_FIXED_ON_NAME_DEFAULT)
 
     val isFixedOn: LiveData<Boolean?> = TripleMediatorLiveData(_fixedOnLat, _fixedOnLng, fixedOnName).map { (lat, lng, name) ->
         lat != null && lng != null && !name.isNullOrBlank()
@@ -128,7 +134,8 @@ class NearbyViewModel @Inject constructor(
                     && !LocationUtils.areAlmostTheSame(nearbyLocation, deviceLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)
         }
 
-    val fixedOnColorInt = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_FIXED_ON_COLOR)
+    val fixedOnColorInt = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_FIXED_ON_COLOR, EXTRA_FIXED_ON_COLOR_DEFAULT)
+        .map { it?.let { ColorUtils.parseColor(it) } }
 
     val availableTypes: LiveData<List<DataSourceType>?> = this.dataSourcesRepository.readingAllDataSourceTypes().map { // #onModulesUpdated
         it.filter { dst -> dst.isNearbyScreen }

@@ -27,6 +27,7 @@ import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.fragment.MTDialogFragmentX
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.ui.view.common.attached
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -62,8 +63,6 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
     override fun getLogTag(): String = LOG_TAG
 
     private val viewModel by viewModels<PickPOIViewModel>()
-    private val addedViewModel: PickPOIViewModel?
-        get() = if (isAdded) viewModel else null
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -169,7 +168,7 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        addedViewModel?.onDeviceLocationChanged(newLocation)
+        attached { viewModel }?.onDeviceLocationChanged(newLocation)
     }
 
     override fun onPause() {

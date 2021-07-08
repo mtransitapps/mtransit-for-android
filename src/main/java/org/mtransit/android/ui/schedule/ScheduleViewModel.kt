@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import dagger.hilt.android.lifecycle.HiltViewModel
+import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.data.AgencyBaseProperties
@@ -34,7 +35,8 @@ class ScheduleViewModel @Inject constructor(
 
         internal const val EXTRA_AUTHORITY = "extra_agency_authority"
         internal const val EXTRA_POI_UUID = "extra_poi_uuid"
-        internal const val EXTRA_COLOR_INT = "extra_color_int"
+        internal const val EXTRA_COLOR = "extra_color"
+        internal val EXTRA_COLOR_DEFAULT: String? = null
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -43,7 +45,7 @@ class ScheduleViewModel @Inject constructor(
 
     val uuid = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_POI_UUID)
 
-    val colorInt = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_COLOR_INT)
+    val colorInt = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_COLOR, EXTRA_COLOR_DEFAULT).map { it?.let { ColorUtils.parseColor(it) } }
 
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
 

@@ -48,9 +48,9 @@ class POIViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val uuid = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_POI_UUID)
+    val uuid = savedStateHandle.getLiveDataDistinct<String>(EXTRA_POI_UUID)
 
-    private val _authority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AUTHORITY)
+    private val _authority = savedStateHandle.getLiveDataDistinct<String>(EXTRA_AUTHORITY)
 
     val agency: LiveData<AgencyProperties?> = this._authority.switchMap { authority ->
         this.dataSourcesRepository.readingAgency(authority) // #onModulesUpdated // UPDATE-ABLE

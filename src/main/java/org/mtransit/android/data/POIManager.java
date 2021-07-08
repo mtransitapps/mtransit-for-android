@@ -12,6 +12,9 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.SparseArrayCompat;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
@@ -47,6 +50,7 @@ import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.rts.route.RTSRouteFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.util.UITimeUtils;
+import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -410,7 +414,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	private boolean onActionsItemClick(@NonNull Activity activity,
-									   @Nullable View view,
+									   @NonNull View view,
 									   @NonNull FavoriteManager favoriteManager,
 									   @NonNull DataSourcesRepository dataSourcesRepository,
 									   int itemClicked,
@@ -427,7 +431,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_ACTION_TYPE_APP:
 			return onActionsItemClickApp(activity, itemClicked, listener, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_PLACE:
-			return onActionsItemClickPlace(activity, dataSourcesRepository, itemClicked, listener, onClickHandledListener);
+			return onActionsItemClickPlace(activity, view, dataSourcesRepository, itemClicked, listener, onClickHandledListener);
 		default:
 			MTLog.w(this, "unexpected action type '%s'!", this.poi.getActionsType());
 			return false; // NOT HANDLED
@@ -461,6 +465,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	private boolean onActionsItemClickPlace(@NonNull Activity activity,
+											@NonNull View view,
 											@NonNull DataSourcesRepository dataSourcesRepository,
 											int itemClicked,
 											@SuppressWarnings("unused") FavoriteManager.FavoriteUpdateListener listener,
@@ -470,9 +475,25 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			((MainActivity) activity).addFragmentToStack(
-					NearbyFragment.newFixedOnPOIInstance(this, dataSourcesRepository, true) // PLACE SEARCH RESULT
-			);
+			if (FeatureFlags.F_NAVIGATION) {
+				final NavController navController = Navigation.findNavController(view);
+				FragmentNavigator.Extras extras = null;
+				if (FeatureFlags.F_TRANSITION) {
+					extras = new FragmentNavigator.Extras.Builder()
+							.addSharedElement(view, view.getTransitionName())
+							.build();
+				}
+				navController.navigate(
+						R.id.nav_to_nearby_screen,
+						NearbyFragment.newFixedOnPOIInstanceArgs(this, dataSourcesRepository, true), // PLACE SEARCH RESULT
+						null,
+						extras
+				);
+			} else {
+				((MainActivity) activity).addFragmentToStack(
+						NearbyFragment.newFixedOnPOIInstance(this, dataSourcesRepository, true) // PLACE SEARCH RESULT
+				);
+			}
 			return true; // HANDLED
 		}
 		return false; // NOT HANDLED
@@ -653,7 +674,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	private boolean onActionsItemClickRTS(@NonNull Activity activity,
-										  @Nullable View view,
+										  @NonNull View view,
 										  @NonNull FavoriteManager favoriteManager,
 										  int itemClicked,
 										  FavoriteManager.FavoriteUpdateListener listener,
@@ -664,10 +685,26 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				onClickHandledListener.onLeaving();
 			}
 			final RouteTripStop rts = (RouteTripStop) poi;
-			((MainActivity) activity).addFragmentToStack(
-					RTSRouteFragment.newInstance(rts),
-					view
-			);
+			if (FeatureFlags.F_NAVIGATION) {
+				final NavController navController = Navigation.findNavController(view);
+				FragmentNavigator.Extras extras = null;
+				if (FeatureFlags.F_TRANSITION) {
+					extras = new FragmentNavigator.Extras.Builder()
+							.addSharedElement(view, view.getTransitionName())
+							.build();
+				}
+				navController.navigate(
+						R.id.nav_to_rts_route_screen,
+						RTSRouteFragment.newInstanceArgs(rts),
+						null,
+						extras
+				);
+			} else {
+				((MainActivity) activity).addFragmentToStack(
+						RTSRouteFragment.newInstance(rts),
+						view
+				);
+			}
 			return true; // HANDLED
 		case 2:
 			return favoriteManager.addRemoveFavorite(activity, this.poi.getUUID(), listener);
@@ -707,7 +744,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	private boolean showPoiViewerScreen(Activity activity,
-										@Nullable View view,
+										@NonNull View view,
 										DataSourcesRepository dataSourcesRepository,
 										POIRepository poiRepository,
 										POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
@@ -728,9 +765,25 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				final AgencyProperties agency = dataSourcesRepository.getAgencyForPkg(pkg);
 				if (agency != null && !agency.getUpdateAvailable()) {
 					PreferenceUtils.savePrefLcl(activity, PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(agency.getType().getId()), agency.getAuthority(), false);
-					((MainActivity) activity).addFragmentToStack(
-							AgencyTypeFragment.newInstance(agency.getType())
-					);
+					if (FeatureFlags.F_NAVIGATION) {
+						final NavController navController = Navigation.findNavController(view);
+						FragmentNavigator.Extras extras = null;
+						if (FeatureFlags.F_TRANSITION) {
+							extras = new FragmentNavigator.Extras.Builder()
+									.addSharedElement(view, view.getTransitionName())
+									.build();
+						}
+						navController.navigate(
+								R.id.nav_to_type_screen,
+								AgencyTypeFragment.newInstanceArgs(agency.getType()),
+								null,
+								extras
+						);
+					} else {
+						((MainActivity) activity).addFragmentToStack(
+								AgencyTypeFragment.newInstance(agency.getType())
+						);
+					}
 					return true; // handled
 				}
 			}
@@ -740,25 +793,55 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			((MainActivity) activity).addFragmentToStack(
-					NearbyFragment.newFixedOnPOIInstance(this, dataSourcesRepository, true) // PLACE SEARCH RESULT
-			);
+			if (FeatureFlags.F_NAVIGATION) {
+				final NavController navController = Navigation.findNavController(view);
+				FragmentNavigator.Extras extras = null;
+				if (FeatureFlags.F_TRANSITION) {
+					extras = new FragmentNavigator.Extras.Builder()
+							.addSharedElement(view, view.getTransitionName())
+							.build();
+				}
+				navController.navigate(
+						R.id.nav_to_nearby_screen,
+						NearbyFragment.newFixedOnPOIInstanceArgs(this, dataSourcesRepository, true), // PLACE SEARCH RESULT
+						null,
+						extras
+				);
+			} else {
+				((MainActivity) activity).addFragmentToStack(
+						NearbyFragment.newFixedOnPOIInstance(this, dataSourcesRepository, true) // PLACE SEARCH RESULT
+				);
+			}
 			return true; // nearby screen shown
-		}
-		if (activity instanceof MainActivity) {
+		default:
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
 			poiRepository.push(this);
-			((MainActivity) activity).addFragmentToStack(
-					POIFragment.newInstance(this),
-					view
-			);
+			if (FeatureFlags.F_NAVIGATION) {
+				final NavController navController = Navigation.findNavController(view);
+				FragmentNavigator.Extras extras = null;
+				if (FeatureFlags.F_TRANSITION) {
+					extras = new FragmentNavigator.Extras.Builder()
+							.addSharedElement(view, view.getTransitionName())
+							.build();
+				}
+				navController.navigate(
+						R.id.nav_to_poi_screen,
+						POIFragment.newInstanceArgs(this),
+						null,
+						extras
+				);
+			} else {
+				((MainActivity) activity).addFragmentToStack(
+						POIFragment.newInstance(this),
+						view
+				);
+			}
 			// reset to defaults, so the POI is updated when coming back in the current screen
 			resetLastFindTimestamps();
 			return true; // HANDLED
 		}
-		return false; // NOT HANDLED
 	}
 
 	boolean onActionItemLongClick(Activity activity,
@@ -794,7 +877,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	}
 
 	private boolean showPoiMenu(final @NonNull Activity activity,
-								final @Nullable View view,
+								final @NonNull View view,
 								final @NonNull FavoriteManager favoriteManager,
 								final @NonNull DataSourcesRepository dataSourcesRepository,
 								final @NonNull POIRepository poiRepository,

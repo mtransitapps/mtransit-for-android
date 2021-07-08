@@ -39,7 +39,7 @@ class AgencyTypeViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    private val _typeId = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_TYPE_ID)
+    private val _typeId = savedStateHandle.getLiveDataDistinct<Int>(EXTRA_TYPE_ID)
 
     val type: LiveData<DataSourceType?> = _typeId.map { typeId ->
         DataSourceType.parseId(typeId)

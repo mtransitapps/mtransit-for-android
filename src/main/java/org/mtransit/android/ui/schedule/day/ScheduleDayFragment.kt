@@ -38,9 +38,6 @@ class ScheduleDayFragment : MTFragmentX(R.layout.fragment_schedule_day), MTLog.L
     override fun getLogTag(): String = this.theLogTag
 
     private val viewModel by viewModels<ScheduleDayViewModel>()
-     @Suppress("unused")
-     private val addedViewModel: ScheduleDayViewModel?
-        get() = if (isAdded) viewModel else null
 
     private var binding: FragmentScheduleDayBinding? = null
 

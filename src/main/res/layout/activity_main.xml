@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@id/ad_layout"
-            android:visibility="gone"
+            android:visibility="visible"
             app:defaultNavHost="true"
             app:navGraph="@navigation/main_nav_graph"
             tools:visibility="visible" />
@@ -46,7 +46,7 @@
             android:layout_alignParentTop="true"
             android:background="?attr/colorPrimary"
             android:theme="@style/MTThemeOverlay"
-            android:visibility="invisible"
+            android:visibility="visible"
             tools:visibility="visible" />
 
     </RelativeLayout>

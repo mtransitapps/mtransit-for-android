@@ -35,6 +35,7 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
+import org.mtransit.android.ui.view.common.attached
 import kotlin.math.abs
 
 @AndroidEntryPoint
@@ -46,22 +47,30 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
         private const val TRACKING_SCREEN_NAME = "Browse"
 
         @JvmStatic
-        fun newInstance(dst: DataSourceType): AgencyTypeFragment {
+        fun newInstance(dst: DataSourceType) = newInstance(dst.id)
+
+
+        @JvmStatic
+        fun newInstance(dstId: Int): AgencyTypeFragment {
             return AgencyTypeFragment().apply {
-                arguments = bundleOf(
-                    AgencyTypeViewModel.EXTRA_TYPE_ID to dst.id
-                )
+                arguments = newInstanceArgs(dstId)
             }
         }
+
+        @JvmStatic
+        fun newInstanceArgs(dst: DataSourceType) = newInstanceArgs(dst.id)
+
+        @JvmStatic
+        fun newInstanceArgs(dstId: Int) = bundleOf(
+            AgencyTypeViewModel.EXTRA_TYPE_ID to dstId
+        )
     }
 
     override fun getLogTag(): String = LOG_TAG
 
-    override fun getScreenName(): String = addedViewModel?.type?.value?.let { type -> "$TRACKING_SCREEN_NAME/${type.id}" } ?: TRACKING_SCREEN_NAME
+    override fun getScreenName(): String = attached { viewModel }?.type?.value?.let { type -> "$TRACKING_SCREEN_NAME/${type.id}" } ?: TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<AgencyTypeViewModel>()
-    private val addedViewModel: AgencyTypeViewModel?
-        get() = if (isAdded) viewModel else null
 
     private var binding: FragmentAgencyTypeBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
@@ -82,13 +91,13 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
     private var adapter: AgencyTypePagerAdapter? = null
 
     private fun makeAdapter() = AgencyTypePagerAdapter(this).apply {
-        setAgencies(addedViewModel?.typeAgencies?.value)
+        setAgencies(attached { viewModel }?.typeAgencies?.value)
     }
 
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
-            addedViewModel?.onPageSelected(position)
+            attached { viewModel }?.onPageSelected(position)
             lastPageSelected = position
         }
 
@@ -238,7 +247,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        addedViewModel?.onDeviceLocationChanged(newLocation)
+        attached { viewModel }?.onDeviceLocationChanged(newLocation)
     }
 
     private fun updateABColorNow() {
@@ -268,10 +277,10 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
         }
     }
 
-    override fun isABReady() = addedViewModel?.type?.value != null
+    override fun isABReady() = attached { viewModel }?.type?.value != null
 
     override fun getABTitle(context: Context?): CharSequence? {
-        return addedViewModel?.type?.value?.let { context?.getString(it.allStringResId) }
+        return attached { viewModel }?.type?.value?.let { context?.getString(it.allStringResId) }
             ?: context?.getString(R.string.ellipsis)
             ?: super.getABTitle(context)
     }

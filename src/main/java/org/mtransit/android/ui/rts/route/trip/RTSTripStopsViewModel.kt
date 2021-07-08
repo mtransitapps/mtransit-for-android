@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
+import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,9 +31,12 @@ class RTSTripStopsViewModel @Inject constructor(
 
         internal const val EXTRA_AGENCY_AUTHORITY = "extra_agency_authority"
         internal const val EXTRA_TRIP_ID = "extra_trip_id"
-        internal const val EXTRA_SELECTED_TRIP_STOP_ID = "extra_trip_stop_id"
+        internal const val EXTRA_SELECTED_STOP_ID = "extra_trip_stop_id"
+        internal const val EXTRA_SELECTED_STOP_ID_DEFAULT: Int = -1
 
         internal const val EXTRA_CLOSEST_POI_SHOWN = "extra_closest_poi_shown"
+        internal const val EXTRA_CLOSEST_POI_SHOWN_DEFAULT: Boolean = false
+
     }
 
     override fun getLogTag(): String = tripId.value?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
@@ -41,12 +45,12 @@ class RTSTripStopsViewModel @Inject constructor(
 
     val tripId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_TRIP_ID)
 
-    val selectedTripStopId = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_SELECTED_TRIP_STOP_ID)
+    val selectedTripStopId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_STOP_ID, EXTRA_SELECTED_STOP_ID_DEFAULT).map { if (it < 0) null else it }
 
-    val closestPOIShown = savedStateHandle.getLiveDataDistinct(EXTRA_CLOSEST_POI_SHOWN, false)
+    val closestPOIShown = savedStateHandle.getLiveDataDistinct(EXTRA_CLOSEST_POI_SHOWN, EXTRA_CLOSEST_POI_SHOWN_DEFAULT)
 
     fun setSelectedOrClosestStopShown() {
-        savedStateHandle[EXTRA_SELECTED_TRIP_STOP_ID] = null
+        savedStateHandle[EXTRA_SELECTED_STOP_ID] = EXTRA_SELECTED_STOP_ID_DEFAULT
         savedStateHandle[EXTRA_CLOSEST_POI_SHOWN] = true
     }
 

@@ -120,7 +120,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	}
 
 	private void setup() {
-		MainActivity mainActivity = this.mainActivityWR.get();
+		final MainActivity mainActivity = this.mainActivityWR.get();
 		if (mainActivity == null) {
 			return;
 		}
@@ -169,25 +169,25 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		@Nullable
 		@Override
 		protected String doInBackgroundNotCancelledMT(Void... params) {
-			NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
+			final NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
 			if (navigationDrawerController == null) {
 				return null;
 			}
-			Context context = navigationDrawerController.mainActivityWR.get();
+			final Context context = navigationDrawerController.mainActivityWR.get();
 			if (context == null) {
 				return null;
 			}
 			if (navigationDrawerController.isCurrentSelectedSet()) {
 				return null;
 			}
-			String itemId = PreferenceUtils.getPrefLcl(context, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT);
+			final String itemId = PreferenceUtils.getPrefLcl(context, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT);
 			publishProgress(itemId);
 			return itemId;
 		}
 
 		@Override
 		protected void onPostExecuteNotCancelledMT(@Nullable String itemId) {
-			NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
+			final NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
 			if (navigationDrawerController == null) {
 				return;
 			}
@@ -227,7 +227,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		if (this.userLearnedDrawer == null) {
 			MainActivity mainActivity = this.mainActivityWR.get();
 			if (mainActivity != null) {
-				this.userLearnedDrawer = PreferenceUtils.getPrefDefault(mainActivity, PreferenceUtils.PREF_USER_LEARNED_DRAWER, //
+				this.userLearnedDrawer = PreferenceUtils.getPrefDefault(mainActivity, PreferenceUtils.PREF_USER_LEARNED_DRAWER,
 						PreferenceUtils.PREF_USER_LEARNED_DRAWER_DEFAULT);
 			}
 		}
@@ -449,7 +449,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		if (navItemId == null) {
 			return;
 		}
-		MainActivity mainActivity = this.mainActivityWR.get();
+		final MainActivity mainActivity = this.mainActivityWR.get();
 		if (mainActivity == null) {
 			return;
 		}
@@ -468,7 +468,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			setCurrentSelectedItemChecked(true); // keep current position
 			return;
 		}
-		ABFragment newFragment = getNewStaticFragmentAt(navItemId);
+		final ABFragment newFragment = getNewStaticFragmentAt(navItemId);
 		if (newFragment == null) {
 			return;
 		}
@@ -733,11 +733,11 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 
 		@Override
 		public void onDrawerClosed(View view) {
-			MainActivity mainActivity = this.mainActivityWR.get();
+			final MainActivity mainActivity = this.mainActivityWR.get();
 			if (mainActivity == null) {
 				return;
 			}
-			ActionBarController abController = mainActivity.getAbController();
+			final ActionBarController abController = mainActivity.getAbController();
 			if (abController == null) {
 				return;
 			}

@@ -62,6 +62,7 @@ import org.mtransit.android.ui.view.map.utils.LatLngUtils;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
+import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -615,14 +616,18 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			final ArrayMap.Entry<String, String> uuidAndAuthority = poiMarkerIds.entrySet().iterator().next();
 			this.lastSelectedUUID = uuidAndAuthority.getKey(); // keep selected if leaving the screen
 			if (poiMarkerIds.size() >= 1) {
-				final Activity activity = getActivityOrNull();
-				if (activity instanceof MainActivity) {
-					FragmentUtils.replaceDialogFragment(
-							(MainActivity) activity,
-							FragmentUtils.DIALOG_TAG,
-							PickPOIDialogFragment.newInstance(poiMarkerIds.getMap()),
-							null
-					);
+				if (FeatureFlags.F_NAVIGATION) {
+					// TODO navigate to dialog
+				} else {
+					final Activity activity = getActivityOrNull();
+					if (activity instanceof MainActivity) {
+						FragmentUtils.replaceDialogFragment(
+								(MainActivity) activity,
+								FragmentUtils.DIALOG_TAG,
+								PickPOIDialogFragment.newInstance(poiMarkerIds.getMap()),
+								null
+						);
+					}
 				}
 			}
 		}

@@ -6,94 +6,181 @@
     app:startDestination="@id/nav_home">
 
     <fragment
-        android:id="@+id/nav_home"
+        android:id="@id/nav_home"
         android:name="org.mtransit.android.ui.home.HomeFragment"
         android:label="@string/home"
-        tools:layout="@layout/fragment_home">
-        <action
-            android:id="@+id/nav_to_poi_screen"
-            app:destination="@id/nav_poi" />
-        <action
-            android:id="@+id/nav_to_nearby_screen"
-            app:destination="@id/nav_nearby" />
-        <action
-            android:id="@+id/nav_to_favorites_screen"
-            app:destination="@id/nav_favorites" />
-        <action
-            android:id="@+id/nav_to_news_screen"
-            app:destination="@id/nav_news" />
-        <action
-            android:id="@+id/nav_to_search_screen"
-            app:destination="@id/nav_search" />
-    </fragment>
+        tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/nav_favorites"
+        android:id="@id/nav_favorites"
         android:name="org.mtransit.android.ui.favorites.FavoritesFragment"
-        android:label="@string/favorites">
-        <action
-            android:id="@+id/nav_to_nearby_screen"
-            app:destination="@id/nav_nearby" />
-        <action
-            android:id="@+id/nav_to_search_screen"
-            app:destination="@id/nav_search" />
-    </fragment>
+        android:label="@string/favorites"
+        tools:layout="@layout/fragment_favorites" />
 
     <fragment
-        android:id="@+id/nav_nearby"
+        android:id="@id/nav_nearby"
         android:name="org.mtransit.android.ui.nearby.NearbyFragment"
-        android:label="@string/nearby">
-        <action
-            android:id="@+id/nav_to_poi_screen"
-            app:destination="@id/nav_poi" />
-        <action
-            android:id="@+id/nav_to_search_screen"
-            app:destination="@id/nav_search" />
+        android:label="@string/nearby"
+        tools:layout="@layout/fragment_nearby">
+        <argument
+            android:name="extra_selected_type"
+            android:defaultValue="-1"
+            app:argType="integer" />
+        <argument
+            android:name="extra_fixed_on_lat"
+            android:defaultValue="-1f"
+            app:argType="float" />
+        <argument
+            android:name="extra_fixed_on_lng"
+            android:defaultValue="-1f"
+            app:argType="float" />
+        <argument
+            android:name="extra_fixed_on_name"
+            android:defaultValue="@null"
+            app:argType="string" />
+        <argument
+            android:name="extra_fixed_on_color"
+            android:defaultValue="@null"
+            app:argType="string" />
     </fragment>
 
     <fragment
-        android:id="@+id/nav_map"
+        android:id="@id/nav_map"
         android:name="org.mtransit.android.ui.map.MapFragment"
-        android:label="@string/map">
-        <action
-            android:id="@+id/nav_to_poi_screen"
-            app:destination="@id/nav_poi" />
-        <action
-            android:id="@+id/nav_to_search_screen"
-            app:destination="@id/nav_search" />
+        android:label="@string/map"
+        tools:layout="@layout/fragment_map">
+        <argument
+            android:name="extra_initial_location"
+            android:defaultValue="@null"
+            app:argType="android.location.Location" />
+        <argument
+            android:name="extra_selected_uuid"
+            android:defaultValue="@null"
+            app:argType="string" />
+        <argument
+            android:name="extra_include_type_id"
+            android:defaultValue="-1"
+            app:argType="integer" />
     </fragment>
 
     <fragment
-        android:id="@+id/nav_news"
+        android:id="@id/nav_news"
         android:name="org.mtransit.android.ui.news.NewsListFragment"
-        android:label="@string/news">
-        <action
-            android:id="@+id/nav_to_search_screen"
-            app:destination="@id/nav_search" />
+        android:label="@string/news"
+        tools:layout="@layout/fragment_news_list">
+        <argument
+            android:name="extra_color"
+            android:defaultValue="@null"
+            app:argType="string" />
+        <argument
+            android:name="extra_subtitle"
+            android:defaultValue="@null"
+            app:argType="string" />
+        <argument
+            android:name="extra_filter_target_authorities"
+            android:defaultValue="@null"
+            app:argType="string[]"
+            app:nullable="true" />
+        <argument
+            android:name="extra_filter_targets"
+            android:defaultValue="@null"
+            app:argType="string[]"
+            app:nullable="true" />
+        <argument
+            android:name="extra_filter_uuids"
+            android:defaultValue="@null"
+            app:argType="string[]"
+            app:nullable="true" />
     </fragment>
 
     <fragment
-        android:id="@+id/nav_bike"
+        android:id="@id/nav_type"
         android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
-        android:label="@string/agency_type_bike_all">
+        android:label="@string/ellipsis"
+        tools:layout="@layout/fragment_agency_type">
+        <argument
+            android:name="extra_type_id"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@id/nav_bike"
+        android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
+        android:label="@string/agency_type_bike_all"
+        tools:layout="@layout/fragment_agency_type">
         <argument
             android:name="extra_type_id"
             android:defaultValue="100"
-            app:argType="int" />
+            app:argType="integer" />
     </fragment>
 
     <fragment
-        android:id="@+id/nav_bus"
+        android:id="@id/nav_bus"
         android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
-        android:label="@string/agency_type_bus_all">
+        android:label="@string/agency_type_bus_all"
+        tools:layout="@layout/fragment_agency_type">
         <argument
             android:name="extra_type_id"
             android:defaultValue="3"
-            app:argType="int" />
+            app:argType="integer" />
     </fragment>
 
     <fragment
-        android:id="@+id/nav_poi"
+        android:id="@id/nav_ferry"
+        android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
+        android:label="@string/agency_type_ferry_all"
+        tools:layout="@layout/fragment_agency_type">
+        <argument
+            android:name="extra_type_id"
+            android:defaultValue="4"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@id/nav_light_rail"
+        android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
+        android:label="@string/agency_type_light_rail_all"
+        tools:layout="@layout/fragment_agency_type">
+        <argument
+            android:name="extra_type_id"
+            android:defaultValue="9"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@id/nav_subway"
+        android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
+        android:label="@string/agency_type_subway_all"
+        tools:layout="@layout/fragment_agency_type">
+        <argument
+            android:name="extra_type_id"
+            android:defaultValue="1"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@id/nav_rail"
+        android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
+        android:label="@string/agency_type_rail_all"
+        tools:layout="@layout/fragment_agency_type">
+        <argument
+            android:name="extra_type_id"
+            android:defaultValue="2"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@id/nav_module"
+        android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
+        android:label="@string/agency_type_module_all"
+        tools:layout="@layout/fragment_agency_type">
+        <argument
+            android:name="extra_type_id"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@id/nav_poi"
         android:name="org.mtransit.android.ui.fragment.POIFragment"
         android:label="@string/ellipsis"
         tools:layout="@layout/fragment_poi">
@@ -103,22 +190,113 @@
         <argument
             android:name="extra_poi_uuid"
             app:argType="string" />
-
-        <action
-            android:id="@+id/nav_to_search_screen"
-            app:destination="@id/nav_search" />
-        <action
-            android:id="@+id/nav_to_news_screen"
-            app:destination="@id/nav_news" />
     </fragment>
 
     <fragment
-        android:id="@+id/nav_search"
-        android:name="org.mtransit.android.ui.search.SearchFragment"
-        android:label="@string/menu_action_search">
-        <action
-            android:id="@+id/nav_to_poi_screen"
-            app:destination="@id/nav_poi" />
+        android:id="@id/nav_schedule"
+        android:name="org.mtransit.android.ui.schedule.ScheduleFragment"
+        android:label="@string/full_schedule"
+        tools:layout="@layout/fragment_schedule">
+        <argument
+            android:name="extra_agency_authority"
+            app:argType="string" />
+        <argument
+            android:name="extra_poi_uuid"
+            app:argType="string" />
+        <argument
+            android:name="extra_color"
+            android:defaultValue="@null"
+            app:argType="string" />
     </fragment>
+
+    <fragment
+        android:id="@id/nav_news_detail"
+        android:name="org.mtransit.android.ui.news.details.NewsDetailsFragment"
+        android:label="@string/ellipsis"
+        tools:layout="@layout/fragment_news_details">
+        <argument
+            android:name="extra_agency_authority"
+            app:argType="string" />
+        <argument
+            android:name="extra_news_uuid"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@id/nav_rts_route"
+        android:name="org.mtransit.android.ui.rts.route.RTSRouteFragment"
+        android:label="@string/ellipsis"
+        tools:layout="@layout/fragment_rts_route">
+        <argument
+            android:name="extra_authority"
+            app:argType="string" />
+        <argument
+            android:name="extra_route_id"
+            app:argType="long" />
+        <argument
+            android:name="extra_trip_id"
+            android:defaultValue="-1L"
+            app:argType="long" />
+        <argument
+            android:name="extra_stop_id"
+            android:defaultValue="-1"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@id/nav_search"
+        android:name="org.mtransit.android.ui.search.SearchFragment"
+        android:label="@string/menu_action_search"
+        tools:layout="@layout/fragment_search" />
+
+    <activity
+        android:id="@id/nav_settings"
+        android:name="org.mtransit.android.ui.PreferencesActivity"
+        android:label="@string/settings"
+        tools:layout="@layout/activity_preferences" />
+
+    <!-- GLOBAL ACTIONS -->
+    <action
+        android:id="@+id/nav_to_home_screen"
+        app:destination="@id/nav_home" />
+    <action
+        android:id="@+id/nav_to_favorites_screen"
+        app:destination="@id/nav_favorites" />
+    <action
+        android:id="@+id/nav_to_nearby_screen"
+        app:destination="@id/nav_nearby" />
+    <action
+        android:id="@+id/nav_to_map_screen"
+        app:destination="@id/nav_map" />
+    <!-- TODO external trip screen <action-->
+    <!-- android:id="@+id/nav_to_trip_planner_screen"-->
+    <!-- app:destination="@id/nav_trip_planner" />-->
+    <action
+        android:id="@+id/nav_to_news_screen"
+        app:destination="@id/nav_news" />
+    <action
+        android:id="@+id/nav_to_type_screen"
+        app:destination="@id/nav_type" />
+    <action
+        android:id="@+id/nav_to_search_screen"
+        app:destination="@id/nav_search" />
+
+    <action
+        android:id="@+id/nav_to_poi_screen"
+        app:destination="@id/nav_poi" />
+    <action
+        android:id="@+id/nav_to_schedule_screen"
+        app:destination="@id/nav_schedule" />
+    <action
+        android:id="@+id/nav_to_news_detail_screen"
+        app:destination="@id/nav_news_detail" />
+
+    <action
+        android:id="@+id/nav_to_rts_route_screen"
+        app:destination="@id/nav_rts_route" />
+
+    <action
+        android:id="@+id/nav_to_settings_screen"
+        app:destination="@id/nav_settings" />
 
 </navigation>

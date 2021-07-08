@@ -20,6 +20,7 @@ import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.common.IActivity;
+import org.mtransit.commons.FeatureFlags;
 
 import javax.inject.Inject;
 
@@ -104,8 +105,11 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 
 	@Nullable
 	public ActionBarController getAbController() {
-		FragmentActivity activity = getActivity();
-		if (activity == null) {
+		if (FeatureFlags.F_NAVIGATION) {
+			return null;
+		}
+		final FragmentActivity activity = getActivity();
+		if (!(activity instanceof MainActivity)) {
 			return null;
 		}
 		return ((MainActivity) activity).getAbController();

@@ -17,6 +17,7 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
+import org.mtransit.android.ui.view.common.attached
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.UITimeUtils
 
@@ -29,14 +30,7 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
         private const val TRACKING_SCREEN_NAME = "News"
 
         @JvmStatic
-        fun newInstance(
-            newsArticle: News,
-        ): NewsDetailsFragment {
-            return newInstance(
-                newsArticle.authority,
-                newsArticle.uuid,
-            )
-        }
+        fun newInstance(newsArticle: News): NewsDetailsFragment = newInstance(newsArticle.authority, newsArticle.uuid)
 
         @JvmStatic
         fun newInstance(
@@ -44,21 +38,25 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
             uuid: String
         ): NewsDetailsFragment {
             return NewsDetailsFragment().apply {
-                arguments = bundleOf(
-                    NewsDetailsViewModel.EXTRA_AUTHORITY to authority,
-                    NewsDetailsViewModel.EXTRA_NEWS_UUID to uuid,
-                )
+                arguments = newInstanceArgs(authority, uuid)
             }
         }
+
+        @JvmStatic
+        fun newInstanceArgs(newsArticle: News) = newInstanceArgs(newsArticle.authority, newsArticle.uuid)
+
+        @JvmStatic
+        fun newInstanceArgs(authority: String, uuid: String) = bundleOf(
+            NewsDetailsViewModel.EXTRA_AUTHORITY to authority,
+            NewsDetailsViewModel.EXTRA_NEWS_UUID to uuid,
+        )
     }
 
     override fun getLogTag(): String = LOG_TAG
 
-    override fun getScreenName(): String = addedViewModel?.uuid?.value?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
+    override fun getScreenName(): String = attached { viewModel }?.uuid?.value?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<NewsDetailsViewModel>()
-    private val addedViewModel: NewsDetailsViewModel?
-        get() = if (isAdded) viewModel else null
 
     private var binding: FragmentNewsDetailsBinding? = null
 
@@ -149,15 +147,13 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
         }
     }
 
-    override fun getABBgColor(context: Context?) = addedViewModel?.newsArticle?.value?.colorIntOrNull ?: super.getABBgColor(context)
+    override fun getABBgColor(context: Context?) = attached { viewModel }?.newsArticle?.value?.colorIntOrNull ?: super.getABBgColor(context)
 
-    override fun getABTitle(context: Context?) = addedViewModel?.newsArticle?.value?.authorOneLine ?: super.getABTitle(context)
+    override fun getABTitle(context: Context?) = attached { viewModel }?.newsArticle?.value?.authorOneLine ?: super.getABTitle(context)
 
-    override fun getABSubtitle(context: Context?) = addedViewModel?.newsArticle?.value?.sourceLabel ?: super.getABTitle(context)
+    override fun getABSubtitle(context: Context?) = attached { viewModel }?.newsArticle?.value?.sourceLabel ?: super.getABTitle(context)
 
-    override fun isABReady(): Boolean {
-        return addedViewModel?.newsArticle?.value != null
-    }
+    override fun isABReady() = attached { viewModel }?.newsArticle?.value != null
 
     override fun onDetach() {
         super.onDetach()

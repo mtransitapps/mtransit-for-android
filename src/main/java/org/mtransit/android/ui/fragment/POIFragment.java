@@ -24,6 +24,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.FragmentNavigator;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -41,6 +44,7 @@ import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.ThreadSafeDateFormatter;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.data.News;
+import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.Schedule.ScheduleStatusFilter;
@@ -73,6 +77,7 @@ import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
 import org.mtransit.android.ui.view.common.EventObserver;
+import org.mtransit.android.ui.view.common.FragmentKtxKt;
 import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.util.DegreeUtils;
@@ -80,6 +85,7 @@ import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.MapUtils;
 import org.mtransit.android.util.UITimeUtils;
+import org.mtransit.commons.FeatureFlags;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -138,22 +144,37 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@NonNull
+	public static Bundle newInstanceArgs(@NonNull POIManager poim) {
+		return newInstanceArgs(poim.poi);
+	}
+
+	@NonNull
+	public static Bundle newInstanceArgs(@NonNull POI poi) {
+		return newInstanceArgs(poi.getAuthority(), poi.getUUID());
+	}
+
+	@NonNull
 	public static POIFragment newInstance(@NonNull String uuid,
 										  @NonNull String authority) {
 		POIFragment f = new POIFragment();
+		f.setArguments(newInstanceArgs(authority, uuid));
+		return f;
+	}
+
+	@NonNull
+	public static Bundle newInstanceArgs(@NonNull String authority, @NonNull String uuid) {
 		Bundle args = new Bundle();
 		args.putString(POIViewModel.EXTRA_AUTHORITY, authority);
 		args.putString(POIViewModel.EXTRA_POI_UUID, uuid);
-		f.setArguments(args);
-		return f;
+		return args;
 	}
 
 	@Nullable
 	private POIViewModel viewModel;
 
 	@Nullable
-	private POIViewModel getAddedViewModel() {
-		return isAdded() ? this.viewModel : null;
+	private POIViewModel getAttachedViewModel() {
+		return FragmentKtxKt.isAttached(this) ? this.viewModel : null;
 	}
 
 	@Inject
@@ -217,7 +238,7 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	private AgencyProperties getAgencyOrNull() {
-		return getAddedViewModel() == null ? null : getAddedViewModel().getAgency().getValue();
+		return getAttachedViewModel() == null ? null : getAttachedViewModel().getAgency().getValue();
 	}
 
 	@Nullable
@@ -354,16 +375,29 @@ public class POIFragment extends ABFragment implements
 		if (poim == null) {
 			return;
 		}
-		final FragmentActivity activity = getActivity();
-		if (activity == null) {
-			return;
+		if (FeatureFlags.F_NAVIGATION) {
+			final NavController navController = NavHostFragment.findNavController(this);
+			FragmentNavigator.Extras extras = null;
+			if (FeatureFlags.F_TRANSITION) {
+				extras = new FragmentNavigator.Extras.Builder()
+						// TODO marker? .addSharedElement(view, view.getTransitionName())
+						.build();
+			}
+			navController.navigate(
+					R.id.nav_to_map_screen,
+					MapFragment.newInstanceArgs(poim),
+					null,
+					extras
+			);
+		} else {
+			final FragmentActivity activity = getActivity();
+			if (activity == null) {
+				return;
+			}
+			((MainActivity) activity).addFragmentToStack(
+					MapFragment.newInstance(poim),
+					this);
 		}
-		((MainActivity) activity).addFragmentToStack(
-				MapFragment.newInstance(
-						LocationUtils.getNewLocation(poim.getLat(), poim.getLng()),
-						poim.poi.getUUID(),
-						poim.poi.getDataSourceTypeId()),
-				this);
 	}
 
 	@Override
@@ -530,15 +564,32 @@ public class POIFragment extends ABFragment implements
 						MTLog.w(POIFragment.this, "onClick() > skip (no poi or not RTS)");
 						return;
 					}
-					final FragmentActivity activity = getActivity();
-					if (activity == null) {
-						MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
-						return;
-					}
 					poiRepository.push(poim);
-					((MainActivity) activity).addFragmentToStack(
-							ScheduleFragment.newInstance(poim, dataSourcesRepository),
-							POIFragment.this);
+					if (FeatureFlags.F_NAVIGATION) {
+						final NavController navController = NavHostFragment.findNavController(this);
+						FragmentNavigator.Extras extras = null;
+						if (FeatureFlags.F_TRANSITION) {
+							extras = new FragmentNavigator.Extras.Builder()
+									// TODO button? .addSharedElement(view, view.getTransitionName())
+									.build();
+						}
+						navController.navigate(
+								R.id.nav_to_schedule_screen,
+								ScheduleFragment.newInstanceArgs(poim, dataSourcesRepository),
+								null,
+								extras
+						);
+					} else {
+						final FragmentActivity activity = getActivity();
+						if (activity == null) {
+							MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
+							return;
+						}
+
+						((MainActivity) activity).addFragmentToStack(
+								ScheduleFragment.newInstance(poim, dataSourcesRepository),
+								POIFragment.this);
+					}
 				});
 				rtsScheduleBtn.setVisibility(View.VISIBLE);
 			}
@@ -557,23 +608,43 @@ public class POIFragment extends ABFragment implements
 				if (poim == null) {
 					return;
 				}
-				final FragmentActivity activity = getActivity();
-				if (activity == null) {
-					MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
-					return;
+				if (FeatureFlags.F_NAVIGATION) {
+					final NavController navController = NavHostFragment.findNavController(this);
+					FragmentNavigator.Extras extras = null;
+					if (FeatureFlags.F_TRANSITION) {
+						extras = new FragmentNavigator.Extras.Builder()
+								// TODO button? .addSharedElement(view, view.getTransitionName())
+								.build();
+					}
+					navController.navigate(
+							R.id.nav_to_news_screen,
+							NewsListFragment.newInstanceArgs(
+									poim.getColor(dataSourcesRepository),
+									POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
+									Collections.singletonList(poim.poi.getAuthority()),
+									null,
+									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
+							),
+							null,
+							extras
+					);
+				} else {
+					final FragmentActivity activity = getActivity();
+					if (activity == null) {
+						MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
+						return;
+					}
+					((MainActivity) activity).addFragmentToStack(
+							NewsListFragment.newInstance(
+									poim.getColor(dataSourcesRepository),
+									POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
+									Collections.singletonList(poim.poi.getAuthority()),
+									null,
+									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
+							),
+							POIFragment.this
+					);
 				}
-				final Integer colorInt = poim.getColor(dataSourcesRepository);
-				final String subtitle = POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository);
-				((MainActivity) activity).addFragmentToStack(
-						NewsListFragment.newInstance(
-								colorInt,
-								subtitle,
-								Collections.singletonList(poim.poi.getAuthority()),
-								null,
-								NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
-						),
-						POIFragment.this
-				);
 			});
 			moreBtn.setVisibility(View.VISIBLE);
 		}
@@ -739,7 +810,7 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public void onStatusLoaded(@NonNull POIStatus status) {
-		View view = getView();
+		final View view = getView();
 		if (view == null) {
 			return;
 		}

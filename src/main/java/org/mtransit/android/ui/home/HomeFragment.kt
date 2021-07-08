@@ -38,6 +38,7 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.view.common.MTTransitions
+import org.mtransit.android.ui.view.common.attached
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -59,8 +60,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<HomeViewModel>()
-    private val addedViewModel: HomeViewModel?
-        get() = if (isAdded) viewModel else null
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -89,7 +88,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
 
     private val infiniteLoadingListener = object : POIArrayAdapter.InfiniteLoadingListener {
         override fun isLoadingMore(): Boolean {
-            return addedViewModel?.loadingPOIs?.value == true
+            return attached { viewModel }?.loadingPOIs?.value == true
         }
 
         override fun showingDone() = false
@@ -126,8 +125,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
             setInfiniteLoading(true)
             setInfiniteLoadingListener(infiniteLoadingListener)
             setOnTypeHeaderButtonsClickListener(typeHeaderButtonsClickListener)
-            setPois(addedViewModel?.nearbyPOIs?.value)
-            setLocation(addedViewModel?.deviceLocation?.value)
+            setPois(attached { viewModel }?.nearbyPOIs?.value)
+            setLocation(attached { viewModel }?.deviceLocation?.value)
         }
     }
 
@@ -233,7 +232,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
             setTouchInterceptor { _, me ->
                 when (me.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        val handled = addedViewModel?.initiateRefresh() == true
+                        val handled = attached { viewModel }?.initiateRefresh() == true
                         hideLocationToast()
                         handled
                     }
@@ -260,7 +259,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
                     context,
                     locationToast,
                     view,
-                    addedViewModel?.getAdBannerHeightInPx(this) ?: 0
+                    attached { viewModel }?.getAdBannerHeightInPx(this) ?: 0
                 )
             }
     }
@@ -271,7 +270,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        addedViewModel?.onDeviceLocationChanged(newLocation)
+        attached { viewModel }?.onDeviceLocationChanged(newLocation)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -295,7 +294,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
     override fun getABTitle(context: Context?) = context?.getString(R.string.app_name) ?: super.getABTitle(context)
 
     override fun getABSubtitle(context: Context?) =
-        this.addedViewModel?.nearbyLocationAddress?.value ?: context?.getString(R.string.ellipsis) ?: super.getABSubtitle(context)
+        this.attached { viewModel }?.nearbyLocationAddress?.value ?: context?.getString(R.string.ellipsis) ?: super.getABSubtitle(context)
 
     override fun onDestroyView() {
         super.onDestroyView()

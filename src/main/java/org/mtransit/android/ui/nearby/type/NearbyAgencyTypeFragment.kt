@@ -24,6 +24,7 @@ import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.nearby.NearbyViewModel
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.ui.view.common.attached
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -56,12 +57,8 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     override fun getLogTag(): String = this.theLogTag
 
     private val viewModel by viewModels<NearbyAgencyTypeViewModel>()
-    private val addedViewModel: NearbyAgencyTypeViewModel?
-        get() = if (isAdded) viewModel else null
 
     private val parentViewModel by viewModels<NearbyViewModel>({ requireParentFragment() })
-    private val addedParentViewModel: NearbyViewModel?
-        get() = if (isAdded) parentViewModel else null
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -87,7 +84,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
 
     private val infiniteLoadingListener = object : POIArrayAdapter.InfiniteLoadingListener {
         override fun isLoadingMore(): Boolean {
-            return addedViewModel?.isLoadingMore() == true
+            return attached { viewModel }?.isLoadingMore() == true
         }
 
         override fun showingDone() = true
@@ -106,8 +103,8 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             logTag = logTag
             setInfiniteLoading(true)
             setInfiniteLoadingListener(infiniteLoadingListener)
-            setPois(addedViewModel?.nearbyPOIs?.value)
-            setLocation(addedParentViewModel?.deviceLocation?.value)
+            setPois(attached { viewModel }?.nearbyPOIs?.value)
+            setLocation(attached { parentViewModel }?.deviceLocation?.value)
         }
     }
 

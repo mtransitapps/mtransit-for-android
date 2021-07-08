@@ -30,6 +30,7 @@ import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rts.route.RTSRouteViewModel
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.IActivity
+import org.mtransit.android.ui.view.common.attached
 import java.util.ArrayList
 import javax.inject.Inject
 
@@ -49,7 +50,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
                 arguments = bundleOf(
                     RTSTripStopsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
                     RTSTripStopsViewModel.EXTRA_TRIP_ID to tripId,
-                    RTSTripStopsViewModel.EXTRA_SELECTED_TRIP_STOP_ID to optSelectedStopId,
+                    RTSTripStopsViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RTSTripStopsViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
                 )
             }
         }
@@ -61,13 +62,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
 
     private val viewModel by viewModels<RTSTripStopsViewModel>()
 
-    @Suppress("unused")
-    private val addedViewModel: RTSTripStopsViewModel?
-        get() = if (isAdded) viewModel else null
-
     private val parentViewModel by viewModels<RTSRouteViewModel>({ requireParentFragment() })
-    private val addedParentViewModel: RTSRouteViewModel?
-        get() = if (isAdded) parentViewModel else null
 
     private var binding: FragmentRtsTripStopsBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
@@ -149,7 +144,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
         ).apply {
             logTag = logTag
             setShowExtra(false)
-            setLocation(addedParentViewModel?.deviceLocation?.value)
+            setLocation(attached { parentViewModel }?.deviceLocation?.value)
         }
     }
 

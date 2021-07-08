@@ -7,15 +7,21 @@ import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.FragmentNavigator
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.databinding.FragmentNewsListBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.news.details.NewsDetailsFragment
+import org.mtransit.android.ui.view.common.attached
+import org.mtransit.commons.FeatureFlags
 
 @AndroidEntryPoint
 class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
@@ -28,38 +34,60 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
         @JvmOverloads
         @JvmStatic
         fun newInstance(
-            colorInt: Int? = null,
+            optColorInt: Int? = null,
             subtitle: String? = null,
             targetAuthorities: List<String>? = null,
             filterUUIDs: List<String>? = null, // always null
             filterTargets: List<String>? = null
-        ): NewsListFragment {
-            return newInstance(
-                colorInt,
-                subtitle,
-                targetAuthorities?.let { ArrayList(it) },
-                filterUUIDs?.let { ArrayList(it) },
-                filterTargets?.let { ArrayList(it) }
-            )
-        }
+        ) = newInstance(
+            optColorInt?.let { ColorUtils.toRGBColor(it) },
+            subtitle,
+            targetAuthorities?.let { ArrayList(it) },
+            filterUUIDs?.let { ArrayList(it) },
+            filterTargets?.let { ArrayList(it) }
+        )
 
         fun newInstance(
-            colorInt: Int? = null,
+            color: String? = null,
             subtitle: String? = null,
             targetAuthorities: ArrayList<String>? = null,
             filterUUIDs: ArrayList<String>? = null, // always null
             filterTargets: ArrayList<String>? = null,
         ): NewsListFragment {
             return NewsListFragment().apply {
-                arguments = bundleOf(
-                    NewsListViewModel.EXTRA_COLOR_INT to colorInt,
-                    NewsListViewModel.EXTRA_SUB_TITLE to subtitle,
-                    NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES to targetAuthorities,
-                    NewsListViewModel.EXTRA_FILTER_TARGETS to filterTargets,
-                    NewsListViewModel.EXTRA_FILTER_UUIDS to filterUUIDs,
-                )
+                arguments = newInstanceArgs(color, subtitle, targetAuthorities, filterTargets, filterUUIDs)
             }
         }
+
+        @JvmStatic
+        fun newInstanceArgs(
+            optColorInt: Int?,
+            subtitle: String?,
+            targetAuthorities: List<String>?,
+            filterTargets: List<String>?,
+            filterUUIDs: List<String>?
+        ) = newInstanceArgs(
+            optColorInt?.let { ColorUtils.toRGBColor(it) },
+            subtitle,
+            targetAuthorities?.let { ArrayList(it) },
+            filterUUIDs?.let { ArrayList(it) },
+            filterTargets?.let { ArrayList(it) }
+        )
+
+        @JvmStatic
+        fun newInstanceArgs(
+            optColor: String?,
+            subtitle: String?,
+            targetAuthorities: ArrayList<String>?,
+            filterTargets: ArrayList<String>?,
+            filterUUIDs: ArrayList<String>?
+        ) = bundleOf(
+            NewsListViewModel.EXTRA_COLOR to (optColor ?: NewsListViewModel.EXTRA_COLOR_DEFAULT),
+            NewsListViewModel.EXTRA_SUB_TITLE to subtitle,
+            NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES to targetAuthorities,
+            NewsListViewModel.EXTRA_FILTER_TARGETS to filterTargets,
+            NewsListViewModel.EXTRA_FILTER_UUIDS to filterUUIDs,
+        )
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -67,17 +95,28 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<NewsListViewModel>()
-    private val addedViewModel: NewsListViewModel?
-        get() = if (isAdded) viewModel else null
 
     private var binding: FragmentNewsListBinding? = null
 
-    private val listAdapter: NewsListAdapter by lazy { NewsListAdapter { newsArticle -> openNewsDetails(newsArticle) } }
+    private val listAdapter: NewsListAdapter by lazy { NewsListAdapter(this::openNewsDetails) }
 
-    private fun openNewsDetails(newsArticle: News) {
-        (activity as? MainActivity)?.addFragmentToStack(
-            NewsDetailsFragment.newInstance(newsArticle)
-        )
+    private fun openNewsDetails(view: View, newsArticle: News) {
+        if (FeatureFlags.F_NAVIGATION) {
+            var extras: FragmentNavigator.Extras? = null
+            if (FeatureFlags.F_TRANSITION) {
+                extras = FragmentNavigatorExtras(view to view.transitionName)
+            }
+            findNavController().navigate(
+                R.id.nav_to_news_detail_screen,
+                NewsDetailsFragment.newInstanceArgs(newsArticle),
+                null,
+                extras
+            )
+        } else {
+            (activity as? MainActivity)?.addFragmentToStack(
+                NewsDetailsFragment.newInstance(newsArticle)
+            )
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -119,9 +158,9 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
     override fun getABTitle(context: Context?) = context?.getString(R.string.news) ?: super.getABTitle(context)
 
-    override fun getABSubtitle(context: Context?) = addedViewModel?.subTitle?.value ?: super.getABSubtitle(context)
+    override fun getABSubtitle(context: Context?) = attached { viewModel }?.subTitle?.value ?: super.getABSubtitle(context)
 
-    override fun getABBgColor(context: Context?) = addedViewModel?.colorInt?.value ?: super.getABBgColor(context)
+    override fun getABBgColor(context: Context?) = attached { viewModel }?.colorInt?.value ?: super.getABBgColor(context)
 
     override fun onResume() {
         super.onResume()

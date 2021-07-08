@@ -54,6 +54,7 @@ class MapViewModel @Inject constructor(
         internal const val EXTRA_INITIAL_LOCATION = "extra_initial_location"
         internal const val EXTRA_SELECTED_UUID = "extra_selected_uuid"
         internal const val EXTRA_INCLUDE_TYPE_ID = "extra_include_type_id"
+        internal const val EXTRA_INCLUDE_TYPE_ID_DEFAULT: Int = -1
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -76,7 +77,7 @@ class MapViewModel @Inject constructor(
         it.filter { dst -> dst.isMapScreen }
     }
 
-    private val includedTypeId = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_INCLUDE_TYPE_ID)
+    private val includedTypeId = savedStateHandle.getLiveDataDistinct(EXTRA_INCLUDE_TYPE_ID, EXTRA_INCLUDE_TYPE_ID_DEFAULT).map { if (it < 0) null else it }
 
     private val filterTypeIdsPref: LiveData<Set<String>> = lclPrefRepository.pref.liveData(
         PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS, PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT
@@ -99,7 +100,7 @@ class MapViewModel @Inject constructor(
     private fun makeFilterTypeId(
         availableTypes: List<DataSourceType>?,
         filterTypeIdsPref: Set<String>?,
-        inclTypeId: Int?
+        inclTypeId: Int? = null,
     ): Collection<Int>? {
         if (filterTypeIdsPref == null || availableTypes == null) {
             MTLog.d(this, "makeFilterTypeId() > SKIP (no pref or available types")
@@ -145,7 +146,7 @@ class MapViewModel @Inject constructor(
                     true
                 }
             }
-            savedStateHandle[EXTRA_INCLUDE_TYPE_ID] = null // only once
+            savedStateHandle[EXTRA_INCLUDE_TYPE_ID] = EXTRA_INCLUDE_TYPE_ID_DEFAULT // only once
         }
         if (prefHasChanged) { // old setting not valid anymore
             saveFilterTypeIdsPref(if (filterTypeIds.size == availableTypes.size) null else filterTypeIds) // asynchronous

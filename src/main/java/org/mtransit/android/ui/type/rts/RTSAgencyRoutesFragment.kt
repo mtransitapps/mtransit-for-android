@@ -18,6 +18,9 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.FragmentNavigator
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,6 +35,8 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rts.route.RTSRouteFragment
 import org.mtransit.android.ui.view.common.SpacesItemDecoration
+import org.mtransit.android.ui.view.common.attached
+import org.mtransit.commons.FeatureFlags
 
 @AndroidEntryPoint
 class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes) {
@@ -58,8 +63,6 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
     override fun getLogTag(): String = this.theLogTag
 
     private val viewModel by viewModels<RTSAgencyRoutesViewModel>()
-    private val addedViewModel: RTSAgencyRoutesViewModel?
-        get() = if (isAdded) viewModel else null
 
     private var binding: FragmentRtsAgencyRoutesBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
@@ -70,11 +73,11 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
     private val listGridToggleSelector: StateListDrawable by lazy {
         StateListDrawable().apply {
             (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_list, requireContext().theme) as? LayerDrawable)?.apply {
-                addedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_list_oval_shape) as? GradientDrawable)?.setColor(it) }
+                attached { viewModel }?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_list_oval_shape) as? GradientDrawable)?.setColor(it) }
                 addState(intArrayOf(android.R.attr.state_checked), this)
             }
             (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_grid, requireContext().theme) as? LayerDrawable)?.apply {
-                addedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_grid_oval_shape) as? GradientDrawable)?.setColor(it) }
+                attached { viewModel }?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_grid_oval_shape) as? GradientDrawable)?.setColor(it) }
                 addState(StateSet.WILD_CARD, this)
             }
         }
@@ -86,21 +89,37 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
 
     private val adapter: RTSAgencyRoutesAdapter by lazy {
         RTSAgencyRoutesAdapter(this::openRouteScreen).apply {
-            setAgency(addedViewModel?.agency?.value)
-            setShowingListInsteadOfGrid(addedViewModel?.showingListInsteadOfGrid?.value)
-            submitList(addedViewModel?.routes?.value)
+            setAgency(attached { viewModel }?.agency?.value)
+            setShowingListInsteadOfGrid(attached { viewModel }?.showingListInsteadOfGrid?.value)
+            submitList(attached { viewModel }?.routes?.value)
         }
     }
 
-    private fun openRouteScreen(view: View?, route: Route, agency: IAgencyProperties) {
-        (activity as? MainActivity)?.addFragmentToStack(
-            RTSRouteFragment.newInstance(
-                agency.authority,
-                route.id,
-            ),
-            this,
-            view,
-        )
+    private fun openRouteScreen(view: View, route: Route, agency: IAgencyProperties) {
+        if (FeatureFlags.F_NAVIGATION) {
+            var extras: FragmentNavigator.Extras? = null
+            if (FeatureFlags.F_TRANSITION) {
+                extras = FragmentNavigatorExtras(view to view.transitionName)
+            }
+            findNavController().navigate(
+                R.id.nav_to_rts_route_screen,
+                RTSRouteFragment.newInstanceArgs(
+                    agency.authority,
+                    route.id,
+                ),
+                null,
+                extras
+            )
+        } else {
+            (activity as? MainActivity)?.addFragmentToStack(
+                RTSRouteFragment.newInstance(
+                    agency.authority,
+                    route.id,
+                ),
+                this,
+                view,
+            )
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

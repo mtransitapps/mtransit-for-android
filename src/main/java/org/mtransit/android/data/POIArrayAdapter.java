@@ -26,6 +26,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.core.util.Pair;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.FragmentNavigator;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
@@ -62,6 +65,7 @@ import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.UITimeUtils;
+import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -538,8 +542,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 					} else {
 						btnTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
 					}
-					btn.setOnClickListener(v ->
-							onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_ALL, dst)
+					btn.setOnClickListener(view ->
+							onTypeHeaderButtonClick(view, TypeHeaderButtonsClickListener.BUTTON_ALL, dst)
 					);
 					btn.setVisibility(View.VISIBLE);
 					availableButtons--;
@@ -1013,20 +1017,20 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				if (this.manualLayout.getChildCount() > 0) {
 					this.manualLayout.addView(this.layoutInflater.inflate(R.layout.list_view_divider, this.manualLayout, false));
 				}
-				View view = getView(i, null, this.manualLayout);
+				View itemView = getView(i, null, this.manualLayout);
 				FrameLayout frameLayout = new FrameLayout(getContext());
 				frameLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-				frameLayout.addView(view);
+				frameLayout.addView(itemView);
 				View selectorView = new View(getContext());
 				SupportFactory.get().setBackground(selectorView, ThemeUtils.obtainStyledDrawable(getContext(), R.attr.selectableItemBackground));
 				selectorView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
 				frameLayout.addView(selectorView);
 				final int position = i;
-				frameLayout.setOnClickListener(v ->
-						showPoiViewerScreen(v, position)
+				frameLayout.setOnClickListener(view ->
+						showPoiViewerScreen(view, position)
 				);
-				frameLayout.setOnLongClickListener(v ->
-						showPoiMenu(v, position)
+				frameLayout.setOnLongClickListener(view ->
+						showPoiMenu(view, position)
 				);
 				this.manualLayout.addView(frameLayout);
 			}
@@ -1239,17 +1243,32 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.typeHeaderButtonsClickListenerWR = new WeakReference<>(listener);
 	}
 
-	private void onTypeHeaderButtonClick(int buttonId, DataSourceType type) {
-		TypeHeaderButtonsClickListener listener = this.typeHeaderButtonsClickListenerWR == null ? null : this.typeHeaderButtonsClickListenerWR.get();
+	@SuppressWarnings("DuplicateBranchesInSwitch")
+	private void onTypeHeaderButtonClick(@NonNull View view, int buttonId, @NonNull DataSourceType type) {
+		final TypeHeaderButtonsClickListener listener = this.typeHeaderButtonsClickListenerWR == null ? null : this.typeHeaderButtonsClickListenerWR.get();
 		if (listener != null && listener.onTypeHeaderButtonClick(buttonId, type)) {
 			return;
 		}
 		switch (buttonId) {
 		case TypeHeaderButtonsClickListener.BUTTON_ALL:
-			if (type != null) {
-				Activity activity = getActivity();
+			leaving();
+			if (FeatureFlags.F_NAVIGATION) {
+				final NavController navController = Navigation.findNavController(view);
+				FragmentNavigator.Extras extras = null;
+				if (FeatureFlags.F_TRANSITION) {
+					extras = new FragmentNavigator.Extras.Builder()
+							.addSharedElement(view, view.getTransitionName())
+							.build();
+				}
+				navController.navigate(
+						R.id.nav_to_type_screen,
+						AgencyTypeFragment.newInstanceArgs(type),
+						null,
+						extras
+				);
+			} else {
+				final Activity activity = getActivity();
 				if (activity != null) {
-					leaving();
 					((MainActivity) activity).addFragmentToStack(
 							AgencyTypeFragment.newInstance(type)
 					);
@@ -1257,10 +1276,24 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			}
 			break;
 		case TypeHeaderButtonsClickListener.BUTTON_NEARBY:
-			if (type != null) {
-				Activity activity = getActivity();
+			leaving();
+			if (FeatureFlags.F_NAVIGATION) {
+				final NavController navController = Navigation.findNavController(view);
+				FragmentNavigator.Extras extras = null;
+				if (FeatureFlags.F_TRANSITION) {
+					extras = new FragmentNavigator.Extras.Builder()
+							.addSharedElement(view, view.getTransitionName())
+							.build();
+				}
+				navController.navigate(
+						R.id.nav_to_nearby_screen,
+						NearbyFragment.newNearbyInstanceArgs(type),
+						null,
+						extras
+				);
+			} else {
+				final Activity activity = getActivity();
 				if (activity != null) {
-					leaving();
 					((MainActivity) activity).addFragmentToStack(
 							NearbyFragment.newNearbyInstance(type)
 					);
@@ -1268,11 +1301,24 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			}
 			break;
 		case TypeHeaderButtonsClickListener.BUTTON_MORE:
-			//noinspection DuplicateBranchesInSwitch
-			if (type != null) {
-				Activity activity = getActivity();
+			leaving();
+			if (FeatureFlags.F_NAVIGATION) {
+				final NavController navController = Navigation.findNavController(view);
+				FragmentNavigator.Extras extras = null;
+				if (FeatureFlags.F_TRANSITION) {
+					extras = new FragmentNavigator.Extras.Builder()
+							.addSharedElement(view, view.getTransitionName())
+							.build();
+				}
+				navController.navigate(
+						R.id.nav_to_type_screen,
+						AgencyTypeFragment.newInstanceArgs(type),
+						null,
+						extras
+				);
+			} else {
+				final Activity activity = getActivity();
 				if (activity != null) {
-					leaving();
 					((MainActivity) activity).addFragmentToStack(
 							AgencyTypeFragment.newInstance(type)
 					);
@@ -1285,7 +1331,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	private void leaving() {
-		OnClickHandledListener onClickHandledListener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
+		final OnClickHandledListener onClickHandledListener = this.onClickHandledListenerWR == null ? null : this.onClickHandledListenerWR.get();
 		if (onClickHandledListener != null) {
 			onClickHandledListener.onLeaving();
 		}
@@ -1310,18 +1356,18 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getIconResId(), 0, 0, 0);
 		}
 		if (holder.allBtn != null) {
-			holder.allBtn.setOnClickListener(v ->
-					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_ALL, type)
+			holder.allBtn.setOnClickListener(view ->
+					onTypeHeaderButtonClick(view, TypeHeaderButtonsClickListener.BUTTON_ALL, type)
 			);
 		}
 		if (holder.nearbyBtn != null) {
-			holder.nearbyBtn.setOnClickListener(v ->
-					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_NEARBY, type)
+			holder.nearbyBtn.setOnClickListener(view ->
+					onTypeHeaderButtonClick(view, TypeHeaderButtonsClickListener.BUTTON_NEARBY, type)
 			);
 		}
 		if (holder.moreBtn != null) {
-			holder.moreBtn.setOnClickListener(v ->
-					onTypeHeaderButtonClick(TypeHeaderButtonsClickListener.BUTTON_MORE, type)
+			holder.moreBtn.setOnClickListener(view ->
+					onTypeHeaderButtonClick(view, TypeHeaderButtonsClickListener.BUTTON_MORE, type)
 			);
 		}
 		return convertView;
@@ -1341,14 +1387,14 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		FavoriteFolderHeaderViewHolder holder = (FavoriteFolderHeaderViewHolder) convertView.getTag();
 		holder.nameTv.setText(favoriteFolder.getName());
 		if (holder.renameBtn != null) {
-			holder.renameBtn.setOnClickListener(v -> {
+			holder.renameBtn.setOnClickListener(view -> {
 				final Activity activity = POIArrayAdapter.this.getActivity();
 				favoriteManager.showUpdateFolderDialog(activity, POIArrayAdapter.this.layoutInflater, favoriteFolder,
 						POIArrayAdapter.this.favoriteUpdateListener);
 			});
 		}
 		if (holder.deleteBtn != null) {
-			holder.deleteBtn.setOnClickListener(v -> {
+			holder.deleteBtn.setOnClickListener(view -> {
 				final Activity activity = POIArrayAdapter.this.getActivity();
 				favoriteManager.showDeleteFolderDialog(activity, favoriteFolder, POIArrayAdapter.this.favoriteUpdateListener);
 			});
@@ -1733,17 +1779,33 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setBackgroundColor(poim.getColor(dataSourcesRepository));
 				holder.rtsExtraV.setOnClickListener(view -> {
-					final Activity activity = POIArrayAdapter.this.getActivity();
-					if (!(activity instanceof MainActivity)) {
-						MTLog.w(POIArrayAdapter.this, "No activity available to open RTS fragment!");
-						return;
-					}
 					leaving();
 					MTTransitions.setTransitionName(view, "r_" + rts.getAuthority() + "_" + rts.getRoute().getId());
-					((MainActivity) activity).addFragmentToStack(
-							RTSRouteFragment.newInstance(rts),
-							view
-					);
+					if (FeatureFlags.F_NAVIGATION) {
+						final NavController navController = Navigation.findNavController(view);
+						FragmentNavigator.Extras extras = null;
+						if (FeatureFlags.F_TRANSITION) {
+							extras = new FragmentNavigator.Extras.Builder()
+									.addSharedElement(view, view.getTransitionName())
+									.build();
+						}
+						navController.navigate(
+								R.id.nav_to_rts_route_screen,
+								RTSRouteFragment.newInstanceArgs(rts),
+								null,
+								extras
+						);
+					} else {
+						final Activity activity = POIArrayAdapter.this.getActivity();
+						if (!(activity instanceof MainActivity)) {
+							MTLog.w(POIArrayAdapter.this, "No activity available to open RTS fragment!");
+							return;
+						}
+						((MainActivity) activity).addFragmentToStack(
+								RTSRouteFragment.newInstance(rts),
+								view
+						);
+					}
 				});
 			}
 		}

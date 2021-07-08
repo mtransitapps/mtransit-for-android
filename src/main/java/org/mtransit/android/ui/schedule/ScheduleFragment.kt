@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentScheduleBinding
@@ -17,6 +18,7 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
+import org.mtransit.android.ui.view.common.attached
 
 @AndroidEntryPoint
 class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
@@ -27,38 +29,38 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
         private const val TRACKING_SCREEN_NAME = "Schedule"
 
         @JvmStatic
-        fun newInstance(
-            poim: POIManager,
-            dataSourcesRepository: DataSourcesRepository,
-        ): ScheduleFragment {
-            return newInstance(
-                poim.poi,
-                poim.getColor(dataSourcesRepository),
-            )
-        }
+        fun newInstance(poim: POIManager, dataSourcesRepository: DataSourcesRepository) = newInstance(poim.poi, poim.getColor(dataSourcesRepository))
+
+        @JvmStatic
+        fun newInstance(poi: POI, optColorInt: Int? = null) = newInstance(poi.uuid, poi.authority, optColorInt?.let { ColorUtils.toRGBColor(it) })
 
         @JvmStatic
         fun newInstance(
-            poi: POI,
-            colorInt: Int?,
+            uuid: String,
+            authority: String,
+            optColor: String? = null
         ): ScheduleFragment {
-            return newInstance(
-                poi.uuid,
-                poi.authority,
-                colorInt,
-            )
-        }
-
-        @JvmStatic
-        fun newInstance(uuid: String, authority: String, colorInt: Int?): ScheduleFragment {
             return ScheduleFragment().apply {
-                arguments = bundleOf(
-                    ScheduleViewModel.EXTRA_POI_UUID to uuid,
-                    ScheduleViewModel.EXTRA_AUTHORITY to authority,
-                    ScheduleViewModel.EXTRA_COLOR_INT to colorInt,
-                )
+                arguments = newInstanceArgs(uuid, authority, optColor)
             }
         }
+
+        @JvmStatic
+        fun newInstanceArgs(poim: POIManager, dataSourcesRepository: DataSourcesRepository) = newInstanceArgs(poim.poi, poim.getColor(dataSourcesRepository))
+
+        @JvmStatic
+        fun newInstanceArgs(poi: POI, optColorInt: Int? = null) = newInstanceArgs(poi.uuid, poi.authority, optColorInt?.let { ColorUtils.toRGBColor(it) })
+
+        @JvmStatic
+        fun newInstanceArgs(
+            uuid: String,
+            authority: String,
+            optColor: String? = null
+        ) = bundleOf(
+            ScheduleViewModel.EXTRA_POI_UUID to uuid,
+            ScheduleViewModel.EXTRA_AUTHORITY to authority,
+            ScheduleViewModel.EXTRA_COLOR to (optColor ?: ScheduleViewModel.EXTRA_COLOR_DEFAULT)
+        )
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -66,8 +68,6 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<ScheduleViewModel>()
-    private val addedViewModel: ScheduleViewModel?
-        get() = if (isAdded) viewModel else null
 
     private var binding: FragmentScheduleBinding? = null
 
@@ -76,14 +76,14 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
     private var adapter: SchedulePagerAdapter? = null
 
     private fun makeAdapter() = SchedulePagerAdapter(this).apply {
-        setUUID(addedViewModel?.uuid?.value)
-        setAuthority(addedViewModel?.authority?.value)
+        setUUID(attached { viewModel }?.uuid?.value)
+        setAuthority(attached { viewModel }?.authority?.value)
     }
 
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
-            addedViewModel?.onPageSelected(position)
+            attached { viewModel }?.onPageSelected(position)
             lastPageSelected = position
         }
     }
@@ -138,15 +138,15 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
         }
     }
 
-    override fun isABReady() = addedViewModel?.rts?.value != null
+    override fun isABReady() = attached { viewModel }?.rts?.value != null
 
     override fun getABTitle(context: Context?) = context?.getString(R.string.full_schedule) ?: super.getABTitle(context)
 
-    override fun getABSubtitle(context: Context?) = addedViewModel?.rts?.value?.let { rts ->
-        POIManager.getNewOneLineDescription(rts, addedViewModel?.agency?.value)
+    override fun getABSubtitle(context: Context?) = attached { viewModel }?.rts?.value?.let { rts ->
+        POIManager.getNewOneLineDescription(rts, attached { viewModel }?.agency?.value)
     } ?: super.getABSubtitle(context)
 
-    override fun getABBgColor(context: Context?) = addedViewModel?.colorInt?.value ?: super.getABBgColor(context)
+    override fun getABBgColor(context: Context?) = attached { viewModel }?.colorInt?.value ?: super.getABBgColor(context)
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -45,19 +45,22 @@ class RTSRouteViewModel @Inject constructor(
         internal const val EXTRA_AUTHORITY = "extra_authority"
         internal const val EXTRA_ROUTE_ID = "extra_route_id"
         internal const val EXTRA_SELECTED_TRIP_ID = "extra_trip_id"
+        internal const val EXTRA_SELECTED_TRIP_ID_DEFAULT: Long = -1L
         internal const val EXTRA_SELECTED_STOP_ID = "extra_stop_id"
+        internal const val EXTRA_SELECTED_STOP_ID_DEFAULT: Int = -1
 
         internal const val EXTRA_SHOWING_LIST_INSTEAD_OF_MAP = "extra_showing_list_instead_of_map"
+        internal const val EXTRA_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT: Boolean = PreferenceUtils.PREFS_LCL_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
     }
 
     override fun getLogTag(): String = LOG_TAG
 
-    val authority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AUTHORITY)
-    val routeId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_ROUTE_ID)
-    private val _selectedTripId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_SELECTED_TRIP_ID)
-    val selectedStopId = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_SELECTED_STOP_ID)
+    val authority = savedStateHandle.getLiveDataDistinct<String>(EXTRA_AUTHORITY)
+    val routeId = savedStateHandle.getLiveDataDistinct<Long>(EXTRA_ROUTE_ID)
+    private val _selectedTripId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_TRIP_ID, EXTRA_SELECTED_TRIP_ID_DEFAULT).map { if (it < 0L) null else it }
+    val selectedStopId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_STOP_ID, EXTRA_SELECTED_STOP_ID_DEFAULT).map { if (it < 0) null else it }
 
-    val listInsteadOfMap = savedStateHandle.getLiveDataDistinct<Boolean?>(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP)
+    val listInsteadOfMap = savedStateHandle.getLiveDataDistinct<Boolean?>(EXTRA_SHOWING_LIST_INSTEAD_OF_MAP, EXTRA_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT)
 
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
 

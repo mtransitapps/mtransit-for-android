@@ -5,10 +5,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
+import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.provider.NewsProviderContract
@@ -30,7 +32,8 @@ class NewsListViewModel @Inject constructor(
     companion object {
         private val LOG_TAG = NewsListViewModel::class.java.simpleName
 
-        internal const val EXTRA_COLOR_INT = "extra_color_int"
+        internal const val EXTRA_COLOR = "extra_color"
+        internal val EXTRA_COLOR_DEFAULT: String? = null
         internal const val EXTRA_SUB_TITLE = "extra_subtitle"
         internal const val EXTRA_FILTER_TARGET_AUTHORITIES = "extra_filter_target_authorities"
         internal const val EXTRA_FILTER_TARGETS = "extra_filter_targets"
@@ -39,7 +42,7 @@ class NewsListViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val colorInt = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_COLOR_INT)
+    val colorInt = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_COLOR, EXTRA_COLOR_DEFAULT).map { it?.let { ColorUtils.parseColor(it) } }
 
     val subTitle = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SUB_TITLE)
 

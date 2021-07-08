@@ -18,7 +18,7 @@ import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.databinding.LayoutRtsRouteItemBinding
 import org.mtransit.android.ui.view.common.MTTransitions
 
-class RTSAgencyRoutesAdapter(private val onClick: (View?, Route, IAgencyProperties) -> Unit) :
+class RTSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyProperties) -> Unit) :
     ListAdapter<Route, RTSAgencyRoutesAdapter.RouteViewHolder>(RoutesDiffCallback),
     MTLog.Loggable {
 
@@ -98,7 +98,7 @@ class RTSAgencyRoutesAdapter(private val onClick: (View?, Route, IAgencyProperti
             route: Route?,
             agency: IAgencyUIProperties?,
             showingListInsteadOfGrid: Boolean?,
-            onClick: (View?, Route, IAgencyProperties) -> Unit
+            onClick: (View, Route, IAgencyProperties) -> Unit
         ) {
             if (route == null || agency == null || showingListInsteadOfGrid == null) {
                 MTLog.d(LOG_TAG, "onBindViewHolder() > SKIP (missing data)")

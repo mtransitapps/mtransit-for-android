@@ -1,6 +1,7 @@
 package org.mtransit.android.ui.news
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -14,7 +15,7 @@ import org.mtransit.android.ui.news.NewsListAdapter.NewsListItemViewHolder
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver
 
-class NewsListAdapter(private val onClick: (News) -> Unit) : ListAdapter<News, NewsListItemViewHolder>(NewsDiffCallback), MTLog.Loggable {
+class NewsListAdapter(private val onClick: (View, News) -> Unit) : ListAdapter<News, NewsListItemViewHolder>(NewsDiffCallback), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = NewsListAdapter::class.java.simpleName
@@ -82,7 +83,7 @@ class NewsListAdapter(private val onClick: (News) -> Unit) : ListAdapter<News, N
             }
         }
 
-        fun bind(newsArticle: News, onClick: (News) -> Unit) {
+        fun bind(newsArticle: News, onClick: (View, News) -> Unit) {
             val context = binding.root.context
             binding.apply {
                 author.apply {
@@ -115,7 +116,9 @@ class NewsListAdapter(private val onClick: (News) -> Unit) : ListAdapter<News, N
                     )
                 }
                 root.apply {
-                    setOnClickListener { onClick(newsArticle) }
+                    setOnClickListener { view ->
+                        onClick(view, newsArticle)
+                    }
                 }
             }
         }

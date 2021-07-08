@@ -24,9 +24,6 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
     override fun getLogTag(): String = LOG_TAG
 
     private val viewModel by viewModels<ModulesViewModel>()
-    @Suppress("unused")
-    private val addedViewModel: ModulesViewModel?
-        get() = if (isAdded) viewModel else null
 
     private val listAdapter: ModulesAdapter by lazy { ModulesAdapter() }
 
