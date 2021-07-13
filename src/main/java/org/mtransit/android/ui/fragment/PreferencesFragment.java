@@ -24,6 +24,7 @@ import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.ui.MTDialog;
 import org.mtransit.android.ui.PreferencesActivity;
 import org.mtransit.android.ui.modules.ModulesActivity;
@@ -96,6 +97,8 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 		IAdManager adManager();
 
 		DataSourcesRepository dataSourcesRepository();
+
+		DemoModeManager demoModeManager();
 	}
 
 	@NonNull
@@ -384,13 +387,17 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 
 	@Override
 	public void onSharedPreferenceChanged(@Nullable SharedPreferences sharedPreferences, @Nullable String key) {
+		final Context context = getActivity();
 		if (PreferenceUtils.PREFS_UNITS.equals(key)) {
-			setUnitSummary(getActivity());
+			setUnitSummary(context);
 		} else if (PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER.equals(key)) {
-			setUseInternalWebBrowserSummary(getActivity());
+			setUseInternalWebBrowserSummary(context);
 		} else if (PreferenceUtils.PREFS_THEME.equals(key)) {
-			setThemeSummary(getActivity());
-			NightModeUtils.setDefaultNightMode(getActivity());
+			setThemeSummary(context);
+			NightModeUtils.setDefaultNightMode(
+					context,
+					context == null ? null : getEntryPoint(context).demoModeManager()
+			);
 		}
 	}
 
@@ -398,12 +405,15 @@ public class PreferencesFragment extends MTPreferenceFragment implements
 		if (context == null) {
 			return;
 		}
-		Preference themePref = findPreference(PreferenceUtils.PREFS_THEME);
+		final Preference themePref = findPreference(PreferenceUtils.PREFS_THEME);
 		if (themePref == null) {
 			return;
 		}
-		String theme = PreferenceUtils.getPrefDefault(context, //
+		String theme = PreferenceUtils.getPrefDefault(context,
 				PreferenceUtils.PREFS_THEME, PreferenceUtils.PREFS_THEME_DEFAULT);
+		if (getEntryPoint(context).demoModeManager().getEnabled()) {
+			theme = PreferenceUtils.PREFS_THEME_LIGHT; // light for screenshots (demo mode ON)
+		}
 		if (PreferenceUtils.PREFS_THEME_LIGHT.equals(theme)) {
 			themePref.setSummary(R.string.theme_pref_light);
 		} else if (PreferenceUtils.PREFS_THEME_DARK.equals(theme)) {

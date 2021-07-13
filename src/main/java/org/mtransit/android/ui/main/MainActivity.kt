@@ -22,7 +22,11 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
+import dagger.hilt.EntryPoint
+import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.analytics.IAnalyticsManager
@@ -33,6 +37,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.databinding.ActivityMainBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
+import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
@@ -74,6 +79,29 @@ class MainActivity : MTActivityWithLocation(),
     private lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
 
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface MainActivityEntryPoint {
+        val demoModeManager: DemoModeManager // used in attachBaseContext() before @Inject dependencies are available
+    }
+
+    private fun getEntryPoint(context: Context): MainActivityEntryPoint {
+        MTLog.v(this, "getEntryPoint($context)")
+        MTLog.d(this, "getEntryPoint() > context.applicationContext: ${context.applicationContext}.")
+        return EntryPointAccessors.fromApplication(context.applicationContext, MainActivityEntryPoint::class.java)
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        MTLog.v(this, "attachBaseContext($newBase)")
+        val demoModeManager = getEntryPoint(newBase).demoModeManager
+        super.attachBaseContext(
+            if (demoModeManager.enabled) {
+                demoModeManager.fixLocale(newBase)
+            } else {
+                LocaleUtils.fixDefaultLocale(newBase)
+            }
+        )
+    }
     @Inject
     lateinit var adManager: IAdManager
 
@@ -139,10 +167,6 @@ class MainActivity : MTActivityWithLocation(),
                 adManager.onNbAgenciesUpdated(this, nbAgencies)
             }
         })
-    }
-
-    override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(LocaleUtils.fixDefaultLocale(newBase))
     }
 
     override fun onBillingResult(sku: String?) {

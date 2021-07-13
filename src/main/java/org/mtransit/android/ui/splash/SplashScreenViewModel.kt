@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.splash
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -10,6 +11,7 @@ import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.util.NightModeUtils
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,5 +36,8 @@ class SplashScreenViewModel @Inject constructor(
         }
         analyticsManager.setUserProperty(AnalyticsUserProperties.OPEN_APP_COUNTS, appOpenCounts)
         demoModeManager.read(savedStateHandle)
+        if (demoModeManager.enabled) {
+            NightModeUtils.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // light for screenshots (demo mode ON)
+        }
     }
 }

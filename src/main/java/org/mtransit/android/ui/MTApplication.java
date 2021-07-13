@@ -42,9 +42,10 @@ public class MTApplication extends Application implements MTLog.Loggable {
 	IAnalyticsManager analyticsManager;
 
 	@Override
-	protected void attachBaseContext(@NonNull Context base) {
-		base = LocaleUtils.fixDefaultLocale(base);
-		super.attachBaseContext(base);
+	protected void attachBaseContext(@NonNull Context newBase) {
+		// Demo mode: cannot access manager instance before application context is attached => set in activities
+		newBase = LocaleUtils.fixDefaultLocale(newBase);
+		super.attachBaseContext(newBase);
 	}
 
 	@Override
@@ -54,7 +55,7 @@ public class MTApplication extends Application implements MTLog.Loggable {
 		if (BuildConfig.DEBUG) {
 			this.leakDetector.setup(this);
 		}
-		NightModeUtils.setDefaultNightMode(this);
+		NightModeUtils.setDefaultNightMode(this, null);
 		this.strictMode.setup(BuildConfig.DEBUG);
 		this.crashReporter.setup(!BuildConfig.DEBUG);
 		this.analyticsManager.setUserProperty(AnalyticsUserProperties.DEVICE_MANUFACTURER, Build.MANUFACTURER);

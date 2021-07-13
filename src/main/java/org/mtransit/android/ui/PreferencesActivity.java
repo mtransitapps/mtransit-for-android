@@ -13,9 +13,14 @@ import androidx.appcompat.app.ActionBar;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.LocaleUtils;
+import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.util.NightModeUtils;
 
+import dagger.hilt.EntryPoint;
+import dagger.hilt.InstallIn;
 import dagger.hilt.android.AndroidEntryPoint;
+import dagger.hilt.android.EntryPointAccessors;
+import dagger.hilt.components.SingletonComponent;
 
 @AndroidEntryPoint
 public class PreferencesActivity extends MTActivity {
@@ -46,6 +51,28 @@ public class PreferencesActivity extends MTActivity {
 		return intent;
 	}
 
+	@EntryPoint
+	@InstallIn(SingletonComponent.class)
+	interface MTApplicationEntryPoint {
+		DemoModeManager demoModeManager(); // used in attachBaseContext() before @Inject dependencies are available
+	}
+
+	@NonNull
+	private MTApplicationEntryPoint getEntryPoint(@NonNull Context context) {
+		return EntryPointAccessors.fromApplication(context.getApplicationContext(), MTApplicationEntryPoint.class);
+	}
+
+	@Override
+	protected void attachBaseContext(@NonNull Context newBase) {
+		final DemoModeManager demoModeManager = getEntryPoint(newBase).demoModeManager();
+		if (demoModeManager.getEnabled()) {
+			newBase = demoModeManager.fixLocale(newBase);
+		} else {
+			newBase = LocaleUtils.fixDefaultLocale(newBase);
+		}
+		super.attachBaseContext(newBase);
+	}
+
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -57,12 +84,6 @@ public class PreferencesActivity extends MTActivity {
 			actionBar.setDisplayHomeAsUpEnabled(true);
 		}
 		restoreInstanceState(savedInstanceState, getIntent().getExtras());
-	}
-
-	@Override
-	protected void attachBaseContext(@NonNull Context newBase) {
-		newBase = LocaleUtils.fixDefaultLocale(newBase);
-		super.attachBaseContext(newBase);
 	}
 
 	private void restoreInstanceState(Bundle... bundles) {

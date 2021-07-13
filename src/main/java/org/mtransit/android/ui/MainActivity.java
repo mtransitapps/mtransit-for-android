@@ -41,7 +41,11 @@ import java.util.WeakHashMap;
 
 import javax.inject.Inject;
 
+import dagger.hilt.EntryPoint;
+import dagger.hilt.InstallIn;
 import dagger.hilt.android.AndroidEntryPoint;
+import dagger.hilt.android.EntryPointAccessors;
+import dagger.hilt.components.SingletonComponent;
 import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
 
@@ -79,6 +83,28 @@ public class MainActivity extends MTActivityWithLocation implements
 
 	@Nullable
 	private ActionBarController abController;
+
+	@EntryPoint
+	@InstallIn(SingletonComponent.class)
+	interface MainActivityEntryPoint {
+		DemoModeManager demoModeManager(); // used in attachBaseContext() before @Inject dependencies are available
+	}
+
+	@NonNull
+	private MainActivityEntryPoint getEntryPoint(@NonNull Context context) {
+		return EntryPointAccessors.fromApplication(context.getApplicationContext(), MainActivityEntryPoint.class);
+	}
+
+	@Override
+	protected void attachBaseContext(@NonNull Context newBase) {
+		final DemoModeManager demoModeManager = getEntryPoint(newBase).demoModeManager();
+		if (demoModeManager.getEnabled()) {
+			newBase = demoModeManager.fixLocale(newBase);
+		} else {
+			newBase = LocaleUtils.fixDefaultLocale(newBase);
+		}
+		super.attachBaseContext(newBase);
+	}
 
 	@Inject
 	IAdManager adManager;
@@ -122,12 +148,6 @@ public class MainActivity extends MTActivityWithLocation implements
 				this.adManager.onNbAgenciesUpdated(this, nbAgencies) // ad-manager does not persist activity but listen for changes itself
 		);
 		MapUtils.fixScreenFlickering(findViewById(R.id.content_frame));
-	}
-
-	@Override
-	protected void attachBaseContext(@NonNull Context newBase) {
-		newBase = LocaleUtils.fixDefaultLocale(newBase);
-		super.attachBaseContext(newBase);
 	}
 
 	@Override

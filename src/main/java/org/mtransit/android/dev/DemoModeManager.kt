@@ -4,10 +4,12 @@ import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.R
+import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.ITargetedProviderProperties
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,6 +26,7 @@ class DemoModeManager @Inject constructor(
         const val FILTER_LOCATION = "filter_location"
         const val FILTER_SCREEN = "filter_screen"
         const val FILTER_UUID = "filter_uuid"
+        const val FORCE_LANG = "force_lang"
 
         const val FILTER_SCREEN_HOME = "home"
         const val FILTER_SCREEN_POI = "poi"
@@ -46,6 +49,7 @@ class DemoModeManager @Inject constructor(
     var filterLocation: String? = null
     var filterScreen: String? = null
     var filterUUID: String? = null
+    var forceLang: String? = null
 
     val enabled: Boolean
         get() = filterAgencyAuthority != null && filterType != null && filterLocation != null && filterScreen != null
@@ -59,6 +63,7 @@ class DemoModeManager @Inject constructor(
         filterLocation = savedStateHandle.get<String?>(FILTER_LOCATION)
         filterScreen = savedStateHandle.get<String?>(FILTER_SCREEN)
         filterUUID = savedStateHandle.get<String?>(FILTER_UUID)
+        forceLang = savedStateHandle.get<String?>(FORCE_LANG)
     }
 
     fun isEnabledPOIScreen(): Boolean {
@@ -90,6 +95,19 @@ class DemoModeManager @Inject constructor(
     fun isAllowedAnyway(agency: IAgencyProperties?) = isAllowedAnyway(agency?.type)
     fun isAllowedAnyway(dst: DataSourceType?) = dst?.isMapScreen != true
     fun isAllowedAnyway(targeted: ITargetedProviderProperties?) = this.allowedTargeted.contains(targeted?.authority)
+    fun fixLocale(_newBase: Context): Context {
+        if (notEnabled && forceLang == null) {
+            return _newBase
+        }
+        var newBase = _newBase
+        val defaultLocale = forceLang?.let { Locale.forLanguageTag(it) } ?: LocaleUtils.getDefaultLocale()
+        MTLog.d(this, "fixLocale() > defaultLocale $defaultLocale.")
+        val configuration = newBase.resources.configuration
+        configuration.setLocale(defaultLocale)
+        newBase = newBase.createConfigurationContext(configuration)
+        Locale.setDefault(defaultLocale)
+        return newBase
+    }
 }
 
 fun <T : IAgencyProperties> List<T>.filterDemoModeAgency(demoModeManager: DemoModeManager): List<T> {
