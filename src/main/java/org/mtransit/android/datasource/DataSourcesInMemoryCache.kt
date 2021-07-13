@@ -11,6 +11,10 @@ import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
+import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.dev.filterDemoModeAgency
+import org.mtransit.android.dev.filterDemoModeTargeted
+import org.mtransit.android.dev.filterDemoModeType
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,6 +22,7 @@ import javax.inject.Singleton
 class DataSourcesInMemoryCache @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val dataSourcesCache: DataSourcesCache,
+    private val demoModeManager: DemoModeManager,
 ) : MTLog.Loggable {
 
     companion object {
@@ -45,25 +50,39 @@ class DataSourcesInMemoryCache @Inject constructor(
 
     private fun startListeningForChangesIntoMemory() {
         dataSourcesCache.readingAllAgencies().observeForever { // SINGLETON
-            this._agencyProperties = it.sortedWith(defaultAgencyComparator)
+            this._agencyProperties = it
+                .filterDemoModeAgency(demoModeManager)
+                .sortedWith(defaultAgencyComparator)
         }
         dataSourcesCache.readingAllAgenciesBase().observeForever { // SINGLETON
-            this._agencyBaseProperties = it.sortedWith(defaultAgencyComparator)
+            this._agencyBaseProperties = it
+                .filterDemoModeAgency(demoModeManager)
+                .sortedWith(defaultAgencyComparator)
         }
         dataSourcesCache.readingAllDataSourceTypes().observeForever { // SINGLETON
-            this._dataSourceTypes = it.sortedWith(defaultDataSourceTypeComparator)
+            this._dataSourceTypes = it
+                .filterDemoModeType(demoModeManager)
+                .sortedWith(defaultDataSourceTypeComparator)
         }
         dataSourcesCache.readingAllStatusProviders().observeForever { // SINGLETON
-            this._statusProviderProperties = it.toSet() // not sorted
+            this._statusProviderProperties = it
+                .filterDemoModeTargeted(demoModeManager)
+                .toSet() // not sorted
         }
         dataSourcesCache.readingAllScheduleProviders().observeForever { // SINGLETON
-            this._scheduleProviderProperties = it.toSet() // not sorted
+            this._scheduleProviderProperties = it
+                .filterDemoModeTargeted(demoModeManager)
+                .toSet() // not sorted
         }
         dataSourcesCache.readingAllServiceUpdateProviders().observeForever { // SINGLETON
-            this._serviceUpdateProviderProperties = it.toSet() // not sorted
+            this._serviceUpdateProviderProperties = it
+                .filterDemoModeTargeted(demoModeManager)
+                .toSet() // not sorted
         }
         dataSourcesCache.readingAllNewsProviders().observeForever { // SINGLETON
-            this._newsProviderProperties = it.toSet() // not sorted
+            this._newsProviderProperties = it
+                .filterDemoModeTargeted(demoModeManager)
+                .toSet() // not sorted
         }
     }
 
@@ -116,7 +135,7 @@ class DataSourcesInMemoryCache @Inject constructor(
 
     fun getNewsProviders(targetAuthority: String) = this._newsProviderProperties.filterTo(HashSet()) { it.targetAuthority == targetAuthority }
 
-    fun getNewsProvidersList(targetAuthority: String) = this._newsProviderProperties.filter{ it.targetAuthority == targetAuthority }
+    fun getNewsProvidersList(targetAuthority: String) = this._newsProviderProperties.filter { it.targetAuthority == targetAuthority }
 
     fun getNewsProvider(authority: String) = this._newsProviderProperties.singleOrNull { it.authority == authority }
 }

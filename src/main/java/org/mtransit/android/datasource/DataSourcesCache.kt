@@ -4,7 +4,6 @@ import org.mtransit.android.data.DataSourceType
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Suppress("unused")
 @Singleton
 class DataSourcesCache @Inject constructor(
     private val dataSourcesDatabase: DataSourcesDatabase,
@@ -19,12 +18,6 @@ class DataSourcesCache @Inject constructor(
     fun readingAllAgencies() = agencyPropertiesDao().readingAllAgencies()
 
     fun readingAllAgenciesBase() = agencyPropertiesDao().readingAllAgenciesBase()
-
-    fun getAllAgenciesCount() = agencyPropertiesDao().getAllAgenciesCount()
-
-    fun readingAllAgenciesCount() = agencyPropertiesDao().readingAllAgenciesCount()
-
-    fun getAgency(authority: String) = agencyPropertiesDao().getAgency(authority)
 
     fun readingAgency(authority: String) = agencyPropertiesDao().readingAgency(authority)
 

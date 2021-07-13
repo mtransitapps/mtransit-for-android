@@ -40,6 +40,7 @@ import org.mtransit.android.commons.provider.StatusProviderContract;
 import org.mtransit.android.data.AgencyProperties;
 import org.mtransit.android.data.Module;
 import org.mtransit.android.datasource.DataSourcesRepository;
+import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.util.UITimeUtils;
 
 import java.util.Collection;
@@ -142,6 +143,8 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		IAnalyticsManager analyticsManager();
 
 		DataSourcesRepository dataSourcesRepository();
+
+		DemoModeManager demoModeManager();
 	}
 
 	@NonNull
@@ -152,6 +155,11 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@NonNull
 	private IAnalyticsManager getAnalyticsManager() {
 		return getEntryPoint(requireContextCompat()).analyticsManager();
+	}
+
+	@NonNull
+	private DemoModeManager getDemoModeManager() {
+		return getEntryPoint(requireContextCompat()).demoModeManager();
 	}
 
 	@NonNull
@@ -427,9 +435,12 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	public POIStatus getNewModuleStatus(@NonNull AppStatus.AppStatusFilter filter) {
 		final long newLastUpdateInMs = UITimeUtils.currentTimeMillis();
 		final Context context = requireContextCompat();
-		final boolean appInstalled = PackageManagerUtils.isAppInstalled(context, filter.getPkg());
+		boolean appInstalled = PackageManagerUtils.isAppInstalled(context, filter.getPkg());
 		final boolean appEnabled = PackageManagerUtils.isAppEnabled(context, filter.getPkg());
 		final AgencyProperties agencyProperties = dataSourcesRepository().getAgencyForPkg(filter.getPkg());
+		if (getDemoModeManager().getEnabled()) {
+			appInstalled = agencyProperties != null && agencyProperties.getAuthority().equals(getDemoModeManager().getFilterAgencyAuthority());
+		}
 		final boolean updateAvailable = agencyProperties != null && agencyProperties.getUpdateAvailable();
 		if (appInstalled && !appEnabled) {
 			getAnalyticsManager().logEvent(AnalyticsEvents.FOUND_DISABLED_MODULE, new AnalyticsEventsParamsProvider()

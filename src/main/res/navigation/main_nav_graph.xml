@@ -3,20 +3,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_nav_graph"
-    app:startDestination="@id/nav_home">
+    app:startDestination="@id/root_nav_home">
 
+    <!-- HOME -->
     <fragment
-        android:id="@id/nav_home"
+        android:id="@id/root_nav_home"
         android:name="org.mtransit.android.ui.home.HomeFragment"
         android:label="@string/home"
         tools:layout="@layout/fragment_home" />
-
+    <!-- FAVORITES -->
     <fragment
-        android:id="@id/nav_favorites"
+        android:id="@id/root_nav_favorites"
         android:name="org.mtransit.android.ui.favorites.FavoritesFragment"
         android:label="@string/favorites"
         tools:layout="@layout/fragment_favorites" />
-
+    <!-- NEARBY -->
+    <fragment
+        android:id="@id/root_nav_nearby"
+        android:name="org.mtransit.android.ui.nearby.NearbyFragment"
+        android:label="@string/nearby"
+        tools:layout="@layout/fragment_nearby" />
     <fragment
         android:id="@id/nav_nearby"
         android:name="org.mtransit.android.ui.nearby.NearbyFragment"
@@ -43,7 +49,12 @@
             android:defaultValue="@null"
             app:argType="string" />
     </fragment>
-
+    <!-- MAP -->
+    <fragment
+        android:id="@id/root_nav_map"
+        android:name="org.mtransit.android.ui.map.MapFragment"
+        android:label="@string/map"
+        tools:layout="@layout/fragment_map" />
     <fragment
         android:id="@id/nav_map"
         android:name="org.mtransit.android.ui.map.MapFragment"
@@ -62,7 +73,12 @@
             android:defaultValue="-1"
             app:argType="integer" />
     </fragment>
-
+    <!-- NEWS -->
+    <fragment
+        android:id="@id/root_nav_news"
+        android:name="org.mtransit.android.ui.news.NewsListFragment"
+        android:label="@string/news"
+        tools:layout="@layout/fragment_news_list" />
     <fragment
         android:id="@id/nav_news"
         android:name="org.mtransit.android.ui.news.NewsListFragment"
@@ -92,7 +108,7 @@
             app:argType="string[]"
             app:nullable="true" />
     </fragment>
-
+    <!-- TYPES -->
     <fragment
         android:id="@id/nav_type"
         android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
@@ -102,9 +118,8 @@
             android:name="extra_type_id"
             app:argType="integer" />
     </fragment>
-
     <fragment
-        android:id="@id/nav_bike"
+        android:id="@id/root_nav_bike"
         android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
         android:label="@string/agency_type_bike_all"
         tools:layout="@layout/fragment_agency_type">
@@ -113,9 +128,8 @@
             android:defaultValue="100"
             app:argType="integer" />
     </fragment>
-
     <fragment
-        android:id="@id/nav_bus"
+        android:id="@id/root_nav_bus"
         android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
         android:label="@string/agency_type_bus_all"
         tools:layout="@layout/fragment_agency_type">
@@ -124,9 +138,8 @@
             android:defaultValue="3"
             app:argType="integer" />
     </fragment>
-
     <fragment
-        android:id="@id/nav_ferry"
+        android:id="@id/root_nav_ferry"
         android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
         android:label="@string/agency_type_ferry_all"
         tools:layout="@layout/fragment_agency_type">
@@ -135,9 +148,8 @@
             android:defaultValue="4"
             app:argType="integer" />
     </fragment>
-
     <fragment
-        android:id="@id/nav_light_rail"
+        android:id="@id/root_nav_light_rail"
         android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
         android:label="@string/agency_type_light_rail_all"
         tools:layout="@layout/fragment_agency_type">
@@ -146,9 +158,8 @@
             android:defaultValue="9"
             app:argType="integer" />
     </fragment>
-
     <fragment
-        android:id="@id/nav_subway"
+        android:id="@id/root_nav_subway"
         android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
         android:label="@string/agency_type_subway_all"
         tools:layout="@layout/fragment_agency_type">
@@ -157,9 +168,8 @@
             android:defaultValue="1"
             app:argType="integer" />
     </fragment>
-
     <fragment
-        android:id="@id/nav_rail"
+        android:id="@id/root_nav_rail"
         android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
         android:label="@string/agency_type_rail_all"
         tools:layout="@layout/fragment_agency_type">
@@ -168,9 +178,8 @@
             android:defaultValue="2"
             app:argType="integer" />
     </fragment>
-
     <fragment
-        android:id="@id/nav_module"
+        android:id="@id/root_nav_module"
         android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
         android:label="@string/agency_type_module_all"
         tools:layout="@layout/fragment_agency_type">
@@ -178,7 +187,7 @@
             android:name="extra_type_id"
             app:argType="integer" />
     </fragment>
-
+    <!-- POI -->
     <fragment
         android:id="@id/nav_poi"
         android:name="org.mtransit.android.ui.fragment.POIFragment"
@@ -191,7 +200,7 @@
             android:name="extra_poi_uuid"
             app:argType="string" />
     </fragment>
-
+    <!-- SCHEDULE -->
     <fragment
         android:id="@id/nav_schedule"
         android:name="org.mtransit.android.ui.schedule.ScheduleFragment"
@@ -208,7 +217,7 @@
             android:defaultValue="@null"
             app:argType="string" />
     </fragment>
-
+    <!-- NEWS DETAILS -->
     <fragment
         android:id="@id/nav_news_detail"
         android:name="org.mtransit.android.ui.news.details.NewsDetailsFragment"
@@ -221,7 +230,7 @@
             android:name="extra_news_uuid"
             app:argType="string" />
     </fragment>
-
+    <!-- RTS ROUTE -->
     <fragment
         android:id="@id/nav_rts_route"
         android:name="org.mtransit.android.ui.rts.route.RTSRouteFragment"
@@ -242,13 +251,13 @@
             android:defaultValue="-1"
             app:argType="integer" />
     </fragment>
-
+    <!-- SEARCH -->
     <fragment
         android:id="@id/nav_search"
         android:name="org.mtransit.android.ui.search.SearchFragment"
         android:label="@string/menu_action_search"
         tools:layout="@layout/fragment_search" />
-
+    <!-- WEB BROWSER -->
     <fragment
         android:id="@id/nav_web"
         android:name="org.mtransit.android.ui.fragment.WebBrowserFragment"
@@ -259,7 +268,7 @@
             app:argType="string"
             app:nullable="false" />
     </fragment>
-
+    <!-- SETTINGS -->
     <activity
         android:id="@id/nav_settings"
         android:name="org.mtransit.android.ui.PreferencesActivity"
@@ -267,12 +276,6 @@
         tools:layout="@layout/activity_preferences" />
 
     <!-- GLOBAL ACTIONS -->
-    <action
-        android:id="@+id/nav_to_home_screen"
-        app:destination="@id/nav_home" />
-    <action
-        android:id="@+id/nav_to_favorites_screen"
-        app:destination="@id/nav_favorites" />
     <action
         android:id="@+id/nav_to_nearby_screen"
         app:destination="@id/nav_nearby" />
@@ -291,7 +294,6 @@
     <action
         android:id="@+id/nav_to_search_screen"
         app:destination="@id/nav_search" />
-
     <action
         android:id="@+id/nav_to_poi_screen"
         app:destination="@id/nav_poi" />
@@ -307,7 +309,6 @@
     <action
         android:id="@+id/nav_to_web_screen"
         app:destination="@id/nav_web" />
-
     <action
         android:id="@+id/nav_to_settings_screen"
         app:destination="@id/nav_settings" />

@@ -54,8 +54,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
             simple: Boolean, // true = place...
         ) = newFixedOnInstanceArgs(
             optTypeId = if (simple) null else poim.poi.dataSourceTypeId,
-            fixedOnLat = poim.lat,
-            fixedOnLng = poim.lng,
+            fixedOnLat = poim.lat.toFloat(),
+            fixedOnLng = poim.lng.toFloat(),
             fixedOnName = if (simple) poim.poi.name else poim.getNewOneLineDescription(dataSourcesRepository),
             optFixedOnColorInt = if (simple) null else poim.getColor(dataSourcesRepository)
         )
@@ -68,8 +68,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         ): NearbyFragment {
             return newFixedOnInstance(
                 optTypeId = if (simple) null else poim.poi.dataSourceTypeId,
-                fixedOnLat = poim.lat,
-                fixedOnLng = poim.lng,
+                fixedOnLat = poim.lat.toFloat(),
+                fixedOnLng = poim.lng.toFloat(),
                 fixedOnName = if (simple) poim.poi.name else poim.getNewOneLineDescription(dataSourcesRepository),
                 optFixedOnColorInt = if (simple) null else poim.getColor(dataSourcesRepository)
             )
@@ -79,8 +79,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         @JvmStatic
         fun newFixedOnInstanceArgs(
             optTypeId: Int? = null,
-            fixedOnLat: Double,
-            fixedOnLng: Double,
+            fixedOnLat: Float,
+            fixedOnLng: Float,
             fixedOnName: String,
             @ColorInt optFixedOnColorInt: Int? = null,
         ) = newInstanceArgs(
@@ -95,8 +95,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         @JvmStatic
         fun newFixedOnInstance(
             optTypeId: Int? = null,
-            fixedOnLat: Double,
-            fixedOnLng: Double,
+            fixedOnLat: Float,
+            fixedOnLng: Float,
             fixedOnName: String,
             @ColorInt optFixedOnColorInt: Int? = null,
         ): NearbyFragment {
@@ -121,8 +121,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
 
         private fun newInstance(
             optTypeId: Int? = null,
-            optFixedOnLat: Double? = null,
-            optFixedOnLng: Double? = null,
+            optFixedOnLat: Float? = null,
+            optFixedOnLng: Float? = null,
             optFixedOnName: String? = null,
             optFixedOnColor: String? = null,
         ): NearbyFragment {
@@ -133,8 +133,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
 
         private fun newInstanceArgs(
             optTypeId: Int? = null,
-            optFixedOnLat: Double? = null,
-            optFixedOnLng: Double? = null,
+            optFixedOnLat: Float? = null,
+            optFixedOnLng: Float? = null,
             optFixedOnName: String? = null,
             optFixedOnColor: String? = null,
         ): Bundle {
@@ -371,7 +371,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
                     true // handled
                 } ?: super.onOptionsItemSelected(item)
             }
-            R.id.menu_show_map -> {
+            R.id.nav_map_custom -> {
                 val locationPick = viewModel.fixedOnLocation.value ?: viewModel.nearbyLocation.value ?: viewModel.deviceLocation.value
                 locationPick?.let { location ->
                     (activity as? MainActivity)?.addFragmentToStack(

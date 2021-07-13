@@ -20,6 +20,7 @@ import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.dev.CrashReporter;
+import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.dev.FakeLocation;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 
@@ -66,14 +67,18 @@ public class GoogleLocationProvider
 	@NonNull
 	private final LocationPermissionProvider permissionProvider;
 	@NonNull
+	private final DemoModeManager demoModeManager;
+	@NonNull
 	private final CrashReporter crashReporter;
 
 	@Inject
 	public GoogleLocationProvider(@NonNull @ApplicationContext Context appContext,
 								  @NonNull LocationPermissionProvider permissionProvider,
+								  @NonNull DemoModeManager demoModeManager,
 								  @NonNull CrashReporter crashReporter) {
 		this.appContext = appContext;
 		this.permissionProvider = permissionProvider;
+		this.demoModeManager = demoModeManager;
 		this.crashReporter = crashReporter;
 	}
 
@@ -210,6 +215,39 @@ public class GoogleLocationProvider
 	private void onNewLastLocation(@SuppressWarnings("ParameterCanBeLocal") @Nullable Location lastLocation) {
 		if (FakeLocation.ENABLED) {
 			lastLocation = FakeLocation.getLocation();
+		}
+		if (demoModeManager.getEnabled()) {
+			final String filterLocation = demoModeManager.getFilterLocation();
+			if (filterLocation != null) {
+				String[] filterLocationArray = filterLocation.split(",");
+				if (filterLocationArray.length >= 2) {
+					Double lat = null;
+					try {
+						lat = Double.valueOf(filterLocationArray[0].trim());
+					} catch (NumberFormatException nfe) {
+						MTLog.w(this, "Demo mode: cannot parse latitude '%s'!", filterLocationArray[0]);
+					}
+					Double lng = null;
+					try {
+						lng = Double.valueOf(filterLocationArray[1].trim());
+					} catch (NumberFormatException nfe) {
+						MTLog.w(this, "Demo mode: cannot parse longitude '%s'!", filterLocationArray[1]);
+					}
+					Float accuracy = null;
+					if (filterLocationArray.length >= 3) {
+						try {
+							accuracy = Float.valueOf(filterLocationArray[2].trim());
+						} catch (NumberFormatException nfe) {
+							MTLog.w(this, "Demo mode: cannot parse accuracy '%s'!", filterLocationArray[2]);
+						}
+					} else {
+						accuracy = 77f;
+					}
+					if (lat != null && lng != null && accuracy != null) {
+						lastLocation = LocationUtils.getNewLocation(lat, lng, accuracy);
+					}
+				}
+			}
 		}
 		if (Constants.LOG_LOCATION) {
 			MTLog.d(this, "onNewLastLocation(%s)", lastLocation);

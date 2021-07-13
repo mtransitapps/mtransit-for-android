@@ -19,7 +19,6 @@ import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
-import java.util.ArrayList
 import javax.inject.Inject
 
 @HiltViewModel
@@ -46,11 +45,11 @@ class NewsListViewModel @Inject constructor(
 
     val subTitle = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SUB_TITLE)
 
-    private val _targetAuthorities = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_FILTER_TARGET_AUTHORITIES)
+    private val _targetAuthorities = savedStateHandle.getLiveDataDistinct<Array<String>?>(EXTRA_FILTER_TARGET_AUTHORITIES)
 
-    private val _filterTargets = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_FILTER_TARGETS)
+    private val _filterTargets = savedStateHandle.getLiveDataDistinct<Array<String>?>(EXTRA_FILTER_TARGETS)
 
-    private val _filterUUIDs = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_FILTER_UUIDS)
+    private val _filterUUIDs = savedStateHandle.getLiveDataDistinct<Array<String>?>(EXTRA_FILTER_UUIDS)
 
     private val _filters = TripleMediatorLiveData(_targetAuthorities, _filterTargets, _filterUUIDs)
 
@@ -84,9 +83,9 @@ class NewsListViewModel @Inject constructor(
 
     private fun getNewsArticles(
         allNewsProviders: List<NewsProviderProperties>?,
-        targetAuthorities: ArrayList<String>?,
-        filterTargets: ArrayList<String>?,
-        filterUUIDs: ArrayList<String>?
+        targetAuthorities: Array<String>?,
+        filterTargets: Array<String>?,
+        filterUUIDs: Array<String>?
     ): List<News>? {
         if (allNewsProviders == null) {
             MTLog.d(this, "getNewsArticles() > SKIP (news providers missing)")
@@ -96,10 +95,10 @@ class NewsListViewModel @Inject constructor(
 
         val filter = when {
             !filterUUIDs.isNullOrEmpty() -> {
-                NewsProviderContract.Filter.getNewUUIDsFilter(filterUUIDs)
+                NewsProviderContract.Filter.getNewUUIDsFilter(filterUUIDs.toList())
             }
             !filterTargets.isNullOrEmpty() -> {
-                NewsProviderContract.Filter.getNewTargetsFilter(filterTargets)
+                NewsProviderContract.Filter.getNewTargetsFilter(filterTargets.toList())
             }
             else -> {
                 NewsProviderContract.Filter.getNewEmptyFilter()
@@ -120,7 +119,6 @@ class NewsListViewModel @Inject constructor(
         }
         newsArticles.sortWith(News.NEWS_COMPARATOR)
         _loading.postValue(false)
-        MTLog.d(this, "getNewsArticles() > ${newsArticles.size}")
         return newsArticles
     }
 }

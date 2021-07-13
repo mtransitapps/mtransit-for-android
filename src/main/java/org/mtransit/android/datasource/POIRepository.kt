@@ -53,7 +53,9 @@ class POIRepository @Inject constructor(
             MTLog.d(this@POIRepository, "readingPOIM() > SKIP (agency removed)")
             onDataSourceRemoved() // agency removed
         }
-        if (authority != null && uuid != null) {
+        if (authority == null || uuid == null) {
+            MTLog.d(this@POIRepository, "readingPOIM() > SKIP (no authority OR no UUID)")
+        } else {
             val cachePOIM = read(authority, uuid)
             cachePOIM?.let { emit(it) }
             dataSourceRequestManager.findPOIM(authority, POIProviderContract.Filter.getNewUUIDFilter(uuid))?.let { newPOIM ->
@@ -70,8 +72,6 @@ class POIRepository @Inject constructor(
                 onDataSourceRemoved() // POI removed from agency
                 emit(null)
             }
-        } else {
-            MTLog.d(this@POIRepository, "readingPOIM() > SKIP (no authority OR no UUID)")
         }
     }.distinctUntilChanged()
 

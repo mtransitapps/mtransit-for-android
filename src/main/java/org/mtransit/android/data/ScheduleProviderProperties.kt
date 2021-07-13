@@ -10,9 +10,9 @@ import androidx.room.PrimaryKey
 data class ScheduleProviderProperties(
     @PrimaryKey
     @ColumnInfo(name = "authority")
-    val authority: String,
+    override val authority: String,
     @ColumnInfo(name = "target_authority")
-    val targetAuthority: String,
+    override val targetAuthority: String,
     @ColumnInfo(name = "pkg")
-    val pkg: String,
-)
+    override val pkg: String,
+) : ITargetedProviderProperties

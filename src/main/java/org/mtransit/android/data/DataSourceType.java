@@ -26,37 +26,37 @@ public enum DataSourceType {
 			R.string.agency_type_light_rail_short_name, R.string.agency_type_light_rail_all, //
 			R.string.agency_type_light_rail_stations_short_name, R.string.agency_type_light_rail_nearby, //
 			R.drawable.ic_tram_black_24dp, //
-			R.id.nav_light_rail, //
+			R.id.root_nav_light_rail, //
 			true, true, true, true, true), //
 	TYPE_SUBWAY(1, // GTFS - Metro
 			R.string.agency_type_subway_short_name, R.string.agency_type_subway_all, //
 			R.string.agency_type_subway_stations_short_name, R.string.agency_type_subway_nearby, //
 			R.drawable.ic_directions_subway_black_24dp, //
-			R.id.nav_subway, //
+			R.id.root_nav_subway, //
 			true, true, true, true, true), //
 	TYPE_RAIL(2, // GTFS - Train
 			R.string.agency_type_rail_short_name, R.string.agency_type_rail_all, //
 			R.string.agency_type_rail_stations_short_name, R.string.agency_type_rail_nearby, //
 			R.drawable.ic_directions_railway_black_24dp, //
-			R.id.nav_rail, //
+			R.id.root_nav_rail, //
 			true, true, true, true, true), //
 	TYPE_BUS(3, // GTFS - Bus
 			R.string.agency_type_bus_short_name, R.string.agency_type_bus_all, //
 			R.string.agency_type_bus_stops_short_name, R.string.agency_type_bus_nearby, //
 			R.drawable.ic_directions_bus_black_24dp, //
-			R.id.nav_bus, //
+			R.id.root_nav_bus, //
 			true, true, true, true, true), //
 	TYPE_FERRY(4, // GTFS - Boat
 			R.string.agency_type_ferry_short_name, R.string.agency_type_ferry_all, //
 			R.string.agency_type_ferry_stations_short_name, R.string.agency_type_ferry_nearby, //
 			R.drawable.ic_directions_boat_black_24dp, //
-			R.id.nav_ferry, //
+			R.id.root_nav_ferry, //
 			true, true, true, true, true), //
 	TYPE_BIKE(100, // like BIXI, Velib
 			R.string.agency_type_bike_short_name, R.string.agency_type_bike_all, //
 			R.string.agency_type_bike_stations_short_name, R.string.agency_type_bike_nearby, //
 			R.drawable.ic_directions_bike_black_24dp, //
-			R.id.nav_bike, //
+			R.id.root_nav_bike, //
 			true, true, true, true, true), //
 	TYPE_PLACE(666, //
 			R.string.agency_type_place_short_name, R.string.agency_type_place_all, //
@@ -68,7 +68,7 @@ public enum DataSourceType {
 			R.string.agency_type_module_short_name, R.string.agency_type_module_all, //
 			R.string.agency_type_module_app_short_name, R.string.agency_type_module_nearby, //
 			R.drawable.ic_library_add_black_24dp, //
-			R.id.nav_module, //
+			R.id.root_nav_module, //
 			true, true, true, false, false), //
 	;
 
@@ -210,19 +210,19 @@ public enum DataSourceType {
 			MTLog.w(TAG, "Nav res ID 'null' doesn't match any type!");
 			return null;
 		}
-		if (navResId == R.id.nav_light_rail) {
+		if (navResId == R.id.root_nav_light_rail) {
 			return TYPE_LIGHT_RAIL;
-		} else if (navResId == R.id.nav_subway) {
+		} else if (navResId == R.id.root_nav_subway) {
 			return TYPE_SUBWAY;
-		} else if (navResId == R.id.nav_rail) {
+		} else if (navResId == R.id.root_nav_rail) {
 			return TYPE_RAIL;
-		} else if (navResId == R.id.nav_bus) {
+		} else if (navResId == R.id.root_nav_bus) {
 			return TYPE_BUS;
-		} else if (navResId == R.id.nav_ferry) {
+		} else if (navResId == R.id.root_nav_ferry) {
 			return TYPE_FERRY;
-		} else if (navResId == R.id.nav_bike) {
+		} else if (navResId == R.id.root_nav_bike) {
 			return TYPE_BIKE;
-		} else if (navResId == R.id.nav_module) {
+		} else if (navResId == R.id.root_nav_module) {
 			return TYPE_MODULE;
 		}
 		MTLog.w(TAG, "Nav res ID '5s' doesn't match any type!", navResId);

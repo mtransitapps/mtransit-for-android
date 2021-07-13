@@ -45,6 +45,7 @@ import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
+import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.provider.location.MTLocationProvider;
 import org.mtransit.android.ui.view.common.IActivity;
 
@@ -112,6 +113,8 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	private final CrashReporter crashReporter;
 	@NonNull
 	private final MTLocationProvider locationProvider;
+	@NonNull
+	private final DemoModeManager demoModeManager;
 	@SuppressWarnings("FieldCanBeLocal")
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
@@ -120,10 +123,12 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	public AdManager(@NonNull @ApplicationContext Context appContext,
 					 @NonNull CrashReporter crashReporter,
 					 @NonNull MTLocationProvider locationProvider,
+					 @NonNull DemoModeManager demoModeManager,
 					 @NonNull DataSourcesRepository dataSourcesRepository) {
 		this.appContext = appContext;
 		this.crashReporter = crashReporter;
 		this.locationProvider = locationProvider;
+		this.demoModeManager = demoModeManager;
 		this.dataSourcesRepository = dataSourcesRepository;
 		this.dataSourcesRepository.readingAllAgenciesCount().observeForever(newNbAgencies -> { // SINGLETON
 			this.nbAgencies = newNbAgencies;
@@ -257,6 +262,9 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	@Override
 	public boolean isRewardedNow() {
 		if (!AD_ENABLED) {
+			return true;
+		}
+		if (this.demoModeManager.getEnabled()) {
 			return true;
 		}
 		return getRewardedUntilInMs() > TimeUtils.currentTimeMillis();
@@ -472,6 +480,9 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		if (!AD_ENABLED) {
 			return false;
 		}
+		if (this.demoModeManager.getEnabled()) {
+			return false;
+		}
 		//noinspection RedundantIfStatement
 		if (this.rewardedAd == null) { // do not trigger creation + loading
 			return false;
@@ -661,6 +672,9 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		// number of agency unknown
 		if (nbAgencies <= MIN_AGENCIES_FOR_ADS) { // no (real) agency installed
 			MTLog.d(this, "isShowingAds() > Not showing ads (no '%d' agency installed).", nbAgencies);
+			return false; // not showing ads
+		} else if (demoModeManager.getEnabled()) {
+			MTLog.d(this, "isShowingAds() > Not showing ads (demo mode).");
 			return false; // not showing ads
 		}
 		if (showingAds == null) { // paying status unknown

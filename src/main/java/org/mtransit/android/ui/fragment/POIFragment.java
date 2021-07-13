@@ -58,6 +58,7 @@ import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.ScheduleProviderProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
+import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.provider.FavoriteManager;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.provider.sensor.MTSensorManager;
@@ -137,10 +138,7 @@ public class POIFragment extends ABFragment implements
 
 	@NonNull
 	public static POIFragment newInstance(@NonNull POIManager poim) {
-		return newInstance(
-				poim.poi.getUUID(),
-				poim.poi.getAuthority()
-		);
+		return newInstance(poim.poi.getAuthority(), poim.poi.getUUID());
 	}
 
 	@NonNull
@@ -154,8 +152,8 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@NonNull
-	public static POIFragment newInstance(@NonNull String uuid,
-										  @NonNull String authority) {
+	public static POIFragment newInstance(@NonNull String authority,
+										  @NonNull String uuid) {
 		POIFragment f = new POIFragment();
 		f.setArguments(newInstanceArgs(authority, uuid));
 		return f;
@@ -191,6 +189,8 @@ public class POIFragment extends ABFragment implements
 	IAnalyticsManager analyticsManager;
 	@Inject
 	FavoriteManager favoriteManager;
+	@Inject
+	DemoModeManager demoModeManager;
 
 	@NonNull
 	private final MapViewController mapViewController =
@@ -622,7 +622,6 @@ public class POIFragment extends ABFragment implements
 									poim.getColor(dataSourcesRepository),
 									POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
 									Collections.singletonList(poim.poi.getAuthority()),
-									null,
 									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
 							),
 							null,
@@ -639,7 +638,6 @@ public class POIFragment extends ABFragment implements
 									poim.getColor(dataSourcesRepository),
 									POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
 									Collections.singletonList(poim.poi.getAuthority()),
-									null,
 									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
 							),
 							POIFragment.this
@@ -657,18 +655,34 @@ public class POIFragment extends ABFragment implements
 		View moreBtn = view.findViewById(R.id.poi_nearby_pois_title).findViewById(R.id.moreBtn);
 		if (moreBtn != null) {
 			moreBtn.setOnClickListener(v -> {
-				final Activity activity = getActivity();
-				if (activity == null) {
-					return;
-				}
 				final POIManager poim = getPoimOrNull();
 				if (poim == null) {
 					return;
 				}
-				((MainActivity) activity).addFragmentToStack(
-						NearbyFragment.newFixedOnPOIInstance(poim, dataSourcesRepository, false),
-						POIFragment.this
-				);
+				if (FeatureFlags.F_NAVIGATION) {
+					final NavController navController = NavHostFragment.findNavController(this);
+					FragmentNavigator.Extras extras = null;
+					if (FeatureFlags.F_TRANSITION) {
+						extras = new FragmentNavigator.Extras.Builder()
+								// TODO button? .addSharedElement(view, view.getTransitionName())
+								.build();
+					}
+					navController.navigate(
+							R.id.nav_to_nearby_screen,
+							NearbyFragment.newFixedOnPOIInstanceArgs(poim, dataSourcesRepository, false),
+							null,
+							extras
+					);
+				} else {
+					final Activity activity = getActivity();
+					if (!(activity instanceof MainActivity)) {
+						return;
+					}
+					((MainActivity) activity).addFragmentToStack(
+							NearbyFragment.newFixedOnPOIInstance(poim, dataSourcesRepository, false),
+							POIFragment.this
+					);
+				}
 			});
 			moreBtn.setVisibility(View.VISIBLE);
 		}
@@ -735,7 +749,7 @@ public class POIFragment extends ABFragment implements
 			return null;
 		}
 		if (view.findViewById(R.id.poi_news) == null) { // IF NOT present/inflated DO
-			int layoutResId = POINewsViewController.getLayoutResId();
+			final int layoutResId = POINewsViewController.getLayoutResId();
 			((ViewStub) view.findViewById(R.id.poi_news_stub)).setLayoutResource(layoutResId);
 			((ViewStub) view.findViewById(R.id.poi_news_stub)).inflate(); // inflate
 			view.findViewById(R.id.the_poi_news).setOnClickListener(v -> {
@@ -747,14 +761,30 @@ public class POIFragment extends ABFragment implements
 				if (lastNews == null) {
 					return;
 				}
-				final Activity activity = getActivity();
-				if (activity == null) {
-					return;
+				if (FeatureFlags.F_NAVIGATION) {
+					final NavController navController = NavHostFragment.findNavController(this);
+					FragmentNavigator.Extras extras = null;
+					if (FeatureFlags.F_TRANSITION) {
+						extras = new FragmentNavigator.Extras.Builder()
+								// TODO button? .addSharedElement(view, view.getTransitionName())
+								.build();
+					}
+					navController.navigate(
+							R.id.nav_to_news_detail_screen,
+							NewsDetailsFragment.newInstanceArgs(lastNews),
+							null,
+							extras
+					);
+				} else {
+					final Activity activity = getActivity();
+					if (activity == null) {
+						return;
+					}
+					((MainActivity) activity).addFragmentToStack(
+							NewsDetailsFragment.newInstance(lastNews),
+							POIFragment.this
+					);
 				}
-				((MainActivity) activity).addFragmentToStack(
-						NewsDetailsFragment.newInstance(lastNews),
-						POIFragment.this
-				);
 			});
 		}
 		return view.findViewById(R.id.poi_news);
@@ -1017,7 +1047,10 @@ public class POIFragment extends ABFragment implements
 			return;
 		}
 		final IAgencyUpdatableProperties agency = getAgencyOrNull();
-		final boolean appUpdateAvailable = agency != null && agency.getUpdateAvailable();
+		boolean appUpdateAvailable = agency != null && agency.getUpdateAvailable();
+		if (demoModeManager.getEnabled()) {
+			appUpdateAvailable = false; // always false (demo mode ON)
+		}
 		final String pkg = agency == null ? "" : agency.getPkg();
 		if (appUpdateAvailable) {
 			if (appUpdateLayout.getVisibility() != View.VISIBLE) {

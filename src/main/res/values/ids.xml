@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="nav_home" type="id" />
-    <item name="nav_favorites" type="id" />
+    <item name="root_nav_home" type="id" />
+    <item name="root_nav_favorites" type="id" />
+    <item name="root_nav_nearby" type="id" />
     <item name="nav_nearby" type="id" />
+    <item name="root_nav_map" type="id" />
     <item name="nav_map" type="id" />
+    <item name="nav_map_custom" type="id" />
     <item name="nav_trip_planner" type="id" />
+    <item name="root_nav_news" type="id" />
     <item name="nav_news" type="id" />
     <item name="nav_type" type="id" />
-    <item name="nav_light_rail" type="id" />
-    <item name="nav_subway" type="id" />
-    <item name="nav_rail" type="id" />
-    <item name="nav_bus" type="id" />
-    <item name="nav_ferry" type="id" />
-    <item name="nav_bike" type="id" />
-    <item name="nav_module" type="id" />
+    <item name="root_nav_light_rail" type="id" />
+    <item name="root_nav_subway" type="id" />
+    <item name="root_nav_rail" type="id" />
+    <item name="root_nav_bus" type="id" />
+    <item name="root_nav_ferry" type="id" />
+    <item name="root_nav_bike" type="id" />
+    <item name="root_nav_module" type="id" />
     <item name="nav_poi" type="id" />
     <item name="nav_schedule" type="id" />
     <item name="nav_news_detail" type="id" />

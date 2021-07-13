@@ -20,6 +20,7 @@ import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.dev.DemoModeManager
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,6 +28,7 @@ class MainViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val defaultPrefRepository: DefaultPreferenceRepository,
+    private val demoModeManager: DemoModeManager,
 ) : ViewModel(), MTLog.Loggable {
 
 
@@ -67,12 +69,17 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    val selectedItemIdPref: LiveData<String> = lclPrefRepository.pref.liveData(
+    private val _selectedItemIdPref: LiveData<String> = lclPrefRepository.pref.liveData(
         PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT
     ).distinctUntilChanged()
-
-    val selectedItemIdRes: LiveData<Int> = selectedItemIdPref.map { idPref ->
-        idPrefToIdRes(idPref)
+    val selectedItemIdRes: LiveData<Int> = _selectedItemIdPref.map { idPref ->
+        idPrefToIdRes(
+            if (demoModeManager.enabled) {
+                ITEM_ID_SELECTED_SCREEN_DEFAULT
+            } else {
+                idPref
+            }
+        )
     }
 
     fun onSelectedItemIdChanged(@IdRes idRes: Int, args: Bundle? = null) {
@@ -80,6 +87,9 @@ class MainViewModel @Inject constructor(
     }
 
     fun onSelectedItemIdChanged(idPref: String, args: Bundle? = null) {
+        if (demoModeManager.enabled) {
+            return // SKIP (demo mode ON)
+        }
         if (isRootScreen(idPref)) {
             lclPrefRepository.pref.edit {
                 putString(PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, idPref)
@@ -102,42 +112,58 @@ class MainViewModel @Inject constructor(
     }
 
     private fun idPrefToIdRes(idPref: String?) = when (idPref) {
-        ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME -> R.id.nav_home
-        ITEM_ID_STATIC_START_WITH + ITEM_INDEX_FAVORITE -> R.id.nav_favorites
-        ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEARBY -> R.id.nav_nearby
-        ITEM_ID_STATIC_START_WITH + ITEM_INDEX_MAP -> R.id.nav_map
+        ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME -> R.id.root_nav_home
+        ITEM_ID_STATIC_START_WITH + ITEM_INDEX_FAVORITE -> R.id.root_nav_favorites
+        ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEARBY -> R.id.root_nav_nearby
+        ITEM_ID_STATIC_START_WITH + ITEM_INDEX_MAP -> R.id.root_nav_map
         ITEM_ID_STATIC_START_WITH + ITEM_INDEX_TRIP_PLANNER -> R.id.nav_trip_planner
-        ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEWS -> R.id.nav_news
-        ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_LIGHT_RAIL.id -> R.id.nav_light_rail
-        ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_SUBWAY.id -> R.id.nav_subway
-        ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_RAIL.id -> R.id.nav_rail
-        ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BUS.id -> R.id.nav_bus
-        ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_FERRY.id -> R.id.nav_ferry
-        ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BIKE.id -> R.id.nav_bike
-        ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.id -> R.id.nav_module
+        ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEWS -> R.id.root_nav_news
+        ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_LIGHT_RAIL.id -> R.id.root_nav_light_rail
+        ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_SUBWAY.id -> R.id.root_nav_subway
+        ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_RAIL.id -> R.id.root_nav_rail
+        ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BUS.id -> R.id.root_nav_bus
+        ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_FERRY.id -> R.id.root_nav_ferry
+        ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BIKE.id -> R.id.root_nav_bike
+        ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.id -> R.id.root_nav_module
         else -> {
             MTLog.w(this, "Unknown item ID preference '$idPref'!")
-            R.id.nav_home
+            R.id.root_nav_home
         }
     }
 
     private fun idResToIdPref(@IdRes idRes: Int?) = when (idRes) {
-        R.id.nav_home -> ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME
-        R.id.nav_favorites -> ITEM_ID_STATIC_START_WITH + ITEM_INDEX_FAVORITE
-        R.id.nav_nearby -> ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEARBY
-        R.id.nav_map -> ITEM_ID_STATIC_START_WITH + ITEM_INDEX_MAP
+        R.id.root_nav_home -> ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME
+        R.id.root_nav_favorites -> ITEM_ID_STATIC_START_WITH + ITEM_INDEX_FAVORITE
+        R.id.root_nav_nearby -> ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEARBY
+        R.id.root_nav_map -> ITEM_ID_STATIC_START_WITH + ITEM_INDEX_MAP
         R.id.nav_trip_planner -> ITEM_ID_STATIC_START_WITH + ITEM_INDEX_TRIP_PLANNER
-        R.id.nav_news -> ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEWS
-        R.id.nav_light_rail -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_LIGHT_RAIL.id
-        R.id.nav_subway -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_SUBWAY.id
-        R.id.nav_rail -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_RAIL.id
-        R.id.nav_bus -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BUS.id
-        R.id.nav_ferry -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_FERRY.id
-        R.id.nav_bike -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BIKE.id
-        R.id.nav_module -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.id
+        R.id.root_nav_news -> ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEWS
+        R.id.root_nav_light_rail -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_LIGHT_RAIL.id
+        R.id.root_nav_subway -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_SUBWAY.id
+        R.id.root_nav_rail -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_RAIL.id
+        R.id.root_nav_bus -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BUS.id
+        R.id.root_nav_ferry -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_FERRY.id
+        R.id.root_nav_bike -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BIKE.id
+        R.id.root_nav_module -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.id
         else -> {
             MTLog.w(this@MainViewModel, "Unknown item ID resource '$idRes'!")
             ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME
         }
     }
+
+    fun getRootScreenResId() = setOf(
+        R.id.root_nav_home,
+        R.id.root_nav_favorites,
+        R.id.root_nav_nearby,
+        R.id.root_nav_map,
+        R.id.nav_trip_planner, // TODO ?
+        R.id.root_nav_news,
+        R.id.root_nav_bike,
+        R.id.root_nav_bus,
+        R.id.root_nav_ferry,
+        R.id.root_nav_light_rail,
+        R.id.root_nav_subway,
+        R.id.root_nav_rail,
+        R.id.root_nav_module
+    )
 }

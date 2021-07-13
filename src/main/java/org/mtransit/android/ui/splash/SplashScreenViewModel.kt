@@ -1,6 +1,7 @@
 package org.mtransit.android.ui.splash
 
 import androidx.core.content.edit
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.mtransit.android.analytics.AnalyticsUserProperties
@@ -8,12 +9,15 @@ import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PreferenceUtils
+import org.mtransit.android.dev.DemoModeManager
 import javax.inject.Inject
 
 @HiltViewModel
 class SplashScreenViewModel @Inject constructor(
     private val defaultPrefRepository: DefaultPreferenceRepository,
-    private val analyticsManager: IAnalyticsManager
+    private val analyticsManager: IAnalyticsManager,
+    private val savedStateHandle: SavedStateHandle,
+    private val demoModeManager: DemoModeManager,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -29,5 +33,6 @@ class SplashScreenViewModel @Inject constructor(
             putInt(PreferenceUtils.PREF_USER_APP_OPEN_COUNTS, appOpenCounts)
         }
         analyticsManager.setUserProperty(AnalyticsUserProperties.OPEN_APP_COUNTS, appOpenCounts)
+        demoModeManager.read(savedStateHandle)
     }
 }

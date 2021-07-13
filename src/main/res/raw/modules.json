@@ -2,7 +2,7 @@
 {"name":"Airdrie Transit","name_fr":"","location":"Airdrie, AB, Canada","targetTypeId":"3","color":"0099CC","lat":"51.286644","lng":"-113.983500","pkg":"org.mtransit.android.ca_airdrie_transit_bus"},
 {"name":"Barrie Transit","name_fr":"","location":"Barrie, ON, Canada","targetTypeId":"3","color":"336699","lat":"44.387776","lng":"-79.690981","pkg":"org.mtransit.android.ca_barrie_transit_bus"},
 {"name":"Bike Share Toronto","name_fr":"","location":"Toronto, ON, Canada","targetTypeId":"100","color":"107054","lat":"43.651890","lng":"-79.383337","pkg":"org.mtransit.android.ca_toronto_share_bike"},
-{"name":"BIXI Montréal","name_fr":"BIXI Montréal","location":"Montréal, Westmount, Longueuil, QC, Canada","targetTypeId":"100","color":"D42B1E","lat":"45.542771","lng":"-73.581281","pkg":"org.mtransit.android.ca_montreal_bixi_bike"},
+{"name":"BIXI","name_fr":"BIXI","location":"Montréal, Westmount, Longueuil, QC, Canada","targetTypeId":"100","color":"D42B1E","lat":"45.542771","lng":"-73.581281","pkg":"org.mtransit.android.ca_montreal_bixi_bike"},
 {"name":"Brampton Transit (City of Brampton)","name_fr":"","location":"Brampton, ON, Canada","targetTypeId":"3","color":"DB3935","lat":"43.706969","lng":"-79.724756","pkg":"org.mtransit.android.ca_brampton_transit_bus"},
 {"name":"Brandon Transit (City of Brandon)","name_fr":"","location":"Brandon, MB, Canada","targetTypeId":"3","color":"00B8F1","lat":"49.826616","lng":"-99.927767","pkg":"org.mtransit.android.ca_brandon_transit_bus"},
 {"name":"Burlington Transit (City of Burlington)","name_fr":"","location":"Burlington, ON, Canada","targetTypeId":"3","color":"006184","lat":"43.326095","lng":"-79.798886","pkg":"org.mtransit.android.ca_burlington_transit_bus"},

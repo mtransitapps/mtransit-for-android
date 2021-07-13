@@ -19,6 +19,7 @@ import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
+import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
@@ -28,6 +29,7 @@ class AgencyPOIsViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val defaultPrefRepository: DefaultPreferenceRepository,
+    private val demoModeManager: DemoModeManager,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -63,6 +65,10 @@ class AgencyPOIsViewModel @Inject constructor(
     val showingListInsteadOfMap: LiveData<Boolean> = _authority.switchMap { authority ->
         liveData {
             authority?.let {
+                if (demoModeManager.enabled) {
+                    emit(false) // show map (demo mode ON)
+                    return@liveData
+                }
                 emitSource(
                     defaultPrefRepository.pref.liveData(
                         PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(it),
@@ -77,6 +83,9 @@ class AgencyPOIsViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     fun saveShowingListInsteadOfMap(showingListInsteadOfMap: Boolean) {
+        if (demoModeManager.enabled) {
+            return // SKIP (demo mode ON)
+        }
         defaultPrefRepository.pref.edit {
             putBoolean(PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET, showingListInsteadOfMap)
             _authority.value?.let { authority ->

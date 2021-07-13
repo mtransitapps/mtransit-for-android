@@ -7,13 +7,15 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.Favorite
 import org.mtransit.android.data.TextMessage
+import org.mtransit.android.dev.DemoModeManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class FavoriteRepository @Inject constructor(
     @ApplicationContext private val appContext: Context,
-    private val favoriteManager: FavoriteManager
+    private val favoriteManager: FavoriteManager,
+    private val demoModeManager: DemoModeManager,
 ) {
 
     companion object {
@@ -21,24 +23,39 @@ class FavoriteRepository @Inject constructor(
     }
 
     fun findFavoriteUUIDs(): Set<String> {
+        if (demoModeManager.enabled) {
+            return emptySet()
+        }
         return favoriteManager.findFavoriteUUIDs(appContext)
     }
 
     fun findFavorites(): List<Favorite> {
+        if (demoModeManager.enabled) {
+            return emptyList()
+        }
         return favoriteManager.findFavorites(appContext)
     }
 
     fun findFoldersList(): List<Favorite.Folder> {
+        if (demoModeManager.enabled) {
+            return emptyList()
+        }
         return favoriteManager.findFoldersList(appContext)
     }
 
     @WorkerThread
     fun isFavorite(fkId: String): Boolean {
+        if (demoModeManager.enabled) {
+            return false
+        }
         return favoriteManager.isFavorite(appContext, fkId)
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
     fun isFavoriteDataSourceId(favoriteFolderId: Int): Boolean {
+        if (demoModeManager.enabled) {
+            return false
+        }
         return favoriteManager.isFavoriteDataSourceId(favoriteFolderId)
     }
 

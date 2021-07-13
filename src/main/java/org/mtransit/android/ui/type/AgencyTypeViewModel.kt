@@ -53,14 +53,12 @@ class AgencyTypeViewModel @Inject constructor(
 
     private val selectedTypeAgencyAuthority: LiveData<String> = _typeId.switchMap { typeId ->
         liveData {
-            typeId?.let {
-                emitSource(
-                    lclPrefRepository.pref.liveData(
-                        PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(it),
-                        PreferenceUtils.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
-                    )
+            emitSource(
+                lclPrefRepository.pref.liveData(
+                    PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(typeId),
+                    PreferenceUtils.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
                 )
-            }
+            )
         }
     }.distinctUntilChanged()
 

@@ -33,6 +33,7 @@ import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
+import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.favorites.FavoritesFragment;
@@ -67,7 +68,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	private static final int ITEM_INDEX_MAP = 3;
 	private static final int ITEM_INDEX_TRIP_PLANNER = 4;
 	private static final int ITEM_INDEX_NEWS = 5;
-	private static final int ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT = R.id.nav_home;
+	private static final int ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT = R.id.root_nav_home;
 	private static final String ITEM_ID_SELECTED_SCREEN_DEFAULT = ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME;
 
 	private static final int MIN_AGENCY_INSTALLED = 1; // include "+"
@@ -85,6 +86,8 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	private final StatusLoader statusLoader;
 	@NonNull
 	private final ServiceUpdateLoader serviceUpdateLoader;
+	@NonNull
+	private final DemoModeManager demoModeManager;
 	@Nullable
 	private DrawerLayout drawerLayout;
 	@Nullable
@@ -101,13 +104,15 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 							   @NonNull IAnalyticsManager analyticsManager,
 							   @NonNull DataSourcesRepository dataSourcesRepository,
 							   @NonNull StatusLoader statusLoader,
-							   @NonNull ServiceUpdateLoader serviceUpdateLoader) {
+							   @NonNull ServiceUpdateLoader serviceUpdateLoader,
+							   @NonNull DemoModeManager demoModeManager) {
 		this.mainActivityWR = new WeakReference<>(mainActivity);
 		this.crashReporter = crashReporter;
 		this.dataSourcesRepository = dataSourcesRepository;
 		this.analyticsManager = analyticsManager;
 		this.statusLoader = statusLoader;
 		this.serviceUpdateLoader = serviceUpdateLoader;
+		this.demoModeManager = demoModeManager;
 		this.dataSourcesRepository.readingAllDataSourceTypes().observe(mainActivity, dataSourceTypes -> {
 			this.allAgencyTypes = filterAgencyTypes(dataSourceTypes);
 			setVisibleMenuItems();
@@ -180,7 +185,14 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			if (navigationDrawerController.isCurrentSelectedSet()) {
 				return null;
 			}
-			final String itemId = PreferenceUtils.getPrefLcl(context, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT);
+			String itemId = PreferenceUtils.getPrefLcl(context, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT);
+			final DemoModeManager demoModeManager = navigationDrawerController.demoModeManager;
+			if (demoModeManager.getEnabled()) {
+				itemId = ITEM_ID_SELECTED_SCREEN_DEFAULT;
+				if (demoModeManager.isEnabledBrowseScreen()) {
+					itemId = ITEM_ID_AGENCY_TYPE_START_WITH + demoModeManager.getFilterTypeId();
+				}
+			}
 			publishProgress(itemId);
 			return itemId;
 		}
@@ -325,6 +337,12 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			return;
 		}
 		String itemId = PreferenceUtils.getPrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT);
+		if (demoModeManager.getEnabled()) {
+			itemId = ITEM_ID_SELECTED_SCREEN_DEFAULT;
+			if (demoModeManager.isEnabledBrowseScreen()) {
+				itemId = ITEM_ID_AGENCY_TYPE_START_WITH + demoModeManager.getFilterTypeId();
+			}
+		}
 		Integer newSelectedNavItemId = getScreenNavItemId(itemId);
 		if (this.currentSelectedScreenItemNavId != null && this.currentSelectedScreenItemNavId.equals(newSelectedNavItemId)
 				&& this.currentSelectedScreenItemId != null && this.currentSelectedScreenItemId.equals(itemId)) {
@@ -341,31 +359,31 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		if (navItemId == null) {
 			return null;
 		}
-		if (navItemId == R.id.nav_home) {
+		if (navItemId == R.id.root_nav_home) {
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME;
-		} else if (navItemId == R.id.nav_favorites) {
+		} else if (navItemId == R.id.root_nav_favorites) {
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_FAVORITE;
-		} else if (navItemId == R.id.nav_nearby) {
+		} else if (navItemId == R.id.root_nav_nearby) {
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEARBY;
-		} else if (navItemId == R.id.nav_map) {
+		} else if (navItemId == R.id.root_nav_map) {
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_MAP;
 		} else if (navItemId == R.id.nav_trip_planner) {
 			return null; // NOT ROOT SCREEN // ITEM_ID_STATIC_START_WITH + ITEM_INDEX_TRIP_PLANNER;
-		} else if (navItemId == R.id.nav_news) {
+		} else if (navItemId == R.id.root_nav_news) {
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEWS;
-		} else if (navItemId == R.id.nav_light_rail) {
+		} else if (navItemId == R.id.root_nav_light_rail) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_LIGHT_RAIL.getId();
-		} else if (navItemId == R.id.nav_subway) {
+		} else if (navItemId == R.id.root_nav_subway) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_SUBWAY.getId();
-		} else if (navItemId == R.id.nav_rail) {
+		} else if (navItemId == R.id.root_nav_rail) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_RAIL.getId();
-		} else if (navItemId == R.id.nav_bus) {
+		} else if (navItemId == R.id.root_nav_bus) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BUS.getId();
-		} else if (navItemId == R.id.nav_ferry) {
+		} else if (navItemId == R.id.root_nav_ferry) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_FERRY.getId();
-		} else if (navItemId == R.id.nav_bike) {
+		} else if (navItemId == R.id.root_nav_bike) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BIKE.getId();
-		} else if (navItemId == R.id.nav_module) {
+		} else if (navItemId == R.id.root_nav_module) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.getId();
 		} else if (navItemId == R.id.nav_settings
 				|| navItemId == R.id.nav_support
@@ -386,17 +404,17 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			try {
 				switch (Integer.parseInt(itemId.substring(ITEM_ID_STATIC_START_WITH.length()))) {
 				case ITEM_INDEX_HOME:
-					return R.id.nav_home;
+					return R.id.root_nav_home;
 				case ITEM_INDEX_FAVORITE:
-					return R.id.nav_favorites;
+					return R.id.root_nav_favorites;
 				case ITEM_INDEX_NEARBY:
-					return R.id.nav_nearby;
+					return R.id.root_nav_nearby;
 				case ITEM_INDEX_MAP:
-					return R.id.nav_map;
+					return R.id.root_nav_map;
 				case ITEM_INDEX_TRIP_PLANNER:
 					return R.id.nav_trip_planner;
 				case ITEM_INDEX_NEWS:
-					return R.id.nav_news;
+					return R.id.root_nav_news;
 				default:
 					MTLog.w(this, "Unexpected static screen item ID '%s'!", itemId);
 					return ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT;
@@ -478,6 +496,9 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		this.statusLoader.clearAllTasks();
 		this.serviceUpdateLoader.clearAllTasks();
 		mainActivity.showNewFragment(newFragment, false, null);
+		if (demoModeManager.getEnabled()) {
+			return; // SKIP (demo mode ON)
+		}
 		if (isRootScreen(navItemId)) {
 			PreferenceUtils.savePrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId, false);
 		}
@@ -489,18 +510,18 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			MTLog.w(this, "getNewStaticFragmentAt() > skip (nav item ID null)");
 			return null;
 		}
-		if (navItemId == R.id.nav_home) {
+		if (navItemId == R.id.root_nav_home) {
 			return HomeFragment.newInstance();
-		} else if (navItemId == R.id.nav_favorites) {
+		} else if (navItemId == R.id.root_nav_favorites) {
 			return FavoritesFragment.newInstance();
-		} else if (navItemId == R.id.nav_nearby) {
+		} else if (navItemId == R.id.root_nav_nearby) {
 			return NearbyFragment.newNearbyInstance();
-		} else if (navItemId == R.id.nav_map) {
+		} else if (navItemId == R.id.root_nav_map) {
 			return MapFragment.newInstance();
-		} else if (navItemId == R.id.nav_news) {
+		} else if (navItemId == R.id.root_nav_news) {
 			return NewsListFragment.newInstance();
 		}
-		DataSourceType dst = DataSourceType.parseNavResId(navItemId);
+		final DataSourceType dst = DataSourceType.parseNavResId(navItemId);
 		if (dst != null) {
 			return AgencyTypeFragment.newInstance(dst);
 		}
@@ -633,12 +654,12 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	}
 
 	private static void uncheckOtherMenuItems(@NonNull NavigationView navigationView, int currentSelectedScreenItemNavId) {
-		navigationView.getMenu().findItem(R.id.nav_home).setCheckable(currentSelectedScreenItemNavId == R.id.nav_home);
-		navigationView.getMenu().findItem(R.id.nav_favorites).setCheckable(currentSelectedScreenItemNavId == R.id.nav_favorites);
-		navigationView.getMenu().findItem(R.id.nav_nearby).setCheckable(currentSelectedScreenItemNavId == R.id.nav_nearby);
-		navigationView.getMenu().findItem(R.id.nav_map).setCheckable(currentSelectedScreenItemNavId == R.id.nav_map);
+		navigationView.getMenu().findItem(R.id.root_nav_home).setCheckable(currentSelectedScreenItemNavId == R.id.root_nav_home);
+		navigationView.getMenu().findItem(R.id.root_nav_favorites).setCheckable(currentSelectedScreenItemNavId == R.id.root_nav_favorites);
+		navigationView.getMenu().findItem(R.id.root_nav_nearby).setCheckable(currentSelectedScreenItemNavId == R.id.root_nav_nearby);
+		navigationView.getMenu().findItem(R.id.root_nav_map).setCheckable(currentSelectedScreenItemNavId == R.id.root_nav_map);
 		navigationView.getMenu().findItem(R.id.nav_trip_planner).setCheckable(currentSelectedScreenItemNavId == R.id.nav_trip_planner);
-		navigationView.getMenu().findItem(R.id.nav_news).setCheckable(currentSelectedScreenItemNavId == R.id.nav_news);
+		navigationView.getMenu().findItem(R.id.root_nav_news).setCheckable(currentSelectedScreenItemNavId == R.id.root_nav_news);
 		for (DataSourceType dst : DataSourceType.values()) {
 			if (dst.getNavResId() == currentSelectedScreenItemNavId) {
 				continue;

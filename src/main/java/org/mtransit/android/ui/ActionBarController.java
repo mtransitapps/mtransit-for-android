@@ -370,7 +370,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
 	public boolean onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
 		menuInflater.inflate(R.menu.menu_main, menu);
-		this.searchMenuItem = menu.findItem(R.id.menu_search);
+		this.searchMenuItem = menu.findItem(R.id.nav_search);
 		updateSearchMenuItemVisibility();
 		return true;
 	}
@@ -391,7 +391,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 					return true; // handled
 				}
 			}
-			if (item.getItemId() == R.id.menu_search) {
+			if (item.getItemId() == R.id.nav_search) {
 				mainActivity.onSearchRequested();
 				return true; // handled
 			}

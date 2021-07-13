@@ -61,7 +61,7 @@ import java.util.Objects;
 
 public class POIManager implements LocationPOI, MTLog.Loggable {
 
-	private static final String TAG = POIManager.class.getSimpleName();
+	private static final String LOG_TAG = POIManager.class.getSimpleName();
 
 	@SuppressWarnings("ConstantConditions")
 	@NonNull
@@ -70,9 +70,9 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		if (this.poi != null) {
 			final String uuid = this.poi.getUUID();
 			final int index = uuid.indexOf(IAgencyProperties.PKG_COMMON);
-			return TAG + "-" + (index == -1 ? uuid : uuid.substring(index + IAgencyProperties.PKG_COMMON.length()));
+			return LOG_TAG + "-" + (index == -1 ? uuid : uuid.substring(index + IAgencyProperties.PKG_COMMON.length()));
 		}
-		return TAG;
+		return LOG_TAG;
 	}
 
 	public static final POIAlphaComparator POI_ALPHA_COMPARATOR = new POIAlphaComparator();
@@ -738,7 +738,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_ACTION_TYPE_PLACE:
 			return false;
 		default:
-			MTLog.w(TAG, "unexpected action type '%s'!", poi.getActionsType());
+			MTLog.w(LOG_TAG, "unexpected action type '%s'!", poi.getActionsType());
 			return false;
 		}
 	}
@@ -943,7 +943,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 			return new POIManager(TextMessage.fromCursorStatic(cursor, authority));
 		default:
-			MTLog.w(TAG, "Unexpected POI type '%s'! (using default)", DefaultPOI.getTypeFromCursor(cursor));
+			MTLog.w(LOG_TAG, "Unexpected POI type '%s'! (using default)", DefaultPOI.getTypeFromCursor(cursor));
 			return new POIManager(DefaultPOI.fromCursorStatic(cursor, authority));
 		}
 	}

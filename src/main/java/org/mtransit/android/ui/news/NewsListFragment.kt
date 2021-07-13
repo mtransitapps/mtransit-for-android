@@ -37,57 +37,69 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
             optColorInt: Int? = null,
             subtitle: String? = null,
             targetAuthorities: List<String>? = null,
+            filterTargets: List<String>? = null,
             filterUUIDs: List<String>? = null, // always null
-            filterTargets: List<String>? = null
         ) = newInstance(
             optColorInt?.let { ColorUtils.toRGBColor(it) },
             subtitle,
-            targetAuthorities?.let { ArrayList(it) },
-            filterUUIDs?.let { ArrayList(it) },
-            filterTargets?.let { ArrayList(it) }
+            targetAuthorities?.toTypedArray(),
+            filterTargets?.toTypedArray(),
+            filterUUIDs?.toTypedArray(),
         )
 
         fun newInstance(
             color: String? = null,
             subtitle: String? = null,
-            targetAuthorities: ArrayList<String>? = null,
-            filterUUIDs: ArrayList<String>? = null, // always null
-            filterTargets: ArrayList<String>? = null,
+            targetAuthorities: Array<String>? = null,
+            filterTargets: Array<String>? = null,
+            filterUUIDs: Array<String>? = null, // always null
         ): NewsListFragment {
             return NewsListFragment().apply {
                 arguments = newInstanceArgs(color, subtitle, targetAuthorities, filterTargets, filterUUIDs)
             }
         }
 
+        @JvmOverloads
         @JvmStatic
         fun newInstanceArgs(
-            optColorInt: Int?,
-            subtitle: String?,
-            targetAuthorities: List<String>?,
-            filterTargets: List<String>?,
-            filterUUIDs: List<String>?
+            optColorInt: Int? = null,
+            subtitle: String? = null,
+            targetAuthorities: List<String>? = null,
+            filterTargets: List<String>? = null,
+            filterUUIDs: List<String>? = null, // always null
         ) = newInstanceArgs(
             optColorInt?.let { ColorUtils.toRGBColor(it) },
             subtitle,
-            targetAuthorities?.let { ArrayList(it) },
-            filterUUIDs?.let { ArrayList(it) },
-            filterTargets?.let { ArrayList(it) }
+            targetAuthorities?.toTypedArray(),
+            filterTargets?.toTypedArray(),
+            filterUUIDs?.toTypedArray(),
         )
 
         @JvmStatic
         fun newInstanceArgs(
-            optColor: String?,
-            subtitle: String?,
-            targetAuthorities: ArrayList<String>?,
-            filterTargets: ArrayList<String>?,
-            filterUUIDs: ArrayList<String>?
-        ) = bundleOf(
-            NewsListViewModel.EXTRA_COLOR to (optColor ?: NewsListViewModel.EXTRA_COLOR_DEFAULT),
-            NewsListViewModel.EXTRA_SUB_TITLE to subtitle,
-            NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES to targetAuthorities,
-            NewsListViewModel.EXTRA_FILTER_TARGETS to filterTargets,
-            NewsListViewModel.EXTRA_FILTER_UUIDS to filterUUIDs,
-        )
+            optColor: String? = null,
+            subtitle: String? = null,
+            targetAuthorities: Array<String>? = null,
+            filterTargets: Array<String>? = null,
+            filterUUIDs: Array<String>? = null, // always null
+        ): Bundle {
+            if (true) {
+                return Bundle().apply {
+                    putString(NewsListViewModel.EXTRA_COLOR, (optColor ?: NewsListViewModel.EXTRA_COLOR_DEFAULT))
+                    putString(NewsListViewModel.EXTRA_SUB_TITLE, subtitle)
+                    putStringArray(NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES, targetAuthorities)
+                    putStringArray(NewsListViewModel.EXTRA_FILTER_TARGETS, filterTargets)
+                    putStringArray(NewsListViewModel.EXTRA_FILTER_UUIDS, filterUUIDs)
+                }
+            }
+            return bundleOf(
+                NewsListViewModel.EXTRA_COLOR to (optColor ?: NewsListViewModel.EXTRA_COLOR_DEFAULT),
+                NewsListViewModel.EXTRA_SUB_TITLE to subtitle,
+                NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES to targetAuthorities,
+                NewsListViewModel.EXTRA_FILTER_TARGETS to filterTargets,
+                NewsListViewModel.EXTRA_FILTER_UUIDS to filterUUIDs,
+            )
+        }
     }
 
     override fun getLogTag(): String = LOG_TAG

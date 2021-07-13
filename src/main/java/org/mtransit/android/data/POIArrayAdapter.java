@@ -1237,9 +1237,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 	}
 
+	@Nullable
 	private WeakReference<TypeHeaderButtonsClickListener> typeHeaderButtonsClickListenerWR;
 
-	public void setOnTypeHeaderButtonsClickListener(TypeHeaderButtonsClickListener listener) {
+	public void setOnTypeHeaderButtonsClickListener(@Nullable TypeHeaderButtonsClickListener listener) {
 		this.typeHeaderButtonsClickListenerWR = new WeakReference<>(listener);
 	}
 
@@ -1247,6 +1248,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private void onTypeHeaderButtonClick(@NonNull View view, int buttonId, @NonNull DataSourceType type) {
 		final TypeHeaderButtonsClickListener listener = this.typeHeaderButtonsClickListenerWR == null ? null : this.typeHeaderButtonsClickListenerWR.get();
 		if (listener != null && listener.onTypeHeaderButtonClick(buttonId, type)) {
+			MTLog.d(this, "onTypeHeaderButtonClick() > SKIP (listener handled)");
 			return;
 		}
 		switch (buttonId) {
@@ -1340,7 +1342,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@NonNull
 	private View getTypeHeaderView(@NonNull final DataSourceType type, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
-			int layoutRes = getTypeHeaderLayoutResId();
+			final int layoutRes = getTypeHeaderLayoutResId();
 			convertView = this.layoutInflater.inflate(layoutRes, parent, false);
 			TypeHeaderViewHolder holder = new TypeHeaderViewHolder();
 			holder.nameTv = convertView.findViewById(R.id.name);

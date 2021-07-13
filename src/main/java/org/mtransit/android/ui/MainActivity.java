@@ -27,6 +27,7 @@ import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
+import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.fragment.ABFragment;
@@ -93,6 +94,8 @@ public class MainActivity extends MTActivityWithLocation implements
 	StatusLoader statusLoader;
 	@Inject
 	ServiceUpdateLoader serviceUpdateLoader;
+	@Inject
+	DemoModeManager demoModeManager;
 
 	private int currentUiMode = -1;
 
@@ -110,7 +113,8 @@ public class MainActivity extends MTActivityWithLocation implements
 				this.analyticsManager,
 				this.dataSourcesRepository,
 				this.statusLoader,
-				this.serviceUpdateLoader
+				this.serviceUpdateLoader,
+				this.demoModeManager
 		);
 		this.navigationDrawerController.onCreate(savedInstanceState);
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
@@ -389,7 +393,7 @@ public class MainActivity extends MTActivityWithLocation implements
 
 	@Override
 	public void onLastLocationChanged(@Nullable Location lastLocation) {
-		MTActivityWithLocation.broadcastUserLocationChanged(this, getFragments(), lastLocation);
+		MTActivityWithLocation.broadcastUserLocationChanged(this, getSupportFragmentManager().getFragments(), lastLocation);
 	}
 
 	public boolean isCurrentFragmentVisible(@Nullable Fragment fragment) {

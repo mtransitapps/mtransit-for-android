@@ -246,7 +246,6 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
 
     override fun onUserLocationChanged(newLocation: Location?) {
         attached { viewModel }?.onDeviceLocationChanged(newLocation)
-        MTActivityWithLocation.broadcastUserLocationChanged(this, childFragmentManager.fragments, newLocation) // TODO remove later
     }
 
     private fun switchView() {

@@ -2,6 +2,7 @@ package org.mtransit.android.datasource
 
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.Route
@@ -22,7 +23,13 @@ import javax.inject.Singleton
 @Singleton
 class DataSourceRequestManager @Inject constructor(
     @ApplicationContext private val appContext: Context,
-) {
+) : MTLog.Loggable {
+
+     companion object {
+        private val LOG_TAG = DataSourceRequestManager::class.java.simpleName
+    }
+
+    override fun getLogTag(): String = LOG_TAG
 
     fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? {
         return DataSourceManager.findPOI(appContext, authority, poiFilter)?.poi

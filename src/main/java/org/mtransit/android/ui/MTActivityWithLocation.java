@@ -57,7 +57,9 @@ public abstract class MTActivityWithLocation extends MTActivity implements
 		return this.locationProvider.getLastLocationOrNull();
 	}
 
-	public static void broadcastUserLocationChanged(MTLog.Loggable loggable, @Nullable Collection<Fragment> fragments, @Nullable Location newLocation) {
+	public static void broadcastUserLocationChanged(@SuppressWarnings("unused") @NonNull MTLog.Loggable loggable,
+													@Nullable Collection<Fragment> fragments,
+													@Nullable Location newLocation) {
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment == null) {

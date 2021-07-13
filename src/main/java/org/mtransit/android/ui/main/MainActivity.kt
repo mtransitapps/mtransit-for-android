@@ -15,8 +15,10 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.onNavDestinationSelected
 import androidx.navigation.ui.setupWithNavController
@@ -34,7 +36,6 @@ import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
-import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.search.SearchFragment
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.util.NightModeUtils
@@ -50,7 +51,7 @@ class MainActivity : MTActivityWithLocation(),
     IAdManager.RewardedAdListener {
 
     companion object {
-        private val LOG_TAG = "Stack-" + MainActivity::class.java.simpleName
+        private val LOG_TAG = "Stack2-" + MainActivity::class.java.simpleName
         private const val TRACKING_SCREEN_NAME = "Main"
 
         @JvmStatic
@@ -67,9 +68,12 @@ class MainActivity : MTActivityWithLocation(),
 
     private lateinit var binding: ActivityMainBinding
 
-    val navController by lazy {
-        (supportFragmentManager.findFragmentById(R.id.main_content) as NavHostFragment).navController
-    }
+
+    val navHostFragment: NavHostFragment
+        get() = supportFragmentManager.findFragmentById(R.id.main_content) as NavHostFragment
+
+    private lateinit var navController: NavController
+    private lateinit var appBarConfiguration: AppBarConfiguration
 
     @Inject
     lateinit var adManager: IAdManager
@@ -101,44 +105,29 @@ class MainActivity : MTActivityWithLocation(),
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-        viewModel.selectedItemIdRes.observe(this, { selectedItemIdRes ->
-            MTLog.v(this, "onChange($selectedItemIdRes) - selectedItemIdRes")
-            selectedItemIdRes?.let {
-                val navGraph = navController.navInflater.inflate(R.navigation.main_nav_graph)
-                navGraph.startDestination = selectedItemIdRes // FIXME only when new value? ...
-                navController.graph = navGraph
-            }
-        })
-        setSupportActionBar(binding.abToolbar)
-        val appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.nav_home,
-                R.id.nav_favorites,
-                R.id.nav_nearby,
-                R.id.nav_map,
-                R.id.nav_trip_planner,
-                R.id.nav_news,
-                R.id.nav_type,
-                R.id.nav_bike,
-                R.id.nav_bus,
-                R.id.nav_ferry,
-                R.id.nav_light_rail,
-                R.id.nav_subway,
-                R.id.nav_rail,
-                R.id.nav_module
-            ),
+        navController = navHostFragment.navController
+        binding.navView.setupWithNavController(navController)
+        appBarConfiguration = AppBarConfiguration(
+            viewModel.getRootScreenResId(),
             binding.drawerLayout
         )
-        binding.abToolbar.setupWithNavController(navController, appBarConfiguration)
-        binding.navView.setupWithNavController(navController)
+        setSupportActionBar(binding.abToolbar)
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
 
         navController.addOnDestinationChangedListener { controller, dest, args ->
             MTLog.v(this@MainActivity, "onDestinationChanged($controller, $dest, $args)")
             viewModel.onSelectedItemIdChanged(dest.id, args)
         }
-
         supportFragmentManager.addOnBackStackChangedListener(this)
 
+        viewModel.selectedItemIdRes.observe(this, { selectedItemIdRes ->
+            selectedItemIdRes?.let {
+                val navGraph = navController.navInflater.inflate(R.navigation.main_nav_graph)
+                navGraph.startDestination = selectedItemIdRes // FIXME only when new value? ...
+                navController.graph = navGraph
+                showContentFrameAsLoaded()
+            }
+        })
         viewModel.userLearnedDrawer.observe(this, {
             if (it == false) {
                 binding.drawerLayout.openDrawer(binding.navView)
@@ -237,13 +226,18 @@ class MainActivity : MTActivityWithLocation(),
         adManager.unlinkRewardedAd(this)
     }
 
+    fun showContentFrameAsLoading() {
+        binding.mainContent.isVisible = false
+        binding.mainContentLoading.root.isVisible = true
+    }
+
     fun showContentFrameAsLoaded() {
         binding.mainContentLoading.root.isVisible = false
         binding.mainContent.isVisible = true
     }
 
     override fun onLastLocationChanged(lastLocation: Location?) {
-        broadcastUserLocationChanged(this, fragments, lastLocation)
+        broadcastUserLocationChanged(this, navHostFragment.childFragmentManager.fragments, lastLocation)
     }
 
     private val currentFragment: Fragment?
@@ -253,15 +247,7 @@ class MainActivity : MTActivityWithLocation(),
         resetBackStackEntryCount()
     }
 
-    override fun onBackPressed() {
-        if ((currentFragment as? ABFragment)?.onBackPressed() == true) {
-            return
-        }
-        super.onBackPressed()
-    }
-
     override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp(binding.drawerLayout)
     }
 
     fun updateNavigationDrawerToggleIndicator() {
@@ -274,7 +260,6 @@ class MainActivity : MTActivityWithLocation(),
     val backStackEntryCount: Int
         get() = _backStackEntryCount.get()
 
-    //
     private fun resetBackStackEntryCount() {
         _backStackEntryCount.set(supportFragmentManager.backStackEntryCount)
     }
@@ -295,11 +280,6 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when {
-            item.onNavDestinationSelected(navController) -> {
-                true // handled
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
+        return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
     }
 }
