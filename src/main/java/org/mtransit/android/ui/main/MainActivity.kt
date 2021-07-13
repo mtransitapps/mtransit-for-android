@@ -68,7 +68,6 @@ class MainActivity : MTActivityWithLocation(),
 
     private lateinit var binding: ActivityMainBinding
 
-
     val navHostFragment: NavHostFragment
         get() = supportFragmentManager.findFragmentById(R.id.main_content) as NavHostFragment
 
@@ -134,7 +133,6 @@ class MainActivity : MTActivityWithLocation(),
                 viewModel.setUserLearnedDrawer(true)
             }
         })
-
         viewModel.allAgenciesCount.observe(this, { nbAgencies ->
             // ad-manager does not persist activity but listen for changes itself
             nbAgencies?.let {
@@ -173,7 +171,6 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     fun onSearchQueryRequested(query: String?) {
-        // val currentFragment = currentFragment
         (currentFragment as? SearchFragment)?.apply {
             setSearchQuery(query, false)
         } ?: run {
@@ -248,6 +245,7 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
     fun updateNavigationDrawerToggleIndicator() {
@@ -266,6 +264,7 @@ class MainActivity : MTActivityWithLocation(),
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
+        menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
 
