@@ -36,8 +36,8 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.MTTheme)
         super.onCreate(savedInstanceState)
-        viewModel.onAppOpen()
         analyticsManager.trackScreenView(this, this)
+        viewModel.onAppOpen()
         showMainActivity()
     }
 

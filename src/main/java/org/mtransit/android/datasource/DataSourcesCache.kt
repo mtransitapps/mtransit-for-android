@@ -19,6 +19,8 @@ class DataSourcesCache @Inject constructor(
 
     fun readingAllAgenciesBase() = agencyPropertiesDao().readingAllAgenciesBase()
 
+    fun getAgency(authority: String) = agencyPropertiesDao().getAgency(authority)
+
     fun readingAgency(authority: String) = agencyPropertiesDao().readingAgency(authority)
 
     fun readingAgencyBase(authority: String) = agencyPropertiesDao().readingAgencyBase(authority)

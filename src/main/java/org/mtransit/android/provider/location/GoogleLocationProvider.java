@@ -217,36 +217,9 @@ public class GoogleLocationProvider
 			lastLocation = FakeLocation.getLocation();
 		}
 		if (demoModeManager.getEnabled()) {
-			final String filterLocation = demoModeManager.getFilterLocation();
+			final Location filterLocation = demoModeManager.getFilterLocation();
 			if (filterLocation != null) {
-				String[] filterLocationArray = filterLocation.split(",");
-				if (filterLocationArray.length >= 2) {
-					Double lat = null;
-					try {
-						lat = Double.valueOf(filterLocationArray[0].trim());
-					} catch (NumberFormatException nfe) {
-						MTLog.w(this, "Demo mode: cannot parse latitude '%s'!", filterLocationArray[0]);
-					}
-					Double lng = null;
-					try {
-						lng = Double.valueOf(filterLocationArray[1].trim());
-					} catch (NumberFormatException nfe) {
-						MTLog.w(this, "Demo mode: cannot parse longitude '%s'!", filterLocationArray[1]);
-					}
-					Float accuracy = null;
-					if (filterLocationArray.length >= 3) {
-						try {
-							accuracy = Float.valueOf(filterLocationArray[2].trim());
-						} catch (NumberFormatException nfe) {
-							MTLog.w(this, "Demo mode: cannot parse accuracy '%s'!", filterLocationArray[2]);
-						}
-					} else {
-						accuracy = 77f;
-					}
-					if (lat != null && lng != null && accuracy != null) {
-						lastLocation = LocationUtils.getNewLocation(lat, lng, accuracy);
-					}
-				}
+				lastLocation = filterLocation;
 			}
 		}
 		if (Constants.LOG_LOCATION) {

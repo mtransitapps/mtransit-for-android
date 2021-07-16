@@ -4,12 +4,15 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PreferenceUtils
+import org.mtransit.android.datasource.DataSourcesCache
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.util.NightModeUtils
 import javax.inject.Inject
@@ -20,6 +23,7 @@ class SplashScreenViewModel @Inject constructor(
     private val analyticsManager: IAnalyticsManager,
     private val savedStateHandle: SavedStateHandle,
     private val demoModeManager: DemoModeManager,
+    private val dataSourcesCache: DataSourcesCache,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -35,9 +39,11 @@ class SplashScreenViewModel @Inject constructor(
             putInt(PreferenceUtils.PREF_USER_APP_OPEN_COUNTS, appOpenCounts)
         }
         analyticsManager.setUserProperty(AnalyticsUserProperties.OPEN_APP_COUNTS, appOpenCounts)
-        demoModeManager.read(savedStateHandle)
-        if (demoModeManager.enabled) {
-            NightModeUtils.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // light for screenshots (demo mode ON)
+        viewModelScope.launch {
+            demoModeManager.read(savedStateHandle, dataSourcesCache)
+            if (demoModeManager.enabled) {
+                NightModeUtils.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // light for screenshots (demo mode ON)
+            }
         }
     }
 }

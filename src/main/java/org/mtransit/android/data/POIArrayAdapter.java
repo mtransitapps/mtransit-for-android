@@ -263,7 +263,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	 */
 	@Override
 	public int getItemViewType(int position) {
-		POIManager poim = getItem(position);
+		final POIManager poim = getItem(position);
 		if (poim == null) {
 			if (this.showBrowseHeaderSection && position == 0) {
 				return 0; // BROWSE SECTION
@@ -273,7 +273,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			}
 			if (this.showTypeHeader != TYPE_HEADER_NONE) {
 				if (this.poisByType != null) {
-					Integer typeId = getItemTypeHeader(position);
+					final Integer typeId = getItemTypeHeader(position);
 					if (typeId != null) {
 						if (this.favoriteManager.isFavoriteDataSourceId(typeId)) {
 							return 10; // TYPE FAVORITE FOLDER
@@ -285,8 +285,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			CrashUtils.w(this, "Cannot find type for at position '%s'!", position);
 			return IGNORE_ITEM_VIEW_TYPE;
 		}
-		int type = poim.poi.getType();
-		int statusType = poim.getStatusType();
+		final int type = poim.poi.getType();
+		final int statusType = poim.getStatusType();
 		switch (type) {
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
 			return 7; // TEXT MESSAGE
