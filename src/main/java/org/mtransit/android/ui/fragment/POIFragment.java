@@ -585,7 +585,6 @@ public class POIFragment extends ABFragment implements
 							MTLog.w(POIFragment.this, "onClick() > skip (no activity)");
 							return;
 						}
-
 						((MainActivity) activity).addFragmentToStack(
 								ScheduleFragment.newInstance(poim, dataSourcesRepository),
 								POIFragment.this);

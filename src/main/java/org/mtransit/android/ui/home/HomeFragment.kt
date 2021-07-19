@@ -20,7 +20,6 @@ import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.data.POIArrayAdapter

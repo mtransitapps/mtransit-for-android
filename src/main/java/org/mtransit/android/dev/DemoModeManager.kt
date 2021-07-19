@@ -52,6 +52,7 @@ class DemoModeManager @Inject constructor(
 
     var filterAgencyAuthority: String? = null
     var filterAgency: AgencyProperties? = null
+
     val filterAgencyType: DataSourceType?
         get() = this.filterAgency?.type
 
@@ -181,7 +182,6 @@ class DemoModeManager @Inject constructor(
         }
         var newBase = _newBase
         val defaultLocale = forceLang?.let { Locale.forLanguageTag(it) } ?: LocaleUtils.getDefaultLocale()
-        MTLog.d(this, "fixLocale() > defaultLocale $defaultLocale.")
         val configuration = newBase.resources.configuration
         configuration.setLocale(defaultLocale)
         newBase = newBase.createConfigurationContext(configuration)
