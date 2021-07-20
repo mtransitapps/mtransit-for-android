@@ -61,7 +61,8 @@ class DemoModeManager @Inject constructor(
     val filterAgencyLocation: Location?
         get() {
             return this.filterAgency?.let { agency ->
-                val lat = agency.area.centerLat - ((agency.area.maxLat - agency.area.minLat) / 4.00)
+                val isHomeScreen = this.filterScreen == FILTER_SCREEN_HOME
+                val lat = agency.area.centerLat - if (!isHomeScreen) ((agency.area.maxLat - agency.area.minLat) / 4.00) else 0.00
                 val lng = agency.area.centerLng
                 findNearbyPOIM(lat, lng, agency)?.let { poim ->
                     LatLngBounds.builder()

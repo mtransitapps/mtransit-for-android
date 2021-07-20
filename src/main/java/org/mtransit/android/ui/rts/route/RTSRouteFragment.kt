@@ -198,7 +198,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
             abController?.setABTitle(this, getABTitle(context), false)
             abController?.setABReady(this, isABReady, true)
         })
-        viewModel.colorInt.observe(viewLifecycleOwner, { colorInt ->
+        viewModel.colorInt.observe(viewLifecycleOwner, { _ ->
             binding?.apply {
                 getABBgColor(tabs.context)?.let { tabs.setBackgroundColor(it) }
             }
