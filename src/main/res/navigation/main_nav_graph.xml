@@ -43,11 +43,13 @@
         <argument
             android:name="extra_fixed_on_name"
             android:defaultValue="@null"
-            app:argType="string" />
+            app:argType="string"
+            app:nullable="true" />
         <argument
             android:name="extra_fixed_on_color"
             android:defaultValue="@null"
-            app:argType="string" />
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
     <!-- MAP -->
     <fragment
@@ -63,11 +65,13 @@
         <argument
             android:name="extra_initial_location"
             android:defaultValue="@null"
-            app:argType="android.location.Location" />
+            app:argType="android.location.Location"
+            app:nullable="true" />
         <argument
             android:name="extra_selected_uuid"
             android:defaultValue="@null"
-            app:argType="string" />
+            app:argType="string"
+            app:nullable="true" />
         <argument
             android:name="extra_include_type_id"
             android:defaultValue="-1"
@@ -87,11 +91,13 @@
         <argument
             android:name="extra_color"
             android:defaultValue="@null"
-            app:argType="string" />
+            app:argType="string"
+            app:nullable="true" />
         <argument
             android:name="extra_subtitle"
             android:defaultValue="@null"
-            app:argType="string" />
+            app:argType="string"
+            app:nullable="true" />
         <argument
             android:name="extra_filter_target_authorities"
             android:defaultValue="@null"
@@ -215,7 +221,8 @@
         <argument
             android:name="extra_color"
             android:defaultValue="@null"
-            app:argType="string" />
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
     <!-- NEWS DETAILS -->
     <fragment

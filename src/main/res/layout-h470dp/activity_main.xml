@@ -15,15 +15,31 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/bottom_nav_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                app:itemIconTint="@color/navigation_item_color"
+                app:itemTextColor="@color/navigation_item_color"
+                app:labelVisibilityMode="labeled"
+                app:menu="@menu/bottom_nav_menu"
+                tools:viewBindingType="NavigationBarView" />
+
             <include
                 android:id="@+id/ad_layout"
-                layout="@layout/layout_ad" />
+                layout="@layout/layout_ad"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_above="@id/bottom_nav_view" />
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/main_content"
                 android:name="androidx.navigation.fragment.NavHostFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_alignWithParentIfMissing="true"
                 android:layout_above="@id/ad_layout"
                 android:visibility="gone"
                 app:defaultNavHost="true"

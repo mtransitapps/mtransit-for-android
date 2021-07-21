@@ -21,6 +21,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.onNavDestinationSelected
+import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -77,7 +78,7 @@ class MainActivity : MTActivityWithLocation(),
         get() = supportFragmentManager.findFragmentById(R.id.main_content) as NavHostFragment
 
     private lateinit var navController: NavController
-    private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var appBarConfig: AppBarConfiguration
 
     @EntryPoint
     @InstallIn(SingletonComponent::class)
@@ -130,16 +131,19 @@ class MainActivity : MTActivityWithLocation(),
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         currentUiMode = resources.configuration.uiMode
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
+        setSupportActionBar(binding.abToolbar)
         navController = navHostFragment.navController
-        binding.navView.setupWithNavController(navController)
-        appBarConfiguration = AppBarConfiguration(
+        appBarConfig = AppBarConfiguration(
             viewModel.getRootScreenResId(),
             binding.drawerLayout
         )
-        setSupportActionBar(binding.abToolbar)
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration)
+        binding.navView?.setupWithNavController(navController)
+        binding.bottomNavView?.setupWithNavController(navController)
+        binding.navRailView?.setOnItemSelectedListener { item ->
+            NavigationUI.onNavDestinationSelected(item, navController)
+        }
+        setupActionBarWithNavController(navController, appBarConfig)
 
         navController.addOnDestinationChangedListener { controller, dest, args ->
             MTLog.v(this@MainActivity, "onDestinationChanged($controller, $dest, $args)")
@@ -155,10 +159,14 @@ class MainActivity : MTActivityWithLocation(),
                 showContentFrameAsLoaded()
             }
         })
-        viewModel.userLearnedDrawer.observe(this, {
-            if (it == false) {
-                binding.drawerLayout.openDrawer(binding.navView)
-                viewModel.setUserLearnedDrawer(true)
+        viewModel.userLearnedDrawer.observe(this, { learned ->
+            if (learned == false) {
+                binding.drawerLayout?.let { drawerLayout ->
+                    binding.navView?.let { navView ->
+                        drawerLayout.openDrawer(navView)
+                        viewModel.setUserLearnedDrawer(true)
+                    }
+                }
             }
         })
         viewModel.allAgenciesCount.observe(this, { nbAgencies ->
@@ -269,7 +277,7 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+        return navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
     }
 
     fun updateNavigationDrawerToggleIndicator() {
