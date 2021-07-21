@@ -55,9 +55,9 @@ class NearbyViewModel @Inject constructor(
         internal const val EXTRA_SELECTED_TYPE = "extra_selected_type"
         internal const val EXTRA_SELECTED_TYPE_DEFAULT: Int = -1
         internal const val EXTRA_FIXED_ON_LAT = "extra_fixed_on_lat"
-        internal const val EXTRA_FIXED_ON_LAT_DEFAULT: Float = -1f
+        internal const val EXTRA_FIXED_ON_LAT_DEFAULT: Float = 999f // valid between -90 and +90
         internal const val EXTRA_FIXED_ON_LNG = "extra_fixed_on_lng"
-        internal const val EXTRA_FIXED_ON_LNG_DEFAULT: Float = -1f
+        internal const val EXTRA_FIXED_ON_LNG_DEFAULT: Float = 999f // valid between -180 and +180
         internal const val EXTRA_FIXED_ON_NAME = "extra_fixed_on_name"
         internal val EXTRA_FIXED_ON_NAME_DEFAULT: String? = null
         internal const val EXTRA_FIXED_ON_COLOR = "extra_fixed_on_color"
@@ -68,8 +68,8 @@ class NearbyViewModel @Inject constructor(
 
     private val _selectedTypeId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_TYPE, EXTRA_SELECTED_TYPE_DEFAULT).map { if (it < 0) null else it }
 
-    private val _fixedOnLat = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_LAT, EXTRA_FIXED_ON_LAT_DEFAULT).map { if (it < 0f) null else it.toDouble() }
-    private val _fixedOnLng = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_LNG, EXTRA_FIXED_ON_LNG_DEFAULT).map { if (it < 0f) null else it.toDouble() }
+    private val _fixedOnLat = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_LAT, EXTRA_FIXED_ON_LAT_DEFAULT).map { if (it == 999f) null else it.toDouble() }
+    private val _fixedOnLng = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_LNG, EXTRA_FIXED_ON_LNG_DEFAULT).map { if (it == 999f) null else it.toDouble() }
 
     val fixedOnLocation: LiveData<Location?> = PairMediatorLiveData(_fixedOnLat, _fixedOnLng).map { (fixedOnLat, fixedOnLng) ->
         if (fixedOnLat == null || fixedOnLng == null) {

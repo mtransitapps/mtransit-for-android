@@ -34,11 +34,11 @@
             app:argType="integer" />
         <argument
             android:name="extra_fixed_on_lat"
-            android:defaultValue="-1f"
+            android:defaultValue="999f"
             app:argType="float" />
         <argument
             android:name="extra_fixed_on_lng"
-            android:defaultValue="-1f"
+            android:defaultValue="999f"
             app:argType="float" />
         <argument
             android:name="extra_fixed_on_name"
