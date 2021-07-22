@@ -87,13 +87,10 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     private fun getEntryPoint(context: Context): MainActivityEntryPoint {
-        MTLog.v(this, "getEntryPoint($context)")
-        MTLog.d(this, "getEntryPoint() > context.applicationContext: ${context.applicationContext}.")
         return EntryPointAccessors.fromApplication(context.applicationContext, MainActivityEntryPoint::class.java)
     }
 
     override fun attachBaseContext(newBase: Context) {
-        MTLog.v(this, "attachBaseContext($newBase)")
         val demoModeManager = getEntryPoint(newBase).demoModeManager
         super.attachBaseContext(
             if (demoModeManager.enabled) {
@@ -103,6 +100,7 @@ class MainActivity : MTActivityWithLocation(),
             }
         )
     }
+
     @Inject
     lateinit var adManager: IAdManager
 
@@ -139,18 +137,22 @@ class MainActivity : MTActivityWithLocation(),
             binding.drawerLayout
         )
         binding.navView?.setupWithNavController(navController)
-        binding.bottomNavView?.setupWithNavController(navController)
-        binding.navRailView?.setOnItemSelectedListener { item ->
+        binding.bottomNavView?.setupWithNavController(navController) // 1st
+        binding.bottomNavView?.setOnItemReselectedListener { item -> // 2nd: override to avoid re-selection
+            viewModel.onItemReselected()
+        }
+        // TODO binding.navRailView?.setupWithNavController(navController) // 1st // required Navigation UI 2.4.0 stable https://developer.android.com/jetpack/androidx/releases/navigation
+        binding.navRailView?.setOnItemSelectedListener { item -> // 1st
             NavigationUI.onNavDestinationSelected(item, navController)
         }
+        binding.navRailView?.setOnItemReselectedListener { item -> // 2nd: override to avoid re-selection
+            viewModel.onItemReselected()
+        }
         setupActionBarWithNavController(navController, appBarConfig)
-
         navController.addOnDestinationChangedListener { controller, dest, args ->
-            MTLog.v(this@MainActivity, "onDestinationChanged($controller, $dest, $args)")
-            viewModel.onSelectedItemIdChanged(dest.id, args)
+            viewModel.onSelectedItemIdChanged(dest.id)
         }
         supportFragmentManager.addOnBackStackChangedListener(this)
-
         viewModel.selectedItemIdRes.observe(this, { selectedItemIdRes ->
             selectedItemIdRes?.let {
                 val navGraph = navController.navInflater.inflate(R.navigation.main_nav_graph)

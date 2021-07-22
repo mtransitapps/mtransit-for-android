@@ -218,11 +218,11 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			if (TextUtils.isEmpty(itemId)) {
 				return;
 			}
-			NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
+			final NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
 			if (navigationDrawerController == null) {
 				return;
 			}
-			Integer navItemId = navigationDrawerController.getScreenNavItemId(itemId);
+			final Integer navItemId = navigationDrawerController.getScreenNavItemId(itemId);
 			navigationDrawerController.selectItem(navItemId, false);
 		}
 
@@ -329,7 +329,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		if (this.navigationView == null) {
 			return;
 		}
-		MainActivity mainActivity = this.mainActivityWR.get();
+		final MainActivity mainActivity = this.mainActivityWR.get();
 		if (mainActivity == null) {
 			return;
 		}

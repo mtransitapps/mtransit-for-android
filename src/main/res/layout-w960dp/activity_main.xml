@@ -12,12 +12,15 @@
         android:layout_height="match_parent"
         app:headerLayout="@layout/layout_drawer_header"
         app:labelVisibilityMode="labeled"
-        app:menu="@menu/drawer"
+        app:menu="@menu/rail_nav_menu"
         tools:viewBindingType="NavigationBarView" />
 
     <include
         android:id="@+id/ad_layout"
-        layout="@layout/layout_ad" />
+        layout="@layout/layout_ad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/nav_rail_view" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/main_content"
@@ -25,6 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/ad_layout"
+        android:layout_toEndOf="@id/nav_rail_view"
         android:visibility="gone"
         app:defaultNavHost="true"
         app:navGraph="@navigation/main_nav_graph"
@@ -43,13 +47,15 @@
         layout="@layout/layout_ab_gradient"
         android:layout_width="match_parent"
         android:layout_height="@dimen/action_bar_size_static"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@id/nav_rail_view" />
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/ab_toolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/action_bar_size_static"
         android:layout_alignParentTop="true"
+        android:layout_toEndOf="@id/nav_rail_view"
         android:background="?attr/colorPrimary"
         android:theme="@style/MTThemeOverlay"
         android:visibility="visible"

@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AbsListView
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
@@ -27,7 +28,10 @@ import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.main.MainViewModel
+import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.attached
+import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -49,6 +53,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<FavoritesViewModel>()
+    private val mainViewModel by activityViewModels<MainViewModel>()
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -137,6 +142,13 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
         viewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation ->
             adapter.setLocation(deviceLocation)
         })
+        if (FeatureFlags.F_NAVIGATION) {
+            mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
+                if (scroll) {
+                    listBinding?.root?.setSelection(0)
+                }
+            })
+        }
     }
 
     override fun onFavoriteUpdated() {

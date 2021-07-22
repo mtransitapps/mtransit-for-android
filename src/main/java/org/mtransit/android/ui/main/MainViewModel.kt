@@ -1,9 +1,9 @@
 package org.mtransit.android.ui.main
 
-import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
@@ -21,6 +21,7 @@ import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.ui.view.common.Event
 import javax.inject.Inject
 
 @HiltViewModel
@@ -51,6 +52,8 @@ class MainViewModel @Inject constructor(
 
     val allAgenciesCount = this.dataSourcesRepository.readingAllAgenciesCount()
 
+    val scrollToTopEvent = MutableLiveData<Event<Boolean>>()
+
     fun onAppVisible() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
@@ -79,14 +82,16 @@ class MainViewModel @Inject constructor(
             } else {
                 idPref
             }
+        ) ?: R.id.root_nav_home
+    }
+
+    fun onSelectedItemIdChanged(@IdRes idRes: Int) {
+        onSelectedItemIdChanged(
+            idResToIdPref(if (isRootScreen(idRes)) idRes else null) // only root screens
         )
     }
 
-    fun onSelectedItemIdChanged(@IdRes idRes: Int, args: Bundle? = null) {
-        onSelectedItemIdChanged(idResToIdPref(idRes), args)
-    }
-
-    fun onSelectedItemIdChanged(idPref: String, args: Bundle? = null) {
+    fun onSelectedItemIdChanged(idPref: String?) {
         if (demoModeManager.enabled) {
             return // SKIP (demo mode ON)
         }
@@ -100,15 +105,7 @@ class MainViewModel @Inject constructor(
     private fun isRootScreen(idPref: String?) = isRootScreen(idPrefToIdRes(idPref))
 
     private fun isRootScreen(@IdRes idRes: Int?): Boolean {
-        return when (idRes) {
-            null -> false
-            R.id.nav_trip_planner -> false
-            R.id.nav_support -> false
-            R.id.nav_rate_review -> false
-            R.id.nav_send_feedback -> false
-            R.id.nav_settings -> false
-            else -> true
-        }
+        return getRootScreenResId().contains(idRes)
     }
 
     private fun idPrefToIdRes(idPref: String?) = when (idPref) {
@@ -125,9 +122,10 @@ class MainViewModel @Inject constructor(
         ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_FERRY.id -> R.id.root_nav_ferry
         ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BIKE.id -> R.id.root_nav_bike
         ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.id -> R.id.root_nav_module
+        null -> null
         else -> {
             MTLog.w(this, "Unknown item ID preference '$idPref'!")
-            R.id.root_nav_home
+            null
         }
     }
 
@@ -145,9 +143,10 @@ class MainViewModel @Inject constructor(
         R.id.root_nav_ferry -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_FERRY.id
         R.id.root_nav_bike -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BIKE.id
         R.id.root_nav_module -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_MODULE.id
+        null -> null
         else -> {
             MTLog.w(this@MainViewModel, "Unknown item ID resource '$idRes'!")
-            ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME
+            null
         }
     }
 
@@ -166,4 +165,8 @@ class MainViewModel @Inject constructor(
         R.id.root_nav_rail,
         R.id.root_nav_module
     )
+
+    fun onItemReselected() {
+        scrollToTopEvent.postValue(Event(true))
+    }
 }

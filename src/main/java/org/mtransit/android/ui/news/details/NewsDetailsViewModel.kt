@@ -37,9 +37,9 @@ class NewsDetailsViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val uuid = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_NEWS_UUID)
+    val uuid = savedStateHandle.getLiveDataDistinct<String>(EXTRA_NEWS_UUID)
 
-    private val authority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AUTHORITY)
+    private val authority = savedStateHandle.getLiveDataDistinct<String>(EXTRA_AUTHORITY)
 
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
 

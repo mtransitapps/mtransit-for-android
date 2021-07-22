@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -19,7 +20,9 @@ import org.mtransit.android.commons.data.News
 import org.mtransit.android.databinding.FragmentNewsListBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.news.details.NewsDetailsFragment
+import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.attached
 import org.mtransit.commons.FeatureFlags
 
@@ -83,15 +86,6 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
             filterTargets: Array<String>? = null,
             filterUUIDs: Array<String>? = null, // always null
         ): Bundle {
-            if (true) {
-                return Bundle().apply {
-                    putString(NewsListViewModel.EXTRA_COLOR, (optColor ?: NewsListViewModel.EXTRA_COLOR_DEFAULT))
-                    putString(NewsListViewModel.EXTRA_SUB_TITLE, subtitle)
-                    putStringArray(NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES, targetAuthorities)
-                    putStringArray(NewsListViewModel.EXTRA_FILTER_TARGETS, filterTargets)
-                    putStringArray(NewsListViewModel.EXTRA_FILTER_UUIDS, filterUUIDs)
-                }
-            }
             return bundleOf(
                 NewsListViewModel.EXTRA_COLOR to (optColor ?: NewsListViewModel.EXTRA_COLOR_DEFAULT),
                 NewsListViewModel.EXTRA_SUB_TITLE to subtitle,
@@ -107,6 +101,7 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<NewsListViewModel>()
+    private val mainViewModel by activityViewModels<MainViewModel>()
 
     private var binding: FragmentNewsListBinding? = null
 
@@ -166,6 +161,13 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
                 noNewsLayout.isVisible = newsArticles.isNullOrEmpty()
             }
         })
+        if (FeatureFlags.F_NAVIGATION) {
+            mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
+                if (scroll) {
+                    binding?.newsContainerLayout?.newsList?.scrollToPosition(0)
+                }
+            })
+        }
     }
 
     override fun getABTitle(context: Context?) = context?.getString(R.string.news) ?: super.getABTitle(context)

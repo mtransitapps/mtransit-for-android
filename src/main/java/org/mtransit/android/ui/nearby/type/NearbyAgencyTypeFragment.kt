@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.AbsListView
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
@@ -21,10 +22,12 @@ import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.MTFragmentX
+import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.nearby.NearbyViewModel
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.attached
+import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -57,6 +60,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     override fun getLogTag(): String = this.theLogTag
 
     private val viewModel by viewModels<NearbyAgencyTypeViewModel>()
+    private val mainViewModel by activityViewModels<MainViewModel>()
 
     private val parentViewModel by viewModels<NearbyViewModel>({ requireParentFragment() })
 
@@ -169,6 +173,16 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             }
             switchView()
         })
+        if (FeatureFlags.F_NAVIGATION) {
+            mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, { scrollEvent ->
+                if (isResumed) { // only consumed for current tab
+                    val scroll = scrollEvent.getContentIfNotHandled() == true
+                    if (scroll) {
+                        listBinding?.root?.setSelection(0)
+                    }
+                }
+            })
+        }
     }
 
     private fun switchView() {

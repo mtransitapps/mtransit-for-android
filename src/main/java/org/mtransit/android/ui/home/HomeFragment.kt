@@ -15,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.AbsListView
 import android.widget.PopupWindow
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.findNavController
@@ -38,9 +39,11 @@ import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.fragment.POIFragment
+import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.type.AgencyTypeFragment
+import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.attached
 import org.mtransit.commons.FeatureFlags
@@ -66,6 +69,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<HomeViewModel>()
+    private val mainViewModel by activityViewModels<MainViewModel>()
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -225,6 +229,13 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
                 hideLocationToast()
             }
         })
+        if (FeatureFlags.F_NAVIGATION) {
+            mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
+                if (scroll) {
+                    listBinding?.root?.setSelection(0)
+                }
+            })
+        }
     }
 
     private fun switchView() {
