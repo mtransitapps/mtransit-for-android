@@ -270,7 +270,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
             return // SKIP
         }
         val theActivity: Activity? = activity
-        if (theActivity == null || theActivity.isFinishing) {
+        if (theActivity == null || theActivity.isFinishing || theActivity.isDestroyed) {
             return // SKIP
         }
         (this.locationToast ?: makeLocationToast().also { this.locationToast = it })
