@@ -1,5 +1,6 @@
 [
 {"name":"Airdrie Transit","name_fr":"","location":"Airdrie, AB, Canada","targetTypeId":"3","color":"0099CC","lat":"51.286644","lng":"-113.983500","pkg":"org.mtransit.android.ca_airdrie_transit_bus"},
+{"name":"àVélo","name_fr":"àVélo","location":"Québec, QC, Canada","targetTypeId":"100","color":"47D7AC","lat":"46.80","lng":"-71.22","pkg":"org.mtransit.android.ca_quebec_a_velo_bike"},
 {"name":"Barrie Transit","name_fr":"","location":"Barrie, ON, Canada","targetTypeId":"3","color":"336699","lat":"44.387776","lng":"-79.690981","pkg":"org.mtransit.android.ca_barrie_transit_bus"},
 {"name":"Bike Share Toronto","name_fr":"","location":"Toronto, ON, Canada","targetTypeId":"100","color":"107054","lat":"43.651890","lng":"-79.383337","pkg":"org.mtransit.android.ca_toronto_share_bike"},
 {"name":"BIXI","name_fr":"BIXI","location":"Montréal, Westmount, Longueuil, QC, Canada","targetTypeId":"100","color":"D42B1E","lat":"45.542771","lng":"-73.581281","pkg":"org.mtransit.android.ca_montreal_bixi_bike"},
