@@ -10,7 +10,7 @@
         android:id="@+id/nav_rail_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        app:headerLayout="@layout/layout_drawer_header"
+        app:headerLayout="@layout/layout_drawer_header_small"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/rail_nav_menu"
         tools:viewBindingType="NavigationBarView" />
