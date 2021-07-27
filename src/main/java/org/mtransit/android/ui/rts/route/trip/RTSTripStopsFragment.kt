@@ -30,7 +30,7 @@ import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rts.route.RTSRouteViewModel
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.IActivity
-import org.mtransit.android.ui.view.common.attached
+import org.mtransit.android.ui.view.common.isAttached
 import java.util.ArrayList
 import javax.inject.Inject
 
@@ -63,6 +63,8 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
     private val viewModel by viewModels<RTSTripStopsViewModel>()
 
     private val parentViewModel by viewModels<RTSRouteViewModel>({ requireParentFragment() })
+    private val attachedParentViewModel
+        get() = if (isAttached()) parentViewModel else null
 
     private var binding: FragmentRtsTripStopsBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
@@ -144,7 +146,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
         ).apply {
             logTag = logTag
             setShowExtra(false)
-            setLocation(attached { parentViewModel }?.deviceLocation?.value)
+            setLocation(attachedParentViewModel?.deviceLocation?.value)
         }
     }
 

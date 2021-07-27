@@ -38,7 +38,7 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
-import org.mtransit.android.ui.view.common.attached
+import org.mtransit.android.ui.view.common.isAttached
 import java.util.Locale
 import kotlin.math.abs
 
@@ -89,8 +89,8 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     override fun getLogTag(): String = LOG_TAG
 
     override fun getScreenName(): String {
-        val authority = attached { viewModel }?.authority?.value
-        val routeId = attached { viewModel }?.routeId?.value
+        val authority = attachedViewModel?.authority?.value
+        val routeId = attachedViewModel?.routeId?.value
         if (authority != null && routeId != null) {
             return "$TRACKING_SCREEN_NAME/$authority/$routeId"
         }
@@ -98,6 +98,8 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     }
 
     private val viewModel by viewModels<RTSRouteViewModel>()
+    private val attachedViewModel
+        get() = if (isAttached()) viewModel else null
 
     private var binding: FragmentRtsRouteBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
@@ -108,11 +110,11 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     private val listMapToggleSelector: StateListDrawable by lazy {
         StateListDrawable().apply {
             (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_list, requireContext().theme) as? LayerDrawable)?.apply {
-                attached { viewModel }?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_list_oval_shape) as? GradientDrawable)?.setColor(it) }
+                attachedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_list_oval_shape) as? GradientDrawable)?.setColor(it) }
                 addState(intArrayOf(android.R.attr.state_checked), this)
             }
             (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_map, requireContext().theme) as? LayerDrawable)?.apply {
-                attached { viewModel }?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_map_oval_shape) as? GradientDrawable)?.setColor(it) }
+                attachedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_map_oval_shape) as? GradientDrawable)?.setColor(it) }
                 addState(StateSet.WILD_CARD, this)
             }
         }
@@ -124,9 +126,9 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     private var adapter: RTSRouteTripPagerAdapter? = null
 
     private fun makeAdapter() = RTSRouteTripPagerAdapter(this).apply {
-        setSelectedStopId(attached { viewModel }?.selectedStopId?.value)
-        setAuthority(attached { viewModel }?.authority?.value)
-        setRouteTrips(attached { viewModel }?.routeTrips?.value)
+        setSelectedStopId(attachedViewModel?.selectedStopId?.value)
+        setAuthority(attachedViewModel?.authority?.value)
+        setRouteTrips(attachedViewModel?.routeTrips?.value)
     }
 
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
@@ -245,7 +247,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        attached { viewModel }?.onDeviceLocationChanged(newLocation)
+        attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
     private fun switchView() {
@@ -323,12 +325,12 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
         return super.onOptionsItemSelected(item)
     }
 
-    override fun isABReady() = attached { viewModel }?.route?.value != null
+    override fun isABReady() = attachedViewModel?.route?.value != null
 
-    override fun getABBgColor(context: Context?) = attached { viewModel }?.colorInt?.value ?: super.getABBgColor(context)
+    override fun getABBgColor(context: Context?) = attachedViewModel?.colorInt?.value ?: super.getABBgColor(context)
 
     override fun getABTitle(context: Context?): CharSequence? {
-        return attached { viewModel }?.route?.value?.let { makeABTitle(it) }
+        return attachedViewModel?.route?.value?.let { makeABTitle(it) }
             ?: super.getABTitle(context)
     }
 

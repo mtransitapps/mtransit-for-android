@@ -23,7 +23,7 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.news.details.NewsDetailsFragment
 import org.mtransit.android.ui.view.common.EventObserver
-import org.mtransit.android.ui.view.common.attached
+import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.commons.FeatureFlags
 
 @AndroidEntryPoint
@@ -101,6 +101,8 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<NewsListViewModel>()
+    private val attachedViewModel
+        get() = if (isAttached()) viewModel else null
     private val mainViewModel by activityViewModels<MainViewModel>()
 
     private var binding: FragmentNewsListBinding? = null
@@ -172,9 +174,9 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
     override fun getABTitle(context: Context?) = context?.getString(R.string.news) ?: super.getABTitle(context)
 
-    override fun getABSubtitle(context: Context?) = attached { viewModel }?.subTitle?.value ?: super.getABSubtitle(context)
+    override fun getABSubtitle(context: Context?) = attachedViewModel?.subTitle?.value ?: super.getABSubtitle(context)
 
-    override fun getABBgColor(context: Context?) = attached { viewModel }?.colorInt?.value ?: super.getABBgColor(context)
+    override fun getABBgColor(context: Context?) = attachedViewModel?.colorInt?.value ?: super.getABBgColor(context)
 
     override fun onResume() {
         super.onResume()

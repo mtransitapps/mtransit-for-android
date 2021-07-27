@@ -36,7 +36,7 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
-import org.mtransit.android.ui.view.common.attached
+import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.util.MapUtils
 
 @AndroidEntryPoint
@@ -154,6 +154,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<NearbyViewModel>()
+    private val attachedViewModel
+        get() = if (isAttached()) viewModel else null
 
     private var binding: FragmentNearbyBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
@@ -171,7 +173,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
-            attached { viewModel }?.onPageSelected(position)
+            attachedViewModel?.onPageSelected(position)
             lastPageSelected = position
         }
 
@@ -182,7 +184,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     }
 
     private fun makeAdapter() = NearbyPagerAdapter(this).apply {
-        setTypes(attached { viewModel }?.availableTypes?.value)
+        setTypes(attachedViewModel?.availableTypes?.value)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -252,7 +254,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
             setTouchInterceptor { _, me ->
                 when (me.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        val handled = attached { viewModel }?.initiateRefresh() == true
+                        val handled = attachedViewModel?.initiateRefresh() == true
                         hideLocationToast()
                         handled
                     }
@@ -279,7 +281,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
                     context,
                     locationToast,
                     view,
-                    attached { viewModel }?.getAdBannerHeightInPx(this) ?: 0
+                    attachedViewModel?.getAdBannerHeightInPx(this) ?: 0
                 )
             }
     }
@@ -340,7 +342,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        attached { viewModel }?.onDeviceLocationChanged(newLocation)
+        attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -389,18 +391,18 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     }
 
     override fun getABTitle(context: Context?): CharSequence? {
-        return attached { viewModel }?.fixedOnName?.value
+        return attachedViewModel?.fixedOnName?.value
             ?: context?.getString(R.string.nearby)
             ?: super.getABTitle(context)
     }
 
     override fun getABBgColor(context: Context?): Int? {
-        return attached { viewModel }?.fixedOnColorInt?.value
+        return attachedViewModel?.fixedOnColorInt?.value
             ?: super.getABBgColor(context)
     }
 
     override fun getABSubtitle(context: Context?): CharSequence? {
-        return attached { viewModel }?.nearbyLocationAddress?.value ?: super.getABSubtitle(context)
+        return attachedViewModel?.nearbyLocationAddress?.value ?: super.getABSubtitle(context)
     }
 
     override fun onPause() {

@@ -18,7 +18,7 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
-import org.mtransit.android.ui.view.common.attached
+import org.mtransit.android.ui.view.common.isAttached
 
 @AndroidEntryPoint
 class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
@@ -68,6 +68,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<ScheduleViewModel>()
+    private val attachedViewModel
+        get() = if (isAttached()) viewModel else null
 
     private var binding: FragmentScheduleBinding? = null
 
@@ -76,14 +78,14 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
     private var adapter: SchedulePagerAdapter? = null
 
     private fun makeAdapter() = SchedulePagerAdapter(this).apply {
-        setUUID(attached { viewModel }?.uuid?.value)
-        setAuthority(attached { viewModel }?.authority?.value)
+        setUUID(attachedViewModel?.uuid?.value)
+        setAuthority(attachedViewModel?.authority?.value)
     }
 
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
-            attached { viewModel }?.onPageSelected(position)
+            attachedViewModel?.onPageSelected(position)
             lastPageSelected = position
         }
     }
@@ -138,15 +140,15 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
         }
     }
 
-    override fun isABReady() = attached { viewModel }?.rts?.value != null
+    override fun isABReady() = attachedViewModel?.rts?.value != null
 
     override fun getABTitle(context: Context?) = context?.getString(R.string.full_schedule) ?: super.getABTitle(context)
 
-    override fun getABSubtitle(context: Context?) = attached { viewModel }?.rts?.value?.let { rts ->
-        POIManager.getNewOneLineDescription(rts, attached { viewModel }?.agency?.value)
+    override fun getABSubtitle(context: Context?) = attachedViewModel?.rts?.value?.let { rts ->
+        POIManager.getNewOneLineDescription(rts, attachedViewModel?.agency?.value)
     } ?: super.getABSubtitle(context)
 
-    override fun getABBgColor(context: Context?) = attached { viewModel }?.colorInt?.value ?: super.getABBgColor(context)
+    override fun getABBgColor(context: Context?) = attachedViewModel?.colorInt?.value ?: super.getABBgColor(context)
 
     override fun onDestroyView() {
         super.onDestroyView()

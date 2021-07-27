@@ -17,7 +17,7 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
-import org.mtransit.android.ui.view.common.attached
+import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.UITimeUtils
 
@@ -54,9 +54,11 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
 
     override fun getLogTag(): String = LOG_TAG
 
-    override fun getScreenName(): String = attached { viewModel }?.uuid?.value?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
+    override fun getScreenName(): String = attachedViewModel?.uuid?.value?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<NewsDetailsViewModel>()
+    private val attachedViewModel
+        get() = if (isAttached()) viewModel else null
 
     private var binding: FragmentNewsDetailsBinding? = null
 
@@ -147,13 +149,13 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
         }
     }
 
-    override fun getABBgColor(context: Context?) = attached { viewModel }?.newsArticle?.value?.colorIntOrNull ?: super.getABBgColor(context)
+    override fun getABBgColor(context: Context?) = attachedViewModel?.newsArticle?.value?.colorIntOrNull ?: super.getABBgColor(context)
 
-    override fun getABTitle(context: Context?) = attached { viewModel }?.newsArticle?.value?.authorOneLine ?: super.getABTitle(context)
+    override fun getABTitle(context: Context?) = attachedViewModel?.newsArticle?.value?.authorOneLine ?: super.getABTitle(context)
 
-    override fun getABSubtitle(context: Context?) = attached { viewModel }?.newsArticle?.value?.sourceLabel ?: super.getABTitle(context)
+    override fun getABSubtitle(context: Context?) = attachedViewModel?.newsArticle?.value?.sourceLabel ?: super.getABTitle(context)
 
-    override fun isABReady() = attached { viewModel }?.newsArticle?.value != null
+    override fun isABReady() = attachedViewModel?.newsArticle?.value != null
 
     override fun onDetach() {
         super.onDetach()

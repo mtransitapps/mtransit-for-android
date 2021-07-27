@@ -35,7 +35,7 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rts.route.RTSRouteFragment
 import org.mtransit.android.ui.view.common.SpacesItemDecoration
-import org.mtransit.android.ui.view.common.attached
+import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.commons.FeatureFlags
 
 @AndroidEntryPoint
@@ -63,6 +63,8 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
     override fun getLogTag(): String = this.theLogTag
 
     private val viewModel by viewModels<RTSAgencyRoutesViewModel>()
+    private val attachedViewModel
+        get() = if (isAttached()) viewModel else null
 
     private var binding: FragmentRtsAgencyRoutesBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
@@ -73,11 +75,11 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
     private val listGridToggleSelector: StateListDrawable by lazy {
         StateListDrawable().apply {
             (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_list, requireContext().theme) as? LayerDrawable)?.apply {
-                attached { viewModel }?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_list_oval_shape) as? GradientDrawable)?.setColor(it) }
+                attachedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_list_oval_shape) as? GradientDrawable)?.setColor(it) }
                 addState(intArrayOf(android.R.attr.state_checked), this)
             }
             (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_grid, requireContext().theme) as? LayerDrawable)?.apply {
-                attached { viewModel }?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_grid_oval_shape) as? GradientDrawable)?.setColor(it) }
+                attachedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_grid_oval_shape) as? GradientDrawable)?.setColor(it) }
                 addState(StateSet.WILD_CARD, this)
             }
         }
@@ -89,9 +91,9 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
 
     private val adapter: RTSAgencyRoutesAdapter by lazy {
         RTSAgencyRoutesAdapter(this::openRouteScreen).apply {
-            setAgency(attached { viewModel }?.agency?.value)
-            setShowingListInsteadOfGrid(attached { viewModel }?.showingListInsteadOfGrid?.value)
-            submitList(attached { viewModel }?.routes?.value)
+            setAgency(attachedViewModel?.agency?.value)
+            setShowingListInsteadOfGrid(attachedViewModel?.showingListInsteadOfGrid?.value)
+            submitList(attachedViewModel?.routes?.value)
         }
     }
 

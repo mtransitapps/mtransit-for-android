@@ -37,7 +37,7 @@ import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.MapViewController.POIMarker
 import org.mtransit.android.ui.view.common.IActivity
-import org.mtransit.android.ui.view.common.attached
+import org.mtransit.android.ui.view.common.isAttached
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -65,8 +65,12 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
     override fun getLogTag(): String = this.theLogTag
 
     private val viewModel by viewModels<AgencyPOIsViewModel>()
+    private val attachedViewModel
+        get() = if (isAttached()) viewModel else null
 
     private val parentViewModel by viewModels<AgencyTypeViewModel>({ requireParentFragment() })
+    private val attachedParentViewModel
+        get() = if (isAttached()) parentViewModel else null
 
     private var binding: FragmentAgencyPoisBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
@@ -78,11 +82,11 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
     private val listMapToggleSelector: StateListDrawable by lazy {
         StateListDrawable().apply {
             (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_list, requireContext().theme) as? LayerDrawable)?.apply {
-                attached { viewModel }?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_list_oval_shape) as? GradientDrawable)?.setColor(it) }
+                attachedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_list_oval_shape) as? GradientDrawable)?.setColor(it) }
                 addState(intArrayOf(android.R.attr.state_checked), this)
             }
             (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_map, requireContext().theme) as? LayerDrawable)?.apply {
-                attached { viewModel }?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_map_oval_shape) as? GradientDrawable)?.setColor(it) }
+                attachedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_map_oval_shape) as? GradientDrawable)?.setColor(it) }
                 addState(StateSet.WILD_CARD, this)
             }
         }
@@ -163,8 +167,8 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
             this.serviceUpdateLoader
         ).apply {
             logTag = logTag
-            setPois(attached { viewModel }?.poiList?.value)
-            setLocation(attached { parentViewModel }?.deviceLocation?.value)
+            setPois(attachedViewModel?.poiList?.value)
+            setLocation(attachedParentViewModel?.deviceLocation?.value)
         }
     }
 

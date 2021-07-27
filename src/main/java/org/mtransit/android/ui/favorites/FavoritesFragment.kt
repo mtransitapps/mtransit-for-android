@@ -30,7 +30,7 @@ import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.view.common.EventObserver
-import org.mtransit.android.ui.view.common.attached
+import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
@@ -53,6 +53,8 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<FavoritesViewModel>()
+    private val attachedViewModel
+        get() = if (isAttached()) viewModel else null
     private val mainViewModel by activityViewModels<MainViewModel>()
 
     @Inject
@@ -152,7 +154,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
     }
 
     override fun onFavoriteUpdated() {
-        attached { viewModel }?.onFavoriteUpdated()
+        attachedViewModel?.onFavoriteUpdated()
     }
 
     override fun onResume() {
@@ -167,7 +169,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        attached { viewModel }?.onDeviceLocationChanged(newLocation)
+        attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

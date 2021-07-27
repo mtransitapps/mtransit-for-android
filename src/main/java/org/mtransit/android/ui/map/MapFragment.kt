@@ -27,7 +27,7 @@ import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.MTDialog
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.MapViewController
-import org.mtransit.android.ui.view.common.attached
+import org.mtransit.android.ui.view.common.isAttached
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -82,6 +82,8 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
     private val viewModel by viewModels<MapViewModel>()
+    private val attachedViewModel
+        get() = if (isAttached()) viewModel else null
 
     private var binding: FragmentMapBinding? = null
 
@@ -101,13 +103,13 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
         }
 
         override fun onCameraChange(latLngBounds: LatLngBounds) {
-            attached { viewModel }?.onCameraChange(latLngBounds) {
+            attachedViewModel?.onCameraChange(latLngBounds) {
                 mapViewController.getBigCameraPosition(activity, 1.0f)
             }
         }
 
         override fun onMapReady() {
-            attached { viewModel }?.poiMarkers?.value?.let {
+            attachedViewModel?.poiMarkers?.value?.let {
                 mapViewController.clearMarkers()
                 mapViewController.addMarkers(it)
                 mapViewController.showMap(view)
@@ -226,7 +228,7 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
     }
 
     override fun onUserLocationChanged(newLocation: Location?) {
-        attached { viewModel }?.onDeviceLocationChanged(newLocation)
+        attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
     override fun onPause() {
@@ -251,13 +253,13 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
     }
 
     private fun showMenuFilterDialog(): Boolean {
-        val filterTypeIds = attached { viewModel }?.filterTypeIds?.value ?: return false
+        val filterTypeIds = attachedViewModel?.filterTypeIds?.value ?: return false
         val activity = requireActivity()
         val typeNames = mutableListOf<CharSequence>()
         val checked = mutableListOf<Boolean>()
         val typeIds = mutableListOf<Int>()
         val selectedItems = mutableSetOf<Int>()
-        attached { viewModel }?.mapTypes?.value?.forEach { type ->
+        attachedViewModel?.mapTypes?.value?.forEach { type ->
             typeIds.add(type.id)
             typeNames.add(getString(type.poiShortNameResId))
             checked.add(filterTypeIds.isEmpty() || filterTypeIds.contains(type.id))
@@ -306,7 +308,7 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
     }
 
     private fun makeABTitle(context: Context): CharSequence {
-        return (attached { viewModel }?.filterTypeIds?.value?.let { if (it.isEmpty()) null else it } // empty = all
+        return (attachedViewModel?.filterTypeIds?.value?.let { if (it.isEmpty()) null else it } // empty = all
             ?.mapNotNull { typeId ->
                 DataSourceType.parseId(typeId)?.allStringResId?.let { context.getString(it) }
             } ?: listOf(context.getString(R.string.all)))
