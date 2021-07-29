@@ -161,6 +161,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
         super.onResume()
         adapter.onResume(this, viewModel.deviceLocation.value)
         (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
+        if (FeatureFlags.F_NAVIGATION) {
+            mainViewModel.setABTitle(getABTitle(context))
+        }
     }
 
     override fun onPause() {

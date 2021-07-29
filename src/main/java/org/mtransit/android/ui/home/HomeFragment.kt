@@ -199,6 +199,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
         })
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner, {
             abController?.setABSubtitle(this, getABSubtitle(context), true)
+            if (FeatureFlags.F_NAVIGATION) {
+                mainViewModel.setABSubtitle(getABSubtitle(context))
+            }
         })
         viewModel.nearbyPOIsTrigger.observe(viewLifecycleOwner, {
             adapter.clear()
@@ -252,6 +255,10 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
         this.adapter.onResume(this, viewModel.deviceLocation.value)
         switchView()
         (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
+        if (FeatureFlags.F_NAVIGATION) {
+            mainViewModel.setABTitle(getABTitle(context))
+            mainViewModel.setABSubtitle(getABSubtitle(context))
+        }
         if (demoModeManager.isEnabledPOIScreen()) {
             val poiAuthority = demoModeManager.filterAgencyAuthority ?: throw RuntimeException("Demo mode: missing authority!")
             val poiUUID = demoModeManager.filterUUID ?: throw RuntimeException("Demo mode: missing UUID!")

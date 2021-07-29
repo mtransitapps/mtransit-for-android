@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.main
 
+import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
@@ -46,6 +47,10 @@ class MainViewModel @Inject constructor(
         private const val ITEM_INDEX_NEWS = 5
 
         private const val ITEM_ID_SELECTED_SCREEN_DEFAULT = ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME
+
+        private val DEFAULT_AB_TITLE: CharSequence? = null
+        private val DEFAULT_AB_SUBTITLE: CharSequence? = null
+        private val DEFAULT_AB_BG_COLOR: Int? = null
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -53,6 +58,33 @@ class MainViewModel @Inject constructor(
     val allAgenciesCount = this.dataSourcesRepository.readingAllAgenciesCount()
 
     val scrollToTopEvent = MutableLiveData<Event<Boolean>>()
+
+    private val _abTitle = MutableLiveData<CharSequence?>(DEFAULT_AB_TITLE)
+    internal val abTitle: LiveData<CharSequence?> = _abTitle
+
+    private val _abSubtitle = MutableLiveData<CharSequence?>(DEFAULT_AB_SUBTITLE)
+    internal val abSubtitle: LiveData<CharSequence?> = _abSubtitle
+
+    private val _abBgColor = MutableLiveData<Int?>(DEFAULT_AB_BG_COLOR)
+    internal val abBgColor: LiveData<Int?> = _abBgColor
+
+    fun setABTitle(title: CharSequence? = null) {
+        _abTitle.value = title
+    }
+
+    fun setABSubtitle(subtitle: CharSequence? = null) {
+        _abSubtitle.value = subtitle
+    }
+
+    fun setABBgColor(@ColorInt bgColor: Int? = null) {
+        _abBgColor.value = bgColor
+    }
+
+    fun resetAB() {
+        setABTitle(DEFAULT_AB_TITLE)
+        setABSubtitle(DEFAULT_AB_SUBTITLE)
+        setABBgColor(DEFAULT_AB_BG_COLOR)
+    }
 
     fun onAppVisible() {
         viewModelScope.launch {
@@ -165,6 +197,10 @@ class MainViewModel @Inject constructor(
         R.id.root_nav_rail,
         R.id.root_nav_module
     )
+
+    fun onItemSelected() {
+        resetAB()
+    }
 
     fun onItemReselected() {
         scrollToTopEvent.postValue(Event(true))

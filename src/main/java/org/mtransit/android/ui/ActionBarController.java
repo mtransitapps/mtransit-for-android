@@ -113,11 +113,11 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	private void init() {
-		MainActivity mainActivity = getMainActivityOrNull();
+		final MainActivity mainActivity = getMainActivityOrNull();
 		if (mainActivity != null) {
-			Toolbar toolbar = mainActivity.findViewById(R.id.ab_toolbar);
+			final Toolbar toolbar = mainActivity.findViewById(R.id.ab_toolbar);
 			mainActivity.setSupportActionBar(toolbar);
-			ActionBar ab = getABOrNull();
+			final ActionBar ab = getABOrNull();
 			this.fragmentTitle = mainActivity.getTitle();
 			this.fragmentSubtitle = ab == null ? null : ab.getSubtitle();
 			if (ab != null) {
@@ -164,7 +164,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean isCurrentFragmentVisible(@Nullable Fragment source) {
-		MainActivity mainActivity = getMainActivityOrNull();
+		final MainActivity mainActivity = getMainActivityOrNull();
 		return mainActivity != null && mainActivity.isCurrentFragmentVisible(source);
 	}
 
@@ -300,7 +300,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		if (this.fragmentBgColor != null) {
 			setBgColor(ab, this.fragmentBgColor);
 		}
-		MainActivity mainActivity = getMainActivityOrNull();
+		final MainActivity mainActivity = getMainActivityOrNull();
 		if (mainActivity != null) {
 			mainActivity.updateNavigationDrawerToggleIndicator();
 		}
@@ -318,12 +318,13 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	private void setBgColor(ActionBar ab, @ColorInt int colorInt) {
-		ColorDrawable bgDrawable = getBgDrawableOrNull(ab);
+		final ColorDrawable bgDrawable = getBgDrawableOrNull(ab);
 		if (bgDrawable != null) {
 			bgDrawable.setColor(colorInt);
 		}
 	}
 
+	@Nullable
 	private ColorDrawable getBgDrawableOrNull(ActionBar ab) {
 		if (this.bgDrawable == null) {
 			initBgDrawable(ab);

@@ -66,6 +66,7 @@ import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.main.MainViewModel;
 import org.mtransit.android.ui.map.MapFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListFragment;
@@ -169,6 +170,8 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	private POIViewModel viewModel;
+	@Nullable
+	private MainViewModel mainViewModel;
 
 	@Nullable
 	private POIViewModel getAttachedViewModel() {
@@ -232,6 +235,11 @@ public class POIFragment extends ABFragment implements
 		if (getAbController() != null) {
 			getAbController().setABTitle(this, getABTitle(context), false);
 			getAbController().setABReady(this, isABReady(), true);
+		}
+		if (FeatureFlags.F_NAVIGATION) {
+			if (mainViewModel != null) {
+				mainViewModel.setABTitle(getABTitle(context));
+			}
 		}
 		refreshAppUpdateLayout(getView());
 	}
@@ -445,6 +453,9 @@ public class POIFragment extends ABFragment implements
 		super.onViewCreated(view, savedInstanceState);
 		MTTransitions.postponeEnterTransition(this);
 		viewModel = new ViewModelProvider(this).get(POIViewModel.class);
+		if (FeatureFlags.F_NAVIGATION) {
+			mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+		}
 		viewModel.getDataSourceRemovedEvent().observe(getViewLifecycleOwner(), new EventObserver<>(removed -> {
 			if (removed) {
 				onDataSourceRemoved();
@@ -980,6 +991,11 @@ public class POIFragment extends ABFragment implements
 		this.adManager.refreshRewardedAdStatus(this);
 		refreshRewardedLayout(getView());
 		refreshAppUpdateLayout(getView());
+		if (FeatureFlags.F_NAVIGATION) {
+			if (mainViewModel != null) {
+				mainViewModel.setABBgColor(getABBgColor(getContext()));
+			}
+		}
 	}
 
 	@Override

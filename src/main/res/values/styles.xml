@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="MTThemeOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
+    <style name="MTThemeOverlay" parent="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar" />
 
-    <style name="MTTabTextStyle" parent="TextAppearance.Design.Tab">
+    <style name="MTTabTextStyle" parent="@style/TextAppearance.Design.Tab">
         <item name="android:textStyle">bold</item>
     </style>
 
@@ -12,7 +12,7 @@
         <item name="thickness">6dp</item>
     </style>
 
-    <style name="MTSwitch" parent="Theme.MaterialComponents">
+    <style name="MTSwitch" parent="@style/Theme.MaterialComponents">
         <item name="colorControlActivated">@color/switch_track_tint</item>
         <item name="android:colorForeground">@color/switch_track_tint</item>
     </style>

@@ -149,9 +149,15 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
         }
         viewModel.subTitle.observe(viewLifecycleOwner, {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
+            if (FeatureFlags.F_NAVIGATION) {
+                mainViewModel.setABSubtitle(getABSubtitle(context))
+            }
         })
         viewModel.colorInt.observe(viewLifecycleOwner, {
             abController?.setABBgColor(this, getABBgColor(context), false)
+            if (FeatureFlags.F_NAVIGATION) {
+                mainViewModel.setABBgColor(getABBgColor(context))
+            }
         })
         viewModel.loading.observe(viewLifecycleOwner, { loading ->
             binding?.refreshLayout?.isRefreshing = loading
@@ -181,6 +187,11 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
     override fun onResume() {
         super.onResume()
         listAdapter.onResume(this)
+        if (FeatureFlags.F_NAVIGATION) {
+            mainViewModel.setABTitle(getABTitle(context))
+            mainViewModel.setABSubtitle(getABSubtitle(context))
+            mainViewModel.setABBgColor(getABBgColor(context))
+        }
     }
 
     override fun onPause() {

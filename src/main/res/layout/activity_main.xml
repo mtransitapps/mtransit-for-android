@@ -2,6 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_activity_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.main.MainActivity">
@@ -9,53 +10,62 @@
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:openDrawer="start">
 
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <include
                 android:id="@+id/ad_layout"
-                layout="@layout/layout_ad" />
+                layout="@layout/layout_ad"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
 
             <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/main_content"
                 android:name="androidx.navigation.fragment.NavHostFragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:layout_above="@id/ad_layout"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:defaultNavHost="true"
-                app:navGraph="@navigation/main_nav_graph"
+                app:layout_constraintBottom_toTopOf="@id/ad_layout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:navGraph="@navigation/nav_graph_main"
                 tools:visibility="visible" />
 
-            <include
-                android:id="@+id/main_content_loading"
-                layout="@layout/layout_loading_large"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="visible"
-                tools:visibility="gone" />
-
-            <include
-                android:id="@+id/ab_toolbar_transparent"
-                layout="@layout/layout_ab_gradient"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/action_bar_size_static"
-                android:layout_alignParentTop="true" />
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/ab_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/action_bar_size_static"
-                android:layout_alignParentTop="true"
-                android:background="?attr/colorPrimary"
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/ab_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ab_gradient"
                 android:theme="@style/MTThemeOverlay"
-                android:visibility="visible"
-                tools:visibility="visible" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-        </RelativeLayout>
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/ab_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="?attr/colorPrimary"
+                    android:theme="@style/MTThemeOverlay"
+                    android:visibility="visible"
+                    tools:background="@color/transparent"
+                    tools:menu="@menu/menu_main"
+                    tools:title="@string/app_name"
+                    tools:visibility="visible" />
+
+            </com.google.android.material.appbar.AppBarLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.navigation.NavigationView
             android:id="@+id/nav_view"
@@ -65,7 +75,7 @@
             app:headerLayout="@layout/layout_drawer_header"
             app:itemIconTint="@color/navigation_item_color"
             app:itemTextColor="@color/navigation_item_color"
-            app:menu="@menu/drawer" />
+            app:menu="@menu/nav_view" />
 
     </androidx.drawerlayout.widget.DrawerLayout>
 

@@ -17,6 +17,7 @@ import androidx.annotation.ColorInt
 import androidx.core.os.bundleOf
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,11 +34,13 @@ import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.util.MapUtils
+import org.mtransit.commons.FeatureFlags
 
 @AndroidEntryPoint
 class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListener {
@@ -156,6 +159,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     private val viewModel by viewModels<NearbyViewModel>()
     private val attachedViewModel
         get() = if (isAttached()) viewModel else null
+    private val mainViewModel by activityViewModels<MainViewModel>()
 
     private var binding: FragmentNearbyBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
@@ -206,6 +210,11 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
             MTTabLayoutMediator(tabs, viewpager, autoRefresh = true, smoothScroll = true) { tab, position ->
                 tab.text = viewModel.availableTypes.value?.get(position)?.shortNameResId?.let { viewpager.context.getString(it) }
             }.attach()
+            if (FeatureFlags.F_NAVIGATION) {
+                (activity as? org.mtransit.android.ui.main.MainActivity?)?.supportActionBar?.elevation?.let {
+                    tabs.elevation = it
+                }
+            }
             showSelectedTab()
             switchView()
         }
@@ -229,13 +238,22 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         })
         viewModel.fixedOnName.observe(viewLifecycleOwner, {
             abController?.setABTitle(this, getABTitle(context), false)
+            if (FeatureFlags.F_NAVIGATION) {
+                mainViewModel.setABTitle(getABTitle(context))
+            }
         })
         viewModel.fixedOnColorInt.observe(viewLifecycleOwner, {
             abController?.setABBgColor(this, getABBgColor(context), false)
+            if (FeatureFlags.F_NAVIGATION) {
+                mainViewModel.setABBgColor(getABBgColor(context))
+            }
             setupTabTheme()
         })
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner, {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
+            if (FeatureFlags.F_NAVIGATION) {
+                mainViewModel.setABSubtitle(getABSubtitle(context))
+            }
             abController?.setABReady(this, isABReady, true)
             MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
         })
@@ -414,6 +432,11 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         super.onResume()
         switchView()
         (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
+        if (FeatureFlags.F_NAVIGATION) {
+            mainViewModel.setABTitle(getABTitle(context))
+            mainViewModel.setABSubtitle(getABSubtitle(context))
+            mainViewModel.setABBgColor(getABBgColor(context))
+        }
     }
 
     override fun onDestroyView() {

@@ -6,12 +6,12 @@ import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
@@ -35,6 +35,7 @@ import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.databinding.ActivityMainBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
@@ -79,6 +80,22 @@ class MainActivity : MTActivityWithLocation(),
 
     private lateinit var navController: NavController
     private lateinit var appBarConfig: AppBarConfiguration
+
+    private var bgDrawable: ColorDrawable? = null
+    private val abBgDrawable: ColorDrawable?
+        get() {
+            return bgDrawable ?: run {
+                supportActionBar?.let { ab ->
+                    ColorDrawable().apply {
+                        bgDrawable = this
+                        ab.setBackgroundDrawable(bgDrawable)
+                    }
+                }
+                bgDrawable
+            }
+        }
+
+    private val defaultBgColor by lazy { ThemeUtils.resolveColorAttribute(context, R.attr.colorPrimary) }
 
     @EntryPoint
     @InstallIn(SingletonComponent::class)
@@ -143,6 +160,7 @@ class MainActivity : MTActivityWithLocation(),
         }
         // TODO binding.navRailView?.setupWithNavController(navController) // 1st // required Navigation UI 2.4.0 stable https://developer.android.com/jetpack/androidx/releases/navigation
         binding.navRailView?.setOnItemSelectedListener { item -> // 1st
+            viewModel.onItemSelected()
             NavigationUI.onNavDestinationSelected(item, navController)
         }
         binding.navRailView?.setOnItemReselectedListener { item -> // 2nd: override to avoid re-selection
@@ -150,12 +168,13 @@ class MainActivity : MTActivityWithLocation(),
         }
         setupActionBarWithNavController(navController, appBarConfig)
         navController.addOnDestinationChangedListener { controller, dest, args ->
+            viewModel.onItemSelected()
             viewModel.onSelectedItemIdChanged(dest.id)
         }
         supportFragmentManager.addOnBackStackChangedListener(this)
         viewModel.selectedItemIdRes.observe(this, { selectedItemIdRes ->
             selectedItemIdRes?.let {
-                val navGraph = navController.navInflater.inflate(R.navigation.main_nav_graph)
+                val navGraph = navController.navInflater.inflate(R.navigation.nav_graph_main)
                 navGraph.startDestination = selectedItemIdRes // FIXME only when new value? ...
                 navController.graph = navGraph
                 showContentFrameAsLoaded()
@@ -176,6 +195,15 @@ class MainActivity : MTActivityWithLocation(),
             nbAgencies?.let {
                 adManager.onNbAgenciesUpdated(this, nbAgencies)
             }
+        })
+        viewModel.abTitle.observe(this, {
+            binding.abToolbar.title = it
+        })
+        viewModel.abSubtitle.observe(this, {
+            binding.abToolbar.subtitle = it
+        })
+        viewModel.abBgColor.observe(this, { newBgColor ->
+            abBgDrawable?.color = newBgColor ?: defaultBgColor
         })
     }
 
@@ -258,13 +286,9 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     fun showContentFrameAsLoading() {
-        binding.mainContent.isVisible = false
-        binding.mainContentLoading.root.isVisible = true
     }
 
     fun showContentFrameAsLoaded() {
-        binding.mainContentLoading.root.isVisible = false
-        binding.mainContent.isVisible = true
     }
 
     override fun onLastLocationChanged(lastLocation: Location?) {

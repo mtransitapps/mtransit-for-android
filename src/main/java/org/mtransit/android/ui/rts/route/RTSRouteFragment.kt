@@ -39,6 +39,7 @@ import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.commons.FeatureFlags
 import java.util.Locale
 import kotlin.math.abs
 
@@ -166,6 +167,11 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
             MTTabLayoutMediator(tabs, viewpager, autoRefresh = true, smoothScroll = true) { tab, position ->
                 tab.text = viewModel.routeTrips.value?.get(position)?.getHeading(viewpager.context)?.uppercase(Locale.getDefault())
             }.attach()
+            if (FeatureFlags.F_NAVIGATION) {
+                (activity as? org.mtransit.android.ui.main.MainActivity?)?.supportActionBar?.elevation?.let {
+                    tabs.elevation = it
+                }
+            }
             getABBgColor(tabs.context)?.let { tabs.setBackgroundColor(it) }
             showSelectedTab()
         }

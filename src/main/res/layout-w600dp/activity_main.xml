@@ -7,16 +7,18 @@
     android:layout_height="match_parent"
     tools:context=".ui.main.MainActivity">
 
-    <!-- NAV RAIL++ -->
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="256dp"
-        android:layout_height="0dp"
-        app:headerLayout="@layout/layout_drawer_header"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <com.google.android.material.navigationrail.NavigationRailView
+        android:id="@+id/nav_rail_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:headerLayout="@layout/layout_drawer_header_small"
+        app:itemIconTint="@color/navigation_item_color"
+        app:itemTextColor="@color/navigation_item_color"
+        app:labelVisibilityMode="labeled"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:menu="@menu/nav_view" />
+        app:menu="@menu/nav_view_rail"
+        app:menuGravity="top"
+        tools:viewBindingType="NavigationBarView" />
 
     <include
         android:id="@+id/ad_layout"
@@ -24,10 +26,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_toEndOf="@id/nav_view"
+        android:layout_toEndOf="@id/nav_rail_view"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/nav_view" />
+        app:layout_constraintStart_toEndOf="@id/nav_rail_view" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/main_content"
@@ -35,12 +37,12 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_above="@id/ad_layout"
-        android:layout_toEndOf="@id/nav_view"
+        android:layout_toEndOf="@id/nav_rail_view"
         android:visibility="visible"
         app:defaultNavHost="true"
         app:layout_constraintBottom_toTopOf="@id/ad_layout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/nav_view"
+        app:layout_constraintStart_toEndOf="@id/nav_rail_view"
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/nav_graph_main"
         tools:visibility="visible" />
@@ -52,7 +54,7 @@
         android:background="@drawable/ab_gradient"
         android:theme="@style/MTThemeOverlay"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/nav_view"
+        app:layout_constraintStart_toEndOf="@id/nav_rail_view"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -66,6 +68,7 @@
             tools:menu="@menu/menu_main"
             tools:title="@string/app_name"
             tools:visibility="visible" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

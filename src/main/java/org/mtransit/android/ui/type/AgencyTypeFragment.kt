@@ -36,6 +36,7 @@ import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.commons.FeatureFlags
 import kotlin.math.abs
 
 @AndroidEntryPoint
@@ -146,6 +147,11 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
             MTTabLayoutMediator(tabs, viewpager, autoRefresh = true, smoothScroll = true) { tab, position ->
                 tab.text = viewModel.typeAgencies.value?.get(position)?.shortName
             }.attach()
+            if (FeatureFlags.F_NAVIGATION) {
+                (activity as? org.mtransit.android.ui.main.MainActivity?)?.supportActionBar?.elevation?.let {
+                    tabs.elevation = it
+                }
+            }
             showSelectedTab()
         }
         viewModel.typeAgencies.observe(viewLifecycleOwner, { agencies ->
