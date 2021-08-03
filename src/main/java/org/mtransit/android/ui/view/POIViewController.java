@@ -46,7 +46,6 @@ import org.mtransit.commons.FeatureFlags;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings({"WeakerAccess", "unused", "DuplicateBranchesInSwitch"})
@@ -525,7 +524,7 @@ public class POIViewController implements MTLog.Loggable {
 				if (rts.getTrip() == null) {
 					holder.tripHeadingBg.setVisibility(View.GONE);
 				} else {
-					holder.tripHeadingTv.setText(rts.getTrip().getHeading(context).toUpperCase(Locale.getDefault()));
+					holder.tripHeadingTv.setText(rts.getTrip().getUIHeading(context, true));
 					holder.tripHeadingTv.setSingleLine(true); // marquee forever
 					holder.tripHeadingTv.setSelected(true); // marquee forever
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
@@ -627,7 +626,7 @@ public class POIViewController implements MTLog.Loggable {
 				if (rts.getTrip() == null) {
 					holder.tripHeadingBg.setVisibility(View.GONE);
 				} else {
-					holder.tripHeadingTv.setText(rts.getTrip().getHeading(context).toUpperCase(Locale.getDefault()));
+					holder.tripHeadingTv.setText(rts.getTrip().getUIHeading(context, true));
 					holder.tripHeadingTv.setSingleLine(true); // marquee forever
 					holder.tripHeadingTv.setSelected(true); // marquee forever
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);

@@ -32,7 +32,6 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class UISchedule extends org.mtransit.android.commons.data.Schedule implements MTLog.Loggable {
@@ -535,7 +534,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			String fTime = UITimeUtils.formatTime(context, t);
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
 			if (t.hasHeadsign() && !Trip.isSameHeadsign(t.getHeading(context), optDefaultHeadSign)) {
-				headSignSSB = new SpannableStringBuilder(t.getHeading(context).toUpperCase(Locale.ENGLISH));
+				headSignSSB = new SpannableStringBuilder(t.getUIHeading(context, true));
 			}
 			if (startPreviousTimesIndex < endPreviousTimesIndex //
 					&& index > startPreviousTimesIndex && index <= endPreviousTimesIndex) {

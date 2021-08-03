@@ -74,7 +74,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -1777,7 +1776,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setVisibility(View.VISIBLE);
-				holder.tripHeadingTv.setText(rts.getTrip().getHeading(getContext()).toUpperCase(Locale.getDefault()));
+				holder.tripHeadingTv.setText(rts.getTrip().getUIHeading(getContext(), true));
 				holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setBackgroundColor(poim.getColor(dataSourcesRepository));
 				holder.rtsExtraV.setOnClickListener(view -> {

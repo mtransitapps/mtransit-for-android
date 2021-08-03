@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.schedule.day
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
@@ -76,6 +77,7 @@ class ScheduleDayAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLo
         this.optRts = rts
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun onTimeChanged(newTimeInMs: Long = UITimeUtils.currentTimeToTheMinuteMillis()) {
         this.nowToTheMinute = newTimeInMs
         if (this.nowToTheMinute > 0L) {
@@ -376,7 +378,7 @@ class ScheduleDayAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLo
             if (timestamp.hasHeadsign()) {
                 val timestampHeading = timestamp.getHeading(context)
                 if (!Trip.isSameHeadsign(timestampHeading, optRts?.trip?.getHeading(context))) {
-                    timeSb.append(P1).append(timestampHeading).append(P2)
+                    timeSb.append(P1).append(timestamp.getUIHeading(context, false)).append(P2)
                 }
             }
             UITimeUtils.cleanTimes(timeOnly, timeSb)
