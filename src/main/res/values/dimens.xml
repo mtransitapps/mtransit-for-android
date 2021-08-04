@@ -39,4 +39,8 @@
     <dimen name="route_short_name_min_text_size">@dimen/text_size_extra_extra_small</dimen>
     <dimen name="route_short_name_max_text_size">@dimen/text_size_extra_extra_extra_large</dimen>
     <dimen name="trip_head_sign_text_size" tools:ignore="SpUsage">14dp</dimen>
+
+    <dimen name="touch_target_min_height">@dimen/baseline_48</dimen>
+    <dimen name="touch_target_min_height_btn">36dp</dimen>
+    <dimen name="touch_target_min_width">@dimen/baseline_48</dimen>
 </resources>

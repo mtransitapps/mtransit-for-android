@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/header_height"
     android:layout_gravity="center_vertical"
@@ -9,56 +9,18 @@
     android:paddingTop="@dimen/title_top_padding"
     android:paddingRight="@dimen/title_right_padding">
 
-    <FrameLayout
+    <Button
         android:id="@+id/allBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_centerVertical="false"
-        android:background="?android:attr/selectableItemBackground"
-        android:padding="@dimen/button_padding">
+        style="@style/MTButton.Header"
+        android:text="@string/all" />
 
-        <TextView
-            android:id="@+id/allBtnTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@drawable/button_rect_bg"
-            android:fontFamily="sans-serif-condensed"
-            android:includeFontPadding="false"
-            android:padding="@dimen/button_text_padding"
-            android:text="@string/all"
-            android:textAllCaps="true"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?attr/colorOnPrimary" />
-
-    </FrameLayout>
-
-    <FrameLayout
+    <Button
         android:id="@+id/nearbyBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerVertical="false"
+        style="@style/MTButton.Header.Middle"
+        android:layout_marginStart="@dimen/button_padding"
+        android:layout_marginLeft="@dimen/button_padding"
         android:layout_toLeftOf="@id/allBtn"
-        android:background="?android:attr/selectableItemBackground"
-        android:padding="@dimen/button_padding">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@drawable/button_rect_bg"
-            android:fontFamily="sans-serif-condensed"
-            android:includeFontPadding="false"
-            android:padding="@dimen/button_text_padding"
-            android:text="@string/nearby"
-            android:textAllCaps="true"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?attr/colorOnPrimary" />
-
-    </FrameLayout>
+        android:text="@string/nearby" />
 
     <TextView
         android:id="@+id/name"

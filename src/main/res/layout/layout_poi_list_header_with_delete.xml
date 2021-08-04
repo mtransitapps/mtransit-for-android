@@ -9,57 +9,18 @@
     android:paddingTop="@dimen/title_top_padding"
     android:paddingRight="@dimen/title_right_padding">
 
-    <FrameLayout
+    <Button
         android:id="@+id/deleteBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_centerVertical="false"
-        android:background="?android:attr/selectableItemBackground"
-        android:padding="@dimen/button_padding">
+        style="@style/MTButton.Header"
+        android:text="@string/delete" />
 
-        <TextView
-            android:id="@+id/deleteBtnTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@drawable/button_rect_bg"
-            android:fontFamily="sans-serif-condensed"
-            android:includeFontPadding="false"
-            android:padding="@dimen/button_text_padding"
-            android:text="@string/delete"
-            android:textAllCaps="true"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?attr/colorOnPrimary" />
-
-    </FrameLayout>
-
-    <FrameLayout
+    <Button
         android:id="@+id/renameBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerVertical="false"
+        style="@style/MTButton.Header.Middle"
+        android:layout_marginStart="@dimen/button_padding"
+        android:layout_marginLeft="@dimen/button_padding"
         android:layout_toLeftOf="@id/deleteBtn"
-        android:background="?android:attr/selectableItemBackground"
-        android:padding="@dimen/button_padding">
-
-        <TextView
-            android:id="@+id/renameBtnTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@drawable/button_rect_bg"
-            android:fontFamily="sans-serif-condensed"
-            android:includeFontPadding="false"
-            android:padding="@dimen/button_text_padding"
-            android:text="@string/rename"
-            android:textAllCaps="true"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?attr/colorOnPrimary" />
-
-    </FrameLayout>
+        android:text="@string/rename" />
 
     <TextView
         android:id="@+id/name"

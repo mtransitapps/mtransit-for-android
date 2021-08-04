@@ -64,8 +64,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginLeft="2dp"
-                android:layout_marginRight="2dp"
+                android:layout_marginStart="@dimen/baseline_2"
+                android:layout_marginEnd="@dimen/baseline_2"
                 android:ellipsize="marquee"
                 android:fontFamily="sans-serif-condensed"
                 android:marqueeRepeatLimit="marquee_forever"
@@ -75,7 +75,7 @@
                 android:textSize="@dimen/trip_head_sign_text_size"
                 android:textStyle="bold"
                 tools:ignore="SpUsage"
-                tools:text="HEADING HEADING HEADING HEADING HEADING HEADING HEADING" />
+                tools:text="&#8227;HEADING HEADING HEADING HEADING HEADING HEADING HEADING" />
         </FrameLayout>
     </LinearLayout>
 

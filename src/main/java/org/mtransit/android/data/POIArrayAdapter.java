@@ -30,6 +30,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 
+import com.google.android.material.button.MaterialButton;
+
 import org.mtransit.android.R;
 import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.Constants;
@@ -517,8 +519,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			} else {
 				int availableButtons = 0;
 				View gridLine = null;
-				View btn;
-				TextView btnTv;
+				MaterialButton btn;
 				for (final DataSourceType dst : allAgencyTypes) {
 					if (dst.getId() == DataSourceType.TYPE_MODULE.getId() && availableButtons == 0 && allAgencyTypes.size() > 2) {
 						MTLog.d(this, "getBrowseHeaderSectionView() > SKIP modules (no room)");
@@ -534,12 +535,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 						availableButtons = 2;
 					}
 					btn = gridLine.findViewById(availableButtons == 2 ? R.id.btn1 : R.id.btn2);
-					btnTv = gridLine.findViewById(availableButtons == 2 ? R.id.btn1Tv : R.id.btn2Tv);
-					btnTv.setText(dst.getAllStringResId());
+					btn.setText(dst.getAllStringResId());
 					if (dst.getIconResId() != -1) {
-						btnTv.setCompoundDrawablesWithIntrinsicBounds(dst.getIconResId(), 0, 0, 0);
+						btn.setIconResource(dst.getIconResId());
 					} else {
-						btnTv.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+						btn.setIcon(null);
 					}
 					btn.setOnClickListener(view ->
 							onTypeHeaderButtonClick(view, TypeHeaderButtonsClickListener.BUTTON_ALL, dst)
@@ -1347,7 +1347,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			holder.nameTv = convertView.findViewById(R.id.name);
 			holder.nearbyBtn = convertView.findViewById(R.id.nearbyBtn);
 			holder.allBtn = convertView.findViewById(R.id.allBtn);
-			holder.allBtnTv = convertView.findViewById(R.id.allBtnTv);
 			holder.moreBtn = convertView.findViewById(R.id.moreBtn);
 			convertView.setTag(holder);
 		}
@@ -2175,7 +2174,6 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	private static class TypeHeaderViewHolder {
 		TextView nameTv;
-		TextView allBtnTv;
 		View allBtn;
 		View nearbyBtn;
 		View moreBtn;

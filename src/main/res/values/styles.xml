@@ -24,4 +24,67 @@
         <item name="colorSurface">@color/color_surface</item>
     </style>
 
+    <!-- Inspired by Widget.MaterialComponents.Button.TextButton.Dialog -->
+    <!-- Widget.MaterialComponents.Button.Dialog -->
+    <style name="MTWidgetMDCButtonDialog" parent="@style/Widget.MaterialComponents.Button">
+        <item name="android:minWidth">@dimen/mtrl_btn_dialog_btn_min_width</item>
+        <item name="android:lines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:layout_marginStart">@dimen/mtrl_btn_text_btn_padding_left</item>
+        <item name="android:layout_marginLeft">@dimen/mtrl_btn_text_btn_padding_left</item>
+        <item name="android:paddingLeft">@dimen/mtrl_btn_text_btn_padding_left</item>
+        <item name="android:paddingStart">@dimen/mtrl_btn_text_btn_padding_left</item>
+        <item name="android:paddingRight">@dimen/mtrl_btn_text_btn_padding_right</item>
+        <item name="android:paddingEnd">@dimen/mtrl_btn_text_btn_padding_right</item>
+    </style>
+
+    <style name="MTButton" parent="@style/MTWidgetMDCButtonDialog">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:padding">@dimen/button_text_padding</item>
+        <!-- INSET = top / bottom margins -->
+        <item name="android:insetTop">0dp</item><!-- remove top margin -->
+        <item name="android:insetBottom">0dp</item><!-- remove bottom margin -->
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">0dp</item>
+    </style>
+
+    <style name="MTButton.Header" parent="@style/MTButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentEnd">true</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_alignParentBottom">true</item>
+        <item name="android:layout_centerVertical">false</item>
+
+        <item name="android:layout_marginLeft">@dimen/button_padding</item>
+        <item name="android:layout_marginStart">@dimen/button_padding</item>
+        <item name="android:layout_marginRight">@dimen/button_padding</item>
+        <item name="android:layout_marginEnd">@dimen/button_padding</item>
+        <item name="android:layout_marginTop">@dimen/button_padding</item>
+        <item name="android:layout_marginBottom">@dimen/button_padding</item>
+    </style>
+
+    <style name="MTButton.Header.Middle" parent="@style/MTButton.Header">
+        <item name="android:layout_alignParentEnd">false</item>
+        <item name="android:layout_alignParentRight">false</item>
+        <item name="android:layout_marginLeft">0dp</item>
+        <item name="android:layout_marginStart">0dp</item>
+        <item name="android:layout_marginRight">0dp</item>
+        <item name="android:layout_marginEnd">0dp</item>
+    </style>
+
+    <style name="MTButton.Icon" parent="@style/MTButton">
+        <item name="android:gravity">start|center_vertical</item>
+        <item name="iconGravity">start</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+    </style>
+
 </resources>

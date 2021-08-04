@@ -9,30 +9,10 @@
     android:paddingTop="@dimen/title_top_padding"
     android:paddingRight="@dimen/title_right_padding">
 
-    <FrameLayout
+    <Button
         android:id="@+id/moreBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_centerVertical="false"
-        android:background="?android:attr/selectableItemBackground"
-        android:padding="@dimen/button_padding">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@drawable/button_rect_bg"
-            android:fontFamily="sans-serif-condensed"
-            android:includeFontPadding="false"
-            android:padding="@dimen/button_text_padding"
-            android:text="@string/more"
-            android:textAllCaps="true"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?attr/colorOnPrimary" />
-
-    </FrameLayout>
+        style="@style/MTButton.Header"
+        android:text="@string/more" />
 
     <TextView
         android:id="@+id/name"

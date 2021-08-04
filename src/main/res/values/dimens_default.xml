@@ -2,6 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
     <!-- Default screen margins, per the Android Design guidelines. -->
     <!-- BASELINE -->
+    <dimen name="baseline_0">0dp</dimen>
     <dimen name="baseline_1">1dp</dimen>
     <dimen name="baseline_2">2dp</dimen>
     <dimen name="baseline_4">4dp</dimen>

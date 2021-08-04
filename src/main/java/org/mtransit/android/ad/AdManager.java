@@ -48,6 +48,7 @@ import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.provider.location.MTLocationProvider;
 import org.mtransit.android.ui.view.common.IActivity;
+import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -755,14 +756,17 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	}
 
 	private boolean isEnoughSpace(@Nullable Configuration configuration) {
+		if (FeatureFlags.F_NAVIGATION) {
+			return true; // always show
+		}
 		if (configuration == null) {
 			return false;
 		}
 		if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
 			return true;
 		}
-		int sizeMask = configuration.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
-		boolean smallScreen = sizeMask == Configuration.SCREENLAYOUT_SIZE_SMALL || sizeMask == Configuration.SCREENLAYOUT_SIZE_NORMAL;
+		final int sizeMask = configuration.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+		final boolean smallScreen = sizeMask == Configuration.SCREENLAYOUT_SIZE_SMALL || sizeMask == Configuration.SCREENLAYOUT_SIZE_NORMAL;
 		return !smallScreen;
 	}
 
