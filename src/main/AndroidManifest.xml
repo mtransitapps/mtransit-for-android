@@ -96,7 +96,7 @@
         </activity>
         <!-- PREFERENCES SCREEN -->
         <activity
-            android:name=".ui.PreferencesActivity"
+            android:name=".ui.pref.PreferencesActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:exported="false"
             android:theme="@style/MTThemePreferences" />
