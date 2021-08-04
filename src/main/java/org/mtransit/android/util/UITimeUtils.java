@@ -25,6 +25,7 @@ import org.mtransit.android.commons.api.SupportFactory;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Schedule.Timestamp;
 import org.mtransit.android.data.UISchedule;
+import org.mtransit.android.ui.MTTopSuperscriptSpan;
 import org.mtransit.commons.StringUtils;
 
 import java.lang.ref.WeakReference;
@@ -335,11 +336,18 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	public static void cleanTimes(@NonNull String input, @NonNull SpannableStringBuilder output) {
+		cleanTimes(input, output, 1.0);
+	}
+
+	public static void cleanTimes(@NonNull String input, @NonNull SpannableStringBuilder output, double superScriptRadio) {
 		String word = input.toLowerCase(Locale.ENGLISH);
 		for (String amPm : AM_PM_LIST) {
 			for (int index = word.indexOf(amPm); index >= 0; index = word.indexOf(amPm, index + 1)) { // TODO i18n
 				if (index <= 0) {
 					break;
+				}
+				if (AM.equals(amPm) || A_M_.equals(amPm) || A__M_.equals(amPm)) {
+					output = SpanUtils.set(output, index, index + amPm.length(), new MTTopSuperscriptSpan(superScriptRadio));
 				}
 				output = SpanUtils.set(output, index - 1, index, SpanUtils.getNew10PercentSizeSpan()); // remove space hack - before
 				if (A_M_.equals(amPm) || P_M_.equals(amPm)) {
@@ -352,7 +360,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 				output = SpanUtils.set(output, index, index + amPm.length(), SpanUtils.getNew25PercentSizeSpan());
 			}
 		}
-		Matcher rMatcher = TIME_W_SECONDS.matcher(word);
+		final Matcher rMatcher = TIME_W_SECONDS.matcher(word);
 		while (rMatcher.find()) {
 			int end = rMatcher.end();
 			output = SpanUtils.set(output, end - 3, end, SpanUtils.getNew50PercentSizeSpan());

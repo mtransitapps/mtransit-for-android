@@ -381,7 +381,7 @@ class ScheduleDayAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLo
                     timeSb.append(P1).append(timestamp.getUIHeading(context, false)).append(P2)
                 }
             }
-            UITimeUtils.cleanTimes(timeOnly, timeSb)
+            UITimeUtils.cleanTimes(timeOnly, timeSb, 0.55)
             timeSb = UISchedule.decorateRealTime(context, timestamp, userTime, timeSb)
             timeSb = UISchedule.decorateOldSchedule(timestamp, timeSb)
             val nextTimeInMsT = nextTimestamp?.t ?: -1L
