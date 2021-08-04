@@ -42,6 +42,7 @@ import org.mtransit.android.ui.home.HomeFragment;
 import org.mtransit.android.ui.map.MapFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListFragment;
+import org.mtransit.android.ui.pref.PreferencesActivity;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.MapUtils;

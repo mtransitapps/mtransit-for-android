@@ -8,6 +8,8 @@ import android.os.PersistableBundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.annotation.ContentView;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +21,15 @@ import org.mtransit.android.commons.MTLog;
  * NO LOGIC HERE, just logs.
  */
 public abstract class MTAppCompatActivity extends AppCompatActivity implements MTLog.Loggable {
+
+	public MTAppCompatActivity() {
+		super();
+	}
+
+	@ContentView
+	public MTAppCompatActivity(@LayoutRes int contentLayoutId) {
+		super(contentLayoutId);
+	}
 
 	// INHERITED FROM FRAGMENT ACTIVITY
 
