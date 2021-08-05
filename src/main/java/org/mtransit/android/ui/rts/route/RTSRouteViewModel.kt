@@ -13,7 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.Trip
 import org.mtransit.android.commons.pref.liveData
@@ -50,7 +49,7 @@ class RTSRouteViewModel @Inject constructor(
         internal const val EXTRA_SELECTED_STOP_ID_DEFAULT: Int = -1
 
         internal const val EXTRA_SHOWING_LIST_INSTEAD_OF_MAP = "extra_showing_list_instead_of_map"
-        internal const val EXTRA_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT: Boolean = PreferenceUtils.PREFS_LCL_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
+        internal const val EXTRA_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT: Boolean = LocalPreferenceRepository.PREFS_LCL_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -115,8 +114,8 @@ class RTSRouteViewModel @Inject constructor(
             MutableLiveData(null)
         } else {
             lclPrefRepository.pref.liveData(
-                PreferenceUtils.getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(authority, routeId),
-                PreferenceUtils.PREFS_LCL_RTS_ROUTE_TRIP_ID_TAB_DEFAULT
+                LocalPreferenceRepository.getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(authority, routeId),
+                LocalPreferenceRepository.PREFS_LCL_RTS_ROUTE_TRIP_ID_TAB_DEFAULT
             )
         }
     }
@@ -137,7 +136,7 @@ class RTSRouteViewModel @Inject constructor(
         val authority: String = this.authority.value ?: return
         val routeId: Long = this.routeId.value ?: return
         lclPrefRepository.pref.edit {
-            putLong(PreferenceUtils.getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(authority, routeId), trip.id)
+            putLong(LocalPreferenceRepository.getPREFS_LCL_RTS_ROUTE_TRIP_ID_TAB(authority, routeId), trip.id)
         }
     }
 
@@ -154,7 +153,7 @@ class RTSRouteViewModel @Inject constructor(
     }
 
     private val _listInsteadOfMapDefault: LiveData<Boolean?> = MutableLiveData(
-        PreferenceUtils.PREFS_LCL_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
+        LocalPreferenceRepository.PREFS_LCL_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
     )
 
     val showingListInsteadOfMap: LiveData<Boolean?> = PairMediatorLiveData(listInsteadOfMap, _listInsteadOfMapDefault).map { (listInsteadOfMap, default) ->

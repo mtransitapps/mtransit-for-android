@@ -12,7 +12,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.AgencyBaseProperties
@@ -71,10 +70,10 @@ class AgencyPOIsViewModel @Inject constructor(
                 }
                 emitSource(
                     defaultPrefRepository.pref.liveData(
-                        PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(it),
+                        DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(it),
                         defaultPrefRepository.getValue(
-                            PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET,
-                            PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
+                            DefaultPreferenceRepository.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET,
+                            DefaultPreferenceRepository.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
                         )
                     )
                 )
@@ -87,9 +86,9 @@ class AgencyPOIsViewModel @Inject constructor(
             return // SKIP (demo mode ON)
         }
         defaultPrefRepository.pref.edit {
-            putBoolean(PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET, showingListInsteadOfMap)
+            putBoolean(DefaultPreferenceRepository.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET, showingListInsteadOfMap)
             _authority.value?.let { authority ->
-                putBoolean(PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority), showingListInsteadOfMap)
+                putBoolean(DefaultPreferenceRepository.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority), showingListInsteadOfMap)
             }
         }
     }

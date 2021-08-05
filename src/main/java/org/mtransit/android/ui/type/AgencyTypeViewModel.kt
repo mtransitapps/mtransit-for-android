@@ -9,7 +9,6 @@ import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.mtransit.android.common.repository.LocalPreferenceRepository
-import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
@@ -55,8 +54,8 @@ class AgencyTypeViewModel @Inject constructor(
         liveData {
             emitSource(
                 lclPrefRepository.pref.liveData(
-                    PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(typeId),
-                    PreferenceUtils.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
+                    LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(typeId),
+                    LocalPreferenceRepository.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
                 )
             )
         }
@@ -85,7 +84,7 @@ class AgencyTypeViewModel @Inject constructor(
     private fun saveSelectedTypeAgency(agency: IAgencyProperties) {
         val typeId: Int = _typeId.value ?: return
         lclPrefRepository.pref.edit {
-            putString(PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(typeId), agency.authority)
+            putString(LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(typeId), agency.authority)
         }
     }
 }

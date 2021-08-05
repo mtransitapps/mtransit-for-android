@@ -12,6 +12,44 @@ class DefaultPreferenceRepository @Inject constructor(
     @ApplicationContext appContext: Context
 ) : PreferenceRepository(appContext) {
 
+    companion object {
+
+        const val PREF_USER_APP_OPEN_COUNTS = PreferenceUtils.PREF_USER_APP_OPEN_COUNTS
+        const val PREF_USER_APP_OPEN_COUNTS_DEFAULT = PreferenceUtils.PREF_USER_APP_OPEN_COUNTS_DEFAULT
+
+        const val PREF_USER_REWARDED_UNTIL = PreferenceUtils.PREF_USER_REWARDED_UNTIL
+        const val PREF_USER_REWARDED_UNTIL_DEFAULT = PreferenceUtils.PREF_USER_REWARDED_UNTIL_DEFAULT
+
+        const val PREF_USER_LEARNED_DRAWER = PreferenceUtils.PREF_USER_LEARNED_DRAWER
+        const val PREF_USER_LEARNED_DRAWER_DEFAULT = PreferenceUtils.PREF_USER_LEARNED_DRAWER_DEFAULT
+
+        const val PREFS_THEME = PreferenceUtils.PREFS_THEME
+        const val PREFS_THEME_LIGHT = PreferenceUtils.PREFS_THEME_LIGHT
+        const val PREFS_THEME_DARK = PreferenceUtils.PREFS_THEME_DARK
+        const val PREFS_THEME_SYSTEM_DEFAULT = PreferenceUtils.PREFS_THEME_SYSTEM_DEFAULT
+        const val PREFS_THEME_DEFAULT = PreferenceUtils.PREFS_THEME_DEFAULT
+
+        const val PREFS_UNITS = PreferenceUtils.PREFS_UNITS
+        const val PREFS_UNITS_METRIC = PreferenceUtils.PREFS_UNITS_METRIC
+        const val PREFS_UNITS_IMPERIAL = PreferenceUtils.PREFS_UNITS_IMPERIAL
+        const val PREFS_UNITS_DEFAULT = PreferenceUtils.PREFS_UNITS_DEFAULT
+
+        const val PREFS_USE_INTERNAL_WEB_BROWSER = PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER
+        const val PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT = PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
+
+        const val PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET = PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_LAST_SET
+        const val PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT = PreferenceUtils.PREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
+
+        @Suppress("FunctionName")
+        fun getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority: String) = PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority)
+
+        const val PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET = PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET
+        const val PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT = PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT
+
+        @Suppress("FunctionName")
+        fun getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority: String) = PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority)
+    }
+
     override fun hasKey(key: String): Boolean {
         return PreferenceUtils.hasPrefDefault(requireContext(), key)
     }
@@ -41,6 +79,14 @@ class DefaultPreferenceRepository @Inject constructor(
     }
 
     override fun saveAsync(key: String, value: Int) {
+        PreferenceUtils.savePrefDefault(requireContext(), key, value, false)
+    }
+
+    override fun getValue(key: String, defaultValue: Long): Long {
+        return PreferenceUtils.getPrefDefault(requireContext(), key, defaultValue)
+    }
+
+    override fun saveAsync(key: String, value: Long) {
         PreferenceUtils.savePrefDefault(requireContext(), key, value, false)
     }
 

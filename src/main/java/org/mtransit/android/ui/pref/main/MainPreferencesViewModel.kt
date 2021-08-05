@@ -9,7 +9,6 @@ import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.pref.liveData
 import javax.inject.Inject
 
@@ -69,19 +68,19 @@ class MainPreferencesViewModel @Inject constructor(
     val hasSubscription: Boolean? = billingManager.isHasSubscription()
 
     val theme: LiveData<String> = defaultPrefRepository.pref.liveData(
-        PreferenceUtils.PREFS_THEME, PreferenceUtils.PREFS_THEME_DEFAULT
+        DefaultPreferenceRepository.PREFS_THEME, DefaultPreferenceRepository.PREFS_THEME_DEFAULT
     ).distinctUntilChanged()
 
     val units: LiveData<String> = defaultPrefRepository.pref.liveData(
-        PreferenceUtils.PREFS_UNITS, PreferenceUtils.PREFS_UNITS_DEFAULT
+        DefaultPreferenceRepository.PREFS_UNITS, DefaultPreferenceRepository.PREFS_UNITS_DEFAULT
     ).distinctUntilChanged()
 
     val useInternalWebBrowser: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
-        PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER, PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
+        DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
     ).distinctUntilChanged()
 
     val devModeEnabled: LiveData<Boolean> = lclPrefRepository.pref.liveData(
-        PreferenceUtils.PREFS_LCL_DEV_MODE_ENABLED, PreferenceUtils.PREFS_LCL_DEV_MODE_ENABLED_DEFAULT
+        LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED, LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED_DEFAULT
     ).distinctUntilChanged()
 
     fun resetRewardedAd() {

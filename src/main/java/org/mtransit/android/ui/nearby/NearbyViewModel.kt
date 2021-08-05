@@ -19,7 +19,6 @@ import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -142,7 +141,7 @@ class NearbyViewModel @Inject constructor(
     }
 
     private val _selectedTypeIdPref: LiveData<Int?> = lclPrefRepository.pref.liveData(
-        PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE,
+        LocalPreferenceRepository.PREFS_LCL_NEARBY_TAB_TYPE,
     )
 
     val selectedTypeId: LiveData<Int?> = PairMediatorLiveData(_selectedTypeId, _selectedTypeIdPref).map { (selectedTypeId, selectedTypeIdPref) ->
@@ -175,7 +174,7 @@ class NearbyViewModel @Inject constructor(
 
     private fun saveSelectedType(dst: DataSourceType) {
         lclPrefRepository.pref.edit {
-            putInt(PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE, dst.id)
+            putInt(LocalPreferenceRepository.PREFS_LCL_NEARBY_TAB_TYPE, dst.id)
         }
     }
 

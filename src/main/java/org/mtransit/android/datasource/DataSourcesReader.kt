@@ -11,8 +11,8 @@ import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.commons.getAllInstalledProvidersWithMetaData
 import org.mtransit.android.commons.getAppLongVersionCode
@@ -40,6 +40,7 @@ class DataSourcesReader @Inject constructor(
     private val analyticsManager: IAnalyticsManager,
     private val dataSourcesDatabase: DataSourcesDatabase,
     private val dataSourceRequestManager: DataSourceRequestManager,
+    private val lclPrefRepository: LocalPreferenceRepository,
 ) : MTLog.Loggable {
 
     companion object {
@@ -146,8 +147,7 @@ class DataSourcesReader @Inject constructor(
             MTLog.d(this, "refreshAvailableVersions() > SKIP (feature disabled)")
             return
         }
-        val context: Context = appContext
-        val lastCheckInMs = PreferenceUtils.getPrefLcl(context, PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
+        val lastCheckInMs = lclPrefRepository.getValue(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
         val shortTimeAgo = TimeUtils.currentTimeMillis() - TimeUnit.HOURS.toMillis(24L)
         if (!skipTimeCheck && shortTimeAgo < lastCheckInMs) {
             val timeLapsedInHours = TimeUnit.MILLISECONDS.toHours(TimeUtils.currentTimeMillis() - lastCheckInMs)
@@ -170,7 +170,7 @@ class DataSourcesReader @Inject constructor(
                 markUpdated()
             }
         }
-        PreferenceUtils.savePrefLcl(context, PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis(), false) // ASYNC
+        lclPrefRepository.saveAsync(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis())
     }
 
     private fun lookForNewDataSources(

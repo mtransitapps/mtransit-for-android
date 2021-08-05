@@ -15,12 +15,12 @@ import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.billing.BillingUtils
 import org.mtransit.android.billing.IBillingManager
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.DeviceUtils
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PackageManagerUtils
-import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.StoreUtils
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
@@ -281,18 +281,18 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             }
         })
         viewModel.units.observe(viewLifecycleOwner, { units ->
-            (findPreference(PreferenceUtils.PREFS_UNITS) as? Preference)?.apply {
+            (findPreference(DefaultPreferenceRepository.PREFS_UNITS) as? Preference)?.apply {
                 setSummary(
                     when (units) {
-                        PreferenceUtils.PREFS_UNITS_METRIC -> R.string.unit_pref_meter
-                        PreferenceUtils.PREFS_UNITS_IMPERIAL -> R.string.unit_pref_imperial
+                        DefaultPreferenceRepository.PREFS_UNITS_METRIC -> R.string.unit_pref_meter
+                        DefaultPreferenceRepository.PREFS_UNITS_IMPERIAL -> R.string.unit_pref_imperial
                         else -> R.string.unit_pref_summary
                     }
                 )
             }
         })
         viewModel.useInternalWebBrowser.observe(viewLifecycleOwner, { useInternalWebBrowser ->
-            (findPreference(PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER) as? Preference)?.apply {
+            (findPreference(DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER) as? Preference)?.apply {
                 setSummary(
                     when (useInternalWebBrowser) {
                         true -> R.string.use_internal_web_browser_pref_summary_on
@@ -302,12 +302,12 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             }
         })
         viewModel.theme.observe(viewLifecycleOwner, { theme ->
-            (findPreference(PreferenceUtils.PREFS_THEME) as? Preference)?.apply {
+            (findPreference(DefaultPreferenceRepository.PREFS_THEME) as? Preference)?.apply {
                 setSummary(
                     when (theme) {
-                        PreferenceUtils.PREFS_THEME_LIGHT -> R.string.theme_pref_light
-                        PreferenceUtils.PREFS_THEME_DARK -> R.string.theme_pref_dark
-                        PreferenceUtils.PREFS_THEME_SYSTEM_DEFAULT -> R.string.theme_pref_system_default
+                        DefaultPreferenceRepository.PREFS_THEME_LIGHT -> R.string.theme_pref_light
+                        DefaultPreferenceRepository.PREFS_THEME_DARK -> R.string.theme_pref_dark
+                        DefaultPreferenceRepository.PREFS_THEME_SYSTEM_DEFAULT -> R.string.theme_pref_system_default
                         else -> R.string.unit_pref_summary
                     }
                 )

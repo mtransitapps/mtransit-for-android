@@ -13,8 +13,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.KeyboardUtils.Companion.hideKeyboard
-import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
@@ -86,6 +86,9 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
 
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
+
+    @Inject
+    lateinit var lclPrefRepository: LocalPreferenceRepository
 
     private var binding: FragmentSearchBinding? = null
     private var emptyBinding: LayoutEmptyBinding? = null
@@ -222,7 +225,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
     ) {
         if (DEV_QUERY == query) {
             devEnabled = devEnabled != true // flip
-            PreferenceUtils.savePrefLcl(context, PreferenceUtils.PREFS_LCL_DEV_MODE_ENABLED, devEnabled, false) // ASYNC
+            lclPrefRepository.saveAsync(LocalPreferenceRepository.PREFS_LCL_DEV_MODE_ENABLED, devEnabled)
             ToastUtils.makeTextAndShowCentered(context, "DEV MODE: $devEnabled")
             return
         }

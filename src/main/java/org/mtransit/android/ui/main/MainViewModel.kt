@@ -17,7 +17,6 @@ import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -95,17 +94,17 @@ class MainViewModel @Inject constructor(
     }
 
     val userLearnedDrawer: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
-        PreferenceUtils.PREF_USER_LEARNED_DRAWER, PreferenceUtils.PREF_USER_LEARNED_DRAWER_DEFAULT
+        DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER, DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER_DEFAULT
     ).distinctUntilChanged()
 
     fun setUserLearnedDrawer(learned: Boolean) {
         defaultPrefRepository.pref.edit {
-            putBoolean(PreferenceUtils.PREF_USER_LEARNED_DRAWER, learned)
+            putBoolean(DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER, learned)
         }
     }
 
     private val _selectedItemIdPref: LiveData<String> = lclPrefRepository.pref.liveData(
-        PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT
+        LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT
     ).distinctUntilChanged()
     val selectedItemIdRes: LiveData<Int> = _selectedItemIdPref.map { idPref ->
         idPrefToIdRes(
@@ -129,7 +128,7 @@ class MainViewModel @Inject constructor(
         }
         if (isRootScreen(idPref)) {
             lclPrefRepository.pref.edit {
-                putString(PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, idPref)
+                putString(LocalPreferenceRepository.PREFS_LCL_ROOT_SCREEN_ITEM_ID, idPref)
             }
         }
     }

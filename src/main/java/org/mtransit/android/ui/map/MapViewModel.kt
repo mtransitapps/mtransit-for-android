@@ -19,7 +19,6 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.POIProviderContract
@@ -80,15 +79,15 @@ class MapViewModel @Inject constructor(
     private val includedTypeId = savedStateHandle.getLiveDataDistinct(EXTRA_INCLUDE_TYPE_ID, EXTRA_INCLUDE_TYPE_ID_DEFAULT).map { if (it < 0) null else it }
 
     private val filterTypeIdsPref: LiveData<Set<String>> = lclPrefRepository.pref.liveData(
-        PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS, PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT
+        LocalPreferenceRepository.PREFS_LCL_MAP_FILTER_TYPE_IDS, LocalPreferenceRepository.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT
     ).distinctUntilChanged()
 
 
     fun saveFilterTypeIdsPref(filterTypeIds: Collection<Int>?) {
         val newFilterTypeIdStrings: Set<String> = filterTypeIds?.mapTo(HashSet()) { it.toString() }
-            ?: PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT // NULL = EMPTY = ALL (valid)
+            ?: LocalPreferenceRepository.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT // NULL = EMPTY = ALL (valid)
         lclPrefRepository.pref.edit {
-            putStringSet(PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS, newFilterTypeIdStrings)
+            putStringSet(LocalPreferenceRepository.PREFS_LCL_MAP_FILTER_TYPE_IDS, newFilterTypeIdStrings)
         }
     }
 

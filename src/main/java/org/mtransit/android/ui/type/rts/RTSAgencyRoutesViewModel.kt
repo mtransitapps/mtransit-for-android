@@ -13,7 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.AgencyBaseProperties
@@ -68,10 +67,10 @@ class RTSAgencyRoutesViewModel @Inject constructor(
             authority?.let {
                 emitSource(
                     defaultPrefRepository.pref.liveData(
-                        PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(it),
+                        DefaultPreferenceRepository.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(it),
                         defaultPrefRepository.getValue(
-                            PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET,
-                            PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT
+                            DefaultPreferenceRepository.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET,
+                            DefaultPreferenceRepository.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT
                         )
                     )
                 )
@@ -81,9 +80,9 @@ class RTSAgencyRoutesViewModel @Inject constructor(
 
     fun saveShowingListInsteadOfGrid(showingListInsteadOfGrid: Boolean) {
         defaultPrefRepository.pref.edit {
-            putBoolean(PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET, showingListInsteadOfGrid)
+            putBoolean(DefaultPreferenceRepository.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET, showingListInsteadOfGrid)
             _authority.value?.let { authority ->
-                putBoolean(PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority), showingListInsteadOfGrid)
+                putBoolean(DefaultPreferenceRepository.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority), showingListInsteadOfGrid)
             }
         }
     }

@@ -36,9 +36,9 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import org.mtransit.android.BuildConfig;
 import org.mtransit.android.R;
 import org.mtransit.android.common.IContext;
+import org.mtransit.android.common.repository.DefaultPreferenceRepository;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.TimeUtils;
 import org.mtransit.android.commons.ToastUtils;
@@ -116,6 +116,8 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	private final MTLocationProvider locationProvider;
 	@NonNull
 	private final DemoModeManager demoModeManager;
+	@NonNull
+	private final DefaultPreferenceRepository defaultPrefRepository;
 	@SuppressWarnings("FieldCanBeLocal")
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
@@ -125,11 +127,13 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 					 @NonNull CrashReporter crashReporter,
 					 @NonNull MTLocationProvider locationProvider,
 					 @NonNull DemoModeManager demoModeManager,
+					 @NonNull DefaultPreferenceRepository defaultPrefRepository,
 					 @NonNull DataSourcesRepository dataSourcesRepository) {
 		this.appContext = appContext;
 		this.crashReporter = crashReporter;
 		this.locationProvider = locationProvider;
 		this.demoModeManager = demoModeManager;
+		this.defaultPrefRepository = defaultPrefRepository;
 		this.dataSourcesRepository = dataSourcesRepository;
 		this.dataSourcesRepository.readingAllAgenciesCount().observeForever(newNbAgencies -> { // SINGLETON
 			this.nbAgencies = newNbAgencies;
@@ -237,27 +241,24 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			return Long.MAX_VALUE; // forever
 		}
 		if (this.rewardedUntilInMs == null) {
-			this.rewardedUntilInMs = PreferenceUtils.getPrefDefault(
-					this.appContext,
-					PreferenceUtils.PREF_USER_REWARDED_UNTIL,
-					PreferenceUtils.PREF_USER_REWARDED_UNTIL_DEFAULT);
+			this.rewardedUntilInMs = this.defaultPrefRepository.getValue(
+					DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL,
+					DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT);
 		}
 		return this.rewardedUntilInMs;
 	}
 
 	private void setRewardedUntilInMs(long newRewardedUntilInMs) {
 		this.rewardedUntilInMs = newRewardedUntilInMs;
-		PreferenceUtils.savePrefDefault(
-				this.appContext,
-				PreferenceUtils.PREF_USER_REWARDED_UNTIL,
-				rewardedUntilInMs,
-				false // asynchronous
+		this.defaultPrefRepository.saveAsync(
+				DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL,
+				rewardedUntilInMs
 		);
 	}
 
 	@Override
 	public void resetRewarded() {
-		setRewardedUntilInMs(PreferenceUtils.PREF_USER_REWARDED_UNTIL_DEFAULT);
+		setRewardedUntilInMs(DefaultPreferenceRepository.PREF_USER_REWARDED_UNTIL_DEFAULT);
 	}
 
 	@Override

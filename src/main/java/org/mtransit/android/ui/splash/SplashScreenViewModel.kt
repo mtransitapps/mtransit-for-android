@@ -11,7 +11,6 @@ import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.PreferenceUtils
 import org.mtransit.android.datasource.DataSourcesCache
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.util.NightModeUtils
@@ -33,10 +32,10 @@ class SplashScreenViewModel @Inject constructor(
     override fun getLogTag(): String = LOG_TAG
 
     fun onAppOpen() {
-        var appOpenCounts = defaultPrefRepository.getValue(PreferenceUtils.PREF_USER_APP_OPEN_COUNTS, PreferenceUtils.PREF_USER_APP_OPEN_COUNTS_DEFAULT)
+        var appOpenCounts = defaultPrefRepository.getValue(DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS, DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS_DEFAULT)
         appOpenCounts++
         defaultPrefRepository.pref.edit {
-            putInt(PreferenceUtils.PREF_USER_APP_OPEN_COUNTS, appOpenCounts)
+            putInt(DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS, appOpenCounts)
         }
         analyticsManager.setUserProperty(AnalyticsUserProperties.OPEN_APP_COUNTS, appOpenCounts)
         viewModelScope.launch {
