@@ -1,59 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/modules_container_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clickable="true"
-    android:focusable="true"
-    android:orientation="vertical"
-    tools:context=".ui.modules.ModulesActivity">
+    tools:context=".ui.modules.ModulesActivity"
+    tools:showIn="@layout/activity_modules">
 
-    <LinearLayout
-        android:id="@+id/modules_linear_layout"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/ab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/ab_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:theme="@style/MTToolbar"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:menu="@menu/menu_modules"
+            app:popupTheme="@style/MTToolbarPopup"
+            app:title="@string/agency_type_module_all"
+            tools:navigationIcon="?attr/actionModeCloseDrawable" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/modules_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         android:visibility="gone"
-        tools:visibility="visible">
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/layout_modules_item"
+        tools:visibility="visible" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/modules_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/layout_modules_item" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/no_modules_layout"
+    <TextView
+        android:id="@+id/no_modules_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/baseline_8"
         android:orientation="vertical"
+        android:text="NO MODULES"
         android:visibility="gone"
-        tools:ignore="UseCompoundDrawables"
-        tools:visibility="visible">
+        app:drawableTopCompat="@drawable/ic_warning_black_96dp"
+        tools:ignore="HardcodedText"
+        tools:visibility="visible" />
 
-        <ImageView
-            android:id="@+id/no_modules_icon"
-            android:layout_width="96dp"
-            android:layout_height="96dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_warning_black_24dp"
-            tools:ignore="ContentDescription" />
-
-        <TextView
-            android:id="@+id/no_modules_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="@dimen/baseline_8"
-            android:text="NO MODULES"
-            tools:ignore="HardcodedText" />
-
-    </LinearLayout>
-
-</RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

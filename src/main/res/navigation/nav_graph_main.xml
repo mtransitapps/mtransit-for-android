@@ -278,7 +278,7 @@
     <!-- SETTINGS -->
     <activity
         android:id="@id/nav_settings"
-        android:name="org.mtransit.android.ui.PreferencesActivity"
+        android:name="org.mtransit.android.ui.pref.PreferencesActivity"
         android:label="@string/settings"
         tools:layout="@layout/activity_preferences" />
 

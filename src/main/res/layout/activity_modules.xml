@@ -5,4 +5,5 @@
     android:name="org.mtransit.android.ui.modules.ModulesFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.modules.ModulesActivity" />
+    tools:context=".ui.modules.ModulesActivity"
+    tools:layout="@layout/fragment_modules" />

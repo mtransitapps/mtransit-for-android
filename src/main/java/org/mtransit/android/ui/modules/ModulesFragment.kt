@@ -6,6 +6,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -37,12 +38,16 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentModulesBinding.bind(view).apply {
+            (activity as? AppCompatActivity)?.setSupportActionBar(abToolbar)
+            (activity as? AppCompatActivity)?.supportActionBar?.apply {
+                setDisplayHomeAsUpEnabled(true)
+            }
             modulesList.adapter = listAdapter
         }
         viewModel.agencies.observe(viewLifecycleOwner, { newAgencies ->
             listAdapter.submitList(newAgencies)
-            binding?.modulesLinearLayout?.isVisible = !newAgencies.isNullOrEmpty()
-            binding?.noModulesLayout?.isVisible = newAgencies.isNullOrEmpty()
+            binding?.modulesList?.isVisible = !newAgencies.isNullOrEmpty()
+            binding?.noModulesText?.isVisible = newAgencies.isNullOrEmpty()
         })
     }
 

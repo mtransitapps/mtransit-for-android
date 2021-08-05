@@ -3,6 +3,10 @@
 
     <style name="MTThemeOverlay" parent="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar" />
 
+    <style name="MTToolbar" parent="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar" />
+
+    <style name="MTToolbarPopup" parent="@style/ThemeOverlay.MaterialComponents.Light" />
+
     <style name="MTTabTextStyle" parent="@style/TextAppearance.Design.Tab">
         <item name="android:textStyle">bold</item>
     </style>
