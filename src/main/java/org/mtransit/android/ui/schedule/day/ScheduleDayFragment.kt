@@ -12,6 +12,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.databinding.FragmentScheduleDayBinding
 import org.mtransit.android.ui.fragment.MTFragmentX
+import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.util.UITimeUtils
 import java.util.Locale
 
@@ -54,7 +55,7 @@ class ScheduleDayFragment : MTFragmentX(R.layout.fragment_schedule_day), MTLog.L
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentScheduleDayBinding.bind(view).apply {
-            timesList.adapter = adapter
+            list.adapter = adapter
         }
         viewModel.yearMonthDay.observe(viewLifecycleOwner, { yearMonthDay ->
             theLogTag = yearMonthDay?.let { "$LOG_TAG-$it" } ?: LOG_TAG
@@ -68,14 +69,16 @@ class ScheduleDayFragment : MTFragmentX(R.layout.fragment_schedule_day), MTLog.L
         })
         viewModel.timestamps.observe(viewLifecycleOwner, { timestamps ->
             adapter.setTimes(timestamps)
-            if (timestamps != null && viewModel.scrolledToNow.value != true) {
-                adapter.getScrollToNowPosition()?.let {
-                    binding?.timesList?.scrollToPosition(it)
+            binding?.apply {
+                if (timestamps != null && viewModel.scrolledToNow.value != true) {
+                    adapter.getScrollToNowPosition()?.let {
+                        list.scrollToPosition(it)
+                    }
+                    viewModel.setScrolledToNow(true)
                 }
-                viewModel.setScrolledToNow(true)
+                loadingLayout.isVisible = !adapter.isReady()
+                list.isVisible = adapter.isReady()
             }
-            binding?.loading?.root?.isVisible = !adapter.isReady()
-            binding?.timesList?.isVisible = adapter.isReady()
         })
         viewModel.rts.observe(viewLifecycleOwner, { rts ->
             adapter.setRTS(rts)

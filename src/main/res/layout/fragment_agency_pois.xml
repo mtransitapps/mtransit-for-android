@@ -2,12 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/viewFlipper"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <!-- MAP -->
     <org.mtransit.android.ui.view.common.MapViewInScroll
-        android:id="@+id/map"
+        android:id="@id/map"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone"
@@ -18,32 +17,33 @@
         app:uiTiltGestures="true"
         app:uiZoomControls="true"
         app:uiZoomGestures="true"
-        tools:visibility="visible" />
+        tools:visibility="invisible" />
 
     <include layout="@layout/view_map_type_switch" />
     <!-- LIST -->
-    <ViewStub
-        android:id="@+id/list_stub"
+    <include
+        android:id="@id/list_layout"
+        layout="@layout/layout_poi_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout="@layout/layout_poi_list"
-        android:visibility="gone" />
-
+        android:visibility="visible"
+        tools:visibility="visible" />
     <!-- LOADING -->
     <include
-        android:id="@+id/loading"
+        android:id="@id/loading_layout"
         layout="@layout/layout_loading_large"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible" />
+        android:visibility="gone"
+        tools:visibility="visible" />
     <!-- EMPTY -->
-    <ViewStub
-        android:id="@+id/empty_stub"
+    <include
+        android:id="@id/empty_layout"
+        layout="@layout/layout_empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:inflatedId="@+id/empty"
-        android:layout="@layout/layout_empty"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:visibility="visible" />
 
     <include layout="@layout/layout_shadow" />
 </RelativeLayout>

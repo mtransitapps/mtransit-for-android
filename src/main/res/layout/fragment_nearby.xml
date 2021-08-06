@@ -8,7 +8,7 @@
     android:paddingTop="@dimen/action_bar_size_static">
     <!-- TABS -->
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabs"
+        android:id="@id/tabs"
         style="@style/Widget.MaterialComponents.TabLayout.Colored"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,27 +23,26 @@
         tools:visibility="visible" />
     <!-- LOADING -->
     <include
-        android:id="@+id/loading"
+        android:id="@id/loading_layout"
         layout="@layout/layout_loading_large"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible"
-        tools:visibility="gone" />
+        android:visibility="gone"
+        tools:visibility="visible" />
     <!-- VIEWPAGER -->
     <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewpager"
+        android:id="@id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:visibility="gone"
-        tools:context="org.mtransit.android.MainActivity"
+        android:visibility="visible"
         tools:visibility="visible" />
     <!-- EMPTY -->
-    <ViewStub
-        android:id="@+id/empty_stub"
+    <include
+        android:id="@id/empty_layout"
+        layout="@layout/layout_empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:inflatedId="@+id/empty"
-        android:layout="@layout/layout_empty"
-        android:visibility="gone" />
+        android:visibility="gone"
+        tools:visibility="visible" />
 </LinearLayout>

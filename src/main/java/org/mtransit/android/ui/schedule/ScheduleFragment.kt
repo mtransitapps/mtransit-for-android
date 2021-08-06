@@ -19,6 +19,7 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.common.isVisible
 
 @AndroidEntryPoint
 class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
@@ -93,10 +94,10 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentScheduleBinding.bind(view).apply {
-            viewpager.offscreenPageLimit = 2
-            viewpager.registerOnPageChangeCallback(onPageChangeCallback)
-            viewpager.adapter = adapter ?: makeAdapter().also { adapter = it } // cannot re-use Adapter w/ ViewPager
-            viewpager.setCurrentItem(lastPageSelected, false)
+            viewPager.offscreenPageLimit = 2
+            viewPager.registerOnPageChangeCallback(onPageChangeCallback)
+            viewPager.adapter = adapter ?: makeAdapter().also { adapter = it } // cannot re-use Adapter w/ ViewPager
+            viewPager.setCurrentItem(lastPageSelected, false)
         }
         viewModel.authority.observe(viewLifecycleOwner, { authority ->
             adapter?.apply {
@@ -133,10 +134,10 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
     private fun updateViews(wasReady: Boolean) {
         binding?.apply {
             if (!wasReady && adapter?.isReady() == true) {
-                viewpager.setCurrentItem(lastPageSelected, false)
+                viewPager.setCurrentItem(lastPageSelected, false)
             }
-            loading.root.isVisible = adapter?.isReady() == false
-            viewpager.isVisible = adapter?.isReady() == true
+            loadingLayout.isVisible = adapter?.isReady() == false
+            viewPager.isVisible = adapter?.isReady() == true
         }
     }
 
@@ -152,8 +153,8 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding?.viewpager?.unregisterOnPageChangeCallback(onPageChangeCallback)
-        binding?.viewpager?.adapter = null // cannot re-use Adapter w/ ViewPager
+        binding?.viewPager?.unregisterOnPageChangeCallback(onPageChangeCallback)
+        binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
         adapter = null // cannot re-use Adapter w/ ViewPager
         binding = null
     }

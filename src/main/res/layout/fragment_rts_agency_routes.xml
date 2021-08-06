@@ -1,34 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/viewFlipper"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <!-- LOADING -->
     <include
-        android:id="@+id/loading"
+        android:id="@id/loading_layout"
         layout="@layout/layout_loading_large"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible" />
+        android:visibility="gone"
+        tools:visibility="visible" />
     <!-- LIST / GRID -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/routes_list_grid"
+        android:id="@id/list_grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fastScrollAlwaysVisible="false"
         android:fastScrollEnabled="false"
         android:scrollbarStyle="insideOverlay"
-        android:visibility="gone"
+        android:visibility="visible"
         tools:listitem="@layout/layout_rts_route_item"
         tools:visibility="visible" />
     <!-- EMPTY -->
-    <ViewStub
-        android:id="@+id/empty_stub"
+    <include
+        android:id="@id/empty_layout"
+        layout="@layout/layout_empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:inflatedId="@+id/empty"
-        android:layout="@layout/layout_empty"
         android:visibility="gone"
         tools:visibility="visible" />
 

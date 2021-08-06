@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:focusable="false"
-    tools:background="@color/color_background"
+    tools:background="@color/transparent"
     tools:context=".ui.MainActivity">
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
@@ -16,6 +16,9 @@
         android:layout_gravity="center"
         android:indeterminate="true"
         app:indicatorColor="@color/color_secondary_on_background"
+        tools:background="#00FF00"
+        tools:indicatorColor="#FF00FF"
+        tools:trackThickness="8dp"
         tools:visibility="visible" />
 
 </FrameLayout>

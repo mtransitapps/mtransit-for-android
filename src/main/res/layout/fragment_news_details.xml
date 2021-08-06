@@ -7,7 +7,6 @@
     android:paddingTop="@dimen/action_bar_size_static">
 
     <ScrollView
-        android:id="@+id/scrollview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

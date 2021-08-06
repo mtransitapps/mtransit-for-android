@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.type.rts
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -36,6 +37,7 @@ class RTSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyPropertie
 
     private var _listSet: Boolean? = null
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setAgency(agency: IAgencyUIProperties?) {
         if (_agency == agency) {
             MTLog.d(this, "setAgency() > SKIP (same: $agency)")
@@ -46,6 +48,7 @@ class RTSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyPropertie
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setShowingListInsteadOfGrid(showingListInsteadOfGrid: Boolean?) {
         if (_showingListInsteadOfGrid == showingListInsteadOfGrid) {
             MTLog.d(this, "setShowingListInsteadOfGrid() > SKIP (same: $showingListInsteadOfGrid)")
@@ -55,6 +58,7 @@ class RTSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyPropertie
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setList(list: List<Route>?) {
         submitList(list)
         if (_listSet == (list != null)) {

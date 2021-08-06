@@ -391,14 +391,14 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 			view.findViewById(R.id.paidTasksDivider).setVisibility(View.GONE);
 			view.findViewById(R.id.paidTasksIncentive).setVisibility(View.GONE);
 			view.findViewById(R.id.downloadOrOpenPaidTasksBtn).setVisibility(View.GONE);
-			view.findViewById(R.id.loading).setVisibility(View.VISIBLE);
+			view.findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
 		}
 	}
 
 	private void showNotLoading() {
 		View view = getView();
 		if (view != null) {
-			view.findViewById(R.id.loading).setVisibility(View.GONE);
+			view.findViewById(R.id.loading_layout).setVisibility(View.GONE);
 			view.findViewById(R.id.title).setVisibility(View.VISIBLE);
 			view.findViewById(R.id.subTitle).setVisibility(View.VISIBLE);
 			view.findViewById(R.id.beforeText).setVisibility(View.VISIBLE);

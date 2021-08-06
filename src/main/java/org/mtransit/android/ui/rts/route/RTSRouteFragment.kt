@@ -30,7 +30,6 @@ import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.databinding.FragmentRtsRouteBinding
-import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
 import org.mtransit.android.ui.MainActivity
@@ -39,6 +38,7 @@ import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.commons.FeatureFlags
 import kotlin.math.abs
 
@@ -102,7 +102,6 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
         get() = if (isAttached()) viewModel else null
 
     private var binding: FragmentRtsRouteBinding? = null
-    private var emptyBinding: LayoutEmptyBinding? = null
 
     private var listMapToggleMenuItem: MenuItem? = null
     private var listMapSwitchMenuItem: SwitchCompat? = null
@@ -157,14 +156,11 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
         binding = FragmentRtsRouteBinding.bind(view).apply {
-            emptyStub.setOnInflateListener { _, inflated ->
-                emptyBinding = LayoutEmptyBinding.bind(inflated)
-            }
-            viewpager.offscreenPageLimit = 1
-            viewpager.registerOnPageChangeCallback(onPageChangeCallback)
-            viewpager.adapter = adapter ?: makeAdapter().also { adapter = it } // cannot re-use Adapter w/ ViewPager
-            MTTabLayoutMediator(tabs, viewpager, autoRefresh = true, smoothScroll = true) { tab, position ->
-                tab.text = viewModel.routeTrips.value?.get(position)?.getUIHeading(viewpager.context, false)
+            viewPager.offscreenPageLimit = 1
+            viewPager.registerOnPageChangeCallback(onPageChangeCallback)
+            viewPager.adapter = adapter ?: makeAdapter().also { adapter = it } // cannot re-use Adapter w/ ViewPager
+            MTTabLayoutMediator(tabs, viewPager, autoRefresh = true, smoothScroll = true) { tab, position ->
+                tab.text = viewModel.routeTrips.value?.get(position)?.getUIHeading(viewPager.context, false)
             }.attach()
             if (FeatureFlags.F_NAVIGATION) {
                 (activity as? org.mtransit.android.ui.main.MainActivity?)?.supportActionBar?.elevation?.let {
@@ -259,22 +255,22 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
         binding?.apply {
             when {
                 lastPageSelected < 0 || adapter?.isReady() != true -> { // LOADING
-                    emptyBinding?.root?.isVisible = false
-                    viewpager.isVisible = false
+                    emptyLayout.isVisible = false
+                    viewPager.isVisible = false
                     tabs.isVisible = false
-                    loading.root.isVisible = true
+                    loadingLayout.isVisible = true
                 }
                 adapter?.itemCount == 0 -> { // EMPTY
-                    loading.root.isVisible = false
-                    viewpager.isVisible = false
+                    loadingLayout.isVisible = false
+                    viewPager.isVisible = false
                     tabs.isVisible = false
-                    (emptyBinding?.root ?: emptyStub.inflate()).isVisible = true
+                    emptyLayout.isVisible = true
                 }
                 else -> { // LOADED
-                    loading.root.isVisible = false
-                    emptyBinding?.root?.isVisible = false
+                    loadingLayout.isVisible = false
+                    emptyLayout.isVisible = false
                     tabs.isVisible = true
-                    viewpager.isVisible = true
+                    viewPager.isVisible = true
                 }
             }
         }
@@ -291,8 +287,8 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
         }
         val smoothScroll = this.selectedPosition >= 0
         val itemToSelect = this.lastPageSelected
-        binding?.viewpager?.doOnAttach {
-            binding?.viewpager?.setCurrentItem(itemToSelect, smoothScroll)
+        binding?.viewPager?.doOnAttach {
+            binding?.viewPager?.setCurrentItem(itemToSelect, smoothScroll)
         }
         this.selectedPosition = this.lastPageSelected // set selected position before update tabs color
         switchView()
@@ -372,10 +368,9 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding?.viewpager?.unregisterOnPageChangeCallback(onPageChangeCallback)
-        binding?.viewpager?.adapter = null // cannot re-use Adapter w/ ViewPager
+        binding?.viewPager?.unregisterOnPageChangeCallback(onPageChangeCallback)
+        binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
         adapter = null // cannot re-use Adapter w/ ViewPager
-        emptyBinding = null
         binding = null
     }
 }

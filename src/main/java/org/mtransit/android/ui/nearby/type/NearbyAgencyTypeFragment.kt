@@ -2,7 +2,6 @@ package org.mtransit.android.ui.nearby.type
 
 import android.os.Bundle
 import android.view.View
-import android.widget.AbsListView
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
@@ -13,8 +12,6 @@ import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentNearbyAgencyTypeBinding
-import org.mtransit.android.databinding.LayoutEmptyBinding
-import org.mtransit.android.databinding.LayoutPoiListBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteManager
@@ -27,6 +24,7 @@ import org.mtransit.android.ui.nearby.NearbyViewModel
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
@@ -88,8 +86,6 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     private var binding: FragmentNearbyAgencyTypeBinding? = null
-    private var emptyBinding: LayoutEmptyBinding? = null
-    private var listBinding: LayoutPoiListBinding? = null
 
     private val infiniteLoadingListener = object : POIArrayAdapter.InfiniteLoadingListener {
         override fun isLoadingMore(): Boolean {
@@ -120,19 +116,12 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentNearbyAgencyTypeBinding.bind(view).apply {
-            emptyStub.setOnInflateListener { _, inflated ->
-                emptyBinding = LayoutEmptyBinding.bind(inflated)
-            }
-            listStub.setOnInflateListener { _, inflated ->
-                listBinding = LayoutPoiListBinding.bind(inflated).apply {
-                    swiperefresh.setListViewWR(this.root)
-                }
-            }
-            (listBinding?.root ?: listStub.inflate() as AbsListView).let { listView ->
+            listLayout.list.let { listView ->
+                swipeRefresh.setListViewWR(listView)
                 listView.isVisible = adapter.isInitialized
                 adapter.setListView(listView)
             }
-            swiperefresh.apply {
+            swipeRefresh.apply {
                 setColorSchemeColors(
                     ThemeUtils.resolveColorAttribute(view.context, R.attr.colorAccent)
                 )
@@ -145,7 +134,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             }
         }
         parentViewModel.isFixedOn.observe(viewLifecycleOwner, { isFixedOn ->
-            binding?.swiperefresh?.setRefreshEnabled(isFixedOn != true)
+            binding?.swipeRefresh?.setRefreshEnabled(isFixedOn != true)
         })
         parentViewModel.nearbyLocation.observe(viewLifecycleOwner, { nearbyLocation ->
             viewModel.setNearbyLocation(nearbyLocation)
@@ -169,7 +158,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             val scrollToTop = adapter.poisCount <= 0
             adapter.appendPois(poiList)
             if (scrollToTop) {
-                listBinding?.root?.setSelection(0)
+                binding?.listLayout?.list?.setSelection(0)
             }
             if (isResumed) {
                 adapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
@@ -183,7 +172,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
                 if (isResumed) { // only consumed for current tab
                     val scroll = scrollEvent.getContentIfNotHandled() == true
                     if (scroll) {
-                        listBinding?.root?.setSelection(0)
+                        binding?.listLayout?.list?.setSelection(0)
                     }
                 }
             })
@@ -194,24 +183,24 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
         binding?.apply {
             when {
                 !adapter.isInitialized -> {
-                    emptyBinding?.root?.isVisible = false
-                    listBinding?.root?.isVisible = false
-                    swiperefresh.setLoadingViewWR(loading.root)
-                    swiperefresh.isRefreshing = true
-                    loading.root.isVisible = true
+                    emptyLayout.isVisible = false
+                    listLayout.isVisible = false
+                    swipeRefresh.setLoadingViewWR(loadingLayout.root)
+                    swipeRefresh.isRefreshing = true
+                    loadingLayout.isVisible = true
                 }
                 adapter.poisCount == 0 -> {
-                    loading.root.isVisible = false
-                    swiperefresh.isRefreshing = false
-                    listBinding?.root?.isVisible = false
-                    (emptyBinding?.root ?: emptyStub.inflate()).isVisible = true
-                    swiperefresh.setEmptyViewWR(emptyBinding?.root)
+                    loadingLayout.isVisible = false
+                    swipeRefresh.isRefreshing = false
+                    listLayout.isVisible = false
+                    emptyLayout.isVisible = true
+                    swipeRefresh.setEmptyViewWR(emptyLayout.root)
                 }
                 else -> {
-                    loading.root.isVisible = false
-                    swiperefresh.isRefreshing = false
-                    emptyBinding?.root?.isVisible = false
-                    (listBinding?.root ?: listStub.inflate()).isVisible = true
+                    loadingLayout.isVisible = false
+                    swipeRefresh.isRefreshing = false
+                    emptyLayout.isVisible = false
+                    listLayout.isVisible = true
                 }
             }
         }
@@ -230,9 +219,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding?.swiperefresh?.setOnRefreshListener(null)
-        listBinding = null
-        emptyBinding = null
+        binding?.swipeRefresh?.setOnRefreshListener(null)
         binding = null
     }
 

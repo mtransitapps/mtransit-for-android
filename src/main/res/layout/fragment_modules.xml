@@ -28,7 +28,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/modules_list"
+        android:id="@id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
@@ -37,18 +37,12 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/layout_modules_item"
         tools:visibility="visible" />
-
-    <TextView
-        android:id="@+id/no_modules_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/baseline_8"
-        android:orientation="vertical"
-        android:text="NO MODULES"
+    <include
+        android:id="@id/empty_layout"
+        layout="@layout/layout_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:visibility="gone"
-        app:drawableTopCompat="@drawable/ic_warning_black_96dp"
-        tools:ignore="HardcodedText"
-        tools:visibility="invisible" />
+        tools:visibility="visible" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

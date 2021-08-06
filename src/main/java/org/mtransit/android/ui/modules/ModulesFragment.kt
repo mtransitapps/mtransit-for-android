@@ -1,6 +1,7 @@
 @file:JvmName("ModulesFragment") // ANALYTICS
 package org.mtransit.android.ui.modules
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
@@ -18,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.databinding.FragmentModulesBinding
+import org.mtransit.android.ui.view.common.isVisible
 
 @AndroidEntryPoint
 class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
@@ -39,6 +41,7 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
         setHasOptionsMenu(true)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentModulesBinding.bind(view).apply {
@@ -46,19 +49,22 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
             (activity as? AppCompatActivity)?.supportActionBar?.apply {
                 setDisplayHomeAsUpEnabled(true)
             }
-            ViewCompat.setOnApplyWindowInsetsListener(modulesList) { view, windowInsets ->
+            emptyLayout.emptyText.text = "NO MODULES"
+            ViewCompat.setOnApplyWindowInsetsListener(list) { view, windowInsets ->
                 val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
                 view.updateLayoutParams<MarginLayoutParams> {
                     bottomMargin = insets.bottom
                 }
                 WindowInsetsCompat.CONSUMED
             }
-            modulesList.adapter = listAdapter
+            list.adapter = listAdapter
         }
         viewModel.agencies.observe(viewLifecycleOwner, { newAgencies ->
             listAdapter.submitList(newAgencies)
-            binding?.modulesList?.isVisible = !newAgencies.isNullOrEmpty()
-            binding?.noModulesText?.isVisible = newAgencies.isNullOrEmpty()
+            binding?.apply {
+                list.isVisible = !newAgencies.isNullOrEmpty()
+                emptyLayout.isVisible = newAgencies.isNullOrEmpty()
+            }
         })
     }
 

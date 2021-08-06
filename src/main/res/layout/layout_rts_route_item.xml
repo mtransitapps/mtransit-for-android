@@ -8,7 +8,8 @@
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:orientation="horizontal"
     android:paddingStart="8dp"
-    android:paddingEnd="8dp">
+    android:paddingEnd="8dp"
+    tools:background="@color/mt_blue_malibu">
 
     <FrameLayout
         android:id="@+id/rsn_or_logo"

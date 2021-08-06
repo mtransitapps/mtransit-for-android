@@ -5,7 +5,6 @@ import android.content.Context
 import android.location.Location
 import android.os.Bundle
 import android.view.View
-import android.widget.AbsListView
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -17,8 +16,6 @@ import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentRtsTripStopsBinding
-import org.mtransit.android.databinding.LayoutEmptyBinding
-import org.mtransit.android.databinding.LayoutPoiListBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteManager
@@ -31,6 +28,7 @@ import org.mtransit.android.ui.rts.route.RTSRouteViewModel
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.common.isVisible
 import java.util.ArrayList
 import javax.inject.Inject
 
@@ -67,8 +65,6 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
         get() = if (isAttached()) parentViewModel else null
 
     private var binding: FragmentRtsTripStopsBinding? = null
-    private var emptyBinding: LayoutEmptyBinding? = null
-    private var listBinding: LayoutPoiListBinding? = null
 
     @Inject
     lateinit var sensorManager: MTSensorManager
@@ -159,13 +155,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
         super.onViewCreated(view, savedInstanceState)
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentRtsTripStopsBinding.bind(view).apply {
-            emptyStub.setOnInflateListener { _, inflated ->
-                emptyBinding = LayoutEmptyBinding.bind(inflated)
-            }
-            listStub.setOnInflateListener { _, inflated ->
-                listBinding = LayoutPoiListBinding.bind(inflated)
-            }
-            (listBinding?.root ?: listStub.inflate() as AbsListView).let { listView ->
+            listLayout.list.let { listView ->
                 listView.isVisible = adapter.isInitialized
                 adapter.setListView(listView)
             }
@@ -217,9 +207,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
             if (parentViewModel.showingListInsteadOfMap.value == true) { // LIST
                 val selectedPosition = currentSelectedItemIndexUuid?.first ?: -1
                 if (selectedPosition > 0) {
-                    binding?.apply {
-                        (listBinding?.root ?: listStub.inflate() as AbsListView).setSelection(selectedPosition - 1) // show 1 more stop on top of the list
-                    }
+                    binding?.listLayout?.list?.setSelection(selectedPosition - 1) // show 1 more stop on top of the list
                 }
             }
             switchView()
@@ -258,25 +246,25 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
         binding?.apply {
             when {
                 !adapter.isInitialized || showingListInsteadOfMap == null -> {
-                    emptyBinding?.root?.isVisible = false
-                    listBinding?.root?.isVisible = false
+                    emptyLayout.isVisible = false
+                    listLayout.isVisible = false
                     mapViewController.hideMap()
-                    loading.root.isVisible = true
+                    loadingLayout.isVisible = true
                 }
                 adapter.poisCount == 0 -> {
-                    loading.root.isVisible = false
-                    listBinding?.root?.isVisible = false
+                    loadingLayout.isVisible = false
+                    listLayout.isVisible = false
                     mapViewController.hideMap()
-                    (emptyBinding?.root ?: emptyStub.inflate()).isVisible = true
+                    emptyLayout.isVisible = true
                 }
                 else -> {
-                    loading.root.isVisible = false
-                    emptyBinding?.root?.isVisible = false
+                    loadingLayout.isVisible = false
+                    emptyLayout.isVisible = false
                     if (showingListInsteadOfMap) { // LIST
                         mapViewController.hideMap()
-                        (listBinding?.root ?: listStub.inflate()).isVisible = true
+                        listLayout.isVisible = true
                     } else { // MAP
-                        listBinding?.root?.isVisible = false
+                        listLayout.isVisible = false
                         mapViewController.showMap(view)
                     }
                 }
@@ -327,8 +315,6 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
     override fun onDestroyView() {
         super.onDestroyView()
         mapViewController.onDestroyView()
-        emptyBinding = null
-        listBinding = null
         binding = null
     }
 

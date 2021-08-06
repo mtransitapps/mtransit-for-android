@@ -7,19 +7,19 @@
     android:paddingTop="@dimen/action_bar_size_static">
     <!-- LOADING -->
     <include
-        android:id="@+id/loading"
+        android:id="@id/loading_layout"
         layout="@layout/layout_loading_large"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible" />
+        android:visibility="gone"
+        tools:visibility="visible" />
     <!-- VIEWPAGER -->
     <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewpager"
+        android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:orientation="horizontal"
-        android:visibility="gone"
-        tools:context="org.mtransit.android.MainActivity"
+        android:visibility="visible"
         tools:visibility="visible" />
 </LinearLayout>

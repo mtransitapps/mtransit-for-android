@@ -27,7 +27,6 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.databinding.FragmentAgencyTypeBinding
-import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.ui.ActionBarController.SimpleActionBarColorizer
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MainActivity
@@ -36,6 +35,7 @@ import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.commons.FeatureFlags
 import kotlin.math.abs
 
@@ -76,7 +76,6 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
         get() = if (isAttached()) viewModel else null
 
     private var binding: FragmentAgencyTypeBinding? = null
-    private var emptyBinding: LayoutEmptyBinding? = null
 
     private var abBgColor: Int? = null
 
@@ -138,13 +137,10 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
         binding = FragmentAgencyTypeBinding.bind(view).apply {
-            emptyStub.setOnInflateListener { _, inflated ->
-                emptyBinding = LayoutEmptyBinding.bind(inflated)
-            }
-            viewpager.offscreenPageLimit = 2
-            viewpager.registerOnPageChangeCallback(onPageChangeCallback)
-            viewpager.adapter = adapter ?: makeAdapter().also { adapter = it } // cannot re-use Adapter w/ ViewPager
-            MTTabLayoutMediator(tabs, viewpager, autoRefresh = true, smoothScroll = true) { tab, position ->
+            viewPager.offscreenPageLimit = 2
+            viewPager.registerOnPageChangeCallback(onPageChangeCallback)
+            viewPager.adapter = adapter ?: makeAdapter().also { adapter = it } // cannot re-use Adapter w/ ViewPager
+            MTTabLayoutMediator(tabs, viewPager, autoRefresh = true, smoothScroll = true) { tab, position ->
                 tab.text = viewModel.typeAgencies.value?.get(position)?.shortName
             }.attach()
             if (FeatureFlags.F_NAVIGATION) {
@@ -187,22 +183,22 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
         binding?.apply {
             when {
                 lastPageSelected < 0 || adapter?.isReady() != true -> { // LOADING
-                    emptyBinding?.root?.isVisible = false
-                    viewpager.isVisible = false
+                    emptyLayout.isVisible = false
+                    viewPager.isVisible = false
                     tabs.isVisible = false
-                    loading.root.isVisible = true
+                    loadingLayout.isVisible = true
                 }
                 adapter?.itemCount == 0 -> { // EMPTY
-                    loading.root.isVisible = false
-                    viewpager.isVisible = false
+                    loadingLayout.isVisible = false
+                    viewPager.isVisible = false
                     tabs.isVisible = false
-                    (emptyBinding?.root ?: emptyStub.inflate()).isVisible = true
+                    emptyLayout.isVisible = true
                 }
                 else -> { // LOADED
-                    loading.root.isVisible = false
-                    emptyBinding?.root?.isVisible = false
+                    loadingLayout.isVisible = false
+                    emptyLayout.isVisible = false
                     tabs.isVisible = viewModel.type.value != DataSourceType.TYPE_MODULE
-                    viewpager.isVisible = true
+                    viewPager.isVisible = true
                 }
             }
         }
@@ -219,8 +215,8 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
         }
         val smoothScroll = this.selectedPosition >= 0
         val itemToSelect = this.lastPageSelected
-        binding?.viewpager?.doOnAttach {
-            binding?.viewpager?.setCurrentItem(itemToSelect, smoothScroll)
+        binding?.viewPager?.doOnAttach {
+            binding?.viewPager?.setCurrentItem(itemToSelect, smoothScroll)
         }
         this.selectedPosition = this.lastPageSelected // set selected position before update tabs color
         updateABColorNow()
@@ -317,10 +313,9 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
     override fun onDestroyView() {
         super.onDestroyView()
         updateABColorJob?.cancel()
-        binding?.viewpager?.unregisterOnPageChangeCallback(onPageChangeCallback)
-        binding?.viewpager?.adapter = null // cannot re-use Adapter w/ ViewPager
+        binding?.viewPager?.unregisterOnPageChangeCallback(onPageChangeCallback)
+        binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
         adapter = null // cannot re-use Adapter w/ ViewPager
-        emptyBinding = null
         binding = null
     }
 }

@@ -3,6 +3,14 @@ package org.mtransit.android.ui.view.common
 import android.content.res.Resources.NotFoundException
 import android.view.View
 import androidx.core.view.isVisible
+import androidx.viewbinding.ViewBinding
+
+
+inline var ViewBinding.isVisible: Boolean
+    get() = root.visibility == View.VISIBLE
+    set(value) {
+        root.visibility = if (value) View.VISIBLE else View.GONE
+    }
 
 inline var View.isVisibleOnce: Boolean
     get() = isVisible

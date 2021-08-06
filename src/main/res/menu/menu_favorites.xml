@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="org.mtransit.android.MainActivity">
+    tools:context=".ui.MainActivity">
     <item
         android:id="@+id/menu_add_favorite_folder"
         android:icon="@drawable/ic_create_new_folder_black_24dp"

@@ -16,7 +16,6 @@ import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentDialogPickPoiBinding
-import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteManager
@@ -28,6 +27,7 @@ import org.mtransit.android.ui.fragment.MTDialogFragmentX
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.common.isVisible
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -85,7 +85,6 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     private var binding: FragmentDialogPickPoiBinding? = null
-    private var emptyBinding: LayoutEmptyBinding? = null
 
     private val adapter: POIArrayAdapter by lazy {
         POIArrayAdapter(
@@ -118,10 +117,7 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         super.onCreateView(inflater, container, savedInstanceState)
         return FragmentDialogPickPoiBinding.inflate(inflater).apply {
-            emptyStub.setOnInflateListener { _, inflated ->
-                emptyBinding = LayoutEmptyBinding.bind(inflated)
-            }
-            adapter.setManualScrollView(scrollview)
+            adapter.setManualScrollView(scrollView)
             adapter.setManualLayout(list)
             binding = this
         }.root
@@ -136,18 +132,18 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
             binding?.apply {
                 when {
                     !adapter.isInitialized -> {
-                        emptyBinding?.root?.isVisible = false
+                        emptyLayout.isVisible = false
                         list.isVisible = false
-                        loading.root.isVisible = true
+                        loadingLayout.isVisible = true
                     }
                     adapter.poisCount == 0 -> {
-                        loading.root.isVisible = false
+                        loadingLayout.isVisible = false
                         list.isVisible = false
-                        (emptyBinding?.root ?: emptyStub.inflate()).isVisible = true
+                        emptyLayout.isVisible = true
                     }
                     else -> {
-                        loading.root.isVisible = false
-                        emptyBinding?.root?.isVisible = false
+                        loadingLayout.isVisible = false
+                        emptyLayout.isVisible = false
                         list.isVisible = true
                     }
                 }
@@ -180,7 +176,6 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
 
     override fun onDestroyView() {
         super.onDestroyView()
-        emptyBinding = null
         binding = null
     }
 

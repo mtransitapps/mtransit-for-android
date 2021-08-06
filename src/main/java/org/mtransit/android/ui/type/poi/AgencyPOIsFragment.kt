@@ -11,7 +11,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.AbsListView
 import android.widget.CompoundButton
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.res.ResourcesCompat
@@ -23,8 +22,6 @@ import org.mtransit.android.R
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentAgencyPoisBinding
-import org.mtransit.android.databinding.LayoutEmptyBinding
-import org.mtransit.android.databinding.LayoutPoiListBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteManager
@@ -38,6 +35,7 @@ import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.MapViewController.POIMarker
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.common.isVisible
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -73,8 +71,6 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
         get() = if (isAttached()) parentViewModel else null
 
     private var binding: FragmentAgencyPoisBinding? = null
-    private var emptyBinding: LayoutEmptyBinding? = null
-    private var listBinding: LayoutPoiListBinding? = null
 
     private var listMapToggleMenuItem: MenuItem? = null
     private var listMapSwitchMenuItem: SwitchCompat? = null
@@ -182,13 +178,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
         super.onViewCreated(view, savedInstanceState)
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentAgencyPoisBinding.bind(view).apply {
-            emptyStub.setOnInflateListener { _, inflated ->
-                emptyBinding = LayoutEmptyBinding.bind(inflated)
-            }
-            listStub.setOnInflateListener { _, inflated ->
-                listBinding = LayoutPoiListBinding.bind(inflated)
-            }
-            (listBinding?.root ?: listStub.inflate() as AbsListView).let { listView ->
+            this.listLayout.list.let { listView ->
                 listView.isVisible = adapter.isInitialized
                 adapter.setListView(listView)
             }
@@ -230,25 +220,25 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
         binding?.apply {
             when {
                 !adapter.isInitialized || showingListInsteadOfMap == null -> {
-                    emptyBinding?.root?.isVisible = false
-                    listBinding?.root?.isVisible = false
+                    emptyLayout.isVisible = false
+                    listLayout.isVisible = false
                     mapViewController.hideMap()
-                    loading.root.isVisible = true
+                    loadingLayout.isVisible = true
                 }
                 adapter.poisCount == 0 -> {
-                    loading.root.isVisible = false
-                    listBinding?.root?.isVisible = false
+                    loadingLayout.isVisible = false
+                    listLayout.isVisible = false
                     mapViewController.hideMap()
-                    (emptyBinding?.root ?: emptyStub.inflate()).isVisible = true
+                    emptyLayout.isVisible = true
                 }
                 else -> {
-                    loading.root.isVisible = false
-                    emptyBinding?.root?.isVisible = false
+                    loadingLayout.isVisible = false
+                    emptyLayout.isVisible = false
                     if (showingListInsteadOfMap) { // LIST
                         mapViewController.hideMap()
-                        (listBinding?.root ?: listStub.inflate()).isVisible = true
+                        listLayout.isVisible = true
                     } else { // MAP
-                        listBinding?.root?.isVisible = false
+                        listLayout.isVisible = false
                         mapViewController.showMap(view)
                     }
                 }
@@ -348,8 +338,6 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
     override fun onDestroyView() {
         super.onDestroyView()
         mapViewController.onDestroyView()
-        listBinding = null
-        emptyBinding = null
         binding = null
     }
 

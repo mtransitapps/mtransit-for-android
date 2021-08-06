@@ -1,38 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/scrollview"
+    android:id="@id/scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:minHeight="?android:attr/listPreferredItemHeight"
-    android:minWidth="?android:attr/listPreferredItemHeight" >
+    android:minWidth="?android:attr/listPreferredItemHeight"
+    android:minHeight="?android:attr/listPreferredItemHeight">
+
     <FrameLayout
-        android:id="@+id/viewFlipper"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content">
         <!-- LOADING -->
         <include
-            android:id="@+id/loading"
+            android:id="@id/loading_layout"
+            layout="@layout/layout_loading_large"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            layout="@layout/layout_loading_large"
-            android:visibility="visible" />
+            android:visibility="gone"
+            tools:visibility="visible" />
         <!-- LIST -->
         <LinearLayout
-            android:id="@+id/list"
+            android:id="@id/list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="gone"
             tools:visibility="visible" />
         <!-- EMPTY -->
-        <ViewStub
-            android:id="@+id/empty_stub"
+        <include
+            android:id="@id/empty_layout"
+            layout="@layout/layout_empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:inflatedId="@+id/empty"
-            android:layout="@layout/layout_empty"
-            android:visibility="gone" />
+            android:visibility="gone"
+            tools:visibility="visible" />
     </FrameLayout>
 </ScrollView>

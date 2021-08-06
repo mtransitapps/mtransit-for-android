@@ -1,21 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/service_update_text"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/baseline_8"
+    android:background="?attr/colorSurface"
+    android:fontFamily="sans-serif-light"
     android:orientation="vertical"
+    android:padding="@dimen/baseline_16"
+    android:textAppearance="?android:attr/textAppearanceSmall"
     android:visibility="gone"
-    tools:visibility="visible">
-
-    <TextView
-        android:id="@+id/service_udapte_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="?attr/colorSurface"
-        android:fontFamily="sans-serif-light"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-</LinearLayout>
+    tools:text="Service Update Service Update Service Update Service Update Service Update Service Update Service Update"
+    tools:visibility="visible" />

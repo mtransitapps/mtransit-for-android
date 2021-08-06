@@ -18,23 +18,23 @@
         tools:text="June 2nd, 2015" />
 
     <FrameLayout
-        android:id="@+id/viewFlipper"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
         <!-- LOADING -->
         <include
-            android:id="@+id/loading"
+            android:id="@id/loading_layout"
             layout="@layout/layout_loading_large"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="visible" />
+            android:visibility="gone"
+            tools:visibility="visible" />
         <!-- LIST -->
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/times_list"
+            android:id="@id/list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/layout_poi_detail_status_schedule_time"
             tools:visibility="visible" />

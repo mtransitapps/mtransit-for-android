@@ -30,12 +30,12 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.databinding.FragmentRtsAgencyRoutesBinding
-import org.mtransit.android.databinding.LayoutEmptyBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.rts.route.RTSRouteFragment
 import org.mtransit.android.ui.view.common.SpacesItemDecoration
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.commons.FeatureFlags
 
 @AndroidEntryPoint
@@ -67,7 +67,6 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
         get() = if (isAttached()) viewModel else null
 
     private var binding: FragmentRtsAgencyRoutesBinding? = null
-    private var emptyBinding: LayoutEmptyBinding? = null
 
     private var listGridToggleMenuItem: MenuItem? = null
     private var listGridSwitchMenuItem: SwitchCompat? = null
@@ -132,10 +131,7 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentRtsAgencyRoutesBinding.bind(view).apply {
-            emptyStub.setOnInflateListener { _, inflated ->
-                emptyBinding = LayoutEmptyBinding.bind(inflated)
-            }
-            routesListGrid.adapter = adapter
+            listGrid.adapter = adapter
         }
         viewModel.colorInt.observe(viewLifecycleOwner, { colorInt ->
             colorInt?.let {
@@ -153,7 +149,7 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
         })
         viewModel.showingListInsteadOfGrid.observe(viewLifecycleOwner, { showingListInsteadOfGrid ->
             showingListInsteadOfGrid?.let { listInsteadOfGrid ->
-                binding?.routesListGrid?.apply {
+                binding?.listGrid?.apply {
                     val scrollPosition = (layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: 0
                     if (listInsteadOfGrid) { // LIST
                         if (layoutManager == null || layoutManager is GridLayoutManager) {
@@ -194,19 +190,19 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
         binding?.apply {
             when {
                 !adapter.isReady() -> {
-                    emptyBinding?.root?.isVisible = false
-                    routesListGrid.isVisible = false
-                    loading.root.isVisible = true
+                    emptyLayout.isVisible = false
+                    listGrid.isVisible = false
+                    loadingLayout.isVisible = true
                 }
                 adapter.itemCount == 0 -> {
-                    loading.root.isVisible = false
-                    routesListGrid.isVisible = false
-                    (emptyBinding?.root ?: emptyStub.inflate()).isVisible = true
+                    loadingLayout.isVisible = false
+                    listGrid.isVisible = false
+                    emptyLayout.isVisible = true
                 }
                 else -> {
-                    emptyBinding?.root?.isVisible = false
-                    loading.root.isVisible = false
-                    routesListGrid.isVisible = true
+                    emptyLayout.isVisible = false
+                    loadingLayout.isVisible = false
+                    listGrid.isVisible = true
                 }
             }
         }
@@ -270,7 +266,6 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
 
     override fun onDestroyView() {
         super.onDestroyView()
-        emptyBinding = null
         binding = null
     }
 }

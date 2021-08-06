@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <ScrollView
-        android:id="@+id/scrollview"
+        android:id="@id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -16,7 +16,7 @@
             android:orientation="vertical">
 
             <org.mtransit.android.ui.view.common.MapViewInScroll
-                android:id="@+id/map"
+                android:id="@id/map"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/large_header_height"
                 android:visibility="invisible"
@@ -27,8 +27,9 @@
                 app:uiTiltGestures="false"
                 app:uiZoomControls="false"
                 app:uiZoomGestures="false"
-                tools:visibility="visible" />
+                tools:visibility="invisible" />
 
+            <!-- TODO: keep view stub? (multiple layouts) -->
             <ViewStub
                 android:id="@+id/this_poi_stub"
                 android:layout_width="match_parent"
@@ -36,6 +37,7 @@
                 android:inflatedId="@+id/this_poi"
                 tools:layout="@layout/layout_poi_basic" />
 
+            <!-- TODO: keep view stub? (multiple layouts) -->
             <ViewStub
                 android:id="@+id/poi_status_detail_stub"
                 android:layout_width="match_parent"
@@ -43,33 +45,35 @@
                 android:inflatedId="@+id/poi_status_detail"
                 tools:layout="@layout/layout_poi_detail_status_app" />
 
-            <ViewStub
-                android:id="@+id/poi_service_update_stub"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inflatedId="@+id/poi_service_update"
-                tools:layout="@layout/layout_poi_service_update" />
+            <include
+                android:id="@+id/poi_service_update"
+                layout="@layout/layout_poi_service_update"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
-            <ViewStub
-                android:id="@+id/poi_app_update_stub"
+            <include
+                android:id="@+id/poi_app_update"
+                layout="@layout/layout_poi_app_update"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inflatedId="@+id/poi_app_update"
-                android:layout="@layout/layout_poi_app_update" />
+                android:visibility="gone"
+                tools:visibility="visible" />
 
-            <ViewStub
-                android:id="@+id/poi_news_stub"
+            <include
+                android:id="@+id/poi_news"
+                layout="@layout/layout_poi_news"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inflatedId="@+id/poi_news"
-                tools:layout="@layout/layout_poi_news" />
+                android:visibility="gone"
+                tools:visibility="visible" />
 
-            <ViewStub
-                android:id="@+id/poi_rewarded_ad_stub"
+            <include
+                android:id="@+id/poi_rewarded_ad"
+                layout="@layout/layout_poi_rewarded_ad"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inflatedId="@+id/poi_rewarded_ad"
-                android:layout="@layout/layout_poi_rewarded_ad" />
+                android:visibility="gone"
+                tools:visibility="visible" />
 
             <include
                 android:id="@+id/poi_nearby_pois_title"
@@ -92,4 +96,5 @@
     <include
         layout="@layout/layout_shadow"
         tools:visibility="gone" />
+
 </FrameLayout>

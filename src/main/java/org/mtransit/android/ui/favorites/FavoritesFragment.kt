@@ -8,7 +8,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.widget.AbsListView
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -16,8 +15,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentFavoritesBinding
-import org.mtransit.android.databinding.LayoutEmptyBinding
-import org.mtransit.android.databinding.LayoutPoiListBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteManager
@@ -31,6 +28,7 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
@@ -76,8 +74,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     private var binding: FragmentFavoritesBinding? = null
-    private var emptyBinding: LayoutEmptyBinding? = null
-    private var listBinding: LayoutPoiListBinding? = null
 
     private val adapter: POIArrayAdapter by lazy {
         POIArrayAdapter(
@@ -109,13 +105,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentFavoritesBinding.bind(view).apply {
-            emptyStub.setOnInflateListener { _, inflated ->
-                emptyBinding = LayoutEmptyBinding.bind(inflated)
-            }
-            listStub.setOnInflateListener { _, inflated ->
-                listBinding = LayoutPoiListBinding.bind(inflated)
-            }
-            (listBinding?.root ?: listStub.inflate() as AbsListView).let { listView ->
+            listLayout.list.let { listView ->
                 listView.isVisible = adapter.isInitialized
                 adapter.setListView(listView)
             }
@@ -123,21 +113,23 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
         viewModel.favoritePOIs.observe(viewLifecycleOwner, { favoritePOIS ->
             adapter.setPois(favoritePOIS)
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
-            when {
-                favoritePOIS == null -> { // LOADING
-                    listBinding?.root?.isVisible = false
-                    emptyBinding?.root?.isVisible = false
-                    binding?.loading?.root?.isVisible = true
-                }
-                favoritePOIS.isEmpty() -> { // EMPTY
-                    binding?.loading?.root?.isVisible = false
-                    listBinding?.root?.isVisible = false
-                    (emptyBinding?.root ?: binding?.emptyStub?.inflate())?.isVisible = true
-                }
-                else -> { // LIST
-                    binding?.loading?.root?.isVisible = false
-                    emptyBinding?.root?.isVisible = false
-                    (listBinding?.root ?: binding?.listStub?.inflate())?.isVisible = true
+            binding?.apply {
+                when {
+                    favoritePOIS == null -> { // LOADING
+                        listLayout.isVisible = false
+                        emptyLayout.isVisible = false
+                        loadingLayout.isVisible = true
+                    }
+                    favoritePOIS.isEmpty() -> { // EMPTY
+                        loadingLayout.isVisible = false
+                        listLayout.isVisible = false
+                        emptyLayout.isVisible = true
+                    }
+                    else -> { // LIST
+                        loadingLayout.isVisible = false
+                        emptyLayout.isVisible = false
+                        listLayout.isVisible = true
+                    }
                 }
             }
         })
@@ -147,7 +139,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
                 if (scroll) {
-                    listBinding?.root?.setSelection(0)
+                    binding?.listLayout?.list?.setSelection(0)
                 }
             })
         }
@@ -194,8 +186,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
 
     override fun onDestroyView() {
         super.onDestroyView()
-        listBinding = null
-        emptyBinding = null
         binding = null
     }
 }

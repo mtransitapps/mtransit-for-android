@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="ad" type="id" />
+
+    <item name="map" type="id" />
+
+    <item name="tabs" type="id" />
+
+    <item name="scroll_view" type="id" />
+
+    <item name="view_pager" type="id" />
+
+    <item name="swipe_refresh" type="id" />
+
+    <item name="list_grid" type="id" />
+
+    <item name="list" type="id" />
+    <item name="list_layout" type="id" />
+    <item name="loading_layout" type="id" />
+    <item name="empty_layout" type="id" />
+</resources>

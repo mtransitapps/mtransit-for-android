@@ -47,7 +47,7 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 	public static void initViewHolder(@NonNull View view) {
 		ServiceUpdatesListViewHolder serviceUpdatesListViewHolder = new ServiceUpdatesListViewHolder();
 		serviceUpdatesListViewHolder.layout = view;
-		serviceUpdatesListViewHolder.messagesTv = view.findViewById(R.id.service_udapte_text);
+		serviceUpdatesListViewHolder.messagesTv = (TextView) view;
 		view.setTag(serviceUpdatesListViewHolder);
 	}
 

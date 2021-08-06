@@ -28,6 +28,4 @@
     <item name="nav_send_feedback" type="id" />
     <item name="nav_rate_review" type="id" />
     <item name="nav_support" type="id" />
-
-    <item name="ad" type="id" />
 </resources>

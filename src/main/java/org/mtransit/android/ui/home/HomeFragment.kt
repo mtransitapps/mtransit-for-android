@@ -12,7 +12,6 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AbsListView
 import android.widget.PopupWindow
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
@@ -25,8 +24,6 @@ import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentHomeBinding
-import org.mtransit.android.databinding.LayoutEmptyBinding
-import org.mtransit.android.databinding.LayoutPoiListBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
@@ -46,6 +43,7 @@ import org.mtransit.android.ui.type.AgencyTypeFragment
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
@@ -94,8 +92,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
     lateinit var demoModeManager: DemoModeManager
 
     private var binding: FragmentHomeBinding? = null
-    private var emptyBinding: LayoutEmptyBinding? = null
-    private var listBinding: LayoutPoiListBinding? = null
 
     private var locationToast: PopupWindow? = null
     private var toastShown: Boolean = false
@@ -170,20 +166,13 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
         binding = FragmentHomeBinding.bind(view).apply {
-            emptyStub.setOnInflateListener { _, inflated ->
-                emptyBinding = LayoutEmptyBinding.bind(inflated)
-            }
-            listStub.setOnInflateListener { _, inflated ->
-                listBinding = LayoutPoiListBinding.bind(inflated).apply {
-                    swiperefresh.setListViewWR(this.root)
-                }
-            }
-            (listBinding?.root ?: listStub.inflate() as AbsListView).let { listView ->
+            listLayout.list.let { listView ->
+                swipeRefresh.setListViewWR(listView)
                 listView.isVisible = adapter.isInitialized
                 adapter.setListView(listView)
                 MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this@HomeFragment)
             }
-            swiperefresh.apply {
+            swipeRefresh.apply {
                 setColorSchemeColors(
                     ThemeUtils.resolveColorAttribute(view.context, R.attr.colorAccent)
                 )
@@ -211,7 +200,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
                 val scrollToTop = adapter.poisCount <= 0
                 adapter.appendPois(it)
                 if (scrollToTop) {
-                    listBinding?.root?.setSelection(0)
+                    binding?.listLayout?.list?.setSelection(0)
                 }
                 if (isResumed) {
                     adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
@@ -223,7 +212,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
         })
         viewModel.loadingPOIs.observe(viewLifecycleOwner, {
             if (it == false) {
-                binding?.swiperefresh?.isRefreshing = false
+                binding?.swipeRefresh?.isRefreshing = false
             }
         })
         viewModel.newLocationAvailable.observe(viewLifecycleOwner, { newLocationAvailable ->
@@ -236,7 +225,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
                 if (scroll) {
-                    listBinding?.root?.setSelection(0)
+                    binding?.listLayout?.list?.setSelection(0)
                 }
             })
         }
@@ -244,9 +233,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
 
     private fun switchView() {
         binding?.apply {
-            loading.root.isVisible = false
-            emptyBinding?.root?.isVisible = false
-            (listBinding?.root ?: listStub.inflate()).isVisible = true
+            loadingLayout.isVisible = false
+            emptyLayout.isVisible = false
+            listLayout.isVisible = true
         }
     }
 
@@ -376,9 +365,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
         hideLocationToast()
         this.locationToast = null
         this.toastShown = false
-        binding?.swiperefresh?.setOnRefreshListener(null)
-        emptyBinding = null
-        listBinding = null
+        binding?.swipeRefresh?.setOnRefreshListener(null)
         binding = null
     }
 

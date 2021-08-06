@@ -315,6 +315,9 @@ public class POIFragment extends ABFragment implements
 		POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(view), this.poim, this);
 		setupRTSFullScheduleBtn(view);
 		setupMoreNewsButton(view);
+		setupThisNewsButton(view);
+		setupAppUpdateButton(view);
+		setupRewardedAdButton(view);
 		setupMoreNearbyButton(view);
 		if (getActivity() != null) {
 			getActivity().invalidateOptionsMenu(); // add/remove star from action bar
@@ -327,8 +330,10 @@ public class POIFragment extends ABFragment implements
 			MTLog.d(this, "applyNewNews() > SKIP (no news)");
 			return;
 		}
-		POINewsViewController.updateView(getPOINewsView(getView()), news);
-		setupMoreNewsButton(getView());
+		final View view = getView();
+		POINewsViewController.updateView(getPOINewsView(view), news);
+		setupMoreNewsButton(view);
+		setupThisNewsButton(view);
 	}
 
 	@Nullable
@@ -553,7 +558,7 @@ public class POIFragment extends ABFragment implements
 			return;
 		}
 		if (this.adapter != null) {
-			this.adapter.setManualScrollView(view.findViewById(R.id.scrollview));
+			this.adapter.setManualScrollView(view.findViewById(R.id.scroll_view));
 			this.adapter.setManualLayout(view.findViewById(R.id.poi_nearby_pois_list));
 		}
 	}
@@ -715,14 +720,10 @@ public class POIFragment extends ABFragment implements
 		return view.findViewById(R.id.poi_status_detail);
 	}
 
-	private View getPOIServiceUpdateView(View view) {
+	@Nullable
+	private View getPOIServiceUpdateView(@Nullable View view) {
 		if (view == null) {
 			return null;
-		}
-		if (view.findViewById(R.id.poi_service_update) == null) { // IF NOT present/inflated DO
-			int layoutResId = POIServiceUpdateViewController.getLayoutResId();
-			((ViewStub) view.findViewById(R.id.poi_service_update_stub)).setLayoutResource(layoutResId);
-			((ViewStub) view.findViewById(R.id.poi_service_update_stub)).inflate(); // inflate
 		}
 		return view.findViewById(R.id.poi_service_update);
 	}
@@ -732,25 +733,28 @@ public class POIFragment extends ABFragment implements
 		if (view == null) {
 			return null;
 		}
-		if (view.findViewById(R.id.poi_app_update) == null) { // IF NOT present/inflated DO
-			((ViewStub) view.findViewById(R.id.poi_app_update_stub)).inflate(); // inflate
-			view.findViewById(R.id.appUpdateBtn).setOnClickListener(v -> {
-				final Activity activity = getActivity();
-				if (activity == null) {
-					return;
-				}
-				final IAgencyProperties agency = getAgencyOrNull();
-				if (agency == null) {
-					return;
-				}
-				final String pkg = agency.getPkg();
-				POIFragment.this.analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
-						.put(AnalyticsEvents.Params.PKG, pkg)
-				);
-				StoreUtils.viewAppPage(activity, pkg, activity.getString(R.string.google_play));
-			});
-		}
 		return view.findViewById(R.id.poi_app_update);
+	}
+
+	private void setupAppUpdateButton(@Nullable View view) {
+		if (view == null) {
+			return;
+		}
+		view.findViewById(R.id.appUpdateBtn).setOnClickListener(v -> {
+			final Activity activity = getActivity();
+			if (activity == null) {
+				return;
+			}
+			final IAgencyProperties agency = getAgencyOrNull();
+			if (agency == null) {
+				return;
+			}
+			final String pkg = agency.getPkg();
+			POIFragment.this.analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
+					.put(AnalyticsEvents.Params.PKG, pkg)
+			);
+			StoreUtils.viewAppPage(activity, pkg, activity.getString(R.string.google_play));
+		});
 	}
 
 	@Nullable
@@ -758,46 +762,47 @@ public class POIFragment extends ABFragment implements
 		if (view == null) {
 			return null;
 		}
-		if (view.findViewById(R.id.poi_news) == null) { // IF NOT present/inflated DO
-			final int layoutResId = POINewsViewController.getLayoutResId();
-			((ViewStub) view.findViewById(R.id.poi_news_stub)).setLayoutResource(layoutResId);
-			((ViewStub) view.findViewById(R.id.poi_news_stub)).inflate(); // inflate
-			view.findViewById(R.id.the_poi_news).setOnClickListener(v -> {
-				final List<News> news = viewModel == null ? null : viewModel.getLatestNewsArticleList().getValue();
-				if (news == null || news.size() == 0) {
-					return;
-				}
-				final News lastNews = news.get(0);
-				if (lastNews == null) {
-					return;
-				}
-				if (FeatureFlags.F_NAVIGATION) {
-					final NavController navController = NavHostFragment.findNavController(this);
-					FragmentNavigator.Extras extras = null;
-					if (FeatureFlags.F_TRANSITION) {
-						extras = new FragmentNavigator.Extras.Builder()
-								// TODO button? .addSharedElement(view, view.getTransitionName())
-								.build();
-					}
-					navController.navigate(
-							R.id.nav_to_news_detail_screen,
-							NewsDetailsFragment.newInstanceArgs(lastNews),
-							null,
-							extras
-					);
-				} else {
-					final Activity activity = getActivity();
-					if (activity == null) {
-						return;
-					}
-					((MainActivity) activity).addFragmentToStack(
-							NewsDetailsFragment.newInstance(lastNews),
-							POIFragment.this
-					);
-				}
-			});
-		}
 		return view.findViewById(R.id.poi_news);
+	}
+
+	private void setupThisNewsButton(@Nullable View view) {
+		if (view == null) {
+			return;
+		}
+		view.findViewById(R.id.the_poi_news).setOnClickListener(v -> {
+			final List<News> news = viewModel == null ? null : viewModel.getLatestNewsArticleList().getValue();
+			if (news == null || news.size() == 0) {
+				return;
+			}
+			final News lastNews = news.get(0);
+			if (lastNews == null) {
+				return;
+			}
+			if (FeatureFlags.F_NAVIGATION) {
+				final NavController navController = NavHostFragment.findNavController(this);
+				FragmentNavigator.Extras extras = null;
+				if (FeatureFlags.F_TRANSITION) {
+					extras = new FragmentNavigator.Extras.Builder()
+							// TODO button? .addSharedElement(view, view.getTransitionName())
+							.build();
+				}
+				navController.navigate(
+						R.id.nav_to_news_detail_screen,
+						NewsDetailsFragment.newInstanceArgs(lastNews),
+						null,
+						extras
+				);
+			} else {
+				final Activity activity = getActivity();
+				if (activity == null) {
+					return;
+				}
+				((MainActivity) activity).addFragmentToStack(
+						NewsDetailsFragment.newInstance(lastNews),
+						POIFragment.this
+				);
+			}
+		});
 	}
 
 	@Nullable
@@ -805,14 +810,16 @@ public class POIFragment extends ABFragment implements
 		if (view == null) {
 			return null;
 		}
-		if (view.findViewById(R.id.poi_rewarded_ad) == null) { // IF NOT present/inflated DO
-			((ViewStub) view.findViewById(R.id.poi_rewarded_ad_stub)).inflate(); // inflate
-
-			view.findViewById(R.id.rewardedAdsBtn).setOnClickListener(v ->
-					onRewardedAdButtonClick(view.getContext())
-			);
-		}
 		return view.findViewById(R.id.poi_rewarded_ad);
+	}
+
+	private void setupRewardedAdButton(@Nullable View view) {
+		if (view == null) {
+			return;
+		}
+		view.findViewById(R.id.rewardedAdsBtn).setOnClickListener(v ->
+				onRewardedAdButtonClick(view.getContext())
+		);
 	}
 
 	private void onRewardedAdButtonClick(@NonNull Context context) {
@@ -981,6 +988,9 @@ public class POIFragment extends ABFragment implements
 			POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(view), poim, this);
 			setupRTSFullScheduleBtn(view);
 			setupMoreNewsButton(view);
+			setupThisNewsButton(view);
+			setupAppUpdateButton(view);
+			setupRewardedAdButton(view);
 			setupMoreNearbyButton(view);
 			setupNearbyList();
 		}
