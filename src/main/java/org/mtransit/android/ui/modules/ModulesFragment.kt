@@ -6,8 +6,12 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup.MarginLayoutParams
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,6 +45,13 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
             (activity as? AppCompatActivity)?.setSupportActionBar(abToolbar)
             (activity as? AppCompatActivity)?.supportActionBar?.apply {
                 setDisplayHomeAsUpEnabled(true)
+            }
+            ViewCompat.setOnApplyWindowInsetsListener(modulesList) { view, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                view.updateLayoutParams<MarginLayoutParams> {
+                    bottomMargin = insets.bottom
+                }
+                WindowInsetsCompat.CONSUMED
             }
             modulesList.adapter = listAdapter
         }

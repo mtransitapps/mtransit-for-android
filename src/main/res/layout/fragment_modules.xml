@@ -4,13 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".ui.modules.ModulesActivity"
     tools:showIn="@layout/activity_modules">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/ab_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/ab_toolbar"
@@ -21,7 +23,7 @@
             app:menu="@menu/menu_modules"
             app:popupTheme="@style/MTToolbarPopup"
             app:title="@string/agency_type_module_all"
-            tools:navigationIcon="?attr/actionModeCloseDrawable" />
+            tools:navigationIcon="?attr/homeAsUpIndicator" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -29,6 +31,7 @@
         android:id="@+id/modules_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
         android:visibility="gone"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -46,6 +49,6 @@
         android:visibility="gone"
         app:drawableTopCompat="@drawable/ic_warning_black_96dp"
         tools:ignore="HardcodedText"
-        tools:visibility="visible" />
+        tools:visibility="invisible" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

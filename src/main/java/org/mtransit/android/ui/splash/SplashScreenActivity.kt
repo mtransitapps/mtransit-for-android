@@ -49,6 +49,11 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
         // finish();
         // return;
         // }
+        // if (true) {
+        // startActivity(org.mtransit.android.ui.modules.ModulesActivity.newInstance(this))
+        // finish()
+        // return
+        // }
         if (FeatureFlags.F_NAVIGATION) {
             startActivity(org.mtransit.android.ui.main.MainActivity.newInstance(this))
             finish()
