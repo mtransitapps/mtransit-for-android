@@ -27,6 +27,6 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textStyle="normal"
         android:visibility="gone"
-        tools:text="AVAILABILITY AVAILABILITY AVAILABILITY AVAILABILITY AVAILABILITY AVAILABILITY AVAILABILITY"
+        tools:text="AVAILABILITY"
         tools:visibility="visible" />
 </LinearLayout>

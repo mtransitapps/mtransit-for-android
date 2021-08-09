@@ -705,12 +705,12 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	private View getPOIStatusView(View view) {
-		POIManager poim = getPoimOrNull();
+		final POIManager poim = getPoimOrNull();
 		if (view == null || poim == null) {
 			return null;
 		}
 		if (view.findViewById(R.id.poi_status_detail) == null) { // IF NOT present/inflated DO
-			Integer layoutResId = POIStatusDetailViewController.getLayoutResId(poim);
+			final Integer layoutResId = POIStatusDetailViewController.getLayoutResId(poim);
 			if (layoutResId != null) {
 				((ViewStub) view.findViewById(R.id.poi_status_detail_stub)).setLayoutResource(layoutResId);
 				((ViewStub) view.findViewById(R.id.poi_status_detail_stub)).inflate(); // inflate
@@ -843,12 +843,12 @@ public class POIFragment extends ABFragment implements
 
 	@Nullable
 	private View getPOIView(@Nullable View view) {
-		POIManager poim = getPoimOrNull();
+		final POIManager poim = getPoimOrNull();
 		if (view == null || poim == null) {
 			return null;
 		}
 		if (view.findViewById(R.id.this_poi) == null) { // IF NOT present/inflated DO
-			int layoutResId = POIViewController.getLayoutResId(poim);
+			final int layoutResId = POIViewController.getLayoutResId(poim);
 			((ViewStub) view.findViewById(R.id.this_poi_stub)).setLayoutResource(layoutResId);
 			((ViewStub) view.findViewById(R.id.this_poi_stub)).inflate(); // inflate
 		}
@@ -867,7 +867,7 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public void onServiceUpdatesLoaded(@NonNull String targetUUID, @Nullable List<ServiceUpdate> serviceUpdates) {
-		View view = getView();
+		final View view = getView();
 		if (view == null) {
 			return;
 		}
