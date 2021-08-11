@@ -156,7 +156,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
             binding?.apply {
                 loadingLayout.isVisible = false
-                if (searchResults.isEmpty()) { // SHOW EMPTY
+                if (searchResults.isNullOrEmpty()) { // SHOW EMPTY
                     listLayout.isVisible = false
                     emptyLayout.isVisible = true
                 } else { // SHOW LIST
@@ -202,6 +202,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
         super.onResume()
         adapter.onResume(this, viewModel.deviceLocation.value)
         (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
+        viewModel.onScreenVisible()
     }
 
     override fun onPause() {

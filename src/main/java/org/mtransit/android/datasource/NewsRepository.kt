@@ -28,7 +28,10 @@ class NewsRepository(
     @Inject
     constructor(
         dataSourceRequestManager: DataSourceRequestManager,
-    ) : this(Dispatchers.IO, dataSourceRequestManager)
+    ) : this(
+        Dispatchers.IO,
+        dataSourceRequestManager,
+    )
 
     companion object {
         private val LOG_TAG = NewsRepository::class.java.simpleName

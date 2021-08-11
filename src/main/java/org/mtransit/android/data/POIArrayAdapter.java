@@ -685,11 +685,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	public void setPois(@Nullable List<POIManager> pois) {
-		if (this.poisByType != null) {
+		boolean dataSetChanged = false;
+		if (this.poisByType != null && !this.poisByType.isEmpty()) {
 			this.poisByType.clear();
+			dataSetChanged = true;
 		}
-		this.poiUUID.clear();
-		boolean dataSetChanged = append(pois, true);
+		if (!this.poiUUID.isEmpty()) {
+			this.poiUUID.clear();
+			dataSetChanged = true;
+		}
+		dataSetChanged = append(pois, dataSetChanged);
 		if (dataSetChanged) {
 			notifyDataSetChanged();
 		}
@@ -2036,7 +2041,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 		@Override
 		protected ArrayList<Favorite> doInBackgroundNotCancelledMT(Integer... params) {
-			POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
+			final POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
 			if (poiArrayAdapter == null) {
 				return null;
 			}
@@ -2045,7 +2050,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 		@Override
 		protected void onPostExecuteNotCancelledMT(@Nullable ArrayList<Favorite> result) {
-			POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
+			final POIArrayAdapter poiArrayAdapter = this.poiArrayAdapterWR.get();
 			if (poiArrayAdapter == null) {
 				return;
 			}

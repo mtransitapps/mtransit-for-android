@@ -1,10 +1,8 @@
 package org.mtransit.android.ui.search
 
-import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
@@ -13,10 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.mtransit.android.commons.CollectionUtils
 import org.mtransit.android.commons.ComparatorUtils
-import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.commons.provider.GTFSProviderContract
@@ -49,6 +44,16 @@ class SearchViewModel @Inject constructor(
         internal const val EXTRA_SEARCH_HAS_FOCUS = "extra_search_has_focus"
     }
 
+    fun onScreenVisible() {
+        refreshFavorites()
+    }
+
+    private fun refreshFavorites() {
+        viewModelScope.launch {
+            favoriteUUIDs = favoriteRepository.findFavoriteUUIDs()
+        }
+    }
+
     override fun getLogTag(): String = LOG_TAG
 
     val searchableDataSourceTypes: LiveData<List<DataSourceType>> = this.dataSourcesRepository.readingAllDataSourceTypes().map { list ->
@@ -64,6 +69,8 @@ class SearchViewModel @Inject constructor(
     val loading: LiveData<Boolean> = _loading
 
     private var searchJob: Job? = null
+
+    private var favoriteUUIDs = emptySet<String>()
 
     fun onNewQuery(queryOrNull: String?) {
         val newQuery: String = queryOrNull.orEmpty()
@@ -111,91 +118,41 @@ class SearchViewModel @Inject constructor(
 
     val searchHasFocus: LiveData<Boolean> = _searchHasFocus
 
-    val searchResults: LiveData<List<POIManager>> =
+    val searchResults: LiveData<List<POIManager>?> =
         TripleMediatorLiveData(query, _typeFilterId, _searchableAgencies).switchMap { (query, typeFilterId, searchableAgencies) ->
-            liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-                emit(getFilteredData(query, typeFilterId, searchableAgencies))
-                _loading.postValue(false)
-            }
-        }
-
-
-    private suspend fun getFilteredData(query: String?, typeFilterId: Int?, searchableAgencies: List<IAgencyProperties>?): List<POIManager> {
-        if (query.isNullOrBlank()) {
-            MTLog.d(this, "getFilteredData() > SKIP (no query)")
-            return emptyList()
-        }
-        if (searchableAgencies.isNullOrEmpty()) {
-            MTLog.d(this, "getFilteredData() > SKIP (no searchable agencies)")
-            return emptyList()
-        }
-        val filteredAgencies = searchableAgencies.filter { agency -> typeFilterId == null || typeFilterId == agency.type.id }
-        if (filteredAgencies.isNullOrEmpty()) {
-            MTLog.d(this, "getFilteredData() > SKIP (no filtered agencies)")
-            return emptyList()
-        }
-        val dstToAgencies = filteredAgencies.groupBy { it.type }.toSortedMap(this.dataSourcesRepository.defaultDataSourceTypeComparator)
-        if (dstToAgencies.keys.isEmpty()) {
-            MTLog.d(this, "getFilteredData() > SKIP (no data source type)")
-            return emptyList()
-        }
-        _loading.postValue(true)
-
-        val keepAll = dstToAgencies.keys.size == 1
-
-        val deviceLocation = deviceLocation.value
-
-        val favoriteUUIDs: Set<String> = favoriteRepository.findFavoriteUUIDs()
-        val poiSearchComparator = POISearchComparator(favoriteUUIDs)
-
-        val pois = mutableListOf<POIManager>()
-
-        dstToAgencies.forEach { (_, agencies) ->
-            pois.addAll(
-                getFilteredDataType(agencies, query, deviceLocation, keepAll, poiSearchComparator)
+            var keepAll = false
+            this.poiRepository.loadingPOIMs(
+                typeToProviders = searchableAgencies
+                    ?.filter { agency -> typeFilterId == null || typeFilterId == agency.type.id }
+                    ?.groupBy { it.type }
+                    ?.toSortedMap(this.dataSourcesRepository.defaultDataSourceTypeComparator)
+                    ?.also { typeToAgencies ->
+                        keepAll = typeToAgencies.keys.size == 1
+                    },
+                filter = if (query.isNullOrBlank()) null else {
+                    POIProviderContract.Filter.getNewSearchFilter(query).apply {
+                        addExtra(GTFSProviderContract.POI_FILTER_EXTRA_DESCENT_ONLY, true)
+                        deviceLocation.value?.let {
+                            addExtra("lat", it.latitude)
+                            addExtra("lng", it.longitude)
+                        }
+                    }
+                },
+                deviceLocation = deviceLocation.value,
+                typeComparator = POISearchComparator(this.favoriteUUIDs),
+                typeLet = { typePois ->
+                    if (keepAll || typePois.size <= 2) {
+                        typePois
+                    } else {
+                        typePois.take(2)
+                    }
+                },
+                onSuccess = {
+                    _loading.postValue(false)
+                },
+                context = viewModelScope.coroutineContext + Dispatchers.IO,
             )
         }
-
-        return pois
-    }
-
-    private suspend fun getFilteredDataType(
-        agencies: List<IAgencyProperties>,
-        query: String,
-        deviceLocation: Location?,
-        keepAll: Boolean,
-        poiSearchComparator: Comparator<POIManager?>
-    ): List<POIManager> {
-
-        var typePois = mutableListOf<POIManager>()
-        agencies.forEach { agency ->
-            typePois.addAll(getFilteredDataTypeAgency(agency, query, deviceLocation))
-        }
-        LocationUtils.updateDistance(typePois, deviceLocation)
-        CollectionUtils.sort(typePois, poiSearchComparator)
-        if (!keepAll && typePois.size > 2) {
-            typePois = typePois.subList(0, 2)
-        }
-        return typePois
-    }
-
-    private suspend fun getFilteredDataTypeAgency(
-        agency: IAgencyProperties,
-        query: String,
-        deviceLocation: Location?
-    ): List<POIManager> {
-        val poiFilter: POIProviderContract.Filter = POIProviderContract.Filter.getNewSearchFilter(query)
-        poiFilter.addExtra(GTFSProviderContract.POI_FILTER_EXTRA_DESCENT_ONLY, true)
-        if (deviceLocation != null) {
-            poiFilter.addExtra("lat", deviceLocation.latitude)
-            poiFilter.addExtra("lng", deviceLocation.longitude)
-        }
-        val pois: List<POIManager>
-        withContext(Dispatchers.IO) {
-            pois = poiRepository.findPOIMs(agency.authority, poiFilter).orEmpty()
-        }
-        return pois
-    }
 
     class POISearchComparator(private val favoriteUUIDs: Set<String>) : Comparator<POIManager?> {
         override fun compare(lhs: POIManager?, rhs: POIManager?): Int {

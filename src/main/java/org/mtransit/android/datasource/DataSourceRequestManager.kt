@@ -14,6 +14,7 @@ import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceManager
 import org.mtransit.android.data.DataSourceType
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.JPaths
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.POIManager
@@ -25,7 +26,7 @@ class DataSourceRequestManager @Inject constructor(
     @ApplicationContext private val appContext: Context,
 ) : MTLog.Loggable {
 
-     companion object {
+    companion object {
         private val LOG_TAG = DataSourceRequestManager::class.java.simpleName
     }
 
@@ -42,6 +43,8 @@ class DataSourceRequestManager @Inject constructor(
     fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI>? {
         return DataSourceManager.findPOIs(appContext, authority, poiFilter)?.map { it.poi }
     }
+
+    fun findPOIMs(provider: IAgencyProperties, poiFilter: POIProviderContract.Filter) = findPOIMs(provider.authority, poiFilter)
 
     fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): List<POIManager>? {
         return DataSourceManager.findPOIs(appContext, authority, poiFilter)
