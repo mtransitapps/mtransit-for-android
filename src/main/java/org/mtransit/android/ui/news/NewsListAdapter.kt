@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.news
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,6 +28,7 @@ class NewsListAdapter(private val onClick: (View, News) -> Unit) : ListAdapter<N
 
     private var timeChangedReceiverEnabled = false
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun resetNowToTheMinute() {
         notifyDataSetChanged()
     }

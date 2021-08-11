@@ -14,6 +14,7 @@ import androidx.collection.SimpleArrayMap;
 
 import org.json.JSONObject;
 import org.mtransit.android.commons.AppUpdateUtils;
+import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils.Area;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SqlUtils;
@@ -38,6 +39,7 @@ import org.mtransit.android.commons.provider.ServiceUpdateProviderContract;
 import org.mtransit.android.commons.provider.StatusProviderContract;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -402,10 +404,31 @@ public final class DataSourceManager implements MTLog.Loggable {
 
 	@WorkerThread
 	@Nullable
-	public static Cursor queryContentResolver(@NonNull ContentResolver contentResolver, @NonNull Uri uri,
-											  @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs,
+	public static Cursor queryContentResolver(@NonNull ContentResolver contentResolver,
+											  @NonNull Uri uri,
+											  @Nullable String[] projection, @Nullable String selection,
+											  @Nullable String[] selectionArgs,
 											  @Nullable String sortOrder) {
-		return contentResolver.query(uri, projection, selection, selectionArgs, sortOrder);
+		if (Constants.LOG_MT_QUERY) {
+			MTLog.d(LOG_TAG,
+					"QUERY['%s':'%s'(%s:%s)'%s'] ...",
+					uri,
+					(projection == null ? null : Arrays.asList(projection)),
+					selection,
+					(selectionArgs == null ? null : Arrays.asList(selectionArgs)),
+					sortOrder);
+		}
+		final Cursor result = contentResolver.query(uri, projection, selection, selectionArgs, sortOrder);
+		if (Constants.LOG_MT_QUERY) {
+			MTLog.d(LOG_TAG,
+					"QUERY['%s':'%s'(%s:%s)'%s'] > DONE",
+					uri,
+					(projection == null ? null : Arrays.asList(projection)),
+					selection,
+					(selectionArgs == null ? null : Arrays.asList(selectionArgs)),
+					sortOrder);
+		}
+		return result;
 	}
 
 	@Nullable

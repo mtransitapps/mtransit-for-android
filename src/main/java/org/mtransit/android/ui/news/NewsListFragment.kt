@@ -89,9 +89,9 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
             return bundleOf(
                 NewsListViewModel.EXTRA_COLOR to (optColor ?: NewsListViewModel.EXTRA_COLOR_DEFAULT),
                 NewsListViewModel.EXTRA_SUB_TITLE to subtitle,
-                NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES to targetAuthorities,
-                NewsListViewModel.EXTRA_FILTER_TARGETS to filterTargets,
-                NewsListViewModel.EXTRA_FILTER_UUIDS to filterUUIDs,
+                NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES to (targetAuthorities ?: NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES_DEFAULT),
+                NewsListViewModel.EXTRA_FILTER_TARGETS to (filterTargets ?: NewsListViewModel.EXTRA_FILTER_TARGETS_DEFAULT),
+                NewsListViewModel.EXTRA_FILTER_UUIDS to (filterUUIDs ?: NewsListViewModel.EXTRA_FILTER_UUIDS_DEFAULT),
             )
         }
     }
