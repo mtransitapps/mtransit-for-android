@@ -229,7 +229,7 @@
     <string name="watch_rewarded_ad_btn_more_and_days">Regarder une pub pour avoir +%d jours sans pub</string>
 
     <string name="location_permission_rationale_title">Permission requise</string>
-    <string name="location_permission_rationale_message">MonTransit a besoin de la position de votre appareil pour afficher des informations de transport en commun pertinentes dans différents écrans :\nAccueil, À Proximité, Carte …</string>
+    <string name="location_permission_rationale_message">MonTransit a besoin de la position exacte de votre appareil pour afficher des informations de transport en commun pertinentes dans différents écrans :\nAccueil, À Proximité, Carte …</string>
     <string name="location_permission_rationale_ok">Ok</string>
     <string name="location_permission_rationale_cancel">Annuler</string>
 </resources>

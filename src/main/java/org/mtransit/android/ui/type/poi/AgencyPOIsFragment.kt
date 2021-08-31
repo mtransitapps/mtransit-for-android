@@ -148,7 +148,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
             false,
             this.dataSourcesRepository
         ).apply {
-            setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(requireContext()))
+            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))
         }
     }
 
@@ -301,7 +301,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
         mapViewController.apply {
             setDataSourcesRepository(dataSourcesRepository)
             onAttach(requireActivity())
-            setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(context))
+            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
         }
     }
 

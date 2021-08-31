@@ -27,7 +27,9 @@ public class UISpanUtils extends SpanUtils implements MTLog.Loggable {
 	}
 
 	@Nullable
-	public static ImageSpan getNewImage(@NonNull Context context, @DrawableRes int id, int verticalAlignment) {
+	public static ImageSpan getNewImage(@NonNull Context context,
+										@DrawableRes int id,
+										int superscriptVerticalAlign) {
 		Drawable drawable = ContextCompat.getDrawable(context, id);
 		if (drawable == null) {
 			MTLog.w(LOG_TAG, "Cannot load new image span!");
@@ -40,6 +42,6 @@ public class UISpanUtils extends SpanUtils implements MTLog.Loggable {
 		int bottom = drawable.getIntrinsicHeight();
 		drawable.setBounds(left, top, right, bottom);
 		DrawableCompat.setTint(drawable, ThemeUtils.resolveColorAttribute(context, R.attr.colorOnSurface));
-		return new MTSuperscriptImageSpan(drawable, verticalAlignment);
+		return new MTSuperscriptImageSpan(drawable, superscriptVerticalAlign);
 	}
 }

@@ -6,16 +6,22 @@ import androidx.annotation.NonNull;
 
 import org.mtransit.android.commons.MTLog;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import javax.inject.Inject;
 
 public class LocationPermissionProvider extends PermissionProviderImpl implements MTLog.Loggable {
 
 	private static final String LOG_TAG = LocationPermissionProvider.class.getSimpleName();
 
-	private static final String MAIN_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION;
+	private static final Collection<String> REQUIRED_PERMISSIONS = Arrays.asList(
+			Manifest.permission.ACCESS_COARSE_LOCATION,
+			Manifest.permission.ACCESS_FINE_LOCATION
+	);
 	private static final String[] ALL_PERMISSIONS = new String[]{
-			Manifest.permission.ACCESS_FINE_LOCATION,
-			Manifest.permission.ACCESS_COARSE_LOCATION
+			Manifest.permission.ACCESS_COARSE_LOCATION,
+			Manifest.permission.ACCESS_FINE_LOCATION
 	};
 
 	@Inject
@@ -31,8 +37,8 @@ public class LocationPermissionProvider extends PermissionProviderImpl implement
 
 	@NonNull
 	@Override
-	public String getMainPermission() {
-		return MAIN_PERMISSION;
+	public Collection<String> getRequiredPermissions() {
+		return REQUIRED_PERMISSIONS;
 	}
 
 	@NonNull

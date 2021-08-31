@@ -229,7 +229,7 @@
     <string name="watch_rewarded_ad_btn_more_and_days">Watch an ad to get +%d days ad-free</string>
 
     <string name="location_permission_rationale_title">Permission required</string>
-    <string name="location_permission_rationale_message">MonTransit needs your device location to show you relevant transit information in various screens:\nHome, Nearby, Map…</string>
+    <string name="location_permission_rationale_message">MonTransit needs your precise device location to show you relevant transit information in various screens:\nHome, Nearby, Map…</string>
     <string name="location_permission_rationale_ok">OK</string>
     <string name="location_permission_rationale_cancel">Cancel</string>
 </resources>

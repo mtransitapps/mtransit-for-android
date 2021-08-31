@@ -10,32 +10,69 @@ import org.mtransit.android.common.RequestCodes;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.common.IActivity;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 public abstract class PermissionProviderImpl implements PermissionProvider, MTLog.Loggable {
 
-	private boolean requestedPermissions = false;
+	@NonNull
+	private final Map<String, Integer> requestedPermissions = new HashMap<>();
 
-	abstract String getMainPermission();
+	private boolean requestedPermissionsDenied = false;
+
+	abstract Collection<String> getRequiredPermissions();
 
 	abstract String[] getAllPermissions();
 
 	@Override
-	public boolean permissionsGranted(@NonNull Context context) {
-		return ActivityCompat.checkSelfPermission(context, getMainPermission()) == PackageManager.PERMISSION_GRANTED;
+	public boolean allRequiredPermissionsGranted(@NonNull Context context) {
+		for (String requiredPermission : getRequiredPermissions()) {
+			if (!permissionGranted(context, requiredPermission)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public boolean permissionGranted(@NonNull Context context, @NonNull String permission) {
+		return ActivityCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
 	}
 
 	@Override
 	public boolean shouldShowRequestPermissionRationale(@NonNull IActivity activity) {
-		return ActivityCompat.shouldShowRequestPermissionRationale(activity.requireActivity(), getMainPermission());
+		for (String requiredPermission : getRequiredPermissions()) {
+			if (ActivityCompat.shouldShowRequestPermissionRationale(activity.requireActivity(), requiredPermission)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean shouldShowRequestPermissionRationale(@NonNull IActivity activity, @NonNull String permission) {
+		return ActivityCompat.shouldShowRequestPermissionRationale(activity.requireActivity(), permission);
+	}
+
+	@Override
+	public boolean requestedPermissionsDenied() {
+		return this.requestedPermissionsDenied;
 	}
 
 	@Override
 	public boolean hasRequestedPermissions() {
-		return this.requestedPermissions;
+		return this.requestedPermissions.size() > 0;
+	}
+
+	@Override
+	public boolean hasRequestedPermission(@NonNull String permission) {
+		return this.requestedPermissions.get(permission) != null;
 	}
 
 	@Override
 	public void requestPermissions(@NonNull IActivity activity) {
-		this.requestedPermissions = true;
 		ActivityCompat.requestPermissions(activity.requireActivity(), getAllPermissions(), RequestCodes.PERMISSIONS_LOCATION_RC);
 	}
 
@@ -45,8 +82,26 @@ public abstract class PermissionProviderImpl implements PermissionProvider, MTLo
 												  @NonNull int[] grantResults,
 												  @NonNull OnPermissionGrantedListener onPermissionGrantedListener) {
 		if (requestCode == RequestCodes.PERMISSIONS_LOCATION_RC) {
-			if (grantResults.length > 0
-					&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+			int requiredPermissionGranted = 0;
+			boolean changed = false;
+			for (int i = 0; i < grantResults.length; i++) {
+				final int grantResult = grantResults[i];
+				final String permission = permissions.length > i ? permissions[i] : null;
+				if (getRequiredPermissions().contains(permission)) {
+					final Integer previous = this.requestedPermissions.get(permission);
+					if (previous == null || previous != grantResult) {
+						changed = true;
+					}
+					this.requestedPermissions.put(permission, grantResult);
+					if (grantResult == PackageManager.PERMISSION_GRANTED) {
+						requiredPermissionGranted++;
+					}
+				}
+			}
+			if (!changed) {
+				this.requestedPermissionsDenied = true;
+			}
+			if (getRequiredPermissions().size() == requiredPermissionGranted) {
 				onPermissionGrantedListener.onPermissionGranted();
 			}
 			return true; // handled

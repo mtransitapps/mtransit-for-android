@@ -285,7 +285,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	public static ImageSpan getNewRealTimeImage(@NonNull Context context, boolean countdown) {
 		return UISpanUtils.getNewImage(context,
 				(countdown ? R.drawable.ic_rss_feed_black_6dp : R.drawable.ic_rss_feed_black_12dp),
-				ImageSpan.ALIGN_BASELINE);
+				ImageSpan.ALIGN_BASELINE
+		);
 	}
 
 	@Nullable

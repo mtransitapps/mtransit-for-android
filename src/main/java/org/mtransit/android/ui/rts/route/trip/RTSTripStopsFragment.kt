@@ -126,7 +126,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
             false,
             this.dataSourcesRepository
         ).apply {
-            setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(requireContext()))
+            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))
         }
     }
 
@@ -278,7 +278,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
         mapViewController.apply {
             setDataSourcesRepository(dataSourcesRepository)
             onAttach(requireActivity())
-            setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(context))
+            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
         }
     }
 

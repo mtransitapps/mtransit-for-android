@@ -35,12 +35,11 @@ public class MTSuperscriptImageSpan extends ImageSpan {
 					 float x, int top,
 					 int y, int bottom,
 					 @NonNull Paint paint) {
-		Drawable b = this.drawable;
 		Rect rect = this.drawable.getBounds();
 		canvas.save();
 		int transY = (bottom - top) / 8 - rect.height() / 8;
 		canvas.translate(x, transY);
-		b.draw(canvas);
+		this.drawable.draw(canvas);
 		canvas.restore();
 	}
 }

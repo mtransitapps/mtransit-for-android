@@ -418,7 +418,7 @@ public class POIFragment extends ABFragment implements
 		super.onAttach(context);
 		initAdapters(this);
 		this.mapViewController.setDataSourcesRepository(this.dataSourcesRepository);
-		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(context));
+		this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.allRequiredPermissionsGranted(context));
 		this.mapViewController.onAttach(requireActivity());
 	}
 
@@ -896,7 +896,7 @@ public class POIFragment extends ABFragment implements
 		}
 		final Context context = getContext();
 		if (this.deviceLocation == null && context != null) {
-			this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.permissionsGranted(context));
+			this.mapViewController.setLocationPermissionGranted(this.locationPermissionProvider.allRequiredPermissionsGranted(context));
 		}
 		if (this.deviceLocation == null || LocationUtils.isMoreRelevant(getLogTag(), this.deviceLocation, newLocation)) {
 			this.deviceLocation = newLocation;

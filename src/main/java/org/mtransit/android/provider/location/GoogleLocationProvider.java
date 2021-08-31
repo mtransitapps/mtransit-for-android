@@ -24,6 +24,7 @@ import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.dev.FakeLocation;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 
+import java.util.Arrays;
 import java.util.WeakHashMap;
 
 import javax.inject.Inject;
@@ -93,18 +94,23 @@ public class GoogleLocationProvider
 
 	@Override
 	public boolean needsSetup(@NonNull ScreenWithLocationView screenWithLocationView) {
-		return !this.permissionProvider.permissionsGranted(screenWithLocationView.requireContext());
+		return !this.permissionProvider.allRequiredPermissionsGranted(screenWithLocationView.requireContext());
 	}
 
 	@Override
 	public void doSetup(@NonNull ScreenWithLocationView screenWithLocationView) {
-		if (!this.permissionProvider.permissionsGranted(screenWithLocationView.requireContext())) {
-			if (this.permissionProvider.shouldShowRequestPermissionRationale(screenWithLocationView)) {
-				screenWithLocationView.showPermissionsRationale(this);
-			} else if (this.permissionProvider.hasRequestedPermissions()) { // user permanently denied permission
-				screenWithLocationView.showPermissionsPermanentlyDenied(this);
-			} else { // never asked permission
-				screenWithLocationView.showPermissionsPreRequest(this);
+		for (String requiredPermission : this.permissionProvider.getRequiredPermissions()) {
+			if (!this.permissionProvider.permissionGranted(appContext, requiredPermission)) {
+				if (this.permissionProvider.shouldShowRequestPermissionRationale(screenWithLocationView, requiredPermission)) {
+					screenWithLocationView.showPermissionsRationale(this);
+					return;
+				} else if (this.permissionProvider.requestedPermissionsDenied()) { // user permanently denied permission
+					screenWithLocationView.showPermissionsPermanentlyDenied(this);
+					return;
+				} else { // never asked permission
+					screenWithLocationView.showPermissionsPreRequest(this);
+					return;
+				}
 			}
 		}
 	}
@@ -141,7 +147,9 @@ public class GoogleLocationProvider
 
 	@Override
 	public boolean handleRequestPermissionsResult(@NonNull final ScreenWithLocationView screenWithLocationView,
-												  final int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+												  final int requestCode,
+												  @NonNull String[] permissions,
+												  @NonNull int[] grantResults) {
 		return this.permissionProvider.handleRequestPermissionsResult(requestCode, permissions, grantResults,
 				this::onLocationProviderReady);
 	}
@@ -155,7 +163,7 @@ public class GoogleLocationProvider
 	}
 
 	private void enableDisableForegroundLocationUpdates() {
-		if (!this.permissionProvider.permissionsGranted(this.appContext)) {
+		if (!this.permissionProvider.allRequiredPermissionsGranted(this.appContext)) {
 			MTLog.d(this, "enableDisableForegroundLocationUpdates() > SKIP (permission NOT granted yet)");
 			return;
 		}
@@ -174,7 +182,7 @@ public class GoogleLocationProvider
 
 	@SuppressLint("MissingPermission")
 	private void enableForegroundLocationUpdates() {
-		if (!this.permissionProvider.permissionsGranted(this.appContext)) {
+		if (!this.permissionProvider.allRequiredPermissionsGranted(this.appContext)) {
 			crashReporter.shouldNotHappen("Last location requested w/o permission!");
 			return;
 		}
@@ -204,7 +212,7 @@ public class GoogleLocationProvider
 	@SuppressLint("MissingPermission")
 	@Override
 	public void readLastLocation() {
-		if (!this.permissionProvider.permissionsGranted(this.appContext)) {
+		if (!this.permissionProvider.allRequiredPermissionsGranted(this.appContext)) {
 			MTLog.d(this, "readLastLocation() > SKIP (no permission)");
 			return;
 		}

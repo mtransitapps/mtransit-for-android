@@ -137,7 +137,7 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
             this.dataSourcesRepository
         ).apply {
             logTag = this@MapFragment.logTag
-            setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(requireContext()))
+            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(requireContext()))
         }
     }
 
@@ -146,7 +146,7 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
         mapViewController.apply {
             setDataSourcesRepository(dataSourcesRepository)
             onAttach(requireActivity())
-            setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(context))
+            setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
         }
     }
 
@@ -176,7 +176,7 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
         })
         viewModel.deviceLocation.observe(viewLifecycleOwner, {
             context?.let { context ->
-                mapViewController.setLocationPermissionGranted(locationPermissionProvider.permissionsGranted(context))
+                mapViewController.setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
             }
             mapViewController.onDeviceLocationChanged(it)
         })
