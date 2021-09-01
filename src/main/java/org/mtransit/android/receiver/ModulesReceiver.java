@@ -3,6 +3,7 @@ package org.mtransit.android.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ProviderInfo;
 import android.net.Uri;
 
@@ -52,6 +53,16 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 			Intent.ACTION_PACKAGE_RESTARTED,
 			Intent.ACTION_PACKAGE_VERIFIED
 	);
+
+	@NonNull
+	public static IntentFilter getIntentFilter() {
+		IntentFilter intentFilter = new IntentFilter();
+		for (String action : ACTIONS) {
+			intentFilter.addAction(action);
+		}
+		intentFilter.addDataScheme("package");
+		return intentFilter;
+	}
 
 	@Nullable
 	private static String agencyProviderMetaData;

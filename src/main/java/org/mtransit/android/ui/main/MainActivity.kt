@@ -40,6 +40,7 @@ import org.mtransit.android.databinding.ActivityMainBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
 import org.mtransit.android.dev.DemoModeManager
+import org.mtransit.android.receiver.ModulesReceiver
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
@@ -205,6 +206,7 @@ class MainActivity : MTActivityWithLocation(),
         viewModel.abBgColor.observe(this, { newBgColor ->
             abBgDrawable?.color = newBgColor ?: defaultBgColor
         })
+        registerReceiver(ModulesReceiver(), ModulesReceiver.getIntentFilter())
     }
 
     override fun onBillingResult(sku: String?) {

@@ -28,6 +28,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.DemoModeManager;
+import org.mtransit.android.receiver.ModulesReceiver;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.fragment.ABFragment;
@@ -148,6 +149,7 @@ public class MainActivity extends MTActivityWithLocation implements
 				this.adManager.onNbAgenciesUpdated(this, nbAgencies) // ad-manager does not persist activity but listen for changes itself
 		);
 		MapUtils.fixScreenFlickering(findViewById(R.id.content_frame));
+		registerReceiver(new ModulesReceiver(), ModulesReceiver.getIntentFilter()); // Android 12
 	}
 
 	@Override

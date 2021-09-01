@@ -45,7 +45,7 @@
         android:supportsRtl="false"
         android:theme="@style/MTTheme"
         tools:ignore="GoogleAppIndexingWarning"
-        tools:targetApi="30">
+        tools:targetApi="${target_sdk_version}">
         <!-- tools:replace="android:supportsRtl" -->
         <!-- SPLASH SCREEN (not visible) DO NOT CHANGE ANDROID:NAME OR LAUNCHER ICON REMOVED! -->
         <activity
