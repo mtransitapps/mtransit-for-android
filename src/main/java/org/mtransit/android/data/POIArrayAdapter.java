@@ -685,6 +685,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	public void setPois(@Nullable List<POIManager> pois) {
+		final boolean dataSetChanged = clearPois();
+		appendPois(pois, dataSetChanged);
+	}
+
+	private boolean clearPois() {
 		boolean dataSetChanged = false;
 		if (this.poisByType != null && !this.poisByType.isEmpty()) {
 			this.poisByType.clear();
@@ -694,21 +699,23 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			this.poiUUID.clear();
 			dataSetChanged = true;
 		}
-		dataSetChanged = append(pois, dataSetChanged);
-		if (dataSetChanged) {
-			notifyDataSetChanged();
-		}
+		return dataSetChanged;
 	}
 
 	@NonNull
 	private final HashSet<String> poiUUID = new HashSet<>();
 
 	public void appendPois(@Nullable List<POIManager> pois) {
-		final boolean dataSetChanged = append(pois, false);
+		appendPois(pois, false);
+	}
+
+	public void appendPois(@Nullable List<POIManager> pois, boolean dataSetChanged) {
+		dataSetChanged = append(pois, dataSetChanged);
 		if (!dataSetChanged) {
 			MTLog.d(this, "appendPois() > SKIP (data not changed)");
 			return;
 		}
+		MTLog.d(this, "appendPois() > data changed");
 		notifyDataSetChanged();
 	}
 

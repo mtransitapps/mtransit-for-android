@@ -124,11 +124,12 @@ class HomeViewModel @Inject constructor(
     private val _loadingPOIs = MutableLiveData(true)
     val loadingPOIs: LiveData<Boolean?> = _loadingPOIs
 
-    val nearbyPOIsTrigger: LiveData<Any?> = PairMediatorLiveData(_dstToHomeAgencies, nearbyLocation).switchMap { (dstToHomeAgencies, nearbyLocation) ->
+    val nearbyPOIsTrigger: LiveData<Boolean> = PairMediatorLiveData(_dstToHomeAgencies, nearbyLocation).switchMap { (dstToHomeAgencies, nearbyLocation) ->
         liveData {
             if (dstToHomeAgencies?.isNotEmpty() == true && nearbyLocation != null) {
                 loadNearbyPOIs()
             }
+            emit(true)
         }
     }
 
@@ -161,8 +162,8 @@ class HomeViewModel @Inject constructor(
         }
         val favoriteUUIDs = favoriteRepository.findFavoriteUUIDs()
         val nbMaxByType = when (dstToHomeAgencies.keys.size) {
-            in 0..2 -> NB_MAX_BY_TYPE_ONE_TYPE
-            3 -> NB_MAX_BY_TYPE_TWO_TYPES
+            in 0..1 -> NB_MAX_BY_TYPE_ONE_TYPE
+            2 -> NB_MAX_BY_TYPE_TWO_TYPES
             else -> NB_MAX_BY_TYPE
         }
         val lat = nearbyLocation.latitude
@@ -214,7 +215,7 @@ class HomeViewModel @Inject constructor(
                 continue
             }
             if (poim.poi is RouteTripStop) {
-                routeTripKept.add("${poim.poi.route.id}-${poim.poi.trip.id}")
+                routeTripKept += "${poim.poi.route.id}-${poim.poi.trip.id}"
             }
             lastKeptDistance = poim.distance
             nbKept++
@@ -236,18 +237,29 @@ class HomeViewModel @Inject constructor(
         while (true) {
             scope.ensureActive()
             typePOIs = getAreaTypeNearbyPOIs(scope, typeLat, typeLng, typeAd, lastTypeAroundDiff, typeMaxSize, typeMinCoverageInMeters, typeAgencies)
-            if (LocationUtils.searchComplete(typeLat, typeLng, typeAd.aroundDiff)) {
-                break // world exploration completed
-            } else if (typePOIs.size > nbMaxByType
-                && LocationUtils.getAroundCoveredDistanceInMeters(typeLat, typeLng, typeAd.aroundDiff) >= typeMinCoverageInMeters
-            ) {
-                break // enough POIs / type & enough distance covered
-            } else {
-                lastTypeAroundDiff = if (typePOIs.isNullOrEmpty()) typeAd.aroundDiff else null
-                LocationUtils.incAroundDiff(typeAd)
+            if (!shouldContinueSearching(typeLat, typeLng, typeAd, typePOIs, typeMinCoverageInMeters, nbMaxByType)) {
+                break
             }
+            lastTypeAroundDiff = if (typePOIs.isNullOrEmpty()) typeAd.aroundDiff else null
+            LocationUtils.incAroundDiff(typeAd)
         }
         return typePOIs
+    }
+
+    private fun shouldContinueSearching(
+        typeLat: Double,
+        typeLng: Double,
+        typeAd: LocationUtils.AroundDiff,
+        typePOIs: List<POIManager>,
+        typeMinCoverageInMeters: Float,
+        nbMaxByType: Int,
+    ) = when {
+        LocationUtils.searchComplete(typeLat, typeLng, typeAd.aroundDiff) -> false // world exploration completed
+        typePOIs.size > nbMaxByType
+                && LocationUtils.getAroundCoveredDistanceInMeters(typeLat, typeLng, typeAd.aroundDiff) >= typeMinCoverageInMeters -> {
+            false  // enough POIs / type & enough distance covered
+        }
+        else -> true  // continue
     }
 
     private fun getAreaTypeNearbyPOIs(

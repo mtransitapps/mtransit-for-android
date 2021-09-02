@@ -378,7 +378,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 		final boolean isNotPayingUser = Boolean.TRUE.equals(this.showingAds);
 		if (!isNotPayingUser) {
-			MTLog.d(this, "refreshRewardedAdStatus() > SKIP (paying user)");
+			MTLog.d(this, "refreshRewardedAdStatus() > SKIP (paying user or unknown)");
 			return;
 		}
 		final RewardedAdListener listener = getRewardedAdListener();
