@@ -229,7 +229,6 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                         " r" + PackageManagerUtils.getAppVersionCode(it) +
                         " (" + BuildConfig.GIT_HASH + ")"
             }
-
         }
     }
 
