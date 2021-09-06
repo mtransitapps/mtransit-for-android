@@ -38,12 +38,12 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
 
     @EntryPoint
     @InstallIn(SingletonComponent::class)
-    interface MainActivityEntryPoint {
+    interface PreferencesActivityEntryPoint {
         val demoModeManager: DemoModeManager // used in attachBaseContext() before @Inject dependencies are available
     }
 
-    private fun getEntryPoint(context: Context): MainActivityEntryPoint {
-        return EntryPointAccessors.fromApplication(context.applicationContext, MainActivityEntryPoint::class.java)
+    private fun getEntryPoint(context: Context): PreferencesActivityEntryPoint {
+        return EntryPointAccessors.fromApplication(context.applicationContext, PreferencesActivityEntryPoint::class.java)
     }
 
     override fun attachBaseContext(newBase: Context) {
