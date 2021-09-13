@@ -3,6 +3,7 @@ package org.mtransit.android.ui.fragment;
 import android.content.Context;
 import android.view.View;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.ColorInt;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
@@ -119,7 +120,7 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 	public void onResume() {
 		super.onResume();
 		analyticsManager.trackScreenView(this, this);
-		ActionBarController abController = getAbController();
+		final ActionBarController abController = getAbController();
 		if (abController != null) {
 			abController.setAB(this);
 			abController.updateAB();
@@ -130,6 +131,7 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 		return false; // not processed
 	}
 
+	@CallSuper
 	@Override
 	public void onPause() {
 		super.onPause();

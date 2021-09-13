@@ -192,8 +192,13 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
                 mainViewModel.setABSubtitle(getABSubtitle(context))
             }
         })
-        viewModel.nearbyPOIsTrigger.observe(viewLifecycleOwner, {
-            adapter.clear()
+        viewModel.nearbyPOIsTriggerListener.observe(viewLifecycleOwner, {
+            // DO NOTHING
+        })
+        viewModel.nearbyPOIsTrigger.observe(viewLifecycleOwner, EventObserver { triggered ->
+            if (triggered) {
+                adapter.clear()
+            }
         })
         viewModel.nearbyPOIs.observe(viewLifecycleOwner, {
             it?.let {
