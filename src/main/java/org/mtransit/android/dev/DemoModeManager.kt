@@ -40,6 +40,8 @@ class DemoModeManager @Inject constructor(
         const val FILTER_SCREEN_HOME = "home"
         const val FILTER_SCREEN_POI = "poi"
         const val FILTER_SCREEN_BROWSE = "browse"
+
+        const val MIN_POI_HOME_SCREEN = 7
     }
 
     override fun getLogTag(): String = LOG_TAG

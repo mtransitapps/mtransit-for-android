@@ -28,6 +28,7 @@ import org.mtransit.android.data.IAgencyNearbyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
+import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.location.MTLocationProvider
 import org.mtransit.android.ui.MTViewModelWithLocation
@@ -45,6 +46,7 @@ class HomeViewModel @Inject constructor(
     private val locationProvider: MTLocationProvider,
     private val favoriteRepository: FavoriteRepository,
     private val adManager: IAdManager,
+    private val demoModeManager: DemoModeManager,
 ) : MTViewModelWithLocation() {
 
     companion object {
@@ -256,6 +258,7 @@ class HomeViewModel @Inject constructor(
         typeMinCoverageInMeters: Float,
         nbMaxByType: Int,
     ) = when {
+        this.demoModeManager.enabled && typePOIs.size < DemoModeManager.MIN_POI_HOME_SCREEN -> true // continue
         LocationUtils.searchComplete(typeLat, typeLng, typeAd.aroundDiff) -> false // world exploration completed
         typePOIs.size > nbMaxByType
                 && LocationUtils.getAroundCoveredDistanceInMeters(typeLat, typeLng, typeAd.aroundDiff) >= typeMinCoverageInMeters -> {

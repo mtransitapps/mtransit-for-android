@@ -1274,6 +1274,12 @@ public class POIFragment extends ABFragment implements
 		return this.serviceUpdateLoader;
 	}
 
+	@NonNull
+	@Override
+	public DemoModeManager providesDemoModeManager() {
+		return this.demoModeManager;
+	}
+
 	private MenuItem addRemoveFavoriteMenuItem;
 
 	@Override

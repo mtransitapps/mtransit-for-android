@@ -3,6 +3,7 @@ package org.mtransit.android.ui.view
 import android.app.Activity
 import android.location.Location
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.ServiceUpdateLoader.ServiceUpdateLoaderListener
 import org.mtransit.android.task.StatusLoader
@@ -26,4 +27,5 @@ interface POIDataProvider : StatusLoaderListener, ServiceUpdateLoaderListener, O
     fun providesDataSourcesRepository(): DataSourcesRepository
     fun providesStatusLoader(): StatusLoader
     fun providesServiceUpdateLoader(): ServiceUpdateLoader
+    fun providesDemoModeManager(): DemoModeManager
 }

@@ -38,6 +38,7 @@ import org.mtransit.android.databinding.LayoutPoiModuleBinding;
 import org.mtransit.android.databinding.LayoutPoiModuleWithAppStatusBinding;
 import org.mtransit.android.databinding.LayoutPoiRtsBinding;
 import org.mtransit.android.databinding.LayoutPoiRtsWithScheduleBinding;
+import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.rts.route.RTSRouteFragment;
 import org.mtransit.android.ui.view.common.MTTransitions;
@@ -341,8 +342,14 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		holder.nameTv.setText(poi.getLabel());
-		holder.nameTv.setSingleLine(true); // marquee forever
-		holder.nameTv.setSelected(true); // marquee forever
+		final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
+		if (demoModeManager.getEnabled()) {
+			holder.nameTv.setSingleLine(false);
+			holder.nameTv.setSelected(false);
+		} else {
+			holder.nameTv.setSingleLine(true); // marquee forever
+			holder.nameTv.setSelected(true); // marquee forever
+		}
 		if (dataProvider.isShowingFavorite() && dataProvider.isFavorite(poi.getUUID())) {
 			holder.favImg.setVisibility(View.VISIBLE);
 		} else {
@@ -525,8 +532,14 @@ public class POIViewController implements MTLog.Loggable {
 					holder.tripHeadingBg.setVisibility(View.GONE);
 				} else {
 					holder.tripHeadingTv.setText(rts.getTrip().getUIHeading(context, true));
-					holder.tripHeadingTv.setSingleLine(true); // marquee forever
-					holder.tripHeadingTv.setSelected(true); // marquee forever
+					final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
+					if (demoModeManager.getEnabled()) {
+						holder.tripHeadingTv.setSingleLine(false);
+						holder.tripHeadingTv.setSelected(false);
+					} else {
+						holder.tripHeadingTv.setSingleLine(true); // marquee forever
+						holder.tripHeadingTv.setSelected(true); // marquee forever
+					}
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}
 				//noinspection ConstantConditions // stop always non-null?
@@ -627,8 +640,14 @@ public class POIViewController implements MTLog.Loggable {
 					holder.tripHeadingBg.setVisibility(View.GONE);
 				} else {
 					holder.tripHeadingTv.setText(rts.getTrip().getUIHeading(context, true));
-					holder.tripHeadingTv.setSingleLine(true); // marquee forever
-					holder.tripHeadingTv.setSelected(true); // marquee forever
+					final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
+					if (demoModeManager.getEnabled()) {
+						holder.tripHeadingTv.setSingleLine(false);
+						holder.tripHeadingTv.setSelected(false);
+					} else {
+						holder.tripHeadingTv.setSingleLine(true); // marquee forever
+						holder.tripHeadingTv.setSelected(true); // marquee forever
+					}
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}
 				holder.rtsExtraV.setBackgroundColor(poim.getColor(dataProvider.providesDataSourcesRepository()));
@@ -1028,8 +1047,14 @@ public class POIViewController implements MTLog.Loggable {
 		holder.uuid = poi.getUUID();
 		MTTransitions.setTransitionName(holder.view, "poi_" + poi.getUUID());
 		holder.nameTv.setText(poi.getLabel());
-		holder.nameTv.setSingleLine(true); // marquee forever
-		holder.nameTv.setSelected(true); // marquee forever
+		final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
+		if (demoModeManager.getEnabled()) {
+			holder.nameTv.setSingleLine(false);
+			holder.nameTv.setSelected(false);
+		} else {
+			holder.nameTv.setSingleLine(true); // marquee forever
+			holder.nameTv.setSelected(true); // marquee forever
+		}
 		updatePOIDistanceAndCompass(holder, poim, dataProvider);
 		if (dataProvider.isShowingFavorite() && dataProvider.isFavorite(poi.getUUID())) {
 			holder.favImg.setVisibility(View.VISIBLE);
