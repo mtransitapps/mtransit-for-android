@@ -258,8 +258,8 @@ class HomeViewModel @Inject constructor(
         typeMinCoverageInMeters: Float,
         nbMaxByType: Int,
     ) = when {
-        this.demoModeManager.enabled && typePOIs.size < DemoModeManager.MIN_POI_HOME_SCREEN -> true // continue
         LocationUtils.searchComplete(typeLat, typeLng, typeAd.aroundDiff) -> false // world exploration completed
+        this.demoModeManager.enabled && typePOIs.size < DemoModeManager.MIN_POI_HOME_SCREEN -> true // continue
         typePOIs.size > nbMaxByType
                 && LocationUtils.getAroundCoveredDistanceInMeters(typeLat, typeLng, typeAd.aroundDiff) >= typeMinCoverageInMeters -> {
             false  // enough POIs / type & enough distance covered

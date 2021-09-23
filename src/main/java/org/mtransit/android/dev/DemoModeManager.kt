@@ -140,7 +140,10 @@ class DemoModeManager @Inject constructor(
         forceLang = savedStateHandle.get<String?>(FORCE_LANG)
         // @Suppress("ConstantConditionIf")
         // if (true) {
-        // filterAgencyAuthority = "org.mtransit.android.debug.ca_richelieu_citvr_bus.gtfs"
+        // val debug = true
+        // val isRTS = true
+        // val agencyId = "ca_halifax_transit_ferry"
+        // filterAgencyAuthority = "org.mtransit.android.${if (debug) "debug" else ""}.$agencyId${if (isRTS) ".gtfs" else ""}"
         // filterScreen = FILTER_SCREEN_HOME
         // forceLang = "en-US"
         // }
