@@ -138,6 +138,12 @@ class DemoModeManager @Inject constructor(
         filterAgencyAuthority = savedStateHandle.get<String?>(FILTER_AGENCY_AUTHORITY)
         filterScreen = savedStateHandle.get<String?>(FILTER_SCREEN)
         forceLang = savedStateHandle.get<String?>(FORCE_LANG)
+        // @Suppress("ConstantConditionIf")
+        // if (true) {
+        // filterAgencyAuthority = "org.mtransit.android.debug.ca_richelieu_citvr_bus.gtfs"
+        // filterScreen = FILTER_SCREEN_HOME
+        // forceLang = "en-US"
+        // }
         if (enabled) {
             apply(dataSourcesCache)
         }
