@@ -142,7 +142,9 @@ class DemoModeManager @Inject constructor(
         // if (true) {
         // val debug = true
         // val isRTS = true
-        // val agencyId = "ca_halifax_transit_ferry"
+        // // val isRTS = false
+        // val agencyId = "ca_halifax_transit_bus"
+        // // val agencyId = "ca_quebec_a_velo_bike"
         // filterAgencyAuthority = "org.mtransit.android.${if (debug) "debug" else ""}.$agencyId${if (isRTS) ".gtfs" else ""}"
         // filterScreen = FILTER_SCREEN_HOME
         // forceLang = "en-US"

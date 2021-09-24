@@ -241,6 +241,15 @@ class HomeViewModel @Inject constructor(
         while (true) {
             scope.ensureActive()
             typePOIs = getAreaTypeNearbyPOIs(scope, typeLat, typeLng, typeAd, lastTypeAroundDiff, typeMaxSize, typeMinCoverageInMeters, typeAgencies)
+            if (this.demoModeManager.enabled) { // filter now to get min number of POI
+                typePOIs = typePOIs.distinctBy { poim ->
+                    if (poim.poi is RouteTripStop) {
+                        "${poim.poi.route.id}-${poim.poi.trip.id}"
+                    } else {
+                        poim.poi.uuid // keep all
+                    }
+                }.toMutableList()
+            }
             if (!shouldContinueSearching(typeLat, typeLng, typeAd, typePOIs, typeMinCoverageInMeters, nbMaxByType)) {
                 break
             }
@@ -294,11 +303,19 @@ class HomeViewModel @Inject constructor(
                     scope.ensureActive()
                     LocationUtils.updateDistance(agencyPOIs, lat, lng)
                     LocationUtils.removeTooFar(agencyPOIs, maxDistance)
-                    LocationUtils.removeTooMuchWhenNotInCoverage(agencyPOIs, typeMinCoverageInMeters, maxSize)
+                    LocationUtils.removeTooMuchWhenNotInCoverage(
+                        agencyPOIs,
+                        typeMinCoverageInMeters,
+                        if (this.demoModeManager.enabled) Int.MAX_VALUE else maxSize // keep all
+                    )
                     typePOIs.addAll(agencyPOIs)
                 }
             }
-        LocationUtils.removeTooMuchWhenNotInCoverage(typePOIs, typeMinCoverageInMeters, maxSize)
+        LocationUtils.removeTooMuchWhenNotInCoverage(
+            typePOIs,
+            typeMinCoverageInMeters,
+            if (this.demoModeManager.enabled) Int.MAX_VALUE else maxSize // keep all
+        )
         return typePOIs
     }
 
