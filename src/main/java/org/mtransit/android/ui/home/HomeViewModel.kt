@@ -126,14 +126,17 @@ class HomeViewModel @Inject constructor(
     private val _loadingPOIs = MutableLiveData(true)
     val loadingPOIs: LiveData<Boolean?> = _loadingPOIs
 
-    val nearbyPOIsTrigger = MutableLiveData<Event<Boolean>>()
+    private val _nearbyPOIsTrigger = MutableLiveData<Event<Boolean>>()
+    val nearbyPOIsTrigger: LiveData<Event<Boolean>> = _nearbyPOIsTrigger
 
     val nearbyPOIsTriggerListener: LiveData<Void> = PairMediatorLiveData(_dstToHomeAgencies, nearbyLocation).switchMap { (dstToHomeAgencies, nearbyLocation) ->
         liveData {
             if (dstToHomeAgencies?.isNotEmpty() == true && nearbyLocation != null) {
-                loadNearbyPOIs()
+                nearbyPOIsLoadJob?.cancel()
+                nearbyPOIsLoadJob = viewModelScope.launch(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+                    getNearbyPOIs(this, dstToHomeAgencies, nearbyLocation)
+                }
             }
-            nearbyPOIsTrigger.postValue(Event(true))
         }
     }
 
@@ -142,24 +145,19 @@ class HomeViewModel @Inject constructor(
 
     private var nearbyPOIsLoadJob: Job? = null
 
-    fun loadNearbyPOIs() {
-        nearbyPOIsLoadJob?.cancel()
-        nearbyPOIsLoadJob = viewModelScope.launch(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-            getNearbyPOIs(this, _dstToHomeAgencies.value, nearbyLocation.value)
-        }
-    }
-
     private suspend fun getNearbyPOIs(
         scope: CoroutineScope,
         dstToHomeAgencies: SortedMap<DataSourceType, List<AgencyBaseProperties>>?,
-        nearbyLocation: Location?
+        nearbyLocation: Location?,
     ) {
         if (dstToHomeAgencies.isNullOrEmpty() || nearbyLocation == null) {
             MTLog.d(this@HomeViewModel, "loadNearbyPOIs() > SKIP (no agencies OR no location)")
             _loadingPOIs.postValue(false)
             _nearbyPOIs.postValue(null)
+            _nearbyPOIsTrigger.postValue(Event(true))
             return
         }
+        _nearbyPOIsTrigger.postValue(Event(true))
         _loadingPOIs.postValue(true)
         if (!_nearbyPOIs.value.isNullOrEmpty()) {
             delay(333L) // debounce / throttle (agencies being updated)
