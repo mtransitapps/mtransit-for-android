@@ -24,7 +24,7 @@
             android:orientation="vertical"
             android:scrollbarStyle="insideOverlay"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/layout_news_base" />
+            tools:listitem="@layout/layout_news_list_item" />
 
     </LinearLayout>
 

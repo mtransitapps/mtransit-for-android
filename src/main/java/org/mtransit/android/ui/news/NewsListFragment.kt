@@ -107,7 +107,7 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
     private var binding: FragmentNewsListBinding? = null
 
-    private val listAdapter: NewsListAdapter by lazy { NewsListAdapter(this::openNewsDetails) }
+    private val listAdapter: NewsListAdapter by lazy { NewsListAdapter(this::openNewsDetails, null, false) }
 
     private fun openNewsDetails(view: View, newsArticle: News) {
         if (FeatureFlags.F_NAVIGATION) {

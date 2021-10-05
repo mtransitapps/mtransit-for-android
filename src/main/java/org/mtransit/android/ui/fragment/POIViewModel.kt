@@ -27,6 +27,7 @@ import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UITimeUtils
 import javax.inject.Inject
+import kotlin.math.max
 
 @HiltViewModel
 class POIViewModel @Inject constructor(
@@ -143,14 +144,23 @@ class POIViewModel @Inject constructor(
             { allNews ->
                 val nowInMs = UITimeUtils.currentTimeMillis()
                 val selectedNews = mutableListOf<News>()
+                val minSelectedArticles = if (allNews.size > 1) 2 else 1  // encourage 2+ articles
+                val maxSelectedArticles = max(5, minSelectedArticles)
                 var noteworthiness = 1L
-                while (selectedNews.isEmpty() && noteworthiness < 10L) {
+                while (selectedNews.size < minSelectedArticles
+                    && noteworthiness < 10L
+                ) {
                     for (news in allNews) {
-                        if (news.createdAtInMs + news.noteworthyInMs * noteworthiness < nowInMs) {
+                        val validityInMs: Long = news.createdAtInMs + news.noteworthyInMs * noteworthiness
+                        if (validityInMs < nowInMs) {
                             continue  // news too old to be worthy
                         }
-                        selectedNews.add(0, news)
-                        break // found news article
+                        if (!selectedNews.contains(news)) {
+                            selectedNews.add(news)
+                        }
+                        if (selectedNews.size >= maxSelectedArticles) {
+                            break // found enough news article
+                        }
                     }
                     noteworthiness++
                 }

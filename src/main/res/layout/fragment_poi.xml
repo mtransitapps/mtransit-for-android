@@ -61,7 +61,7 @@
 
             <include
                 android:id="@+id/poi_news"
-                layout="@layout/layout_poi_news"
+                layout="@layout/layout_poi_latest_news"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"

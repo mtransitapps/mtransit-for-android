@@ -27,6 +27,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.FragmentNavigator;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.PagerSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -69,12 +71,12 @@ import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.main.MainViewModel;
 import org.mtransit.android.ui.map.MapFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
+import org.mtransit.android.ui.news.NewsListAdapter;
 import org.mtransit.android.ui.news.NewsListFragment;
 import org.mtransit.android.ui.news.details.NewsDetailsFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.POIDataProvider;
-import org.mtransit.android.ui.view.POINewsViewController;
 import org.mtransit.android.ui.view.POIServiceUpdateViewController;
 import org.mtransit.android.ui.view.POIStatusDetailViewController;
 import org.mtransit.android.ui.view.POIViewController;
@@ -315,7 +317,6 @@ public class POIFragment extends ABFragment implements
 		POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(view), this.poim, this);
 		setupRTSFullScheduleBtn(view);
 		setupMoreNewsButton(view);
-		setupThisNewsButton(view);
 		setupAppUpdateButton(view);
 		setupRewardedAdButton(view);
 		setupMoreNearbyButton(view);
@@ -327,13 +328,14 @@ public class POIFragment extends ABFragment implements
 
 	private void onNewsLoaded(@Nullable List<News> news) {
 		if (news == null) {
-			MTLog.d(this, "applyNewNews() > SKIP (no news)");
+			MTLog.d(this, "onNewsLoaded() > SKIP (no news)");
 			return;
 		}
-		final View view = getView();
-		POINewsViewController.updateView(getPOINewsView(view), news);
-		setupMoreNewsButton(view);
-		setupThisNewsButton(view);
+		final View poiNewsView = getPOINewsView(getView());
+		if (poiNewsView != null) {
+			poiNewsView.setVisibility(news.isEmpty() ? View.GONE : View.VISIBLE);
+		}
+		getNewsListAdapter().submitList(news);
 	}
 
 	@Nullable
@@ -476,6 +478,54 @@ public class POIFragment extends ABFragment implements
 		this.mapViewController.onViewCreated(view, savedInstanceState);
 	}
 
+	private void setupNewsLayout(@NonNull View view) {
+		final RecyclerView newsList = view.findViewById(R.id.news_list);
+		final PagerSnapHelper snapHelper = new PagerSnapHelper();
+		snapHelper.attachToRecyclerView(newsList);
+		newsList.setAdapter(getNewsListAdapter());
+		setupMoreNewsButton(view);
+	}
+
+	@Nullable
+	private NewsListAdapter newsListAdapter;
+
+	@NonNull
+	private NewsListAdapter getNewsListAdapter() {
+		if (this.newsListAdapter == null) {
+			this.newsListAdapter = new NewsListAdapter(
+					(view, article) -> {
+						if (FeatureFlags.F_NAVIGATION) {
+							final NavController navController = NavHostFragment.findNavController(this);
+							FragmentNavigator.Extras extras = null;
+							if (FeatureFlags.F_TRANSITION) {
+								extras = new FragmentNavigator.Extras.Builder()
+										// TODO button? .addSharedElement(view, view.getTransitionName())
+										.build();
+							}
+							navController.navigate(
+									R.id.nav_to_news_detail_screen,
+									NewsDetailsFragment.newInstanceArgs(article),
+									null,
+									extras
+							);
+						} else {
+							final Activity activity = getActivity();
+							if (activity != null) {
+								((MainActivity) activity).addFragmentToStack(
+										NewsDetailsFragment.newInstance(article),
+										POIFragment.this
+								);
+							}
+						}
+						return kotlin.Unit.INSTANCE;
+					},
+					5,
+					true
+			);
+		}
+		return this.newsListAdapter;
+	}
+
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		this.mapViewController.onSaveInstanceState(outState);
@@ -561,6 +611,7 @@ public class POIFragment extends ABFragment implements
 			this.adapter.setManualScrollView(view.findViewById(R.id.scroll_view));
 			this.adapter.setManualLayout(view.findViewById(R.id.poi_nearby_pois_list));
 		}
+		setupNewsLayout(view);
 	}
 
 	private void setupRTSFullScheduleBtn(View view) {
@@ -765,46 +816,6 @@ public class POIFragment extends ABFragment implements
 		return view.findViewById(R.id.poi_news);
 	}
 
-	private void setupThisNewsButton(@Nullable View view) {
-		if (view == null) {
-			return;
-		}
-		view.findViewById(R.id.the_poi_news).setOnClickListener(v -> {
-			final List<News> news = viewModel == null ? null : viewModel.getLatestNewsArticleList().getValue();
-			if (news == null || news.size() == 0) {
-				return;
-			}
-			final News lastNews = news.get(0);
-			if (lastNews == null) {
-				return;
-			}
-			if (FeatureFlags.F_NAVIGATION) {
-				final NavController navController = NavHostFragment.findNavController(this);
-				FragmentNavigator.Extras extras = null;
-				if (FeatureFlags.F_TRANSITION) {
-					extras = new FragmentNavigator.Extras.Builder()
-							// TODO button? .addSharedElement(view, view.getTransitionName())
-							.build();
-				}
-				navController.navigate(
-						R.id.nav_to_news_detail_screen,
-						NewsDetailsFragment.newInstanceArgs(lastNews),
-						null,
-						extras
-				);
-			} else {
-				final Activity activity = getActivity();
-				if (activity == null) {
-					return;
-				}
-				((MainActivity) activity).addFragmentToStack(
-						NewsDetailsFragment.newInstance(lastNews),
-						POIFragment.this
-				);
-			}
-		});
-	}
-
 	@Nullable
 	private View getPOIRewardedAdView(@Nullable View view) {
 		if (view == null) {
@@ -979,6 +990,9 @@ public class POIFragment extends ABFragment implements
 		if (this.adapter != null) {
 			this.adapter.onResume(this, this.deviceLocation);
 		}
+		if (this.newsListAdapter != null) {
+			this.newsListAdapter.onResume(this);
+		}
 		final POIManager poim = getPoimOrNull();
 		if (poim != null) {
 			this.mapViewController.notifyMarkerChanged(this);
@@ -988,7 +1002,6 @@ public class POIFragment extends ABFragment implements
 			POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(view), poim, this);
 			setupRTSFullScheduleBtn(view);
 			setupMoreNewsButton(view);
-			setupThisNewsButton(view);
 			setupAppUpdateButton(view);
 			setupRewardedAdButton(view);
 			setupMoreNearbyButton(view);
@@ -1106,6 +1119,9 @@ public class POIFragment extends ABFragment implements
 		if (this.adapter != null) {
 			this.adapter.onPause();
 		}
+		if (this.newsListAdapter != null) {
+			this.newsListAdapter.onPause(this);
+		}
 		this.adManager.setRewardedAdListener(null);
 	}
 
@@ -1136,10 +1152,6 @@ public class POIFragment extends ABFragment implements
 			POIViewController.updatePOIServiceUpdate(poiView, poim, this);
 			POIStatusDetailViewController.updateView(getPOIStatusView(view), poim, this);
 			POIServiceUpdateViewController.updateView(getPOIServiceUpdateView(view), poim, this);
-		}
-		final List<News> news = viewModel == null ? null : viewModel.getLatestNewsArticleList().getValue();
-		if (news != null) {
-			POINewsViewController.updateView(getPOINewsView(view), news);
 		}
 	}
 
@@ -1381,6 +1393,10 @@ public class POIFragment extends ABFragment implements
 		if (this.adapter != null) {
 			this.adapter.onDestroy();
 			this.adapter = null;
+		}
+		if (this.newsListAdapter != null) {
+			this.newsListAdapter.onDestroy(this);
+			this.newsListAdapter = null;
 		}
 	}
 }
