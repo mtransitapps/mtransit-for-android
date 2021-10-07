@@ -83,6 +83,7 @@ import org.mtransit.android.ui.view.POIViewController;
 import org.mtransit.android.ui.view.common.EventObserver;
 import org.mtransit.android.ui.view.common.FragmentKtxKt;
 import org.mtransit.android.ui.view.common.IActivity;
+import org.mtransit.android.ui.view.common.ImageManager;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.FragmentUtils;
@@ -196,6 +197,8 @@ public class POIFragment extends ABFragment implements
 	FavoriteManager favoriteManager;
 	@Inject
 	DemoModeManager demoModeManager;
+	@Inject
+	ImageManager imageManager;
 
 	@NonNull
 	private final MapViewController mapViewController =
@@ -493,6 +496,7 @@ public class POIFragment extends ABFragment implements
 	private NewsListAdapter getNewsListAdapter() {
 		if (this.newsListAdapter == null) {
 			this.newsListAdapter = new NewsListAdapter(
+					this.imageManager,
 					(view, article) -> {
 						if (FeatureFlags.F_NAVIGATION) {
 							final NavController navController = NavHostFragment.findNavController(this);

@@ -23,8 +23,10 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.news.details.NewsDetailsFragment
 import org.mtransit.android.ui.view.common.EventObserver
+import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.commons.FeatureFlags
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
@@ -100,6 +102,9 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
+    @Inject
+    lateinit var imageManager: ImageManager
+
     private val viewModel by viewModels<NewsListViewModel>()
     private val attachedViewModel
         get() = if (isAttached()) viewModel else null
@@ -107,7 +112,7 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
 
     private var binding: FragmentNewsListBinding? = null
 
-    private val listAdapter: NewsListAdapter by lazy { NewsListAdapter(this::openNewsDetails, null, false) }
+    private val listAdapter: NewsListAdapter by lazy { NewsListAdapter(this.imageManager, this::openNewsDetails, null, false) }
 
     private fun openNewsDetails(view: View, newsArticle: News) {
         if (FeatureFlags.F_NAVIGATION) {

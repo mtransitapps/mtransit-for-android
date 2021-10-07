@@ -16,10 +16,12 @@ import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.dp
 import org.mtransit.android.databinding.LayoutNewsListItemBinding
 import org.mtransit.android.ui.news.NewsListAdapter.NewsListItemViewHolder
+import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver
 
 class NewsListAdapter(
+    private val imageManager: ImageManager,
     private val onClick: (View, News) -> Unit,
     private val minLines: Int? = null,
     private val horizontal: Boolean = false,
@@ -74,7 +76,7 @@ class NewsListAdapter(
     }
 
     override fun onBindViewHolder(holder: NewsListItemViewHolder, position: Int) {
-        holder.bind(position, itemCount, getItem(position), minLines, horizontal, onClick)
+        holder.bind(imageManager, position, itemCount, getItem(position), minLines, horizontal, onClick)
     }
 
     class NewsListItemViewHolder private constructor(
@@ -93,6 +95,7 @@ class NewsListAdapter(
         }
 
         fun bind(
+            imageManager: ImageManager,
             position: Int,
             itemCount: Int,
             newsArticle: News,
@@ -117,6 +120,15 @@ class NewsListAdapter(
                             ColorUtils.getTextColorSecondary(context)
                         }
                     )
+                }
+                authorIcon.apply {
+                    isVisible = if (newsArticle.hasAuthorPictureURL()) {
+                        imageManager.loadInto(context, newsArticle.authorPictureURL, this)
+                        true
+                    } else {
+                        imageManager.clear(context, this)
+                        false
+                    }
                 }
                 date.apply {
                     text = UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs)

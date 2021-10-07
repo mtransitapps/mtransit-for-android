@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
@@ -16,10 +17,12 @@ import org.mtransit.android.databinding.FragmentNewsDetailsBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
+import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.UITimeUtils
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
@@ -56,6 +59,9 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
 
     override fun getScreenName(): String = attachedViewModel?.uuid?.value?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
 
+    @Inject
+    lateinit var imageManager: ImageManager
+
     private val viewModel by viewModels<NewsDetailsViewModel>()
     private val attachedViewModel
         get() = if (isAttached()) viewModel else null
@@ -81,8 +87,6 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
             updateNewsView(newsArticle)
             abController?.apply {
                 setABBgColor(this@NewsDetailsFragment, getABBgColor(context), false)
-                setABTitle(this@NewsDetailsFragment, getABTitle(context), false)
-                setABSubtitle(this@NewsDetailsFragment, getABSubtitle(context), false)
                 setABReady(this@NewsDetailsFragment, isABReady, true)
             }
             MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
@@ -98,6 +102,31 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
         binding?.apply {
             newsArticle?.let { newsArticle ->
                 MTTransitions.setTransitionName(root, "news_" + newsArticle.uuid)
+                noThumbnailSpace.isVisible = true // TODO later images in news
+                authorIcon.apply {
+                    isVisible = if (newsArticle.hasAuthorPictureURL()) {
+                        noAuthorIconSpace.isVisible = false
+                        imageManager.loadInto(context, newsArticle.authorPictureURL, this)
+                        true
+                    } else {
+                        noAuthorIconSpace.isVisible = true
+                        imageManager.clear(context, this)
+                        false
+                    }
+                }
+                author.apply {
+                    text = newsArticle.authorOneLine
+                    setTextColor(
+                        if (newsArticle.hasColor()) {
+                            ColorUtils.adaptColorToTheme(context, newsArticle.colorInt)
+                        } else {
+                            ColorUtils.getTextColorSecondary(context)
+                        }
+                    )
+                }
+                source.apply {
+                    text = newsArticle.sourceLabel
+                }
                 newsText.apply {
                     setText(LinkUtils.linkifyHtml(newsArticle.textHTML, true), TextView.BufferType.SPANNABLE)
                     movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
@@ -151,9 +180,7 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
 
     override fun getABBgColor(context: Context?) = attachedViewModel?.newsArticle?.value?.colorIntOrNull ?: super.getABBgColor(context)
 
-    override fun getABTitle(context: Context?) = attachedViewModel?.newsArticle?.value?.authorOneLine ?: super.getABTitle(context)
-
-    override fun getABSubtitle(context: Context?) = attachedViewModel?.newsArticle?.value?.sourceLabel ?: super.getABTitle(context)
+    override fun getABTitle(context: Context?) = context?.getString(R.string.news) ?: super.getABTitle(context)
 
     override fun isABReady() = attachedViewModel?.newsArticle?.value != null
 
