@@ -13,6 +13,9 @@
     <string-array name="youtube_channels_uploads_playlist_id">
         <item>UUfbbmkzSU-uPI4SQnnSwBiQ</item>
     </string-array>
+    <string-array name="youtube_channels_author_icon">
+        <item>https://yt3.ggpht.com/iNZ7Fqxl3fH09_Oo84VpGvyHnbE5_phBkuVnm6kgSjWbTUyCwF9W29JTByIoLmoyjsypODKQ=s88-c-k-c0x00ffffff-no-rj</item>
+    </string-array>
     <string-array name="youtube_channels_author_name">
         <item>TransLink</item>
     </string-array>
