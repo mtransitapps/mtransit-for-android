@@ -173,7 +173,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		dataSourcesRepository().readingAllAgencies().observeForever(agencyProperties -> { // SINGLETON
 			deleteAllModuleStatusData(); // force refresh
 		});
-		return true;
+		return super.onCreateMT();
 	}
 
 	@SuppressWarnings("UnusedReturnValue")

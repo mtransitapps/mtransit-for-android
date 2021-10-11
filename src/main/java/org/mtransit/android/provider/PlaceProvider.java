@@ -463,7 +463,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	@Override
 	public boolean onCreateMT() {
 		ping();
-		return true;
+		return super.onCreateMT();
 	}
 
 	@Nullable
