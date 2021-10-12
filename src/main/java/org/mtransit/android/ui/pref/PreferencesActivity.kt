@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
@@ -15,6 +16,7 @@ import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.util.NightModeUtils
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
@@ -48,19 +50,23 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
 
     override fun attachBaseContext(newBase: Context) {
         val demoModeManager = getEntryPoint(newBase).demoModeManager
-        super.attachBaseContext(
-            if (demoModeManager.enabled) {
-                demoModeManager.fixLocale(newBase)
-            } else {
-                LocaleUtils.fixDefaultLocale(newBase)
-            }
-        )
+        val fixedBase = if (demoModeManager.enabled) {
+            demoModeManager.fixLocale(newBase)
+        } else {
+            LocaleUtils.attachBaseContextActivity(newBase)
+        }
+        super.attachBaseContext(fixedBase)
+        LocaleUtils.attachBaseContextActivityAfter(this)
     }
+
+    @Inject
+    lateinit var demoModeManager: DemoModeManager
 
     private var currentUiMode = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         this.currentUiMode = resources.configuration.uiMode
+        LocaleUtils.onCreateActivity(this)
         super.onCreate(savedInstanceState)
         supportActionBar?.apply {
             setTitle(R.string.settings)
@@ -71,8 +77,18 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         if (currentUiMode != newConfig.uiMode) {
-            NightModeUtils.resetColorCache()
+            NightModeUtils.setDefaultNightMode(context, demoModeManager)
             NightModeUtils.recreate(this)
+        }
+    }
+
+    override fun onPostResume() {
+        super.onPostResume()
+        if (currentUiMode != resources.configuration.uiMode) {
+            lifecycleScope.launchWhenResumed {
+                NightModeUtils.setDefaultNightMode(context, demoModeManager)
+                NightModeUtils.recreate(this@PreferencesActivity)
+            }
         }
     }
 

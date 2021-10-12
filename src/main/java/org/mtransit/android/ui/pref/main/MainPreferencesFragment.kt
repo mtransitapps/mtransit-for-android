@@ -307,11 +307,11 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                         DefaultPreferenceRepository.PREFS_THEME_LIGHT -> R.string.theme_pref_light
                         DefaultPreferenceRepository.PREFS_THEME_DARK -> R.string.theme_pref_dark
                         DefaultPreferenceRepository.PREFS_THEME_SYSTEM_DEFAULT -> R.string.theme_pref_system_default
-                        else -> R.string.unit_pref_summary
+                        else -> R.string.theme_pref_system_default
                     }
                 )
             }
-            NightModeUtils.setDefaultNightMode(context, demoModeManager)
+            NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager)
         })
         viewModel.devModeEnabled.observe(viewLifecycleOwner, { devModeEnabled ->
             val devModeGroupPref = findPreference(MainPreferencesViewModel.DEV_MODE_GROUP_PREF) as? PreferenceCategory ?: return@observe

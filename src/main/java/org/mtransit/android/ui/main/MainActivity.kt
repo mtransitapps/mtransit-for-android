@@ -110,13 +110,13 @@ class MainActivity : MTActivityWithLocation(),
 
     override fun attachBaseContext(newBase: Context) {
         val demoModeManager = getEntryPoint(newBase).demoModeManager
-        super.attachBaseContext(
-            if (demoModeManager.enabled) {
-                demoModeManager.fixLocale(newBase)
-            } else {
-                LocaleUtils.fixDefaultLocale(newBase)
-            }
-        )
+        val fixedBase = if (demoModeManager.enabled) {
+            demoModeManager.fixLocale(newBase)
+        } else {
+            LocaleUtils.attachBaseContextActivity(newBase)
+        }
+        super.attachBaseContext(fixedBase)
+        LocaleUtils.attachBaseContextActivityAfter(this)
     }
 
     @Inject
@@ -140,12 +140,16 @@ class MainActivity : MTActivityWithLocation(),
     @Inject
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
+    @Inject
+    lateinit var demoModeManager: DemoModeManager
+
     private var currentUiMode = -1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         adManager.init(this)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme
         currentUiMode = resources.configuration.uiMode
+        LocaleUtils.onCreateActivity(this)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.abToolbar)
@@ -264,7 +268,7 @@ class MainActivity : MTActivityWithLocation(),
         isMTResumed = true
         if (currentUiMode != resources.configuration.uiMode) {
             lifecycleScope.launchWhenResumed {
-                NightModeUtils.resetColorCache()
+                NightModeUtils.setDefaultNightMode(context, demoModeManager)
                 NightModeUtils.recreate(this@MainActivity)
             }
         }
@@ -331,7 +335,7 @@ class MainActivity : MTActivityWithLocation(),
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         if (currentUiMode != newConfig.uiMode) {
-            NightModeUtils.resetColorCache()
+            NightModeUtils.setDefaultNightMode(context, demoModeManager)
             NightModeUtils.recreate(this)
             return
         }

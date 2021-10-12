@@ -1,6 +1,7 @@
 package org.mtransit.android.dev
 
 import android.content.Context
+import android.content.res.Configuration
 import android.location.Location
 import androidx.lifecycle.SavedStateHandle
 import com.google.android.gms.maps.model.LatLng
@@ -195,12 +196,18 @@ class DemoModeManager @Inject constructor(
             return _newBase
         }
         var newBase = _newBase
-        val defaultLocale = forceLang?.let { Locale.forLanguageTag(it) } ?: LocaleUtils.getDefaultLocale()
-        val configuration = newBase.resources.configuration
-        configuration.setLocale(defaultLocale)
-        newBase = newBase.createConfigurationContext(configuration)
-        Locale.setDefault(defaultLocale)
+        newBase = newBase.createConfigurationContext(
+            fixLocale(newBase.resources.configuration)
+        )
         return newBase
+    }
+
+    fun fixLocale(_configuration: Configuration): Configuration {
+        val defaultLocale = forceLang?.let { Locale.forLanguageTag(it) } ?: LocaleUtils.getDefaultLocale()
+        return _configuration.apply {
+            setLocale(defaultLocale)
+            Locale.setDefault(defaultLocale)
+        }
     }
 }
 

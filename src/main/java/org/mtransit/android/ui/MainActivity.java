@@ -99,12 +99,14 @@ public class MainActivity extends MTActivityWithLocation implements
 	@Override
 	protected void attachBaseContext(@NonNull Context newBase) {
 		final DemoModeManager demoModeManager = getEntryPoint(newBase).demoModeManager();
+		Context fixedBase;
 		if (demoModeManager.getEnabled()) {
-			newBase = demoModeManager.fixLocale(newBase);
+			fixedBase = demoModeManager.fixLocale(newBase);
 		} else {
-			newBase = LocaleUtils.fixDefaultLocale(newBase);
+			fixedBase = LocaleUtils.attachBaseContextActivity(newBase);
 		}
-		super.attachBaseContext(newBase);
+		super.attachBaseContext(fixedBase);
+		LocaleUtils.attachBaseContextActivityAfter(this);
 	}
 
 	@Inject
@@ -132,6 +134,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		adManager.init(this);
 		NightModeUtils.resetColorCache(); // single activity, no cache can be trusted to be from the right theme
 		this.currentUiMode = getResources().getConfiguration().uiMode;
+		LocaleUtils.onCreateActivity(this);
 		setContentView(R.layout.activity_main_old);
 		this.abController = new ActionBarController(this);
 		this.navigationDrawerController = new NavigationDrawerController(
@@ -237,7 +240,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		this.resumed = true;
 		if (this.currentUiMode != getResources().getConfiguration().uiMode) {
 			new Handler().post(() -> {
-				NightModeUtils.resetColorCache();
+				NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager);
 				NightModeUtils.recreate(this);
 			});
 		}
@@ -514,7 +517,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		if (this.currentUiMode != newConfig.uiMode) {
-			NightModeUtils.resetColorCache();
+			NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager);
 			NightModeUtils.recreate(this);
 			return;
 		}

@@ -1,6 +1,7 @@
 @file:JvmName("SplashScreenActivity") // ANALYTICS
 package org.mtransit.android.ui.splash
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.viewModels
 import dagger.hilt.android.AndroidEntryPoint
@@ -13,6 +14,7 @@ import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
+@SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
 open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Trackable {
 

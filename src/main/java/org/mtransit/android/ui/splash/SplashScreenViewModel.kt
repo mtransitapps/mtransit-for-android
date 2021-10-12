@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.splash
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import androidx.lifecycle.SavedStateHandle
@@ -16,6 +17,7 @@ import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.util.NightModeUtils
 import javax.inject.Inject
 
+@SuppressLint("CustomSplashScreen")
 @HiltViewModel
 class SplashScreenViewModel @Inject constructor(
     private val defaultPrefRepository: DefaultPreferenceRepository,

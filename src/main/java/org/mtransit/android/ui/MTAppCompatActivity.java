@@ -1,6 +1,7 @@
 package org.mtransit.android.ui;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -29,6 +30,22 @@ public abstract class MTAppCompatActivity extends AppCompatActivity implements M
 	@ContentView
 	public MTAppCompatActivity(@LayoutRes int contentLayoutId) {
 		super(contentLayoutId);
+	}
+
+	@Override
+	protected void attachBaseContext(@NonNull Context newBase) {
+		if (Constants.LOG_LIFECYCLE) {
+			MTLog.v(this, "attachBaseContext(%s)", newBase);
+		}
+		super.attachBaseContext(newBase);
+	}
+
+	@Override
+	public void applyOverrideConfiguration(@NonNull Configuration overrideConfiguration) {
+		if (Constants.LOG_LIFECYCLE) {
+			MTLog.v(this, "applyOverrideConfiguration(%s)", overrideConfiguration);
+		}
+		super.applyOverrideConfiguration(overrideConfiguration);
 	}
 
 	// INHERITED FROM FRAGMENT ACTIVITY

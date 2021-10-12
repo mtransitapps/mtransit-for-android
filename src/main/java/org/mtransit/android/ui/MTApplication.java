@@ -42,10 +42,11 @@ public class MTApplication extends Application implements MTLog.Loggable {
 	IAnalyticsManager analyticsManager;
 
 	@Override
-	protected void attachBaseContext(@NonNull Context newBase) {
+	protected void attachBaseContext(@NonNull Context base) {
 		// Demo mode: cannot access manager instance before application context is attached => set in activities
-		newBase = LocaleUtils.fixDefaultLocale(newBase);
-		super.attachBaseContext(newBase);
+		super.attachBaseContext(
+				LocaleUtils.attachBaseContextApplication(base)
+		);
 	}
 
 	@Override
