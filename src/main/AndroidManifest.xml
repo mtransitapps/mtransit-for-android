@@ -84,6 +84,7 @@
         <!-- MAIN SCREEN -->
         <activity
             android:name=".ui.main.MainActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:exported="false"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
@@ -105,7 +106,7 @@
             android:name=".ui.modules.ModulesActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:exported="false"
-            android:theme="@style/MTTheme" />
+            android:theme="@style/MTTheme.Full" />
         <!-- SEARCH -->
         <meta-data
             android:name="android.app.default_searchable"
