@@ -7,7 +7,8 @@
     android:layout_height="match_parent"
     android:clickable="true"
     android:focusable="true"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:showIn="@layout/fragment_news_list">
 
     <LinearLayout
         android:id="@+id/news_linear_layout"
