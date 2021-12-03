@@ -49,6 +49,7 @@ class DataSourcesReader @Inject constructor(
         @Suppress("SpellCheckingInspection")
         private val NOT_SUPPORTED_APPS_PKG: List<String> = if (BuildConfig.DEBUG) listOf(
             "org.mtransit.android.ca_deux_montagnes_mrcdm_bus.debug", // not supported anymore
+            "org.mtransit.android.ca_fort_erie_transit_bus.debug", // not supported anymore
             "org.mtransit.android.ca_joliette_ctjm_bus.debug", // not supported anymore
             "org.mtransit.android.ca_lanaudiere_crtl_bus.debug", // not supported anymore
             "org.mtransit.android.ca_maritime_bus.debug", // not supported anymore
@@ -57,6 +58,7 @@ class DataSourcesReader @Inject constructor(
             "org.mtransit.android.ca_west_coast_express_bus.debug", // not supported anymore
         ) else listOf(
             "org.mtransit.android.ca_deux_montagnes_mrcdm_bus", // not supported anymore
+            "org.mtransit.android.ca_fort_erie_transit_bus", // not supported anymore
             "org.mtransit.android.ca_joliette_ctjm_bus", // not supported anymore
             "org.mtransit.android.ca_lanaudiere_crtl_bus", // not supported anymore
             "org.mtransit.android.ca_maritime_bus", // not supported anymore
