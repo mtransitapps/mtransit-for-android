@@ -292,7 +292,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         (this.locationToast ?: makeLocationToast().also { this.locationToast = it })
             ?.let { locationToast ->
                 this.toastShown = ToastUtils.showTouchableToastPx(
-                    context,
+                    activity,
                     locationToast,
                     view,
                     attachedViewModel?.getAdBannerHeightInPx(this) ?: 0

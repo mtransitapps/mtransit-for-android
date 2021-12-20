@@ -321,7 +321,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
         (this.locationToast ?: makeLocationToast().also { this.locationToast = it })
             ?.let { locationToast ->
                 this.toastShown = ToastUtils.showTouchableToastPx(
-                    context,
+                    activity,
                     locationToast,
                     view,
                     attachedViewModel?.getAdBannerHeightInPx(this) ?: 0
