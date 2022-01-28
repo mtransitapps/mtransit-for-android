@@ -28,7 +28,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:menu="@menu/nav_view_bottom"
                 tools:layout_height="56dp"
-                tools:viewBindingType="NavigationBarView" />
+                tools:viewBindingType="com.google.android.material.navigation.NavigationBarView" />
 
             <include
                 android:id="@+id/ad_layout"
