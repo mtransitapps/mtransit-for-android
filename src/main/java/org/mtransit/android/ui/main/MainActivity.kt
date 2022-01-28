@@ -177,15 +177,15 @@ class MainActivity : MTActivityWithLocation(),
             viewModel.onSelectedItemIdChanged(dest.id)
         }
         supportFragmentManager.addOnBackStackChangedListener(this)
-        viewModel.selectedItemIdRes.observe(this, { selectedItemIdRes ->
+        viewModel.selectedItemIdRes.observe(this) { selectedItemIdRes ->
             selectedItemIdRes?.let {
                 val navGraph = navController.navInflater.inflate(R.navigation.nav_graph_main)
-                navGraph.startDestination = selectedItemIdRes // FIXME only when new value? ...
+                navGraph.setStartDestination(selectedItemIdRes) // FIXME only when new value? ...
                 navController.graph = navGraph
                 showContentFrameAsLoaded()
             }
-        })
-        viewModel.userLearnedDrawer.observe(this, { learned ->
+        }
+        viewModel.userLearnedDrawer.observe(this) { learned ->
             if (learned == false) {
                 binding.drawerLayout?.let { drawerLayout ->
                     binding.navView?.let { navView ->
@@ -194,22 +194,22 @@ class MainActivity : MTActivityWithLocation(),
                     }
                 }
             }
-        })
-        viewModel.allAgenciesCount.observe(this, { nbAgencies ->
+        }
+        viewModel.allAgenciesCount.observe(this) { nbAgencies ->
             // ad-manager does not persist activity but listen for changes itself
             nbAgencies?.let {
                 adManager.onNbAgenciesUpdated(this, nbAgencies)
             }
-        })
-        viewModel.abTitle.observe(this, {
+        }
+        viewModel.abTitle.observe(this) {
             binding.abToolbar.title = it
-        })
-        viewModel.abSubtitle.observe(this, {
+        }
+        viewModel.abSubtitle.observe(this) {
             binding.abToolbar.subtitle = it
-        })
-        viewModel.abBgColor.observe(this, { newBgColor ->
+        }
+        viewModel.abBgColor.observe(this) { newBgColor ->
             abBgDrawable?.color = newBgColor ?: defaultBgColor
-        })
+        }
         registerReceiver(ModulesReceiver(), ModulesReceiver.getIntentFilter())
     }
 
