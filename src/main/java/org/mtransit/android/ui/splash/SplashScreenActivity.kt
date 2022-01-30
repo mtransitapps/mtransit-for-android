@@ -44,12 +44,14 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
     }
 
     private fun showMainActivity() {
+        // @Suppress("ConstantConditionIf")
         // if (true) {
         // // ADD tools:replace="android:supportsRtl" to AndroidManifest.xml <application />
-        // // USE real Google Ads app ID & unit IDs in keys.xml
-        // com.google.android.ads.mediationtestsuite.MediationTestSuite.launch(this);
-        // finish();
-        // return;
+        // // USE real Google Ads app ID & unit IDs in keys.xml, not Google DEBUG one provided by Google
+        // com.google.android.gms.ads.MobileAds.initialize(this) // required?
+        // com.google.android.ads.mediationtestsuite.MediationTestSuite.launch(this)
+        // finish()
+        // return
         // }
         // if (true) {
         // startActivity(org.mtransit.android.ui.modules.ModulesActivity.newInstance(this))
