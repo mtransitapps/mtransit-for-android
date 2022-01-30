@@ -223,7 +223,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             }
         }
         (findPreference(MainPreferencesViewModel.ABOUT_APP_VERSION_PREF) as? Preference)?.apply {
-            context?.let {
+            context.let {
                 summary = "" +
                         " v" + PackageManagerUtils.getAppVersionName(it) +
                         " r" + PackageManagerUtils.getAppVersionCode(it) +
@@ -271,15 +271,15 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activityViewModel.showSupport.observe(viewLifecycleOwner, { showSupport ->
+        activityViewModel.showSupport.observe(viewLifecycleOwner) { showSupport ->
             if (showSupport == true) {
                 activityViewModel.onSupportShown() // clear flag before showing dialog
                 if (viewModel.hasSubscription == false) {
                     BillingUtils.showPurchaseDialog(activity)
                 }
             }
-        })
-        viewModel.units.observe(viewLifecycleOwner, { units ->
+        }
+        viewModel.units.observe(viewLifecycleOwner) { units ->
             (findPreference(DefaultPreferenceRepository.PREFS_UNITS) as? Preference)?.apply {
                 setSummary(
                     when (units) {
@@ -289,8 +289,8 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                     }
                 )
             }
-        })
-        viewModel.useInternalWebBrowser.observe(viewLifecycleOwner, { useInternalWebBrowser ->
+        }
+        viewModel.useInternalWebBrowser.observe(viewLifecycleOwner) { useInternalWebBrowser ->
             (findPreference(DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER) as? Preference)?.apply {
                 setSummary(
                     when (useInternalWebBrowser) {
@@ -299,8 +299,8 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                     }
                 )
             }
-        })
-        viewModel.theme.observe(viewLifecycleOwner, { theme ->
+        }
+        viewModel.theme.observe(viewLifecycleOwner) { theme ->
             (findPreference(DefaultPreferenceRepository.PREFS_THEME) as? Preference)?.apply {
                 setSummary(
                     when (theme) {
@@ -312,8 +312,8 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                 )
             }
             NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager)
-        })
-        viewModel.devModeEnabled.observe(viewLifecycleOwner, { devModeEnabled ->
+        }
+        viewModel.devModeEnabled.observe(viewLifecycleOwner) { devModeEnabled ->
             val devModeGroupPref = findPreference(MainPreferencesViewModel.DEV_MODE_GROUP_PREF) as? PreferenceCategory ?: return@observe
             val devModeModulePref = findPreference(MainPreferencesViewModel.DEV_MODE_MODULE_PREF) as? Preference ?: return@observe
             val devModeResetRewardedPref = findPreference(MainPreferencesViewModel.DEV_MODE_REWARDED_RESET_PREF) as? Preference ?: return@observe
@@ -337,6 +337,6 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                 devModeGroupPref.removePreference(devModeAdMediationTestPref)
                 preferenceScreen.removePreference(devModeGroupPref)
             }
-        })
+        }
     }
 }
