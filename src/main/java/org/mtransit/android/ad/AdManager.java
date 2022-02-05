@@ -233,6 +233,19 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	}
 
 	@Nullable
+	private Boolean dailyUser = null;
+
+	public boolean isDailyUser() {
+		if (this.dailyUser == null) {
+			this.dailyUser = this.defaultPrefRepository.getValue(
+					DefaultPreferenceRepository.PREF_USER_DAILY,
+					DefaultPreferenceRepository.PREF_USER_DAILY_DEFAULT
+			);
+		}
+		return this.dailyUser;
+	}
+
+	@Nullable
 	private Long rewardedUntilInMs = null;
 
 	@Override
@@ -302,6 +315,9 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 	@Override
 	public boolean shouldSkipRewardedAd() {
+		if (!isDailyUser()) {
+			return true; // always skip for non-daily users
+		}
 		if (!isRewardedNow()) {
 			return false; // never skip for non-rewarded users
 		}

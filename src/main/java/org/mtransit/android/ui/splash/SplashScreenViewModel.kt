@@ -11,10 +11,17 @@ import kotlinx.coroutines.launch
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
+import org.mtransit.android.common.repository.DefaultPreferenceRepository.Companion.PREF_USER_APP_OPEN_COUNTS
+import org.mtransit.android.common.repository.DefaultPreferenceRepository.Companion.PREF_USER_APP_OPEN_COUNTS_DEFAULT
+import org.mtransit.android.common.repository.DefaultPreferenceRepository.Companion.PREF_USER_APP_OPEN_LAST
+import org.mtransit.android.common.repository.DefaultPreferenceRepository.Companion.PREF_USER_APP_OPEN_LAST_DEFAULT
+import org.mtransit.android.common.repository.DefaultPreferenceRepository.Companion.PREF_USER_DAILY
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.TimeUtils
 import org.mtransit.android.datasource.DataSourcesCache
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.util.NightModeUtils
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @SuppressLint("CustomSplashScreen")
@@ -34,10 +41,15 @@ class SplashScreenViewModel @Inject constructor(
     override fun getLogTag(): String = LOG_TAG
 
     fun onAppOpen() {
-        var appOpenCounts = defaultPrefRepository.getValue(DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS, DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS_DEFAULT)
+        var appOpenCounts = defaultPrefRepository.getValue(PREF_USER_APP_OPEN_COUNTS, PREF_USER_APP_OPEN_COUNTS_DEFAULT)
         appOpenCounts++
+        var appOpenLast = defaultPrefRepository.getValue(PREF_USER_APP_OPEN_LAST, PREF_USER_APP_OPEN_LAST_DEFAULT)
+        val dailyUser = appOpenLast > TimeUtils.currentTimeMillis() - TimeUnit.DAYS.toMillis(7L)
+        appOpenLast = TimeUtils.currentTimeMillis()
         defaultPrefRepository.pref.edit {
-            putInt(DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS, appOpenCounts)
+            putInt(PREF_USER_APP_OPEN_COUNTS, appOpenCounts)
+            putLong(PREF_USER_APP_OPEN_LAST, appOpenLast)
+            putBoolean(PREF_USER_DAILY, dailyUser)
         }
         analyticsManager.setUserProperty(AnalyticsUserProperties.OPEN_APP_COUNTS, appOpenCounts)
         viewModelScope.launch {
