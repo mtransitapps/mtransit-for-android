@@ -267,7 +267,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	}
 
 	private void initMapViewAsync(@Nullable View view) {
-		if (this.initMapViewTask != null && this.initMapViewTask.getStatus() == InitMapViewTask.Status.RUNNING) {
+		if (Boolean.TRUE.equals(this.initializingMapView)) {
 			MTLog.d(this, "initMapViewAsync() > SKIP (already running)");
 			return;
 		}
@@ -275,64 +275,28 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			MTLog.d(this, "initMapViewAsync() > SKIP (no view)");
 			return;
 		}
-		this.initMapViewTask = new InitMapViewTask(this, view);
-		TaskUtils.execute(this.initMapViewTask);
+		this.initializingMapView = true;
+		try {
+			MapsInitializer.initialize(view.getContext().getApplicationContext(), MapsInitializer.Renderer.LATEST, renderer -> {
+				switch (renderer) {
+				case LATEST:
+					MTLog.d(this, "The latest version of the renderer is used.");
+					break;
+				case LEGACY:
+					MTLog.d(this, "The legacy version of the renderer is used.");
+					break;
+				}
+				applyNewMapView(view);
+				this.initializingMapView = false;
+			});
+		} catch (Exception e) {
+			MTLog.w(this, e, "Error while initializing map!");
+			this.initializingMapView = false;
+		}
 	}
 
 	@Nullable
-	private InitMapViewTask initMapViewTask = null;
-
-	@SuppressWarnings("deprecation") // FIXME
-	private static class InitMapViewTask extends MTCancellableAsyncTask<Object, Void, Boolean> {
-
-		@NonNull
-		@Override
-		public String getLogTag() {
-			return MapViewController.class.getSimpleName() + ">" + InitMapViewTask.class.getSimpleName();
-		}
-
-		@NonNull
-		private final WeakReference<MapViewController> mapViewControllerWR;
-
-		@NonNull
-		private final WeakReference<View> viewWR;
-
-		InitMapViewTask(MapViewController mapViewController, View view) {
-			this.mapViewControllerWR = new WeakReference<>(mapViewController);
-			this.viewWR = new WeakReference<>(view);
-		}
-
-		@WorkerThread
-		@Override
-		protected Boolean doInBackgroundNotCancelledMT(Object... params) {
-			final View view = this.viewWR.get();
-			if (view == null) {
-				MTLog.d(this, "doInBackgroundNotCancelledMT() > SKIP (no view)");
-				return false;
-			}
-			try {
-				MapsInitializer.initialize(view.getContext());
-				return true;
-			} catch (Exception e) {
-				MTLog.w(this, e, "Error while initializing map!");
-				return false;
-			}
-		}
-
-		@MainThread
-		@Override
-		protected void onPostExecuteNotCancelledMT(Boolean result) {
-			final MapViewController mapViewController = this.mapViewControllerWR.get();
-			if (mapViewController == null) {
-				MTLog.d(this, "onPostExecuteNotCancelledMT() > SKIP (no controller)");
-				return;
-			}
-			if (result) {
-				final View view = this.viewWR.get();
-				mapViewController.applyNewMapView(view);
-			}
-		}
-	}
+	private Boolean initializingMapView = null;
 
 	@MainThread
 	private void applyNewMapView(@Nullable View view) {
@@ -1569,7 +1533,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.mapLayoutReady = false;
 		destroyGoogleMap();
 		this.initialMapCameraSetup = false;
-		TaskUtils.cancelQuietly(this.initMapViewTask, true);
+		this.initializingMapView = null;
 		TaskUtils.cancelQuietly(this.loadClusterItemsTask, true);
 		this.lastSavedInstanceState = null;
 		clearMarkers();
