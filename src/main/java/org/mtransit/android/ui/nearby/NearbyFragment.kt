@@ -214,12 +214,12 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
             showSelectedTab()
             switchView()
         }
-        viewModel.availableTypes.observe(viewLifecycleOwner, {
+        viewModel.availableTypes.observe(viewLifecycleOwner) {
             adapter?.setTypes(it)
             showSelectedTab()
             switchView()
-        })
-        viewModel.selectedTypePosition.observe(viewLifecycleOwner, {
+        }
+        viewModel.selectedTypePosition.observe(viewLifecycleOwner) {
             it?.let {
                 if (this.lastPageSelected < 0) {
                     this.lastPageSelected = it
@@ -228,38 +228,38 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
                     onPageChangeCallback.onPageSelected(this.lastPageSelected) // tell the current page it's selected
                 }
             }
-        })
-        viewModel.isFixedOn.observe(viewLifecycleOwner, {
+        }
+        viewModel.isFixedOn.observe(viewLifecycleOwner) {
             updateDirectionsMenuItem(it)
-        })
-        viewModel.fixedOnName.observe(viewLifecycleOwner, {
+        }
+        viewModel.fixedOnName.observe(viewLifecycleOwner) {
             abController?.setABTitle(this, getABTitle(context), false)
             if (FeatureFlags.F_NAVIGATION) {
                 mainViewModel.setABTitle(getABTitle(context))
             }
-        })
-        viewModel.fixedOnColorInt.observe(viewLifecycleOwner, {
+        }
+        viewModel.fixedOnColorInt.observe(viewLifecycleOwner) {
             abController?.setABBgColor(this, getABBgColor(context), false)
             if (FeatureFlags.F_NAVIGATION) {
                 mainViewModel.setABBgColor(getABBgColor(context))
             }
             setupTabTheme()
-        })
-        viewModel.nearbyLocationAddress.observe(viewLifecycleOwner, {
+        }
+        viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             if (FeatureFlags.F_NAVIGATION) {
                 mainViewModel.setABSubtitle(getABSubtitle(context))
             }
             abController?.setABReady(this, isABReady, true)
             MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
-        })
-        viewModel.newLocationAvailable.observe(viewLifecycleOwner, {
+        }
+        viewModel.newLocationAvailable.observe(viewLifecycleOwner) {
             if (it == true) {
                 showLocationToast()
             } else {
                 hideLocationToast()
             }
-        })
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")

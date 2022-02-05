@@ -65,10 +65,13 @@ class NearbyViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    private val _selectedTypeId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_TYPE, EXTRA_SELECTED_TYPE_DEFAULT).map { if (it < 0) null else it }
+    private val _selectedTypeId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_TYPE, EXTRA_SELECTED_TYPE_DEFAULT)
+        .map { if (it < 0) null else it }
 
-    private val _fixedOnLat = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_LAT, EXTRA_FIXED_ON_LAT_DEFAULT).map { if (it == 999f) null else it.toDouble() }
-    private val _fixedOnLng = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_LNG, EXTRA_FIXED_ON_LNG_DEFAULT).map { if (it == 999f) null else it.toDouble() }
+    private val _fixedOnLat = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_LAT, EXTRA_FIXED_ON_LAT_DEFAULT)
+        .map { if (it == 999f) null else it.toDouble() }
+    private val _fixedOnLng = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_LNG, EXTRA_FIXED_ON_LNG_DEFAULT)
+        .map { if (it == 999f) null else it.toDouble() }
 
     val fixedOnLocation: LiveData<Location?> = PairMediatorLiveData(_fixedOnLat, _fixedOnLng).map { (fixedOnLat, fixedOnLng) ->
         if (fixedOnLat == null || fixedOnLng == null) {
@@ -142,21 +145,22 @@ class NearbyViewModel @Inject constructor(
 
     private val _selectedTypeIdPref: LiveData<Int?> = lclPrefRepository.pref.liveData(
         LocalPreferenceRepository.PREFS_LCL_NEARBY_TAB_TYPE,
+        -1 // default = no selection
     )
 
     val selectedTypeId: LiveData<Int?> = PairMediatorLiveData(_selectedTypeId, _selectedTypeIdPref).map { (selectedTypeId, selectedTypeIdPref) ->
         selectedTypeId ?: selectedTypeIdPref
     }
 
-    val selectedType: LiveData<DataSourceType?> = selectedTypeId.map {
-        it?.let { DataSourceType.parseId(it) }
-    }
-
-    val selectedTypePosition: LiveData<Int?> = PairMediatorLiveData(selectedType, availableTypes).map { (selectedType, availableTypes) ->
-        selectedType?.let { selected ->
-            availableTypes
-                ?.indexOf(selected)
-                ?.takeIf { it >= 0 } // selected might not be in available (installed) types
+    val selectedTypePosition: LiveData<Int?> = PairMediatorLiveData(selectedTypeId, availableTypes).map { (selectedTypeId, availableTypes) ->
+        availableTypes?.let {
+            selectedTypeId?.let {
+                val availableSelectedId = if (selectedTypeId < 0) availableTypes.first().id else selectedTypeId
+                availableTypes
+                    .indexOf(DataSourceType.parseId(availableSelectedId))
+                    .takeIf { it >= 0 } // selected might not be in available (installed) types
+                    ?: 0 // 1st tab by default
+            }
         }
     }
 
