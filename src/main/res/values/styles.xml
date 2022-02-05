@@ -31,16 +31,16 @@
     <!-- Inspired by Widget.MaterialComponents.Button.TextButton.Dialog -->
     <!-- Widget.MaterialComponents.Button.Dialog -->
     <style name="MTWidgetMDCButtonDialog" parent="@style/Widget.MaterialComponents.Button">
-        <item name="android:minWidth">@dimen/mtrl_btn_dialog_btn_min_width</item>
+        <item name="android:minWidth">@dimen/platform_mtrl_btn_dialog_btn_min_width</item>
         <item name="android:lines">1</item>
         <item name="android:ellipsize">end</item>
         <item name="android:singleLine">true</item>
-        <item name="android:layout_marginStart">@dimen/mtrl_btn_text_btn_padding_left</item>
-        <item name="android:layout_marginLeft">@dimen/mtrl_btn_text_btn_padding_left</item>
-        <item name="android:paddingLeft">@dimen/mtrl_btn_text_btn_padding_left</item>
-        <item name="android:paddingStart">@dimen/mtrl_btn_text_btn_padding_left</item>
-        <item name="android:paddingRight">@dimen/mtrl_btn_text_btn_padding_right</item>
-        <item name="android:paddingEnd">@dimen/mtrl_btn_text_btn_padding_right</item>
+        <item name="android:layout_marginStart">@dimen/platform_mtrl_btn_text_btn_padding_left</item>
+        <item name="android:layout_marginLeft">@dimen/platform_mtrl_btn_text_btn_padding_left</item>
+        <item name="android:paddingLeft">@dimen/platform_mtrl_btn_text_btn_padding_left</item>
+        <item name="android:paddingStart">@dimen/platform_mtrl_btn_text_btn_padding_left</item>
+        <item name="android:paddingRight">@dimen/platform_mtrl_btn_text_btn_padding_right</item>
+        <item name="android:paddingEnd">@dimen/platform_mtrl_btn_text_btn_padding_right</item>
     </style>
 
     <style name="MTButton" parent="@style/MTWidgetMDCButtonDialog">

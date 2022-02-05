@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
+    <dimen name="platform_mtrl_btn_dialog_btn_min_width">64dp</dimen>
+    <dimen name="platform_mtrl_btn_text_btn_padding_left">8dp</dimen>
+    <dimen name="platform_mtrl_btn_text_btn_padding_right">8dp</dimen>
+</resources>
