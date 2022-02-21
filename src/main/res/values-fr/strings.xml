@@ -223,7 +223,7 @@
     <string name="watch_rewarded_ad_title_text_and_date">Sans-pub jusqu\'au %s</string>
     <plurals name="watch_rewarded_ad_title_text_and_days_quantity">
         <item quantity="one">Sans-pub pour %d jour</item>
-        <item quantity="many">Sans-pub pour %d jours</item>
+        <item quantity="other">Sans-pub pour %d jours</item>
     </plurals>
     <string name="watch_rewarded_ad_btn_and_days">Regarder une pub pour avoir %d jours sans pub</string>
     <string name="watch_rewarded_ad_btn_more_and_days">Regarder une pub pour avoir +%d jours sans pub</string>
