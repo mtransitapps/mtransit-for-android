@@ -13,7 +13,7 @@
     <domain-config>
         <domain includeSubdomains="true">stm.info</domain>
         <trust-anchors>
-            <certificates src="@raw/stm_info_der_ca" />
+            <certificates src="@raw/info_stm_pem" />
         </trust-anchors>
     </domain-config>
 </network-security-config>
