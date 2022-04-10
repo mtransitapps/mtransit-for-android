@@ -1,21 +1,27 @@
 package org.mtransit.android.ui.rts.route.trip
 
+import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SqlUtils
+import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.POIRepository
+import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
@@ -24,12 +30,15 @@ import javax.inject.Inject
 class RTSTripStopsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val poiRepository: POIRepository,
+    private val lclPrefRepository: LocalPreferenceRepository,
+    private val demoModeManager: DemoModeManager,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = RTSTripStopsViewModel::class.java.simpleName
 
         internal const val EXTRA_AGENCY_AUTHORITY = "extra_agency_authority"
+        internal const val EXTRA_ROUTE_ID = "extra_route_id"
         internal const val EXTRA_TRIP_ID = "extra_trip_id"
         internal const val EXTRA_SELECTED_STOP_ID = "extra_trip_stop_id"
         internal const val EXTRA_SELECTED_STOP_ID_DEFAULT: Int = -1
@@ -42,6 +51,8 @@ class RTSTripStopsViewModel @Inject constructor(
     override fun getLogTag(): String = tripId.value?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
 
     val agencyAuthority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AGENCY_AUTHORITY)
+
+    val routeId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_ROUTE_ID)
 
     val tripId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_TRIP_ID)
 
@@ -78,5 +89,38 @@ class RTSTripStopsViewModel @Inject constructor(
             agencyAuthority,
             poiFilter
         )
+    }
+
+    val showingListInsteadOfMap: LiveData<Boolean> = TripleMediatorLiveData(agencyAuthority, routeId, tripId).switchMap { (authority, routeId, tripId) ->
+        liveData {
+            if (authority == null || routeId == null || tripId == null) {
+                return@liveData // SKIP
+            }
+            if (demoModeManager.enabled) {
+                emit(false) // show map (demo mode ON)
+                return@liveData
+            }
+            emitSource(
+                lclPrefRepository.pref.liveData(
+                    LocalPreferenceRepository.getPREFS_LCL_RTS_ROUTE_TRIP_ID_KEY(authority, routeId, tripId),
+                    LocalPreferenceRepository.PREFS_LCL_RTS_TRIP_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
+                )
+            )
+        }
+    }.distinctUntilChanged()
+
+    fun saveShowingListInsteadOfMap(showingListInsteadOfMap: Boolean) {
+        if (demoModeManager.enabled) {
+            return // SKIP (demo mode ON)
+        }
+        lclPrefRepository.pref.edit {
+            val authority = agencyAuthority.value ?: return
+            val routeId = routeId.value ?: return
+            val tripId = tripId.value ?: return
+            putBoolean(
+                LocalPreferenceRepository.getPREFS_LCL_RTS_ROUTE_TRIP_ID_KEY(authority, routeId, tripId),
+                showingListInsteadOfMap
+            )
+        }
     }
 }

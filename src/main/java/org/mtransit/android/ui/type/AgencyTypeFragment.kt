@@ -120,7 +120,6 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
                 return // SKIP (same)
             }
             pageScrollStateIdle = newPageScrollStateIdle
-            activity?.invalidateOptionsMenu() // initialize action bar list/grid switch icon
         }
     }
 
@@ -150,7 +149,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
             }
             showSelectedTab()
         }
-        viewModel.typeAgencies.observe(viewLifecycleOwner, { agencies ->
+        viewModel.typeAgencies.observe(viewLifecycleOwner) { agencies ->
             if (adapter?.setAgencies(agencies) == true) {
                 showSelectedTab()
                 abBgColor = null // reset
@@ -162,13 +161,13 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
             agencies?.let {
                 MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
             }
-        })
-        viewModel.type.observe(viewLifecycleOwner, { type ->
+        }
+        viewModel.type.observe(viewLifecycleOwner) { type ->
             binding?.tabs?.isVisible = type != DataSourceType.TYPE_MODULE
             abController?.setABTitle(this, getABTitle(context), false)
             abController?.setABReady(this, isABReady, true)
-        })
-        viewModel.selectedTypeAgencyPosition.observe(viewLifecycleOwner, { newLastPageSelected ->
+        }
+        viewModel.selectedTypeAgencyPosition.observe(viewLifecycleOwner) { newLastPageSelected ->
             newLastPageSelected?.let {
                 if (this.lastPageSelected < 0) {
                     this.lastPageSelected = it
@@ -176,7 +175,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
                     onPageChangeCallback.onPageSelected(this.lastPageSelected) // tell the current page it's selected
                 }
             }
-        })
+        }
     }
 
     private fun switchView() {

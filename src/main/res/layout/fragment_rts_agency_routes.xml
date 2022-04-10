@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -16,12 +17,29 @@
         android:id="@id/list_grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
         android:fastScrollAlwaysVisible="false"
         android:fastScrollEnabled="false"
+        android:paddingBottom="?android:attr/listPreferredItemHeight"
         android:scrollbarStyle="insideOverlay"
         android:visibility="visible"
         tools:listitem="@layout/layout_rts_route_item"
         tools:visibility="visible" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_list_grid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginEnd="@dimen/baseline_8"
+        android:layout_marginBottom="@dimen/baseline_8"
+        android:contentDescription="@string/menu_action_list"
+        android:src="@drawable/switch_action_view_headline_dark_16dp"
+        app:fabSize="mini"
+        tools:backgroundTint="#FF00FF"
+        tools:contentDescription="@string/menu_action_grid"
+        tools:rippleColor="#00FF00"
+        tools:src="@drawable/switch_action_apps_dark_16dp" />
     <!-- EMPTY -->
     <include
         android:id="@id/empty_layout"

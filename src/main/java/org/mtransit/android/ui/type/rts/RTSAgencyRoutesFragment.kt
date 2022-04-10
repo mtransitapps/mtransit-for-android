@@ -2,19 +2,10 @@
 package org.mtransit.android.ui.type.rts
 
 import android.content.Context
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.LayerDrawable
-import android.graphics.drawable.StateListDrawable
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.StateSet
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
-import android.widget.CompoundButton
-import androidx.appcompat.widget.SwitchCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -68,22 +59,6 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
 
     private var binding: FragmentRtsAgencyRoutesBinding? = null
 
-    private var listGridToggleMenuItem: MenuItem? = null
-    private var listGridSwitchMenuItem: SwitchCompat? = null
-
-    private val listGridToggleSelector: StateListDrawable by lazy {
-        StateListDrawable().apply {
-            (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_list, requireContext().theme) as? LayerDrawable)?.apply {
-                attachedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_list_oval_shape) as? GradientDrawable)?.setColor(it) }
-                addState(intArrayOf(android.R.attr.state_checked), this)
-            }
-            (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_grid, requireContext().theme) as? LayerDrawable)?.apply {
-                attachedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_grid_oval_shape) as? GradientDrawable)?.setColor(it) }
-                addState(StateSet.WILD_CARD, this)
-            }
-        }
-    }
-
     private val listItemDecoration: ItemDecoration by lazy { DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL) }
 
     private val gridItemDecoration: ItemDecoration by lazy { SpacesItemDecoration(requireContext(), R.dimen.grid_view_spacing) }
@@ -132,52 +107,69 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentRtsAgencyRoutesBinding.bind(view).apply {
             listGrid.adapter = adapter
-        }
-        viewModel.colorInt.observe(viewLifecycleOwner, { colorInt ->
-            colorInt?.let {
-                activity?.invalidateOptionsMenu() // initialize action bar list/grid switch icon
+            fabListGrid.setOnClickListener {
+                viewModel.saveShowingListInsteadOfGrid(viewModel.showingListInsteadOfGrid.value == false) // switching
             }
-        })
-        viewModel.authorityShort.observe(viewLifecycleOwner, {
+        }
+        viewModel.colorIntDistinct.observe(viewLifecycleOwner) { colorIntDistinct ->
+            colorIntDistinct?.let {
+                binding?.fabListGrid?.apply {
+                    rippleColor = colorIntDistinct
+                    backgroundTintList = ColorStateList.valueOf(colorIntDistinct)
+                }
+            }
+        }
+        viewModel.authorityShort.observe(viewLifecycleOwner) {
             theLogTag = it?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
-        })
-        viewModel.agency.observe(viewLifecycleOwner, { agency ->
+        }
+        viewModel.agency.observe(viewLifecycleOwner) { agency ->
             agency?.let {
                 adapter.setAgency(agency)
                 switchView()
             }
-        })
-        viewModel.showingListInsteadOfGrid.observe(viewLifecycleOwner, { showingListInsteadOfGrid ->
+        }
+        viewModel.showingListInsteadOfGrid.observe(viewLifecycleOwner) { showingListInsteadOfGrid ->
             showingListInsteadOfGrid?.let { listInsteadOfGrid ->
-                binding?.listGrid?.apply {
-                    val scrollPosition = (layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: 0
-                    if (listInsteadOfGrid) { // LIST
-                        if (layoutManager == null || layoutManager is GridLayoutManager) {
-                            removeItemDecoration(gridItemDecoration)
-                            addItemDecoration(listItemDecoration)
-                            layoutManager = LinearLayoutManager(requireContext())
-                        }
-                    } else { // GRID
-                        if (layoutManager == null || layoutManager !is GridLayoutManager) {
-                            removeItemDecoration(listItemDecoration)
-                            addItemDecoration(gridItemDecoration)
-                            layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns(requireContext(), 64f))
+                binding?.apply {
+                    fabListGrid.apply {
+                        if (listInsteadOfGrid) { // LIST
+                            setImageResource(R.drawable.switch_action_apps_dark_16dp)
+                            contentDescription = getString(R.string.menu_action_grid)
+                        } else { // GRID
+                            setImageResource(R.drawable.switch_action_view_headline_dark_16dp)
+                            contentDescription = getString(R.string.menu_action_list)
                         }
                     }
-                    if (scrollPosition > 0) {
-                        scrollToPosition(scrollPosition)
+                    listGrid.apply {
+                        val scrollPosition = (layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: 0
+                        if (listInsteadOfGrid) { // LIST
+                            if (layoutManager == null || layoutManager is GridLayoutManager) {
+                                removeItemDecoration(gridItemDecoration)
+                                addItemDecoration(listItemDecoration)
+                                layoutManager = LinearLayoutManager(requireContext())
+                            }
+                        } else { // GRID
+                            if (layoutManager == null || layoutManager !is GridLayoutManager) {
+                                removeItemDecoration(listItemDecoration)
+                                addItemDecoration(gridItemDecoration)
+                                layoutManager = GridLayoutManager(requireContext(), calculateNoOfColumns(requireContext(), 64f))
+                            }
+                        }
+                        if (scrollPosition > 0) {
+                            scrollToPosition(scrollPosition)
+                        }
                     }
+                    adapter.setShowingListInsteadOfGrid(showingListInsteadOfGrid)
+                    switchView()
                 }
-                adapter.setShowingListInsteadOfGrid(showingListInsteadOfGrid)
-                switchView()
             }
-        })
-        viewModel.routes.observe(viewLifecycleOwner, { routes ->
+        }
+        viewModel.routes.observe(viewLifecycleOwner) { routes ->
             routes?.let {
                 adapter.setList(routes)
                 switchView()
             }
-        })
+        }
     }
 
     private fun calculateNoOfColumns(context: Context, @Suppress("SameParameterValue") columnWidthDp: Float): Int {
@@ -206,57 +198,6 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
                 }
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        if (isResumed) {
-            if (menu.findItem(R.id.menu_toggle_list_grid) == null) {
-                inflater.inflate(R.menu.menu_rts_agency_routes, menu)
-            }
-            listGridToggleMenuItem = menu.findItem(R.id.menu_toggle_list_grid)
-            listGridSwitchMenuItem = listGridToggleMenuItem?.actionView?.findViewById(R.id.action_bar_switch_list_grid)
-            listGridSwitchMenuItem?.thumbDrawable = listGridToggleSelector
-            updateListGridToggleMenuItem()
-        } else {
-            listGridSwitchMenuItem?.setOnCheckedChangeListener(null)
-            listGridSwitchMenuItem?.visibility = View.GONE
-            listGridSwitchMenuItem = null
-            listGridToggleMenuItem?.isVisible = false
-            listGridToggleMenuItem = null
-        }
-    }
-
-    private fun updateListGridToggleMenuItem() {
-        if (!isResumed) {
-            return
-        }
-        val listInsteadOfGrid = viewModel.showingListInsteadOfGrid.value
-        listGridSwitchMenuItem?.isChecked = listInsteadOfGrid != false
-        listGridSwitchMenuItem?.setOnCheckedChangeListener { buttonView: CompoundButton, isChecked: Boolean ->
-            onCheckedChanged(buttonView, isChecked)
-        }
-        listGridSwitchMenuItem?.isVisible = listInsteadOfGrid != null
-        listGridToggleMenuItem?.isVisible = listInsteadOfGrid != null
-    }
-
-    private fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
-        if (!isResumed) {
-            return
-        }
-        if (buttonView.id == R.id.action_bar_switch_list_grid) {
-            viewModel.saveShowingListInsteadOfGrid(isChecked)
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (!isResumed) {
-            if (item.itemId == R.id.menu_toggle_list_grid) {
-                viewModel.saveShowingListInsteadOfGrid(viewModel.showingListInsteadOfGrid.value == false) // switching
-                return true // handled
-            }
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onResume() {

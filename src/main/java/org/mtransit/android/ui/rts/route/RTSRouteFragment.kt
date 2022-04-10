@@ -2,21 +2,11 @@
 package org.mtransit.android.ui.rts.route
 
 import android.content.Context
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.LayerDrawable
-import android.graphics.drawable.StateListDrawable
 import android.location.Location
 import android.os.Bundle
 import android.text.SpannableStringBuilder
-import android.util.StateSet
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CompoundButton
-import androidx.appcompat.widget.SwitchCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
@@ -103,22 +93,6 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
 
     private var binding: FragmentRtsRouteBinding? = null
 
-    private var listMapToggleMenuItem: MenuItem? = null
-    private var listMapSwitchMenuItem: SwitchCompat? = null
-
-    private val listMapToggleSelector: StateListDrawable by lazy {
-        StateListDrawable().apply {
-            (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_list, requireContext().theme) as? LayerDrawable)?.apply {
-                attachedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_list_oval_shape) as? GradientDrawable)?.setColor(it) }
-                addState(intArrayOf(android.R.attr.state_checked), this)
-            }
-            (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_map, requireContext().theme) as? LayerDrawable)?.apply {
-                attachedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_map_oval_shape) as? GradientDrawable)?.setColor(it) }
-                addState(StateSet.WILD_CARD, this)
-            }
-        }
-    }
-
     private var lastPageSelected = -1
     private var selectedPosition = -1
 
@@ -170,10 +144,10 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
             getABBgColor(tabs.context)?.let { tabs.setBackgroundColor(it) }
             showSelectedTab()
         }
-        viewModel.selectedStopId.observe(viewLifecycleOwner, { selectedStopId ->
+        viewModel.selectedStopId.observe(viewLifecycleOwner) { selectedStopId ->
             this.adapter?.setSelectedStopId(selectedStopId)
-        })
-        viewModel.authority.observe(viewLifecycleOwner, { authority ->
+        }
+        viewModel.authority.observe(viewLifecycleOwner) { authority ->
             this.adapter?.setAuthority(authority)
             switchView()
             MTTransitions.setTransitionName(
@@ -184,8 +158,8 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
                     }
                 }
             )
-        })
-        viewModel.route.observe(viewLifecycleOwner, { route ->
+        }
+        viewModel.route.observe(viewLifecycleOwner) { route ->
             MTTransitions.setTransitionName(
                 view,
                 route?.id?.let { routeId ->
@@ -200,16 +174,16 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
             abController?.setABBgColor(this, getABBgColor(context), false)
             abController?.setABTitle(this, getABTitle(context), false)
             abController?.setABReady(this, isABReady, true)
-        })
-        viewModel.colorInt.observe(viewLifecycleOwner, { _ ->
+        }
+        viewModel.colorInt.observe(viewLifecycleOwner) {
             binding?.apply {
-                getABBgColor(tabs.context)?.let { tabs.setBackgroundColor(it) }
+                getABBgColor(tabs.context)?.let { colorInt ->
+                    tabs.setBackgroundColor(colorInt)
+                }
             }
             abController?.setABBgColor(this, getABBgColor(context), true)
-            activity?.invalidateOptionsMenu() // initialize action bar list/grid switch icon
-            updateListMapToggleMenuItem()
-        })
-        viewModel.routeTrips.observe(viewLifecycleOwner, { routeTrips ->
+        }
+        viewModel.routeTrips.observe(viewLifecycleOwner) { routeTrips ->
             if (adapter?.setRouteTrips(routeTrips) == true) {
                 showSelectedTab()
                 abController?.setABBgColor(this, getABBgColor(context), true)
@@ -219,8 +193,8 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
             routeTrips?.let {
                 MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
             }
-        })
-        viewModel.selectedRouteTripPosition.observe(viewLifecycleOwner, { newSelectedRouteTripPosition ->
+        }
+        viewModel.selectedRouteTripPosition.observe(viewLifecycleOwner) { newSelectedRouteTripPosition ->
             newSelectedRouteTripPosition?.let {
                 if (this.lastPageSelected < 0) {
                     this.lastPageSelected = it
@@ -228,10 +202,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
                     onPageChangeCallback.onPageSelected(this.lastPageSelected) // tell the current page it's selected
                 }
             }
-        })
-        viewModel.showingListInsteadOfMap.observe(viewLifecycleOwner, {
-            updateListMapToggleMenuItem()
-        })
+        }
         viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
             if (removed) {
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
@@ -243,7 +214,6 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
         super.onResume()
         switchView()
         showSelectedTab()
-        updateListMapToggleMenuItem()
         (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
     }
 
@@ -292,38 +262,6 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
         }
         this.selectedPosition = this.lastPageSelected // set selected position before update tabs color
         switchView()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_rts_route, menu)
-        listMapToggleMenuItem = menu.findItem(R.id.menu_toggle_list_map)
-        listMapSwitchMenuItem = listMapToggleMenuItem?.actionView?.findViewById(R.id.action_bar_switch_list_map)
-        listMapSwitchMenuItem?.thumbDrawable = viewModel.colorInt.value?.let { listMapToggleSelector }
-        listMapSwitchMenuItem?.setOnCheckedChangeListener { buttonView: CompoundButton, isChecked: Boolean ->
-            onCheckedChanged(buttonView, isChecked)
-        }
-        updateListMapToggleMenuItem()
-    }
-
-    private fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
-        if (buttonView.id == R.id.action_bar_switch_list_map) {
-            viewModel.saveShowingListInsteadOfMap(isChecked)
-        }
-    }
-
-    fun updateListMapToggleMenuItem() {
-        listMapSwitchMenuItem?.isChecked = viewModel.showingListInsteadOfMap.value != false
-        listMapSwitchMenuItem?.isVisible = true
-        listMapToggleMenuItem?.isVisible = true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_bar_switch_list_map) {
-            viewModel.saveShowingListInsteadOfMap(viewModel.showingListInsteadOfMap.value == false) // switching
-            return true // handled
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun isABReady() = attachedViewModel?.route?.value != null

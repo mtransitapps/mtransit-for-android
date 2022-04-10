@@ -2,6 +2,7 @@
 package org.mtransit.android.ui.rts.route.trip
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.location.Location
 import android.os.Bundle
 import android.view.View
@@ -41,12 +42,14 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
         @JvmStatic
         fun newInstance(
             agencyAuthority: String,
+            routeId: Long,
             tripId: Long,
             optSelectedStopId: Int? = null,
         ): RTSTripStopsFragment {
             return RTSTripStopsFragment().apply {
                 arguments = bundleOf(
                     RTSTripStopsViewModel.EXTRA_AGENCY_AUTHORITY to agencyAuthority,
+                    RTSTripStopsViewModel.EXTRA_ROUTE_ID to routeId,
                     RTSTripStopsViewModel.EXTRA_TRIP_ID to tripId,
                     RTSTripStopsViewModel.EXTRA_SELECTED_STOP_ID to (optSelectedStopId ?: RTSTripStopsViewModel.EXTRA_SELECTED_STOP_ID_DEFAULT),
                 )
@@ -119,6 +122,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
             false,
             false,
             0,
+            56,
             false,
             true,
             false,
@@ -159,18 +163,40 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
                 listView.isVisible = adapter.isInitialized
                 adapter.setListView(listView)
             }
+            fabListMap.setOnClickListener {
+                viewModel.saveShowingListInsteadOfMap(viewModel.showingListInsteadOfMap.value == false) // switching
+            }
         }
-        viewModel.tripId.observe(viewLifecycleOwner, { tripId ->
+        parentViewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
+            binding?.apply {
+                colorInt?.let { colorInt ->
+                    fabListMap.apply {
+                        rippleColor = colorInt
+                        backgroundTintList = ColorStateList.valueOf(colorInt)
+                    }
+                }
+            }
+        }
+        viewModel.tripId.observe(viewLifecycleOwner) { tripId ->
             theLogTag = tripId?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
             adapter.logTag = logTag
             mapViewController.logTag = logTag
-        })
-        parentViewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation ->
+        }
+        parentViewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             mapViewController.onDeviceLocationChanged(deviceLocation)
             adapter.setLocation(deviceLocation)
-        })
-        parentViewModel.showingListInsteadOfMap.observe(viewLifecycleOwner, { showingListInsteadOfMap ->
+        }
+        viewModel.showingListInsteadOfMap.observe(viewLifecycleOwner) { showingListInsteadOfMap ->
             showingListInsteadOfMap?.let { listInsteadOfMap ->
+                binding?.fabListMap?.apply {
+                    if (listInsteadOfMap) { // LIST
+                        setImageResource(R.drawable.switch_action_map_dark_16dp)
+                        contentDescription = getString(R.string.menu_action_map)
+                    } else { // MAP
+                        setImageResource(R.drawable.switch_action_view_headline_dark_16dp)
+                        contentDescription = getString(R.string.menu_action_list)
+                    }
+                }
                 if (listInsteadOfMap) { // LIST
                     mapViewController.onPause()
                 } else { // MAP
@@ -178,14 +204,14 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
                 }
             }
             switchView(showingListInsteadOfMap)
-        })
-        viewModel.selectedTripStopId.observe(viewLifecycleOwner, {
+        }
+        viewModel.selectedTripStopId.observe(viewLifecycleOwner) {
             // DO NOTHING
-        })
-        viewModel.closestPOIShown.observe(viewLifecycleOwner, {
+        }
+        viewModel.closestPOIShown.observe(viewLifecycleOwner) {
             // DO NOTHING
-        })
-        viewModel.poiList.observe(viewLifecycleOwner, { poiList ->
+        }
+        viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
             var currentSelectedItemIndexUuid: Pair<Int?, String?>? = null
             val selectedStopId = viewModel.selectedTripStopId.value
             val closestPOIShow = viewModel.closestPOIShown.value
@@ -204,14 +230,14 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
             adapter.setPois(poiList)
             adapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
             mapViewController.notifyMarkerChanged(mapMarkerProvider)
-            if (parentViewModel.showingListInsteadOfMap.value == true) { // LIST
+            if (viewModel.showingListInsteadOfMap.value == true) { // LIST
                 val selectedPosition = currentSelectedItemIndexUuid?.first ?: -1
                 if (selectedPosition > 0) {
                     binding?.listLayout?.list?.setSelection(selectedPosition - 1) // show 1 more stop on top of the list
                 }
             }
             switchView()
-        })
+        }
     }
 
     private fun findStopIndexUuid(stopId: Int, pois: List<POIManager>?): Pair<Int?, String?>? {
@@ -242,7 +268,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
         return null
     }
 
-    fun switchView(showingListInsteadOfMap: Boolean? = parentViewModel.showingListInsteadOfMap.value) {
+    fun switchView(showingListInsteadOfMap: Boolean? = viewModel.showingListInsteadOfMap.value) {
         binding?.apply {
             when {
                 !adapter.isInitialized || showingListInsteadOfMap == null -> {
@@ -294,7 +320,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
 
     override fun onResume() {
         super.onResume()
-        if (parentViewModel.showingListInsteadOfMap.value == false) { // MAP
+        if (viewModel.showingListInsteadOfMap.value == false) { // MAP
             mapViewController.onResume()
         }
         adapter.onResume(this, parentViewModel.deviceLocation.value)

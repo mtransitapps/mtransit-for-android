@@ -44,6 +44,6 @@
         android:textColor="?attr/colorOnBackground"
         app:drawableTint="?attr/colorOnBackground"
         tools:drawableLeft="@drawable/ic_directions_bus_black_24dp"
-        tools:text="TYPE TYPE TYPE TYPE TYPE TYPE TYPE TYPE " />
+        tools:text="Type Type Type Type Type Type Type Type" />
 
 </RelativeLayout>

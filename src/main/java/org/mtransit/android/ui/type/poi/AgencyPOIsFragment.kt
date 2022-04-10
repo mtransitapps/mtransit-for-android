@@ -2,18 +2,9 @@
 package org.mtransit.android.ui.type.poi
 
 import android.content.Context
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.LayerDrawable
-import android.graphics.drawable.StateListDrawable
+import android.content.res.ColorStateList
 import android.os.Bundle
-import android.util.StateSet
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
-import android.widget.CompoundButton
-import androidx.appcompat.widget.SwitchCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -72,22 +63,6 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
 
     private var binding: FragmentAgencyPoisBinding? = null
 
-    private var listMapToggleMenuItem: MenuItem? = null
-    private var listMapSwitchMenuItem: SwitchCompat? = null
-
-    private val listMapToggleSelector: StateListDrawable by lazy {
-        StateListDrawable().apply {
-            (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_list, requireContext().theme) as? LayerDrawable)?.apply {
-                attachedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_list_oval_shape) as? GradientDrawable)?.setColor(it) }
-                addState(intArrayOf(android.R.attr.state_checked), this)
-            }
-            (ResourcesCompat.getDrawable(resources, R.drawable.switch_thumb_map, requireContext().theme) as? LayerDrawable)?.apply {
-                attachedViewModel?.colorInt?.value?.let { (findDrawableByLayerId(R.id.switch_map_oval_shape) as? GradientDrawable)?.setColor(it) }
-                addState(StateSet.WILD_CARD, this)
-            }
-        }
-    }
-
     @Inject
     lateinit var sensorManager: MTSensorManager
 
@@ -141,6 +116,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
             false,
             false,
             0,
+            56,
             false,
             true,
             false,
@@ -178,27 +154,42 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
         super.onViewCreated(view, savedInstanceState)
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentAgencyPoisBinding.bind(view).apply {
-            this.listLayout.list.let { listView ->
+            listLayout.list.let { listView ->
                 listView.isVisible = adapter.isInitialized
                 adapter.setListView(listView)
+                fabListMap.setOnClickListener {
+                    viewModel.saveShowingListInsteadOfMap(viewModel.showingListInsteadOfMap.value == false) // switching
+                }
             }
         }
-        viewModel.colorInt.observe(viewLifecycleOwner, { colorInt ->
+        viewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
             colorInt?.let {
-                activity?.invalidateOptionsMenu() // initialize action bar list/map switch icon
+                binding?.fabListMap?.apply {
+                    rippleColor = colorInt
+                    backgroundTintList = ColorStateList.valueOf(colorInt)
+                }
             }
-        })
-        viewModel.agency.observe(viewLifecycleOwner, { agency ->
+        }
+        viewModel.agency.observe(viewLifecycleOwner) { agency ->
             theLogTag = agency?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
             adapter.logTag = logTag
             mapViewController.logTag = logTag
-        })
-        parentViewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation ->
+        }
+        parentViewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             mapViewController.onDeviceLocationChanged(deviceLocation)
             adapter.setLocation(deviceLocation)
-        })
-        viewModel.showingListInsteadOfMap.observe(viewLifecycleOwner, { showingListInsteadOfMap ->
+        }
+        viewModel.showingListInsteadOfMap.observe(viewLifecycleOwner) { showingListInsteadOfMap ->
             showingListInsteadOfMap?.let { listInsteadOfMap ->
+                binding?.fabListMap?.apply {
+                    if (listInsteadOfMap) { // LIST
+                        setImageResource(R.drawable.switch_action_map_dark_16dp)
+                        contentDescription = getString(R.string.menu_action_map)
+                    } else { // MAP
+                        setImageResource(R.drawable.switch_action_view_headline_dark_16dp)
+                        contentDescription = getString(R.string.menu_action_list)
+                    }
+                }
                 if (listInsteadOfMap) { // LIST
                     mapViewController.onPause()
                 } else { // MAP
@@ -206,14 +197,13 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
                 }
             }
             switchView(showingListInsteadOfMap)
-            updateListMapToggleMenuItem()
-        })
-        viewModel.poiList.observe(viewLifecycleOwner, { poiList ->
+        }
+        viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
             adapter.setPois(poiList)
             adapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
             mapViewController.notifyMarkerChanged(mapMarkerProvider)
             switchView()
-        })
+        }
     }
 
     private fun switchView(showingListInsteadOfMap: Boolean? = viewModel.showingListInsteadOfMap.value) {
@@ -244,56 +234,6 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
                 }
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        if (isResumed) {
-            if (menu.findItem(R.id.menu_toggle_list_map) == null) {
-                inflater.inflate(R.menu.menu_agency_pois, menu)
-            }
-            listMapToggleMenuItem = menu.findItem(R.id.menu_toggle_list_map)
-            listMapSwitchMenuItem = listMapToggleMenuItem?.actionView?.findViewById(R.id.action_bar_switch_list_map)
-            listMapSwitchMenuItem?.thumbDrawable = listMapToggleSelector
-        } else {
-            listMapSwitchMenuItem?.setOnCheckedChangeListener(null)
-            listMapSwitchMenuItem?.visibility = View.GONE
-            listMapSwitchMenuItem = null
-            listMapToggleMenuItem?.isVisible = false
-            listMapToggleMenuItem = null
-        }
-        updateListMapToggleMenuItem()
-    }
-
-    private fun updateListMapToggleMenuItem() {
-        if (!isResumed) {
-            return
-        }
-        listMapSwitchMenuItem?.isChecked = viewModel.showingListInsteadOfMap.value != false
-        listMapSwitchMenuItem?.setOnCheckedChangeListener { buttonView: CompoundButton, isChecked: Boolean ->
-            onCheckedChanged(buttonView, isChecked)
-        }
-        listMapSwitchMenuItem?.isVisible = viewModel.showingListInsteadOfMap.value != null
-        listMapToggleMenuItem?.isVisible = viewModel.showingListInsteadOfMap.value != null
-    }
-
-    private fun onCheckedChanged(buttonView: CompoundButton, isChecked: Boolean) {
-        if (!isResumed) {
-            return
-        }
-        if (buttonView.id == R.id.action_bar_switch_list_map) {
-            viewModel.saveShowingListInsteadOfMap(isChecked)
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (!isResumed) {
-            if (item.itemId == R.id.action_bar_switch_list_map) {
-                viewModel.saveShowingListInsteadOfMap(viewModel.showingListInsteadOfMap.value == false) // switching
-                return true // handled
-            }
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onAttach(context: Context) {

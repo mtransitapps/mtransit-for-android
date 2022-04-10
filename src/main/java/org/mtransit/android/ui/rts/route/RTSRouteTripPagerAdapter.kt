@@ -62,6 +62,7 @@ class RTSRouteTripPagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Log
         val trip = routeTrips?.getOrNull(position) ?: throw RuntimeException("Trying to create fragment at $position!")
         return RTSTripStopsFragment.newInstance(
             authority,
+            trip.routeId,
             trip.id,
             this.selectedStopId,
         )

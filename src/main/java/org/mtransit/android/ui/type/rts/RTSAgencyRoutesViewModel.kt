@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
+import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.pref.liveData
@@ -19,6 +20,7 @@ import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
+import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
@@ -58,6 +60,29 @@ class RTSAgencyRoutesViewModel @Inject constructor(
                     dataSourceRequestManager.findAllRTSAgencyRoutes(authority)
                         ?.sortedWith(Route.SHORT_NAME_COMPARATOR)
                 )
+            }
+        }
+    }
+
+    private val _routeColorInts: LiveData<List<Int>?> = routes.map { routes ->
+        routes?.filter {
+            it.hasColor()
+        }?.map {
+            it.colorInt
+        }
+    }
+
+    val colorIntDistinct: LiveData<Int?> = PairMediatorLiveData(colorInt, _routeColorInts).map { (colorInt, routeColorInts) ->
+        colorInt?.let {
+            if (routeColorInts == null || (routeColorInts.isNotEmpty() && !routeColorInts.contains(colorInt))) {
+                colorInt
+            } else {
+                val distinctColorInt = routeColorInts.groupingBy { it }.eachCount().maxByOrNull { it.value }?.key ?: colorInt
+                if (ColorUtils.isTooLight(distinctColorInt)) {
+                    ColorUtils.darkenColor(distinctColorInt, 0.2F)
+                } else {
+                    ColorUtils.lightenColor(distinctColorInt, 0.2F)
+                }
             }
         }
     }

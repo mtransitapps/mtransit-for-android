@@ -30,7 +30,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RTSRouteViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val dataSourceRequestManager: DataSourceRequestManager,
     private val dataSourcesRepository: DataSourcesRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
@@ -49,7 +49,8 @@ class RTSRouteViewModel @Inject constructor(
         internal const val EXTRA_SELECTED_STOP_ID_DEFAULT: Int = -1
 
         internal const val EXTRA_SHOWING_LIST_INSTEAD_OF_MAP = "extra_showing_list_instead_of_map"
-        internal const val EXTRA_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT: Boolean = LocalPreferenceRepository.PREFS_LCL_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
+        internal const val EXTRA_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT: Boolean =
+            LocalPreferenceRepository.PREFS_LCL_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -150,17 +151,5 @@ class RTSRouteViewModel @Inject constructor(
         } else {
             routeTrips.indexOfFirst { it.id == tripId }.coerceAtLeast(0)
         }
-    }
-
-    private val _listInsteadOfMapDefault: LiveData<Boolean?> = MutableLiveData(
-        LocalPreferenceRepository.PREFS_LCL_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT
-    )
-
-    val showingListInsteadOfMap: LiveData<Boolean?> = PairMediatorLiveData(listInsteadOfMap, _listInsteadOfMapDefault).map { (listInsteadOfMap, default) ->
-        listInsteadOfMap ?: default
-    }.distinctUntilChanged()
-
-    fun saveShowingListInsteadOfMap(showingListInsteadOfMap: Boolean) {
-        savedStateHandle[EXTRA_SHOWING_LIST_INSTEAD_OF_MAP] = showingListInsteadOfMap
     }
 }

@@ -213,6 +213,7 @@ public class POIFragment extends ABFragment implements
 					false,
 					false,
 					32,
+					0,
 					true,
 					false,
 					true,

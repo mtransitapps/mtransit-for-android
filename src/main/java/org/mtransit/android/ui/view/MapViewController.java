@@ -155,6 +155,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 	private final boolean trafficEnabled;
 	private final boolean indoorEnabled;
 	private final int paddingTopSp;
+	private final int paddingBottomSp;
 	private final boolean followingDevice;
 	private final boolean hasButtons;
 	private final boolean clusteringEnabled;
@@ -180,6 +181,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 							 boolean trafficEnabled,
 							 boolean indoorEnabled,
 							 int paddingTopSp,
+							 int paddingBottomSp,
 							 boolean followingDevice,
 							 boolean hasButtons,
 							 boolean clusteringEnabled,
@@ -196,6 +198,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.trafficEnabled = trafficEnabled;
 		this.indoorEnabled = indoorEnabled;
 		this.paddingTopSp = paddingTopSp;
+		this.paddingBottomSp = paddingBottomSp;
 		this.followingDevice = followingDevice;
 		this.hasButtons = hasButtons;
 		this.clusteringEnabled = clusteringEnabled;
@@ -381,11 +384,17 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		settings.clusterOptionsProvider(new MTClusterOptionsProvider(getActivityOrNull())).addMarkersDynamically(true);
 		this.extendedGoogleMap.setClustering(settings);
 		clearMarkers();
+		int paddingTopPx = 0;
 		if (this.paddingTopSp > 0) {
 			final Context context = getActivityOrNull();
-			int paddingTop = (int) ResourceUtils.convertSPtoPX(context, this.paddingTopSp); // action bar
-			this.extendedGoogleMap.setPadding(0, paddingTop, 0, 0);
+			paddingTopPx = (int) ResourceUtils.convertSPtoPX(context, this.paddingTopSp); // action bar
 		}
+		int paddingBottomPx = 0;
+		if (this.paddingBottomSp > 0) {
+			final Context context = getActivityOrNull();
+			paddingBottomPx = (int) ResourceUtils.convertSPtoPX(context, this.paddingBottomSp); // fab
+		}
+		this.extendedGoogleMap.setPadding(0, paddingTopPx, 0, paddingBottomPx);
 		final MapListener mapListener = this.mapListenerWR == null ? null : this.mapListenerWR.get();
 		if (mapListener != null) {
 			mapListener.onMapReady();

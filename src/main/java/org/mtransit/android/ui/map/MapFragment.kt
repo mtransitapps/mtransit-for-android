@@ -129,6 +129,7 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
             false,
             false,
             64,
+            0,
             false,
             true,
             true,

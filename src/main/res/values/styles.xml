@@ -16,11 +16,6 @@
         <item name="thickness">6dp</item>
     </style>
 
-    <style name="MTSwitch" parent="@style/Theme.MaterialComponents">
-        <item name="colorControlActivated">@color/switch_track_tint</item>
-        <item name="android:colorForeground">@color/switch_track_tint</item>
-    </style>
-
     <style name="MTAlertDialogMaterialTheme" parent="@style/ThemeOverlay.MaterialComponents.MaterialAlertDialog">
         <item name="colorPrimary">@color/color_on_surface</item>
         <item name="colorControlActivated">@color/color_on_surface</item>
