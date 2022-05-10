@@ -161,7 +161,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		this.initialized = null; // IN PROGRESS
 		try {
 			MobileAds.initialize(
-					theActivity, // some adapters require activity #MoPub
+					theActivity, // some adapters require activity
 					new MTOnInitializationCompleteListener(this, activity)
 			);
 			if (DEBUG) {
