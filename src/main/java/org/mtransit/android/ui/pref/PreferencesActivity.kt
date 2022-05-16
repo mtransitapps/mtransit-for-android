@@ -76,18 +76,17 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        if (currentUiMode != newConfig.uiMode) {
-            NightModeUtils.setDefaultNightMode(context, demoModeManager)
-            NightModeUtils.recreate(this)
+        if (this.currentUiMode != newConfig.uiMode) {
+            NightModeUtils.setDefaultNightMode(context, demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
+            NightModeUtils.recreate(this) // not recreated because uiMode in configChanges AndroidManifest.xml
         }
     }
 
     override fun onPostResume() {
         super.onPostResume()
-        if (currentUiMode != resources.configuration.uiMode) {
+        if (this.currentUiMode != resources.configuration.uiMode) {
             lifecycleScope.launchWhenResumed {
-                NightModeUtils.setDefaultNightMode(context, demoModeManager)
-                NightModeUtils.recreate(this@PreferencesActivity)
+                NightModeUtils.setDefaultNightMode(context, demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
             }
         }
     }

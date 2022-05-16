@@ -17,10 +17,27 @@ import org.mtransit.android.data.UISchedule;
 import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.ui.schedule.day.ScheduleDayAdapter;
 
+import java.util.Locale;
+
 @SuppressWarnings("WeakerAccess")
+/*
+ * WebView (and Ads) are breaking uiMode!
+ * - https://developer.android.com/guide/topics/ui/look-and-feel/darktheme
+ * - https://medium.com/androiddevelopers/appcompat-v23-2-daynight-d10f90c83e94
+ */
 public final class NightModeUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = NightModeUtils.class.getSimpleName();
+
+	@NonNull
+	public static String logUiMode(int uiMode) {
+		return String.format(Locale.ENGLISH,
+				"[%s, flag: %s , dark? %s]",
+				uiMode,
+				ColorUtils.getUiModeFlag(uiMode),
+				ColorUtils.isDarkTheme(uiMode)
+		);
+	}
 
 	@NonNull
 	@Override
@@ -29,14 +46,13 @@ public final class NightModeUtils implements MTLog.Loggable {
 	}
 
 	public static void setDefaultNightMode(@NonNull Context context, @Nullable DemoModeManager demoModeManager) {
-		setDefaultNightMode(
-				getDefaultNightMode(context, demoModeManager)
-		);
+		final int mode = getDefaultNightMode(context, demoModeManager);
+		setDefaultNightMode(mode);
 		resetColorCache();
 	}
 
 	public static void setDefaultNightMode(@AppCompatDelegate.NightMode int mode) {
-		AppCompatDelegate.setDefaultNightMode(mode);
+		AppCompatDelegate.setDefaultNightMode(mode); // does NOT recreated because uiMode in configChanges AndroidManifest.xml
 	}
 
 	public static void recreate(@NonNull Activity activity) {

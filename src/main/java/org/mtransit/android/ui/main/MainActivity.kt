@@ -268,8 +268,7 @@ class MainActivity : MTActivityWithLocation(),
         isMTResumed = true
         if (currentUiMode != resources.configuration.uiMode) {
             lifecycleScope.launchWhenResumed {
-                NightModeUtils.setDefaultNightMode(context, demoModeManager)
-                NightModeUtils.recreate(this@MainActivity)
+                NightModeUtils.setDefaultNightMode(activity, demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
             }
         }
         viewModel.onAppVisible()
@@ -334,9 +333,9 @@ class MainActivity : MTActivityWithLocation(),
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        if (currentUiMode != newConfig.uiMode) {
-            NightModeUtils.setDefaultNightMode(context, demoModeManager)
-            NightModeUtils.recreate(this)
+        if (this.currentUiMode != newConfig.uiMode) {
+            NightModeUtils.setDefaultNightMode(context, demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
+            NightModeUtils.recreate(this) // not recreated because uiMode in configChanges AndroidManifest.xml
             return
         }
         adManager.adaptToScreenSize(this, newConfig)

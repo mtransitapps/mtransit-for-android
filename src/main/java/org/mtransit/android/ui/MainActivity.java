@@ -240,8 +240,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		this.resumed = true;
 		if (this.currentUiMode != getResources().getConfiguration().uiMode) {
 			new Handler().post(() -> {
-				NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager);
-				NightModeUtils.recreate(this);
+				NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager); // does NOT recreated because uiMode in configChanges AndroidManifest.xml
 			});
 		}
 		try {
@@ -517,8 +516,8 @@ public class MainActivity extends MTActivityWithLocation implements
 	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		if (this.currentUiMode != newConfig.uiMode) {
-			NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager);
-			NightModeUtils.recreate(this);
+			NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager); // does NOT recreated because uiMode in configChanges AndroidManifest.xml
+			NightModeUtils.recreate(this); // not recreated because uiMode in configChanges AndroidManifest.xml
 			return;
 		}
 		if (this.navigationDrawerController != null) {

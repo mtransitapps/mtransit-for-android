@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingVersion">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application tools:ignore="AllowBackup,MissingApplicationIcon">
         <!-- RSS NEWS PROVIDER -->
@@ -24,7 +23,7 @@
             android:authorities="@string/youtube_authority"
             android:exported="true"
             android:readPermission="${permission_provider_read}"
-            tools:ignore="MissingRegistered" >
+            tools:ignore="MissingRegistered">
             <meta-data
                 android:name="@string/news_provider"
                 android:value="@string/news_provider" />
