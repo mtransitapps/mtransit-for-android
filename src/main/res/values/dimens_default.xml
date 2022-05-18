@@ -7,6 +7,7 @@
     <dimen name="baseline_2">2dp</dimen>
     <dimen name="baseline_4">4dp</dimen>
     <dimen name="baseline_8">8dp</dimen>
+    <dimen name="baseline_12_x">12dp</dimen><!-- not real baseline -->
     <dimen name="baseline_16">16dp</dimen>
     <dimen name="baseline_24">24dp</dimen>
     <dimen name="baseline_32">32dp</dimen>
@@ -41,7 +42,10 @@
     <dimen name="baseline_264">264dp</dimen>
     <dimen name="baseline_272">272dp</dimen>
     <dimen name="baseline_280">280dp</dimen>
+    <dimen name="baseline_320">320dp</dimen>
+    <dimen name="baseline_360">360dp</dimen>
     <dimen name="baseline_400">400dp</dimen>
+    <dimen name="baseline_440">440dp</dimen>
     <!-- TEXT SIZES -->
     <dimen name="text_size_extra_extra_extra__small">2sp</dimen>
     <dimen name="text_size_extra_extra_small">6sp</dimen>

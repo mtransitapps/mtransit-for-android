@@ -15,9 +15,9 @@
         android:clipToPadding="false"
         android:minHeight="?android:attr/listPreferredItemHeightLarge"
         android:orientation="horizontal"
-        android:paddingLeft="@dimen/baseline_8"
-        android:paddingRight="@dimen/baseline_8"
-        android:scrollbarStyle="insideOverlay"
+        android:paddingLeft="@dimen/news_article_horizontal_list_margin"
+        android:paddingRight="@dimen/news_article_horizontal_list_margin"
+        android:scrollbarStyle="outsideInset"
         android:scrollbars="horizontal"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/layout_news_list_item" />

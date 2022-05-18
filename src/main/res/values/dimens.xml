@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- STATIC (not responsive to screen size/class) -->
     <dimen name="list_view_divider_height">1dp</dimen>
     <dimen name="grid_view_spacing">1dp</dimen>
     <dimen name="large_header_height">184dp</dimen>
@@ -19,7 +20,6 @@
     <dimen name="poi_img_height">58dp</dimen>
     <dimen name="poi_img_padding">5dp</dimen>
     <dimen name="poi_fav_padding">0dp</dimen>
-    <dimen name="action_bar_size_static">56dp</dimen>
     <dimen name="header_height">56dp</dimen>
     <dimen name="title_padding_bottom">8dp</dimen>
     <dimen name="title_padding_left">8dp</dimen>

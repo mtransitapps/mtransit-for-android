@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Window size: Expended height -->
+    <dimen name="action_bar_size_static">@dimen/baseline_64</dimen>
+
+    <dimen name="news_article_horizontal_list_item_padding">@dimen/baseline_16</dimen>
+    <dimen name="news_article_horizontal_list_margin">@dimen/baseline_320</dimen>
+    <dimen name="news_article_horizontal_list_item_margin">@dimen/baseline_8</dimen>
+</resources>

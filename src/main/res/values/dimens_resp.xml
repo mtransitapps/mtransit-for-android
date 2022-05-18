@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Window size: Compact width / height (DEFAULT) -->
+    <dimen name="action_bar_size_static">@dimen/baseline_56</dimen>
+
+    <dimen name="news_article_horizontal_list_item_padding">@dimen/baseline_12_x</dimen>
+    <dimen name="news_article_horizontal_list_margin">@dimen/baseline_16</dimen>
+    <dimen name="news_article_horizontal_list_item_margin">@dimen/baseline_4</dimen>
+</resources>

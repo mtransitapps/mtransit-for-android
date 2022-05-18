@@ -153,11 +153,20 @@ class NewsListAdapter(
                         onClick(view, newsArticle)
                     }
                     isVisible = true
-                    updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                        this.rightMargin = if (horizontal && !lastItem) 4.dp else 0.dp
-                        this.leftMargin = if (horizontal && !firstItem) 4.dp else 0.dp
+                    if (horizontal) {
+                        val horizontalListMargin = context.resources.getDimension(R.dimen.news_article_horizontal_list_margin).toInt()
+                        val horizontalItemMargin = context.resources.getDimension(R.dimen.news_article_horizontal_list_item_margin).toInt()
+                        val horizontalItemMarginFirstLast = horizontalItemMargin - horizontalListMargin
+                        updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                            rightMargin = if (!lastItem) horizontalItemMargin else horizontalItemMarginFirstLast
+                            leftMargin = if (!firstItem) horizontalItemMargin else horizontalItemMarginFirstLast
+                        }
+                        layout.apply {
+                            val horizontalItemPadding = context.resources.getDimension(R.dimen.news_article_horizontal_list_item_padding).toInt()
+                            setPadding(horizontalItemPadding, horizontalItemPadding, horizontalItemPadding, horizontalItemPadding)
+                        }
+                        cardElevation = 2.dp.toFloat()
                     }
-                    cardElevation = (if (horizontal) 2.dp else 0.dp).toFloat()
                 }
             }
         }
