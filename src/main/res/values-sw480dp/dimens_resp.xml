@@ -3,6 +3,7 @@
     <!-- Window size: Medium width -->
     <dimen name="action_bar_size_static">@dimen/baseline_64</dimen>
 
+    <dimen name="news_article_horizontal_list_item_elevation">@dimen/baseline_2</dimen>
     <dimen name="news_article_horizontal_list_item_padding">@dimen/baseline_16</dimen>
     <dimen name="news_article_horizontal_list_margin">@dimen/baseline_240</dimen>
     <dimen name="news_article_horizontal_list_item_margin">@dimen/baseline_8</dimen>

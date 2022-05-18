@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
+import androidx.core.view.setPadding
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -13,7 +14,6 @@ import org.mtransit.android.common.IContext
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
-import org.mtransit.android.commons.dp
 import org.mtransit.android.databinding.LayoutNewsListItemBinding
 import org.mtransit.android.ui.news.NewsListAdapter.NewsListItemViewHolder
 import org.mtransit.android.ui.view.common.ImageManager
@@ -156,16 +156,17 @@ class NewsListAdapter(
                     if (horizontal) {
                         val horizontalListMargin = context.resources.getDimension(R.dimen.news_article_horizontal_list_margin).toInt()
                         val horizontalItemMargin = context.resources.getDimension(R.dimen.news_article_horizontal_list_item_margin).toInt()
-                        val horizontalItemMarginFirstLast = horizontalItemMargin - horizontalListMargin
+                        val horizontalItemMarginFirstLast = horizontalItemMargin - horizontalListMargin // negative #clipToPaddingFalse
                         updateLayoutParams<ViewGroup.MarginLayoutParams> {
                             rightMargin = if (!lastItem) horizontalItemMargin else horizontalItemMarginFirstLast
                             leftMargin = if (!firstItem) horizontalItemMargin else horizontalItemMarginFirstLast
                         }
                         layout.apply {
                             val horizontalItemPadding = context.resources.getDimension(R.dimen.news_article_horizontal_list_item_padding).toInt()
-                            setPadding(horizontalItemPadding, horizontalItemPadding, horizontalItemPadding, horizontalItemPadding)
+                            setPadding(horizontalItemPadding)
                         }
-                        cardElevation = 2.dp.toFloat()
+                        val horizontalItemElevation = context.resources.getDimension(R.dimen.news_article_horizontal_list_item_elevation)
+                        cardElevation = horizontalItemElevation
                     }
                 }
             }

@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:cardElevation="@dimen/baseline_0"
+    tools:cardElevation="@dimen/baseline_1"
     tools:layout_height="@dimen/baseline_176">
 
     <RelativeLayout
