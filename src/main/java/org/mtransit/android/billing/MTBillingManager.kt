@@ -5,15 +5,18 @@ import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClient.BillingResponseCode
+import com.android.billingclient.api.BillingClient.ProductType
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ProductDetails
+import com.android.billingclient.api.ProductDetailsResponseListener
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesResponseListener
 import com.android.billingclient.api.PurchasesUpdatedListener
-import com.android.billingclient.api.SkuDetails
-import com.android.billingclient.api.SkuDetailsParams
-import com.android.billingclient.api.SkuDetailsResponseListener
+import com.android.billingclient.api.QueryProductDetailsParams
+import com.android.billingclient.api.QueryProductDetailsParams.Product
+import com.android.billingclient.api.QueryPurchasesParams
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
 import org.mtransit.android.common.repository.LocalPreferenceRepository
@@ -32,7 +35,8 @@ class MTBillingManager @Inject constructor(
     BillingClientStateListener, // connection to billing
     PurchasesResponseListener, // purchases requested
     PurchasesUpdatedListener, // purchases updated
-    SkuDetailsResponseListener { // sku details (name, price...)
+    ProductDetailsResponseListener // product ID details (name, price...)
+{
 
 
     companion object {
@@ -51,13 +55,13 @@ class MTBillingManager @Inject constructor(
         .enablePendingPurchases()
         .build()
 
-    private var _currentSubSku: String? = null
+    private var _currentSubProductId: String? = null
 
     private val _listenersWR = WeakHashMap<OnBillingResultListener, Void?>()
 
-    private val _skusWithSkuDetails = MutableLiveData<Map<String, SkuDetails>>()
+    private val _productIdsWithDetails = MutableLiveData<Map<String, ProductDetails>>()
 
-    override val skusWithSkuDetails = _skusWithSkuDetails
+    override val productIdsWithDetails = _productIdsWithDetails
 
     init {
         startConnection()
@@ -75,7 +79,7 @@ class MTBillingManager @Inject constructor(
     override fun onBillingSetupFinished(billingResult: BillingResult) {
         if (billingResult.responseCode == BillingResponseCode.OK) {
             billingClientConnected = true
-            querySkuDetails()
+            queryProductDetails()
             queryPurchases()
         } else {
             MTLog.w(this, "Billing setup NOT successful! ${billingResult.responseCode}: ${billingResult.debugMessage}")
@@ -106,7 +110,7 @@ class MTBillingManager @Inject constructor(
                     this, "onPurchasesUpdated: Developer error means that Google Play " +
                             "does not recognize the configuration. If you are just getting started, " +
                             "make sure you have configured the application correctly in the " +
-                            "Google Play Console. The SKU product ID must match and the APK you " +
+                            "Google Play Console. The product ID must match and the APK you " +
                             "are using must be signed with release keys."
                 )
             }
@@ -114,41 +118,44 @@ class MTBillingManager @Inject constructor(
     }
 
     override fun refreshAvailableSubscriptions() {
-        querySkuDetails()
+        queryProductDetails()
     }
 
-    private fun querySkuDetails() {
+    private fun queryProductDetails() {
         if (!billingClient.isReady) {
-            MTLog.d(this, "querySkuDetails() > BillingClient is not ready")
+            MTLog.d(this, "queryProductDetails() > BillingClient is not ready")
             if (this.billingClientConnected == false) {
                 startConnection()
             }
             return
         }
-        billingClient.querySkuDetailsAsync(
-            SkuDetailsParams.newBuilder()
-                .setSkusList(IBillingManager.ALL_VALID_SUBSCRIPTIONS)
-                .setType(BillingClient.SkuType.SUBS)
-                .build(),
+        billingClient.queryProductDetailsAsync(
+            QueryProductDetailsParams.newBuilder()
+                .setProductList(
+                    IBillingManager.ALL_VALID_SUBSCRIPTIONS.map { productId ->
+                        Product.newBuilder()
+                            .setProductType(ProductType.SUBS)
+                            .setProductId(productId)
+                            .build()
+                    }
+                ).build(),
             this
         )
     }
 
-    override fun onSkuDetailsResponse(billingResult: BillingResult, skuDetailsList: List<SkuDetails>?) {
+    override fun onProductDetailsResponse(billingResult: BillingResult, productDetailsList: MutableList<ProductDetails>) {
         when (billingResult.responseCode) {
             BillingResponseCode.OK -> {
-                if (skuDetailsList == null) {
-                    _skusWithSkuDetails.postValue(emptyMap())
-                } else
-                    _skusWithSkuDetails.postValue(HashMap<String, SkuDetails>()
-                        .apply {
-                            for (details in skuDetailsList) {
-                                put(details.sku, details)
-                            }
+                _productIdsWithDetails.postValue(HashMap<String, ProductDetails>()
+                    .apply {
+                        for (details in productDetailsList) {
+                            MTLog.d(this@MTBillingManager, "onProductDetailsResponse() > ${details.productId} : $details")
+                            put(details.productId, details)
                         }
-                        .also { postedValue ->
-                            MTLog.d(this, "onSkuDetailsResponse() > found ${postedValue.size} SKU details")
-                        })
+                    }
+                    .also { postedValue ->
+                        MTLog.d(this, "onProductDetailsResponse() > found ${postedValue.size} product details")
+                    })
             }
             BillingResponseCode.SERVICE_DISCONNECTED,
             BillingResponseCode.SERVICE_UNAVAILABLE,
@@ -156,13 +163,13 @@ class MTBillingManager @Inject constructor(
             BillingResponseCode.ITEM_UNAVAILABLE,
             BillingResponseCode.DEVELOPER_ERROR,
             BillingResponseCode.ERROR -> {
-                MTLog.w(this, "Error while fetching SKU details! ${billingResult.responseCode}: ${billingResult.debugMessage}")
+                MTLog.w(this, "Error while fetching product details! ${billingResult.responseCode}: ${billingResult.debugMessage}")
             }
             BillingResponseCode.USER_CANCELED,
             BillingResponseCode.FEATURE_NOT_SUPPORTED,
             BillingResponseCode.ITEM_ALREADY_OWNED,
             BillingResponseCode.ITEM_NOT_OWNED -> {
-                MTLog.e(this, "Unexpected error while fetching SKU details! ${billingResult.responseCode}: ${billingResult.debugMessage}")
+                MTLog.e(this, "Unexpected error while fetching product details! ${billingResult.responseCode}: ${billingResult.debugMessage}")
             }
         }
     }
@@ -179,7 +186,12 @@ class MTBillingManager @Inject constructor(
             }
             return
         }
-        billingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS, this)
+        billingClient.queryPurchasesAsync(
+            QueryPurchasesParams.newBuilder()
+                .setProductType(ProductType.SUBS)
+                .build(),
+            this
+        )
     }
 
     override fun onQueryPurchasesResponse(billingResult: BillingResult, purchasesList: List<Purchase>) {
@@ -201,9 +213,9 @@ class MTBillingManager @Inject constructor(
         }
         setCurrentSubscription(
             purchasesList?.flatMap { purchase ->
-                purchase.skus
-            }?.firstOrNull { sku ->
-                sku.isNotEmpty()
+                purchase.products
+            }?.firstOrNull { product ->
+                product.isNotEmpty()
             }.orEmpty()
         )
     }
@@ -212,24 +224,35 @@ class MTBillingManager @Inject constructor(
         return false // TODO optimized to avoid updates with identical data.
     }
 
-    override fun launchBillingFlow(activity: IActivity, sku: String): Boolean {
-        val skuDetails = _skusWithSkuDetails.value?.get(sku) ?: run {
-            MTLog.w(this, "Could not find SkuDetails to make purchase.")
+    override fun launchBillingFlow(activity: IActivity, productId: String): Boolean {
+        val productDetails = _productIdsWithDetails.value?.get(productId) ?: run {
+            MTLog.w(this, "Could not find ProductDetails to make purchase.")
             return false
         }
-        return launchBillingFlow(activity, skuDetails)
+        return launchBillingFlow(activity, productDetails)
     }
 
-    private fun launchBillingFlow(activity: IActivity, skuDetails: SkuDetails): Boolean {
+    private fun launchBillingFlow(activity: IActivity, productDetails: ProductDetails): Boolean {
         val theActivity = activity.activity ?: run {
             MTLog.w(this, "Could not find activity to make purchase.")
             return false
         }
 
+        val offerToken = productDetails.subscriptionOfferDetails?.getOrNull(IBillingManager.OFFER_DETAILS_IDX)?.offerToken ?: run {
+            MTLog.w(this, "Could not find offer token for '${productDetails.productId}' purchase.")
+            return false
+        }
+        val productDetailsParamsList =
+            listOf(
+                BillingFlowParams.ProductDetailsParams.newBuilder()
+                    .setProductDetails(productDetails)
+                    .setOfferToken(offerToken)
+                    .build()
+            )
         val billingResult = billingClient.launchBillingFlow( // results delivered > onPurchasesUpdated()
             theActivity,
             BillingFlowParams.newBuilder()
-                .setSkuDetails(skuDetails)
+                .setProductDetailsParamsList(productDetailsParamsList)
                 .build()
         )
         if (billingResult.responseCode != BillingResponseCode.OK) {
@@ -243,9 +266,9 @@ class MTBillingManager @Inject constructor(
             acknowledgePurchase(purchase.purchaseToken)
         }
         setCurrentSubscription(
-            purchase.skus
-                .firstOrNull { sku ->
-                    sku.isNotEmpty()
+            purchase.products
+                .firstOrNull { product ->
+                    product.isNotEmpty()
                 }.orEmpty()
         )
     }
@@ -267,26 +290,26 @@ class MTBillingManager @Inject constructor(
     }
 
     override fun getCurrentSubscription(): String? {
-        if (_currentSubSku == null) {
+        if (_currentSubProductId == null) {
             if (this.lclPrefRepository.hasKey(PREF_KEY_SUBSCRIPTION)) {
-                _currentSubSku = this.lclPrefRepository.getValueNN(PREF_KEY_SUBSCRIPTION, PREF_KEY_SUBSCRIPTION_DEFAULT)
+                _currentSubProductId = this.lclPrefRepository.getValueNN(PREF_KEY_SUBSCRIPTION, PREF_KEY_SUBSCRIPTION_DEFAULT)
             }
         }
-        return _currentSubSku
+        return _currentSubProductId
     }
 
-    private fun setCurrentSubscription(sku: String) {
-        if (_currentSubSku == sku) {
+    private fun setCurrentSubscription(productId: String) {
+        if (_currentSubProductId == productId) {
             return // same
         }
-        _currentSubSku = sku
-        this.lclPrefRepository.saveAsync(PREF_KEY_SUBSCRIPTION, sku)
-        broadcastCurrentSkuChanged()
+        _currentSubProductId = productId
+        this.lclPrefRepository.saveAsync(PREF_KEY_SUBSCRIPTION, productId)
+        broadcastCurrentProductIdChanged()
     }
 
-    private fun broadcastCurrentSkuChanged() {
+    private fun broadcastCurrentProductIdChanged() {
         this._listenersWR.keys.forEach { listener ->
-            listener.onBillingResult(this._currentSubSku)
+            listener.onBillingResult(this._currentSubProductId)
         }
     }
 

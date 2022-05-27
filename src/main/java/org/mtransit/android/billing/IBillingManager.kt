@@ -1,18 +1,22 @@
 package org.mtransit.android.billing
 
 import androidx.lifecycle.LiveData
-import com.android.billingclient.api.SkuDetails
+import com.android.billingclient.api.ProductDetails
 import org.mtransit.android.ui.view.common.IActivity
 
 interface IBillingManager {
 
     @Suppress("MayBeConstant")
     companion object {
-        @JvmField
-        val SKU_SUBSCRIPTION = "_subscription_"
 
         @JvmField
-        val SKU_STARTS_WITH_F = "f_"
+        val OFFER_DETAILS_IDX = 0 // 1 offer / subscription (for now)
+
+        @JvmField
+        val PRODUCT_ID_SUBSCRIPTION = "_subscription_"
+
+        @JvmField
+        val PRODUCT_ID_STARTS_WITH_F = "f_"
 
         @JvmField
         val DEFAULT_PRICE_CAT = "1"
@@ -31,27 +35,27 @@ interface IBillingManager {
 
         @JvmField
         val AVAILABLE_SUBSCRIPTIONS = arrayListOf(
-            SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "1",
-            SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "2",
-            SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "3",
-            SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "4",
-            SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "5",
-            SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "7",
-            SKU_STARTS_WITH_F + WEEKLY + SKU_SUBSCRIPTION + "10",
-            SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "1",
-            SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "2",
-            SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "3",
-            SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "4",
-            SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "5",
-            SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "7",
-            SKU_STARTS_WITH_F + MONTHLY + SKU_SUBSCRIPTION + "10",
-            SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "1",
-            SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "2",
-            SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "3",
-            SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "4",
-            SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "5",
-            SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "7",
-            SKU_STARTS_WITH_F + YEARLY + SKU_SUBSCRIPTION + "10",
+            PRODUCT_ID_STARTS_WITH_F + WEEKLY + PRODUCT_ID_SUBSCRIPTION + "1",
+            PRODUCT_ID_STARTS_WITH_F + WEEKLY + PRODUCT_ID_SUBSCRIPTION + "2",
+            PRODUCT_ID_STARTS_WITH_F + WEEKLY + PRODUCT_ID_SUBSCRIPTION + "3",
+            PRODUCT_ID_STARTS_WITH_F + WEEKLY + PRODUCT_ID_SUBSCRIPTION + "4",
+            PRODUCT_ID_STARTS_WITH_F + WEEKLY + PRODUCT_ID_SUBSCRIPTION + "5",
+            PRODUCT_ID_STARTS_WITH_F + WEEKLY + PRODUCT_ID_SUBSCRIPTION + "7",
+            PRODUCT_ID_STARTS_WITH_F + WEEKLY + PRODUCT_ID_SUBSCRIPTION + "10",
+            PRODUCT_ID_STARTS_WITH_F + MONTHLY + PRODUCT_ID_SUBSCRIPTION + "1",
+            PRODUCT_ID_STARTS_WITH_F + MONTHLY + PRODUCT_ID_SUBSCRIPTION + "2",
+            PRODUCT_ID_STARTS_WITH_F + MONTHLY + PRODUCT_ID_SUBSCRIPTION + "3",
+            PRODUCT_ID_STARTS_WITH_F + MONTHLY + PRODUCT_ID_SUBSCRIPTION + "4",
+            PRODUCT_ID_STARTS_WITH_F + MONTHLY + PRODUCT_ID_SUBSCRIPTION + "5",
+            PRODUCT_ID_STARTS_WITH_F + MONTHLY + PRODUCT_ID_SUBSCRIPTION + "7",
+            PRODUCT_ID_STARTS_WITH_F + MONTHLY + PRODUCT_ID_SUBSCRIPTION + "10",
+            PRODUCT_ID_STARTS_WITH_F + YEARLY + PRODUCT_ID_SUBSCRIPTION + "1",
+            PRODUCT_ID_STARTS_WITH_F + YEARLY + PRODUCT_ID_SUBSCRIPTION + "2",
+            PRODUCT_ID_STARTS_WITH_F + YEARLY + PRODUCT_ID_SUBSCRIPTION + "3",
+            PRODUCT_ID_STARTS_WITH_F + YEARLY + PRODUCT_ID_SUBSCRIPTION + "4",
+            PRODUCT_ID_STARTS_WITH_F + YEARLY + PRODUCT_ID_SUBSCRIPTION + "5",
+            PRODUCT_ID_STARTS_WITH_F + YEARLY + PRODUCT_ID_SUBSCRIPTION + "7",
+            PRODUCT_ID_STARTS_WITH_F + YEARLY + PRODUCT_ID_SUBSCRIPTION + "10",
         )
 
         @JvmField
@@ -62,7 +66,7 @@ interface IBillingManager {
         )
     }
 
-    val skusWithSkuDetails: LiveData<Map<String, SkuDetails>>
+    val productIdsWithDetails: LiveData<Map<String, ProductDetails>>
 
     fun refreshAvailableSubscriptions()
 
@@ -72,13 +76,13 @@ interface IBillingManager {
 
     fun getCurrentSubscription(): String?
 
-    fun launchBillingFlow(activity: IActivity, sku: String) : Boolean
+    fun launchBillingFlow(activity: IActivity, productId: String) : Boolean
 
     fun addListener(listener: OnBillingResultListener)
 
     fun removeListener(listener: OnBillingResultListener)
 
     interface OnBillingResultListener {
-        fun onBillingResult(sku: String?)
+        fun onBillingResult(productId: String?)
     }
 }

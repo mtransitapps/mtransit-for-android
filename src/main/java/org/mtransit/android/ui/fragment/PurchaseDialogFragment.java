@@ -22,7 +22,7 @@ import androidx.collection.ArrayMap;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 
-import com.android.billingclient.api.SkuDetails;
+import com.android.billingclient.api.ProductDetails;
 
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
@@ -38,6 +38,7 @@ import org.mtransit.android.ui.view.common.IActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -65,7 +66,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	}
 
 	@Nullable
-	private Observer<Map<String, SkuDetails>> newSkuObserver;
+	private Observer<Map<String, ProductDetails>> newProductDetailsObserver;
 
 	// TODO migrate to 100% Hilt after migrating to AndroidX
 	// TODO @InstallIn(FragmentComponent.class) ?
@@ -104,8 +105,8 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		this.newSkuObserver = this::onNewSku;
-		getEntryPoint(requireContext()).billingManager().getSkusWithSkuDetails().observeForever(this.newSkuObserver); // NOT ANDROID X
+		this.newProductDetailsObserver = this::onNewProductId;
+		getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().observeForever(this.newProductDetailsObserver); // NOT ANDROID X
 	}
 
 	@Override
@@ -163,8 +164,8 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		if (this.newSkuObserver != null) {
-			getEntryPoint(requireContext()).billingManager().getSkusWithSkuDetails().removeObserver(this.newSkuObserver);
+		if (this.newProductDetailsObserver != null) {
+			getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().removeObserver(this.newProductDetailsObserver);
 		}
 	}
 
@@ -269,15 +270,15 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
-			String sku = IBillingManager.SKU_STARTS_WITH_F + periodCat + IBillingManager.SKU_SUBSCRIPTION + priceCat;
-			if (!IBillingManager.AVAILABLE_SUBSCRIPTIONS.contains(sku)) {
-				MTLog.w(this, "onBuyBtnClick() > skip (unexpected sku: %s)", sku);
+			String productId = IBillingManager.PRODUCT_ID_STARTS_WITH_F + periodCat + IBillingManager.PRODUCT_ID_SUBSCRIPTION + priceCat;
+			if (!IBillingManager.AVAILABLE_SUBSCRIPTIONS.contains(productId)) {
+				MTLog.w(this, "onBuyBtnClick() > skip (unexpected product ID: %s)", productId);
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
-			final boolean billingFlowLaunched = getEntryPoint(context).billingManager().launchBillingFlow(this, sku);
+			final boolean billingFlowLaunched = getEntryPoint(context).billingManager().launchBillingFlow(this, productId);
 			if (!billingFlowLaunched) {
-				MTLog.w(this, "onBuyBtnClick() > skip (can not launch billing flow for: %s)", sku);
+				MTLog.w(this, "onBuyBtnClick() > skip (can not launch billing flow for: %s)", productId);
 				ToastUtils.makeTextAndShowCentered(context, R.string.support_subs_default_failure_message);
 				return;
 			}
@@ -438,13 +439,15 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	private final ArrayList<String> periods = new ArrayList<>();
 	private final ArrayMap<String, String> periodSToPeriodCat = new ArrayMap<>();
 
-	private void onNewSku(@Nullable Map<String, SkuDetails> skusWithSkuDetails) {
+	private void onNewProductId(@Nullable Map<String, ProductDetails> productIdsWithDetails) {
+		MTLog.v(this, "onNewProductId(%s)", productIdsWithDetails);
+		// TODO here add debug
 		View view = getView();
 		Activity activity = getActivity();
 		if (view == null || activity == null) {
 			return;
 		}
-		if (skusWithSkuDetails == null) {
+		if (productIdsWithDetails == null) {
 			return;
 		}
 		this.prices.clear();
@@ -453,39 +456,65 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		this.periodSToPeriodCat.clear();
 		String defaultPriceS = null;
 		String defaultPeriodS = null;
-		for (String sku : skusWithSkuDetails.keySet()) {
-			if (!sku.startsWith(IBillingManager.SKU_STARTS_WITH_F)) {
+		for (String productId : productIdsWithDetails.keySet()) {
+			MTLog.d(this, "onNewProductId() > productId: %s.", productId);
+			if (!productId.startsWith(IBillingManager.PRODUCT_ID_STARTS_WITH_F)) {
 				continue;
 			}
-			SkuDetails skuDetails = skusWithSkuDetails.get(sku);
-			if (skuDetails == null) {
+			ProductDetails productDetails = productIdsWithDetails.get(productId);
+			MTLog.d(this, "onNewProductId() > productDetails: %s.", productDetails);
+			if (productDetails == null) {
 				continue;
 			}
-			String periodCat = sku.substring(
-					IBillingManager.SKU_STARTS_WITH_F.length(),
-					sku.indexOf(IBillingManager.SKU_SUBSCRIPTION, IBillingManager.SKU_STARTS_WITH_F.length())
+			String periodCat = productId.substring(
+					IBillingManager.PRODUCT_ID_STARTS_WITH_F.length(),
+					productId.indexOf(IBillingManager.PRODUCT_ID_SUBSCRIPTION, IBillingManager.PRODUCT_ID_STARTS_WITH_F.length())
 			);
+			MTLog.d(this, "onNewProductId() > periodCat: %s.", periodCat);
 			final Integer resId = PERIOD_RES_ID.get(periodCat);
 			if (resId == null) {
-				MTLog.w(this, "Skip sku %s (unknown periodCat: %s)", sku, periodCat);
+				MTLog.w(this, "Skip product ID %s (unknown periodCat: %s)", productId, periodCat);
 				continue;
 			}
-			String priceCat = sku.substring(sku.indexOf(IBillingManager.SKU_SUBSCRIPTION) + IBillingManager.SKU_SUBSCRIPTION.length());
-			String priceS = skuDetails.getPrice();
+			String priceCat = productId.substring(productId.indexOf(IBillingManager.PRODUCT_ID_SUBSCRIPTION) + IBillingManager.PRODUCT_ID_SUBSCRIPTION.length());
+			MTLog.d(this, "onNewProductId() > priceCat: %s.", priceCat);
+			List<ProductDetails.SubscriptionOfferDetails> subOfferDetailsList = productDetails.getSubscriptionOfferDetails();
+			if (subOfferDetailsList == null || subOfferDetailsList.isEmpty()) {
+				MTLog.w(this, "Skip product ID %s (no offer details)", productId);
+				return;
+			}
+			ProductDetails.SubscriptionOfferDetails subOfferDetails = subOfferDetailsList.get(IBillingManager.OFFER_DETAILS_IDX);
+			if (subOfferDetails == null) {
+				MTLog.w(this, "Skip product ID %s (no offer details item)", productId);
+				return;
+			}
+			List<ProductDetails.PricingPhase> pricingPhaseList = subOfferDetails.getPricingPhases().getPricingPhaseList();
+			MTLog.d(this, "onNewProductId() > pricingPhaseList: %s.", pricingPhaseList.size());
+			for (ProductDetails.PricingPhase pricingPhase : pricingPhaseList) {
+				MTLog.d(this, "onNewProductId() > pricingPhase.: %s_%s_%s_%s.", pricingPhase.getFormattedPrice(), pricingPhase.getBillingPeriod(), pricingPhase.getRecurrenceMode(), pricingPhase.getBillingCycleCount());
+			}
+			TODO test
+		- 1st is trial (1 month free, cancel anytime),
+		- 2nd is actually  paid
+			String priceS = pricingPhaseList.get(pricingPhaseList.size() - 1).getFormattedPrice();
+			MTLog.d(this, "onNewProductId() > priceS: %s.", priceS);
 			this.priceSToPriceCat.put(priceS, priceCat);
 			if (!this.prices.contains(priceS)) {
 				this.prices.add(priceS);
 			}
 			String periodS = activity.getString(resId);
+			MTLog.d(this, "onNewProductId() > periodS: %s.", periodS);
 			if (!this.periods.contains(periodS)) {
 				this.periods.add(periodS);
 			}
 			this.periodSToPeriodCat.put(periodS, periodCat);
 			if (IBillingManager.DEFAULT_PRICE_CAT.equals(priceCat)) {
 				defaultPriceS = priceS;
+				MTLog.d(this, "onNewProductId() > defaultPriceS: %s.", defaultPriceS);
 			}
 			if (IBillingManager.DEFAULT_PERIOD_CAT.equals(periodCat)) {
 				defaultPeriodS = periodS;
+				MTLog.d(this, "onNewProductId() > defaultPeriodS: %s.", defaultPeriodS);
 			}
 		}
 		Collections.sort(this.periods, (lPeriodS, rPeriodS) -> {
@@ -512,6 +541,10 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 				return 0;
 			}
 		});
+		MTLog.d(this, "onNewProductId() > periods: %s.", periods);
+		MTLog.d(this, "onNewProductId() > periodSToPeriodCat: %s.", periodSToPeriodCat);
+		MTLog.d(this, "onNewProductId() > prices: %s.", prices);
+		MTLog.d(this, "onNewProductId() > priceSToPriceCat: %s.", priceSToPriceCat);
 		Spinner priceSpinner = view.findViewById(R.id.price);
 		priceSpinner.setAdapter(new ArrayAdapter<>(activity, android.R.layout.simple_spinner_dropdown_item, this.prices));
 		if (defaultPriceS != null) {

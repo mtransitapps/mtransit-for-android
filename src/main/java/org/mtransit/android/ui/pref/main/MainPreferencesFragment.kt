@@ -53,8 +53,8 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
     private val activityViewModel by activityViewModels<PreferencesViewModel>()
 
     private val onBillingResultListener = object : IBillingManager.OnBillingResultListener {
-        override fun onBillingResult(sku: String?) {
-            val hasSubscription: Boolean? = sku?.isNotEmpty()
+        override fun onBillingResult(productId: String?) {
+            val hasSubscription: Boolean? = productId?.isNotEmpty()
             (findPreference(MainPreferencesViewModel.SUPPORT_SUBSCRIPTIONS_PREF) as? Preference)?.apply {
                 when {
                     hasSubscription == null -> {

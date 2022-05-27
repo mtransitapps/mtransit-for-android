@@ -156,8 +156,8 @@ public class MainActivity extends MTActivityWithLocation implements
 	}
 
 	@Override
-	public void onBillingResult(@Nullable String sku) {
-		Boolean hasSubscription = sku == null ? null : !sku.isEmpty();
+	public void onBillingResult(@Nullable String productId) {
+		Boolean hasSubscription = productId == null ? null : !productId.isEmpty();
 		if (hasSubscription != null) {
 			this.adManager.setShowingAds(!hasSubscription, this);
 		}

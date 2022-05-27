@@ -34,7 +34,6 @@ import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
 import org.mtransit.android.commons.LocaleUtils
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.databinding.ActivityMainBinding
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -213,8 +212,8 @@ class MainActivity : MTActivityWithLocation(),
         registerReceiver(ModulesReceiver(), ModulesReceiver.getIntentFilter())
     }
 
-    override fun onBillingResult(sku: String?) {
-        sku?.isNotEmpty()?.let { hasSubscription ->
+    override fun onBillingResult(productId: String?) {
+        productId?.isNotEmpty()?.let { hasSubscription ->
             adManager.setShowingAds(!hasSubscription, this)
         }
     }
