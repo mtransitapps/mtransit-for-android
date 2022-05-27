@@ -38,7 +38,6 @@ class MTBillingManager @Inject constructor(
     ProductDetailsResponseListener // product ID details (name, price...)
 {
 
-
     companion object {
         private val LOG_TAG = MTBillingManager::class.java.simpleName
 
@@ -149,7 +148,6 @@ class MTBillingManager @Inject constructor(
                 _productIdsWithDetails.postValue(HashMap<String, ProductDetails>()
                     .apply {
                         for (details in productDetailsList) {
-                            MTLog.d(this@MTBillingManager, "onProductDetailsResponse() > ${details.productId} : $details")
                             put(details.productId, details)
                         }
                     }

@@ -23,6 +23,8 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 
 import com.android.billingclient.api.ProductDetails;
+import com.android.billingclient.api.ProductDetails.PricingPhase;
+import com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails;
 
 import org.mtransit.android.R;
 import org.mtransit.android.ad.IAdManager;
@@ -440,8 +442,6 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	private final ArrayMap<String, String> periodSToPeriodCat = new ArrayMap<>();
 
 	private void onNewProductId(@Nullable Map<String, ProductDetails> productIdsWithDetails) {
-		MTLog.v(this, "onNewProductId(%s)", productIdsWithDetails);
-		// TODO here add debug
 		View view = getView();
 		Activity activity = getActivity();
 		if (view == null || activity == null) {
@@ -457,64 +457,56 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		String defaultPriceS = null;
 		String defaultPeriodS = null;
 		for (String productId : productIdsWithDetails.keySet()) {
-			MTLog.d(this, "onNewProductId() > productId: %s.", productId);
 			if (!productId.startsWith(IBillingManager.PRODUCT_ID_STARTS_WITH_F)) {
+				MTLog.w(this, "Skip product ID %s (unexpected)", productId);
 				continue;
 			}
-			ProductDetails productDetails = productIdsWithDetails.get(productId);
-			MTLog.d(this, "onNewProductId() > productDetails: %s.", productDetails);
+			final ProductDetails productDetails = productIdsWithDetails.get(productId);
 			if (productDetails == null) {
+				MTLog.w(this, "Skip product ID %s (unknown product detail)", productId);
 				continue;
 			}
-			String periodCat = productId.substring(
+			final String periodCat = productId.substring(
 					IBillingManager.PRODUCT_ID_STARTS_WITH_F.length(),
 					productId.indexOf(IBillingManager.PRODUCT_ID_SUBSCRIPTION, IBillingManager.PRODUCT_ID_STARTS_WITH_F.length())
 			);
-			MTLog.d(this, "onNewProductId() > periodCat: %s.", periodCat);
 			final Integer resId = PERIOD_RES_ID.get(periodCat);
 			if (resId == null) {
 				MTLog.w(this, "Skip product ID %s (unknown periodCat: %s)", productId, periodCat);
 				continue;
 			}
-			String priceCat = productId.substring(productId.indexOf(IBillingManager.PRODUCT_ID_SUBSCRIPTION) + IBillingManager.PRODUCT_ID_SUBSCRIPTION.length());
-			MTLog.d(this, "onNewProductId() > priceCat: %s.", priceCat);
-			List<ProductDetails.SubscriptionOfferDetails> subOfferDetailsList = productDetails.getSubscriptionOfferDetails();
+			final String priceCat = productId.substring(productId.indexOf(IBillingManager.PRODUCT_ID_SUBSCRIPTION) + IBillingManager.PRODUCT_ID_SUBSCRIPTION.length());
+			final List<SubscriptionOfferDetails> subOfferDetailsList = productDetails.getSubscriptionOfferDetails();
 			if (subOfferDetailsList == null || subOfferDetailsList.isEmpty()) {
 				MTLog.w(this, "Skip product ID %s (no offer details)", productId);
 				return;
 			}
-			ProductDetails.SubscriptionOfferDetails subOfferDetails = subOfferDetailsList.get(IBillingManager.OFFER_DETAILS_IDX);
+			final SubscriptionOfferDetails subOfferDetails = subOfferDetailsList.get(IBillingManager.OFFER_DETAILS_IDX);
 			if (subOfferDetails == null) {
 				MTLog.w(this, "Skip product ID %s (no offer details item)", productId);
 				return;
 			}
-			List<ProductDetails.PricingPhase> pricingPhaseList = subOfferDetails.getPricingPhases().getPricingPhaseList();
-			MTLog.d(this, "onNewProductId() > pricingPhaseList: %s.", pricingPhaseList.size());
-			for (ProductDetails.PricingPhase pricingPhase : pricingPhaseList) {
-				MTLog.d(this, "onNewProductId() > pricingPhase.: %s_%s_%s_%s.", pricingPhase.getFormattedPrice(), pricingPhase.getBillingPeriod(), pricingPhase.getRecurrenceMode(), pricingPhase.getBillingCycleCount());
+			final List<PricingPhase> pricingPhaseList = subOfferDetails.getPricingPhases().getPricingPhaseList();
+			if (pricingPhaseList.isEmpty()) {
+				MTLog.w(this, "Skip product ID %s (no pricing list)", productId);
+				return;
 			}
-			TODO test
-		- 1st is trial (1 month free, cancel anytime),
-		- 2nd is actually  paid
-			String priceS = pricingPhaseList.get(pricingPhaseList.size() - 1).getFormattedPrice();
-			MTLog.d(this, "onNewProductId() > priceS: %s.", priceS);
+			final PricingPhase lastPricingPhase = pricingPhaseList.get(pricingPhaseList.size() - 1);
+			final String priceS = lastPricingPhase.getFormattedPrice();
 			this.priceSToPriceCat.put(priceS, priceCat);
 			if (!this.prices.contains(priceS)) {
 				this.prices.add(priceS);
 			}
-			String periodS = activity.getString(resId);
-			MTLog.d(this, "onNewProductId() > periodS: %s.", periodS);
+			final String periodS = activity.getString(resId);
 			if (!this.periods.contains(periodS)) {
 				this.periods.add(periodS);
 			}
 			this.periodSToPeriodCat.put(periodS, periodCat);
 			if (IBillingManager.DEFAULT_PRICE_CAT.equals(priceCat)) {
 				defaultPriceS = priceS;
-				MTLog.d(this, "onNewProductId() > defaultPriceS: %s.", defaultPriceS);
 			}
 			if (IBillingManager.DEFAULT_PERIOD_CAT.equals(periodCat)) {
 				defaultPeriodS = periodS;
-				MTLog.d(this, "onNewProductId() > defaultPeriodS: %s.", defaultPeriodS);
 			}
 		}
 		Collections.sort(this.periods, (lPeriodS, rPeriodS) -> {
@@ -541,10 +533,6 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 				return 0;
 			}
 		});
-		MTLog.d(this, "onNewProductId() > periods: %s.", periods);
-		MTLog.d(this, "onNewProductId() > periodSToPeriodCat: %s.", periodSToPeriodCat);
-		MTLog.d(this, "onNewProductId() > prices: %s.", prices);
-		MTLog.d(this, "onNewProductId() > priceSToPriceCat: %s.", priceSToPriceCat);
 		Spinner priceSpinner = view.findViewById(R.id.price);
 		priceSpinner.setAdapter(new ArrayAdapter<>(activity, android.R.layout.simple_spinner_dropdown_item, this.prices));
 		if (defaultPriceS != null) {
