@@ -3,7 +3,6 @@ package org.mtransit.android.ad;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.location.Location;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.View;
@@ -46,7 +45,6 @@ import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.DemoModeManager;
-import org.mtransit.android.provider.location.MTLocationProvider;
 import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.commons.FeatureFlags;
 
@@ -113,8 +111,6 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	@NonNull
 	private final CrashReporter crashReporter;
 	@NonNull
-	private final MTLocationProvider locationProvider;
-	@NonNull
 	private final DemoModeManager demoModeManager;
 	@NonNull
 	private final DefaultPreferenceRepository defaultPrefRepository;
@@ -125,13 +121,11 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	@Inject
 	public AdManager(@NonNull @ApplicationContext Context appContext,
 					 @NonNull CrashReporter crashReporter,
-					 @NonNull MTLocationProvider locationProvider,
 					 @NonNull DemoModeManager demoModeManager,
 					 @NonNull DefaultPreferenceRepository defaultPrefRepository,
 					 @NonNull DataSourcesRepository dataSourcesRepository) {
 		this.appContext = appContext;
 		this.crashReporter = crashReporter;
-		this.locationProvider = locationProvider;
 		this.demoModeManager = demoModeManager;
 		this.defaultPrefRepository = defaultPrefRepository;
 		this.dataSourcesRepository = dataSourcesRepository;
@@ -417,10 +411,6 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	@NonNull
 	private AdRequest getAdRequest(@NonNull IContext context) {
 		AdRequest.Builder adRequestBd = new AdRequest.Builder();
-		Location lastLocation = getLastLocation();
-		if (lastLocation != null) {
-			adRequestBd.setLocation(lastLocation);
-		}
 		for (String keyword : KEYWORDS) {
 			adRequestBd.addKeyword(keyword);
 		}
@@ -785,12 +775,6 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		final int sizeMask = configuration.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
 		final boolean smallScreen = sizeMask == Configuration.SCREENLAYOUT_SIZE_SMALL || sizeMask == Configuration.SCREENLAYOUT_SIZE_NORMAL;
 		return !smallScreen;
-	}
-
-	@Nullable
-	private Location getLastLocation() {
-		this.locationProvider.readLastLocation();
-		return this.locationProvider.getLastLocationOrNull();
 	}
 
 	@Override
