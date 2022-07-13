@@ -87,9 +87,6 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
 
     private var binding: FragmentMapBinding? = null
 
-    var loadingLatLngBounds: LatLngBounds? = null
-    var loadedLatLngBounds: LatLngBounds? = null
-
     @Inject
     lateinit var dataSourcesRepository: DataSourcesRepository
 
@@ -153,6 +150,7 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        @Suppress("DEPRECATION") // TODO use MenuProvider
         setHasOptionsMenu(true)
         mapViewController.onCreate(savedInstanceState)
     }
@@ -163,47 +161,47 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
         binding = FragmentMapBinding.bind(view).apply {
             // DO NOTHING
         }
-        viewModel.initialLocation.observe(viewLifecycleOwner, { location ->
+        viewModel.initialLocation.observe(viewLifecycleOwner) { location ->
             location?.let {
                 mapViewController.setInitialLocation(it)
                 viewModel.onInitialLocationSet()
             }
-        })
-        viewModel.selectedUUID.observe(viewLifecycleOwner, {
+        }
+        viewModel.selectedUUID.observe(viewLifecycleOwner) {
             it?.let {
                 mapViewController.setInitialSelectedUUID(it)
                 viewModel.onSelectedUUIDSet()
             }
-        })
-        viewModel.deviceLocation.observe(viewLifecycleOwner, {
+        }
+        viewModel.deviceLocation.observe(viewLifecycleOwner) {
             context?.let { context ->
                 mapViewController.setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
             }
             mapViewController.onDeviceLocationChanged(it)
-        })
-        viewModel.filterTypeIds.observe(viewLifecycleOwner, {
+        }
+        viewModel.filterTypeIds.observe(viewLifecycleOwner) {
             abController?.setABTitle(this, getABTitle(context), true)
-        })
-        viewModel.typeMapAgencies.observe(viewLifecycleOwner, {
+        }
+        viewModel.typeMapAgencies.observe(viewLifecycleOwner) {
             viewModel.resetLoadedPOIMarkers()
-        })
-        viewModel.poiMarkersTrigger.observe(viewLifecycleOwner, {
+        }
+        viewModel.poiMarkersTrigger.observe(viewLifecycleOwner) {
             // DO NOTHING
-        })
-        viewModel.loaded.observe(viewLifecycleOwner, {
+        }
+        viewModel.loaded.observe(viewLifecycleOwner) {
             if (it == false) {
                 mapViewController.showLoading()
             } else if (it == true) {
                 mapViewController.hideLoading()
             }
-        })
-        viewModel.poiMarkers.observe(viewLifecycleOwner, {
+        }
+        viewModel.poiMarkers.observe(viewLifecycleOwner) {
             mapViewController.clearMarkers() // new types -> RESET
             it?.let { poiMarkers ->
                 mapViewController.addMarkers(poiMarkers)
                 mapViewController.showMap(view)
             }
-        })
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -242,11 +240,15 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
         mapViewController.onLowMemory()
     }
 
+    @Deprecated(message = "TODO use MenuProvider")
+    @Suppress("DEPRECATION") // TODO use MenuProvider
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_map, menu)
     }
 
+    @Deprecated(message = "TODO use MenuProvider")
+    @Suppress("DEPRECATION") // TODO use MenuProvider
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (item.itemId == R.id.menu_filter) {
             showMenuFilterDialog()
@@ -309,7 +311,7 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
     }
 
     private fun makeABTitle(context: Context): CharSequence {
-        return (attachedViewModel?.filterTypeIds?.value?.let { if (it.isEmpty()) null else it } // empty = all
+        return (attachedViewModel?.filterTypeIds?.value?.let { it.ifEmpty { null } } // empty = all
             ?.mapNotNull { typeId ->
                 DataSourceType.parseId(typeId)?.allStringResId?.let { context.getString(it) }
             } ?: listOf(context.getString(R.string.all)))

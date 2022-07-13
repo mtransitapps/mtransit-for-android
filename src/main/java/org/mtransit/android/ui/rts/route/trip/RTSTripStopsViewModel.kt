@@ -52,11 +52,12 @@ class RTSTripStopsViewModel @Inject constructor(
 
     val agencyAuthority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AGENCY_AUTHORITY)
 
-    val routeId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_ROUTE_ID)
+    private val _routeId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_ROUTE_ID)
 
     val tripId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_TRIP_ID)
 
-    val selectedTripStopId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_STOP_ID, EXTRA_SELECTED_STOP_ID_DEFAULT).map { if (it < 0) null else it }
+    val selectedTripStopId = savedStateHandle.getLiveDataDistinct(EXTRA_SELECTED_STOP_ID, EXTRA_SELECTED_STOP_ID_DEFAULT)
+        .map { if (it < 0) null else it }
 
     val closestPOIShown = savedStateHandle.getLiveDataDistinct(EXTRA_CLOSEST_POI_SHOWN, EXTRA_CLOSEST_POI_SHOWN_DEFAULT)
 
@@ -91,7 +92,7 @@ class RTSTripStopsViewModel @Inject constructor(
         )
     }
 
-    val showingListInsteadOfMap: LiveData<Boolean> = TripleMediatorLiveData(agencyAuthority, routeId, tripId).switchMap { (authority, routeId, tripId) ->
+    val showingListInsteadOfMap: LiveData<Boolean> = TripleMediatorLiveData(agencyAuthority, _routeId, tripId).switchMap { (authority, routeId, tripId) ->
         liveData {
             if (authority == null || routeId == null || tripId == null) {
                 return@liveData // SKIP
@@ -115,7 +116,7 @@ class RTSTripStopsViewModel @Inject constructor(
         }
         lclPrefRepository.pref.edit {
             val authority = agencyAuthority.value ?: return
-            val routeId = routeId.value ?: return
+            val routeId = _routeId.value ?: return
             val tripId = tripId.value ?: return
             putBoolean(
                 LocalPreferenceRepository.getPREFS_LCL_RTS_ROUTE_TRIP_ID_KEY(authority, routeId, tripId),

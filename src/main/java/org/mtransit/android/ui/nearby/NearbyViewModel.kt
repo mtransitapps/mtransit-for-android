@@ -122,7 +122,7 @@ class NearbyViewModel @Inject constructor(
         }
     }
 
-    val fixedOnName = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_FIXED_ON_NAME, EXTRA_FIXED_ON_NAME_DEFAULT)
+    val fixedOnName = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_NAME, EXTRA_FIXED_ON_NAME_DEFAULT)
 
     val isFixedOn: LiveData<Boolean?> = TripleMediatorLiveData(_fixedOnLat, _fixedOnLng, fixedOnName).map { (lat, lng, name) ->
         lat != null && lng != null && !name.isNullOrBlank()
@@ -136,7 +136,7 @@ class NearbyViewModel @Inject constructor(
                     && !LocationUtils.areAlmostTheSame(nearbyLocation, deviceLocation, LocationUtils.LOCATION_CHANGED_NOTIFY_USER_IN_METERS)
         }
 
-    val fixedOnColorInt = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_FIXED_ON_COLOR, EXTRA_FIXED_ON_COLOR_DEFAULT)
+    val fixedOnColorInt = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_COLOR, EXTRA_FIXED_ON_COLOR_DEFAULT)
         .map { it?.let { ColorUtils.parseColor(it) } }
 
     val availableTypes: LiveData<List<DataSourceType>?> = this.dataSourcesRepository.readingAllDataSourceTypes().map { // #onModulesUpdated

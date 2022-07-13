@@ -83,14 +83,14 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
         binding = FragmentNewsDetailsBinding.bind(view).apply {
             // DO NOTHING
         }
-        viewModel.newsArticle.observe(viewLifecycleOwner, { newsArticle ->
+        viewModel.newsArticle.observe(viewLifecycleOwner) { newsArticle ->
             updateNewsView(newsArticle)
             abController?.apply {
                 setABBgColor(this@NewsDetailsFragment, getABBgColor(context), false)
                 setABReady(this@NewsDetailsFragment, isABReady, true)
             }
             MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
-        })
+        }
         viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
             if (removed) {
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
@@ -142,7 +142,7 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
                 }
                 date.apply {
                     setText(UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs), TextView.BufferType.SPANNABLE)
-                    val newWebURL = if (newsArticle.webURL.isBlank()) newsArticle.authorProfileURL else newsArticle.webURL
+                    val newWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
                     setOnClickListener { view ->
                         LinkUtils.open(view, requireActivity(), newWebURL, getString(R.string.web_browser), true)
                     }
@@ -193,6 +193,4 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
         super.onDestroyView()
         binding = null
     }
-
-
 }

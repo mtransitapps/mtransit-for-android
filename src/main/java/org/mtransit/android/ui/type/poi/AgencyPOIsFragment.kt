@@ -146,7 +146,8 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
+        @Suppress("DEPRECATION") // TODO use MenuProvider
+        setHasOptionsMenu(true) // TODO really?
         this.mapViewController.onCreate(savedInstanceState)
     }
 
@@ -182,6 +183,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
         viewModel.showingListInsteadOfMap.observe(viewLifecycleOwner) { showingListInsteadOfMap ->
             showingListInsteadOfMap?.let { listInsteadOfMap ->
                 binding?.fabListMap?.apply {
+                    @Suppress("LiftReturnOrAssignment")
                     if (listInsteadOfMap) { // LIST
                         setImageResource(R.drawable.switch_action_map_dark_16dp)
                         contentDescription = getString(R.string.menu_action_map)

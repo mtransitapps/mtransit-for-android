@@ -215,7 +215,9 @@ fun <T : IAgencyProperties> List<T>.filterDemoModeAgency(demoModeManager: DemoMo
     if (demoModeManager.notEnabled) {
         return this
     }
-    return filterTo(ArrayList(), { agency -> agency.authority == demoModeManager.filterAgencyAuthority || demoModeManager.isAllowedAnyway(agency) })
+    return filterTo(ArrayList()) { agency ->
+        agency.authority == demoModeManager.filterAgencyAuthority || demoModeManager.isAllowedAnyway(agency)
+    }
 }
 
 fun <T : IAgencyProperties> T?.takeIfDemoModeAgency(demoModeManager: DemoModeManager): T? {
@@ -229,21 +231,27 @@ fun List<DataSourceType>.filterDemoModeType(demoModeManager: DemoModeManager): L
     if (demoModeManager.notEnabled) {
         return this
     }
-    return filterTo(ArrayList(), { type -> type.id == demoModeManager.filterAgencyTypeId || demoModeManager.isAllowedAnyway(type) })
+    return filterTo(ArrayList()) { type ->
+        type.id == demoModeManager.filterAgencyTypeId || demoModeManager.isAllowedAnyway(type)
+    }
 }
 
 fun <T : ITargetedProviderProperties> List<T>.filterDemoModeTargeted(demoModeManager: DemoModeManager): List<T> {
     if (demoModeManager.notEnabled) {
         return this
     }
-    return filterTo(ArrayList(), { targeted -> targeted.targetAuthority == demoModeManager.filterAgencyAuthority || demoModeManager.isAllowedAnyway(targeted) })
+    return filterTo(ArrayList()) { targeted ->
+        targeted.targetAuthority == demoModeManager.filterAgencyAuthority || demoModeManager.isAllowedAnyway(targeted)
+    }
 }
 
 fun <T : ITargetedProviderProperties> Set<T>.filterDemoModeTargeted(demoModeManager: DemoModeManager): Set<T> {
     if (demoModeManager.notEnabled) {
         return this
     }
-    return filterTo(HashSet(), { targeted -> targeted.targetAuthority == demoModeManager.filterAgencyAuthority || demoModeManager.isAllowedAnyway(targeted) })
+    return filterTo(HashSet()) { targeted ->
+        targeted.targetAuthority == demoModeManager.filterAgencyAuthority || demoModeManager.isAllowedAnyway(targeted)
+    }
 }
 
 fun <T : ITargetedProviderProperties> T?.takeIfDemoModeTargeted(demoModeManager: DemoModeManager): T? {

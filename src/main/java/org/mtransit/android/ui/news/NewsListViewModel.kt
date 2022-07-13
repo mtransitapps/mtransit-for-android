@@ -41,7 +41,8 @@ class NewsListViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val colorInt = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_COLOR, EXTRA_COLOR_DEFAULT).map { it?.let { ColorUtils.parseColor(it) } }
+    val colorInt = savedStateHandle.getLiveDataDistinct(EXTRA_COLOR, EXTRA_COLOR_DEFAULT)
+        .map { it?.let { ColorUtils.parseColor(it) } }
 
     val subTitle = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SUB_TITLE)
 

@@ -100,7 +100,8 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
+        @Suppress("DEPRECATION") // TODO use MenuProvider
+        setHasOptionsMenu(true) // TODO really?
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

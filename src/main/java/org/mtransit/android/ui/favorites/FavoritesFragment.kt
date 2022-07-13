@@ -94,6 +94,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        @Suppress("DEPRECATION") // TODO use MenuProvider
         setHasOptionsMenu(true)
     }
 
@@ -110,7 +111,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
                 adapter.setListView(listView)
             }
         }
-        viewModel.favoritePOIs.observe(viewLifecycleOwner, { favoritePOIS ->
+        viewModel.favoritePOIs.observe(viewLifecycleOwner) { favoritePOIS ->
             adapter.setPois(favoritePOIS)
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
             binding?.apply {
@@ -132,10 +133,10 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
                     }
                 }
             }
-        })
-        viewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation ->
+        }
+        viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             adapter.setLocation(deviceLocation)
-        })
+        }
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
                 if (scroll) {
@@ -167,11 +168,15 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
+    @Deprecated(message = "TODO use MenuProvider")
+    @Suppress("DEPRECATION") // TODO use MenuProvider
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_favorites, menu)
     }
 
+    @Deprecated(message = "TODO use MenuProvider")
+    @Suppress("DEPRECATION") // TODO use MenuProvider
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_add_favorite_folder -> {

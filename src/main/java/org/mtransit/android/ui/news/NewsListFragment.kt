@@ -152,28 +152,28 @@ class NewsListFragment : ABFragment(R.layout.fragment_news_list) {
                 )
             }
         }
-        viewModel.subTitle.observe(viewLifecycleOwner, {
+        viewModel.subTitle.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             if (FeatureFlags.F_NAVIGATION) {
                 mainViewModel.setABSubtitle(getABSubtitle(context))
             }
-        })
-        viewModel.colorInt.observe(viewLifecycleOwner, {
+        }
+        viewModel.colorInt.observe(viewLifecycleOwner) {
             abController?.setABBgColor(this, getABBgColor(context), false)
             if (FeatureFlags.F_NAVIGATION) {
                 mainViewModel.setABBgColor(getABBgColor(context))
             }
-        })
-        viewModel.loading.observe(viewLifecycleOwner, { loading ->
+        }
+        viewModel.loading.observe(viewLifecycleOwner) { loading ->
             binding?.refreshLayout?.isRefreshing = loading
-        })
-        viewModel.newsArticles.observe(viewLifecycleOwner, { newsArticles ->
+        }
+        viewModel.newsArticles.observe(viewLifecycleOwner) { newsArticles ->
             listAdapter.submitList(newsArticles)
             binding?.newsContainerLayout?.apply {
                 newsLinearLayout.isVisible = !newsArticles.isNullOrEmpty()
                 noNewsLayout.isVisible = newsArticles.isNullOrEmpty()
             }
-        })
+        }
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
                 if (scroll) {

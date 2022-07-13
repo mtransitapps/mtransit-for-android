@@ -155,6 +155,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        @Suppress("DEPRECATION") // TODO use MenuProvider
         setHasOptionsMenu(true)
         MTTransitions.setContainerTransformTransition(this)
         // if (FeatureFlags.F_TRANSITION) {
@@ -183,24 +184,24 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
                 }
             }
         }
-        viewModel.deviceLocation.observe(viewLifecycleOwner, {
+        viewModel.deviceLocation.observe(viewLifecycleOwner) {
             adapter.setLocation(it)
-        })
-        viewModel.nearbyLocationAddress.observe(viewLifecycleOwner, {
+        }
+        viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), true)
             if (FeatureFlags.F_NAVIGATION) {
                 mainViewModel.setABSubtitle(getABSubtitle(context))
             }
-        })
-        viewModel.nearbyPOIsTriggerListener.observe(viewLifecycleOwner, {
+        }
+        viewModel.nearbyPOIsTriggerListener.observe(viewLifecycleOwner) {
             // DO NOTHING
-        })
+        }
         viewModel.nearbyPOIsTrigger.observe(viewLifecycleOwner, EventObserver { triggered ->
             if (triggered) {
                 adapter.clear()
             }
         })
-        viewModel.nearbyPOIs.observe(viewLifecycleOwner, {
+        viewModel.nearbyPOIs.observe(viewLifecycleOwner) {
             it?.let {
                 val scrollToTop = adapter.poisCount <= 0
                 adapter.appendPois(it)
@@ -214,19 +215,19 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
                 }
                 switchView()
             }
-        })
-        viewModel.loadingPOIs.observe(viewLifecycleOwner, {
+        }
+        viewModel.loadingPOIs.observe(viewLifecycleOwner) {
             if (it == false) {
                 binding?.swipeRefresh?.isRefreshing = false
             }
-        })
-        viewModel.newLocationAvailable.observe(viewLifecycleOwner, { newLocationAvailable ->
+        }
+        viewModel.newLocationAvailable.observe(viewLifecycleOwner) { newLocationAvailable ->
             if (newLocationAvailable == true) {
                 showLocationToast()
             } else {
                 hideLocationToast()
             }
-        })
+        }
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
                 if (scroll) {
@@ -338,11 +339,15 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
+    @Deprecated(message = "TODO use MenuProvider")
+    @Suppress("DEPRECATION") // TODO use MenuProvider
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_home, menu)
     }
 
+    @Deprecated(message = "TODO use MenuProvider")
+    @Suppress("DEPRECATION") // TODO use MenuProvider
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.nav_map -> {

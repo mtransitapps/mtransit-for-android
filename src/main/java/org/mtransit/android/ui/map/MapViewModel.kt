@@ -76,7 +76,8 @@ class MapViewModel @Inject constructor(
         it.filter { dst -> dst.isMapScreen }
     }
 
-    private val includedTypeId = savedStateHandle.getLiveDataDistinct(EXTRA_INCLUDE_TYPE_ID, EXTRA_INCLUDE_TYPE_ID_DEFAULT).map { if (it < 0) null else it }
+    private val includedTypeId = savedStateHandle.getLiveDataDistinct(EXTRA_INCLUDE_TYPE_ID, EXTRA_INCLUDE_TYPE_ID_DEFAULT)
+        .map { if (it < 0) null else it }
 
     private val filterTypeIdsPref: LiveData<Set<String>> = lclPrefRepository.pref.liveData(
         LocalPreferenceRepository.PREFS_LCL_MAP_FILTER_TYPE_IDS, LocalPreferenceRepository.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT

@@ -242,6 +242,7 @@ public abstract class MTFragmentX extends Fragment implements MTLog.Loggable {
 		super.onPrepareOptionsMenu(menu);
 	}
 
+	@Deprecated
 	@Override
 	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 		if (Constants.LOG_LIFECYCLE) {

@@ -45,7 +45,8 @@ class ScheduleViewModel @Inject constructor(
 
     val uuid = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_POI_UUID)
 
-    val colorInt = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_COLOR, EXTRA_COLOR_DEFAULT).map { it?.let { ColorUtils.parseColor(it) } }
+    val colorInt = savedStateHandle.getLiveDataDistinct(EXTRA_COLOR, EXTRA_COLOR_DEFAULT)
+        .map { it?.let { ColorUtils.parseColor(it) } }
 
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
 

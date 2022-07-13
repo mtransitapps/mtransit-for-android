@@ -192,6 +192,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        @Suppress("DEPRECATION") // TODO use MenuProvider
         setHasOptionsMenu(true)
         MTTransitions.setContainerTransformTransition(this)
     }
@@ -359,6 +360,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
+    @Deprecated(message = "TODO use MenuProvider")
+    @Suppress("DEPRECATION") // TODO use MenuProvider
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_nearby, menu)
@@ -370,6 +373,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         showDirectionsMenuItem?.isVisible = isFixedOn == true
     }
 
+    @Deprecated(message = "TODO use MenuProvider")
+    @Suppress("DEPRECATION") // TODO use MenuProvider
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_show_directions -> {

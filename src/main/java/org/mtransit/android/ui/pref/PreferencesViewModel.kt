@@ -20,7 +20,7 @@ class PreferencesViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val showSupport = savedStateHandle.getLiveDataDistinct<Boolean?>(EXTRA_SUPPORT, false)
+    val showSupport = savedStateHandle.getLiveDataDistinct(EXTRA_SUPPORT, false)
 
     fun onSupportShown() {
         savedStateHandle[EXTRA_SUPPORT] = false

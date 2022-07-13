@@ -125,6 +125,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        @Suppress("DEPRECATION") // TODO use MenuProvider
         setHasOptionsMenu(true)
         MTTransitions.setContainerTransformTransition(this)
         // if (FeatureFlags.F_TRANSITION) {
@@ -222,6 +223,8 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
         switchView()
     }
 
+    @Deprecated(message = "TODO use MenuProvider")
+    @Suppress("DEPRECATION") // TODO use MenuProvider
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_agency_type, menu)
@@ -230,6 +233,8 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
         }
     }
 
+    @Deprecated(message = "TODO use MenuProvider")
+    @Suppress("DEPRECATION") // TODO use MenuProvider
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.menu_nearby) {
             viewModel.type.value?.let { type ->

@@ -38,6 +38,7 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        @Suppress("DEPRECATION") // TODO use MenuProvider
         setHasOptionsMenu(true)
     }
 
@@ -59,20 +60,24 @@ class ModulesFragment : Fragment(R.layout.fragment_modules), MTLog.Loggable {
             }
             list.adapter = listAdapter
         }
-        viewModel.agencies.observe(viewLifecycleOwner, { newAgencies ->
+        viewModel.agencies.observe(viewLifecycleOwner) { newAgencies ->
             listAdapter.submitList(newAgencies)
             binding?.apply {
                 list.isVisible = !newAgencies.isNullOrEmpty()
                 emptyLayout.isVisible = newAgencies.isNullOrEmpty()
             }
-        })
+        }
     }
 
+    @Deprecated(message = "TODO use MenuProvider")
+    @Suppress("DEPRECATION") // TODO use MenuProvider
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.menu_modules, menu)
     }
 
+    @Deprecated(message = "TODO use MenuProvider")
+    @Suppress("DEPRECATION") // TODO use MenuProvider
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_sort -> {

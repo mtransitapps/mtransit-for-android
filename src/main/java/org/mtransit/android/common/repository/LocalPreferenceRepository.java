@@ -28,8 +28,6 @@ public class LocalPreferenceRepository extends PreferenceRepository {
 	public static final String PREFS_LCL_DEV_MODE_ENABLED = PreferenceUtils.PREFS_LCL_DEV_MODE_ENABLED;
 	public static final boolean PREFS_LCL_DEV_MODE_ENABLED_DEFAULT = PreferenceUtils.PREFS_LCL_DEV_MODE_ENABLED_DEFAULT;
 
-	public static final boolean PREFS_LCL_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT = PreferenceUtils.PREFS_LCL_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_MAP_DEFAULT;
-
 	public static final long PREFS_LCL_RTS_ROUTE_TRIP_ID_TAB_DEFAULT = PreferenceUtils.PREFS_LCL_RTS_ROUTE_TRIP_ID_TAB_DEFAULT;
 
 	@NonNull

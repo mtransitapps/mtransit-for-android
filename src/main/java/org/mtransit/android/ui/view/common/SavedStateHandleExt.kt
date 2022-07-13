@@ -8,6 +8,6 @@ fun <T> SavedStateHandle.getLiveDataDistinct(key: String): LiveData<T> {
     return this.getLiveData<T>(key).distinctUntilChanged()
 }
 
-fun <T> SavedStateHandle.getLiveDataDistinct(key: String, initialValue: T? = null): LiveData<T> {
-    return this.getLiveData<T>(key, initialValue).distinctUntilChanged()
+fun <T> SavedStateHandle.getLiveDataDistinct(key: String, initialValue: T): LiveData<T> {
+    return this.getLiveData(key, initialValue).distinctUntilChanged()
 }
