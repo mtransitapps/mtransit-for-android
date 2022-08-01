@@ -4,8 +4,8 @@ package org.mtransit.android.ui.splash
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
-import org.mtransit.android.R
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.ui.MTActivity
@@ -36,10 +36,11 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
     private val viewModel by viewModels<SplashScreenViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.MTTheme)
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         analyticsManager.trackScreenView(this, this)
         viewModel.onAppOpen()
+        splashScreen.setKeepOnScreenCondition { true } // Keep the splash screen visible for this Activity
         showMainActivity()
     }
 

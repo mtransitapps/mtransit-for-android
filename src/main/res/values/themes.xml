@@ -28,8 +28,13 @@
         <item name="colorOnBackground">@color/color_on_background</item>
     </style>
 
-    <style name="MTTheme.Launcher" parent="MTTheme">
-        <item name="android:windowBackground">@drawable/background_launch_screen</item>
+    <style name="MTTheme.Launcher" parent="Theme.SplashScreen.IconBackground">
+
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/ic_launcher_background</item>
+        <item name="windowSplashScreenAnimationDuration">70</item>
+
+        <item name="postSplashScreenTheme">@style/MTTheme</item>
     </style>
 
     <style name="MTTheme.Full" parent="MTTheme">
