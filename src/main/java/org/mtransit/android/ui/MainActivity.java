@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -239,7 +240,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		super.onPostResume();
 		this.resumed = true;
 		if (this.currentUiMode != getResources().getConfiguration().uiMode) {
-			new Handler().post(() -> {
+			new Handler(Looper.getMainLooper()).post(() -> {
 				NightModeUtils.setDefaultNightMode(requireContext(), demoModeManager); // does NOT recreated because uiMode in configChanges AndroidManifest.xml
 			});
 		}

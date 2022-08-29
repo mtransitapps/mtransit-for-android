@@ -8,6 +8,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -971,7 +972,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	@NonNull
-	private final Handler handler = new Handler();
+	private final Handler handler = new Handler(Looper.getMainLooper());
 
 	@NonNull
 	private final Runnable notifyDataSetChangedLater = () -> {

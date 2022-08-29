@@ -5,6 +5,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -92,7 +93,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		return mainActivity == null ? null : mainActivity.getSupportActionBar();
 	}
 
-	private final Handler handler = new Handler();
+	private final Handler handler = new Handler(Looper.getMainLooper());
 
 	@Override
 	public void invalidateDrawable(@Nullable Drawable who) {
