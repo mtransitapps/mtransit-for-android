@@ -11,7 +11,10 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,7 +34,7 @@ import org.mtransit.android.ui.view.common.isAttached
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
+class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener, MenuProvider {
 
     companion object {
         private val LOG_TAG = MapFragment::class.java.simpleName
@@ -150,13 +153,15 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        @Suppress("DEPRECATION") // TODO use MenuProvider
-        setHasOptionsMenu(true)
         mapViewController.onCreate(savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val menuHost: MenuHost = requireActivity() as MenuHost
+        menuHost.addMenuProvider(
+            this, viewLifecycleOwner, Lifecycle.State.RESUMED
+        )
         this.mapViewController.onViewCreated(view, savedInstanceState)
         binding = FragmentMapBinding.bind(view).apply {
             // DO NOTHING
@@ -240,19 +245,14 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener {
         mapViewController.onLowMemory()
     }
 
-    @Deprecated(message = "TODO use MenuProvider")
-    @Suppress("DEPRECATION") // TODO use MenuProvider
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_map, menu)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_map, menu)
     }
 
-    @Deprecated(message = "TODO use MenuProvider")
-    @Suppress("DEPRECATION") // TODO use MenuProvider
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (item.itemId == R.id.menu_filter) {
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return if (menuItem.itemId == R.id.menu_filter) {
             showMenuFilterDialog()
-        } else super.onOptionsItemSelected(item)
+        } else false // not handled
     }
 
     private fun showMenuFilterDialog(): Boolean {

@@ -18,6 +18,8 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.MenuProvider;
+import androidx.lifecycle.Lifecycle;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
@@ -28,7 +30,7 @@ import org.mtransit.android.util.LinkUtils;
 
 import java.lang.ref.WeakReference;
 
-public class WebBrowserFragment extends ABFragment {
+public class WebBrowserFragment extends ABFragment implements MenuProvider {
 
 	private static final String LOG_TAG = WebBrowserFragment.class.getSimpleName();
 
@@ -77,7 +79,6 @@ public class WebBrowserFragment extends ABFragment {
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
 		restoreInstanceState(savedInstanceState, getArguments());
 	}
 
@@ -124,6 +125,14 @@ public class WebBrowserFragment extends ABFragment {
 		View view = inflater.inflate(R.layout.fragment_web_browser, container, false);
 		setupView(view);
 		return view;
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		requireActivity().addMenuProvider(
+				this, getViewLifecycleOwner(), Lifecycle.State.RESUMED
+		);
 	}
 
 	@SuppressLint("SetJavaScriptEnabled")
@@ -266,18 +275,17 @@ public class WebBrowserFragment extends ABFragment {
 	}
 
 	@Override
-	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.menu_web_browser, menu);
+	public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+		menuInflater.inflate(R.menu.menu_web_browser, menu);
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		if (item.getItemId() == R.id.menu_open_www) {
+	public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+		if (menuItem.getItemId() == R.id.menu_open_www) {
 			LinkUtils.open(null, requireActivity(), this.currentUrl, getString(R.string.web_browser), false);
-			return true;
+			return true; // handled
 		}
-		return super.onOptionsItemSelected(item);
+		return false; // not handled
 	}
 
 	private static class MTWebChromeClient extends WebChromeClient implements MTLog.Loggable {
