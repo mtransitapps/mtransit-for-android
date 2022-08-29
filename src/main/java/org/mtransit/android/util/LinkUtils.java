@@ -111,7 +111,7 @@ public final class LinkUtils implements MTLog.Loggable {
 		try {
 			Intent intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
 			if (intent != null) {
-				if (PackageManagerUtils.isAppInstalledDefault(webView.getContext(), intent)) {
+				if (PackageManagerUtils.isAppInstalledDefault(webView.getContext(), intent)) { // Only works with apps pkg added to AndroidManifest.xml (API Level 30+)
 					org.mtransit.android.commons.LinkUtils.open(webView.getContext(), intent, null);
 					return true; // INTERCEPTED
 				} else {

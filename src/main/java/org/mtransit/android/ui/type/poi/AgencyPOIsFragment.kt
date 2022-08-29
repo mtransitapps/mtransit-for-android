@@ -146,8 +146,6 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        @Suppress("DEPRECATION") // TODO use MenuProvider
-        setHasOptionsMenu(true) // TODO really?
         this.mapViewController.onCreate(savedInstanceState)
     }
 

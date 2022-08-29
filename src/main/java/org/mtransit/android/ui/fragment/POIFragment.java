@@ -22,7 +22,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.FragmentNavigator;
@@ -113,6 +115,7 @@ public class POIFragment extends ABFragment implements
 		MapViewController.MapMarkerProvider,
 		IContext,
 		IAdManager.RewardedAdListener,
+		MenuProvider,
 		MapViewController.MapListener {
 
 	private static final String LOG_TAG = POIFragment.class.getSimpleName();
@@ -437,7 +440,6 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
 		MTTransitions.setContainerTransformTransition(this);
 		this.mapViewController.onCreate(savedInstanceState);
 	}
@@ -463,6 +465,9 @@ public class POIFragment extends ABFragment implements
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		MTTransitions.postponeEnterTransition(this);
+		requireActivity().addMenuProvider(
+				this, getViewLifecycleOwner(), Lifecycle.State.RESUMED
+		);
 		viewModel = new ViewModelProvider(this).get(POIViewModel.class);
 		if (FeatureFlags.F_NAVIGATION) {
 			mainViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
@@ -1297,12 +1302,12 @@ public class POIFragment extends ABFragment implements
 		return this.demoModeManager;
 	}
 
+	@Nullable
 	private MenuItem addRemoveFavoriteMenuItem;
 
 	@Override
-	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
-		inflater.inflate(R.menu.menu_poi, menu);
+	public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+		menuInflater.inflate(R.menu.menu_poi, menu);
 		this.addRemoveFavoriteMenuItem = menu.findItem(R.id.menu_add_remove_favorite);
 		updateFavMenuItem();
 	}
@@ -1327,14 +1332,13 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-		final int itemId = item.getItemId();
-		if (itemId == R.id.menu_add_remove_favorite) {
+	public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+		if (menuItem.getItemId() == R.id.menu_add_remove_favorite) {
 			POIManager poim = getPoimOrNull();
 			if (poim != null && poim.isFavoritable()) {
 				return this.favoriteManager.addRemoveFavorite(requireActivity(), poim.poi.getUUID(), this);
 			}
-		} else if (itemId == R.id.menu_show_directions) {
+		} else if (menuItem.getItemId() == R.id.menu_show_directions) {
 			POIManager poim2 = getPoimOrNull();
 			if (poim2 != null) {
 				this.analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER);
@@ -1342,7 +1346,7 @@ public class POIFragment extends ABFragment implements
 				return true; // handled
 			}
 		}
-		return super.onOptionsItemSelected(item);
+		return false; // not handled
 	}
 
 	@Override

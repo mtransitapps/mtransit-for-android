@@ -98,12 +98,6 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        @Suppress("DEPRECATION") // TODO use MenuProvider
-        setHasOptionsMenu(true) // TODO really?
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentRtsAgencyRoutesBinding.bind(view).apply {
@@ -133,6 +127,7 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
             showingListInsteadOfGrid?.let { listInsteadOfGrid ->
                 binding?.apply {
                     fabListGrid.apply {
+                        @Suppress("LiftReturnOrAssignment")
                         if (listInsteadOfGrid) { // LIST
                             setImageResource(R.drawable.switch_action_apps_dark_16dp)
                             contentDescription = getString(R.string.menu_action_grid)

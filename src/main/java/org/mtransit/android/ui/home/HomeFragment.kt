@@ -13,9 +13,12 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -48,7 +51,7 @@ import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
+class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener, MenuProvider {
 
     companion object {
         private val LOG_TAG = HomeFragment::class.java.simpleName
@@ -155,8 +158,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        @Suppress("DEPRECATION") // TODO use MenuProvider
-        setHasOptionsMenu(true)
         MTTransitions.setContainerTransformTransition(this)
         // if (FeatureFlags.F_TRANSITION) {
         // exitTransition = MTTransitions.newHoldTransition() // not working with AdapterView // FIXME #RecyclerView
@@ -166,6 +167,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
+        (requireActivity() as MenuHost).addMenuProvider(
+            this, viewLifecycleOwner, Lifecycle.State.RESUMED
+        )
         binding = FragmentHomeBinding.bind(view).apply {
             listLayout.list.let { listView ->
                 swipeRefresh.setListViewWR(listView)
@@ -339,17 +343,12 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
-    @Deprecated(message = "TODO use MenuProvider")
-    @Suppress("DEPRECATION") // TODO use MenuProvider
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_home, menu)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_home, menu)
     }
 
-    @Deprecated(message = "TODO use MenuProvider")
-    @Suppress("DEPRECATION") // TODO use MenuProvider
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return when (menuItem.itemId) {
             R.id.nav_map -> {
                 if (FeatureFlags.F_NAVIGATION) {
                     false // handled by navigation library
@@ -358,10 +357,10 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener {
                         MapFragment.newInstance(),
                         this
                     )
-                    true
+                    true // handled
                 }
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> false // not handled
         }
     }
 

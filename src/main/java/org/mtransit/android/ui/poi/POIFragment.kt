@@ -263,7 +263,7 @@ package org.mtransit.android.ui.poi
 //
 //    override fun onCreate(savedInstanceState: Bundle?) {
 //        super.onCreate(savedInstanceState)
-//        setHasOptionsMenu(true)
+//        setHasO ptionsMenu(true)
 //        mapViewController.onCreate(savedInstanceState)
 //    }
 //

@@ -220,7 +220,6 @@ public abstract class MTPreferenceFragment extends PreferenceFragment implements
 		super.onViewCreated(view, savedInstanceState);
 	}
 
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public void onViewStateRestored(Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -255,7 +254,7 @@ public abstract class MTPreferenceFragment extends PreferenceFragment implements
 
 	/**
 	 * @deprecated menu items are always visible in the action bar so {@link #onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater)} is always
-	 *             called before anyway
+	 * called before anyway
 	 */
 	@Deprecated
 	@Override
@@ -273,5 +272,4 @@ public abstract class MTPreferenceFragment extends PreferenceFragment implements
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
 }

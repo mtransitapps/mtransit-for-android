@@ -10,9 +10,12 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
@@ -40,7 +43,7 @@ import org.mtransit.commons.FeatureFlags
 import kotlin.math.abs
 
 @AndroidEntryPoint
-class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivityWithLocation.UserLocationListener {
+class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivityWithLocation.UserLocationListener, MenuProvider {
 
     companion object {
         private val LOG_TAG = AgencyTypeFragment::class.java.simpleName
@@ -125,8 +128,6 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        @Suppress("DEPRECATION") // TODO use MenuProvider
-        setHasOptionsMenu(true)
         MTTransitions.setContainerTransformTransition(this)
         // if (FeatureFlags.F_TRANSITION) {
         // exitTransition = MTTransitions.newHoldTransition() // not working with AdapterView // FIXME #RecyclerView
@@ -136,6 +137,9 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
+        (requireActivity() as MenuHost).addMenuProvider(
+            this, viewLifecycleOwner, Lifecycle.State.RESUMED
+        )
         binding = FragmentAgencyTypeBinding.bind(view).apply {
             viewPager.offscreenPageLimit = 2
             viewPager.registerOnPageChangeCallback(onPageChangeCallback)
@@ -223,20 +227,12 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
         switchView()
     }
 
-    @Deprecated(message = "TODO use MenuProvider")
-    @Suppress("DEPRECATION") // TODO use MenuProvider
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_agency_type, menu)
-        childFragmentManager.fragments.forEach { fragment ->
-            fragment.setHasOptionsMenu(this.pageScrollStateIdle)
-        }
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_agency_type, menu)
     }
 
-    @Deprecated(message = "TODO use MenuProvider")
-    @Suppress("DEPRECATION") // TODO use MenuProvider
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_nearby) {
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        if (menuItem.itemId == R.id.menu_nearby) {
             viewModel.type.value?.let { type ->
                 (activity as? MainActivity)?.addFragmentToStack(
                     NearbyFragment.newNearbyInstance(type),
@@ -245,7 +241,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
             }
             return true // handled
         }
-        return super.onOptionsItemSelected(item)
+        return false // not handled
     }
 
     override fun onResume() {

@@ -89,10 +89,10 @@ public final class MapUtils implements MTLog.Loggable {
 		Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
 		mapIntent.setPackage(GOOGLE_MAPS_PKG);
 		String label = activity.getString(R.string.google_maps);
-		if (mapIntent.resolveActivity(activity.getPackageManager()) == null) {
+		if (mapIntent.resolveActivity(activity.getPackageManager()) == null) { // works API Level 30+ because added to AndroidManifest.xml
 			mapIntent.setPackage(GOOGLE_MAPS_LITE_PKG); // try with Maps Lite
 		}
-		if (mapIntent.resolveActivity(activity.getPackageManager()) == null) {
+		if (mapIntent.resolveActivity(activity.getPackageManager()) == null) { // works API Level 30+ because added to AndroidManifest.xml
 			mapIntent.setPackage(null); // clear Google Maps targeting
 			label = activity.getString(R.string.map);
 		}

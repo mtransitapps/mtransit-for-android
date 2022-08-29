@@ -36,6 +36,8 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = MainPreferencesFragment::class.java.simpleName
+
+        private const val FORCE_OPEN_IN_EXTERNAL_BROWSER = false
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -139,49 +141,39 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         }
         (findPreference(MainPreferencesViewModel.SOCIAL_FACEBOOK_PREF) as? Preference)?.setOnPreferenceClickListener {
             activity?.let {
-                LinkUtils.open(null, it, MainPreferencesViewModel.FACEBOOK_PAGE_URL, it.getString(R.string.facebook), false)
+                LinkUtils.open(null, it, MainPreferencesViewModel.FACEBOOK_PAGE_URL, it.getString(R.string.facebook), FORCE_OPEN_IN_EXTERNAL_BROWSER)
                 true
             } ?: false
         }
         (findPreference(MainPreferencesViewModel.SOCIAL_TWITTER_PREF) as? Preference)?.setOnPreferenceClickListener {
             activity?.let {
-                LinkUtils.open(null, it, MainPreferencesViewModel.TWITTER_PAGE_URL, it.getString(R.string.twitter), false)
+                LinkUtils.open(null, it, MainPreferencesViewModel.TWITTER_PAGE_URL, it.getString(R.string.twitter), FORCE_OPEN_IN_EXTERNAL_BROWSER)
                 true
             } ?: false
         }
         (findPreference(MainPreferencesViewModel.ABOUT_PRIVACY_POLICY_PREF) as? Preference)?.setOnPreferenceClickListener {
             activity?.let {
-                LinkUtils.open(
-                    null,
-                    it,
-                    if (LocaleUtils.isFR()) MainPreferencesViewModel.PRIVACY_POLICY_FR_PAGE_URL else MainPreferencesViewModel.PRIVACY_POLICY_PAGE_URL,
-                    it.getString(R.string.privacy_policy),
-                    false // open in external web browser
-                )
+                val url = if (LocaleUtils.isFR()) MainPreferencesViewModel.PRIVACY_POLICY_FR_PAGE_URL else MainPreferencesViewModel.PRIVACY_POLICY_PAGE_URL
+                LinkUtils.open(null, it, url, it.getString(R.string.privacy_policy), FORCE_OPEN_IN_EXTERNAL_BROWSER)
                 true
             } ?: false
         }
         (findPreference(MainPreferencesViewModel.ABOUT_TERMS_OF_USE_PREF) as? Preference)?.setOnPreferenceClickListener {
             activity?.let {
-                LinkUtils.open(
-                    null,
-                    it,
-                    if (LocaleUtils.isFR()) MainPreferencesViewModel.TERMS_OF_USE_FR_PAGE_URL else MainPreferencesViewModel.TERMS_OF_USE_PAGE_URL,
-                    it.getString(R.string.terms_of_use),
-                    false // open in external web browser
-                )
+                val url = if (LocaleUtils.isFR()) MainPreferencesViewModel.TERMS_OF_USE_FR_PAGE_URL else MainPreferencesViewModel.TERMS_OF_USE_PAGE_URL
+                LinkUtils.open(null, it, url, it.getString(R.string.terms_of_use), FORCE_OPEN_IN_EXTERNAL_BROWSER)
                 true
             } ?: false
         }
         (findPreference(MainPreferencesViewModel.THIRD_PARTY_GOOGLE_PRIVACY_POLICY_PREF) as? Preference)?.setOnPreferenceClickListener {
             activity?.let {
-                LinkUtils.open(null, it, MainPreferencesViewModel.GOOGLE_PRIVACY_POLICY_PAGE_URL, null, false)
+                LinkUtils.open(null, it, MainPreferencesViewModel.GOOGLE_PRIVACY_POLICY_PAGE_URL, null, FORCE_OPEN_IN_EXTERNAL_BROWSER)
                 true
             } ?: false
         }
         (findPreference(MainPreferencesViewModel.THIRD_PARTY_YOUTUBE_TERMS_OF_SERVICE_PREF) as? Preference)?.setOnPreferenceClickListener {
             activity?.let {
-                LinkUtils.open(null, it, MainPreferencesViewModel.YOUTUBE_TERMS_OF_SERVICE_PAGE_URL, null, false)
+                LinkUtils.open(null, it, MainPreferencesViewModel.YOUTUBE_TERMS_OF_SERVICE_PAGE_URL, null, FORCE_OPEN_IN_EXTERNAL_BROWSER)
                 true
             } ?: false
         }
@@ -250,7 +242,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                         it,
                         MainPreferencesViewModel.DO_NOT_KILL_MY_APP_URL,
                         MainPreferencesViewModel.DO_NOT_KILL_MY_APP_URL,
-                        false
+                        FORCE_OPEN_IN_EXTERNAL_BROWSER
                     )
                 }
             }

@@ -122,8 +122,6 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        @Suppress("DEPRECATION") // TODO use MenuProvider
-        setHasOptionsMenu(true)
         MTTransitions.setContainerTransformTransition(this)
     }
 

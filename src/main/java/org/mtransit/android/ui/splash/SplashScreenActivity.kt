@@ -7,7 +7,6 @@ import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.analytics.IAnalyticsManager
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.ui.MTActivity
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.view.common.IActivity
@@ -29,9 +28,6 @@ open class SplashScreenActivity : MTActivity(), IActivity, IAnalyticsManager.Tra
 
     @Inject
     lateinit var analyticsManager: IAnalyticsManager
-
-    @Inject
-    lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     private val viewModel by viewModels<SplashScreenViewModel>()
 

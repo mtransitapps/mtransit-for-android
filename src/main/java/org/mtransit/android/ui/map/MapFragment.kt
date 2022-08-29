@@ -158,8 +158,7 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener, Men
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val menuHost: MenuHost = requireActivity() as MenuHost
-        menuHost.addMenuProvider(
+        (requireActivity() as MenuHost).addMenuProvider(
             this, viewLifecycleOwner, Lifecycle.State.RESUMED
         )
         this.mapViewController.onViewCreated(view, savedInstanceState)

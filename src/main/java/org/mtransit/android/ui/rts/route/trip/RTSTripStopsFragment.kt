@@ -30,7 +30,6 @@ import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
-import java.util.ArrayList
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -189,6 +188,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
         viewModel.showingListInsteadOfMap.observe(viewLifecycleOwner) { showingListInsteadOfMap ->
             showingListInsteadOfMap?.let { listInsteadOfMap ->
                 binding?.fabListMap?.apply {
+                    @Suppress("LiftReturnOrAssignment")
                     if (listInsteadOfMap) { // LIST
                         setImageResource(R.drawable.switch_action_map_dark_16dp)
                         contentDescription = getString(R.string.menu_action_map)
@@ -268,7 +268,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
         return null
     }
 
-    fun switchView(showingListInsteadOfMap: Boolean? = viewModel.showingListInsteadOfMap.value) {
+    private fun switchView(showingListInsteadOfMap: Boolean? = viewModel.showingListInsteadOfMap.value) {
         binding?.apply {
             when {
                 !adapter.isInitialized || showingListInsteadOfMap == null -> {

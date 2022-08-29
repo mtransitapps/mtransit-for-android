@@ -293,6 +293,8 @@ public abstract class MTListFragmentX extends ListFragment implements MTLog.Logg
 		return super.onContextItemSelected(item);
 	}
 
+	@SuppressWarnings("deprecation")
+	@Deprecated
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -301,6 +303,8 @@ public abstract class MTListFragmentX extends ListFragment implements MTLog.Logg
 		super.onCreateOptionsMenu(menu, inflater);
 	}
 
+	@SuppressWarnings("deprecation")
+	@Deprecated
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -309,6 +313,8 @@ public abstract class MTListFragmentX extends ListFragment implements MTLog.Logg
 		super.onPrepareOptionsMenu(menu);
 	}
 
+	@SuppressWarnings("deprecation")
+	@Deprecated
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -316,5 +322,4 @@ public abstract class MTListFragmentX extends ListFragment implements MTLog.Logg
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
 }

@@ -15,10 +15,13 @@ import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.annotation.ColorInt
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
@@ -43,7 +46,7 @@ import org.mtransit.android.util.MapUtils
 import org.mtransit.commons.FeatureFlags
 
 @AndroidEntryPoint
-class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListener {
+class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListener, MenuProvider {
 
     companion object {
         private val LOG_TAG = NearbyFragment::class.java.simpleName
@@ -192,14 +195,15 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        @Suppress("DEPRECATION") // TODO use MenuProvider
-        setHasOptionsMenu(true)
         MTTransitions.setContainerTransformTransition(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
+        (requireActivity() as MenuHost).addMenuProvider(
+            this, viewLifecycleOwner, Lifecycle.State.RESUMED
+        )
         binding = FragmentNearbyBinding.bind(view).apply {
             viewPager.offscreenPageLimit = 3
             viewPager.registerOnPageChangeCallback(onPageChangeCallback)
@@ -360,11 +364,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
-    @Deprecated(message = "TODO use MenuProvider")
-    @Suppress("DEPRECATION") // TODO use MenuProvider
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_nearby, menu)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_nearby, menu)
         this.showDirectionsMenuItem = menu.findItem(R.id.menu_show_directions)
         updateDirectionsMenuItem()
     }
@@ -373,10 +374,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         showDirectionsMenuItem?.isVisible = isFixedOn == true
     }
 
-    @Deprecated(message = "TODO use MenuProvider")
-    @Suppress("DEPRECATION") // TODO use MenuProvider
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return when (menuItem.itemId) {
             R.id.menu_show_directions -> {
                 val locationPick = viewModel.fixedOnLocation.value ?: viewModel.nearbyLocation.value ?: viewModel.deviceLocation.value
                 locationPick?.let { location ->
@@ -390,7 +389,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
                         viewModel.fixedOnName.value
                     )
                     true // handled
-                } ?: super.onOptionsItemSelected(item)
+                } ?: false // not handled
             }
             R.id.nav_map_custom -> {
                 val locationPick = viewModel.fixedOnLocation.value ?: viewModel.nearbyLocation.value ?: viewModel.deviceLocation.value
@@ -403,9 +402,9 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
                         this
                     )
                     true // handled
-                } ?: super.onOptionsItemSelected(item)
+                } ?: false // not handled
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> false // not handled
         }
     }
 

@@ -221,6 +221,7 @@ public abstract class MTFragmentX extends Fragment implements MTLog.Loggable {
 		return super.onContextItemSelected(item);
 	}
 
+	@Deprecated
 	@Override
 	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 		if (Constants.LOG_LIFECYCLE) {

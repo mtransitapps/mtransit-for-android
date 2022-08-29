@@ -8,9 +8,12 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.data.POIArrayAdapter
@@ -33,7 +36,7 @@ import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationListener, FavoriteUpdateListener {
+class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationListener, FavoriteUpdateListener, MenuProvider {
 
     companion object {
         private val LOG_TAG = FavoritesFragment::class.java.simpleName
@@ -92,12 +95,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        @Suppress("DEPRECATION") // TODO use MenuProvider
-        setHasOptionsMenu(true)
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         this.adapter.setActivity(this)
@@ -105,6 +102,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        (requireActivity() as MenuHost).addMenuProvider(
+            this, viewLifecycleOwner, Lifecycle.State.RESUMED
+        )
         binding = FragmentFavoritesBinding.bind(view).apply {
             listLayout.list.let { listView ->
                 listView.isVisible = adapter.isInitialized
@@ -168,22 +168,17 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
-    @Deprecated(message = "TODO use MenuProvider")
-    @Suppress("DEPRECATION") // TODO use MenuProvider
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_favorites, menu)
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        menuInflater.inflate(R.menu.menu_favorites, menu)
     }
 
-    @Deprecated(message = "TODO use MenuProvider")
-    @Suppress("DEPRECATION") // TODO use MenuProvider
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return when (menuItem.itemId) {
             R.id.menu_add_favorite_folder -> {
                 this.favoriteManager.showAddFolderDialog(requireActivity(), this, null, null)
-                true
+                true // handled
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> false // not handled
         }
     }
 
