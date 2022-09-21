@@ -1,10 +1,14 @@
 @file:JvmName("PreferencesFragment") // ANALYTICS
 package org.mtransit.android.ui.pref.main
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.preference.Preference
@@ -27,10 +31,10 @@ import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.MTDialog
 import org.mtransit.android.ui.modules.ModulesActivity
 import org.mtransit.android.ui.pref.PreferencesViewModel
+import org.mtransit.android.ui.view.common.ImageManager
+import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.NightModeUtils
-import java.net.URL
-import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -52,6 +56,9 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
 
     @Inject
     lateinit var demoModeManager: DemoModeManager
+
+    @Inject
+    lateinit var imageManager: ImageManager
 
     private val viewModel by viewModels<MainPreferencesViewModel>()
     private val activityViewModel by activityViewModels<PreferencesViewModel>()
@@ -227,10 +234,37 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         }
     }
 
+    @SuppressLint("InflateParams")
     private fun showPowerManagementDialog(activity: Activity) {
+        val view = activity.layoutInflater.inflate(R.layout.layout_battery_optimization_issue, null, false).apply {
+            findViewById<TextView>(R.id.battery_optimization_issue_text_1).apply {
+                text = getString(R.string.battery_optimization_issue_message_1_and_manufacturer, BatteryOptimizationIssueUtils.manufacturer)
+            }
+            findViewById<ImageView>(R.id.battery_optimization_issue_img).apply {
+                BatteryOptimizationIssueUtils.getDoNotKillMyAppImageUrlExtended()?.let { imageUrl ->
+                    imageManager.loadInto(activity, imageUrl, this)
+                    this.isVisible = true
+                }
+                setOnClickListener {
+                    LinkUtils.open(
+                        null,
+                        activity,
+                        BatteryOptimizationIssueUtils.getDoNotKillMyAppUrlExtended(),
+                        BatteryOptimizationIssueUtils.DO_NOT_KILL_MY_APP_LABEL,
+                        FORCE_OPEN_IN_EXTERNAL_BROWSER
+                    )
+                }
+            }
+            findViewById<TextView>(R.id.battery_optimization_issue_text_2).apply {
+                text = LinkUtils.linkifyHtml(getString(R.string.battery_optimization_issue_message_2), false)
+                movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
+                    LinkUtils.open(view, activity, url, getString(R.string.web_browser), true)
+                }
+            }
+        }
         MTDialog.Builder(activity).apply {
             setTitle(R.string.battery_optimization_issue_title)
-            setMessage(R.string.battery_optimization_issue_message)
+            setView(view)
             setPositiveButton(R.string.battery_optimization_issue_act) { dialog, _ ->
                 dialog.dismiss()
                 getActivity()?.let {
@@ -243,15 +277,8 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                     LinkUtils.open(
                         null,
                         it,
-                        try {
-                            val manufacturer = Build.MANUFACTURER.lowercase(Locale.ROOT).replace(" ", "-")
-                            val url = URL(MainPreferencesViewModel.DO_NOT_KILL_MY_APP_URL_AND_MANUFACTURER.format(manufacturer))
-                            url.toString()
-                        } catch (e: Exception) {
-                            MTLog.w(this@MainPreferencesFragment, e, "Error while creating custom URL with manufacturer")
-                            MainPreferencesViewModel.DO_NOT_KILL_MY_APP_URL
-                        },
-                        MainPreferencesViewModel.DO_NOT_KILL_MY_APP_LABEL,
+                        BatteryOptimizationIssueUtils.getDoNotKillMyAppUrlExtended(),
+                        BatteryOptimizationIssueUtils.DO_NOT_KILL_MY_APP_LABEL,
                         FORCE_OPEN_IN_EXTERNAL_BROWSER
                     )
                 }

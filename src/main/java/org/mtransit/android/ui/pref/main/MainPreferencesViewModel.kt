@@ -52,9 +52,7 @@ class MainPreferencesViewModel @Inject constructor(
 
         internal const val TWITTER_PAGE_URL = "https://twitter.com/montransit"
         internal const val FACEBOOK_PAGE_URL = "https://facebook.com/MonTransit"
-        internal const val DO_NOT_KILL_MY_APP_URL = "https://dontkillmyapp.com/?app=MonTransit"
-        internal const val DO_NOT_KILL_MY_APP_URL_AND_MANUFACTURER = "https://dontkillmyapp.com/%s?app=MonTransit"
-        internal const val DO_NOT_KILL_MY_APP_LABEL = "dontkillmyapp.com"
+
         internal const val PRIVACY_POLICY_PAGE_URL = "https://github.com/mtransitapps/mtransit-for-android/wiki/PrivacyPolicy"
         internal const val PRIVACY_POLICY_FR_PAGE_URL = "https://github.com/mtransitapps/mtransit-for-android/wiki/PrivacyPolicyFr"
         internal const val TERMS_OF_USE_PAGE_URL = "https://github.com/mtransitapps/mtransit-for-android/wiki/TermsOfUse"

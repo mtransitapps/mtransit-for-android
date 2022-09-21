@@ -130,7 +130,9 @@
     <string name="terms_of_use">Conditions d\'Utilisations</string>
     <string name="local_time_and_time">%s heure locale</string>
     <string name="battery_optimization_issue_title">Problèmes d\'optimisation de la batterie</string>
-    <string name="battery_optimization_issue_message">Les fabricants d\'appareils (Samsung, OnePlus, Huawei, Nokia, Xiaomi&#8230;) modifient le fonctionnement d\'Android pour économiser plus de batterie et cela empêche les apps de fonctionner correctement.\n\nEn savoir plus (en Anglais): https://dontkillmyapp.com/.</string>
+    <string name="battery_optimization_issue_message_1">Les fabricants d\'appareils (Samsung, OnePlus, Huawei, Nokia, Xiaomi&#8230;) modifient le fonctionnement d\'Android pour économiser plus de batterie et cela empêche les apps de fonctionner correctement.</string>
+    <string name="battery_optimization_issue_message_2">En savoir plus (en Anglais): https://dontkillmyapp.com/.</string>
+    <string name="battery_optimization_issue_message_1_and_manufacturer">Les fabricants d\'appareils (comme %s) modifient le fonctionnement d\'Android pour économiser plus de batterie et cela empêche les apps de fonctionner correctement.</string>
     <string name="battery_optimization_issue_act">Corriger</string>
     <string name="battery_optimization_issue_learn_more">En savoir plus</string>
     <string name="display_pref_cat_title">Affichage</string>
