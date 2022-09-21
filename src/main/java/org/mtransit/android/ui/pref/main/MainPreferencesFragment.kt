@@ -29,6 +29,8 @@ import org.mtransit.android.ui.modules.ModulesActivity
 import org.mtransit.android.ui.pref.PreferencesViewModel
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.NightModeUtils
+import java.net.URL
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -196,6 +198,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             } ?: false
         }
         (findPreference(MainPreferencesViewModel.DEV_MODE_AD_MEDIATION_TEST_PREF) as? Preference)?.setOnPreferenceClickListener {
+            @Suppress("KotlinConstantConditions")
             activity?.let {
                 @Suppress("RedundantIf", "ConstantConditionIf")
                 if (true) { // DANGEROUS !!!! ONLY FOR MANUAL TESTING!
@@ -240,8 +243,15 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                     LinkUtils.open(
                         null,
                         it,
-                        MainPreferencesViewModel.DO_NOT_KILL_MY_APP_URL,
-                        MainPreferencesViewModel.DO_NOT_KILL_MY_APP_URL,
+                        try {
+                            val manufacturer = Build.MANUFACTURER.lowercase(Locale.ROOT).replace(" ", "-")
+                            val url = URL(MainPreferencesViewModel.DO_NOT_KILL_MY_APP_URL_AND_MANUFACTURER.format(manufacturer))
+                            url.toString()
+                        } catch (e: Exception) {
+                            MTLog.w(this@MainPreferencesFragment, e, "Error while creating custom URL with manufacturer")
+                            MainPreferencesViewModel.DO_NOT_KILL_MY_APP_URL
+                        },
+                        MainPreferencesViewModel.DO_NOT_KILL_MY_APP_LABEL,
                         FORCE_OPEN_IN_EXTERNAL_BROWSER
                     )
                 }
