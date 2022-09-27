@@ -74,8 +74,7 @@ import org.mtransit.android.ui.main.MainViewModel;
 import org.mtransit.android.ui.map.MapFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListAdapter;
-import org.mtransit.android.ui.news.NewsListFragment;
-import org.mtransit.android.ui.news.details.NewsDetailsFragment;
+import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.schedule.ScheduleFragment;
 import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.ui.view.POIDataProvider;
@@ -514,7 +513,15 @@ public class POIFragment extends ABFragment implements
 							}
 							navController.navigate(
 									R.id.nav_to_news_detail_screen,
-									NewsDetailsFragment.newInstanceArgs(article),
+									NewsListDetailFragment.newInstanceArgs(
+											poim.getColor(dataSourcesRepository),
+											POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
+											Collections.singletonList(poim.poi.getAuthority()),
+											NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets(),
+											null,
+											article.getAuthority(),
+											article.getUUID()
+									),
 									null,
 									extras
 							);
@@ -522,7 +529,15 @@ public class POIFragment extends ABFragment implements
 							final Activity activity = getActivity();
 							if (activity != null) {
 								((MainActivity) activity).addFragmentToStack(
-										NewsDetailsFragment.newInstance(article),
+										NewsListDetailFragment.newInstance(
+												poim.getColor(dataSourcesRepository),
+												POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
+												Collections.singletonList(poim.poi.getAuthority()),
+												NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets(),
+												null,
+												article.getAuthority(),
+												article.getUUID()
+										),
 										POIFragment.this
 								);
 							}
@@ -694,7 +709,7 @@ public class POIFragment extends ABFragment implements
 					}
 					navController.navigate(
 							R.id.nav_to_news_screen,
-							NewsListFragment.newInstanceArgs(
+							NewsListDetailFragment.newInstanceArgs(
 									poim.getColor(dataSourcesRepository),
 									POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
 									Collections.singletonList(poim.poi.getAuthority()),
@@ -710,11 +725,11 @@ public class POIFragment extends ABFragment implements
 						return;
 					}
 					((MainActivity) activity).addFragmentToStack(
-							NewsListFragment.newInstance(
+							NewsListDetailFragment.newInstance(
 									poim.getColor(dataSourcesRepository),
 									POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
 									Collections.singletonList(poim.poi.getAuthority()),
-									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
+									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets(),
 							),
 							POIFragment.this
 					);

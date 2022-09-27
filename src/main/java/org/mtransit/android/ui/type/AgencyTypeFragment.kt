@@ -93,9 +93,9 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
 
     private val abColorizer: SimpleActionBarColorizer by lazy { SimpleActionBarColorizer() }
 
-    private var adapter: AgencyTypePagerAdapter? = null
+    private var pagerAdapter: AgencyTypePagerAdapter? = null
 
-    private fun makeAdapter() = AgencyTypePagerAdapter(this).apply {
+    private fun makePagerAdapter() = AgencyTypePagerAdapter(this).apply {
         setAgencies(attachedViewModel?.typeAgencies?.value)
     }
 
@@ -143,7 +143,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
         binding = FragmentAgencyTypeBinding.bind(view).apply {
             viewPager.offscreenPageLimit = 2
             viewPager.registerOnPageChangeCallback(onPageChangeCallback)
-            viewPager.adapter = adapter ?: makeAdapter().also { adapter = it } // cannot re-use Adapter w/ ViewPager
+            viewPager.adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
             MTTabLayoutMediator(tabs, viewPager, autoRefresh = true, smoothScroll = true) { tab, position ->
                 tab.text = viewModel.typeAgencies.value?.get(position)?.shortName
             }.attach()
@@ -155,7 +155,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
             showSelectedTab()
         }
         viewModel.typeAgencies.observe(viewLifecycleOwner) { agencies ->
-            if (adapter?.setAgencies(agencies) == true) {
+            if (pagerAdapter?.setAgencies(agencies) == true) {
                 showSelectedTab()
                 abBgColor = null // reset
                 abColorizer.setBgColors(*(agencies?.map { it.colorInt ?: defaultColor }?.toIntArray() ?: arrayOf(defaultColor).toIntArray()))
@@ -186,13 +186,13 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
     private fun switchView() {
         binding?.apply {
             when {
-                lastPageSelected < 0 || adapter?.isReady() != true -> { // LOADING
+                lastPageSelected < 0 || pagerAdapter?.isReady() != true -> { // LOADING
                     emptyLayout.isVisible = false
                     viewPager.isVisible = false
                     tabs.isVisible = false
                     loadingLayout.isVisible = true
                 }
-                adapter?.itemCount == 0 -> { // EMPTY
+                pagerAdapter?.itemCount == 0 -> { // EMPTY
                     loadingLayout.isVisible = false
                     viewPager.isVisible = false
                     tabs.isVisible = false
@@ -209,7 +209,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
     }
 
     private fun showSelectedTab() {
-        if (this.adapter?.isReady() != true) {
+        if (this.pagerAdapter?.isReady() != true) {
             MTLog.d(this, "showSelectedTab() > SKIP (no adapter items)")
             return
         }
@@ -298,7 +298,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
     private fun getNewABBgColor(): Int? {
         if (this.selectedPosition >= 0) {
             val colorInt = abColorizer.getBgColor(this.selectedPosition) ?: return null
-            val count = this.adapter?.itemCount ?: 0
+            val count = this.pagerAdapter?.itemCount ?: 0
             if (this.selectionOffset > 0f && this.selectedPosition < (count - 1)) {
                 val nextColorInt = abColorizer.getBgColor(this.selectedPosition + 1) ?: return null
                 if (colorInt != nextColorInt) {
@@ -315,7 +315,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
         updateABColorJob?.cancel()
         binding?.viewPager?.unregisterOnPageChangeCallback(onPageChangeCallback)
         binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
-        adapter = null // cannot re-use Adapter w/ ViewPager
+        pagerAdapter = null // cannot re-use Adapter w/ ViewPager
         binding = null
     }
 }

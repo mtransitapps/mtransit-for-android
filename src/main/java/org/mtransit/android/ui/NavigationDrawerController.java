@@ -41,7 +41,7 @@ import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.home.HomeFragment;
 import org.mtransit.android.ui.map.MapFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
-import org.mtransit.android.ui.news.NewsListFragment;
+import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.pref.PreferencesActivity;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.util.LinkUtils;
@@ -347,6 +347,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		Integer newSelectedNavItemId = getScreenNavItemId(itemId);
 		if (this.currentSelectedScreenItemNavId != null && this.currentSelectedScreenItemNavId.equals(newSelectedNavItemId)
 				&& this.currentSelectedScreenItemId != null && this.currentSelectedScreenItemId.equals(itemId)) {
+			//noinspection ConstantConditions
 			this.currentSelectedScreenItemNavId = newSelectedNavItemId;
 			setCurrentSelectedItemChecked(mainActivity.getBackStackEntryCount() == 0);
 			return;
@@ -520,7 +521,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		} else if (navItemId == R.id.root_nav_map) {
 			return MapFragment.newInstance();
 		} else if (navItemId == R.id.root_nav_news) {
-			return NewsListFragment.newInstance();
+			return NewsListDetailFragment.newInstance();
 		}
 		final DataSourceType dst = DataSourceType.parseNavResId(navItemId);
 		if (dst != null) {

@@ -14,6 +14,10 @@ import org.mtransit.android.common.IContext
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
+import org.mtransit.android.data.AuthorityAndUuid
+import org.mtransit.android.data.authorityAndUuidT
+import org.mtransit.android.data.authorityT
+import org.mtransit.android.data.uuidT
 import org.mtransit.android.databinding.LayoutNewsListItemBinding
 import org.mtransit.android.ui.news.NewsListAdapter.NewsListItemViewHolder
 import org.mtransit.android.ui.view.common.ImageManager
@@ -36,6 +40,8 @@ class NewsListAdapter(
     private val timeChangedReceiver = TimeChangedReceiver { resetNowToTheMinute() }
 
     private var timeChangedReceiverEnabled = false
+
+    private var selectedArticleAuthorityAndUuid: AuthorityAndUuid? = null
 
     @SuppressLint("NotifyDataSetChanged")
     private fun resetNowToTheMinute() {
@@ -76,7 +82,47 @@ class NewsListAdapter(
     }
 
     override fun onBindViewHolder(holder: NewsListItemViewHolder, position: Int) {
-        holder.bind(imageManager, position, itemCount, getItem(position), minLines, horizontal, onClick)
+        val newsArticle = getItem(position)
+        val selected = isSelected(newsArticle)
+        holder.itemView.setOnClickListener {
+            onClick(it, newsArticle)
+        }
+        holder.bind(imageManager, position, itemCount, newsArticle, selected, minLines, horizontal)
+    }
+
+    fun setSelectedArticle(newAuthorityAndUuid: AuthorityAndUuid?) {
+        if (this.selectedArticleAuthorityAndUuid == newAuthorityAndUuid
+        ) {
+            return // SKIP
+        }
+        val oldAuthorityAndUuid = this.selectedArticleAuthorityAndUuid
+        this.selectedArticleAuthorityAndUuid = newAuthorityAndUuid
+        getItemPosition(newAuthorityAndUuid)?.let {
+            notifyItemChanged(it)
+        }
+        getItemPosition(oldAuthorityAndUuid)?.let {
+            notifyItemChanged(it)
+        }
+    }
+
+    fun isSelected(newsArticle: News?): Boolean {
+        return newsArticle?.let { isSelected(it.authorityAndUuidT) } ?: false
+    }
+
+    fun isSelected(authorityAndUuid: AuthorityAndUuid?): Boolean {
+        return this.selectedArticleAuthorityAndUuid == authorityAndUuid
+    }
+
+    fun getItemPosition(authorityAndUuid: AuthorityAndUuid?): Int? {
+        return authorityAndUuid?.let {
+            currentList.indexOfFirst {
+                it.authorityT.authority == authorityAndUuid.getAuthority().authority
+                        && it.uuidT.uuid == authorityAndUuid.getUuid().uuid
+            }.takeIf { it >= 0 }
+        } ?: run {
+            MTLog.d(this, "getItemPosition() > No news article for '$authorityAndUuid'!")
+            null
+        }
     }
 
     class NewsListItemViewHolder private constructor(
@@ -99,9 +145,9 @@ class NewsListAdapter(
             position: Int,
             itemCount: Int,
             newsArticle: News,
+            articleSelected: Boolean,
             minLines: Int? = null,
             horizontal: Boolean,
-            onClick: (View, News) -> Unit,
         ) {
             val firstItem = position == 0
             val lastItem = position >= itemCount - 1
@@ -149,9 +195,7 @@ class NewsListAdapter(
                     )
                 }
                 root.apply {
-                    setOnClickListener { view ->
-                        onClick(view, newsArticle)
-                    }
+                    setItemSelected(articleSelected)
                     isVisible = true
                     if (horizontal) {
                         val horizontalListMargin = context.resources.getDimension(R.dimen.news_article_horizontal_list_margin).toInt()
@@ -169,6 +213,13 @@ class NewsListAdapter(
                         cardElevation = horizontalItemElevation
                     }
                 }
+            }
+        }
+
+        fun setItemSelected(selected: Boolean?) {
+            binding.apply {
+                val isSelected = selected == true
+                root.isChecked = isSelected
             }
         }
     }

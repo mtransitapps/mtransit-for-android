@@ -76,9 +76,9 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
 
     private var lastPageSelected: Int = SchedulePagerAdapter.STARTING_POSITION
 
-    private var adapter: SchedulePagerAdapter? = null
+    private var pagerAdapter: SchedulePagerAdapter? = null
 
-    private fun makeAdapter() = SchedulePagerAdapter(this).apply {
+    private fun makePagerAdapter() = SchedulePagerAdapter(this).apply {
         setUUID(attachedViewModel?.uuid?.value)
         setAuthority(attachedViewModel?.authority?.value)
     }
@@ -96,48 +96,48 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
         binding = FragmentScheduleBinding.bind(view).apply {
             viewPager.offscreenPageLimit = 2
             viewPager.registerOnPageChangeCallback(onPageChangeCallback)
-            viewPager.adapter = adapter ?: makeAdapter().also { adapter = it } // cannot re-use Adapter w/ ViewPager
+            viewPager.adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
             viewPager.setCurrentItem(lastPageSelected, false)
         }
-        viewModel.authority.observe(viewLifecycleOwner, { authority ->
-            adapter?.apply {
+        viewModel.authority.observe(viewLifecycleOwner) { authority ->
+            pagerAdapter?.apply {
                 val wasReady = isReady()
                 setAuthority(authority)
                 updateViews(wasReady)
             }
-        })
-        viewModel.uuid.observe(viewLifecycleOwner, { uuid ->
-            adapter?.apply {
+        }
+        viewModel.uuid.observe(viewLifecycleOwner) { uuid ->
+            pagerAdapter?.apply {
                 val wasReady = isReady()
                 setUUID(uuid)
                 updateViews(wasReady)
             }
-        })
+        }
         viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
             if (removed) {
                 (activity as MainActivity?)?.popFragmentFromStack(this) // close this fragment
             }
         })
-        viewModel.colorInt.observe(viewLifecycleOwner, {
+        viewModel.colorInt.observe(viewLifecycleOwner) {
             abController?.setABBgColor(this, getABBgColor(context), false)
-        })
-        viewModel.agency.observe(viewLifecycleOwner, {
+        }
+        viewModel.agency.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
-        })
-        viewModel.rts.observe(viewLifecycleOwner, {
+        }
+        viewModel.rts.observe(viewLifecycleOwner) {
             abController?.setABBgColor(this, getABBgColor(context), false)
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             abController?.setABReady(this, isABReady, true)
-        })
+        }
     }
 
     private fun updateViews(wasReady: Boolean) {
         binding?.apply {
-            if (!wasReady && adapter?.isReady() == true) {
+            if (!wasReady && pagerAdapter?.isReady() == true) {
                 viewPager.setCurrentItem(lastPageSelected, false)
             }
-            loadingLayout.isVisible = adapter?.isReady() == false
-            viewPager.isVisible = adapter?.isReady() == true
+            loadingLayout.isVisible = pagerAdapter?.isReady() == false
+            viewPager.isVisible = pagerAdapter?.isReady() == true
         }
     }
 
@@ -155,7 +155,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
         super.onDestroyView()
         binding?.viewPager?.unregisterOnPageChangeCallback(onPageChangeCallback)
         binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
-        adapter = null // cannot re-use Adapter w/ ViewPager
+        pagerAdapter = null // cannot re-use Adapter w/ ViewPager
         binding = null
     }
 }

@@ -174,7 +174,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     private var locationToast: PopupWindow? = null
     private var toastShown: Boolean = false
 
-    private var adapter: NearbyPagerAdapter? = null
+    private var pagerAdapter: NearbyPagerAdapter? = null
 
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
@@ -189,7 +189,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         }
     }
 
-    private fun makeAdapter() = NearbyPagerAdapter(this).apply {
+    private fun makePagerAdapter() = NearbyPagerAdapter(this).apply {
         setTypes(attachedViewModel?.availableTypes?.value)
     }
 
@@ -207,7 +207,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         binding = FragmentNearbyBinding.bind(view).apply {
             viewPager.offscreenPageLimit = 3
             viewPager.registerOnPageChangeCallback(onPageChangeCallback)
-            viewPager.adapter = adapter ?: makeAdapter().also { adapter = it } // cannot re-use Adapter w/ ViewPager
+            viewPager.adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
             MTTabLayoutMediator(tabs, viewPager, autoRefresh = true, smoothScroll = true) { tab, position ->
                 tab.text = viewModel.availableTypes.value?.get(position)?.shortNameResId?.let { viewPager.context.getString(it) }
             }.attach()
@@ -220,7 +220,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
             switchView()
         }
         viewModel.availableTypes.observe(viewLifecycleOwner) {
-            adapter?.setTypes(it)
+            pagerAdapter?.setTypes(it)
             showSelectedTab()
             switchView()
         }
@@ -321,13 +321,13 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     private fun switchView() {
         binding?.apply {
             when {
-                lastPageSelected < 0 || adapter?.isReady() != true -> { // LOADING
+                lastPageSelected < 0 || pagerAdapter?.isReady() != true -> { // LOADING
                     emptyLayout.isVisible = false
                     viewPager.isVisible = false
                     tabs.isVisible = false
                     loadingLayout.isVisible = true
                 }
-                adapter?.itemCount == 0 -> { // EMPTY
+                pagerAdapter?.itemCount == 0 -> { // EMPTY
                     loadingLayout.isVisible = false
                     viewPager.isVisible = false
                     tabs.isVisible = false
@@ -344,7 +344,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     }
 
     private fun showSelectedTab() {
-        if (this.adapter?.isReady() != true) {
+        if (this.pagerAdapter?.isReady() != true) {
             MTLog.d(this, "showSelectedTab() > SKIP (no adapter items)")
             return
         }
@@ -446,7 +446,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         this.toastShown = false
         binding?.viewPager?.unregisterOnPageChangeCallback(onPageChangeCallback)
         binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
-        adapter = null // cannot re-use Adapter w/ ViewPager
+        pagerAdapter = null // cannot re-use Adapter w/ ViewPager
         binding = null
     }
 }

@@ -1,7 +1,6 @@
 @file:JvmName("NewsDetailsFragment") // ANALYTICS
 package org.mtransit.android.ui.news.details
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -13,27 +12,28 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.data.News
+import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.databinding.FragmentNewsDetailsBinding
 import org.mtransit.android.ui.MainActivity
-import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.MTTransitions
-import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.UITimeUtils
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
+class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     companion object {
         private val LOG_TAG = NewsDetailsFragment::class.java.simpleName
 
-        private const val TRACKING_SCREEN_NAME = "News"
-
         @JvmStatic
         fun newInstance(newsArticle: News): NewsDetailsFragment = newInstance(newsArticle.authority, newsArticle.uuid)
+
+        @JvmStatic
+        fun newInstance(authorityAndUuid: AuthorityAndUuid) = newInstance(authorityAndUuid.getAuthority().authority, authorityAndUuid.getUuid().uuid)
 
         @JvmStatic
         fun newInstance(
@@ -53,18 +53,17 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
             NewsDetailsViewModel.EXTRA_AUTHORITY to authority,
             NewsDetailsViewModel.EXTRA_NEWS_UUID to uuid,
         )
+
+        @JvmStatic
+        fun newInstanceArgs(authorityAndUuid: AuthorityAndUuid) = newInstanceArgs(authorityAndUuid.getAuthority().authority, authorityAndUuid.getUuid().uuid)
     }
 
     override fun getLogTag(): String = LOG_TAG
-
-    override fun getScreenName(): String = attachedViewModel?.uuid?.value?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
 
     @Inject
     lateinit var imageManager: ImageManager
 
     private val viewModel by viewModels<NewsDetailsViewModel>()
-    private val attachedViewModel
-        get() = if (isAttached()) viewModel else null
 
     private var binding: FragmentNewsDetailsBinding? = null
 
@@ -85,10 +84,6 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
         }
         viewModel.newsArticle.observe(viewLifecycleOwner) { newsArticle ->
             updateNewsView(newsArticle)
-            abController?.apply {
-                setABBgColor(this@NewsDetailsFragment, getABBgColor(context), false)
-                setABReady(this@NewsDetailsFragment, isABReady, true)
-            }
             MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
         }
         viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
@@ -177,12 +172,6 @@ class NewsDetailsFragment : ABFragment(R.layout.fragment_news_details) {
             updateNewsView() // mark time as not updating anymore
         }
     }
-
-    override fun getABBgColor(context: Context?) = attachedViewModel?.newsArticle?.value?.colorIntOrNull ?: super.getABBgColor(context)
-
-    override fun getABTitle(context: Context?) = context?.getString(R.string.news) ?: super.getABTitle(context)
-
-    override fun isABReady() = attachedViewModel?.newsArticle?.value != null
 
     override fun onDetach() {
         super.onDetach()

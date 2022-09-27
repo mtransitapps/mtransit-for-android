@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.slidingpanelayout.widget.SlidingPaneLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sliding_pane_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="@dimen/action_bar_size_static"
+    tools:context=".ui.news.NewsListDetailFragment">
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/refresh_layout"
+        android:layout_width="550dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start">
+
+        <include
+            android:id="@+id/news_container_layout"
+            layout="@layout/layout_news_list" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
+        android:layout_width="300dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layoutDirection="ltr"
+        android:orientation="horizontal"
+        tools:background="#00FF00"
+        tools:listitem="@layout/fragment_news_article" />
+
+</androidx.slidingpanelayout.widget.SlidingPaneLayout>

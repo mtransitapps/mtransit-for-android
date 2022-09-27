@@ -80,14 +80,14 @@
     <!-- NEWS -->
     <fragment
         android:id="@id/root_nav_news"
-        android:name="org.mtransit.android.ui.news.NewsListFragment"
+        android:name="org.mtransit.android.ui.news.NewsListDetailFragment"
         android:label="@string/news"
-        tools:layout="@layout/fragment_news_list" />
+        tools:layout="@layout/fragment_news_list_details" />
     <fragment
         android:id="@id/nav_news"
-        android:name="org.mtransit.android.ui.news.NewsListFragment"
+        android:name="org.mtransit.android.ui.news.NewsListDetailFragment"
         android:label="@string/news"
-        tools:layout="@layout/fragment_news_list">
+        tools:layout="@layout/fragment_news_list_details">
         <argument
             android:name="extra_color"
             android:defaultValue="@null"
@@ -113,6 +113,44 @@
             android:defaultValue="@null"
             app:argType="string[]"
             app:nullable="true" />
+    </fragment>
+    <!-- NEWS DETAILS -->
+    <fragment
+        android:id="@id/nav_news_detail"
+        android:name="org.mtransit.android.ui.news.NewsListDetailFragment"
+        android:label="@string/news"
+        tools:layout="@layout/fragment_news_list_details">
+        <argument
+            android:name="extra_color"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="extra_subtitle"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+        <argument
+            android:name="extra_filter_target_authorities"
+            android:defaultValue="@null"
+            app:argType="string[]"
+            app:nullable="true" />
+        <argument
+            android:name="extra_filter_targets"
+            android:defaultValue="@null"
+            app:argType="string[]"
+            app:nullable="true" />
+        <argument
+            android:name="extra_filter_uuids"
+            android:defaultValue="@null"
+            app:argType="string[]"
+            app:nullable="true" />
+        <argument
+            android:name="extra_agency_authority"
+            app:argType="string" />
+        <argument
+            android:name="extra_news_uuid"
+            app:argType="string" />
     </fragment>
     <!-- TYPES -->
     <fragment
@@ -223,19 +261,6 @@
             android:defaultValue="@null"
             app:argType="string"
             app:nullable="true" />
-    </fragment>
-    <!-- NEWS DETAILS -->
-    <fragment
-        android:id="@id/nav_news_detail"
-        android:name="org.mtransit.android.ui.news.details.NewsDetailsFragment"
-        android:label="@string/ellipsis"
-        tools:layout="@layout/fragment_news_details">
-        <argument
-            android:name="extra_agency_authority"
-            app:argType="string" />
-        <argument
-            android:name="extra_news_uuid"
-            app:argType="string" />
     </fragment>
     <!-- RTS ROUTE -->
     <fragment

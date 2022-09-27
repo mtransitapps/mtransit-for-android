@@ -109,11 +109,20 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 		if (FeatureFlags.F_NAVIGATION) {
 			return null;
 		}
+		final MainActivity mainActivity = getMainActivity();
+		if (mainActivity == null) {
+			return null;
+		}
+		return mainActivity.getAbController();
+	}
+
+	@Nullable
+	public MainActivity getMainActivity() {
 		final FragmentActivity activity = getActivity();
 		if (!(activity instanceof MainActivity)) {
 			return null;
 		}
-		return ((MainActivity) activity).getAbController();
+		return (MainActivity) activity;
 	}
 
 	@Override

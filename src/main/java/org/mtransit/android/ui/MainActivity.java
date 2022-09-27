@@ -434,7 +434,8 @@ public class MainActivity extends MTActivityWithLocation implements
 	public void onBackStackChanged() {
 		resetBackStackEntryCount();
 		if (this.abController != null) {
-			this.abController.setAB((ABFragment) getCurrentFragment());
+			final ABFragment currentFragment = (ABFragment) getCurrentFragment();
+			this.abController.setAB(currentFragment);
 			this.abController.updateABDrawerClosed();
 		}
 		if (this.navigationDrawerController != null) {

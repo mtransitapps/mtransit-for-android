@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
@@ -12,15 +13,17 @@ import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
+import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
+import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
 @HiltViewModel
 class NewsListViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val newsRepository: NewsRepository,
     private val dataSourcesRepository: DataSourcesRepository,
 ) : ViewModel(), MTLog.Loggable {
@@ -37,6 +40,9 @@ class NewsListViewModel @Inject constructor(
         internal val EXTRA_FILTER_TARGETS_DEFAULT: Array<String> = emptyArray()
         internal const val EXTRA_FILTER_UUIDS = "extra_filter_uuids"
         internal val EXTRA_FILTER_UUIDS_DEFAULT: Array<String> = emptyArray()
+
+        internal const val EXTRA_SELECTED_ARTICLE_AGENCY_AUTHORITY = "extra_selected_article_agency_authority"
+        internal const val EXTRA_SELECTED_ARTICLE_UUID = "extra_selected_article_uuid"
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -57,6 +63,25 @@ class NewsListViewModel @Inject constructor(
     private val _allNewsProviders = this.dataSourcesRepository.readingAllNewsProviders() // #onModulesUpdated
 
     private val _refreshRequestedTrigger = MutableLiveData<Int>() // no initial value to avoid triggering onChanged()
+
+    private val _selectedNewsArticleAgencyAuthority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SELECTED_ARTICLE_AGENCY_AUTHORITY)
+
+    private val _selectedNewsArticleUUID = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SELECTED_ARTICLE_UUID)
+
+    val selectedNewsArticleAuthorityAndUUID = PairMediatorLiveData(_selectedNewsArticleAgencyAuthority, _selectedNewsArticleUUID).map { (authority, uuid) ->
+        authority?.let {
+            uuid?.let {
+                AuthorityAndUuid(
+                    org.mtransit.android.data.Authority(authority),
+                    org.mtransit.android.data.Uuid(uuid),
+                )
+            }
+        }
+    }
+
+    private var _lastReadArticleAuthorityAndUUID = MutableLiveData<AuthorityAndUuid?>(null)
+
+    val lastReadArticleAuthorityAndUUID: LiveData<AuthorityAndUuid?> = _lastReadArticleAuthorityAndUUID.distinctUntilChanged()
 
     fun onRefreshRequested() {
         MTLog.d(this, "onRefreshRequested() > trigger refresh")
@@ -82,4 +107,13 @@ class NewsListViewModel @Inject constructor(
                 context = viewModelScope.coroutineContext + Dispatchers.IO,
             )
         }
+    fun cleanSelectedNewsArticle() = onNewsArticleSelected(null)
+
+    fun onNewsArticleSelected(newAuthorityAndUuid: AuthorityAndUuid?) {
+        savedStateHandle[EXTRA_SELECTED_ARTICLE_AGENCY_AUTHORITY] = newAuthorityAndUuid?.getAuthority()?.authority
+        savedStateHandle[EXTRA_SELECTED_ARTICLE_UUID] = newAuthorityAndUuid?.getUuid()?.uuid
+        if (newAuthorityAndUuid != null) {
+            this._lastReadArticleAuthorityAndUUID.value = newAuthorityAndUuid
+        }
+    }
 }

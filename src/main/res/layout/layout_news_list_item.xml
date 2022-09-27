@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:checkable="true"
     app:cardElevation="@dimen/baseline_0"
+    app:checkedIcon="@null"
     tools:cardElevation="@dimen/baseline_1"
     tools:layout_height="@dimen/baseline_176">
 

@@ -96,9 +96,9 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     private var lastPageSelected = -1
     private var selectedPosition = -1
 
-    private var adapter: RTSRouteTripPagerAdapter? = null
+    private var pagerAdapter: RTSRouteTripPagerAdapter? = null
 
-    private fun makeAdapter() = RTSRouteTripPagerAdapter(this).apply {
+    private fun makePagerAdapter() = RTSRouteTripPagerAdapter(this).apply {
         setSelectedStopId(attachedViewModel?.selectedStopId?.value)
         setAuthority(attachedViewModel?.authority?.value)
         setRouteTrips(attachedViewModel?.routeTrips?.value)
@@ -129,12 +129,14 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
         binding = FragmentRtsRouteBinding.bind(view).apply {
-            viewPager.offscreenPageLimit = 1
-            viewPager.registerOnPageChangeCallback(onPageChangeCallback)
-            viewPager.adapter = adapter ?: makeAdapter().also { adapter = it } // cannot re-use Adapter w/ ViewPager
-            MTTabLayoutMediator(tabs, viewPager, autoRefresh = true, smoothScroll = true) { tab, position ->
-                tab.text = viewModel.routeTrips.value?.get(position)?.getUIHeading(viewPager.context, false)
-            }.attach()
+            viewPager.apply {
+                offscreenPageLimit = 1
+                registerOnPageChangeCallback(onPageChangeCallback)
+                adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
+                MTTabLayoutMediator(tabs, this, autoRefresh = true, smoothScroll = true) { tab, position ->
+                    tab.text = viewModel.routeTrips.value?.get(position)?.getUIHeading(this.context, false)
+                }.attach()
+            }
             if (FeatureFlags.F_NAVIGATION) {
                 (activity as? org.mtransit.android.ui.main.MainActivity?)?.supportActionBar?.elevation?.let {
                     tabs.elevation = it
@@ -144,10 +146,10 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
             showSelectedTab()
         }
         viewModel.selectedStopId.observe(viewLifecycleOwner) { selectedStopId ->
-            this.adapter?.setSelectedStopId(selectedStopId)
+            this.pagerAdapter?.setSelectedStopId(selectedStopId)
         }
         viewModel.authority.observe(viewLifecycleOwner) { authority ->
-            this.adapter?.setAuthority(authority)
+            this.pagerAdapter?.setAuthority(authority)
             switchView()
             MTTransitions.setTransitionName(
                 view,
@@ -183,7 +185,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
             abController?.setABBgColor(this, getABBgColor(context), true)
         }
         viewModel.routeTrips.observe(viewLifecycleOwner) { routeTrips ->
-            if (adapter?.setRouteTrips(routeTrips) == true) {
+            if (pagerAdapter?.setRouteTrips(routeTrips) == true) {
                 showSelectedTab()
                 abController?.setABBgColor(this, getABBgColor(context), true)
             } else {
@@ -223,13 +225,13 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     private fun switchView() {
         binding?.apply {
             when {
-                lastPageSelected < 0 || adapter?.isReady() != true -> { // LOADING
+                lastPageSelected < 0 || pagerAdapter?.isReady() != true -> { // LOADING
                     emptyLayout.isVisible = false
                     viewPager.isVisible = false
                     tabs.isVisible = false
                     loadingLayout.isVisible = true
                 }
-                adapter?.itemCount == 0 -> { // EMPTY
+                pagerAdapter?.itemCount == 0 -> { // EMPTY
                     loadingLayout.isVisible = false
                     viewPager.isVisible = false
                     tabs.isVisible = false
@@ -246,7 +248,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
     }
 
     private fun showSelectedTab() {
-        if (this.adapter?.isReady() != true) {
+        if (this.pagerAdapter?.isReady() != true) {
             MTLog.d(this, "showSelectedTab() > SKIP (no adapter items)")
             return
         }
@@ -307,7 +309,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
         super.onDestroyView()
         binding?.viewPager?.unregisterOnPageChangeCallback(onPageChangeCallback)
         binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
-        adapter = null // cannot re-use Adapter w/ ViewPager
+        pagerAdapter = null // cannot re-use Adapter w/ ViewPager
         binding = null
     }
 }
