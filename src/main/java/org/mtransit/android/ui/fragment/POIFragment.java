@@ -503,6 +503,10 @@ public class POIFragment extends ABFragment implements
 			this.newsListAdapter = new NewsListAdapter(
 					this.imageManager,
 					(view, article) -> {
+						final POIManager poim = getPoimOrNull();
+						if (poim == null) {
+							return kotlin.Unit.INSTANCE;
+						}
 						if (FeatureFlags.F_NAVIGATION) {
 							final NavController navController = NavHostFragment.findNavController(this);
 							FragmentNavigator.Extras extras = null;
@@ -729,7 +733,7 @@ public class POIFragment extends ABFragment implements
 									poim.getColor(dataSourcesRepository),
 									POIManager.getNewOneLineDescription(poim.poi, POIFragment.this.dataSourcesRepository),
 									Collections.singletonList(poim.poi.getAuthority()),
-									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets(),
+									NewsProviderContract.Filter.getNewTargetFilter(poim.poi).getTargets()
 							),
 							POIFragment.this
 					);
