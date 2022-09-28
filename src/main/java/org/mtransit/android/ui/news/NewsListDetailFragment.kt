@@ -32,7 +32,6 @@ import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
-
 @AndroidEntryPoint
 class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
 
@@ -212,7 +211,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                                 supportFragmentManager.commit {
                                     addToBackStack("panel")
                                 }
-                                supportFragmentManager.executePendingTransactions();
+                                supportFragmentManager.executePendingTransactions()
                                 addedToBackStack = true
                             }
 
@@ -268,6 +267,16 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                 if (oldSize == 0) {
                     viewModel.selectedNewsArticleAuthorityAndUUID.value?.let { authorityAndUuid ->
                         selectPagerNewsArticle(authorityAndUuid)
+                    }
+                    viewModel.lastReadArticleAuthorityAndUUID.value?.let {
+                        val newsArticlePosition = listAdapter.getItemPosition(it)
+                        newsArticlePosition?.let {
+                            binding?.newsContainerLayout?.newsList?.scrollToPosition(
+                                (newsArticlePosition - 1) // show 1 more stop on top of the list
+                                    .coerceAtLeast(0)
+                                    .coerceAtMost(listAdapter.itemCount - 1)
+                            )
+                        }
                     }
                 }
             }
