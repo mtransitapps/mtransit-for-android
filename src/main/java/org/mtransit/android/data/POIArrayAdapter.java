@@ -67,6 +67,7 @@ import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.DegreeUtils;
+import org.mtransit.android.util.UIDirectionUtils;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.FeatureFlags;
 
@@ -1788,7 +1789,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setVisibility(View.VISIBLE);
-				holder.tripHeadingTv.setText(rts.getTrip().getUIHeading(getContext(), true));
+				holder.tripHeadingTv.setText(UIDirectionUtils.decorateDirection(getContext(), rts.getTrip().getUIHeading(getContext(), true)));
 				holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setBackgroundColor(poim.getColor(dataSourcesRepository));
 				holder.rtsExtraV.setOnClickListener(view -> {

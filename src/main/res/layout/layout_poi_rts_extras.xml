@@ -75,7 +75,7 @@
                 android:textSize="@dimen/trip_head_sign_text_size"
                 android:textStyle="bold"
                 tools:ignore="SpUsage"
-                tools:text="&#8227;HEADING HEADING HEADING HEADING HEADING HEADING HEADING" />
+                tools:text="Headsign Headsign" />
         </FrameLayout>
     </LinearLayout>
 

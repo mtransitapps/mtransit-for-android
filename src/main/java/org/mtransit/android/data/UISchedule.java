@@ -25,6 +25,7 @@ import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Trip;
+import org.mtransit.android.util.UIDirectionUtils;
 import org.mtransit.android.util.UISpanUtils;
 import org.mtransit.android.util.UITimeUtils;
 
@@ -285,6 +286,9 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	public static ImageSpan getNewRealTimeImage(@NonNull Context context, boolean countdown) {
 		return UISpanUtils.getNewImage(context,
 				(countdown ? R.drawable.ic_rss_feed_black_6dp : R.drawable.ic_rss_feed_black_12dp),
+				true,
+				true,
+				true,
 				ImageSpan.ALIGN_BASELINE
 		);
 	}
@@ -535,7 +539,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			String fTime = UITimeUtils.formatTime(context, t);
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
 			if (t.hasHeadsign() && !Trip.isSameHeadsign(t.getHeading(context), optDefaultHeadSign)) {
-				headSignSSB = new SpannableStringBuilder(t.getUIHeading(context, true));
+				headSignSSB = new SpannableStringBuilder(
+						UIDirectionUtils.decorateDirection(context,
+								t.getUIHeading(context, true)
+						)
+				);
 			}
 			if (startPreviousTimesIndex < endPreviousTimesIndex //
 					&& index > startPreviousTimesIndex && index <= endPreviousTimesIndex) {

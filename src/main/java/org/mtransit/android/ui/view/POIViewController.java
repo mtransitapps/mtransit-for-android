@@ -42,6 +42,7 @@ import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.rts.route.RTSRouteFragment;
 import org.mtransit.android.ui.view.common.MTTransitions;
+import org.mtransit.android.util.UIDirectionUtils;
 import org.mtransit.commons.FeatureFlags;
 
 import java.util.ArrayList;
@@ -526,7 +527,11 @@ public class POIViewController implements MTLog.Loggable {
 				if (rts.getTrip() == null) {
 					holder.tripHeadingBg.setVisibility(View.GONE);
 				} else {
-					holder.tripHeadingTv.setText(rts.getTrip().getUIHeading(context, true));
+					holder.tripHeadingTv.setText(
+							UIDirectionUtils.decorateDirection(context,
+									rts.getTrip().getUIHeading(context, true)
+							)
+					);
 					final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
 					holder.tripHeadingTv.setSingleLine(true); // marquee forever
 					holder.tripHeadingTv.setSelected(!demoModeManager.getEnabled()); // marquee forever
@@ -629,7 +634,11 @@ public class POIViewController implements MTLog.Loggable {
 				if (rts.getTrip() == null) {
 					holder.tripHeadingBg.setVisibility(View.GONE);
 				} else {
-					holder.tripHeadingTv.setText(rts.getTrip().getUIHeading(context, true));
+					holder.tripHeadingTv.setText(
+							UIDirectionUtils.decorateDirection(context,
+									rts.getTrip().getUIHeading(context, true)
+							)
+					);
 					final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
 					holder.tripHeadingTv.setSingleLine(true); // marquee forever
 					holder.tripHeadingTv.setSelected(!demoModeManager.getEnabled()); // marquee forever

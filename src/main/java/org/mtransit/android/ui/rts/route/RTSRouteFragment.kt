@@ -19,6 +19,7 @@ import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.commons.data.Route
 import org.mtransit.android.commons.data.RouteTripStop
+import org.mtransit.android.data.decorateDirection
 import org.mtransit.android.databinding.FragmentRtsRouteBinding
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
@@ -134,7 +135,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
                 registerOnPageChangeCallback(onPageChangeCallback)
                 adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
                 MTTabLayoutMediator(tabs, this, autoRefresh = true, smoothScroll = true) { tab, position ->
-                    tab.text = viewModel.routeTrips.value?.get(position)?.getUIHeading(this.context, false)
+                    tab.text = viewModel.routeTrips.value?.get(position)?.decorateDirection(this.context, false)
                 }.attach()
             }
             if (FeatureFlags.F_NAVIGATION) {

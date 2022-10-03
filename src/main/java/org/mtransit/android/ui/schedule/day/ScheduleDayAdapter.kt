@@ -17,6 +17,7 @@ import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.Trip
 import org.mtransit.android.data.UISchedule
+import org.mtransit.android.data.decorateDirection
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleHourSeparatorBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleTimeBinding
 import org.mtransit.android.util.UITimeUtils
@@ -378,7 +379,9 @@ class ScheduleDayAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLo
             if (timestamp.hasHeadsign()) {
                 val timestampHeading = timestamp.getHeading(context)
                 if (!Trip.isSameHeadsign(timestampHeading, optRts?.trip?.getHeading(context))) {
-                    timeSb.append(P1).append(timestamp.getUIHeading(context, false)).append(P2)
+                    timeSb.append(P1).append(
+                        timestamp.decorateDirection(context, false)
+                    ).append(P2)
                 }
             }
             UITimeUtils.cleanTimes(timeOnly, timeSb, 0.55)

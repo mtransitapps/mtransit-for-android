@@ -209,7 +209,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
             viewPager.registerOnPageChangeCallback(onPageChangeCallback)
             viewPager.adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
             MTTabLayoutMediator(tabs, viewPager, autoRefresh = true, smoothScroll = true) { tab, position ->
-                tab.text = viewModel.availableTypes.value?.get(position)?.shortNameResId?.let { viewPager.context.getString(it) }
+                tab.text = viewModel.availableTypes.value?.get(position)?.allStringResId?.let { viewPager.context.getString(it) }
             }.attach()
             if (FeatureFlags.F_NAVIGATION) {
                 (activity as? org.mtransit.android.ui.main.MainActivity?)?.supportActionBar?.elevation?.let {

@@ -27,6 +27,6 @@
         android:layoutDirection="ltr"
         android:orientation="horizontal"
         tools:background="#00FF00"
-        tools:listitem="@layout/fragment_news_article" />
+        tools:listitem="@layout/fragment_news_details" />
 
 </androidx.slidingpanelayout.widget.SlidingPaneLayout>
