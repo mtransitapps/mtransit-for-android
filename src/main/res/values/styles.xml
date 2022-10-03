@@ -9,6 +9,7 @@
 
     <style name="MTTabTextStyle" parent="@style/TextAppearance.Design.Tab">
         <item name="android:textStyle">bold</item>
+        <item name="textAllCaps">@bool/f_all_caps_off_not</item>
     </style>
 
     <style name="MTCircularProgressIndicatorLarge" parent="@style/Widget.MaterialComponents.CircularProgressIndicator">

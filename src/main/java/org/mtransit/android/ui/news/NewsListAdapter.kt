@@ -84,10 +84,7 @@ class NewsListAdapter(
     override fun onBindViewHolder(holder: NewsListItemViewHolder, position: Int) {
         val newsArticle = getItem(position)
         val selected = isSelected(newsArticle)
-        holder.itemView.setOnClickListener {
-            onClick(it, newsArticle)
-        }
-        holder.bind(imageManager, position, itemCount, newsArticle, selected, minLines, horizontal)
+        holder.bind(imageManager, position, itemCount, newsArticle, selected, minLines, horizontal, onClick)
     }
 
     fun setSelectedArticle(newAuthorityAndUuid: AuthorityAndUuid?) {
@@ -148,6 +145,7 @@ class NewsListAdapter(
             articleSelected: Boolean,
             minLines: Int? = null,
             horizontal: Boolean,
+            onClick: (View, News) -> Unit,
         ) {
             val firstItem = position == 0
             val lastItem = position >= itemCount - 1
@@ -195,6 +193,9 @@ class NewsListAdapter(
                     )
                 }
                 root.apply {
+                    setOnClickListener { view ->
+                        onClick(view, newsArticle)
+                    }
                     setItemSelected(articleSelected)
                     isVisible = true
                     if (horizontal) {
@@ -216,7 +217,7 @@ class NewsListAdapter(
             }
         }
 
-        fun setItemSelected(selected: Boolean?) {
+        private fun setItemSelected(selected: Boolean?) {
             binding.apply {
                 val isSelected = selected == true
                 root.isChecked = isSelected

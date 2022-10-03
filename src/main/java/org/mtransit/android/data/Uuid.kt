@@ -1,4 +1,11 @@
 package org.mtransit.android.data
 
 @JvmInline
-value class Uuid(val uuid: String)
+value class Uuid(val uuid: String) {
+
+    companion object {
+        const val INVALID = ""
+    }
+
+    fun isValid(): Boolean = this.uuid.isNotBlank()
+}

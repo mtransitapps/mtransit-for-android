@@ -9,5 +9,7 @@ value class AuthorityAndUuid(private val authorityAndUuid: Pair<Authority, Uuid>
 
     fun getUuid(): Uuid = authorityAndUuid.second
 
+    fun isValid() = authorityAndUuid.first.isValid() && authorityAndUuid.second.isValid()
+
     override fun toString() = "${AuthorityAndUuid::class.java.simpleName}(${authorityAndUuid.first}, ${authorityAndUuid.second})"
 }

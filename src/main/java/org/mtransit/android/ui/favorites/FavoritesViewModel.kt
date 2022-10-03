@@ -61,7 +61,7 @@ class FavoritesViewModel @Inject constructor(
             return null // loading
         }
         val favorites = this.favoriteRepository.findFavorites()
-        if (favorites.isNullOrEmpty()) {
+        if (favorites.isEmpty()) {
             MTLog.d(this, "getFavorites() > SKIP (no favorites)")
             return emptyList() // empty (no favorites)
         }

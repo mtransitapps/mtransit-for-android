@@ -16,6 +16,7 @@ import androidx.slidingpanelayout.widget.SlidingPaneLayout
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.analytics.AnalyticsManager
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.commons.data.News
@@ -118,7 +119,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                 NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES to (targetAuthorities ?: NewsListViewModel.EXTRA_FILTER_TARGET_AUTHORITIES_DEFAULT),
                 NewsListViewModel.EXTRA_FILTER_TARGETS to (filterTargets ?: NewsListViewModel.EXTRA_FILTER_TARGETS_DEFAULT),
                 NewsListViewModel.EXTRA_FILTER_UUIDS to (filterUUIDs ?: NewsListViewModel.EXTRA_FILTER_UUIDS_DEFAULT),
-                NewsListViewModel.EXTRA_SELECTED_ARTICLE_AGENCY_AUTHORITY to selectedArticleAuthority,
+                NewsListViewModel.EXTRA_SELECTED_ARTICLE_AUTHORITY to selectedArticleAuthority,
                 NewsListViewModel.EXTRA_SELECTED_ARTICLE_UUID to selectedArticleUuid,
             )
         }
@@ -126,10 +127,14 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
 
     override fun getLogTag(): String = LOG_TAG
 
-    override fun getScreenName(): String = TRACKING_SCREEN_NAME
+    override fun getScreenName(): String =
+        attachedViewModel?.selectedNewsArticleAuthorityAndUUID?.value?.getUuid()?.uuid?.let { "$TRACKING_SCREEN_NAME/$it" } ?: TRACKING_SCREEN_NAME
 
     @Inject
     lateinit var imageManager: ImageManager
+
+    @Inject
+    lateinit var analyticsManager: AnalyticsManager
 
     private val viewModel by viewModels<NewsListViewModel>()
     private val attachedViewModel
@@ -296,10 +301,18 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
             }
         }
         viewModel.selectedNewsArticleAuthorityAndUUID.observe(viewLifecycleOwner) { _authorityAndUuid ->
+            if (_authorityAndUuid?.isValid() == false) {
+                return@observe
+            }
             listAdapter.setSelectedArticle(_authorityAndUuid)
+            analyticsManager.trackScreenView(this@NewsListDetailFragment, this@NewsListDetailFragment)
             val authorityAndUuid = _authorityAndUuid ?: return@observe
             selectPagerNewsArticle(authorityAndUuid)
-            binding?.slidingPaneLayout?.open()
+            binding?.slidingPaneLayout?.apply {
+                if (!isOpen) {
+                    open()
+                }
+            }
         }
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
