@@ -77,7 +77,7 @@ class NewsListViewModel @Inject constructor(
                 )
             }
         }
-    }
+    }.distinctUntilChanged()
 
     private var _lastReadArticleAuthorityAndUUID = MutableLiveData<AuthorityAndUuid?>(null)
 

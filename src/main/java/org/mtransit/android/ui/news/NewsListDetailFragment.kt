@@ -323,7 +323,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
         binding?.apply {
             slidingPaneLayout.apply {
                 if (!isOpen) {
-                    open()
+                    openPane()
                 }
             }
             val newPosition = pagerAdapter.getItemPosition(authorityAndUuid) ?: -1
