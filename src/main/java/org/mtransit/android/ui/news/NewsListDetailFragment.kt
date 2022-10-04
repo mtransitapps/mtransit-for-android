@@ -308,11 +308,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
             analyticsManager.trackScreenView(this@NewsListDetailFragment, this@NewsListDetailFragment)
             val authorityAndUuid = _authorityAndUuid ?: return@observe
             selectPagerNewsArticle(authorityAndUuid)
-            binding?.slidingPaneLayout?.apply {
-                if (!isOpen) {
-                    open()
-                }
-            }
         }
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
@@ -326,6 +321,11 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
     private fun selectPagerNewsArticle(authorityAndUuid: AuthorityAndUuid) {
         val pagerAdapter = this.pagerAdapter ?: return
         binding?.apply {
+            slidingPaneLayout.apply {
+                if (!isOpen) {
+                    open()
+                }
+            }
             val newPosition = pagerAdapter.getItemPosition(authorityAndUuid) ?: -1
             val oldPosition = viewPager.currentItem
             if (newPosition < 0 || newPosition == oldPosition) {
