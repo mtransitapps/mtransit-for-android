@@ -63,6 +63,7 @@ public final class NightModeUtils implements MTLog.Loggable {
 		ColorUtils.resetColorCache();
 		AppStatus.resetColorCache();
 		UISchedule.resetColorCache();
+		UIDirectionUtils.resetColorCache();
 		UITimeUtils.resetColorCache();
 		AvailabilityPercent.resetColorCache();
 		ScheduleDayAdapter.TimeViewHolder.resetColorCache();

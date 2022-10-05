@@ -28,7 +28,6 @@ import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
-import org.mtransit.commons.FeatureFlags.F_APP_UPDATE
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -145,10 +144,6 @@ class DataSourcesReader @Inject constructor(
         forceAppUpdateRefresh: Boolean = false,
         markUpdated: () -> Unit,
     ) {
-        if (!F_APP_UPDATE) {
-            MTLog.d(this, "refreshAvailableVersions() > SKIP (feature disabled)")
-            return
-        }
         val lastCheckInMs = lclPrefRepository.getValue(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
         val shortTimeAgo = TimeUtils.currentTimeMillis() - TimeUnit.HOURS.toMillis(24L)
         if (!skipTimeCheck && shortTimeAgo < lastCheckInMs) {

@@ -9,7 +9,6 @@ import androidx.annotation.Nullable;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.SpanUtils;
-import org.mtransit.commons.FeatureFlags;
 
 public final class UIDirectionUtils {
 
@@ -40,9 +39,6 @@ public final class UIDirectionUtils {
 	@NonNull
 	public static CharSequence decorateDirection(@NonNull Context context,
 												 @NonNull String direction) {
-		if (!FeatureFlags.F_DIRECTION_IMG) {
-			return direction;
-		}
 		if (USE_DRAWABLE) {
 			return direction;
 		}

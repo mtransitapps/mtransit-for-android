@@ -43,8 +43,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.mtransit.commons.FeatureFlags.F_APP_UPDATE;
-
 @WorkerThread
 public final class DataSourceManager implements MTLog.Loggable {
 
@@ -195,7 +193,6 @@ public final class DataSourceManager implements MTLog.Loggable {
 				int status = POIStatus.getTypeFromCursor(cursor);
 				switch (status) {
 				case POI.ITEM_STATUS_TYPE_NONE:
-					result = null;
 					break;
 				case POI.ITEM_STATUS_TYPE_SCHEDULE:
 					result = UISchedule.fromCursorWithExtra(cursor);
@@ -208,7 +205,6 @@ public final class DataSourceManager implements MTLog.Loggable {
 					break;
 				default:
 					MTLog.w(LOG_TAG, "getPOIStatus() > Unexpected status '%s'!", status);
-					result = null;
 					break;
 				}
 			}
@@ -230,10 +226,6 @@ public final class DataSourceManager implements MTLog.Loggable {
 
 	public static int findAgencyAvailableVersionCode(@NonNull Context context, @NonNull String authority, boolean forceAppUpdateRefresh, boolean inFocus) {
 		int availableVersionCode = -1;
-		if (!F_APP_UPDATE) {
-			MTLog.d(LOG_TAG, "findAgencyAvailableVersionCode() > SKIP (feature disabled)");
-			return availableVersionCode;
-		}
 		Cursor cursor = null;
 		try {
 			String appUpdateFilterString = new AppUpdateUtils.AppUpdateFilter(forceAppUpdateRefresh, inFocus).toJSONString();
@@ -284,11 +276,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 						maxValidInSec = cursor.getInt(maxValidSecIdx);
 					}
 					int availableVersionCode = -1;
-					if (F_APP_UPDATE) {
-						final int availableVersionCodeIdx = cursor.getColumnIndex(AgencyProviderContract.AVAILABLE_VERSION_CODE);
-						if (availableVersionCodeIdx >= 0) {
-							availableVersionCode = cursor.getInt(availableVersionCodeIdx);
-						}
+					final int availableVersionCodeIdx = cursor.getColumnIndex(AgencyProviderContract.AVAILABLE_VERSION_CODE);
+					if (availableVersionCodeIdx >= 0) {
+						availableVersionCode = cursor.getInt(availableVersionCodeIdx);
 					}
 					result = new AgencyProperties(
 							authority,
