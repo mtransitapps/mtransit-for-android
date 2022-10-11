@@ -13,7 +13,9 @@
     <domain-config>
         <domain includeSubdomains="true">stm.info</domain>
         <trust-anchors>
-            <certificates src="@raw/info_stm_pem" />
+            <certificates
+                src="@raw/info_stm_pem"
+                tools:ignore="NetworkSecurityConfig" />
         </trust-anchors>
     </domain-config>
 </network-security-config>
