@@ -95,9 +95,9 @@ public class MTCompassView extends MTView {
 		float top = h > innerCircleDiameter ? (h - innerCircleDiameter) / 2 : 0;
 		float right = left + innerCircleDiameter;
 		float bottom = top + innerCircleDiameter;
-		left += getPaddingLeft();
+		left += getPaddingStart();
 		top += getPaddingTop();
-		right -= getPaddingRight();
+		right -= getPaddingEnd();
 		bottom -= getPaddingBottom();
 		this.bounds = new RectF(left, top, right, bottom);
 		this.boundsExactCenterX = left + (this.bounds.right - this.bounds.left) / 2;

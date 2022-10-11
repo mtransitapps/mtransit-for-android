@@ -316,7 +316,7 @@ public final class LinkUtils implements MTLog.Loggable {
 			if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN) {
 				int x = (int) event.getX();
 				int y = (int) event.getY();
-				x -= widget.getTotalPaddingLeft();
+				x -= widget.getTotalPaddingStart();
 				y -= widget.getTotalPaddingTop();
 				x += widget.getScrollX();
 				y += widget.getScrollY();

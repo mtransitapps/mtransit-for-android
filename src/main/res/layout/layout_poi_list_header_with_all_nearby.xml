@@ -7,7 +7,7 @@
     android:layout_gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:paddingTop="@dimen/title_top_padding"
-    android:paddingRight="@dimen/title_right_padding">
+    android:paddingEnd="@dimen/title_end_padding">
 
     <Button
         android:id="@+id/allBtn"
@@ -18,27 +18,26 @@
         android:id="@+id/nearbyBtn"
         style="@style/MTButton.Header.Middle"
         android:layout_marginStart="@dimen/button_padding"
-        android:layout_marginLeft="@dimen/button_padding"
-        android:layout_toLeftOf="@id/allBtn"
+        android:layout_toStartOf="@id/allBtn"
         android:text="@string/nearby" />
 
     <TextView
         android:id="@+id/name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
         android:layout_centerVertical="false"
         android:layout_gravity="center_vertical"
-        android:layout_toLeftOf="@id/nearbyBtn"
+        android:layout_toStartOf="@id/nearbyBtn"
         android:drawablePadding="@dimen/title_drawable_padding"
         android:ellipsize="end"
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
         android:maxLines="1"
-        android:paddingLeft="@dimen/title_padding_left"
+        android:paddingStart="@dimen/title_padding_start"
         android:paddingTop="@dimen/title_padding_top"
-        android:paddingRight="@dimen/title_padding_right"
+        android:paddingEnd="@dimen/title_padding_end"
         android:paddingBottom="@dimen/title_padding_bottom"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="?attr/colorOnBackground"

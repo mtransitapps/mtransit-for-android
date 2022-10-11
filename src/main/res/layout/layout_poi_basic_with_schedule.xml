@@ -7,9 +7,9 @@
     android:background="?attr/colorSurface"
     android:clipChildren="false"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingLeft="@dimen/poi_padding_left_no_extra"
+    android:paddingStart="@dimen/poi_padding_start_no_extra"
     android:paddingTop="@dimen/poi_padding_top"
-    android:paddingRight="@dimen/poi_padding_right"
+    android:paddingEnd="@dimen/poi_padding_end"
     android:paddingBottom="@dimen/poi_padding_bottom">
 
     <ImageView
@@ -17,9 +17,9 @@
         android:layout_width="@dimen/poi_img_width"
         android:layout_height="@dimen/poi_img_height"
         android:layout_alignWithParentIfMissing="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="@dimen/poi_status_inner_padding"
+        android:layout_marginEnd="@dimen/poi_status_inner_padding"
         android:scaleType="fitCenter"
         android:visibility="gone"
         app:srcCompat="@drawable/ic_warning_black_24dp"
@@ -32,9 +32,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="@dimen/poi_status_inner_padding"
+        android:layout_marginEnd="@dimen/poi_status_inner_padding"
         android:minWidth="?android:attr/listPreferredItemHeight" />
 
     <include
@@ -42,7 +42,7 @@
         layout="@layout/layout_poi_base_distance_and_compass"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/poi_margin_left"
-        android:layout_toLeftOf="@id/status" />
+        android:layout_marginStart="@dimen/poi_margin_start"
+        android:layout_toStartOf="@id/status" />
 
 </RelativeLayout>

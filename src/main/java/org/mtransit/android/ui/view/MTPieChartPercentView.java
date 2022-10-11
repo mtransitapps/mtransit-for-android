@@ -160,9 +160,9 @@ public class MTPieChartPercentView extends MTView {
 		float top = h > innerCircleDiameter ? (h - innerCircleDiameter) / 2 : 0;
 		float right = left + innerCircleDiameter;
 		float bottom = top + innerCircleDiameter;
-		left += getPaddingLeft();
+		left += getPaddingStart();
 		top += getPaddingTop();
-		right -= getPaddingRight();
+		right -= getPaddingEnd();
 		bottom -= getPaddingBottom();
 		this.bounds = new RectF(left, top, right, bottom);
 		invalidate();

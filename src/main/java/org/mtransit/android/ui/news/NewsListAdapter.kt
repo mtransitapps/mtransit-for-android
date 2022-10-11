@@ -203,8 +203,8 @@ class NewsListAdapter(
                         val horizontalItemMargin = context.resources.getDimension(R.dimen.news_article_horizontal_list_item_margin).toInt()
                         val horizontalItemMarginFirstLast = horizontalItemMargin - horizontalListMargin // negative #clipToPaddingFalse
                         updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                            rightMargin = if (!lastItem) horizontalItemMargin else horizontalItemMarginFirstLast
-                            leftMargin = if (!firstItem) horizontalItemMargin else horizontalItemMarginFirstLast
+                            marginStart = if (!firstItem) horizontalItemMargin else horizontalItemMarginFirstLast
+                            marginEnd = if (!lastItem) horizontalItemMargin else horizontalItemMarginFirstLast
                         }
                         layout.apply {
                             val horizontalItemPadding = context.resources.getDimension(R.dimen.news_article_horizontal_list_item_padding).toInt()

@@ -295,7 +295,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			return 7; // TEXT MESSAGE
 		case POI.ITEM_VIEW_TYPE_MODULE:
 			switch (statusType) {
-			case POI.ITEM_STATUS_TYPE_SCHEDULE:
+			case POI.ITEM_STATUS_TYPE_APP:
 				return 5; // MODULE & APP STATUS
 			default:
 				return 6; // MODULE

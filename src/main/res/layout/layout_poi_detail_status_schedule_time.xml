@@ -7,7 +7,7 @@
     android:layout_gravity="center_vertical"
     android:gravity="center_vertical"
     android:paddingBottom="1dp"
-    android:paddingLeft="?android:attr/listPreferredItemHeightLarge"
+    android:paddingStart="?android:attr/listPreferredItemHeightLarge"
     android:paddingTop="1dp"
     android:textAppearance="?android:attr/textAppearanceSmall"
     android:textColor="?android:attr/textColorPrimary"

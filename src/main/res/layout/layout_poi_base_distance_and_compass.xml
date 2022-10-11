@@ -12,7 +12,7 @@
         android:layout_width="@dimen/poi_img_width"
         android:layout_height="@dimen/poi_img_height"
         android:layout_alignWithParentIfMissing="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:padding="@dimen/poi_fav_padding"
         android:scaleType="fitCenter"
@@ -27,8 +27,8 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/poi_place_left_padding"
-        android:paddingRight="@dimen/poi_place_right_padding">
+        android:paddingStart="@dimen/poi_place_start_padding"
+        android:paddingEnd="@dimen/poi_place_end_padding">
         <!-- NAME -->
         <TextView
             android:id="@+id/name"
@@ -36,7 +36,7 @@
             android:layout_height="match_parent"
             android:ellipsize="marquee"
             android:fontFamily="sans-serif"
-            android:gravity="center_vertical|left"
+            android:gravity="center_vertical|start"
             android:marqueeRepeatLimit="marquee_forever"
             android:singleLine="true"
             android:textAppearance="?android:attr/textAppearanceMedium"

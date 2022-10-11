@@ -5,9 +5,9 @@
     android:background="?attr/colorSurface"
     android:clipChildren="false"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingLeft="@dimen/poi_padding_left_extra"
+    android:paddingStart="@dimen/poi_padding_start_extra"
     android:paddingTop="@dimen/poi_padding_top"
-    android:paddingRight="@dimen/poi_padding_right"
+    android:paddingEnd="@dimen/poi_padding_end"
     android:paddingBottom="@dimen/poi_padding_bottom">
 
     <include
@@ -19,7 +19,7 @@
         layout="@layout/layout_poi_base_distance_and_compass"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/poi_margin_left"
-        android:layout_toRightOf="@id/extra" />
+        android:layout_marginStart="@dimen/poi_margin_start"
+        android:layout_toEndOf="@id/extra" />
 
 </RelativeLayout>

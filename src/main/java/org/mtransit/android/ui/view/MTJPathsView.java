@@ -120,9 +120,9 @@ public class MTJPathsView extends MTView {
 		float right = left + innerCircleDiameter;
 		float bottom = top + innerCircleDiameter;
 
-		left += getPaddingLeft();
+		left += getPaddingStart();
 		top += getPaddingTop();
-		right -= getPaddingRight();
+		right -= getPaddingEnd();
 		bottom -= getPaddingBottom();
 
 		this.bounds = new RectF(left, top, right, bottom);

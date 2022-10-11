@@ -20,8 +20,8 @@
         android:fontFamily="sans-serif"
         android:gravity="center_vertical"
         android:minHeight="@dimen/action_bar_size_static"
-        android:paddingLeft="8dp"
-        android:paddingRight="16dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="16dp"
         android:text="@string/app_name"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textStyle="normal" />

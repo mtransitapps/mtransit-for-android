@@ -31,12 +31,11 @@
         <item name="android:lines">1</item>
         <item name="android:ellipsize">end</item>
         <item name="android:singleLine">true</item>
-        <item name="android:layout_marginStart">@dimen/platform_mtrl_btn_text_btn_padding_left</item>
-        <item name="android:layout_marginLeft">@dimen/platform_mtrl_btn_text_btn_padding_left</item>
-        <item name="android:paddingLeft">@dimen/platform_mtrl_btn_text_btn_padding_left</item>
-        <item name="android:paddingStart">@dimen/platform_mtrl_btn_text_btn_padding_left</item>
-        <item name="android:paddingRight">@dimen/platform_mtrl_btn_text_btn_padding_right</item>
-        <item name="android:paddingEnd">@dimen/platform_mtrl_btn_text_btn_padding_right</item>
+        <item name="android:layout_marginStart">@dimen/platform_mtrl_btn_text_btn_padding_start</item>
+        <item name="android:layout_marginStart">@dimen/platform_mtrl_btn_text_btn_padding_start</item>
+        <item name="android:paddingStart">@dimen/platform_mtrl_btn_text_btn_padding_start</item>
+        <item name="android:paddingEnd">@dimen/platform_mtrl_btn_text_btn_padding_end</item>
+        <item name="android:paddingEnd">@dimen/platform_mtrl_btn_text_btn_padding_end</item>
     </style>
 
     <style name="MTButton" parent="@style/MTWidgetMDCButtonDialog">
@@ -60,13 +59,13 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_alignParentEnd">true</item>
-        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_alignParentEnd">true</item>
         <item name="android:layout_alignParentBottom">true</item>
         <item name="android:layout_centerVertical">false</item>
 
-        <item name="android:layout_marginLeft">@dimen/button_padding</item>
         <item name="android:layout_marginStart">@dimen/button_padding</item>
-        <item name="android:layout_marginRight">@dimen/button_padding</item>
+        <item name="android:layout_marginStart">@dimen/button_padding</item>
+        <item name="android:layout_marginEnd">@dimen/button_padding</item>
         <item name="android:layout_marginEnd">@dimen/button_padding</item>
         <item name="android:layout_marginTop">@dimen/button_padding</item>
         <item name="android:layout_marginBottom">@dimen/button_padding</item>
@@ -74,10 +73,10 @@
 
     <style name="MTButton.Header.Middle" parent="@style/MTButton.Header">
         <item name="android:layout_alignParentEnd">false</item>
-        <item name="android:layout_alignParentRight">false</item>
-        <item name="android:layout_marginLeft">0dp</item>
+        <item name="android:layout_alignParentEnd">false</item>
         <item name="android:layout_marginStart">0dp</item>
-        <item name="android:layout_marginRight">0dp</item>
+        <item name="android:layout_marginStart">0dp</item>
+        <item name="android:layout_marginEnd">0dp</item>
         <item name="android:layout_marginEnd">0dp</item>
     </style>
 

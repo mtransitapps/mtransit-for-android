@@ -45,21 +45,6 @@
 -dontwarn com.google.transit.realtime.**
 # GOOGLE TRANSIT REALTIME - END
 
-# GOOGLE MOBILE ADS (ADMOB) - START
--keep public class com.google.android.gms.ads.** {
-   public *;
-}
--keep public class com.google.ads.** {
-   public *;
-}
--keep class com.google.ads.mediation.admob.AdMobAdapter {
-    *;
-}
--keep class com.google.ads.mediation.AdUrlAdapter {
-    *;
-}
-# GOOGLE MOBILE ADS (ADMOB) - END
-
 # FACEBOOK AUDIENCE NETWORK - START
 -keep public class com.facebook.ads.** {
    public *;

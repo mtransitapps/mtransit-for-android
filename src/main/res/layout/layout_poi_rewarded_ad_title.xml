@@ -5,13 +5,13 @@
     android:layout_height="@dimen/header_height"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:paddingTop="@dimen/title_top_padding"
-    android:paddingRight="@dimen/title_right_padding">
+    android:paddingEnd="@dimen/title_end_padding">
 
     <TextView
         android:id="@+id/rewardAdTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
         android:layout_centerVertical="false"
         android:layout_gravity="center_vertical"
@@ -20,9 +20,9 @@
         android:fontFamily="sans-serif-light"
         android:gravity="center_vertical"
         android:maxLines="1"
-        android:paddingLeft="@dimen/title_padding_left"
+        android:paddingStart="@dimen/title_padding_start"
         android:paddingTop="@dimen/title_padding_top"
-        android:paddingRight="@dimen/title_padding_right"
+        android:paddingEnd="@dimen/title_padding_end"
         android:paddingBottom="@dimen/title_padding_bottom"
         android:text="@string/watch_rewarded_ad_title_text"
         android:textAppearance="?android:attr/textAppearanceMedium"

@@ -6,7 +6,7 @@
     android:layout_width="@dimen/poi_extra_width"
     android:layout_height="@dimen/poi_extra_height"
     android:layout_alignParentStart="true"
-    android:layout_marginRight="@dimen/poi_extra_margin_right">
+    android:layout_marginEnd="@dimen/poi_extra_margin_end">
     <!-- ROUTE TRIP -->
     <LinearLayout
         android:layout_width="match_parent"
