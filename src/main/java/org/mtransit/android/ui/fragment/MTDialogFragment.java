@@ -80,7 +80,7 @@ public abstract class MTDialogFragment extends DialogFragment implements MTLog.L
 
 	// INHERITED FROM FRAGMENT
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onActivityCreated(%s)", savedInstanceState);
 		}
@@ -112,7 +112,7 @@ public abstract class MTDialogFragment extends DialogFragment implements MTLog.L
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onConfigurationChanged(%s)", newConfig);
 		}
@@ -120,7 +120,7 @@ public abstract class MTDialogFragment extends DialogFragment implements MTLog.L
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCreate(%s)", savedInstanceState);
 		}
@@ -226,14 +226,13 @@ public abstract class MTDialogFragment extends DialogFragment implements MTLog.L
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
+	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onViewCreated(%s, %s)", view, savedInstanceState);
 		}
 		super.onViewCreated(view, savedInstanceState);
 	}
 
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 	@Override
 	public void onViewStateRestored(Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {

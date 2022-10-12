@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <!-- LOADING -->
+    <include
+        android:id="@id/loading_layout"
+        layout="@layout/layout_loading_large"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        tools:visibility="visible" />
+    <!-- EMPTY -->
+    <include
+        android:id="@id/empty_layout"
+        layout="@layout/layout_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <!-- LIST -->
+    <include
+        android:id="@id/list_layout"
+        layout="@layout/layout_poi_list_padding_bottom"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.5"
+        tools:visibility="visible" />
+
+    <!-- MAP -->
+    <org.mtransit.android.ui.view.common.MapViewInScroll
+        android:id="@id/map"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.5"
+        app:mapType="none"
+        app:uiCompass="true"
+        app:uiRotateGestures="true"
+        app:uiScrollGestures="true"
+        app:uiTiltGestures="true"
+        app:uiZoomControls="true"
+        app:uiZoomGestures="true"
+        tools:background="#FFFF00"
+        tools:visibility="visible" />
+
+    <include
+        layout="@layout/view_map_type_switch"
+        android:layout_width="?android:attr/listPreferredItemHeightSmall"
+        android:layout_height="?android:attr/listPreferredItemHeightSmall"
+        android:layout_marginStart="@dimen/baseline_8"
+        android:layout_marginBottom="@dimen/baseline_8"
+        app:layout_constraintBottom_toBottomOf="@id/map"
+        app:layout_constraintStart_toStartOf="@id/map" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

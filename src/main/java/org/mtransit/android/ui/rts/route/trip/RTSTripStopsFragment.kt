@@ -162,14 +162,17 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
                 listView.isVisible = adapter.isInitialized
                 adapter.setListView(listView)
             }
-            fabListMap.setOnClickListener {
+            fabListMap?.setOnClickListener {
+                if (context?.resources?.getBoolean(R.bool.two_pane) == true) { // large screen
+                    return@setOnClickListener
+                }
                 viewModel.saveShowingListInsteadOfMap(viewModel.showingListInsteadOfMap.value == false) // switching
             }
         }
         parentViewModel.colorInt.observe(viewLifecycleOwner) { colorInt ->
             binding?.apply {
                 colorInt?.let { colorInt ->
-                    fabListMap.apply {
+                    fabListMap?.apply {
                         rippleColor = colorInt
                         backgroundTintList = ColorStateList.valueOf(colorInt)
                     }
@@ -197,10 +200,12 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
                         contentDescription = getString(R.string.menu_action_list)
                     }
                 }
-                if (listInsteadOfMap) { // LIST
-                    mapViewController.onPause()
-                } else { // MAP
+                if (context?.resources?.getBoolean(R.bool.two_pane) == true // LARGE SCREEN
+                    || !listInsteadOfMap // MAP
+                ) {
                     mapViewController.onResume()
+                } else { // LIST
+                    mapViewController.onPause()
                 }
             }
             switchView(showingListInsteadOfMap)
@@ -226,11 +231,12 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
                 }
                 viewModel.setSelectedOrClosestStopShown()
             }
-
             adapter.setPois(poiList)
             adapter.updateDistanceNowAsync(parentViewModel.deviceLocation.value)
             mapViewController.notifyMarkerChanged(mapMarkerProvider)
-            if (viewModel.showingListInsteadOfMap.value == true) { // LIST
+            if (context?.resources?.getBoolean(R.bool.two_pane) == true // LARGE SCREEN
+                || viewModel.showingListInsteadOfMap.value == true // LIST
+            ) {
                 val selectedPosition = currentSelectedItemIndexUuid?.first ?: -1
                 if (selectedPosition > 0) {
                     binding?.listLayout?.list?.setSelection(selectedPosition - 1) // show 1 more stop on top of the list
@@ -271,13 +277,13 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
     private fun switchView(showingListInsteadOfMap: Boolean? = viewModel.showingListInsteadOfMap.value) {
         binding?.apply {
             when {
-                !adapter.isInitialized || showingListInsteadOfMap == null -> {
+                !adapter.isInitialized || showingListInsteadOfMap == null -> { // LOADING
                     emptyLayout.isVisible = false
                     listLayout.isVisible = false
                     mapViewController.hideMap()
                     loadingLayout.isVisible = true
                 }
-                adapter.poisCount == 0 -> {
+                adapter.poisCount == 0 -> { // EMPTY
                     loadingLayout.isVisible = false
                     listLayout.isVisible = false
                     mapViewController.hideMap()
@@ -286,7 +292,10 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
                 else -> {
                     loadingLayout.isVisible = false
                     emptyLayout.isVisible = false
-                    if (showingListInsteadOfMap) { // LIST
+                    if (context?.resources?.getBoolean(R.bool.two_pane) == true) { // LARGE SCREEN
+                        listLayout.isVisible = true
+                        mapViewController.showMap(view)
+                    } else if (showingListInsteadOfMap) { // LIST
                         mapViewController.hideMap()
                         listLayout.isVisible = true
                     } else { // MAP
@@ -320,7 +329,9 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
 
     override fun onResume() {
         super.onResume()
-        if (viewModel.showingListInsteadOfMap.value == false) { // MAP
+        if (context?.resources?.getBoolean(R.bool.two_pane) == true // LARGE SCREEN
+            || viewModel.showingListInsteadOfMap.value == false  // MAP
+        ) {
             mapViewController.onResume()
         }
         adapter.onResume(this, parentViewModel.deviceLocation.value)
