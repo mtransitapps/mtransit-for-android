@@ -156,7 +156,10 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
             listLayout.list.let { listView ->
                 listView.isVisible = adapter.isInitialized
                 adapter.setListView(listView)
-                fabListMap.setOnClickListener {
+                fabListMap?.setOnClickListener {
+                    if (context?.resources?.getBoolean(R.bool.two_pane) == true) { // LARGE SCREEN
+                        return@setOnClickListener
+                    }
                     viewModel.saveShowingListInsteadOfMap(viewModel.showingListInsteadOfMap.value == false) // switching
                 }
             }
@@ -190,10 +193,12 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
                         contentDescription = getString(R.string.menu_action_list)
                     }
                 }
-                if (listInsteadOfMap) { // LIST
-                    mapViewController.onPause()
-                } else { // MAP
+                if (context?.resources?.getBoolean(R.bool.two_pane) == true // LARGE SCREEN
+                    || !listInsteadOfMap // MAP
+                ) {
                     mapViewController.onResume()
+                } else { // LIST
+                    mapViewController.onPause()
                 }
             }
             switchView(showingListInsteadOfMap)
@@ -209,13 +214,13 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
     private fun switchView(showingListInsteadOfMap: Boolean? = viewModel.showingListInsteadOfMap.value) {
         binding?.apply {
             when {
-                !adapter.isInitialized || showingListInsteadOfMap == null -> {
+                !adapter.isInitialized || showingListInsteadOfMap == null -> { // LOADING
                     emptyLayout.isVisible = false
                     listLayout.isVisible = false
                     mapViewController.hideMap()
                     loadingLayout.isVisible = true
                 }
-                adapter.poisCount == 0 -> {
+                adapter.poisCount == 0 -> { // EMPTY
                     loadingLayout.isVisible = false
                     listLayout.isVisible = false
                     mapViewController.hideMap()
@@ -224,7 +229,10 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
                 else -> {
                     loadingLayout.isVisible = false
                     emptyLayout.isVisible = false
-                    if (showingListInsteadOfMap) { // LIST
+                    if (context?.resources?.getBoolean(R.bool.two_pane) == true) { // LARGE SCREEN
+                        listLayout.isVisible = true
+                        mapViewController.showMap(view)
+                    } else if (showingListInsteadOfMap) { // LIST
                         mapViewController.hideMap()
                         listLayout.isVisible = true
                     } else { // MAP
@@ -257,7 +265,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
 
     override fun onResume() {
         super.onResume()
-        if (viewModel.showingListInsteadOfMap.value == false) { // MAP
+        if (context?.resources?.getBoolean(R.bool.two_pane) == true // LARGE SCREEN
+            || viewModel.showingListInsteadOfMap.value == false // MAP
+        ) {
             mapViewController.onResume()
         }
         adapter.onResume(this, parentViewModel.deviceLocation.value)
