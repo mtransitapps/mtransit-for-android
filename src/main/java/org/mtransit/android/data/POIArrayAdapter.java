@@ -520,10 +520,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				gridLL.setVisibility(View.GONE);
 			} else {
 				int availableButtons = 0;
+				int maxButtonsPerLines = getContext().getResources().getBoolean(R.bool.two_pane) ? 3 : 2;
 				View gridLine = null;
 				MaterialButton btn;
 				for (final DataSourceType dst : allAgencyTypes) {
-					if (dst.getId() == DataSourceType.TYPE_MODULE.getId() && availableButtons == 0 && allAgencyTypes.size() > 2) {
+					if (dst.getId() == DataSourceType.TYPE_MODULE.getId()
+							&& availableButtons == 0
+							&& allAgencyTypes.size() > maxButtonsPerLines) {
 						MTLog.d(this, "getBrowseHeaderSectionView() > SKIP modules (no room)");
 						continue;
 					}
@@ -534,9 +537,25 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 					if (availableButtons == 0) {
 						gridLine = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header_line, this.manualLayout, false);
 						gridLL.addView(gridLine);
-						availableButtons = 2;
+						availableButtons = maxButtonsPerLines;
 					}
-					btn = gridLine.findViewById(availableButtons == 2 ? R.id.btn1 : R.id.btn2);
+					int btnIdx = maxButtonsPerLines - availableButtons;
+					int btnId;
+					switch (btnIdx) {
+					case 0:
+						btnId = R.id.btn1;
+						break;
+					case 1:
+						btnId = R.id.btn2;
+						break;
+					case 2:
+						btnId = R.id.btn3;
+						break;
+					default:
+						MTLog.w(this, "getBrowseHeaderSectionView() > Unexpected button (index: %d | available: %d)!", btnIdx, availableButtons);
+						throw new RuntimeException("Unexpected button!");
+					}
+					btn = gridLine.findViewById(btnId);
 					btn.setText(dst.getAllStringResId());
 					if (dst.getIconResId() != -1) {
 						btn.setIconResource(dst.getIconResId());
@@ -549,8 +568,27 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 					btn.setVisibility(View.VISIBLE);
 					availableButtons--;
 				}
-				if (gridLine != null && availableButtons == 1) {
-					gridLine.findViewById(R.id.btn2).setVisibility(View.GONE);
+				if (gridLine != null) {
+					while (availableButtons > 0) {
+						int btnIdx = maxButtonsPerLines - availableButtons;
+						int btnId;
+						switch (btnIdx) {
+						case 0:
+							btnId = R.id.btn1;
+							break;
+						case 1:
+							btnId = R.id.btn2;
+							break;
+						case 2:
+							btnId = R.id.btn3;
+							break;
+						default:
+							MTLog.w(this, "getBrowseHeaderSectionView() > Unexpected button (index: %d | available: %d)!", btnIdx, availableButtons);
+							throw new RuntimeException("Unexpected button!");
+						}
+						gridLine.findViewById(btnId).setVisibility(View.GONE);
+						availableButtons--;
+					}
 				}
 				gridLL.setVisibility(View.VISIBLE);
 			}
