@@ -9,7 +9,7 @@
     android:scrollbarStyle="insideOverlay"
     android:transitionGroup="true"
     android:clipToPadding="false"
-    android:paddingBottom="?android:attr/listPreferredItemHeight"
+    android:paddingBottom="@dimen/list_view_item_height"
     android:visibility="visible"
     tools:context=".ui.MainActivity"
     tools:listitem="@layout/layout_poi_basic" />

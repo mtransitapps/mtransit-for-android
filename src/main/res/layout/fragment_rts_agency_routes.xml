@@ -20,7 +20,7 @@
         android:clipToPadding="false"
         android:fastScrollAlwaysVisible="false"
         android:fastScrollEnabled="false"
-        android:paddingBottom="?android:attr/listPreferredItemHeight"
+        android:paddingBottom="@dimen/list_view_item_height"
         android:scrollbarStyle="insideOverlay"
         android:visibility="visible"
         tools:listitem="@layout/layout_rts_route_item"

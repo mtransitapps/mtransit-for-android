@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_height="@dimen/list_view_item_height"
     android:clipChildren="false"
-    android:minHeight="?android:attr/listPreferredItemHeight">
+    android:minHeight="@dimen/list_view_item_height">
     <!-- FAVORITE -->
     <ImageView
         android:id="@+id/fav"

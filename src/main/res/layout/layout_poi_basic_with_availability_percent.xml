@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_height="@dimen/list_view_item_height"
     android:background="?attr/colorSurface"
     android:clipChildren="false"
-    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:minHeight="@dimen/list_view_item_height"
     android:paddingStart="@dimen/poi_padding_start_no_extra"
     android:paddingTop="@dimen/poi_padding_top"
     android:paddingEnd="@dimen/poi_padding_end"
@@ -19,7 +19,7 @@
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_marginEnd="@dimen/poi_status_inner_padding"
-        android:minWidth="?android:attr/listPreferredItemHeight" />
+        android:minWidth="@dimen/list_view_item_height" />
 
     <include
         android:id="@+id/poi"

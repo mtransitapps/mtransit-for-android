@@ -8,4 +8,8 @@
     <dimen name="platform_mtrl_alert_dialog_background_inset_start">24dp</dimen>
     <dimen name="platform_mtrl_alert_dialog_background_inset_top">80dp</dimen>
     <dimen name="platform_abc_dialog_padding_top_material">18dp</dimen>
+
+    <dimen name="platform_listPreferredItemHeight">64dp</dimen>
+    <dimen name="platform_listPreferredItemHeightSmall">48dp</dimen>
+    <dimen name="platform_listPreferredItemHeightLarge">80dp</dimen>
 </resources>

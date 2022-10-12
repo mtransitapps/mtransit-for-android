@@ -8,7 +8,7 @@
     android:layout_alignWithParentIfMissing="true"
     android:layout_alignParentEnd="true"
     android:layout_centerVertical="true"
-    android:minWidth="?android:attr/listPreferredItemHeight"
+    android:minWidth="@dimen/list_view_item_height"
     android:orientation="vertical"
     android:visibility="invisible"
     tools:visibility="visible">
