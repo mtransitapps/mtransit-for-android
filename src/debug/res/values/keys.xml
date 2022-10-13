@@ -9,6 +9,7 @@
     <string-array name="google_ads_test_devices_ids">
         <item>9912D21DEAC16B56420FF20B307872D1</item><!-- @mmathieum:Hammerhead -->
         <item>C2009A1CA7ACE9D0E1CC302C1099A224</item><!-- @mmathieum:Taimen -->
+        <item>17EFFABA0710C866389158409762247E</item><!-- @mmathieum:Panther -->
     </string-array>
     <string name="twitter_consumer_key">INSERT_TWITTER_CONSUMER_KEY_HERE</string>
     <string name="twitter_consumer_secret">INSERT_TWITTER_CONSUMER_SECRET_HERE</string>

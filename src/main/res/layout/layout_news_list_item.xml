@@ -73,7 +73,7 @@
             android:scaleType="centerCrop"
             android:visibility="gone"
             tools:src="@tools:sample/backgrounds/scenic"
-            tools:visibility="gone" />
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/news_text"

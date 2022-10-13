@@ -5,6 +5,8 @@ import android.content.Context;
 import android.view.View;
 import android.widget.SearchView;
 
+import androidx.annotation.NonNull;
+
 import org.mtransit.android.R;
 import org.mtransit.android.commons.KeyboardUtils;
 import org.mtransit.android.commons.MTLog;
@@ -17,6 +19,7 @@ public class MTSearchView extends SearchView implements MTLog.Loggable, View.OnF
 
 	private static final String TAG = MTSearchView.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;

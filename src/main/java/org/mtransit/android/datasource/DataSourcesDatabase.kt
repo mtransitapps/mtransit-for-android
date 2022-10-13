@@ -42,7 +42,7 @@ abstract class DataSourcesDatabase : RoomDatabase() {
 
         private const val DB_NAME = "data_sources.db"
 
-        val LOG_TAG = DataSourcesDatabase::class.simpleName
+        private val LOG_TAG: String = DataSourcesDatabase::class.java.simpleName
 
         private val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {

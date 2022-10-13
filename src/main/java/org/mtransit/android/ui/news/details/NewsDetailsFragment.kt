@@ -97,7 +97,17 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         binding?.apply {
             newsArticle?.let { newsArticle ->
                 MTTransitions.setTransitionName(root, "news_" + newsArticle.uuid)
-                noThumbnailSpace.isVisible = true // TODO later images in news
+                thumbnail.apply {
+                    isVisible = if (newsArticle.hasValidImageUrls()) {
+                        noThumbnailSpace.isVisible = false
+                        imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
+                        true
+                    } else {
+                        imageManager.clear(context, this)
+                        noThumbnailSpace.isVisible = true
+                        false
+                    }
+                }
                 authorIcon.apply {
                     isVisible = if (newsArticle.hasAuthorPictureURL()) {
                         noAuthorIconSpace.isVisible = false

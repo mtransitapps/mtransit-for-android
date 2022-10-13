@@ -43,7 +43,7 @@ class DataSourcesReader @Inject constructor(
 ) : MTLog.Loggable {
 
     companion object {
-        val LOG_TAG: String = DataSourcesReader::class.java.simpleName
+        private val LOG_TAG: String = DataSourcesReader::class.java.simpleName
 
         @Suppress("SpellCheckingInspection")
         private val NOT_SUPPORTED_APPS_PKG: List<String> = if (BuildConfig.DEBUG) listOf(

@@ -27,7 +27,7 @@
                 android:scaleType="fitCenter"
                 android:visibility="gone"
                 tools:src="@tools:sample/backgrounds/scenic"
-                tools:visibility="gone" />
+                tools:visibility="visible" />
 
             <View
                 android:id="@+id/no_thumbnail_space"
@@ -37,7 +37,7 @@
                 android:layout_below="@id/thumbnail"
                 android:layout_alignParentTop="true"
                 android:visibility="gone"
-                tools:visibility="visible" />
+                tools:visibility="gone" />
 
             <ImageView
                 android:id="@+id/author_icon"

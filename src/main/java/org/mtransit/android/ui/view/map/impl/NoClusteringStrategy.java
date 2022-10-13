@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.view.map.impl;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.maps.model.CameraPosition;
@@ -14,6 +15,7 @@ class NoClusteringStrategy implements ClusteringStrategy, MTLog.Loggable {
 
 	private static final String TAG = NoClusteringStrategy.class.getSimpleName();
 
+	@NonNull
 	@Override
 	public String getLogTag() {
 		return TAG;

@@ -174,6 +174,15 @@ class NewsListAdapter(
                         false
                     }
                 }
+                thumbnail.apply {
+                    isVisible = if (newsArticle.hasValidImageUrls()) {
+                        imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
+                        true
+                    } else {
+                        imageManager.clear(context, this)
+                        false
+                    }
+                }
                 date.apply {
                     text = UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs)
                 }
