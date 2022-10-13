@@ -219,7 +219,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                                 supportFragmentManager.executePendingTransactions()
                                 addedToBackStack = true
                             }
-
                         }
                     },
                     onPanelClosedCallback = {
@@ -262,10 +261,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
         }
         viewModel.newsArticles.observe(viewLifecycleOwner) { newsArticles ->
             listAdapter.submitList(newsArticles)
-            binding?.newsContainerLayout?.apply {
-                newsLinearLayout.isVisible = !newsArticles.isNullOrEmpty()
-                noNewsLayout.isVisible = newsArticles.isNullOrEmpty()
-            }
             pagerAdapter?.let { newsPagerAdapter ->
                 val oldSize = newsPagerAdapter.size
                 newsPagerAdapter.submitList(newsArticles)
@@ -284,6 +279,10 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                         }
                     }
                 }
+            }
+            binding?.newsContainerLayout?.apply {
+                newsLinearLayout.isVisible = !newsArticles.isNullOrEmpty()
+                noNewsLayout.isVisible = newsArticles.isNullOrEmpty()
             }
         }
         viewModel.lastReadArticleAuthorityAndUUID.observe(viewLifecycleOwner) { authorityAndUuid ->
@@ -321,18 +320,17 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
     private fun selectPagerNewsArticle(authorityAndUuid: AuthorityAndUuid) {
         val pagerAdapter = this.pagerAdapter ?: return
         binding?.apply {
+            val newPosition = pagerAdapter.getItemPosition(authorityAndUuid) ?: -1
+            val oldPosition = viewPager.currentItem
+            if (newPosition >= 0 && newPosition != oldPosition) {
+                val smoothScroll = false // always set from code (not the user)
+                viewPager.setCurrentItem(newPosition, smoothScroll)
+            }
             slidingPaneLayout.apply {
                 if (!isOpen) {
                     openPane()
                 }
             }
-            val newPosition = pagerAdapter.getItemPosition(authorityAndUuid) ?: -1
-            val oldPosition = viewPager.currentItem
-            if (newPosition < 0 || newPosition == oldPosition) {
-                return
-            }
-            val smoothScroll = false // always set from code (not the user)
-            viewPager.setCurrentItem(newPosition, smoothScroll)
         }
     }
 
