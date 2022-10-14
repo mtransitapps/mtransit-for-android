@@ -13,9 +13,12 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
+import org.mtransit.android.data.NewsImage
+import org.mtransit.android.data.imageUrls
 import org.mtransit.android.databinding.FragmentNewsDetailsBinding
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.MTFragmentX
+import org.mtransit.android.ui.news.image.NewsImagesAdapter
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.MTTransitions
@@ -67,6 +70,8 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     private var binding: FragmentNewsDetailsBinding? = null
 
+    private val thumbnailsListAdapter: NewsImagesAdapter by lazy { NewsImagesAdapter(this.imageManager, this::onImageClicked, horizontal = true) }
+
     private var timeChangedReceiverEnabled = false
 
     private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver { updateNewsView() }
@@ -76,11 +81,16 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         MTTransitions.setContainerTransformTransition(this)
     }
 
+    @Suppress("UNUSED_PARAMETER")
+    private fun onImageClicked(view: View, newsImage: NewsImage) {
+        // TODO
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         MTTransitions.postponeEnterTransition(this)
         binding = FragmentNewsDetailsBinding.bind(view).apply {
-            // DO NOTHING
+            thumbnailsList.adapter = thumbnailsListAdapter
         }
         viewModel.newsArticle.observe(viewLifecycleOwner) { newsArticle ->
             updateNewsView(newsArticle)
@@ -97,15 +107,32 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
         binding?.apply {
             newsArticle?.let { newsArticle ->
                 MTTransitions.setTransitionName(root, "news_" + newsArticle.uuid)
-                thumbnail.apply {
-                    isVisible = if (newsArticle.hasValidImageUrls()) {
-                        noThumbnailSpace.isVisible = false
-                        imageManager.loadInto(context, newsArticle.firstValidImageUrl, this)
-                        true
-                    } else {
-                        imageManager.clear(context, this)
+                when (newsArticle.imageURLsCount) {
+                    0 -> {
+                        thumbnail.isVisible = false
+                        imageManager.clear(thumbnail.context, thumbnail)
+
+                        thumbnailsList.isVisible = false
+
                         noThumbnailSpace.isVisible = true
-                        false
+                    }
+                    1 -> {
+                        noThumbnailSpace.isVisible = false
+
+                        thumbnailsList.isVisible = false
+
+                        imageManager.loadInto(thumbnail.context, newsArticle.firstValidImageUrl, thumbnail)
+                        thumbnail.isVisible = true
+                    }
+                    else -> {
+                        noThumbnailSpace.isVisible = false
+
+                        thumbnail.isVisible = false
+                        imageManager.clear(thumbnail.context, thumbnail)
+
+
+                        thumbnailsListAdapter.submitList(newsArticle.imageUrls)
+                        thumbnailsList.isVisible = true
                     }
                 }
                 authorIcon.apply {
@@ -122,9 +149,9 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                 author.apply {
                     text = newsArticle.authorOneLine
                     setTextColor(
-                        if (newsArticle.hasColor()) {
-                            ColorUtils.adaptColorToTheme(context, newsArticle.colorInt)
-                        } else {
+                        newsArticle.colorIntOrNull?.let {
+                            ColorUtils.adaptColorToTheme(context, it)
+                        } ?: run {
                             ColorUtils.getTextColorSecondary(context)
                         }
                     )
@@ -138,9 +165,9 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                         LinkUtils.open(view, requireActivity(), url, getString(R.string.web_browser), true)
                     }
                     setLinkTextColor(
-                        if (newsArticle.hasColor()) {
-                            ColorUtils.adaptColorToTheme(context, newsArticle.colorInt)
-                        } else {
+                        newsArticle.colorIntOrNull?.let {
+                            ColorUtils.adaptColorToTheme(context, it)
+                        } ?: run {
                             ColorUtils.getTextColorPrimary(context)
                         }
                     )

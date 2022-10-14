@@ -102,11 +102,11 @@ class NewsListAdapter(
         }
     }
 
-    fun isSelected(newsArticle: News?): Boolean {
+    private fun isSelected(newsArticle: News?): Boolean {
         return newsArticle?.let { isSelected(it.authorityAndUuidT) } ?: false
     }
 
-    fun isSelected(authorityAndUuid: AuthorityAndUuid?): Boolean {
+    private fun isSelected(authorityAndUuid: AuthorityAndUuid?): Boolean {
         return this.selectedArticleAuthorityAndUuid == authorityAndUuid
     }
 
@@ -158,9 +158,9 @@ class NewsListAdapter(
                         newsArticle.sourceLabel
                     )
                     setTextColor(
-                        if (newsArticle.hasColor()) {
-                            ColorUtils.adaptColorToTheme(context, newsArticle.colorInt)
-                        } else {
+                        newsArticle.colorIntOrNull?.let {
+                            ColorUtils.adaptColorToTheme(context, it)
+                        } ?: run {
                             ColorUtils.getTextColorSecondary(context)
                         }
                     )
@@ -192,12 +192,11 @@ class NewsListAdapter(
                     }
                     text = newsArticle.text
                     setLinkTextColor(
-                        if (newsArticle.hasColor()) {
-                            newsArticle.colorInt
-                        } else {
-                            ColorUtils.getTextColorPrimary(
-                                context
-                            )
+                        newsArticle.colorIntOrNull?.let {
+                            ColorUtils.adaptColorToTheme(context, it)
+                            // it
+                        } ?: run {
+                            ColorUtils.getTextColorPrimary(context)
                         }
                     )
                 }

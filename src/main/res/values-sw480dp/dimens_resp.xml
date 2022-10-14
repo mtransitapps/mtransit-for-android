@@ -3,8 +3,23 @@
     <!-- Window size: Medium width -->
     <dimen name="action_bar_size_static">@dimen/baseline_64</dimen>
 
+    <dimen name="body_horizontal_margin">@dimen/baseline_16</dimen>
+
+    <dimen name="news_image_max_height">@dimen/baseline_440</dimen>
+    <dimen name="news_image_height">@dimen/baseline_300</dimen>
+    <dimen name="news_image_grid_item_height">@dimen/baseline_144</dimen>
+    <dimen name="news_image_grid_item_width">@dimen/news_image_grid_item_height</dimen>
+    <integer name="news_image_grid_span_count">2</integer>
     <dimen name="news_article_horizontal_list_item_elevation">@dimen/baseline_2</dimen>
     <dimen name="news_article_horizontal_list_item_padding">@dimen/baseline_16</dimen>
     <dimen name="news_article_horizontal_list_margin">@dimen/baseline_240</dimen>
     <dimen name="news_article_horizontal_list_item_margin">@dimen/baseline_8</dimen>
+
+    <dimen name="poi_extra_width">@dimen/list_view_item_height</dimen>
+    <dimen name="poi_extra_height">@dimen/list_view_item_height</dimen>
+
+    <dimen name="list_view_item_height">72dp</dimen><!-- between listPreferredItemHeight & listPreferredItemHeightLarge-->
+
+    <dimen name="route_short_name_min_text_size">@dimen/text_size_medium</dimen>
+    <dimen name="route_short_name_max_text_size">@dimen/text_size_extra_extra_extra_large</dimen>
 </resources>

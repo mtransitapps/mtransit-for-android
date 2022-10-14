@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -24,9 +25,31 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginBottom="@dimen/baseline_8"
                 android:adjustViewBounds="true"
+                android:background="@color/black"
+                android:maxHeight="@dimen/news_image_max_height"
                 android:scaleType="fitCenter"
                 android:visibility="gone"
-                tools:src="@tools:sample/backgrounds/scenic"
+                tools:src="@tools:sample/avatars"
+                tools:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/thumbnails_list"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/news_image_height"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_below="@id/thumbnail"
+                android:layout_alignParentTop="true"
+                android:layout_marginBottom="@dimen/baseline_8"
+                android:background="@color/black"
+                android:orientation="horizontal"
+                android:padding="@dimen/baseline_2"
+                android:scrollbarStyle="insideOverlay"
+                android:scrollbars="horizontal"
+                android:visibility="gone"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="@integer/news_image_grid_span_count"
+                tools:background="#00FF00"
+                tools:listitem="@layout/layout_news_image_item"
                 tools:visibility="visible" />
 
             <View
@@ -34,7 +57,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/baseline_16"
                 android:layout_alignWithParentIfMissing="true"
-                android:layout_below="@id/thumbnail"
+                android:layout_below="@id/thumbnails_list"
                 android:layout_alignParentTop="true"
                 android:visibility="gone"
                 tools:visibility="gone" />

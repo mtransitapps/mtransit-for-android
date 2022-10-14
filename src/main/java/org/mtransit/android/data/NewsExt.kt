@@ -10,3 +10,8 @@ val News.uuidT: Uuid
 
 val News.authorityAndUuidT: AuthorityAndUuid
     get() = AuthorityAndUuid(this.authorityT, this.uuidT)
+
+val News.imageUrls: List<NewsImage>
+    get() = (0 until this.imageURLsCount).map {
+        NewsImage(this.getImageUrl(it))
+    }

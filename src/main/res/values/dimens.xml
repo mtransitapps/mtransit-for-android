@@ -2,7 +2,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- STATIC (not responsive to screen size/class) -->
     <dimen name="list_view_divider_height">1dp</dimen>
-    <dimen name="list_view_item_height">@dimen/platform_listPreferredItemHeight</dimen>
     <dimen name="grid_view_spacing">1dp</dimen>
     <dimen name="large_header_height">184dp</dimen>
     <dimen name="poi_padding_bottom">0dp</dimen>
@@ -13,8 +12,6 @@
     <dimen name="poi_place_start_padding">8dp</dimen>
     <dimen name="poi_place_end_padding">4dp</dimen>
     <dimen name="poi_extra_margin_end">0dp</dimen>
-    <dimen name="poi_extra_width">@dimen/list_view_item_height</dimen>
-    <dimen name="poi_extra_height">@dimen/list_view_item_height</dimen>
     <dimen name="poi_margin_start">0dp</dimen>
     <dimen name="poi_status_inner_padding">8dp</dimen>
     <dimen name="poi_img_width">58dp</dimen>

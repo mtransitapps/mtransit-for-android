@@ -68,7 +68,7 @@
             android:layout_below="@id/author"
             android:layout_alignBottom="@id/news_text"
             android:layout_alignParentEnd="true"
-            android:layout_marginStart="@dimen/baseline_8"
+            android:layout_marginStart="@dimen/baseline_4"
             android:layout_marginTop="@dimen/baseline_2"
             android:scaleType="centerCrop"
             android:visibility="gone"
