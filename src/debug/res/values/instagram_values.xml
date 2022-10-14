@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,UnusedResources,InconsistentArrays">
+    <integer name="instagram_db_version">3</integer>
+    <string name="instagram_authority">org.mtransit.android.debug.news.instagram</string>
+    <string name="instagram_target_for_poi_authority" />
+    <string name="instagram_color" />
+    <string-array name="instagram_user_names">
+        <item>stminfo</item>
+    </string-array>
+    <string-array name="instagram_user_names_lang">
+        <item>@string/news_provider_language_unknown_show_all</item>
+    </string-array>
+    <string-array name="instagram_user_names_colors">
+        <item>@string/instagram_color</item>
+    </string-array>
+    <string-array name="instagram_user_names_target">
+        <item>@string/instagram_target_for_poi_authority</item>
+    </string-array>
+    <integer-array name="instagram_user_names_severity">
+        <item>@integer/news_provider_severity_info_agency</item>
+    </integer-array>
+    <string-array name="instagram_user_names_noteworthy">
+        <item>@string/news_provider_noteworthy_info</item>
+    </string-array>
+</resources>

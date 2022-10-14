@@ -3,6 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application tools:ignore="AllowBackup,MissingApplicationIcon">
+        <!-- INSTAGRAM NEWS PROVIDER -->
+        <!-- Public JSON API removed
+        <provider
+            android:name="org.mtransit.android.commons.provider.InstagramNewsProvider"
+            android:authorities="@string/instagram_authority"
+            android:exported="true"
+            android:readPermission="${permission_provider_read}"
+            tools:ignore="MissingRegistered">
+            <meta-data
+                android:name="@string/news_provider"
+                android:value="@string/news_provider" />
+            <meta-data
+                android:name="@string/news_provider_target"
+                android:value="@string/twitter_target_for_poi_authority" />
+        </provider>
+        -->
         <!-- RSS NEWS PROVIDER -->
         <provider
             android:name="org.mtransit.android.commons.provider.RSSNewsProvider"
