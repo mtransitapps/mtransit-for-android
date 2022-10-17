@@ -24,6 +24,7 @@ import androidx.lifecycle.Lifecycle;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.Constants;
+import org.mtransit.android.commons.FileUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.ActionBarController;
 import org.mtransit.android.util.LinkUtils;
@@ -145,6 +146,10 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		webView.getSettings().setSupportZoom(true);
 		webView.getSettings().setBuiltInZoomControls(true);
 		webView.getSettings().setDisplayZoomControls(false);
+		if (FileUtils.isImageURL(this.initialUrl)) {
+			webView.getSettings().setUseWideViewPort(true);
+			webView.getSettings().setLoadWithOverviewMode(true);
+		}
 		webView.setWebChromeClient(new MTWebChromeClient(this));
 		webView.setWebViewClient(new MTWebViewClient(this));
 	}

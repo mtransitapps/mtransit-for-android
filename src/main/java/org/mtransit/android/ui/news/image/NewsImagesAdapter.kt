@@ -53,14 +53,12 @@ class NewsImagesAdapter(
             horizontal: Boolean,
             onClick: (View, NewsImage) -> Unit,
         ) {
-            val firstItem = position == 0
-            val lastItem = position >= itemCount - 1
             val context = binding.root.context
             binding.apply {
                 root.apply {
-                    // setOnClickListener { view ->
-                    // onClick(view, newsImage)
-                    // }
+                    setOnClickListener { view ->
+                        onClick(view, newsImage)
+                    }
                 }
                 thumbnail.apply {
                     imageManager.loadInto(context, newsImage.imageUrl, this)

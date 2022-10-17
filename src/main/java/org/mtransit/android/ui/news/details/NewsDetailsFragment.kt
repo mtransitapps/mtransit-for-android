@@ -83,7 +83,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     @Suppress("UNUSED_PARAMETER")
     private fun onImageClicked(view: View, newsImage: NewsImage) {
-        // TODO
+        LinkUtils.open(view, requireActivity(), newsImage.imageUrl, getString(R.string.web_browser), true)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -123,6 +123,9 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
                         imageManager.loadInto(thumbnail.context, newsArticle.firstValidImageUrl, thumbnail)
                         thumbnail.isVisible = true
+                        thumbnail.setOnClickListener {
+                            LinkUtils.open(view, requireActivity(), newsArticle.firstValidImageUrl, getString(R.string.web_browser), true)
+                        }
                     }
                     else -> {
                         noThumbnailSpace.isVisible = false

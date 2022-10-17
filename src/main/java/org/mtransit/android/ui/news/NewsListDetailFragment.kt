@@ -41,6 +41,8 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
 
         private const val TRACKING_SCREEN_NAME = "News"
 
+        private const val BACK_STACK_NAME = "panel"
+
         @JvmOverloads
         @JvmStatic
         fun newInstance(
@@ -152,8 +154,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
 
     private var onBackPressedCallback: TwoPaneOnBackPressedCallback? = null
 
-    private var addedToBackStack: Boolean = false
-
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             val pagerAdapter = pagerAdapter ?: return
@@ -193,14 +193,15 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                 registerOnPageChangeCallback(onPageChangeCallback)
                 adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
             }
-            mainActivity?.supportFragmentManager?.addOnBackStackChangedListener {
-                binding?.slidingPaneLayout?.apply {
-                    if (addedToBackStack) {
-                        if (isOpen) {
-                            closePane()
-                            viewModel.cleanSelectedNewsArticle()
+            mainActivity?.apply {
+                supportFragmentManager.addOnBackStackChangedListener {
+                    binding?.slidingPaneLayout?.apply {
+                        if (mainActivity?.supportFragmentManager?.backStackEntryCount == 0) {
+                            if (isOpen) {
+                                closePane()
+                                viewModel.cleanSelectedNewsArticle()
+                            }
                         }
-                        addedToBackStack = false
                     }
                 }
             }
@@ -212,23 +213,18 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                     },
                     onPanelOpenedCallback = {
                         mainActivity?.apply {
-                            if (!addedToBackStack) {
+                            if (supportFragmentManager.backStackEntryCount <= 0) {
                                 supportFragmentManager.commit {
-                                    addToBackStack("panel")
+                                    addToBackStack(BACK_STACK_NAME)
                                 }
                                 supportFragmentManager.executePendingTransactions()
-                                addedToBackStack = true
                             }
                         }
                     },
                     onPanelClosedCallback = {
                         mainActivity?.apply {
-                            supportFragmentManager.apply {
-                                if (addedToBackStack) {
-                                    if (popBackStackImmediate("panel", FragmentManager.POP_BACK_STACK_INCLUSIVE)) {
-                                        addedToBackStack = false
-                                    }
-                                }
+                            if (supportFragmentManager.backStackEntryCount >= 0) {
+                                supportFragmentManager.popBackStackImmediate(BACK_STACK_NAME, FragmentManager.POP_BACK_STACK_INCLUSIVE)
                             }
                         }
                     }
@@ -362,6 +358,18 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
     override fun onPause() {
         super.onPause()
         listAdapter.onPause(this)
+    }
+
+    override fun onBackPressed(): Boolean {
+        binding?.slidingPaneLayout?.apply {
+            if (mainActivity?.supportFragmentManager?.backStackEntryCount == 1) {
+                if (isOpen) {
+                    closePane()
+                    viewModel.cleanSelectedNewsArticle()
+                }
+            }
+        }
+        return super.onBackPressed()
     }
 
     override fun onDestroyView() {
