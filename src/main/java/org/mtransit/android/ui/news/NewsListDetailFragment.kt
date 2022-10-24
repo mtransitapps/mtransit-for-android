@@ -350,7 +350,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
     override fun onResume() {
         super.onResume()
         listAdapter.onResume(this)
-        )
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.setABTitle(getABTitle(context))
             mainViewModel.setABSubtitle(getABSubtitle(context))
