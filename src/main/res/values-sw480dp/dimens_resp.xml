@@ -5,11 +5,16 @@
 
     <dimen name="body_horizontal_margin">@dimen/baseline_16</dimen>
 
-    <dimen name="news_image_max_height">@dimen/baseline_440</dimen>
-    <dimen name="news_image_height">@dimen/baseline_300</dimen>
-    <dimen name="news_image_grid_item_height">@dimen/baseline_144</dimen>
+    <dimen name="news_image_max_height">@dimen/news_image_height</dimen>
+    <dimen name="news_image_height">@dimen/baseline_240</dimen>
+    <dimen name="news_image_grid_item_height">@dimen/baseline_128</dimen>
     <dimen name="news_image_grid_item_width">@dimen/news_image_grid_item_height</dimen>
     <integer name="news_image_grid_span_count">2</integer>
+
+    <dimen name="news_article_list_item_img_width">@dimen/baseline_96</dimen>
+    <dimen name="news_article_list_item_img_height">@dimen/news_article_list_item_img_width</dimen>
+    <integer name="news_article_list_item_min_lines">@integer/news_article_list_item_max_lines</integer>
+    <integer name="news_article_list_item_max_lines">5</integer>
     <dimen name="news_article_horizontal_list_item_elevation">@dimen/baseline_2</dimen>
     <dimen name="news_article_horizontal_list_item_padding">@dimen/baseline_16</dimen>
     <dimen name="news_article_horizontal_list_margin">@dimen/baseline_240</dimen>

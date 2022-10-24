@@ -154,6 +154,10 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
 
     private var onBackPressedCallback: TwoPaneOnBackPressedCallback? = null
 
+    private var initialBackStackEntryCount = 0
+
+    private var addToBackStackCalled: Boolean? = null
+
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             val pagerAdapter = pagerAdapter ?: return
@@ -161,6 +165,21 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                 attachedViewModel?.onNewsArticleSelected(
                     pagerAdapter.getItem(position)?.authorityAndUuidT
                 )
+            }
+        }
+    }
+
+    private var onBackStackChangedListener: FragmentManager.OnBackStackChangedListener? = null
+
+    private fun makeOnBackStackChangedListener() = FragmentManager.OnBackStackChangedListener {
+        binding?.slidingPaneLayout?.apply {
+            if (addToBackStackCalled == true
+                && mainActivity?.supportFragmentManager?.backStackEntryCount == initialBackStackEntryCount
+            ) {
+                if (isOpen) {
+                    closePane()
+                    viewModel.cleanSelectedNewsArticle()
+                }
             }
         }
     }
@@ -189,21 +208,9 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                 )
             }
             viewPager.apply {
-                offscreenPageLimit = 1
+                offscreenPageLimit = 3
                 registerOnPageChangeCallback(onPageChangeCallback)
                 adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
-            }
-            mainActivity?.apply {
-                supportFragmentManager.addOnBackStackChangedListener {
-                    binding?.slidingPaneLayout?.apply {
-                        if (mainActivity?.supportFragmentManager?.backStackEntryCount == 0) {
-                            if (isOpen) {
-                                closePane()
-                                viewModel.cleanSelectedNewsArticle()
-                            }
-                        }
-                    }
-                }
             }
             slidingPaneLayout.let { slidingPaneLayoutNN ->
                 onBackPressedCallback = TwoPaneOnBackPressedCallback(
@@ -213,18 +220,19 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                     },
                     onPanelOpenedCallback = {
                         mainActivity?.apply {
-                            if (supportFragmentManager.backStackEntryCount <= 0) {
+                            if (supportFragmentManager.backStackEntryCount <= initialBackStackEntryCount) {
                                 supportFragmentManager.commit {
                                     addToBackStack(BACK_STACK_NAME)
+                                    addToBackStackCalled = true
                                 }
-                                supportFragmentManager.executePendingTransactions()
                             }
                         }
                     },
                     onPanelClosedCallback = {
                         mainActivity?.apply {
-                            if (supportFragmentManager.backStackEntryCount >= 0) {
-                                supportFragmentManager.popBackStackImmediate(BACK_STACK_NAME, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                            if (supportFragmentManager.backStackEntryCount >= initialBackStackEntryCount) {
+                                supportFragmentManager.popBackStack(BACK_STACK_NAME, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                                addToBackStackCalled = null
                             }
                         }
                     }
@@ -339,6 +347,9 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
     override fun onResume() {
         super.onResume()
         listAdapter.onResume(this)
+        mainActivity?.supportFragmentManager?.addOnBackStackChangedListener(
+            onBackStackChangedListener ?: makeOnBackStackChangedListener().also { onBackStackChangedListener = it }
+        )
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.setABTitle(getABTitle(context))
             mainViewModel.setABSubtitle(getABSubtitle(context))
@@ -358,11 +369,21 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
     override fun onPause() {
         super.onPause()
         listAdapter.onPause(this)
+        this.onBackStackChangedListener?.let {
+            mainActivity?.supportFragmentManager?.removeOnBackStackChangedListener(it)
+        }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mainActivity?.apply {
+            initialBackStackEntryCount = supportFragmentManager.backStackEntryCount
+        }
     }
 
     override fun onBackPressed(): Boolean {
         binding?.slidingPaneLayout?.apply {
-            if (mainActivity?.supportFragmentManager?.backStackEntryCount == 1) {
+            if (mainActivity?.supportFragmentManager?.backStackEntryCount == (initialBackStackEntryCount + 1)) {
                 if (isOpen) {
                     closePane()
                     viewModel.cleanSelectedNewsArticle()
@@ -376,6 +397,10 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
         super.onDestroyView()
         binding?.viewPager?.unregisterOnPageChangeCallback(this.onPageChangeCallback)
         binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
+        this.onBackStackChangedListener?.let {
+            mainActivity?.supportFragmentManager?.removeOnBackStackChangedListener(it)
+        }
+        this.onBackStackChangedListener = null
         pagerAdapter = null // cannot re-use Adapter w/ ViewPager
         binding?.refreshLayout?.setOnRefreshListener(null)
         binding = null

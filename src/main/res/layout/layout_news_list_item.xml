@@ -13,8 +13,7 @@
     <RelativeLayout
         android:id="@+id/layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:minHeight="?android:attr/listPreferredItemHeightLarge"
+        android:layout_height="wrap_content"
         android:padding="@dimen/baseline_16">
 
         <TextView
@@ -62,8 +61,8 @@
 
         <ImageView
             android:id="@+id/thumbnail"
-            android:layout_width="@dimen/baseline_96"
-            android:layout_height="@dimen/baseline_96"
+            android:layout_width="@dimen/news_article_list_item_img_width"
+            android:layout_height="@dimen/news_article_list_item_img_height"
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/author"
             android:layout_alignBottom="@id/news_text"
@@ -78,17 +77,17 @@
         <TextView
             android:id="@+id/news_text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_below="@id/author"
             android:layout_toStartOf="@id/thumbnail"
             android:ellipsize="end"
             android:fontFamily="sans-serif-condensed"
-            android:maxLines="5"
+            android:maxLines="@integer/news_article_list_item_max_lines"
+            android:minLines="@integer/news_article_list_item_min_lines"
             android:paddingTop="@dimen/baseline_2"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="?android:attr/textColorPrimary"
             android:textStyle="normal"
-            tools:maxLines="50"
             tools:text="@tools:sample/lorem/random" />
 
     </RelativeLayout>
