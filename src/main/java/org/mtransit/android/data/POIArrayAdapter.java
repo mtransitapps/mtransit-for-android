@@ -586,7 +586,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 							MTLog.w(this, "getBrowseHeaderSectionView() > Unexpected button (index: %d | available: %d)!", btnIdx, availableButtons);
 							throw new RuntimeException("Unexpected button!");
 						}
-						gridLine.findViewById(btnId).setVisibility(View.GONE);
+						gridLine.findViewById(btnId).setVisibility(View.INVISIBLE);
 						availableButtons--;
 					}
 				}
