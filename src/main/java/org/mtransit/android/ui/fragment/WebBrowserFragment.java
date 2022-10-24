@@ -3,6 +3,7 @@ package org.mtransit.android.ui.fragment;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -149,6 +150,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		if (FileUtils.isImageURL(this.initialUrl)) {
 			webView.getSettings().setUseWideViewPort(true);
 			webView.getSettings().setLoadWithOverviewMode(true);
+			view.setPadding(0, 0, 0, 0);
 		}
 		webView.setWebChromeClient(new MTWebChromeClient(this));
 		webView.setWebViewClient(new MTWebViewClient(this));
@@ -258,6 +260,16 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	// return isAttached() ? this.viewModel : null;
 	// }
 	//
+
+	@Nullable
+	@Override
+	public Integer getABBgColor(@Nullable Context context) {
+		if (FileUtils.isImageURL(this.initialUrl)) {
+			return Color.TRANSPARENT;
+		}
+		return super.getABBgColor(context);
+	}
+
 	@Nullable
 	@Override
 	public CharSequence getABSubtitle(@Nullable Context context) {

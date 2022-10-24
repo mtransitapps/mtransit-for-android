@@ -8,8 +8,8 @@
     android:theme="@style/MTThemeOverlay">
 
     <ImageView
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="@dimen/action_bar_size_static"
+        android:layout_height="@dimen/action_bar_size_static"
         android:padding="8dp"
         android:scaleType="centerInside"
         android:src="@drawable/product_logo" />

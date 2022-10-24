@@ -9,5 +9,6 @@
     android:scaleType="centerCrop"
     android:visibility="visible"
     tools:background="#FF00FF"
+    tools:layout_height="@dimen/news_image_height"
     tools:src="@tools:sample/backgrounds/scenic"
     tools:visibility="visible" />
