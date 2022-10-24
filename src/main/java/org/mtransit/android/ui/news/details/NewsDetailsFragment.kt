@@ -112,14 +112,14 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                         thumbnail.isVisible = false
                         imageManager.clear(thumbnail.context, thumbnail)
 
-                        thumbnailsList.isVisible = false
+                        thumbnailsListContainer.isVisible = false
 
                         noThumbnailSpace.isVisible = true
                     }
                     1 -> {
                         noThumbnailSpace.isVisible = false
 
-                        thumbnailsList.isVisible = false
+                        thumbnailsListContainer.isVisible = false
 
                         imageManager.loadInto(thumbnail.context, newsArticle.firstValidImageUrl, thumbnail)
                         thumbnail.isVisible = true
@@ -135,7 +135,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
 
                         thumbnailsListAdapter.submitList(newsArticle.imageUrls)
-                        thumbnailsList.isVisible = true
+                        thumbnailsListContainer.isVisible = true
                     }
                 }
                 authorIcon.apply {

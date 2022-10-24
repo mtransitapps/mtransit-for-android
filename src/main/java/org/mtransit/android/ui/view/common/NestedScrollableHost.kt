@@ -19,6 +19,7 @@ import kotlin.math.sign
  * This solution has limitations when using multiple levels of nested scrollable elements
  * (e.g. a horizontal RecyclerView in a vertical RecyclerView in a horizontal ViewPager2).
  */
+// https://developer.android.com/develop/ui/views/animations/vp2-migration#nested-scrollables
 // https://github.com/android/views-widgets-samples/blob/master/ViewPager2/app/src/main/java/androidx/viewpager2/integration/testapp/NestedScrollableHost.kt
 class NestedScrollableHost : FrameLayout {
     constructor(context: Context) : super(context)

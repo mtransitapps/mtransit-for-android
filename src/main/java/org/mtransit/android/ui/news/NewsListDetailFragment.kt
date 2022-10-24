@@ -212,6 +212,9 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                 registerOnPageChangeCallback(onPageChangeCallback)
                 adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
             }
+            mainActivity?.supportFragmentManager?.addOnBackStackChangedListener(
+                onBackStackChangedListener ?: makeOnBackStackChangedListener().also { onBackStackChangedListener = it }
+            )
             slidingPaneLayout.let { slidingPaneLayoutNN ->
                 onBackPressedCallback = TwoPaneOnBackPressedCallback(
                     slidingPaneLayoutNN,
@@ -347,8 +350,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
     override fun onResume() {
         super.onResume()
         listAdapter.onResume(this)
-        mainActivity?.supportFragmentManager?.addOnBackStackChangedListener(
-            onBackStackChangedListener ?: makeOnBackStackChangedListener().also { onBackStackChangedListener = it }
         )
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.setABTitle(getABTitle(context))
@@ -369,9 +370,6 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
     override fun onPause() {
         super.onPause()
         listAdapter.onPause(this)
-        this.onBackStackChangedListener?.let {
-            mainActivity?.supportFragmentManager?.removeOnBackStackChangedListener(it)
-        }
     }
 
     override fun onAttach(context: Context) {
