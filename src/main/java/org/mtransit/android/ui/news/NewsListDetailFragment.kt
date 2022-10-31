@@ -30,6 +30,7 @@ import org.mtransit.android.ui.news.pager.NewsPagerAdapter
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.isAttached
+import org.mtransit.android.util.FragmentUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
@@ -224,9 +225,11 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                     onPanelOpenedCallback = {
                         mainActivity?.apply {
                             if (supportFragmentManager.backStackEntryCount <= initialBackStackEntryCount) {
-                                supportFragmentManager.commit {
-                                    addToBackStack(BACK_STACK_NAME)
-                                    addToBackStackCalled = true
+                                if (FragmentUtils.isReady(this, this@NewsListDetailFragment)) {
+                                    supportFragmentManager.commit {
+                                        addToBackStack(BACK_STACK_NAME)
+                                        addToBackStackCalled = true
+                                    }
                                 }
                             }
                         }
@@ -234,8 +237,10 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                     onPanelClosedCallback = {
                         mainActivity?.apply {
                             if (supportFragmentManager.backStackEntryCount >= initialBackStackEntryCount) {
-                                supportFragmentManager.popBackStack(BACK_STACK_NAME, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                                addToBackStackCalled = null
+                                if (FragmentUtils.isReady(this, this@NewsListDetailFragment)) {
+                                    supportFragmentManager.popBackStack(BACK_STACK_NAME, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+                                    addToBackStackCalled = null
+                                }
                             }
                         }
                     }

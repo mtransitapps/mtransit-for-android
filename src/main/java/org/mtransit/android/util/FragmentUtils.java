@@ -72,6 +72,19 @@ public final class FragmentUtils implements MTLog.Loggable {
 		replaceFragment(fa, containerViewId, fragment, addToStack, optSource, null, null);
 	}
 
+	public static boolean isReady(@Nullable FragmentActivity fa,
+								  @Nullable Fragment fragmentSource) {
+		if (fa == null || fa.isFinishing()) {
+			MTLog.d(LOG_TAG, "isReady() > SKIP (activity is null/finishing)");
+			return false;
+		}
+		if (!isFragmentReady(fragmentSource)) {
+			MTLog.d(LOG_TAG, "isReady() > SKIP (source fragment is !added/detached/removing)");
+			return false;
+		}
+		return true;
+	}
+
 	public static void replaceFragment(@Nullable FragmentActivity fa,
 									   @IdRes int containerViewId,
 									   @NonNull Fragment fragment,
@@ -177,6 +190,7 @@ public final class FragmentUtils implements MTLog.Loggable {
 		}
 	}
 
+	@SuppressWarnings("DeprecatedIsStillUsed") // TODO migrate to AndroidX Fragment Dialog
 	@Deprecated
 	public static void replaceDialogFragment(@Nullable android.app.Activity fa,
 											 @Nullable String tag,
