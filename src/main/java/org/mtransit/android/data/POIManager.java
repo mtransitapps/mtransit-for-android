@@ -75,6 +75,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return LOG_TAG;
 	}
 
+	@SuppressWarnings("unused")
 	public static final POIAlphaComparator POI_ALPHA_COMPARATOR = new POIAlphaComparator();
 
 	@ColorInt
@@ -813,6 +814,8 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				);
 			}
 			return true; // nearby screen shown
+		case POI.ITEM_ACTION_TYPE_FAVORITABLE:
+		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
 		default:
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
@@ -990,7 +993,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		int result = 0;
 		result = 31 * result + poi.hashCode();
 		result = 31 * result + (distanceString != null ? distanceString.hashCode() : 0);
-		result = 31 * result + (distance != +0.0f ? Float.floatToIntBits(distance) : 0);
+		result = 31 * result + (distance != 0.0f ? Float.floatToIntBits(distance) : 0);
 		result = 31 * result + (status != null ? status.hashCode() : 0);
 		result = 31 * result + (serviceUpdates != null ? serviceUpdates.hashCode() : 0);
 		result = 31 * result + (inFocus ? 1 : 0);

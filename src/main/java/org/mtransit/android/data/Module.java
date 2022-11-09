@@ -130,16 +130,19 @@ public class Module extends DefaultPOI {
 				'}';
 	}
 
+	@ItemViewType
 	@Override
 	public int getType() {
 		return POI.ITEM_VIEW_TYPE_MODULE;
 	}
 
+	@ItemStatusType
 	@Override
 	public int getStatusType() {
 		return POI.ITEM_STATUS_TYPE_APP;
 	}
 
+	@ItemActionType
 	@Override
 	public int getActionsType() {
 		return POI.ITEM_ACTION_TYPE_APP;

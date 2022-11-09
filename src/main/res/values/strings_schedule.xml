@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources" tools:locale="en">
-    <string name="descent_only">Drop Off Only</string>
     <string name="descent_only_part_1">Drop Off</string>
     <string name="descent_only_part_2">Only</string>
     <string name="frequent_service">Frequent Service</string>

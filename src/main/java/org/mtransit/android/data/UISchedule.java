@@ -28,6 +28,7 @@ import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.util.UIDirectionUtils;
 import org.mtransit.android.util.UISpanUtils;
 import org.mtransit.android.util.UITimeUtils;
+import org.mtransit.commons.FeatureFlags;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -660,7 +661,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			this.scheduleStringTimestamp = after;
 			return;
 		}
-		Timestamp lastTimestamp = getLastTimestamp(after, after - TimeUnit.HOURS.toMillis(1));
+		Timestamp lastTimestamp = getLastTimestamp(after, after - TimeUnit.HOURS.toMillis(1L));
 		if (lastTimestamp != null && !nextTimestamps.contains(lastTimestamp)) {
 			nextTimestamps.add(0, lastTimestamp);
 		}
@@ -807,6 +808,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		Long lastTimestamp = null;
 		if (nextTimestampList.size() > 0) {
 			for (Timestamp timestamp : nextTimestampList) {
+				if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+					if (timestamp.isDescentOnly()) {
+						continue; // ignore descent only for status countdowns
+					}
+				}
 				if (nextTimestampsT.contains(timestamp)) {
 					continue; // skip duplicate time
 				}

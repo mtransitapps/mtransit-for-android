@@ -74,16 +74,19 @@ public class Place extends DefaultPOI {
 				.append(']').toString();
 	}
 
+	@ItemViewType
 	@Override
 	public int getType() {
 		return POI.ITEM_VIEW_TYPE_BASIC_POI;
 	}
 
+	@ItemStatusType
 	@Override
 	public int getStatusType() {
 		return POI.ITEM_STATUS_TYPE_NONE;
 	}
 
+	@ItemActionType
 	@Override
 	public int getActionsType() {
 		return POI.ITEM_ACTION_TYPE_PLACE;
