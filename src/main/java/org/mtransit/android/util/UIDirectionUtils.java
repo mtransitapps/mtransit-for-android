@@ -8,9 +8,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SpanUtils;
 
-public final class UIDirectionUtils {
+public final class UIDirectionUtils implements MTLog.Loggable {
+
+	private static final String LOG_TAG = UIDirectionUtils.class.getSimpleName();
+
+	@NonNull
+	@Override
+	public String getLogTag() {
+		return LOG_TAG;
+	}
 
 	private static final boolean USE_DRAWABLE = false;
 
@@ -39,7 +48,7 @@ public final class UIDirectionUtils {
 	@NonNull
 	public static CharSequence decorateDirection(@NonNull Context context,
 												 @NonNull String direction) {
-		if (USE_DRAWABLE) {
+		if (!USE_DRAWABLE) {
 			return direction;
 		}
 		final String character = context.getString(R.string.trip_direction_character);
