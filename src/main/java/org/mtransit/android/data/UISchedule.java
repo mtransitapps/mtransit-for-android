@@ -786,6 +786,16 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			this.statusStringsTimestamp = after;
 			return;
 		}
+		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+			int removed = CollectionUtils.removeIf(nextTimestamps, Timestamp::isDescentOnly);
+			if (nextTimestamps.size() == 0) { // DESCENT ONLY SERVICE
+				if (this.statusStrings == null || this.statusStrings.size() == 0) {
+					generateStatusStringsDescentOnly(context);
+				} // ELSE descent only already set
+				this.statusStringsTimestamp = after;
+				return;
+			}
+		}
 		long diffInMs = nextTimestamps.get(0).getT() - after;
 		// TODO diffInMs can be < 0 !! ?
 		boolean isFrequentService = //
@@ -808,11 +818,6 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		Long lastTimestamp = null;
 		if (nextTimestampList.size() > 0) {
 			for (Timestamp timestamp : nextTimestampList) {
-				if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
-					if (timestamp.isDescentOnly()) {
-						continue; // ignore descent only for status countdowns
-					}
-				}
 				if (nextTimestampsT.contains(timestamp)) {
 					continue; // skip duplicate time
 				}
