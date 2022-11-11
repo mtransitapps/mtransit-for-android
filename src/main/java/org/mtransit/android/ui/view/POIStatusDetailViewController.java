@@ -37,6 +37,7 @@ import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleBinding;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class POIStatusDetailViewController implements MTLog.Loggable {
 
 	private static final String LOG_TAG = POIStatusDetailViewController.class.getSimpleName();
@@ -490,10 +491,17 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 				TextView headSignTv = view.findViewById(R.id.next_departures_head_sign);
 				if (TextUtils.isEmpty(nextDeparture.second)) {
 					headSignTv.setText(null);
+					headSignTv.setOnClickListener(null);
 					headSignTv.setVisibility(View.INVISIBLE);
 				} else {
 					headSignTv.setText(nextDeparture.second, TextView.BufferType.SPANNABLE);
 					headSignTv.setVisibility(View.VISIBLE);
+					headSignTv.setOnClickListener(v -> {
+						if (headSignTv.isSelected()) {
+							headSignTv.setSelected(false);
+						}
+						headSignTv.setSelected(true); // marquee forever
+					});
 				}
 				scheduleStatusViewHolder.nextDeparturesLL.addView(view);
 			}
