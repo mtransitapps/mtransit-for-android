@@ -1997,7 +1997,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			holder.compassV.setLatLng(poim.getLat(), poim.getLng());
 			this.compassImgsWR.put(holder.compassV, holder.distanceTv);
 		}
-		holder.nameTv.setText(poi.getName());
+		holder.nameTv.setText(poi.getLabel());
 		if (holder.distanceTv != null) {
 			if (poim.getDistanceString() != null) {
 				if (!poim.getDistanceString().equals(holder.distanceTv.getText())) {
