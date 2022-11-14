@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.util.forEach
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.NO_POSITION
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
@@ -21,6 +22,7 @@ import org.mtransit.android.data.decorateDirection
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleHourSeparatorBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleTimeBinding
 import org.mtransit.android.util.UITimeUtils
+import org.mtransit.commons.FeatureFlags
 import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
@@ -121,24 +123,24 @@ class ScheduleDayAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLo
     private fun getTodaySelectPosition(): Int {
         nextTimestamp?.let { nextTimeInMs ->
             var nextTimePosition: Int = getPosition(nextTimeInMs)
-            if (nextTimePosition > 0) {
-                nextTimePosition-- // show 1 more time on top of the list
-                if (nextTimePosition > 0) {
-                    nextTimePosition-- // show 1 more time on top of the list
+            if (nextTimePosition > 0) { // IF not the 1st of the list DO
+                nextTimePosition-- // show 1 more on top of the list
+                if (nextTimePosition > 0) { // IF not the 2nd of the list DO
+                    nextTimePosition-- // show 1 more on top of the list
                 }
             }
-            if (nextTimePosition >= 0) {
+            if (nextTimePosition != NO_POSITION) {
                 return nextTimePosition
             }
         }
-        return 0
+        return 0 // ELSE show 1st of the list
     }
 
     private fun getPosition(item: Any): Int {
-        var index = 0
         if (item !is Schedule.Timestamp) {
-            return index
+            return NO_POSITION
         }
+        var index = 0
         val date = Date(item.t)
         var thatDate: Date
         var nextDate: Date?
@@ -165,7 +167,7 @@ class ScheduleDayAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLo
                 }
             }
         }
-        return -1
+        return NO_POSITION
     }
 
     private fun clearTimes() {
@@ -398,7 +400,15 @@ class ScheduleDayAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLo
                 } else if (compareToNow > 0L) { // past
                     SpanUtils.setAll(timeSb, getScheduleListTimesPastTextColor(context), SCHEDULE_LIST_TIMES_PAST_STYLE)
                 } else if (compareToNow < 0L) { // future
-                    SpanUtils.setAll(timeSb, getScheduleListTimesFutureTextColor(context), SCHEDULE_LIST_TIMES_FUTURE_STYLE)
+                    if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+                        if (timestamp.isDescentOnly) {
+                            SpanUtils.setAll(timeSb, getScheduleListTimesPastTextColor(context), SCHEDULE_LIST_TIMES_PAST_STYLE)
+                        } else {
+                            SpanUtils.setAll(timeSb, getScheduleListTimesFutureTextColor(context), SCHEDULE_LIST_TIMES_FUTURE_STYLE)
+                        }
+                    } else {
+                        SpanUtils.setAll(timeSb, getScheduleListTimesFutureTextColor(context), SCHEDULE_LIST_TIMES_FUTURE_STYLE)
+                    }
                 }
             }
             binding.time.text = timeSb

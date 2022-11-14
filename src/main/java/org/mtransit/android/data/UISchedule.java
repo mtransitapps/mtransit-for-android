@@ -34,6 +34,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class UISchedule extends org.mtransit.android.commons.data.Schedule implements MTLog.Loggable {
@@ -448,9 +449,9 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 
 	private void generateScheduleList(@NonNull Context context, long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
 									  @Nullable Integer optMinCount, @Nullable Integer optMaxCount, @Nullable String optDefaultHeadSign) {
-		ArrayList<Timestamp> nextTimestamps =
+		ArrayList<Timestamp> timestamps =
 				getNextTimestamps(after - getUIProviderPrecisionInMs(), optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
-		if (CollectionUtils.getSize(nextTimestamps) <= 0) { // NO SERVICE
+		if (CollectionUtils.getSize(timestamps) <= 0) { // NO SERVICE
 			SpannableStringBuilder ssb = null;
 			try {
 				Timestamp timestamp = getNextTimestamp(after);
@@ -471,71 +472,35 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			this.scheduleListTimestamp = after;
 			return;
 		}
-		Timestamp lastTimestamp = getLastTimestamp(after, after - TimeUnit.HOURS.toMillis(1L));
-		if (lastTimestamp != null && !nextTimestamps.contains(lastTimestamp)) {
-			nextTimestamps.add(0, lastTimestamp);
+		final Timestamp lastTimestamp = getLastTimestamp(after, after - TimeUnit.MINUTES.toMillis(60L));
+		if (lastTimestamp != null && !timestamps.contains(lastTimestamp)) {
+			if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+				if (!lastTimestamp.isDescentOnly()
+						|| lastTimestamp.t > after - TimeUnit.MINUTES.toMillis(30L)) {
+					timestamps.add(0, lastTimestamp);
+				}
+			} else {
+				timestamps.add(0, lastTimestamp);
+			}
 		}
-		generateScheduleListTimes(context, after, nextTimestamps, optDefaultHeadSign);
+		generateScheduleListTimes(context, after, timestamps, optDefaultHeadSign);
 		this.scheduleListTimestamp = after;
 	}
 
 	@SuppressWarnings("ConditionCoveredByFurtherCondition")
 	private void generateScheduleListTimes(@NonNull Context context,
 										   long after,
-										   @NonNull ArrayList<Timestamp> nextTimestamps,
+										   @NonNull List<Timestamp> timestamps,
 										   @Nullable String optDefaultHeadSign) {
-		ArrayList<Pair<CharSequence, CharSequence>> list = new ArrayList<>();
-		int startPreviousTimesIndex = -1, endPreviousTimesIndex = -1;
-		int startPreviousTimeIndex = -1, endPreviousTimeIndex = -1;
-		int startNextTimeIndex = -1, endNextTimeIndex = -1;
-		int startNextNextTimeIndex = -1, endNextNextTimeIndex = -1;
-		int startAfterNextTimesIndex = -1, endAfterNextTimesIndex = -1;
-		int index = 0;
-		for (Timestamp t : nextTimestamps) {
-			if (endPreviousTimeIndex == -1) {
-				if (t.t >= after) {
-					if (startPreviousTimeIndex != -1) {
-						endPreviousTimeIndex = index;
-					}
-				} else {
-					endPreviousTimesIndex = index;
-					startPreviousTimeIndex = endPreviousTimesIndex;
-				}
-			}
-			if (t.t < after) {
-				if (endPreviousTimeIndex == -1) {
-					if (startPreviousTimesIndex == -1) {
-						startPreviousTimesIndex = index;
-					}
-				}
-			}
-			if (t.t >= after) {
-				if (startNextTimeIndex == -1) {
-					startNextTimeIndex = index;
-				}
-			}
-			index++;
-			if (t.t >= after) {
-				if (endNextTimeIndex == -1) {
-					if (startNextTimeIndex != index) {
-						endNextTimeIndex = index;
-						startNextNextTimeIndex = endNextTimeIndex;
-						endNextNextTimeIndex = startNextNextTimeIndex; // if was last, the same means empty
-					}
-				} else if (endNextNextTimeIndex != -1 && endNextNextTimeIndex == startNextNextTimeIndex) {
-					endNextNextTimeIndex = index;
-					startAfterNextTimesIndex = endNextNextTimeIndex;
-					endAfterNextTimesIndex = startAfterNextTimesIndex; // if was last, the same means empty
-				} else if (endAfterNextTimesIndex != -1 && startAfterNextTimesIndex != -1) {
-					endAfterNextTimesIndex = index;
-				}
-			}
-		}
-		index = 0;
+		// 1 - Find the start/end time sections
+		final TimeSections ts = findTimesSectionsStartEnd(after, timestamps);
+		// 2 - Set spannable with style
+		int idx = 0;
 		final int nbSpaceBefore = 0;
 		final int nbSpaceAfter = 0;
-		for (Timestamp t : nextTimestamps) {
-			index++;
+		ArrayList<Pair<CharSequence, CharSequence>> list = new ArrayList<>();
+		for (Timestamp t : timestamps) {
+			idx++;
 			SpannableStringBuilder headSignSSB = null;
 			String fTime = UITimeUtils.formatTime(context, t);
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
@@ -546,40 +511,49 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 						)
 				);
 			}
-			if (startPreviousTimesIndex < endPreviousTimesIndex //
-					&& index > startPreviousTimesIndex && index <= endPreviousTimesIndex) {
+			if (ts.previousTimesStartIdx < ts.previousTimesEndIdx // IF previous times list DO
+					&& idx > ts.previousTimesStartIdx && idx <= ts.previousTimesEndIdx) {
 				timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
 						getScheduleListTimesFarTextAppearance(context), getScheduleListTimesPastTextColor(context));
 				if (headSignSSB != null && headSignSSB.length() > 0) {
 					headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesPastTextColor(context));
 				}
-			} else if (startPreviousTimeIndex < endPreviousTimeIndex //
-					&& index > startPreviousTimeIndex && index <= endPreviousTimeIndex) {
+			} else if (ts.previousTimeStartIdx < ts.previousTimeEndIdx // ELSE IF the previous time DO
+					&& idx > ts.previousTimeStartIdx && idx <= ts.previousTimeEndIdx) {
 				timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
 						getScheduleListTimesCloseTextAppearance(context), getScheduleListTimesPastTextColor(context));
 				if (headSignSSB != null && headSignSSB.length() > 0) {
 					headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesPastTextColor(context));
 				}
-			} else if (startNextTimeIndex < endNextTimeIndex //
-					&& index > startNextTimeIndex && index <= endNextTimeIndex) {
+			} else if (ts.nextTimeStartIdx < ts.nextTimeEndIdx // ELSE IF the next time DO
+					&& idx > ts.nextTimeStartIdx && idx <= ts.nextTimeEndIdx) {
 				timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
 						getScheduleListTimesClosestTextAppearance(context), getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_STYLE);
 				if (headSignSSB != null && headSignSSB.length() > 0) {
 					headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesNowTextColor(context));
 				}
-			} else if (startNextNextTimeIndex < endNextNextTimeIndex //
-					&& index > startNextNextTimeIndex && index <= endNextNextTimeIndex) {
+			} else if (ts.nextNextTimeStartIdx < ts.nextNextTimeEndIdx // ELSE IF the time after next DO
+					&& idx > ts.nextNextTimeStartIdx && idx <= ts.nextNextTimeEndIdx) {
 				timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
 						getScheduleListTimesCloseTextAppearance(context), getScheduleListTimesFutureTextColor(context));
 				if (headSignSSB != null && headSignSSB.length() > 0) {
 					headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesFutureTextColor(context));
 				}
-			} else if (startAfterNextTimesIndex < endAfterNextTimesIndex //
-					&& index > startAfterNextTimesIndex && index <= endAfterNextTimesIndex) {
+			} else if (ts.afterNextTimesStartIdx < ts.afterNextTimesEndIdx // ELSE IF other next times list DO
+					&& idx > ts.afterNextTimesStartIdx && idx <= ts.afterNextTimesEndIdx) {
 				timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
 						getScheduleListTimesFarTextAppearance(context), getScheduleListTimesFutureTextColor(context));
 				if (headSignSSB != null && headSignSSB.length() > 0) {
 					headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesFutureTextColor(context));
+				}
+			}
+			if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+				if (idx > ts.nextTimeStartIdx && t.isDescentOnly()) { // IF at least next time (not in the past) DO
+					timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
+							getScheduleListTimesPastTextColor(context));
+					if (headSignSSB != null && headSignSSB.length() > 0) {
+						headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesPastTextColor(context));
+					}
 				}
 			}
 			UITimeUtils.cleanTimes(timeSSB);
@@ -592,6 +566,100 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			list.add(new Pair<>(timeSSB, headSignSSB));
 		}
 		this.scheduleList = list;
+	}
+
+	@NonNull
+	static TimeSections findTimesSectionsStartEnd(long after, @NonNull List<Timestamp> timestamps) {
+		long afterNext = after;
+		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+			for (Timestamp t : timestamps) {
+				if (t.t >= afterNext
+						&& !t.isDescentOnly()) {
+					if (afterNext < t.t) {
+						afterNext = t.t;
+					}
+					break;
+				}
+			}
+		}
+		final TimeSections ts = new TimeSections();
+		int idx = 0;
+		for (Timestamp t : timestamps) {
+			if (ts.previousTimeEndIdx == -1) { // IF the previous time end NOT found DO
+				if (t.t >= afterNext) { // IF timestamp after now DO
+					if (ts.previousTimeStartIdx != -1) { // IF the previous time start found DO
+						ts.previousTimeEndIdx = idx; // mark the previous end
+					}
+				} else {
+					ts.previousTimesEndIdx = idx; // mark previous times list end
+					ts.previousTimeStartIdx = ts.previousTimesEndIdx; // mark previous times list start
+				}
+			}
+			if (t.t < afterNext) { // IF timestamp before now DO
+				if (ts.previousTimeEndIdx == -1) { // IF the previous time end NOT found DO
+					if (ts.previousTimesStartIdx == -1) { // IF previous times list start NOT found DO
+						ts.previousTimesStartIdx = idx; // mark previous times list start
+					}
+				}
+			}
+			if (t.t >= afterNext) { // IF timestamp after now DO
+				if (ts.nextTimeStartIdx == -1) { // IF the next time start NOT found DO
+					ts.nextTimeStartIdx = idx; // mark the next time start
+				} else {
+					if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+						if (!t.isDescentOnly()) {
+							if (ts.nextNextTimeStartIdx == -1) { // ELSE IF the time after next start NOT FOUND
+								ts.nextNextTimeStartIdx = idx; // mark the time after next start
+							}
+						}
+					}
+				}
+			}
+			idx++;
+			if (t.t >= afterNext) { // IF timestamp after now DO
+				if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+					if (t.isDescentOnly()) {
+						if (ts.afterNextTimesStartIdx == -1) { // IF other next times list start found DO
+							ts.afterNextTimesStartIdx = ts.nextTimeEndIdx; // mark other next times list start
+						}
+						ts.afterNextTimesEndIdx = idx; // mark other next times list end
+					} else {
+						if (ts.nextTimeEndIdx == -1) { // IF the next time end NOT found DO
+							if (ts.nextTimeStartIdx != idx) { // IF the next time start NOT equal index DO
+								ts.nextTimeEndIdx = idx; // mark the next time end
+							}
+						} else if (ts.nextNextTimeStartIdx != -1  // ELSE IF the time after next start found
+								&& ts.nextNextTimeEndIdx == -1) { // AND IF the time after next end NOT found DO
+							ts.nextNextTimeEndIdx = idx; // mark the time after next end
+							if (ts.afterNextTimesStartIdx == -1) { // IF other next times list start found DO
+								ts.afterNextTimesStartIdx = ts.nextNextTimeEndIdx; // mark other next times list start
+								ts.afterNextTimesEndIdx = ts.afterNextTimesStartIdx; // mark other next times list end // if was last, the same means empty
+							}
+						} else if (ts.afterNextTimesEndIdx != -1  // ELSE IF other next times list end found
+								&& ts.afterNextTimesStartIdx != -1) { // AND IF other next times list start found DO
+							ts.afterNextTimesEndIdx = idx; // mark other next times list end
+						}
+					}
+				} else {
+					if (ts.nextTimeEndIdx == -1) { // IF the next time end NOT found DO
+						if (ts.nextTimeStartIdx != idx) { // IF the next time start NOT equal index DO
+							ts.nextTimeEndIdx = idx; // mark the next time end
+							ts.nextNextTimeStartIdx = ts.nextTimeEndIdx; // mark the time after next start
+							ts.nextNextTimeEndIdx = ts.nextNextTimeStartIdx; // mark the time after next end // if was last, the same means empty
+						}
+					} else if (ts.nextNextTimeEndIdx != -1 // ELSE IF the time after next end found
+							&& ts.nextNextTimeEndIdx == ts.nextNextTimeStartIdx) { // AND IF the time after next end equals start DO
+						ts.nextNextTimeEndIdx = idx; // mark the time after next end
+						ts.afterNextTimesStartIdx = ts.nextNextTimeEndIdx; // mark other next times list start
+						ts.afterNextTimesEndIdx = ts.afterNextTimesStartIdx; // mark other next times list end // if was last, the same means empty
+					} else if (ts.afterNextTimesEndIdx != -1  // ELSE IF other next times list end found
+							&& ts.afterNextTimesStartIdx != -1) { // AND IF other next times list start found DO
+						ts.afterNextTimesEndIdx = idx; // mark other next times list end
+					}
+				}
+			}
+		}
+		return ts;
 	}
 
 	@NonNull
@@ -787,7 +855,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			return;
 		}
 		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
-			int removed = CollectionUtils.removeIf(nextTimestamps, Timestamp::isDescentOnly);
+			CollectionUtils.removeIf(nextTimestamps, Timestamp::isDescentOnly);
 			if (nextTimestamps.size() == 0) { // DESCENT ONLY SERVICE
 				if (this.statusStrings == null || this.statusStrings.size() == 0) {
 					generateStatusStringsDescentOnly(context);
@@ -833,21 +901,24 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	}
 
 	@NonNull
-	ArrayList<Timestamp> getStatusNextTimestamps(long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
-												 @Nullable Integer optMinCount, @Nullable Integer optMaxCount) {
-		long usefulPastInMs = Math.max(MAX_LAST_STATUS_DIFF_IN_MS, getUIProviderPrecisionInMs());
+	ArrayList<Timestamp> getStatusNextTimestamps(long after, // truncated to the minute
+												 @Nullable Long optMinCoverageInMs,
+												 @Nullable Long optMaxCoverageInMs,
+												 @Nullable Integer optMinCount,
+												 @Nullable Integer optMaxCount) {
+		final long usefulPastInMs = Math.max(MAX_LAST_STATUS_DIFF_IN_MS, getUIProviderPrecisionInMs());
 		ArrayList<Timestamp> nextTimestampsT = getNextTimestamps(after - usefulPastInMs, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
 		if (nextTimestampsT.size() > 0) {
 			Long theNextTimestamp = null;
-			Long theLastTimestamp = null;
+			Long thePreviousTimestamp = null;
 			for (Timestamp timestamp : nextTimestampsT) {
-				if (timestamp.getT() >= after) {
-					if (theNextTimestamp == null || timestamp.getT() < theNextTimestamp) {
-						theNextTimestamp = timestamp.getT();
+				if (timestamp.getT() < after) {
+					if (thePreviousTimestamp == null || thePreviousTimestamp < timestamp.getT()) {
+						thePreviousTimestamp = timestamp.getT();
 					}
 				} else {
-					if (theLastTimestamp == null || theLastTimestamp < timestamp.getT()) {
-						theLastTimestamp = timestamp.getT();
+					if (theNextTimestamp == null || timestamp.getT() <= theNextTimestamp) {
+						theNextTimestamp = timestamp.getT();
 					}
 				}
 			}
@@ -855,10 +926,10 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			if (theNextTimestamp != null) {
 				oldestUsefulTimestamp = after - ((theNextTimestamp - after) / 2L);
 			}
-			if (theLastTimestamp != null) {
+			if (thePreviousTimestamp != null) {
 				if (oldestUsefulTimestamp == null //
-						|| oldestUsefulTimestamp < theLastTimestamp) {
-					oldestUsefulTimestamp = theLastTimestamp;
+						|| oldestUsefulTimestamp < thePreviousTimestamp) {
+					oldestUsefulTimestamp = thePreviousTimestamp;
 				}
 			}
 			//noinspection ConstantConditions // TODO ?
@@ -995,5 +1066,30 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 						getStatusStringTextAppearance(context), //
 						STATUS_FONT, //
 						getStatusStringsTextColor2(context))));
+	}
+
+	static class TimeSections {
+		int previousTimesStartIdx = -1, previousTimesEndIdx = -1; // previous times list
+		int previousTimeStartIdx = -1, previousTimeEndIdx = -1; // the preview time
+		int nextTimeStartIdx = -1, nextTimeEndIdx = -1; // the next time
+		int nextNextTimeStartIdx = -1, nextNextTimeEndIdx = -1; // the time after next
+		int afterNextTimesStartIdx = -1, afterNextTimesEndIdx = -1; // other next times list
+
+		@NonNull
+		@Override
+		public String toString() {
+			return TimeSections.class.getSimpleName() + "{" +
+					"previousTimesStartIdx=" + previousTimesStartIdx +
+					", previousTimesEndIdx=" + previousTimesEndIdx +
+					", previousTimeStartIdx=" + previousTimeStartIdx +
+					", previousTimeEndIdx=" + previousTimeEndIdx +
+					", nextTimeStartIdx=" + nextTimeStartIdx +
+					", nextTimeEndIdx=" + nextTimeEndIdx +
+					", nextNextTimeStartIdx=" + nextNextTimeStartIdx +
+					", nextNextTimeEndIdx=" + nextNextTimeEndIdx +
+					", afterNextTimesStartIdx=" + afterNextTimesStartIdx +
+					", afterNextTimesEndIdx=" + afterNextTimesEndIdx +
+					'}';
+		}
 	}
 }
