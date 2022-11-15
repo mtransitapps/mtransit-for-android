@@ -26,6 +26,7 @@ import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Schedule.Timestamp;
 import org.mtransit.android.data.UISchedule;
 import org.mtransit.android.ui.MTTopSuperscriptSpan;
+import org.mtransit.commons.FeatureFlags;
 import org.mtransit.commons.StringUtils;
 
 import java.lang.ref.WeakReference;
@@ -373,12 +374,31 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		}
 		long fsMinDurationMs = providerFSMinDurationInMs > 0 ? providerFSMinDurationInMs : FREQUENT_SERVICE_MIN_DURATION_IN_MS_DEFAULT;
 		long fsTimeSpanMs = providerFSTimeSpanInMs > 0 ? providerFSTimeSpanInMs : FREQUENT_SERVICE_TIME_SPAN_IN_MS_DEFAULT;
-		long firstTimestamp = timestamps.get(0).getT();
+		int i = 0;
+		Timestamp timestamp;
+		long firstTimestamp = -1L;
+		for (; i < timestamps.size(); i++) {
+			timestamp = timestamps.get(i);
+			if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
+				if (timestamp.isDescentOnly()) {
+					continue; // skip descent only
+				}
+			}
+			firstTimestamp = timestamp.getT();
+			break;
+		}
+		if (firstTimestamp < 0) {
+			return false; // NOT FREQUENT (no real service)
+		}
 		long previousTimestamp = firstTimestamp;
 		long currentTimestamp;
 		long diffInMs;
-		for (int i = 1; i < timestamps.size(); i++) {
-			currentTimestamp = timestamps.get(i).getT();
+		for (; i < timestamps.size(); i++) {
+			timestamp = timestamps.get(i);
+			if (timestamp.isDescentOnly()) {
+				continue; // skip descent only
+			}
+			currentTimestamp = timestamp.getT();
 			diffInMs = currentTimestamp - previousTimestamp;
 			if (diffInMs > fsTimeSpanMs) {
 				return false; // NOT FREQUENT

@@ -400,7 +400,7 @@ class ScheduleDayAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLo
                 } else if (compareToNow > 0L) { // past
                     SpanUtils.setAll(timeSb, getScheduleListTimesPastTextColor(context), SCHEDULE_LIST_TIMES_PAST_STYLE)
                 } else if (compareToNow < 0L) { // future
-                    if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+                    if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
                         if (timestamp.isDescentOnly) {
                             SpanUtils.setAll(timeSb, getScheduleListTimesPastTextColor(context), SCHEDULE_LIST_TIMES_PAST_STYLE)
                         } else {

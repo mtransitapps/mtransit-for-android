@@ -168,7 +168,7 @@ public class UIScheduleTest {
 		// Arrange
 		List<Timestamp> timestamps = new ArrayList<>();
 		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-30L)));
-		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
 			timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(30L)).setHeadsign(Trip.HEADSIGN_TYPE_DESCENT_ONLY, null));
 		} else {
 			timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(30L)));
@@ -179,7 +179,7 @@ public class UIScheduleTest {
 		// Act
 		TimeSections result = UISchedule.findTimesSectionsStartEnd(AFTER_IN_MS - PROVIDER_PRECISION_IN_MS, timestamps);
 		// Assert
-		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
 			assertEquals(2, result.nextTimeStartIdx);
 			assertEquals(3, result.nextTimeEndIdx);
 		} else {
@@ -194,7 +194,7 @@ public class UIScheduleTest {
 		List<Timestamp> timestamps = new ArrayList<>();
 		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-30L)));
 		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(30L)));
-		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
 			timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(90L)).setHeadsign(Trip.HEADSIGN_TYPE_DESCENT_ONLY, null));
 		} else {
 			timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(90L)));
@@ -204,7 +204,7 @@ public class UIScheduleTest {
 		// Act
 		TimeSections result = UISchedule.findTimesSectionsStartEnd(AFTER_IN_MS - PROVIDER_PRECISION_IN_MS, timestamps);
 		// Assert
-		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
 			assertEquals(3, result.nextNextTimeStartIdx);
 			assertEquals(4, result.nextNextTimeEndIdx);
 		} else {

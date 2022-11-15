@@ -474,7 +474,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		}
 		final Timestamp lastTimestamp = getLastTimestamp(after, after - TimeUnit.MINUTES.toMillis(60L));
 		if (lastTimestamp != null && !timestamps.contains(lastTimestamp)) {
-			if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+			if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
 				if (!lastTimestamp.isDescentOnly()
 						|| lastTimestamp.t > after - TimeUnit.MINUTES.toMillis(30L)) {
 					timestamps.add(0, lastTimestamp);
@@ -547,7 +547,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 					headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesFutureTextColor(context));
 				}
 			}
-			if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+			if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
 				if (idx > ts.nextTimeStartIdx && t.isDescentOnly()) { // IF at least next time (not in the past) DO
 					timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
 							getScheduleListTimesPastTextColor(context));
@@ -571,7 +571,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	@NonNull
 	static TimeSections findTimesSectionsStartEnd(long after, @NonNull List<Timestamp> timestamps) {
 		long afterNext = after;
-		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
 			for (Timestamp t : timestamps) {
 				if (t.t >= afterNext
 						&& !t.isDescentOnly()) {
@@ -606,7 +606,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				if (ts.nextTimeStartIdx == -1) { // IF the next time start NOT found DO
 					ts.nextTimeStartIdx = idx; // mark the next time start
 				} else {
-					if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+					if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
 						if (!t.isDescentOnly()) {
 							if (ts.nextNextTimeStartIdx == -1) { // ELSE IF the time after next start NOT FOUND
 								ts.nextNextTimeStartIdx = idx; // mark the time after next start
@@ -617,7 +617,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			}
 			idx++;
 			if (t.t >= afterNext) { // IF timestamp after now DO
-				if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+				if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
 					if (t.isDescentOnly()) {
 						if (ts.afterNextTimesStartIdx == -1) { // IF other next times list start found DO
 							ts.afterNextTimesStartIdx = ts.nextTimeEndIdx; // mark other next times list start
@@ -854,7 +854,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			this.statusStringsTimestamp = after;
 			return;
 		}
-		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY) {
+		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
 			CollectionUtils.removeIf(nextTimestamps, Timestamp::isDescentOnly);
 			if (nextTimestamps.size() == 0) { // DESCENT ONLY SERVICE
 				if (this.statusStrings == null || this.statusStrings.size() == 0) {
