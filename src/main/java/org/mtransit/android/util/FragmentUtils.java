@@ -102,8 +102,12 @@ public final class FragmentUtils implements MTLog.Loggable {
 				MTLog.d(LOG_TAG, "replaceFragment() > SKIP (source fragment is !added/detached/removing)");
 				return;
 			}
-			FragmentManager fm = fa.getSupportFragmentManager();
-			FragmentTransaction ft = fm.beginTransaction();
+			final FragmentManager fm = fa.getSupportFragmentManager();
+			if (fm.isStateSaved()) {
+				MTLog.d(LOG_TAG, "replaceFragment() > SKIP (fragment manager state saved)");
+				return;
+			}
+			final FragmentTransaction ft = fm.beginTransaction();
 			if (FeatureFlags.F_TRANSITION
 					&& optTransitionSharedElement != null
 					&& optTransitionName != null) {
@@ -140,6 +144,10 @@ public final class FragmentUtils implements MTLog.Loggable {
 				return;
 			}
 			FragmentManager fm = fa.getSupportFragmentManager();
+			if (fm.isStateSaved()) {
+				MTLog.d(LOG_TAG, "replaceFragment() > SKIP (fragment manager state saved)");
+				return;
+			}
 			FragmentTransaction ft = fm.beginTransaction();
 			ft.replace(containerViewId, fragment);
 			if (addToStack) {
@@ -170,6 +178,10 @@ public final class FragmentUtils implements MTLog.Loggable {
 				return;
 			}
 			FragmentManager fm = fa.getSupportFragmentManager();
+			if (fm.isStateSaved()) {
+				MTLog.d(LOG_TAG, "replaceDialogFragment() > SKIP (fragment manager state saved)");
+				return;
+			}
 			FragmentTransaction ft = fm.beginTransaction();
 			Fragment prev = fm.findFragmentByTag(tag);
 			if (prev != null) {
@@ -236,7 +248,12 @@ public final class FragmentUtils implements MTLog.Loggable {
 				MTLog.d(LOG_TAG, "executePendingTransactions() > SKIP (source fragment is !added/detached/removing)");
 				return;
 			}
-			fa.getSupportFragmentManager().executePendingTransactions();
+			final FragmentManager fm = fa.getSupportFragmentManager();
+			if (fm.isStateSaved()) {
+				MTLog.d(LOG_TAG, "executePendingTransactions() > SKIP (fragment manager state saved)");
+				return;
+			}
+			fm.executePendingTransactions();
 		} catch (IllegalStateException ise) {
 			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, ise, "Illegal State Exception while executing pending transactions!");
@@ -258,7 +275,12 @@ public final class FragmentUtils implements MTLog.Loggable {
 				MTLog.d(LOG_TAG, "clearFragmentBackStackImmediate() > SKIP (source fragment is !added/detached/removing)");
 				return;
 			}
-			fa.getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+			final FragmentManager fm = fa.getSupportFragmentManager();
+			if (fm.isStateSaved()) {
+				MTLog.d(LOG_TAG, "clearFragmentBackStackImmediate() > SKIP (fragment manager state saved)");
+				return;
+			}
+			fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 		} catch (IllegalStateException ise) {
 			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, ise, "Illegal State Exception while clearing fragment back stack immediately!");
@@ -281,9 +303,16 @@ public final class FragmentUtils implements MTLog.Loggable {
 				MTLog.d(LOG_TAG, "popFragmentFromStack() > SKIP (source fragment is !added/detached/removing)");
 				return;
 			}
-			if (fragment != null) {
-				fa.getSupportFragmentManager().popBackStack();
+			if (fragment == null) {
+				MTLog.d(LOG_TAG, "popFragmentFromStack() > SKIP (no fragment)");
+				return;
 			}
+			final FragmentManager fm = fa.getSupportFragmentManager();
+			if (fm.isStateSaved()) {
+				MTLog.d(LOG_TAG, "popFragmentFromStack() > SKIP (fragment manager state saved)");
+				return;
+			}
+			fm.popBackStack();
 		} catch (IllegalStateException ise) {
 			//noinspection deprecation // FIXME
 			CrashUtils.w(LOG_TAG, ise, "Illegal State Exception while popping fragment '%s' from stack!", fragment);
@@ -304,7 +333,11 @@ public final class FragmentUtils implements MTLog.Loggable {
 				MTLog.d(LOG_TAG, "popLatestEntryFromStack() > SKIP (source fragment is !added/detached/removing)");
 				return false; // not handled
 			}
-			FragmentManager fm = fa.getSupportFragmentManager();
+			final FragmentManager fm = fa.getSupportFragmentManager();
+			if (fm.isStateSaved()) {
+				MTLog.d(LOG_TAG, "popLatestEntryFromStack() > SKIP (fragment manager state saved)");
+				return false; // not handled
+			}
 			if (fm.getBackStackEntryCount() > 0) {
 				fm.popBackStack();
 				return true; // handled
