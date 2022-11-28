@@ -8,4 +8,6 @@ value class Uuid(val uuid: String) {
     }
 
     fun isValid(): Boolean = this.uuid.isNotBlank()
+
+    override fun toString() = "${Uuid::class.java.simpleName}($uuid)"
 }

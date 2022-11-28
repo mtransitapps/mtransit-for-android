@@ -279,6 +279,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                 if (oldSize == 0) {
                     viewModel.selectedNewsArticleAuthorityAndUUID.value?.let { authorityAndUuid ->
                         selectPagerNewsArticle(authorityAndUuid)
+                        viewModel.onNewsArticleSelected(authorityAndUuid) // was selected before list had data
                     }
                     viewModel.lastReadArticleAuthorityAndUUID.value?.let {
                         val newsArticlePosition = listAdapter.getItemPosition(it)

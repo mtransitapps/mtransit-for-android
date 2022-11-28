@@ -8,4 +8,6 @@ value class Authority(val authority: String) {
     }
 
     fun isValid(): Boolean = this.authority.isNotBlank()
+
+    override fun toString() = "${Authority::class.java.simpleName}($authority)"
 }
