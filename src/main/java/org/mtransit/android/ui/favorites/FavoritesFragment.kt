@@ -186,6 +186,12 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
 
     override fun onDestroyView() {
         super.onDestroyView()
+        adapter.onDestroyView()
         binding = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        adapter.onDestroy()
     }
 }

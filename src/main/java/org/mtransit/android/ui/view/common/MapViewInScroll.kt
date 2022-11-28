@@ -6,7 +6,9 @@ import android.view.MotionEvent
 import com.google.android.gms.maps.GoogleMapOptions
 import com.google.android.gms.maps.MapView
 
+@Suppress("unused")
 class MapViewInScroll : MapView {
+
     constructor(context: Context) : super(context)
     constructor(context: Context, attributeSet: AttributeSet?) : super(context, attributeSet)
     constructor(context: Context, attributeSet: AttributeSet, i: Int) : super(context, attributeSet, i)

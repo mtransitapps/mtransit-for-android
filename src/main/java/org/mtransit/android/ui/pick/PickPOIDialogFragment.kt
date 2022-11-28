@@ -125,7 +125,7 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.poiList.observe(viewLifecycleOwner, { poiList ->
+        viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
             adapter.setPois(poiList)
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
             adapter.initManual()
@@ -148,10 +148,10 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
                     }
                 }
             }
-        })
-        viewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation ->
+        }
+        viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             adapter.setLocation(deviceLocation)
-        })
+        }
         viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
             if (removed == true) {
                 dismiss()
@@ -176,6 +176,7 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
 
     override fun onDestroyView() {
         super.onDestroyView()
+        adapter.onDestroyView()
         binding = null
     }
 

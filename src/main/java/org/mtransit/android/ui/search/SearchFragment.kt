@@ -285,11 +285,13 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
 
     override fun onDestroyView() {
         super.onDestroyView()
+        adapter.onDestroyView()
         binding = null
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        adapter.onDestroy()
         searchView = null // part of the activity
     }
 }

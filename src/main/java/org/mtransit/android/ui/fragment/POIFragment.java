@@ -1411,6 +1411,9 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
+		if (this.adapter != null) {
+			this.adapter.onDestroyView();
+		}
 		this.mapViewController.onDestroyView();
 	}
 

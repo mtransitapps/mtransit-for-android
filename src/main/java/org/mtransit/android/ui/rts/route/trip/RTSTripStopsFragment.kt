@@ -351,12 +351,14 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
 
     override fun onDestroyView() {
         super.onDestroyView()
+        adapter.onDestroyView()
         mapViewController.onDestroyView()
         binding = null
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        adapter.onDestroy()
         mapViewController.onDestroy()
     }
 

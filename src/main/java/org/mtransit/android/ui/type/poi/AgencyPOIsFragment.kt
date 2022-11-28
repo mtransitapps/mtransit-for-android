@@ -288,11 +288,13 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
     override fun onDestroyView() {
         super.onDestroyView()
         mapViewController.onDestroyView()
+        adapter.onDestroyView()
         binding = null
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        adapter.onDestroy()
         mapViewController.onDestroy()
     }
 

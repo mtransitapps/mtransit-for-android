@@ -63,12 +63,12 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
 
     private val gridItemDecoration: ItemDecoration by lazy { SpacesItemDecoration(requireContext(), R.dimen.grid_view_spacing) }
 
-    private val adapter: RTSAgencyRoutesAdapter by lazy {
-        RTSAgencyRoutesAdapter(this::openRouteScreen).apply {
-            setAgency(attachedViewModel?.agency?.value)
-            setShowingListInsteadOfGrid(attachedViewModel?.showingListInsteadOfGrid?.value)
-            submitList(attachedViewModel?.routes?.value)
-        }
+    private var listGridAdapter: RTSAgencyRoutesAdapter? = null
+
+    private fun makeListGridAdapter() = RTSAgencyRoutesAdapter(this::openRouteScreen).apply {
+        setAgency(attachedViewModel?.agency?.value)
+        setShowingListInsteadOfGrid(attachedViewModel?.showingListInsteadOfGrid?.value)
+        submitList(attachedViewModel?.routes?.value)
     }
 
     private fun openRouteScreen(view: View, route: Route, agency: IAgencyProperties) {
@@ -101,7 +101,7 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentRtsAgencyRoutesBinding.bind(view).apply {
-            listGrid.adapter = adapter
+            listGrid.adapter = listGridAdapter ?: makeListGridAdapter().also { listGridAdapter = it } // must null in destroyView() to avoid memory leak
             fabListGrid.setOnClickListener {
                 viewModel.saveShowingListInsteadOfGrid(viewModel.showingListInsteadOfGrid.value == false) // switching
             }
@@ -119,7 +119,7 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
         }
         viewModel.agency.observe(viewLifecycleOwner) { agency ->
             agency?.let {
-                adapter.setAgency(agency)
+                listGridAdapter?.setAgency(agency)
                 switchView()
             }
         }
@@ -155,14 +155,14 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
                             scrollToPosition(scrollPosition)
                         }
                     }
-                    adapter.setShowingListInsteadOfGrid(showingListInsteadOfGrid)
+                    listGridAdapter?.setShowingListInsteadOfGrid(showingListInsteadOfGrid)
                     switchView()
                 }
             }
         }
         viewModel.routes.observe(viewLifecycleOwner) { routes ->
             routes?.let {
-                adapter.setList(routes)
+                listGridAdapter?.setList(routes)
                 switchView()
             }
         }
@@ -177,12 +177,12 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
     private fun switchView() {
         binding?.apply {
             when {
-                !adapter.isReady() -> {
+                listGridAdapter?.isReady() != true -> {
                     emptyLayout.isVisible = false
                     listGrid.isVisible = false
                     loadingLayout.isVisible = true
                 }
-                adapter.itemCount == 0 -> {
+                listGridAdapter?.itemCount == 0 -> {
                     loadingLayout.isVisible = false
                     listGrid.isVisible = false
                     emptyLayout.isVisible = true
@@ -203,6 +203,8 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding?.listGrid?.adapter = null
+        listGridAdapter = null
         binding = null
     }
 }

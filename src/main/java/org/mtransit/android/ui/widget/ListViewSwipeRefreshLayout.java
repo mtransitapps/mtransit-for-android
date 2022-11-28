@@ -13,6 +13,7 @@ import org.mtransit.android.commons.MTLog;
 
 import java.lang.ref.WeakReference;
 
+@SuppressWarnings("DeprecatedIsStillUsed") // TODO stop using ListView
 @Deprecated // use SwipeRefreshLayout w/ RecyclerView
 public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MTLog.Loggable {
 
@@ -56,6 +57,18 @@ public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MT
 		this.refreshEnabled = refreshEnabled;
 	}
 
+	public void onDestroyView() {
+		if (this.listViewWR != null) {
+			this.listViewWR.clear();
+		}
+		if (this.loadingViewWR != null) {
+			this.loadingViewWR.clear();
+		}
+		if (this.emptyViewWR != null) {
+			this.emptyViewWR.clear();
+		}
+	}
+
 	@Override
 	public boolean canChildScrollUp() {
 		if (isInEditMode()) {
@@ -83,7 +96,7 @@ public class ListViewSwipeRefreshLayout extends SwipeRefreshLayout implements MT
 		return listView.canScrollVertically(-1);
 	}
 
-	public boolean canViewScrollUp(@NonNull View view) {
+	private boolean canViewScrollUp(@NonNull View view) {
 		return view.canScrollVertically(-1);
 	}
 }

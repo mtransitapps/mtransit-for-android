@@ -133,28 +133,28 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
                 }
             }
         }
-        parentViewModel.isFixedOn.observe(viewLifecycleOwner, { isFixedOn ->
+        parentViewModel.isFixedOn.observe(viewLifecycleOwner) { isFixedOn ->
             binding?.swipeRefresh?.setRefreshEnabled(isFixedOn != true)
-        })
-        parentViewModel.nearbyLocation.observe(viewLifecycleOwner, { nearbyLocation ->
+        }
+        parentViewModel.nearbyLocation.observe(viewLifecycleOwner) { nearbyLocation ->
             viewModel.setNearbyLocation(nearbyLocation)
-        })
-        viewModel.typeAgencies.observe(viewLifecycleOwner, { // REQUIRED FOR PARAMS
+        }
+        viewModel.typeAgencies.observe(viewLifecycleOwner) { // REQUIRED FOR PARAMS
             // DO NOTHING
-        })
-        viewModel.typeId.observe(viewLifecycleOwner, { typeId -> // REQUIRED FOR PARAMS
+        }
+        viewModel.typeId.observe(viewLifecycleOwner) { typeId -> // REQUIRED FOR PARAMS
             theLogTag = typeId?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
             adapter.logTag = logTag
-        })
-        parentViewModel.deviceLocation.observe(viewLifecycleOwner, { deviceLocation ->
+        }
+        parentViewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             adapter.setLocation(deviceLocation)
-        })
+        }
         parentViewModel.nearbyLocationForceReset.observe(viewLifecycleOwner, EventObserver { reset ->
             if (reset) {
                 adapter.clear()
             }
         })
-        viewModel.nearbyPOIs.observe(viewLifecycleOwner, { poiList ->
+        viewModel.nearbyPOIs.observe(viewLifecycleOwner) { poiList ->
             val scrollToTop = adapter.poisCount <= 0
             adapter.appendPois(poiList)
             if (scrollToTop) {
@@ -166,16 +166,16 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
                 adapter.onPause()
             }
             switchView()
-        })
+        }
         if (FeatureFlags.F_NAVIGATION) {
-            mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, { scrollEvent ->
+            mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner) { scrollEvent ->
                 if (isResumed) { // only consumed for current tab
                     val scroll = scrollEvent.getContentIfNotHandled() == true
                     if (scroll) {
                         binding?.listLayout?.list?.setSelection(0)
                     }
                 }
-            })
+            }
         }
     }
 
@@ -219,7 +219,11 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding?.swipeRefresh?.setOnRefreshListener(null)
+        adapter.onDestroyView()
+        binding?.swipeRefresh?.apply {
+            onDestroyView()
+            setOnRefreshListener(null)
+        }
         binding = null
     }
 

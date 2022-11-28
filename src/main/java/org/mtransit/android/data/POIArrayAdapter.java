@@ -1202,14 +1202,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		super.clear();
 	}
 
-	public void onDestroy() {
-		disableTimeChangedReceiver();
-		if (this.poisByType != null) {
-			this.poisByType.clear();
-			this.poisByType = null;
-		}
-		resetCounts();
-		this.poiUUID.clear();
+	public void onDestroyView() {
 		this.compassImgsWR.clear();
 		this.poiStatusViewHoldersWR.clear();
 		if (this.onClickHandledListenerWR != null) {
@@ -1218,6 +1211,17 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (this.onPoiSelectedListenerWR != null) {
 			this.onPoiSelectedListenerWR.clear();
 		}
+	}
+
+	public void onDestroy() {
+		disableTimeChangedReceiver();
+		if (this.poisByType != null) {
+			this.poisByType.clear();
+			this.poisByType = null;
+		}
+		resetCounts();
+		this.poiUUID.clear();
+		onDestroyView();
 		this.infiniteLoadingListener = null;
 	}
 
@@ -2141,6 +2145,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (!newFav) {
 			if (this.favUUIDsFolderIds == null) {
 				newFav = true; // favorite never set before
+				//noinspection ConstantConditions
 				updatedFav = false; // never set before so not updated
 			} else {
 				HashSet<Integer> oldFolderIds = new HashSet<>(this.favUUIDsFolderIds.values());

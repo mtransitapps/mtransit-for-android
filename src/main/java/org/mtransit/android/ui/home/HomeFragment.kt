@@ -374,7 +374,11 @@ class HomeFragment : ABFragment(R.layout.fragment_home), UserLocationListener, M
         hideLocationToast()
         this.locationToast = null
         this.toastShown = false
-        binding?.swipeRefresh?.setOnRefreshListener(null)
+        adapter.onDestroyView()
+        binding?.swipeRefresh?.apply {
+            onDestroyView()
+            setOnRefreshListener(null)
+        }
         binding = null
     }
 

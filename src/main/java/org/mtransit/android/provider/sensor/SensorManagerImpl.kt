@@ -30,21 +30,21 @@ class SensorManagerImpl @Inject constructor(
         private val COMPASS_UPDATE_THRESHOLD_IN_MS = TimeUnit.MILLISECONDS.toMillis(250L)
     }
 
-    private val sensorManager =
-        appContext.getSystemService(Context.SENSOR_SERVICE) as SensorManager?
+    private val sensorManager: SensorManager?
+        get() = appContext.getSystemService(Context.SENSOR_SERVICE) as SensorManager?
 
     override fun getLogTag() = LOG_TAG
 
     override fun registerCompassListener(sensorEventListener: SensorEventListener) {
-        sensorManager?.let {
-            it.registerListener(
+        sensorManager?.apply {
+            registerListener(
                 sensorEventListener,
-                getAccelerometerSensor(sensorManager),
+                getAccelerometerSensor(this), // ACCELEROMETER
                 SensorManager.SENSOR_DELAY_UI
             )
-            it.registerListener(
+            registerListener(
                 sensorEventListener,
-                getMagneticFieldSensor(sensorManager),
+                getMagneticFieldSensor(this), // MAGNETIC_FIELD
                 SensorManager.SENSOR_DELAY_UI
             )
         }
@@ -59,7 +59,9 @@ class SensorManagerImpl @Inject constructor(
     }
 
     override fun unregisterSensorListener(sensorEventListener: SensorEventListener) {
-        sensorManager?.unregisterListener(sensorEventListener)
+        sensorManager?.apply {
+            unregisterListener(sensorEventListener)
+        }
     }
 
     override fun checkForCompass(
@@ -209,7 +211,7 @@ class SensorManagerImpl @Inject constructor(
                 sensorTaskCompleted.onSensorTaskCompleted(false, roundedOrientation, now)
                 return
             }
-            val diffInDegree: Float = abs(lastCompassInDegree ?: 0 - roundedOrientation).toFloat()
+            val diffInDegree: Float = abs(lastCompassInDegree ?: (0 - roundedOrientation)).toFloat()
             val notDifferentEnough = diffInDegree <= COMPASS_DEGREE_UPDATE_THRESHOLD
             if (notDifferentEnough) {
                 sensorTaskCompleted.onSensorTaskCompleted(false, roundedOrientation, now)
