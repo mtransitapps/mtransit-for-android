@@ -11,7 +11,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
-import org.mtransit.android.commons.CollectionUtils
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.data.POIArrayAdapter
@@ -262,7 +261,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
         if (deviceLocation != null && pois?.isNotEmpty() == true) {
             LocationUtils.updateDistance(pois, deviceLocation.latitude, deviceLocation.longitude)
             val sortedPOIs = ArrayList(pois)
-            CollectionUtils.sort(sortedPOIs, LocationUtils.POI_DISTANCE_COMPARATOR)
+            sortedPOIs.sortWith(LocationUtils.POI_DISTANCE_COMPARATOR)
             val closestPoiUuid = sortedPOIs.getOrNull(0)?.poi?.uuid ?: return null
             for (idx in pois.indices) {
                 val poim = pois[idx]

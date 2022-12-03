@@ -16,7 +16,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import org.mtransit.android.ad.IAdManager
-import org.mtransit.android.commons.CollectionUtils
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteTripStop
@@ -182,7 +181,7 @@ class HomeViewModel @Inject constructor(
             scope.ensureActive()
             val typePOIs = getTypeNearbyPOIs(scope, typeAgencies, lat, lng, minDistanceInMeters, nbMaxByType)
             filterTypePOIs(favoriteUUIDs, typePOIs, minDistanceInMeters, nbMaxByType)
-            CollectionUtils.sort(typePOIs, POI_ALPHA_COMPARATOR)
+            typePOIs.sortWith(POI_ALPHA_COMPARATOR)
             scope.ensureActive()
             _nearbyPOIs.postValue(typePOIs)
             nearbyPOIs.addAll(typePOIs)

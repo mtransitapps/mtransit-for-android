@@ -2,7 +2,6 @@ package org.mtransit.android.data
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.mtransit.android.commons.CollectionUtils
 import org.mtransit.android.commons.LocationUtils
 
 class AgencyPropertiesTests {
@@ -23,16 +22,13 @@ class AgencyPropertiesTests {
     @Test
     fun testShortNameComparator() {
         // Arrange
-        val agencies = listOf(
+        val agencies = mutableListOf(
             AgencyProperties(ID, DST, "A", LONG_NAME, color = null, AREA, PKG, LONG_VERSION, VERSION, IS_INSTALLED, IS_ENABLED),
             AgencyProperties(ID, DST, "Z", LONG_NAME, color = null, AREA, PKG, LONG_VERSION, VERSION, IS_INSTALLED, IS_ENABLED),
             AgencyProperties(ID, DST, "b", LONG_NAME, color = null, AREA, PKG, LONG_VERSION, VERSION, IS_INSTALLED, IS_ENABLED),
         )
         // Act
-        CollectionUtils.sort(
-            agencies,
-            IAgencyProperties.SHORT_NAME_COMPARATOR
-        )
+        agencies.sortWith(IAgencyProperties.SHORT_NAME_COMPARATOR)
         // Assert
         assertEquals(3, agencies.size)
         assertEquals("A", agencies[0].shortName)
