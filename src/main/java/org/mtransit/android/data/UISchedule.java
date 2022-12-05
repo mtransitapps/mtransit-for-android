@@ -338,7 +338,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		this(
 				schedule,
 				schedule.getProviderPrecisionInMs(),
-				schedule.isDescentOnly()
+				schedule.isNoPickup()
 		);
 		setTimestampsAndSort(schedule.getTimestamps());
 		setFrequenciesAndSort(schedule.getFrequencies());
@@ -475,7 +475,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		final Timestamp lastTimestamp = getLastTimestamp(after, after - TimeUnit.MINUTES.toMillis(60L));
 		if (lastTimestamp != null && !timestamps.contains(lastTimestamp)) {
 			if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-				if (!lastTimestamp.isDescentOnly()
+				if (!lastTimestamp.isNoPickup()
 						|| lastTimestamp.t > after - TimeUnit.MINUTES.toMillis(30L)) {
 					timestamps.add(0, lastTimestamp);
 				}
@@ -548,7 +548,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				}
 			}
 			if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-				if (idx > ts.nextTimeStartIdx && t.isDescentOnly()) { // IF at least next time (not in the past) DO
+				if (idx > ts.nextTimeStartIdx && t.isNoPickup()) { // IF at least next time (not in the past) DO
 					timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
 							getScheduleListTimesPastTextColor(context));
 					if (headSignSSB != null && headSignSSB.length() > 0) {
@@ -574,7 +574,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
 			for (Timestamp t : timestamps) {
 				if (t.t >= afterNext
-						&& !t.isDescentOnly()) {
+						&& !t.isNoPickup()) {
 					if (afterNext < t.t) {
 						afterNext = t.t;
 					}
@@ -590,7 +590,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 					if (ts.previousTimeStartIdx != -1) { // IF the previous time start found DO
 						ts.previousTimeEndIdx = idx; // mark the previous end
 					}
-				} else {
+				} else { // ELSE IF timestamp before now DO
 					ts.previousTimesEndIdx = idx; // mark previous times list end
 					ts.previousTimeStartIdx = ts.previousTimesEndIdx; // mark previous times list start
 				}
@@ -607,7 +607,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 					ts.nextTimeStartIdx = idx; // mark the next time start
 				} else {
 					if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-						if (!t.isDescentOnly()) {
+						if (!t.isNoPickup()) {
 							if (ts.nextNextTimeStartIdx == -1) { // ELSE IF the time after next start NOT FOUND
 								ts.nextNextTimeStartIdx = idx; // mark the time after next start
 							}
@@ -618,8 +618,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			idx++;
 			if (t.t >= afterNext) { // IF timestamp after now DO
 				if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-					if (t.isDescentOnly()) {
-						if (ts.afterNextTimesStartIdx == -1) { // IF other next times list start found DO
+					if (t.isNoPickup()) {
+						if (ts.afterNextTimesStartIdx == -1) { // IF other next times list start NOT found DO
 							ts.afterNextTimesStartIdx = ts.nextTimeEndIdx; // mark other next times list start
 						}
 						ts.afterNextTimesEndIdx = idx; // mark other next times list end
@@ -835,7 +835,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			this.statusStringsTimestamp = after;
 			return;
 		}
-		if (isDescentOnly()) { // DESCENT ONLY
+		if (isNoPickup()) { // DESCENT ONLY
 			if (this.statusStrings == null || this.statusStrings.size() == 0) {
 				generateStatusStringsDescentOnly(context);
 			} // ELSE descent only already set
@@ -855,7 +855,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			return;
 		}
 		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-			CollectionUtils.removeIf(nextTimestamps, Timestamp::isDescentOnly);
+			CollectionUtils.removeIfNN(nextTimestamps, Timestamp::isNoPickup);
 			if (nextTimestamps.size() == 0) { // DESCENT ONLY SERVICE
 				if (this.statusStrings == null || this.statusStrings.size() == 0) {
 					generateStatusStringsDescentOnly(context);
@@ -867,7 +867,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		long diffInMs = nextTimestamps.get(0).getT() - after;
 		// TODO diffInMs can be < 0 !! ?
 		boolean isFrequentService = //
-				!isDescentOnly() //
+				!isNoPickup() //
 						&& diffInMs < UITimeUtils.FREQUENT_SERVICE_TIME_SPAN_IN_MS_DEFAULT //
 						&& UITimeUtils.isFrequentService(nextTimestamps, -1, -1); // needs more than 3 services times!
 		if (isFrequentService) { // FREQUENT SERVICE
