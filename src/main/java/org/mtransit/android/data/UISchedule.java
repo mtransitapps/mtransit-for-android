@@ -571,6 +571,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	@NonNull
 	static TimeSections findTimesSectionsStartEnd(long after, @NonNull List<Timestamp> timestamps) {
 		long afterNext = after;
+		boolean hasNoPickupOnly = CollectionUtils.count(timestamps, timestamp -> !timestamp.isNoPickup()) == 0;
 		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
 			for (Timestamp t : timestamps) {
 				if (t.t >= afterNext
@@ -606,7 +607,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				if (ts.nextTimeStartIdx == -1) { // IF the next time start NOT found DO
 					ts.nextTimeStartIdx = idx; // mark the next time start
 				} else {
-					if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
+					if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI && !hasNoPickupOnly) {
 						if (!t.isNoPickup()) {
 							if (ts.nextNextTimeStartIdx == -1) { // ELSE IF the time after next start NOT FOUND
 								ts.nextNextTimeStartIdx = idx; // mark the time after next start
@@ -617,7 +618,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			}
 			idx++;
 			if (t.t >= afterNext) { // IF timestamp after now DO
-				if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
+				if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI && !hasNoPickupOnly) {
 					if (t.isNoPickup()) {
 						if (ts.afterNextTimesStartIdx == -1) { // IF other next times list start NOT found DO
 							ts.afterNextTimesStartIdx = ts.nextTimeEndIdx; // mark other next times list start

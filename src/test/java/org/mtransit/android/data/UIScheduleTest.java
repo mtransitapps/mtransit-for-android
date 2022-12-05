@@ -169,7 +169,7 @@ public class UIScheduleTest {
 		List<Timestamp> timestamps = new ArrayList<>();
 		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-30L)));
 		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-			timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(30L)).setHeadsign(Trip.HEADSIGN_TYPE_DESCENT_ONLY, null));
+			timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(30L)).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
 		} else {
 			timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(30L)));
 		}
@@ -195,7 +195,7 @@ public class UIScheduleTest {
 		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-30L)));
 		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(30L)));
 		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-			timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(90L)).setHeadsign(Trip.HEADSIGN_TYPE_DESCENT_ONLY, null));
+			timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(90L)).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
 		} else {
 			timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(90L)));
 		}
@@ -402,5 +402,30 @@ public class UIScheduleTest {
 		assertEquals(7, result.size());
 		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-1L), result.get(0).getT());
 		assertEquals(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(2L), result.get(1).getT());
+	}
+
+	// Kelowna 1 -> Downtown | Stop Queensway Exch
+	@Test
+	public void testFindTimesSectionsStartEnd_All_DropOffOnly() {
+		// Arrange
+		List<Timestamp> timestamps = new ArrayList<>();
+		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(-30L)).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
+		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(30L)).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
+		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(90L)).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
+		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(150L)).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
+		timestamps.add(new Timestamp(NOW_TO_THE_MINUTE + TimeUnit.MINUTES.toMillis(210L)).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
+		// Act
+		TimeSections result = UISchedule.findTimesSectionsStartEnd(AFTER_IN_MS - PROVIDER_PRECISION_IN_MS, timestamps);
+		// Assert
+		assertEquals(0, result.previousTimesStartIdx);
+		assertEquals(0, result.previousTimesEndIdx);
+		assertEquals(0, result.previousTimeStartIdx);
+		assertEquals(1, result.previousTimeEndIdx);
+		assertEquals(1, result.nextTimeStartIdx);
+		assertEquals(2, result.nextTimeEndIdx);
+		assertEquals(2, result.nextNextTimeStartIdx);
+		assertEquals(3, result.nextNextTimeEndIdx);
+		assertEquals(3, result.afterNextTimesStartIdx);
+		assertEquals(5, result.afterNextTimesEndIdx);
 	}
 }
