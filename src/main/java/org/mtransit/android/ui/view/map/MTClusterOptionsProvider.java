@@ -11,10 +11,10 @@ import androidx.annotation.Nullable;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.util.MapUtils;
+import org.mtransit.commons.CollectionUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.List;

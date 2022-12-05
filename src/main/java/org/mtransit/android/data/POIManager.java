@@ -17,7 +17,6 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.DeviceUtils;
@@ -50,6 +49,7 @@ import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.rts.route.RTSRouteFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.util.UITimeUtils;
+import org.mtransit.commons.CollectionUtils;
 import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;

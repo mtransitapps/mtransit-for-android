@@ -34,7 +34,6 @@ import androidx.navigation.fragment.FragmentNavigator;
 import com.google.android.material.button.MaterialButton;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
@@ -69,6 +68,7 @@ import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.UIDirectionUtils;
 import org.mtransit.android.util.UITimeUtils;
+import org.mtransit.commons.CollectionUtils;
 import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;

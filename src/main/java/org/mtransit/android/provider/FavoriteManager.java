@@ -20,7 +20,6 @@ import org.mtransit.android.R;
 import org.mtransit.android.analytics.AnalyticsUserProperties;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.ArrayUtils;
-import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.ToastUtils;
@@ -33,6 +32,7 @@ import org.mtransit.android.data.TextMessage;
 import org.mtransit.android.provider.FavoriteProvider.FavoriteColumns;
 import org.mtransit.android.provider.FavoriteProvider.FavoriteFolderColumns;
 import org.mtransit.android.ui.MTDialog;
+import org.mtransit.commons.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;

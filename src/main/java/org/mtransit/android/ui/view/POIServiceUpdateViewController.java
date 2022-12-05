@@ -12,7 +12,6 @@ import androidx.annotation.Nullable;
 import androidx.viewbinding.ViewBinding;
 
 import org.mtransit.android.R;
-import org.mtransit.android.commons.CollectionUtils;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.HtmlUtils;
 import org.mtransit.android.commons.MTLog;
@@ -20,6 +19,7 @@ import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.databinding.LayoutPoiServiceUpdateBinding;
 import org.mtransit.android.util.LinkUtils;
+import org.mtransit.commons.CollectionUtils;
 
 import java.util.List;
 
