@@ -456,7 +456,7 @@ package org.mtransit.android.ui.poi
 //            val maxDistance = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
 //            val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
 //                addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-//                // addExtra(GTFSProviderContract.POI_FILTER_EXTRA_DESCENT_ONLY, false)
+//                // addExtra(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, false)
 //            }
 //            dataSourceRequestManager.findPOIMs(authority, poiFilter)
 //                ?.filterNot { it.poi.uuid == excludedUUID }

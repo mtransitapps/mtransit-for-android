@@ -15,6 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.removeTooFar
+import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
+import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.IAgencyNearbyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -22,6 +25,7 @@ import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.commons.addAllN
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -135,14 +139,14 @@ class NearbyAgencyTypeViewModel @Inject constructor(
         typeAgencies
             .filter { it.isInArea(area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->
-                poiRepository.findPOIMs(agency.authority, poiFilter)?.let { agencyPOIs ->
-                    LocationUtils.updateDistance(agencyPOIs, lat, lng)
-                    LocationUtils.removeTooFar(agencyPOIs, maxDistance)
-                    LocationUtils.removeTooMuchWhenNotInCoverage(agencyPOIs, minCoverageInMeters, maxSize)
-                    nearbyPOIs.addAll(agencyPOIs)
-                }
+                nearbyPOIs.addAllN(
+                    poiRepository.findPOIMs(agency.authority, poiFilter)
+                        ?.updateDistanceM(lat, lng)
+                        ?.removeTooFar(maxDistance)
+                        ?.removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
+                )
             }
-        LocationUtils.removeTooMuchWhenNotInCoverage(nearbyPOIs, minCoverageInMeters, maxSize)
+        nearbyPOIs.removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
         // TODO ? this.lastEmptyAroundDiff = ad.aroundDiff
         if (nearbyPOIs.size < minSize
             && !LocationUtils.searchComplete(nearbyLocation.latitude, nearbyLocation.longitude, aroundDiff)

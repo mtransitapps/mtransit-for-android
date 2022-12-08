@@ -24,6 +24,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.ToastUtils;
 import org.mtransit.android.commons.UriUtils;
+import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.data.DataSourceManager;
 import org.mtransit.android.data.DataSourceType;
 import org.mtransit.android.data.Favorite;
@@ -112,11 +113,11 @@ public class FavoriteManager implements MTLog.Loggable {
 		return true;
 	}
 
-	public boolean isFavoriteDataSourceId(int dataSourceId) {
+	public boolean isFavoriteDataSourceId(@DataSourceTypeId.DataSourceType int dataSourceId) {
 		return dataSourceId > DataSourceType.MAX_ID;
 	}
 
-	public int extractFavoriteFolderId(int dataSourceId) {
+	public int extractFavoriteFolderId(@DataSourceTypeId.DataSourceType int dataSourceId) {
 		return dataSourceId - DataSourceType.MAX_ID;
 	}
 
@@ -393,7 +394,7 @@ public class FavoriteManager implements MTLog.Loggable {
 
 	@WorkerThread
 	@NonNull
-	public static SparseArrayCompat<Favorite.Folder> findFolders(@NonNull Context context) {
+	private static SparseArrayCompat<Favorite.Folder> findFolders(@NonNull Context context) {
 		SparseArrayCompat<Favorite.Folder> result = new SparseArrayCompat<>();
 		Cursor cursor = null;
 		try {

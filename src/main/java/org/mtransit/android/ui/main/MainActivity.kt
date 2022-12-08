@@ -49,6 +49,7 @@ import org.mtransit.android.util.NightModeUtils
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
+@Suppress("UNUSED_ANONYMOUS_PARAMETER", "unused", "MemberVisibilityCanBePrivate")
 @AndroidEntryPoint
 class MainActivity : MTActivityWithLocation(),
     FragmentManager.OnBackStackChangedListener,

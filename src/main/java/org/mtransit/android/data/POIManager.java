@@ -59,6 +59,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	private static final String LOG_TAG = POIManager.class.getSimpleName();
@@ -134,9 +135,11 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return distance;
 	}
 
+	@NonNull
 	@Override
-	public void setDistance(float distance) {
+	public POIManager setDistance(float distance) {
 		this.distance = distance;
+		return this;
 	}
 
 	@Nullable
@@ -145,9 +148,11 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return distanceString;
 	}
 
+	@NonNull
 	@Override
-	public void setDistanceString(@Nullable CharSequence distanceString) {
+	public POIManager setDistanceString(@Nullable CharSequence distanceString) {
 		this.distanceString = distanceString;
+		return this;
 	}
 
 	public void setStatusLoaderListener(@NonNull StatusLoader.StatusLoaderListener statusLoaderListener) {
@@ -949,6 +954,12 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			MTLog.w(LOG_TAG, "Unexpected POI type '%s'! (using default)", DefaultPOI.getTypeFromCursor(cursor));
 			return new POIManager(DefaultPOI.fromCursorStatic(cursor, authority));
 		}
+	}
+
+	@NonNull
+	@Override
+	public POI getPOI() {
+		return this.poi;
 	}
 
 	@Override

@@ -46,7 +46,7 @@ class DataSourceRequestManager @Inject constructor(
 
     fun findPOIMs(provider: IAgencyProperties, poiFilter: POIProviderContract.Filter) = findPOIMs(provider.authority, poiFilter)
 
-    fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): List<POIManager>? {
+    fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): MutableList<POIManager>? {
         return DataSourceManager.findPOIs(appContext, authority, poiFilter)
     }
 

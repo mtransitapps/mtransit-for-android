@@ -22,6 +22,7 @@ import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.util.UITimeUtils
+import org.mtransit.commons.sortWithAnd
 import javax.inject.Inject
 
 @HiltViewModel
@@ -74,8 +75,9 @@ class FavoritesViewModel @Inject constructor(
                 this.poiRepository.findPOIMs(authority, POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs))
                     .takeIf { !it.isNullOrEmpty() }
                     ?.let { agencyPOIs ->
-                        agencyPOIs.sortedWith(POI_ALPHA_COMPARATOR)
-                        pois.addAll(agencyPOIs)
+                        pois.addAll(
+                            agencyPOIs.sortWithAnd(POI_ALPHA_COMPARATOR)
+                        )
                     }
             }
         if (pois.isNotEmpty()) {

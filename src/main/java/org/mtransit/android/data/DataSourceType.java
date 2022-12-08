@@ -10,6 +10,7 @@ import androidx.annotation.StringRes;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.datasource.DataSourcesRepository;
 
 import java.lang.ref.WeakReference;
@@ -22,49 +23,49 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 
 public enum DataSourceType {
 
-	TYPE_LIGHT_RAIL(0, // GTFS - Tram, Streetcar
+	TYPE_LIGHT_RAIL(DataSourceTypeId.LIGHT_RAIL, // GTFS - Tram, Streetcar
 			R.string.agency_type_light_rail_short_name, R.string.agency_type_light_rail_all, //
 			R.string.agency_type_light_rail_stations_short_name, R.string.agency_type_light_rail_nearby, //
 			R.drawable.ic_tram_black_24dp, //
 			R.id.root_nav_light_rail, //
 			true, true, true, true, true), //
-	TYPE_SUBWAY(1, // GTFS - Metro
+	TYPE_SUBWAY(DataSourceTypeId.SUBWAY, // GTFS - Metro
 			R.string.agency_type_subway_short_name, R.string.agency_type_subway_all, //
 			R.string.agency_type_subway_stations_short_name, R.string.agency_type_subway_nearby, //
 			R.drawable.ic_directions_subway_black_24dp, //
 			R.id.root_nav_subway, //
 			true, true, true, true, true), //
-	TYPE_RAIL(2, // GTFS - Train
+	TYPE_RAIL(DataSourceTypeId.RAIL, // GTFS - Train
 			R.string.agency_type_rail_short_name, R.string.agency_type_rail_all, //
 			R.string.agency_type_rail_stations_short_name, R.string.agency_type_rail_nearby, //
 			R.drawable.ic_directions_railway_black_24dp, //
 			R.id.root_nav_rail, //
 			true, true, true, true, true), //
-	TYPE_BUS(3, // GTFS - Bus
+	TYPE_BUS(DataSourceTypeId.BUS, // GTFS - Bus
 			R.string.agency_type_bus_short_name, R.string.agency_type_bus_all, //
 			R.string.agency_type_bus_stops_short_name, R.string.agency_type_bus_nearby, //
 			R.drawable.ic_directions_bus_black_24dp, //
 			R.id.root_nav_bus, //
 			true, true, true, true, true), //
-	TYPE_FERRY(4, // GTFS - Boat
+	TYPE_FERRY(DataSourceTypeId.FERRY, // GTFS - Boat
 			R.string.agency_type_ferry_short_name, R.string.agency_type_ferry_all, //
 			R.string.agency_type_ferry_stations_short_name, R.string.agency_type_ferry_nearby, //
 			R.drawable.ic_directions_boat_black_24dp, //
 			R.id.root_nav_ferry, //
 			true, true, true, true, true), //
-	TYPE_BIKE(100, // like BIXI, Velib
+	TYPE_BIKE(DataSourceTypeId.BIKE, // like BIXI, Velib
 			R.string.agency_type_bike_short_name, R.string.agency_type_bike_all, //
 			R.string.agency_type_bike_stations_short_name, R.string.agency_type_bike_nearby, //
 			R.drawable.ic_directions_bike_black_24dp, //
 			R.id.root_nav_bike, //
 			true, true, true, true, true), //
-	TYPE_PLACE(666, //
+	TYPE_PLACE(DataSourceTypeId.PLACE, //
 			R.string.agency_type_place_short_name, R.string.agency_type_place_all, //
 			R.string.agency_type_place_app_short_name, R.string.agency_type_place_nearby, //
 			-1, //
 			R.drawable.ic_place_black_24dp, //
 			false, false, false, false, true), //
-	TYPE_MODULE(999, //
+	TYPE_MODULE(DataSourceTypeId.MODULE, //
 			R.string.agency_type_module_short_name, R.string.agency_type_module_all, //
 			R.string.agency_type_module_app_short_name, R.string.agency_type_module_nearby, //
 			R.drawable.ic_library_add_black_24dp, //
@@ -98,7 +99,7 @@ public enum DataSourceType {
 	private final boolean mapScreen;
 	private final boolean searchable;
 
-	DataSourceType(int id,
+	DataSourceType(@DataSourceTypeId.DataSourceType int id,
 				   @StringRes int shortNameResId, @StringRes int allStringResId, @StringRes int poiShortNameResId, @StringRes int nearbyNameResId,
 				   @DrawableRes int iconResId,
 				   int navResId,
@@ -280,8 +281,8 @@ public enum DataSourceType {
 		private final DataSourcesRepository dataSourcesRepository;
 
 		@Inject
-		public POIManagerTypeShortNameComparator(@NonNull @ApplicationContext Context appContext,
-												 @NonNull DataSourcesRepository dataSourcesRepository) {
+		POIManagerTypeShortNameComparator(@NonNull @ApplicationContext Context appContext,
+										  @NonNull DataSourcesRepository dataSourcesRepository) {
 			this.appContext = appContext;
 			this.dataSourcesRepository = dataSourcesRepository;
 		}

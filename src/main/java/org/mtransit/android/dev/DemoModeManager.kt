@@ -14,6 +14,8 @@ import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.removeTooFar
+import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
@@ -54,14 +56,14 @@ class DemoModeManager @Inject constructor(
     )
 
     var filterAgencyAuthority: String? = null
-    var filterAgency: AgencyProperties? = null
+    private var filterAgency: AgencyProperties? = null
 
-    val filterAgencyType: DataSourceType?
+    private val filterAgencyType: DataSourceType?
         get() = this.filterAgency?.type
 
     val filterAgencyTypeId: Int?
         get() = this.filterAgencyType?.id
-    val filterAgencyLocation: Location?
+    private val filterAgencyLocation: Location?
         get() {
             return this.filterAgency?.let { agency ->
                 val isHomeScreen = this.filterScreen == FILTER_SCREEN_HOME
@@ -79,7 +81,7 @@ class DemoModeManager @Inject constructor(
             }
         }
 
-    val filterAgencyPOIM: POIManager?
+    private val filterAgencyPOIM: POIManager?
         get() {
             return this.filterAgency?.let { agency ->
                 val lat = agency.area.centerLat + ((agency.area.maxLat - agency.area.minLat) / 4.00)
@@ -96,15 +98,12 @@ class DemoModeManager @Inject constructor(
         val ad = LocationUtils.getNewDefaultAroundDiff()
         var poim: POIManager?
         while (true) {
-            val maxDistance = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff)
-            val agencyPOIMs = this.dataSourceRequestManager.findPOIMs(
-                agency.authority, POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff)
-            )
-            agencyPOIMs?.let { agencyPOIs ->
-                LocationUtils.updateDistance(agencyPOIs, lat, lng)
-                LocationUtils.removeTooFar(agencyPOIs, maxDistance)
-            }
-            poim = agencyPOIMs?.firstOrNull()
+            val filter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff)
+            poim = this.dataSourceRequestManager
+                .findPOIMs(agency.authority, filter)
+                ?.updateDistanceM(lat, lng)
+                ?.removeTooFar(LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff))
+                ?.firstOrNull()
             if (poim != null) {
                 break
             } else if (LocationUtils.searchComplete(lat, lng, ad.aroundDiff)) {
@@ -123,11 +122,11 @@ class DemoModeManager @Inject constructor(
     val filterLocation: Location?
         get() = this.filterAgencyLocation
 
-    var filterScreen: String? = null
+    private var filterScreen: String? = null
 
     val filterUUID: String?
         get() = filterAgencyPOIM?.poi?.uuid
-    var forceLang: String? = null
+    private var forceLang: String? = null
 
     val enabled: Boolean
         get() = filterAgencyAuthority != null && filterScreen != null && forceLang != null
@@ -136,9 +135,9 @@ class DemoModeManager @Inject constructor(
         get() = !enabled
 
     suspend fun read(savedStateHandle: SavedStateHandle, dataSourcesCache: DataSourcesCache) {
-        filterAgencyAuthority = savedStateHandle.get<String?>(FILTER_AGENCY_AUTHORITY)
-        filterScreen = savedStateHandle.get<String?>(FILTER_SCREEN)
-        forceLang = savedStateHandle.get<String?>(FORCE_LANG)
+        filterAgencyAuthority = savedStateHandle[FILTER_AGENCY_AUTHORITY]
+        filterScreen = savedStateHandle[FILTER_SCREEN]
+        forceLang = savedStateHandle[FORCE_LANG]
         // @Suppress("ConstantConditionIf")
         // if (true) {
         // val debug = true
@@ -202,7 +201,7 @@ class DemoModeManager @Inject constructor(
         return newBase
     }
 
-    fun fixLocale(_configuration: Configuration): Configuration {
+    private fun fixLocale(_configuration: Configuration): Configuration {
         val defaultLocale = forceLang?.let { Locale.forLanguageTag(it) } ?: LocaleUtils.getDefaultLocale()
         return _configuration.apply {
             setLocale(defaultLocale)

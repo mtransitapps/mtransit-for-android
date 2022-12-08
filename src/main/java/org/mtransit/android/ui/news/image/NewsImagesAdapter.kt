@@ -45,6 +45,7 @@ class NewsImagesAdapter(
             }
         }
 
+        @Suppress("UNUSED_PARAMETER")
         fun bind(
             imageManager: ImageManager,
             position: Int,

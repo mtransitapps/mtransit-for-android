@@ -344,12 +344,12 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		setFrequenciesAndSort(schedule.getFrequencies());
 	}
 
-	private UISchedule(@NonNull POIStatus status, long providerPrecisionInMs, boolean descentOnly) {
-		super(status, providerPrecisionInMs, descentOnly);
+	private UISchedule(@NonNull POIStatus status, long providerPrecisionInMs, boolean noPickup) {
+		super(status, providerPrecisionInMs, noPickup);
 	}
 
-	UISchedule(@Nullable Integer id, @NonNull String targetUUID, long lastUpdateInMs, long maxValidityInMs, long readFromSourceAtInMs, long providerPrecisionInMs, boolean descentOnly, boolean noData) {
-		super(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, descentOnly, noData);
+	UISchedule(@Nullable Integer id, @NonNull String targetUUID, long lastUpdateInMs, long maxValidityInMs, long readFromSourceAtInMs, long providerPrecisionInMs, boolean noPickup, boolean noData) {
+		super(id, targetUUID, lastUpdateInMs, maxValidityInMs, readFromSourceAtInMs, providerPrecisionInMs, noPickup, noData);
 	}
 
 	@Nullable
@@ -838,7 +838,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		}
 		if (isNoPickup()) { // DESCENT ONLY
 			if (this.statusStrings == null || this.statusStrings.size() == 0) {
-				generateStatusStringsDescentOnly(context);
+				generateStatusStringsNoPickup(context);
 			} // ELSE descent only already set
 			this.statusStringsTimestamp = after;
 			return;
@@ -859,7 +859,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			CollectionUtils.removeIfNN(nextTimestamps, Timestamp::isNoPickup);
 			if (nextTimestamps.size() == 0) { // DESCENT ONLY SERVICE
 				if (this.statusStrings == null || this.statusStrings.size() == 0) {
-					generateStatusStringsDescentOnly(context);
+					generateStatusStringsNoPickup(context);
 				} // ELSE descent only already set
 				this.statusStringsTimestamp = after;
 				return;
@@ -1050,7 +1050,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		generateStatusStrings(context, context.getString(R.string.frequent_service_part_1), context.getString(R.string.frequent_service_part_2));
 	}
 
-	private void generateStatusStringsDescentOnly(@NonNull Context context) {
+	private void generateStatusStringsNoPickup(@NonNull Context context) {
 		generateStatusStrings(context, context.getString(R.string.descent_only_part_1), context.getString(R.string.descent_only_part_2));
 	}
 

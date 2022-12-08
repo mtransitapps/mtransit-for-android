@@ -117,7 +117,7 @@ public class UITimeUtilsTest {
 		long providerFSMinDurationInMs = TimeUnit.MINUTES.toMillis(15L);
 		long providerFSTimeSpanInMs = TimeUnit.MINUTES.toMillis(3L);
 		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-			timestamps.add(new Schedule.Timestamp(now + -1L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_DESCENT_ONLY, null));
+			timestamps.add(new Schedule.Timestamp(now + -1L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
 		} else {
 			timestamps.add(new Schedule.Timestamp(now + -1L * providerFSTimeSpanInMs));
 		}
@@ -148,7 +148,7 @@ public class UITimeUtilsTest {
 		timestamps.add(new Schedule.Timestamp(now + -1L * providerFSTimeSpanInMs));
 		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
 			//noinspection ConstantConditions,PointlessArithmeticExpression
-			timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_DESCENT_ONLY, null));
+			timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
 		} else {
 			//noinspection ConstantConditions,PointlessArithmeticExpression
 			timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs));
@@ -180,7 +180,7 @@ public class UITimeUtilsTest {
 			//noinspection ConstantConditions,PointlessArithmeticExpression
 			timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs - 1L));
 			//noinspection ConstantConditions,PointlessArithmeticExpression
-			timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_DESCENT_ONLY, null));
+			timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
 			//noinspection ConstantConditions,PointlessArithmeticExpression
 			timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs + 1L));
 		} else {
@@ -213,7 +213,7 @@ public class UITimeUtilsTest {
 		timestamps.add(new Schedule.Timestamp(now + 2L * providerFSTimeSpanInMs));
 		timestamps.add(new Schedule.Timestamp(now + 3L * providerFSTimeSpanInMs));
 		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-			timestamps.add(new Schedule.Timestamp(now + 4L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_DESCENT_ONLY, null));
+			timestamps.add(new Schedule.Timestamp(now + 4L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
 		} else {
 			timestamps.add(new Schedule.Timestamp(now + 4L * providerFSTimeSpanInMs));
 		}
@@ -243,7 +243,7 @@ public class UITimeUtilsTest {
 		timestamps.add(new Schedule.Timestamp(now + 3L * providerFSTimeSpanInMs));
 		timestamps.add(new Schedule.Timestamp(now + 4L * providerFSTimeSpanInMs));
 		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-			timestamps.add(new Schedule.Timestamp(now + 5L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_DESCENT_ONLY, null));
+			timestamps.add(new Schedule.Timestamp(now + 5L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
 		} else {
 			timestamps.add(new Schedule.Timestamp(now + 5L * providerFSTimeSpanInMs));
 		}

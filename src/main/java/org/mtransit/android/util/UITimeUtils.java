@@ -380,7 +380,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		for (; i < timestamps.size(); i++) {
 			timestamp = timestamps.get(i);
 			if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-				if (timestamp.isDescentOnly()) {
+				if (timestamp.isNoPickup()) {
 					continue; // skip descent only
 				}
 			}
@@ -395,7 +395,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		long diffInMs;
 		for (; i < timestamps.size(); i++) {
 			timestamp = timestamps.get(i);
-			if (timestamp.isDescentOnly()) {
+			if (timestamp.isNoPickup()) {
 				continue; // skip descent only
 			}
 			currentTimestamp = timestamp.getT();

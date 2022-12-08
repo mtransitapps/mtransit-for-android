@@ -11,11 +11,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
-import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.set
 import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
@@ -102,7 +102,7 @@ class POIRepository(
 
     fun findPOIMs(provider: IAgencyProperties, poiFilter: POIProviderContract.Filter) = findPOIMs(provider.authority, poiFilter)
 
-    fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): List<POIManager>? {
+    fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): MutableList<POIManager>? {
         return dataSourceRequestManager.findPOIMs(authority, poiFilter)
     }
 
@@ -176,9 +176,8 @@ class POIRepository(
             .map { provider ->
                 async {
                     ensureActive()
-                    val poims = findPOIMs(provider, filter)
-                    LocationUtils.updateDistance(poims, deviceLocation)
-                    poims
+                    findPOIMs(provider, filter)
+                        ?.updateDistance(deviceLocation)
                 }
             }
             .awaitAll()

@@ -21,6 +21,9 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.removeTooFar
+import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
+import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyBaseProperties
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyNearbyProperties
@@ -35,6 +38,7 @@ import org.mtransit.android.ui.favorites.FavoritesViewModel
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.commons.addAllN
 import java.util.SortedMap
 import javax.inject.Inject
 
@@ -65,7 +69,7 @@ class HomeViewModel @Inject constructor(
 
     private val _nearbyLocationForceReset = MutableLiveData(Event(false))
 
-    val nearbyLocation: LiveData<Location?> =
+    private val nearbyLocation: LiveData<Location?> =
         PairMediatorLiveData(deviceLocation, _nearbyLocationForceReset).switchMap { (lastDeviceLocation, forceResetEvent) ->
             liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
                 val forceReset: Boolean = forceResetEvent?.getContentIfNotHandled() ?: false
@@ -112,7 +116,7 @@ class HomeViewModel @Inject constructor(
     private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
     private val _dstToHomeAgencies: LiveData<SortedMap<DataSourceType, List<AgencyBaseProperties>>?> = _allAgencies.map { allAgencies ->
-        if (allAgencies.isNullOrEmpty()) {
+        if (allAgencies.isEmpty()) {
             null
         } else {
             allAgencies
@@ -250,7 +254,7 @@ class HomeViewModel @Inject constructor(
             if (!shouldContinueSearching(typeLat, typeLng, typeAd, typePOIs, typeMinCoverageInMeters, nbMaxByType)) {
                 break
             }
-            lastTypeAroundDiff = if (typePOIs.isNullOrEmpty()) typeAd.aroundDiff else null
+            lastTypeAroundDiff = if (typePOIs.isEmpty()) typeAd.aroundDiff else null
             LocationUtils.incAroundDiff(typeAd)
         }
         return typePOIs
@@ -290,26 +294,23 @@ class HomeViewModel @Inject constructor(
         val maxDistance = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
         val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
             addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
-            addExtra(GTFSProviderContract.POI_FILTER_EXTRA_DESCENT_ONLY, true)
+            addExtra(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
         }
         typeAgencies
             .filter { LocationUtils.Area.areOverlapping(it.area, area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->
                 scope.ensureActive()
-                poiRepository.findPOIMs(agency.authority, poiFilter)?.let { agencyPOIs ->
-                    scope.ensureActive()
-                    LocationUtils.updateDistance(agencyPOIs, lat, lng)
-                    LocationUtils.removeTooFar(agencyPOIs, maxDistance)
-                    LocationUtils.removeTooMuchWhenNotInCoverage(
-                        agencyPOIs,
-                        typeMinCoverageInMeters,
-                        if (this.demoModeManager.enabled) Int.MAX_VALUE else maxSize // keep all
-                    )
-                    typePOIs.addAll(agencyPOIs)
-                }
+                typePOIs.addAllN(
+                    poiRepository.findPOIMs(agency.authority, poiFilter)
+                        ?.updateDistanceM(lat, lng)
+                        ?.removeTooFar(maxDistance)
+                        ?.removeTooMuchWhenNotInCoverage(
+                            typeMinCoverageInMeters,
+                            if (this.demoModeManager.enabled) Int.MAX_VALUE else maxSize // keep all
+                        )
+                )
             }
-        LocationUtils.removeTooMuchWhenNotInCoverage(
-            typePOIs,
+        typePOIs.removeTooMuchWhenNotInCoverage(
             typeMinCoverageInMeters,
             if (this.demoModeManager.enabled) Int.MAX_VALUE else maxSize // keep all
         )

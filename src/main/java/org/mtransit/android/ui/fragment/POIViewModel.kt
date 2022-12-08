@@ -16,6 +16,9 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.commons.removeTooFar
+import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
+import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
@@ -26,6 +29,9 @@ import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.UITimeUtils
+import org.mtransit.commons.addAllN
+import org.mtransit.commons.keepFirst
+import org.mtransit.commons.removeAllAnd
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -110,16 +116,14 @@ class POIViewModel @Inject constructor(
             val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
                 addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
             }
-            poiRepository.findPOIMs(authority, poiFilter)
-                ?.filterNot { it.poi.uuid == excludedUUID }
-                ?.let { agencyPOIs ->
-                    LocationUtils.updateDistance(agencyPOIs, lat, lng)
-                    LocationUtils.removeTooFar(agencyPOIs, maxDistance)
-                    LocationUtils.removeTooMuchWhenNotInCoverage(agencyPOIs, minCoverageInMeters, maxSize)
-                    nearbyPOIs.addAll(
-                        agencyPOIs.filter { !nearbyPOIs.contains(it) } // distinct
-                    )
-                }
+            nearbyPOIs.addAllN(
+                poiRepository.findPOIMs(authority, poiFilter)
+                    ?.removeAllAnd { it.poi.uuid == excludedUUID }
+                    ?.updateDistanceM(lat, lng)
+                    ?.removeTooFar(maxDistance)
+                    ?.removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)
+                    ?.removeAllAnd { nearbyPOIs.contains(it) }
+            )
             if (nearbyPOIs.size > LocationUtils.MIN_NEARBY_LIST // enough POI
                 || LocationUtils.searchComplete(lat, lng, aroundDiff) // world explored
             ) {
@@ -129,7 +133,7 @@ class POIViewModel @Inject constructor(
                 LocationUtils.incAroundDiff(ad)
             }
         }
-        return nearbyPOIs.take(LocationUtils.MAX_POI_NEARBY_POIS_LIST)
+        return nearbyPOIs.keepFirst(LocationUtils.MAX_POI_NEARBY_POIS_LIST)
     }
 
     private val _newsProviders = _authority.switchMap {

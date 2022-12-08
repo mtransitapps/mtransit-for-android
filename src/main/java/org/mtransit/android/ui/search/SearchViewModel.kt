@@ -131,7 +131,7 @@ class SearchViewModel @Inject constructor(
                     },
                 filter = if (query.isNullOrBlank()) null else {
                     POIProviderContract.Filter.getNewSearchFilter(query).apply {
-                        addExtra(GTFSProviderContract.POI_FILTER_EXTRA_DESCENT_ONLY, true)
+                        addExtra(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
                         deviceLocation.value?.let {
                             addExtra("lat", it.latitude)
                             addExtra("lng", it.longitude)
@@ -163,8 +163,8 @@ class SearchViewModel @Inject constructor(
             } else if (rhs == null) {
                 return ComparatorUtils.BEFORE
             }
-            val lScore = if (lhs.poi.score == null) 0 else lhs.poi.score
-            val rScore = if (rhs.poi.score == null) 0 else rhs.poi.score
+            val lScore = lhs.poi.score ?: 0
+            val rScore = rhs.poi.score ?: 0
             if (lScore > rScore) {
                 return ComparatorUtils.BEFORE
             } else if (lScore < rScore) {

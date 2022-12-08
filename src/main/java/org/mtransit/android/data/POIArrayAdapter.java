@@ -36,6 +36,7 @@ import com.google.android.material.button.MaterialButton;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
+import org.mtransit.android.commons.LocationUtilsExtKt;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThemeUtils;
@@ -82,7 +83,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 
 @SuppressLint("UnknownNullness") // FIXME
-@SuppressWarnings("deprecation") // FIXME
+@SuppressWarnings({"deprecation", "WeakerAccess", "unused"}) // FIXME
 public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSensorManager.CompassListener, AdapterView.OnItemClickListener,
 		AdapterView.OnItemLongClickListener, SensorEventListener, AbsListView.OnScrollListener, StatusLoader.StatusLoaderListener,
 		ServiceUpdateLoader.ServiceUpdateLoaderListener, FavoriteManager.FavoriteUpdateListener, MTSensorManager.SensorTaskCompleted,
@@ -641,6 +642,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.onPoiSelectedListenerWR = new WeakReference<>(onPoiSelectedListener);
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	public boolean showPoiViewerScreen(View view, int position) {
 		boolean handled = false;
 		final POIManager poim = getItem(position);
@@ -831,21 +833,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				if (poiManagers == null || poiManagers.size() == 0) {
 					continue;
 				}
-				List<POIManager> orderedPoims = new ArrayList<>(poiManagers);
-				if (orderedPoims.size() > 0) {
-					CollectionUtils.sort(orderedPoims, LocationUtils.POI_DISTANCE_COMPARATOR);
-					POIManager theClosestOne = orderedPoims.get(0);
-					float theClosestDistance = theClosestOne.getDistance();
-					if (theClosestDistance > 0) {
-						for (POIManager poim : orderedPoims) {
-							if (poim.getDistance() <= theClosestDistance) {
-								this.closestPoiUuids.add(poim.poi.getUUID());
-								continue;
-							}
-							break;
-						}
-					}
-				}
+				this.closestPoiUuids.addAll(
+						LocationUtilsExtKt.findClosestPOISUuid(
+								poiManagers
+						)
+				);
 			}
 		}
 	}
