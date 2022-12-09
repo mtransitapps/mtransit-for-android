@@ -57,17 +57,17 @@ class ScheduleDayFragment : MTFragmentX(R.layout.fragment_schedule_day), MTLog.L
         binding = FragmentScheduleDayBinding.bind(view).apply {
             list.adapter = adapter
         }
-        viewModel.yearMonthDay.observe(viewLifecycleOwner, { yearMonthDay ->
+        viewModel.yearMonthDay.observe(viewLifecycleOwner) { yearMonthDay ->
             theLogTag = yearMonthDay?.let { "$LOG_TAG-$it" } ?: LOG_TAG
             adapter.setYearMonthDay(yearMonthDay)
-        })
-        viewModel.dayStartsAtInMs.observe(viewLifecycleOwner, { dayStartsAtInMs ->
+        }
+        viewModel.dayStartsAtInMs.observe(viewLifecycleOwner) { dayStartsAtInMs ->
             dayStartsAtInMs?.let {
                 binding?.dayDate?.text = getDayDateString(it)
                 adapter.setDayStartsAt(it)
             }
-        })
-        viewModel.timestamps.observe(viewLifecycleOwner, { timestamps ->
+        }
+        viewModel.timestamps.observe(viewLifecycleOwner) { timestamps ->
             adapter.setTimes(timestamps)
             binding?.apply {
                 if (timestamps != null && viewModel.scrolledToNow.value != true) {
@@ -79,19 +79,17 @@ class ScheduleDayFragment : MTFragmentX(R.layout.fragment_schedule_day), MTLog.L
                 loadingLayout.isVisible = !adapter.isReady()
                 list.isVisible = adapter.isReady()
             }
-        })
-        viewModel.rts.observe(viewLifecycleOwner, { rts ->
+        }
+        viewModel.rts.observe(viewLifecycleOwner) { rts ->
             adapter.setRTS(rts)
-        })
+        }
     }
 
     private fun getDayDateString(dayStartsAtInMs: Long): CharSequence {
-        return when {
-            UITimeUtils.isYesterday(dayStartsAtInMs) -> getString(R.string.yesterday) + " "
-            UITimeUtils.isToday(dayStartsAtInMs) -> getString(R.string.today) + " "
-            UITimeUtils.isTomorrow(dayStartsAtInMs) -> getString(R.string.tomorrow) + " "
-            else -> ""
-        } + dayDateFormat.formatThreadSafe(UITimeUtils.getNewCalendar(dayStartsAtInMs).time)
+        return UITimeUtils.getNearRelativeDay(
+            requireContext(),
+            dayStartsAtInMs
+        ) + dayDateFormat.formatThreadSafe(UITimeUtils.getNewCalendar(dayStartsAtInMs).time)
     }
 
     override fun onDetach() {

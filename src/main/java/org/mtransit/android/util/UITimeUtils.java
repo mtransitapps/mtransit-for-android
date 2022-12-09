@@ -1,5 +1,8 @@
 package org.mtransit.android.util;
 
+import static org.mtransit.commons.Constants.EMPTY;
+import static org.mtransit.commons.Constants.SPACE_;
+
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -42,6 +45,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("WeakerAccess")
 public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = UITimeUtils.class.getSimpleName();
@@ -54,7 +58,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 
 	public static final long RECENT_IN_MILLIS = TimeUnit.HOURS.toMillis(1L);
 
-	private static final long MAX_DURATION_DISPLAYED_IN_MS = TimeUnit.HOURS.toMillis(6L);
+	public static final long MAX_DURATION_DISPLAYED_IN_MS = TimeUnit.HOURS.toMillis(6L);
 	private static final long URGENT_SCHEDULE_IN_MIN = 10L;
 	public static final long URGENT_SCHEDULE_IN_MS = TimeUnit.MINUTES.toMillis(URGENT_SCHEDULE_IN_MIN);
 
@@ -152,13 +156,27 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	@NonNull
+	public static CharSequence formatNearDate(@NonNull Context context, long dateInMs) {
+		return DateUtils.formatDateTime(context, dateInMs, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NO_YEAR | DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_ABBREV_ALL);
+	}
+
+	@NonNull
+	public static CharSequence formatNearTime(long timeInnMs) {
+		return formatNearTime(timeInnMs, currentTimeMillis());
+	}
+
+	@NonNull
+	private static CharSequence formatNearTime(long timeInnMs, long nowInMs) {
+		return DateUtils.getRelativeTimeSpanString(timeInnMs, nowInMs, DateUtils.DAY_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
+	}
+
+	@NonNull
 	public static CharSequence formatRelativeTime(long timeInThePastInMs) {
 		return formatRelativeTime(timeInThePastInMs, currentTimeMillis());
 	}
 
 	@NonNull
-	private static CharSequence formatRelativeTime(long timeInThePastInMs,
-												   long nowInMs) {
+	private static CharSequence formatRelativeTime(long timeInThePastInMs, long nowInMs) {
 		return DateUtils.getRelativeTimeSpanString(timeInThePastInMs, nowInMs, DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
 	}
 
@@ -274,6 +292,19 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 			return new ThreadSafeDateFormatter(FORMAT_TIME_24_W_TZ_PATTERN, Locale.getDefault());
 		} else {
 			return new ThreadSafeDateFormatter(FORMAT_TIME_12_W_TZ_PATTERN, Locale.getDefault());
+		}
+	}
+
+	@NonNull
+	public static String getNearRelativeDay(@NonNull Context context, long timeInMs) {
+		if (isYesterday(timeInMs)) {
+			return context.getString(R.string.yesterday) + SPACE_;
+		} else if (isToday(timeInMs)) {
+			return context.getString(R.string.today) + SPACE_;
+		} else if (isTomorrow(timeInMs)) {
+			return context.getString(R.string.tomorrow) + SPACE_;
+		} else {
+			return EMPTY;
 		}
 	}
 
@@ -590,7 +621,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	@NonNull
-	private static Pair<CharSequence, CharSequence> getShortTimeSpanString(@NonNull Context context, long diffInMs, long targetedTimestamp) {
+	public static Pair<CharSequence, CharSequence> getShortTimeSpanString(@NonNull Context context, long diffInMs, long targetedTimestamp) {
 		long now = targetedTimestamp - diffInMs;
 		Calendar today = Calendar.getInstance();
 		today.setTimeInMillis(now);

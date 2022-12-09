@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.util.Pair;
 import androidx.viewbinding.ViewBinding;
 
 import org.mtransit.android.R;
@@ -30,6 +29,7 @@ import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.data.POIManager;
 import org.mtransit.android.data.UISchedule;
+import org.mtransit.android.data.UISchedule.DetailsNextDepartures;
 import org.mtransit.android.databinding.LayoutPoiDetailStatusAppBinding;
 import org.mtransit.android.databinding.LayoutPoiDetailStatusAvailabilityPercentBinding;
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleBinding;
@@ -449,7 +449,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 	}
 
 	private static final long MIN_COVERAGE_IN_MS = TimeUnit.HOURS.toMillis(1L);
-	private static final long MAX_COVERAGE_IN_MS = TimeUnit.HOURS.toMillis(12L);
+	private static final long MAX_COVERAGE_IN_MS = TimeUnit.HOURS.toMillis(86L);
 
 	private static void updateScheduleView(@NonNull Context context,
 										   @NonNull CommonStatusViewHolder statusViewHolder,
@@ -465,7 +465,7 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 										   @Nullable POIStatus status,
 										   @NonNull POIDataProvider dataProvider,
 										   @Nullable POI optPOI) {
-		ArrayList<Pair<CharSequence, CharSequence>> nextDeparturesList = null;
+		ArrayList<DetailsNextDepartures> nextDeparturesList = null;
 		if (status instanceof UISchedule) {
 			UISchedule schedule = (UISchedule) status;
 			final String defaultHeadSign = optPOI instanceof RouteTripStop ? ((RouteTripStop) optPOI).getTrip().getHeading(context) : null;
@@ -473,8 +473,8 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 					dataProvider.getNowToTheMinute(),
 					MIN_COVERAGE_IN_MS,
 					MAX_COVERAGE_IN_MS,
-					10,
-					20,
+					15,
+					30,
 					defaultHeadSign);
 		}
 		ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
@@ -484,17 +484,18 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 				scheduleStatusViewHolder.nextDeparturesLL, false));
 		SpannableStringBuilder baselineSSB = getScheduleSpace(context);
 		if (nextDeparturesList != null) {
-			for (Pair<CharSequence, CharSequence> nextDeparture : nextDeparturesList) {
+			for (DetailsNextDepartures nextDeparture : nextDeparturesList) {
 				View view = layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_departure, scheduleStatusViewHolder.nextDeparturesLL, false);
 				((TextView) view.findViewById(R.id.next_departure_time_baseline)).setText(baselineSSB, TextView.BufferType.SPANNABLE);
-				((TextView) view.findViewById(R.id.next_departure_time)).setText(nextDeparture.first);
+				((TextView) view.findViewById(R.id.next_departure_time)).setText(nextDeparture.time);
 				TextView headSignTv = view.findViewById(R.id.next_departures_head_sign);
-				if (TextUtils.isEmpty(nextDeparture.second)) {
+				TextView dateTv = view.findViewById(R.id.next_departure_date);
+				if (TextUtils.isEmpty(nextDeparture.headSign)) {
 					headSignTv.setText(null);
 					headSignTv.setOnClickListener(null);
 					headSignTv.setVisibility(View.INVISIBLE);
 				} else {
-					headSignTv.setText(nextDeparture.second, TextView.BufferType.SPANNABLE);
+					headSignTv.setText(nextDeparture.headSign, TextView.BufferType.SPANNABLE);
 					headSignTv.setVisibility(View.VISIBLE);
 					headSignTv.setOnClickListener(v -> {
 						if (headSignTv.isSelected()) {
@@ -502,6 +503,13 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 						}
 						headSignTv.setSelected(true); // marquee forever
 					});
+				}
+				if (TextUtils.isEmpty(nextDeparture.date)) {
+					dateTv.setText(null);
+					dateTv.setVisibility(View.INVISIBLE);
+				} else {
+					dateTv.setText(nextDeparture.date, TextView.BufferType.SPANNABLE);
+					dateTv.setVisibility(View.VISIBLE);
 				}
 				scheduleStatusViewHolder.nextDeparturesLL.addView(view);
 			}

@@ -1,5 +1,7 @@
 package org.mtransit.android.data;
 
+import static org.mtransit.commons.Constants.SPACE;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Typeface;
@@ -320,7 +322,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	}
 
 	@Nullable
-	private ArrayList<Pair<CharSequence, CharSequence>> scheduleList = null;
+	private ArrayList<DetailsNextDepartures> scheduleList = null;
 
 	private long scheduleListTimestamp = -1L;
 
@@ -406,11 +408,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		Boolean minCountCompleted = optMinCount == null ? null : false;
 		for (Timestamp timestamp : getTimestamps()) {
 			if (optMaxCoverageInMs != null && timestamp.t > after + optMaxCoverageInMs) {
-				break;
+				break; // max coverage date range completed
 			}
 			if (minCoverageInMsCompleted != null && !minCoverageInMsCompleted && timestamp.t > after + optMinCoverageInMs) {
 				if (minCountCompleted != null && minCountCompleted) {
-					break;
+					break; // min coverage count (and min coverage date range) completed
 				}
 				minCoverageInMsCompleted = true;
 			}
@@ -421,11 +423,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				nextTimestamps.add(timestamp);
 				nbAfter++;
 				if (optMaxCount != null && nbAfter >= optMaxCount) {
-					break; // enough time stamps found
+					break; // max coverage count completed
 				}
 				if (minCountCompleted != null && !minCountCompleted && nbAfter >= optMinCount) {
 					if (minCoverageInMsCompleted != null && minCoverageInMsCompleted) {
-						break;
+						break; // min coverage date range completed
 					}
 					minCountCompleted = true;
 				}
@@ -437,10 +439,10 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	// SCHEDULE LIST
 
 	@Nullable
-	public ArrayList<Pair<CharSequence, CharSequence>> getScheduleList(@NonNull Context context, long after,
-																	   @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
-																	   @Nullable Integer optMinCount, @Nullable Integer optMaxCount,
-																	   @Nullable String optDefaultHeadSign) {
+	public ArrayList<DetailsNextDepartures> getScheduleList(@NonNull Context context, long after,
+															@Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
+															@Nullable Integer optMinCount, @Nullable Integer optMaxCount,
+															@Nullable String optDefaultHeadSign) {
 		if (this.scheduleList == null || this.scheduleListTimestamp != after) {
 			generateScheduleList(context, after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount, optDefaultHeadSign);
 		}
@@ -468,7 +470,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			ssb = SpanUtils.setAll(ssb, //
 					getNoServiceTextAppearance(context), getNoServiceTextColor(context), NO_SERVICE_SIZE);
 			this.scheduleList = new ArrayList<>();
-			this.scheduleList.add(new Pair<>(ssb, null));
+			this.scheduleList.add(new DetailsNextDepartures(ssb));
 			this.scheduleListTimestamp = after;
 			return;
 		}
@@ -498,10 +500,12 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		int idx = 0;
 		final int nbSpaceBefore = 0;
 		final int nbSpaceAfter = 0;
-		ArrayList<Pair<CharSequence, CharSequence>> list = new ArrayList<>();
+		ArrayList<DetailsNextDepartures> list = new ArrayList<>();
+		long lastTimestamp = -1L;
 		for (Timestamp t : timestamps) {
 			idx++;
 			SpannableStringBuilder headSignSSB = null;
+			SpannableStringBuilder dateSSB = null;
 			String fTime = UITimeUtils.formatTime(context, t);
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
 			if (t.hasHeadsign() && !Trip.isSameHeadsign(t.getHeading(context), optDefaultHeadSign)) {
@@ -510,6 +514,29 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 								t.getUIHeading(context, true)
 						)
 				);
+			}
+			if (lastTimestamp > 0L) {
+				if (!UITimeUtils.isSameDay(lastTimestamp, t.t)) {
+					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, t.t));
+				}
+			} else { // 1st timestamp
+				long diffInMs = t.t - after;
+				if (UITimeUtils.isSameDay(after, t.t)) {
+					dateSSB = new SpannableStringBuilder(context.getString(R.string.today));
+				} else if (diffInMs < TimeUnit.HOURS.toMillis(24L)) {
+					Pair<CharSequence, CharSequence> shortTimeSpam;
+					if (diffInMs < UITimeUtils.MAX_DURATION_DISPLAYED_IN_MS) {
+						shortTimeSpam = UITimeUtils.getShortTimeSpanString(context, diffInMs, t.t); // avoid countdown
+					} else {
+						shortTimeSpam = UITimeUtils.getShortTimeSpan(context, diffInMs, t, getUIProviderPrecisionInMs());
+					}
+					dateSSB = new SpannableStringBuilder(shortTimeSpam.first);
+					if (!TextUtils.isEmpty(shortTimeSpam.second)) {
+						dateSSB.append(SPACE).append(shortTimeSpam.second);
+					}
+				} else {
+					dateSSB = new SpannableStringBuilder(UITimeUtils.formatNearDate(context, t.t));
+				}
 			}
 			if (ts.previousTimesStartIdx < ts.previousTimesEndIdx // IF previous times list DO
 					&& idx > ts.previousTimesStartIdx && idx <= ts.previousTimesEndIdx) {
@@ -563,7 +590,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			if (headSignSSB != null && headSignSSB.length() > 0) {
 				headSignSSB = SpanUtils.setAll(headSignSSB, SCHEDULE_LIST_TIMES_STYLE);
 			}
-			list.add(new Pair<>(timeSSB, headSignSSB));
+			list.add(new DetailsNextDepartures(timeSSB, headSignSSB, dateSSB));
+			lastTimestamp = t.t;
 		}
 		this.scheduleList = list;
 	}
@@ -1091,6 +1119,30 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 					", afterNextTimesStartIdx=" + afterNextTimesStartIdx +
 					", afterNextTimesEndIdx=" + afterNextTimesEndIdx +
 					'}';
+		}
+	}
+
+	public static class DetailsNextDepartures {
+
+		@NonNull
+		public CharSequence time;
+		@Nullable
+		public CharSequence headSign;
+		@Nullable
+		public CharSequence date;
+
+		DetailsNextDepartures(@NonNull CharSequence time) {
+			this(time, null);
+		}
+
+		DetailsNextDepartures(@NonNull CharSequence time, @Nullable CharSequence headSign) {
+			this(time, headSign, null);
+		}
+
+		DetailsNextDepartures(@NonNull CharSequence time, @Nullable CharSequence headSign, @Nullable CharSequence date) {
+			this.time = time;
+			this.headSign = headSign;
+			this.date = date;
 		}
 	}
 }
