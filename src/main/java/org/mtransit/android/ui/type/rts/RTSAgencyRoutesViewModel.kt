@@ -87,25 +87,23 @@ class RTSAgencyRoutesViewModel @Inject constructor(
         }
     }
 
-    val showingListInsteadOfGrid: LiveData<Boolean> = _authority.switchMap { authority ->
+    val showingListInsteadOfGrid: LiveData<Boolean> = PairMediatorLiveData(_authority, routes).switchMap { (authority, routes) ->
         liveData {
-            authority?.let {
-                emitSource(
-                    defaultPrefRepository.pref.liveData(
-                        DefaultPreferenceRepository.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(it),
-                        defaultPrefRepository.getValue(
-                            DefaultPreferenceRepository.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET,
-                            DefaultPreferenceRepository.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT
+            routes?.let { routesNN ->
+                authority?.let { authorityNN ->
+                    emitSource(
+                        defaultPrefRepository.pref.liveData(
+                            DefaultPreferenceRepository.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authorityNN),
+                            defaultPrefRepository.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT(routesNN.size)
                         )
                     )
-                )
+                }
             }
         }
     }.distinctUntilChanged()
 
     fun saveShowingListInsteadOfGrid(showingListInsteadOfGrid: Boolean) {
         defaultPrefRepository.pref.edit {
-            putBoolean(DefaultPreferenceRepository.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET, showingListInsteadOfGrid)
             _authority.value?.let { authority ->
                 putBoolean(DefaultPreferenceRepository.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority), showingListInsteadOfGrid)
             }

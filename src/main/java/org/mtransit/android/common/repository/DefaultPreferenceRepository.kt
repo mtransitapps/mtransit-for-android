@@ -3,13 +3,14 @@ package org.mtransit.android.common.repository
 import android.content.Context
 import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
+import org.mtransit.android.R
 import org.mtransit.android.commons.PreferenceUtils
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class DefaultPreferenceRepository @Inject constructor(
-    @ApplicationContext appContext: Context
+    @ApplicationContext private val appContext: Context
 ) : PreferenceRepository(appContext) {
 
     companion object {
@@ -49,11 +50,15 @@ class DefaultPreferenceRepository @Inject constructor(
         @Suppress("FunctionName")
         fun getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority: String) = PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority)
 
-        const val PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET = PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_LAST_SET
-        const val PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT = PreferenceUtils.PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT
+        private const val PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID = "pRTSRouteShowingListInsteadOfGrid";
 
         @Suppress("FunctionName")
-        fun getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority: String) = PreferenceUtils.getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority)
+        fun getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority: String) = PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID + authority
+    }
+
+    @Suppress("FunctionName")
+    fun getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT(routesCount: Int): Boolean {
+        return routesCount < appContext.resources.getInteger(R.integer.rts_routes_default_grid_min_count)
     }
 
     override fun hasKey(key: String): Boolean {
