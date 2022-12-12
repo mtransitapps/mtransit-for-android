@@ -2,8 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="?android:attr/listPreferredItemHeightLarge"
+    android:layout_height="@dimen/baseline_88"
     android:clipChildren="false"
+    android:minHeight="?android:attr/listPreferredItemHeightLarge"
     android:paddingEnd="@dimen/baseline_8"
     tools:ignore="RtlSymmetry">
 
@@ -29,6 +30,7 @@
         android:paddingEnd="@dimen/baseline_8"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="?android:attr/textColorSecondary"
+        tools:ignore="RelativeOverlap"
         tools:text="12:34 am" />
 
     <TextView
@@ -62,7 +64,7 @@
         android:layout_alignStart="@id/next_departure_time"
         android:layout_alignParentTop="true"
         android:ellipsize="end"
-        android:paddingTop="@dimen/baseline_2"
+        android:paddingTop="@dimen/baseline_4"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="?android:attr/textColorTertiary"

@@ -475,13 +475,15 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 					MAX_COVERAGE_IN_MS,
 					15,
 					30,
-					defaultHeadSign);
+					defaultHeadSign
+			);
 		}
 		ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;
 		LayoutInflater layoutInflater = LayoutInflater.from(context);
 		scheduleStatusViewHolder.nextDeparturesLL.removeAllViews();
-		scheduleStatusViewHolder.nextDeparturesLL.addView(layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_space,
-				scheduleStatusViewHolder.nextDeparturesLL, false));
+		scheduleStatusViewHolder.nextDeparturesLL.addView(
+				layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_space, scheduleStatusViewHolder.nextDeparturesLL, false)
+		);
 		SpannableStringBuilder baselineSSB = getScheduleSpace(context);
 		if (nextDeparturesList != null) {
 			for (DetailsNextDepartures nextDeparture : nextDeparturesList) {
@@ -508,6 +510,11 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 					dateTv.setText(null);
 					dateTv.setVisibility(View.INVISIBLE);
 				} else {
+					if (scheduleStatusViewHolder.nextDeparturesLL.getChildCount() > 1) {
+						scheduleStatusViewHolder.nextDeparturesLL.addView(
+								layoutInflater.inflate(R.layout.layout_poi_detail_status_schedule_departure_separator, scheduleStatusViewHolder.nextDeparturesLL, false)
+						);
+					}
 					dateTv.setText(nextDeparture.date, TextView.BufferType.SPANNABLE);
 					dateTv.setVisibility(View.VISIBLE);
 				}

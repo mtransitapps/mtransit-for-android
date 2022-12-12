@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.schedule
 
+import android.annotation.SuppressLint
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.mtransit.android.commons.MTLog
@@ -35,6 +36,7 @@ class SchedulePagerAdapter(
     private var _uuid: String? = null
     private var _authority: String? = null
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setUUID(uuid: String?) {
         if (_uuid == uuid) {
             return
@@ -43,6 +45,7 @@ class SchedulePagerAdapter(
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setAuthority(authority: String?) {
         if (_authority == authority) {
             return
