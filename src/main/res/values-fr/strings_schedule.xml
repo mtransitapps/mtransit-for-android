@@ -37,8 +37,11 @@
     <string name="tonight_part_1">Cette</string>
     <string name="tonight_part_2">Nuit</string>
     <string name="yesterday">Hier</string>
+    <string name="yesterday_and">Hier %s</string>
     <string name="today">Aujourd\'hui</string>
+    <string name="today_and">Aujourd\'hui %s</string>
     <string name="tomorrow">Demain</string>
+    <string name="tomorrow_and">Demain %s</string>
     <string name="tomorrow_part_1">Demain</string>
     <string name="tomorrow_part_2" />
     <string name="next_week">La Semaine Prochaine</string>

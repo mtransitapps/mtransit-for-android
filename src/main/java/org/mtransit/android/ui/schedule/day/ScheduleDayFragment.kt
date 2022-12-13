@@ -88,8 +88,9 @@ class ScheduleDayFragment : MTFragmentX(R.layout.fragment_schedule_day), MTLog.L
     private fun getDayDateString(dayStartsAtInMs: Long): CharSequence {
         return UITimeUtils.getNearRelativeDay(
             requireContext(),
-            dayStartsAtInMs
-        ) + dayDateFormat.formatThreadSafe(UITimeUtils.getNewCalendar(dayStartsAtInMs).time)
+            dayStartsAtInMs,
+            dayDateFormat.formatThreadSafe(UITimeUtils.getNewCalendar(dayStartsAtInMs).time),
+        )
     }
 
     override fun onDetach() {

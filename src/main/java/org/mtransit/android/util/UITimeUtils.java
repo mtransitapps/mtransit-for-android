@@ -296,15 +296,15 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	@NonNull
-	public static String getNearRelativeDay(@NonNull Context context, long timeInMs) {
+	public static String getNearRelativeDay(@NonNull Context context, long timeInMs, @NonNull String formattedDate) {
 		if (isYesterday(timeInMs)) {
-			return context.getString(R.string.yesterday) + SPACE_;
+			return context.getString(R.string.yesterday_and, formattedDate);
 		} else if (isToday(timeInMs)) {
-			return context.getString(R.string.today) + SPACE_;
+			return context.getString(R.string.today_and, formattedDate);
 		} else if (isTomorrow(timeInMs)) {
-			return context.getString(R.string.tomorrow) + SPACE_;
+			return context.getString(R.string.tomorrow_and, formattedDate);
 		} else {
-			return EMPTY;
+			return formattedDate;
 		}
 	}
 
@@ -348,12 +348,18 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 
 	@NonNull
 	public static Calendar getBeginningOfTodayCal() {
-		Calendar today = getNewCalendarInstance(currentTimeMillis());
-		today.set(Calendar.HOUR_OF_DAY, 0);
-		today.set(Calendar.MINUTE, 0);
-		today.set(Calendar.SECOND, 0);
-		today.set(Calendar.MILLISECOND, 0);
-		return today;
+		return setBeginningOfDay(
+				getNewCalendarInstance(currentTimeMillis())
+		);
+	}
+
+	@NonNull
+	public static Calendar setBeginningOfDay(@NonNull Calendar day) {
+		day.set(Calendar.HOUR_OF_DAY, 0);
+		day.set(Calendar.MINUTE, 0);
+		day.set(Calendar.SECOND, 0);
+		day.set(Calendar.MILLISECOND, 0);
+		return day;
 	}
 
 	@NonNull
@@ -623,12 +629,9 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	@NonNull
 	public static Pair<CharSequence, CharSequence> getShortTimeSpanString(@NonNull Context context, long diffInMs, long targetedTimestamp) {
 		long now = targetedTimestamp - diffInMs;
-		Calendar today = Calendar.getInstance();
-		today.setTimeInMillis(now);
-		today.set(Calendar.HOUR_OF_DAY, 0);
-		today.set(Calendar.MINUTE, 0);
-		today.set(Calendar.SECOND, 0);
-		today.set(Calendar.MILLISECOND, 0);
+		Calendar today = setBeginningOfDay(
+				getNewCalendarInstance(now)
+		);
 		Calendar todayMorningStarts = (Calendar) today.clone();
 		todayMorningStarts.set(Calendar.HOUR_OF_DAY, 6);
 		Calendar todayAfterNoonStarts = (Calendar) today.clone();

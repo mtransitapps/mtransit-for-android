@@ -34,8 +34,11 @@
     <string name="tonight_part_1">Tonight</string>
     <string name="tonight_part_2" />
     <string name="yesterday">Yesterday</string>
+    <string name="yesterday_and">Yesterday %s</string>
     <string name="today">Today</string>
+    <string name="today_and">Today %s</string>
     <string name="tomorrow">Tomorrow</string>
+    <string name="tomorrow_and">Tomorrow %s</string>
     <string name="tomorrow_part_1">Tomorrow</string>
     <string name="tomorrow_part_2" />
     <string name="next_week">Next Week</string>

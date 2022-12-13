@@ -14,15 +14,18 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentScheduleBinding
+import org.mtransit.android.databinding.FragmentScheduleInfiniteBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.util.UITimeUtils
+import org.mtransit.commons.FeatureFlags
 
 @AndroidEntryPoint
-class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
+class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layout.fragment_schedule_infinite else R.layout.fragment_schedule) {
 
     companion object {
         private val LOG_TAG = ScheduleFragment::class.java.simpleName
@@ -91,26 +94,68 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
         }
     }
 
+    /**
+     * @see org.mtransit.commons.FeatureFlags#F_SCHEDULE_INFINITE - START
+     */
+    private var bindingI: FragmentScheduleInfiniteBinding? = null
+
+    private val listAdapter: ScheduleAdapter by lazy {
+        ScheduleAdapter()
+    }
+
+    private var timeChangedReceiverEnabled = false
+
+    private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver { listAdapter.onTimeChanged() }
+
+    /**
+     * @see org.mtransit.commons.FeatureFlags#F_SCHEDULE_INFINITE - END
+     */
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentScheduleBinding.bind(view).apply {
-            viewPager.offscreenPageLimit = 2
-            viewPager.registerOnPageChangeCallback(onPageChangeCallback)
-            viewPager.adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
-            viewPager.setCurrentItem(lastPageSelected, false)
-        }
-        viewModel.authority.observe(viewLifecycleOwner) { authority ->
-            pagerAdapter?.apply {
-                val wasReady = isReady()
-                setAuthority(authority)
-                updateViews(wasReady)
+        if (FeatureFlags.F_SCHEDULE_INFINITE) {
+            bindingI = FragmentScheduleInfiniteBinding.bind(view).apply {
+                list.adapter = listAdapter
+            }
+        } else {
+            binding = FragmentScheduleBinding.bind(view).apply {
+                viewPager.offscreenPageLimit = 2
+                viewPager.registerOnPageChangeCallback(onPageChangeCallback)
+                viewPager.adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
+                viewPager.setCurrentItem(lastPageSelected, false)
             }
         }
-        viewModel.uuid.observe(viewLifecycleOwner) { uuid ->
-            pagerAdapter?.apply {
-                val wasReady = isReady()
-                setUUID(uuid)
-                updateViews(wasReady)
+        if (FeatureFlags.F_SCHEDULE_INFINITE) {
+            viewModel.timestamps.observe(viewLifecycleOwner) { timestamps ->
+                listAdapter.setTimes(timestamps)
+                bindingI?.apply {
+                    if (timestamps != null && viewModel.scrolledToNow.value != true) {
+                        listAdapter.getScrollToNowPosition()?.let {
+                            list.scrollToPosition(it)
+                        }
+                        viewModel.setScrolledToNow(true)
+                    }
+                    loadingLayout.isVisible = !listAdapter.isReady()
+                    list.isVisible = listAdapter.isReady()
+                }
+            }
+            viewModel.rts.observe(viewLifecycleOwner) { rts ->
+                listAdapter.setRTS(rts)
+            }
+        } else {
+            viewModel.authority.observe(viewLifecycleOwner) { authority ->
+                pagerAdapter?.apply {
+                    val wasReady = isReady()
+                    setAuthority(authority)
+                    updateViews(wasReady)
+                }
+            }
+            viewModel.uuid.observe(viewLifecycleOwner) { uuid ->
+                pagerAdapter?.apply {
+                    val wasReady = isReady()
+                    setUUID(uuid)
+                    updateViews(wasReady)
+                }
             }
         }
         viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
@@ -132,6 +177,9 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
     }
 
     private fun updateViews(wasReady: Boolean) {
+        if (FeatureFlags.F_SCHEDULE_INFINITE) {
+            return
+        }
         binding?.apply {
             if (!wasReady && pagerAdapter?.isReady() == true) {
                 viewPager.setCurrentItem(lastPageSelected, false)
@@ -140,6 +188,61 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
             viewPager.isVisible = pagerAdapter?.isReady() == true
         }
     }
+
+    /**
+     * @see org.mtransit.commons.FeatureFlags#F_SCHEDULE_INFINITE - START
+     */
+
+    override fun onDetach() {
+        super.onDetach()
+        if (!FeatureFlags.F_SCHEDULE_INFINITE) {
+            return
+        }
+        disableTimeChangedReceiver()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!FeatureFlags.F_SCHEDULE_INFINITE) {
+            return
+        }
+        viewModel.initStartEndTimeIfNotSet()
+        enableTimeChangedReceiver()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (!FeatureFlags.F_SCHEDULE_INFINITE) {
+            return
+        }
+        disableTimeChangedReceiver()
+    }
+
+    private fun enableTimeChangedReceiver() {
+        if (!FeatureFlags.F_SCHEDULE_INFINITE) {
+            return
+        }
+        if (!timeChangedReceiverEnabled) {
+            activity?.registerReceiver(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER)
+            timeChangedReceiverEnabled = true
+            listAdapter.onTimeChanged() // force update to current time before next change
+        }
+    }
+
+    private fun disableTimeChangedReceiver() {
+        if (!FeatureFlags.F_SCHEDULE_INFINITE) {
+            return
+        }
+        if (timeChangedReceiverEnabled) {
+            activity?.unregisterReceiver(timeChangedReceiver)
+            timeChangedReceiverEnabled = false
+            listAdapter.onTimeChanged(-1L) // mark time as not updating anymore
+        }
+    }
+
+    /**
+     * @see org.mtransit.commons.FeatureFlags#F_SCHEDULE_INFINITE - END
+     */
 
     override fun isABReady() = attachedViewModel?.rts?.value != null
 
@@ -153,9 +256,13 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule) {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding?.viewPager?.unregisterOnPageChangeCallback(onPageChangeCallback)
-        binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
-        pagerAdapter = null // cannot re-use Adapter w/ ViewPager
-        binding = null
+        if (FeatureFlags.F_SCHEDULE_INFINITE) {
+            binding?.viewPager?.unregisterOnPageChangeCallback(onPageChangeCallback)
+            binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
+            pagerAdapter = null // cannot re-use Adapter w/ ViewPager
+            binding = null
+        } else {
+            bindingI = null
+        }
     }
 }
