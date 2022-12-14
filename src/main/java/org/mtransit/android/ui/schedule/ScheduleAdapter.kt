@@ -116,10 +116,6 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
             dataSetChanged = true
             cal.add(Calendar.DATE, 1)
         }
-        if (org.mtransit.android.commons.Constants.DEBUG) {
-            this.dayToHourToTimes.forEach { dayToHourToTime ->
-            }
-        }
         if (dataSetChanged) {
             notifyDataSetChanged()
         }
@@ -156,9 +152,6 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
             }
         }
         this.timesCount = newTimesCount
-                }
-            }
-        }
         notifyDataSetChanged()
     }
 
