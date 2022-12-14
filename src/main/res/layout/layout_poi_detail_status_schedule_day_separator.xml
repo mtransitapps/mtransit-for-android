@@ -4,10 +4,9 @@
     android:id="@+id/day"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="?android:attr/listPreferredItemHeightLarge"
+    android:gravity="center_horizontal"
     android:paddingTop="@dimen/baseline_8"
     android:paddingBottom="@dimen/baseline_8"
     android:textAppearance="?android:attr/textAppearanceMedium"
     android:textColor="?android:attr/textColorSecondary"
-    tools:ignore="RtlSymmetry"
     tools:text="Today, Tuesday 2, 2010" />

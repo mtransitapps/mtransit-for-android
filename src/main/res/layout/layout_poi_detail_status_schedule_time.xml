@@ -6,9 +6,10 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center_vertical"
     android:gravity="center_vertical"
-    android:paddingBottom="1dp"
-    android:paddingStart="?android:attr/listPreferredItemHeightLarge"
+    android:paddingStart="@dimen/baseline_64"
     android:paddingTop="1dp"
+    android:paddingBottom="1dp"
     android:textAppearance="?android:attr/textAppearanceSmall"
     android:textColor="?android:attr/textColorPrimary"
+    tools:ignore="RtlSymmetry"
     tools:text="00:00 am" />

@@ -97,12 +97,15 @@ class ScheduleViewModel @Inject constructor(
      */
 
     private val _startsAtInMs = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_START_AT_IN_MS)
+
     private val _endsAtInMs = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_END_AT_IN_MS)
+
+    val startEndAt = PairMediatorLiveData(_startsAtInMs, _endsAtInMs)
 
     fun initStartEndTimeIfNotSet() {
         if (_startsAtInMs.value == null) {
             val startDateInMs = UITimeUtils.getBeginningOfTodayInMs() - TimeUnit.DAYS.toMillis(1L)
-            val endDateInMs = startDateInMs + TimeUnit.DAYS.toMillis(3L)
+            val endDateInMs = startDateInMs + TimeUnit.DAYS.toMillis(7L)
             savedStateHandle[EXTRA_START_AT_IN_MS] = startDateInMs
             savedStateHandle[EXTRA_END_AT_IN_MS] = endDateInMs
         }

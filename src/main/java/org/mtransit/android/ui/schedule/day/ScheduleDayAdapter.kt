@@ -73,7 +73,7 @@ class ScheduleDayAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLo
     private var hourFormatter: ThreadSafeDateFormatter? = null
 
     private fun getHourFormatter(context: Context): ThreadSafeDateFormatter {
-        return hourFormatter ?: UITimeUtils.getNewHourFormat(context).also { hourFormatter = it }
+        return hourFormatter ?: UITimeUtils.getNewHourFormat(context, false).also { hourFormatter = it }
     }
 
     fun setRTS(rts: RouteTripStop?) {

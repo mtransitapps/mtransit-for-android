@@ -126,6 +126,11 @@ class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layo
             }
         }
         if (FeatureFlags.F_SCHEDULE_INFINITE) {
+            viewModel.startEndAt.observe(viewLifecycleOwner) { startEndAt ->
+                startEndAt?.let { (startInMs, endInMs) ->
+                    listAdapter.setStartEnd(startInMs, endInMs)
+                }
+            }
             viewModel.timestamps.observe(viewLifecycleOwner) { timestamps ->
                 listAdapter.setTimes(timestamps)
                 bindingI?.apply {

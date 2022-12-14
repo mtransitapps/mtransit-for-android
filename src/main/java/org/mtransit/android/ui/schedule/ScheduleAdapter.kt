@@ -45,17 +45,13 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
         private const val ITEM_VIEW_TYPE_TIME = 2
 
         private const val HOUR_SEPARATORS_COUNT = 24
-
-        private const val COUNT_UNKNOWN = -1
-
-        private const val UNKNOWN = -1L
     }
 
     private var theLogTag: String = LOG_TAG
 
     override fun getLogTag(): String = this.theLogTag
 
-    private var timesCount = COUNT_UNKNOWN
+    private var timesCount: Int? = null
 
     private fun makeDayHours(): SparseArray<MutableList<Schedule.Timestamp>> {
         return SparseArray<MutableList<Schedule.Timestamp>>().apply {
@@ -73,10 +69,13 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
 
     private var optRts: RouteTripStop? = null
 
+    private var startInMs: Long? = null
+    private var endInMs: Long? = null
+
     private var hourFormatter: ThreadSafeDateFormatter? = null
 
     private fun getHourFormatter(context: Context): ThreadSafeDateFormatter {
-        return hourFormatter ?: UITimeUtils.getNewHourFormat(context).also { hourFormatter = it }
+        return hourFormatter ?: UITimeUtils.getNewHourFormat(context, true).also { hourFormatter = it }
     }
 
     private val dayDateFormat by lazy { ThreadSafeDateFormatter("EEEE, MMM d, yyyy", Locale.getDefault()) }
@@ -94,23 +93,69 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
     }
 
     @SuppressLint("NotifyDataSetChanged")
+    private fun updateStartEndTimes() {
+        if (this.startInMs == null || this.endInMs == null) {
+            return
+        }
+        val cal = this.startInMs?.let { UITimeUtils.setBeginningOfDay(UITimeUtils.getNewCalendar(it)) } ?: return
+        val lastDayBeginning = this.endInMs?.let { UITimeUtils.setBeginningOfDay(UITimeUtils.getNewCalendar(it)).timeInMillis } ?: return
+        var i = 0
+        var dataSetChanged = false
+        while (i < this.dayToHourToTimes.size && cal.timeInMillis <= lastDayBeginning) {
+            val dayBeginning = this.dayToHourToTimes[i].first
+            while (cal.timeInMillis < dayBeginning) {
+                this.dayToHourToTimes.add(i, Pair(cal.timeInMillis, makeDayHours()))
+                dataSetChanged = true
+                i++
+                cal.add(Calendar.DATE, 1)
+            }
+            i++
+        }
+        while (cal.timeInMillis <= lastDayBeginning) {
+            this.dayToHourToTimes.add(Pair(cal.timeInMillis, makeDayHours()))
+            dataSetChanged = true
+            cal.add(Calendar.DATE, 1)
+        }
+        if (org.mtransit.android.commons.Constants.DEBUG) {
+            this.dayToHourToTimes.forEach { dayToHourToTime ->
+            }
+        }
+        if (dataSetChanged) {
+            notifyDataSetChanged()
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
     fun setTimes(times: List<Schedule.Timestamp>?) {
+        val originalTimeCount = this.timesCount ?: -1
         clearTimes()
-        if (times != null) {
-            timesCount = 0
-            var lastDayInMs = -1L
-            var dayToHourToTime: Pair<Long, SparseArray<MutableList<Schedule.Timestamp>>>? = null
-            for (time in times) {
-                val hourOfTheDay: Int = UITimeUtils.getHourOfTheDay(time.t)
-                if (lastDayInMs < 0L || !UITimeUtils.isSameDay(lastDayInMs, time.t)) {
-                    lastDayInMs = time.t
-                    dayToHourToTime = Pair(lastDayInMs, makeDayHours())
+        if (times == null) {
+            if (originalTimeCount > 0) {
+                notifyDataSetChanged()
+            }
+            return
+        }
+        var newTimesCount = 0
+        var dayBeginning = -1L
+        var dayToHourToTime: Pair<Long, SparseArray<MutableList<Schedule.Timestamp>>>? = null
+        for (time in times) {
+            val hourOfTheDay: Int = UITimeUtils.getHourOfTheDay(time.t)
+            if (dayBeginning < 0L || !UITimeUtils.isSameDay(dayBeginning, time.t)) {
+                dayBeginning = UITimeUtils.setBeginningOfDay(UITimeUtils.getNewCalendar(time.t)).timeInMillis
+                dayToHourToTime = dayToHourToTimes.firstOrNull { it.first == dayBeginning }
+                if (dayToHourToTime == null) {
+                    dayToHourToTime = Pair(dayBeginning, makeDayHours())
                     dayToHourToTimes.add(dayToHourToTime)
+                    dayToHourToTime.second.forEach { _, timestamps -> timestamps.clear() } // do not keep old schedule from that day
                 }
-                dayToHourToTime?.second?.get(hourOfTheDay)?.add(time)
-                timesCount++
-                if (this.nextTimestamp == null && time.t >= this.nowToTheMinute) {
-                    this.nextTimestamp = time
+            }
+            dayToHourToTime?.second?.get(hourOfTheDay)?.add(time)
+            newTimesCount++
+            if (this.nextTimestamp == null && time.t >= this.nowToTheMinute) {
+                this.nextTimestamp = time
+            }
+        }
+        this.timesCount = newTimesCount
                 }
             }
         }
@@ -118,7 +163,7 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
     }
 
     fun getScrollToNowPosition(): Int? {
-        if (itemCount > 0) { // isReady()
+        if (this.startInMs != null && this.endInMs != null && this.itemCount > 0) { // isReady()
             return getTodaySelectPosition()
         }
         return null
@@ -149,10 +194,9 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
         var thatDate: Date
         var nextDate: Date?
         var nextHourOfTheDay: Int
-
-        this.dayToHourToTimes.forEach { (day, hourToTimes) ->
+        this.dayToHourToTimes.forEach { (dayBeginning, hourToTimes) ->
             index++ // day separator
-            val dayCal = UITimeUtils.setBeginningOfDay(UITimeUtils.getNewCalendar(day))
+            val dayCal = UITimeUtils.getNewCalendar(dayBeginning)
             hourToTimes.forEach { hour, hourTimes ->
                 index++ // hour separator
                 if (hourTimes.size > 0) {
@@ -185,15 +229,18 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
     }
 
     private fun clearTimes() {
-        dayToHourToTimes.clear()
-        timesCount = COUNT_UNKNOWN
+        dayToHourToTimes.forEach { (_, hourToTimes) ->
+            hourToTimes.forEach { _, timestamps -> timestamps.clear() }
+        }
+        timesCount = null
         this.nextTimestamp = null
     }
 
-    fun isReady() = this.timesCount != COUNT_UNKNOWN
+    fun isReady() = this.timesCount != null
 
     override fun getItemCount(): Int {
-        return if (isReady()) this.timesCount + dayToHourToTimes.size + dayToHourToTimes.size * HOUR_SEPARATORS_COUNT else 0
+        return if (!isReady()) 0
+        else (this.timesCount ?: 0) + dayToHourToTimes.size + dayToHourToTimes.size * HOUR_SEPARATORS_COUNT
     }
 
     private fun getTimestampItem(position: Int): Schedule.Timestamp? {
@@ -213,9 +260,9 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
 
     private fun getDayItem(position: Int): Long? {
         var index = 0
-        this.dayToHourToTimes.forEach { (day, hourToTimes) ->
+        this.dayToHourToTimes.forEach { (dayBeginning, hourToTimes) ->
             if (position == index) {
-                return day
+                return dayBeginning
             }
             index++ // separator
             (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
@@ -228,9 +275,9 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
 
     private fun getHourItemTimestamp(position: Int): Long? {
         var index = 0
-        this.dayToHourToTimes.forEach { (day, hourToTimes) ->
+        this.dayToHourToTimes.forEach { (dayBeginning, hourToTimes) ->
             index++ // separator
-            val cal: Calendar = UITimeUtils.getNewCalendar(day)
+            val cal: Calendar = UITimeUtils.getNewCalendar(dayBeginning)
             (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
                 if (index == position) {
                     cal[Calendar.HOUR_OF_DAY] = hourOfTheDay
@@ -246,7 +293,7 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
     @ScheduleItemViewType
     override fun getItemViewType(position: Int): Int {
         var index = 0
-        this.dayToHourToTimes.forEach { (day, hourToTimes) ->
+        this.dayToHourToTimes.forEach { (_, hourToTimes) ->
             if (position == index) {
                 return ITEM_VIEW_TYPE_DAY_SEPARATORS
             }
@@ -300,6 +347,11 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
         }
     }
 
+    fun setStartEnd(startInMs: Long?, endInMs: Long?) {
+        this.startInMs = startInMs
+        this.endInMs = endInMs
+        updateStartEndTimes()
+    }
     class DaySeparatorViewHolder private constructor(
         private val binding: LayoutPoiDetailStatusScheduleDaySeparatorBinding
     ) : RecyclerView.ViewHolder(binding.root) {

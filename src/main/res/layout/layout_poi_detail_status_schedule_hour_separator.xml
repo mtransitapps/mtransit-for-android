@@ -10,8 +10,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-light"
-        android:paddingStart="8dp"
-        android:paddingEnd="4dp"
+        android:paddingStart="@dimen/baseline_8"
+        android:paddingEnd="@dimen/baseline_4"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="?android:attr/textColorTertiary"
         tools:text="12" />

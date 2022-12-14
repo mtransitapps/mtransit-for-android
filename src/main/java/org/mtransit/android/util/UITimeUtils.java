@@ -1,8 +1,5 @@
 package org.mtransit.android.util;
 
-import static org.mtransit.commons.Constants.EMPTY;
-import static org.mtransit.commons.Constants.SPACE_;
-
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -147,11 +144,11 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	@NonNull
-	public static ThreadSafeDateFormatter getNewHourFormat(@NonNull Context context) {
+	public static ThreadSafeDateFormatter getNewHourFormat(@NonNull Context context, boolean fixedLength) {
 		if (is24HourFormat(context)) {
 			return new ThreadSafeDateFormatter(FORMAT_HOUR_24_PATTERN, Locale.getDefault());
 		} else {
-			return new ThreadSafeDateFormatter(FORMAT_HOUR_12_PATTERN, Locale.getDefault());
+			return new ThreadSafeDateFormatter(fixedLength ? FORMAT_HOUR_12_FIXED_LENGTH_PATTERN : FORMAT_HOUR_12_PATTERN, Locale.getDefault());
 		}
 	}
 
@@ -160,6 +157,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		return DateUtils.formatDateTime(context, dateInMs, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NO_YEAR | DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_ABBREV_ALL);
 	}
 
+	@SuppressWarnings("unused")
 	@NonNull
 	public static CharSequence formatNearTime(long timeInnMs) {
 		return formatNearTime(timeInnMs, currentTimeMillis());
