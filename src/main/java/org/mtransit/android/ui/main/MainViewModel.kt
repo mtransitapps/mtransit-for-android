@@ -108,7 +108,7 @@ class MainViewModel @Inject constructor(
     ).distinctUntilChanged()
     val selectedItemIdRes: LiveData<Int> = _selectedItemIdPref.map { idPref ->
         idPrefToIdRes(
-            if (demoModeManager.enabled) {
+            if (demoModeManager.isFullDemo()) {
                 ITEM_ID_SELECTED_SCREEN_DEFAULT
             } else {
                 idPref
@@ -123,7 +123,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun onSelectedItemIdChanged(idPref: String?) {
-        if (demoModeManager.enabled) {
+        if (demoModeManager.isFullDemo()) {
             return // SKIP (demo mode ON)
         }
         if (isRootScreen(idPref)) {

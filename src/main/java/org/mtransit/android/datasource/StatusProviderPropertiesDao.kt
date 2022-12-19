@@ -10,14 +10,14 @@ import org.mtransit.android.data.StatusProviderProperties
 interface StatusProviderPropertiesDao : BaseDao<StatusProviderProperties> {
 
     @Query("SELECT * FROM status_provider_properties")
-    fun getAllStatusProvider(): List<StatusProviderProperties>
+    suspend fun getAllStatusProvider(): List<StatusProviderProperties>
 
     @Query("SELECT * FROM status_provider_properties")
     fun readingAllStatusProviders(): LiveData<List<StatusProviderProperties>>
 
     @Query("SELECT * FROM status_provider_properties WHERE authority = :authority")
-    fun getStatusProvider(authority: String): StatusProviderProperties
+    suspend fun getStatusProvider(authority: String): StatusProviderProperties
 
     @Query("SELECT * FROM status_provider_properties WHERE target_authority = :targetAuthority")
-    fun getTargetAuthorityStatusProvider(targetAuthority: String): List<StatusProviderProperties>
+    suspend fun getTargetAuthorityStatusProvider(targetAuthority: String): List<StatusProviderProperties>
 }

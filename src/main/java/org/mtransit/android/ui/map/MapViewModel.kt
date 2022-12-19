@@ -172,7 +172,7 @@ class MapViewModel @Inject constructor(
             }
         }
     }
-    val areaTypeMapAgencies: LiveData<List<IAgencyNearbyUIProperties>?> =
+    private val areaTypeMapAgencies: LiveData<List<IAgencyNearbyUIProperties>?> =
         PairMediatorLiveData(typeMapAgencies, _loadingArea).map { (typeMapAgencies, loadingArea) ->
             loadingArea?.let { theLoadingArea -> // loading area REQUIRED
                 typeMapAgencies?.filter { agency ->
@@ -230,7 +230,7 @@ class MapViewModel @Inject constructor(
 
     private var poiMarkersLoadJob: Job? = null
 
-    fun loadPOIMarkers() {
+    private fun loadPOIMarkers() {
         poiMarkersLoadJob?.cancel()
         val reset: Boolean = _poiMarkersReset.value?.getContentIfNotHandled() ?: false
         if (reset) {
@@ -260,7 +260,7 @@ class MapViewModel @Inject constructor(
                 !agency.isEntirelyInside(loadedArea)
             }.map { agency ->
                 getAgencyPOIMarkers(agency, loadingArea, loadedArea, this).also {
-                    if (!hasChanged && !it.isNullOrEmpty()) {
+                    if (!hasChanged && !it.isEmpty) {
                         hasChanged = true
                     }
                 }
@@ -282,7 +282,7 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    private fun getAgencyPOIMarkers(
+    private suspend fun getAgencyPOIMarkers(
         agency: IAgencyNearbyUIProperties,
         loadingArea: LatLngBounds,
         loadedArea: LatLngBounds? = null,

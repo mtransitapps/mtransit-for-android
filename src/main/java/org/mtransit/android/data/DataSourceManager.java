@@ -392,7 +392,6 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
-	@WorkerThread
 	@Nullable
 	public static Cursor queryContentResolver(@NonNull ContentResolver contentResolver,
 											  @NonNull Uri uri,

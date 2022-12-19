@@ -70,7 +70,7 @@ class RTSRouteViewModel @Inject constructor(
         }
     }
 
-    private fun getRoute(agency: IAgencyUIProperties?, routeId: Long?): Route? {
+    private suspend fun getRoute(agency: IAgencyUIProperties?, routeId: Long?): Route? {
         if (routeId == null) {
             return null
         }
@@ -99,7 +99,7 @@ class RTSRouteViewModel @Inject constructor(
         }
     }
 
-    private fun getRouteTrips(authority: String?, routeId: Long?): List<Trip>? {
+    private suspend fun getRouteTrips(authority: String?, routeId: Long?): List<Trip>? {
         if (authority == null || routeId == null) {
             return null
         }

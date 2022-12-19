@@ -65,6 +65,7 @@ import org.mtransit.android.ui.view.MTJPathsView;
 import org.mtransit.android.ui.view.MTPieChartPercentView;
 import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.ui.view.common.MTTransitions;
+import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.UIDirectionUtils;
@@ -1309,7 +1310,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 							.addSharedElement(view, view.getTransitionName())
 							.build();
 				}
-				navController.navigate(
+				NavControllerExtKt.navigateF(navController,
 						R.id.nav_to_type_screen,
 						AgencyTypeFragment.newInstanceArgs(type),
 						null,
@@ -1334,7 +1335,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 							.addSharedElement(view, view.getTransitionName())
 							.build();
 				}
-				navController.navigate(
+				NavControllerExtKt.navigateF(navController,
 						R.id.nav_to_nearby_screen,
 						NearbyFragment.newNearbyInstanceArgs(type),
 						null,
@@ -1359,7 +1360,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 							.addSharedElement(view, view.getTransitionName())
 							.build();
 				}
-				navController.navigate(
+				NavControllerExtKt.navigateF(navController,
 						R.id.nav_to_type_screen,
 						AgencyTypeFragment.newInstanceArgs(type),
 						null,
@@ -1837,7 +1838,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 									.addSharedElement(view, view.getTransitionName())
 									.build();
 						}
-						navController.navigate(
+						NavControllerExtKt.navigateF(navController,
 								R.id.nav_to_rts_route_screen,
 								RTSRouteFragment.newInstanceArgs(rts),
 								null,

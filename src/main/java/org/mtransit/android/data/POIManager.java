@@ -48,6 +48,7 @@ import org.mtransit.android.ui.fragment.POIFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.rts.route.RTSRouteFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
+import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.CollectionUtils;
 import org.mtransit.commons.FeatureFlags;
@@ -489,7 +490,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 							.addSharedElement(view, view.getTransitionName())
 							.build();
 				}
-				navController.navigate(
+				NavControllerExtKt.navigateF(navController,
 						R.id.nav_to_nearby_screen,
 						NearbyFragment.newFixedOnPOIInstanceArgs(this, dataSourcesRepository, true), // PLACE SEARCH RESULT
 						null,
@@ -699,7 +700,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 							.addSharedElement(view, view.getTransitionName())
 							.build();
 				}
-				navController.navigate(
+				NavControllerExtKt.navigateF(navController,
 						R.id.nav_to_rts_route_screen,
 						RTSRouteFragment.newInstanceArgs(rts),
 						null,
@@ -779,7 +780,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 									.addSharedElement(view, view.getTransitionName())
 									.build();
 						}
-						navController.navigate(
+						NavControllerExtKt.navigateF(navController,
 								R.id.nav_to_type_screen,
 								AgencyTypeFragment.newInstanceArgs(agency.getType()),
 								null,
@@ -807,7 +808,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 							.addSharedElement(view, view.getTransitionName())
 							.build();
 				}
-				navController.navigate(
+				NavControllerExtKt.navigateF(navController,
 						R.id.nav_to_nearby_screen,
 						NearbyFragment.newFixedOnPOIInstanceArgs(this, dataSourcesRepository, true), // PLACE SEARCH RESULT
 						null,
@@ -834,7 +835,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 							.addSharedElement(view, view.getTransitionName())
 							.build();
 				}
-				navController.navigate(
+				NavControllerExtKt.navigateF(navController,
 						R.id.nav_to_poi_screen,
 						POIFragment.newInstanceArgs(this),
 						null,

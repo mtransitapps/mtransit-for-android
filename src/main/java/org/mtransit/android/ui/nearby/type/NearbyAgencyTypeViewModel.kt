@@ -71,7 +71,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
             _sizeCovered.value = 0
             _distanceCoveredInMeters.value = 0f
             params.value = currentParams.copy(
-                nearbyLocation = newNearbyLocation,
+                nearbyLocation = null,
                 ad = newAD,
                 minSize = null,
                 maxSize = null,
@@ -114,7 +114,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
     }
 
     @WorkerThread
-    private fun getNearbyPOIs(
+    private suspend fun getNearbyPOIs(
         currentParams: NearbyParams? = null,
     ): List<POIManager>? {
         if (currentParams == null || !currentParams.isReady) {

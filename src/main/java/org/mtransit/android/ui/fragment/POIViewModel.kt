@@ -87,11 +87,11 @@ class POIViewModel @Inject constructor(
         }
     }
 
-    private fun getNearbyPOIs(poi: POI?): List<POIManager>? {
+    private suspend fun getNearbyPOIs(poi: POI?): List<POIManager>? {
         return getNearbyPOIs(poi?.authority, poi?.lat, poi?.lng)
     }
 
-    private fun getNearbyPOIs(
+    private suspend fun getNearbyPOIs(
         authority: String? = _poi.value?.authority,
         lat: Double? = _poi.value?.lat,
         lng: Double? = _poi.value?.lng,

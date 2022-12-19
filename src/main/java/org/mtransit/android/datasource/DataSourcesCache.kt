@@ -13,55 +13,55 @@ class DataSourcesCache @Inject constructor(
 
     private fun agencyPropertiesDao() = dataSourcesDatabase.agencyPropertiesDao()
 
-    fun getAllAgencies() = agencyPropertiesDao().getAllAgencies()
+    suspend fun getAllAgencies() = agencyPropertiesDao().getAllAgencies()
 
     fun readingAllAgencies() = agencyPropertiesDao().readingAllAgencies()
 
     fun readingAllAgenciesBase() = agencyPropertiesDao().readingAllAgenciesBase()
 
-    fun getAgency(authority: String) = agencyPropertiesDao().getAgency(authority)
+    suspend fun getAgency(authority: String) = agencyPropertiesDao().getAgency(authority)
 
     fun readingAgency(authority: String) = agencyPropertiesDao().readingAgency(authority)
 
     fun readingAgencyBase(authority: String) = agencyPropertiesDao().readingAgencyBase(authority)
 
-    fun getAllDataSourceTypes() = agencyPropertiesDao().getAllDataSourceTypes()
+    suspend fun getAllDataSourceTypes() = agencyPropertiesDao().getAllDataSourceTypes()
 
     fun readingAllDataSourceTypes() = agencyPropertiesDao().readingAllDataSourceTypes()
 
-    fun getTypeDataSources(dst: DataSourceType) = agencyPropertiesDao().getTypeDataSources(dst)
+    suspend fun getTypeDataSources(dst: DataSourceType) = agencyPropertiesDao().getTypeDataSources(dst)
 
     fun readingTypeDataSources(dst: DataSourceType) = agencyPropertiesDao().readingTypeDataSources(dst)
 
-    fun getAgencyPkg(authority: String) = agencyPropertiesDao().getAgencyPkg(authority)
+    suspend fun getAgencyPkg(authority: String) = agencyPropertiesDao().getAgencyPkg(authority)
 
-    fun getAgencyColorInt(authority: String) = agencyPropertiesDao().getAgencyColorInt(authority)
+    suspend fun getAgencyColorInt(authority: String) = agencyPropertiesDao().getAgencyColorInt(authority)
 
     // STATUS
 
     private fun statusProviderPropertiesDao() = dataSourcesDatabase.statusProviderPropertiesDao()
 
-    fun getAllStatusProviders() = statusProviderPropertiesDao().getAllStatusProvider()
+    suspend fun getAllStatusProviders() = statusProviderPropertiesDao().getAllStatusProvider()
 
     fun readingAllStatusProviders() = statusProviderPropertiesDao().readingAllStatusProviders()
 
-    fun getStatusProviders(targetAuthority: String) = statusProviderPropertiesDao().getTargetAuthorityStatusProvider(targetAuthority)
+    suspend fun getStatusProviders(targetAuthority: String) = statusProviderPropertiesDao().getTargetAuthorityStatusProvider(targetAuthority)
 
-    fun getStatusProvider(authority: String) = statusProviderPropertiesDao().getStatusProvider(authority)
+    suspend fun getStatusProvider(authority: String) = statusProviderPropertiesDao().getStatusProvider(authority)
 
     // SCHEDULE
 
     private fun scheduleProviderPropertiesDao() = dataSourcesDatabase.scheduleProviderPropertiesDao()
 
-    fun getAllScheduleProviders() = scheduleProviderPropertiesDao().getAllScheduleProvider()
+    suspend fun getAllScheduleProviders() = scheduleProviderPropertiesDao().getAllScheduleProvider()
 
     fun readingAllScheduleProviders() = scheduleProviderPropertiesDao().readingAllScheduleProvider()
 
-    fun getScheduleProviders(targetAuthority: String) = scheduleProviderPropertiesDao().getTargetAuthorityScheduleProviders(targetAuthority)
+    suspend fun getScheduleProviders(targetAuthority: String) = scheduleProviderPropertiesDao().getTargetAuthorityScheduleProviders(targetAuthority)
 
     fun readingScheduleProviders(targetAuthority: String?) = scheduleProviderPropertiesDao().readingTargetAuthorityScheduleProviders(targetAuthority)
 
-    fun getScheduleProvider(authority: String) = scheduleProviderPropertiesDao().getScheduleProvider(authority)
+    suspend fun getScheduleProvider(authority: String) = scheduleProviderPropertiesDao().getScheduleProvider(authority)
 
     fun readingScheduleProvider(authority: String) = scheduleProviderPropertiesDao().readingScheduleProvider(authority)
 
@@ -69,25 +69,26 @@ class DataSourcesCache @Inject constructor(
 
     private fun serviceUpdateProviderPropertiesDao() = dataSourcesDatabase.serviceUpdateProviderPropertiesDao()
 
-    fun getAllServiceUpdateProviders() = serviceUpdateProviderPropertiesDao().getAllServiceUpdateProvider()
+    suspend fun getAllServiceUpdateProviders() = serviceUpdateProviderPropertiesDao().getAllServiceUpdateProvider()
 
     fun readingAllServiceUpdateProviders() = serviceUpdateProviderPropertiesDao().readingAllServiceUpdateProvider()
 
-    fun getServiceUpdateProviders(targetAuthority: String) = serviceUpdateProviderPropertiesDao().getTargetAuthorityServiceUpdateProvider(targetAuthority)
+    suspend fun getServiceUpdateProviders(targetAuthority: String) =
+        serviceUpdateProviderPropertiesDao().getTargetAuthorityServiceUpdateProvider(targetAuthority)
 
-    fun getServiceUpdateProvider(authority: String) = serviceUpdateProviderPropertiesDao().getServiceUpdateProvider(authority)
+    suspend fun getServiceUpdateProvider(authority: String) = serviceUpdateProviderPropertiesDao().getServiceUpdateProvider(authority)
 
     // NEWS
 
     private fun newsProviderPropertiesDao() = dataSourcesDatabase.newsProviderPropertiesDao()
 
-    fun getAllNewsProviders() = newsProviderPropertiesDao().getAllNewsProvider()
+    suspend fun getAllNewsProviders() = newsProviderPropertiesDao().getAllNewsProvider()
 
     fun readingAllNewsProviders() = newsProviderPropertiesDao().readingAllNewsProvider()
 
-    fun getNewsProviders(targetAuthority: String) = newsProviderPropertiesDao().getTargetAuthorityNewsProviders(targetAuthority)
+    suspend fun getNewsProviders(targetAuthority: String) = newsProviderPropertiesDao().getTargetAuthorityNewsProviders(targetAuthority)
 
     fun readingNewsProviders(targetAuthority: String) = newsProviderPropertiesDao().readingTargetAuthorityNewsProviders(targetAuthority)
 
-    fun getNewsProvider(authority: String) = newsProviderPropertiesDao().getNewsProvider(authority)
+    suspend fun getNewsProvider(authority: String) = newsProviderPropertiesDao().getNewsProvider(authority)
 }

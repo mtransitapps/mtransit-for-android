@@ -54,7 +54,7 @@ class AgencyPOIsViewModel @Inject constructor(
         }
     }
 
-    private fun getPOIList(authority: String?): List<POIManager>? {
+    private suspend fun getPOIList(authority: String?): List<POIManager>? {
         if (authority.isNullOrEmpty()) {
             return null
         }
@@ -64,7 +64,7 @@ class AgencyPOIsViewModel @Inject constructor(
     val showingListInsteadOfMap: LiveData<Boolean> = _authority.switchMap { authority ->
         liveData {
             authority?.let {
-                if (demoModeManager.enabled) {
+                if (demoModeManager.isFullDemo()) {
                     emit(false) // show map (demo mode ON)
                     return@liveData
                 }
@@ -82,7 +82,7 @@ class AgencyPOIsViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     fun saveShowingListInsteadOfMap(showingListInsteadOfMap: Boolean) {
-        if (demoModeManager.enabled) {
+        if (demoModeManager.isFullDemo()) {
             return // SKIP (demo mode ON)
         }
         defaultPrefRepository.pref.edit {

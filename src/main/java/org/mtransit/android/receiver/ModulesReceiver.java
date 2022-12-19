@@ -21,6 +21,8 @@ import org.mtransit.android.dev.CrashReporter;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -32,6 +34,8 @@ import kotlin.coroutines.EmptyCoroutineContext;
 public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable {
 
 	private static final String LOG_TAG = ModulesReceiver.class.getSimpleName();
+
+	private final Executor backgroundExecutor = Executors.newSingleThreadExecutor();
 
 	@NonNull
 	@Override
@@ -137,8 +141,15 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 			for (ProviderInfo provider : providers) {
 				if (provider != null && provider.metaData != null) {
 					if (agencyProviderMetaData.equals(provider.metaData.getString(agencyProviderMetaData))) {
-						MTLog.i(this, "Ping: %s", provider.authority);
-						DataSourceManager.ping(context, provider.authority);
+						final PendingResult pendingResult = goAsync();
+						backgroundExecutor.execute(() -> {
+							try {
+								MTLog.i(this, "Ping: %s", provider.authority);
+								DataSourceManager.ping(context, provider.authority);
+							} finally {
+								pendingResult.finish(); // Must call finish() so the BroadcastReceiver can be recycled
+							}
+						});
 						return true;
 					}
 				}

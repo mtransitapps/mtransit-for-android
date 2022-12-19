@@ -101,7 +101,7 @@ public class MainActivity extends MTActivityWithLocation implements
 	protected void attachBaseContext(@NonNull Context newBase) {
 		final DemoModeManager demoModeManager = getEntryPoint(newBase).demoModeManager();
 		Context fixedBase;
-		if (demoModeManager.getEnabled()) {
+		if (demoModeManager.isForceLang()) {
 			fixedBase = demoModeManager.fixLocale(newBase);
 		} else {
 			fixedBase = LocaleUtils.attachBaseContextActivity(newBase);

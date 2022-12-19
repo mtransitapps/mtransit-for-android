@@ -438,7 +438,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		boolean appInstalled = PackageManagerUtils.isAppInstalled(context, filter.getPkg());
 		final boolean appEnabled = PackageManagerUtils.isAppEnabled(context, filter.getPkg());
 		final AgencyProperties agencyProperties = dataSourcesRepository().getAgencyForPkg(filter.getPkg());
-		if (getDemoModeManager().getEnabled()) {
+		if (getDemoModeManager().isFilteringAgency()) {
 			appInstalled = agencyProperties != null && agencyProperties.getAuthority().equals(getDemoModeManager().getFilterAgencyAuthority());
 		}
 		final boolean updateAvailable = agencyProperties != null && agencyProperties.getUpdateAvailable();

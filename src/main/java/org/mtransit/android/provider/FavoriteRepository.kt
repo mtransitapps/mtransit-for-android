@@ -23,21 +23,21 @@ class FavoriteRepository @Inject constructor(
     }
 
     fun findFavoriteUUIDs(): Set<String> {
-        if (demoModeManager.enabled) {
+        if (demoModeManager.isFullDemo()) {
             return emptySet()
         }
         return favoriteManager.findFavoriteUUIDs(appContext)
     }
 
     fun findFavorites(): List<Favorite> {
-        if (demoModeManager.enabled) {
+        if (demoModeManager.isFullDemo()) {
             return emptyList()
         }
         return favoriteManager.findFavorites(appContext)
     }
 
     fun findFoldersList(): List<Favorite.Folder> {
-        if (demoModeManager.enabled) {
+        if (demoModeManager.isFullDemo()) {
             return emptyList()
         }
         return favoriteManager.findFoldersList(appContext)
@@ -45,7 +45,7 @@ class FavoriteRepository @Inject constructor(
 
     @WorkerThread
     fun isFavorite(fkId: String): Boolean {
-        if (demoModeManager.enabled) {
+        if (demoModeManager.isFullDemo()) {
             return false
         }
         return favoriteManager.isFavorite(appContext, fkId)
@@ -53,7 +53,7 @@ class FavoriteRepository @Inject constructor(
 
     @Suppress("MemberVisibilityCanBePrivate")
     fun isFavoriteDataSourceId(favoriteFolderId: Int): Boolean {
-        if (demoModeManager.enabled) {
+        if (demoModeManager.isFullDemo()) {
             return false
         }
         return favoriteManager.isFavoriteDataSourceId(favoriteFolderId)

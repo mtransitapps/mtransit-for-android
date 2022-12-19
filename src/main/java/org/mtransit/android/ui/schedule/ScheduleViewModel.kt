@@ -128,7 +128,7 @@ class ScheduleViewModel @Inject constructor(
             }
         }
 
-    private fun getTimestamps(
+    private suspend fun getTimestamps(
         rts: RouteTripStop?,
         startsAtInMs: Long?,
         endAtInMS: Long?,

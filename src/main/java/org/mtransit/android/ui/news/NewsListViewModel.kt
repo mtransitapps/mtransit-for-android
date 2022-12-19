@@ -111,17 +111,17 @@ class NewsListViewModel @Inject constructor(
 
     fun onNewsArticleSelected(newAuthorityAndUuid: AuthorityAndUuid?) {
         // 1st: make sure it's null to avoid INVALID authority+uuid pair
-        val newAuthority = newAuthorityAndUuid?.getAuthority()?.authority
-        val newUuid = newAuthorityAndUuid?.getUuid()?.uuid
-        if (newAuthority != null && newAuthority != savedStateHandle[EXTRA_SELECTED_ARTICLE_AUTHORITY]) {
+        val newAuthority = newAuthorityAndUuid?.getAuthority()
+        val newUuid = newAuthorityAndUuid?.getUuid()
+        if (newAuthority != null && newAuthority.authority != savedStateHandle[EXTRA_SELECTED_ARTICLE_AUTHORITY]) {
             savedStateHandle[EXTRA_SELECTED_ARTICLE_AUTHORITY] = org.mtransit.android.data.Authority.INVALID
         }
-        if (newUuid != null && newUuid != savedStateHandle[EXTRA_SELECTED_ARTICLE_UUID]) {
+        if (newUuid != null && newUuid.uuid != savedStateHandle[EXTRA_SELECTED_ARTICLE_UUID]) {
             savedStateHandle[EXTRA_SELECTED_ARTICLE_UUID] = org.mtransit.android.data.Uuid.INVALID
         }
         // 2nd: set the new value
-        savedStateHandle[EXTRA_SELECTED_ARTICLE_AUTHORITY] = newAuthority
-        savedStateHandle[EXTRA_SELECTED_ARTICLE_UUID] = newUuid
+        savedStateHandle[EXTRA_SELECTED_ARTICLE_AUTHORITY] = newAuthority?.authority
+        savedStateHandle[EXTRA_SELECTED_ARTICLE_UUID] = newUuid?.uuid
         if (newAuthorityAndUuid != null) {
             this._lastReadArticleAuthorityAndUUID.value = newAuthorityAndUuid
         }

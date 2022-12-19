@@ -84,7 +84,11 @@ class ScheduleDayViewModel @Inject constructor(
             }
         }
 
-    private fun getTimestamps(rts: RouteTripStop?, startsAtInMs: Long?, scheduleProviders: List<ScheduleProviderProperties>?): List<Schedule.Timestamp>? {
+    private suspend fun getTimestamps(
+        rts: RouteTripStop?,
+        startsAtInMs: Long?,
+        scheduleProviders: List<ScheduleProviderProperties>?
+    ): List<Schedule.Timestamp>? {
         if (rts == null || startsAtInMs == null || scheduleProviders == null) {
             MTLog.d(this, "getTimestamps() > SKIP (no RTS OR no day start OR no schedule providers)")
             return null // not loaded (loading)

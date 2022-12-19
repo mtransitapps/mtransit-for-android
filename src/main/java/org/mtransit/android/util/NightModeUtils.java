@@ -80,7 +80,7 @@ public final class NightModeUtils implements MTLog.Loggable {
 										  @Nullable DemoModeManager demoModeManager) {
 		String themePref = PreferenceUtils.getPrefDefaultNN(context,
 				PreferenceUtils.PREFS_THEME, PreferenceUtils.PREFS_THEME_DEFAULT);
-		if (demoModeManager != null && demoModeManager.getEnabled()) {
+		if (demoModeManager != null && demoModeManager.isFullDemo()) {
 			themePref = PreferenceUtils.PREFS_THEME_LIGHT; // light for screenshots (demo mode ON)
 		}
 		switch (themePref) {

@@ -72,7 +72,7 @@ class RTSTripStopsViewModel @Inject constructor(
         }
     }
 
-    private fun getPOIList(agencyAuthority: String?, tripId: Long?): List<POIManager>? {
+    private suspend fun getPOIList(agencyAuthority: String?, tripId: Long?): List<POIManager>? {
         if (agencyAuthority == null || tripId == null) {
             return null
         }
@@ -97,7 +97,7 @@ class RTSTripStopsViewModel @Inject constructor(
             if (authority == null || routeId == null || tripId == null) {
                 return@liveData // SKIP
             }
-            if (demoModeManager.enabled) {
+            if (demoModeManager.isFullDemo()) {
                 emit(false) // show map (demo mode ON)
                 return@liveData
             }
@@ -111,7 +111,7 @@ class RTSTripStopsViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     fun saveShowingListInsteadOfMap(showingListInsteadOfMap: Boolean) {
-        if (demoModeManager.enabled) {
+        if (demoModeManager.isFullDemo()) {
             return // SKIP (demo mode ON)
         }
         lclPrefRepository.pref.edit {

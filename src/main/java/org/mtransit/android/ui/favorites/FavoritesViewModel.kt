@@ -56,7 +56,7 @@ class FavoritesViewModel @Inject constructor(
             }
         }
 
-    private fun getFavorites(agencies: List<IAgencyProperties>?): List<POIManager>? {
+    private suspend fun getFavorites(agencies: List<IAgencyProperties>?): List<POIManager>? {
         if (agencies.isNullOrEmpty()) {
             MTLog.d(this, "getFavorites() > SKIP (no agencies)")
             return null // loading

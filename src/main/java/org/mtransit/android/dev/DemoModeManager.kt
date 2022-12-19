@@ -9,6 +9,7 @@ import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.LocationUtils
@@ -57,40 +58,18 @@ class DemoModeManager @Inject constructor(
 
     var filterAgencyAuthority: String? = null
     private var filterAgency: AgencyProperties? = null
+    fun isFilteringAgency() = !filterAgencyAuthority.isNullOrBlank()
 
     private val filterAgencyType: DataSourceType?
         get() = this.filterAgency?.type
 
     val filterAgencyTypeId: Int?
         get() = this.filterAgencyType?.id
-    private val filterAgencyLocation: Location?
-        get() {
-            return this.filterAgency?.let { agency ->
-                val isHomeScreen = this.filterScreen == FILTER_SCREEN_HOME
-                val lat = agency.area.centerLat - if (!isHomeScreen) ((agency.area.maxLat - agency.area.minLat) / 4.00) else 0.00
-                val lng = agency.area.centerLng
-                findNearbyPOIM(lat, lng, agency)?.let { poim ->
-                    LatLngBounds.builder()
-                        .include(LatLng(lat, lng))
-                        .include(LatLng(poim.lat, poim.lng))
-                        .build().center.let {
-                            return LocationUtils.getNewLocation(it.latitude, it.longitude, 77f)
-                        }
-                }
-                return LocationUtils.getNewLocation(lat, lng, 77f)
-            }
-        }
+    private var filterAgencyLocation: Location? = null
 
-    private val filterAgencyPOIM: POIManager?
-        get() {
-            return this.filterAgency?.let { agency ->
-                val lat = agency.area.centerLat + ((agency.area.maxLat - agency.area.minLat) / 4.00)
-                val lng = agency.area.centerLng
-                findNearbyPOIM(lat, lng, agency)
-            }
-        }
+    private var filterAgencyPOIM: POIManager? = null
 
-    private fun findNearbyPOIM(
+    private suspend fun findNearbyPOIM(
         lat: Double,
         lng: Double,
         agency: AgencyProperties,
@@ -122,17 +101,19 @@ class DemoModeManager @Inject constructor(
     val filterLocation: Location?
         get() = this.filterAgencyLocation
 
+    fun isFilterLocation() = isFilteringAgency()
+
     private var filterScreen: String? = null
 
     val filterUUID: String?
         get() = filterAgencyPOIM?.poi?.uuid
     private var forceLang: String? = null
+    fun isForceLang() = !forceLang.isNullOrBlank()
 
     val enabled: Boolean
-        get() = filterAgencyAuthority != null && filterScreen != null && forceLang != null
+        get() = (BuildConfig.DEBUG && (filterAgencyAuthority != null || filterScreen != null || forceLang != null)) || isFullDemo()
 
-    val notEnabled: Boolean
-        get() = !enabled
+    fun isFullDemo(): Boolean = filterAgencyAuthority != null && filterScreen != null && forceLang != null
 
     suspend fun read(savedStateHandle: SavedStateHandle, dataSourcesCache: DataSourcesCache) {
         filterAgencyAuthority = savedStateHandle[FILTER_AGENCY_AUTHORITY]
@@ -158,10 +139,31 @@ class DemoModeManager @Inject constructor(
         filterAgencyAuthority?.let { authority ->
             filterAgency = dataSourcesCache.getAgency(authority)
         }
+
+        filterAgencyPOIM = filterAgency?.let { agency ->
+            val lat = agency.area.centerLat + ((agency.area.maxLat - agency.area.minLat) / 4.00)
+            val lng = agency.area.centerLng
+            findNearbyPOIM(lat, lng, agency)
+        }
+
+        filterAgencyLocation = filterAgency?.let { agency ->
+            val isHomeScreen = filterScreen == FILTER_SCREEN_HOME
+            val lat = agency.area.centerLat - if (!isHomeScreen) ((agency.area.maxLat - agency.area.minLat) / 4.00) else 0.00
+            val lng = agency.area.centerLng
+            findNearbyPOIM(lat, lng, agency)?.let { poim ->
+                LatLngBounds.builder()
+                    .include(LatLng(lat, lng))
+                    .include(LatLng(poim.lat, poim.lng))
+                    .build().center.let {
+                        LocationUtils.getNewLocation(it.latitude, it.longitude, 77f)
+                    }
+            }
+            LocationUtils.getNewLocation(lat, lng, 77f)
+        }
     }
 
     fun isEnabledPOIScreen(): Boolean {
-        if (notEnabled) {
+        if (!enabled) {
             return false
         }
         if (filterScreen != FILTER_SCREEN_POI) {
@@ -174,7 +176,7 @@ class DemoModeManager @Inject constructor(
     }
 
     fun isEnabledBrowseScreen(): Boolean {
-        if (notEnabled) {
+        if (!enabled) {
             return false
         }
         if (filterScreen != FILTER_SCREEN_BROWSE) {
@@ -191,7 +193,7 @@ class DemoModeManager @Inject constructor(
     fun isAllowedAnyway(targeted: ITargetedProviderProperties?) = this.allowedTargeted.contains(targeted?.authority)
 
     fun fixLocale(_newBase: Context): Context {
-        if (notEnabled && forceLang == null) {
+        if (!enabled && forceLang == null) {
             return _newBase
         }
         var newBase = _newBase
@@ -211,7 +213,7 @@ class DemoModeManager @Inject constructor(
 }
 
 fun <T : IAgencyProperties> List<T>.filterDemoModeAgency(demoModeManager: DemoModeManager): List<T> {
-    if (demoModeManager.notEnabled) {
+    if (!demoModeManager.isFilteringAgency()) {
         return this
     }
     return filterTo(ArrayList()) { agency ->
@@ -220,14 +222,14 @@ fun <T : IAgencyProperties> List<T>.filterDemoModeAgency(demoModeManager: DemoMo
 }
 
 fun <T : IAgencyProperties> T?.takeIfDemoModeAgency(demoModeManager: DemoModeManager): T? {
-    if (demoModeManager.notEnabled) {
+    if (!demoModeManager.isFilteringAgency()) {
         return this
     }
     return if (demoModeManager.filterAgencyAuthority == this?.authority || demoModeManager.isAllowedAnyway(this)) this else null
 }
 
 fun List<DataSourceType>.filterDemoModeType(demoModeManager: DemoModeManager): List<DataSourceType> {
-    if (demoModeManager.notEnabled) {
+    if (!demoModeManager.isFilteringAgency()) {
         return this
     }
     return filterTo(ArrayList()) { type ->
@@ -236,7 +238,7 @@ fun List<DataSourceType>.filterDemoModeType(demoModeManager: DemoModeManager): L
 }
 
 fun <T : ITargetedProviderProperties> List<T>.filterDemoModeTargeted(demoModeManager: DemoModeManager): List<T> {
-    if (demoModeManager.notEnabled) {
+    if (!demoModeManager.isFilteringAgency()) {
         return this
     }
     return filterTo(ArrayList()) { targeted ->
@@ -245,7 +247,7 @@ fun <T : ITargetedProviderProperties> List<T>.filterDemoModeTargeted(demoModeMan
 }
 
 fun <T : ITargetedProviderProperties> Set<T>.filterDemoModeTargeted(demoModeManager: DemoModeManager): Set<T> {
-    if (demoModeManager.notEnabled) {
+    if (!demoModeManager.isFilteringAgency()) {
         return this
     }
     return filterTo(HashSet()) { targeted ->
@@ -254,7 +256,7 @@ fun <T : ITargetedProviderProperties> Set<T>.filterDemoModeTargeted(demoModeMana
 }
 
 fun <T : ITargetedProviderProperties> T?.takeIfDemoModeTargeted(demoModeManager: DemoModeManager): T? {
-    if (demoModeManager.notEnabled) {
+    if (!demoModeManager.isFilteringAgency()) {
         return this
     }
     return if (demoModeManager.filterAgencyAuthority == this?.targetAuthority || demoModeManager.isAllowedAnyway(this)) this else null

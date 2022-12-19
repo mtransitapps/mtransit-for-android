@@ -188,7 +188,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			}
 			String itemId = PreferenceUtils.getPrefLcl(context, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT);
 			final DemoModeManager demoModeManager = navigationDrawerController.demoModeManager;
-			if (demoModeManager.getEnabled()) {
+			if (demoModeManager.isFullDemo()) {
 				itemId = ITEM_ID_SELECTED_SCREEN_DEFAULT;
 				if (demoModeManager.isEnabledBrowseScreen()) {
 					itemId = ITEM_ID_AGENCY_TYPE_START_WITH + demoModeManager.getFilterTypeId();
@@ -338,7 +338,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			return;
 		}
 		String itemId = PreferenceUtils.getPrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, ITEM_ID_SELECTED_SCREEN_DEFAULT);
-		if (demoModeManager.getEnabled()) {
+		if (demoModeManager.isFullDemo()) {
 			itemId = ITEM_ID_SELECTED_SCREEN_DEFAULT;
 			if (demoModeManager.isEnabledBrowseScreen()) {
 				itemId = ITEM_ID_AGENCY_TYPE_START_WITH + demoModeManager.getFilterTypeId();
@@ -498,7 +498,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		this.statusLoader.clearAllTasks();
 		this.serviceUpdateLoader.clearAllTasks();
 		mainActivity.showNewFragment(newFragment, false, null);
-		if (demoModeManager.getEnabled()) {
+		if (demoModeManager.isFullDemo()) {
 			return; // SKIP (demo mode ON)
 		}
 		if (isRootScreen(navItemId)) {

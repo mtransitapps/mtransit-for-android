@@ -146,7 +146,7 @@ class DataSourcesReader @Inject constructor(
         return updated
     }
 
-    internal fun refreshAvailableVersions(
+    internal suspend fun refreshAvailableVersions(
         skipTimeCheck: Boolean = false,
         forceAppUpdateRefresh: Boolean = false,
         markUpdated: () -> Unit,
@@ -177,7 +177,7 @@ class DataSourcesReader @Inject constructor(
         lclPrefRepository.saveAsync(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis())
     }
 
-    private fun lookForNewDataSources(
+    private suspend fun lookForNewDataSources(
         forcePkg: String? = null,
         markUpdated: () -> Unit,
     ) {
@@ -265,7 +265,7 @@ class DataSourcesReader @Inject constructor(
         }
     }
 
-    private fun updateReInstalledReEnabledDataSources(
+    private suspend fun updateReInstalledReEnabledDataSources(
         forcePkg: String? = null,
         markUpdated: () -> Unit
     ) { // UPDATE NOT-VISIBLE KNOWN DATA SOURCES (uninstalled | disabled & check version)
@@ -312,7 +312,7 @@ class DataSourcesReader @Inject constructor(
         }
     }
 
-    private fun updateKnownActiveDataSources(
+    private suspend fun updateKnownActiveDataSources(
         forcePkg: String? = null,
         markUpdated: () -> Unit
     ) { // UPDATE KNOWN ACTIVE DATA SOURCES (installed & enabled & check version)
@@ -374,7 +374,7 @@ class DataSourcesReader @Inject constructor(
         }
     }
 
-    private fun updateDisabledAgencyProperties(agencyProperties: AgencyProperties, authority: String, markUpdated: () -> Unit) {
+    private suspend fun updateDisabledAgencyProperties(agencyProperties: AgencyProperties, authority: String, markUpdated: () -> Unit) {
         if (agencyProperties.isEnabled) {
             MTLog.d(this, "Agency '$authority' disabled.")
             dataSourcesDatabase.agencyPropertiesDao().update(
@@ -384,7 +384,7 @@ class DataSourcesReader @Inject constructor(
         }
     }
 
-    private fun updateUninstalledAgencyProperties(agencyProperties: AgencyProperties, authority: String, markUpdated: () -> Unit) {
+    private suspend fun updateUninstalledAgencyProperties(agencyProperties: AgencyProperties, authority: String, markUpdated: () -> Unit) {
         if (agencyProperties.isInstalled) {
             MTLog.d(this, "Agency '$authority' uninstalled.")
             dataSourcesDatabase.agencyPropertiesDao().update(
@@ -394,7 +394,7 @@ class DataSourcesReader @Inject constructor(
         }
     }
 
-    private fun refreshAgencyProperties(
+    private suspend fun refreshAgencyProperties(
         pkg: String,
         agencyAuthority: String,
         agencyProperties: AgencyProperties? = null, // NEW
@@ -467,7 +467,7 @@ class DataSourcesReader @Inject constructor(
         }
     }
 
-    private fun refreshStatusProviderProperties(statusProviderProperties: StatusProviderProperties, markUpdated: () -> Unit) {
+    private suspend fun refreshStatusProviderProperties(statusProviderProperties: StatusProviderProperties, markUpdated: () -> Unit) {
         val pkg = statusProviderProperties.pkg
         val authority = statusProviderProperties.authority
         if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
@@ -508,7 +508,7 @@ class DataSourcesReader @Inject constructor(
         }
     }
 
-    private fun refreshScheduleProviderProperties(scheduleProviderProperties: ScheduleProviderProperties, markUpdated: () -> Unit) {
+    private suspend fun refreshScheduleProviderProperties(scheduleProviderProperties: ScheduleProviderProperties, markUpdated: () -> Unit) {
         val pkg = scheduleProviderProperties.pkg
         val authority = scheduleProviderProperties.authority
         if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
@@ -549,7 +549,7 @@ class DataSourcesReader @Inject constructor(
         }
     }
 
-    private fun refreshServiceUpdateProviderProperties(serviceUpdateProviderProperties: ServiceUpdateProviderProperties, markUpdated: () -> Unit) {
+    private suspend fun refreshServiceUpdateProviderProperties(serviceUpdateProviderProperties: ServiceUpdateProviderProperties, markUpdated: () -> Unit) {
         val pkg = serviceUpdateProviderProperties.pkg
         val authority = serviceUpdateProviderProperties.authority
         if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
@@ -590,7 +590,7 @@ class DataSourcesReader @Inject constructor(
         }
     }
 
-    private fun refreshNewsProviderProperties(newsProviderProperties: NewsProviderProperties, markUpdated: () -> Unit) {
+    private suspend fun refreshNewsProviderProperties(newsProviderProperties: NewsProviderProperties, markUpdated: () -> Unit) {
         val pkg = newsProviderProperties.pkg
         val authority = newsProviderProperties.authority
         if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {

@@ -69,7 +69,7 @@ class PickPOIViewModel @Inject constructor(
         }
     }
 
-    private fun getPOIList(uuids: List<String>?, authorities: List<String>?): List<POIManager>? {
+    private suspend fun getPOIList(uuids: List<String>?, authorities: List<String>?): List<POIManager>? {
         if (uuids == null || authorities == null) {
             return null
         }

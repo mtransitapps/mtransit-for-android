@@ -113,8 +113,8 @@ class NewsListAdapter(
     fun getItemPosition(authorityAndUuid: AuthorityAndUuid?): Int? {
         return authorityAndUuid?.let {
             currentList.indexOfFirst {
-                it.authorityT.authority == authorityAndUuid.getAuthority().authority
-                        && it.uuidT.uuid == authorityAndUuid.getUuid().uuid
+                it.authorityT == authorityAndUuid.getAuthority()
+                        && it.uuidT == authorityAndUuid.getUuid()
             }.takeIf { it >= 0 }
         } ?: run {
             MTLog.d(this, "getItemPosition() > No news article for '$authorityAndUuid'!")

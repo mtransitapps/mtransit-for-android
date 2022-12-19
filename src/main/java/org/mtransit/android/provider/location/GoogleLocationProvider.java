@@ -224,7 +224,7 @@ public class GoogleLocationProvider
 		if (FakeLocation.ENABLED) {
 			lastLocation = FakeLocation.getLocation();
 		}
-		if (demoModeManager.getEnabled()) {
+		if (demoModeManager.isFilterLocation()) {
 			final Location filterLocation = demoModeManager.getFilterLocation();
 			if (filterLocation != null) {
 				lastLocation = filterLocation;

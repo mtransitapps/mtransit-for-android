@@ -15,10 +15,10 @@ import org.mtransit.commons.sql.SQLUtils.BOOLEAN_TRUE
 interface AgencyPropertiesDao : BaseDao<AgencyProperties> {
 
     @Query("SELECT * FROM agency_properties")
-    fun getAllAgenciesInclNotInstalled(): List<AgencyProperties>
+    suspend fun getAllAgenciesInclNotInstalled(): List<AgencyProperties>
 
     @Query("SELECT * FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE")
-    fun getAllAgencies(): List<AgencyProperties>
+    suspend fun getAllAgencies(): List<AgencyProperties>
 
     @Query("SELECT * FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE")
     fun readingAllAgencies(): LiveData<List<AgencyProperties>>
@@ -28,28 +28,28 @@ interface AgencyPropertiesDao : BaseDao<AgencyProperties> {
     fun readingAllAgenciesBase(): LiveData<List<AgencyBaseProperties>>
 
     @Query("SELECT * FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE AND is_enabled = $BOOLEAN_TRUE")
-    fun getAllEnabledAgencies(): List<AgencyProperties>
+    suspend fun getAllEnabledAgencies(): List<AgencyProperties>
 
     @Query("SELECT * FROM agency_properties WHERE is_installed = $BOOLEAN_FALSE OR is_enabled = $BOOLEAN_FALSE")
-    fun getAllNotInstalledOrNotEnabledAgencies(): List<AgencyProperties>
+    suspend fun getAllNotInstalledOrNotEnabledAgencies(): List<AgencyProperties>
 
     @Query("SELECT COUNT(*) FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE")
-    fun getAllAgenciesCount(): Int
+    suspend fun getAllAgenciesCount(): Int
 
     @Query("SELECT COUNT(*) FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE")
     fun readingAllAgenciesCount(): LiveData<Int>
 
     @Query("SELECT COUNT(*) FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE AND is_enabled = $BOOLEAN_TRUE")
-    fun getAllEnabledAgenciesCount(): Int
+    suspend fun getAllEnabledAgenciesCount(): Int
 
     @Query("SELECT DISTINCT type FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE")
-    fun getAllDataSourceTypes(): List<DataSourceType>
+    suspend fun getAllDataSourceTypes(): List<DataSourceType>
 
     @Query("SELECT DISTINCT type FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE")
     fun readingAllDataSourceTypes(): LiveData<List<DataSourceType>>
 
     @Query("SELECT * FROM agency_properties WHERE id = :authority")
-    fun getAgency(authority: String): AgencyProperties?
+    suspend fun getAgency(authority: String): AgencyProperties?
 
     @Query("SELECT * FROM agency_properties WHERE id = :authority AND is_installed = $BOOLEAN_TRUE")
     fun readingAgency(authority: String): LiveData<AgencyProperties?>
@@ -59,13 +59,13 @@ interface AgencyPropertiesDao : BaseDao<AgencyProperties> {
     fun readingAgencyBase(authority: String): LiveData<AgencyBaseProperties?>
 
     @Query("SELECT pkg FROM agency_properties WHERE id = :authority")
-    fun getAgencyPkg(authority: String): String
+    suspend fun getAgencyPkg(authority: String): String
 
     @Query("SELECT color_int FROM agency_properties WHERE id = :authority")
-    fun getAgencyColorInt(authority: String): Int?
+    suspend fun getAgencyColorInt(authority: String): Int?
 
     @Query("SELECT * FROM agency_properties WHERE type = :dst")
-    fun getTypeDataSources(dst: DataSourceType): List<AgencyProperties>
+    suspend fun getTypeDataSources(dst: DataSourceType): List<AgencyProperties>
 
     @Query("SELECT * FROM agency_properties WHERE type = :dst")
     fun readingTypeDataSources(dst: DataSourceType): LiveData<List<AgencyProperties>>

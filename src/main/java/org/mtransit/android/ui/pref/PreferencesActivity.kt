@@ -50,7 +50,7 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
 
     override fun attachBaseContext(newBase: Context) {
         val demoModeManager = getEntryPoint(newBase).demoModeManager
-        val fixedBase = if (demoModeManager.enabled) {
+        val fixedBase = if (demoModeManager.isForceLang()) {
             demoModeManager.fixLocale(newBase)
         } else {
             LocaleUtils.attachBaseContextActivity(newBase)

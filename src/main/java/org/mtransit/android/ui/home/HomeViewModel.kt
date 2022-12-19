@@ -227,7 +227,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getTypeNearbyPOIs(
+    private suspend fun getTypeNearbyPOIs(
         scope: CoroutineScope,
         typeAgencies: List<IAgencyNearbyProperties>,
         typeLat: Double,
@@ -242,7 +242,7 @@ class HomeViewModel @Inject constructor(
         while (true) {
             scope.ensureActive()
             typePOIs = getAreaTypeNearbyPOIs(scope, typeLat, typeLng, typeAd, lastTypeAroundDiff, typeMaxSize, typeMinCoverageInMeters, typeAgencies)
-            if (this.demoModeManager.enabled) { // filter now to get min number of POI
+            if (this.demoModeManager.isFullDemo()) { // filter now to get min number of POI
                 typePOIs = typePOIs.distinctBy { poim ->
                     if (poim.poi is RouteTripStop) {
                         "${poim.poi.route.id}-${poim.poi.trip.id}"
@@ -269,7 +269,7 @@ class HomeViewModel @Inject constructor(
         nbMaxByType: Int,
     ) = when {
         LocationUtils.searchComplete(typeLat, typeLng, typeAd.aroundDiff) -> false // world exploration completed
-        this.demoModeManager.enabled && typePOIs.size < DemoModeManager.MIN_POI_HOME_SCREEN -> true // continue
+        this.demoModeManager.isFullDemo() && typePOIs.size < DemoModeManager.MIN_POI_HOME_SCREEN -> true // continue
         typePOIs.size > nbMaxByType
                 && LocationUtils.getAroundCoveredDistanceInMeters(typeLat, typeLng, typeAd.aroundDiff) >= typeMinCoverageInMeters -> {
             false  // enough POIs / type & enough distance covered
@@ -277,7 +277,7 @@ class HomeViewModel @Inject constructor(
         else -> true  // continue
     }
 
-    private fun getAreaTypeNearbyPOIs(
+    private suspend fun getAreaTypeNearbyPOIs(
         scope: CoroutineScope,
         lat: Double,
         lng: Double,
@@ -306,13 +306,13 @@ class HomeViewModel @Inject constructor(
                         ?.removeTooFar(maxDistance)
                         ?.removeTooMuchWhenNotInCoverage(
                             typeMinCoverageInMeters,
-                            if (this.demoModeManager.enabled) Int.MAX_VALUE else maxSize // keep all
+                            if (this.demoModeManager.isFullDemo()) Int.MAX_VALUE else maxSize // keep all
                         )
                 )
             }
         typePOIs.removeTooMuchWhenNotInCoverage(
             typeMinCoverageInMeters,
-            if (this.demoModeManager.enabled) Int.MAX_VALUE else maxSize // keep all
+            if (this.demoModeManager.isFullDemo()) Int.MAX_VALUE else maxSize // keep all
         )
         return typePOIs
     }

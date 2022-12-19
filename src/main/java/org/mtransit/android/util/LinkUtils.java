@@ -36,6 +36,7 @@ import org.mtransit.android.data.IAgencyProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.fragment.WebBrowserFragment;
+import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;
@@ -43,6 +44,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("unused")
 public final class LinkUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = LinkUtils.class.getSimpleName();
@@ -90,7 +92,7 @@ public final class LinkUtils implements MTLog.Loggable {
 								// TODO ? .addSharedElement(view, view.getTransitionName())
 								.build();
 					}
-					navController.navigate(
+					NavControllerExtKt.navigateF(navController,
 							R.id.nav_to_web_screen,
 							WebBrowserFragment.newInstanceArgs(url),
 							null,

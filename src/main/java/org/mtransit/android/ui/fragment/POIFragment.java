@@ -86,6 +86,7 @@ import org.mtransit.android.ui.view.common.FragmentKtxKt;
 import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.ui.view.common.ImageManager;
 import org.mtransit.android.ui.view.common.MTTransitions;
+import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
@@ -404,7 +405,7 @@ public class POIFragment extends ABFragment implements
 						// TODO marker? .addSharedElement(view, view.getTransitionName())
 						.build();
 			}
-			navController.navigate(
+			NavControllerExtKt.navigateF(navController,
 					R.id.nav_to_map_screen,
 					MapFragment.newInstanceArgs(poim),
 					null,
@@ -515,7 +516,7 @@ public class POIFragment extends ABFragment implements
 										// TODO button? .addSharedElement(view, view.getTransitionName())
 										.build();
 							}
-							navController.navigate(
+							NavControllerExtKt.navigateF(navController,
 									R.id.nav_to_news_detail_screen,
 									NewsListDetailFragment.newInstanceArgs(
 											poim.getColor(dataSourcesRepository),
@@ -669,7 +670,7 @@ public class POIFragment extends ABFragment implements
 									// TODO button? .addSharedElement(view, view.getTransitionName())
 									.build();
 						}
-						navController.navigate(
+						NavControllerExtKt.navigateF(navController,
 								R.id.nav_to_schedule_screen,
 								ScheduleFragment.newInstanceArgs(poim, dataSourcesRepository),
 								null,
@@ -711,7 +712,7 @@ public class POIFragment extends ABFragment implements
 								// TODO button? .addSharedElement(view, view.getTransitionName())
 								.build();
 					}
-					navController.navigate(
+					NavControllerExtKt.navigateF(navController,
 							R.id.nav_to_news_screen,
 							NewsListDetailFragment.newInstanceArgs(
 									poim.getColor(dataSourcesRepository),
@@ -762,7 +763,7 @@ public class POIFragment extends ABFragment implements
 								// TODO button? .addSharedElement(view, view.getTransitionName())
 								.build();
 					}
-					navController.navigate(
+					NavControllerExtKt.navigateF(navController,
 							R.id.nav_to_nearby_screen,
 							NearbyFragment.newFixedOnPOIInstanceArgs(poim, dataSourcesRepository, false),
 							null,
@@ -1115,7 +1116,7 @@ public class POIFragment extends ABFragment implements
 		}
 		final IAgencyUpdatableProperties agency = getAgencyOrNull();
 		boolean appUpdateAvailable = agency != null && agency.getUpdateAvailable();
-		if (demoModeManager.getEnabled()) {
+		if (demoModeManager.isFullDemo()) {
 			appUpdateAvailable = false; // always false (demo mode ON)
 		}
 		final String pkg = agency == null ? "" : agency.getPkg();

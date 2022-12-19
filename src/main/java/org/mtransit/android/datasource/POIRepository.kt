@@ -56,11 +56,11 @@ class POIRepository(
         return authorityUUIDtoPOIMCache[authority to uuid]
     }
 
-    fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? {
+    suspend fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? {
         return dataSourceRequestManager.findPOI(authority, poiFilter)
     }
 
-    fun findPOIM(authority: String, poiFilter: POIProviderContract.Filter): POIManager? {
+    suspend fun findPOIM(authority: String, poiFilter: POIProviderContract.Filter): POIManager? {
         return dataSourceRequestManager.findPOIM(authority, poiFilter)
     }
 
@@ -78,7 +78,7 @@ class POIRepository(
             MTLog.d(this@POIRepository, "readingPOIM() > SKIP (no authority OR no UUID)")
         } else {
             val cachePOIM = read(authority, uuid)
-            cachePOIM?.let { emit(it) }
+                ?.also { emit(it) }
             dataSourceRequestManager.findPOIM(authority, POIProviderContract.Filter.getNewUUIDFilter(uuid))?.let { newPOIM ->
                 if (cachePOIM == null // no cache POI
                     || newPOIM.poi != cachePOIM.poi // new POI != cache POI
@@ -96,13 +96,13 @@ class POIRepository(
         }
     }.distinctUntilChanged()
 
-    fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI>? {
+    suspend fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI>? {
         return dataSourceRequestManager.findPOIs(authority, poiFilter)
     }
 
-    fun findPOIMs(provider: IAgencyProperties, poiFilter: POIProviderContract.Filter) = findPOIMs(provider.authority, poiFilter)
+    suspend fun findPOIMs(provider: IAgencyProperties, poiFilter: POIProviderContract.Filter) = findPOIMs(provider.authority, poiFilter)
 
-    fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): MutableList<POIManager>? {
+    suspend fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): MutableList<POIManager>? {
         return dataSourceRequestManager.findPOIMs(authority, poiFilter)
     }
 

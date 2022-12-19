@@ -42,6 +42,7 @@ import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.rts.route.RTSRouteFragment;
 import org.mtransit.android.ui.view.common.MTTransitions;
+import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.android.util.UIDirectionUtils;
 import org.mtransit.commons.FeatureFlags;
 
@@ -345,7 +346,7 @@ public class POIViewController implements MTLog.Loggable {
 		holder.nameTv.setText(poi.getLabel());
 		final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
 		holder.nameTv.setSingleLine(true); // marquee forever
-		holder.nameTv.setSelected(!demoModeManager.getEnabled()); // marquee forever
+		holder.nameTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever
 		if (dataProvider.isShowingFavorite() && dataProvider.isFavorite(poi.getUUID())) {
 			holder.favImg.setVisibility(View.VISIBLE);
 		} else {
@@ -534,7 +535,7 @@ public class POIViewController implements MTLog.Loggable {
 					);
 					final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
 					holder.tripHeadingTv.setSingleLine(true); // marquee forever
-					holder.tripHeadingTv.setSelected(!demoModeManager.getEnabled()); // marquee forever
+					holder.tripHeadingTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}
 				//noinspection ConstantConditions // stop always non-null?
@@ -549,7 +550,7 @@ public class POIViewController implements MTLog.Loggable {
 									.addSharedElement(view, view.getTransitionName())
 									.build();
 						}
-						navController.navigate(
+						NavControllerExtKt.navigateF(navController,
 								R.id.nav_to_rts_route_screen,
 								RTSRouteFragment.newInstanceArgs(rts),
 								null,
@@ -641,7 +642,7 @@ public class POIViewController implements MTLog.Loggable {
 					);
 					final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
 					holder.tripHeadingTv.setSingleLine(true); // marquee forever
-					holder.tripHeadingTv.setSelected(!demoModeManager.getEnabled()); // marquee forever
+					holder.tripHeadingTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever
 					holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				}
 				holder.rtsExtraV.setBackgroundColor(poim.getColor(dataProvider.providesDataSourcesRepository()));
@@ -657,7 +658,7 @@ public class POIViewController implements MTLog.Loggable {
 									.addSharedElement(view, view.getTransitionName())
 									.build();
 						}
-						navController.navigate(
+						NavControllerExtKt.navigateF(navController,
 								R.id.nav_to_rts_route_screen,
 								RTSRouteFragment.newInstanceArgs(rts),
 								null,
@@ -1043,7 +1044,7 @@ public class POIViewController implements MTLog.Loggable {
 		holder.nameTv.setText(poi.getLabel());
 		final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
 		holder.nameTv.setSingleLine(true); // marquee forever
-		holder.nameTv.setSelected(!demoModeManager.getEnabled()); // marquee forever
+		holder.nameTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever
 		updatePOIDistanceAndCompass(holder, poim, dataProvider);
 		if (dataProvider.isShowingFavorite() && dataProvider.isFavorite(poi.getUUID())) {
 			holder.favImg.setVisibility(View.VISIBLE);

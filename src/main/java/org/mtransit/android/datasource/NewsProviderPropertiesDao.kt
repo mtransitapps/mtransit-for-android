@@ -10,16 +10,16 @@ import org.mtransit.android.data.NewsProviderProperties
 interface NewsProviderPropertiesDao : BaseDao<NewsProviderProperties> {
 
     @Query("SELECT * FROM news_provider_properties")
-    fun getAllNewsProvider(): List<NewsProviderProperties>
+    suspend fun getAllNewsProvider(): List<NewsProviderProperties>
 
     @Query("SELECT * FROM news_provider_properties")
     fun readingAllNewsProvider(): LiveData<List<NewsProviderProperties>>
 
     @Query("SELECT * FROM news_provider_properties WHERE authority = :authority")
-    fun getNewsProvider(authority: String): NewsProviderProperties
+    suspend fun getNewsProvider(authority: String): NewsProviderProperties
 
     @Query("SELECT * FROM news_provider_properties WHERE target_authority = :targetAuthority")
-    fun getTargetAuthorityNewsProviders(targetAuthority: String): List<NewsProviderProperties>
+    suspend fun getTargetAuthorityNewsProviders(targetAuthority: String): List<NewsProviderProperties>
 
     @Query("SELECT * FROM news_provider_properties WHERE target_authority = :targetAuthority")
     fun readingTargetAuthorityNewsProviders(targetAuthority: String): LiveData<List<NewsProviderProperties>>
