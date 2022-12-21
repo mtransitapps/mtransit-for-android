@@ -137,7 +137,7 @@ class RTSAgencyRoutesFragment : MTFragmentX(R.layout.fragment_rts_agency_routes)
                         }
                     }
                     listGrid.apply {
-                        val scrollPosition = (layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: 0
+                        val scrollPosition = (layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
                         if (listInsteadOfGrid) { // LIST
                             if (layoutManager == null || layoutManager is GridLayoutManager) {
                                 removeItemDecoration(gridItemDecoration)

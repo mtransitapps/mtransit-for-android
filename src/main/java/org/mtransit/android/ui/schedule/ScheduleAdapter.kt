@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.IntDef
 import androidx.core.util.forEach
-import androidx.core.util.size
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_POSITION
 import org.mtransit.android.R
@@ -23,6 +22,7 @@ import org.mtransit.android.data.UISchedule
 import org.mtransit.android.data.decorateDirection
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleDaySeparatorBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleHourSeparatorBinding
+import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleLoadingBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleTimeBinding
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.FeatureFlags
@@ -37,14 +37,49 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
         private val LOG_TAG = ScheduleAdapter::class.java.simpleName
 
         @Retention(AnnotationRetention.SOURCE)
-        @IntDef(ITEM_VIEW_TYPE_DAY_SEPARATORS, ITEM_VIEW_TYPE_HOUR_SEPARATORS, ITEM_VIEW_TYPE_TIME)
+        @IntDef(ITEM_VIEW_TYPE_DAY_SEPARATORS, ITEM_VIEW_TYPE_HOUR_SEPARATORS, ITEM_VIEW_TYPE_TIME, ITEM_VIEW_TYPE_LOADING)
         annotation class ScheduleItemViewType
 
         private const val ITEM_VIEW_TYPE_DAY_SEPARATORS = 0
         private const val ITEM_VIEW_TYPE_HOUR_SEPARATORS = 1
         private const val ITEM_VIEW_TYPE_TIME = 2
+        private const val ITEM_VIEW_TYPE_LOADING = 3
 
         private const val HOUR_SEPARATORS_COUNT = 24
+
+        private val SCHEDULE_LIST_TIMES_PAST_STYLE = SpanUtils.getNewNormalStyleSpan()
+
+        private val SCHEDULE_LIST_TIMES_NOW_STYLE = SpanUtils.getNewBoldStyleSpan()
+
+        private val SCHEDULE_LIST_TIMES_FUTURE_STYLE = SpanUtils.getNewNormalStyleSpan()
+
+        private var scheduleListTimesNowTextColor: ForegroundColorSpan? = null
+
+        private var scheduleListTimesPastTextColor: ForegroundColorSpan? = null
+
+        private var scheduleListTimesFutureTextColor: ForegroundColorSpan? = null
+
+        fun getScheduleListTimesNowTextColor(context: Context): ForegroundColorSpan {
+            return scheduleListTimesNowTextColor ?: SpanUtils.getNewTextColor(UISchedule.getDefaultNowTextColor(context))
+                .also { scheduleListTimesNowTextColor = it }
+        }
+
+        fun getScheduleListTimesPastTextColor(context: Context): ForegroundColorSpan {
+            return scheduleListTimesPastTextColor ?: SpanUtils.getNewTextColor(UISchedule.getDefaultPastTextColor(context))
+                .also { scheduleListTimesPastTextColor = it }
+        }
+
+        fun getScheduleListTimesFutureTextColor(context: Context): ForegroundColorSpan {
+            return scheduleListTimesFutureTextColor ?: SpanUtils.getNewTextColor(UISchedule.getDefaultFutureTextColor(context))
+                .also { scheduleListTimesFutureTextColor = it }
+        }
+
+        @JvmStatic
+        fun resetColorCache() {
+            scheduleListTimesNowTextColor = null
+            scheduleListTimesPastTextColor = null
+            scheduleListTimesFutureTextColor = null
+        }
     }
 
     private var theLogTag: String = LOG_TAG
@@ -102,14 +137,15 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
         var i = 0
         var dataSetChanged = false
         while (i < this.dayToHourToTimes.size && cal.timeInMillis <= lastDayBeginning) {
-            val dayBeginning = this.dayToHourToTimes[i].first
-            while (cal.timeInMillis < dayBeginning) {
+            val existingDayBeginning = this.dayToHourToTimes[i].first
+            while (cal.timeInMillis < existingDayBeginning) {
                 this.dayToHourToTimes.add(i, Pair(cal.timeInMillis, makeDayHours()))
                 dataSetChanged = true
                 i++
                 cal.add(Calendar.DATE, 1)
             }
             i++
+            cal.add(Calendar.DATE, 1)
         }
         while (cal.timeInMillis <= lastDayBeginning) {
             this.dayToHourToTimes.add(Pair(cal.timeInMillis, makeDayHours()))
@@ -233,7 +269,11 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
 
     override fun getItemCount(): Int {
         return if (!isReady()) 0
-        else (this.timesCount ?: 0) + dayToHourToTimes.size + dayToHourToTimes.size * HOUR_SEPARATORS_COUNT
+        else
+            (this.timesCount ?: 0) + // times
+                    dayToHourToTimes.size + // day separator
+                    dayToHourToTimes.size * HOUR_SEPARATORS_COUNT + // time separator
+                    1 // loading
     }
 
     private fun getTimestampItem(position: Int): Schedule.Timestamp? {
@@ -302,7 +342,10 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
                 index += hourToTimes.get(hourOfTheDay).size
             }
         }
-        throw RuntimeException("View type not found at $position!")
+        if (position == index) {
+            return ITEM_VIEW_TYPE_LOADING
+        }
+        throw RuntimeException("View type not found at $position! (index:$index)")
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -310,6 +353,7 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
             ITEM_VIEW_TYPE_DAY_SEPARATORS -> DaySeparatorViewHolder.from(parent)
             ITEM_VIEW_TYPE_HOUR_SEPARATORS -> HourSeparatorViewHolder.from(parent)
             ITEM_VIEW_TYPE_TIME -> TimeViewHolder.from(parent)
+            ITEM_VIEW_TYPE_LOADING -> LoadingViewHolder.from(parent)
             else -> throw RuntimeException("Unexpected view type $viewType!")
         }
     }
@@ -319,6 +363,7 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
             ITEM_VIEW_TYPE_DAY_SEPARATORS -> {
                 (holder as? DaySeparatorViewHolder)?.bind(
                     getDayItem(position),
+                    nowToTheMinute,
                     this.dayDateFormat
                 )
             }
@@ -336,6 +381,10 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
                     this.optRts
                 )
             }
+            ITEM_VIEW_TYPE_LOADING -> {
+                (holder as? LoadingViewHolder)?.bind(
+                )
+            }
             else -> throw RuntimeException("Unexpected view to bind $position!")
         }
     }
@@ -345,6 +394,7 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
         this.endInMs = endInMs
         updateStartEndTimes()
     }
+
     class DaySeparatorViewHolder private constructor(
         private val binding: LayoutPoiDetailStatusScheduleDaySeparatorBinding
     ) : RecyclerView.ViewHolder(binding.root) {
@@ -363,16 +413,36 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
         val context: Context
             get() = binding.root.context
 
-        fun bind(timestampInMs: Long?, dayDateFormat: ThreadSafeDateFormatter) {
+        fun bind(
+            timestampInMs: Long?,
+            nowToTheMinuteInMs: Long = -1L,
+            dayDateFormat: ThreadSafeDateFormatter,
+        ) {
             if (timestampInMs == null) {
                 binding.day.text = null
-            } else {
-                binding.day.text = UITimeUtils.getNearRelativeDay(
+                return
+            }
+
+            val timeSb = SpannableStringBuilder(
+                UITimeUtils.getNearRelativeDay(
                     context,
                     timestampInMs,
                     dayDateFormat.formatThreadSafe(UITimeUtils.getNewCalendar(timestampInMs).time),
                 )
+            )
+            if (nowToTheMinuteInMs > 0L) {
+                val compareToNow = nowToTheMinuteInMs - timestampInMs
+                val sameDay = UITimeUtils.isSameDay(nowToTheMinuteInMs, timestampInMs)
+                if (sameDay
+                ) { // now
+                    SpanUtils.setAll(timeSb, getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_NOW_STYLE)
+                } else if (compareToNow > 0L) { // past
+                    SpanUtils.setAll(timeSb, getScheduleListTimesPastTextColor(context), SCHEDULE_LIST_TIMES_PAST_STYLE)
+                } else if (compareToNow < 0L) { // future
+                    SpanUtils.setAll(timeSb, getScheduleListTimesFutureTextColor(context), SCHEDULE_LIST_TIMES_FUTURE_STYLE)
+                }
             }
+            binding.day.text = timeSb
         }
     }
 
@@ -421,39 +491,6 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
             private const val P2 = ")"
             private const val P1 = " ("
 
-            private val SCHEDULE_LIST_TIMES_PAST_STYLE = SpanUtils.getNewNormalStyleSpan()
-
-            private val SCHEDULE_LIST_TIMES_NOW_STYLE = SpanUtils.getNewBoldStyleSpan()
-
-            private val SCHEDULE_LIST_TIMES_FUTURE_STYLE = SpanUtils.getNewNormalStyleSpan()
-
-            private var scheduleListTimesNowTextColor: ForegroundColorSpan? = null
-
-            private var scheduleListTimesPastTextColor: ForegroundColorSpan? = null
-
-            private var scheduleListTimesFutureTextColor: ForegroundColorSpan? = null
-
-            fun getScheduleListTimesNowTextColor(context: Context): ForegroundColorSpan {
-                return scheduleListTimesNowTextColor ?: SpanUtils.getNewTextColor(UISchedule.getDefaultNowTextColor(context))
-                    .also { scheduleListTimesNowTextColor = it }
-            }
-
-            fun getScheduleListTimesPastTextColor(context: Context): ForegroundColorSpan {
-                return scheduleListTimesPastTextColor ?: SpanUtils.getNewTextColor(UISchedule.getDefaultPastTextColor(context))
-                    .also { scheduleListTimesPastTextColor = it }
-            }
-
-            fun getScheduleListTimesFutureTextColor(context: Context): ForegroundColorSpan {
-                return scheduleListTimesFutureTextColor ?: SpanUtils.getNewTextColor(UISchedule.getDefaultFutureTextColor(context))
-                    .also { scheduleListTimesFutureTextColor = it }
-            }
-
-            @JvmStatic
-            fun resetColorCache() {
-                scheduleListTimesNowTextColor = null
-                scheduleListTimesPastTextColor = null
-                scheduleListTimesFutureTextColor = null
-            }
         }
 
         private val deviceTimeZone = TimeZone.getDefault()
@@ -495,9 +532,8 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
             val nextTimeInMsT = nextTimestamp?.t ?: -1L
             if (nowToTheMinuteInMs > 0L) {
                 val compareToNow = nowToTheMinuteInMs - timestamp.t
-                val sameDay = nextTimeInMsT >= 0L && UITimeUtils.isSameDay(nowToTheMinuteInMs, nextTimeInMsT)
-                if (sameDay
-                    && compareToNow == 0L
+                val sameTimestamp = nextTimeInMsT == timestamp.t
+                if (sameTimestamp
                 ) { // now
                     SpanUtils.setAll(timeSb, getScheduleListTimesNowTextColor(context), SCHEDULE_LIST_TIMES_NOW_STYLE)
                 } else if (compareToNow > 0L) { // past
@@ -515,6 +551,29 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
                 }
             }
             binding.time.text = timeSb
+        }
+    }
+
+    class LoadingViewHolder private constructor(
+        private val binding: LayoutPoiDetailStatusScheduleLoadingBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+        companion object {
+            fun from(parent: ViewGroup): LoadingViewHolder {
+                val binding = LayoutPoiDetailStatusScheduleLoadingBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+                return LoadingViewHolder(binding)
+            }
+
+        }
+
+        val context: Context
+            get() = binding.root.context
+
+        fun bind() {
+            // NOTHING
         }
     }
 }

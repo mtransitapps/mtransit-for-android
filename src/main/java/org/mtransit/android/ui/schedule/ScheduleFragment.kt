@@ -3,10 +3,19 @@ package org.mtransit.android.ui.schedule
 
 import android.content.Context
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
@@ -25,7 +34,7 @@ import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.FeatureFlags
 
 @AndroidEntryPoint
-class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layout.fragment_schedule_infinite else R.layout.fragment_schedule) {
+class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layout.fragment_schedule_infinite else R.layout.fragment_schedule), MenuProvider {
 
     companion object {
         private val LOG_TAG = ScheduleFragment::class.java.simpleName
@@ -107,6 +116,17 @@ class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layo
 
     private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver { listAdapter.onTimeChanged() }
 
+    private val onScrollListener = object : OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            (recyclerView.layoutManager as LinearLayoutManager).let { linearLayoutManager ->
+                val loadingPosition: Int = recyclerView.adapter?.itemCount?.minus(1) ?: -1
+                if (linearLayoutManager.findLastCompletelyVisibleItemPosition() == loadingPosition) {
+                    attachedViewModel?.increaseEndTime()
+                }
+            }
+        }
+    }
+
     /**
      * @see org.mtransit.commons.FeatureFlags#F_SCHEDULE_INFINITE - END
      */
@@ -114,8 +134,12 @@ class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layo
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (FeatureFlags.F_SCHEDULE_INFINITE) {
+            (requireActivity() as MenuHost).addMenuProvider(
+                this, viewLifecycleOwner, Lifecycle.State.RESUMED
+            )
             bindingI = FragmentScheduleInfiniteBinding.bind(view).apply {
                 list.adapter = listAdapter
+                list.addOnScrollListener(onScrollListener)
             }
         } else {
             binding = FragmentScheduleBinding.bind(view).apply {
@@ -128,17 +152,31 @@ class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layo
         if (FeatureFlags.F_SCHEDULE_INFINITE) {
             viewModel.startEndAt.observe(viewLifecycleOwner) { startEndAt ->
                 startEndAt?.let { (startInMs, endInMs) ->
+                    val scrollPosition = (bindingI?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
                     listAdapter.setStartEnd(startInMs, endInMs)
+                    bindingI?.list?.apply {
+                        if (scrollPosition > 0) {
+                            scrollToPosition(scrollPosition)
+                        }
+                    }
                 }
             }
+            viewModel.scrolledToNow.observe(viewLifecycleOwner) {
+                // NOTHING
+            }
             viewModel.timestamps.observe(viewLifecycleOwner) { timestamps ->
+                val scrollPosition = (bindingI?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
                 listAdapter.setTimes(timestamps)
                 bindingI?.apply {
-                    if (timestamps != null && viewModel.scrolledToNow.value != true) {
-                        listAdapter.getScrollToNowPosition()?.let {
-                            list.scrollToPosition(it)
+                    if (timestamps != null) {
+                        if (viewModel.scrolledToNow.value == false) {
+                            listAdapter.getScrollToNowPosition()?.let {
+                                list.scrollToPosition(it)
+                            }
+                            viewModel.setScrolledToNow(true)
+                        } else if (scrollPosition > 0) {
+                            list.scrollToPosition(scrollPosition)
                         }
-                        viewModel.setScrolledToNow(true)
                     }
                     loadingLayout.isVisible = !listAdapter.isReady()
                     list.isVisible = listAdapter.isReady()
@@ -197,6 +235,31 @@ class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layo
     /**
      * @see org.mtransit.commons.FeatureFlags#F_SCHEDULE_INFINITE - START
      */
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        if (!FeatureFlags.F_SCHEDULE_INFINITE) {
+            return
+        }
+        menuInflater.inflate(R.menu.menu_schedule, menu)
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        if (!FeatureFlags.F_SCHEDULE_INFINITE) {
+            return false // not handled
+        }
+        return when (menuItem.itemId) {
+            R.id.menu_today -> {
+                bindingI?.apply {
+                    listAdapter.getScrollToNowPosition()?.let {
+                        list.scrollToPosition(it)
+                    }
+                    viewModel.setScrolledToNow(true)
+                }
+                true // handled
+            }
+            else -> false // not handled
+        }
+    }
 
     override fun onDetach() {
         super.onDetach()

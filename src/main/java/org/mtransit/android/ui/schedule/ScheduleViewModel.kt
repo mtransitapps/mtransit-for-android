@@ -111,6 +111,12 @@ class ScheduleViewModel @Inject constructor(
         }
     }
 
+    fun increaseEndTime() {
+        _endsAtInMs.value?.let { currentEndDateInMs ->
+            savedStateHandle[EXTRA_END_AT_IN_MS] = currentEndDateInMs + TimeUnit.DAYS.toMillis(7L)
+        }
+    }
+
     val scrolledToNow = savedStateHandle.getLiveDataDistinct(EXTRA_SCROLLED_TO_NOW, false)
 
     fun setScrolledToNow(scrolledToNow: Boolean) {

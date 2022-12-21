@@ -117,6 +117,7 @@
     <string name="menu_action_www">Ouvrir Navigateur</string>
     <string name="menu_action_filter">Filtrer</string>
     <string name="menu_action_show_directions">Itinéraires</string>
+    <string name="menu_action_show_today">Aujourd\'hui</string>
     <string name="menu_action_sort">Trier</string>
     <string name="menu_action_refresh_available_version">&#8635; versions disponibles</string>
     <string name="menu_action_force_refresh_available_version">&#8635; versions disponibles !</string>

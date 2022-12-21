@@ -100,7 +100,7 @@ class NewsRepository(
         onSuccess?.invoke()
     }
 
-    suspend fun loadNewsArticles(
+    private suspend fun loadNewsArticles(
         providers: List<NewsProviderProperties>,
         filter: NewsProviderContract.Filter,
         comparator: Comparator<News>,

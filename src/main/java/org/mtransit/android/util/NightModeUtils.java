@@ -69,7 +69,7 @@ public final class NightModeUtils implements MTLog.Loggable {
 		UITimeUtils.resetColorCache();
 		AvailabilityPercent.resetColorCache();
 		if (FeatureFlags.F_SCHEDULE_INFINITE) {
-			ScheduleAdapter.TimeViewHolder.resetColorCache();
+			ScheduleAdapter.resetColorCache();
 		} else {
 			ScheduleDayAdapter.TimeViewHolder.resetColorCache();
 		}

@@ -67,6 +67,9 @@ class ScheduleDayFragment : MTFragmentX(R.layout.fragment_schedule_day), MTLog.L
                 adapter.setDayStartsAt(it)
             }
         }
+        viewModel.scrolledToNow.observe(viewLifecycleOwner) {
+            // NOTHING
+        }
         viewModel.timestamps.observe(viewLifecycleOwner) { timestamps ->
             adapter.setTimes(timestamps)
             binding?.apply {
