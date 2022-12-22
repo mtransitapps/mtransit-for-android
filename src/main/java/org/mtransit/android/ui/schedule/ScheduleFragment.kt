@@ -143,9 +143,11 @@ class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layo
             bindingI = FragmentScheduleInfiniteBinding.bind(view).apply {
                 list.adapter = listAdapter
                 list.addOnScrollListener(onScrollListener)
-                StickyHeaderItemDecorator(
-                    listAdapter,
-                    list,
+                list.addItemDecoration(
+                    StickyHeaderItemDecorator(
+                        listAdapter,
+                        list,
+                    )
                 )
             }
         } else {

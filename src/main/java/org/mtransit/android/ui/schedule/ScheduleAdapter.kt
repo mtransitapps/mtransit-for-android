@@ -294,7 +294,7 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
         return null
     }
 
-    override fun getHeaderPositionForItem(position: Int): Int {
+    override fun getHeaderPositionForItem(itemPosition: Int): Int {
         var index = 0
         this.dayToHourToTimes.forEach { (_, hourToTimes) ->
             val dayPosition = index
@@ -305,20 +305,20 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
                 index += hourToTimes.get(hourOfTheDay).size
             }
             val endIndex = index
-            if (position in (startIndex..endIndex)) {
+            if (itemPosition in (startIndex..endIndex)) {
                 return dayPosition
             }
         }
-        throw RuntimeException("Header ID NOT found at $position! (index:$index)")
+        throw RuntimeException("Header ID NOT found at $itemPosition! (index:$index)")
     }
 
     override fun onCreateHeaderViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
         return DaySeparatorViewHolder.from(parent)
     }
 
-    override fun onBindHeaderViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindHeaderViewHolder(holder: RecyclerView.ViewHolder, headerPosition: Int) {
         (holder as? DaySeparatorViewHolder)?.bind(
-            getDayItem(position),
+            getDayItem(headerPosition),
             nowToTheMinute,
             this.dayDateFormat
         )
