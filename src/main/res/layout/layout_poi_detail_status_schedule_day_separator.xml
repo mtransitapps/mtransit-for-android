@@ -4,6 +4,7 @@
     android:id="@+id/day"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?attr/colorSurface"
     android:gravity="center_horizontal"
     android:paddingTop="@dimen/baseline_8"
     android:paddingBottom="@dimen/baseline_8"

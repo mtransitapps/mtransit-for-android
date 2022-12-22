@@ -24,6 +24,7 @@ import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleDaySeparato
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleHourSeparatorBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleLoadingBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleTimeBinding
+import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.FeatureFlags
 import java.util.Calendar
@@ -31,7 +32,9 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.Loggable {
+class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+    StickyHeaderItemDecorator.StickyAdapter<RecyclerView.ViewHolder>,
+    MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = ScheduleAdapter::class.java.simpleName
@@ -147,7 +150,7 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
             i++
             cal.add(Calendar.DATE, 1)
         }
-        while (cal.timeInMillis <= lastDayBeginning) {
+        while (cal.timeInMillis < lastDayBeginning) {
             this.dayToHourToTimes.add(Pair(cal.timeInMillis, makeDayHours()))
             dataSetChanged = true
             cal.add(Calendar.DATE, 1)
@@ -291,15 +294,45 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
         return null
     }
 
+    override fun getHeaderPositionForItem(position: Int): Int {
+        var index = 0
+        this.dayToHourToTimes.forEach { (_, hourToTimes) ->
+            val dayPosition = index
+            val startIndex = index
+            index++ // day separator
+            (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
+                index++ // hour separator
+                index += hourToTimes.get(hourOfTheDay).size
+            }
+            val endIndex = index
+            if (position in (startIndex..endIndex)) {
+                return dayPosition
+            }
+        }
+        throw RuntimeException("Header ID NOT found at $position! (index:$index)")
+    }
+
+    override fun onCreateHeaderViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
+        return DaySeparatorViewHolder.from(parent)
+    }
+
+    override fun onBindHeaderViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        (holder as? DaySeparatorViewHolder)?.bind(
+            getDayItem(position),
+            nowToTheMinute,
+            this.dayDateFormat
+        )
+    }
+
     private fun getDayItem(position: Int): Long? {
         var index = 0
         this.dayToHourToTimes.forEach { (dayBeginning, hourToTimes) ->
             if (position == index) {
                 return dayBeginning
             }
-            index++ // separator
+            index++ // day separator
             (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
-                index++ // separator
+                index++ // hour separator
                 index += hourToTimes.get(hourOfTheDay).size
             }
         }
@@ -309,14 +342,14 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLog.L
     private fun getHourItemTimestamp(position: Int): Long? {
         var index = 0
         this.dayToHourToTimes.forEach { (dayBeginning, hourToTimes) ->
-            index++ // separator
+            index++ // day separator
             val cal: Calendar = UITimeUtils.getNewCalendar(dayBeginning)
             (0 until HOUR_SEPARATORS_COUNT).forEach { hourOfTheDay ->
                 if (index == position) {
                     cal[Calendar.HOUR_OF_DAY] = hourOfTheDay
                     return cal.timeInMillis
                 }
-                index++ // separator
+                index++ // hour separator
                 index += hourToTimes.get(hourOfTheDay).size
             }
         }

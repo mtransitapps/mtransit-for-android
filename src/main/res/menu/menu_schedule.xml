@@ -7,7 +7,7 @@
         android:id="@+id/menu_today"
         android:icon="@drawable/ic_calendar_today_24"
         android:title="@string/menu_action_show_today"
-        android:visible="false"
+        android:visible="true"
         app:showAsAction="ifRoom"
         tools:visible="true" />
 </menu>

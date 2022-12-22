@@ -28,6 +28,7 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
+import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.util.UITimeUtils
@@ -121,7 +122,9 @@ class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layo
             (recyclerView.layoutManager as LinearLayoutManager).let { linearLayoutManager ->
                 val loadingPosition: Int = recyclerView.adapter?.itemCount?.minus(1) ?: -1
                 if (linearLayoutManager.findLastCompletelyVisibleItemPosition() == loadingPosition) {
-                    attachedViewModel?.increaseEndTime()
+                    recyclerView.post {
+                        attachedViewModel?.increaseEndTime()
+                    }
                 }
             }
         }
@@ -140,6 +143,10 @@ class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layo
             bindingI = FragmentScheduleInfiniteBinding.bind(view).apply {
                 list.adapter = listAdapter
                 list.addOnScrollListener(onScrollListener)
+                StickyHeaderItemDecorator(
+                    listAdapter,
+                    list,
+                )
             }
         } else {
             binding = FragmentScheduleBinding.bind(view).apply {
