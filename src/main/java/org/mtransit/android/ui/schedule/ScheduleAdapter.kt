@@ -181,7 +181,9 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
                 if (dayToHourToTime == null) {
                     dayToHourToTime = Pair(dayBeginning, makeDayHours())
                     dayToHourToTimes.add(dayToHourToTime)
-                    dayToHourToTime.second.forEach { _, timestamps -> timestamps.clear() } // do not keep old schedule from that day
+                    dayToHourToTime.second.forEach { _, timestamps ->
+                        timestamps.clear() // do not keep old schedule from that day
+                    }
                 }
             }
             dayToHourToTime?.second?.get(hourOfTheDay)?.add(time)
@@ -304,7 +306,7 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
                 index++ // hour separator
                 index += hourToTimes.get(hourOfTheDay).size
             }
-            val endIndex = index
+            val endIndex = index - 1
             if (itemPosition in (startIndex..endIndex)) {
                 return dayPosition
             }

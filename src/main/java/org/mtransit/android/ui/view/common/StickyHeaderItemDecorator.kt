@@ -40,7 +40,7 @@ class StickyHeaderItemDecorator<VH : RecyclerView.ViewHolder>(
             ?: parent.getChildAt(topChildPosition)
             ?: return // !
         lastViewOverlappedByHeader = viewOverlappedByHeader
-        val overlappedByHeaderPosition = viewOverlappedByHeader.let { parent.getChildAdapterPosition(viewOverlappedByHeader) }
+        val overlappedByHeaderPosition = parent.getChildAdapterPosition(viewOverlappedByHeader)
         val overlappedHeaderPosition: Int
         val preOverlappedPosition: Int
         if (overlappedByHeaderPosition > 0) {
@@ -53,7 +53,9 @@ class StickyHeaderItemDecorator<VH : RecyclerView.ViewHolder>(
         if (preOverlappedPosition == RecyclerView.NO_POSITION) {
             return
         }
-        if (preOverlappedPosition != overlappedHeaderPosition && shouldMoveHeader(viewOverlappedByHeader)) {
+        if (preOverlappedPosition != overlappedHeaderPosition
+            && shouldMoveHeader(viewOverlappedByHeader)
+        ) {
             updateStickyHeader(topChildPosition)
             moveHeader(c, viewOverlappedByHeader)
         } else {
@@ -69,11 +71,12 @@ class StickyHeaderItemDecorator<VH : RecyclerView.ViewHolder>(
 
     private fun updateStickyHeader(topChildPosition: Int) {
         val headerPositionForItem = adapter.getHeaderPositionForItem(topChildPosition)
-        if (headerPositionForItem != currentStickyPosition && headerPositionForItem != RecyclerView.NO_POSITION) {
+        if (headerPositionForItem == RecyclerView.NO_POSITION) {
+            return
+        }
+        if (currentStickyPosition != headerPositionForItem) {
             adapter.onBindHeaderViewHolder(currentStickyHolder, headerPositionForItem)
             currentStickyPosition = headerPositionForItem
-        } else if (headerPositionForItem != RecyclerView.NO_POSITION) {
-            adapter.onBindHeaderViewHolder(currentStickyHolder, headerPositionForItem)
         }
     }
 
@@ -92,10 +95,10 @@ class StickyHeaderItemDecorator<VH : RecyclerView.ViewHolder>(
     }
 
     private fun getChildInContact(parent: RecyclerView, contactPoint: Int): View? {
-        return (0 until parent.childCount).map {
-            parent.getChildAt(it)
+        return (0 until parent.childCount).map { index ->
+            parent.getChildAt(index)
         }.firstOrNull { child ->
-            child.bottom > contactPoint && child.top <= contactPoint
+            child.bottom > contactPoint && contactPoint >= child.top
         }
     }
 

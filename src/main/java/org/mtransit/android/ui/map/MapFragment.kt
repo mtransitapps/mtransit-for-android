@@ -306,7 +306,7 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener, Men
     override fun getABBgColor(context: Context?) = Color.TRANSPARENT
 
     override fun getABTitle(context: Context?): CharSequence? {
-        return context?.let { makeABTitle(it) } ?: super.getABTitle(context)
+        return context?.let { makeABTitle(it) } ?: super.getABTitle(null)
     }
 
     private fun makeABTitle(context: Context): CharSequence {
