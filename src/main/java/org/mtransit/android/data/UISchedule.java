@@ -1079,7 +1079,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	}
 
 	private void generateStatusStringsNoPickup(@NonNull Context context) {
-		generateStatusStrings(context, context.getString(R.string.descent_only_part_1), context.getString(R.string.descent_only_part_2));
+		generateStatusStrings(context, context.getString(R.string.drop_off_only_part_1), context.getString(R.string.drop_off_only_part_2));
 	}
 
 	private void generateStatusStrings(@NonNull Context context,

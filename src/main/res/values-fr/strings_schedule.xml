@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
-    <string name="descent_only_part_1">Descente</string>
-    <string name="descent_only_part_2">Seulement</string>
+    <string name="drop_off_only_part_1">Descente</string>
+    <string name="drop_off_only_part_2">Seulement</string>
     <string name="frequent_service">Service Régulier</string>
     <string name="frequent_service_part_1">Service</string>
     <string name="frequent_service_part_2">Régulier</string>
