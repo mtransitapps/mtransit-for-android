@@ -43,6 +43,7 @@ proguard/
 /keys_cleanup.sh
 /keys_files.sh
 /keys_setup.sh
+/keys_reset.sh
 /lint.xml
 /listing_pull.sh
 /listing_push.sh
