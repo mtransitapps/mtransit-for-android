@@ -16,7 +16,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.mtransit.android.R;
 import org.mtransit.android.commons.data.Schedule;
 import org.mtransit.android.commons.data.Trip;
-import org.mtransit.commons.FeatureFlags;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -116,11 +115,7 @@ public class UITimeUtilsTest {
 		ArrayList<Schedule.Timestamp> timestamps = new ArrayList<>();
 		long providerFSMinDurationInMs = TimeUnit.MINUTES.toMillis(15L);
 		long providerFSTimeSpanInMs = TimeUnit.MINUTES.toMillis(3L);
-		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-			timestamps.add(new Schedule.Timestamp(now + -1L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
-		} else {
-			timestamps.add(new Schedule.Timestamp(now + -1L * providerFSTimeSpanInMs));
-		}
+		timestamps.add(new Schedule.Timestamp(now + -1L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
 		//noinspection ConstantConditions,PointlessArithmeticExpression
 		timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs));
 		//noinspection PointlessArithmeticExpression
@@ -131,11 +126,7 @@ public class UITimeUtilsTest {
 		// Act
 		boolean result = UITimeUtils.isFrequentService(timestamps, providerFSMinDurationInMs, providerFSTimeSpanInMs);
 		// Assert
-		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-			assertFalse(result);
-		} else {
-			assertTrue(result);
-		}
+		assertFalse(result);
 	}
 
 	@Test
@@ -146,13 +137,8 @@ public class UITimeUtilsTest {
 		long providerFSMinDurationInMs = TimeUnit.MINUTES.toMillis(15L);
 		long providerFSTimeSpanInMs = TimeUnit.MINUTES.toMillis(3L);
 		timestamps.add(new Schedule.Timestamp(now + -1L * providerFSTimeSpanInMs));
-		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-			//noinspection ConstantConditions,PointlessArithmeticExpression
-			timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
-		} else {
-			//noinspection ConstantConditions,PointlessArithmeticExpression
-			timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs));
-		}
+		//noinspection ConstantConditions,PointlessArithmeticExpression
+		timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
 		//noinspection PointlessArithmeticExpression
 		timestamps.add(new Schedule.Timestamp(now + 1L * providerFSTimeSpanInMs));
 		timestamps.add(new Schedule.Timestamp(now + 2L * providerFSTimeSpanInMs));
@@ -161,11 +147,7 @@ public class UITimeUtilsTest {
 		// Act
 		boolean result = UITimeUtils.isFrequentService(timestamps, providerFSMinDurationInMs, providerFSTimeSpanInMs);
 		// Assert
-		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-			assertFalse(result);
-		} else {
-			assertTrue(result);
-		}
+		assertFalse(result);
 	}
 
 	@Test
@@ -176,17 +158,12 @@ public class UITimeUtilsTest {
 		long providerFSMinDurationInMs = TimeUnit.MINUTES.toMillis(15L);
 		long providerFSTimeSpanInMs = TimeUnit.MINUTES.toMillis(3L);
 		timestamps.add(new Schedule.Timestamp(now + -1L * providerFSTimeSpanInMs));
-		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-			//noinspection ConstantConditions,PointlessArithmeticExpression
-			timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs - 1L));
-			//noinspection ConstantConditions,PointlessArithmeticExpression
-			timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
-			//noinspection ConstantConditions,PointlessArithmeticExpression
-			timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs + 1L));
-		} else {
-			//noinspection ConstantConditions,PointlessArithmeticExpression
-			timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs));
-		}
+		//noinspection ConstantConditions,PointlessArithmeticExpression
+		timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs - 1L));
+		//noinspection ConstantConditions,PointlessArithmeticExpression
+		timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
+		//noinspection ConstantConditions,PointlessArithmeticExpression
+		timestamps.add(new Schedule.Timestamp(now + 0L * providerFSTimeSpanInMs + 1L));
 		//noinspection PointlessArithmeticExpression
 		timestamps.add(new Schedule.Timestamp(now + 1L * providerFSTimeSpanInMs));
 		timestamps.add(new Schedule.Timestamp(now + 2L * providerFSTimeSpanInMs));
@@ -212,19 +189,11 @@ public class UITimeUtilsTest {
 		timestamps.add(new Schedule.Timestamp(now + 1L * providerFSTimeSpanInMs));
 		timestamps.add(new Schedule.Timestamp(now + 2L * providerFSTimeSpanInMs));
 		timestamps.add(new Schedule.Timestamp(now + 3L * providerFSTimeSpanInMs));
-		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-			timestamps.add(new Schedule.Timestamp(now + 4L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
-		} else {
-			timestamps.add(new Schedule.Timestamp(now + 4L * providerFSTimeSpanInMs));
-		}
+		timestamps.add(new Schedule.Timestamp(now + 4L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
 		// Act
 		boolean result = UITimeUtils.isFrequentService(timestamps, providerFSMinDurationInMs, providerFSTimeSpanInMs);
 		// Assert
-		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-			assertFalse(result);
-		} else {
-			assertTrue(result);
-		}
+		assertFalse(result);
 	}
 
 	@Test
@@ -242,11 +211,7 @@ public class UITimeUtilsTest {
 		timestamps.add(new Schedule.Timestamp(now + 2L * providerFSTimeSpanInMs));
 		timestamps.add(new Schedule.Timestamp(now + 3L * providerFSTimeSpanInMs));
 		timestamps.add(new Schedule.Timestamp(now + 4L * providerFSTimeSpanInMs));
-		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-			timestamps.add(new Schedule.Timestamp(now + 5L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
-		} else {
-			timestamps.add(new Schedule.Timestamp(now + 5L * providerFSTimeSpanInMs));
-		}
+		timestamps.add(new Schedule.Timestamp(now + 5L * providerFSTimeSpanInMs).setHeadsign(Trip.HEADSIGN_TYPE_NO_PICKUP, null));
 		// Act
 		boolean result = UITimeUtils.isFrequentService(timestamps, providerFSMinDurationInMs, providerFSTimeSpanInMs);
 		// Assert

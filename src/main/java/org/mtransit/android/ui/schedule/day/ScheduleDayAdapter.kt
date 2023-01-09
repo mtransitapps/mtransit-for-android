@@ -22,7 +22,6 @@ import org.mtransit.android.data.decorateDirection
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleHourSeparatorBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleTimeBinding
 import org.mtransit.android.util.UITimeUtils
-import org.mtransit.commons.FeatureFlags
 import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
@@ -400,12 +399,8 @@ class ScheduleDayAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLo
                 } else if (compareToNow > 0L) { // past
                     SpanUtils.setAll(timeSb, getScheduleListTimesPastTextColor(context), SCHEDULE_LIST_TIMES_PAST_STYLE)
                 } else if (compareToNow < 0L) { // future
-                    if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-                        if (timestamp.isNoPickup) {
-                            SpanUtils.setAll(timeSb, getScheduleListTimesPastTextColor(context), SCHEDULE_LIST_TIMES_PAST_STYLE)
-                        } else {
-                            SpanUtils.setAll(timeSb, getScheduleListTimesFutureTextColor(context), SCHEDULE_LIST_TIMES_FUTURE_STYLE)
-                        }
+                    if (timestamp.isNoPickup) {
+                        SpanUtils.setAll(timeSb, getScheduleListTimesPastTextColor(context), SCHEDULE_LIST_TIMES_PAST_STYLE)
                     } else {
                         SpanUtils.setAll(timeSb, getScheduleListTimesFutureTextColor(context), SCHEDULE_LIST_TIMES_FUTURE_STYLE)
                     }

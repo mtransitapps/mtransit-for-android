@@ -30,7 +30,6 @@ import org.mtransit.android.util.UIDirectionUtils;
 import org.mtransit.android.util.UISpanUtils;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.CollectionUtils;
-import org.mtransit.commons.FeatureFlags;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -476,12 +475,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 		}
 		final Timestamp lastTimestamp = getLastTimestamp(after, after - TimeUnit.MINUTES.toMillis(60L));
 		if (lastTimestamp != null && !timestamps.contains(lastTimestamp)) {
-			if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-				if (!lastTimestamp.isNoPickup()
-						|| lastTimestamp.t > after - TimeUnit.MINUTES.toMillis(30L)) {
-					timestamps.add(0, lastTimestamp);
-				}
-			} else {
+			if (!lastTimestamp.isNoPickup()
+					|| lastTimestamp.t > after - TimeUnit.MINUTES.toMillis(30L)) {
 				timestamps.add(0, lastTimestamp);
 			}
 		}
@@ -574,13 +569,11 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 					headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesFutureTextColor(context));
 				}
 			}
-			if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-				if (idx > ts.nextTimeStartIdx && t.isNoPickup()) { // IF at least next time (not in the past) DO
-					timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
-							getScheduleListTimesPastTextColor(context));
-					if (headSignSSB != null && headSignSSB.length() > 0) {
-						headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesPastTextColor(context));
-					}
+			if (idx > ts.nextTimeStartIdx && t.isNoPickup()) { // IF at least next time (not in the past) DO
+				timeSSB = SpanUtils.set(timeSSB, nbSpaceBefore, timeSSB.length() - nbSpaceAfter, //
+						getScheduleListTimesPastTextColor(context));
+				if (headSignSSB != null && headSignSSB.length() > 0) {
+					headSignSSB = SpanUtils.setAll(headSignSSB, getScheduleListTimesPastTextColor(context));
 				}
 			}
 			UITimeUtils.cleanTimes(timeSSB);
@@ -600,15 +593,13 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	static TimeSections findTimesSectionsStartEnd(long after, @NonNull List<Timestamp> timestamps) {
 		long afterNext = after;
 		boolean hasNoPickupOnly = CollectionUtils.count(timestamps, timestamp -> !timestamp.isNoPickup()) == 0;
-		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-			for (Timestamp t : timestamps) {
-				if (t.t >= afterNext
-						&& !t.isNoPickup()) {
-					if (afterNext < t.t) {
-						afterNext = t.t;
-					}
-					break;
+		for (Timestamp t : timestamps) {
+			if (t.t >= afterNext
+					&& !t.isNoPickup()) {
+				if (afterNext < t.t) {
+					afterNext = t.t;
 				}
+				break;
 			}
 		}
 		final TimeSections ts = new TimeSections();
@@ -635,7 +626,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				if (ts.nextTimeStartIdx == -1) { // IF the next time start NOT found DO
 					ts.nextTimeStartIdx = idx; // mark the next time start
 				} else {
-					if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI && !hasNoPickupOnly) {
+					if (!hasNoPickupOnly) {
 						if (!t.isNoPickup()) {
 							if (ts.nextNextTimeStartIdx == -1) { // ELSE IF the time after next start NOT FOUND
 								ts.nextNextTimeStartIdx = idx; // mark the time after next start
@@ -646,7 +637,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			}
 			idx++;
 			if (t.t >= afterNext) { // IF timestamp after now DO
-				if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI && !hasNoPickupOnly) {
+				if (!hasNoPickupOnly) {
 					if (t.isNoPickup()) {
 						if (ts.afterNextTimesStartIdx == -1) { // IF other next times list start NOT found DO
 							ts.afterNextTimesStartIdx = ts.nextTimeEndIdx; // mark other next times list start
@@ -883,15 +874,13 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			this.statusStringsTimestamp = after;
 			return;
 		}
-		if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-			CollectionUtils.removeIfNN(nextTimestamps, Timestamp::isNoPickup);
-			if (nextTimestamps.size() == 0) { // DESCENT ONLY SERVICE
-				if (this.statusStrings == null || this.statusStrings.size() == 0) {
-					generateStatusStringsNoPickup(context);
-				} // ELSE descent only already set
-				this.statusStringsTimestamp = after;
-				return;
-			}
+		CollectionUtils.removeIfNN(nextTimestamps, Timestamp::isNoPickup);
+		if (nextTimestamps.size() == 0) { // DESCENT ONLY SERVICE
+			if (this.statusStrings == null || this.statusStrings.size() == 0) {
+				generateStatusStringsNoPickup(context);
+			} // ELSE descent only already set
+			this.statusStringsTimestamp = after;
+			return;
 		}
 		long diffInMs = nextTimestamps.get(0).getT() - after;
 		// TODO diffInMs can be < 0 !! ?

@@ -26,7 +26,6 @@ import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Schedule.Timestamp;
 import org.mtransit.android.data.UISchedule;
 import org.mtransit.android.ui.MTTopSuperscriptSpan;
-import org.mtransit.commons.FeatureFlags;
 import org.mtransit.commons.StringUtils;
 
 import java.lang.ref.WeakReference;
@@ -414,10 +413,8 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		long firstTimestamp = -1L;
 		for (; i < timestamps.size(); i++) {
 			timestamp = timestamps.get(i);
-			if (FeatureFlags.F_SCHEDULE_DESCENT_ONLY_UI) {
-				if (timestamp.isNoPickup()) {
-					continue; // skip descent only
-				}
+			if (timestamp.isNoPickup()) {
+				continue; // skip descent only
 			}
 			firstTimestamp = timestamp.getT();
 			break;
