@@ -36,6 +36,7 @@ import org.mtransit.android.commons.provider.POIProvider;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.Place;
 import org.mtransit.android.util.UITimeUtils;
+import org.mtransit.commons.FeatureFlags;
 
 import java.net.HttpURLConnection;
 import java.net.SocketException;
@@ -527,7 +528,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	@NonNull
 	public static ArrayMap<String, String> getNewPoiProjectionMap(@NonNull String authority) {
 		// @formatter:off
-		return SqlUtils.ProjectionMapBuilder.getNew() //
+		final SqlUtils.ProjectionMapBuilder builder = SqlUtils.ProjectionMapBuilder.getNew() //
 				.appendValue(SqlUtils.concatenate( //
 						SqlUtils.escapeString(POIUtils.UID_SEPARATOR), //
 						SqlUtils.escapeString(authority), //
@@ -545,7 +546,11 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 				.appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_PROVIDER_ID, PlaceColumns.T_PLACE_K_PROVIDER_ID) //
 				.appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_LANG, PlaceColumns.T_PLACE_K_LANG) //
 				.appendTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_READ_AT_IN_MS, PlaceColumns.T_PLACE_K_READ_AT_IN_MS) //
-				.build();
+				;
+		if (FeatureFlags.F_ACCESSIBILITY_PRODUCER) {
+			builder.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ACCESSIBLE, POIProviderContract.Columns.T_POI_K_ACCESSIBLE); //
+		}
+		return builder.build();
 		// @formatter:on
 	}
 
