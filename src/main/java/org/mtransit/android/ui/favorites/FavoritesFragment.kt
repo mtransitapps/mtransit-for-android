@@ -16,6 +16,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentFavoritesBinding
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -65,6 +66,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
+    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+
+    @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
@@ -83,6 +87,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
             this,
             this.sensorManager,
             this.dataSourcesRepository,
+            this.defaultPrefRepository,
             this.poiRepository,
             this.favoriteManager,
             this.statusLoader,

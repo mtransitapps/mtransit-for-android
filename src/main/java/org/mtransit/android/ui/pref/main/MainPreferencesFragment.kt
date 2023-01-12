@@ -35,6 +35,7 @@ import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.NightModeUtils
+import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -317,6 +318,17 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                         else -> R.string.unit_pref_summary
                     }
                 )
+            }
+        }
+        if (FeatureFlags.F_ACCESSIBILITY_CONSUMER) {
+            viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
+                (findPreference(DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY) as? Preference)?.apply {
+                    setSummary(if (showAccessibility) R.string.show_accessibility_pref_summary_on else R.string.show_accessibility_pref_summary_off)
+                }
+            }
+        } else {
+            (findPreference(DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY) as? Preference)?.apply {
+                preferenceScreen.removePreference(this)
             }
         }
         viewModel.useInternalWebBrowser.observe(viewLifecycleOwner) { useInternalWebBrowser ->

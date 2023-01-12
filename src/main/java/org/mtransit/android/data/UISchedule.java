@@ -24,6 +24,7 @@ import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StringUtils;
+import org.mtransit.android.commons.data.Accessibility;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Trip;
 import org.mtransit.android.util.UIAccessibilityUtils;
@@ -31,6 +32,7 @@ import org.mtransit.android.util.UIDirectionUtils;
 import org.mtransit.android.util.UISpanUtils;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.CollectionUtils;
+import org.mtransit.commons.Constants;
 import org.mtransit.commons.FeatureFlags;
 
 import java.text.DateFormat;
@@ -443,15 +445,15 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	public ArrayList<DetailsNextDepartures> getScheduleList(@NonNull Context context, long after,
 															@Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
 															@Nullable Integer optMinCount, @Nullable Integer optMaxCount,
-															@Nullable String optDefaultHeadSign) {
+															@Nullable String optDefaultHeadSign, boolean showingAccessibilityInfo) {
 		if (this.scheduleList == null || this.scheduleListTimestamp != after) {
-			generateScheduleList(context, after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount, optDefaultHeadSign);
+			generateScheduleList(context, after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount, optDefaultHeadSign, showingAccessibilityInfo);
 		}
 		return this.scheduleList;
 	}
 
 	private void generateScheduleList(@NonNull Context context, long after, @Nullable Long optMinCoverageInMs, @Nullable Long optMaxCoverageInMs,
-									  @Nullable Integer optMinCount, @Nullable Integer optMaxCount, @Nullable String optDefaultHeadSign) {
+									  @Nullable Integer optMinCount, @Nullable Integer optMaxCount, @Nullable String optDefaultHeadSign, boolean showingAccessibilityInfo) {
 		ArrayList<Timestamp> timestamps =
 				getNextTimestamps(after - getUIProviderPrecisionInMs(), optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
 		if (CollectionUtils.getSize(timestamps) <= 0) { // NO SERVICE
@@ -482,7 +484,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 				timestamps.add(0, lastTimestamp);
 			}
 		}
-		generateScheduleListTimes(context, after, timestamps, optDefaultHeadSign);
+		generateScheduleListTimes(context, after, timestamps, optDefaultHeadSign, showingAccessibilityInfo);
 		this.scheduleListTimestamp = after;
 	}
 
@@ -490,7 +492,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 	private void generateScheduleListTimes(@NonNull Context context,
 										   long after,
 										   @NonNull List<Timestamp> timestamps,
-										   @Nullable String optDefaultHeadSign) {
+										   @Nullable String optDefaultHeadSign,
+										   boolean showingAccessibilityInfo) {
 		// 1 - Find the start/end time sections
 		final TimeSections ts = findTimesSectionsStartEnd(after, timestamps);
 		// 2 - Set spannable with style
@@ -515,7 +518,8 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			if (FeatureFlags.F_ACCESSIBILITY_CONSUMER) {
 				final CharSequence a11y = UIAccessibilityUtils.decorate(
 						context,
-						UIAccessibilityUtils.decorate(t.getAccessibleOrDefault(), false), // before
+						Accessibility.decorate(Constants.EMPTY, t.getAccessibleOrDefault()),
+						showingAccessibilityInfo,
 						UIAccessibilityUtils.ImageSize.MEDIUM,
 						true
 				);

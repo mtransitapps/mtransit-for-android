@@ -41,6 +41,9 @@ class DefaultPreferenceRepository @Inject constructor(
         const val PREFS_UNITS_IMPERIAL = PreferenceUtils.PREFS_UNITS_IMPERIAL
         const val PREFS_UNITS_DEFAULT = PreferenceUtils.PREFS_UNITS_DEFAULT
 
+        const val PREFS_SHOW_ACCESSIBILITY = PreferenceUtils.PREFS_SHOW_ACCESSIBILITY
+        const val PREFS_SHOW_ACCESSIBILITY_DEFAULT = PreferenceUtils.PREFS_SHOW_ACCESSIBILITY_DEFAULT
+
         const val PREFS_USE_INTERNAL_WEB_BROWSER = PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER
         const val PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT = PreferenceUtils.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
 

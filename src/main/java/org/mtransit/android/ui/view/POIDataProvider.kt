@@ -28,4 +28,5 @@ interface POIDataProvider : StatusLoaderListener, ServiceUpdateLoaderListener, O
     fun providesStatusLoader(): StatusLoader
     fun providesServiceUpdateLoader(): ServiceUpdateLoader
     fun providesDemoModeManager(): DemoModeManager
+    val isShowingAccessibilityInfo: Boolean
 }

@@ -24,6 +24,14 @@
             android:summary="@string/unit_pref_summary"
             android:title="@string/unit_pref_title" />
         <CheckBoxPreference
+            android:defaultValue="false"
+            android:enabled="true"
+            android:key="pShowA11y"
+            android:summary="@string/show_accessibility_pref_summary"
+            android:summaryOff="@string/show_accessibility_pref_summary_off"
+            android:summaryOn="@string/show_accessibility_pref_summary_on"
+            android:title="@string/show_accessibility_pref_title" />
+        <CheckBoxPreference
             android:defaultValue="true"
             android:enabled="true"
             android:key="pUseInternalWebBrowser"

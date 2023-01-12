@@ -25,6 +25,7 @@
     <color name="navigation_item_color_default">@color/color_on_surface</color>
     <color name="navigation_item_color_checked">@color/color_on_primary</color>
 
+    <color name="blue_cf">#2196F3</color>
     <color name="green_cf">#4CAF50</color>
     <color name="yellow_cf">#FFEB3B</color>
     <color name="orange_cf">#FF9800</color>

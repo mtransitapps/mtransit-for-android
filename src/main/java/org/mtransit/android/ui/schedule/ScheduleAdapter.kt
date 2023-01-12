@@ -15,6 +15,7 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SpanUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
+import org.mtransit.android.commons.data.Accessibility
 import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.Trip
@@ -27,6 +28,7 @@ import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleTimeBinding
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.util.UIAccessibilityUtils
 import org.mtransit.android.util.UITimeUtils
+import org.mtransit.commons.Constants
 import org.mtransit.commons.FeatureFlags
 import java.util.Calendar
 import java.util.Date
@@ -122,6 +124,15 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     fun setRTS(rts: RouteTripStop?) {
         this.optRts = rts
     }
+
+    var showingAccessibility: Boolean? = null
+        @SuppressLint("NotifyDataSetChanged")
+        set(value) {
+            if (field != value) {
+                notifyDataSetChanged()
+            }
+            field = value
+        }
 
     @SuppressLint("NotifyDataSetChanged")
     fun onTimeChanged(newTimeInMs: Long = UITimeUtils.currentTimeToTheMinuteMillis()) {
@@ -414,7 +425,8 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
                     getTimestampItem(position),
                     nowToTheMinute,
                     nextTimestamp,
-                    this.optRts
+                    this.optRts,
+                    this.showingAccessibility,
                 )
             }
             ITEM_VIEW_TYPE_LOADING -> {
@@ -538,7 +550,8 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
             timestamp: Schedule.Timestamp? = null,
             nowToTheMinuteInMs: Long = -1L,
             nextTimestamp: Schedule.Timestamp? = null,
-            optRts: RouteTripStop? = null
+            optRts: RouteTripStop? = null,
+            showingAccessibility: Boolean? = null,
         ) {
             if (timestamp == null) {
                 binding.time.text = null
@@ -557,7 +570,8 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
                 timeSb.append(
                     UIAccessibilityUtils.decorate(
                         context,
-                        UIAccessibilityUtils.decorate(timestamp.accessibleOrDefault, appending = true),
+                        Accessibility.decorate(Constants.EMPTY, timestamp.accessibleOrDefault),
+                        showingAccessibility == true,
                         UIAccessibilityUtils.ImageSize.SMALL,
                         false
                     )

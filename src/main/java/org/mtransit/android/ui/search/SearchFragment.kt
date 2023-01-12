@@ -12,6 +12,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.KeyboardUtils.Companion.hideKeyboard
 import org.mtransit.android.commons.ToastUtils
@@ -74,6 +75,9 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
+    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+
+    @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
@@ -95,6 +99,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), UserLocationListene
             this,
             this.sensorManager,
             this.dataSourcesRepository,
+            this.defaultPrefRepository,
             this.poiRepository,
             this.favoriteManager,
             this.statusLoader,

@@ -194,6 +194,11 @@ class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layo
             viewModel.rts.observe(viewLifecycleOwner) { rts ->
                 listAdapter.setRTS(rts)
             }
+            if (FeatureFlags.F_ACCESSIBILITY_CONSUMER) {
+                viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
+                    listAdapter.showingAccessibility = showAccessibility
+                }
+            }
         } else {
             viewModel.authority.observe(viewLifecycleOwner) { authority ->
                 pagerAdapter?.apply {

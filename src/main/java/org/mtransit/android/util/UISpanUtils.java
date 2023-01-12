@@ -40,6 +40,7 @@ public class UISpanUtils extends SpanUtils implements MTLog.Loggable {
 				id,
 				tint ? ThemeUtils.resolveColorAttribute(context, R.attr.colorOnSurface) : null,
 				bounds,
+				null, null,
 				superscript,
 				superscriptVerticalAlign == -1 ? null : superscriptVerticalAlign
 		);
@@ -50,6 +51,8 @@ public class UISpanUtils extends SpanUtils implements MTLog.Loggable {
 										@DrawableRes int id,
 										@Nullable Integer tintColor,
 										boolean bounds,
+										@Nullable Integer boundsWidth,
+										@Nullable Integer boundsHeight,
 										boolean superscript,
 										@Nullable Integer verticalAlign) {
 		Drawable drawable = ContextCompat.getDrawable(context, id);
@@ -62,9 +65,9 @@ public class UISpanUtils extends SpanUtils implements MTLog.Loggable {
 		}
 		if (bounds) {
 			int left = 0;
-			int right = drawable.getIntrinsicWidth();
+			int right = boundsWidth == null ? drawable.getIntrinsicWidth() : boundsWidth;
 			int top = 0;
-			int bottom = drawable.getIntrinsicHeight();
+			int bottom = boundsHeight == null ? drawable.getIntrinsicHeight() : boundsHeight;
 			drawable.setBounds(left, top, right, bottom);
 		}
 		if (tintColor != null) {

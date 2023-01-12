@@ -475,7 +475,8 @@ public class POIStatusDetailViewController implements MTLog.Loggable {
 					MAX_COVERAGE_IN_MS,
 					15,
 					30,
-					defaultHeadSign
+					defaultHeadSign,
+					dataProvider.isShowingAccessibilityInfo()
 			);
 		}
 		ScheduleStatusViewHolder scheduleStatusViewHolder = (ScheduleStatusViewHolder) statusViewHolder;

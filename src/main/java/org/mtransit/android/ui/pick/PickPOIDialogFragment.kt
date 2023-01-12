@@ -14,6 +14,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentDialogPickPoiBinding
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -73,6 +74,9 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
     lateinit var dataSourcesRepository: DataSourcesRepository
 
     @Inject
+    lateinit var defaultPrefRepository: DefaultPreferenceRepository
+
+    @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
@@ -91,6 +95,7 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
             this,
             this.sensorManager,
             this.dataSourcesRepository,
+            this.defaultPrefRepository,
             this.poiRepository,
             this.favoriteManager,
             this.statusLoader,

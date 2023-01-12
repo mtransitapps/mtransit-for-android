@@ -344,7 +344,7 @@ public class POIViewController implements MTLog.Loggable {
 			MTLog.d(LOG_TAG, "updateCommonView() > SKIP (no poi)");
 			return;
 		}
-		holder.nameTv.setText(POIManagerExtKt.getLabelDecorated(poi, context));
+		holder.nameTv.setText(POIManagerExtKt.getLabelDecorated(poi, context, dataProvider.isShowingAccessibilityInfo()));
 		final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
 		holder.nameTv.setSingleLine(true); // marquee forever
 		holder.nameTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever
@@ -1042,7 +1042,7 @@ public class POIViewController implements MTLog.Loggable {
 		final POI poi = poim.poi;
 		holder.uuid = poi.getUUID();
 		MTTransitions.setTransitionName(holder.view, "poi_" + poi.getUUID());
-		holder.nameTv.setText(POIManagerExtKt.getLabelDecorated(poi, context));
+		holder.nameTv.setText(POIManagerExtKt.getLabelDecorated(poi, context, dataProvider.isShowingAccessibilityInfo()));
 		final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
 		holder.nameTv.setSingleLine(true); // marquee forever
 		holder.nameTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever

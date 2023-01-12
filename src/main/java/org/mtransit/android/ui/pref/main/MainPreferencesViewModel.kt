@@ -75,6 +75,10 @@ class MainPreferencesViewModel @Inject constructor(
         DefaultPreferenceRepository.PREFS_UNITS, DefaultPreferenceRepository.PREFS_UNITS_DEFAULT
     ).distinctUntilChanged()
 
+    val showAccessibility: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
+        DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY, DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT
+    ).distinctUntilChanged()
+
     val useInternalWebBrowser: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
         DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER, DefaultPreferenceRepository.PREFS_USE_INTERNAL_WEB_BROWSER_DEFAULT
     ).distinctUntilChanged()

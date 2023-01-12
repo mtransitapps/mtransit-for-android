@@ -10,6 +10,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentAgencyPoisBinding
@@ -68,6 +69,9 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
 
     @Inject
     lateinit var dataSourcesRepository: DataSourcesRepository
+
+    @Inject
+    lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
@@ -133,6 +137,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
             this,
             this.sensorManager,
             this.dataSourcesRepository,
+            this.defaultPrefRepository,
             this.poiRepository,
             this.favoriteManager,
             this.statusLoader,

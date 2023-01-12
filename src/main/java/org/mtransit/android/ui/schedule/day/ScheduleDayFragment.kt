@@ -14,6 +14,7 @@ import org.mtransit.android.databinding.FragmentScheduleDayBinding
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.util.UITimeUtils
+import org.mtransit.commons.FeatureFlags
 import java.util.Locale
 
 @AndroidEntryPoint
@@ -85,6 +86,11 @@ class ScheduleDayFragment : MTFragmentX(R.layout.fragment_schedule_day), MTLog.L
         }
         viewModel.rts.observe(viewLifecycleOwner) { rts ->
             adapter.setRTS(rts)
+        }
+        if (FeatureFlags.F_ACCESSIBILITY_CONSUMER) {
+            viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
+                adapter.showingAccessibility = showAccessibility
+            }
         }
     }
 

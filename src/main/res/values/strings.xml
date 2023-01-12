@@ -148,6 +148,10 @@
     <string name="unit_pref_dialog_title">Units</string>
     <string name="unit_pref_meter">Metric (km/m)</string>
     <string name="unit_pref_imperial">Imperial (mi/ft)</string>
+    <string name="show_accessibility_pref_title">Show Accessibility Information</string>
+    <string name="show_accessibility_pref_summary">Show accessibility information from transit agencies (when available)</string>
+    <string name="show_accessibility_pref_summary_on">Showing available accessibility information from transit agencies</string>
+    <string name="show_accessibility_pref_summary_off">Hiding available accessibility information from transit agencies</string>
     <string name="use_internal_web_browser_pref_title">Use Internal Web Browser</string>
     <string name="use_internal_web_browser_pref_summary">Open links in the internal web browser instead of the default web browser</string>
     <string name="use_internal_web_browser_pref_summary_on">Open links in the internal web browser</string>

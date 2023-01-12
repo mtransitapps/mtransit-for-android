@@ -41,6 +41,7 @@ import org.mtransit.android.analytics.AnalyticsEvents;
 import org.mtransit.android.analytics.AnalyticsEventsParamsProvider;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.common.IContext;
+import org.mtransit.android.common.repository.DefaultPreferenceRepository;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
@@ -200,6 +201,8 @@ public class POIFragment extends ABFragment implements
 	FavoriteManager favoriteManager;
 	@Inject
 	DemoModeManager demoModeManager;
+	@Inject
+	DefaultPreferenceRepository defaultPrefRepository;
 	@Inject
 	ImageManager imageManager;
 
@@ -625,6 +628,7 @@ public class POIFragment extends ABFragment implements
 				activity,
 				this.sensorManager,
 				this.dataSourcesRepository,
+				this.defaultPrefRepository,
 				this.poiRepository,
 				this.favoriteManager,
 				this.statusLoader,
@@ -1016,6 +1020,7 @@ public class POIFragment extends ABFragment implements
 		resetFavorite(); // force refresh
 		getFavoriteFolderId();
 		enableTimeChangedReceiver();
+		this.showingAccessibilityInfo = null; // force user preference check
 		this.mapViewController.onResume();
 		if (this.adapter != null) {
 			this.adapter.onResume(this, this.deviceLocation);
@@ -1320,6 +1325,17 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public DemoModeManager providesDemoModeManager() {
 		return this.demoModeManager;
+	}
+
+	@Nullable
+	private Boolean showingAccessibilityInfo = null;
+
+	@Override
+	public boolean isShowingAccessibilityInfo() {
+		if (this.showingAccessibilityInfo == null) {
+			this.showingAccessibilityInfo = this.defaultPrefRepository.getValue(DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY, DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT);
+		}
+		return this.showingAccessibilityInfo;
 	}
 
 	@Nullable

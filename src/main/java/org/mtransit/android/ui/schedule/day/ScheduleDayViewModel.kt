@@ -3,16 +3,19 @@ package org.mtransit.android.ui.schedule.day
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.commons.data.Schedule
+import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
@@ -29,6 +32,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ScheduleDayViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
+    private val defaultPrefRepository: DefaultPreferenceRepository,
     private val dataSourcesRepository: DataSourcesRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
     private val poiRepository: POIRepository,
@@ -107,4 +111,8 @@ class ScheduleDayViewModel @Inject constructor(
         }
         return emptyList() // loaded (not loading) == no service today
     }
+
+    val showAccessibility: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
+        DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY, DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT
+    ).distinctUntilChanged()
 }

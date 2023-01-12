@@ -34,6 +34,7 @@ import androidx.navigation.fragment.FragmentNavigator;
 import com.google.android.material.button.MaterialButton;
 
 import org.mtransit.android.R;
+import org.mtransit.android.common.repository.DefaultPreferenceRepository;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.LocationUtilsExtKt;
@@ -175,6 +176,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 	@NonNull
+	private final DefaultPreferenceRepository defaultPrefRepository;
+	@NonNull
 	private final POIRepository poiRepository;
 	@NonNull
 	private final FavoriteManager favoriteManager;
@@ -186,6 +189,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	public POIArrayAdapter(@NonNull IActivity activity,
 						   @NonNull MTSensorManager sensorManager,
 						   @NonNull DataSourcesRepository dataSourcesRepository,
+						   @NonNull DefaultPreferenceRepository defaultPrefRepository,
 						   @NonNull POIRepository poiRepository,
 						   @NonNull FavoriteManager favoriteManager,
 						   @NonNull StatusLoader statusLoader,
@@ -195,6 +199,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.layoutInflater = LayoutInflater.from(getContext());
 		this.sensorManager = sensorManager;
 		this.dataSourcesRepository = dataSourcesRepository;
+		this.defaultPrefRepository = defaultPrefRepository;
 		this.poiRepository = poiRepository;
 		this.favoriteManager = favoriteManager;
 		this.statusLoader = statusLoader;
@@ -1151,6 +1156,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	public void onResume(@NonNull IActivity activity, @Nullable Location userLocation) {
 		setActivity(activity);
+		this.showingAccessibilityInfo = null; // force user preference check
 		this.location = null; // clear current location to force refresh
 		setLocation(userLocation);
 		refreshFavorites();
@@ -1979,6 +1985,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 	}
 
+	@Nullable
+	private Boolean showingAccessibilityInfo = null;
+
+	public boolean isShowingAccessibilityInfo() {
+		if (this.showingAccessibilityInfo == null) {
+			this.showingAccessibilityInfo = this.defaultPrefRepository.getValue(DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY, DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT);
+		}
+		return this.showingAccessibilityInfo;
+	}
+
 	private void updateCommonView(CommonViewHolder holder, POIManager poim) {
 		if (poim == null || holder == null) {
 			return;
@@ -1994,7 +2010,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			holder.compassV.setLatLng(poim.getLat(), poim.getLng());
 			this.compassImgsWR.put(holder.compassV, holder.distanceTv);
 		}
-		holder.nameTv.setText(POIManagerExtKt.getLabelDecorated(poi, getContext()));
+		holder.nameTv.setText(POIManagerExtKt.getLabelDecorated(poi, getContext(), isShowingAccessibilityInfo()));
 		if (holder.distanceTv != null) {
 			if (poim.getDistanceString() != null) {
 				if (!poim.getDistanceString().equals(holder.distanceTv.getText())) {

@@ -11,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.commons.findClosestPOISIdxUuid
 import org.mtransit.android.commons.updateDistance
@@ -73,6 +74,9 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
 
     @Inject
     lateinit var dataSourcesRepository: DataSourcesRepository
+
+    @Inject
+    lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
     lateinit var poiRepository: POIRepository
@@ -138,6 +142,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
             this,
             this.sensorManager,
             this.dataSourcesRepository,
+            this.defaultPrefRepository,
             this.poiRepository,
             this.favoriteManager,
             this.statusLoader,
