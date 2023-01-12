@@ -25,7 +25,9 @@ import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleHourSeparat
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleLoadingBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleTimeBinding
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
+import org.mtransit.android.util.UIAccessibilityUtils
 import org.mtransit.android.util.UITimeUtils
+import org.mtransit.commons.FeatureFlags
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -550,6 +552,16 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
                 if (!localTime.equals(userTime, ignoreCase = true)) {
                     timeSb.append(P1).append(context.getString(R.string.local_time_and_time, localTime)).append(P2)
                 }
+            }
+            if (FeatureFlags.F_ACCESSIBILITY_CONSUMER) {
+                timeSb.append(
+                    UIAccessibilityUtils.decorate(
+                        context,
+                        UIAccessibilityUtils.decorate(timestamp.accessibleOrDefault, appending = true),
+                        UIAccessibilityUtils.ImageSize.SMALL,
+                        false
+                    )
+                )
             }
             val timeOnly = timeSb.toString()
             if (timestamp.hasHeadsign()) {

@@ -31,6 +31,7 @@ import org.mtransit.android.data.IAgencyUIProperties;
 import org.mtransit.android.data.JPaths;
 import org.mtransit.android.data.Module;
 import org.mtransit.android.data.POIManager;
+import org.mtransit.android.data.POIManagerExtKt;
 import org.mtransit.android.data.UISchedule;
 import org.mtransit.android.databinding.LayoutPoiBasicBinding;
 import org.mtransit.android.databinding.LayoutPoiBasicWithAvailabilityPercentBinding;
@@ -326,7 +327,7 @@ public class POIViewController implements MTLog.Loggable {
 			initViewHolder(poiType, poiStatusType, view);
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
-		updatePOICommonView(holder, poi, dataProvider);
+		updatePOICommonView(view.getContext(), holder, poi, dataProvider);
 		updateExtra(view.getContext(), holder, poi, dataProvider);
 		if (holder.statusViewHolder != null && !dataProvider.isShowingStatus()) {
 			holder.statusViewHolder.statusV.setVisibility(View.INVISIBLE);
@@ -337,13 +338,13 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updatePOICommonView(@NonNull CommonViewHolder holder, @NonNull POI poi, @NonNull POIDataProvider dataProvider) {
+	private static void updatePOICommonView(@NonNull Context context, @NonNull CommonViewHolder holder, @NonNull POI poi, @NonNull POIDataProvider dataProvider) {
 		//noinspection ConstantConditions // poi always non-null?
 		if (poi == null) {
 			MTLog.d(LOG_TAG, "updateCommonView() > SKIP (no poi)");
 			return;
 		}
-		holder.nameTv.setText(poi.getLabel());
+		holder.nameTv.setText(POIManagerExtKt.getLabelDecorated(poi, context));
 		final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
 		holder.nameTv.setSingleLine(true); // marquee forever
 		holder.nameTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever
@@ -382,7 +383,7 @@ public class POIViewController implements MTLog.Loggable {
 			initViewHolder(poiType, poiStatusType, view);
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
-		updateCommonView(holder, poim, dataProvider);
+		updateCommonView(view.getContext(), holder, poim, dataProvider);
 		updateExtra(view.getContext(), holder, poim, dataProvider);
 		updatePOIStatus(view.getContext(), holder.statusViewHolder, poim, dataProvider);
 		updatePOIServiceUpdate(view.getContext(), holder.serviceUpdateViewHolder, poim, dataProvider);
@@ -1032,7 +1033,7 @@ public class POIViewController implements MTLog.Loggable {
 		}
 	}
 
-	private static void updateCommonView(@NonNull CommonViewHolder holder, @NonNull POIManager poim, @NonNull POIDataProvider dataProvider) {
+	private static void updateCommonView(@NonNull Context context, @NonNull CommonViewHolder holder, @NonNull POIManager poim, @NonNull POIDataProvider dataProvider) {
 		//noinspection ConstantConditions // poi always non-null?
 		if (poim.poi == null) {
 			MTLog.d(LOG_TAG, "updateCommonView() > SKIP (no poi)");
@@ -1041,7 +1042,7 @@ public class POIViewController implements MTLog.Loggable {
 		final POI poi = poim.poi;
 		holder.uuid = poi.getUUID();
 		MTTransitions.setTransitionName(holder.view, "poi_" + poi.getUUID());
-		holder.nameTv.setText(poi.getLabel());
+		holder.nameTv.setText(POIManagerExtKt.getLabelDecorated(poi, context));
 		final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
 		holder.nameTv.setSingleLine(true); // marquee forever
 		holder.nameTv.setSelected(!demoModeManager.isFullDemo()); // marquee forever

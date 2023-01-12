@@ -21,7 +21,9 @@ import org.mtransit.android.data.UISchedule
 import org.mtransit.android.data.decorateDirection
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleHourSeparatorBinding
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleTimeBinding
+import org.mtransit.android.util.UIAccessibilityUtils
 import org.mtransit.android.util.UITimeUtils
+import org.mtransit.commons.FeatureFlags
 import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
@@ -377,6 +379,16 @@ class ScheduleDayAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(), MTLo
                 }
             }
             val timeOnly = timeSb.toString()
+            if (FeatureFlags.F_ACCESSIBILITY_CONSUMER) {
+                timeSb.append(
+                    UIAccessibilityUtils.decorate(
+                        context,
+                        UIAccessibilityUtils.decorate(timestamp.accessibleOrDefault, appending = true),
+                        UIAccessibilityUtils.ImageSize.SMALL,
+                        false
+                    )
+                )
+            }
             if (timestamp.hasHeadsign()) {
                 val timestampHeading = timestamp.getHeading(context)
                 if (!Trip.isSameHeadsign(timestampHeading, optRts?.trip?.getHeading(context))) {

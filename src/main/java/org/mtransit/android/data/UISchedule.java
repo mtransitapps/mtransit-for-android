@@ -26,10 +26,12 @@ import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.data.POIStatus;
 import org.mtransit.android.commons.data.Trip;
+import org.mtransit.android.util.UIAccessibilityUtils;
 import org.mtransit.android.util.UIDirectionUtils;
 import org.mtransit.android.util.UISpanUtils;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.CollectionUtils;
+import org.mtransit.commons.FeatureFlags;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -509,6 +511,19 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 								t.getUIHeading(context, true)
 						)
 				);
+			}
+			if (FeatureFlags.F_ACCESSIBILITY_CONSUMER) {
+				final CharSequence a11y = UIAccessibilityUtils.decorate(
+						context,
+						UIAccessibilityUtils.decorate(t.getAccessibleOrDefault(), false), // before
+						UIAccessibilityUtils.ImageSize.MEDIUM,
+						true
+				);
+				if (headSignSSB == null) {
+					headSignSSB = new SpannableStringBuilder(a11y);
+				} else {
+					headSignSSB.insert(0, a11y);
+				}
 			}
 			if (lastTimestamp > 0L) {
 				if (!UITimeUtils.isSameDay(lastTimestamp, t.t)) {

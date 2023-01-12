@@ -35,12 +35,29 @@ public class UISpanUtils extends SpanUtils implements MTLog.Loggable {
 										boolean bounds,
 										boolean superscript,
 										int superscriptVerticalAlign) {
+		return getNewImage(
+				context,
+				id,
+				tint ? ThemeUtils.resolveColorAttribute(context, R.attr.colorOnSurface) : null,
+				bounds,
+				superscript,
+				superscriptVerticalAlign == -1 ? null : superscriptVerticalAlign
+		);
+	}
+
+	@Nullable
+	public static ImageSpan getNewImage(@NonNull Context context,
+										@DrawableRes int id,
+										@Nullable Integer tintColor,
+										boolean bounds,
+										boolean superscript,
+										@Nullable Integer verticalAlign) {
 		Drawable drawable = ContextCompat.getDrawable(context, id);
 		if (drawable == null) {
 			MTLog.w(LOG_TAG, "Cannot load new image span!");
 			return null;
 		}
-		if (tint) {
+		if (tintColor != null) {
 			drawable = DrawableCompat.wrap(drawable); // tint
 		}
 		if (bounds) {
@@ -50,12 +67,12 @@ public class UISpanUtils extends SpanUtils implements MTLog.Loggable {
 			int bottom = drawable.getIntrinsicHeight();
 			drawable.setBounds(left, top, right, bottom);
 		}
-		if (tint) {
-			DrawableCompat.setTint(drawable, ThemeUtils.resolveColorAttribute(context, R.attr.colorOnSurface));
+		if (tintColor != null) {
+			DrawableCompat.setTint(drawable, tintColor);
 		}
-		if (superscript) {
-			return new MTSuperscriptImageSpan(drawable, superscriptVerticalAlign);
+		if (superscript && verticalAlign != null) {
+			return new MTSuperscriptImageSpan(drawable, verticalAlign);
 		}
-		return new ImageSpan(drawable, DynamicDrawableSpan.ALIGN_BASELINE);
+		return new ImageSpan(drawable, verticalAlign == null ? DynamicDrawableSpan.ALIGN_BASELINE : verticalAlign);
 	}
 }
