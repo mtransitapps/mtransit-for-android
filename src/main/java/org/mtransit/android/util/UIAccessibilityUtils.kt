@@ -20,7 +20,7 @@ object UIAccessibilityUtils {
     private var accessibleColorTint: Int? = null
 
     @ColorInt
-    private fun getAccessibleColorTint(@Suppress("UNUSED_PARAMETER") context: Context): Int {
+    private fun getAccessibleColorTint(context: Context): Int {
         return accessibleColorTint ?: ContextCompat.getColor(context, R.color.blue_cf)
             .also { accessibleColorTint = it }
     }
@@ -80,6 +80,7 @@ object UIAccessibilityUtils {
             if (removingInfo) {
                 decoratedStringSb.replace(possibleStartIdx, possibleEndIdx, EMPTY)
             } else {
+                @Suppress("ConstantConditionIf")
                 if (false) {
                     decoratedStringSb.replace(possibleStartIdx, possibleEndIdx, HtmlUtils.fromHtmlCompact(Accessibility.HTML_POSSIBLE))
                 } else {
