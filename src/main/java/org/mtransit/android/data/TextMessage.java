@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.provider.POIProviderContract;
@@ -16,37 +17,28 @@ import org.mtransit.android.commons.provider.POIProviderContract;
 @SuppressWarnings("WeakerAccess")
 public class TextMessage extends DefaultPOI {
 
-	private static final String TAG = TextMessage.class.getSimpleName();
+	private static final String LOG_TAG = TextMessage.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
 
 	public static final String AUTHORITY = "org.mtransit.android.message";
 
-	private long messageId;
-	@SuppressWarnings("NotNullFieldNotInitialized")
+	private final long messageId;
 	@NonNull
-	private String message;
+	private final String message;
 
 	public TextMessage(long messageId, @NonNull String message) {
-		super(AUTHORITY, -1, POI.ITEM_VIEW_TYPE_TEXT_MESSAGE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_NONE);
-		setMessageId(messageId);
-		setMessage(message);
-	}
-
-	public void setMessageId(long messageId) {
+		super(AUTHORITY, DataSourceTypeId.INVALID, POI.ITEM_VIEW_TYPE_TEXT_MESSAGE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_NONE);
 		this.messageId = messageId;
+		this.message = message;
 	}
 
 	public long getMessageId() {
 		return messageId;
-	}
-
-	public void setMessage(@NonNull String message) {
-		this.message = message;
 	}
 
 	@NonNull
@@ -145,7 +137,7 @@ public class TextMessage extends DefaultPOI {
 			DefaultPOI.fromJSON(json, textMessage);
 			return textMessage;
 		} catch (JSONException jsone) {
-			MTLog.w(TAG, jsone, "Error while parsing JSON '%s'!", json);
+			MTLog.w(LOG_TAG, jsone, "Error while parsing JSON '%s'!", json);
 			return null;
 		}
 	}
@@ -159,7 +151,7 @@ public class TextMessage extends DefaultPOI {
 					json.getString(JSON_MESSAGE) //
 			);
 		} catch (JSONException jsone) {
-			MTLog.w(TAG, jsone, "Error while parsing simple JSON '%s'!", json);
+			MTLog.w(LOG_TAG, jsone, "Error while parsing simple JSON '%s'!", json);
 			return null;
 		}
 	}
@@ -168,6 +160,7 @@ public class TextMessage extends DefaultPOI {
 	@Override
 	public ContentValues toContentValues() {
 		ContentValues values = super.toContentValues();
+		values.put(TextMessageColumns.T_TEXT_MESSAGE_K_MESSAGE_ID, getMessageId());
 		values.put(TextMessageColumns.T_TEXT_MESSAGE_K_MESSAGE, getMessage());
 		return values;
 	}
