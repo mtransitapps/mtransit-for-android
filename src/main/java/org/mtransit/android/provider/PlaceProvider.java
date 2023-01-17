@@ -28,6 +28,7 @@ import org.mtransit.android.commons.NetworkUtils;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.UriUtils;
+import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.POI.POIUtils;
 import org.mtransit.android.commons.provider.AgencyProvider;
 import org.mtransit.android.commons.provider.ContentProviderConstants;
@@ -120,7 +121,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	private static final String[] PROJECTION_PLACE = new String[]{POIProviderContract.Columns.T_POI_K_SCORE_META_OPT, //
 			PlaceColumns.T_PLACE_K_PROVIDER_ID, PlaceColumns.T_PLACE_K_LANG, PlaceColumns.T_PLACE_K_READ_AT_IN_MS};
 
-	public static final String[] PROJECTION_PLACE_POI = ArrayUtils.addAllNonNull(POIProvider.PROJECTION_POI, PROJECTION_PLACE);
+	private static final String[] PROJECTION_PLACE_POI = ArrayUtils.addAllNonNull(POIProvider.PROJECTION_POI, PROJECTION_PLACE);
 
 	@NonNull
 	@Override
@@ -135,7 +136,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	 * Override if multiple {@link PlaceProvider} implementations in same app.
 	 */
 	@NonNull
-	public static String getGOOGLE_PLACES_API_KEY(@NonNull Context context) {
+	private static String getGOOGLE_PLACES_API_KEY(@NonNull Context context) {
 		if (googlePlacesApiKey == null) {
 			googlePlacesApiKey = context.getResources().getString(R.string.google_places_api_key);
 		}
@@ -295,7 +296,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	private static final String JSON_LNG = "lng";
 
 	@Nullable
-	private Cursor parseTextSearchJson(String jsonString, String authority, String lang, long nowInMs) {
+	private Cursor parseTextSearchJson(String jsonString, @NonNull String authority, @NonNull String lang, long nowInMs) {
 		try {
 			ArrayList<Place> result = new ArrayList<>();
 			JSONObject json = jsonString == null ? null : new JSONObject(jsonString);
@@ -373,7 +374,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	 * Override if multiple {@link PlaceProvider} implementations in same app.
 	 */
 	@NonNull
-	public static String getAUTHORITY(@NonNull Context context) {
+	private static String getAUTHORITY(@NonNull Context context) {
 		if (authority == null) {
 			authority = context.getResources().getString(R.string.place_authority);
 		}
@@ -420,7 +421,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	 * Override if multiple {@link PlaceProvider} in same app.
 	 */
 	@NonNull
-	public String getDbName() {
+	private String getDbName() {
 		return PlaceDbHelper.DB_NAME;
 	}
 
@@ -526,7 +527,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	}
 
 	@NonNull
-	public static ArrayMap<String, String> getNewPoiProjectionMap(@NonNull String authority) {
+	private static ArrayMap<String, String> getNewPoiProjectionMap(@NonNull String authority) {
 		// @formatter:off
 		final SqlUtils.ProjectionMapBuilder builder = SqlUtils.ProjectionMapBuilder.getNew() //
 				.appendValue(SqlUtils.concatenate( //
@@ -534,7 +535,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 						SqlUtils.escapeString(authority), //
 						SqlUtils.getTableColumn(PlaceDbHelper.T_PLACE, PlaceDbHelper.T_PLACE_K_PROVIDER_ID) //
 						), POIProviderContract.Columns.T_POI_K_UUID_META) //
-				.appendValue(Place.DST_ID, POIProviderContract.Columns.T_POI_K_DST_ID_META) //
+				.appendValue(DataSourceTypeId.PLACE, POIProviderContract.Columns.T_POI_K_DST_ID_META) //
 				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ID, POIProviderContract.Columns.T_POI_K_ID) //
 				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_NAME, POIProviderContract.Columns.T_POI_K_NAME) //
 				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_LAT, POIProviderContract.Columns.T_POI_K_LAT) //
@@ -599,7 +600,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	 * Override if multiple {@link PlaceProvider} implementations in same app.
 	 */
 	@NonNull
-	public PlaceDbHelper getNewDbHelper(@NonNull Context context) {
+	private PlaceDbHelper getNewDbHelper(@NonNull Context context) {
 		return new PlaceDbHelper(context.getApplicationContext());
 	}
 

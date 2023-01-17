@@ -27,6 +27,7 @@ import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.AppStatus;
+import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POI.POIUtils;
@@ -648,7 +649,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 						SqlUtils.escapeString(authority), //
 						SqlUtils.getTableColumn(ModuleDbHelper.T_MODULE, ModuleDbHelper.T_MODULE_K_PKG) //
 						), POIProviderContract.Columns.T_POI_K_UUID_META) //
-				.appendValue(Module.DST_ID, POIProviderContract.Columns.T_POI_K_DST_ID_META) //
+				.appendValue(DataSourceTypeId.MODULE, POIProviderContract.Columns.T_POI_K_DST_ID_META) //
 				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_ID, POIProviderContract.Columns.T_POI_K_ID) //
 				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_NAME, POIProviderContract.Columns.T_POI_K_NAME) //
 				.appendTableColumn(POIProvider.POIDbHelper.T_POI, POIProvider.POIDbHelper.T_POI_K_LAT, POIProviderContract.Columns.T_POI_K_LAT) //

@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.provider.PlaceProvider;
@@ -23,55 +24,45 @@ public class Place extends DefaultPOI {
 		return LOG_TAG;
 	}
 
-	public static final int DST_ID = DataSourceType.TYPE_PLACE.getId();
+	@NonNull
+	private final String providerId;
 
-	private String providerId;
+	@NonNull
+	private final String lang;
 
-	private String lang;
+	private final long readAtInMs;
 
-	private long readAtInMs = -1L;
-
-	public Place(@NonNull String authority, String providerId, String lang, long readAtInMs) {
-		super(authority, DST_ID, POI.ITEM_VIEW_TYPE_BASIC_POI, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_PLACE);
-		setProviderId(providerId);
-		setLang(lang);
-		setReadAtInMs(readAtInMs);
+	public Place(@NonNull String authority, @NonNull String providerId, @NonNull String lang, long readAtInMs) {
+		super(authority, DataSourceTypeId.PLACE, POI.ITEM_VIEW_TYPE_BASIC_POI, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_PLACE);
+		this.providerId = providerId;
+		this.lang = lang;
+		this.readAtInMs = readAtInMs;
+		resetUUID();
 	}
 
+	@NonNull
 	public String getProviderId() {
 		return providerId;
 	}
 
-	private void setProviderId(String providerId) {
-		this.providerId = providerId;
-		resetUUID();
-	}
-
+	@NonNull
 	public String getLang() {
 		return lang;
-	}
-
-	private void setLang(String lang) {
-		this.lang = lang;
 	}
 
 	public long getReadAtInMs() {
 		return readAtInMs;
 	}
 
-	private void setReadAtInMs(long readAtInMs) {
-		this.readAtInMs = readAtInMs;
-	}
-
 	@NonNull
 	@Override
 	public String toString() {
-		return new StringBuilder().append(Place.class.getSimpleName()).append(":[") //
-				.append("authority:").append(getAuthority()).append(',') //
-				.append("providerId:").append(getProviderId()).append(',') //
-				.append("id:").append(getId()).append(',') //
-				.append("name:").append(getName()).append(',') //
-				.append(']').toString();
+		return Place.class.getSimpleName() + ":[" + //
+				"authority:" + getAuthority() + ',' + //
+				"providerId:" + getProviderId() + ',' + //
+				"id:" + getId() + ',' + //
+				"name:" + getName() + ',' + //
+				']';
 	}
 
 	@ItemViewType
@@ -141,7 +132,7 @@ public class Place extends DefaultPOI {
 	}
 
 	@Nullable
-	public static Place fromJSONStatic(JSONObject json) {
+	public static Place fromJSONStatic(@NonNull JSONObject json) {
 		try {
 			Place module = new Place( //
 					DefaultPOI.getAuthorityFromJSON(json), //
@@ -174,7 +165,7 @@ public class Place extends DefaultPOI {
 	}
 
 	@NonNull
-	public static Place fromCursorStatic(@NonNull Cursor c, String authority) {
+	public static Place fromCursorStatic(@NonNull Cursor c, @NonNull String authority) {
 		String providerId = c.getString(c.getColumnIndexOrThrow(PlaceProvider.PlaceColumns.T_PLACE_K_PROVIDER_ID));
 		String lang = c.getString(c.getColumnIndexOrThrow(PlaceProvider.PlaceColumns.T_PLACE_K_LANG));
 		long readAtInMs = c.getLong(c.getColumnIndexOrThrow(PlaceProvider.PlaceColumns.T_PLACE_K_READ_AT_IN_MS));

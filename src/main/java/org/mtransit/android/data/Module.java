@@ -14,6 +14,7 @@ import org.mtransit.android.BuildConfig;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.LocaleUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.provider.ModuleProvider;
@@ -21,15 +22,13 @@ import org.mtransit.android.provider.ModuleProvider;
 @SuppressWarnings("WeakerAccess")
 public class Module extends DefaultPOI {
 
-	private static final String TAG = Module.class.getSimpleName();
+	private static final String LOG_TAG = Module.class.getSimpleName();
 
 	@NonNull
 	@Override
 	public String getLogTag() {
-		return TAG;
+		return LOG_TAG;
 	}
-
-	public static final int DST_ID = DataSourceType.TYPE_MODULE.getId();
 
 	@NonNull
 	private final String pkg;
@@ -46,7 +45,7 @@ public class Module extends DefaultPOI {
 	private String nameFr = null;
 
 	public Module(@NonNull String authority, @NonNull String pkg, int targetTypeId) {
-		super(authority, DST_ID, POI.ITEM_VIEW_TYPE_MODULE, POI.ITEM_STATUS_TYPE_APP, POI.ITEM_ACTION_TYPE_APP);
+		super(authority, DataSourceTypeId.MODULE, POI.ITEM_VIEW_TYPE_MODULE, POI.ITEM_STATUS_TYPE_APP, POI.ITEM_ACTION_TYPE_APP);
 		this.pkg = pkg;
 		resetUUID();
 		this.targetTypeId = targetTypeId;
@@ -228,7 +227,7 @@ public class Module extends DefaultPOI {
 			DefaultPOI.fromJSON(json, module);
 			return module;
 		} catch (JSONException jsone) {
-			MTLog.w(TAG, jsone, "Error while parsing JSON '%s'!", json);
+			MTLog.w(LOG_TAG, jsone, "Error while parsing JSON '%s'!", json);
 			return null;
 		}
 	}
@@ -258,7 +257,7 @@ public class Module extends DefaultPOI {
 			}
 			return module;
 		} catch (JSONException jsone) {
-			MTLog.w(TAG, jsone, "Error while parsing simple JSON '%s'!", json);
+			MTLog.w(LOG_TAG, jsone, "Error while parsing simple JSON '%s'!", json);
 			return null;
 		}
 	}
