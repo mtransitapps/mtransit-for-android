@@ -28,13 +28,11 @@ public class TextMessage extends DefaultPOI {
 	public static final String AUTHORITY = "org.mtransit.android.message";
 
 	private final long messageId;
-	@NonNull
-	private final String message;
 
 	public TextMessage(long messageId, @NonNull String message) {
 		super(AUTHORITY, DataSourceTypeId.INVALID, POI.ITEM_VIEW_TYPE_TEXT_MESSAGE, POI.ITEM_STATUS_TYPE_NONE, POI.ITEM_ACTION_TYPE_NONE);
 		this.messageId = messageId;
-		this.message = message;
+		setName(message);
 	}
 
 	public long getMessageId() {
@@ -43,13 +41,7 @@ public class TextMessage extends DefaultPOI {
 
 	@NonNull
 	public String getMessage() {
-		return this.message;
-	}
-
-	@NonNull
-	@Override
-	public String getName() {
-		return getMessage();
+		return getName();
 	}
 
 	@NonNull
