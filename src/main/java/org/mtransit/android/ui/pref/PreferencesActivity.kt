@@ -15,6 +15,7 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.MTActivity
+import org.mtransit.android.ui.setUpEdgeToEdge
 import org.mtransit.android.util.NightModeUtils
 import javax.inject.Inject
 
@@ -65,6 +66,7 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
     private var currentUiMode = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setUpEdgeToEdge()
         this.currentUiMode = resources.configuration.uiMode
         LocaleUtils.onCreateActivity(this)
         super.onCreate(savedInstanceState)

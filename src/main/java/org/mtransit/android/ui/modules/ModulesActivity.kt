@@ -8,6 +8,7 @@ import androidx.core.view.WindowCompat
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.ui.MTActivity
+import org.mtransit.android.ui.setUpEdgeToEdge
 
 @AndroidEntryPoint
 class ModulesActivity : MTActivity(R.layout.activity_modules) {
@@ -25,8 +26,8 @@ class ModulesActivity : MTActivity(R.layout.activity_modules) {
     override fun getLogTag(): String = LOG_TAG
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setUpEdgeToEdge()
         super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
     }
 
     override fun onSupportNavigateUp(): Boolean {

@@ -470,7 +470,6 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
                 binding.day.text = null
                 return
             }
-
             val timeSb = SpannableStringBuilder(
                 UITimeUtils.getNearRelativeDay(
                     context,

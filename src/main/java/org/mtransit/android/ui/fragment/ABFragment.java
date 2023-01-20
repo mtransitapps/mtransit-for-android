@@ -1,6 +1,8 @@
 package org.mtransit.android.ui.fragment;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.CallSuper;
@@ -19,6 +21,7 @@ import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.ActionBarController;
+import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.commons.FeatureFlags;
@@ -73,10 +76,17 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 	@Nullable
 	@ColorInt
 	public Integer getABBgColor(@Nullable Context context) {
+		if (isABStatusBarTransparent()) {
+			return Color.TRANSPARENT;
+		}
 		if (this.defaultABBgColor == null && context != null) {
 			this.defaultABBgColor = ThemeUtils.resolveColorAttribute(context, R.attr.colorPrimary);
 		}
 		return this.defaultABBgColor;
+	}
+
+	public boolean isABStatusBarTransparent() {
+		return false;
 	}
 
 	@Nullable
@@ -123,6 +133,13 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 			return null;
 		}
 		return (MainActivity) activity;
+	}
+
+	@CallSuper
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		EdgeToEdgeKt.setStatusBarColor(requireActivity(), isABStatusBarTransparent());
 	}
 
 	@Override

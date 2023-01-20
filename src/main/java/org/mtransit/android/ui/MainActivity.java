@@ -131,6 +131,7 @@ public class MainActivity extends MTActivityWithLocation implements
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
+		EdgeToEdgeKt.setUpEdgeToEdge(this);
 		super.onCreate(savedInstanceState);
 		adManager.init(this);
 		NightModeUtils.resetColorCache(); // single activity, no cache can be trusted to be from the right theme
@@ -154,6 +155,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		);
 		MapUtils.fixScreenFlickering(findViewById(R.id.content_frame));
 		registerReceiver(new ModulesReceiver(), ModulesReceiver.getIntentFilter()); // Android 12
+		EdgeToEdgeKt.setUpEdgeToEdgeTop(findViewById(R.id.drawer_layout));
 	}
 
 	@Override

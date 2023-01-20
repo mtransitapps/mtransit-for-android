@@ -44,6 +44,7 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.search.SearchFragment
+import org.mtransit.android.ui.setUpEdgeToEdge
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.util.NightModeUtils
 import java.util.concurrent.atomic.AtomicInteger
@@ -145,6 +146,7 @@ class MainActivity : MTActivityWithLocation(),
 
     private var currentUiMode = -1
     override fun onCreate(savedInstanceState: Bundle?) {
+        setUpEdgeToEdge()
         super.onCreate(savedInstanceState)
         adManager.init(this)
         NightModeUtils.resetColorCache() // single activity, no cache can be trusted to be from the right theme

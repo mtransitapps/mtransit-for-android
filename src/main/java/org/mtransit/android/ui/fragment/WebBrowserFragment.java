@@ -270,6 +270,14 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		return super.getABBgColor(context);
 	}
 
+	@Override
+	public boolean isABStatusBarTransparent() {
+		if (FileUtils.isImageURL(this.initialUrl)) {
+			return true;
+		}
+		return super.isABStatusBarTransparent();
+	}
+
 	@Nullable
 	@Override
 	public CharSequence getABSubtitle(@Nullable Context context) {

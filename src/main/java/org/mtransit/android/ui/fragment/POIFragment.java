@@ -69,6 +69,7 @@ import org.mtransit.android.provider.permission.LocationPermissionProvider;
 import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
+import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.MTActivityWithLocation;
 import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.main.MainViewModel;
@@ -467,6 +468,7 @@ public class POIFragment extends ABFragment implements
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		EdgeToEdgeKt.setStatusBarColor(requireActivity(), true);
 		MTTransitions.postponeEnterTransition(this);
 		requireActivity().addMenuProvider(
 				this, getViewLifecycleOwner(), Lifecycle.State.RESUMED
@@ -1413,10 +1415,9 @@ public class POIFragment extends ABFragment implements
 		return context.getString(R.string.ellipsis);
 	}
 
-	@Nullable
 	@Override
-	public Integer getABBgColor(@Nullable Context context) {
-		return Color.TRANSPARENT;
+	public boolean isABStatusBarTransparent() {
+		return true;
 	}
 
 	@Override

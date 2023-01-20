@@ -35,6 +35,8 @@
     <color name="rsn_color">#FFFFFF</color>
     <color name="rln_color">#FFFFFF</color>
 
+    <color name="navigation_bar_scrim_light">#63FFFFFF</color>
+
     <color name="button_bg">@color/color_primary_dark</color>
     <color name="head_sign_shadow">#66000000</color><!-- 40% -->
 

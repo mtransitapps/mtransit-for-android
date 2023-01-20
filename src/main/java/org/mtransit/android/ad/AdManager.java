@@ -45,6 +45,7 @@ import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.DemoModeManager;
+import org.mtransit.android.ui.EdgeToEdgeKt;
 import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.commons.FeatureFlags;
 
@@ -72,7 +73,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
  * MORE:
  * - https://developers.google.com/admob/android/test-ads
  */
-@SuppressLint("MissingPermission")
+@SuppressWarnings("WeakerAccess")
+@SuppressLint({"MissingPermission", "VisibleForTests"})
 public class AdManager implements IAdManager, MTLog.Loggable {
 
 	private static final String LOG_TAG = AdManager.class.getSimpleName();
@@ -714,15 +716,16 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	}
 
 	private void hideAds(@NonNull IActivity activity) {
-		View adLayout = activity.findViewById(R.id.ad_layout);
+		final View adLayout = activity.findViewById(R.id.ad_layout);
 		if (adLayout != null) {
-			AdView adView = adLayout.findViewById(R.id.ad);
+			final AdView adView = adLayout.findViewById(R.id.ad);
 			if (adLayout.getVisibility() != View.GONE) {
 				adLayout.setVisibility(View.GONE);
 			}
 			if (adView != null && adView.getVisibility() != View.GONE) {
 				adView.setVisibility(View.GONE);
 			}
+			EdgeToEdgeKt.setNavigationBarColor(activity.getActivity(), true);
 		}
 	}
 
@@ -750,15 +753,17 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	}
 
 	private void showAds(@NonNull IActivity activity) {
-		View adLayout = activity.findViewById(R.id.ad_layout);
+		final View adLayout = activity.findViewById(R.id.ad_layout);
 		if (adLayout != null) {
-			AdView adView = adLayout.findViewById(R.id.ad);
+			final AdView adView = adLayout.findViewById(R.id.ad);
 			if (adView != null && adView.getVisibility() != View.VISIBLE) {
 				adView.setVisibility(View.VISIBLE);
 			}
 			if (adLayout.getVisibility() != View.VISIBLE) {
 				adLayout.setVisibility(View.VISIBLE);
 			}
+			EdgeToEdgeKt.setUpEdgeToEdgeBottom(adLayout);
+			EdgeToEdgeKt.setNavigationBarColor(activity.getActivity(), false);
 		}
 	}
 
