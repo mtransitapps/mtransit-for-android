@@ -1,5 +1,7 @@
 package org.mtransit.android.provider.location;
 
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.location.Location;
 
 import androidx.annotation.NonNull;
@@ -17,6 +19,8 @@ public interface MTLocationProvider {
 
 	void doSetup(@NonNull ScreenWithLocationView screenWithLocationView);
 
+	void checkLocationSettings();
+
 	boolean handleRequestPermissionsResult(@NonNull ScreenWithLocationView screenWithLocationView,
 										   int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults);
 
@@ -24,6 +28,10 @@ public interface MTLocationProvider {
 	Location getLastLocationOrNull();
 
 	void readLastLocation();
+
+	void addOnLocationSettingsChangeListener(@NonNull OnLocationSettingsChangeListener onLastLocationChangeListener);
+
+	void removeOnLocationSettingsChangeListener(@NonNull OnLocationSettingsChangeListener onLastLocationChangeListener);
 
 	void addOnLastLocationChangeListener(@NonNull OnLastLocationChangeListener onLastLocationChangeListener);
 
@@ -66,5 +74,9 @@ public interface MTLocationProvider {
 
 	interface OnLastLocationChangeListener {
 		void onLastLocationChanged(@Nullable Location lastLocation);
+	}
+
+	interface OnLocationSettingsChangeListener {
+		void onLocationSettingsResolution(@Nullable PendingIntent resolution);
 	}
 }

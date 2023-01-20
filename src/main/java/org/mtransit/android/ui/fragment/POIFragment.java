@@ -1,9 +1,9 @@
 package org.mtransit.android.ui.fragment;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -108,7 +108,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class POIFragment extends ABFragment implements
 		POIDataProvider,
-		MTActivityWithLocation.UserLocationListener,
+		MTActivityWithLocation.DeviceLocationListener,
 		SensorEventListener,
 		MTSensorManager.CompassListener,
 		MTSensorManager.SensorTaskCompleted,
@@ -937,7 +937,11 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Override
-	public void onUserLocationChanged(@Nullable Location newLocation) {
+	public void onLocationSettingsResolution(@Nullable PendingIntent resolution) {
+	}
+
+	@Override
+	public void onDeviceLocationChanged(@Nullable Location newLocation) {
 		if (newLocation == null) {
 			return;
 		}
@@ -1045,7 +1049,7 @@ public class POIFragment extends ABFragment implements
 			setupNearbyList();
 		}
 		if (getActivity() != null) {
-			onUserLocationChanged(((MTActivityWithLocation) getActivity()).getUserLocation());
+			onDeviceLocationChanged(((MTActivityWithLocation) getActivity()).getDeviceLocation());
 		}
 		this.adManager.setRewardedAdListener(this);
 		this.adManager.refreshRewardedAdStatus(this);

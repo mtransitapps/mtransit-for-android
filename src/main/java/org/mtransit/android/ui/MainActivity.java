@@ -1,6 +1,7 @@
 package org.mtransit.android.ui;
 
 import android.annotation.SuppressLint;
+import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -224,7 +225,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		this.adManager.linkRewardedAd(this);
 		this.billingManager.addListener(this); // trigger onBillingResult() w/ current value
 		this.billingManager.refreshPurchases();
-		onLastLocationChanged(getUserLocation());
+		onLastLocationChanged(getDeviceLocation());
 	}
 
 	@Override
@@ -420,7 +421,22 @@ public class MainActivity extends MTActivityWithLocation implements
 
 	@Override
 	public void onLastLocationChanged(@Nullable Location lastLocation) {
-		MTActivityWithLocation.broadcastUserLocationChanged(this, getSupportFragmentManager().getFragments(), lastLocation);
+		MTActivityWithLocation.broadcastDeviceLocationChanged(this, getSupportFragmentManager().getFragments(), lastLocation);
+	}
+
+	@Nullable
+	private PendingIntent locationSettingsResolution = null;
+
+	@Override
+	public void onLocationSettingsResolution(@Nullable PendingIntent resolution) {
+		this.locationSettingsResolution = resolution;
+		MTActivityWithLocation.broadcastLocationSettingsResolutionChanged(this, getSupportFragmentManager().getFragments(), resolution);
+	}
+
+	@Nullable
+	@Override
+	public PendingIntent getLastLocationSettingsResolution() {
+		return this.locationSettingsResolution;
 	}
 
 	public boolean isCurrentFragmentVisible(@Nullable Fragment fragment) {

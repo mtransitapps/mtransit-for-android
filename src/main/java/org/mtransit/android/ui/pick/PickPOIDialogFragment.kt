@@ -2,6 +2,7 @@
 package org.mtransit.android.ui.pick
 
 import android.app.Dialog
+import android.app.PendingIntent
 import android.content.Context
 import android.location.Location
 import android.os.Bundle
@@ -32,7 +33,7 @@ import org.mtransit.android.ui.view.common.isVisible
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLocationListener, IActivity {
+class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.DeviceLocationListener, IActivity {
 
     companion object {
         private val LOG_TAG = PickPOIDialogFragment::class.java.simpleName
@@ -167,10 +168,15 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.UserLo
     override fun onResume() {
         super.onResume()
         this.adapter.onResume(this, viewModel.deviceLocation.value)
-        (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
+        (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
+        (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
     }
 
-    override fun onUserLocationChanged(newLocation: Location?) {
+    override fun onLocationSettingsResolution(resolution: PendingIntent?) {
+        attachedViewModel?.onLocationSettingsResolution(resolution)
+    }
+
+    override fun onDeviceLocationChanged(newLocation: Location?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 

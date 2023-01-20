@@ -1,6 +1,7 @@
 @file:JvmName("MapFragment") // ANALYTICS
 package org.mtransit.android.ui.map
 
+import android.app.PendingIntent
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
@@ -26,7 +27,7 @@ import org.mtransit.android.databinding.FragmentMapBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.ui.MTActivityWithLocation
-import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
+import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MTDialog
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.MapViewController
@@ -34,7 +35,7 @@ import org.mtransit.android.ui.view.common.isAttached
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener, MenuProvider {
+class MapFragment : ABFragment(R.layout.fragment_map), DeviceLocationListener, MenuProvider {
 
     companion object {
         private val LOG_TAG = MapFragment::class.java.simpleName
@@ -227,10 +228,15 @@ class MapFragment : ABFragment(R.layout.fragment_map), UserLocationListener, Men
         super.onResume()
         mapViewController.onResume()
         mapViewController.showMap(view)
-        (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
+        (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
+        (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
     }
 
-    override fun onUserLocationChanged(newLocation: Location?) {
+    override fun onLocationSettingsResolution(resolution: PendingIntent?) {
+        attachedViewModel?.onLocationSettingsResolution(resolution)
+    }
+
+    override fun onDeviceLocationChanged(newLocation: Location?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 

@@ -1,6 +1,7 @@
 package org.mtransit.android.provider.location;
 
 import android.annotation.SuppressLint;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.location.Location;
 import android.os.Looper;
@@ -9,12 +10,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.Priority;
+import com.google.android.gms.location.SettingsClient;
 
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
@@ -24,7 +30,6 @@ import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.dev.FakeLocation;
 import org.mtransit.android.provider.permission.LocationPermissionProvider;
 
-import java.util.Arrays;
 import java.util.WeakHashMap;
 
 import javax.inject.Inject;
@@ -46,10 +51,18 @@ public class GoogleLocationProvider
 		return LOG_TAG;
 	}
 
-	private static final LocationRequest FOREGROUND_LOCATION_REQUEST = LocationRequest.create() //
-			.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY) // foreground app == high accuracy
-			.setInterval(LocationUtils.UPDATE_INTERVAL_IN_MS) //
-			.setFastestInterval(LocationUtils.FASTEST_INTERVAL_IN_MS);
+	private static final LocationRequest FOREGROUND_LOCATION_REQUEST = new LocationRequest.Builder(
+			Priority.PRIORITY_HIGH_ACCURACY, // foreground app == high accuracy
+			LocationUtils.UPDATE_INTERVAL_IN_MS)
+			.setMinUpdateIntervalMillis(LocationUtils.FASTEST_INTERVAL_IN_MS)
+			.build();
+
+	private static final LocationSettingsRequest LOCATION_SETTINGS_REQUEST = new LocationSettingsRequest.Builder()
+			.addLocationRequest(FOREGROUND_LOCATION_REQUEST)
+			.build();
+
+	@Nullable
+	private SettingsClient settingsClient = null;
 
 	@Nullable
 	private FusedLocationProviderClient fusedLocationProviderClient = null;
@@ -59,6 +72,9 @@ public class GoogleLocationProvider
 	@Nullable
 	private LocationCallback foregroundLocationCallback = null;
 	private boolean foregroundLocationUpdatesEnabled = false;
+
+	@NonNull
+	private final WeakHashMap<OnLocationSettingsChangeListener, Object> onLocationSettingsChangeListeners = new WeakHashMap<>();
 
 	@NonNull
 	private final WeakHashMap<OnLastLocationChangeListener, Object> onLastLocationChangeListeners = new WeakHashMap<>();
@@ -73,10 +89,10 @@ public class GoogleLocationProvider
 	private final CrashReporter crashReporter;
 
 	@Inject
-	public GoogleLocationProvider(@NonNull @ApplicationContext Context appContext,
-								  @NonNull LocationPermissionProvider permissionProvider,
-								  @NonNull DemoModeManager demoModeManager,
-								  @NonNull CrashReporter crashReporter) {
+	GoogleLocationProvider(@NonNull @ApplicationContext Context appContext,
+						   @NonNull LocationPermissionProvider permissionProvider,
+						   @NonNull DemoModeManager demoModeManager,
+						   @NonNull CrashReporter crashReporter) {
 		this.appContext = appContext;
 		this.permissionProvider = permissionProvider;
 		this.demoModeManager = demoModeManager;
@@ -191,7 +207,11 @@ public class GoogleLocationProvider
 			this.foregroundLocationCallback = null;
 		}
 		this.foregroundLocationCallback = new MTLocationCallback(this);
-		getFusedLocationProviderClient().requestLocationUpdates(FOREGROUND_LOCATION_REQUEST, this.foregroundLocationCallback, Looper.getMainLooper());
+		getFusedLocationProviderClient().requestLocationUpdates(
+				FOREGROUND_LOCATION_REQUEST,
+				this.foregroundLocationCallback,
+				Looper.getMainLooper()
+		);
 	}
 
 	private void disableForegroundLocationUpdates() {
@@ -199,7 +219,9 @@ public class GoogleLocationProvider
 			crashReporter.shouldNotHappen("Foreground location callback null (cannot be disabled)!");
 			return;
 		}
-		getFusedLocationProviderClient().removeLocationUpdates(this.foregroundLocationCallback);
+		getFusedLocationProviderClient().removeLocationUpdates(
+				this.foregroundLocationCallback
+		);
 		this.foregroundLocationCallback = null; // required!
 	}
 
@@ -234,16 +256,26 @@ public class GoogleLocationProvider
 			MTLog.d(this, "onNewLastLocation(%s)", lastLocation);
 		}
 		this.lastLocation = lastLocation;
-		broadcastUserLocationChanged(this.lastLocation);
+		broadcastDeviceLocationChanged(this.lastLocation);
 	}
 
-	private void broadcastUserLocationChanged(@Nullable Location lastLocation) {
+	private void broadcastDeviceLocationChanged(@Nullable Location lastLocation) {
 		for (OnLastLocationChangeListener lastLocationChangeListener : this.onLastLocationChangeListeners.keySet()) {
 			if (lastLocationChangeListener == null) {
 				continue;
 			}
 			lastLocationChangeListener.onLastLocationChanged(lastLocation);
 		}
+	}
+
+	@Override
+	public void addOnLocationSettingsChangeListener(@NonNull OnLocationSettingsChangeListener onLastLocationChangeListener) {
+		this.onLocationSettingsChangeListeners.put(onLastLocationChangeListener, null);
+	}
+
+	@Override
+	public void removeOnLocationSettingsChangeListener(@NonNull OnLocationSettingsChangeListener onLastLocationChangeListener) {
+		this.onLocationSettingsChangeListeners.remove(onLastLocationChangeListener);
 	}
 
 	@Override
@@ -266,6 +298,14 @@ public class GoogleLocationProvider
 		return this.fusedLocationProviderClient;
 	}
 
+	@NonNull
+	private SettingsClient getSettingsClient() {
+		if (this.settingsClient == null) {
+			this.settingsClient = LocationServices.getSettingsClient(this.appContext);
+		}
+		return this.settingsClient;
+	}
+
 	@WorkerThread
 	@NonNull
 	@Override
@@ -281,6 +321,36 @@ public class GoogleLocationProvider
 	@Override
 	public void updateDistanceWithString(@Nullable LocationUtils.LocationPOI poi, @Nullable Location currentLocation) {
 		LocationUtils.updateDistanceWithString(this.appContext, poi, currentLocation);
+	}
+
+	@Override
+	public void checkLocationSettings() {
+		getSettingsClient().checkLocationSettings(LOCATION_SETTINGS_REQUEST)
+				.addOnSuccessListener(this::onLocationSettingsSuccess)
+				.addOnFailureListener(this::onLocationSettingsFailure)
+		;
+	}
+
+	private void onLocationSettingsSuccess(LocationSettingsResponse locationSettingsResponse) {
+		broadcastLocationSettingsChanged(null);
+	}
+
+	private void onLocationSettingsFailure(Exception e) {
+		if (e instanceof ResolvableApiException) {
+			final ResolvableApiException resolvable = (ResolvableApiException) e;
+			broadcastLocationSettingsChanged(resolvable.getResolution());
+		} else {
+			broadcastLocationSettingsChanged(null);
+		}
+	}
+
+	private void broadcastLocationSettingsChanged(@Nullable PendingIntent resolution) {
+		for (OnLocationSettingsChangeListener locationSettingsChangeListener : this.onLocationSettingsChangeListeners.keySet()) {
+			if (locationSettingsChangeListener == null) {
+				continue;
+			}
+			locationSettingsChangeListener.onLocationSettingsResolution(resolution);
+		}
 	}
 
 	private static class MTLocationCallback extends LocationCallback implements MTLog.Loggable {

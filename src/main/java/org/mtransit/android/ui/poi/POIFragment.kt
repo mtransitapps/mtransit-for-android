@@ -50,7 +50,7 @@ package org.mtransit.android.ui.poi
 //import org.mtransit.android.task.ServiceUpdateLoader
 //import org.mtransit.android.task.StatusLoader
 //import org.mtransit.android.ui.MTActivityWithLocation
-//import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
+//import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 //import org.mtransit.android.ui.MainActivity
 //import org.mtransit.android.ui.fragment.ABFragment
 //import org.mtransit.android.ui.map.MapFragment.Companion.newInstance
@@ -73,7 +73,7 @@ package org.mtransit.android.ui.poi
 //import javax.inject.Inject
 //
 //@AndroidEntryPoint
-//class POIFragment : ABFragment(R.layout.fragment_poi), UserLocationListener, POIDataProvider, TimeChangedListener, FavoriteUpdateListener {
+//class POIFragment : ABFragment(R.layout.fragment_poi), DeviceLocationListener, POIDataProvider, TimeChangedListener, FavoriteUpdateListener {
 //
 //    companion object {
 //        private val LOG_TAG = POIFragment::class.java.simpleName
@@ -894,12 +894,13 @@ package org.mtransit.android.ui.poi
 //        adapter.onResume(this, viewModel.deviceLocation.value)
 //        mapViewController.onResume()
 //        mapViewController.showMap(view)
-//        (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
+//        (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
+//        (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
 //        viewModel.onResumeRewardedAd(this, rewardedAdListener)
 //        sensorManager.registerCompassListener(sensorEventListener)
 //    }
 //
-//    override fun onUserLocationChanged(newLocation: Location?) {
+//    override fun onDeviceLocationChanged(newLocation: Location?) {
 //        viewModel.onDeviceLocationChanged(newLocation)
 //        // TODO ?
 //    }

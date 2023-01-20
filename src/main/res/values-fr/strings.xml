@@ -97,7 +97,8 @@
     <string name="favorite_folder_pick_ok">OK</string>
     <string name="favorite_folder_pick_cancel">Annuler</string>
     <string name="favorite_folder_default">(défaut)</string>
-    <string name="new_location_toast">Nouvelle position. Rafraichir.</string>
+    <string name="location_settings_toast">Paramètre de localisation de l\'appareil désactivé. ACTIVER.</string>
+    <string name="new_location_toast">Nouvelle position. RAFRAICHIR.</string>
     <string name="no_results">Aucun Résultats</string>
     <string name="world_explored">Exploration planétaire complète</string>
     <string name="module_label">+</string>

@@ -1,6 +1,7 @@
 @file:JvmName("RTSRouteFragment") // ANALYTICS
 package org.mtransit.android.ui.rts.route
 
+import android.app.PendingIntent
 import android.content.Context
 import android.location.Location
 import android.os.Bundle
@@ -22,7 +23,7 @@ import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.data.decorateDirection
 import org.mtransit.android.databinding.FragmentRtsRouteBinding
 import org.mtransit.android.ui.MTActivityWithLocation
-import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
+import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
@@ -34,7 +35,7 @@ import org.mtransit.commons.FeatureFlags
 import kotlin.math.abs
 
 @AndroidEntryPoint
-class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationListener {
+class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocationListener {
 
     companion object {
         private val LOG_TAG = RTSRouteFragment::class.java.simpleName
@@ -216,10 +217,15 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), UserLocationLi
         super.onResume()
         switchView()
         showSelectedTab()
-        (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
+        (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
+        (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
     }
 
-    override fun onUserLocationChanged(newLocation: Location?) {
+    override fun onLocationSettingsResolution(resolution: PendingIntent?) {
+        attachedViewModel?.onLocationSettingsResolution(resolution)
+    }
+
+    override fun onDeviceLocationChanged(newLocation: Location?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 

@@ -3,6 +3,7 @@ package org.mtransit.android.ui.nearby
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.PendingIntent
 import android.content.Context
 import android.location.Location
 import android.os.Bundle
@@ -33,7 +34,7 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentNearbyBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MTActivityWithLocation
-import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
+import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.main.MainViewModel
@@ -46,7 +47,7 @@ import org.mtransit.android.util.MapUtils
 import org.mtransit.commons.FeatureFlags
 
 @AndroidEntryPoint
-class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListener, MenuProvider {
+class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListener, MenuProvider {
 
     companion object {
         private val LOG_TAG = NearbyFragment::class.java.simpleName
@@ -360,7 +361,11 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
         this.selectedPosition = this.lastPageSelected // set selected position before update tabs color
     }
 
-    override fun onUserLocationChanged(newLocation: Location?) {
+    override fun onLocationSettingsResolution(resolution: PendingIntent?) {
+        attachedViewModel?.onLocationSettingsResolution(resolution)
+    }
+
+    override fun onDeviceLocationChanged(newLocation: Location?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
@@ -431,7 +436,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), UserLocationListene
     override fun onResume() {
         super.onResume()
         switchView()
-        (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
+        (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
+        (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.setABTitle(getABTitle(context))
             mainViewModel.setABSubtitle(getABSubtitle(context))

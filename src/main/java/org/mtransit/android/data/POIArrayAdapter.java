@@ -1154,11 +1154,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return POIArrayAdapter.class.getSimpleName() + getLogTag();
 	}
 
-	public void onResume(@NonNull IActivity activity, @Nullable Location userLocation) {
+	public void onResume(@NonNull IActivity activity, @Nullable Location deviceLocation) {
 		setActivity(activity);
 		this.showingAccessibilityInfo = null; // force user preference check
 		this.location = null; // clear current location to force refresh
-		setLocation(userLocation);
+		setLocation(deviceLocation);
 		refreshFavorites();
 		enableTimeChangedReceiver(); // need to be enabled even if no schedule status displayed to keep others statuses up-to-date
 	}

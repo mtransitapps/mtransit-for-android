@@ -2,6 +2,7 @@
 package org.mtransit.android.ui.main
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
@@ -254,7 +255,7 @@ class MainActivity : MTActivityWithLocation(),
         adManager.linkRewardedAd(this)
         billingManager.addListener(this) // trigger onBillingResult() w/ current value
         billingManager.refreshPurchases()
-        onLastLocationChanged(userLocation)
+        onLastLocationChanged(deviceLocation)
     }
 
     override fun onRewardedAdStatusChanged() {
@@ -299,8 +300,17 @@ class MainActivity : MTActivityWithLocation(),
     }
 
     override fun onLastLocationChanged(lastLocation: Location?) {
-        broadcastUserLocationChanged(this, navHostFragment.childFragmentManager.fragments, lastLocation)
+        broadcastDeviceLocationChanged(this, navHostFragment.childFragmentManager.fragments, lastLocation)
     }
+
+    private var locationSettingsResolution: PendingIntent? = null
+
+    override fun onLocationSettingsResolution(resolution: PendingIntent?) {
+        this.locationSettingsResolution = resolution
+        broadcastLocationSettingsResolutionChanged(this, navHostFragment.childFragmentManager.fragments, resolution)
+    }
+
+    override fun getLastLocationSettingsResolution() = this.locationSettingsResolution
 
     private val currentFragment: Fragment?
         get() = supportFragmentManager.primaryNavigationFragment // TODO ?

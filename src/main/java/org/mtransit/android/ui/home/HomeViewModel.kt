@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.home
 
+import android.app.PendingIntent
 import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -69,7 +70,7 @@ class HomeViewModel @Inject constructor(
 
     private val _nearbyLocationForceReset = MutableLiveData(Event(false))
 
-    private val nearbyLocation: LiveData<Location?> =
+    private val _nearbyLocation: LiveData<Location?> =
         PairMediatorLiveData(deviceLocation, _nearbyLocationForceReset).switchMap { (lastDeviceLocation, forceResetEvent) ->
             liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
                 val forceReset: Boolean = forceResetEvent?.getContentIfNotHandled() ?: false
@@ -82,7 +83,7 @@ class HomeViewModel @Inject constructor(
 
     private fun getNearbyLocation(lastDeviceLocation: Location?, forceReset: Boolean): Location? {
         if (!forceReset) {
-            nearbyLocation.value?.let {
+            _nearbyLocation.value?.let {
                 MTLog.d(this, "getNearbyLocation() > keep same ($it)")
                 return it
             }
@@ -91,7 +92,16 @@ class HomeViewModel @Inject constructor(
         return lastDeviceLocation
     }
 
-    val nearbyLocationAddress: LiveData<String?> = nearbyLocation.switchMap { nearbyLocation ->
+    val locationSettingsNeededResolution: LiveData<PendingIntent?> =
+        PairMediatorLiveData(_nearbyLocation, locationSettingsResolution).map { (nearbyLocation, resolution) ->
+            if (nearbyLocation != null) null else resolution
+        }.distinctUntilChanged()
+
+    val locationSettingsNeeded: LiveData<Boolean> = locationSettingsNeededResolution.map {
+        it != null
+    }.distinctUntilChanged()
+
+    val nearbyLocationAddress: LiveData<String?> = _nearbyLocation.switchMap { nearbyLocation ->
         liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
             emit(getNearbyLocationAddress(nearbyLocation))
         }
@@ -104,7 +114,7 @@ class HomeViewModel @Inject constructor(
     }
 
     val newLocationAvailable: LiveData<Boolean?> =
-        PairMediatorLiveData(nearbyLocation, deviceLocation).map { (nearbyLocation, newDeviceLocation) ->
+        PairMediatorLiveData(_nearbyLocation, deviceLocation).map { (nearbyLocation, newDeviceLocation) ->
             if (nearbyLocation == null) {
                 null // not new if current unknown
             } else {
@@ -132,7 +142,7 @@ class HomeViewModel @Inject constructor(
     private val _nearbyPOIsTrigger = MutableLiveData<Event<Boolean>>()
     val nearbyPOIsTrigger: LiveData<Event<Boolean>> = _nearbyPOIsTrigger
 
-    val nearbyPOIsTriggerListener: LiveData<Void> = PairMediatorLiveData(_dstToHomeAgencies, nearbyLocation).switchMap { (dstToHomeAgencies, nearbyLocation) ->
+    val nearbyPOIsTriggerListener: LiveData<Void> = PairMediatorLiveData(_dstToHomeAgencies, _nearbyLocation).switchMap { (dstToHomeAgencies, nearbyLocation) ->
         liveData {
             if (dstToHomeAgencies?.isNotEmpty() == true && nearbyLocation != null) {
                 nearbyPOIsLoadJob?.cancel()
@@ -319,7 +329,7 @@ class HomeViewModel @Inject constructor(
 
     fun initiateRefresh(): Boolean {
         val newDeviceLocation = this.deviceLocation.value ?: return false
-        val currentNearbyLocation = this.nearbyLocation.value
+        val currentNearbyLocation = this._nearbyLocation.value
         if (!IGNORE_SAME_LOCATION_CHECK
             && LocationUtils.areAlmostTheSame(currentNearbyLocation, newDeviceLocation, LocationUtils.LOCATION_CHANGED_ALLOW_REFRESH_IN_METERS)
         ) {

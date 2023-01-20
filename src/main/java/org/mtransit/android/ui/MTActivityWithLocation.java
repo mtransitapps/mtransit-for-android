@@ -1,14 +1,15 @@
 package org.mtransit.android.ui;
 
+import android.app.PendingIntent;
 import android.location.Location;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.provider.location.MTLocationProvider;
-import org.mtransit.android.ui.fragment.VisibilityAwareFragment;
 import org.mtransit.android.ui.view.common.ScreenWithLocationCommon;
 
 import java.util.Collection;
@@ -20,6 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public abstract class MTActivityWithLocation extends MTActivity implements
 		MTLocationProvider.ScreenWithLocationView,
+		MTLocationProvider.OnLocationSettingsChangeListener,
 		MTLocationProvider.OnLastLocationChangeListener {
 
 	@Inject
@@ -33,21 +35,26 @@ public abstract class MTActivityWithLocation extends MTActivity implements
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 	}
 
+	@CallSuper
 	@Override
 	protected void onResume() {
 		super.onResume();
 		this.locationProvider.doSetupIfRequired(this);
 		this.locationProvider.addOnLastLocationChangeListener(this);
+		this.locationProvider.addOnLocationSettingsChangeListener(this);
+		this.locationProvider.checkLocationSettings();
 	}
 
+	@CallSuper
 	@Override
 	protected void onPause() {
 		super.onPause();
+		this.locationProvider.removeOnLocationSettingsChangeListener(this);
 		this.locationProvider.removeOnLastLocationChangeListener(this);
 	}
 
 	@Nullable
-	public Location getUserLocation() {
+	public Location getDeviceLocation() {
 		return this.locationProvider.getLastLocationOrNull();
 	}
 
@@ -57,25 +64,44 @@ public abstract class MTActivityWithLocation extends MTActivity implements
 		return this.locationProvider.getLastLocationOrNull();
 	}
 
-	public static void broadcastUserLocationChanged(@SuppressWarnings("unused") @NonNull MTLog.Loggable loggable,
-													@Nullable Collection<Fragment> fragments,
-													@Nullable Location newLocation) {
+	public void checkLocationSettings() {
+		this.locationProvider.checkLocationSettings();
+	}
+
+	@Nullable
+	public abstract PendingIntent getLastLocationSettingsResolution();
+
+	public static void broadcastLocationSettingsResolutionChanged(@SuppressWarnings("unused") @NonNull MTLog.Loggable loggable,
+																  @Nullable Collection<Fragment> fragments,
+																  @Nullable PendingIntent resolution) {
 		if (fragments != null) {
 			for (Fragment fragment : fragments) {
 				if (fragment == null) {
 					continue;
 				}
-				if (fragment instanceof MTActivityWithLocation.UserLocationListener) {
+				if (fragment instanceof DeviceLocationListener) {
 					if (!fragment.isResumed() && !fragment.isVisible()) {
 						continue;
 					}
-					if (fragment instanceof VisibilityAwareFragment) {
-						VisibilityAwareFragment visibilityAwareFragment = (VisibilityAwareFragment) fragment;
-						if (!visibilityAwareFragment.isFragmentVisible()) {
-							continue;
-						}
+					((DeviceLocationListener) fragment).onLocationSettingsResolution(resolution);
+				}
+			}
+		}
+	}
+
+	public static void broadcastDeviceLocationChanged(@SuppressWarnings("unused") @NonNull MTLog.Loggable loggable,
+													  @Nullable Collection<Fragment> fragments,
+													  @Nullable Location newLocation) {
+		if (fragments != null) {
+			for (Fragment fragment : fragments) {
+				if (fragment == null) {
+					continue;
+				}
+				if (fragment instanceof DeviceLocationListener) {
+					if (!fragment.isResumed() && !fragment.isVisible()) {
+						continue;
 					}
-					((MTActivityWithLocation.UserLocationListener) fragment).onUserLocationChanged(newLocation);
+					((DeviceLocationListener) fragment).onDeviceLocationChanged(newLocation);
 				}
 			}
 		}
@@ -101,7 +127,10 @@ public abstract class MTActivityWithLocation extends MTActivity implements
 		ScreenWithLocationCommon.showApplicationDetailsSettingsScreen(this);
 	}
 
-	public interface UserLocationListener {
-		void onUserLocationChanged(@Nullable Location location);
+	public interface DeviceLocationListener {
+
+		void onLocationSettingsResolution(@Nullable PendingIntent resolution);
+
+		void onDeviceLocationChanged(@Nullable Location location);
 	}
 }

@@ -1,6 +1,7 @@
 @file:JvmName("AgencyTypeFragment") // ANALYTICS
 package org.mtransit.android.ui.type
 
+import android.app.PendingIntent
 import android.content.Context
 import android.location.Location
 import android.os.Bundle
@@ -43,7 +44,7 @@ import org.mtransit.commons.FeatureFlags
 import kotlin.math.abs
 
 @AndroidEntryPoint
-class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivityWithLocation.UserLocationListener, MenuProvider {
+class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivityWithLocation.DeviceLocationListener, MenuProvider {
 
     companion object {
         private val LOG_TAG = AgencyTypeFragment::class.java.simpleName
@@ -247,10 +248,15 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
     override fun onResume() {
         super.onResume()
         switchView()
-        (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
+        (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
+        (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
     }
 
-    override fun onUserLocationChanged(newLocation: Location?) {
+    override fun onLocationSettingsResolution(resolution: PendingIntent?) {
+        attachedViewModel?.onLocationSettingsResolution(resolution)
+    }
+
+    override fun onDeviceLocationChanged(newLocation: Location?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 

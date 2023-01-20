@@ -1,6 +1,7 @@
 @file:JvmName("FavoritesFragment") // ANALYTICS
 package org.mtransit.android.ui.favorites
 
+import android.app.PendingIntent
 import android.content.Context
 import android.location.Location
 import android.os.Bundle
@@ -27,7 +28,7 @@ import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
-import org.mtransit.android.ui.MTActivityWithLocation.UserLocationListener
+import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.view.common.EventObserver
@@ -37,7 +38,7 @@ import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationListener, FavoriteUpdateListener, MenuProvider {
+class FavoritesFragment : ABFragment(R.layout.fragment_favorites), DeviceLocationListener, FavoriteUpdateListener, MenuProvider {
 
     companion object {
         private val LOG_TAG = FavoritesFragment::class.java.simpleName
@@ -158,7 +159,8 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
     override fun onResume() {
         super.onResume()
         adapter.onResume(this, viewModel.deviceLocation.value)
-        (activity as? MTActivityWithLocation)?.let { onUserLocationChanged(it.lastLocation) }
+        (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
+        (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.setABTitle(getABTitle(context))
         }
@@ -169,7 +171,11 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), UserLocationL
         adapter.onPause()
     }
 
-    override fun onUserLocationChanged(newLocation: Location?) {
+    override fun onLocationSettingsResolution(resolution: PendingIntent?) {
+        attachedViewModel?.onLocationSettingsResolution(resolution)
+    }
+
+    override fun onDeviceLocationChanged(newLocation: Location?) {
         attachedViewModel?.onDeviceLocationChanged(newLocation)
     }
 
