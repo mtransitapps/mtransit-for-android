@@ -22,6 +22,9 @@ import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.location.SettingsClient;
 
+import org.mtransit.android.analytics.AnalyticsEvents;
+import org.mtransit.android.analytics.AnalyticsEventsParamsProvider;
+import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
@@ -86,16 +89,20 @@ public class GoogleLocationProvider
 	@NonNull
 	private final DemoModeManager demoModeManager;
 	@NonNull
+	private final IAnalyticsManager analyticsManager;
+	@NonNull
 	private final CrashReporter crashReporter;
 
 	@Inject
 	GoogleLocationProvider(@NonNull @ApplicationContext Context appContext,
 						   @NonNull LocationPermissionProvider permissionProvider,
 						   @NonNull DemoModeManager demoModeManager,
+						   @NonNull IAnalyticsManager analyticsManager,
 						   @NonNull CrashReporter crashReporter) {
 		this.appContext = appContext;
 		this.permissionProvider = permissionProvider;
 		this.demoModeManager = demoModeManager;
+		this.analyticsManager = analyticsManager;
 		this.crashReporter = crashReporter;
 	}
 
@@ -338,6 +345,9 @@ public class GoogleLocationProvider
 	private void onLocationSettingsFailure(Exception e) {
 		if (e instanceof ResolvableApiException) {
 			final ResolvableApiException resolvable = (ResolvableApiException) e;
+			analyticsManager.logEvent(AnalyticsEvents.LOCATION_SETTINGS_RESOLUTION_AVAILABLE, new AnalyticsEventsParamsProvider()
+					.put(AnalyticsEvents.Params.CODE, (long) resolvable.getStatusCode())
+			);
 			broadcastLocationSettingsChanged(resolvable.getResolution());
 		} else {
 			broadcastLocationSettingsChanged(null);

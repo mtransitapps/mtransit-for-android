@@ -337,7 +337,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun makeLocationToast(): PopupWindow? {
+    private fun makeNewLocationToast(): PopupWindow? {
         return ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, R.string.new_location_toast)?.apply {
             setTouchInterceptor { _, me ->
                 when (me.action) {
@@ -382,7 +382,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
         if (theActivity == null || theActivity.isFinishing || theActivity.isDestroyed) {
             return // SKIP
         }
-        (this.newLocationToast ?: makeLocationToast().also { this.newLocationToast = it })
+        (this.newLocationToast ?: makeNewLocationToast().also { this.newLocationToast = it })
             ?.let { locationToast ->
                 this.toastShown = ToastUtils.showTouchableToastPx(
                     activity,

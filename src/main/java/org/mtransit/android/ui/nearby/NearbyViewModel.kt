@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.nearby
 
+import android.app.PendingIntent
 import android.location.Location
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
@@ -82,7 +83,7 @@ class NearbyViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     private val _nearbyLocationForceReset = MutableLiveData(Event(false))
-    val nearbyLocationForceReset = _nearbyLocationForceReset
+    val nearbyLocationForceReset: LiveData<Event<Boolean>> = _nearbyLocationForceReset
 
     val nearbyLocation: LiveData<Location?> =
         TripleMediatorLiveData(fixedOnLocation, deviceLocation, _nearbyLocationForceReset).switchMap { (fixedOnLocation, lastDeviceLocation, forceResetEvent) ->
@@ -109,6 +110,15 @@ class NearbyViewModel @Inject constructor(
         MTLog.d(this, "getNearbyLocation() > use last device location ($lastDeviceLocation)")
         return lastDeviceLocation
     }
+
+    val locationSettingsNeededResolution: LiveData<PendingIntent?> =
+        PairMediatorLiveData(nearbyLocation, locationSettingsResolution).map { (nearbyLocation, resolution) ->
+            if (nearbyLocation != null) null else resolution
+        }.distinctUntilChanged()
+
+    val locationSettingsNeeded: LiveData<Boolean> = locationSettingsNeededResolution.map {
+        it != null
+    }.distinctUntilChanged()
 
     val nearbyLocationAddress: LiveData<String?> = nearbyLocation.switchMap { nearbyLocation ->
         liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {

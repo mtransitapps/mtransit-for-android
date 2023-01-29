@@ -193,20 +193,12 @@ class MapViewModel @Inject constructor(
         if (loaded || loading) {
             return false // no change
         }
-        var newLoadingArea = loadingArea?.let {
-            if (!it.contains(newVisibleArea.northeast)) it.including(newVisibleArea.northeast) else it
+        var newLoadingArea: LatLngBounds = getBigCameraPosition() ?: newVisibleArea
+        loadingArea?.apply {
+            newLoadingArea = newLoadingArea.including(southwest).including(northeast)
         }
-        newLoadingArea = newLoadingArea?.let {
-            if (!it.contains(newVisibleArea.southwest)) it.including(newVisibleArea.southwest) else it
-        }
-        newLoadingArea = newLoadingArea ?: loadedArea?.let {
-            if (!it.contains(newVisibleArea.northeast)) it.including(newVisibleArea.northeast) else it
-        }
-        newLoadingArea = newLoadingArea ?: loadedArea?.let {
-            if (!it.contains(newVisibleArea.southwest)) it.including(newVisibleArea.southwest) else it
-        }
-        newLoadingArea = newLoadingArea ?: newVisibleArea.let {
-            getBigCameraPosition() ?: it
+        loadedArea?.apply {
+            newLoadingArea = newLoadingArea.including(southwest).including(northeast)
         }
         this._loadingArea.value = newLoadingArea // set NOW (no post)
         return newLoadingArea != loadingArea // same area?

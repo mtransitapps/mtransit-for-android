@@ -172,7 +172,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
     private var lastPageSelected = -1
     private var selectedPosition = -1
 
-    private var locationToast: PopupWindow? = null
+    private var locationSettingsToast: PopupWindow? = null
+    private var newLocationToast: PopupWindow? = null
     private var toastShown: Boolean = false
 
     private var pagerAdapter: NearbyPagerAdapter? = null
@@ -251,6 +252,13 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
             }
             setupTabTheme()
         }
+        viewModel.locationSettingsNeeded.observe(viewLifecycleOwner) { needed ->
+            if (needed == true) {
+                showLocationSettingsToast()
+            } else {
+                hideLocationSettingsToast()
+            }
+        }
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             if (FeatureFlags.F_NAVIGATION) {
@@ -259,23 +267,27 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
             abController?.setABReady(this, isABReady, true)
             MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
         }
-        viewModel.newLocationAvailable.observe(viewLifecycleOwner) {
-            if (it == true) {
-                showLocationToast()
+        viewModel.newLocationAvailable.observe(viewLifecycleOwner) { newLocationAvailable ->
+            if (newLocationAvailable == true) {
+                showNewLocationToast()
             } else {
-                hideLocationToast()
+                hideNewLocationToast()
             }
         }
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun makeLocationToast(): PopupWindow? {
-        return ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, R.string.new_location_toast)?.apply {
+    private fun makeLocationSettingsToast(): PopupWindow? {
+        return ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, R.string.location_settings_toast)?.apply {
             setTouchInterceptor { _, me ->
                 when (me.action) {
                     MotionEvent.ACTION_DOWN -> {
-                        val handled = attachedViewModel?.initiateRefresh() == true
-                        hideLocationToast()
+                        var handled = false
+                        attachedViewModel?.locationSettingsNeededResolution?.value?.let { pendingIntent ->
+                            activity?.startIntentSenderForResult(pendingIntent.intentSender, 101, null, 0, 0, 0)
+                            handled = true
+                        }
+                        hideLocationSettingsToast()
                         handled
                     }
                     else -> false // not handled
@@ -287,7 +299,26 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
         }
     }
 
-    private fun showLocationToast() {
+    @SuppressLint("ClickableViewAccessibility")
+    private fun makeNewLocationToast(): PopupWindow? {
+        return ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, R.string.new_location_toast)?.apply {
+            setTouchInterceptor { _, me ->
+                when (me.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        val handled = attachedViewModel?.initiateRefresh() == true
+                        hideNewLocationToast()
+                        handled
+                    }
+                    else -> false // not handled
+                }
+            }
+            setOnDismissListener {
+                toastShown = false
+            }
+        }
+    }
+
+    private fun showLocationSettingsToast() {
         if (this.toastShown) {
             return // SKIP
         }
@@ -295,7 +326,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
         if (theActivity == null || theActivity.isFinishing || theActivity.isDestroyed) {
             return // SKIP
         }
-        (this.locationToast ?: makeLocationToast().also { this.locationToast = it })
+        (this.locationSettingsToast ?: makeLocationSettingsToast().also { this.locationSettingsToast = it })
             ?.let { locationToast ->
                 this.toastShown = ToastUtils.showTouchableToastPx(
                     activity,
@@ -306,8 +337,32 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
             }
     }
 
-    private fun hideLocationToast() {
-        this.locationToast?.dismiss()
+    private fun showNewLocationToast() {
+        if (this.toastShown) {
+            return // SKIP
+        }
+        val theActivity: Activity? = activity
+        if (theActivity == null || theActivity.isFinishing || theActivity.isDestroyed) {
+            return // SKIP
+        }
+        (this.newLocationToast ?: makeNewLocationToast().also { this.newLocationToast = it })
+            ?.let { locationToast ->
+                this.toastShown = ToastUtils.showTouchableToastPx(
+                    activity,
+                    locationToast,
+                    view,
+                    attachedViewModel?.getAdBannerHeightInPx(this) ?: 0
+                )
+            }
+    }
+
+    private fun hideLocationSettingsToast() {
+        this.locationSettingsToast?.dismiss()
+        this.toastShown = false
+    }
+
+    private fun hideNewLocationToast() {
+        this.newLocationToast?.dismiss()
         this.toastShown = false
     }
 
@@ -430,7 +485,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
 
     override fun onPause() {
         super.onPause()
-        hideLocationToast()
+        hideLocationSettingsToast()
+        hideNewLocationToast()
     }
 
     override fun onResume() {
@@ -447,8 +503,10 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
 
     override fun onDestroyView() {
         super.onDestroyView()
-        hideLocationToast()
-        this.locationToast = null
+        hideLocationSettingsToast()
+        hideNewLocationToast()
+        this.locationSettingsToast = null
+        this.newLocationToast = null
         this.toastShown = false
         binding?.viewPager?.unregisterOnPageChangeCallback(onPageChangeCallback)
         binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
