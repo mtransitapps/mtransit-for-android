@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.map
 
+import android.app.PendingIntent
 import android.location.Location
 import androidx.collection.ArrayMap
 import androidx.core.content.edit
@@ -17,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
+import org.mtransit.android.ad.AdManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.RouteTripStop
@@ -29,6 +31,7 @@ import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.view.MapViewController.POIMarker
 import org.mtransit.android.ui.view.common.Event
+import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
@@ -45,6 +48,7 @@ class MapViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
+    private val adManager: AdManager,
 ) : MTViewModelWithLocation() {
 
     companion object {
@@ -62,6 +66,19 @@ class MapViewModel @Inject constructor(
 
     fun onInitialLocationSet() {
         savedStateHandle[EXTRA_INITIAL_LOCATION] = null // set once only
+    }
+
+    val locationSettingsNeededResolution: LiveData<PendingIntent?> =
+        PairMediatorLiveData(deviceLocation, locationSettingsResolution).map { (deviceLocation, resolution) ->
+            if (deviceLocation != null) null else resolution
+        }.distinctUntilChanged()
+
+    val locationSettingsNeeded: LiveData<Boolean> = locationSettingsNeededResolution.map {
+        it != null
+    }.distinctUntilChanged()
+
+    fun getAdBannerHeightInPx(activity: IActivity?): Int {
+        return this.adManager.getBannerHeightInPx(activity)
     }
 
     val selectedUUID = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SELECTED_UUID)

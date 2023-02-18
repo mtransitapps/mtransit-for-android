@@ -1,6 +1,8 @@
 @file:JvmName("MapFragment") // ANALYTICS
 package org.mtransit.android.ui.map
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.res.Configuration
@@ -10,7 +12,9 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
+import android.widget.PopupWindow
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -21,6 +25,7 @@ import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.LocationUtils
+import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentMapBinding
@@ -90,6 +95,9 @@ class MapFragment : ABFragment(R.layout.fragment_map), DeviceLocationListener, M
         get() = if (isAttached()) viewModel else null
 
     private var binding: FragmentMapBinding? = null
+
+    private var locationSettingsToast: PopupWindow? = null
+    private var toastShown: Boolean = false
 
     @Inject
     lateinit var dataSourcesRepository: DataSourcesRepository
@@ -183,6 +191,13 @@ class MapFragment : ABFragment(R.layout.fragment_map), DeviceLocationListener, M
                 mapViewController.setLocationPermissionGranted(locationPermissionProvider.allRequiredPermissionsGranted(context))
             }
             mapViewController.onDeviceLocationChanged(it)
+        }
+        viewModel.locationSettingsNeeded.observe(viewLifecycleOwner) { needed ->
+            if (needed == true) {
+                showLocationSettingsToast()
+            } else {
+                hideLocationSettingsToast()
+            }
         }
         viewModel.filterTypeIds.observe(viewLifecycleOwner) {
             abController?.setABTitle(this, getABTitle(context), true)
@@ -309,6 +324,53 @@ class MapFragment : ABFragment(R.layout.fragment_map), DeviceLocationListener, M
         )
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    private fun makeLocationSettingsToast(): PopupWindow? {
+        return ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, R.string.location_settings_toast)?.apply {
+            setTouchInterceptor { _, me ->
+                when (me.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        var handled = false
+                        attachedViewModel?.locationSettingsNeededResolution?.value?.let { pendingIntent ->
+                            activity?.startIntentSenderForResult(pendingIntent.intentSender, 101, null, 0, 0, 0)
+                            handled = true
+                        }
+                        hideLocationSettingsToast()
+                        handled
+                    }
+                    else -> false // not handled
+                }
+            }
+            setOnDismissListener {
+                toastShown = false
+            }
+        }
+    }
+
+    private fun showLocationSettingsToast() {
+        if (this.toastShown) {
+            return // SKIP
+        }
+        val theActivity: Activity? = activity
+        if (theActivity == null || theActivity.isFinishing || theActivity.isDestroyed) {
+            return // SKIP
+        }
+        (this.locationSettingsToast ?: makeLocationSettingsToast().also { this.locationSettingsToast = it })
+            ?.let { locationToast ->
+                this.toastShown = ToastUtils.showTouchableToastPx(
+                    activity,
+                    locationToast,
+                    view,
+                    attachedViewModel?.getAdBannerHeightInPx(this) ?: 0
+                )
+            }
+    }
+
+    private fun hideLocationSettingsToast() {
+        this.locationSettingsToast?.dismiss()
+        this.toastShown = false
+    }
+
     override fun getABBgColor(context: Context?) = Color.TRANSPARENT
 
     override fun getABTitle(context: Context?): CharSequence? {
@@ -325,6 +387,9 @@ class MapFragment : ABFragment(R.layout.fragment_map), DeviceLocationListener, M
 
     override fun onDestroyView() {
         super.onDestroyView()
+        hideLocationSettingsToast()
+        this.locationSettingsToast = null
+        this.toastShown = false
         mapViewController.onDestroyView()
         binding = null
     }
