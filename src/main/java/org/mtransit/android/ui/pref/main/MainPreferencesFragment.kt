@@ -29,10 +29,12 @@ import org.mtransit.android.commons.StoreUtils
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.MTDialog
+import org.mtransit.android.ui.feedback.FeedbackDialog
 import org.mtransit.android.ui.modules.ModulesActivity
 import org.mtransit.android.ui.pref.PreferencesViewModel
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
+import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.NightModeUtils
 import org.mtransit.commons.FeatureFlags
@@ -121,7 +123,12 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         }
         (findPreference(MainPreferencesViewModel.FEEDBACK_EMAIL_PREF) as? Preference)?.setOnPreferenceClickListener {
             activity?.let {
-                LinkUtils.sendEmail(it, dataSourcesRepository)
+                FragmentUtils.replaceDialogFragment(
+                    it,
+                    FragmentUtils.DIALOG_TAG,
+                    FeedbackDialog.newInstance(),
+                    null
+                )
                 true
             } ?: false
         }

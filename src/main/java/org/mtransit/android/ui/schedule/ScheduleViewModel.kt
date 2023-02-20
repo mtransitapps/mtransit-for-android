@@ -108,8 +108,8 @@ class ScheduleViewModel @Inject constructor(
 
     fun initStartEndTimeIfNotSet() {
         if (_startsAtInMs.value == null) {
-            val startDateInMs = UITimeUtils.getBeginningOfTodayInMs() - TimeUnit.DAYS.toMillis(1L)
-            val endDateInMs = startDateInMs + TimeUnit.DAYS.toMillis(7L)
+            val startDateInMs = UITimeUtils.getBeginningOfTodayInMs() - TimeUnit.DAYS.toMillis(7L)
+            val endDateInMs = UITimeUtils.getBeginningOfTodayInMs() + TimeUnit.DAYS.toMillis(14L)
             savedStateHandle[EXTRA_START_AT_IN_MS] = startDateInMs
             savedStateHandle[EXTRA_END_AT_IN_MS] = endDateInMs
         }

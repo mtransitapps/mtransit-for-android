@@ -56,6 +56,7 @@
     <color name="dark_grey_15">#353535</color>
     <color name="dark_grey_16">#383838</color>
 
+    <color name="white">#FFFFFF</color>
     <color name="white_15">#26FFFFFF</color>
     <color name="white_25">#40FFFFFF</color>
     <color name="white_50">#80FFFFFF</color>

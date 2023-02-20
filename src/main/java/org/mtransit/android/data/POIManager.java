@@ -49,6 +49,7 @@ import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.rts.route.RTSRouteFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
+import org.mtransit.android.util.LinkUtils;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.CollectionUtils;
 import org.mtransit.commons.FeatureFlags;
@@ -368,6 +369,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	@NonNull
 	private CharSequence[] getActionsItems(@NonNull Context context,
+										   @NonNull DataSourcesRepository dataSourcesRepository,
 										   @NonNull FavoriteManager favoriteManager,
 										   CharSequence defaultAction,
 										   @SuppressWarnings("unused") SparseArrayCompat<Favorite.Folder> favoriteFolders) {
@@ -399,11 +401,21 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_ACTION_TYPE_APP:
 			if (PackageManagerUtils.isAppInstalled(context, ((Module) this.poi).getPkg())) {
 				if (PackageManagerUtils.isAppEnabled(context, ((Module) this.poi).getPkg())) {
-					return new CharSequence[]{ //
-							context.getString(R.string.rate_on_store), //
-							context.getString(R.string.manage_app), //
-							context.getString(R.string.uninstall), //
-					};
+					final AgencyProperties agencyProperties = dataSourcesRepository.getAgencyForPkg(((Module) poi).getPkg());
+					if (agencyProperties != null && agencyProperties.hasContactUs()) {
+						return new CharSequence[]{
+								context.getString(R.string.rate_on_store),
+								context.getString(R.string.manage_app),
+								context.getString(R.string.uninstall),
+								context.getString(R.string.customer_service),
+						};
+					} else {
+						return new CharSequence[]{ //
+								context.getString(R.string.rate_on_store), //
+								context.getString(R.string.manage_app), //
+								context.getString(R.string.uninstall), //
+						};
+					}
 				} else {
 					return new CharSequence[]{ //
 							context.getString(R.string.re_enable_app), //
@@ -439,7 +451,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		case POI.ITEM_ACTION_TYPE_ROUTE_TRIP_STOP:
 			return onActionsItemClickRTS(activity, view, favoriteManager, itemClicked, listener, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_APP:
-			return onActionsItemClickApp(activity, itemClicked, listener, onClickHandledListener);
+			return onActionsItemClickApp(activity, view, dataSourcesRepository, itemClicked, listener, onClickHandledListener);
 		case POI.ITEM_ACTION_TYPE_PLACE:
 			return onActionsItemClickPlace(activity, view, dataSourcesRepository, itemClicked, listener, onClickHandledListener);
 		default:
@@ -448,7 +460,10 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		}
 	}
 
-	private boolean onActionsItemClickApp(@NonNull Activity activity, int itemClicked,
+	private boolean onActionsItemClickApp(@NonNull Activity activity,
+										  @NonNull View view,
+										  @NonNull DataSourcesRepository dataSourcesRepository,
+										  int itemClicked,
 										  @SuppressWarnings("unused") FavoriteManager.FavoriteUpdateListener listener,
 										  @Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
 		switch (itemClicked) {
@@ -469,6 +484,15 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 				onClickHandledListener.onLeaving();
 			}
 			PackageManagerUtils.uninstallApp(activity, ((Module) poi).getPkg());
+			return true; // HANDLED
+		case 3: // Customer service
+			if (onClickHandledListener != null) {
+				onClickHandledListener.onLeaving();
+			}
+			final AgencyProperties agencyProperties = dataSourcesRepository.getAgencyForPkg(((Module) poi).getPkg());
+			if (agencyProperties != null && agencyProperties.hasContactUs()) {
+				LinkUtils.open(view, activity, agencyProperties.getContactUsWebForLang(), activity.getString(R.string.web_browser), false); // force external web browser
+			}
 			return true; // HANDLED
 		}
 		return false; // NOT HANDLED
@@ -907,6 +931,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 					.setItems( //
 							getActionsItems( //
 									activity, //
+									dataSourcesRepository,
 									favoriteManager,
 									activity.getString(R.string.view_details), //
 									favoriteFolders //

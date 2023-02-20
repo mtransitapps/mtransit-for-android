@@ -13,6 +13,7 @@ import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.data.ServiceUpdateProviderProperties
 import org.mtransit.android.data.StatusProviderProperties
+import org.mtransit.commons.sql.SQLUtils
 
 @Database(
     entities = [
@@ -22,7 +23,7 @@ import org.mtransit.android.data.StatusProviderProperties
         ServiceUpdateProviderProperties::class,
         NewsProviderProperties::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(DataSourcesConverters::class)
@@ -54,6 +55,19 @@ abstract class DataSourcesDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                MTLog.i(LOG_TAG, "DB migration from version 2 to 3...")
+                database.execSQL(
+                    "ALTER TABLE agency_properties ADD COLUMN contact_us_web ${SQLUtils.TXT} DEFAULT null"
+                )
+                database.execSQL(
+                    "ALTER TABLE agency_properties ADD COLUMN contact_us_web_fr ${SQLUtils.TXT} DEFAULT null"
+                )
+                MTLog.i(LOG_TAG, "DB migration from version 2 to 3... DONE")
+            }
+        }
+
         @Volatile
         private var instance: DataSourcesDatabase? = null
 
@@ -72,6 +86,7 @@ abstract class DataSourcesDatabase : RoomDatabase() {
                     DB_NAME
                 )
                 .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_2_3)
                 .fallbackToDestructiveMigration()
                 .build()
         }

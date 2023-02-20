@@ -37,6 +37,7 @@ import org.mtransit.android.commons.provider.POIProvider;
 import org.mtransit.android.commons.provider.POIProviderContract;
 import org.mtransit.android.data.Place;
 import org.mtransit.android.util.UITimeUtils;
+import org.mtransit.commons.Constants;
 import org.mtransit.commons.FeatureFlags;
 
 import java.net.HttpURLConnection;
@@ -365,6 +366,18 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	@Override
 	public int getAvailableVersionCode(@NonNull Context context, @Nullable String filterS) {
 		return 0; // main app in-app update not supported yet
+	}
+
+	@NonNull
+	@Override
+	public String getContactUsWeb(@NonNull Context context) {
+		return Constants.EMPTY;
+	}
+
+	@NonNull
+	@Override
+	public String getContactUsWebFr(@NonNull Context context) {
+		return Constants.EMPTY;
 	}
 
 	@Nullable

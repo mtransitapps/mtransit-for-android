@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/platform_listPreferredItemHeight"
+    android:background="?attr/colorSurface"
+    android:clipChildren="false"
+    android:minHeight="@dimen/platform_listPreferredItemHeight"
+    android:padding="@dimen/baseline_16">
+
+    <TextView
+        android:id="@+id/nameTv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:ellipsize="marquee"
+        android:fontFamily="sans-serif"
+        android:gravity="center_vertical|start"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceListItem"
+        android:textStyle="normal"
+        tools:text="@tools:sample/full_names" />
+
+</RelativeLayout>

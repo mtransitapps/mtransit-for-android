@@ -280,6 +280,16 @@ public final class DataSourceManager implements MTLog.Loggable {
 					if (availableVersionCodeIdx >= 0) {
 						availableVersionCode = cursor.getInt(availableVersionCodeIdx);
 					}
+					String contactUsWeb = null;
+					final int contactUsWebIdx = cursor.getColumnIndex(AgencyProviderContract.CONTACT_US_WEB);
+					if (contactUsWebIdx >= 0) {
+						contactUsWeb = cursor.getString(contactUsWebIdx);
+					}
+					String contactUsWebFr = null;
+					final int contactUsWebFrIdx = cursor.getColumnIndex(AgencyProviderContract.CONTACT_US_WEB_FR);
+					if (contactUsWebFrIdx >= 0) {
+						contactUsWebFr = cursor.getString(contactUsWebFrIdx);
+					}
 					result = new AgencyProperties(
 							authority,
 							dst,
@@ -295,7 +305,9 @@ public final class DataSourceManager implements MTLog.Loggable {
 							isRTS,
 							logo,
 							maxValidInSec,
-							trigger
+							trigger,
+							contactUsWeb,
+							contactUsWebFr
 					);
 				}
 			}

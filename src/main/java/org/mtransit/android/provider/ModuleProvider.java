@@ -43,6 +43,7 @@ import org.mtransit.android.data.Module;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.util.UITimeUtils;
+import org.mtransit.commons.Constants;
 import org.mtransit.commons.FeatureFlags;
 
 import java.util.Collection;
@@ -576,6 +577,18 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@Override
 	public int getAvailableVersionCode(@NonNull Context context, @Nullable String filterS) {
 		return 0; // main app in-app update not supported yet
+	}
+
+	@NonNull
+	@Override
+	public String getContactUsWeb(@NonNull Context context) {
+		return Constants.EMPTY;
+	}
+
+	@NonNull
+	@Override
+	public String getContactUsWebFr(@NonNull Context context) {
+		return Constants.EMPTY;
 	}
 
 	/**

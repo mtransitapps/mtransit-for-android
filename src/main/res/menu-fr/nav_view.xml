@@ -89,7 +89,7 @@
         <item
             android:id="@id/nav_send_feedback"
             android:icon="@drawable/ic_email_black_24dp"
-            android:title="@string/feedback_email" />
+            android:title="@string/customer_service" />
         <item
             android:id="@id/nav_rate_review"
             android:icon="@drawable/ic_rate_review_black_24dp"

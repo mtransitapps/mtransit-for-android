@@ -7,6 +7,7 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.google.android.gms.maps.model.LatLngBounds
 import org.mtransit.android.commons.ColorUtils
+import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.data.IAgencyProperties.Companion.DEFAULT_LONG_VERSION_CODE
 import org.mtransit.android.data.IAgencyProperties.Companion.DEFAULT_VERSION_CODE
@@ -45,6 +46,10 @@ data class AgencyProperties(
     val maxValidSec: Int = -1,
     @ColumnInfo(name = "trigger")
     val trigger: Int = 0, // #onModulesUpdated
+    @ColumnInfo(name = "contact_us_web")
+    val contactUsWeb: String? = null,
+    @ColumnInfo(name = "contact_us_web_fr")
+    val contactUsWebFr: String? = null,
 ) : IAgencyNearbyUIProperties, IAgencyUpdatableProperties {
 
     @JvmOverloads
@@ -64,6 +69,8 @@ data class AgencyProperties(
         logo: JPaths? = null,
         maxValidSec: Int = -1,
         trigger: Int = 0,
+        contactUsWeb: String? = null,
+        contactUsWebFr: String? = null,
     ) : this(
         id,
         type,
@@ -80,6 +87,8 @@ data class AgencyProperties(
         logo,
         maxValidSec,
         trigger,
+        contactUsWeb.takeIf { it?.isNotBlank() == true }, // ignore empty
+        contactUsWebFr.takeIf { it?.isNotBlank() == true }, // ignore empty
     )
 
     @Ignore
@@ -122,4 +131,9 @@ data class AgencyProperties(
     override fun isEntirelyInside(otherArea: LocationUtils.Area?): Boolean {
         return IAgencyNearbyProperties.isEntirelyInside(this, area)
     }
+
+    fun hasContactUs() = !this.contactUsWeb.isNullOrBlank()
+
+    @Ignore
+    val contactUsWebForLang = if (LocaleUtils.isFR() && !this.contactUsWebFr.isNullOrBlank()) this.contactUsWebFr else this.contactUsWeb
 }

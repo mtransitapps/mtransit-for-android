@@ -37,6 +37,7 @@ import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.favorites.FavoritesFragment;
+import org.mtransit.android.ui.feedback.FeedbackDialog;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.home.HomeFragment;
 import org.mtransit.android.ui.map.MapFragment;
@@ -44,8 +45,9 @@ import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.pref.PreferencesActivity;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
-import org.mtransit.android.util.LinkUtils;
+import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
+import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -555,7 +557,18 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		} else if (navItemId == R.id.nav_settings) {
 			activity.startActivity(PreferencesActivity.newInstance(activity));
 		} else if (navItemId == R.id.nav_send_feedback) {
-			LinkUtils.sendEmail(activity, this.dataSourcesRepository);
+			if (FeatureFlags.F_NAVIGATION) {
+				// TODO navigate to dialog
+			} else {
+				if (activity instanceof MainActivity) {
+					FragmentUtils.replaceDialogFragment(
+							(MainActivity) activity,
+							FragmentUtils.DIALOG_TAG,
+							FeedbackDialog.newInstance(),
+							null
+					);
+				}
+			}
 		} else if (navItemId == R.id.nav_rate_review) {
 			StoreUtils.viewAppPage(activity, Constants.MAIN_APP_PACKAGE_NAME, activity.getString(R.string.google_play));
 		} else if (navItemId == R.id.nav_support) {

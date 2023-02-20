@@ -34,6 +34,7 @@ import org.mtransit.commons.keepFirst
 import org.mtransit.commons.removeAllAnd
 import javax.inject.Inject
 import kotlin.math.max
+import kotlin.math.min
 
 @HiltViewModel
 class POIViewModel @Inject constructor(
@@ -148,11 +149,11 @@ class POIViewModel @Inject constructor(
             { allNews ->
                 val nowInMs = UITimeUtils.currentTimeMillis()
                 val selectedNews = mutableListOf<News>()
-                val minSelectedArticles = if (allNews.size > 1) 2 else 1  // encourage 2+ articles
+                val minSelectedArticles = min(2, allNews.size)  // encourage 2+ articles
                 val maxSelectedArticles = max(5, minSelectedArticles)
                 var noteworthiness = 1L
                 while (selectedNews.size < minSelectedArticles
-                    && noteworthiness < 10L
+                    && noteworthiness < 13L
                 ) {
                     for (news in allNews) {
                         val validityInMs: Long = news.createdAtInMs + news.noteworthyInMs * noteworthiness
