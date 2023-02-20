@@ -57,7 +57,7 @@ class ModulesViewModel @Inject constructor(
                                     isRTS = false,
                                     logo = null,
                                     maxValidSec = 0, // unlimited
-                                    trigger = 0
+                                    trigger = 0,
                                 )
                             )
                         }

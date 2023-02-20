@@ -634,7 +634,7 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		/**
 		 * Override if multiple {@link PlaceDbHelper} in same app.
 		 */
-		static final int DB_VERSION = 2;
+		static final int DB_VERSION = 3;
 
 		static final String T_PLACE = POIProvider.POIDbHelper.T_POI;
 		static final String T_PLACE_K_PROVIDER_ID = POIProvider.POIDbHelper.getFkColumnName("provider_id");

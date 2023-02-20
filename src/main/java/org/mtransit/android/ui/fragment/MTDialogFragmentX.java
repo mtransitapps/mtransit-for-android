@@ -28,7 +28,6 @@ import org.mtransit.android.commons.MTLog;
 /**
  * NO LOGIC HERE, just logs.
  */
-@SuppressWarnings("deprecation")
 public abstract class MTDialogFragmentX extends DialogFragment implements MTLog.Loggable {
 
 	public MTDialogFragmentX() {
@@ -89,6 +88,7 @@ public abstract class MTDialogFragmentX extends DialogFragment implements MTLog.
 	}
 
 	// INHERITED FROM FRAGMENT
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -97,6 +97,7 @@ public abstract class MTDialogFragmentX extends DialogFragment implements MTLog.
 		super.onActivityCreated(savedInstanceState);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -105,6 +106,7 @@ public abstract class MTDialogFragmentX extends DialogFragment implements MTLog.
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onAttach(@NonNull Activity activity) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -171,6 +173,7 @@ public abstract class MTDialogFragmentX extends DialogFragment implements MTLog.
 		super.onDetach();
 	}
 
+	@SuppressWarnings("deprecation")
 	@UiThread
 	@CallSuper
 	@Override
