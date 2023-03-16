@@ -114,11 +114,11 @@ class NearbyViewModel @Inject constructor(
     val locationSettingsNeededResolution: LiveData<PendingIntent?> =
         PairMediatorLiveData(nearbyLocation, locationSettingsResolution).map { (nearbyLocation, resolution) ->
             if (nearbyLocation != null) null else resolution
-        }.distinctUntilChanged()
+        } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
     val locationSettingsNeeded: LiveData<Boolean> = locationSettingsNeededResolution.map {
         it != null
-    }.distinctUntilChanged()
+    } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
     val nearbyLocationAddress: LiveData<String?> = nearbyLocation.switchMap { nearbyLocation ->
         liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {

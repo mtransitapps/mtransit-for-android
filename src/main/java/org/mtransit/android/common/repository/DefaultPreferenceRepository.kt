@@ -53,7 +53,7 @@ class DefaultPreferenceRepository @Inject constructor(
         @Suppress("FunctionName")
         fun getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority: String) = PreferenceUtils.getPREFS_AGENCY_POIS_SHOWING_LIST_INSTEAD_OF_MAP(authority)
 
-        private const val PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID = "pRTSRouteShowingListInsteadOfGrid";
+        private const val PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID = "pRTSRouteShowingListInsteadOfGrid"
 
         @Suppress("FunctionName")
         fun getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority: String) = PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID + authority

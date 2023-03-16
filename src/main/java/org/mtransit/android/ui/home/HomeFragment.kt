@@ -2,7 +2,6 @@
 package org.mtransit.android.ui.home
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.location.Location
@@ -359,8 +358,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
         if (this.toastShown) {
             return // SKIP
         }
-        val theActivity: Activity? = activity
-        if (theActivity == null || theActivity.isFinishing || theActivity.isDestroyed) {
+        if (!isResumed) {
             return // SKIP
         }
         (this.locationSettingsToast ?: makeLocationSettingsToast().also { this.locationSettingsToast = it })
@@ -378,8 +376,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
         if (this.toastShown) {
             return // SKIP
         }
-        val theActivity: Activity? = activity
-        if (theActivity == null || theActivity.isFinishing || theActivity.isDestroyed) {
+        if (!isResumed) {
             return // SKIP
         }
         (this.newLocationToast ?: makeNewLocationToast().also { this.newLocationToast = it })

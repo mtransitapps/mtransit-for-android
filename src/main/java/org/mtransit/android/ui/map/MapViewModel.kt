@@ -71,11 +71,11 @@ class MapViewModel @Inject constructor(
     val locationSettingsNeededResolution: LiveData<PendingIntent?> =
         PairMediatorLiveData(deviceLocation, locationSettingsResolution).map { (deviceLocation, resolution) ->
             if (deviceLocation != null) null else resolution
-        }.distinctUntilChanged()
+        } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
     val locationSettingsNeeded: LiveData<Boolean> = locationSettingsNeededResolution.map {
         it != null
-    }.distinctUntilChanged()
+    } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
     fun getAdBannerHeightInPx(activity: IActivity?): Int {
         return this.adManager.getBannerHeightInPx(activity)

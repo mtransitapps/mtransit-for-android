@@ -2,7 +2,6 @@
 package org.mtransit.android.ui.map
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.res.Configuration
@@ -351,8 +350,7 @@ class MapFragment : ABFragment(R.layout.fragment_map), DeviceLocationListener, M
         if (this.toastShown) {
             return // SKIP
         }
-        val theActivity: Activity? = activity
-        if (theActivity == null || theActivity.isFinishing || theActivity.isDestroyed) {
+        if (!isResumed) {
             return // SKIP
         }
         (this.locationSettingsToast ?: makeLocationSettingsToast().also { this.locationSettingsToast = it })
