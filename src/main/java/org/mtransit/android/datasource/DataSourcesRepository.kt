@@ -23,6 +23,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 
+@Suppress("unused")
 @Singleton
 class DataSourcesRepository @Inject constructor(
     @ApplicationContext private val appContext: Context,
@@ -42,7 +43,7 @@ class DataSourcesRepository @Inject constructor(
 
     val defaultDataSourceTypeComparator: Comparator<DataSourceType> by lazy { DataSourceTypeShortNameComparator(appContext) }
 
-    // AGENCY
+    // region AGENCY
 
     fun getAllAgencies() = this.dataSourcesInMemoryCache.getAllAgencies().filterDemoModeAgency(demoModeManager)
 
@@ -111,7 +112,9 @@ class DataSourcesRepository @Inject constructor(
         }
     }.distinctUntilChanged()
 
-    // STATUS
+    // endregion
+
+    // region STATUS
 
     fun getAllStatusProviders() = this.dataSourcesInMemoryCache.getAllStatusProviders().filterDemoModeTargeted(demoModeManager)
 
@@ -119,7 +122,9 @@ class DataSourcesRepository @Inject constructor(
 
     fun getStatusProvider(authority: String) = this.dataSourcesInMemoryCache.getStatusProvider(authority).takeIfDemoModeTargeted(demoModeManager)
 
-    // SCHEDULE
+    // endregion
+
+    // region SCHEDULE
 
     fun getAllScheduleProviders() = this.dataSourcesInMemoryCache.getAllScheduleProviders().filterDemoModeTargeted(demoModeManager)
 
@@ -142,7 +147,9 @@ class DataSourcesRepository @Inject constructor(
         }
     }.distinctUntilChanged()
 
-    // SERVICE UPDATE
+    // endregion
+
+    // region SERVICE UPDATE
 
     fun getAllServiceUpdateProviders() = this.dataSourcesInMemoryCache.getAllServiceUpdateProviders().filterDemoModeTargeted(demoModeManager)
 
@@ -151,7 +158,9 @@ class DataSourcesRepository @Inject constructor(
 
     fun getServiceUpdateProvider(authority: String) = this.dataSourcesInMemoryCache.getServiceUpdateProvider(authority).takeIfDemoModeTargeted(demoModeManager)
 
-    // NEWS
+    // endregion
+
+    // region NEWS
 
     fun getAllNewsProviders() = this.dataSourcesInMemoryCache.getAllNewsProviders().filterDemoModeTargeted(demoModeManager)
 
@@ -173,7 +182,7 @@ class DataSourcesRepository @Inject constructor(
 
     private var runningUpdate: Boolean = false
 
-    val mutex = Mutex()
+    private val mutex = Mutex()
 
     @JvmOverloads
     suspend fun updateLock(forcePkg: String? = null): Boolean {
@@ -216,4 +225,6 @@ class DataSourcesRepository @Inject constructor(
     fun isAProvider(pkg: String?): Boolean {
         return this.dataSourcesReader.isAProvider(pkg)
     }
+
+    // endregion
 }

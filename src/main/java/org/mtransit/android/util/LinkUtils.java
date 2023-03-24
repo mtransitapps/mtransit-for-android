@@ -73,7 +73,6 @@ public final class LinkUtils implements MTLog.Loggable {
 	}
 
 	public static boolean open(@Nullable View view, @NonNull Activity activity, @Nullable String url, @Nullable String label, boolean www) {
-		MTLog.v(LOG_TAG, "open(%s)", url);
 		if (url == null || url.isEmpty()) {
 			return false;
 		}

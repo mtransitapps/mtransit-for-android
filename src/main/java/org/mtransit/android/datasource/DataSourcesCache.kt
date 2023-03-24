@@ -4,12 +4,13 @@ import org.mtransit.android.data.DataSourceType
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Suppress("unused")
 @Singleton
 class DataSourcesCache @Inject constructor(
     private val dataSourcesDatabase: DataSourcesDatabase,
 ) {
 
-    // AGENCY
+    // region AGENCY
 
     private fun agencyPropertiesDao() = dataSourcesDatabase.agencyPropertiesDao()
 
@@ -37,7 +38,9 @@ class DataSourcesCache @Inject constructor(
 
     suspend fun getAgencyColorInt(authority: String) = agencyPropertiesDao().getAgencyColorInt(authority)
 
-    // STATUS
+    // endregion
+
+    // region STATUS
 
     private fun statusProviderPropertiesDao() = dataSourcesDatabase.statusProviderPropertiesDao()
 
@@ -49,7 +52,9 @@ class DataSourcesCache @Inject constructor(
 
     suspend fun getStatusProvider(authority: String) = statusProviderPropertiesDao().getStatusProvider(authority)
 
-    // SCHEDULE
+    // endregion
+
+    // region SCHEDULE
 
     private fun scheduleProviderPropertiesDao() = dataSourcesDatabase.scheduleProviderPropertiesDao()
 
@@ -65,7 +70,9 @@ class DataSourcesCache @Inject constructor(
 
     fun readingScheduleProvider(authority: String) = scheduleProviderPropertiesDao().readingScheduleProvider(authority)
 
-    // SERVICE UPDATE
+    // endregion
+
+    // region SERVICE UPDATE
 
     private fun serviceUpdateProviderPropertiesDao() = dataSourcesDatabase.serviceUpdateProviderPropertiesDao()
 
@@ -78,7 +85,9 @@ class DataSourcesCache @Inject constructor(
 
     suspend fun getServiceUpdateProvider(authority: String) = serviceUpdateProviderPropertiesDao().getServiceUpdateProvider(authority)
 
-    // NEWS
+    // endregion
+
+    // region NEWS
 
     private fun newsProviderPropertiesDao() = dataSourcesDatabase.newsProviderPropertiesDao()
 
@@ -91,4 +100,6 @@ class DataSourcesCache @Inject constructor(
     fun readingNewsProviders(targetAuthority: String) = newsProviderPropertiesDao().readingTargetAuthorityNewsProviders(targetAuthority)
 
     suspend fun getNewsProvider(authority: String) = newsProviderPropertiesDao().getNewsProvider(authority)
+
+    // endregion
 }
