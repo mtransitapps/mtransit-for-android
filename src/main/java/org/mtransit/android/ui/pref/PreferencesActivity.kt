@@ -11,6 +11,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.dev.DemoModeManager
@@ -87,7 +88,7 @@ class PreferencesActivity : MTActivity(R.layout.activity_preferences) {
     override fun onPostResume() {
         super.onPostResume()
         if (this.currentUiMode != resources.configuration.uiMode) {
-            lifecycleScope.launchWhenResumed {
+            lifecycleScope.launch {
                 NightModeUtils.setDefaultNightMode(context, demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
             }
         }

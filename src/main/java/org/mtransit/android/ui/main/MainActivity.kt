@@ -29,6 +29,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.launch
 import org.mtransit.android.R
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.analytics.IAnalyticsManager
@@ -270,7 +271,7 @@ class MainActivity : MTActivityWithLocation(),
         super.onPostResume()
         isMTResumed = true
         if (currentUiMode != resources.configuration.uiMode) {
-            lifecycleScope.launchWhenResumed {
+            lifecycleScope.launch {
                 NightModeUtils.setDefaultNightMode(activity, demoModeManager) // does NOT recreated because uiMode in configChanges AndroidManifest.xml
             }
         }
