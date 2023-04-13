@@ -17,6 +17,7 @@ import org.mtransit.android.ui.fragment.MTDialogFragmentX
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.util.LinkUtils
 import javax.inject.Inject
+import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
 class FeedbackDialog : MTDialogFragmentX() {
@@ -52,7 +53,7 @@ class FeedbackDialog : MTDialogFragmentX() {
     private val agenciesAdapter by lazy {
         AgenciesFeedbackAdapter { view, url ->
             activity?.let {
-                LinkUtils.open(view, it, url, getString(R.string.web_browser), false) // force external web browser
+                LinkUtils.open(view, it, url, getString(commonsR.string.web_browser), false) // force external web browser
                 dismiss()
             }
         }

@@ -840,7 +840,7 @@ public class POIFragment extends ABFragment implements
 			POIFragment.this.analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
 					.put(AnalyticsEvents.Params.PKG, pkg)
 			);
-			StoreUtils.viewAppPage(activity, pkg, activity.getString(R.string.google_play));
+			StoreUtils.viewAppPage(activity, pkg, activity.getString(org.mtransit.android.commons.R.string.google_play));
 		});
 	}
 
@@ -924,7 +924,7 @@ public class POIFragment extends ABFragment implements
 
 	@Override
 	public boolean onURLClick(@NonNull View view, @NonNull String url) {
-		return LinkUtils.open(view, requireActivity(), url, getString(R.string.web_browser), true);
+		return LinkUtils.open(view, requireActivity(), url, getString(org.mtransit.android.commons.R.string.web_browser), true);
 	}
 
 	@Nullable
@@ -1416,7 +1416,7 @@ public class POIFragment extends ABFragment implements
 		if (context == null) {
 			return super.getABTitle(null);
 		}
-		return context.getString(R.string.ellipsis);
+		return context.getString(org.mtransit.android.commons.R.string.ellipsis);
 	}
 
 	@Override

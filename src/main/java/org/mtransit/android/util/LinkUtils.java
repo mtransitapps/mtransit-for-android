@@ -131,7 +131,7 @@ public final class LinkUtils implements MTLog.Loggable {
 
 	public static boolean intercept(@NonNull Activity activity, @NonNull String url) {
 		if (StoreUtils.isStoreIntent(url)) {
-			org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), activity.getString(R.string.google_play));
+			org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), activity.getString(org.mtransit.android.commons.R.string.google_play));
 			return true; // intercepted
 		}
 		if (LinkUtils.isEmailIntent(url)) {

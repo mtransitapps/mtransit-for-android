@@ -51,7 +51,7 @@ public final class UIDirectionUtils implements MTLog.Loggable {
 		if (!USE_DRAWABLE) {
 			return direction;
 		}
-		final String character = context.getString(R.string.trip_direction_character);
+		final String character = context.getString(org.mtransit.android.commons.R.string.trip_direction_character);
 		if (direction.startsWith(character)) {
 			final int start = 0;
 			final int end = start + character.length();

@@ -11,7 +11,6 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 
-import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SpanUtils;
 import org.mtransit.android.commons.ThemeUtils;
@@ -38,7 +37,7 @@ public class UISpanUtils extends SpanUtils implements MTLog.Loggable {
 		return getNewImage(
 				context,
 				id,
-				tint ? ThemeUtils.resolveColorAttribute(context, R.attr.colorOnSurface) : null,
+				tint ? ThemeUtils.resolveColorAttribute(context, com.google.android.material.R.attr.colorOnSurface) : null,
 				bounds,
 				null, null,
 				superscript,

@@ -98,7 +98,7 @@ class MainActivity : MTActivityWithLocation(),
             }
         }
 
-    private val defaultBgColor by lazy { ThemeUtils.resolveColorAttribute(context, R.attr.colorPrimary) }
+    private val defaultBgColor by lazy { ThemeUtils.resolveColorAttribute(context, android.R.attr.colorPrimary) }
 
     @EntryPoint
     @InstallIn(SingletonComponent::class)

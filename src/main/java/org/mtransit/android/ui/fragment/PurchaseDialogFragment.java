@@ -219,11 +219,11 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 			}
 			if (PackageManagerUtils.isAppInstalled(context, PAID_TASKS_PKG)) {
 				ToastUtils.makeTextAndShowCentered(context, //
-						context.getString(R.string.opening_and_label, //
+						context.getString(org.mtransit.android.commons.R.string.opening_and_label, //
 								context.getString(R.string.support_paid_tasks_incentive_app_label)));
 				PackageManagerUtils.openApp(context, PAID_TASKS_PKG);
 			} else {
-				StoreUtils.viewAppPage(activity, PAID_TASKS_PKG, context.getString(R.string.google_play));
+				StoreUtils.viewAppPage(activity, PAID_TASKS_PKG, context.getString(org.mtransit.android.commons.R.string.google_play));
 			}
 			Dialog dialog = getDialog();
 			if (dialog != null) {

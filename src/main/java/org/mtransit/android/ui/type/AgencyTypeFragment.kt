@@ -42,6 +42,7 @@ import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.commons.FeatureFlags
 import kotlin.math.abs
+import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
 class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivityWithLocation.DeviceLocationListener, MenuProvider {
@@ -90,7 +91,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
 
     private var updateABColorJob: Job? = null
 
-    private val defaultColor: Int by lazy { ThemeUtils.resolveColorAttribute(requireContext(), R.attr.colorPrimary) }
+    private val defaultColor: Int by lazy { ThemeUtils.resolveColorAttribute(requireContext(), android.R.attr.colorPrimary) }
 
     private val abColorizer: SimpleActionBarColorizer by lazy { SimpleActionBarColorizer() }
 
@@ -291,7 +292,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
 
     override fun getABTitle(context: Context?): CharSequence? {
         return attachedViewModel?.type?.value?.let { context?.getString(it.allStringResId) }
-            ?: context?.getString(R.string.ellipsis)
+            ?: context?.getString(commonsR.string.ellipsis)
             ?: super.getABTitle(context)
     }
 

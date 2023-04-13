@@ -570,7 +570,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 				}
 			}
 		} else if (navItemId == R.id.nav_rate_review) {
-			StoreUtils.viewAppPage(activity, Constants.MAIN_APP_PACKAGE_NAME, activity.getString(R.string.google_play));
+			StoreUtils.viewAppPage(activity, Constants.MAIN_APP_PACKAGE_NAME, activity.getString(org.mtransit.android.commons.R.string.google_play));
 		} else if (navItemId == R.id.nav_support) {
 			activity.startActivity(PreferencesActivity.newInstance(activity, true));
 		} else {

@@ -296,7 +296,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 		if (context == null) {
 			return super.getABTitle(null);
 		}
-		return context.getString(R.string.web_browser);
+		return context.getString(org.mtransit.android.commons.R.string.web_browser);
 	}
 
 	@Override
@@ -307,7 +307,7 @@ public class WebBrowserFragment extends ABFragment implements MenuProvider {
 	@Override
 	public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
 		if (menuItem.getItemId() == R.id.menu_open_www) {
-			LinkUtils.open(null, requireActivity(), this.currentUrl, getString(R.string.web_browser), false);
+			LinkUtils.open(null, requireActivity(), this.currentUrl, getString(org.mtransit.android.commons.R.string.web_browser), false);
 			return true; // handled
 		}
 		return false; // not handled

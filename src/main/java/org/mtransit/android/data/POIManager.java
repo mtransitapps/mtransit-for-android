@@ -471,7 +471,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			StoreUtils.viewAppPage(activity, ((Module) poi).getPkg(), activity.getString(R.string.google_play));
+			StoreUtils.viewAppPage(activity, ((Module) poi).getPkg(), activity.getString(org.mtransit.android.commons.R.string.google_play));
 			return true; // HANDLED
 		case 1: // Manage App
 			if (onClickHandledListener != null) {
@@ -491,7 +491,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			}
 			final AgencyProperties agencyProperties = dataSourcesRepository.getAgencyForPkg(((Module) poi).getPkg());
 			if (agencyProperties != null && agencyProperties.hasContactUs()) {
-				LinkUtils.open(view, activity, agencyProperties.getContactUsWebForLang(), activity.getString(R.string.web_browser), false); // force external web browser
+				LinkUtils.open(view, activity, agencyProperties.getContactUsWebForLang(), activity.getString(org.mtransit.android.commons.R.string.web_browser), false); // force external web browser
 			}
 			return true; // HANDLED
 		}
@@ -821,7 +821,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 					return true; // handled
 				}
 			}
-			StoreUtils.viewAppPage(activity, pkg, activity.getString(R.string.google_play));
+			StoreUtils.viewAppPage(activity, pkg, activity.getString(org.mtransit.android.commons.R.string.google_play));
 			return true; // handled
 		case POI.ITEM_ACTION_TYPE_PLACE:
 			if (onClickHandledListener != null) {

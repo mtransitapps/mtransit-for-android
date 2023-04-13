@@ -8,7 +8,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.mtransit.android.BuildConfig
-import org.mtransit.android.R
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
@@ -31,6 +30,7 @@ import org.mtransit.android.data.StatusProviderProperties
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import org.mtransit.android.commons.R as commonsR
 
 @Singleton
 class DataSourcesReader @Inject constructor(
@@ -78,20 +78,20 @@ class DataSourcesReader @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    private val agencyProviderMetaData by lazy { appContext.getString(R.string.agency_provider) }
+    private val agencyProviderMetaData by lazy { appContext.getString(commonsR.string.agency_provider) }
 
-    private val statusProviderMetaData by lazy { appContext.getString(R.string.status_provider) }
-    private val scheduleProviderMetaData by lazy { appContext.getString(R.string.schedule_provider) }
-    private val serviceUpdateProviderMetaData by lazy { appContext.getString(R.string.service_update_provider) }
-    private val newsProviderMetaData by lazy { appContext.getString(R.string.news_provider) }
+    private val statusProviderMetaData by lazy { appContext.getString(commonsR.string.status_provider) }
+    private val scheduleProviderMetaData by lazy { appContext.getString(commonsR.string.schedule_provider) }
+    private val serviceUpdateProviderMetaData by lazy { appContext.getString(commonsR.string.service_update_provider) }
+    private val newsProviderMetaData by lazy { appContext.getString(commonsR.string.news_provider) }
 
-    private val agencyProviderTypeMetaData by lazy { appContext.getString(R.string.agency_provider_type) }
-    private val rtsProviderMetaData by lazy { appContext.getString(R.string.rts_provider) }
+    private val agencyProviderTypeMetaData by lazy { appContext.getString(commonsR.string.agency_provider_type) }
+    private val rtsProviderMetaData by lazy { appContext.getString(commonsR.string.rts_provider) }
 
-    private val statusProviderTargetMetaData by lazy { appContext.getString(R.string.status_provider_target) }
-    private val scheduleProviderTargetMetaData by lazy { appContext.getString(R.string.schedule_provider_target) }
-    private val serviceUpdateProviderTargetMetaData by lazy { appContext.getString(R.string.service_update_provider_target) }
-    private val newsProviderTargetMetaData by lazy { appContext.getString(R.string.news_provider_target) }
+    private val statusProviderTargetMetaData by lazy { appContext.getString(commonsR.string.status_provider_target) }
+    private val scheduleProviderTargetMetaData by lazy { appContext.getString(commonsR.string.schedule_provider_target) }
+    private val serviceUpdateProviderTargetMetaData by lazy { appContext.getString(commonsR.string.service_update_provider_target) }
+    private val newsProviderTargetMetaData by lazy { appContext.getString(commonsR.string.news_provider_target) }
 
     fun isAProvider(pkg: String?): Boolean {
         if (pkg.isNullOrBlank()) {

@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
 
-import org.mtransit.android.R;
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.ThemeUtils;
@@ -80,7 +79,7 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 			return Color.TRANSPARENT;
 		}
 		if (this.defaultABBgColor == null && context != null) {
-			this.defaultABBgColor = ThemeUtils.resolveColorAttribute(context, R.attr.colorPrimary);
+			this.defaultABBgColor = ThemeUtils.resolveColorAttribute(context, android.R.attr.colorPrimary);
 		}
 		return this.defaultABBgColor;
 	}

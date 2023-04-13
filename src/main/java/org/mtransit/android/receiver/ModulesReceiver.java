@@ -11,7 +11,6 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.mtransit.android.R;
 import org.mtransit.android.common.MTContinuationJ;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
@@ -74,7 +73,7 @@ public class ModulesReceiver extends BroadcastReceiver implements MTLog.Loggable
 	@NonNull
 	private static String getAgencyProviderMetaData(@NonNull Context context) {
 		if (agencyProviderMetaData == null) {
-			agencyProviderMetaData = context.getString(R.string.agency_provider);
+			agencyProviderMetaData = context.getString(org.mtransit.android.commons.R.string.agency_provider);
 		}
 		return agencyProviderMetaData;
 	}

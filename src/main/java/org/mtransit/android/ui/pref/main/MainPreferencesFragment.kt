@@ -39,6 +39,7 @@ import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.NightModeUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
+import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
 class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
@@ -72,8 +73,8 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             (findPreference(MainPreferencesViewModel.SUPPORT_SUBSCRIPTIONS_PREF) as? Preference)?.apply {
                 when {
                     hasSubscription == null -> {
-                        setTitle(R.string.ellipsis)
-                        setSummary(R.string.ellipsis)
+                        setTitle(commonsR.string.ellipsis)
+                        setSummary(commonsR.string.ellipsis)
                         isEnabled = false
                     }
                     hasSubscription -> {
@@ -134,7 +135,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         }
         (findPreference(MainPreferencesViewModel.FEEDBACK_STORE_PREF) as? Preference)?.setOnPreferenceClickListener {
             activity?.let {
-                StoreUtils.viewAppPage(it, Constants.MAIN_APP_PACKAGE_NAME, it.getString(R.string.google_play))
+                StoreUtils.viewAppPage(it, Constants.MAIN_APP_PACKAGE_NAME, it.getString(commonsR.string.google_play))
                 true
             } ?: false
         }
@@ -147,7 +148,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                         // DO NOTHING
                     }
                     hasSubscription -> { // has subscription
-                        StoreUtils.viewSubscriptionPage(it, currentSubscription!!, it.packageName, it.getString(R.string.google_play))
+                        StoreUtils.viewSubscriptionPage(it, currentSubscription!!, it.packageName, it.getString(commonsR.string.google_play))
                     }
                     else -> { // does NOT have subscription
                         BillingUtils.showPurchaseDialog(it)
@@ -266,7 +267,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             findViewById<TextView>(R.id.battery_optimization_issue_text_2).apply {
                 text = LinkUtils.linkifyHtml(getString(R.string.battery_optimization_issue_message_2), false)
                 movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
-                    LinkUtils.open(view, activity, url, getString(R.string.web_browser), true)
+                    LinkUtils.open(view, activity, url, getString(commonsR.string.web_browser), true)
                 }
             }
         }

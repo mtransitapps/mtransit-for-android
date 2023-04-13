@@ -50,6 +50,7 @@ import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
+import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
 class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener, MenuProvider {
@@ -185,7 +186,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
             }
             swipeRefresh.apply {
                 setColorSchemeColors(
-                    ThemeUtils.resolveColorAttribute(view.context, R.attr.colorAccent)
+                    ThemeUtils.resolveColorAttribute(view.context, android.R.attr.colorAccent)
                 )
                 setOnRefreshListener {
                     if (!viewModel.initiateRefresh()) {
@@ -432,7 +433,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
     override fun getABTitle(context: Context?) = context?.getString(R.string.app_name) ?: super.getABTitle(context)
 
     override fun getABSubtitle(context: Context?) =
-        this.attachedViewModel?.nearbyLocationAddress?.value ?: context?.getString(R.string.ellipsis) ?: super.getABSubtitle(context)
+        this.attachedViewModel?.nearbyLocationAddress?.value ?: context?.getString(commonsR.string.ellipsis) ?: super.getABSubtitle(context)
 
     override fun onDestroyView() {
         super.onDestroyView()

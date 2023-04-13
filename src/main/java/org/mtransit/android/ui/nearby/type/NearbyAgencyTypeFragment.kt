@@ -128,7 +128,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             }
             swipeRefresh.apply {
                 setColorSchemeColors(
-                    ThemeUtils.resolveColorAttribute(view.context, R.attr.colorAccent)
+                    ThemeUtils.resolveColorAttribute(view.context, android.R.attr.colorAccent)
                 )
                 setRefreshEnabled(parentViewModel.isFixedOn.value != true)
                 setOnRefreshListener {

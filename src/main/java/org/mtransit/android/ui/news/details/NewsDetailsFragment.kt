@@ -25,6 +25,7 @@ import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.UITimeUtils
 import javax.inject.Inject
+import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
 class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
@@ -83,7 +84,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     @Suppress("UNUSED_PARAMETER")
     private fun onImageClicked(view: View, newsImage: NewsImage) {
-        LinkUtils.open(view, requireActivity(), newsImage.imageUrl, getString(R.string.web_browser), true)
+        LinkUtils.open(view, requireActivity(), newsImage.imageUrl, getString(commonsR.string.web_browser), true)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -124,7 +125,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                         imageManager.loadInto(thumbnail.context, newsArticle.firstValidImageUrl, thumbnail)
                         thumbnail.isVisible = true
                         thumbnail.setOnClickListener {
-                            LinkUtils.open(view, requireActivity(), newsArticle.firstValidImageUrl, getString(R.string.web_browser), true)
+                            LinkUtils.open(view, requireActivity(), newsArticle.firstValidImageUrl, getString(commonsR.string.web_browser), true)
                         }
                     }
                     else -> {
@@ -165,7 +166,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                 newsText.apply {
                     setText(LinkUtils.linkifyHtml(newsArticle.textHTML, true), TextView.BufferType.SPANNABLE)
                     movementMethod = LinkUtils.LinkMovementMethodInterceptor.getInstance { view, url ->
-                        LinkUtils.open(view, requireActivity(), url, getString(R.string.web_browser), true)
+                        LinkUtils.open(view, requireActivity(), url, getString(commonsR.string.web_browser), true)
                     }
                     setLinkTextColor(
                         newsArticle.colorIntOrNull?.let {
@@ -179,7 +180,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                     setText(UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs), TextView.BufferType.SPANNABLE)
                     val newWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
                     setOnClickListener { view ->
-                        LinkUtils.open(view, requireActivity(), newWebURL, getString(R.string.web_browser), true)
+                        LinkUtils.open(view, requireActivity(), newWebURL, getString(commonsR.string.web_browser), true)
                     }
                 }
             }
