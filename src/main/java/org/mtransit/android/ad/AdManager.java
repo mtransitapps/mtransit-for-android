@@ -65,13 +65,13 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
  * Add tools:replace="android:supportsRtl" in AndroidManifest.xml
  * Requires real app ID & unit IDs in keys.xml
  * AdMob test devices:
- * - https://support.google.com/admob/answer/9691433
- * - https://apps.admob.com/v2/settings/test-devices/list
+ * - <a href="https://support.google.com/admob/answer/9691433">...</a>
+ * - <a href="https://apps.admob.com/v2/settings/test-devices/list">...</a>
  * Audience Network test devices:
- * - https://developers.facebook.com/docs/audience-network/guides/test
- * - https://business.facebook.com/pub/testing
+ * - <a href="https://developers.facebook.com/docs/audience-network/guides/test">...</a>
+ * - <a href="https://business.facebook.com/pub/testing">...</a>
  * MORE:
- * - https://developers.google.com/admob/android/test-ads
+ * - <a href="https://developers.google.com/admob/android/test-ads">...</a>
  */
 @SuppressWarnings("WeakerAccess")
 @SuppressLint({"MissingPermission", "VisibleForTests"})
