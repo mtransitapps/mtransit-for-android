@@ -283,6 +283,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
                     MotionEvent.ACTION_DOWN -> {
                         var handled = false
                         attachedViewModel?.locationSettingsNeededResolution?.value?.let { pendingIntent ->
+                            @Suppress("DEPRECATION")
                             activity?.startIntentSenderForResult(pendingIntent.intentSender, 101, null, 0, 0, 0)
                             handled = true
                         }
