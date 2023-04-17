@@ -53,7 +53,17 @@
     *;
 }
 -dontwarn com.facebook.ads.internal.**
+-dontwarn com.facebook.infer.annotation.*
 # FACEBOOK AUDIENCE NETWORK - END
+
+# OKHTTP - START
+# https://github.com/square/okhttp/blob/master/okhttp/src/jvmMain/resources/META-INF/proguard/okhttp3.pro
+# OkHttp platform used only on JVM and when Conscrypt and other security providers are available.
+-dontwarn okhttp3.internal.platform.**
+-dontwarn org.conscrypt.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.openjsse.**
+# OKHTTP - END
 
 # INMOBI - START
 -keep class com.inmobi.** { *; }
