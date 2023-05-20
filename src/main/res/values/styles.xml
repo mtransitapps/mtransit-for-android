@@ -28,6 +28,7 @@
     <!-- Widget.MaterialComponents.Button.Dialog -->
     <style name="MTWidgetMDCButtonDialog" parent="@style/Widget.MaterialComponents.Button">
         <item name="android:minWidth">@dimen/platform_mtrl_btn_dialog_btn_min_width</item>
+        <item name="android:maxWidth">320dp</item><!-- recommended by Material Design -->
         <item name="android:lines">1</item>
         <item name="android:ellipsize">end</item>
         <item name="android:singleLine">true</item>

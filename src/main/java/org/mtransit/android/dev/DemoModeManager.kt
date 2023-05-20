@@ -1,5 +1,6 @@
 package org.mtransit.android.dev
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.location.Location
@@ -203,6 +204,7 @@ class DemoModeManager @Inject constructor(
         return newBase
     }
 
+    @SuppressLint("AppBundleLocaleChanges")
     private fun fixLocale(_configuration: Configuration): Configuration {
         val defaultLocale = forceLang?.let { Locale.forLanguageTag(it) } ?: LocaleUtils.getDefaultLocale()
         return _configuration.apply {

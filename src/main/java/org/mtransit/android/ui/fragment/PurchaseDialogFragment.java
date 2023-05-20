@@ -347,10 +347,11 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 			rewardedAdStatusTv.setText(null);
 		}
 
-		rewardedAdsBtn.setText(getString(
+		rewardedAdsBtn.setText(getResources().getQuantityString(
 				rewardedNow ?
-						R.string.support_watch_rewarded_ad_btn_more_and_days :
-						R.string.support_watch_rewarded_ad_btn_and_days,
+						R.plurals.support_watch_rewarded_ad_btn_more_and_days :
+						R.plurals.support_watch_rewarded_ad_btn_and_days,
+				rewardedAmount,
 				rewardedAmount
 		));
 		if (availableToShow) { // only if NOT paying user

@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.rts.route
 
+import android.annotation.SuppressLint
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.mtransit.android.commons.MTLog
@@ -20,6 +21,7 @@ class RTSRouteTripPagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Log
 
     private var selectedStopId: Int? = null
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setAuthority(newAuthority: String?) {
         if (this.authority == newAuthority) {
             return // SKIP same
@@ -28,6 +30,7 @@ class RTSRouteTripPagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Log
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setRouteTrips(newRouteTrips: List<Trip>?): Boolean { // TODO DiffUtil
         var changed = false
         if (!this.routeTrips.isNullOrEmpty()) {

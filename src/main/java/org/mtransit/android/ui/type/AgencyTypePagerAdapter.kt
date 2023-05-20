@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.type
 
+import android.annotation.SuppressLint
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.mtransit.android.commons.MTLog
@@ -17,6 +18,7 @@ class AgencyTypePagerAdapter(f: Fragment) : FragmentStateAdapter(f), MTLog.Logga
 
     private var agencies: MutableList<IAgencyUIProperties>? = null
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setAgencies(newAgencies: List<IAgencyUIProperties>?): Boolean { // TODO DiffUtil
         var changed = false
         if (!this.agencies.isNullOrEmpty()) {

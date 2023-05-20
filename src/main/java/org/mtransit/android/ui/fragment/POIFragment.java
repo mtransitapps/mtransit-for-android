@@ -1105,10 +1105,11 @@ public class POIFragment extends ABFragment implements
 		}
 		rewardedAdTitleTv.setVisibility(View.VISIBLE);
 
-		rewardedAdsBtn.setText(getString(
+		rewardedAdsBtn.setText(getResources().getQuantityString(
 				rewardedNow ?
-						R.string.watch_rewarded_ad_btn_more_and_days :
-						R.string.watch_rewarded_ad_btn_and_days,
+						R.plurals.watch_rewarded_ad_btn_more_and_days :
+						R.plurals.watch_rewarded_ad_btn_and_days,
+				rewardedAmount,
 				rewardedAmount
 		));
 		if (availableToShow) { // only if NOT paying user

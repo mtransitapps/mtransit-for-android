@@ -158,7 +158,7 @@
             android:layout_height="wrap_content"
             android:enabled="false"
             android:visibility="gone"
-            tools:text="@string/support_watch_rewarded_ad_btn_and_days"
+            tools:text="@plurals/support_watch_rewarded_ad_btn_and_days"
             tools:visibility="visible" />
 
     </LinearLayout>
