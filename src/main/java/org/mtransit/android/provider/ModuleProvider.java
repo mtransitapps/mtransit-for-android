@@ -180,7 +180,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@SuppressWarnings("UnusedReturnValue")
-	protected int deleteAllModuleStatusData() {
+	private int deleteAllModuleStatusData() {
 		MTLog.v(this, "deleteAllModuleStatusData()");
 		int affectedRows = 0;
 		try {
@@ -342,7 +342,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return MODULE_VALIDITY_IN_MS;
 	}
 
-	public void updateModuleDataIfRequired() {
+	private void updateModuleDataIfRequired() {
 		long lastUpdateInMs = PreferenceUtils.getPrefLcl(requireContextCompat(), PREF_KEY_LAST_UPDATE_MS, 0L);
 		long nowInMs = UITimeUtils.currentTimeMillis();
 		if (lastUpdateInMs + getPOIMaxValidityInMs() < nowInMs) { // too old to display?
@@ -435,7 +435,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@NonNull
-	public POIStatus getNewModuleStatus(@NonNull AppStatus.AppStatusFilter filter) {
+	private POIStatus getNewModuleStatus(@NonNull AppStatus.AppStatusFilter filter) {
 		final long newLastUpdateInMs = UITimeUtils.currentTimeMillis();
 		final Context context = requireContextCompat();
 		boolean appInstalled = PackageManagerUtils.isAppInstalled(context, filter.getPkg());
@@ -595,7 +595,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
 	@NonNull
-	public String getDbName() {
+	private String getDbName() {
 		return ModuleDbHelper.DB_NAME;
 	}
 
@@ -608,7 +608,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
-	public int getCurrentDbVersion() {
+	private int getCurrentDbVersion() {
 		return ModuleDbHelper.getDbVersion();
 	}
 
@@ -616,7 +616,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
 	@NonNull
-	public ModuleDbHelper getNewDbHelper(@NonNull Context context) {
+	private ModuleDbHelper getNewDbHelper(@NonNull Context context) {
 		return new ModuleDbHelper(context.getApplicationContext());
 	}
 
@@ -654,7 +654,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	}
 
 	@NonNull
-	public static ArrayMap<String, String> getNewPoiProjectionMap(@NonNull String authority) {
+	private static ArrayMap<String, String> getNewPoiProjectionMap(@NonNull String authority) {
 		// @formatter:off
 		final SqlUtils.ProjectionMapBuilder builder = SqlUtils.ProjectionMapBuilder.getNew()
 				.appendValue(SqlUtils.concatenate( //
@@ -684,11 +684,11 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		// @formatter:on
 	}
 
-	public static final String[] PROJECTION_MODULE =
+	private static final String[] PROJECTION_MODULE =
 			new String[]{ModuleColumns.T_MODULE_K_PKG, ModuleColumns.T_MODULE_K_TARGET_TYPE_ID, ModuleColumns.T_MODULE_K_COLOR,
 					ModuleColumns.T_MODULE_K_LOCATION, ModuleColumns.T_MODULE_K_NAME_FR};
 
-	public static final String[] PROJECTION_MODULE_POI = ArrayUtils.addAllNonNull(POIProvider.PROJECTION_POI, PROJECTION_MODULE);
+	private static final String[] PROJECTION_MODULE_POI = ArrayUtils.addAllNonNull(POIProvider.PROJECTION_POI, PROJECTION_MODULE);
 
 	@NonNull
 	@Override

@@ -16,13 +16,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
-import androidx.viewpager2.widget.ViewPager2
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
+import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
+import org.mtransit.android.commons.dp
 import org.mtransit.android.data.POIManager
-import org.mtransit.android.databinding.FragmentScheduleBinding
 import org.mtransit.android.databinding.FragmentScheduleInfiniteBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.MainActivity
@@ -31,11 +31,12 @@ import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.ui.view.common.scrollToPositionWithOffset
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.FeatureFlags
 
 @AndroidEntryPoint
-class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layout.fragment_schedule_infinite else R.layout.fragment_schedule), MenuProvider {
+class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuProvider {
 
     companion object {
         private val LOG_TAG = ScheduleFragment::class.java.simpleName
@@ -85,28 +86,6 @@ class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layo
     private val attachedViewModel
         get() = if (isAttached()) viewModel else null
 
-    private var binding: FragmentScheduleBinding? = null
-
-    private var lastPageSelected: Int = SchedulePagerAdapter.STARTING_POSITION
-
-    private var pagerAdapter: SchedulePagerAdapter? = null
-
-    private fun makePagerAdapter() = SchedulePagerAdapter(this).apply {
-        setUUID(attachedViewModel?.uuid?.value)
-        setAuthority(attachedViewModel?.authority?.value)
-    }
-
-    private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
-        override fun onPageSelected(position: Int) {
-            super.onPageSelected(position)
-            attachedViewModel?.onPageSelected(position)
-            lastPageSelected = position
-        }
-    }
-
-    /**
-     * @see org.mtransit.commons.FeatureFlags#F_SCHEDULE_INFINITE - START
-     */
     private var bindingI: FragmentScheduleInfiniteBinding? = null
 
     private val listAdapter: ScheduleAdapter by lazy {
@@ -130,89 +109,61 @@ class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layo
         }
     }
 
-    /**
-     * @see org.mtransit.commons.FeatureFlags#F_SCHEDULE_INFINITE - END
-     */
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (FeatureFlags.F_SCHEDULE_INFINITE) {
-            (requireActivity() as MenuHost).addMenuProvider(
-                this, viewLifecycleOwner, Lifecycle.State.RESUMED
-            )
-            bindingI = FragmentScheduleInfiniteBinding.bind(view).apply {
-                list.adapter = listAdapter
-                list.addOnScrollListener(onScrollListener)
-                list.addItemDecoration(
-                    StickyHeaderItemDecorator(
-                        listAdapter,
-                        list,
-                    )
+        (requireActivity() as MenuHost).addMenuProvider(
+            this, viewLifecycleOwner, Lifecycle.State.RESUMED
+        )
+        bindingI = FragmentScheduleInfiniteBinding.bind(view).apply {
+            list.adapter = listAdapter
+            list.addOnScrollListener(onScrollListener)
+            list.addItemDecoration(
+                StickyHeaderItemDecorator(
+                    listAdapter,
+                    list,
                 )
-            }
-        } else {
-            binding = FragmentScheduleBinding.bind(view).apply {
-                viewPager.offscreenPageLimit = 2
-                viewPager.registerOnPageChangeCallback(onPageChangeCallback)
-                viewPager.adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
-                viewPager.setCurrentItem(lastPageSelected, false)
+            )
+        }
+        viewModel.startEndAt.observe(viewLifecycleOwner) { startEndAt ->
+            startEndAt?.let { (startInMs, endInMs) ->
+                val scrollPosition = (bindingI?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
+                listAdapter.setStartEnd(startInMs, endInMs)
+                bindingI?.list?.apply {
+                    if (scrollPosition > 0) {
+                        scrollToPosition(scrollPosition)
+                    }
+                }
             }
         }
-        if (FeatureFlags.F_SCHEDULE_INFINITE) {
-            viewModel.startEndAt.observe(viewLifecycleOwner) { startEndAt ->
-                startEndAt?.let { (startInMs, endInMs) ->
-                    val scrollPosition = (bindingI?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
-                    listAdapter.setStartEnd(startInMs, endInMs)
-                    bindingI?.list?.apply {
-                        if (scrollPosition > 0) {
-                            scrollToPosition(scrollPosition)
+        viewModel.scrolledToNow.observe(viewLifecycleOwner) {
+            // NOTHING
+        }
+        viewModel.timestamps.observe(viewLifecycleOwner) { timestamps ->
+            MTLog.d(this, "onChange() > ${timestamps?.size} - timestamps")
+            val scrollPosition = (bindingI?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
+            listAdapter.setTimes(timestamps)
+            bindingI?.apply {
+                if (timestamps != null) {
+                    if (viewModel.scrolledToNow.value == false) {
+                        listAdapter.getScrollToNowPosition()?.let {
+                            MTLog.d(this, "onChange() > getScrollToNowPosition() = $it")
+                            list.scrollToPositionWithOffset(it, 48.dp)
                         }
+                        viewModel.setScrolledToNow(true)
+                    } else if (scrollPosition > 0) {
+                        list.scrollToPosition(scrollPosition)
                     }
                 }
+                loadingLayout.isVisible = !listAdapter.isReady()
+                list.isVisible = listAdapter.isReady()
             }
-            viewModel.scrolledToNow.observe(viewLifecycleOwner) {
-                // NOTHING
-            }
-            viewModel.timestamps.observe(viewLifecycleOwner) { timestamps ->
-                val scrollPosition = (bindingI?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
-                listAdapter.setTimes(timestamps)
-                bindingI?.apply {
-                    if (timestamps != null) {
-                        if (viewModel.scrolledToNow.value == false) {
-                            listAdapter.getScrollToNowPosition()?.let {
-                                list.scrollToPosition(it)
-                            }
-                            viewModel.setScrolledToNow(true)
-                        } else if (scrollPosition > 0) {
-                            list.scrollToPosition(scrollPosition)
-                        }
-                    }
-                    loadingLayout.isVisible = !listAdapter.isReady()
-                    list.isVisible = listAdapter.isReady()
-                }
-            }
-            viewModel.rts.observe(viewLifecycleOwner) { rts ->
-                listAdapter.setRTS(rts)
-            }
-            if (FeatureFlags.F_ACCESSIBILITY_CONSUMER) {
-                viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
-                    listAdapter.showingAccessibility = showAccessibility
-                }
-            }
-        } else {
-            viewModel.authority.observe(viewLifecycleOwner) { authority ->
-                pagerAdapter?.apply {
-                    val wasReady = isReady()
-                    setAuthority(authority)
-                    updateViews(wasReady)
-                }
-            }
-            viewModel.uuid.observe(viewLifecycleOwner) { uuid ->
-                pagerAdapter?.apply {
-                    val wasReady = isReady()
-                    setUUID(uuid)
-                    updateViews(wasReady)
-                }
+        }
+        viewModel.rts.observe(viewLifecycleOwner) { rts ->
+            listAdapter.setRTS(rts)
+        }
+        if (FeatureFlags.F_ACCESSIBILITY_CONSUMER) {
+            viewModel.showAccessibility.observe(viewLifecycleOwner) { showAccessibility ->
+                listAdapter.showingAccessibility = showAccessibility
             }
         }
         viewModel.dataSourceRemovedEvent.observe(viewLifecycleOwner, EventObserver { removed ->
@@ -233,39 +184,18 @@ class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layo
         }
     }
 
-    private fun updateViews(wasReady: Boolean) {
-        if (FeatureFlags.F_SCHEDULE_INFINITE) {
-            return
-        }
-        binding?.apply {
-            if (!wasReady && pagerAdapter?.isReady() == true) {
-                viewPager.setCurrentItem(lastPageSelected, false)
-            }
-            loadingLayout.isVisible = pagerAdapter?.isReady() == false
-            viewPager.isVisible = pagerAdapter?.isReady() == true
-        }
-    }
-
-    /**
-     * @see org.mtransit.commons.FeatureFlags#F_SCHEDULE_INFINITE - START
-     */
-
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        if (!FeatureFlags.F_SCHEDULE_INFINITE) {
-            return
-        }
         menuInflater.inflate(R.menu.menu_schedule, menu)
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        if (!FeatureFlags.F_SCHEDULE_INFINITE) {
-            return false // not handled
-        }
+        MTLog.v(this, "onMenuItemSelected($menuItem)")
         return when (menuItem.itemId) {
             R.id.menu_today -> {
                 bindingI?.apply {
                     listAdapter.getScrollToNowPosition()?.let {
-                        list.scrollToPosition(it)
+                        MTLog.d(this, "onMenuItemSelected() > getScrollToNowPosition() = $it")
+                        this.list.scrollToPositionWithOffset(it, 48.dp)
                     }
                     viewModel.setScrolledToNow(true)
                 }
@@ -277,33 +207,21 @@ class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layo
 
     override fun onDetach() {
         super.onDetach()
-        if (!FeatureFlags.F_SCHEDULE_INFINITE) {
-            return
-        }
         disableTimeChangedReceiver()
     }
 
     override fun onResume() {
         super.onResume()
-        if (!FeatureFlags.F_SCHEDULE_INFINITE) {
-            return
-        }
         viewModel.initStartEndTimeIfNotSet()
         enableTimeChangedReceiver()
     }
 
     override fun onPause() {
         super.onPause()
-        if (!FeatureFlags.F_SCHEDULE_INFINITE) {
-            return
-        }
         disableTimeChangedReceiver()
     }
 
     private fun enableTimeChangedReceiver() {
-        if (!FeatureFlags.F_SCHEDULE_INFINITE) {
-            return
-        }
         if (!timeChangedReceiverEnabled) {
             activity?.registerReceiver(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER)
             timeChangedReceiverEnabled = true
@@ -312,19 +230,12 @@ class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layo
     }
 
     private fun disableTimeChangedReceiver() {
-        if (!FeatureFlags.F_SCHEDULE_INFINITE) {
-            return
-        }
         if (timeChangedReceiverEnabled) {
             activity?.unregisterReceiver(timeChangedReceiver)
             timeChangedReceiverEnabled = false
             listAdapter.onTimeChanged(-1L) // mark time as not updating anymore
         }
     }
-
-    /**
-     * @see org.mtransit.commons.FeatureFlags#F_SCHEDULE_INFINITE - END
-     */
 
     override fun isABReady() = attachedViewModel?.rts?.value != null
 
@@ -338,13 +249,6 @@ class ScheduleFragment : ABFragment(if (FeatureFlags.F_SCHEDULE_INFINITE) R.layo
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (FeatureFlags.F_SCHEDULE_INFINITE) {
-            binding?.viewPager?.unregisterOnPageChangeCallback(onPageChangeCallback)
-            binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
-            pagerAdapter = null // cannot re-use Adapter w/ ViewPager
-            binding = null
-        } else {
-            bindingI = null
-        }
+        bindingI = null
     }
 }

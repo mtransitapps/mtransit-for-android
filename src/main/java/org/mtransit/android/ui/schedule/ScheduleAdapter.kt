@@ -217,16 +217,11 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
 
     private fun getTodaySelectPosition(): Int {
         nextTimestamp?.let { nextTimestamp ->
-            var nextTimePosition: Int = getPosition(nextTimestamp)
-            if (nextTimePosition > 0) { // IF not the 1st of the list DO
-                nextTimePosition-- // show 1 more on top of the list
-                if (nextTimePosition > 0) { // IF not the 2nd of the list DO
-                    nextTimePosition-- // show 1 more on top of the list
-                }
+            val nextTimePosition: Int = getPosition(nextTimestamp)
+            if (nextTimePosition == NO_POSITION) {
+                return 0 // ELSE show 1st of the list
             }
-            if (nextTimePosition != NO_POSITION) {
-                return nextTimePosition
-            }
+            return nextTimePosition
         }
         return 0 // ELSE show 1st of the list
     }
@@ -414,12 +409,14 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
                     this.dayDateFormat
                 )
             }
+
             ITEM_VIEW_TYPE_HOUR_SEPARATORS -> {
                 (holder as? HourSeparatorViewHolder)?.bind(
                     getHourItemTimestamp(position),
                     getHourFormatter(holder.context),
                 )
             }
+
             ITEM_VIEW_TYPE_TIME -> {
                 (holder as? TimeViewHolder)?.bind(
                     getTimestampItem(position),
@@ -429,10 +426,12 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
                     this.showingAccessibility,
                 )
             }
+
             ITEM_VIEW_TYPE_LOADING -> {
                 (holder as? LoadingViewHolder)?.bind(
                 )
             }
+
             else -> throw RuntimeException("Unexpected view to bind $position!")
         }
     }

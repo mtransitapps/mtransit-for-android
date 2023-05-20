@@ -16,8 +16,6 @@ import org.mtransit.android.commons.data.AvailabilityPercent;
 import org.mtransit.android.data.UISchedule;
 import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.ui.schedule.ScheduleAdapter;
-import org.mtransit.android.ui.schedule.day.ScheduleDayAdapter;
-import org.mtransit.commons.FeatureFlags;
 
 import java.util.Locale;
 
@@ -68,11 +66,7 @@ public final class NightModeUtils implements MTLog.Loggable {
 		UIDirectionUtils.resetColorCache();
 		UITimeUtils.resetColorCache();
 		AvailabilityPercent.resetColorCache();
-		if (FeatureFlags.F_SCHEDULE_INFINITE) {
-			ScheduleAdapter.resetColorCache();
-		} else {
-			ScheduleDayAdapter.TimeViewHolder.resetColorCache();
-		}
+		ScheduleAdapter.resetColorCache();
 	}
 
 	@AppCompatDelegate.NightMode

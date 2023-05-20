@@ -33,7 +33,7 @@ class DataSourcesInMemoryCache @Inject constructor(
 
     private val defaultAgencyComparator: Comparator<IAgencyProperties> = IAgencyProperties.SHORT_NAME_COMPARATOR
 
-    val defaultDataSourceTypeComparator: Comparator<DataSourceType> by lazy { DataSourceType.DataSourceTypeShortNameComparator(appContext) }
+    private val defaultDataSourceTypeComparator: Comparator<DataSourceType> by lazy { DataSourceType.DataSourceTypeShortNameComparator(appContext) }
 
     private var _agencyProperties = listOf<AgencyProperties>() // sorted
     private var _agencyBaseProperties = listOf<AgencyBaseProperties>() // sorted

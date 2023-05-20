@@ -24,8 +24,6 @@ import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.task.ServiceUpdateLoader
-import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
@@ -41,8 +39,6 @@ class ScheduleViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val dataSourceRequestManager: DataSourceRequestManager,
     private val poiRepository: POIRepository,
-    private val statusLoader: StatusLoader,
-    private val serviceUpdateLoader: ServiceUpdateLoader,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -53,15 +49,9 @@ class ScheduleViewModel @Inject constructor(
         internal const val EXTRA_COLOR = "extra_color"
         internal val EXTRA_COLOR_DEFAULT: String? = null
 
-        /**
-         * @see org.mtransit.commons.FeatureFlags#F_SCHEDULE_INFINITE - START
-         */
         internal const val EXTRA_SCROLLED_TO_NOW = "extra_scrolled_to_now"
         internal const val EXTRA_START_AT_IN_MS = "extra_start_at_in_ms"
         internal const val EXTRA_END_AT_IN_MS = "extra_end_at_in_ms"
-        /**
-         * @see org.mtransit.commons.FeatureFlags#F_SCHEDULE_INFINITE - END
-         */
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -90,15 +80,6 @@ class ScheduleViewModel @Inject constructor(
     }
 
     val rts: LiveData<RouteTripStop?> = this.poim.map { it?.let { if (it.poi is RouteTripStop) it.poi else null } }
-
-    fun onPageSelected(@Suppress("UNUSED_PARAMETER") position: Int) {
-        this.statusLoader.clearAllTasks()
-        this.serviceUpdateLoader.clearAllTasks()
-    }
-
-    /**
-     * @see org.mtransit.commons.FeatureFlags#F_SCHEDULE_INFINITE - START
-     */
 
     private val _startsAtInMs = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_START_AT_IN_MS)
 
@@ -166,8 +147,4 @@ class ScheduleViewModel @Inject constructor(
     val showAccessibility: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
         DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY, DefaultPreferenceRepository.PREFS_SHOW_ACCESSIBILITY_DEFAULT
     ).distinctUntilChanged()
-
-    /**
-     * @see org.mtransit.commons.FeatureFlags#F_SCHEDULE_INFINITE - END
-     */
 }
