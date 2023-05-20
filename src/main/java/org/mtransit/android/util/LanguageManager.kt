@@ -29,14 +29,13 @@ class LanguageManager @Inject constructor(
 
     fun updateUserPrefFromAppLocale() {
         val appLocale = AppCompatDelegate.getApplicationLocales()[0] // not using Locale.getDefault() because it's not user pref
-        val appLocaleLang = appLocale?.language
-        val userPref = when (appLocaleLang) {
+        val userPref = when (appLocale?.language) {
             LANG_EN.language -> DefaultPreferenceRepository.PREFS_LANG_EN
             LANG_FR.language -> DefaultPreferenceRepository.PREFS_LANG_FR
             else -> DefaultPreferenceRepository.PREFS_LANG_SYSTEM_DEFAULT
         }
         defaultPrefRepository.pref.edit {
-            putString(DefaultPreferenceRepository.PREFS_LANG, appLocaleLang)
+            putString(DefaultPreferenceRepository.PREFS_LANG, userPref)
         }
     }
 
