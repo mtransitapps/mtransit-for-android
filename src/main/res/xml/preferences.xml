@@ -55,11 +55,6 @@
         android:title="@string/device_settings_pref_cat_title">
         <Preference
             android:enabled="true"
-            android:key="pDeviceSettingsLanguage"
-            android:summary="@string/device_settings_language_pref_summary"
-            android:title="@string/device_settings_language_pref_title" />
-        <Preference
-            android:enabled="true"
             android:key="pDeviceSettingsDateAndTime"
             android:summary="@string/device_settings_date_and_time_pref_summary"
             android:title="@string/device_settings_date_and_time_pref_title" />
