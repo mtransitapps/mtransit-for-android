@@ -41,6 +41,12 @@ class DefaultPreferenceRepository @Inject constructor(
         const val PREFS_UNITS_IMPERIAL = PreferenceUtils.PREFS_UNITS_IMPERIAL
         const val PREFS_UNITS_DEFAULT = PreferenceUtils.PREFS_UNITS_DEFAULT
 
+        const val PREFS_LANG = PreferenceUtils.PREFS_LANG
+        const val PREFS_LANG_EN = PreferenceUtils.PREFS_LANG_EN
+        const val PREFS_LANG_FR = PreferenceUtils.PREFS_LANG_FR
+        const val PREFS_LANG_SYSTEM_DEFAULT = PreferenceUtils.PREFS_LANG_SYSTEM_DEFAULT
+        const val PREFS_LANG_DEFAULT = PreferenceUtils.PREFS_LANG_DEFAULT
+
         const val PREFS_SHOW_ACCESSIBILITY = PreferenceUtils.PREFS_SHOW_ACCESSIBILITY
         const val PREFS_SHOW_ACCESSIBILITY_DEFAULT = PreferenceUtils.PREFS_SHOW_ACCESSIBILITY_DEFAULT
 

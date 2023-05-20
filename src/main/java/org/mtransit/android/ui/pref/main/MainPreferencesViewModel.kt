@@ -10,12 +10,14 @@ import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveData
+import org.mtransit.android.util.LanguageManager
 import javax.inject.Inject
 
 @HiltViewModel
 class MainPreferencesViewModel @Inject constructor(
     private val billingManager: IBillingManager,
     private val adManager: IAdManager,
+    private val languageManager: LanguageManager,
     lclPrefRepository: LocalPreferenceRepository,
     defaultPrefRepository: DefaultPreferenceRepository,
 ) : ViewModel(), MTLog.Loggable {
@@ -24,7 +26,6 @@ class MainPreferencesViewModel @Inject constructor(
         private val LOG_TAG = MainPreferencesViewModel::class.java.simpleName
 
         internal const val DEVICE_SETTINGS_GROUP_PREF = "pDeviceSettings"
-        internal const val DEVICE_SETTINGS_LANGUAGE_PREF = "pDeviceSettingsLanguage"
         internal const val DEVICE_SETTINGS_DATE_AND_TIME_PREF = "pDeviceSettingsDateAndTime"
         internal const val DEVICE_SETTINGS_LOCATION_PREF = "pDeviceSettingsLocation"
         internal const val DEVICE_SETTINGS_POWER_MANAGEMENT_PREF = "pDeviceSettingsPowerManagement"
@@ -67,6 +68,8 @@ class MainPreferencesViewModel @Inject constructor(
     val currentSubscription: String? = billingManager.getCurrentSubscription()
     val hasSubscription: Boolean? = billingManager.isHasSubscription()
 
+    val lang = languageManager.langUserPref
+
     val theme: LiveData<String> = defaultPrefRepository.pref.liveData(
         DefaultPreferenceRepository.PREFS_THEME, DefaultPreferenceRepository.PREFS_THEME_DEFAULT
     ).distinctUntilChanged()
@@ -97,5 +100,6 @@ class MainPreferencesViewModel @Inject constructor(
 
     fun refreshData() {
         billingManager.refreshPurchases()
+        languageManager.updateUserPrefFromAppLocale()
     }
 }

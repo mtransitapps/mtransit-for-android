@@ -158,8 +158,12 @@
     <string name="use_internal_web_browser_pref_summary_on">Open links in the internal web browser</string>
     <string name="use_internal_web_browser_pref_summary_off">Open links in the default web browser</string>
     <string name="device_settings_pref_cat_title">Device</string>
-    <string name="device_settings_language_pref_title">Language</string>
-    <string name="device_settings_language_pref_summary">The app user interface automatically adjusts to the device language</string>
+    <string name="lang_pref_title">Language</string>
+    <string name="lang_pref_summary">The app user interface automatically adjusts to the device language</string>
+    <string name="lang_pref_dialog_title">Language</string>
+    <string name="lang_pref_en">English</string>
+    <string name="lang_pref_fr">Français</string>
+    <string name="lang_pref_system_default">System default</string>
     <string name="device_settings_date_and_time_pref_title">Date and time</string>
     <string name="device_settings_date_and_time_pref_summary">Select 12/24 hour format and make sure the device date, time and timezone are set correctly</string>
     <string name="device_settings_location_pref_title">Location</string>

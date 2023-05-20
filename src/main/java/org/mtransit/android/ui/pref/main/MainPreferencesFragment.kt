@@ -35,6 +35,7 @@ import org.mtransit.android.ui.pref.PreferencesViewModel
 import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.FragmentUtils
+import org.mtransit.android.util.LanguageManager
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.NightModeUtils
 import org.mtransit.commons.FeatureFlags
@@ -64,6 +65,9 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
     @Inject
     lateinit var imageManager: ImageManager
 
+    @Inject
+    lateinit var languageManager: LanguageManager
+
     private val viewModel by viewModels<MainPreferencesViewModel>()
     private val activityViewModel by activityViewModels<PreferencesViewModel>()
 
@@ -77,11 +81,13 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                         setSummary(commonsR.string.ellipsis)
                         isEnabled = false
                     }
+
                     hasSubscription -> {
                         setTitle(R.string.support_subs_cancel_pref_title)
                         setSummary(R.string.support_subs_cancel_pref_summary)
                         isEnabled = true
                     }
+
                     else -> {
                         setTitle(R.string.support_subs_pref_title)
                         setSummary(R.string.support_subs_pref_summary)
@@ -98,12 +104,6 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        (findPreference(MainPreferencesViewModel.DEVICE_SETTINGS_LANGUAGE_PREF) as? Preference)?.setOnPreferenceClickListener {
-            activity?.let {
-                DeviceUtils.showLocaleSettings(it)
-                true
-            } ?: false
-        }
         (findPreference(MainPreferencesViewModel.DEVICE_SETTINGS_DATE_AND_TIME_PREF) as? Preference)?.setOnPreferenceClickListener {
             activity?.let {
                 DeviceUtils.showDateSettings(it)
@@ -147,9 +147,11 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                     hasSubscription == null -> { // unknown status
                         // DO NOTHING
                     }
+
                     hasSubscription -> { // has subscription
                         StoreUtils.viewSubscriptionPage(it, currentSubscription!!, it.packageName, it.getString(commonsR.string.google_play))
                     }
+
                     else -> { // does NOT have subscription
                         BillingUtils.showPurchaseDialog(it)
                     }
@@ -348,6 +350,19 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                     }
                 )
             }
+        }
+        viewModel.lang.observe(viewLifecycleOwner) { lang ->
+            (findPreference(DefaultPreferenceRepository.PREFS_LANG) as? Preference)?.apply {
+                setSummary(
+                    when (lang) {
+                        DefaultPreferenceRepository.PREFS_LANG_EN -> R.string.lang_pref_en
+                        DefaultPreferenceRepository.PREFS_LANG_FR -> R.string.lang_pref_fr
+                        DefaultPreferenceRepository.PREFS_LANG_SYSTEM_DEFAULT -> R.string.lang_pref_system_default
+                        else -> R.string.lang_pref_system_default
+                    }
+                )
+            }
+            languageManager.updateAppLocaleFromUserPref()
         }
         viewModel.theme.observe(viewLifecycleOwner) { theme ->
             (findPreference(DefaultPreferenceRepository.PREFS_THEME) as? Preference)?.apply {
