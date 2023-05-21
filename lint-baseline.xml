@@ -454,28 +454,6 @@
 
     <issue
         id="UnusedResources"
-        message="The resource `R.string.google_analytics_id` appears to be unused"
-        errorLine1="    &lt;string name=&quot;google_analytics_id&quot;>INSERT_GOOGLE_ADS_APP_ID_HERE&lt;/string> &lt;!-- PROD -->"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/keys.xml"
-            line="3"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.google_play_license_key` appears to be unused"
-        errorLine1="    &lt;string name=&quot;google_play_license_key&quot;>INSERT_GOOGLE_PLAY_LICENSE_KEY_HERE&lt;/string> &lt;!-- PROD -->"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/keys.xml"
-            line="9"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
         message="The resource `R.string.manufacturer` appears to be unused"
         errorLine1="    &lt;string name=&quot;manufacturer&quot;>Manufacturer&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
