@@ -30,9 +30,6 @@
     <dimen name="button_text_padding">8dp</dimen>
     <dimen name="button_drawable_padding">8dp</dimen>
     <dimen name="button_padding_half">4dp</dimen>
-    <dimen name="switch_padding">8dp</dimen>
-    <dimen name="switch_thumb_oval_padding">1dp</dimen>
-    <dimen name="switch_thumb_bitmap_padding">4dp</dimen>
     <dimen name="tab_content_start">20dp</dimen>
     <dimen name="trip_head_sign_text_size" tools:ignore="SpUsage">14dp</dimen>
 

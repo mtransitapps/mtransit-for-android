@@ -377,39 +377,6 @@
 
     <issue
         id="UnusedResources"
-        message="The resource `R.dimen.switch_padding` appears to be unused"
-        errorLine1="    &lt;dimen name=&quot;switch_padding&quot;>8dp&lt;/dimen>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/dimens.xml"
-            line="33"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.dimen.switch_thumb_oval_padding` appears to be unused"
-        errorLine1="    &lt;dimen name=&quot;switch_thumb_oval_padding&quot;>1dp&lt;/dimen>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/dimens.xml"
-            line="34"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.dimen.switch_thumb_bitmap_padding` appears to be unused"
-        errorLine1="    &lt;dimen name=&quot;switch_thumb_bitmap_padding&quot;>4dp&lt;/dimen>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/dimens.xml"
-            line="35"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
         message="The resource `R.dimen.touch_target_min_height` appears to be unused"
         errorLine1="    &lt;dimen name=&quot;touch_target_min_height&quot;>@dimen/baseline_48&lt;/dimen>"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
