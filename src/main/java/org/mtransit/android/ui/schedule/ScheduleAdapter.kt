@@ -35,7 +35,8 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
-class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+class ScheduleAdapter
+    : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     StickyHeaderItemDecorator.StickyAdapter<RecyclerView.ViewHolder>,
     MTLog.Loggable {
 
@@ -303,6 +304,8 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
         return null
     }
 
+    // region sticky header
+
     override fun getHeaderPositionForItem(itemPosition: Int): Int {
         var index = 0
         this.dayToHourToTimes.forEach { (_, hourToTimes) ->
@@ -332,6 +335,8 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
             this.dayDateFormat
         )
     }
+
+    // endregion
 
     private fun getDayItem(position: Int): Long? {
         var index = 0
@@ -390,7 +395,7 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
         throw RuntimeException("View type not found at $position! (index:$index)")
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, @ScheduleItemViewType viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             ITEM_VIEW_TYPE_DAY_SEPARATORS -> DaySeparatorViewHolder.from(parent)
             ITEM_VIEW_TYPE_HOUR_SEPARATORS -> HourSeparatorViewHolder.from(parent)
@@ -442,7 +447,7 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
         updateStartEndTimes()
     }
 
-    class DaySeparatorViewHolder private constructor(
+    private class DaySeparatorViewHolder private constructor(
         private val binding: LayoutPoiDetailStatusScheduleDaySeparatorBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {
@@ -492,7 +497,7 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
         }
     }
 
-    class HourSeparatorViewHolder private constructor(
+    private class HourSeparatorViewHolder private constructor(
         private val binding: LayoutPoiDetailStatusScheduleHourSeparatorBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {
@@ -521,7 +526,7 @@ class ScheduleAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
         }
     }
 
-    class TimeViewHolder private constructor(
+    private class TimeViewHolder private constructor(
         private val binding: LayoutPoiDetailStatusScheduleTimeBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         companion object {

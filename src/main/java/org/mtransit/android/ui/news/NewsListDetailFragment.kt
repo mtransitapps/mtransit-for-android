@@ -29,6 +29,7 @@ import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.news.pager.NewsPagerAdapter
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.ImageManager
+import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.commons.FeatureFlags
@@ -207,6 +208,12 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                         DividerItemDecoration.VERTICAL
                     )
                 )
+                newsList.addItemDecoration(
+                    StickyHeaderItemDecorator(
+                        listAdapter,
+                        newsList,
+                    )
+                )
             }
             viewPager.apply {
                 offscreenPageLimit = 3
@@ -282,7 +289,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                         viewModel.onNewsArticleSelected(authorityAndUuid) // was selected before list had data
                     }
                     viewModel.lastReadArticleAuthorityAndUUID.value?.let {
-                        val newsArticlePosition = listAdapter.getItemPosition(it)
+                        val newsArticlePosition = listAdapter.getNewsItemPosition(it)
                         newsArticlePosition?.let {
                             binding?.newsContainerLayout?.newsList?.scrollToPosition(
                                 (newsArticlePosition - 1) // show 1 more stop on top of the list
@@ -294,14 +301,14 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                 }
             }
             binding?.newsContainerLayout?.apply {
-                newsLinearLayout.isVisible = !newsArticles.isNullOrEmpty()
-                noNewsLayout.isVisible = newsArticles.isNullOrEmpty()
+                newsList.isVisible = !newsArticles.isNullOrEmpty()
+                noNewsText.isVisible = newsArticles.isNullOrEmpty()
             }
         }
         viewModel.lastReadArticleAuthorityAndUUID.observe(viewLifecycleOwner) { authorityAndUuid ->
             authorityAndUuid?.let {
                 binding?.newsContainerLayout?.newsList?.let { recyclerView ->
-                    val newsArticlePosition = listAdapter.getItemPosition(it)
+                    val newsArticlePosition = listAdapter.getNewsItemPosition(it)
                     newsArticlePosition?.let {
                         recyclerView.scrollToPosition(
                             newsArticlePosition

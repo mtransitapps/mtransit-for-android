@@ -1359,9 +1359,12 @@ public class POIFragment extends ABFragment implements
 		if (this.addRemoveFavoriteMenuItem == null) {
 			return;
 		}
-		POIManager poim = getPoimOrNull();
+		final POIManager poim = getPoimOrNull();
 		if (poim != null && poim.isFavoritable()) {
-			boolean isFav = isFavorite();
+			final boolean isFav = isFavorite();
+			if (this.addRemoveFavoriteMenuItem == null) {
+				return;
+			}
 			this.addRemoveFavoriteMenuItem.setIcon(isFav ? R.drawable.ic_star_black_24dp : R.drawable.ic_star_border_black_24dp);
 			this.addRemoveFavoriteMenuItem.setTitle(isFav ? //
 					this.favoriteManager.isUsingFavoriteFolders() ? //
@@ -1370,6 +1373,9 @@ public class POIFragment extends ABFragment implements
 					: R.string.menu_action_add_favorite);
 			this.addRemoveFavoriteMenuItem.setVisible(true);
 		} else {
+			if (this.addRemoveFavoriteMenuItem == null) {
+				return;
+			}
 			this.addRemoveFavoriteMenuItem.setVisible(false);
 		}
 	}

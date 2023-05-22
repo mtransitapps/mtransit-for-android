@@ -7,45 +7,28 @@
     android:layout_height="match_parent"
     android:clickable="true"
     android:focusable="true"
-    android:orientation="vertical"
     tools:showIn="@layout/fragment_news_list_details">
 
-    <LinearLayout
-        android:id="@+id/news_linear_layout"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/news_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:visibility="gone"
-        tools:visibility="visible">
+        android:scrollbarStyle="insideOverlay"
+        android:visibility="visible"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/layout_news_list_item"
+        tools:visibility="visible" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/news_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:scrollbarStyle="insideOverlay"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/layout_news_list_item" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/no_news_layout"
+    <TextView
+        android:id="@+id/no_news_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:text="@string/no_news"
         android:visibility="gone"
-        tools:visibility="visible">
-
-        <TextView
-            android:id="@+id/no_news_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/no_news" />
-
-    </LinearLayout>
+        tools:visibility="visible" />
 
     <include layout="@layout/layout_shadow" />
 

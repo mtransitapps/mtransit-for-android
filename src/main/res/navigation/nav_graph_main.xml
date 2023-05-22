@@ -249,7 +249,7 @@
         android:id="@id/nav_schedule"
         android:name="org.mtransit.android.ui.schedule.ScheduleFragment"
         android:label="@string/full_schedule"
-        tools:layout="@layout/fragment_schedule">
+        tools:layout="@layout/fragment_schedule_infinite">
         <argument
             android:name="extra_agency_authority"
             app:argType="string" />

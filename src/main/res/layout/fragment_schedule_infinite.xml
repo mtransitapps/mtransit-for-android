@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingTop="@dimen/action_bar_size_static">
+    android:paddingTop="@dimen/action_bar_size_static"
+    tools:context=".ui.schedule.ScheduleFragment">
     <!-- LOADING -->
     <include
         android:id="@id/loading_layout"
@@ -19,8 +19,9 @@
         android:id="@id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:visibility="visible"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/layout_poi_detail_status_schedule_time"
         tools:visibility="visible" />
-</LinearLayout>
+</FrameLayout>

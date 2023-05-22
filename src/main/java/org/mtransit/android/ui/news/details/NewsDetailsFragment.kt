@@ -1,6 +1,7 @@
 @file:JvmName("NewsDetailsFragment") // ANALYTICS
 package org.mtransit.android.ui.news.details
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import androidx.fragment.app.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
+import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.NewsImage
@@ -24,6 +26,7 @@ import org.mtransit.android.ui.view.common.ImageManager
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.util.LinkUtils
 import org.mtransit.android.util.UITimeUtils
+import java.util.Locale
 import javax.inject.Inject
 import org.mtransit.android.commons.R as commonsR
 
@@ -77,12 +80,19 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     private val timeChangedReceiver = UITimeUtils.TimeChangedReceiver { updateNewsView() }
 
+    private var dateTimeFormat: ThreadSafeDateFormatter? = null
+
+    private fun getDateTimeFormatter(context: Context): ThreadSafeDateFormatter {
+        return dateTimeFormat ?: ThreadSafeDateFormatter(
+            (if (UITimeUtils.is24HourFormat(context)) "HH:mm" else "h:mm a") + " - EEEE, MMMM d, yyyy",
+            Locale.getDefault()
+        ).also { dateTimeFormat = it }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MTTransitions.setContainerTransformTransition(this)
     }
 
-    @Suppress("UNUSED_PARAMETER")
     private fun onImageClicked(view: View, newsImage: NewsImage) {
         LinkUtils.open(view, requireActivity(), newsImage.imageUrl, getString(commonsR.string.web_browser), true)
     }
@@ -117,6 +127,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
                         noThumbnailSpace.isVisible = true
                     }
+
                     1 -> {
                         noThumbnailSpace.isVisible = false
 
@@ -128,6 +139,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                             LinkUtils.open(view, requireActivity(), newsArticle.firstValidImageUrl, getString(commonsR.string.web_browser), true)
                         }
                     }
+
                     else -> {
                         noThumbnailSpace.isVisible = false
 
@@ -178,6 +190,13 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
                 }
                 date.apply {
                     setText(UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs), TextView.BufferType.SPANNABLE)
+                    val newWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
+                    setOnClickListener { view ->
+                        LinkUtils.open(view, requireActivity(), newWebURL, getString(commonsR.string.web_browser), true)
+                    }
+                }
+                dateLong.apply {
+                    setText(getDateTimeFormatter(context).formatThreadSafe(newsArticle.createdAtInMs), TextView.BufferType.SPANNABLE)
                     val newWebURL = newsArticle.webURL.ifBlank { newsArticle.authorProfileURL }
                     setOnClickListener { view ->
                         LinkUtils.open(view, requireActivity(), newWebURL, getString(commonsR.string.web_browser), true)

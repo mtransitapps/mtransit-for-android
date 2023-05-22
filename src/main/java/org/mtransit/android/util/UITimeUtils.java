@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@SuppressWarnings("WeakerAccess")
+@SuppressWarnings({"WeakerAccess", "unused", "UnusedReturnValue"})
 public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = UITimeUtils.class.getSimpleName();
@@ -338,9 +338,37 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		return today;
 	}
 
+	@NonNull
+	public static Calendar getBeginningOfMonthCalRelativeToThisMonth(int nbMonths) {
+		Calendar today = getBeginningOfMonthCal();
+		today.add(Calendar.MONTH, nbMonths);
+		return today;
+	}
+
+	@NonNull
+	public static Calendar getBeginningOfYearCalRelativeToThisYear(int nbYears) {
+		Calendar today = getBeginningOfYearCal();
+		today.add(Calendar.YEAR, nbYears);
+		return today;
+	}
+
 	public static int getHourOfTheDay(long timeInMs) {
 		Calendar time = getNewCalendar(timeInMs);
 		return time.get(Calendar.HOUR_OF_DAY);
+	}
+
+	@NonNull
+	public static Calendar getBeginningOfYearCal() {
+		return setBeginningOfYear(
+				getNewCalendarInstance(currentTimeMillis())
+		);
+	}
+
+	@NonNull
+	public static Calendar getBeginningOfMonthCal() {
+		return setBeginningOfMonth(
+				getNewCalendarInstance(currentTimeMillis())
+		);
 	}
 
 	@NonNull
@@ -351,11 +379,31 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 	}
 
 	@NonNull
-	public static Calendar setBeginningOfDay(@NonNull Calendar day) {
-		day.set(Calendar.HOUR_OF_DAY, 0);
+	public static Calendar setBeginningOfHour(@NonNull Calendar day) {
 		day.set(Calendar.MINUTE, 0);
 		day.set(Calendar.SECOND, 0);
 		day.set(Calendar.MILLISECOND, 0);
+		return day;
+	}
+
+	@NonNull
+	public static Calendar setBeginningOfDay(@NonNull Calendar day) {
+		day.set(Calendar.HOUR_OF_DAY, 0);
+		setBeginningOfHour(day);
+		return day;
+	}
+
+	@NonNull
+	public static Calendar setBeginningOfMonth(@NonNull Calendar day) {
+		day.set(Calendar.DAY_OF_MONTH, 1); // The first day of the month has value 1
+		setBeginningOfDay(day);
+		return day;
+	}
+
+	@NonNull
+	public static Calendar setBeginningOfYear(@NonNull Calendar day) {
+		day.set(Calendar.MONTH, Calendar.JANUARY);
+		setBeginningOfMonth(day);
 		return day;
 	}
 
@@ -617,7 +665,7 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 		case 19:
 			return context.getString(R.string.nineteen_capitalized);
 		default:
-			return String.valueOf(number); // 2 characters number almost equal world
+			return String.valueOf(number); // 2 characters number almost equal word
 		}
 	}
 

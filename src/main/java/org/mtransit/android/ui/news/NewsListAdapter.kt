@@ -1,47 +1,87 @@
 package org.mtransit.android.ui.news
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.IntDef
 import androidx.core.view.isVisible
 import androidx.core.view.setPadding
 import androidx.core.view.updateLayoutParams
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import org.mtransit.android.R
 import org.mtransit.android.common.IContext
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.authorityAndUuidT
 import org.mtransit.android.data.authorityT
 import org.mtransit.android.data.uuidT
+import org.mtransit.android.databinding.LayoutNewListMomentSeparatorBinding
 import org.mtransit.android.databinding.LayoutNewsListItemBinding
-import org.mtransit.android.ui.news.NewsListAdapter.NewsListItemViewHolder
 import org.mtransit.android.ui.view.common.ImageManager
+import org.mtransit.android.ui.view.common.StickyHeaderItemDecorator
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.android.util.UITimeUtils.TimeChangedReceiver
+import java.util.Locale
 
 class NewsListAdapter(
     private val imageManager: ImageManager,
     private val onClick: (View, News) -> Unit,
     private val minLines: Int? = null,
     private val horizontal: Boolean = false,
-) : ListAdapter<News, NewsListItemViewHolder>(NewsDiffCallback), MTLog.Loggable {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
+    StickyHeaderItemDecorator.StickyAdapter<RecyclerView.ViewHolder>,
+    MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = NewsListAdapter::class.java.simpleName
+
+        @Retention(AnnotationRetention.SOURCE)
+        @IntDef(ITEM_VIEW_TYPE_MOMENT_SEPARATORS, ITEM_VIEW_TYPE_NEWS)
+        annotation class NewsItemViewType
+
+        private const val ITEM_VIEW_TYPE_MOMENT_SEPARATORS = 0
+        private const val ITEM_VIEW_TYPE_NEWS = 1
+
+        private val dayDateFormat by lazy { ThreadSafeDateFormatter("EEE, MMM d, yyyy", Locale.getDefault()) }
+
+        private fun formatMoment(
+            context: Context?,
+            timeMs: Long,
+        ): CharSequence {
+            if (context == null) {
+                return dayDateFormat.formatThreadSafe(UITimeUtils.getNewCalendar(timeMs).time)
+            }
+            return UITimeUtils.getNearRelativeDay(
+                context,
+                timeMs,
+                dayDateFormat.formatThreadSafe(UITimeUtils.getNewCalendar(timeMs).time)
+            )
+        }
     }
 
     override fun getLogTag(): String = LOG_TAG
+
+    private val hasSeparator = !horizontal
+
+    private val momentToNewsList = mutableListOf<Pair<Long, MutableList<News>>>()
 
     private val timeChangedReceiver = TimeChangedReceiver { resetNowToTheMinute() }
 
     private var timeChangedReceiverEnabled = false
 
     private var selectedArticleAuthorityAndUuid: AuthorityAndUuid? = null
+
+    private var timeFormatter: ThreadSafeDateFormatter? = null
+
+    private fun getTimeFormatter(context: Context): ThreadSafeDateFormatter {
+        return timeFormatter ?: UITimeUtils.getNewFormatTime(context).also { timeFormatter = it }
+    }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun resetNowToTheMinute() {
@@ -77,14 +117,114 @@ class NewsListAdapter(
         disableTimeChangedReceiver(context)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewsListItemViewHolder {
-        return NewsListItemViewHolder.from(parent)
+    @SuppressLint("NotifyDataSetChanged")
+    fun submitList(newsList: List<News>?) {
+        this.momentToNewsList.clear()
+        val originalTimeCount = itemCount
+        if (newsList == null) {
+            if (originalTimeCount > 0) {
+                notifyDataSetChanged()
+            }
+            return
+        }
+        var currentMoment: CharSequence? = null
+        var currentMomentMs: Long
+        var momentToNewsList: Pair<Long, MutableList<News>>? = null
+        newsList.forEach { news ->
+            val newsMomentMs = news.createdAtInMs
+            val newsMoment = formatMoment(null, newsMomentMs)
+            if (currentMoment != newsMoment) {
+                currentMomentMs = newsMomentMs
+                currentMoment = newsMoment
+                momentToNewsList = this.momentToNewsList.firstOrNull { (momentMs, _) -> momentMs == currentMomentMs }
+                    ?: Pair<Long, MutableList<News>>(currentMomentMs, mutableListOf()).also {
+                        this.momentToNewsList.add(it)
+                    }
+            }
+            momentToNewsList?.second?.add(news)
+        }
+        notifyDataSetChanged()
     }
 
-    override fun onBindViewHolder(holder: NewsListItemViewHolder, position: Int) {
-        val newsArticle = getItem(position)
-        val selected = isSelected(newsArticle)
-        holder.bind(imageManager, position, itemCount, newsArticle, selected, minLines, horizontal, onClick)
+    override fun getItemCount(): Int {
+        return this.momentToNewsList.sumOf { (_, newsList) -> (if (hasSeparator) 1 else 0) + newsList.size }
+    }
+
+    @NewsItemViewType
+    override fun getItemViewType(position: Int): Int {
+        var index = 0
+        this.momentToNewsList.forEach { (_, newsList) ->
+            if (hasSeparator) {
+                if (position == index) {
+                    return ITEM_VIEW_TYPE_MOMENT_SEPARATORS
+                }
+                index++ // moment separator
+            }
+            if (position >= index && position < index + newsList.size) {
+                return ITEM_VIEW_TYPE_NEWS
+            }
+            index += newsList.size
+        }
+        throw RuntimeException("View type not found at $position! (index:$index)")
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, @NewsItemViewType viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            ITEM_VIEW_TYPE_MOMENT_SEPARATORS -> MomentSeparatorViewHolder.from(parent)
+            ITEM_VIEW_TYPE_NEWS -> NewsListItemViewHolder.from(parent)
+            else -> throw RuntimeException("Unexpected view type $viewType!")
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (getItemViewType(position)) {
+            ITEM_VIEW_TYPE_MOMENT_SEPARATORS -> {
+                (holder as? MomentSeparatorViewHolder)?.bind(
+                    geMomentItem(position),
+                )
+            }
+
+            ITEM_VIEW_TYPE_NEWS -> {
+                val newsArticle = getNewsItem(position)
+                val selected = isSelected(newsArticle)
+                (holder as? NewsListItemViewHolder)?.bind(
+                    imageManager, position, itemCount, newsArticle, selected, minLines, horizontal,
+                    getTimeFormatter(holder.context),
+                    onClick
+                )
+            }
+
+            else -> throw RuntimeException("Unexpected view to bind $position!")
+        }
+    }
+
+    private fun geMomentItem(position: Int): Long? {
+        var index = 0
+        this.momentToNewsList.forEach { (moment, newsList) ->
+            if (hasSeparator) {
+                if (position == index) {
+                    return moment
+                }
+                index++ // moment separator
+            }
+            index += newsList.size
+        }
+        return null
+    }
+
+
+    private fun getNewsItem(position: Int): News? {
+        var index = 0
+        this.momentToNewsList.forEach { (_, newsList) ->
+            if (hasSeparator) {
+                index++ // moment separator
+            }
+            if (position >= index && position < index + newsList.size) {
+                return newsList[position - index]
+            }
+            index += newsList.size
+        }
+        return null
     }
 
     fun setSelectedArticle(newAuthorityAndUuid: AuthorityAndUuid?) {
@@ -94,10 +234,10 @@ class NewsListAdapter(
         }
         val oldAuthorityAndUuid = this.selectedArticleAuthorityAndUuid
         this.selectedArticleAuthorityAndUuid = newAuthorityAndUuid
-        getItemPosition(newAuthorityAndUuid)?.let {
+        getNewsItemPosition(newAuthorityAndUuid)?.let {
             notifyItemChanged(it)
         }
-        getItemPosition(oldAuthorityAndUuid)?.let {
+        getNewsItemPosition(oldAuthorityAndUuid)?.let {
             notifyItemChanged(it)
         }
     }
@@ -110,15 +250,86 @@ class NewsListAdapter(
         return this.selectedArticleAuthorityAndUuid == authorityAndUuid
     }
 
-    fun getItemPosition(authorityAndUuid: AuthorityAndUuid?): Int? {
-        return authorityAndUuid?.let {
-            currentList.indexOfFirst {
-                it.authorityT == authorityAndUuid.getAuthority()
-                        && it.uuidT == authorityAndUuid.getUuid()
-            }.takeIf { it >= 0 }
-        } ?: run {
-            MTLog.d(this, "getItemPosition() > No news article for '$authorityAndUuid'!")
-            null
+    fun getNewsItemPosition(authorityAndUuid: AuthorityAndUuid?): Int? {
+        authorityAndUuid?.let {
+            var index = 0
+            this.momentToNewsList.forEach { (_, newsList) ->
+                if (hasSeparator) {
+                    index++ // moment separator
+                }
+                newsList.indexOfFirst {
+                    it.authorityT == authorityAndUuid.getAuthority()
+                            && it.uuidT == authorityAndUuid.getUuid()
+                }.takeIf { it >= 0 }?.let {
+                    return index + it
+                }
+                index += newsList.size
+            }
+        }
+        MTLog.d(this, "getItemPosition() > No news article for '$authorityAndUuid'!")
+        return null
+    }
+
+    // region sticky header
+
+    override fun onCreateHeaderViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
+        return MomentSeparatorViewHolder.from(parent)
+    }
+
+    override fun onBindHeaderViewHolder(holder: RecyclerView.ViewHolder, headerPosition: Int) {
+        (holder as? MomentSeparatorViewHolder)?.bind(
+            geMomentItem(headerPosition),
+        )
+    }
+
+    override fun getHeaderPositionForItem(itemPosition: Int): Int {
+        if (!hasSeparator) {
+            throw RuntimeException("Header ID disabled in non vertical!")
+        }
+        var index = 0
+        this.momentToNewsList.forEach { (_, newsList) ->
+            val momentPosition = index
+            val startIndex = index
+            index++ // moment separator
+            index += newsList.size
+            val endIndex = index - 1
+            if (itemPosition in (startIndex..endIndex)) {
+                return momentPosition
+            }
+        }
+        throw RuntimeException("Header ID NOT found at $itemPosition! (index:$index)")
+    }
+
+    // endregion
+
+    private class MomentSeparatorViewHolder private constructor(
+        private val binding: LayoutNewListMomentSeparatorBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+        companion object {
+            fun from(parent: ViewGroup): MomentSeparatorViewHolder {
+                val binding = LayoutNewListMomentSeparatorBinding.inflate(
+                    LayoutInflater.from(parent.context),
+                    parent,
+                    false
+                )
+                return MomentSeparatorViewHolder(binding)
+            }
+        }
+
+        val context: Context
+            get() = binding.root.context
+
+        fun bind(
+            momentInMs: Long?,
+        ) {
+            if (momentInMs == null) {
+                binding.moment.text = null
+                return
+            }
+            val timeSb = SpannableStringBuilder(
+                formatMoment(context, momentInMs)
+            )
+            binding.moment.text = timeSb
         }
     }
 
@@ -137,19 +348,26 @@ class NewsListAdapter(
             }
         }
 
+        val context: Context
+            get() = binding.root.context
+
         fun bind(
             imageManager: ImageManager,
             position: Int,
             itemCount: Int,
-            newsArticle: News,
+            newsArticle: News?,
             articleSelected: Boolean,
             minLines: Int? = null,
             horizontal: Boolean,
+            timeFormatter: ThreadSafeDateFormatter,
             onClick: (View, News) -> Unit,
         ) {
+            if (newsArticle == null) {
+                binding.root.isVisible = false
+                return
+            }
             val firstItem = position == 0
             val lastItem = position >= itemCount - 1
-            val context = binding.root.context
             binding.apply {
                 author.apply {
                     text = context.getString(
@@ -184,7 +402,14 @@ class NewsListAdapter(
                     }
                 }
                 date.apply {
-                    text = UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs)
+                    text = if (!horizontal && UITimeUtils.isToday(newsArticle.createdAtInMs)) {
+                        UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs)
+                    } else {
+                        UITimeUtils.cleanNoRealTime(
+                            false,
+                            timeFormatter.formatThreadSafe(newsArticle.createdAtInMs)
+                        )
+                    }
                 }
                 newsText.apply {
                     minLines?.let {
