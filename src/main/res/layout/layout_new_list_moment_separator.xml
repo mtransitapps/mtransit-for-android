@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/moment"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/colorBackground"
+    android:gravity="center_horizontal"
+    android:paddingHorizontal="@dimen/baseline_16"
+    android:paddingVertical="@dimen/baseline_8"
+    android:textAppearance="?android:attr/textAppearanceSmall"
+    android:textColor="?android:attr/textColorSecondary"
+    tools:text="Now, Today, Yesterday" />
