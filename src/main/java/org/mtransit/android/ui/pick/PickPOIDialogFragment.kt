@@ -94,6 +94,8 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), MTActivityWithLoca
 
     private var binding: FragmentDialogPickPoiBinding? = null
 
+    private var behavior: BottomSheetBehavior<*>? = null
+
     private val adapter: POIArrayAdapter by lazy {
         POIArrayAdapter(
             this,
