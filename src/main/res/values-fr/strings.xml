@@ -59,7 +59,6 @@
     <string name="agency_type_favorite_all">Favoris</string>
     <string name="agency_type_favorite_app_short_name">Favoris</string>
     <string name="agency_type_favorite_nearby">Favoris Proches</string>
-    <string name="agencies_installed_and_count">%s agences installées</string>
     <string name="email">Courriel</string>
     <string name="tel">Numéro de Téléphone</string>
     <string name="file">Fichier</string>
