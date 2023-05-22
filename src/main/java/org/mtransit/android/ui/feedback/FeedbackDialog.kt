@@ -43,6 +43,8 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
 
     private var binding: FragmentDialogFeedbackBinding? = null
 
+    private var behavior: BottomSheetBehavior<*>? = null
+
     private val headerAdapter by lazy {
         HeaderFeedbackAdapter {
             activity?.let { activityNN ->
