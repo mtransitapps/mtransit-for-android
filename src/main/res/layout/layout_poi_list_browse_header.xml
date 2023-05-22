@@ -5,5 +5,4 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="@dimen/button_padding_half"
-    tools:layout="@layout/layout_poi_list_browse_header_line" />
+    android:padding="@dimen/button_padding_half" />

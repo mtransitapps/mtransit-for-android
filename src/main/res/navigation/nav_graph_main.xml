@@ -17,6 +17,11 @@
         android:name="org.mtransit.android.ui.favorites.FavoritesFragment"
         android:label="@string/favorites"
         tools:layout="@layout/fragment_favorites" />
+    <fragment
+        android:id="@id/nav_favorites"
+        android:name="org.mtransit.android.ui.favorites.FavoritesFragment"
+        android:label="@string/favorites"
+        tools:layout="@layout/fragment_favorites" />
     <!-- NEARBY -->
     <fragment
         android:id="@id/root_nav_nearby"
@@ -308,6 +313,9 @@
         tools:layout="@layout/activity_preferences" />
 
     <!-- GLOBAL ACTIONS -->
+    <action
+        android:id="@+id/nav_to_favorite_screen"
+        app:destination="@id/nav_favorites" />
     <action
         android:id="@+id/nav_to_nearby_screen"
         app:destination="@id/nav_nearby" />

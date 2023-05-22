@@ -3,6 +3,7 @@
     <item name="root_nav_home" type="id" />
     <item name="root_nav_favorites" type="id" />
     <item name="root_nav_nearby" type="id" />
+    <item name="nav_favorites" type="id" />
     <item name="nav_nearby" type="id" />
     <item name="root_nav_map" type="id" />
     <item name="nav_map" type="id" />

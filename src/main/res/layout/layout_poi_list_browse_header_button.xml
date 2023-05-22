@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Button xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/MTButton.Icon"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/button_padding_half"
+    android:layout_weight="1"
+    android:visibility="invisible"
+    tools:icon="@drawable/ic_directions_bus_black_24dp"
+    tools:text="Agencies Agencies Agencies Browse Browse Browse Browse Browse Browse Browse"
+    tools:visibility="visible" />

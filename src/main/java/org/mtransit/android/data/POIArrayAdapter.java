@@ -51,6 +51,8 @@ import org.mtransit.android.commons.data.RouteTripStop;
 import org.mtransit.android.commons.data.ServiceUpdate;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter;
+import org.mtransit.android.databinding.LayoutPoiListBrowseHeaderBinding;
+import org.mtransit.android.databinding.LayoutPoiListBrowseHeaderButtonBinding;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.datasource.POIRepository;
 import org.mtransit.android.provider.FavoriteManager;
@@ -58,6 +60,8 @@ import org.mtransit.android.provider.sensor.MTSensorManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.MainActivity;
+import org.mtransit.android.ui.favorites.FavoritesFragment;
+import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
 import org.mtransit.android.ui.rts.route.RTSRouteFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
@@ -115,8 +119,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	private LinkedHashMap<Integer, List<POIManager>> poisByType;
 
+	@Nullable
 	private HashSet<String> favUUIDs;
 
+	@Nullable
 	private HashMap<String, Integer> favUUIDsFolderIds;
 
 	@Nullable
@@ -511,96 +517,91 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		return convertView;
 	}
 
-	private int nbAgencyTypes = -1;
+	private int nbDisplayedAgencyTypes = -1;
 
 	private View getBrowseHeaderSectionView(@Nullable View convertView, @NonNull ViewGroup parent) {
 		//noinspection deprecation // FIXME
-		final List<DataSourceType> allAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
-		if (convertView == null || this.nbAgencyTypes != allAgencyTypes.size()) {
-			if (convertView == null) {
-				convertView = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header, parent, false);
+		ArrayList<DataSourceType> allAgencyTypes = new ArrayList<>(this.dataSourcesRepository.getAllDataSourceTypes());
+		final boolean hasFavorites = (this.favUUIDs != null && !this.favUUIDs.isEmpty())
+				|| (this.favUUIDsFolderIds != null && !this.favUUIDsFolderIds.isEmpty());
+		if (hasFavorites) {
+			allAgencyTypes.add(0, DataSourceType.TYPE_FAVORITE);
+		}
+		final int nbDisplayedAgencyTypeCount = allAgencyTypes.size();
+		if (convertView != null && this.nbDisplayedAgencyTypes == nbDisplayedAgencyTypeCount) {
+			return convertView;
+		}
+		LayoutPoiListBrowseHeaderBinding convertViewBinding;
+		if (convertView == null) {
+			convertViewBinding = LayoutPoiListBrowseHeaderBinding.inflate(this.layoutInflater, parent, false);
+		} else {
+			convertViewBinding = LayoutPoiListBrowseHeaderBinding.bind(convertView);
+		}
+		final LinearLayout gridLL = convertViewBinding.gridLL;
+		gridLL.removeAllViews();
+		this.nbDisplayedAgencyTypes = nbDisplayedAgencyTypeCount;
+		if (allAgencyTypes.isEmpty()) { // if no module installed > only show agencies list
+			gridLL.setVisibility(View.GONE); // TODO? agency browse button could be useful to access list of available agencies w/o device location
+			return convertViewBinding.getRoot();
+		}
+		int availableButtons = 0;
+		int maxButtonsPerLines = getContext().getResources().getBoolean(R.bool.two_pane) ? 6 : 3;
+		ViewGroup gridLine = null;
+		MaterialButton btn;
+		for (int i = 0; i < nbDisplayedAgencyTypeCount; i++) {
+			final DataSourceType dst = allAgencyTypes.get(i);
+			if (dst.getId() == DataSourceType.TYPE_MODULE.getId()
+					&& availableButtons == 0
+					&& allAgencyTypes.size() > maxButtonsPerLines) {
+				MTLog.d(this, "getBrowseHeaderSectionView() > SKIP modules (no room)");
+				continue;
 			}
-			LinearLayout gridLL = convertView.findViewById(R.id.gridLL);
-			gridLL.removeAllViews();
-			this.nbAgencyTypes = allAgencyTypes.size();
-			if (allAgencyTypes.isEmpty()) {
-				gridLL.setVisibility(View.GONE);
+			if (dst.getId() == DataSourceType.TYPE_PLACE.getId()) {
+				MTLog.d(this, "getBrowseHeaderSectionView() > SKIP place");
+				continue;
+			}
+			if (availableButtons == 0) {
+				gridLine = makeHeaderBrowseLine();
+				gridLL.addView(gridLine);
+				availableButtons = maxButtonsPerLines;
+			}
+			btn = makeHeaderBrowseButton(gridLine);
+			((ViewGroup) gridLine).addView(btn);
+			btn.setText(dst.getAllStringResId());
+			if (dst.getIconResId() != -1) {
+				btn.setIconResource(dst.getIconResId());
 			} else {
-				int availableButtons = 0;
-				int maxButtonsPerLines = getContext().getResources().getBoolean(R.bool.two_pane) ? 3 : 2;
-				View gridLine = null;
-				MaterialButton btn;
-				for (final DataSourceType dst : allAgencyTypes) {
-					if (dst.getId() == DataSourceType.TYPE_MODULE.getId()
-							&& availableButtons == 0
-							&& allAgencyTypes.size() > maxButtonsPerLines) {
-						MTLog.d(this, "getBrowseHeaderSectionView() > SKIP modules (no room)");
-						continue;
-					}
-					if (dst.getId() == DataSourceType.TYPE_PLACE.getId()) {
-						MTLog.d(this, "getBrowseHeaderSectionView() > SKIP place");
-						continue;
-					}
-					if (availableButtons == 0) {
-						gridLine = this.layoutInflater.inflate(R.layout.layout_poi_list_browse_header_line, this.manualLayout, false);
-						gridLL.addView(gridLine);
-						availableButtons = maxButtonsPerLines;
-					}
-					int btnIdx = maxButtonsPerLines - availableButtons;
-					int btnId;
-					switch (btnIdx) {
-					case 0:
-						btnId = R.id.btn1;
-						break;
-					case 1:
-						btnId = R.id.btn2;
-						break;
-					case 2:
-						btnId = R.id.btn3;
-						break;
-					default:
-						MTLog.w(this, "getBrowseHeaderSectionView() > Unexpected button (index: %d | available: %d)!", btnIdx, availableButtons);
-						throw new RuntimeException("Unexpected button!");
-					}
-					btn = gridLine.findViewById(btnId);
-					btn.setText(dst.getAllStringResId());
-					if (dst.getIconResId() != -1) {
-						btn.setIconResource(dst.getIconResId());
-					} else {
-						btn.setIcon(null);
-					}
-					btn.setOnClickListener(view ->
-							onTypeHeaderButtonClick(view, TypeHeaderButtonsClickListener.BUTTON_ALL, dst)
-					);
-					btn.setVisibility(View.VISIBLE);
-					availableButtons--;
-				}
-				if (gridLine != null) {
-					while (availableButtons > 0) {
-						int btnIdx = maxButtonsPerLines - availableButtons;
-						int btnId;
-						switch (btnIdx) {
-						case 0:
-							btnId = R.id.btn1;
-							break;
-						case 1:
-							btnId = R.id.btn2;
-							break;
-						case 2:
-							btnId = R.id.btn3;
-							break;
-						default:
-							MTLog.w(this, "getBrowseHeaderSectionView() > Unexpected button (index: %d | available: %d)!", btnIdx, availableButtons);
-							throw new RuntimeException("Unexpected button!");
-						}
-						gridLine.findViewById(btnId).setVisibility(View.INVISIBLE);
-						availableButtons--;
-					}
-				}
-				gridLL.setVisibility(View.VISIBLE);
+				btn.setIcon(null);
+			}
+			btn.setOnClickListener(view ->
+					onTypeHeaderButtonClick(view, TypeHeaderButtonsClickListener.BUTTON_ALL, dst)
+			);
+			btn.setVisibility(View.VISIBLE);
+			availableButtons--;
+		}
+		if (gridLine != null) {
+			while (availableButtons > 0) {
+				btn = makeHeaderBrowseButton(gridLine);
+				btn.setVisibility(View.INVISIBLE);
+				availableButtons--;
 			}
 		}
-		return convertView;
+		gridLL.setVisibility(View.VISIBLE);
+		return convertViewBinding.getRoot();
+	}
+
+	@NonNull
+	private LinearLayout makeHeaderBrowseLine() {
+		final LinearLayout linearLayout = new LinearLayout(getContext());
+		linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+		linearLayout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+		linearLayout.setBaselineAligned(false);
+		return linearLayout;
+	}
+
+	@NonNull
+	private MaterialButton makeHeaderBrowseButton(@Nullable ViewGroup root) {
+		return (MaterialButton) LayoutPoiListBrowseHeaderButtonBinding.inflate(this.layoutInflater, root, false).getRoot();
 	}
 
 	@SuppressWarnings("UnusedReturnValue")
@@ -1316,17 +1317,32 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 							.addSharedElement(view, view.getTransitionName())
 							.build();
 				}
-				NavControllerExtKt.navigateF(navController,
-						R.id.nav_to_type_screen,
-						AgencyTypeFragment.newInstanceArgs(type),
-						null,
-						extras
-				);
+				if (type == DataSourceType.TYPE_FAVORITE) {
+					NavControllerExtKt.navigateF(navController,
+							R.id.nav_to_favorite_screen,
+							FavoritesFragment.newInstanceArgs(),
+							null,
+							extras
+					);
+				} else {
+					NavControllerExtKt.navigateF(navController,
+							R.id.nav_to_type_screen,
+							AgencyTypeFragment.newInstanceArgs(type),
+							null,
+							extras
+					);
+				}
 			} else {
 				final Activity activity = getActivity();
 				if (activity != null) {
+					final ABFragment fragment;
+					if (type == DataSourceType.TYPE_FAVORITE) {
+						fragment = FavoritesFragment.newInstance();
+					} else {
+						fragment = AgencyTypeFragment.newInstance(type);
+					}
 					((MainActivity) activity).addFragmentToStack(
-							AgencyTypeFragment.newInstance(type)
+							fragment
 					);
 				}
 			}
@@ -2135,7 +2151,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		HashMap<String, Integer> newFavUUIDsFolderIds = new HashMap<>();
 		if (favorites != null) {
 			for (Favorite favorite : favorites) {
-				String uid = favorite.getFkId();
+				final String uid = favorite.getFkId();
 				if (!newFav) {
 					if ((this.favUUIDs != null && !this.favUUIDs.contains(uid)) //
 							|| //

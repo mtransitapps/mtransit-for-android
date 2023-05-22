@@ -9,6 +9,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
@@ -49,6 +50,10 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), DeviceLocatio
         fun newInstance(): FavoritesFragment {
             return FavoritesFragment()
         }
+
+        @JvmStatic
+        fun newInstanceArgs() = bundleOf(
+        )
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -127,11 +132,13 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), DeviceLocatio
                         emptyLayout.isVisible = false
                         loadingLayout.isVisible = true
                     }
+
                     favoritePOIS.isEmpty() -> { // EMPTY
                         loadingLayout.isVisible = false
                         listLayout.isVisible = false
                         emptyLayout.isVisible = true
                     }
+
                     else -> { // LIST
                         loadingLayout.isVisible = false
                         emptyLayout.isVisible = false
@@ -189,6 +196,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), DeviceLocatio
                 this.favoriteManager.showAddFolderDialog(requireActivity(), this, null, null)
                 true // handled
             }
+
             else -> false // not handled
         }
     }

@@ -55,6 +55,11 @@
     <string name="agency_type_module_all">Agencies</string>
     <string name="agency_type_module_app_short_name">Agencies</string>
     <string name="agency_type_module_nearby">Nearby Agencies</string>
+    <string name="agency_type_favorite_short_name">Favorites</string>
+    <string name="agency_type_favorite_all">Favorites</string>
+    <string name="agency_type_favorite_app_short_name">Favorites</string>
+    <string name="agency_type_favorite_nearby">Nearby Favorites</string>
+    <string name="agencies_installed_and_count">%s agencies installed:</string>
     <string name="email">E-mail</string>
     <string name="tel">Phone Number</string>
     <string name="file">File</string>

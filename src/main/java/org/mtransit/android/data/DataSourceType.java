@@ -3,6 +3,8 @@ package org.mtransit.android.data;
 import android.content.Context;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.IdRes;
+import androidx.annotation.NavigationRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -62,8 +64,8 @@ public enum DataSourceType {
 	TYPE_PLACE(DataSourceTypeId.PLACE, //
 			R.string.agency_type_place_short_name, R.string.agency_type_place_all, //
 			R.string.agency_type_place_app_short_name, R.string.agency_type_place_nearby, //
-			-1, //
 			R.drawable.ic_place_black_24dp, //
+			-1, //
 			false, false, false, false, true), //
 	TYPE_MODULE(DataSourceTypeId.MODULE, //
 			R.string.agency_type_module_short_name, R.string.agency_type_module_all, //
@@ -71,6 +73,12 @@ public enum DataSourceType {
 			R.drawable.ic_library_add_black_24dp, //
 			R.id.root_nav_module, //
 			true, true, true, false, false), //
+	TYPE_FAVORITE(DataSourceTypeId.FAVORITE, //
+			R.string.agency_type_favorite_short_name, R.string.agency_type_favorite_all, //
+			R.string.agency_type_favorite_app_short_name, R.string.agency_type_favorite_nearby, //
+			R.drawable.ic_star_black_24dp, //
+			R.id.root_nav_favorites, //
+			false, false, false, false, false), //
 	;
 
 	private static final String TAG = DataSourceType.class.getSimpleName();
@@ -102,7 +110,7 @@ public enum DataSourceType {
 	DataSourceType(@DataSourceTypeId.DataSourceType int id,
 				   @StringRes int shortNameResId, @StringRes int allStringResId, @StringRes int poiShortNameResId, @StringRes int nearbyNameResId,
 				   @DrawableRes int iconResId,
-				   int navResId,
+				   @IdRes int navResId,
 				   boolean menuList, boolean homeScreen, boolean nearbyScreen, boolean mapScreen, boolean searchable) {
 		if (id >= MAX_ID) {
 			throw new UnsupportedOperationException(String.format("Data source type ID '%s' must be lower than '%s'!", id, MAX_ID));
