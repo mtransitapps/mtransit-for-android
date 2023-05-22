@@ -18,9 +18,10 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
@@ -28,9 +29,9 @@ import org.mtransit.android.commons.MTLog;
 /**
  * NO LOGIC HERE, just logs.
  */
-public abstract class MTDialogFragmentX extends DialogFragment implements MTLog.Loggable {
+public abstract class MTBottomSheetDialogFragmentX extends BottomSheetDialogFragment implements MTLog.Loggable {
 
-	public MTDialogFragmentX() {
+	public MTBottomSheetDialogFragmentX() {
 		super();
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "%s()", getLogTag());
@@ -39,7 +40,7 @@ public abstract class MTDialogFragmentX extends DialogFragment implements MTLog.
 
 	// ACTUALLY NOT WORKING (requires custom FragmentFactory)
 	@SuppressWarnings("unused")
-	private MTDialogFragmentX(@LayoutRes int contentLayoutId) {
+	private MTBottomSheetDialogFragmentX(@LayoutRes int contentLayoutId) {
 		super(contentLayoutId);
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "%s()", getLogTag());

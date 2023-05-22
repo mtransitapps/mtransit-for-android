@@ -5,22 +5,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ConcatAdapter
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.databinding.FragmentDialogFeedbackBinding
 import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.ui.fragment.MTDialogFragmentX
+import org.mtransit.android.ui.fragment.MTBottomSheetDialogFragmentX
 import org.mtransit.android.ui.view.common.isVisible
 import org.mtransit.android.util.LinkUtils
 import javax.inject.Inject
 import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
-class FeedbackDialog : MTDialogFragmentX() {
+class FeedbackDialog : MTBottomSheetDialogFragmentX() {
 
     companion object {
         private val LOG_TAG = FeedbackDialog::class.java.simpleName
@@ -43,8 +45,9 @@ class FeedbackDialog : MTDialogFragmentX() {
 
     private val headerAdapter by lazy {
         HeaderFeedbackAdapter {
-            activity?.let {
-                LinkUtils.sendEmail(it, dataSourcesRepository)
+            activity?.let { activityNN ->
+                LinkUtils.sendEmail(activityNN, dataSourcesRepository)
+                behavior?.state = BottomSheetBehavior.STATE_HIDDEN
                 dismiss()
             }
         }
@@ -61,9 +64,7 @@ class FeedbackDialog : MTDialogFragmentX() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
-            requestWindowFeature(Window.FEATURE_NO_TITLE)
-            setCancelable(true)
-            setCanceledOnTouchOutside(true)
+            behavior = (this as? BottomSheetDialog)?.behavior
         }
     }
 
@@ -77,6 +78,13 @@ class FeedbackDialog : MTDialogFragmentX() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        dialog?.apply {
+            setOnShowListener {
+                binding?.root?.apply {
+                    setBackgroundColor(ContextCompat.getColor(context, R.color.color_background))
+                }
+            }
+        }
         viewModel.agencies.observe(this) { newAgencies ->
             agenciesAdapter.submitList(newAgencies)
             binding?.apply {
@@ -86,6 +94,7 @@ class FeedbackDialog : MTDialogFragmentX() {
                         list.isVisible = false
                         loadingLayout.isVisible = true
                     }
+
                     else -> {
                         loadingLayout.isVisible = false
                         emptyLayout.isVisible = false
@@ -99,5 +108,10 @@ class FeedbackDialog : MTDialogFragmentX() {
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        behavior = null
     }
 }

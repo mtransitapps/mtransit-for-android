@@ -9,12 +9,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
 import androidx.collection.ArrayMap
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
+import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentDialogPickPoiBinding
@@ -25,7 +28,7 @@ import org.mtransit.android.provider.sensor.MTSensorManager
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTActivityWithLocation
-import org.mtransit.android.ui.fragment.MTDialogFragmentX
+import org.mtransit.android.ui.fragment.MTBottomSheetDialogFragmentX
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.isAttached
@@ -33,7 +36,7 @@ import org.mtransit.android.ui.view.common.isVisible
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.DeviceLocationListener, IActivity {
+class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), MTActivityWithLocation.DeviceLocationListener, IActivity {
 
     companion object {
         private val LOG_TAG = PickPOIDialogFragment::class.java.simpleName
@@ -102,7 +105,10 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.Device
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
-            setOnClickHandledListener { dismiss() }
+            setOnClickHandledListener {
+                behavior?.state = BottomSheetBehavior.STATE_HIDDEN
+                dismiss()
+            }
             logTag = logTag
         }
     }
@@ -114,9 +120,7 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.Device
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
-            requestWindowFeature(Window.FEATURE_NO_TITLE)
-            setCancelable(true)
-            setCanceledOnTouchOutside(true)
+            behavior = (this as? BottomSheetDialog)?.behavior
         }
     }
 
@@ -131,6 +135,13 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.Device
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        dialog?.apply {
+            setOnShowListener {
+                binding?.root?.apply {
+                    setBackgroundColor(ContextCompat.getColor(context, R.color.color_background))
+                }
+            }
+        }
         viewModel.poiList.observe(viewLifecycleOwner) { poiList ->
             adapter.setPois(poiList)
             adapter.updateDistanceNowAsync(viewModel.deviceLocation.value)
@@ -142,11 +153,13 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.Device
                         list.isVisible = false
                         loadingLayout.isVisible = true
                     }
+
                     adapter.poisCount == 0 -> {
                         loadingLayout.isVisible = false
                         list.isVisible = false
                         emptyLayout.isVisible = true
                     }
+
                     else -> {
                         loadingLayout.isVisible = false
                         emptyLayout.isVisible = false
@@ -194,6 +207,7 @@ class PickPOIDialogFragment : MTDialogFragmentX(), MTActivityWithLocation.Device
     override fun onDestroy() {
         super.onDestroy()
         this.adapter.onDestroy()
+        behavior = null
     }
 
     override fun getLifecycleOwner() = this

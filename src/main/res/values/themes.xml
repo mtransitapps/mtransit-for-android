@@ -17,6 +17,9 @@
 
         <item name="searchViewStyle">@style/Widget.AppCompat.SearchView</item>
         <item name="materialAlertDialogTheme">@style/MTAlertDialogMaterialTheme</item>
+
+        <!-- UNTIL MIGRATION TO MATERIAL 3 (M3) -->
+        <item name="bottomSheetDragHandleStyle">@style/Widget.MaterialComponents.BottomSheet.DragHandle</item>
     </style>
 
     <style name="MTTheme" parent="MTBaseTheme">

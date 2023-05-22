@@ -56,14 +56,14 @@ class DataSourcesReader @Inject constructor(
             "org.mtransit.android.ca_vancouver_translink_ferry.debug", // migrated to v2
             "org.mtransit.android.ca_west_coast_express_bus.debug", // not supported anymore
             // DEBUG
+            // "org.mtransit.android.ca_edmonton_ets_train.debug", // FIXME DEBUG
+            // "org.mtransit.android.ca_laval_stl_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_montreal_amt_train.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_montreal_bixi_bike.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_montreal_stm_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_montreal_stm_subway.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_richelieu_citvr_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_laval_stl_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_quebec_rtc_bus.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_edmonton_ets_train.debug", // FIXME DEBUG
+            // "org.mtransit.android.ca_richelieu_citvr_bus.debug", // FIXME DEBUG
             // DEBUG
         ) else listOf(
             "org.mtransit.android.ca_deux_montagnes_mrcdm_bus", // not supported anymore

@@ -862,7 +862,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private static class MarkerNameComparator implements Comparator<String> {
 
-		private static final Pattern DIGITS = Pattern.compile("[\\d]+");
+		private static final Pattern DIGITS = Pattern.compile("\\d+");
 
 		@Override
 		public int compare(String lhs, String rhs) {

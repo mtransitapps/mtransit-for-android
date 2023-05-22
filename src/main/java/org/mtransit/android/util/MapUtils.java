@@ -24,6 +24,7 @@ import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.ResourceUtils;
 
+@SuppressWarnings("unused")
 public final class MapUtils implements MTLog.Loggable {
 
 	private static final String LOG_TAG = MapUtils.class.getSimpleName();
