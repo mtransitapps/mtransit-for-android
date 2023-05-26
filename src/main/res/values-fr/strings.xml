@@ -228,10 +228,12 @@
     <string name="support_watch_rewarded_ad_status_until_and_date">Sans pub jusqu\'au %s</string>
     <plurals name="support_watch_rewarded_ad_btn_and_days">
         <item quantity="one">Regarder une pub pour\navoir %d jour sans pub</item>
+        <item quantity="other">Regarder une pub pour\navoir %d jours sans pub</item>
         <item quantity="many">Regarder une pub pour\navoir %d jours sans pub</item>
     </plurals>
     <plurals name="support_watch_rewarded_ad_btn_more_and_days">
         <item quantity="one">Regarder une pub pour\navoir +%d jour sans pub</item>
+        <item quantity="other">Regarder une pub pour\navoir +%d jours sans pub</item>
         <item quantity="many">Regarder une pub pour\navoir +%d jours sans pub</item>
     </plurals>
     <string name="support_watch_rewarded_ad_default_failure_message">:(</string>
@@ -245,14 +247,17 @@
     <string name="watch_rewarded_ad_title_text_and_date">Sans-pub jusqu\'au %s</string>
     <plurals name="watch_rewarded_ad_title_text_and_days_quantity" tools:ignore="UnusedResources">
         <item quantity="one">Sans-pub pour %d jour</item>
+        <item quantity="other">Sans-pub pour %d jours</item>
         <item quantity="many">Sans-pub pour %d jours</item>
     </plurals>
     <plurals name="watch_rewarded_ad_btn_and_days">
         <item quantity="one">Regarder une pub pour avoir %d jour sans pub</item>
+        <item quantity="other">Regarder une pub pour avoir %d jours sans pub</item>
         <item quantity="many">Regarder une pub pour avoir %d jours sans pub</item>
     </plurals>
     <plurals name="watch_rewarded_ad_btn_more_and_days">
         <item quantity="one">Regarder une pub pour avoir +%d jour sans pub</item>
+        <item quantity="other">Regarder une pub pour avoir +%d jours sans pub</item>
         <item quantity="many">Regarder une pub pour avoir +%d jours sans pub</item>
     </plurals>
 
