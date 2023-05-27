@@ -4,7 +4,6 @@ import android.content.Context;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IdRes;
-import androidx.annotation.NavigationRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -65,7 +64,7 @@ public enum DataSourceType {
 			R.string.agency_type_place_short_name, R.string.agency_type_place_all, //
 			R.string.agency_type_place_app_short_name, R.string.agency_type_place_nearby, //
 			R.drawable.ic_place_black_24dp, //
-			-1, //
+			-1, // no nav ID
 			false, false, false, false, true), //
 	TYPE_MODULE(DataSourceTypeId.MODULE, //
 			R.string.agency_type_module_short_name, R.string.agency_type_module_all, //

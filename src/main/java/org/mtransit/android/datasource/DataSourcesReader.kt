@@ -56,6 +56,7 @@ class DataSourcesReader @Inject constructor(
             "org.mtransit.android.ca_vancouver_translink_ferry.debug", // migrated to v2
             "org.mtransit.android.ca_west_coast_express_bus.debug", // not supported anymore
             // DEBUG
+            // "org.mtransit.android.ca_gatineau_sto_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_edmonton_ets_train.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_laval_stl_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_montreal_amt_train.debug", // FIXME DEBUG

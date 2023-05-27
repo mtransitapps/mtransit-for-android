@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
@@ -470,7 +471,7 @@ public class POIFragment extends ABFragment implements
 		super.onViewCreated(view, savedInstanceState);
 		EdgeToEdgeKt.setStatusBarColor(requireActivity(), true);
 		MTTransitions.postponeEnterTransition(this);
-		requireActivity().addMenuProvider(
+		((MenuHost) requireActivity()).addMenuProvider(
 				this, getViewLifecycleOwner(), Lifecycle.State.RESUMED
 		);
 		viewModel = new ViewModelProvider(this).get(POIViewModel.class);

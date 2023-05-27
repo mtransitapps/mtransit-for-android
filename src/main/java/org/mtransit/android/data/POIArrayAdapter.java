@@ -522,6 +522,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private View getBrowseHeaderSectionView(@Nullable View convertView, @NonNull ViewGroup parent) {
 		//noinspection deprecation // FIXME
 		ArrayList<DataSourceType> allAgencyTypes = new ArrayList<>(this.dataSourcesRepository.getAllDataSourceTypes());
+		CollectionUtils.removeIfNN(allAgencyTypes, dst -> !dst.isHomeScreen());
 		final boolean hasFavorites = (this.favUUIDs != null && !this.favUUIDs.isEmpty())
 				|| (this.favUUIDsFolderIds != null && !this.favUUIDsFolderIds.isEmpty());
 		if (hasFavorites) {
@@ -545,7 +546,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			return convertViewBinding.getRoot();
 		}
 		int availableButtons = 0;
-		int maxButtonsPerLines = getContext().getResources().getBoolean(R.bool.two_pane) ? 6 : 3;
+		final int maxButtonsPerLines = optimizeMaxButtonPerLines(
+				nbDisplayedAgencyTypeCount,
+				getContext().getResources().getBoolean(R.bool.two_pane) ? 6 : 3
+		);
 		ViewGroup gridLine = null;
 		MaterialButton btn;
 		for (int i = 0; i < nbDisplayedAgencyTypeCount; i++) {
@@ -566,7 +570,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				availableButtons = maxButtonsPerLines;
 			}
 			btn = makeHeaderBrowseButton(gridLine);
-			((ViewGroup) gridLine).addView(btn);
+			gridLine.addView(btn);
 			btn.setText(dst.getAllStringResId());
 			if (dst.getIconResId() != -1) {
 				btn.setIconResource(dst.getIconResId());
@@ -582,12 +586,28 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (gridLine != null) {
 			while (availableButtons > 0) {
 				btn = makeHeaderBrowseButton(gridLine);
+				gridLine.addView(btn);
 				btn.setVisibility(View.INVISIBLE);
 				availableButtons--;
 			}
 		}
 		gridLL.setVisibility(View.VISIBLE);
 		return convertViewBinding.getRoot();
+	}
+
+	protected static int optimizeMaxButtonPerLines(int nbDisplayedAgencyTypeCount, int maxButtonsPerLines) {
+		int minNbDisplayedAgencyTypeCount = nbDisplayedAgencyTypeCount - 1;
+		double nbLineRequired = (double) minNbDisplayedAgencyTypeCount / (double) maxButtonsPerLines;
+		double nbLineForAll = (double) nbDisplayedAgencyTypeCount / (double) maxButtonsPerLines;
+		double minNbLineRequired = Math.ceil(nbLineRequired);
+		double minNbLineForAll = Math.ceil(nbLineForAll);
+		int optimizedMaxButtonsPerLines;
+		if (minNbLineRequired == 0.0d || minNbLineForAll - minNbLineRequired < 1.0f) {
+			optimizedMaxButtonsPerLines = (int) Math.ceil(nbDisplayedAgencyTypeCount / minNbLineForAll);
+		} else {
+			optimizedMaxButtonsPerLines = (int) Math.ceil(minNbDisplayedAgencyTypeCount / nbLineRequired);
+		}
+		return optimizedMaxButtonsPerLines;
 	}
 
 	@NonNull
