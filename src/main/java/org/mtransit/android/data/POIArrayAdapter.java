@@ -63,6 +63,7 @@ import org.mtransit.android.ui.MainActivity;
 import org.mtransit.android.ui.favorites.FavoritesFragment;
 import org.mtransit.android.ui.fragment.ABFragment;
 import org.mtransit.android.ui.nearby.NearbyFragment;
+import org.mtransit.android.ui.news.NewsListDetailFragment;
 import org.mtransit.android.ui.rts.route.RTSRouteFragment;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.ui.view.MTCompassView;
@@ -526,7 +527,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		final boolean hasFavorites = (this.favUUIDs != null && !this.favUUIDs.isEmpty())
 				|| (this.favUUIDsFolderIds != null && !this.favUUIDsFolderIds.isEmpty());
 		if (hasFavorites) {
-			allAgencyTypes.add(0, DataSourceType.TYPE_FAVORITE);
+			allAgencyTypes.add(0, DataSourceType.TYPE_FAVORITE); // 1sT
+		}
+		if (allAgencyTypes.size() > 1) {
+			allAgencyTypes.add(allAgencyTypes.size() - 1, DataSourceType.TYPE_NEWS); // LAST before MODULE
 		}
 		final int nbDisplayedAgencyTypeCount = allAgencyTypes.size();
 		if (convertView != null && this.nbDisplayedAgencyTypes == nbDisplayedAgencyTypeCount) {
@@ -1344,6 +1348,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 							null,
 							extras
 					);
+				} else if (type == DataSourceType.TYPE_NEWS) {
+					NavControllerExtKt.navigateF(navController,
+							R.id.nav_to_news_screen,
+							NewsListDetailFragment.newInstanceArgs(),
+							null,
+							extras
+					);
 				} else {
 					NavControllerExtKt.navigateF(navController,
 							R.id.nav_to_type_screen,
@@ -1358,6 +1369,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 					final ABFragment fragment;
 					if (type == DataSourceType.TYPE_FAVORITE) {
 						fragment = FavoritesFragment.newInstance();
+					} else if (type == DataSourceType.TYPE_NEWS) {
+						fragment = NewsListDetailFragment.newInstance();
 					} else {
 						fragment = AgencyTypeFragment.newInstance(type);
 					}

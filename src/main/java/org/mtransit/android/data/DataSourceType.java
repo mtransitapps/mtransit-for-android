@@ -22,6 +22,7 @@ import javax.inject.Singleton;
 
 import dagger.hilt.android.qualifiers.ApplicationContext;
 
+@SuppressWarnings("WeakerAccess")
 public enum DataSourceType {
 
 	TYPE_LIGHT_RAIL(DataSourceTypeId.LIGHT_RAIL, // GTFS - Tram, Streetcar
@@ -77,6 +78,12 @@ public enum DataSourceType {
 			R.string.agency_type_favorite_app_short_name, R.string.agency_type_favorite_nearby, //
 			R.drawable.ic_star_black_24dp, //
 			R.id.root_nav_favorites, //
+			false, false, false, false, false), //
+	TYPE_NEWS(DataSourceTypeId.NEWS, //
+			R.string.agency_type_news_short_name, R.string.agency_type_news_all, //
+			R.string.agency_type_news_app_short_name, R.string.agency_type_news_nearby, //
+			R.drawable.ic_newspaper_black_24dp, //
+			R.id.root_nav_news, //
 			false, false, false, false, false), //
 	;
 

@@ -57,8 +57,12 @@
     <string name="agency_type_module_nearby">Agences Proches</string>
     <string name="agency_type_favorite_short_name">Favoris</string>
     <string name="agency_type_favorite_all">Favoris</string>
-    <string name="agency_type_favorite_app_short_name">Favoris</string>
+    <string name="agency_type_favorite_app_short_name">Favori</string>
     <string name="agency_type_favorite_nearby">Favoris Proches</string>
+    <string name="agency_type_news_short_name">Nouvelle</string>
+    <string name="agency_type_news_all">Nouvelles</string>
+    <string name="agency_type_news_app_short_name">Nouvelles</string>
+    <string name="agency_type_news_nearby">Nouvelles Proches</string><!-- TODO Dernières Nouvelles (Acceuil) -->
     <string name="email">Courriel</string>
     <string name="tel">Numéro de Téléphone</string>
     <string name="file">Fichier</string>
