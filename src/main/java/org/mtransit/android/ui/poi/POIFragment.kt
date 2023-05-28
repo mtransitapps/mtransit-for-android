@@ -212,7 +212,7 @@ package org.mtransit.android.ui.poi
 //            this.statusLoader,
 //            this.serviceUpdateLoader
 //        ).apply {
-//            logTag = logTag
+//            logTag = this@...logTag
 //            // setShowExtra(false)
 //            setLocation(viewModel.deviceLocation.value)
 //        }

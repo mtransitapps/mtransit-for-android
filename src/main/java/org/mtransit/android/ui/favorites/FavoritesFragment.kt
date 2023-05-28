@@ -99,7 +99,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), DeviceLocatio
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
-            logTag = logTag
+            logTag = this@FavoritesFragment.logTag
             setShowFavorite(false) // all items in this screen are favorites
             setFavoriteUpdateListener(this@FavoritesFragment)
             setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_ALL_NEARBY)

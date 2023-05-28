@@ -110,7 +110,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
-            logTag = logTag
+            logTag = this@NearbyAgencyTypeFragment.logTag
             setInfiniteLoading(true)
             setInfiniteLoadingListener(infiniteLoadingListener)
             setPois(attachedViewModel?.nearbyPOIs?.value)
@@ -149,7 +149,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
         }
         viewModel.typeId.observe(viewLifecycleOwner) { typeId -> // REQUIRED FOR PARAMS
             theLogTag = typeId?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
-            adapter.logTag = logTag
+            adapter.logTag = this@NearbyAgencyTypeFragment.logTag
         }
         parentViewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             adapter.setLocation(deviceLocation)

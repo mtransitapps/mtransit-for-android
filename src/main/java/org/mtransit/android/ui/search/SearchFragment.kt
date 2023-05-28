@@ -106,7 +106,7 @@ class SearchFragment : ABFragment(R.layout.fragment_search), DeviceLocationListe
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
-            logTag = logTag
+            logTag = this@SearchFragment.logTag
             setOnTypeHeaderButtonsClickListener(this@SearchFragment)
             setPois(emptyList()) // empty search = no result
         }

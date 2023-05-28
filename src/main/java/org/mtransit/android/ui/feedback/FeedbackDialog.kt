@@ -13,6 +13,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
+import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.databinding.FragmentDialogFeedbackBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.ui.fragment.MTBottomSheetDialogFragmentX
@@ -50,7 +51,7 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
             activity?.let { activityNN ->
                 LinkUtils.sendEmail(activityNN, dataSourcesRepository)
                 behavior?.state = BottomSheetBehavior.STATE_HIDDEN
-                dismiss()
+                dismissAllowingStateLoss()
             }
         }
     }
@@ -59,7 +60,8 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
         AgenciesFeedbackAdapter { view, url ->
             activity?.let {
                 LinkUtils.open(view, it, url, getString(commonsR.string.web_browser), false) // force external web browser
-                dismiss()
+                behavior?.state = BottomSheetBehavior.STATE_HIDDEN
+                dismissAllowingStateLoss()
             }
         }
     }
@@ -67,6 +69,11 @@ class FeedbackDialog : MTBottomSheetDialogFragmentX() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
             behavior = (this as? BottomSheetDialog)?.behavior
+                ?.apply {
+                    resources.getDimensionInt(R.dimen.bottom_sheet_min_height).takeIf { it > 0 }?.let {
+                        setPeekHeight(it)
+                    }
+                }
         }
     }
 

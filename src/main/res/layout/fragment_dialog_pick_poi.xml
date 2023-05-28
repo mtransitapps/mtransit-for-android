@@ -38,7 +38,7 @@
             android:orientation="vertical"
             android:visibility="gone"
             tools:background="#FFFF00"
-            tools:minHeight="110dp"
+            tools:minHeight="@dimen/list_view_item_height"
             tools:visibility="visible" />
         <!-- EMPTY -->
         <include

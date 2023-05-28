@@ -143,7 +143,7 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
-            logTag = logTag
+            logTag = this@AgencyPOIsFragment.logTag
             setPois(attachedViewModel?.poiList?.value)
             setLocation(attachedParentViewModel?.deviceLocation?.value)
         }
@@ -179,8 +179,8 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
         }
         viewModel.agency.observe(viewLifecycleOwner) { agency ->
             theLogTag = agency?.shortName?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
-            adapter.logTag = logTag
-            mapViewController.logTag = logTag
+            adapter.logTag = this@AgencyPOIsFragment.logTag
+            mapViewController.logTag = this@AgencyPOIsFragment.logTag
         }
         parentViewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             mapViewController.onDeviceLocationChanged(deviceLocation)
@@ -225,12 +225,14 @@ class AgencyPOIsFragment : MTFragmentX(R.layout.fragment_agency_pois), IActivity
                     mapViewController.hideMap()
                     loadingLayout.isVisible = true
                 }
+
                 adapter.poisCount == 0 -> { // EMPTY
                     loadingLayout.isVisible = false
                     listLayout.isVisible = false
                     mapViewController.hideMap()
                     emptyLayout.isVisible = true
                 }
+
                 else -> {
                     loadingLayout.isVisible = false
                     emptyLayout.isVisible = false

@@ -135,6 +135,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
                 }
                 true
             }
+
             else -> false
         }
     }
@@ -150,7 +151,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
-            logTag = logTag
+            logTag = this@HomeFragment.logTag
             setFavoriteUpdateListener { adapter.onFavoriteUpdated() }
             setShowBrowseHeaderSection(true)
             setShowTypeHeader(POIArrayAdapter.TYPE_HEADER_MORE)
@@ -328,6 +329,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
                         hideLocationSettingsToast()
                         handled
                     }
+
                     else -> false // not handled
                 }
             }
@@ -347,6 +349,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
                         hideNewLocationToast()
                         handled
                     }
+
                     else -> false // not handled
                 }
             }

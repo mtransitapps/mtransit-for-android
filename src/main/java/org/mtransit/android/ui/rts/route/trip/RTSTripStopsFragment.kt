@@ -148,7 +148,7 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
             this.statusLoader,
             this.serviceUpdateLoader
         ).apply {
-            logTag = logTag
+            logTag = this@RTSTripStopsFragment.logTag
             setShowExtra(false)
             setLocation(attachedParentViewModel?.deviceLocation?.value)
         }
@@ -186,8 +186,8 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
         }
         viewModel.tripId.observe(viewLifecycleOwner) { tripId ->
             theLogTag = tripId?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
-            adapter.logTag = logTag
-            mapViewController.logTag = logTag
+            adapter.logTag = this@RTSTripStopsFragment.logTag
+            mapViewController.logTag = this@RTSTripStopsFragment.logTag
         }
         parentViewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             mapViewController.onDeviceLocationChanged(deviceLocation)
@@ -282,12 +282,14 @@ class RTSTripStopsFragment : MTFragmentX(R.layout.fragment_rts_trip_stops), IAct
                     mapViewController.hideMap()
                     loadingLayout.isVisible = true
                 }
+
                 adapter.poisCount == 0 -> { // EMPTY
                     loadingLayout.isVisible = false
                     listLayout.isVisible = false
                     mapViewController.hideMap()
                     emptyLayout.isVisible = true
                 }
+
                 else -> {
                     loadingLayout.isVisible = false
                     emptyLayout.isVisible = false

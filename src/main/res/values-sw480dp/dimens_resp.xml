@@ -29,4 +29,6 @@
     <dimen name="route_short_name_max_text_size">@dimen/text_size_extra_extra_extra_large</dimen>
 
     <integer name="rts_routes_default_grid_min_count">15</integer>
+
+    <dimen name="bottom_sheet_min_height">@dimen/baseline_240</dimen>
 </resources>
