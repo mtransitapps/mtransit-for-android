@@ -402,7 +402,7 @@ class NewsListAdapter(
                     }
                 }
                 date.apply {
-                    text = if (!horizontal && UITimeUtils.isToday(newsArticle.createdAtInMs)) {
+                    text = if (horizontal || UITimeUtils.isToday(newsArticle.createdAtInMs)) {
                         UITimeUtils.formatRelativeTime(newsArticle.createdAtInMs)
                     } else {
                         UITimeUtils.cleanNoRealTime(
