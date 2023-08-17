@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
@@ -127,7 +128,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
         val minCoverageInMeters: Float = currentParams.minCoverageInMeters ?: return null
         val minSize: Int = currentParams.minSize ?: return null
         val maxSize: Int = currentParams.maxSize ?: return null
-        val area: LocationUtils.Area = currentParams.area ?: return null
+        val area: Area = currentParams.area ?: return null
         val maxDistance: Float = currentParams.maxDistance ?: return null
         val lat = nearbyLocation.latitude
         val lng = nearbyLocation.longitude

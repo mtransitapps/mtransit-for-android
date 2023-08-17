@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
@@ -37,6 +38,7 @@ import org.mtransit.android.billing.IBillingManager
 import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.ThemeUtils
+import org.mtransit.android.commons.registerReceiverCompat
 import org.mtransit.android.databinding.ActivityMainBinding
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.CrashReporter
@@ -214,7 +216,7 @@ class MainActivity : MTActivityWithLocation(),
         viewModel.abBgColor.observe(this) { newBgColor ->
             abBgDrawable?.color = newBgColor ?: defaultBgColor
         }
-        registerReceiver(ModulesReceiver(), ModulesReceiver.getIntentFilter())
+        registerReceiverCompat(ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED)
     }
 
     override fun onBillingResult(productId: String?) {

@@ -2,6 +2,7 @@ package org.mtransit.android.data
 
 import com.google.android.gms.maps.model.LatLngBounds
 import org.mtransit.android.commons.LocationUtils
+import org.mtransit.android.commons.data.Area
 import org.mtransit.android.util.containsEntirely
 import org.mtransit.android.util.toLatLngBounds
 import kotlin.math.max
@@ -11,11 +12,11 @@ interface IAgencyNearbyProperties : IAgencyProperties {
 
     companion object {
 
-        fun isInArea(agency: IAgencyNearbyProperties, area: LocationUtils.Area?): Boolean {
-            return LocationUtils.Area.areOverlapping(area, agency.area)
+        fun isInArea(agency: IAgencyNearbyProperties, area: Area?): Boolean {
+            return Area.areOverlapping(area, agency.area)
         }
 
-        fun isEntirelyInside(agency: IAgencyNearbyProperties, area: LocationUtils.Area?): Boolean {
+        fun isEntirelyInside(agency: IAgencyNearbyProperties, area: Area?): Boolean {
             return agency.area.isEntirelyInside(area)
         }
 
@@ -29,20 +30,20 @@ interface IAgencyNearbyProperties : IAgencyProperties {
             } ?: false
         }
 
-        private fun areOverlapping(area1: LatLngBounds?, area2: LocationUtils.Area?): Boolean {
+        private fun areOverlapping(area1: LatLngBounds?, area2: Area?): Boolean {
             if (area1 == null || area2 == null) {
                 return false // no data to compare
             }
-            if (LocationUtils.isInside(area1.southwest.latitude, area1.southwest.longitude, area2)) {
+            if (Area.isInside(area1.southwest.latitude, area1.southwest.longitude, area2)) {
                 return true // min lat, min lng
             }
-            if (LocationUtils.isInside(area1.southwest.latitude, area1.northeast.longitude, area2)) {
+            if (Area.isInside(area1.southwest.latitude, area1.northeast.longitude, area2)) {
                 return true // min lat, max lng
             }
-            if (LocationUtils.isInside(area1.northeast.latitude, area1.southwest.longitude, area2)) {
+            if (Area.isInside(area1.northeast.latitude, area1.southwest.longitude, area2)) {
                 return true // max lat, min lng
             }
-            if (LocationUtils.isInside(area1.northeast.latitude, area1.northeast.longitude, area2)) {
+            if (Area.isInside(area1.northeast.latitude, area1.northeast.longitude, area2)) {
                 return true // max lat, max lng
             }
             if (isInside(area2.minLat, area2.minLng, area1)) {
@@ -69,7 +70,7 @@ interface IAgencyNearbyProperties : IAgencyProperties {
             } ?: false
         }
 
-        private fun areCompletelyOverlapping(area1: LatLngBounds, area2: LocationUtils.Area): Boolean {
+        private fun areCompletelyOverlapping(area1: LatLngBounds, area2: Area): Boolean {
             val area1MinLat = min(area1.southwest.latitude, area1.northeast.latitude)
             val area1MaxLat = max(area1.southwest.latitude, area1.northeast.latitude)
             val area1MinLng = min(area1.southwest.longitude, area1.northeast.longitude)
@@ -88,13 +89,13 @@ interface IAgencyNearbyProperties : IAgencyProperties {
         }
     }
 
-    val area: LocationUtils.Area
+    val area: Area
 
-    fun isInArea(area: LocationUtils.Area?): Boolean
+    fun isInArea(area: Area?): Boolean
 
     fun isEntirelyInside(area: LatLngBounds?): Boolean
 
     fun isInArea(area: LatLngBounds?): Boolean
 
-    fun isEntirelyInside(otherArea: LocationUtils.Area?): Boolean
+    fun isEntirelyInside(otherArea: Area?): Boolean
 }

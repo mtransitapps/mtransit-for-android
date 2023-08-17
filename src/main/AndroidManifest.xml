@@ -50,7 +50,6 @@
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
-            android:label="@string/ic_launcher"
             android:theme="@style/MTTheme.Launcher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -22,6 +23,7 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.dp
+import org.mtransit.android.commons.registerReceiverCompat
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentScheduleInfiniteBinding
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -86,7 +88,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
     private val attachedViewModel
         get() = if (isAttached()) viewModel else null
 
-    private var bindingI: FragmentScheduleInfiniteBinding? = null
+    private var binding: FragmentScheduleInfiniteBinding? = null
 
     private val listAdapter: ScheduleAdapter by lazy {
         ScheduleAdapter()
@@ -114,7 +116,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         (requireActivity() as MenuHost).addMenuProvider(
             this, viewLifecycleOwner, Lifecycle.State.RESUMED
         )
-        bindingI = FragmentScheduleInfiniteBinding.bind(view).apply {
+        binding = FragmentScheduleInfiniteBinding.bind(view).apply {
             list.adapter = listAdapter
             list.addOnScrollListener(onScrollListener)
             list.addItemDecoration(
@@ -126,9 +128,9 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         }
         viewModel.startEndAt.observe(viewLifecycleOwner) { startEndAt ->
             startEndAt?.let { (startInMs, endInMs) ->
-                val scrollPosition = (bindingI?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
+                val scrollPosition = (binding?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
                 listAdapter.setStartEnd(startInMs, endInMs)
-                bindingI?.list?.apply {
+                binding?.list?.apply {
                     if (scrollPosition > 0) {
                         scrollToPosition(scrollPosition)
                     }
@@ -140,9 +142,9 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         }
         viewModel.timestamps.observe(viewLifecycleOwner) { timestamps ->
             MTLog.d(this, "onChange() > ${timestamps?.size} - timestamps")
-            val scrollPosition = (bindingI?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
+            val scrollPosition = (binding?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
             listAdapter.setTimes(timestamps)
-            bindingI?.apply {
+            binding?.apply {
                 if (timestamps != null) {
                     if (viewModel.scrolledToNow.value == false) {
                         listAdapter.getScrollToNowPosition()?.let {
@@ -192,7 +194,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
         MTLog.v(this, "onMenuItemSelected($menuItem)")
         return when (menuItem.itemId) {
             R.id.menu_today -> {
-                bindingI?.apply {
+                binding?.apply {
                     listAdapter.getScrollToNowPosition()?.let {
                         MTLog.d(this, "onMenuItemSelected() > getScrollToNowPosition() = $it")
                         this.list.scrollToPositionWithOffset(it, 48.dp)
@@ -223,7 +225,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
 
     private fun enableTimeChangedReceiver() {
         if (!timeChangedReceiverEnabled) {
-            activity?.registerReceiver(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER)
+            activity?.registerReceiverCompat(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, ContextCompat.RECEIVER_NOT_EXPORTED)
             timeChangedReceiverEnabled = true
             listAdapter.onTimeChanged() // force update to current time before next change
         }
@@ -249,6 +251,6 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
 
     override fun onDestroyView() {
         super.onDestroyView()
-        bindingI = null
+        binding = null
     }
 }

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
@@ -14,6 +15,7 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.News
+import org.mtransit.android.commons.registerReceiverCompat
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.NewsImage
 import org.mtransit.android.data.imageUrls
@@ -219,7 +221,7 @@ class NewsDetailsFragment : MTFragmentX(R.layout.fragment_news_details) {
 
     private fun enableTimeChangedReceiver() {
         if (!timeChangedReceiverEnabled) {
-            activity?.registerReceiver(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER)
+            activity?.registerReceiverCompat(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, ContextCompat.RECEIVER_NOT_EXPORTED)
             timeChangedReceiverEnabled = true
             updateNewsView() // force update to current time before next change
         }

@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Ignore
 import com.google.android.gms.maps.model.LatLngBounds
-import org.mtransit.android.commons.LocationUtils
+import org.mtransit.android.commons.data.Area
 import org.mtransit.android.data.IAgencyProperties.Companion.DEFAULT_LONG_VERSION_CODE
 
 // all these properties are not dynamic: only change when module updated / data changed
@@ -18,7 +18,7 @@ data class AgencyBaseProperties(
     @ColumnInfo(name = "color_int")
     override val colorInt: Int? = null,
     @Embedded(prefix = "area")
-    override val area: LocationUtils.Area, // nearby
+    override val area: Area, // nearby
     @ColumnInfo(name = "pkg")
     override val pkg: String,
     @ColumnInfo(name = "long_version_code")
@@ -37,7 +37,7 @@ data class AgencyBaseProperties(
     @Ignore
     override val authority = id
 
-    override fun isInArea(area: LocationUtils.Area?): Boolean {
+    override fun isInArea(area: Area?): Boolean {
         return IAgencyNearbyProperties.isInArea(this, area)
     }
 
@@ -49,7 +49,7 @@ data class AgencyBaseProperties(
         return IAgencyNearbyProperties.isInArea(this, area)
     }
 
-    override fun isEntirelyInside(otherArea: LocationUtils.Area?): Boolean {
+    override fun isEntirelyInside(otherArea: Area?): Boolean {
         return IAgencyNearbyProperties.isEntirelyInside(this, area)
     }
 }

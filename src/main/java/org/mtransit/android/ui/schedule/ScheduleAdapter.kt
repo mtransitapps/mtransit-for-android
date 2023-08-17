@@ -19,6 +19,7 @@ import org.mtransit.android.commons.data.Accessibility
 import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.data.Trip
+import org.mtransit.android.commons.equalOrAfter
 import org.mtransit.android.data.UISchedule
 import org.mtransit.android.data.decorateDirection
 import org.mtransit.android.databinding.LayoutPoiDetailStatusScheduleDaySeparatorBinding
@@ -244,7 +245,7 @@ class ScheduleAdapter
                 if (hourTimes.size > 0) {
                     dayCal[Calendar.HOUR_OF_DAY] = hour
                     thatDate = dayCal.time
-                    if (date.after(thatDate)) {
+                    if (date.equalOrAfter(thatDate)) {
                         nextHourOfTheDay = hour + 1
                         nextDate = null
                         if (nextHourOfTheDay < hourTimes.size) {

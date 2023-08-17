@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
@@ -298,7 +299,7 @@ class HomeViewModel @Inject constructor(
         typeAgencies: List<IAgencyNearbyProperties>
     ): MutableList<POIManager> {
         val typePOIs = mutableListOf<POIManager>()
-        val area = LocationUtils.getArea(lat, lng, ad.aroundDiff)
+        val area = Area.getArea(lat, lng, ad.aroundDiff)
         // TODO latter optimize val optLastArea = if (optLastAroundDiff == null) null else LocationUtils.getArea(lat, lng, optLastAroundDiff)
         val aroundDiff = ad.aroundDiff
         val maxDistance = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
@@ -307,7 +308,7 @@ class HomeViewModel @Inject constructor(
             addExtra(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
         }
         typeAgencies
-            .filter { LocationUtils.Area.areOverlapping(it.area, area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
+            .filter { Area.areOverlapping(it.area, area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->
                 scope.ensureActive()
                 typePOIs.addAllN(

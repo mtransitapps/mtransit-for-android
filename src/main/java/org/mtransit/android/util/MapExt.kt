@@ -4,6 +4,7 @@ import android.location.Location
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import org.mtransit.android.commons.LocationUtils
+import org.mtransit.android.commons.data.Area
 
 fun LatLngBounds?.containsEntirely(other: LatLngBounds?): Boolean {
     return other?.let { otherArea ->
@@ -11,11 +12,15 @@ fun LatLngBounds?.containsEntirely(other: LatLngBounds?): Boolean {
     } ?: false
 }
 
-fun LocationUtils.Area.toLatLngBounds(): LatLngBounds {
+fun Area.toLatLngBounds(): LatLngBounds {
     return LatLngBounds(
         LatLng(southLat, westLng), // SW
         LatLng(northLat, eastLng) // NE
     )
+}
+
+fun LatLng.isInside(area: Area): Boolean {
+    return Area.isInside(this.latitude, this.longitude, area)
 }
 
 fun Location?.toLatLngS(): String {

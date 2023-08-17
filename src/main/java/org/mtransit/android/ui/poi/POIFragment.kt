@@ -826,7 +826,7 @@ package org.mtransit.android.ui.poi
 //        MTLog.v(this, "enableTimeChangedReceiver()")
 //        if (!timeChangedReceiverEnabled) {
 //            timeChangedReceiverEnabled = true
-//            context?.registerReceiver(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER)
+//            context?.registerReceiverCompat(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, RECEIVER_NOT_EXPORTED)
 //        }
 //    }
 //

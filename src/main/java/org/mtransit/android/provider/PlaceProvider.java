@@ -28,6 +28,7 @@ import org.mtransit.android.commons.NetworkUtils;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.StringUtils;
 import org.mtransit.android.commons.UriUtils;
+import org.mtransit.android.commons.data.Area;
 import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.POI.POIUtils;
 import org.mtransit.android.commons.provider.AgencyProvider;
@@ -354,8 +355,8 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 
 	@NonNull
 	@Override
-	public LocationUtils.Area getAgencyArea(@NonNull Context context) {
-		return LocationUtils.THE_WORLD;
+	public Area getAgencyArea(@NonNull Context context) {
+		return Area.getTHE_WORLD();
 	}
 
 	@Override

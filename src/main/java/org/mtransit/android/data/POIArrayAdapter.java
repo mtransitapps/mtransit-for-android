@@ -26,6 +26,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -521,13 +522,13 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private int nbDisplayedAgencyTypes = -1;
 
 	private View getBrowseHeaderSectionView(@Nullable View convertView, @NonNull ViewGroup parent) {
-		//noinspection deprecation // FIXME
+		// noinspection deprecation // FIXME
 		ArrayList<DataSourceType> allAgencyTypes = new ArrayList<>(this.dataSourcesRepository.getAllDataSourceTypes());
 		CollectionUtils.removeIfNN(allAgencyTypes, dst -> !dst.isHomeScreen());
 		final boolean hasFavorites = (this.favUUIDs != null && !this.favUUIDs.isEmpty())
 				|| (this.favUUIDsFolderIds != null && !this.favUUIDsFolderIds.isEmpty());
 		if (hasFavorites) {
-			allAgencyTypes.add(0, DataSourceType.TYPE_FAVORITE); // 1sT
+			allAgencyTypes.add(0, DataSourceType.TYPE_FAVORITE); // 1st
 		}
 		if (allAgencyTypes.size() > 1) {
 			allAgencyTypes.add(allAgencyTypes.size() - 1, DataSourceType.TYPE_NEWS); // LAST before MODULE
@@ -2021,7 +2022,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	private void enableTimeChangedReceiver() {
 		if (!this.timeChangedReceiverEnabled) {
-			getContext().registerReceiver(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER);
+			ContextCompat.registerReceiver(getContext(), timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, ContextCompat.RECEIVER_NOT_EXPORTED);
 			this.timeChangedReceiverEnabled = true;
 		}
 	}
@@ -2203,7 +2204,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (!newFav) {
 			if (this.favUUIDsFolderIds == null) {
 				newFav = true; // favorite never set before
-				//noinspection ConstantConditions
+				// noinspection ConstantConditions
 				updatedFav = false; // never set before so not updated
 			} else {
 				HashSet<Integer> oldFolderIds = new HashSet<>(this.favUUIDsFolderIds.values());

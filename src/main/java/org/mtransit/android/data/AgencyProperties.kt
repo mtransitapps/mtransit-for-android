@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 import com.google.android.gms.maps.model.LatLngBounds
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.LocaleUtils
-import org.mtransit.android.commons.LocationUtils
+import org.mtransit.android.commons.data.Area
 import org.mtransit.android.data.IAgencyProperties.Companion.DEFAULT_LONG_VERSION_CODE
 import org.mtransit.android.data.IAgencyProperties.Companion.DEFAULT_VERSION_CODE
 import java.util.Locale
@@ -27,7 +27,7 @@ data class AgencyProperties(
     @ColumnInfo(name = "color_int")
     override val colorInt: Int? = null,
     @Embedded(prefix = "area")
-    override val area: LocationUtils.Area,
+    override val area: Area,
     @ColumnInfo(name = "pkg")
     override val pkg: String,
     @ColumnInfo(name = "long_version_code")
@@ -52,6 +52,7 @@ data class AgencyProperties(
     val contactUsWebFr: String? = null,
 ) : IAgencyNearbyUIProperties, IAgencyUpdatableProperties {
 
+    @Ignore
     @JvmOverloads
     constructor(
         id: String,
@@ -59,7 +60,7 @@ data class AgencyProperties(
         shortName: String,
         longName: String,
         color: String? = null,
-        area: LocationUtils.Area,
+        area: Area,
         pkg: String,
         longVersionCode: Long,
         availableVersionCode: Int,
@@ -97,6 +98,7 @@ data class AgencyProperties(
     val shortNameLC: String
         get() = shortName.lowercase(Locale.getDefault()) // device language used
 
+    @Suppress("unused")
     fun hasColor() = this.colorInt != null
 
     @Ignore
@@ -116,7 +118,7 @@ data class AgencyProperties(
             this.maxValidSec
         }
 
-    override fun isInArea(area: LocationUtils.Area?): Boolean {
+    override fun isInArea(area: Area?): Boolean {
         return IAgencyNearbyProperties.isInArea(this, area)
     }
 
@@ -128,7 +130,7 @@ data class AgencyProperties(
         return IAgencyNearbyProperties.isInArea(this, area)
     }
 
-    override fun isEntirelyInside(otherArea: LocationUtils.Area?): Boolean {
+    override fun isEntirelyInside(otherArea: Area?): Boolean {
         return IAgencyNearbyProperties.isEntirelyInside(this, area)
     }
 

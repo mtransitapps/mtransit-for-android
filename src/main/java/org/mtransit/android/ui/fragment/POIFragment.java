@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.FragmentActivity;
@@ -1204,7 +1205,7 @@ public class POIFragment extends ABFragment implements
 		if (!this.timeChangedReceiverEnabled) {
 			this.timeChangedReceiverEnabled = true;
 			if (getContext() != null) {
-				getContext().registerReceiver(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER);
+				ContextCompat.registerReceiver(getContext(), timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, ContextCompat.RECEIVER_NOT_EXPORTED);
 			}
 		}
 	}

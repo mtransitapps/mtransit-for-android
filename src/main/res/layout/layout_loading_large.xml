@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:focusable="false"
     tools:background="@color/transparent"
-    tools:context=".ui.MainActivity">
+    tools:context=".ui.MainActivity"
+    tools:ignore="MergeRootFrame">
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/progress_bar"

@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.IntDef
+import androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
 import androidx.core.view.isVisible
 import androidx.core.view.setPadding
 import androidx.core.view.updateLayoutParams
@@ -17,6 +18,7 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.data.News
+import org.mtransit.android.commons.registerReceiverCompat
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.data.authorityAndUuidT
 import org.mtransit.android.data.authorityT
@@ -90,10 +92,7 @@ class NewsListAdapter(
 
     private fun enableTimeChangedReceiver(context: IContext) {
         if (!timeChangedReceiverEnabled) {
-            context.context?.registerReceiver(
-                timeChangedReceiver,
-                UITimeUtils.TIME_CHANGED_INTENT_FILTER
-            )
+            context.context?.registerReceiverCompat(timeChangedReceiver, UITimeUtils.TIME_CHANGED_INTENT_FILTER, RECEIVER_NOT_EXPORTED)
             timeChangedReceiverEnabled = true
         }
     }

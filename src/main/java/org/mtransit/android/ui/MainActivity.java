@@ -16,6 +16,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
@@ -155,7 +156,7 @@ public class MainActivity extends MTActivityWithLocation implements
 				this.adManager.onNbAgenciesUpdated(this, nbAgencies) // ad-manager does not persist activity but listen for changes itself
 		);
 		MapUtils.fixScreenFlickering(findViewById(R.id.content_frame));
-		registerReceiver(new ModulesReceiver(), ModulesReceiver.getIntentFilter()); // Android 12
+		ContextCompat.registerReceiver(this, new ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED); // Android 13
 		EdgeToEdgeKt.setUpEdgeToEdgeTop(findViewById(R.id.drawer_layout));
 	}
 
@@ -340,21 +341,24 @@ public class MainActivity extends MTActivityWithLocation implements
 		}
 	}
 
-	public void clearFragmentBackStackImmediate() {
+	void clearFragmentBackStackImmediate() {
 		FragmentUtils.clearFragmentBackStackImmediate(this, null);
 	}
 
-	public void showNewFragment(@NonNull ABFragment newFragment,
-								boolean addToStack,
-								@Nullable Fragment optSource) {
+	/**
+	 * @noinspection SameParameterValue
+	 */
+	void showNewFragment(@NonNull ABFragment newFragment,
+						 boolean addToStack,
+						 @Nullable Fragment optSource) {
 		showNewFragment(newFragment, addToStack, optSource, null, null);
 	}
 
-	public void showNewFragment(@NonNull ABFragment newFragment,
-								boolean addToStack,
-								@Nullable Fragment optSource,
-								@Nullable View optTransitionSharedElement,
-								@Nullable String optTransitionName) {
+	private void showNewFragment(@NonNull ABFragment newFragment,
+								 boolean addToStack,
+								 @Nullable Fragment optSource,
+								 @Nullable View optTransitionSharedElement,
+								 @Nullable String optTransitionName) {
 		MTLog.d(this, "showNewFragment(%s, %s, %s, %s, %s)", newFragment, addToStack, optSource, optTransitionSharedElement, optTransitionName);
 		FragmentUtils.replaceFragment(this, R.id.content_frame, newFragment, addToStack, optSource, optTransitionSharedElement, optTransitionName);
 		if (addToStack) {
@@ -371,7 +375,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		}
 	}
 
-	public void showContentFrameAsLoaded() {
+	void showContentFrameAsLoaded() {
 		if (findViewById(R.id.content_frame_loading) != null) {
 			findViewById(R.id.content_frame_loading).setVisibility(View.GONE);
 		}
@@ -439,7 +443,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		return this.locationSettingsResolution;
 	}
 
-	public boolean isCurrentFragmentVisible(@Nullable Fragment fragment) {
+	boolean isCurrentFragmentVisible(@Nullable Fragment fragment) {
 		return FragmentUtils.isCurrentFragmentVisible(this, R.id.content_frame, fragment);
 	}
 
@@ -473,7 +477,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		super.onBackPressed();
 	}
 
-	public void updateNavigationDrawerToggleIndicator() {
+	void updateNavigationDrawerToggleIndicator() {
 		if (this.navigationDrawerController != null) {
 			this.navigationDrawerController.setDrawerToggleIndicatorEnabled(getBackStackEntryCount() < 1);
 		}
@@ -493,7 +497,7 @@ public class MainActivity extends MTActivityWithLocation implements
 
 	private Integer backStackEntryCount = null;
 
-	public int getBackStackEntryCount() {
+	int getBackStackEntryCount() {
 		if (this.backStackEntryCount == null) {
 			initBackStackEntryCount();
 		}
@@ -564,7 +568,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		}
 	}
 
-	public boolean onUpIconClick() {
+	boolean onUpIconClick() {
 		return FragmentUtils.popLatestEntryFromStack(this, null);
 	}
 

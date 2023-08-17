@@ -20,13 +20,13 @@ import org.mtransit.android.analytics.AnalyticsEventsParamsProvider;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.FileUtils;
-import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.AppStatus;
+import org.mtransit.android.commons.data.Area;
 import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.DefaultPOI;
 import org.mtransit.android.commons.data.POI;
@@ -565,8 +565,8 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	 */
 	@NonNull
 	@Override
-	public LocationUtils.Area getAgencyArea(@NonNull Context context) {
-		return LocationUtils.THE_WORLD;
+	public Area getAgencyArea(@NonNull Context context) {
+		return Area.getTHE_WORLD();
 	}
 
 	@Override

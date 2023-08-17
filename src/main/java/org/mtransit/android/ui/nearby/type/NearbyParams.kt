@@ -2,6 +2,7 @@ package org.mtransit.android.ui.nearby.type
 
 import android.location.Location
 import org.mtransit.android.commons.LocationUtils
+import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.AgencyBaseProperties
 
@@ -18,12 +19,12 @@ data class NearbyParams(
     val typeAgencies: List<AgencyBaseProperties>?
         get() = typeId?.let { dstId -> allAgencies?.filter { agency -> agency.type.id == dstId } }
 
-    val area: LocationUtils.Area?
+    val area: Area?
         get() {
             return if (nearbyLocation == null || ad == null) {
                 null
             } else {
-                LocationUtils.getArea(nearbyLocation.latitude, nearbyLocation.longitude, ad.aroundDiff)
+                Area.getArea(nearbyLocation.latitude, nearbyLocation.longitude, ad.aroundDiff)
             }
         }
 
@@ -48,6 +49,7 @@ data class NearbyParams(
     val isReady: Boolean
         get() = typeAgencies != null && nearbyLocation != null && ad != null && minCoverageInMeters != null && maxSize != null
 
+    @Suppress("unused")
     fun toStringS(): String {
         return "NearbyParams(type=$typeId, agencies=${allAgencies?.size}, ad=$ad, nearby=$nearbyLocation, minCoverage=$minCoverageInMeters, min=$minSize, max=$maxSize)"
     }
