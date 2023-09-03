@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -91,6 +92,7 @@ import org.mtransit.android.ui.view.common.IActivity;
 import org.mtransit.android.ui.view.common.ImageManager;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
+import org.mtransit.android.util.BatteryOptimizationIssueUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.LinkUtils;
@@ -257,6 +259,7 @@ public class POIFragment extends ABFragment implements
 			}
 		}
 		refreshAppUpdateLayout(getView());
+		refreshAppWasDisabledLayout(getView());
 	}
 
 	@Nullable
@@ -331,6 +334,7 @@ public class POIFragment extends ABFragment implements
 		setupRTSFullScheduleBtn(view);
 		setupMoreNewsButton(view);
 		setupAppUpdateButton(view);
+		setupAppWasDisabledButton(view);
 		setupRewardedAdButton(view);
 		setupMoreNearbyButton(view);
 		if (getActivity() != null) {
@@ -847,6 +851,31 @@ public class POIFragment extends ABFragment implements
 	}
 
 	@Nullable
+	private View getPOIAppWasDisabledView(@Nullable View view) {
+		if (view == null) {
+			return null;
+		}
+		return view.findViewById(R.id.poi_module_was_disabled);
+	}
+
+	private void setupAppWasDisabledButton(@Nullable View view) {
+		if (view == null) {
+			return;
+		}
+		view.findViewById(R.id.appWasDisabledBtn).setOnClickListener(v -> {
+			final Activity activity = getActivity();
+			if (activity == null) {
+				return;
+			}
+			if (viewModel != null) {
+				viewModel.onBatteryOptimizationSettingsOpened();
+			}
+			this.analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_WAS_DISABLED_POI, null);
+			BatteryOptimizationIssueUtils.openDeviceBatteryOptimizationSettings(activity);
+		});
+	}
+
+	@Nullable
 	private View getPOINewsView(@Nullable View view) {
 		if (view == null) {
 			return null;
@@ -1046,6 +1075,7 @@ public class POIFragment extends ABFragment implements
 			setupRTSFullScheduleBtn(view);
 			setupMoreNewsButton(view);
 			setupAppUpdateButton(view);
+			setupAppWasDisabledButton(view);
 			setupRewardedAdButton(view);
 			setupMoreNearbyButton(view);
 			setupNearbyList();
@@ -1057,6 +1087,7 @@ public class POIFragment extends ABFragment implements
 		this.adManager.refreshRewardedAdStatus(this);
 		refreshRewardedLayout(getView());
 		refreshAppUpdateLayout(getView());
+		refreshAppWasDisabledLayout(getView());
 		if (FeatureFlags.F_NAVIGATION) {
 			if (mainViewModel != null) {
 				mainViewModel.setABBgColor(getABBgColor(getContext()));
@@ -1147,6 +1178,44 @@ public class POIFragment extends ABFragment implements
 				this.analyticsManager.logEvent(AnalyticsEvents.HIDDEN_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
 						.put(AnalyticsEvents.Params.PKG, pkg)
 				);
+			}
+		}
+	}
+
+	private void refreshAppWasDisabledLayout(@Nullable View view) {
+		final View appWasDisabledLayout = getPOIAppWasDisabledView(view);
+		if (appWasDisabledLayout == null) {
+			MTLog.d(this, "refreshAppWasDisabledLayout() > SKIP (no layout)");
+			return;
+		}
+		if (!BatteryOptimizationIssueUtils.isSamsungDevice()) {
+			MTLog.d(this, "refreshAppWasDisabledLayout() > SKIP (not Samsung)");
+			return;
+		}
+		final IAgencyUpdatableProperties agency = getAgencyOrNull();
+		boolean appUpdateAvailable = agency != null && agency.getUpdateAvailable();
+		boolean appWasDisabled = this.viewModel != null && this.viewModel.hasSeenDisabledModule();
+		if (appUpdateAvailable) {
+			appWasDisabled = false; // avoid too many messages
+		} else if (demoModeManager.isFullDemo()) {
+			appWasDisabled = false; // always false (demo mode ON)
+		}
+		if (appWasDisabled) {
+			final Resources resources = appWasDisabledLayout.getContext().getResources();
+			final TextView appWasDisabledTitleTv = appWasDisabledLayout.findViewById(R.id.appWasDisabledTitle);
+			final TextView appWasDisabledBtn = appWasDisabledLayout.findViewById(R.id.appWasDisabledBtn);
+			//noinspection deprecation
+			final int agencyCount = this.dataSourcesRepository.getAllAgenciesCount();
+			appWasDisabledTitleTv.setText(resources.getQuantityString(R.plurals.app_disabled_issue_title, agencyCount, agencyCount));
+			appWasDisabledBtn.setText(resources.getText(R.string.battery_optimization_samsung_use_device_care));
+			if (appWasDisabledLayout.getVisibility() != View.VISIBLE) {
+				appWasDisabledLayout.setVisibility(View.VISIBLE);
+				this.analyticsManager.logEvent(AnalyticsEvents.SHOWED_APP_WAS_DISABLED_POI, null);
+			}
+		} else {
+			if (appWasDisabledLayout.getVisibility() != View.GONE) {
+				appWasDisabledLayout.setVisibility(View.GONE);
+				this.analyticsManager.logEvent(AnalyticsEvents.HIDDEN_APP_WAS_DISABLED_POI, null);
 			}
 		}
 	}

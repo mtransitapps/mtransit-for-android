@@ -63,6 +63,11 @@
     <string name="agency_type_news_all">Nouvelles</string>
     <string name="agency_type_news_app_short_name">Nouvelles</string>
     <string name="agency_type_news_nearby">Nouvelles Proches</string><!-- TODO Dernières Nouvelles (Acceuil) -->
+    <plurals name="app_disabled_issue_title">
+        <item quantity="one" tools:ignore="ImpliedQuantity">Agence désactivée</item>
+        <item quantity="other">Agences désactivées</item>
+        <item quantity="many">Agences désactivées</item>
+    </plurals>
     <string name="email">Courriel</string>
     <string name="tel">Numéro de Téléphone</string>
     <string name="file">Fichier</string>
@@ -106,7 +111,7 @@
     <string name="favorite_folder_pick_cancel">Annuler</string>
     <string name="favorite_folder_default">(défaut)</string>
     <string name="location_settings_toast">Paramètre de localisation de l\'appareil désactivé. ACTIVER.</string>
-    <string name="module_disabled_toast">&#9888; Module d\'agence désactivé. CORRIGER.</string>
+    <string name="module_disabled_toast">&#9888; Agence désactivée. CORRIGER.</string>
     <string name="samsung_device_care">Entretien de l\'appareil (Samsung)</string>
     <string name="new_location_toast">Nouvelle position. RAFRAICHIR.</string>
     <string name="no_results">Aucun Résultats</string>

@@ -63,6 +63,10 @@
     <string name="agency_type_news_all">News</string>
     <string name="agency_type_news_app_short_name">News</string>
     <string name="agency_type_news_nearby">Nearby News</string><!-- TODO Latest News (Home) -->
+    <plurals name="app_disabled_issue_title">
+        <item quantity="one">Agency disabled</item>
+        <item quantity="other">Agencies disabled</item>
+    </plurals>
     <string name="email">E-mail</string>
     <string name="tel">Phone Number</string>
     <string name="file">File</string>
@@ -106,7 +110,7 @@
     <string name="favorite_folder_pick_cancel">Cancel</string>
     <string name="favorite_folder_default">(default)</string>
     <string name="location_settings_toast">Device location settings disabled. Touch to ENABLE.</string>
-    <string name="module_disabled_toast">&#9888; Agency module disabled. Touch to FIX.</string>
+    <string name="module_disabled_toast">&#9888; Agency disabled. Touch to FIX.</string>
     <string name="samsung_device_care">Device Care (Samsung)</string>
     <string name="new_location_toast">New location. Touch to REFRESH.</string>
     <string name="no_results">No Results</string>

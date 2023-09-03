@@ -289,18 +289,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             setPositiveButton(R.string.battery_optimization_issue_act) { dialog, _ ->
                 dialog.dismiss()
                 getActivity()?.let {
-                    if (BatteryOptimizationIssueUtils.isSamsungDevice()) {
-                        if (BatteryOptimizationIssueUtils.isSamsungDeviceCareInstalled(it)) {
-                            BatteryOptimizationIssueUtils.openDeviceCare(
-                                it,
-                                BatteryOptimizationIssueUtils.SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING_NEVER
-                            )
-                        } else {
-                            BatteryOptimizationIssueUtils.installSamsungDeviceCare(it)
-                        }
-                    } else {
-                        DeviceUtils.showIgnoreBatteryOptimizationSettings(it)
-                    }
+                    BatteryOptimizationIssueUtils.openDeviceBatteryOptimizationSettings(it)
                 }
             }
             setNeutralButton(R.string.battery_optimization_issue_learn_more) { dialog, _ ->

@@ -61,6 +61,14 @@
                 tools:visibility="visible" />
 
             <include
+                android:id="@+id/poi_module_was_disabled"
+                layout="@layout/layout_poi_app_was_disabled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <include
                 android:id="@+id/poi_news"
                 layout="@layout/layout_poi_latest_news"
                 android:layout_width="match_parent"

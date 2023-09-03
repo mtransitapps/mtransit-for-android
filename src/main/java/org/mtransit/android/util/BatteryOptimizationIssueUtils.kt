@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.annotation.IntDef
 import org.mtransit.android.R
+import org.mtransit.android.commons.DeviceUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.StoreUtils
@@ -49,6 +50,19 @@ object BatteryOptimizationIssueUtils {
         DO_NOT_KILL_MY_APP_IMAGE_URL
     }
 
+    @JvmStatic
+    fun openDeviceBatteryOptimizationSettings(activity: Activity) {
+        if (isSamsungDevice()) {
+            if (isSamsungDeviceCareInstalled(activity)) {
+                openDeviceCare(activity, SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING_NEVER)
+            } else {
+                installSamsungDeviceCare(activity)
+            }
+        } else {
+            DeviceUtils.showIgnoreBatteryOptimizationSettings(activity)
+        }
+    }
+
     // region Samsung
 
     private const val MANUFACTURER_SAMSUNG = "samsung"
@@ -68,14 +82,18 @@ object BatteryOptimizationIssueUtils {
     const val SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING_DEEP = 1
     const val SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING_NEVER = 2
 
+    @JvmStatic
     fun isSamsungDevice() = this.manufacturerDNTLC == MANUFACTURER_SAMSUNG
 
+    @JvmStatic
     fun isSamsungDeviceCareInstalled(context: Context) = PackageManagerUtils.isAppInstalled(context, SAMSUNG_DEVICE_CARE_PKG)
 
+    @JvmStatic
     fun installSamsungDeviceCare(context: Context) {
         StoreUtils.viewAppPage(context, SAMSUNG_DEVICE_CARE_PKG, context.getString(org.mtransit.android.commons.R.string.google_play))
     }
 
+    @JvmStatic
     fun openDeviceCare(
         activity: Activity,
         @SamsungDeviceCareActivityType activityType: Int? = null,

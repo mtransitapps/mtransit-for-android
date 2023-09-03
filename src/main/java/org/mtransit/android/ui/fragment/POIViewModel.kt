@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.fragment
 
+import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -10,6 +11,7 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
@@ -42,6 +44,7 @@ class POIViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val newsRepository: NewsRepository,
+    private val lclPrefRepository: LocalPreferenceRepository,
 ) : ViewModel(), MTLog.Loggable {
 
     companion object {
@@ -174,4 +177,23 @@ class POIViewModel @Inject constructor(
             context = viewModelScope.coroutineContext + Dispatchers.IO,
         )
     }
+
+    fun onBatteryOptimizationSettingsOpened() {
+        hasSeenDisabledModule = false // click on the message once, show again next module disabled
+    }
+
+    @get:JvmName("hasSeenDisabledModule")
+    var hasSeenDisabledModule: Boolean = LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
+        get() = lclPrefRepository.pref.getBoolean(
+            LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED,
+            LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
+        )
+        private set(value) {
+            if (hasSeenDisabledModule != value) {
+                lclPrefRepository.pref.edit {
+                    putBoolean(LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED, value)
+                }
+                field = value
+            }
+        }
 }
