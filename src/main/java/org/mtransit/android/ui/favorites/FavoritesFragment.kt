@@ -196,6 +196,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), DeviceLocatio
 
     @SuppressLint("ClickableViewAccessibility")
     private fun makeModuleDisabledToast(): PopupWindow? {
+        return ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, R.string.module_disabled_toast)?.apply {
             setTouchInterceptor { _, me ->
                 when (me.action) {
                     MotionEvent.ACTION_DOWN -> {
