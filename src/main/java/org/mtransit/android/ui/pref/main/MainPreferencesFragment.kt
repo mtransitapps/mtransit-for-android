@@ -26,6 +26,7 @@ import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.StoreUtils
+import org.mtransit.android.commons.capitalize
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.MTDialog
@@ -33,6 +34,7 @@ import org.mtransit.android.ui.feedback.FeedbackDialog
 import org.mtransit.android.ui.modules.ModulesActivity
 import org.mtransit.android.ui.pref.PreferencesViewModel
 import org.mtransit.android.ui.view.common.ImageManager
+import org.mtransit.android.ui.view.common.setTextText
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.LanguageManager
@@ -249,7 +251,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
     private fun showPowerManagementDialog(activity: Activity) {
         val view = activity.layoutInflater.inflate(R.layout.layout_battery_optimization_issue, null, false).apply {
             findViewById<TextView>(R.id.battery_optimization_issue_text_1).apply {
-                text = getString(R.string.battery_optimization_issue_message_1_and_manufacturer, BatteryOptimizationIssueUtils.manufacturer)
+                text = getString(R.string.battery_optimization_issue_message_1_and_manufacturer, BatteryOptimizationIssueUtils.manufacturer.capitalize())
             }
             findViewById<ImageView>(R.id.battery_optimization_issue_img).apply {
                 BatteryOptimizationIssueUtils.getDoNotKillMyAppImageUrlExtended()?.let { imageUrl ->
@@ -272,6 +274,14 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                     LinkUtils.open(view, activity, url, getString(commonsR.string.web_browser), true)
                 }
             }
+            findViewById<TextView>(R.id.battery_optimization_issue_custom).apply {
+                if (BatteryOptimizationIssueUtils.isSamsungDevice()) {
+                    setTextText(R.string.battery_optimization_samsung_use_device_care)
+                    isVisible = true
+                } else {
+                    isVisible = false
+                }
+            }
         }
         MTDialog.Builder(activity).apply {
             setTitle(R.string.battery_optimization_issue_title)
@@ -279,7 +289,18 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             setPositiveButton(R.string.battery_optimization_issue_act) { dialog, _ ->
                 dialog.dismiss()
                 getActivity()?.let {
-                    DeviceUtils.showIgnoreBatteryOptimizationSettings(it)
+                    if (BatteryOptimizationIssueUtils.isSamsungDevice()) {
+                        if (BatteryOptimizationIssueUtils.isSamsungDeviceCareInstalled(it)) {
+                            BatteryOptimizationIssueUtils.openDeviceCare(
+                                it,
+                                BatteryOptimizationIssueUtils.SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING_NEVER
+                            )
+                        } else {
+                            BatteryOptimizationIssueUtils.installSamsungDeviceCare(it)
+                        }
+                    } else {
+                        DeviceUtils.showIgnoreBatteryOptimizationSettings(it)
+                    }
                 }
             }
             setNeutralButton(R.string.battery_optimization_issue_learn_more) { dialog, _ ->

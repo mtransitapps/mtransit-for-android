@@ -23,9 +23,10 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/baseline_16"
         android:layout_marginBottom="@dimen/baseline_16"
+        android:contentDescription="@null"
         android:scaleType="fitCenter"
         android:visibility="gone"
-        tools:src="@tools:sample/avatars"
+        tools:src="@tools:sample/backgrounds/scenic"
         tools:visibility="visible" />
 
     <TextView
@@ -34,5 +35,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/battery_optimization_issue_message_2" />
+
+    <TextView
+        android:id="@+id/battery_optimization_issue_custom"
+        style="@style/MaterialAlertDialog.MaterialComponents.Body.Text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/baseline_16"
+        tools:text="@string/battery_optimization_samsung_use_device_care"
+        android:visibility="gone"
+        tools:visibility="visible" />
 
 </LinearLayout>

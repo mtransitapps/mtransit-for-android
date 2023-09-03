@@ -25,6 +25,9 @@ public class LocalPreferenceRepository extends PreferenceRepository {
 
 	public static final String PREFS_LCL_NEARBY_TAB_TYPE = PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE;
 
+	public static final String PREF_USER_SEEN_APP_DISABLED = PreferenceUtils.PREF_USER_SEEN_APP_DISABLED;
+	public static final boolean PREF_USER_SEEN_APP_DISABLED_DEFAULT = PreferenceUtils.PREF_USER_SEEN_APP_DISABLED_DEFAULT;
+
 	public static final String PREFS_LCL_DEV_MODE_ENABLED = PreferenceUtils.PREFS_LCL_DEV_MODE_ENABLED;
 	public static final boolean PREFS_LCL_DEV_MODE_ENABLED_DEFAULT = PreferenceUtils.PREFS_LCL_DEV_MODE_ENABLED_DEFAULT;
 

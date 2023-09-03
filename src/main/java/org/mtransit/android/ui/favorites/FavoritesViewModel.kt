@@ -1,14 +1,20 @@
 package org.mtransit.android.ui.favorites
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
+import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.commons.ComparatorUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.StringUtils
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.provider.POIProviderContract
@@ -20,6 +26,7 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
+import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.sortWithAnd
@@ -27,6 +34,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
+    @ApplicationContext appContext: Context,
+    private val adManager: IAdManager,
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val favoriteRepository: FavoriteRepository,
@@ -44,6 +53,14 @@ class FavoritesViewModel @Inject constructor(
     fun onFavoriteUpdated() {
         _favoriteUpdatedTrigger.value = (_favoriteUpdatedTrigger.value ?: 0) + 1
     }
+
+    val moduleDisabled = this.dataSourcesRepository.readingAllAgenciesBase().map {
+        it.filter { agency -> !agency.isEnabled }
+    }.distinctUntilChanged()
+
+    val hasDisabledModule = moduleDisabled.map {
+        it.any { agency -> !PackageManagerUtils.isAppEnabled(appContext, agency.pkg) }
+    }.distinctUntilChanged()
 
     private val _favoriteUpdatedTrigger = MutableLiveData(0)
 
@@ -149,5 +166,9 @@ class FavoritesViewModel @Inject constructor(
             val rFavFolderName = favFolders.singleOrNull { it.id == rFavFolderId }?.name ?: StringUtils.EMPTY
             return lFavFolderName.compareTo(rFavFolderName)
         }
+    }
+
+    fun getAdBannerHeightInPx(activity: IActivity?): Int {
+        return this.adManager.getBannerHeightInPx(activity)
     }
 }

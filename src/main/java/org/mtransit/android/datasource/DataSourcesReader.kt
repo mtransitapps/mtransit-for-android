@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.ProviderInfo
 import android.os.Bundle
+import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -61,12 +62,16 @@ class DataSourcesReader @Inject constructor(
             // "org.mtransit.android.ca_gatineau_sto_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_edmonton_ets_train.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_laval_stl_bus.debug", // FIXME DEBUG
+            // "org.mtransit.android.ca_longueuil_rtl_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_montreal_amt_train.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_montreal_bixi_bike.debug", // FIXME DEBUG
+            // "org.mtransit.android.ca_montreal_rem_light_rail.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_montreal_stm_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_montreal_stm_subway.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_quebec_rtc_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_richelieu_citvr_bus.debug", // FIXME DEBUG
+            // "org.mtransit.android.ca_sherbrooke_sts_bus.debug", // FIXME DEBUG
+            // "org.mtransit.android.ca_ste_julie_omitsju_bus.debug", // FIXME DEBUG
             // DEBUG
         ) else listOf(
             "org.mtransit.android.ca_deux_montagnes_mrcdm_bus", // not supported anymore
@@ -85,6 +90,20 @@ class DataSourcesReader @Inject constructor(
     }
 
     override fun getLogTag(): String = LOG_TAG
+
+    private var hasSeenDisabledModule: Boolean = LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
+        get() = lclPrefRepository.pref.getBoolean(
+            LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED,
+            LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
+        )
+        set(value) {
+            if (hasSeenDisabledModule != value) {
+                lclPrefRepository.pref.edit {
+                    putBoolean(LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED, value)
+                }
+                field = value
+            }
+        }
 
     private val agencyProviderMetaData by lazy { appContext.getString(commonsR.string.agency_provider) }
 
@@ -346,6 +365,7 @@ class DataSourcesReader @Inject constructor(
                 return@forEach
             }
             if (!pm.isAppEnabled(pkg)) { // APP DISABLED #DontKillMyApp
+                hasSeenDisabledModule = true
                 updateDisabledAgencyProperties(agencyProperties, authority, markUpdated)
                 return@forEach
             }

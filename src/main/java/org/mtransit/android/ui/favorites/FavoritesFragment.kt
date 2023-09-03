@@ -1,6 +1,7 @@
 @file:JvmName("FavoritesFragment") // ANALYTICS
 package org.mtransit.android.ui.favorites
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.location.Location
@@ -8,7 +9,9 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
+import android.widget.PopupWindow
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -19,6 +22,8 @@ import androidx.lifecycle.Lifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
+import org.mtransit.android.commons.StoreUtils
+import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentFavoritesBinding
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -88,6 +93,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), DeviceLocatio
 
     private var binding: FragmentFavoritesBinding? = null
 
+    private var moduleDisabledToast: PopupWindow? = null
+    private var toastShown: Boolean = false
+
     private val adapter: POIArrayAdapter by lazy {
         POIArrayAdapter(
             this,
@@ -150,6 +158,13 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), DeviceLocatio
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             adapter.setLocation(deviceLocation)
         }
+        viewModel.hasDisabledModule.observe(viewLifecycleOwner) { hasDisabledModule ->
+            if (hasDisabledModule == true) {
+                showModuleDisabledToast()
+            } else {
+                hideModuleDisabledToast()
+            }
+        }
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
                 if (scroll) {
@@ -176,6 +191,62 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), DeviceLocatio
     override fun onPause() {
         super.onPause()
         adapter.onPause()
+        hideModuleDisabledToast()
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun makeModuleDisabledToast(): PopupWindow? {
+            setTouchInterceptor { _, me ->
+                when (me.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        var handled = false
+                        attachedViewModel?.moduleDisabled?.value?.let { moduleDisabled ->
+                            if (moduleDisabled.isNotEmpty()) {
+                                val firstDisabledPkg = moduleDisabled.first().pkg
+                                activity?.let {
+                                    StoreUtils.viewAppPage(
+                                        it,
+                                        firstDisabledPkg,
+                                        it.getString(org.mtransit.android.commons.R.string.google_play)
+                                    )
+                                }
+                            }
+                            handled = true
+                        }
+                        hideModuleDisabledToast()
+                        handled
+                    }
+
+                    else -> false // not handled
+                }
+            }
+            setOnDismissListener {
+                toastShown = false
+            }
+        }
+    }
+
+    private fun showModuleDisabledToast() {
+        if (this.toastShown) {
+            return // SKIP
+        }
+        if (!isResumed) {
+            return // SKIP
+        }
+        (this.moduleDisabledToast ?: makeModuleDisabledToast().also { this.moduleDisabledToast = it })
+            ?.let { locationToast ->
+                this.toastShown = ToastUtils.showTouchableToastPx(
+                    activity,
+                    locationToast,
+                    view,
+                    attachedViewModel?.getAdBannerHeightInPx(this) ?: 0
+                )
+            }
+    }
+
+    private fun hideModuleDisabledToast() {
+        this.moduleDisabledToast?.dismiss()
+        this.toastShown = false
     }
 
     override fun onLocationSettingsResolution(resolution: PendingIntent?) {
@@ -205,6 +276,9 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), DeviceLocatio
 
     override fun onDestroyView() {
         super.onDestroyView()
+        hideModuleDisabledToast()
+        this.moduleDisabledToast = null
+        this.toastShown = false
         adapter.onDestroyView()
         binding = null
     }

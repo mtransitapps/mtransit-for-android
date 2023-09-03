@@ -106,6 +106,8 @@
     <string name="favorite_folder_pick_cancel">Cancel</string>
     <string name="favorite_folder_default">(default)</string>
     <string name="location_settings_toast">Device location settings disabled. Touch to ENABLE.</string>
+    <string name="module_disabled_toast">&#9888; Agency module disabled. Touch to FIX.</string>
+    <string name="samsung_device_care">Device Care (Samsung)</string>
     <string name="new_location_toast">New location. Touch to REFRESH.</string>
     <string name="no_results">No Results</string>
     <string name="world_explored">Planetary exploration completed</string>
@@ -145,6 +147,7 @@
     <string name="battery_optimization_issue_message_1_and_manufacturer">Device manufacturers (like %s) are changing the way Android works to save more battery and it\'s breaking apps.</string>
     <string name="battery_optimization_issue_act">Fix</string>
     <string name="battery_optimization_issue_learn_more">Learn more</string>
+    <string name="battery_optimization_samsung_use_device_care">Use <b>Samsung\'s Device Care</b> to add MonTransit apps to the <b>Never sleeping apps</b> to avoid having a problem in the future.</string>
     <string name="display_pref_cat_title">Display</string>
     <string name="theme_pref_title">Theme</string>
     <string name="theme_pref_summary">Light or Dark theme.</string>

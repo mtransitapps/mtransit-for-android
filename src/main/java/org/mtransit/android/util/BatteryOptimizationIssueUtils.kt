@@ -1,7 +1,14 @@
 package org.mtransit.android.util
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.os.Build
+import androidx.annotation.IntDef
+import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.PackageManagerUtils
+import org.mtransit.android.commons.StoreUtils
 import java.net.URL
 import java.util.Locale
 
@@ -21,26 +28,69 @@ object BatteryOptimizationIssueUtils {
     private val manufacturerDNTLC = manufacturer.lowercase(Locale.ROOT).replace(" ", "-")
 
     @JvmStatic
-    fun getDoNotKillMyAppUrlExtended(): String =
-        try {
-            URL(
-                DO_NOT_KILL_MY_APP_URL_AND_MANUFACTURER
-                    .format(manufacturerDNTLC)
-            ).toString()
-        } catch (e: Exception) {
-            MTLog.w(LOG_TAG, e, "Error while creating custom URL with manufacturer")
-            DO_NOT_KILL_MY_APP_URL
-        }
+    fun getDoNotKillMyAppUrlExtended() = try {
+        URL(
+            DO_NOT_KILL_MY_APP_URL_AND_MANUFACTURER
+                .format(manufacturerDNTLC)
+        ).toString()
+    } catch (e: Exception) {
+        MTLog.w(LOG_TAG, e, "Error while creating custom URL with manufacturer")
+        DO_NOT_KILL_MY_APP_URL
+    }
 
     @JvmStatic
-    fun getDoNotKillMyAppImageUrlExtended(): String? =
-        try {
-            URL(
-                DO_NOT_KILL_MY_APP_IMAGE_URL_AND_MANUFACTURER
-                    .format(manufacturerDNTLC)
-            ).toString()
-        } catch (e: Exception) {
-            MTLog.w(LOG_TAG, e, "Error while creating custom URL with manufacturer")
-            DO_NOT_KILL_MY_APP_IMAGE_URL
-        }
+    fun getDoNotKillMyAppImageUrlExtended() = try {
+        URL(
+            DO_NOT_KILL_MY_APP_IMAGE_URL_AND_MANUFACTURER
+                .format(manufacturerDNTLC)
+        ).toString()
+    } catch (e: Exception) {
+        MTLog.w(LOG_TAG, e, "Error while creating custom URL with manufacturer")
+        DO_NOT_KILL_MY_APP_IMAGE_URL
+    }
+
+    // region Samsung
+
+    private const val MANUFACTURER_SAMSUNG = "samsung"
+    private const val SAMSUNG_DEVICE_CARE_PKG = "com.samsung.android.lool"
+    private const val SAMSUNG_DEVICE_CARE_ACTION = "com.samsung.android.sm.ACTION_OPEN_CHECKABLE_LISTACTIVITY"
+    private const val SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE = "activity_type"
+
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING,
+        SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING_DEEP,
+        SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING_NEVER
+    )
+    annotation class SamsungDeviceCareActivityType
+
+    const val SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING = 0
+    const val SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING_DEEP = 1
+    const val SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING_NEVER = 2
+
+    fun isSamsungDevice() = this.manufacturerDNTLC == MANUFACTURER_SAMSUNG
+
+    fun isSamsungDeviceCareInstalled(context: Context) = PackageManagerUtils.isAppInstalled(context, SAMSUNG_DEVICE_CARE_PKG)
+
+    fun installSamsungDeviceCare(context: Context) {
+        StoreUtils.viewAppPage(context, SAMSUNG_DEVICE_CARE_PKG, context.getString(org.mtransit.android.commons.R.string.google_play))
+    }
+
+    fun openDeviceCare(
+        activity: Activity,
+        @SamsungDeviceCareActivityType activityType: Int? = null,
+    ) {
+        LinkUtils.open(
+            activity,
+            Intent(SAMSUNG_DEVICE_CARE_ACTION).apply {
+                setPackage(SAMSUNG_DEVICE_CARE_PKG)
+                activityType?.let { putExtra(SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE, it) }
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            },
+            activity.getString(R.string.samsung_device_care),
+            false,
+        )
+    }
+
+    // endregion
 }

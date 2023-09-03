@@ -2,9 +2,21 @@ package org.mtransit.android.ui.view.common
 
 import android.content.res.Resources.NotFoundException
 import android.view.View
+import android.widget.TextView
+import androidx.annotation.StringRes
 import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBinding
 
+fun TextView.setTextString(@StringRes stringResId: Int) {
+    this.text = context.getString(stringResId)
+}
+
+/**
+ * Required for HTML formatting
+ */
+fun TextView.setTextText(@StringRes stringResId: Int) {
+    this.text = context.getText(stringResId)
+}
 
 inline var ViewBinding.isVisible: Boolean
     get() = root.visibility == View.VISIBLE

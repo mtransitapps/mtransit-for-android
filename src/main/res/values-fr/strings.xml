@@ -106,6 +106,8 @@
     <string name="favorite_folder_pick_cancel">Annuler</string>
     <string name="favorite_folder_default">(défaut)</string>
     <string name="location_settings_toast">Paramètre de localisation de l\'appareil désactivé. ACTIVER.</string>
+    <string name="module_disabled_toast">&#9888; Module d\'agence désactivé. CORRIGER.</string>
+    <string name="samsung_device_care">Entretien de l\'appareil (Samsung)</string>
     <string name="new_location_toast">Nouvelle position. RAFRAICHIR.</string>
     <string name="no_results">Aucun Résultats</string>
     <string name="world_explored">Exploration planétaire complète</string>
@@ -145,6 +147,7 @@
     <string name="battery_optimization_issue_message_1_and_manufacturer">Les fabricants d\'appareils (comme %s) modifient le fonctionnement d\'Android pour économiser plus de batterie et cela empêche les apps de fonctionner correctement.</string>
     <string name="battery_optimization_issue_act">Corriger</string>
     <string name="battery_optimization_issue_learn_more">En savoir plus</string>
+    <string name="battery_optimization_samsung_use_device_care">Utiliser <b>Entretien de l\'appareil de Samsung</b> pour ajouter (+) les apps MonTransit à la liste des <b>Applications jamais en veille</b> pour ne plus avoir le problème dans le futur.</string>
     <string name="display_pref_cat_title">Affichage</string>
     <string name="theme_pref_title">Thème</string>
     <string name="theme_pref_summary">Thème clair ou sombre.</string>
