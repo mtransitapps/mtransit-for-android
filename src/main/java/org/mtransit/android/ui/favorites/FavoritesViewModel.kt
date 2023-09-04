@@ -26,6 +26,7 @@ import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
+import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.util.UITimeUtils
@@ -40,7 +41,8 @@ class FavoritesViewModel @Inject constructor(
     private val poiRepository: POIRepository,
     private val favoriteRepository: FavoriteRepository,
     private val poiTypeShortNameComparator: POIManagerTypeShortNameComparator,
-) : MTViewModelWithLocation() {
+) : MTViewModelWithLocation(),
+    ModuleDisabledAwareViewModel {
 
     companion object {
         private val LOG_TAG = FavoritesViewModel::class.java.simpleName
@@ -54,11 +56,11 @@ class FavoritesViewModel @Inject constructor(
         _favoriteUpdatedTrigger.value = (_favoriteUpdatedTrigger.value ?: 0) + 1
     }
 
-    val moduleDisabled = this.dataSourcesRepository.readingAllAgenciesBase().map {
+    override val moduleDisabled = this.dataSourcesRepository.readingAllAgenciesBase().map {
         it.filter { agency -> !agency.isEnabled }
     }.distinctUntilChanged()
 
-    val hasDisabledModule = moduleDisabled.map {
+    override val hasDisabledModule = moduleDisabled.map {
         it.any { agency -> !PackageManagerUtils.isAppEnabled(appContext, agency.pkg) }
     }
 
@@ -168,7 +170,7 @@ class FavoritesViewModel @Inject constructor(
         }
     }
 
-    fun getAdBannerHeightInPx(activity: IActivity?): Int {
+    override fun getAdBannerHeightInPx(activity: IActivity?): Int {
         return this.adManager.getBannerHeightInPx(activity)
     }
 }
