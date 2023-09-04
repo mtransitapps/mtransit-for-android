@@ -16,6 +16,9 @@ object ModuleDisabledUI : InAppNotificationUI<ModuleDisabledAwareFragment> {
     } ?: InAppNotificationUI.IN_APP_NOTIFICATION_MODULE_DISABLED // TODO dynamic IDs?
 
     override fun onViewCreated(fragment: ModuleDisabledAwareFragment) {
+        fragment.viewModel.moduleDisabled.observe(fragment.getViewLifecycleOwner()) {
+            // DO NOTHING
+        }
         fragment.viewModel.hasDisabledModule.observe(fragment.getViewLifecycleOwner()) { hasDisabledModule ->
             showOrHideInAppNotification(fragment, hasDisabledModule == true)
         }

@@ -10,6 +10,9 @@ object LocationSettingsUI : InAppNotificationUI<LocationSettingsAwareFragment> {
     override fun getNotificationId(fragment: LocationSettingsAwareFragment) = InAppNotificationUI.IN_APP_NOTIFICATION_LOCATION_SETTINGS
 
     override fun onViewCreated(fragment: LocationSettingsAwareFragment) {
+        fragment.viewModel.locationSettingsNeededResolution.observe(fragment.getViewLifecycleOwner()) {
+            // DO NOTHING
+        }
         fragment.viewModel.locationSettingsNeeded.observe(fragment.getViewLifecycleOwner()) { needed ->
             showOrHideInAppNotification(fragment, needed == true)
         }
