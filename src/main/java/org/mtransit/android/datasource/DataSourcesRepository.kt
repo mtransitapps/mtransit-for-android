@@ -61,8 +61,7 @@ class DataSourcesRepository @Inject constructor(
         }
     }
 
-    @Deprecated(message = "Use live data")
-    fun getAllAgenciesCount() = this.dataSourcesInMemoryCache.getAllAgencies().filterDemoModeAgency(demoModeManager).size
+    fun getAllAgenciesCount() = getAllAgencies().size
 
     fun readingAllAgenciesCount() = liveData {
         emit(dataSourcesInMemoryCache.getAllAgencies().filterDemoModeAgency(demoModeManager).size)

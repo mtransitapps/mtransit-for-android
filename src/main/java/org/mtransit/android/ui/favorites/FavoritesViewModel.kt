@@ -60,7 +60,7 @@ class FavoritesViewModel @Inject constructor(
 
     val hasDisabledModule = moduleDisabled.map {
         it.any { agency -> !PackageManagerUtils.isAppEnabled(appContext, agency.pkg) }
-    }.distinctUntilChanged()
+    }
 
     private val _favoriteUpdatedTrigger = MutableLiveData(0)
 

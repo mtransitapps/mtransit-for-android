@@ -97,13 +97,15 @@ object BatteryOptimizationIssueUtils {
     fun openDeviceCare(
         activity: Activity,
         @SamsungDeviceCareActivityType activityType: Int? = null,
-    ) {
-        LinkUtils.open(
+    ): Boolean {
+        return LinkUtils.open(
             activity,
             Intent(SAMSUNG_DEVICE_CARE_ACTION).apply {
                 setPackage(SAMSUNG_DEVICE_CARE_PKG)
                 activityType?.let { putExtra(SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE, it) }
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                this.flags = Intent.FLAG_ACTIVITY_NEW_TASK or // make sure it does NOT open in the stack of your activity
+                        Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED or // task re-parenting if needed
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP // make sure it opens on app page even if already open in search result
             },
             activity.getString(R.string.samsung_device_care),
             false,

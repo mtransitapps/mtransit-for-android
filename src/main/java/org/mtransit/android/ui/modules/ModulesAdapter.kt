@@ -2,9 +2,11 @@ package org.mtransit.android.ui.modules
 
 import android.annotation.SuppressLint
 import android.graphics.Typeface
+import android.os.PowerManager
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.content.getSystemService
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -13,6 +15,7 @@ import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.ThreadSafeDateFormatter
 import org.mtransit.android.commons.TimeUtils
+import org.mtransit.android.commons.isIgnoringBatteryOpt
 import org.mtransit.android.data.AgencyProperties
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.databinding.LayoutModulesItemBinding
@@ -55,7 +58,9 @@ class ModulesAdapter :
                 text = item?.let {
                     "${
                         if (it.updateAvailable) "(UPDATE: r${it.availableVersionCode}) " else ""
-                    }${it.shortName} ${context.getString(it.type.shortNameResId)}"
+                    }${it.getShortNameAndType(context)}${
+                        if (context.getSystemService<PowerManager>()?.isIgnoringBatteryOpt(it.pkg) == true) " (Battery: Unrestricted)" else ""
+                    }"
                 }
                 typeface = if (item?.updateAvailable == true) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
             }
@@ -79,6 +84,7 @@ class ModulesAdapter :
                             isVisible = true
                         }
                     }
+
                     it.maxValidSec == 0 -> {
                         binding.statusLine1.apply {
                             text = "∞"
@@ -91,6 +97,7 @@ class ModulesAdapter :
                             isVisible = true
                         }
                     }
+
                     else -> {
                         val maxValidMs = it.maxValidSec * 1000L
                         val diffInDays = TimeUnit.MILLISECONDS.toDays(maxValidMs - TimeUtils.currentTimeMillis()).toInt()
@@ -101,30 +108,37 @@ class ModulesAdapter :
                                 colorInt = ContextCompat.getColor(context, R.color.green_cf)
                                 tf = Typeface.DEFAULT
                             }
+
                             diffInDays > 14 -> { // 2 WEEKS - 1 YEAR
                                 colorInt = ContextCompat.getColor(context, R.color.green_cf)
                                 tf = Typeface.DEFAULT_BOLD
                             }
+
                             diffInDays > 7 -> { // 1 WEEK - 2 WEEKS
                                 colorInt = ContextCompat.getColor(context, R.color.yellow_cf)
                                 tf = Typeface.DEFAULT_BOLD
                             }
+
                             diffInDays > 4 -> { // 4 DAYS - 7 DAYS
                                 colorInt = ContextCompat.getColor(context, R.color.orange_cf)
                                 tf = Typeface.DEFAULT_BOLD
                             }
+
                             diffInDays > 2 -> { // 2 DAYS - 4 DAYS
                                 colorInt = ContextCompat.getColor(context, R.color.orange_cf)
                                 tf = Typeface.DEFAULT_BOLD
                             }
+
                             diffInDays > 0 -> { // 0 DAYS - 2 DAYS
                                 colorInt = ContextCompat.getColor(context, R.color.red_cf)
                                 tf = Typeface.DEFAULT_BOLD
                             }
+
                             diffInDays <= 0 -> { // ... - 0 DAYS
                                 colorInt = ContextCompat.getColor(context, R.color.red_cf)
                                 tf = Typeface.DEFAULT_BOLD
                             }
+
                             else -> {
                                 colorInt = ColorUtils.getTextColorPrimary(context)
                                 tf = Typeface.DEFAULT

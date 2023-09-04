@@ -1,7 +1,6 @@
 @file:JvmName("FavoritesFragment") // ANALYTICS
 package org.mtransit.android.ui.favorites
 
-import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.location.Location
@@ -9,9 +8,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.MotionEvent
 import android.view.View
-import android.widget.PopupWindow
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -20,10 +17,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
+import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.StoreUtils
-import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentFavoritesBinding
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -40,6 +38,7 @@ import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
@@ -50,6 +49,8 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), DeviceLocatio
         private val LOG_TAG = FavoritesFragment::class.java.simpleName
 
         private const val TRACKING_SCREEN_NAME = "Favorites"
+
+        private const val IN_APP_NOTIFICATION_MODULE_DISABLED = 1
 
         @JvmStatic
         fun newInstance(): FavoritesFragment {
@@ -92,9 +93,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), DeviceLocatio
     lateinit var serviceUpdateLoader: ServiceUpdateLoader
 
     private var binding: FragmentFavoritesBinding? = null
-
-    private var moduleDisabledToast: PopupWindow? = null
-    private var toastShown: Boolean = false
 
     private val adapter: POIArrayAdapter by lazy {
         POIArrayAdapter(
@@ -191,63 +189,52 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), DeviceLocatio
     override fun onPause() {
         super.onPause()
         adapter.onPause()
-        hideModuleDisabledToast()
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    private fun makeModuleDisabledToast(): PopupWindow? {
-        return ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, R.string.module_disabled_toast)?.apply {
-            setTouchInterceptor { _, me ->
-                when (me.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        var handled = false
-                        attachedViewModel?.moduleDisabled?.value?.let { moduleDisabled ->
-                            if (moduleDisabled.isNotEmpty()) {
-                                val firstDisabledPkg = moduleDisabled.first().pkg
-                                activity?.let {
-                                    StoreUtils.viewAppPage(
-                                        it,
-                                        firstDisabledPkg,
-                                        it.getString(org.mtransit.android.commons.R.string.google_play)
-                                    )
-                                }
-                            }
-                            handled = true
-                        }
-                        hideModuleDisabledToast()
-                        handled
-                    }
-
-                    else -> false // not handled
-                }
-            }
-            setOnDismissListener {
-                toastShown = false
-            }
-        }
-    }
 
     private fun showModuleDisabledToast() {
-        if (this.toastShown) {
-            return // SKIP
-        }
-        if (!isResumed) {
-            return // SKIP
-        }
-        (this.moduleDisabledToast ?: makeModuleDisabledToast().also { this.moduleDisabledToast = it })
-            ?.let { locationToast ->
-                this.toastShown = ToastUtils.showTouchableToastPx(
-                    activity,
-                    locationToast,
-                    view,
-                    attachedViewModel?.getAdBannerHeightInPx(this) ?: 0
+        val context = context ?: return
+        val firstDisabledAgency = this.viewModel.moduleDisabled.value?.firstOrNull { !PackageManagerUtils.isAppEnabled(context, it.pkg) }
+        val labelText =
+            firstDisabledAgency?.let { agency ->
+                context.getString(
+                    R.string.module_disabled_in_app_notif_label_and_agency,
+                    agency.getShortNameAndType(context)
                 )
+            } ?: context.getText(R.string.module_disabled_in_app_notif_label)
+        showInAppNotification(
+            firstDisabledAgency?.pkg?.hashCode() ?: IN_APP_NOTIFICATION_MODULE_DISABLED, // TODO dynamic IDs?
+            activity,
+            view,
+            attachedViewModel?.getAdBannerHeightInPx(this) ?: 0,
+            labelText,
+            context.getText(R.string.module_disabled_in_app_notif_action),
+        ) {
+            attachedViewModel?.moduleDisabled?.value?.let { moduleDisabled ->
+                if (moduleDisabled.isNotEmpty()) {
+                    val firstDisabledPkg = moduleDisabled.first().pkg
+                    activity?.let {
+                        return@showInAppNotification if (BuildConfig.DEBUG && BatteryOptimizationIssueUtils.isSamsungDevice()) {
+                            BatteryOptimizationIssueUtils.openDeviceCare(
+                                it,
+                                BatteryOptimizationIssueUtils.SAMSUNG_DEVICE_CARE_EXTRA_ACTIVITY_TYPE_APP_SLEEPING_DEEP
+                            )
+                        } else {
+                            StoreUtils.viewAppPage(
+                                it,
+                                firstDisabledPkg,
+                                it.getString(org.mtransit.android.commons.R.string.google_play)
+                            )
+                        }
+                    }
+                }
             }
+            false // not handled
+        }
     }
 
     private fun hideModuleDisabledToast() {
-        this.moduleDisabledToast?.dismiss()
-        this.toastShown = false
+        hideAllInAppNotifications() // TODO dynamic IDs? hideInAppNotification(IN_APP_NOTIFICATION_MODULE_DISABLED)
     }
 
     override fun onLocationSettingsResolution(resolution: PendingIntent?) {
@@ -278,8 +265,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites), DeviceLocatio
     override fun onDestroyView() {
         super.onDestroyView()
         hideModuleDisabledToast()
-        this.moduleDisabledToast = null
-        this.toastShown = false
         adapter.onDestroyView()
         binding = null
     }

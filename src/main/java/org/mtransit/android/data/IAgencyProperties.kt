@@ -1,5 +1,6 @@
 package org.mtransit.android.data
 
+import android.content.Context
 import java.util.Locale
 
 interface IAgencyProperties {
@@ -36,4 +37,8 @@ interface IAgencyProperties {
     val isRTS: Boolean
 
     val shortName: String
+
+    fun getShortNameAndType(context: Context): String {
+        return "$shortName ${context.getString(type.shortNameResId)}"
+    }
 }

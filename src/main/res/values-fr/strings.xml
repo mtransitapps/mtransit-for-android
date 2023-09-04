@@ -111,7 +111,9 @@
     <string name="favorite_folder_pick_cancel">Annuler</string>
     <string name="favorite_folder_default">(défaut)</string>
     <string name="location_settings_toast">Paramètre de localisation de l\'appareil désactivé. ACTIVER.</string>
-    <string name="module_disabled_toast">&#9888; Agence désactivée. CORRIGER.</string>
+    <string name="module_disabled_in_app_notif_label">&#9888; Agence désactivée.</string>
+    <string name="module_disabled_in_app_notif_label_and_agency">&#9888; %s désactivé.</string>
+    <string name="module_disabled_in_app_notif_action">CORRIGER</string>
     <string name="samsung_device_care">Entretien de l\'appareil (Samsung)</string>
     <string name="new_location_toast">Nouvelle position. RAFRAICHIR.</string>
     <string name="no_results">Aucun Résultats</string>

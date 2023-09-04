@@ -1204,10 +1204,9 @@ public class POIFragment extends ABFragment implements
 			final Resources resources = appWasDisabledLayout.getContext().getResources();
 			final TextView appWasDisabledTitleTv = appWasDisabledLayout.findViewById(R.id.appWasDisabledTitle);
 			final TextView appWasDisabledBtn = appWasDisabledLayout.findViewById(R.id.appWasDisabledBtn);
-			//noinspection deprecation
 			final int agencyCount = this.dataSourcesRepository.getAllAgenciesCount();
 			appWasDisabledTitleTv.setText(resources.getQuantityString(R.plurals.app_disabled_issue_title, agencyCount, agencyCount));
-			appWasDisabledBtn.setText(resources.getText(R.string.battery_optimization_samsung_use_device_care));
+			appWasDisabledBtn.setText(R.string.battery_optimization_samsung_use_device_care);
 			if (appWasDisabledLayout.getVisibility() != View.VISIBLE) {
 				appWasDisabledLayout.setVisibility(View.VISIBLE);
 				this.analyticsManager.logEvent(AnalyticsEvents.SHOWED_APP_WAS_DISABLED_POI, null);

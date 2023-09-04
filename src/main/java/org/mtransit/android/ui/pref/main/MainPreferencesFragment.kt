@@ -34,7 +34,6 @@ import org.mtransit.android.ui.feedback.FeedbackDialog
 import org.mtransit.android.ui.modules.ModulesActivity
 import org.mtransit.android.ui.pref.PreferencesViewModel
 import org.mtransit.android.ui.view.common.ImageManager
-import org.mtransit.android.ui.view.common.setTextText
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import org.mtransit.android.util.FragmentUtils
 import org.mtransit.android.util.LanguageManager
@@ -275,11 +274,11 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
                 }
             }
             findViewById<TextView>(R.id.battery_optimization_issue_custom).apply {
-                if (BatteryOptimizationIssueUtils.isSamsungDevice()) {
-                    setTextText(R.string.battery_optimization_samsung_use_device_care)
-                    isVisible = true
+                isVisible = if (BatteryOptimizationIssueUtils.isSamsungDevice()) {
+                    setText(R.string.battery_optimization_samsung_use_device_care)
+                    true
                 } else {
-                    isVisible = false
+                    false
                 }
             }
         }
