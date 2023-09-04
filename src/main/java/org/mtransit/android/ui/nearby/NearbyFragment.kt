@@ -34,6 +34,8 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareFragment
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI
+import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
+import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareFragment
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
 import org.mtransit.android.ui.main.MainViewModel
@@ -50,6 +52,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
     DeviceLocationListener,
     NewLocationAwareFragment,
     LocationSettingsAwareFragment,
+    ModuleDisabledAwareFragment,
     MenuProvider {
 
     companion object {
@@ -252,6 +255,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             setupTabTheme()
         }
         LocationSettingsUI.onViewCreated(this)
+        ModuleDisabledUI.onViewCreated(this)
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             if (FeatureFlags.F_NAVIGATION) {

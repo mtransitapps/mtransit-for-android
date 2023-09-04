@@ -32,6 +32,8 @@ import org.mtransit.android.ui.MTDialog
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareFragment
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI
+import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
+import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.view.MapViewController
 import org.mtransit.android.ui.view.common.isAttached
 import javax.inject.Inject
@@ -40,6 +42,7 @@ import javax.inject.Inject
 class MapFragment : ABFragment(R.layout.fragment_map),
     DeviceLocationListener,
     LocationSettingsAwareFragment,
+    ModuleDisabledAwareFragment,
     MenuProvider {
 
     companion object {
@@ -190,6 +193,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
             mapViewController.onDeviceLocationChanged(it)
         }
         LocationSettingsUI.onViewCreated(this)
+        ModuleDisabledUI.onViewCreated(this)
         viewModel.filterTypeIds.observe(viewLifecycleOwner) {
             abController?.setABTitle(this, getABTitle(context), true)
         }

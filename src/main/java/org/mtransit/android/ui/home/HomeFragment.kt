@@ -38,6 +38,8 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.fragment.POIFragment
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareFragment
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI
+import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
+import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareFragment
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
 import org.mtransit.android.ui.main.MainViewModel
@@ -57,6 +59,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     DeviceLocationListener,
     NewLocationAwareFragment,
     LocationSettingsAwareFragment,
+    ModuleDisabledAwareFragment,
     MenuProvider {
 
     companion object {
@@ -235,6 +238,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             }
         }
         NewLocationUI.onViewCreated(this)
+        ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
                 if (scroll) {

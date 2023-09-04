@@ -1,6 +1,7 @@
 package org.mtransit.android.ui.home
 
 import android.app.PendingIntent
+import android.content.Context
 import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,6 +11,7 @@ import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -19,6 +21,7 @@ import kotlinx.coroutines.launch
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.commons.provider.GTFSProviderContract
@@ -38,6 +41,7 @@ import org.mtransit.android.provider.location.MTLocationProvider
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.favorites.FavoritesViewModel
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
+import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.IActivity
@@ -48,6 +52,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    @ApplicationContext appContext: Context,
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val locationProvider: MTLocationProvider,
@@ -56,7 +61,8 @@ class HomeViewModel @Inject constructor(
     private val demoModeManager: DemoModeManager,
 ) : MTViewModelWithLocation(),
     NewLocationAwareViewModel,
-    LocationSettingsAwareViewModel {
+    LocationSettingsAwareViewModel,
+    ModuleDisabledAwareViewModel {
 
     companion object {
         private val LOG_TAG = HomeViewModel::class.java.simpleName
@@ -347,7 +353,13 @@ class HomeViewModel @Inject constructor(
         return true
     }
 
-    override fun getAdBannerHeightInPx(activity: IActivity?): Int {
-        return this.adManager.getBannerHeightInPx(activity)
+    override fun getAdBannerHeightInPx(activity: IActivity?) = this.adManager.getBannerHeightInPx(activity)
+
+    override val moduleDisabled = this.dataSourcesRepository.readingAllAgenciesBase().map {
+        it.filter { agency -> !agency.isEnabled }
+    }.distinctUntilChanged()
+
+    override val hasDisabledModule = moduleDisabled.map {
+        it.any { agency -> !PackageManagerUtils.isAppEnabled(appContext, agency.pkg) }
     }
 }

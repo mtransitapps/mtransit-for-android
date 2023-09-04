@@ -25,6 +25,8 @@ import org.mtransit.android.data.authorityAndUuidT
 import org.mtransit.android.databinding.FragmentNewsListDetailsBinding
 import org.mtransit.android.ui.TwoPaneOnBackPressedCallback
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
+import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.news.pager.NewsPagerAdapter
 import org.mtransit.android.ui.view.common.EventObserver
@@ -36,7 +38,8 @@ import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
+class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
+    ModuleDisabledAwareFragment {
 
     companion object {
         private val LOG_TAG = NewsListDetailFragment::class.java.simpleName
@@ -140,8 +143,8 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
     @Inject
     lateinit var analyticsManager: AnalyticsManager
 
-    private val viewModel by viewModels<NewsListViewModel>()
-    private val attachedViewModel
+    override val viewModel by viewModels<NewsListViewModel>()
+    override val attachedViewModel
         get() = if (isAttached()) viewModel else null
 
     private val mainViewModel by activityViewModels<MainViewModel>()
@@ -319,15 +322,16 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details) {
                 }
             }
         }
-        viewModel.selectedNewsArticleAuthorityAndUUID.observe(viewLifecycleOwner) { _authorityAndUuid ->
-            if (_authorityAndUuid?.isValid() == false) {
+        viewModel.selectedNewsArticleAuthorityAndUUID.observe(viewLifecycleOwner) { newAuthorityAndUuid ->
+            if (newAuthorityAndUuid?.isValid() == false) {
                 return@observe
             }
-            listAdapter.setSelectedArticle(_authorityAndUuid)
+            listAdapter.setSelectedArticle(newAuthorityAndUuid)
             analyticsManager.trackScreenView(this@NewsListDetailFragment, this@NewsListDetailFragment)
-            val authorityAndUuid = _authorityAndUuid ?: return@observe
+            val authorityAndUuid = newAuthorityAndUuid ?: return@observe
             selectPagerNewsArticle(authorityAndUuid)
         }
+        ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
                 if (scroll) {

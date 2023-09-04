@@ -170,7 +170,5 @@ class FavoritesViewModel @Inject constructor(
         }
     }
 
-    override fun getAdBannerHeightInPx(activity: IActivity?): Int {
-        return this.adManager.getBannerHeightInPx(activity)
-    }
+    override fun getAdBannerHeightInPx(activity: IActivity?) = this.adManager.getBannerHeightInPx(activity)
 }

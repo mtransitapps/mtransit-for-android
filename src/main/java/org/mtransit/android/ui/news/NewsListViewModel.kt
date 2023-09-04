@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.news
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -9,13 +10,18 @@ import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import org.mtransit.android.ad.AdManager
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
+import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
+import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
@@ -23,10 +29,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewsListViewModel @Inject constructor(
+    @ApplicationContext appContext: Context,
     private val savedStateHandle: SavedStateHandle,
     private val newsRepository: NewsRepository,
     private val dataSourcesRepository: DataSourcesRepository,
-) : ViewModel(), MTLog.Loggable {
+    private val adManager: AdManager,
+) : ViewModel(),
+    ModuleDisabledAwareViewModel,
+    MTLog.Loggable {
 
     companion object {
         private val LOG_TAG = NewsListViewModel::class.java.simpleName
@@ -107,6 +117,7 @@ class NewsListViewModel @Inject constructor(
                 context = viewModelScope.coroutineContext + Dispatchers.IO,
             )
         }
+
     fun cleanSelectedNewsArticle() = onNewsArticleSelected(null)
 
     fun onNewsArticleSelected(newAuthorityAndUuid: AuthorityAndUuid?) {
@@ -125,5 +136,15 @@ class NewsListViewModel @Inject constructor(
         if (newAuthorityAndUuid != null) {
             this._lastReadArticleAuthorityAndUUID.value = newAuthorityAndUuid
         }
+    }
+
+    override fun getAdBannerHeightInPx(activity: IActivity?) = this.adManager.getBannerHeightInPx(activity)
+
+    override val moduleDisabled = this.dataSourcesRepository.readingAllAgenciesBase().map {
+        it.filter { agency -> !agency.isEnabled }
+    }.distinctUntilChanged()
+
+    override val hasDisabledModule = moduleDisabled.map {
+        it.any { agency -> !PackageManagerUtils.isAppEnabled(appContext, agency.pkg) }
     }
 }
