@@ -1,7 +1,6 @@
 @file:JvmName("FavoritesFragment") // ANALYTICS
 package org.mtransit.android.ui.favorites
 
-import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.location.Location
@@ -33,7 +32,7 @@ import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
-import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareUI
+import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.isAttached
@@ -157,7 +156,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         viewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             adapter.setLocation(deviceLocation)
         }
-        ModuleDisabledAwareUI.onViewCreated(this)
+        ModuleDisabledUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
                 if (scroll) {
@@ -186,18 +185,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         adapter.onPause()
     }
 
-    override fun showInAppNotification(
-        notificationId: Int,
-        activity: Activity?,
-        view: View?,
-        additionalBottomMarginInPx: Int,
-        labelText: CharSequence,
-        actionText: CharSequence?,
-        onActionClick: View.OnLongClickListener?
-    ) = super.showInAppNotification(notificationId, activity, view, additionalBottomMarginInPx, labelText, actionText, onActionClick)
-
-    override fun hideAllInAppNotifications() = super.hideAllInAppNotifications()
-
     override fun onLocationSettingsResolution(resolution: PendingIntent?) {
         attachedViewModel?.onLocationSettingsResolution(resolution)
     }
@@ -225,7 +212,6 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
 
     override fun onDestroyView() {
         super.onDestroyView()
-        ModuleDisabledAwareUI.onDestroyView(this)
         adapter.onDestroyView()
         binding = null
     }

@@ -27,6 +27,7 @@ import org.mtransit.android.provider.location.MTLocationProvider
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTViewModelWithLocation
+import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
@@ -44,7 +45,8 @@ class NearbyViewModel @Inject constructor(
     private val lclPrefRepository: LocalPreferenceRepository,
     private val statusLoader: StatusLoader,
     private val serviceUpdateLoader: ServiceUpdateLoader,
-) : MTViewModelWithLocation() {
+) : MTViewModelWithLocation(),
+    LocationSettingsAwareViewModel {
 
     companion object {
         private val LOG_TAG = NearbyViewModel::class.java.simpleName
@@ -111,12 +113,12 @@ class NearbyViewModel @Inject constructor(
         return lastDeviceLocation
     }
 
-    val locationSettingsNeededResolution: LiveData<PendingIntent?> =
+    override val locationSettingsNeededResolution: LiveData<PendingIntent?> =
         PairMediatorLiveData(nearbyLocation, locationSettingsResolution).map { (nearbyLocation, resolution) ->
             if (nearbyLocation != null) null else resolution
         } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
-    val locationSettingsNeeded: LiveData<Boolean> = locationSettingsNeededResolution.map {
+    override val locationSettingsNeeded: LiveData<Boolean> = locationSettingsNeededResolution.map {
         it != null
     } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
@@ -214,7 +216,7 @@ class NearbyViewModel @Inject constructor(
         return true
     }
 
-    fun getAdBannerHeightInPx(activity: IActivity?): Int {
+    override fun getAdBannerHeightInPx(activity: IActivity?): Int {
         return this.adManager.getBannerHeightInPx(activity)
     }
 }

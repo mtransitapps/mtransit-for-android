@@ -36,6 +36,8 @@ import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareFragment
+import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI
 import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
@@ -46,7 +48,10 @@ import org.mtransit.android.util.MapUtils
 import org.mtransit.commons.FeatureFlags
 
 @AndroidEntryPoint
-class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListener, MenuProvider {
+class NearbyFragment : ABFragment(R.layout.fragment_nearby),
+    DeviceLocationListener,
+    LocationSettingsAwareFragment,
+    MenuProvider {
 
     companion object {
         private val LOG_TAG = NearbyFragment::class.java.simpleName
@@ -159,8 +164,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
 
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
-    private val viewModel by viewModels<NearbyViewModel>()
-    private val attachedViewModel
+    override val viewModel by viewModels<NearbyViewModel>()
+    override val attachedViewModel
         get() = if (isAttached()) viewModel else null
     private val mainViewModel by activityViewModels<MainViewModel>()
 
@@ -171,7 +176,6 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
     private var lastPageSelected = -1
     private var selectedPosition = -1
 
-    private var locationSettingsToast: PopupWindow? = null
     private var newLocationToast: PopupWindow? = null
     private var toastShown: Boolean = false
 
@@ -251,13 +255,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
             }
             setupTabTheme()
         }
-        viewModel.locationSettingsNeeded.observe(viewLifecycleOwner) { needed ->
-            if (needed == true) {
-                showLocationSettingsToast()
-            } else {
-                hideLocationSettingsToast()
-            }
-        }
+        LocationSettingsUI.onViewCreated(this)
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             if (FeatureFlags.F_NAVIGATION) {
@@ -276,30 +274,6 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun makeLocationSettingsToast(): PopupWindow? {
-        return ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, R.string.location_settings_toast)?.apply {
-            setTouchInterceptor { _, me ->
-                when (me.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        var handled = false
-                        attachedViewModel?.locationSettingsNeededResolution?.value?.let { pendingIntent ->
-                            @Suppress("DEPRECATION")
-                            activity?.startIntentSenderForResult(pendingIntent.intentSender, 101, null, 0, 0, 0)
-                            handled = true
-                        }
-                        hideLocationSettingsToast()
-                        handled
-                    }
-                    else -> false // not handled
-                }
-            }
-            setOnDismissListener {
-                toastShown = false
-            }
-        }
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
     private fun makeNewLocationToast(): PopupWindow? {
         return ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, R.string.new_location_toast)?.apply {
             setTouchInterceptor { _, me ->
@@ -309,6 +283,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
                         hideNewLocationToast()
                         handled
                     }
+
                     else -> false // not handled
                 }
             }
@@ -316,24 +291,6 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
                 toastShown = false
             }
         }
-    }
-
-    private fun showLocationSettingsToast() {
-        if (this.toastShown) {
-            return // SKIP
-        }
-        if (!isResumed) {
-            return // SKIP
-        }
-        (this.locationSettingsToast ?: makeLocationSettingsToast().also { this.locationSettingsToast = it })
-            ?.let { locationToast ->
-                this.toastShown = ToastUtils.showTouchableToastPx(
-                    activity,
-                    locationToast,
-                    view,
-                    attachedViewModel?.getAdBannerHeightInPx(this) ?: 0
-                )
-            }
     }
 
     private fun showNewLocationToast() {
@@ -352,11 +309,6 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
                     attachedViewModel?.getAdBannerHeightInPx(this) ?: 0
                 )
             }
-    }
-
-    private fun hideLocationSettingsToast() {
-        this.locationSettingsToast?.dismiss()
-        this.toastShown = false
     }
 
     private fun hideNewLocationToast() {
@@ -381,12 +333,14 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
                     tabs.isVisible = false
                     loadingLayout.isVisible = true
                 }
+
                 pagerAdapter?.itemCount == 0 -> { // EMPTY
                     loadingLayout.isVisible = false
                     viewPager.isVisible = false
                     tabs.isVisible = false
                     emptyLayout.isVisible = true
                 }
+
                 else -> { // LOADED
                     loadingLayout.isVisible = false
                     emptyLayout.isVisible = false
@@ -449,6 +403,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
                     true // handled
                 } ?: false // not handled
             }
+
             R.id.nav_map_custom -> {
                 val locationPick = viewModel.fixedOnLocation.value ?: viewModel.nearbyLocation.value ?: viewModel.deviceLocation.value
                 locationPick?.let { location ->
@@ -462,6 +417,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
                     true // handled
                 } ?: false // not handled
             }
+
             else -> false // not handled
         }
     }
@@ -483,7 +439,6 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
 
     override fun onPause() {
         super.onPause()
-        hideLocationSettingsToast()
         hideNewLocationToast()
     }
 
@@ -501,9 +456,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby), DeviceLocationListe
 
     override fun onDestroyView() {
         super.onDestroyView()
-        hideLocationSettingsToast()
         hideNewLocationToast()
-        this.locationSettingsToast = null
         this.newLocationToast = null
         this.toastShown = false
         binding?.viewPager?.unregisterOnPageChangeCallback(onPageChangeCallback)

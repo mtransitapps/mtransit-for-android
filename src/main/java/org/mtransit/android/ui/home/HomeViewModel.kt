@@ -37,6 +37,7 @@ import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.location.MTLocationProvider
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.favorites.FavoritesViewModel
+import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
@@ -52,7 +53,8 @@ class HomeViewModel @Inject constructor(
     private val favoriteRepository: FavoriteRepository,
     private val adManager: IAdManager,
     private val demoModeManager: DemoModeManager,
-) : MTViewModelWithLocation() {
+) : MTViewModelWithLocation(),
+    LocationSettingsAwareViewModel {
 
     companion object {
         private val LOG_TAG = HomeViewModel::class.java.simpleName
@@ -93,12 +95,12 @@ class HomeViewModel @Inject constructor(
         return lastDeviceLocation
     }
 
-    val locationSettingsNeededResolution: LiveData<PendingIntent?> =
+    override val locationSettingsNeededResolution: LiveData<PendingIntent?> =
         PairMediatorLiveData(_nearbyLocation, locationSettingsResolution).map { (nearbyLocation, resolution) ->
             if (nearbyLocation != null) null else resolution
         } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
-    val locationSettingsNeeded: LiveData<Boolean> = locationSettingsNeededResolution.map {
+    override val locationSettingsNeeded: LiveData<Boolean> = locationSettingsNeededResolution.map {
         it != null
     } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
@@ -285,6 +287,7 @@ class HomeViewModel @Inject constructor(
                 && LocationUtils.getAroundCoveredDistanceInMeters(typeLat, typeLng, typeAd.aroundDiff) >= typeMinCoverageInMeters -> {
             false  // enough POIs / type & enough distance covered
         }
+
         else -> true  // continue
     }
 
@@ -342,7 +345,7 @@ class HomeViewModel @Inject constructor(
         return true
     }
 
-    fun getAdBannerHeightInPx(activity: IActivity?): Int {
+    override fun getAdBannerHeightInPx(activity: IActivity?): Int {
         return this.adManager.getBannerHeightInPx(activity)
     }
 }

@@ -40,6 +40,8 @@ import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.fragment.POIFragment
+import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareFragment
+import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI
 import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
@@ -53,7 +55,10 @@ import javax.inject.Inject
 import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
-class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener, MenuProvider {
+class HomeFragment : ABFragment(R.layout.fragment_home),
+    DeviceLocationListener,
+    LocationSettingsAwareFragment,
+    MenuProvider {
 
     companion object {
         private val LOG_TAG = HomeFragment::class.java.simpleName
@@ -70,8 +75,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
 
     override fun getScreenName(): String = TRACKING_SCREEN_NAME
 
-    private val viewModel by viewModels<HomeViewModel>()
-    private val attachedViewModel
+    override val viewModel by viewModels<HomeViewModel>()
+    override val attachedViewModel
         get() = if (isAttached()) viewModel else null
     private val mainViewModel by activityViewModels<MainViewModel>()
 
@@ -101,7 +106,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
 
     private var binding: FragmentHomeBinding? = null
 
-    private var locationSettingsToast: PopupWindow? = null
     private var newLocationToast: PopupWindow? = null
     private var toastShown: Boolean = false
 
@@ -196,13 +200,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
                 }
             }
         }
-        viewModel.locationSettingsNeeded.observe(viewLifecycleOwner) { needed ->
-            if (needed == true) {
-                showLocationSettingsToast()
-            } else {
-                hideLocationSettingsToast()
-            }
-        }
+        LocationSettingsUI.onViewCreated(this)
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
             adapter.setLocation(it)
         }
@@ -310,33 +308,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
     override fun onPause() {
         super.onPause()
         this.adapter.onPause()
-        hideLocationSettingsToast()
         hideNewLocationToast()
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private fun makeLocationSettingsToast(): PopupWindow? {
-        return ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, R.string.location_settings_toast)?.apply {
-            setTouchInterceptor { _, me ->
-                when (me.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        var handled = false
-                        attachedViewModel?.locationSettingsNeededResolution?.value?.let { pendingIntent ->
-                            @Suppress("DEPRECATION")
-                            activity?.startIntentSenderForResult(pendingIntent.intentSender, 101, null, 0, 0, 0)
-                            handled = true
-                        }
-                        hideLocationSettingsToast()
-                        handled
-                    }
-
-                    else -> false // not handled
-                }
-            }
-            setOnDismissListener {
-                toastShown = false
-            }
-        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -359,24 +331,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
         }
     }
 
-    private fun showLocationSettingsToast() {
-        if (this.toastShown) {
-            return // SKIP
-        }
-        if (!isResumed) {
-            return // SKIP
-        }
-        (this.locationSettingsToast ?: makeLocationSettingsToast().also { this.locationSettingsToast = it })
-            ?.let { locationToast ->
-                this.toastShown = ToastUtils.showTouchableToastPx(
-                    activity,
-                    locationToast,
-                    view,
-                    attachedViewModel?.getAdBannerHeightInPx(this) ?: 0
-                )
-            }
-    }
-
     private fun showNewLocationToast() {
         if (this.toastShown) {
             return // SKIP
@@ -393,11 +347,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
                     attachedViewModel?.getAdBannerHeightInPx(this) ?: 0
                 )
             }
-    }
-
-    private fun hideLocationSettingsToast() {
-        this.locationSettingsToast?.dismiss()
-        this.toastShown = false
     }
 
     private fun hideNewLocationToast() {
@@ -430,6 +379,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
                     true // handled
                 }
             }
+
             else -> false // not handled
         }
     }
@@ -441,9 +391,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home), DeviceLocationListener,
 
     override fun onDestroyView() {
         super.onDestroyView()
-        hideLocationSettingsToast()
         hideNewLocationToast()
-        this.locationSettingsToast = null
         this.newLocationToast = null
         this.toastShown = false
         adapter.onDestroyView()

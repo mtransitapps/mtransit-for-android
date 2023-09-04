@@ -22,5 +22,7 @@ interface InAppNotificationFragment : IActivity {
         onActionClick: View.OnLongClickListener?,
     )
 
+    fun hideInAppNotification(notificationId: Int)
+
     fun hideAllInAppNotifications()
 }

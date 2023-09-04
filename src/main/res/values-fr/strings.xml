@@ -110,7 +110,8 @@
     <string name="favorite_folder_pick_ok">OK</string>
     <string name="favorite_folder_pick_cancel">Annuler</string>
     <string name="favorite_folder_default">(défaut)</string>
-    <string name="location_settings_toast">Paramètre de localisation de l\'appareil désactivé. ACTIVER.</string>
+    <string name="location_settings_in_app_notification_label">Paramètre de localisation de l\'appareil désactivé.</string>
+    <string name="location_settings_in_app_notification_action">ACTIVER</string>
     <string name="module_disabled_in_app_notification_label">&#9888; Agence désactivée.</string>
     <string name="module_disabled_in_app_notification_label_and_agency">&#9888; %s désactivé.</string>
     <string name="module_disabled_in_app_notification_action">CORRIGER</string>

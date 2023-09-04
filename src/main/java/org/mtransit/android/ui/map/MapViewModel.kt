@@ -29,6 +29,8 @@ import org.mtransit.android.data.IAgencyNearbyUIProperties
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
+import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareFragment
+import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
 import org.mtransit.android.ui.view.MapViewController.POIMarker
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.IActivity
@@ -49,7 +51,8 @@ class MapViewModel @Inject constructor(
     private val poiRepository: POIRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val adManager: AdManager,
-) : MTViewModelWithLocation() {
+) : MTViewModelWithLocation(),
+    LocationSettingsAwareViewModel {
 
     companion object {
         private val LOG_TAG = MapViewModel::class.java.simpleName
@@ -68,16 +71,16 @@ class MapViewModel @Inject constructor(
         savedStateHandle[EXTRA_INITIAL_LOCATION] = null // set once only
     }
 
-    val locationSettingsNeededResolution: LiveData<PendingIntent?> =
+    override val locationSettingsNeededResolution: LiveData<PendingIntent?> =
         PairMediatorLiveData(deviceLocation, locationSettingsResolution).map { (deviceLocation, resolution) ->
             if (deviceLocation != null) null else resolution
         } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
-    val locationSettingsNeeded: LiveData<Boolean> = locationSettingsNeededResolution.map {
+    override val locationSettingsNeeded: LiveData<Boolean> = locationSettingsNeededResolution.map {
         it != null
     } // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
 
-    fun getAdBannerHeightInPx(activity: IActivity?): Int {
+    override fun getAdBannerHeightInPx(activity: IActivity?): Int {
         return this.adManager.getBannerHeightInPx(activity)
     }
 
