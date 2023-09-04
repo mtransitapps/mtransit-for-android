@@ -28,7 +28,8 @@
                 app:uiTiltGestures="false"
                 app:uiZoomControls="false"
                 app:uiZoomGestures="false"
-                tools:visibility="invisible" />
+                tools:background="@drawable/map_normal"
+                tools:visibility="visible" />
 
             <!-- TODO: keep view stub? (multiple layouts) -->
             <ViewStub
@@ -36,7 +37,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/list_view_item_height"
                 android:inflatedId="@+id/this_poi"
-                tools:layout="@layout/layout_poi_basic" />
+                tools:layout="@layout/layout_poi_rts"
+                tools:visibility="visible" />
 
             <!-- TODO: keep view stub? (multiple layouts) -->
             <ViewStub
@@ -44,7 +46,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inflatedId="@+id/poi_status_detail"
-                tools:layout="@layout/layout_poi_detail_status_app" />
+                tools:layout="@layout/layout_poi_detail_status_schedule"
+                tools:visibility="visible" />
 
             <include
                 android:id="@+id/poi_service_update"
