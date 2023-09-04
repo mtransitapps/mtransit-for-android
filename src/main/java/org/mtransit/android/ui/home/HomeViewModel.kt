@@ -38,6 +38,7 @@ import org.mtransit.android.provider.location.MTLocationProvider
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.favorites.FavoritesViewModel
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
+import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
@@ -54,6 +55,7 @@ class HomeViewModel @Inject constructor(
     private val adManager: IAdManager,
     private val demoModeManager: DemoModeManager,
 ) : MTViewModelWithLocation(),
+    NewLocationAwareViewModel,
     LocationSettingsAwareViewModel {
 
     companion object {
@@ -116,7 +118,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    val newLocationAvailable: LiveData<Boolean?> =
+    override val newLocationAvailable: LiveData<Boolean?> =
         PairMediatorLiveData(_nearbyLocation, deviceLocation).map { (nearbyLocation, newDeviceLocation) ->
             if (nearbyLocation == null) {
                 null // not new if current unknown
@@ -331,7 +333,7 @@ class HomeViewModel @Inject constructor(
         return typePOIs
     }
 
-    fun initiateRefresh(): Boolean {
+    override fun initiateRefresh(): Boolean {
         val newDeviceLocation = this.deviceLocation.value ?: return false
         val currentNearbyLocation = this._nearbyLocation.value
         if (!IGNORE_SAME_LOCATION_CHECK

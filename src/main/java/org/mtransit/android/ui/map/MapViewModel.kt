@@ -29,7 +29,6 @@ import org.mtransit.android.data.IAgencyNearbyUIProperties
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.ui.MTViewModelWithLocation
-import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareFragment
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
 import org.mtransit.android.ui.view.MapViewController.POIMarker
 import org.mtransit.android.ui.view.common.Event

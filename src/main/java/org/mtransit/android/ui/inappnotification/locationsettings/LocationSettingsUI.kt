@@ -18,7 +18,8 @@ object LocationSettingsUI : InAppNotificationUI<LocationSettingsAwareFragment> {
     override fun getLabelText(fragment: LocationSettingsAwareFragment, context: Context) =
         context.getText(R.string.location_settings_in_app_notification_label)
 
-    override fun getActionText(fragment: LocationSettingsAwareFragment, context: Context) = context.getText(R.string.location_settings_in_app_notification_action)
+    override fun getActionText(fragment: LocationSettingsAwareFragment, context: Context) =
+        context.getText(R.string.location_settings_in_app_notification_action)
 
     override fun onActionClick(fragment: LocationSettingsAwareFragment) = View.OnLongClickListener {
         val attachedViewModel = fragment.attachedViewModel

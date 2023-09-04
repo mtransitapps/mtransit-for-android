@@ -28,6 +28,7 @@ import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
+import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
@@ -46,6 +47,7 @@ class NearbyViewModel @Inject constructor(
     private val statusLoader: StatusLoader,
     private val serviceUpdateLoader: ServiceUpdateLoader,
 ) : MTViewModelWithLocation(),
+    NewLocationAwareViewModel,
     LocationSettingsAwareViewModel {
 
     companion object {
@@ -140,7 +142,7 @@ class NearbyViewModel @Inject constructor(
         lat != null && lng != null && !name.isNullOrBlank()
     }
 
-    val newLocationAvailable: LiveData<Boolean?> =
+    override val newLocationAvailable: LiveData<Boolean?> =
         TripleMediatorLiveData(isFixedOn, nearbyLocation, deviceLocation).map { (isFixedOn, nearbyLocation, deviceLocation) ->
             isFixedOn == false
                     && nearbyLocation != null
@@ -198,7 +200,7 @@ class NearbyViewModel @Inject constructor(
         analyticsManager.logEvent(AnalyticsEvents.OPENED_GOOGLE_MAPS_TRIP_PLANNER)
     }
 
-    fun initiateRefresh(): Boolean {
+    override fun initiateRefresh(): Boolean {
         if (isFixedOn.value == true) {
             MTLog.d(this, "initiateRefresh() > SKIP (fixed on location)")
             return false

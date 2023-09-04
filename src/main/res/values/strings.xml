@@ -109,13 +109,14 @@
     <string name="favorite_folder_pick_ok">OK</string>
     <string name="favorite_folder_pick_cancel">Cancel</string>
     <string name="favorite_folder_default">(default)</string>
-    <string name="location_settings_in_app_notification_label">Device location settings disabled.</string>
+    <string name="location_settings_in_app_notification_label">&#9888; Device location settings disabled.</string>
     <string name="location_settings_in_app_notification_action">Touch to ENABLE.</string>
     <string name="module_disabled_in_app_notification_label">&#9888; Agency disabled.</string>
     <string name="module_disabled_in_app_notification_label_and_agency">&#9888; %s disabled.</string>
     <string name="module_disabled_in_app_notification_action">Touch to FIX.</string>
     <string name="samsung_device_care">Device Care (Samsung)</string>
-    <string name="new_location_toast">New location. Touch to REFRESH.</string>
+    <string name="new_location_in_app_notification_label">&#8635; New location.</string>
+    <string name="new_location_in_app_notification_action">Touch to REFRESH.</string>
     <string name="no_results">No Results</string>
     <string name="world_explored">Planetary exploration completed</string>
     <string name="module_label">+</string>

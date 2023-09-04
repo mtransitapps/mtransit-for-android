@@ -1,7 +1,6 @@
 @file:JvmName("HomeFragment") // ANALYTICS
 package org.mtransit.android.ui.home
 
-import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.location.Location
@@ -9,10 +8,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupWindow
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
@@ -25,7 +22,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.ThemeUtils
-import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentHomeBinding
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -42,6 +38,8 @@ import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.fragment.POIFragment
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareFragment
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI
+import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareFragment
+import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
 import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.nearby.NearbyFragment
@@ -57,6 +55,7 @@ import org.mtransit.android.commons.R as commonsR
 @AndroidEntryPoint
 class HomeFragment : ABFragment(R.layout.fragment_home),
     DeviceLocationListener,
+    NewLocationAwareFragment,
     LocationSettingsAwareFragment,
     MenuProvider {
 
@@ -105,9 +104,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     lateinit var demoModeManager: DemoModeManager
 
     private var binding: FragmentHomeBinding? = null
-
-    private var newLocationToast: PopupWindow? = null
-    private var toastShown: Boolean = false
 
     private val infiniteLoadingListener = object : POIArrayAdapter.InfiniteLoadingListener {
         override fun isLoadingMore(): Boolean {
@@ -238,13 +234,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                 binding?.swipeRefresh?.isRefreshing = false
             }
         }
-        viewModel.newLocationAvailable.observe(viewLifecycleOwner) { newLocationAvailable ->
-            if (newLocationAvailable == true) {
-                showNewLocationToast()
-            } else {
-                hideNewLocationToast()
-            }
-        }
+        NewLocationUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
                 if (scroll) {
@@ -308,50 +298,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     override fun onPause() {
         super.onPause()
         this.adapter.onPause()
-        hideNewLocationToast()
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private fun makeNewLocationToast(): PopupWindow? {
-        return ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, R.string.new_location_toast)?.apply {
-            setTouchInterceptor { _, me ->
-                when (me.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        val handled = attachedViewModel?.initiateRefresh() == true
-                        hideNewLocationToast()
-                        handled
-                    }
-
-                    else -> false // not handled
-                }
-            }
-            setOnDismissListener {
-                toastShown = false
-            }
-        }
-    }
-
-    private fun showNewLocationToast() {
-        if (this.toastShown) {
-            return // SKIP
-        }
-        if (!isResumed) {
-            return // SKIP
-        }
-        (this.newLocationToast ?: makeNewLocationToast().also { this.newLocationToast = it })
-            ?.let { locationToast ->
-                this.toastShown = ToastUtils.showTouchableToastPx(
-                    activity,
-                    locationToast,
-                    view,
-                    attachedViewModel?.getAdBannerHeightInPx(this) ?: 0
-                )
-            }
-    }
-
-    private fun hideNewLocationToast() {
-        this.newLocationToast?.dismiss()
-        this.toastShown = false
     }
 
     override fun onLocationSettingsResolution(resolution: PendingIntent?) {
@@ -391,9 +337,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
     override fun onDestroyView() {
         super.onDestroyView()
-        hideNewLocationToast()
-        this.newLocationToast = null
-        this.toastShown = false
         adapter.onDestroyView()
         binding?.swipeRefresh?.apply {
             onDestroyView()

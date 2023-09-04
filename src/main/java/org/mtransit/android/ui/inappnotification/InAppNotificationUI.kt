@@ -6,8 +6,9 @@ import android.view.View
 interface InAppNotificationUI<F : InAppNotificationFragment> {
 
     companion object {
-        const val IN_APP_NOTIFICATION_LOCATION_SETTINGS = 1
-        const val IN_APP_NOTIFICATION_MODULE_DISABLED = 2
+        const val IN_APP_NOTIFICATION_NEW_LOCATION = 1
+        const val IN_APP_NOTIFICATION_LOCATION_SETTINGS = 2
+        const val IN_APP_NOTIFICATION_MODULE_DISABLED = 3
     }
 
     fun getNotificationId(fragment: F): Int

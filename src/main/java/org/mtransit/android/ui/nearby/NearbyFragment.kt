@@ -1,7 +1,6 @@
 @file:JvmName("NearbyFragment") // ANALYTICS
 package org.mtransit.android.ui.nearby
 
-import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.location.Location
@@ -9,10 +8,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupWindow
 import androidx.annotation.ColorInt
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuHost
@@ -27,7 +24,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.ToastUtils
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.databinding.FragmentNearbyBinding
@@ -38,6 +34,8 @@ import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareFragment
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI
+import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareFragment
+import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
 import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.map.MapFragment
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
@@ -50,6 +48,7 @@ import org.mtransit.commons.FeatureFlags
 @AndroidEntryPoint
 class NearbyFragment : ABFragment(R.layout.fragment_nearby),
     DeviceLocationListener,
+    NewLocationAwareFragment,
     LocationSettingsAwareFragment,
     MenuProvider {
 
@@ -176,9 +175,6 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
     private var lastPageSelected = -1
     private var selectedPosition = -1
 
-    private var newLocationToast: PopupWindow? = null
-    private var toastShown: Boolean = false
-
     private var pagerAdapter: NearbyPagerAdapter? = null
 
     private val onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
@@ -264,56 +260,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             abController?.setABReady(this, isABReady, true)
             MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
         }
-        viewModel.newLocationAvailable.observe(viewLifecycleOwner) { newLocationAvailable ->
-            if (newLocationAvailable == true) {
-                showNewLocationToast()
-            } else {
-                hideNewLocationToast()
-            }
-        }
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private fun makeNewLocationToast(): PopupWindow? {
-        return ToastUtils.getNewTouchableToast(context, R.drawable.toast_frame_old, R.string.new_location_toast)?.apply {
-            setTouchInterceptor { _, me ->
-                when (me.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        val handled = attachedViewModel?.initiateRefresh() == true
-                        hideNewLocationToast()
-                        handled
-                    }
-
-                    else -> false // not handled
-                }
-            }
-            setOnDismissListener {
-                toastShown = false
-            }
-        }
-    }
-
-    private fun showNewLocationToast() {
-        if (this.toastShown) {
-            return // SKIP
-        }
-        if (!isResumed) {
-            return // SKIP
-        }
-        (this.newLocationToast ?: makeNewLocationToast().also { this.newLocationToast = it })
-            ?.let { locationToast ->
-                this.toastShown = ToastUtils.showTouchableToastPx(
-                    activity,
-                    locationToast,
-                    view,
-                    attachedViewModel?.getAdBannerHeightInPx(this) ?: 0
-                )
-            }
-    }
-
-    private fun hideNewLocationToast() {
-        this.newLocationToast?.dismiss()
-        this.toastShown = false
+        NewLocationUI.onViewCreated(this)
     }
 
     private fun setupTabTheme(abBgColor: Int? = getABBgColor(context)) {
@@ -437,11 +384,6 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         return attachedViewModel?.nearbyLocationAddress?.value ?: super.getABSubtitle(context)
     }
 
-    override fun onPause() {
-        super.onPause()
-        hideNewLocationToast()
-    }
-
     override fun onResume() {
         super.onResume()
         switchView()
@@ -456,9 +398,6 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
 
     override fun onDestroyView() {
         super.onDestroyView()
-        hideNewLocationToast()
-        this.newLocationToast = null
-        this.toastShown = false
         binding?.viewPager?.unregisterOnPageChangeCallback(onPageChangeCallback)
         binding?.viewPager?.adapter = null // cannot re-use Adapter w/ ViewPager
         pagerAdapter = null // cannot re-use Adapter w/ ViewPager
