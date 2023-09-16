@@ -19,12 +19,12 @@ public final class ScreenWithLocationCommon implements MTLog.Loggable {
 	}
 
 	public static void showPermissionsPreRequest(@NonNull MTLocationProvider.ScreenWithLocationView screenWithLocationView,
-			@NonNull MTLocationProvider.OnPermissionsPreRequest listener) {
+												 @NonNull MTLocationProvider.OnPermissionsPreRequest listener) {
 		listener.onPermissionsPreRequestPositiveBtnClick(screenWithLocationView); // no UI for now
 	}
 
 	public static void showPermissionsRationale(@NonNull final MTLocationProvider.ScreenWithLocationView screenWithLocationView,
-			@NonNull final MTLocationProvider.OnPermissionsRationale listener) {
+												@NonNull final MTLocationProvider.OnPermissionsRationale listener) {
 		new MTDialog.Builder(screenWithLocationView.requireActivity())
 				.setTitle(R.string.location_permission_rationale_title)
 				.setMessage(R.string.location_permission_rationale_message)
@@ -36,12 +36,13 @@ public final class ScreenWithLocationCommon implements MTLog.Loggable {
 					dialog.dismiss();
 					listener.onPermissionsRationaleNegativeBtnClick(screenWithLocationView);
 				})
+				.setCancelable(true) // kinda OK not forcing location request
 				.create()
 				.show();
 	}
 
 	public static void showPermissionsPermanentlyDenied(@NonNull final MTLocationProvider.ScreenWithLocationView screenWithLocationView,
-			@NonNull final MTLocationProvider.OnPermissionsPermanentlyDenied listener) {
+														@NonNull final MTLocationProvider.OnPermissionsPermanentlyDenied listener) {
 		new MTDialog.Builder(screenWithLocationView.requireActivity())
 				.setTitle(R.string.location_permission_rationale_title)
 				.setMessage(R.string.location_permission_rationale_message)
@@ -53,6 +54,7 @@ public final class ScreenWithLocationCommon implements MTLog.Loggable {
 					dialog.dismiss();
 					listener.onPermissionsPermanentlyDeniedNegativeBtnClick(screenWithLocationView);
 				})
+				.setCancelable(true) // kinda OK not forcing location request
 				.create()
 				.show();
 	}

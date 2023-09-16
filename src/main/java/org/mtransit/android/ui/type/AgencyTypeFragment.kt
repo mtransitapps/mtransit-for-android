@@ -35,6 +35,8 @@ import org.mtransit.android.ui.ActionBarController.SimpleActionBarColorizer
 import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
+import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledUI
 import org.mtransit.android.ui.nearby.NearbyFragment
 import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
@@ -45,7 +47,10 @@ import kotlin.math.abs
 import org.mtransit.android.commons.R as commonsR
 
 @AndroidEntryPoint
-class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivityWithLocation.DeviceLocationListener, MenuProvider {
+class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
+    MTActivityWithLocation.DeviceLocationListener,
+    ModuleDisabledAwareFragment,
+    MenuProvider {
 
     companion object {
         private val LOG_TAG = AgencyTypeFragment::class.java.simpleName
@@ -76,8 +81,8 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
 
     override fun getScreenName(): String = attachedViewModel?.type?.value?.let { type -> "$TRACKING_SCREEN_NAME/${type.id}" } ?: TRACKING_SCREEN_NAME
 
-    private val viewModel by viewModels<AgencyTypeViewModel>()
-    private val attachedViewModel
+    override val viewModel by viewModels<AgencyTypeViewModel>()
+    override val attachedViewModel
         get() = if (isAttached()) viewModel else null
 
     private var binding: FragmentAgencyTypeBinding? = null
@@ -183,6 +188,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
                 }
             }
         }
+        ModuleDisabledUI.onViewCreated(this)
     }
 
     private fun switchView() {
@@ -194,12 +200,14 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type), MTActivity
                     tabs.isVisible = false
                     loadingLayout.isVisible = true
                 }
+
                 pagerAdapter?.itemCount == 0 -> { // EMPTY
                     loadingLayout.isVisible = false
                     viewPager.isVisible = false
                     tabs.isVisible = false
                     emptyLayout.isVisible = true
                 }
+
                 else -> { // LOADED
                     loadingLayout.isVisible = false
                     emptyLayout.isVisible = false

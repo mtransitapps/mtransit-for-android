@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.type
 
+import android.content.Context
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
@@ -8,27 +9,34 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
+import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
-import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTViewModelWithLocation
+import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
+import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
 @HiltViewModel
 class AgencyTypeViewModel @Inject constructor(
+    @ApplicationContext appContext: Context,
     savedStateHandle: SavedStateHandle,
+    private val adManager: IAdManager,
     private val dataSourcesRepository: DataSourcesRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val statusLoader: StatusLoader,
     private val serviceUpdateLoader: ServiceUpdateLoader,
-) : MTViewModelWithLocation() {
+) : MTViewModelWithLocation(),
+    ModuleDisabledAwareViewModel {
 
     companion object {
         private val LOG_TAG = AgencyTypeViewModel::class.java.simpleName
@@ -44,11 +52,21 @@ class AgencyTypeViewModel @Inject constructor(
         DataSourceType.parseId(typeId)
     }
 
-    private val allAvailableAgencies = this.dataSourcesRepository.readingAllAgencies() // #onModulesUpdated
+    private val allAvailableAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
-    val typeAgencies: LiveData<List<IAgencyUIProperties>?> = PairMediatorLiveData(type, allAvailableAgencies).map { (dst, allAgencies) ->
+    val typeAgencies = PairMediatorLiveData(type, allAvailableAgencies).map { (dst, allAgencies) ->
         allAgencies?.filter { it.type == dst }
     }
+
+    override val moduleDisabled = typeAgencies.map {
+        it?.filter { agency -> !agency.isEnabled } ?: emptyList()
+    }.distinctUntilChanged()
+
+    override val hasDisabledModule = moduleDisabled.map {
+        it.any { agency -> !PackageManagerUtils.isAppEnabled(appContext, agency.pkg) }
+    }
+
+    override fun getAdBannerHeightInPx(activity: IActivity?) = this.adManager.getBannerHeightInPx(activity)
 
     private val selectedTypeAgencyAuthority: LiveData<String> = _typeId.switchMap { typeId ->
         liveData {
