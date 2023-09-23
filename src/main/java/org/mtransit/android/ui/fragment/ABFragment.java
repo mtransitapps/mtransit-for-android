@@ -13,8 +13,11 @@ import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LifecycleOwner;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
@@ -203,36 +206,38 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 
 	private boolean inAppNotificationShown = false;
 
-	private final WeakHashMap<Integer, PopupWindow> inAppNotifications = new WeakHashMap<>();
+	private final WeakHashMap<String, Pair<PopupWindow, Snackbar>> inAppNotifications = new WeakHashMap<>();
 
 	@SuppressWarnings("unused")
-	public void showInAppNotification(
-			int notificationId,
+	public boolean showInAppNotification(
+			@NonNull String notificationId,
 			@Nullable Activity activity,
 			@Nullable View view,
+			@Nullable View anchorView,
 			int additionalBottomMarginInPx,
 			@NonNull CharSequence labelText,
 			@Nullable CharSequence actionText,
 			@Nullable View.OnLongClickListener onActionClick // used instead of OnClickListener because returns boolean
 	) {
 		if (this.inAppNotificationShown) {
-			return; // SKIP
+			return false; // SKIP
 		}
 		if (!isResumed()) {
-			return; // SKIP
+			return false; // SKIP
 		}
-		PopupWindow inAppNotification = inAppNotifications.get(notificationId);
+		Pair<PopupWindow, Snackbar> inAppNotification = inAppNotifications.get(notificationId);
 		if (inAppNotification == null) {
 			inAppNotification = InAppNotificationUI.makeInAppNotification(
 					activity,
+					view,
+					anchorView,
 					labelText,
 					() -> { // on dismiss
 						inAppNotificationShown = false;
 						return true; // handled
 					},
 					actionText, onActionClick, () -> { // on action clicked
-						hideInAppNotification(notificationId);
-						return true; // handled
+						return hideInAppNotification(notificationId);
 					}
 			);
 			inAppNotifications.put(notificationId, inAppNotification);
@@ -241,26 +246,30 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 				activity,
 				inAppNotification,
 				view,
+				anchorView,
 				additionalBottomMarginInPx
 		);
+		return this.inAppNotificationShown;
 	}
 
 	@SuppressWarnings("WeakerAccess")
-	public void hideInAppNotification(int notificationId) {
-		final PopupWindow inAppNotification = inAppNotifications.get(notificationId);
-		if (inAppNotification != null) {
-			inAppNotification.dismiss();
-			inAppNotificationShown = false;
-		}
+	public boolean hideInAppNotification(@NonNull String notificationId) {
+		final boolean inAppNotificationHidden = InAppNotificationUI.hideInAppNotification(this.inAppNotifications.get(notificationId));
+		inAppNotificationShown = !inAppNotificationHidden;
+		return inAppNotificationHidden;
 	}
 
 	@SuppressWarnings("WeakerAccess")
-	public void hideAllInAppNotifications() {
-		for (Integer inAppNotificationId : inAppNotifications.keySet()) {
+	public boolean hideAllInAppNotifications() {
+		boolean allInAppNotificationsHidden = true;
+		for (String inAppNotificationId : inAppNotifications.keySet()) {
 			if (inAppNotificationId != null) {
-				hideInAppNotification(inAppNotificationId);
+				if (!hideInAppNotification(inAppNotificationId)) {
+					allInAppNotificationsHidden = false;
+				}
 			}
 		}
+		return allInAppNotificationsHidden;
 	}
 
 	// endregion

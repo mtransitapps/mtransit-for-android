@@ -4,10 +4,12 @@ import android.content.Context
 import android.view.View
 import org.mtransit.android.R
 import org.mtransit.android.ui.inappnotification.InAppNotificationUI
+import org.mtransit.android.ui.inappnotification.InAppNotificationUI.Companion.IN_APP_NOTIFICATION_LOCATION_SETTINGS
 
 object LocationSettingsUI : InAppNotificationUI<LocationSettingsAwareFragment> {
 
-    override fun getNotificationId(fragment: LocationSettingsAwareFragment) = InAppNotificationUI.IN_APP_NOTIFICATION_LOCATION_SETTINGS
+    override fun getNotificationId(fragment: LocationSettingsAwareFragment) =
+        InAppNotificationUI.getNotificationId(IN_APP_NOTIFICATION_LOCATION_SETTINGS)
 
     override fun onViewCreated(fragment: LocationSettingsAwareFragment) {
         fragment.viewModel.locationSettingsNeededResolution.observe(fragment.getViewLifecycleOwner()) {

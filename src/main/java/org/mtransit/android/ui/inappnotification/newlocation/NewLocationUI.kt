@@ -4,10 +4,12 @@ import android.content.Context
 import android.view.View
 import org.mtransit.android.R
 import org.mtransit.android.ui.inappnotification.InAppNotificationUI
+import org.mtransit.android.ui.inappnotification.InAppNotificationUI.Companion.IN_APP_NOTIFICATION_NEW_LOCATION
 
 object NewLocationUI : InAppNotificationUI<NewLocationAwareFragment> {
 
-    override fun getNotificationId(fragment: NewLocationAwareFragment) = InAppNotificationUI.IN_APP_NOTIFICATION_NEW_LOCATION
+    override fun getNotificationId(fragment: NewLocationAwareFragment): String =
+        InAppNotificationUI.getNotificationId(IN_APP_NOTIFICATION_NEW_LOCATION)
 
     override fun onViewCreated(fragment: NewLocationAwareFragment) {
         fragment.viewModel.newLocationAvailable.observe(fragment.getViewLifecycleOwner()) { newLocationAvailable ->

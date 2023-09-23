@@ -7,13 +7,18 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.StoreUtils
 import org.mtransit.android.ui.inappnotification.InAppNotificationUI
+import org.mtransit.android.ui.inappnotification.InAppNotificationUI.Companion.IN_APP_NOTIFICATION_MODULE_DISABLED
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 
 object ModuleDisabledUI : InAppNotificationUI<ModuleDisabledAwareFragment> {
 
-    override fun getNotificationId(fragment: ModuleDisabledAwareFragment) = fragment.context?.let { context ->
-        fragment.viewModel.moduleDisabled.value?.firstOrNull { !PackageManagerUtils.isAppEnabled(context, it.pkg) }?.pkg?.hashCode()
-    } ?: InAppNotificationUI.IN_APP_NOTIFICATION_MODULE_DISABLED // TODO dynamic IDs?
+    override fun getNotificationId(fragment: ModuleDisabledAwareFragment): String =
+        InAppNotificationUI.getNotificationId(
+            IN_APP_NOTIFICATION_MODULE_DISABLED,
+            fragment.context?.let { context ->
+                fragment.viewModel.moduleDisabled.value?.firstOrNull { !PackageManagerUtils.isAppEnabled(context, it.pkg) }?.pkg
+            } ?: fragment.viewModel.moduleDisabled.value?.firstOrNull()?.pkg,
+        )
 
     override fun onViewCreated(fragment: ModuleDisabledAwareFragment) {
         fragment.viewModel.moduleDisabled.observe(fragment.getViewLifecycleOwner()) {
@@ -55,9 +60,5 @@ object ModuleDisabledUI : InAppNotificationUI<ModuleDisabledAwareFragment> {
             }
         }
         false // not handled
-    }
-
-    override fun hideInAppNotification(fragment: ModuleDisabledAwareFragment) {
-        fragment.hideAllInAppNotifications() // TODO dynamic IDs? hideInAppNotification(getNotificationId(fragment))
     }
 }

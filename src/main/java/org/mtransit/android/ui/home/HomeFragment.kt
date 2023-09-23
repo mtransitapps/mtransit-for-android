@@ -199,7 +199,6 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                 }
             }
         }
-        LocationSettingsUI.onViewCreated(this)
         viewModel.deviceLocation.observe(viewLifecycleOwner) {
             adapter.setLocation(it)
         }
@@ -237,8 +236,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                 binding?.swipeRefresh?.isRefreshing = false
             }
         }
-        NewLocationUI.onViewCreated(this)
+        LocationSettingsUI.onViewCreated(this)
         ModuleDisabledUI.onViewCreated(this)
+        NewLocationUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
                 if (scroll) {

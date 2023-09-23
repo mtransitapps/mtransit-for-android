@@ -9,20 +9,22 @@ interface InAppNotificationFragment : IActivity {
 
     fun getViewLifecycleOwner(): LifecycleOwner
     fun getView(): View?
+    fun getAnchorView(): View? = getView()
     val viewModel: InAppNotificationViewModel
     val attachedViewModel: InAppNotificationViewModel?
 
     fun showInAppNotification(
-        notificationId: Int,
+        notificationId: String,
         activity: Activity?,
         view: View?,
+        anchorView: View?,
         additionalBottomMarginInPx: Int,
         labelText: CharSequence,
         actionText: CharSequence?,
         onActionClick: View.OnLongClickListener?,
-    )
+    ): Boolean
 
-    fun hideInAppNotification(notificationId: Int)
+    fun hideInAppNotification(notificationId: String): Boolean
 
-    fun hideAllInAppNotifications()
+    fun hideAllInAppNotifications(): Boolean
 }
