@@ -236,8 +236,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                 binding?.swipeRefresh?.isRefreshing = false
             }
         }
-        LocationSettingsUI.onViewCreated(this)
         ModuleDisabledUI.onViewCreated(this)
+        LocationSettingsUI.onViewCreated(this)
         NewLocationUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->

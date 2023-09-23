@@ -22,7 +22,7 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
         fun getNotificationId(typeId: Int, specificId: String? = null) = "$typeId${specificId.orEmpty()}"
 
         private const val SNACKBAR_INSTEAD_OF_TOAST = false
-        // private const val SNACKBAR_INSTEAD_OF_TOAST = true
+        // private const val SNACKBAR_INSTEAD_OF_TOAST = true // WIP
 
         @SuppressLint("ClickableViewAccessibility")
         @JvmOverloads

@@ -233,7 +233,7 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 					anchorView,
 					labelText,
 					() -> { // on dismiss
-						inAppNotificationShown = false;
+						this.inAppNotificationShown = false;
 						return true; // handled
 					},
 					actionText, onActionClick, () -> { // on action clicked
@@ -255,7 +255,9 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 	@SuppressWarnings("WeakerAccess")
 	public boolean hideInAppNotification(@NonNull String notificationId) {
 		final boolean inAppNotificationHidden = InAppNotificationUI.hideInAppNotification(this.inAppNotifications.get(notificationId));
-		inAppNotificationShown = !inAppNotificationHidden;
+		if (inAppNotificationHidden) {
+			this.inAppNotificationShown = false;
+		}
 		return inAppNotificationHidden;
 	}
 
