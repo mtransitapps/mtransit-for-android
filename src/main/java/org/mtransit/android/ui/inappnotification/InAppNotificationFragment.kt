@@ -9,7 +9,8 @@ interface InAppNotificationFragment : IActivity {
 
     fun getViewLifecycleOwner(): LifecycleOwner
     fun getView(): View?
-    fun getAnchorView(): View? = getView()
+    fun getContextView(): View? // required to set at the fragment level (default = getView())
+    fun getAnchorView(): View? = null // optional
     val viewModel: InAppNotificationViewModel
     val attachedViewModel: InAppNotificationViewModel?
 
@@ -17,6 +18,7 @@ interface InAppNotificationFragment : IActivity {
         notificationId: String,
         activity: Activity?,
         view: View?,
+        contextView: View?,
         anchorView: View?,
         additionalBottomMarginInPx: Int,
         labelText: CharSequence,

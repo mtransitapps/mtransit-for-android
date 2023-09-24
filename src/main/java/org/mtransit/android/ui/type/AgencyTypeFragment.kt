@@ -85,6 +85,8 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
     override val attachedViewModel
         get() = if (isAttached()) viewModel else null
 
+    override fun getContextView(): View? = this.binding?.contextView ?: this.view
+
     private var binding: FragmentAgencyTypeBinding? = null
 
     private var abBgColor: Int? = null

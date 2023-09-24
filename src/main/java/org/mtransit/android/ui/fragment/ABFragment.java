@@ -38,7 +38,9 @@ import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public abstract class ABFragment extends MTFragmentX implements AnalyticsManager.Trackable, IActivity {
+public abstract class ABFragment extends MTFragmentX implements
+		AnalyticsManager.Trackable,
+		IActivity {
 
 	private static final boolean DEFAULT_THEME_DARK_INSTEAD_OF_LIGHT = false;
 
@@ -213,6 +215,7 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 			@NonNull String notificationId,
 			@Nullable Activity activity,
 			@Nullable View view,
+			@Nullable View contextView,
 			@Nullable View anchorView,
 			int additionalBottomMarginInPx,
 			@NonNull CharSequence labelText,
@@ -230,6 +233,7 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 			inAppNotification = InAppNotificationUI.makeInAppNotification(
 					activity,
 					view,
+					contextView,
 					anchorView,
 					labelText,
 					() -> { // on dismiss
@@ -246,6 +250,7 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 				activity,
 				inAppNotification,
 				view,
+				contextView,
 				anchorView,
 				additionalBottomMarginInPx
 		);
@@ -254,14 +259,15 @@ public abstract class ABFragment extends MTFragmentX implements AnalyticsManager
 
 	@SuppressWarnings("WeakerAccess")
 	public boolean hideInAppNotification(@NonNull String notificationId) {
-		final boolean inAppNotificationHidden = InAppNotificationUI.hideInAppNotification(this.inAppNotifications.get(notificationId));
+		Pair<PopupWindow, Snackbar> inAppNotification = this.inAppNotifications.get(notificationId);
+		final boolean inAppNotificationHidden = InAppNotificationUI.hideInAppNotification(inAppNotification);
 		if (inAppNotificationHidden) {
 			this.inAppNotificationShown = false;
 		}
 		return inAppNotificationHidden;
 	}
 
-	@SuppressWarnings("WeakerAccess")
+	@SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 	public boolean hideAllInAppNotifications() {
 		boolean allInAppNotificationsHidden = true;
 		for (String inAppNotificationId : inAppNotifications.keySet()) {

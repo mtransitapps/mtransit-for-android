@@ -6,6 +6,7 @@ import android.content.Context
 import android.view.MotionEvent
 import android.view.View
 import android.widget.PopupWindow
+import androidx.core.view.isVisible
 import com.google.android.material.snackbar.Snackbar
 import org.mtransit.android.R
 import org.mtransit.android.commons.ToastUtils
@@ -21,16 +22,17 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
 
         fun getNotificationId(typeId: Int, specificId: String? = null) = "$typeId${specificId.orEmpty()}"
 
-        private const val SNACKBAR_INSTEAD_OF_TOAST = false
-        // private const val SNACKBAR_INSTEAD_OF_TOAST = true // WIP
+        // private const val SNACKBAR_INSTEAD_OF_TOAST = false // TOAST (old)
+        private const val SNACKBAR_INSTEAD_OF_TOAST = true // SNACKBAR (default)
 
         @SuppressLint("ClickableViewAccessibility")
         @JvmOverloads
         @JvmStatic
         fun makeInAppNotification(
             context: Context?,
-            view: View?,
-            @Suppress("UNUSED_PARAMETER") anchorView: View?,
+            @Suppress("UNUSED_PARAMETER") view: View?,
+            contextView: View?,
+            anchorView: View?,
             labelText: CharSequence,
             onDismiss: () -> Boolean,
             actionText: CharSequence? = null,
@@ -38,13 +40,14 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
             onActionClicked: (() -> Boolean)? = null,
         ): AndroidXPair<PopupWindow?, Snackbar?> {
             if (SNACKBAR_INSTEAD_OF_TOAST) {
-                return AndroidXPair(null, view?.let {
-                    Snackbar.make(it, labelText, Snackbar.LENGTH_INDEFINITE).apply {
+                return AndroidXPair(null, contextView?.let { theContextView ->
+                    Snackbar.make(theContextView, labelText, Snackbar.LENGTH_INDEFINITE).apply {
                         if (!actionText.isNullOrBlank() && onActionClick != null) {
                             setAction(actionText) { v ->
                                 onActionClick.onLongClick(v)
                             }
                         }
+                        anchorView.takeIf { it?.isVisible == true }?.let { setAnchorView(it) }
                     }
                 }
                 )
@@ -73,7 +76,8 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
         fun showInAppNotification(
             activity: Activity?,
             inAppNotification: AndroidXPair<PopupWindow?, Snackbar?>?,
-            view: View?,
+            @Suppress("UNUSED_PARAMETER") view: View?,
+            contextView: View?,
             @Suppress("UNUSED_PARAMETER") anchorView: View?,
             additionalBottomMarginInPx: Int
         ): Boolean {
@@ -83,7 +87,7 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
             return ToastUtils.showTouchableToastPx(
                 activity,
                 inAppNotification?.first,
-                view,
+                contextView,
                 additionalBottomMarginInPx
             )
         }
@@ -123,6 +127,7 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
             getNotificationId(fragment),
             activity,
             fragment.getView(),
+            fragment.getContextView(),
             fragment.getAnchorView(),
             attachedViewModel?.getAdBannerHeightInPx(fragment) ?: 0,
             getLabelText(fragment, context),

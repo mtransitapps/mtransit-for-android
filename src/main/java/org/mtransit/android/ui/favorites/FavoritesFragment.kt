@@ -71,6 +71,8 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
         get() = if (isAttached()) viewModel else null
     private val mainViewModel by activityViewModels<MainViewModel>()
 
+    override fun getContextView(): View? = this.binding?.contextView ?: this.view
+
     @Inject
     lateinit var sensorManager: MTSensorManager
 

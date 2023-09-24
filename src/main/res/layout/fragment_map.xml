@@ -5,31 +5,38 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.gms.maps.MapView
-        android:id="@id/map"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/context_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="visible"
-        app:mapType="none"
-        app:uiCompass="true"
-        app:uiRotateGestures="true"
-        app:uiScrollGestures="true"
-        app:uiTiltGestures="true"
-        app:uiZoomControls="true"
-        app:uiZoomGestures="true"
-        tools:visibility="visible" />
+        android:layout_height="match_parent">
+
+        <com.google.android.gms.maps.MapView
+            android:id="@id/map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible"
+            app:mapType="none"
+            app:uiCompass="true"
+            app:uiRotateGestures="true"
+            app:uiScrollGestures="true"
+            app:uiTiltGestures="true"
+            app:uiZoomControls="true"
+            app:uiZoomGestures="true"
+            tools:visibility="visible" />
+
+        <include
+            android:id="@+id/map_loading"
+            layout="@layout/layout_loading_large_on_surface"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:visibility="visible"
+            tools:visibility="visible" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <include layout="@layout/view_map_type_switch" />
-
-    <include
-        android:id="@+id/map_loading"
-        layout="@layout/layout_loading_large_on_surface"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:visibility="visible"
-        tools:visibility="visible" />
 
 </RelativeLayout>

@@ -171,6 +171,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         get() = if (isAttached()) viewModel else null
     private val mainViewModel by activityViewModels<MainViewModel>()
 
+    override fun getContextView(): View? = this.binding?.contextView ?: this.view
+
     private var binding: FragmentNearbyBinding? = null
 
     private var showDirectionsMenuItem: MenuItem? = null

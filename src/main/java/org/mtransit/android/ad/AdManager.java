@@ -655,11 +655,11 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 	private void refreshAdStatus(@NonNull IActivity activity) {
 		if (isShowingAds()) {
-			if (adLoaded == null || !adLoaded) {
+			if (adLoaded == null || !adLoaded) { // IF ad was not loaded DO
 				setupAd(activity);
 			}
-		} else {
-			if (adLoaded != null && adLoaded) {
+		} else { // ELSE IF not showing ads DO
+			if (adLoaded != null && adLoaded) { // IF ad was loaded DO
 				hideAds(activity);
 				pauseAd(activity);
 			}
@@ -957,7 +957,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 				break;
 			}
 			this.adManager.adLoaded = null;
-			IActivity activity = this.activityWR.get();
+			final IActivity activity = this.activityWR.get();
 			if (activity == null) {
 				MTLog.d(this, "onAdFailedToLoad() > SKIP (no activity)");
 				return;
@@ -970,7 +970,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			super.onAdLoaded();
 			MTLog.d(this, "onAdLoaded()");
 			this.adManager.adLoaded = true;
-			IActivity activity = this.activityWR.get();
+			final IActivity activity = this.activityWR.get();
 			if (activity == null) {
 				MTLog.d(this, "onAdLoaded() > SKIP (no activity)");
 				return;

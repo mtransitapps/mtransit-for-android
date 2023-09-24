@@ -21,28 +21,34 @@
         app:tabMode="scrollable"
         app:tabTextAppearance="@style/MTTabTextStyle"
         tools:visibility="visible" />
-    <!-- LOADING -->
-    <include
-        android:id="@id/loading_layout"
-        layout="@layout/layout_loading_large"
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/context_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        tools:visibility="visible" />
-    <!-- VIEWPAGER -->
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@id/view_pager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:visibility="visible"
-        tools:visibility="visible" />
-    <!-- EMPTY -->
-    <include
-        android:id="@id/empty_layout"
-        layout="@layout/layout_empty"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        tools:visibility="visible" />
+        android:layout_height="match_parent">
+        <!-- LOADING -->
+        <include
+            android:id="@id/loading_layout"
+            layout="@layout/layout_loading_large"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:visibility="visible" />
+        <!-- VIEWPAGER -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            tools:visibility="visible" />
+        <!-- EMPTY -->
+        <include
+            android:id="@id/empty_layout"
+            layout="@layout/layout_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </LinearLayout>

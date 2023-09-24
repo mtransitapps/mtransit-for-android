@@ -97,6 +97,10 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     override val attachedViewModel
         get() = if (isAttached()) viewModel else null
 
+    override fun getContextView(): View? = this.binding?.contextView ?: this.view
+
+    override fun getAnchorView(): View? = this.binding?.root?.findViewById(R.id.map_type_switch)
+
     private var binding: FragmentMapBinding? = null
 
     @Inject

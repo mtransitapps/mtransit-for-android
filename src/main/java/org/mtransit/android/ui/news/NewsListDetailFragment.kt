@@ -147,6 +147,8 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     override val attachedViewModel
         get() = if (isAttached()) viewModel else null
 
+    override fun getContextView(): View? = this.binding?.newsContainerLayout?.newsContainerLayout ?: this.view
+
     private val mainViewModel by activityViewModels<MainViewModel>()
 
     private var binding: FragmentNewsListDetailsBinding? = null

@@ -22,7 +22,11 @@ abstract class MTViewModelWithLocation : ViewModel(), MTLog.Loggable {
 
     val deviceLocation: LiveData<Location?> = _deviceLocation
 
-    fun onDeviceLocationChanged(newDeviceLocation: Location?) {
+    fun onDeviceLocationChanged(newDeviceLocation: Location?, force: Boolean = false) {
+        if (force) {
+            _deviceLocation.value = newDeviceLocation
+            return
+        }
         newDeviceLocation?.let {
             val currentDeviceLocation = _deviceLocation.value
             if (currentDeviceLocation == null || LocationUtils.isMoreRelevant(logTag, currentDeviceLocation, it)) {

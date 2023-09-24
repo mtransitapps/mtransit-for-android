@@ -355,7 +355,7 @@ class HomeViewModel @Inject constructor(
 
     override fun getAdBannerHeightInPx(activity: IActivity?) = this.adManager.getBannerHeightInPx(activity)
 
-    override val moduleDisabled = this.dataSourcesRepository.readingAllAgenciesBase().map {
+    override val moduleDisabled = _allAgencies.map {
         it.filter { agency -> !agency.isEnabled }
     }.distinctUntilChanged()
 
