@@ -12,7 +12,7 @@
     <color name="color_accent">@color/color_primary</color>
 
     <color name="color_surface">@color/dark_grey_5</color>
-    <color name="color_on_surface">@color/white_50</color>
+    <color name="color_on_surface">@color/white_75</color>
 
     <!-- background: same as default -->
     <color name="color_background">@color/design_dark_default_color_background</color>

@@ -8,13 +8,15 @@
     <style name="MTToolbarPopup" parent="@style/ThemeOverlay.MaterialComponents.Light" />
 
     <style name="MTSnackbar" parent="@style/Widget.MaterialComponents.Snackbar">
+        <!-- background color uses colorOnSurface -->
         <item name="materialThemeOverlay">@style/MTSnackbarTheme</item>
+        <item name="backgroundOverlayColorAlpha">1</item>
     </style>
 
     <style name="MTSnackbarTheme" parent="" />
 
     <style name="MTSnackbarButton" parent="@style/Widget.MaterialComponents.Button.TextButton.Snackbar">
-        <item name="android:textColor">@color/color_on_primary</item>
+        <item name="android:textColor">?attr/colorSurface</item><!-- like text (instead of colorPrimary) -->
     </style>
 
     <style name="MTTabTextStyle" parent="@style/TextAppearance.Design.Tab">
