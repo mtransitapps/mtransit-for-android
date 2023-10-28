@@ -56,6 +56,8 @@ class DataSourcesReader @Inject constructor(
             "org.mtransit.android.ca_maritime_bus.debug", // not supported anymore
             "org.mtransit.android.ca_montreal_amt_bus", // not supported anymore
             "org.mtransit.android.ca_roussillon_citrous_bus.debug", // not supported anymore
+            "org.mtransit.android.ca_ottawa_oc_transpo_train.debug", // migrated to v2
+            "org.mtransit.android.ca_quebec_rtc_bus.debug", // migrated to v2
             "org.mtransit.android.ca_vancouver_translink_ferry.debug", // migrated to v2
             "org.mtransit.android.ca_west_coast_express_bus.debug", // not supported anymore
             // DEBUG
@@ -68,7 +70,7 @@ class DataSourcesReader @Inject constructor(
             // "org.mtransit.android.ca_montreal_rem_light_rail.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_montreal_stm_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_montreal_stm_subway.debug", // FIXME DEBUG
-            // "org.mtransit.android.ca_quebec_rtc_bus.debug", // FIXME DEBUG
+            // "org.mtransit.android.ca_quebec_rtc_bus2.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_richelieu_citvr_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_sherbrooke_sts_bus.debug", // FIXME DEBUG
             // "org.mtransit.android.ca_ste_julie_omitsju_bus.debug", // FIXME DEBUG
@@ -81,7 +83,9 @@ class DataSourcesReader @Inject constructor(
             "org.mtransit.android.ca_le_richelain_roussillon_lrrs_bus", // never published
             "org.mtransit.android.ca_maritime_bus", // not supported anymore
             "org.mtransit.android.ca_montreal_amt_bus", // not supported anymore
+            "org.mtransit.android.ca_ottawa_oc_transpo_train", // migrated to v2
             "org.mtransit.android.ca_roussillon_citrous_bus", // not supported anymore
+            "org.mtransit.android.ca_quebec_rtc_bus", // migrated to v2
             "org.mtransit.android.ca_vancouver_translink_ferry", // migrated to v2
             "org.mtransit.android.ca_west_coast_express_bus", // not supported anymore
         )

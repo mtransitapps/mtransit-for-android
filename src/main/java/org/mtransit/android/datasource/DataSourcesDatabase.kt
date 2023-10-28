@@ -46,9 +46,9 @@ abstract class DataSourcesDatabase : RoomDatabase() {
         private val LOG_TAG: String = DataSourcesDatabase::class.java.simpleName
 
         private val MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
+            override fun migrate(db: SupportSQLiteDatabase) {
                 MTLog.i(LOG_TAG, "DB migration from version 1 to 2...")
-                database.execSQL(
+                db.execSQL(
                     "ALTER TABLE agency_properties ADD COLUMN available_version_code INTEGER NOT NULL DEFAULT -1"
                 )
                 MTLog.i(LOG_TAG, "DB migration from version 1 to 2... DONE")
@@ -56,12 +56,12 @@ abstract class DataSourcesDatabase : RoomDatabase() {
         }
 
         private val MIGRATION_2_3 = object : Migration(2, 3) {
-            override fun migrate(database: SupportSQLiteDatabase) {
+            override fun migrate(db: SupportSQLiteDatabase) {
                 MTLog.i(LOG_TAG, "DB migration from version 2 to 3...")
-                database.execSQL(
+                db.execSQL(
                     "ALTER TABLE agency_properties ADD COLUMN contact_us_web ${SQLUtils.TXT} DEFAULT null"
                 )
-                database.execSQL(
+                db.execSQL(
                     "ALTER TABLE agency_properties ADD COLUMN contact_us_web_fr ${SQLUtils.TXT} DEFAULT null"
                 )
                 MTLog.i(LOG_TAG, "DB migration from version 2 to 3... DONE")
