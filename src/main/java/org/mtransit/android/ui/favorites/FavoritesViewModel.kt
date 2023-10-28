@@ -88,7 +88,7 @@ class FavoritesViewModel @Inject constructor(
         val pois = mutableListOf<POIManager>()
         val authorityToUUIDs = favorites.groupBy({ POI.POIUtils.extractAuthorityFromUUID(it.fkId).orEmpty() }, { it.fkId })
         authorityToUUIDs
-            .filterKeys { it.isNotEmpty() }
+            .filterKeys { authority -> authority.isNotEmpty() && agencies.any { it.authority == authority } }
             .filterValues { it.isNotEmpty() }
             .forEach { (authority, authorityUUIDs) ->
                 this.poiRepository.findPOIMs(authority, POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs))
