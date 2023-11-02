@@ -22,7 +22,6 @@ import org.mtransit.android.R;
 import org.mtransit.android.commons.ArrayUtils;
 import org.mtransit.android.commons.FileUtils;
 import org.mtransit.android.commons.LocaleUtils;
-import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.NetworkUtils;
 import org.mtransit.android.commons.SqlUtils;
@@ -145,6 +144,8 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		return googlePlacesApiKey;
 	}
 
+	// https://developers.google.com/maps/documentation/places/web-service/search-find-place
+	// https://developers.google.com/maps/documentation/places/web-service/usage-and-billing#find-place
 	private static final String TEXT_SEARCH_URL_PART_1_BEFORE_KEY = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json" +
 			"?inputtype=textquery" +
 			"&fields=place_id,name,geometry/location" +
@@ -156,6 +157,15 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	private static final String TEXT_SEARCH_URL_LANG_DEFAULT = "en";
 	private static final String TEXT_SEARCH_URL_LANG_FRENCH = "fr";
 	private static final int TEXT_SEARCH_URL_RADIUS_IN_METERS_DEFAULT = 50000; // max = 50000
+
+	// Cannot use auto-complete API because response doesn't include lat/lng and required another API call
+	// https://developers.google.com/maps/documentation/places/web-service/autocomplete
+	// https://developers.google.com/maps/documentation/places/web-service/usage-and-billing#ac-per-request
+	// => Real better solution would be a complete Search UI/UX change to
+	// include mostly Google Places auto-complete w/o lat/lng so
+	// user can select place
+	// then fetch place details w/ lat/lng
+	// to get nearby screen
 
 	@VisibleForTesting
 	@Nullable
@@ -241,9 +251,9 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 	@Nullable
 	private Cursor fetchTextSearchResults(@NonNull Filter poiFilter) {
 		final Context context = requireContextCompat();
-		Double lat = poiFilter.getExtraDouble("lat", null);
-		Double lng = poiFilter.getExtraDouble("lng", null);
-		String url = getTextSearchUrlString(getGOOGLE_PLACES_API_KEY(context), lat, lng, null, poiFilter.getSearchKeywords());
+		final Double lat = poiFilter.getExtraDouble("lat", null);
+		final Double lng = poiFilter.getExtraDouble("lng", null);
+		final String url = getTextSearchUrlString(getGOOGLE_PLACES_API_KEY(context), lat, lng, null, poiFilter.getSearchKeywords());
 		if (url == null) { // no search keyboard => no search
 			return ContentProviderConstants.EMPTY_CURSOR; // empty cursor = processed
 		}
