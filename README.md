@@ -6,6 +6,8 @@
 
 <a href="https://play.google.com/store/apps/details?id=org.mtransit.android"><img width="25%" height="25%" src="https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png"/></a>
 
+[![MonTransit Downloads](https://www.appbrain.com/shield/org.mtransit.android.svg)](https://play.google.com/store/apps/details?id=org.mtransit.android)
+
 ## Screenshots
 
 <p float="left">
@@ -33,8 +35,11 @@ Learn more about the BETA program [here](https://github.com/mtransitapps/mtransi
 
 * [Apache Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
 
+<!--
 ## Other
 
 [![Build Status](https://travis-ci.org/mtransitapps/gradle-project.svg)](https://travis-ci.org/mtransitapps/gradle-project)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/3792/badge.svg)](https://scan.coverity.com/projects/3792)
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mtransitapps/mtransit-for-android/trend.png)](https://bitdeli.com/free)
+
+-->
