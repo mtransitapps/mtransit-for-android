@@ -68,15 +68,15 @@ interface IBillingManager {
 
     val productIdsWithDetails: LiveData<Map<String, ProductDetails>>
 
+    val currentSubscription: LiveData<String?>
+
+    val hasSubscription: LiveData<Boolean?>
+
     fun refreshAvailableSubscriptions()
 
     fun refreshPurchases()
 
-    fun isHasSubscription(): Boolean?
-
-    fun getCurrentSubscription(): String?
-
-    fun launchBillingFlow(activity: IActivity, productId: String) : Boolean
+    fun launchBillingFlow(activity: IActivity, productId: String): Boolean
 
     fun addListener(listener: OnBillingResultListener)
 

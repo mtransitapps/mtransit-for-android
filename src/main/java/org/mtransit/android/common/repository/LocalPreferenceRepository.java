@@ -3,12 +3,15 @@ package org.mtransit.android.common.repository;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 
 import org.mtransit.android.commons.PreferenceUtils;
 
 import java.util.Set;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -52,65 +55,91 @@ public class LocalPreferenceRepository extends PreferenceRepository {
 		return PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(typeId);
 	}
 
+	@Nullable
+	private SharedPreferences _prefs;
+
 	@Inject
 	public LocalPreferenceRepository(@NonNull @ApplicationContext Context appContext) {
 		super(appContext);
+		Executors.newSingleThreadExecutor().execute(() ->
+				_prefs = loadPrefs()
+		);
 	}
 
+	@WorkerThread
+	@NonNull
+	private SharedPreferences loadPrefs() {
+		return PreferenceUtils.getPrefLcl(requireContext());
+	}
+
+	@WorkerThread
+	@NonNull
+	public SharedPreferences getPref() {
+		if (_prefs == null) {
+			_prefs = loadPrefs();
+		}
+		return _prefs;
+	}
+
+	@WorkerThread
 	@Override
 	public boolean hasKey(@NonNull String key) {
 		return PreferenceUtils.hasPrefLcl(requireContext(), key);
 	}
 
+	@WorkerThread
 	@Override
 	public boolean getValue(@NonNull String key, boolean defaultValue) {
 		return PreferenceUtils.getPrefLcl(requireContext(), key, defaultValue);
 	}
 
+	@MainThread
 	@Override
 	public void saveAsync(@NonNull String key, @Nullable Boolean value) {
-		PreferenceUtils.savePrefLcl(requireContext(), key, value, false);
+		PreferenceUtils.savePrefLclAsync(requireContext(), key, value);
 	}
 
+	@WorkerThread
 	@Nullable
 	@Override
 	public String getValue(@NonNull String key, @Nullable String defaultValue) {
 		return PreferenceUtils.getPrefLcl(requireContext(), key, defaultValue);
 	}
 
+	@WorkerThread
 	@NonNull
 	@Override
 	public String getValueNN(@NonNull String key, @NonNull String defaultValue) {
 		return PreferenceUtils.getPrefLclNN(requireContext(), key, defaultValue);
 	}
 
+	@MainThread
 	@Override
 	public void saveAsync(@NonNull String key, @Nullable String value) {
-		PreferenceUtils.savePrefLcl(requireContext(), key, value, false);
+		PreferenceUtils.savePrefLclAsync(requireContext(), key, value);
 	}
 
+	@WorkerThread
 	@Override
 	public int getValue(@NonNull String key, int defaultValue) {
 		return PreferenceUtils.getPrefLcl(requireContext(), key, defaultValue);
 	}
 
+	@MainThread
 	@Override
 	public void saveAsync(@NonNull String key, int value) {
-		PreferenceUtils.savePrefLcl(requireContext(), key, value, false);
+		PreferenceUtils.savePrefLclAsync(requireContext(), key, value);
 	}
 
+	@WorkerThread
 	@Override
 	public long getValue(@NonNull String key, long defaultValue) {
 		return PreferenceUtils.getPrefLcl(requireContext(), key, defaultValue);
 	}
 
+	@MainThread
 	@Override
 	public void saveAsync(@NonNull String key, long value) {
-		PreferenceUtils.savePrefLcl(requireContext(), key, value, false);
-	}
-
-	@NonNull
-	public SharedPreferences getPref() {
-		return PreferenceUtils.getPrefLcl(requireContext());
+		PreferenceUtils.savePrefLclAsync(requireContext(), key, value);
 	}
 }

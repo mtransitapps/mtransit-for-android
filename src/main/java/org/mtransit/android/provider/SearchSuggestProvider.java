@@ -47,13 +47,13 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 		return LOG_TAG;
 	}
 
-	public final static String AUTHORITY = "org.mtransit.android.provider.search.suggest";
-	public final static int MODE = DATABASE_MODE_QUERIES;
+	private final static String AUTHORITY = "org.mtransit.android.provider.search.suggest";
+	private final static int MODE = DATABASE_MODE_QUERIES;
 
 	private static final UriMatcher URI_MATCHER = getNewUriMatcher(AUTHORITY);
 
 	@NonNull
-	public static UriMatcher getNewUriMatcher(@NonNull String authority) {
+	private static UriMatcher getNewUriMatcher(@NonNull String authority) {
 		UriMatcher URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 		URI_MATCHER.addURI(authority, SearchManager.SUGGEST_URI_PATH_QUERY, ContentProviderConstants.SEARCH_SUGGEST_EMPTY);
 		URI_MATCHER.addURI(authority, SearchManager.SUGGEST_URI_PATH_QUERY + "/*", ContentProviderConstants.SEARCH_SUGGEST_QUERY);
@@ -86,16 +86,17 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 	public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
 		Cursor cursor = null;
 		String query;
+		final Context context = requireContextCompat();
 		try {
 			switch (URI_MATCHER.match(uri)) {
 			case ContentProviderConstants.SEARCH_SUGGEST_EMPTY:
 				query = selectionArgs == null || selectionArgs.length == 0 ? null : selectionArgs[0];
 				cursor = super.query(uri, projection, selection, selectionArgs, sortOrder);
-				return getSearchSuggest(query, cursor);
+				return getSearchSuggest(context, query, cursor);
 			case ContentProviderConstants.SEARCH_SUGGEST_QUERY:
 				query = uri.getLastPathSegment();
 				cursor = super.query(uri, projection, selection, selectionArgs, sortOrder);
-				return getSearchSuggest(query, cursor);
+				return getSearchSuggest(context, query, cursor);
 			default:
 				throw new IllegalArgumentException(String.format("Unknown URI (query): '%s'", uri));
 			}
@@ -107,15 +108,15 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 		}
 	}
 
-	private Cursor getSearchSuggest(String query, Cursor recentSearchCursor) {
+	private Cursor getSearchSuggest(@NonNull Context context, String query, Cursor recentSearchCursor) {
 		clearAllTasks();
 		HashSet<String> recentSearchSuggestions = DataSourceManager.getSearchSuggest(recentSearchCursor);
 		HashSet<String> suggestions = new HashSet<>();
 		if (!TextUtils.isEmpty(query)) {
-			List<AgencyProperties> agencies = getEntryPoint(requireContextCompat()).dataSourcesRepository().getAllAgencies();
+			List<AgencyProperties> agencies = getEntryPoint(context).dataSourcesRepository().getAllAgencies();
 			ArrayList<Future<HashSet<String>>> taskList = new ArrayList<>();
 			for (AgencyProperties agency : agencies) {
-				FindSearchSuggestTask task = new FindSearchSuggestTask(getContext(), agency, query);
+				FindSearchSuggestTask task = new FindSearchSuggestTask(context, agency, query);
 				taskList.add(getFetchSuggestExecutor().submit(task));
 			}
 			for (Future<HashSet<String>> future : taskList) {
@@ -152,7 +153,7 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 	private ThreadPoolExecutor fetchSuggestExecutor;
 
 	@NonNull
-	public ThreadPoolExecutor getFetchSuggestExecutor() {
+	private ThreadPoolExecutor getFetchSuggestExecutor() {
 		if (this.fetchSuggestExecutor == null) {
 			this.fetchSuggestExecutor = new ThreadPoolExecutor(CORE_POOL_SIZE, MAX_POOL_SIZE, 0L, TimeUnit.MILLISECONDS,
 					new LinkedBlockingDeque<>());
@@ -160,7 +161,7 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 		return fetchSuggestExecutor;
 	}
 
-	public void clearAllTasks() {
+	private void clearAllTasks() {
 		if (this.fetchSuggestExecutor != null) {
 			this.fetchSuggestExecutor.shutdown();
 			this.fetchSuggestExecutor = null;
@@ -177,11 +178,12 @@ public class SearchSuggestProvider extends MTSearchRecentSuggestionsProvider {
 			return LOG_TAG;
 		}
 
+		@NonNull
 		private final Context context;
 		private final AgencyProperties agency;
 		private final String query;
 
-		FindSearchSuggestTask(Context context, AgencyProperties agency, String query) {
+		FindSearchSuggestTask(@NonNull Context context, AgencyProperties agency, String query) {
 			this.context = context;
 			this.agency = agency;
 			this.query = query;

@@ -313,9 +313,9 @@ class MapViewModel @Inject constructor(
     ): ArrayMap<LatLng, POIMarker> {
         val clusterItems = ArrayMap<LatLng, POIMarker>()
         val poiFilter = POIProviderContract.Filter.getNewAreaFilter(
-            loadingArea.let { min(it.northeast.latitude, it.southwest.latitude) },  // MIN LAT
+            loadingArea.let { min(it.northeast.latitude, it.southwest.latitude) }, // MIN LAT
             loadingArea.let { max(it.northeast.latitude, it.southwest.latitude) }, // MAX LAT
-            loadingArea.let { min(it.northeast.longitude, it.southwest.longitude) },  // MIN LNG
+            loadingArea.let { min(it.northeast.longitude, it.southwest.longitude) }, // MIN LNG
             loadingArea.let { max(it.northeast.longitude, it.southwest.longitude) }, // MAX LNG
             loadedArea?.let { min(it.northeast.latitude, it.southwest.latitude) },
             loadedArea?.let { max(it.northeast.latitude, it.southwest.latitude) },

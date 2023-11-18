@@ -1,6 +1,7 @@
 package org.mtransit.android.ad;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.util.DisplayMetrics;
@@ -156,22 +157,27 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		}
 		this.initialized = null; // IN PROGRESS
 		try {
-			MobileAds.initialize(
-					theActivity, // some adapters require activity
-					new MTOnInitializationCompleteListener(this, activity)
-			);
-			if (DEBUG) {
-				List<String> testDeviceIds = new ArrayList<>();
-				testDeviceIds.add(AdRequest.DEVICE_ID_EMULATOR);
-				testDeviceIds.addAll(Arrays.asList(theActivity.getResources().getStringArray(R.array.google_ads_test_devices_ids)));
-				MobileAds.setRequestConfiguration(
-						new RequestConfiguration.Builder()
-								.setTestDeviceIds(testDeviceIds)
-								.build()
-				);
-			}
+			initOnBackgroundThread(AdManager.this, activity, theActivity);
 		} catch (Exception e) {
 			this.crashReporter.w(this, e, "Error while initializing Ads!");
+		}
+	}
+
+	@WorkerThread
+	private static void initOnBackgroundThread(@NonNull AdManager adManager, IActivity activity, Activity theActivity) {
+		MobileAds.initialize( // doing I/O #StrictMode
+				theActivity, // some adapters require activity
+				new MTOnInitializationCompleteListener(adManager, activity)
+		);
+		if (DEBUG) {
+			List<String> testDeviceIds = new ArrayList<>();
+			testDeviceIds.add(AdRequest.DEVICE_ID_EMULATOR);
+			testDeviceIds.addAll(Arrays.asList(theActivity.getResources().getStringArray(R.array.google_ads_test_devices_ids)));
+			MobileAds.setRequestConfiguration(
+					new RequestConfiguration.Builder()
+							.setTestDeviceIds(testDeviceIds)
+							.build()
+			);
 		}
 	}
 
@@ -687,7 +693,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			return false; // not showing ads
 		}
 		if (showingAds == null) { // paying status unknown
-			MTLog.d(this, "isShowingAds() > Not showing ads (paying status unknown: '%s').", showingAds);
+			MTLog.d(this, "isShowingAds() > Not showing ads (paying status unknown).");
 			return false; // not showing ads
 		}
 		MTLog.d(this, "isShowingAds() > Showing ads: '%s'.", showingAds);

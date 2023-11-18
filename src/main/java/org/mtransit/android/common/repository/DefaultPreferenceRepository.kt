@@ -2,9 +2,12 @@ package org.mtransit.android.common.repository
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.annotation.MainThread
+import androidx.annotation.WorkerThread
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.R
 import org.mtransit.android.commons.PreferenceUtils
+import java.util.concurrent.Executors
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -65,51 +68,74 @@ class DefaultPreferenceRepository @Inject constructor(
         fun getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID(authority: String) = PREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID + authority
     }
 
+    private var _prefs: SharedPreferences? = null
+
+    init {
+        Executors.newSingleThreadExecutor().execute {
+            _prefs = loadPrefs()
+        }
+    }
+
+    @WorkerThread
+    private fun loadPrefs() = PreferenceUtils.getPrefDefault(requireContext())
+
+    @get:WorkerThread
+    val pref: SharedPreferences
+        get() = _prefs ?: loadPrefs().apply {
+            _prefs = this
+        }
     @Suppress("FunctionName")
     fun getPREFS_RTS_ROUTES_SHOWING_LIST_INSTEAD_OF_GRID_DEFAULT(routesCount: Int): Boolean {
         return routesCount < appContext.resources.getInteger(R.integer.rts_routes_default_grid_min_count)
     }
 
+    @WorkerThread
     override fun hasKey(key: String): Boolean {
         return PreferenceUtils.hasPrefDefault(requireContext(), key)
     }
 
+    @WorkerThread
     override fun getValue(key: String, defaultValue: Boolean): Boolean {
         return PreferenceUtils.getPrefDefault(requireContext(), key, defaultValue)
     }
 
+    @MainThread
     override fun saveAsync(key: String, value: Boolean?) {
-        PreferenceUtils.savePrefDefault(requireContext(), key, value, false)
+        PreferenceUtils.savePrefDefaultAsync(requireContext(), key, value)
     }
 
+    @WorkerThread
     override fun getValue(key: String, defaultValue: String?): String? {
         return PreferenceUtils.getPrefDefault(requireContext(), key, defaultValue)
     }
 
+    @WorkerThread
     override fun getValueNN(key: String, defaultValue: String): String {
         return PreferenceUtils.getPrefDefaultNN(requireContext(), key, defaultValue)
     }
 
+    @MainThread
     override fun saveAsync(key: String, value: String?) {
-        PreferenceUtils.savePrefDefault(requireContext(), key, value, false)
+        PreferenceUtils.savePrefDefaultAsync(requireContext(), key, value)
     }
 
+    @WorkerThread
     override fun getValue(key: String, defaultValue: Int): Int {
         return PreferenceUtils.getPrefDefault(requireContext(), key, defaultValue)
     }
 
+    @MainThread
     override fun saveAsync(key: String, value: Int) {
-        PreferenceUtils.savePrefDefault(requireContext(), key, value, false)
+        PreferenceUtils.savePrefDefaultAsync(requireContext(), key, value)
     }
 
+    @WorkerThread
     override fun getValue(key: String, defaultValue: Long): Long {
         return PreferenceUtils.getPrefDefault(requireContext(), key, defaultValue)
     }
 
+    @MainThread
     override fun saveAsync(key: String, value: Long) {
-        PreferenceUtils.savePrefDefault(requireContext(), key, value, false)
+        PreferenceUtils.savePrefDefaultAsync(requireContext(), key, value)
     }
-
-    val pref: SharedPreferences
-        get() = PreferenceUtils.getPrefDefault(requireContext())
 }

@@ -8,8 +8,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import androidx.collection.ArrayMap;
 
 import org.json.JSONArray;
@@ -48,6 +50,7 @@ import org.mtransit.commons.FeatureFlags;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import dagger.hilt.EntryPoint;
@@ -89,7 +92,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@Nullable
 	private ModuleDbHelper dbHelper;
 
-	private static int currentDbVersion = -1;
+	private int currentDbVersion = -1;
 
 	@Nullable
 	private static UriMatcher uriMatcher = null;
@@ -170,15 +173,22 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return getEntryPoint(requireContextCompat()).dataSourcesRepository();
 	}
 
+	@MainThread
 	@Override
 	public boolean onCreateMT() {
 		ping();
 		dataSourcesRepository().readingAllAgencies().observeForever(agencyProperties -> { // SINGLETON
-			deleteAllModuleStatusData(); // force refresh
+			Executors.newSingleThreadExecutor().execute(this::deleteAllModuleStatusData);
 		});
 		return super.onCreateMT();
 	}
 
+	@Override
+	public void ping() {
+		// DO NOTHING
+	}
+
+	@WorkerThread
 	@SuppressWarnings("UnusedReturnValue")
 	private int deleteAllModuleStatusData() {
 		MTLog.v(this, "deleteAllModuleStatusData()");
@@ -191,28 +201,30 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return affectedRows;
 	}
 
-	@Override
-	public void ping() {
-		// DO NOTHING
-	}
-
 	@NonNull
 	private ModuleDbHelper getDBHelper(@NonNull Context context) {
-		if (dbHelper == null) { // initialize
-			dbHelper = getNewDbHelper(context);
-			currentDbVersion = getCurrentDbVersion();
-		} else { // reset
-			try {
-				if (currentDbVersion != getCurrentDbVersion()) {
-					dbHelper.close();
-					dbHelper = null;
-					return getDBHelper(context);
-				}
-			} catch (Exception e) { // reset
-				MTLog.w(this, e, "Can't check DB version!");
-			}
+		final ModuleDbHelper currentDbHelper = this.dbHelper;
+		if (currentDbHelper == null) { // initialize
+			final ModuleDbHelper newDbHelper = getNewDbHelper(context);
+			this.dbHelper = newDbHelper;
+			this.currentDbVersion = getCurrentDbVersion();
+			return newDbHelper;
 		}
-		return dbHelper;
+		try { // reset
+			if (this.currentDbVersion != getCurrentDbVersion()) {
+				if (this.dbHelper != null) {
+					this.dbHelper.close();
+					this.dbHelper = null;
+				}
+				return getDBHelper(context);
+			} else {
+				return currentDbHelper;
+			}
+
+		} catch (Exception e) { // reset
+			MTLog.w(this, e, "Can't check DB version!");
+			return currentDbHelper;
+		}
 	}
 
 	@NonNull
@@ -220,12 +232,14 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return getDBHelper(requireContextCompat());
 	}
 
+	@WorkerThread
 	@NonNull
 	@Override
 	public SQLiteDatabase getReadDB() {
 		return getDBHelper().getReadableDatabase();
 	}
 
+	@WorkerThread
 	@NonNull
 	@Override
 	public SQLiteDatabase getWriteDB() {
@@ -322,7 +336,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	@Nullable
 	@Override
 	public Cursor getPOI(@Nullable POIProviderContract.Filter poiFilter) {
-		updateModuleDataIfRequired();
+		updateModuleDataIfRequired(requireContextCompat());
 		return getPOIFromDB(poiFilter);
 	}
 
@@ -342,19 +356,21 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return MODULE_VALIDITY_IN_MS;
 	}
 
-	private void updateModuleDataIfRequired() {
-		long lastUpdateInMs = PreferenceUtils.getPrefLcl(requireContextCompat(), PREF_KEY_LAST_UPDATE_MS, 0L);
+	@WorkerThread
+	private void updateModuleDataIfRequired(@NonNull Context context) {
+		long lastUpdateInMs = PreferenceUtils.getPrefLcl(context, PREF_KEY_LAST_UPDATE_MS, 0L);
 		long nowInMs = UITimeUtils.currentTimeMillis();
 		if (lastUpdateInMs + getPOIMaxValidityInMs() < nowInMs) { // too old to display?
 			deleteAllModuleData();
-			updateAllModuleDataFromWWW(lastUpdateInMs);
+			updateAllModuleDataFromWWW(context, lastUpdateInMs);
 			return;
 		}
 		if (lastUpdateInMs + getPOIValidityInMs() < nowInMs) { // try to refresh?
-			updateAllModuleDataFromWWW(lastUpdateInMs);
+			updateAllModuleDataFromWWW(context, lastUpdateInMs);
 		}
 	}
 
+	@WorkerThread
 	private int deleteAllModuleData() {
 		int affectedRows = 0;
 		try {
@@ -365,17 +381,18 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return affectedRows;
 	}
 
-	private synchronized void updateAllModuleDataFromWWW(long oldLastUpdatedInMs) {
-		if (PreferenceUtils.getPrefLcl(requireContextCompat(), PREF_KEY_LAST_UPDATE_MS, 0L) > oldLastUpdatedInMs) {
+	@WorkerThread
+	private synchronized void updateAllModuleDataFromWWW(@NonNull Context context, long oldLastUpdatedInMs) {
+		if (PreferenceUtils.getPrefLcl(context, PREF_KEY_LAST_UPDATE_MS, 0L) > oldLastUpdatedInMs) {
 			return; // too late, another thread already updated
 		}
-		loadDataFromWWW();
+		loadDataFromWWW(context);
 	}
 
+	@WorkerThread
 	@Nullable
-	private HashSet<Module> loadDataFromWWW() {
+	private HashSet<Module> loadDataFromWWW(@NonNull Context context) {
 		try {
-			final Context context = requireContextCompat();
 			final long newLastUpdateInMs = UITimeUtils.currentTimeMillis();
 			final int fileResId = R.raw.modules;
 			final String jsonString = FileUtils.fromFileRes(context, fileResId);
@@ -392,7 +409,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 			}
 			deleteAllModuleData();
 			insertModulesLockDB(this, modules);
-			PreferenceUtils.savePrefLcl(context, PREF_KEY_LAST_UPDATE_MS, newLastUpdateInMs, true); // sync
+			PreferenceUtils.savePrefLclSync(context, PREF_KEY_LAST_UPDATE_MS, newLastUpdateInMs);
 			return modules;
 		} catch (Exception e) {
 			MTLog.w(this, e, "INTERNAL ERROR: Unknown Exception");
@@ -400,6 +417,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		}
 	}
 
+	@WorkerThread
 	private static synchronized int insertModulesLockDB(@NonNull POIProviderContract provider, Collection<Module> defaultPOIs) {
 		int affectedRows = 0;
 		SQLiteDatabase db = null;
@@ -615,6 +633,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */
+	@WorkerThread
 	@NonNull
 	private ModuleDbHelper getNewDbHelper(@NonNull Context context) {
 		return new ModuleDbHelper(context.getApplicationContext());

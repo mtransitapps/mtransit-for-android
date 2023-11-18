@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
@@ -44,7 +45,7 @@ public class FavoriteProvider extends MTContentProvider {
 			.appendTableColumn(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FOLDER_ID, FavoriteColumns.T_FAVORITE_K_FOLDER_ID) //
 			.build();
 
-	public static final String[] PROJECTION_FAVORITE = new String[]{FavoriteColumns.T_FAVORITE_K_ID, FavoriteColumns.T_FAVORITE_K_TYPE,
+	static final String[] PROJECTION_FAVORITE = new String[]{FavoriteColumns.T_FAVORITE_K_ID, FavoriteColumns.T_FAVORITE_K_TYPE,
 			FavoriteColumns.T_FAVORITE_K_FK_ID, FavoriteColumns.T_FAVORITE_K_FOLDER_ID};
 
 	private static final ArrayMap<String, String> FAVORITE_FOLDER_PROJECTION_MAP = SqlUtils.ProjectionMapBuilder.getNew() //
@@ -52,11 +53,11 @@ public class FavoriteProvider extends MTContentProvider {
 			.appendTableColumn(FavoriteDbHelper.T_FAVORITE_FOLDER, FavoriteDbHelper.T_FAVORITE_FOLDER_K_NAME, FavoriteFolderColumns.T_FAVORITE_FOLDER_K_NAME) //
 			.build();
 
-	public static final String[] PROJECTION_FOLDER = new String[]{FavoriteFolderColumns.T_FAVORITE_FOLDER_K_ID,
+	static final String[] PROJECTION_FOLDER = new String[]{FavoriteFolderColumns.T_FAVORITE_FOLDER_K_ID,
 			FavoriteFolderColumns.T_FAVORITE_FOLDER_K_NAME};
 
 	@NonNull
-	public static UriMatcher getNewUriMatcher(@NonNull String authority) {
+	private static UriMatcher getNewUriMatcher(@NonNull String authority) {
 		UriMatcher URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 		URI_MATCHER.addURI(authority, "favorite", FAVORITE);
 		URI_MATCHER.addURI(authority, "favorite/#", FAVORITE_ID);
@@ -77,8 +78,9 @@ public class FavoriteProvider extends MTContentProvider {
 	@Nullable
 	private FavoriteDbHelper dbHelper;
 
-	private static int currentDbVersion = -1;
+	private int currentDbVersion = -1;
 
+	@MainThread
 	@Override
 	public boolean onCreateMT() {
 		return true;
@@ -86,21 +88,27 @@ public class FavoriteProvider extends MTContentProvider {
 
 	@NonNull
 	private FavoriteDbHelper getDBHelper(@NonNull Context context) {
-		if (dbHelper == null) { // initialize
-			dbHelper = getNewDbHelper(context);
-			currentDbVersion = getCurrentDbVersion();
-		} else { // reset
-			try {
-				if (currentDbVersion != getCurrentDbVersion()) {
-					dbHelper.close();
-					dbHelper = null;
-					return getDBHelper(context);
-				}
-			} catch (Exception e) { // fail if locked, will try again later
-				MTLog.w(this, e, "Can't check DB version!");
-			}
+		final FavoriteDbHelper currentDbHelper = this.dbHelper;
+		if (currentDbHelper == null) { // initialize
+			final FavoriteDbHelper newDbHelper = getNewDbHelper(context);
+			this.dbHelper = newDbHelper;
+			this.currentDbVersion = getCurrentDbVersion();
+			return newDbHelper;
 		}
-		return dbHelper;
+		try { // reset
+			if (this.currentDbVersion != getCurrentDbVersion()) {
+				if (this.dbHelper != null) {
+					this.dbHelper.close();
+					this.dbHelper = null;
+				}
+				return getDBHelper(context);
+			} else {
+				return currentDbHelper;
+			}
+		} catch (Exception e) { // fail if locked, will try again later
+			MTLog.w(this, e, "Can't check DB version!");
+			return currentDbHelper;
+		}
 	}
 
 	@NonNull
@@ -143,11 +151,8 @@ public class FavoriteProvider extends MTContentProvider {
 	@Override
 	public Cursor queryMT(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
 		try {
-			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-			final Context context = getContext();
-			if (context == null) {
-				return null;
-			}
+			final SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+			final Context context = requireContextCompat();
 			switch (getURI_MATCHER(context).match(uri)) {
 			case FAVORITE:
 				qb.setTables(FavoriteDbHelper.T_FAVORITE);
@@ -189,7 +194,7 @@ public class FavoriteProvider extends MTContentProvider {
 	}
 
 	@Nullable
-	public String getSortOrder(@NonNull Context context, @NonNull Uri uri) {
+	private String getSortOrder(@NonNull Context context, @NonNull Uri uri) {
 		switch (getURI_MATCHER(context).match(uri)) {
 		case FAVORITE:
 		case FAVORITE_ID:
@@ -204,10 +209,7 @@ public class FavoriteProvider extends MTContentProvider {
 	@Nullable
 	@Override
 	public String getTypeMT(@NonNull Uri uri) {
-		final Context context = getContext();
-		if (context == null) {
-			return null;
-		}
+		final Context context = requireContextCompat();
 		switch (getURI_MATCHER(context).match(uri)) {
 		case FAVORITE:
 		case FAVORITE_ID:
@@ -223,10 +225,7 @@ public class FavoriteProvider extends MTContentProvider {
 	public int deleteMT(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
 		int affectedRows = 0;
 		try {
-			final Context context = getContext();
-			if (context == null) {
-				return affectedRows;
-			}
+			final Context context = requireContextCompat();
 			switch (getURI_MATCHER(context).match(uri)) {
 			case FAVORITE:
 				affectedRows = getDBHelper(context).getWritableDatabase().delete(FavoriteDbHelper.T_FAVORITE, selection, selectionArgs);
@@ -262,10 +261,7 @@ public class FavoriteProvider extends MTContentProvider {
 	public int updateMT(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
 		int affectedRows = 0;
 		try {
-			final Context context = getContext();
-			if (context == null) {
-				return affectedRows;
-			}
+			final Context context = requireContextCompat();
 			switch (getURI_MATCHER(context).match(uri)) {
 			case FAVORITE:
 				affectedRows = getDBHelper(context).getWritableDatabase().update(FavoriteDbHelper.T_FAVORITE, values, selection, selectionArgs);
@@ -285,17 +281,17 @@ public class FavoriteProvider extends MTContentProvider {
 		return affectedRows;
 	}
 
-	public static final String FAVORITE_CONTENT_DIRECTORY = "favorite";
+	private static final String FAVORITE_CONTENT_DIRECTORY = "favorite";
 
 	@NonNull
-	public static Uri getFavoriteContentUri(@NonNull Context context) {
+	private static Uri getFavoriteContentUri(@NonNull Context context) {
 		return Uri.withAppendedPath(getAuthorityUri(context), FAVORITE_CONTENT_DIRECTORY);
 	}
 
-	public static final String FAVORITE_FOLDER_CONTENT_DIRECTORY = "folder";
+	private static final String FAVORITE_FOLDER_CONTENT_DIRECTORY = "folder";
 
 	@NonNull
-	public static Uri getFavoriteFolderContentUri(@NonNull Context context) {
+	private static Uri getFavoriteFolderContentUri(@NonNull Context context) {
 		return Uri.withAppendedPath(Uri.withAppendedPath(getAuthorityUri(context), FAVORITE_CONTENT_DIRECTORY), FAVORITE_FOLDER_CONTENT_DIRECTORY);
 	}
 
@@ -305,10 +301,7 @@ public class FavoriteProvider extends MTContentProvider {
 		try {
 			Uri insertUri = null;
 			long newRowId;
-			final Context context = getContext();
-			if (context == null) {
-				return null;
-			}
+			final Context context = requireContextCompat();
 			switch (getURI_MATCHER(context).match(uri)) {
 			case FAVORITE:
 				newRowId = getDBHelper(context).getWritableDatabase().insert(FavoriteDbHelper.T_FAVORITE, FavoriteDbHelper.T_FAVORITE_K_FK_ID, values);

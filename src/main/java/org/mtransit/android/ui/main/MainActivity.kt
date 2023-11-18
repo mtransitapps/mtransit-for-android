@@ -216,6 +216,9 @@ class MainActivity : MTActivityWithLocation(),
         viewModel.abBgColor.observe(this) { newBgColor ->
             abBgDrawable?.color = newBgColor ?: defaultBgColor
         }
+        billingManager.currentSubscription.observe(this) {
+            // do nothing
+        }
         registerReceiverCompat(ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED)
     }
 

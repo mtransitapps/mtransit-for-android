@@ -10,10 +10,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.text.TextUtils;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.WorkerThread;
 import androidx.collection.ArrayMap;
 
 import org.json.JSONArray;
@@ -469,11 +471,6 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		return false;
 	}
 
-	@Override
-	public void ping() {
-		// do nothing
-	}
-
 	@Nullable
 	private static ArrayMap<String, String> poiProjectionMap;
 
@@ -486,10 +483,16 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		return poiProjectionMap;
 	}
 
+	@MainThread
 	@Override
 	public boolean onCreateMT() {
 		ping();
 		return super.onCreateMT();
+	}
+
+	@Override
+	public void ping() {
+		// do nothing
 	}
 
 	@Nullable
@@ -584,12 +587,14 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		return getDBHelper(requireContextCompat());
 	}
 
+	@WorkerThread
 	@NonNull
 	@Override
 	public SQLiteDatabase getReadDB() {
 		return getDBHelper().getReadableDatabase();
 	}
 
+	@WorkerThread
 	@NonNull
 	@Override
 	public SQLiteDatabase getWriteDB() {

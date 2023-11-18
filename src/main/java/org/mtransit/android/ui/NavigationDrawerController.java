@@ -13,8 +13,10 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.core.content.ContextCompat;
+import androidx.core.util.Pair;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -158,7 +160,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	private FinishSetupTask finishSetupTask = null;
 
 	@SuppressWarnings("deprecation")
-	private static class FinishSetupTask extends MTCancellableAsyncTask<Void, String, String> {
+	private static class FinishSetupTask extends MTCancellableAsyncTask<Void, String, Pair<String, Boolean>> {
 
 		private final String LOG_TAG = NavigationDrawerController.LOG_TAG + ">" + FinishSetupTask.class.getSimpleName();
 
@@ -176,7 +178,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 
 		@Nullable
 		@Override
-		protected String doInBackgroundNotCancelledMT(Void... params) {
+		protected Pair<String, Boolean> doInBackgroundNotCancelledMT(Void... params) {
 			final NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
 			if (navigationDrawerController == null) {
 				return null;
@@ -197,11 +199,12 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 				}
 			}
 			publishProgress(itemId);
-			return itemId;
+			final Boolean hasUserLearnedDrawer = navigationDrawerController.hasUserLearnedDrawer();
+			return new Pair<>(itemId, hasUserLearnedDrawer);
 		}
 
 		@Override
-		protected void onPostExecuteNotCancelledMT(@Nullable String itemId) {
+		protected void onPostExecuteNotCancelledMT(@Nullable Pair<String, Boolean> itemIdAndUserHasLearned) {
 			final NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
 			if (navigationDrawerController == null) {
 				return;
@@ -210,8 +213,10 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 				return;
 			}
 			navigationDrawerController.setVisibleMenuItems();
+			final String itemId = itemIdAndUserHasLearned == null ? null : itemIdAndUserHasLearned.first;
+			final Boolean hasUserLearnedDrawer = itemIdAndUserHasLearned == null ? null : itemIdAndUserHasLearned.second;
 			selectItemId(itemId);
-			if (!navigationDrawerController.hasUserLearnedDrawer()) {
+			if (Boolean.FALSE.equals(hasUserLearnedDrawer)) {
 				navigationDrawerController.openDrawer();
 				navigationDrawerController.setUserLearnedDrawer();
 			}
@@ -238,9 +243,10 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	@Nullable
 	private Boolean userLearnedDrawer = null;
 
+	@WorkerThread
 	private boolean hasUserLearnedDrawer() {
 		if (this.userLearnedDrawer == null) {
-			MainActivity mainActivity = this.mainActivityWR.get();
+			final MainActivity mainActivity = this.mainActivityWR.get();
 			if (mainActivity != null) {
 				this.userLearnedDrawer = PreferenceUtils.getPrefDefault(mainActivity, PreferenceUtils.PREF_USER_LEARNED_DRAWER,
 						PreferenceUtils.PREF_USER_LEARNED_DRAWER_DEFAULT);
@@ -253,7 +259,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		this.userLearnedDrawer = true;
 		Context context = this.mainActivityWR.get();
 		if (context != null) {
-			PreferenceUtils.savePrefDefault(context, PreferenceUtils.PREF_USER_LEARNED_DRAWER, this.userLearnedDrawer, false); // asynchronous
+			PreferenceUtils.savePrefDefaultAsync(context, PreferenceUtils.PREF_USER_LEARNED_DRAWER, this.userLearnedDrawer);
 		}
 	}
 
@@ -504,7 +510,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			return; // SKIP (demo mode ON)
 		}
 		if (isRootScreen(navItemId)) {
-			PreferenceUtils.savePrefLcl(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId, false);
+			PreferenceUtils.savePrefLclAsync(mainActivity, PreferenceUtils.PREFS_LCL_ROOT_SCREEN_ITEM_ID, this.currentSelectedScreenItemId);
 		}
 	}
 

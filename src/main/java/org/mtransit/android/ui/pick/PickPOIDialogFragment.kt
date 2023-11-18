@@ -97,6 +97,13 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), MTActivityWithLoca
 
     private var behavior: BottomSheetBehavior<*>? = null
 
+    private val onClickHandledListener: POIArrayAdapter.OnClickHandledListener by lazy {
+        POIArrayAdapter.OnClickHandledListener {
+            behavior?.state = BottomSheetBehavior.STATE_HIDDEN
+            dismissAllowingStateLoss()
+        }
+    }
+
     private val adapter: POIArrayAdapter by lazy {
         POIArrayAdapter(
             this,
@@ -109,10 +116,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), MTActivityWithLoca
             this.serviceUpdateLoader
         ).apply {
             logTag = this@PickPOIDialogFragment.logTag
-            setOnClickHandledListener {
-                behavior?.state = BottomSheetBehavior.STATE_HIDDEN
-                dismissAllowingStateLoss()
-            }
+            setOnClickHandledListener(onClickHandledListener)
         }
     }
 

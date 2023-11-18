@@ -142,15 +142,15 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
         }
         (findPreference(MainPreferencesViewModel.SUPPORT_SUBSCRIPTIONS_PREF) as? Preference)?.setOnPreferenceClickListener {
             activity?.let {
-                val currentSubscription = viewModel.currentSubscription
-                val hasSubscription: Boolean? = viewModel.hasSubscription
+                val currentSubscription: String = viewModel.currentSubscription.value.orEmpty()
+                val hasSubscription: Boolean? = viewModel.hasSubscription.value
                 when {
                     hasSubscription == null -> { // unknown status
                         // DO NOTHING
                     }
 
                     hasSubscription -> { // has subscription
-                        StoreUtils.viewSubscriptionPage(it, currentSubscription!!, it.packageName, it.getString(commonsR.string.google_play))
+                        StoreUtils.viewSubscriptionPage(it, currentSubscription, it.packageName, it.getString(commonsR.string.google_play))
                     }
 
                     else -> { // does NOT have subscription
@@ -320,10 +320,16 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel.currentSubscription.observe(viewLifecycleOwner) {
+            // do nothing
+        }
+        viewModel.hasSubscription.observe(viewLifecycleOwner) {
+            // do nothing
+        }
         activityViewModel.showSupport.observe(viewLifecycleOwner) { showSupport ->
             if (showSupport == true) {
                 activityViewModel.onSupportShown() // clear flag before showing dialog
-                if (viewModel.hasSubscription == false) {
+                if (viewModel.hasSubscription.value == false) {
                     BillingUtils.showPurchaseDialog(activity)
                 }
             }

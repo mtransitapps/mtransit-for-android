@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.MainThread;
@@ -269,6 +270,11 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		return this.mapView;
 	}
 
+	@AnyThread
+	public static void initMap(@NonNull Context context) {
+		MapsInitializer.initialize(context); // Initializes the Google Maps SDK for Android so that its classes are ready for use
+	}
+
 	private void initMapViewAsync(@Nullable View view) {
 		if (Boolean.TRUE.equals(this.initializingMapView)) {
 			MTLog.d(this, "initMapViewAsync() > SKIP (already running)");
@@ -279,7 +285,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 			return;
 		}
 		this.initializingMapView = true;
-		try {
+		try { // Initializes the Google Maps SDK for Android so that its classes are ready for use
 			MapsInitializer.initialize(view.getContext().getApplicationContext(), MapsInitializer.Renderer.LATEST, renderer -> {
 				switch (renderer) {
 				case LATEST:
@@ -489,7 +495,10 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 		this.mapType = newMapType;
 		setTypeSwitchImg();
 		applyMapType();
-		PreferenceUtils.savePrefLcl(getActivityOrNull(), MapUtils.PREFS_LCL_MAP_TYPE, this.mapType, false); // asynchronous
+		final Context context = getActivityOrNull();
+		if (context != null) {
+			PreferenceUtils.savePrefLclAsync(context, MapUtils.PREFS_LCL_MAP_TYPE, this.mapType); // asynchronous
+		}
 	}
 
 	private void applyMapType() {

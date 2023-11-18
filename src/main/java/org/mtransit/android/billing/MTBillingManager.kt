@@ -1,7 +1,11 @@
 package org.mtransit.android.billing
 
 import android.content.Context
+import androidx.core.content.edit
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.map
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClient.BillingResponseCode
@@ -21,12 +25,15 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.billing.IBillingManager.OnBillingResultListener
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.pref.liveDataN
 import org.mtransit.android.ui.view.common.IActivity
 import java.util.WeakHashMap
 import javax.inject.Inject
+import javax.inject.Singleton
 
 
 // DEBUG: `adb shell setprop log.tag.BillingClient VERBOSE`
+@Singleton
 class MTBillingManager @Inject constructor(
     @ApplicationContext appContext: Context,
     private val lclPrefRepository: LocalPreferenceRepository
@@ -42,7 +49,7 @@ class MTBillingManager @Inject constructor(
         private val LOG_TAG = MTBillingManager::class.java.simpleName
 
         private const val PREF_KEY_SUBSCRIPTION = "pSubscription"
-        private const val PREF_KEY_SUBSCRIPTION_DEFAULT = ""
+        private val PREF_KEY_SUBSCRIPTION_DEFAULT: String? = null
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -54,7 +61,18 @@ class MTBillingManager @Inject constructor(
         .enablePendingPurchases()
         .build()
 
-    private var _currentSubProductId: String? = null
+    override val currentSubscription: LiveData<String?> by lazy {
+        lclPrefRepository.pref.liveDataN(
+            PREF_KEY_SUBSCRIPTION, PREF_KEY_SUBSCRIPTION_DEFAULT
+        ).distinctUntilChanged()
+    }
+
+    private val _currentSubscription: String?
+        get() = currentSubscription.value
+
+    override val hasSubscription: LiveData<Boolean?> by lazy {
+        this.currentSubscription.map { it?.isNotBlank() }
+    }
 
     private val _listenersWR = WeakHashMap<OnBillingResultListener, Void?>()
 
@@ -98,12 +116,15 @@ class MTBillingManager @Inject constructor(
                     processPurchases(purchases)
                 }
             }
+
             BillingResponseCode.USER_CANCELED -> {
                 MTLog.d(this, "onPurchasesUpdated: User canceled the purchase")
             }
+
             BillingResponseCode.ITEM_ALREADY_OWNED -> {
                 MTLog.d(this, "onPurchasesUpdated: The user already owns this item")
             }
+
             BillingResponseCode.DEVELOPER_ERROR -> {
                 MTLog.w(
                     this, "onPurchasesUpdated: Developer error means that Google Play " +
@@ -155,6 +176,7 @@ class MTBillingManager @Inject constructor(
                         MTLog.d(this, "onProductDetailsResponse() > found ${postedValue.size} product details")
                     })
             }
+
             BillingResponseCode.SERVICE_DISCONNECTED,
             BillingResponseCode.SERVICE_UNAVAILABLE,
             BillingResponseCode.BILLING_UNAVAILABLE,
@@ -163,6 +185,7 @@ class MTBillingManager @Inject constructor(
             BillingResponseCode.ERROR -> {
                 MTLog.w(this, "Error while fetching product details! ${billingResult.responseCode}: ${billingResult.debugMessage}")
             }
+
             BillingResponseCode.USER_CANCELED,
             BillingResponseCode.FEATURE_NOT_SUPPORTED,
             BillingResponseCode.ITEM_ALREADY_OWNED,
@@ -283,37 +306,25 @@ class MTBillingManager @Inject constructor(
         }
     }
 
-    override fun isHasSubscription(): Boolean? {
-        return getCurrentSubscription()?.isNotEmpty()
-    }
-
-    override fun getCurrentSubscription(): String? {
-        if (_currentSubProductId == null) {
-            if (this.lclPrefRepository.hasKey(PREF_KEY_SUBSCRIPTION)) {
-                _currentSubProductId = this.lclPrefRepository.getValueNN(PREF_KEY_SUBSCRIPTION, PREF_KEY_SUBSCRIPTION_DEFAULT)
-            }
-        }
-        return _currentSubProductId
-    }
-
     private fun setCurrentSubscription(productId: String) {
-        if (_currentSubProductId == productId) {
+        if (_currentSubscription == productId) {
             return // same
         }
-        _currentSubProductId = productId
-        this.lclPrefRepository.saveAsync(PREF_KEY_SUBSCRIPTION, productId)
+        this.lclPrefRepository.pref.edit {
+            putString(PREF_KEY_SUBSCRIPTION, productId)
+        }
         broadcastCurrentProductIdChanged()
     }
 
     private fun broadcastCurrentProductIdChanged() {
         this._listenersWR.keys.forEach { listener ->
-            listener.onBillingResult(this._currentSubProductId)
+            listener.onBillingResult(this._currentSubscription)
         }
     }
 
     override fun addListener(listener: OnBillingResultListener) {
         _listenersWR[listener] = null
-        listener.onBillingResult(getCurrentSubscription())
+        listener.onBillingResult(this._currentSubscription)
     }
 
     override fun removeListener(listener: OnBillingResultListener) {

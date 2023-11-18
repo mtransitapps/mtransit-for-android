@@ -91,6 +91,6 @@ public class ModuleDbHelper extends MTSQLiteOpenHelper {
 	private void initAllDbTables(@NonNull SQLiteDatabase db) {
 		db.execSQL(T_MODULE_SQL_CREATE);
 		db.execSQL(T_MODULE_STATUS_SQL_CREATE);
-		PreferenceUtils.savePrefLcl(this.context, PREF_KEY_LAST_UPDATE_MS, 0L, true);
+		PreferenceUtils.savePrefLclSync(this.context, PREF_KEY_LAST_UPDATE_MS, 0L);
 	}
 }

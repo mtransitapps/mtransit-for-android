@@ -798,7 +798,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 					&& PackageManagerUtils.isAppEnabled(activity, pkg)) {
 				final AgencyProperties agency = dataSourcesRepository.getAgencyForPkg(pkg);
 				if (agency != null && !agency.getUpdateAvailable()) {
-					PreferenceUtils.savePrefLcl(activity, PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(agency.getType().getId()), agency.getAuthority(), false);
+					PreferenceUtils.savePrefLclAsync(activity, PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(agency.getType().getId()), agency.getAuthority());
 					if (FeatureFlags.F_NAVIGATION) {
 						final NavController navController = Navigation.findNavController(view);
 						FragmentNavigator.Extras extras = null;

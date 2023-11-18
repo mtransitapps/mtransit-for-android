@@ -67,6 +67,9 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		return new PurchaseDialogFragment();
 	}
 
+	@NonNull
+	private final Observer<String> currentSubObserver = s -> { /* do nothing */ };
+
 	@Nullable
 	private Observer<Map<String, ProductDetails>> newProductDetailsObserver;
 
@@ -108,6 +111,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.newProductDetailsObserver = this::onNewProductId;
+		getEntryPoint(requireContext()).billingManager().getCurrentSubscription().observeForever(this.currentSubObserver);
 		getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().observeForever(this.newProductDetailsObserver); // NOT ANDROID X
 	}
 
@@ -169,6 +173,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 		if (this.newProductDetailsObserver != null) {
 			getEntryPoint(requireContext()).billingManager().getProductIdsWithDetails().removeObserver(this.newProductDetailsObserver);
 		}
+		getEntryPoint(requireContext()).billingManager().getCurrentSubscription().removeObserver(this.currentSubObserver);
 	}
 
 	@Override

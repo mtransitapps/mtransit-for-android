@@ -14,6 +14,7 @@ import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.IStrictMode;
 import org.mtransit.android.dev.LeakDetector;
+import org.mtransit.android.ui.view.MapViewController;
 import org.mtransit.android.util.NightModeUtils;
 import org.mtransit.commons.CommonsApp;
 
@@ -57,8 +58,9 @@ public class MTApplication extends Application implements MTLog.Loggable {
 		}
 		NightModeUtils.setDefaultNightMode(this, null);
 		LocaleUtils.onApplicationCreate(this);
-		this.strictMode.setup(BuildConfig.DEBUG);
 		this.crashReporter.setup(!BuildConfig.DEBUG);
+		this.strictMode.setup(); // uses crash reporter
+		MapViewController.initMap(this);
 		this.analyticsManager.setUserProperty(AnalyticsUserProperties.DEVICE_MANUFACTURER, Build.MANUFACTURER);
 	}
 }

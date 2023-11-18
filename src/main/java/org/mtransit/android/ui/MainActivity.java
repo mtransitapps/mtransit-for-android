@@ -155,6 +155,9 @@ public class MainActivity extends MTActivityWithLocation implements
 		this.dataSourcesRepository.readingAllAgenciesCount().observe(this, nbAgencies ->
 				this.adManager.onNbAgenciesUpdated(this, nbAgencies) // ad-manager does not persist activity but listen for changes itself
 		);
+		this.billingManager.getCurrentSubscription().observe(this, currentSubscription -> {
+			// do nothing
+		});
 		MapUtils.fixScreenFlickering(findViewById(R.id.content_frame));
 		ContextCompat.registerReceiver(this, new ModulesReceiver(), ModulesReceiver.getIntentFilter(), ContextCompat.RECEIVER_NOT_EXPORTED); // Android 13
 		EdgeToEdgeKt.setUpEdgeToEdgeTop(findViewById(R.id.drawer_layout));

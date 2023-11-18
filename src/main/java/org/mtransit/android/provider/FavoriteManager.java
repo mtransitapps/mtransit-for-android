@@ -38,6 +38,7 @@ import org.mtransit.commons.CollectionUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -63,12 +64,15 @@ public class FavoriteManager implements MTLog.Loggable {
 	public FavoriteManager(@NonNull @ApplicationContext Context context,
 						   @NonNull IAnalyticsManager analyticsManager) {
 		this.analyticsManager = analyticsManager;
-		this.favoriteFolders = findFolders(context);
-		this.analyticsManager.setUserProperty(AnalyticsUserProperties.FAVORITE_FOLDER_COUNT, favoriteFolders.size());
+		Executors.newSingleThreadExecutor().execute(() -> {
+			final SparseArrayCompat<Favorite.Folder> newFavoriteFolders = findFolders(context);
+			this.favoriteFolders.putAll(newFavoriteFolders);
+			this.analyticsManager.setUserProperty(AnalyticsUserProperties.FAVORITE_FOLDER_COUNT, this.favoriteFolders.size());
+		});
 	}
 
 	@NonNull
-	private final SparseArrayCompat<Favorite.Folder> favoriteFolders;
+	private final SparseArrayCompat<Favorite.Folder> favoriteFolders = new SparseArrayCompat<>();
 
 	@NonNull
 	public SparseArrayCompat<Favorite.Folder> getFavoriteFolders() {
@@ -395,7 +399,7 @@ public class FavoriteManager implements MTLog.Loggable {
 	@WorkerThread
 	@NonNull
 	private static SparseArrayCompat<Favorite.Folder> findFolders(@NonNull Context context) {
-		SparseArrayCompat<Favorite.Folder> result = new SparseArrayCompat<>();
+		final SparseArrayCompat<Favorite.Folder> result = new SparseArrayCompat<>();
 		Cursor cursor = null;
 		try {
 			cursor = DataSourceManager.queryContentResolver( //
