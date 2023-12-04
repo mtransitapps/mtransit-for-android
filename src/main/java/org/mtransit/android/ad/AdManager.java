@@ -730,7 +730,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 			if (adView != null && adView.getVisibility() != View.GONE) {
 				adView.setVisibility(View.GONE);
 			}
-			EdgeToEdgeKt.setNavigationBarColor(activity.getActivity(), true);
+			EdgeToEdgeKt.setNavBarColor(activity.getActivity(), true);
 		}
 	}
 
@@ -768,7 +768,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 				adLayout.setVisibility(View.VISIBLE);
 			}
 			EdgeToEdgeKt.setUpEdgeToEdgeBottom(adLayout);
-			EdgeToEdgeKt.setNavigationBarColor(activity.getActivity(), false);
+			EdgeToEdgeKt.setNavBarColor(activity.getActivity(), false);
 		}
 	}
 

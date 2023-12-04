@@ -89,11 +89,12 @@ fun ComponentActivity.setStatusBarColor(transparent: Boolean) {
     }
 }
 
+@JvmName("setNavBarColor")
 fun Activity?.setNavigationBarColor(transparent: Boolean) {
-    (this as? ComponentActivity)?.setNavigationBarColor(transparent)
+    this?.setNavigationBarColor(transparent)
 }
 
-fun ComponentActivity.setNavigationBarColor(transparent: Boolean) {
+fun Activity.setNavigationBarColor(transparent: Boolean) {
     if (!FeatureFlags.F_EDGE_TO_EDGE) {
         return
     }
