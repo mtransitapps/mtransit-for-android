@@ -13,6 +13,7 @@ import org.mtransit.android.commons.MTLog
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.DataSourceType.DataSourceTypeShortNameComparator
 import org.mtransit.android.data.IAgencyProperties
+import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.dev.filterDemoModeAgency
 import org.mtransit.android.dev.filterDemoModeTargeted
@@ -161,19 +162,41 @@ class DataSourcesRepository @Inject constructor(
 
     // region NEWS
 
-    fun getAllNewsProviders() = this.dataSourcesInMemoryCache.getAllNewsProviders().filterDemoModeTargeted(demoModeManager)
+    private fun List<NewsProviderProperties>.filterTwitter(): List<NewsProviderProperties> {
+        return this.filter { !it.authority.contains("news.twitter") }
+    }
+
+    private fun Set<NewsProviderProperties>.filterTwitter(): Set<NewsProviderProperties> {
+        return this.filterTo(HashSet()) { !it.authority.contains("news.twitter") }
+    }
+
+    fun getAllNewsProviders() = this.dataSourcesInMemoryCache.getAllNewsProviders()
+        .filterDemoModeTargeted(demoModeManager).filterTwitter()
 
     fun readingAllNewsProviders() = liveData {
-        emit(dataSourcesInMemoryCache.getAllNewsProviders().filterDemoModeTargeted(demoModeManager).toList())
-        emitSource(dataSourcesIOCache.readingAllNewsProviders().map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+        emit(
+            dataSourcesInMemoryCache.getAllNewsProviders()
+                .filterDemoModeTargeted(demoModeManager).filterTwitter()
+        )
+        emitSource(dataSourcesIOCache.readingAllNewsProviders().map {
+            it.toSet().filterDemoModeTargeted(demoModeManager).filterTwitter()
+        }) // #onModulesUpdated
     }.distinctUntilChanged()
 
-    fun getNewsProviders(targetAuthority: String) = this.dataSourcesInMemoryCache.getNewsProviders(targetAuthority).filterDemoModeTargeted(demoModeManager)
+    fun getNewsProviders(targetAuthority: String) =
+        this.dataSourcesInMemoryCache.getNewsProviders(targetAuthority)
+            .filterDemoModeTargeted(demoModeManager).filterTwitter()
 
     fun readingNewsProviders(targetAuthority: String?) = liveData {
         targetAuthority?.let { providerAuthority ->
-            emit(dataSourcesInMemoryCache.getNewsProvidersList(providerAuthority).filterDemoModeTargeted(demoModeManager))
-            emitSource(dataSourcesIOCache.readingNewsProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
+            emit(
+                dataSourcesInMemoryCache.getNewsProvidersList(providerAuthority)
+                    .filterDemoModeTargeted(demoModeManager).filterTwitter()
+            )
+            emitSource(
+                dataSourcesIOCache.readingNewsProviders(providerAuthority).map {
+                    it.filterDemoModeTargeted(demoModeManager).filterTwitter()
+                }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 

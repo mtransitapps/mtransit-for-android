@@ -60,7 +60,7 @@ class NewsRepository(
     )
 
     fun loadingNewsArticles(
-        allProviders: List<NewsProviderProperties>?,
+        allProviders: Iterable<NewsProviderProperties>?,
         targetProviderAuthorities: Array<String>?,
         filterTargets: Array<String>?,
         filterUUIDs: Array<String>?,
@@ -69,11 +69,11 @@ class NewsRepository(
         onSuccess: (() -> Unit)? = null,
         context: CoroutineContext = EmptyCoroutineContext,
     ) = loadingNewsArticles(
-        allProviders?.filter {
+        providers = allProviders?.filter {
             targetProviderAuthorities != null // SKIP
                     && (targetProviderAuthorities.isEmpty() || targetProviderAuthorities.contains(it.targetAuthority))
         },
-        when {
+        filter = when {
             filterUUIDs == null || filterTargets == null -> null // SKIP
             filterUUIDs.isNotEmpty() -> NewsProviderContract.Filter.getNewUUIDsFilter(filterUUIDs.toList())
             filterTargets.isNotEmpty() -> NewsProviderContract.Filter.getNewTargetsFilter(filterTargets.toList())

@@ -146,6 +146,7 @@ class DataSourcesReader @Inject constructor(
             if (providerMetaData.isKeyMT(serviceUpdateProviderMetaData)) {
                 return true
             }
+            @Suppress("RedundantIf")
             if (providerMetaData.isKeyMT(newsProviderMetaData)) {
                 return true
             }
