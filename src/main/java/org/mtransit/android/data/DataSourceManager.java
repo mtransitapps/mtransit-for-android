@@ -224,12 +224,13 @@ public final class DataSourceManager implements MTLog.Loggable {
 		}
 	}
 
-	public static int findAgencyAvailableVersionCode(@NonNull Context context, @NonNull String authority, boolean forceAppUpdateRefresh, boolean inFocus) {
-		int availableVersionCode = -1;
+	@Nullable
+	public static Integer findAgencyAvailableVersionCode(@NonNull Context context, @NonNull String authority, boolean forceAppUpdateRefresh, boolean inFocus) {
+		Integer availableVersionCode = null;
 		Cursor cursor = null;
 		try {
-			String appUpdateFilterString = new AppUpdateUtils.AppUpdateFilter(forceAppUpdateRefresh, inFocus).toJSONString();
-			Uri uri = Uri.withAppendedPath(getUri(authority), AgencyProviderContract.AVAILABLE_VERSION_CODE);
+			final String appUpdateFilterString = new AppUpdateUtils.AppUpdateFilter(forceAppUpdateRefresh, inFocus).toJSONString();
+			final Uri uri = Uri.withAppendedPath(getUri(authority), AgencyProviderContract.AVAILABLE_VERSION_CODE);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, appUpdateFilterString, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {

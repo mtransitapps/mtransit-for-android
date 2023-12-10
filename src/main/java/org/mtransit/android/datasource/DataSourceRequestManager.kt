@@ -63,7 +63,7 @@ class DataSourceRequestManager constructor(
         DataSourceManager.findPOIs(appContext, authority, poiFilter)
     }
 
-    suspend fun findAgencyAvailableVersionCode(authority: String, forceAppUpdateRefresh: Boolean = false, inFocus: Boolean = false): Int =
+    suspend fun findAgencyAvailableVersionCode(authority: String, forceAppUpdateRefresh: Boolean = false, inFocus: Boolean = false): Int? =
         withContext(dispatcher) {
             DataSourceManager.findAgencyAvailableVersionCode(appContext, authority, forceAppUpdateRefresh, inFocus)
         }

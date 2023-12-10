@@ -11,6 +11,7 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.Constants
 import org.mtransit.android.commons.LocationUtils
@@ -196,4 +197,11 @@ class POIViewModel @Inject constructor(
                 field = value
             }
         }
+
+    fun refreshAppUpdateAvailable() {
+        val agencyProperties = this.agency.value?.takeIf { !it.updateAvailable } ?: return
+        viewModelScope.launch {
+            dataSourcesRepository.refreshAvailableVersions(forcePkg = agencyProperties.pkg)
+        }
+    }
 }

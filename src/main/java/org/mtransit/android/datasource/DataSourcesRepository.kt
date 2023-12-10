@@ -236,10 +236,16 @@ class DataSourcesRepository @Inject constructor(
         return updated
     }
 
-    suspend fun refreshAvailableVersions(forceAppUpdateRefresh: Boolean = false): Boolean {
+    suspend fun refreshAvailableVersions(forcePkg: String? = null, forceAppUpdateRefresh: Boolean = false): Boolean {
         var updated = false
         withContext(Dispatchers.IO) {
-            dataSourcesReader.refreshAvailableVersions(skipTimeCheck = true, forceAppUpdateRefresh = forceAppUpdateRefresh) { updated = true }
+            dataSourcesReader.refreshAvailableVersions(
+                forcePkg = forcePkg,
+                skipTimeCheck = true,
+                forceAppUpdateRefresh = forceAppUpdateRefresh,
+            ) {
+                updated = true
+            }
         }
         return updated
     }

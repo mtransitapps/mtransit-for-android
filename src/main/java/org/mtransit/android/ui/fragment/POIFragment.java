@@ -260,6 +260,9 @@ public class POIFragment extends ABFragment implements
 		}
 		refreshAppUpdateLayout(getView());
 		refreshAppWasDisabledLayout(getView());
+		if (viewModel != null) {
+			viewModel.refreshAppUpdateAvailable();
+		}
 	}
 
 	@Nullable
@@ -1087,6 +1090,9 @@ public class POIFragment extends ABFragment implements
 		this.adManager.refreshRewardedAdStatus(this);
 		refreshRewardedLayout(getView());
 		refreshAppUpdateLayout(getView());
+		if (viewModel != null) {
+			viewModel.refreshAppUpdateAvailable();
+		}
 		refreshAppWasDisabledLayout(getView());
 		if (FeatureFlags.F_NAVIGATION) {
 			if (mainViewModel != null) {

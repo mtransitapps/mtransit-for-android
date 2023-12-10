@@ -91,6 +91,8 @@ class DataSourcesReader @Inject constructor(
         )
 
         private const val PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS = "pLclAvailableVersionLastCheck"
+
+        private val MIN_DURATION_BETWEEN_APP_VERSION_CHECK_IN_MS = TimeUnit.HOURS.toMillis(12L)
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -179,34 +181,39 @@ class DataSourcesReader @Inject constructor(
     }
 
     internal suspend fun refreshAvailableVersions(
+        forcePkg: String? = null,
         skipTimeCheck: Boolean = false,
         forceAppUpdateRefresh: Boolean = false,
         markUpdated: () -> Unit,
     ) {
         val lastCheckInMs = lclPrefRepository.getValue(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, -1L)
-        val shortTimeAgo = TimeUtils.currentTimeMillis() - TimeUnit.HOURS.toMillis(24L)
+        val shortTimeAgo = TimeUtils.currentTimeMillis() - MIN_DURATION_BETWEEN_APP_VERSION_CHECK_IN_MS
         if (!skipTimeCheck && shortTimeAgo < lastCheckInMs) {
             val timeLapsedInHours = TimeUnit.MILLISECONDS.toHours(TimeUtils.currentTimeMillis() - lastCheckInMs)
             MTLog.d(this, "refreshAvailableVersions() > SKIP (last successful refresh too recent ($timeLapsedInHours hours)")
             return
         }
-        dataSourcesDatabase.agencyPropertiesDao().getAllEnabledAgencies().forEach { agencyProperties ->
+        var updated = false
+        dataSourcesDatabase.agencyPropertiesDao().getAllEnabledAgencies().filter { forcePkg == null || forcePkg == it.pkg }.forEach { agencyProperties ->
             val pkg = agencyProperties.pkg
             val authority = agencyProperties.authority
             if (NOT_SUPPORTED_APPS_PKG.contains(pkg)) {
                 MTLog.d(this, "refreshAvailableVersions > SKIP not supported '$pkg .")
                 return@forEach // skip not supported
             }
-            val newAvailableVersionCode = this.dataSourceRequestManager.findAgencyAvailableVersionCode(authority, forceAppUpdateRefresh)
-            if (agencyProperties.availableVersionCode != newAvailableVersionCode) {
-                MTLog.d(this, "Agency '$authority' > new version: r$newAvailableVersionCode.")
-                dataSourcesDatabase.agencyPropertiesDao().update(
-                    agencyProperties.copy(availableVersionCode = newAvailableVersionCode)
-                )
-                markUpdated()
+            this.dataSourceRequestManager.findAgencyAvailableVersionCode(authority, forceAppUpdateRefresh, forcePkg != null)?.let { newAvailableVersionCode ->
+                if (agencyProperties.availableVersionCode != newAvailableVersionCode) {
+                    MTLog.d(this, "Agency '$authority' > new version: r$newAvailableVersionCode.")
+                    dataSourcesDatabase.agencyPropertiesDao().update(
+                        agencyProperties.copy(availableVersionCode = newAvailableVersionCode)
+                    )
+                    markUpdated()
+                    updated = true
+                }
             }
+        if (!skipTimeCheck && updated) {
+            lclPrefRepository.saveAsync(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis())
         }
-        lclPrefRepository.saveAsync(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis())
     }
 
     private suspend fun lookForNewDataSources(
