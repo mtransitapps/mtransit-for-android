@@ -13,7 +13,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.PackageManagerUtils
-import org.mtransit.android.commons.pref.liveDataN
+import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -68,10 +68,10 @@ class AgencyTypeViewModel @Inject constructor(
 
     override fun getAdBannerHeightInPx(activity: IActivity?) = this.adManager.getBannerHeightInPx(activity)
 
-    private val selectedTypeAgencyAuthority: LiveData<String?> = _typeId.switchMap { typeId ->
+    private val selectedTypeAgencyAuthority: LiveData<String> = _typeId.switchMap { typeId ->
         liveData {
             emitSource(
-                lclPrefRepository.pref.liveDataN(
+                lclPrefRepository.pref.liveData(
                     LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(typeId),
                     LocalPreferenceRepository.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
                 )
