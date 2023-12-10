@@ -211,6 +211,7 @@ class DataSourcesReader @Inject constructor(
                     updated = true
                 }
             }
+        }
         if (!skipTimeCheck && updated) {
             lclPrefRepository.saveAsync(PREFS_LCL_AVAILABLE_VERSION_LAST_CHECK_IN_MS, TimeUtils.currentTimeMillis())
         }
