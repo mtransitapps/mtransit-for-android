@@ -114,7 +114,6 @@ class MapViewModel @Inject constructor(
         LocalPreferenceRepository.PREFS_LCL_MAP_FILTER_TYPE_IDS, LocalPreferenceRepository.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT
     ).distinctUntilChanged()
 
-
     fun saveFilterTypeIdsPref(filterTypeIds: Collection<Int>?) {
         val newFilterTypeIdStrings: Set<String> = filterTypeIds?.mapTo(HashSet()) { it.toString() }
             ?: LocalPreferenceRepository.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT // NULL = EMPTY = ALL (valid)

@@ -17,6 +17,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.AppUpdateLauncher;
 import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.ComparatorUtils;
 import org.mtransit.android.commons.DeviceUtils;
@@ -404,14 +405,14 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 					final AgencyProperties agencyProperties = dataSourcesRepository.getAgencyForPkg(((Module) poi).getPkg());
 					if (agencyProperties != null && agencyProperties.hasContactUs()) {
 						return new CharSequence[]{
-								context.getString(R.string.rate_on_store),
+								context.getString(R.string.view_on_store),
 								context.getString(R.string.manage_app),
 								context.getString(R.string.uninstall),
 								context.getString(R.string.customer_service),
 						};
 					} else {
 						return new CharSequence[]{ //
-								context.getString(R.string.rate_on_store), //
+								context.getString(R.string.view_on_store), //
 								context.getString(R.string.manage_app), //
 								context.getString(R.string.uninstall), //
 						};
@@ -466,30 +467,31 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 										  int itemClicked,
 										  @SuppressWarnings("unused") FavoriteManager.FavoriteUpdateListener listener,
 										  @Nullable POIArrayAdapter.OnClickHandledListener onClickHandledListener) {
+		final String pkg = ((Module) poi).getPkg();
 		switch (itemClicked) {
 		case 0: // Rate on Google Play
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			StoreUtils.viewAppPage(activity, ((Module) poi).getPkg(), activity.getString(org.mtransit.android.commons.R.string.google_play));
+			StoreUtils.viewAppPage(activity, pkg, activity.getString(org.mtransit.android.commons.R.string.google_play));
 			return true; // HANDLED
 		case 1: // Manage App
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			DeviceUtils.showAppDetailsSettings(activity, ((Module) poi).getPkg());
+			DeviceUtils.showAppDetailsSettings(activity, pkg);
 			return true; // HANDLED
 		case 2: // Uninstall
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			PackageManagerUtils.uninstallApp(activity, ((Module) poi).getPkg());
+			PackageManagerUtils.uninstallApp(activity, pkg);
 			return true; // HANDLED
 		case 3: // Customer service
 			if (onClickHandledListener != null) {
 				onClickHandledListener.onLeaving();
 			}
-			final AgencyProperties agencyProperties = dataSourcesRepository.getAgencyForPkg(((Module) poi).getPkg());
+			final AgencyProperties agencyProperties = dataSourcesRepository.getAgencyForPkg(pkg);
 			if (agencyProperties != null && agencyProperties.hasContactUs()) {
 				LinkUtils.open(view, activity, agencyProperties.getContactUsWebForLang(), activity.getString(org.mtransit.android.commons.R.string.web_browser), false); // force external web browser
 			}
@@ -797,26 +799,30 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 			if (PackageManagerUtils.isAppInstalled(activity, pkg)
 					&& PackageManagerUtils.isAppEnabled(activity, pkg)) {
 				final AgencyProperties agency = dataSourcesRepository.getAgencyForPkg(pkg);
-				if (agency != null && !agency.getUpdateAvailable()) {
-					PreferenceUtils.savePrefLclAsync(activity, PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(agency.getType().getId()), agency.getAuthority());
-					if (FeatureFlags.F_NAVIGATION) {
-						final NavController navController = Navigation.findNavController(view);
-						FragmentNavigator.Extras extras = null;
-						if (FeatureFlags.F_TRANSITION) {
-							extras = new FragmentNavigator.Extras.Builder()
-									.addSharedElement(view, view.getTransitionName())
-									.build();
+				if (agency != null) {
+					if (agency.getUpdateAvailable()) {
+						AppUpdateLauncher.launchAppUpdate(activity, pkg);
+					} else { // navigate to agency type screen
+						PreferenceUtils.savePrefLclAsync(activity, PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(agency.getType().getId()), agency.getAuthority());
+						if (FeatureFlags.F_NAVIGATION) {
+							final NavController navController = Navigation.findNavController(view);
+							FragmentNavigator.Extras extras = null;
+							if (FeatureFlags.F_TRANSITION) {
+								extras = new FragmentNavigator.Extras.Builder()
+										.addSharedElement(view, view.getTransitionName())
+										.build();
+							}
+							NavControllerExtKt.navigateF(navController,
+									R.id.nav_to_type_screen,
+									AgencyTypeFragment.newInstanceArgs(agency.getType()),
+									null,
+									extras
+							);
+						} else {
+							((MainActivity) activity).addFragmentToStack(
+									AgencyTypeFragment.newInstance(agency.getType())
+							);
 						}
-						NavControllerExtKt.navigateF(navController,
-								R.id.nav_to_type_screen,
-								AgencyTypeFragment.newInstanceArgs(agency.getType()),
-								null,
-								extras
-						);
-					} else {
-						((MainActivity) activity).addFragmentToStack(
-								AgencyTypeFragment.newInstance(agency.getType())
-						);
 					}
 					return true; // handled
 				}

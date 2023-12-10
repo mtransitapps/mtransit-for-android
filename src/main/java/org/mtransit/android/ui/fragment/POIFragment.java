@@ -45,6 +45,7 @@ import org.mtransit.android.analytics.AnalyticsEventsParamsProvider;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.common.IContext;
 import org.mtransit.android.common.repository.DefaultPreferenceRepository;
+import org.mtransit.android.commons.AppUpdateLauncher;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
@@ -841,7 +842,7 @@ public class POIFragment extends ABFragment implements
 			if (activity == null) {
 				return;
 			}
-			final IAgencyProperties agency = getAgencyOrNull();
+			final IAgencyUpdatableProperties agency = getAgencyOrNull();
 			if (agency == null) {
 				return;
 			}
@@ -849,6 +850,10 @@ public class POIFragment extends ABFragment implements
 			POIFragment.this.analyticsManager.logEvent(AnalyticsEvents.CLICK_APP_UPDATE_POI, new AnalyticsEventsParamsProvider()
 					.put(AnalyticsEvents.Params.PKG, pkg)
 			);
+			if (agency.getUpdateAvailable()) {
+				AppUpdateLauncher.launchAppUpdate(activity, pkg);
+				return; // handled
+			}
 			StoreUtils.viewAppPage(activity, pkg, activity.getString(org.mtransit.android.commons.R.string.google_play));
 		});
 	}
