@@ -25,6 +25,7 @@ import org.mtransit.android.data.ITargetedProviderProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesCache
+import org.mtransit.commons.FeatureFlags
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -78,9 +79,12 @@ class DemoModeManager @Inject constructor(
         val ad = LocationUtils.getNewDefaultAroundDiff()
         var poim: POIManager?
         while (true) {
-            val filter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff)
-            poim = this.dataSourceRequestManager
-                .findPOIMs(agency.authority, filter)
+            val filter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff).apply {
+                if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
+                    excludeBookingRequired = true // TODO?
+                }
+            }
+            poim = this.dataSourceRequestManager.findPOIMs(agency.authority, filter)
                 ?.updateDistanceM(lat, lng)
                 ?.removeTooFar(LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff))
                 ?.firstOrNull()

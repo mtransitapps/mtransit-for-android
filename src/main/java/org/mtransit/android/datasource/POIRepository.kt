@@ -11,6 +11,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.data.set
@@ -19,23 +20,28 @@ import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
+import org.mtransit.commons.FeatureFlags
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 @Singleton
 class POIRepository(
+    val dataSourceRequestManager: DataSourceRequestManager,
+    private val lclPrefRepository: LocalPreferenceRepository,
     private val ioDispatcher: CoroutineDispatcher,
-    val dataSourceRequestManager: DataSourceRequestManager
 ) : MTLog.Loggable {
 
     @Inject
     constructor(
         dataSourceRequestManager: DataSourceRequestManager,
+        lclPrefRepository: LocalPreferenceRepository,
     ) : this(
-        Dispatchers.IO,
         dataSourceRequestManager,
+        lclPrefRepository,
+        Dispatchers.IO,
     )
 
     companion object {
@@ -56,12 +62,21 @@ class POIRepository(
         return authorityUUIDtoPOIMCache[authority to uuid]
     }
 
+    private fun commonSetup(filter: POIProviderContract.Filter): POIProviderContract.Filter {
+        if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
+            filter.excludeBookingRequired = lclPrefRepository.getValue(
+                LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED, LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED_DEFAULT
+            )
+        }
+        return filter
+    }
+
     suspend fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? {
-        return dataSourceRequestManager.findPOI(authority, poiFilter)
+        return dataSourceRequestManager.findPOI(authority, commonSetup(poiFilter))
     }
 
     suspend fun findPOIM(authority: String, poiFilter: POIProviderContract.Filter): POIManager? {
-        return dataSourceRequestManager.findPOIM(authority, poiFilter)
+        return dataSourceRequestManager.findPOIM(authority, commonSetup(poiFilter))
     }
 
     fun readingPOIM(
@@ -79,7 +94,7 @@ class POIRepository(
         } else {
             val cachePOIM = read(authority, uuid)
                 ?.also { emit(it) }
-            dataSourceRequestManager.findPOIM(authority, POIProviderContract.Filter.getNewUUIDFilter(uuid))?.let { newPOIM ->
+            dataSourceRequestManager.findPOIM(authority, commonSetup(POIProviderContract.Filter.getNewUUIDFilter(uuid)))?.let { newPOIM ->
                 if (cachePOIM == null // no cache POI
                     || newPOIM.poi != cachePOIM.poi // new POI != cache POI
                 ) {
@@ -97,13 +112,13 @@ class POIRepository(
     }.distinctUntilChanged()
 
     suspend fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI>? {
-        return dataSourceRequestManager.findPOIs(authority, poiFilter)
+        return dataSourceRequestManager.findPOIs(authority, commonSetup(poiFilter))
     }
 
     suspend fun findPOIMs(provider: IAgencyProperties, poiFilter: POIProviderContract.Filter) = findPOIMs(provider.authority, poiFilter)
 
     suspend fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): MutableList<POIManager>? {
-        return dataSourceRequestManager.findPOIMs(authority, poiFilter)
+        return dataSourceRequestManager.findPOIMs(authority, commonSetup(poiFilter))
     }
 
     fun loadingPOIMs(

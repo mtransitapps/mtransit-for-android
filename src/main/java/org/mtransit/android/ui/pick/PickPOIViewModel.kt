@@ -17,7 +17,6 @@ import org.mtransit.android.ui.favorites.FavoritesViewModel
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
-import java.util.ArrayList
 import javax.inject.Inject
 import kotlin.math.min
 
