@@ -38,6 +38,8 @@ import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.location.MTLocationProvider
+import org.mtransit.android.provider.location.network.NetworkLocationRepository
+import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.favorites.FavoritesViewModel
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
@@ -46,16 +48,19 @@ import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareVie
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.commons.addAllN
 import java.util.SortedMap
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    @ApplicationContext appContext: Context,
+    @ApplicationContext private val appContext: Context,
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val locationProvider: MTLocationProvider,
+    private val locationPermissionProvider: LocationPermissionProvider,
+    private val networkLocationRepository: NetworkLocationRepository,
     private val favoriteRepository: FavoriteRepository,
     private val adManager: IAdManager,
     private val demoModeManager: DemoModeManager,
@@ -79,16 +84,33 @@ class HomeViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
+    fun checkIfIPLocationRequired() {
+        if (deviceLocation.value != null) {
+            return
+        }
+        if (locationPermissionProvider.allRequiredPermissionsGranted(appContext)) {
+            return
+        }
+        viewModelScope.launch {
+            if (dataSourcesRepository.getAllAgenciesCount() > DataSourcesRepository.DEFAULT_AGENCY_COUNT) {
+                return@launch
+            }
+            networkLocationRepository.fetchIPLocationIfNecessary()
+        }
+    }
+
+    private val _ipLocation = networkLocationRepository.ipLocation
+
     private val _nearbyLocationForceReset = MutableLiveData(Event(false))
 
     private val _nearbyLocation: LiveData<Location?> =
-        PairMediatorLiveData(deviceLocation, _nearbyLocationForceReset).switchMap { (lastDeviceLocation, forceResetEvent) ->
+        TripleMediatorLiveData(deviceLocation, _nearbyLocationForceReset, _ipLocation).switchMap { (lastDeviceLocation, forceResetEvent, ipLocation) ->
             liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
                 val forceReset: Boolean = forceResetEvent?.getContentIfNotHandled() ?: false
                 if (forceReset) {
                     emit(null) // force reset
                 }
-                emit(getNearbyLocation(lastDeviceLocation, forceReset))
+                emit(getNearbyLocation(lastDeviceLocation ?: ipLocation, forceReset))
             }
         }.distinctUntilChanged()
 
@@ -231,9 +253,6 @@ class HomeViewModel @Inject constructor(
                         it.remove()
                         continue
                     }
-                } else if (nbKept >= nbMaxByType && lastKeptDistance != poim.distance) {
-                    it.remove()
-                    continue
                 }
             }
             if (nbKept >= nbMaxByType && lastKeptDistance != poim.distance && poim.distance > minDistanceInMeters) {

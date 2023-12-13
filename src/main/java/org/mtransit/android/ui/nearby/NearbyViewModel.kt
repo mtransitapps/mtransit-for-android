@@ -15,6 +15,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.analytics.AnalyticsEvents
 import org.mtransit.android.analytics.IAnalyticsManager
@@ -27,6 +28,8 @@ import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.location.MTLocationProvider
+import org.mtransit.android.provider.location.network.NetworkLocationRepository
+import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTViewModelWithLocation
@@ -36,17 +39,20 @@ import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareVie
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 
 @HiltViewModel
 class NearbyViewModel @Inject constructor(
-    @ApplicationContext appContext: Context,
+    @ApplicationContext private val appContext: Context,
     savedStateHandle: SavedStateHandle,
     private val analyticsManager: IAnalyticsManager,
     private val adManager: IAdManager,
     private val locationProvider: MTLocationProvider,
+    private val networkLocationRepository: NetworkLocationRepository,
+    private val locationPermissionProvider: LocationPermissionProvider,
     private val dataSourcesRepository: DataSourcesRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val statusLoader: StatusLoader,
@@ -95,14 +101,36 @@ class NearbyViewModel @Inject constructor(
     private val _nearbyLocationForceReset = MutableLiveData(Event(false))
     val nearbyLocationForceReset: LiveData<Event<Boolean>> = _nearbyLocationForceReset
 
+    fun checkIfIPLocationRequired() {
+        if (deviceLocation.value != null) {
+            return
+        }
+        if (locationPermissionProvider.allRequiredPermissionsGranted(appContext)) {
+            return
+        }
+        viewModelScope.launch {
+            if (dataSourcesRepository.getAllAgenciesCount() > DataSourcesRepository.DEFAULT_AGENCY_COUNT) {
+                return@launch
+            }
+            networkLocationRepository.fetchIPLocationIfNecessary()
+        }
+    }
+
+    private val _ipLocation = networkLocationRepository.ipLocation
+
     val nearbyLocation: LiveData<Location?> =
-        TripleMediatorLiveData(fixedOnLocation, deviceLocation, _nearbyLocationForceReset).switchMap { (fixedOnLocation, lastDeviceLocation, forceResetEvent) ->
+        QuadrupleMediatorLiveData(
+            fixedOnLocation,
+            deviceLocation,
+            _nearbyLocationForceReset,
+            _ipLocation
+        ).switchMap { (fixedOnLocation, lastDeviceLocation, forceResetEvent, ipLocation) ->
             liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
                 val forceReset: Boolean = forceResetEvent?.getContentIfNotHandled() ?: false
                 if (forceReset) {
                     emit(null) // force reset
                 }
-                emit(getNearbyLocation(fixedOnLocation, lastDeviceLocation, forceReset))
+                emit(getNearbyLocation(fixedOnLocation, lastDeviceLocation ?: ipLocation, forceReset))
             }
         }.distinctUntilChanged()
 
@@ -165,7 +193,7 @@ class NearbyViewModel @Inject constructor(
 
     private val _selectedTypeIdPref: LiveData<Int?> = lclPrefRepository.pref.liveData(
         LocalPreferenceRepository.PREFS_LCL_NEARBY_TAB_TYPE,
-        -1 // default = no selection
+        LocalPreferenceRepository.PREFS_LCL_NEARBY_TAB_TYPE_DEFAULT, // default = no selection
     )
 
     val selectedTypeId: LiveData<Int?> = PairMediatorLiveData(_selectedTypeId, _selectedTypeIdPref).map { (selectedTypeId, selectedTypeIdPref) ->

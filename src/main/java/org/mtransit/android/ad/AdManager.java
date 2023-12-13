@@ -95,7 +95,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	private static final boolean IGNORE_REWARD_HIDING_BANNER = false;
 	// private static final boolean IGNORE_REWARD_HIDING_BANNER = true; // DEBUG
 
-	private static final int MIN_AGENCIES_FOR_ADS = 2;
+	private static final int MIN_AGENCIES_FOR_ADS = DataSourcesRepository.DEFAULT_AGENCY_COUNT;
 	// private static final int MIN_AGENCIES_FOR_ADS = 0; // DEBUG
 
 	private static final ArrayList<String> KEYWORDS = ArrayUtils.asArrayList(

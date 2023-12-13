@@ -28,6 +28,7 @@ import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.DemoModeManager;
 import org.mtransit.android.dev.FakeLocation;
@@ -89,6 +90,8 @@ public class GoogleLocationProvider
 	@NonNull
 	private final DemoModeManager demoModeManager;
 	@NonNull
+	private final DataSourcesRepository dataSourcesRepository;
+	@NonNull
 	private final IAnalyticsManager analyticsManager;
 	@NonNull
 	private final CrashReporter crashReporter;
@@ -97,22 +100,27 @@ public class GoogleLocationProvider
 	GoogleLocationProvider(@NonNull @ApplicationContext Context appContext,
 						   @NonNull LocationPermissionProvider permissionProvider,
 						   @NonNull DemoModeManager demoModeManager,
+						   @NonNull DataSourcesRepository dataSourcesRepository,
 						   @NonNull IAnalyticsManager analyticsManager,
 						   @NonNull CrashReporter crashReporter) {
 		this.appContext = appContext;
 		this.permissionProvider = permissionProvider;
 		this.demoModeManager = demoModeManager;
+		this.dataSourcesRepository = dataSourcesRepository;
 		this.analyticsManager = analyticsManager;
 		this.crashReporter = crashReporter;
 	}
 
 	@Override
 	public void doSetupIfRequired(@NonNull ScreenWithLocationView screenWithLocationView) {
-		if (needsSetup(screenWithLocationView)) {
-			doSetup(screenWithLocationView);
-		} else {
+		if (!needsSetup(screenWithLocationView)) {
 			onLocationProviderReady();
+			return;
 		}
+		if (this.dataSourcesRepository.getAllAgenciesCount() <= DataSourcesRepository.DEFAULT_AGENCY_COUNT) {
+			return; // wait until 1 module is installed
+		}
+		doSetup(screenWithLocationView);
 	}
 
 	@Override

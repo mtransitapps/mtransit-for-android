@@ -1,6 +1,5 @@
 package org.mtransit.android.provider.location;
 
-import android.app.Activity;
 import android.app.PendingIntent;
 import android.location.Location;
 

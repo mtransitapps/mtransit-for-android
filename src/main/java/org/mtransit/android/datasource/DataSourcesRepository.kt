@@ -36,6 +36,8 @@ class DataSourcesRepository @Inject constructor(
 
     companion object {
         private val LOG_TAG = DataSourcesRepository::class.java.simpleName
+
+        const val DEFAULT_AGENCY_COUNT = 2
     }
 
     override fun getLogTag(): String = LOG_TAG

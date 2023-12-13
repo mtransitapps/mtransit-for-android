@@ -27,6 +27,11 @@ public class LocalPreferenceRepository extends PreferenceRepository {
 	public static final Set<String> PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT = PreferenceUtils.PREFS_LCL_MAP_FILTER_TYPE_IDS_DEFAULT;
 
 	public static final String PREFS_LCL_NEARBY_TAB_TYPE = PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE;
+	public static final int PREFS_LCL_NEARBY_TAB_TYPE_DEFAULT = PreferenceUtils.PREFS_LCL_NEARBY_TAB_TYPE_DEFAULT;
+
+	public static final String PREFS_LCL_IP_LOCATION_LAT = PreferenceUtils.PREFS_LCL_IP_LOCATION_LAT;
+	public static final String PREFS_LCL_IP_LOCATION_LNG = PreferenceUtils.PREFS_LCL_IP_LOCATION_LNG;
+	public static final String PREFS_LCL_IP_LOCATION_TIMESTAMP = PreferenceUtils.PREFS_LCL_IP_LOCATION_TIMESTAMP;
 
 	public static final String PREF_USER_SEEN_APP_DISABLED = PreferenceUtils.PREF_USER_SEEN_APP_DISABLED;
 	public static final boolean PREF_USER_SEEN_APP_DISABLED_DEFAULT = PreferenceUtils.PREF_USER_SEEN_APP_DISABLED_DEFAULT;
