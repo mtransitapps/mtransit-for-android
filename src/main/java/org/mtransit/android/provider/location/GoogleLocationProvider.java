@@ -327,7 +327,6 @@ public class GoogleLocationProvider
 	public String getLocationAddressString(@NonNull Location location) {
 		return LocationUtils.getLocationString(
 				this.appContext,
-				null,
 				LocationUtils.getLocationAddress(this.appContext, location),
 				location.getAccuracy()
 		);
