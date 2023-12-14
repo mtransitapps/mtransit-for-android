@@ -20,7 +20,10 @@ class SVGModule : AppGlideModule() {
         registry.apply {
             register(SVG::class.java, PictureDrawable::class.java, SVGDrawableTranscoder())
             append(InputStream::class.java, SVG::class.java, SVGDecoder())
-            replace(GlideUrl::class.java, InputStream::class.java, OkHttpUrlLoader.Factory(NetworkComponents.getOkHttpClient(context)))
+            @Suppress("ConstantConditionIf")
+            if (false) { // DISABLED because too noisy & mostly useless
+                replace(GlideUrl::class.java, InputStream::class.java, OkHttpUrlLoader.Factory(NetworkComponents.getOkHttpClient(context)))
+            }
         }
     }
 
