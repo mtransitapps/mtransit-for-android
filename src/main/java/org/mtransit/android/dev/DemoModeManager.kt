@@ -15,6 +15,7 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.LocaleUtils
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.updateDistanceM
@@ -26,6 +27,8 @@ import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourceRequestManager
 import org.mtransit.android.datasource.DataSourcesCache
 import org.mtransit.commons.FeatureFlags
+import org.mtransit.commons.GTFSCommons
+import org.mtransit.commons.removeAllAnd
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -80,11 +83,13 @@ class DemoModeManager @Inject constructor(
         var poim: POIManager?
         while (true) {
             val filter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, ad.aroundDiff).apply {
-                if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
-                    excludeBookingRequired = true // TODO?
-                }
             }
             poim = this.dataSourceRequestManager.findPOIMs(agency.authority, filter)
+                ?.removeAllAnd {
+                    if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
+                        (it.poi as? RouteTripStop)?.route?.type in GTFSCommons.ROUTE_TYPES_REQUIRES_BOOKING
+                    } else false
+                }
                 ?.updateDistanceM(lat, lng)
                 ?.removeTooFar(LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, ad.aroundDiff))
                 ?.firstOrNull()
@@ -174,6 +179,7 @@ class DemoModeManager @Inject constructor(
         if (filterScreen != FILTER_SCREEN_POI) {
             return false
         }
+        @Suppress("RedundantIf")
         if (filterAgencyAuthority.isNullOrBlank() || filterUUID.isNullOrBlank()) {
             return false
         }
@@ -187,6 +193,7 @@ class DemoModeManager @Inject constructor(
         if (filterScreen != FILTER_SCREEN_BROWSE) {
             return false
         }
+        @Suppress("RedundantIf")
         if (filterAgencyTypeId == null) {
             return false
         }
@@ -197,11 +204,11 @@ class DemoModeManager @Inject constructor(
     fun isAllowedAnyway(dst: DataSourceType?) = dst?.isMapScreen != true
     fun isAllowedAnyway(targeted: ITargetedProviderProperties?) = this.allowedTargeted.contains(targeted?.authority)
 
-    fun fixLocale(_newBase: Context): Context {
+    fun fixLocale(newBaseContext: Context): Context {
         if (!enabled && forceLang == null) {
-            return _newBase
+            return newBaseContext
         }
-        var newBase = _newBase
+        var newBase = newBaseContext
         newBase = newBase.createConfigurationContext(
             fixLocale(newBase.resources.configuration)
         )
@@ -209,9 +216,9 @@ class DemoModeManager @Inject constructor(
     }
 
     @SuppressLint("AppBundleLocaleChanges")
-    private fun fixLocale(_configuration: Configuration): Configuration {
+    private fun fixLocale(newConfiguration: Configuration): Configuration {
         val defaultLocale = forceLang?.let { Locale.forLanguageTag(it) } ?: LocaleUtils.getDefaultLocale()
-        return _configuration.apply {
+        return newConfiguration.apply {
             setLocale(defaultLocale)
             Locale.setDefault(defaultLocale)
         }

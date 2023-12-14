@@ -395,7 +395,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         switchView()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
-        viewModel.checkIfIPLocationRequired()
+        viewModel.checkIfNetworkLocationRefreshNecessary()
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.setABTitle(getABTitle(context))
             mainViewModel.setABSubtitle(getABSubtitle(context))

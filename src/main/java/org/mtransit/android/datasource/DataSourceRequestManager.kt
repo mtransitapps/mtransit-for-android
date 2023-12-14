@@ -26,7 +26,7 @@ import javax.inject.Singleton
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 @Singleton
-class DataSourceRequestManager constructor(
+class DataSourceRequestManager(
     private val appContext: Context,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : MTLog.Loggable {

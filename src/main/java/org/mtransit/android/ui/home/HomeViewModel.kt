@@ -19,6 +19,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import org.mtransit.android.ad.IAdManager
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.PackageManagerUtils
@@ -39,7 +40,6 @@ import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.location.MTLocationProvider
 import org.mtransit.android.provider.location.network.NetworkLocationRepository
-import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.favorites.FavoritesViewModel
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
@@ -49,7 +49,10 @@ import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
+import org.mtransit.commons.FeatureFlags
+import org.mtransit.commons.GTFSCommons
 import org.mtransit.commons.addAllN
+import org.mtransit.commons.removeAllAnd
 import java.util.SortedMap
 import javax.inject.Inject
 
@@ -58,8 +61,8 @@ class HomeViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
+    private val lclPrefRepository: LocalPreferenceRepository,
     private val locationProvider: MTLocationProvider,
-    private val locationPermissionProvider: LocationPermissionProvider,
     private val networkLocationRepository: NetworkLocationRepository,
     private val favoriteRepository: FavoriteRepository,
     private val adManager: IAdManager,
@@ -84,18 +87,9 @@ class HomeViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    fun checkIfIPLocationRequired() {
-        if (deviceLocation.value != null) {
-            return
-        }
-        if (locationPermissionProvider.allRequiredPermissionsGranted(appContext)) {
-            return
-        }
+    fun checkIfNetworkLocationRefreshNecessary() {
         viewModelScope.launch {
-            if (dataSourcesRepository.getAllAgenciesCount() > DataSourcesRepository.DEFAULT_AGENCY_COUNT) {
-                return@launch
-            }
-            networkLocationRepository.fetchIPLocationIfNecessary()
+            networkLocationRepository.fetchIPLocationIfNecessary(deviceLocation.value)
         }
     }
 
@@ -246,16 +240,21 @@ class HomeViewModel @Inject constructor(
         while (it.hasNext()) {
             val poim = it.next()
             if (!favoriteUUIDs.contains(poim.poi.uuid)) {
-                if (poim.poi is RouteTripStop) {
+                if (poim.poi is RouteTripStop) { // RTS
                     val rts = poim.poi
                     val routeTripId = "${rts.route.id}-${rts.trip.id}"
                     if (routeTripKept.contains(routeTripId)) {
                         it.remove()
                         continue
                     }
+                } else // bike station, modules... (need to honor MAX BY TYPE)
+                    if (nbKept >= nbMaxByType && lastKeptDistance != poim.distance) {
+                    MTLog.d(this, "filterTypePOIs() > remove ${poim.poi.uuid} ($nbKept >= $nbMaxByType & $lastKeptDistance != ${poim.distance})")
+                    it.remove()
+                    continue
                 }
             }
-            if (nbKept >= nbMaxByType && lastKeptDistance != poim.distance && poim.distance > minDistanceInMeters) {
+            if (nbKept >= nbMaxByType && lastKeptDistance != poim.distance && poim.distance > minDistanceInMeters * 2) {
                 it.remove()
                 continue
             }
@@ -333,6 +332,9 @@ class HomeViewModel @Inject constructor(
         // TODO latter optimize val optLastArea = if (optLastAroundDiff == null) null else LocationUtils.getArea(lat, lng, optLastAroundDiff)
         val aroundDiff = ad.aroundDiff
         val maxDistance = LocationUtils.getAroundCoveredDistanceInMeters(lat, lng, aroundDiff)
+        val hideBookingRequired = lclPrefRepository.getValue(
+            LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED, LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED_DEFAULT
+        )
         val poiFilter = POIProviderContract.Filter.getNewAroundFilter(lat, lng, aroundDiff).apply {
             addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
             addExtra(GTFSProviderContract.POI_FILTER_EXTRA_NO_PICKUP, true)
@@ -343,6 +345,11 @@ class HomeViewModel @Inject constructor(
                 scope.ensureActive()
                 typePOIs.addAllN(
                     poiRepository.findPOIMs(agency.authority, poiFilter)
+                        ?.removeAllAnd {
+                            if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
+                                hideBookingRequired && (it.poi as? RouteTripStop)?.route?.type in GTFSCommons.ROUTE_TYPES_REQUIRES_BOOKING
+                            } else false
+                        }
                         ?.updateDistanceM(lat, lng)
                         ?.removeTooFar(maxDistance)
                         ?.removeTooMuchWhenNotInCoverage(

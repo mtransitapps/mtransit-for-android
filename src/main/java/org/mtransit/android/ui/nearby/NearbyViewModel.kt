@@ -29,7 +29,6 @@ import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.location.MTLocationProvider
 import org.mtransit.android.provider.location.network.NetworkLocationRepository
-import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.MTViewModelWithLocation
@@ -52,7 +51,6 @@ class NearbyViewModel @Inject constructor(
     private val adManager: IAdManager,
     private val locationProvider: MTLocationProvider,
     private val networkLocationRepository: NetworkLocationRepository,
-    private val locationPermissionProvider: LocationPermissionProvider,
     private val dataSourcesRepository: DataSourcesRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val statusLoader: StatusLoader,
@@ -101,18 +99,9 @@ class NearbyViewModel @Inject constructor(
     private val _nearbyLocationForceReset = MutableLiveData(Event(false))
     val nearbyLocationForceReset: LiveData<Event<Boolean>> = _nearbyLocationForceReset
 
-    fun checkIfIPLocationRequired() {
-        if (deviceLocation.value != null) {
-            return
-        }
-        if (locationPermissionProvider.allRequiredPermissionsGranted(appContext)) {
-            return
-        }
+    fun checkIfNetworkLocationRefreshNecessary() {
         viewModelScope.launch {
-            if (dataSourcesRepository.getAllAgenciesCount() > DataSourcesRepository.DEFAULT_AGENCY_COUNT) {
-                return@launch
-            }
-            networkLocationRepository.fetchIPLocationIfNecessary()
+            networkLocationRepository.fetchIPLocationIfNecessary(deviceLocation.value)
         }
     }
 

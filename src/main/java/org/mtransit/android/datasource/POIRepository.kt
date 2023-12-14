@@ -62,14 +62,7 @@ class POIRepository(
         return authorityUUIDtoPOIMCache[authority to uuid]
     }
 
-    private fun commonSetup(filter: POIProviderContract.Filter): POIProviderContract.Filter {
-        if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
-            filter.excludeBookingRequired = lclPrefRepository.getValue(
-                LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED, LocalPreferenceRepository.PREF_LCL_HIDE_BOOKING_REQUIRED_DEFAULT
-            )
-        }
-        return filter
-    }
+    private fun commonSetup(filter: POIProviderContract.Filter) = filter
 
     suspend fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? {
         return dataSourceRequestManager.findPOI(authority, commonSetup(poiFilter))
