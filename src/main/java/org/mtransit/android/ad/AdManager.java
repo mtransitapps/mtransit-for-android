@@ -117,7 +117,6 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	private final DemoModeManager demoModeManager;
 	@NonNull
 	private final DefaultPreferenceRepository defaultPrefRepository;
-	@SuppressWarnings("FieldCanBeLocal")
 	@NonNull
 	private final DataSourcesRepository dataSourcesRepository;
 
@@ -248,6 +247,28 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	}
 
 	@Nullable
+	private Boolean hasLowLoadShowRatio = null;
+
+	public boolean hasLowLoadShowRatio() {
+		if (this.hasLowLoadShowRatio == null) {
+			final int showCounts = this.defaultPrefRepository.getValue(
+					DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS, DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS_DEFAULT);
+			final int loadCounts = this.defaultPrefRepository.getValue(
+					DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS, DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS_DEFAULT);
+			final boolean newHasLowLoadShowRatio;
+			if (loadCounts <= 0) {
+				newHasLowLoadShowRatio = false;
+			} else if (showCounts <= 0) {
+				newHasLowLoadShowRatio = loadCounts >= 10;
+			} else {
+				newHasLowLoadShowRatio = (((float) showCounts) / loadCounts) < 0.10f;
+			}
+			this.hasLowLoadShowRatio = newHasLowLoadShowRatio;
+		}
+		return this.hasLowLoadShowRatio;
+	}
+
+	@Nullable
 	private Long rewardedUntilInMs = null;
 
 	@Override
@@ -320,6 +341,9 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		if (!isDailyUser()) {
 			return true; // always skip for non-daily users
 		}
+		if (hasLowLoadShowRatio()) {
+			return true; // too much loads for too less shows
+		}
 		if (!isRewardedNow()) {
 			return false; // never skip for non-rewarded users
 		}
@@ -352,6 +376,8 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 					getAdRequest(activity),
 					new MTRewardedAdLoadCallback(this, this.crashReporter)
 			);
+			final int loadCounts = this.defaultPrefRepository.getValue(DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS, DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS_DEFAULT);
+			this.defaultPrefRepository.saveAsync(DefaultPreferenceRepository.PREF_USER_REWARDED_LOAD_COUNTS, loadCounts + 1);
 		} else {
 			MTLog.d(this, "loadRewardedAdForActivity() > NOT Loading rewarded ad for %s...", theActivity.getClass().getSimpleName());
 		}
@@ -520,6 +546,8 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 				new MTRewardedAdFullScreenContentCallback(this, this.crashReporter, activity)
 		);
 		this.rewardedAd.show(theActivity, new MTRewardedAdOnUserEarnedRewardListener(this, activity));
+		final int showCounts = this.defaultPrefRepository.getValue(DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS, DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS_DEFAULT);
+		this.defaultPrefRepository.saveAsync(DefaultPreferenceRepository.PREF_USER_REWARDED_SHOW_COUNTS, showCounts + 1);
 		return true;
 	}
 
