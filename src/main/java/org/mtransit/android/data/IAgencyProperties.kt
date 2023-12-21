@@ -1,6 +1,8 @@
 package org.mtransit.android.data
 
 import android.content.Context
+import android.content.pm.PackageManager
+import org.mtransit.android.commons.isAppEnabled
 import java.util.Locale
 
 interface IAgencyProperties {
@@ -38,7 +40,13 @@ interface IAgencyProperties {
 
     val shortName: String
 
+    val isEnabled: Boolean
+
     fun getShortNameAndType(context: Context): String {
         return "$shortName ${context.getString(type.shortNameResId)}"
+    }
+
+    fun isEnabled(pm: PackageManager? = null): Boolean {
+        return isEnabled && pm?.isAppEnabled(this.pkg) != false
     }
 }

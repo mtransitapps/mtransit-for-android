@@ -26,7 +26,7 @@ data class AgencyBaseProperties(
     @ColumnInfo(name = "is_installed")
     val isInstalled: Boolean = true, // #onModulesUpdated
     @ColumnInfo(name = "is_enabled")
-    val isEnabled: Boolean = true, // #onModulesUpdated
+    override val isEnabled: Boolean = true, // #onModulesUpdated
     @ColumnInfo(name = "is_rts")
     override val isRTS: Boolean = false,
     @ColumnInfo(name = "logo")

@@ -62,11 +62,11 @@ class DataSourcesRepository @Inject constructor(
     }.distinctUntilChanged()
 
     fun readingAllAgenciesEnabledCount() = readingAllAgenciesBase().map {
-        it.filter { agency -> !agency.isEnabled && pm.isAppEnabled(agency.pkg) }.size
+        it.filter { agency -> agency.isEnabled(pm) }.size
     }
 
     fun getAllAgenciesEnabledCount() =
-        getAllAgencies().filter { agency -> !agency.isEnabled && pm.isAppEnabled(agency.pkg) }.size
+        getAllAgencies().filter { agency -> agency.isEnabled(pm) }.size
 
     fun readingAllAgencyAuthorities() = readingAllAgenciesBase().map { agencyList ->
         agencyList.map { agency ->

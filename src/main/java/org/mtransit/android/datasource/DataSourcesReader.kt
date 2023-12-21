@@ -201,9 +201,18 @@ class DataSourcesReader @Inject constructor(
                 MTLog.d(this, "refreshAvailableVersions > SKIP not supported '$pkg .")
                 return@forEach // skip not supported
             }
+            val newLongVersionCode = pm.getAppLongVersionCode(pkg, agencyProperties.longVersionCode)
+            if (newLongVersionCode > agencyProperties.longVersionCode) {
+                MTLog.d(this, "Agency '$authority' > new version installed: r$newLongVersionCode.")
+                dataSourcesDatabase.agencyPropertiesDao().update(
+                    agencyProperties.copy(longVersionCode = newLongVersionCode)
+                )
+                markUpdated()
+                updated = true
+            }
             this.dataSourceRequestManager.findAgencyAvailableVersionCode(authority, forceAppUpdateRefresh, forcePkg != null)?.let { newAvailableVersionCode ->
                 if (agencyProperties.availableVersionCode != newAvailableVersionCode) {
-                    MTLog.d(this, "Agency '$authority' > new version: r$newAvailableVersionCode.")
+                    MTLog.d(this, "Agency '$authority' > new version available: r$newAvailableVersionCode.")
                     dataSourcesDatabase.agencyPropertiesDao().update(
                         agencyProperties.copy(availableVersionCode = newAvailableVersionCode)
                     )

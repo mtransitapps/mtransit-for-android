@@ -22,6 +22,7 @@ class ModulesViewModel @Inject constructor(
         private const val FAKE_AGENCIES_COUNT = 0
         // private const val FAKE_AGENCIES_COUNT = 10 // DEBUG
 
+        @Suppress("KotlinConstantConditions")
         private const val ADD_FAKE_AGENCIES = FAKE_AGENCIES_COUNT > 0
     }
 

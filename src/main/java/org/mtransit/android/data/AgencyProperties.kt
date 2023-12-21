@@ -31,13 +31,13 @@ data class AgencyProperties(
     @ColumnInfo(name = "pkg")
     override val pkg: String,
     @ColumnInfo(name = "long_version_code")
-    val longVersionCode: Long = DEFAULT_LONG_VERSION_CODE, // #onModulesUpdated
+    override val longVersionCode: Long = DEFAULT_LONG_VERSION_CODE, // #onModulesUpdated
     @ColumnInfo(name = "available_version_code")
-    val availableVersionCode: Int = DEFAULT_VERSION_CODE,
+    override val availableVersionCode: Int = DEFAULT_VERSION_CODE,
     @ColumnInfo(name = "is_installed")
     val isInstalled: Boolean = true, // #onModulesUpdated
     @ColumnInfo(name = "is_enabled")
-    val isEnabled: Boolean = true, // #onModulesUpdated
+    override val isEnabled: Boolean = true, // #onModulesUpdated
     @ColumnInfo(name = "is_rts")
     override val isRTS: Boolean = false,
     @ColumnInfo(name = "logo")

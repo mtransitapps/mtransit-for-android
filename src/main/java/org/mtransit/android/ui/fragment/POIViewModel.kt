@@ -199,7 +199,7 @@ class POIViewModel @Inject constructor(
         }
 
     fun refreshAppUpdateAvailable() {
-        val agencyProperties = this.agency.value?.takeIf { !it.updateAvailable } ?: return
+        val agencyProperties = this.agency.value ?: return
         viewModelScope.launch {
             dataSourcesRepository.refreshAvailableVersions(forcePkg = agencyProperties.pkg)
         }

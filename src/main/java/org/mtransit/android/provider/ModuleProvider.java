@@ -462,7 +462,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		if (getDemoModeManager().isFilteringAgency()) {
 			appInstalled = agencyProperties != null && agencyProperties.getAuthority().equals(getDemoModeManager().getFilterAgencyAuthority());
 		}
-		final boolean updateAvailable = agencyProperties != null && agencyProperties.getUpdateAvailable();
+		final boolean updateAvailable = agencyProperties != null && agencyProperties.isUpdateAvailable(context.getPackageManager());
 		if (appInstalled && !appEnabled) {
 			getAnalyticsManager().logEvent(AnalyticsEvents.FOUND_DISABLED_MODULE, new AnalyticsEventsParamsProvider()
 					.put(AnalyticsEvents.Params.PKG, filter.getPkg())

@@ -800,7 +800,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 					&& PackageManagerUtils.isAppEnabled(activity, pkg)) {
 				final AgencyProperties agency = dataSourcesRepository.getAgencyForPkg(pkg);
 				if (agency != null) {
-					if (agency.getUpdateAvailable()) {
+					if (agency.isUpdateAvailable(activity.getPackageManager())) {
 						AppUpdateLauncher.launchAppUpdate(activity, pkg);
 					} else { // navigate to agency type screen
 						PreferenceUtils.savePrefLclAsync(activity, PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(agency.getType().getId()), agency.getAuthority());
