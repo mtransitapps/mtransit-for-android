@@ -97,12 +97,15 @@ public final class LinkUtils implements MTLog.Loggable {
 							null,
 							extras
 					);
+					return true;
 				} else {
-					((MainActivity) activity).addFragmentToStack(
-							WebBrowserFragment.newInstance(url)
-					);
+					if (activity instanceof MainActivity) {
+						((MainActivity) activity).addFragmentToStack(
+								WebBrowserFragment.newInstance(url)
+						);
+						return true;
+					}
 				}
-				return true;
 			}
 		}
 		return org.mtransit.android.commons.LinkUtils.open(activity, Uri.parse(url), label);
