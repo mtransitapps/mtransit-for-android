@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class IPLocation(
     @SerializedName("latitude")
-    val latitude: Float?,
+    val latitude: Float? = null,
     @SerializedName("longitude")
-    val longitude: Float?,
+    val longitude: Float? = null,
 )
