@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,UnusedResources,InconsistentArrays,TypographyDashes">
     <integer name="rss_db_version">2</integer>
-    <string name="rss_authority">org.mtransit.android.debug.news.rss</string>
     <string name="rss_target_for_poi_authority" />
     <string name="rss_color">0761A5</string><!-- Vancouver TransLink BLUE -->
     <bool name="rss_copy_to_file_instead_of_streaming">false</bool>

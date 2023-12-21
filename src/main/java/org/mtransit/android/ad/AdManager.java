@@ -105,7 +105,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	@Nullable
 	private Boolean showingAds = null;
 	@Nullable
-	private Integer nbAgencies = null;
+	private Integer nbAgenciesEnabled = null;
 	@Nullable
 	private Boolean adLoaded = null;
 
@@ -131,8 +131,8 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		this.demoModeManager = demoModeManager;
 		this.defaultPrefRepository = defaultPrefRepository;
 		this.dataSourcesRepository = dataSourcesRepository;
-		this.dataSourcesRepository.readingAllAgenciesCount().observeForever(newNbAgencies -> { // SINGLETON
-			this.nbAgencies = newNbAgencies;
+		this.dataSourcesRepository.readingAllAgenciesEnabledCount().observeForever(newNbAgenciesEnabled -> { // SINGLETON
+			this.nbAgenciesEnabled = newNbAgenciesEnabled;
 		});
 	}
 
@@ -221,8 +221,8 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	}
 
 	@Override
-	public void onNbAgenciesUpdated(@NonNull IActivity activity, int nbAgencies) {
-		this.nbAgencies = nbAgencies;
+	public void onNbAgenciesEnabledUpdated(@NonNull IActivity activity, int nbAgenciesEnabled) {
+		this.nbAgenciesEnabled = nbAgenciesEnabled;
 		refreshAdStatus(activity);
 	}
 
@@ -705,16 +705,16 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		if (!AD_ENABLED) {
 			return false;
 		}
-		if (nbAgencies == null) {
-			nbAgencies = this.dataSourcesRepository.getAllAgenciesCount();
+		if (nbAgenciesEnabled == null) {
+			nbAgenciesEnabled = this.dataSourcesRepository.getAllAgenciesEnabledCount();
 		}
 		if (!Boolean.TRUE.equals(this.initialized)) {
 			MTLog.d(this, "isShowingAds() > Not showing ads (not initialized yet).");
 			return false; // not showing ads
 		}
 		// number of agency unknown
-		if (nbAgencies <= MIN_AGENCIES_FOR_ADS) { // no (real) agency installed
-			MTLog.d(this, "isShowingAds() > Not showing ads (no '%d' agency installed).", nbAgencies);
+		if (nbAgenciesEnabled <= MIN_AGENCIES_FOR_ADS) { // no (real) agency installed
+			MTLog.d(this, "isShowingAds() > Not showing ads (no '%d' agency installed).", nbAgenciesEnabled);
 			return false; // not showing ads
 		} else if (demoModeManager.getEnabled()) {
 			MTLog.d(this, "isShowingAds() > Not showing ads (demo mode).");

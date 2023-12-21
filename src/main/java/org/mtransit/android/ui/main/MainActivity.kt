@@ -201,10 +201,10 @@ class MainActivity : MTActivityWithLocation(),
                 }
             }
         }
-        viewModel.allAgenciesCount.observe(this) { nbAgencies ->
+        viewModel.allAgenciesEnabledCount.observe(this) { nbAgenciesEnabled ->
             // ad-manager does not persist activity but listen for changes itself
-            nbAgencies?.let {
-                adManager.onNbAgenciesUpdated(this, nbAgencies)
+            nbAgenciesEnabled?.let {
+                adManager.onNbAgenciesEnabledUpdated(this, nbAgenciesEnabled)
             }
         }
         viewModel.abTitle.observe(this) {

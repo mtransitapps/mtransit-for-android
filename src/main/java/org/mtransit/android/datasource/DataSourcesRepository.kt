@@ -1,6 +1,7 @@
 package org.mtransit.android.datasource
 
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
@@ -10,6 +11,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.DataSourceType.DataSourceTypeShortNameComparator
 import org.mtransit.android.data.IAgencyProperties
@@ -32,6 +34,7 @@ class DataSourcesRepository @Inject constructor(
     private val dataSourcesIOCache: DataSourcesCache, // I/O - DB
     private val dataSourcesReader: DataSourcesReader,
     private val demoModeManager: DemoModeManager,
+    private val pm: PackageManager,
 ) : MTLog.Loggable {
 
     companion object {
@@ -58,7 +61,14 @@ class DataSourcesRepository @Inject constructor(
         it.filterDemoModeAgency(demoModeManager).sortedWith(defaultAgencyComparator)
     }.distinctUntilChanged()
 
-    fun readingAllAgencyAuthorities() = readingAllAgencies().map { agencyList ->
+    fun readingAllAgenciesEnabledCount() = readingAllAgenciesBase().map {
+        it.filter { agency -> !agency.isEnabled && pm.isAppEnabled(agency.pkg) }.size
+    }
+
+    fun getAllAgenciesEnabledCount() =
+        getAllAgencies().filter { agency -> !agency.isEnabled && pm.isAppEnabled(agency.pkg) }.size
+
+    fun readingAllAgencyAuthorities() = readingAllAgenciesBase().map { agencyList ->
         agencyList.map { agency ->
             agency.authority
         }

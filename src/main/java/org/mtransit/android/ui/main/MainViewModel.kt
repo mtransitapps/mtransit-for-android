@@ -54,7 +54,7 @@ class MainViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val allAgenciesCount = this.dataSourcesRepository.readingAllAgenciesCount()
+    val allAgenciesEnabledCount = this.dataSourcesRepository.readingAllAgenciesEnabledCount()
 
     val scrollToTopEvent = MutableLiveData<Event<Boolean>>()
 
