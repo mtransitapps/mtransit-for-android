@@ -110,6 +110,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     @Inject
     lateinit var demoModeManager: DemoModeManager
 
+    private var mapMenuItem: MenuItem? = null
+
     private var binding: FragmentHomeBinding? = null
 
     private val infiniteLoadingListener = object : POIArrayAdapter.InfiniteLoadingListener {
@@ -240,6 +242,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                 binding?.swipeRefresh?.isRefreshing = false
             }
         }
+        viewModel.onboarding.observe(viewLifecycleOwner) {
+            updateMenuItemsVisibility(onboarding = it)
+        }
         ModuleDisabledUI.onViewCreated(this)
         LocationSettingsUI.onViewCreated(this)
         LocationPermissionUI.onViewCreated(this)
@@ -321,6 +326,14 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_home, menu)
+        this.mapMenuItem = menu.findItem(R.id.nav_map)
+        updateMenuItemsVisibility()
+    }
+
+    private fun updateMenuItemsVisibility(
+        onboarding: Boolean? = viewModel.onboarding.value,
+    ) {
+        mapMenuItem?.isVisible = onboarding == false
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

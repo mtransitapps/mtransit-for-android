@@ -33,7 +33,6 @@ class MainViewModel @Inject constructor(
     private val demoModeManager: DemoModeManager,
 ) : ViewModel(), MTLog.Loggable {
 
-
     companion object {
         private val LOG_TAG = "Stack-" + MainViewModel::class.java.simpleName
 

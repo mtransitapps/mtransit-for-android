@@ -179,6 +179,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
     private var binding: FragmentNearbyBinding? = null
 
     private var showDirectionsMenuItem: MenuItem? = null
+    private var mapMenuItem: MenuItem? = null
 
     private var lastPageSelected = -1
     private var selectedPosition = -1
@@ -244,7 +245,10 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             }
         }
         viewModel.isFixedOn.observe(viewLifecycleOwner) {
-            updateDirectionsMenuItem(it)
+            updateMenuItemsVisibility(isFixedOn = it)
+        }
+        viewModel.onboarding.observe(viewLifecycleOwner) {
+            updateMenuItemsVisibility(onboarding = it)
         }
         viewModel.fixedOnName.observe(viewLifecycleOwner) {
             abController?.setABTitle(this, getABTitle(context), false)
@@ -336,11 +340,16 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_nearby, menu)
         this.showDirectionsMenuItem = menu.findItem(R.id.menu_show_directions)
-        updateDirectionsMenuItem()
+        this.mapMenuItem = menu.findItem(R.id.nav_map_custom)
+        updateMenuItemsVisibility()
     }
 
-    private fun updateDirectionsMenuItem(isFixedOn: Boolean? = viewModel.isFixedOn.value) {
-        showDirectionsMenuItem?.isVisible = isFixedOn == true
+    private fun updateMenuItemsVisibility(
+        isFixedOn: Boolean? = viewModel.isFixedOn.value,
+        onboarding: Boolean? = viewModel.onboarding.value,
+    ) {
+        showDirectionsMenuItem?.isVisible = onboarding == false && isFixedOn == true
+        mapMenuItem?.isVisible = onboarding == false
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

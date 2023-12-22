@@ -152,9 +152,10 @@ public class MainActivity extends MTActivityWithLocation implements
 		);
 		this.navigationDrawerController.onCreate(savedInstanceState);
 		getSupportFragmentManager().addOnBackStackChangedListener(this);
-		this.dataSourcesRepository.readingAllAgenciesEnabledCount().observe(this, nbAgenciesEnabled ->
-				this.adManager.onNbAgenciesEnabledUpdated(this, nbAgenciesEnabled) // ad-manager does not persist activity but listen for changes itself
-		);
+		this.dataSourcesRepository.readingAllAgenciesEnabledCount().observe(this, nbAgenciesEnabled -> {
+			this.adManager.onNbAgenciesEnabledUpdated(this, nbAgenciesEnabled); // ad-manager does not persist activity but listen for changes itself
+			this.abController.onNbAgenciesEnabledUpdated(nbAgenciesEnabled);
+		});
 		this.billingManager.getCurrentSubscription().observe(this, currentSubscription -> {
 			// do nothing
 		});

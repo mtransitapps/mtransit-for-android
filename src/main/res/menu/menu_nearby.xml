@@ -14,5 +14,7 @@
         android:id="@id/nav_map_custom"
         android:icon="@drawable/ic_map_black_24dp"
         android:title="@string/menu_action_map"
-        app:showAsAction="ifRoom" />
+        android:visible="false"
+        app:showAsAction="ifRoom"
+        tools:visible="true" />
 </menu>

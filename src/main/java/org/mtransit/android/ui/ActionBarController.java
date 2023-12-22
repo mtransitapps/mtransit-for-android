@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.ui.fragment.ABFragment;
 
 import java.lang.ref.WeakReference;
@@ -370,6 +371,22 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		this.upOnClickListener = null;
 	}
 
+	@Nullable
+	private Integer nbAgenciesEnabled = null;
+
+	public void onNbAgenciesEnabledUpdated(int nbAgenciesEnabled) {
+		this.nbAgenciesEnabled = nbAgenciesEnabled;
+	}
+
+	@Nullable
+	private Boolean isOnboarding() {
+		if (this.nbAgenciesEnabled == null) {
+			return null;
+		}
+		return this.nbAgenciesEnabled <= DataSourcesRepository.DEFAULT_AGENCY_COUNT;
+	}
+
+	@SuppressWarnings("UnusedReturnValue")
 	public boolean onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
 		menuInflater.inflate(R.menu.menu_main, menu);
 		this.searchMenuItem = menu.findItem(R.id.nav_search);
@@ -377,11 +394,15 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		return true;
 	}
 
-	private MenuItem searchMenuItem;
+	@Nullable
+	private MenuItem searchMenuItem = null;
 
 	public void updateSearchMenuItemVisibility() {
 		if (this.searchMenuItem != null) {
-			this.searchMenuItem.setVisible(this.fragmentShowSearchMenuItem);
+			this.searchMenuItem.setVisible(
+					!Boolean.TRUE.equals(isOnboarding())
+							&& this.fragmentShowSearchMenuItem
+			);
 		}
 	}
 
