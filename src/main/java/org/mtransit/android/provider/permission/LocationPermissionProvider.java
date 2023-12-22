@@ -4,6 +4,7 @@ import android.Manifest;
 
 import androidx.annotation.NonNull;
 
+import org.mtransit.android.common.RequestCodes;
 import org.mtransit.android.commons.MTLog;
 
 import java.util.Arrays;
@@ -23,6 +24,11 @@ public class LocationPermissionProvider extends PermissionProviderImpl implement
 			Manifest.permission.ACCESS_COARSE_LOCATION,
 			Manifest.permission.ACCESS_FINE_LOCATION
 	};
+
+	@Override
+	int getRequestCode() {
+		return RequestCodes.PERMISSIONS_LOCATION_RC;
+	}
 
 	@Inject
 	public LocationPermissionProvider() {

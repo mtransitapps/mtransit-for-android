@@ -29,9 +29,12 @@ import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.provider.location.MTLocationProvider
 import org.mtransit.android.provider.location.network.NetworkLocationRepository
+import org.mtransit.android.provider.permission.LocationPermissionProvider
 import org.mtransit.android.task.ServiceUpdateLoader
 import org.mtransit.android.task.StatusLoader
+import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTViewModelWithLocation
+import org.mtransit.android.ui.inappnotification.locationpermission.LocationPermissionAwareViewModel
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel
@@ -50,6 +53,7 @@ class NearbyViewModel @Inject constructor(
     private val analyticsManager: IAnalyticsManager,
     private val adManager: IAdManager,
     private val locationProvider: MTLocationProvider,
+    private val locationPermissionProvider: LocationPermissionProvider,
     private val networkLocationRepository: NetworkLocationRepository,
     private val dataSourcesRepository: DataSourcesRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
@@ -58,6 +62,7 @@ class NearbyViewModel @Inject constructor(
 ) : MTViewModelWithLocation(),
     NewLocationAwareViewModel,
     LocationSettingsAwareViewModel,
+    LocationPermissionAwareViewModel,
     ModuleDisabledAwareViewModel {
 
     companion object {
@@ -136,6 +141,23 @@ class NearbyViewModel @Inject constructor(
         }
         MTLog.d(this, "getNearbyLocation() > use last device location ($lastDeviceLocation)")
         return lastDeviceLocation
+    }
+
+    override val onboarding: LiveData<Boolean> = this.dataSourcesRepository.readingAllAgenciesCount().map {
+        it <= DataSourcesRepository.DEFAULT_AGENCY_COUNT
+    }
+
+    private var _locationPermissionNeeded = MutableLiveData(!locationPermissionProvider.allRequiredPermissionsGranted(appContext))
+
+    override val locationPermissionNeeded: LiveData<Boolean> = _locationPermissionNeeded
+    // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
+
+    override fun refreshLocationPermissionNeeded() {
+        _locationPermissionNeeded.value = !locationPermissionProvider.allRequiredPermissionsGranted(appContext)
+    }
+
+    override fun enableLocationPermission(activity: MTActivityWithLocation) {
+        this.locationProvider.doSetup(activity)
     }
 
     override val locationSettingsNeededResolution: LiveData<PendingIntent?> =

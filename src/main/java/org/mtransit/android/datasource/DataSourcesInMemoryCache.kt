@@ -18,6 +18,7 @@ import org.mtransit.android.dev.filterDemoModeType
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Suppress("MemberVisibilityCanBePrivate")
 @Singleton
 class DataSourcesInMemoryCache @Inject constructor(
     @ApplicationContext private val appContext: Context,

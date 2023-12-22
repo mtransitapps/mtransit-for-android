@@ -22,7 +22,6 @@ import org.mtransit.android.task.StatusLoader
 import org.mtransit.android.ui.fragment.MTFragmentX
 import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.nearby.NearbyViewModel
-import org.mtransit.android.ui.view.common.EventObserver
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -154,11 +153,11 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
         parentViewModel.deviceLocation.observe(viewLifecycleOwner) { deviceLocation ->
             adapter.setLocation(deviceLocation)
         }
-        parentViewModel.nearbyLocationForceReset.observe(viewLifecycleOwner, EventObserver { reset ->
-            if (reset) {
+        parentViewModel.nearbyLocationForceReset.observe(viewLifecycleOwner) { resetEvent ->
+            if (resetEvent.peekContent()) { // event used in view model, do not mark has handled
                 adapter.clear()
             }
-        })
+        }
         viewModel.nearbyPOIs.observe(viewLifecycleOwner) { poiList ->
             val scrollToTop = adapter.poisCount <= 0
             adapter.appendPois(poiList)
@@ -194,6 +193,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
                     swipeRefresh.isRefreshing = true
                     loadingLayout.isVisible = true
                 }
+
                 adapter.poisCount == 0 -> {
                     loadingLayout.isVisible = false
                     swipeRefresh.isRefreshing = false
@@ -201,6 +201,7 @@ class NearbyAgencyTypeFragment : MTFragmentX(R.layout.fragment_nearby_agency_typ
                     emptyLayout.isVisible = true
                     swipeRefresh.setEmptyViewWR(emptyLayout.root)
                 }
+
                 else -> {
                     loadingLayout.isVisible = false
                     swipeRefresh.isRefreshing = false

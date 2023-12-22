@@ -32,6 +32,8 @@ import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
+import org.mtransit.android.ui.inappnotification.locationpermission.LocationPermissionAwareFragment
+import org.mtransit.android.ui.inappnotification.locationpermission.LocationPermissionUI
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareFragment
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
@@ -52,6 +54,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
     DeviceLocationListener,
     NewLocationAwareFragment,
     LocationSettingsAwareFragment,
+    LocationPermissionAwareFragment,
     ModuleDisabledAwareFragment,
     MenuProvider {
 
@@ -257,7 +260,9 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             setupTabTheme()
         }
         LocationSettingsUI.onViewCreated(this)
+        LocationPermissionUI.onViewCreated(this)
         ModuleDisabledUI.onViewCreated(this)
+        NewLocationUI.onViewCreated(this)
         viewModel.nearbyLocationAddress.observe(viewLifecycleOwner) {
             abController?.setABSubtitle(this, getABSubtitle(context), false)
             if (FeatureFlags.F_NAVIGATION) {
@@ -266,7 +271,6 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             abController?.setABReady(this, isABReady, true)
             MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
         }
-        NewLocationUI.onViewCreated(this)
     }
 
     private fun setupTabTheme(abBgColor: Int? = getABBgColor(context)) {
@@ -393,6 +397,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
     override fun onResume() {
         super.onResume()
         switchView()
+        viewModel.refreshLocationPermissionNeeded()
         (activity as? MTActivityWithLocation)?.let { onLocationSettingsResolution(it.lastLocationSettingsResolution) }
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
         viewModel.checkIfNetworkLocationRefreshNecessary()

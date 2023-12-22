@@ -36,6 +36,8 @@ import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.fragment.POIFragment
+import org.mtransit.android.ui.inappnotification.locationpermission.LocationPermissionAwareFragment
+import org.mtransit.android.ui.inappnotification.locationpermission.LocationPermissionUI
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareFragment
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsUI
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareFragment
@@ -59,6 +61,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     DeviceLocationListener,
     NewLocationAwareFragment,
     LocationSettingsAwareFragment,
+    LocationPermissionAwareFragment,
     ModuleDisabledAwareFragment,
     MenuProvider {
 
@@ -239,6 +242,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         }
         ModuleDisabledUI.onViewCreated(this)
         LocationSettingsUI.onViewCreated(this)
+        LocationPermissionUI.onViewCreated(this)
         NewLocationUI.onViewCreated(this)
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.scrollToTopEvent.observe(viewLifecycleOwner, EventObserver { scroll ->
@@ -265,6 +269,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
         (activity as? MTActivityWithLocation)?.checkLocationSettings()
         (activity as? MTActivityWithLocation)?.let { onDeviceLocationChanged(it.lastLocation) }
         viewModel.checkIfNetworkLocationRefreshNecessary()
+        viewModel.refreshLocationPermissionNeeded()
         if (FeatureFlags.F_NAVIGATION) {
             mainViewModel.setABTitle(getABTitle(context))
             mainViewModel.setABSubtitle(getABSubtitle(context))

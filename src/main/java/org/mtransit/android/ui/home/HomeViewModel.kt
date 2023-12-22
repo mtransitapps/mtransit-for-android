@@ -40,8 +40,11 @@ import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.provider.FavoriteRepository
 import org.mtransit.android.provider.location.MTLocationProvider
 import org.mtransit.android.provider.location.network.NetworkLocationRepository
+import org.mtransit.android.provider.permission.LocationPermissionProvider
+import org.mtransit.android.ui.MTActivityWithLocation
 import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.favorites.FavoritesViewModel
+import org.mtransit.android.ui.inappnotification.locationpermission.LocationPermissionAwareViewModel
 import org.mtransit.android.ui.inappnotification.locationsettings.LocationSettingsAwareViewModel
 import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAwareViewModel
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareViewModel
@@ -62,6 +65,7 @@ class HomeViewModel @Inject constructor(
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
+    private val locationPermissionProvider: LocationPermissionProvider,
     private val locationProvider: MTLocationProvider,
     private val networkLocationRepository: NetworkLocationRepository,
     private val favoriteRepository: FavoriteRepository,
@@ -70,6 +74,7 @@ class HomeViewModel @Inject constructor(
 ) : MTViewModelWithLocation(),
     NewLocationAwareViewModel,
     LocationSettingsAwareViewModel,
+    LocationPermissionAwareViewModel,
     ModuleDisabledAwareViewModel {
 
     companion object {
@@ -117,6 +122,23 @@ class HomeViewModel @Inject constructor(
         }
         MTLog.d(this, "getNearbyLocation() > use last device location ($lastDeviceLocation)")
         return lastDeviceLocation
+    }
+
+    override val onboarding: LiveData<Boolean> = this.dataSourcesRepository.readingAllAgenciesCount().map {
+        it <= DataSourcesRepository.DEFAULT_AGENCY_COUNT
+    }
+
+    private var _locationPermissionNeeded = MutableLiveData(!locationPermissionProvider.allRequiredPermissionsGranted(appContext))
+
+    override val locationPermissionNeeded: LiveData<Boolean> = _locationPermissionNeeded
+    // .distinctUntilChanged() < DO NOT USE DISTINCT BECAUSE TOAST MIGHT NOT BE SHOWN THE 1ST TIME
+
+    override fun refreshLocationPermissionNeeded() {
+        _locationPermissionNeeded.value = !locationPermissionProvider.allRequiredPermissionsGranted(appContext)
+    }
+
+    override fun enableLocationPermission(activity: MTActivityWithLocation) {
+        this.locationProvider.doSetup(activity)
     }
 
     override val locationSettingsNeededResolution: LiveData<PendingIntent?> =
@@ -247,14 +269,14 @@ class HomeViewModel @Inject constructor(
                         it.remove()
                         continue
                     }
-                } else // bike station, modules... (need to honor MAX BY TYPE)
+                } else { // bike station, modules... (need to honor MAX BY TYPE)
                     if (nbKept >= nbMaxByType && lastKeptDistance != poim.distance) {
-                    MTLog.d(this, "filterTypePOIs() > remove ${poim.poi.uuid} ($nbKept >= $nbMaxByType & $lastKeptDistance != ${poim.distance})")
-                    it.remove()
-                    continue
+                        it.remove()
+                        continue
+                    }
                 }
             }
-            if (nbKept >= nbMaxByType && lastKeptDistance != poim.distance && poim.distance > minDistanceInMeters * 2) {
+            if (nbKept >= nbMaxByType && lastKeptDistance != poim.distance && poim.distance > minDistanceInMeters * 2f) {
                 it.remove()
                 continue
             }

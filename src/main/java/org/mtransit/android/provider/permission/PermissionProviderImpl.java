@@ -6,11 +6,9 @@ import android.content.pm.PackageManager;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
-import org.mtransit.android.common.RequestCodes;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.ui.view.common.IActivity;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +23,8 @@ public abstract class PermissionProviderImpl implements PermissionProvider, MTLo
 	abstract Collection<String> getRequiredPermissions();
 
 	abstract String[] getAllPermissions();
+
+	abstract int getRequestCode();
 
 	@Override
 	public boolean allRequiredPermissionsGranted(@NonNull Context context) {
@@ -73,7 +73,7 @@ public abstract class PermissionProviderImpl implements PermissionProvider, MTLo
 
 	@Override
 	public void requestPermissions(@NonNull IActivity activity) {
-		ActivityCompat.requestPermissions(activity.requireActivity(), getAllPermissions(), RequestCodes.PERMISSIONS_LOCATION_RC);
+		ActivityCompat.requestPermissions(activity.requireActivity(), getAllPermissions(), getRequestCode());
 	}
 
 	@Override
@@ -81,7 +81,7 @@ public abstract class PermissionProviderImpl implements PermissionProvider, MTLo
 												  @NonNull String[] permissions,
 												  @NonNull int[] grantResults,
 												  @NonNull OnPermissionGrantedListener onPermissionGrantedListener) {
-		if (requestCode == RequestCodes.PERMISSIONS_LOCATION_RC) {
+		if (requestCode == getRequestCode()) {
 			int requiredPermissionGranted = 0;
 			boolean changed = false;
 			for (int i = 0; i < grantResults.length; i++) {

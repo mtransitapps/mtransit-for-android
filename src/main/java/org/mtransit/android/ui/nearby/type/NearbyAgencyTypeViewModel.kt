@@ -12,6 +12,7 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
@@ -52,8 +53,8 @@ class NearbyAgencyTypeViewModel @Inject constructor(
     private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModuleChanged
 
     val typeAgencies = PairMediatorLiveData(typeId, _allAgencies).map { (typeId, allAgencies) ->
-        val currentParams = this.params.value ?: NearbyParams()
-        this.params.value = currentParams.copy(
+        val currentParams = this._params.value ?: NearbyParams()
+        this._params.value = currentParams.copy(
             typeId = typeId,
             allAgencies = allAgencies,
         )
@@ -61,17 +62,17 @@ class NearbyAgencyTypeViewModel @Inject constructor(
     }
 
     fun setNearbyLocation(newNearbyLocation: Location?) {
-        val currentLocation = params.value?.nearbyLocation
+        val currentLocation = _params.value?.nearbyLocation
         if (newNearbyLocation == currentLocation) {
             MTLog.d(this, "setNearbyLocation() > SKIP (same)")
             return
         }
-        val currentParams: NearbyParams = params.value ?: NearbyParams()
+        val currentParams: NearbyParams = _params.value ?: NearbyParams()
         val newAD = LocationUtils.getNewDefaultAroundDiff()
         if (newNearbyLocation == null) {
             _sizeCovered.value = 0
             _distanceCoveredInMeters.value = 0f
-            params.value = currentParams.copy(
+            _params.value = currentParams.copy(
                 nearbyLocation = null,
                 ad = newAD,
                 minSize = null,
@@ -81,13 +82,13 @@ class NearbyAgencyTypeViewModel @Inject constructor(
             )
             return
         }
-        val minSize = params.value?.minSize ?: -1
-        val maxSize = params.value?.maxSize ?: -1
-        val minCoverageInMeters = params.value?.minCoverageInMeters ?: -1f
+        val minSize = _params.value?.minSize ?: -1
+        val maxSize = _params.value?.maxSize ?: -1
+        val minCoverageInMeters = _params.value?.minCoverageInMeters ?: -1f
         if (minSize < 0 || maxSize < 0 || minCoverageInMeters < 0f) {
             _sizeCovered.value = 0
             _distanceCoveredInMeters.value = 0f
-            params.value = currentParams.copy(
+            _params.value = currentParams.copy(
                 nearbyLocation = newNearbyLocation,
                 minSize = LocationUtils.MIN_NEARBY_LIST,
                 maxSize = LocationUtils.MAX_NEARBY_LIST,
@@ -106,9 +107,9 @@ class NearbyAgencyTypeViewModel @Inject constructor(
 
     private val _distanceCoveredInMeters = MutableLiveData(0f)
 
-    private val params = MutableLiveData(NearbyParams())
+    private val _params = MutableLiveData(NearbyParams())
 
-    val nearbyPOIs: LiveData<List<POIManager>?> = params.switchMap { params ->
+    val nearbyPOIs: LiveData<List<POIManager>?> = _params.switchMap { params ->
         liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
             emit(getNearbyPOIs(params))
         }
@@ -152,11 +153,11 @@ class NearbyAgencyTypeViewModel @Inject constructor(
         if (nearbyPOIs.size < minSize
             && !LocationUtils.searchComplete(nearbyLocation.latitude, nearbyLocation.longitude, aroundDiff)
         ) {
-            this.params.postValue(
-                currentParams.copy(
+            viewModelScope.launch {
+                _params.value = _params.value?.copy(
                     ad = LocationUtils.incAroundDiff(ad) // trigger new data load
                 )
-            )
+            }
         } else {
             _distanceCoveredInMeters.postValue(minCoverageInMeters)
             _sizeCovered.postValue(nearbyPOIs.size)
@@ -165,7 +166,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
     }
 
     fun isLoadingMore(): Boolean {
-        val currentParams = this.params.value ?: NearbyParams()
+        val currentParams = this._params.value ?: NearbyParams()
         val nearbyLocation = currentParams.nearbyLocation ?: return false
         val ad = currentParams.ad ?: return false
         val minSize = currentParams.minSize ?: return false
@@ -190,8 +191,8 @@ class NearbyAgencyTypeViewModel @Inject constructor(
     }
 
     private fun doLoadMore() {
-        val currentParams = this.params.value ?: NearbyParams()
-        this.params.value = currentParams.copy(
+        val currentParams = this._params.value
+        this._params.value = currentParams?.copy(
             minSize = currentParams.minSize?.let { it * 2 } ?: LocationUtils.MIN_NEARBY_LIST,
             maxSize = currentParams.maxSize?.let { it * 2 } ?: LocationUtils.MAX_NEARBY_LIST,
             minCoverageInMeters = currentParams.minCoverageInMeters?.let { it * 2f } ?: run {

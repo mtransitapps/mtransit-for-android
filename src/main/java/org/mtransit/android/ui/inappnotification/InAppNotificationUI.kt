@@ -19,6 +19,7 @@ interface InAppNotificationUI<F : InAppNotificationFragment> {
         const val IN_APP_NOTIFICATION_NEW_LOCATION = 1
         const val IN_APP_NOTIFICATION_LOCATION_SETTINGS = 2
         const val IN_APP_NOTIFICATION_MODULE_DISABLED = 3
+        const val IN_APP_NOTIFICATION_LOCATION_PERMISSION = 4
 
         fun getNotificationId(typeId: Int, specificId: String? = null) = "$typeId${specificId.orEmpty()}"
 

@@ -110,6 +110,9 @@
     <string name="favorite_folder_pick_ok">OK</string>
     <string name="favorite_folder_pick_cancel">Annuler</string>
     <string name="favorite_folder_default">(défaut)</string>
+    <string name="location_permission_in_app_notification_label">Permission de localisation désactivée.</string>
+    <string name="location_permission_in_app_notification_label_onboarding">Obteneir des recommendations plus précises.</string>
+    <string name="location_permission_in_app_notification_action">ACTIVER</string>
     <string name="location_settings_in_app_notification_label">Paramètre de localisation de l\'appareil désactivé.</string>
     <string name="location_settings_in_app_notification_action">ACTIVER</string>
     <string name="module_disabled_in_app_notification_label">Agence désactivée.</string>

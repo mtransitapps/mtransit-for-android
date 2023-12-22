@@ -11,7 +11,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.DataSourceType.DataSourceTypeShortNameComparator
 import org.mtransit.android.data.IAgencyProperties
