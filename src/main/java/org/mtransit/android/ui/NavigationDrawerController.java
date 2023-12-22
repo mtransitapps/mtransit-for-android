@@ -199,8 +199,8 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 				}
 			}
 			publishProgress(itemId);
-			final Boolean hasUserLearnedDrawer = navigationDrawerController.hasUserLearnedDrawer();
-			return new Pair<>(itemId, hasUserLearnedDrawer);
+			final Boolean showDrawerLearning = navigationDrawerController.showDrawerLearning();
+			return new Pair<>(itemId, showDrawerLearning);
 		}
 
 		@Override
@@ -214,9 +214,9 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			}
 			navigationDrawerController.setVisibleMenuItems();
 			final String itemId = itemIdAndUserHasLearned == null ? null : itemIdAndUserHasLearned.first;
-			final Boolean hasUserLearnedDrawer = itemIdAndUserHasLearned == null ? null : itemIdAndUserHasLearned.second;
+			final Boolean showDrawerLearning = itemIdAndUserHasLearned == null ? null : itemIdAndUserHasLearned.second;
 			selectItemId(itemId);
-			if (Boolean.FALSE.equals(hasUserLearnedDrawer)) {
+			if (Boolean.TRUE.equals(showDrawerLearning)) {
 				navigationDrawerController.openDrawer();
 				navigationDrawerController.setUserLearnedDrawer();
 			}
@@ -238,6 +238,16 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		protected void onProgressUpdateNotCancelledMT(@Nullable String... itemIds) {
 			selectItemId(itemIds == null || itemIds.length == 0 ? null : itemIds[0]);
 		}
+	}
+
+	@WorkerThread
+	private boolean isOnboarding() {
+		return dataSourcesRepository.getAllAgenciesEnabledCount() <= DataSourcesRepository.DEFAULT_AGENCY_COUNT;
+	}
+
+	@WorkerThread
+	private boolean showDrawerLearning() {
+		return !isOnboarding() && !hasUserLearnedDrawer();
 	}
 
 	@Nullable

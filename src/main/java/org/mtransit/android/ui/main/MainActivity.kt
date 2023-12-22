@@ -191,8 +191,8 @@ class MainActivity : MTActivityWithLocation(),
                 showContentFrameAsLoaded()
             }
         }
-        viewModel.userLearnedDrawer.observe(this) { learned ->
-            if (learned == false) {
+        viewModel.showDrawerLearning.observe(this) { showDrawerLearning ->
+            if (showDrawerLearning == true) {
                 binding.drawerLayout?.let { drawerLayout ->
                     binding.navView?.let { navView ->
                         drawerLayout.openDrawer(navView)

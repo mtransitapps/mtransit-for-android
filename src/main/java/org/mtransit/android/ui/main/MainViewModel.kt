@@ -22,6 +22,7 @@ import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.view.common.Event
+import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import javax.inject.Inject
 
 @HiltViewModel
@@ -93,9 +94,17 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    val userLearnedDrawer: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
+    private val _onboarding: LiveData<Boolean> = this.dataSourcesRepository.readingAllAgenciesCount().map {
+        it <= DataSourcesRepository.DEFAULT_AGENCY_COUNT
+    }
+
+    private val _userLearnedDrawer: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
         DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER, DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER_DEFAULT
     ).distinctUntilChanged()
+
+    val showDrawerLearning: LiveData<Boolean> = PairMediatorLiveData(_onboarding, _userLearnedDrawer).map { (onboarding, userLearnedDrawer) ->
+        onboarding == false && userLearnedDrawer == false
+    }
 
     fun setUserLearnedDrawer(learned: Boolean) {
         defaultPrefRepository.pref.edit {
