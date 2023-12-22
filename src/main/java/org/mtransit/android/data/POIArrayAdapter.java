@@ -40,6 +40,7 @@ import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.LocationUtilsExtKt;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.api.SupportFactory;
@@ -531,7 +532,11 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			allAgencyTypes.add(0, DataSourceType.TYPE_FAVORITE); // 1st
 		}
 		if (allAgencyTypes.size() > 1) {
-			allAgencyTypes.add(allAgencyTypes.size() - 1, DataSourceType.TYPE_NEWS); // LAST before MODULE
+			ArrayList<NewsProviderProperties> allNewsProviders = new ArrayList<>(this.dataSourcesRepository.getAllNewsProviders());
+			CollectionUtils.removeIfNN(allNewsProviders, provider -> !PackageManagerUtils.isAppEnabled(parent.getContext(), provider.getPkg()));
+			if (allNewsProviders.size() > 0) {
+				allAgencyTypes.add(allAgencyTypes.size() - 1, DataSourceType.TYPE_NEWS); // LAST before MODULE
+			}
 		}
 		final int nbDisplayedAgencyTypeCount = allAgencyTypes.size();
 		if (convertView != null && this.nbDisplayedAgencyTypes == nbDisplayedAgencyTypeCount) {
