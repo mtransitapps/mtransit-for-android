@@ -67,15 +67,22 @@ class NetworkLocationRepository @Inject constructor(
         if (lastCheckInMs + MIN_INTERVAL_BETWEEN_IP_LOCATION_CHECK_MS > TimeUtils.currentTimeMillis()) {
             return // SKIP too soon
         }
-        val currentIPLocationResp = apiService.getCurrentIPLocation()
-        currentIPLocationResp.body()?.let { (lat, lng) ->
-            if (lat != null && lng != null) {
-                lclPreferenceRepository.pref.edit {
-                    putFloat(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LAT, lat)
-                    putFloat(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LNG, lng)
-                    putLong(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_TIMESTAMP, TimeUtils.currentTimeMillis())
+        runCatching {
+            apiService.getCurrentIPLocation()
+        }.fold(
+            onSuccess = { (lat, lng) ->
+                if (lat != null && lng != null) {
+                    lclPreferenceRepository.pref.edit {
+                        putFloat(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LAT, lat)
+                        putFloat(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LNG, lng)
+                        putLong(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_TIMESTAMP, TimeUtils.currentTimeMillis())
+
+                    }
                 }
+            },
+            onFailure = { t ->
+                MTLog.e(this@NetworkLocationRepository, t, "Error while fetching current IP location!")
             }
-        }
+        )
     }
 }
