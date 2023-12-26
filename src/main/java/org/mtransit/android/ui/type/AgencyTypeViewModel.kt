@@ -1,6 +1,6 @@
 package org.mtransit.android.ui.type
 
-import android.content.Context
+import android.content.pm.PackageManager
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
@@ -9,10 +9,9 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
-import org.mtransit.android.commons.PackageManagerUtils
+import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
@@ -28,13 +27,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AgencyTypeViewModel @Inject constructor(
-    @ApplicationContext appContext: Context,
     savedStateHandle: SavedStateHandle,
     private val adManager: IAdManager,
     private val dataSourcesRepository: DataSourcesRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val statusLoader: StatusLoader,
     private val serviceUpdateLoader: ServiceUpdateLoader,
+    private val pm: PackageManager,
 ) : MTViewModelWithLocation(),
     ModuleDisabledAwareViewModel {
 
@@ -63,7 +62,7 @@ class AgencyTypeViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     override val hasDisabledModule = moduleDisabled.map {
-        it.any { agency -> !PackageManagerUtils.isAppEnabled(appContext, agency.pkg) }
+        it.any { agency -> !pm.isAppEnabled(agency.pkg) }
     }
 
     override fun getAdBannerHeightInPx(activity: IActivity?) = this.adManager.getBannerHeightInPx(activity)

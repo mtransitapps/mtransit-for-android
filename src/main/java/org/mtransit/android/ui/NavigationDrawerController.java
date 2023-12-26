@@ -2,6 +2,7 @@ package org.mtransit.android.ui;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.location.Location;
@@ -29,11 +30,13 @@ import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.BundleUtils;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.PackageManagerExtKt;
 import org.mtransit.android.commons.PreferenceUtils;
 import org.mtransit.android.commons.StoreUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.task.MTCancellableAsyncTask;
 import org.mtransit.android.data.DataSourceType;
+import org.mtransit.android.data.NewsProviderProperties;
 import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.dev.CrashReporter;
 import org.mtransit.android.dev.DemoModeManager;
@@ -50,13 +53,14 @@ import org.mtransit.android.ui.pref.PreferencesActivity;
 import org.mtransit.android.ui.type.AgencyTypeFragment;
 import org.mtransit.android.util.FragmentUtils;
 import org.mtransit.android.util.MapUtils;
+import org.mtransit.commons.CollectionUtils;
 import org.mtransit.commons.FeatureFlags;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNavigationItemSelectedListener {
+class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNavigationItemSelectedListener {
 
 	private static final String LOG_TAG = "Stack-" + NavigationDrawerController.class.getSimpleName();
 
@@ -77,9 +81,6 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	private static final int ITEM_ID_SELECTED_SCREEN_NAV_ITEM_DEFAULT = R.id.root_nav_home;
 	private static final String ITEM_ID_SELECTED_SCREEN_DEFAULT = ITEM_ID_STATIC_START_WITH + ITEM_INDEX_HOME;
 
-	private static final int MIN_AGENCY_INSTALLED = 1; // include "+"
-	// private static final int MIN_AGENCY_INSTALLED = 0; // DEBUG
-
 	@NonNull
 	private final WeakReference<MainActivity> mainActivityWR;
 	@NonNull
@@ -90,6 +91,9 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	private final DataSourcesRepository dataSourcesRepository;
 	@NonNull
 	private final StatusLoader statusLoader;
+	@SuppressWarnings("FieldCanBeLocal")
+	@NonNull
+	private final PackageManager packageManager;
 	@NonNull
 	private final ServiceUpdateLoader serviceUpdateLoader;
 	@NonNull
@@ -110,6 +114,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 							   @NonNull IAnalyticsManager analyticsManager,
 							   @NonNull DataSourcesRepository dataSourcesRepository,
 							   @NonNull StatusLoader statusLoader,
+							   @NonNull PackageManager packageManager,
 							   @NonNull ServiceUpdateLoader serviceUpdateLoader,
 							   @NonNull DemoModeManager demoModeManager) {
 		this.mainActivityWR = new WeakReference<>(mainActivity);
@@ -117,10 +122,23 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		this.dataSourcesRepository = dataSourcesRepository;
 		this.analyticsManager = analyticsManager;
 		this.statusLoader = statusLoader;
+		this.packageManager = packageManager;
 		this.serviceUpdateLoader = serviceUpdateLoader;
 		this.demoModeManager = demoModeManager;
 		this.dataSourcesRepository.readingAllDataSourceTypes().observe(mainActivity, dataSourceTypes -> {
 			this.allAgencyTypes = filterAgencyTypes(dataSourceTypes);
+			setVisibleMenuItems();
+			onMenuUpdated();
+		});
+		this.dataSourcesRepository.readingHasAgenciesAdded().observe(mainActivity, newHasAgenciesAdded -> {
+			this.hasAgenciesAdded = newHasAgenciesAdded;
+			setVisibleMenuItems();
+			onMenuUpdated();
+		});
+		this.dataSourcesRepository.readingAllNewsProviders().observe(mainActivity, newsProviderProperties -> {
+			ArrayList<NewsProviderProperties> newsProviderList = new ArrayList<>(newsProviderProperties);
+			CollectionUtils.removeIfNN(newsProviderList, dst -> !PackageManagerExtKt.isAppEnabled(this.packageManager, dst.getPkg()));
+			this.hasNewsProviderEnabled = !newsProviderList.isEmpty();
 			setVisibleMenuItems();
 			onMenuUpdated();
 		});
@@ -200,7 +218,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 				}
 			}
 			publishProgress(itemId);
-			final Boolean showDrawerLearning = navigationDrawerController.showDrawerLearning();
+			final Boolean showDrawerLearning = navigationDrawerController.shouldShowDrawerLearning();
 			return new Pair<>(itemId, showDrawerLearning);
 		}
 
@@ -243,7 +261,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	}
 
 	@WorkerThread
-	private boolean showDrawerLearning() {
+	private boolean shouldShowDrawerLearning() {
 		return this.dataSourcesRepository.hasAgenciesEnabled() && !hasUserLearnedDrawer();
 	}
 
@@ -271,6 +289,12 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	}
 
 	@Nullable
+	private Boolean hasAgenciesAdded = null;
+
+	@Nullable
+	private Boolean hasNewsProviderEnabled = null;
+
+	@Nullable
 	private List<DataSourceType> allAgencyTypes = null;
 
 	@Nullable
@@ -285,6 +309,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 		this.allAgencyTypes = getNewFilteredAgencyTypes();
 	}
 
+	@WorkerThread
 	@NonNull
 	private List<DataSourceType> getNewFilteredAgencyTypes() {
 		//noinspection deprecation // FIXME
@@ -311,6 +336,12 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			MTLog.w(this, "setVisibleMenuItems() > skip (no navigation view)");
 			return;
 		}
+		final boolean hasAgenciesAdded = Boolean.TRUE.equals(this.hasAgenciesAdded);
+		this.navigationView.getMenu().findItem(R.id.root_nav_map).setVisible(hasAgenciesAdded);
+		this.navigationView.getMenu().findItem(R.id.nav_trip_planner).setVisible(hasAgenciesAdded);
+		// TODO favorites? (favorite manager requires IO
+		final boolean hasNewsProviderEnabled = Boolean.TRUE.equals(this.hasNewsProviderEnabled);
+		this.navigationView.getMenu().findItem(R.id.root_nav_news).setVisible(hasNewsProviderEnabled);
 		List<DataSourceType> allAgencyTypes = getAllAgencyTypes();
 		for (DataSourceType dst : DataSourceType.values()) {
 			if (allAgencyTypes != null && allAgencyTypes.contains(dst)) {
@@ -319,23 +350,24 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			if (!dst.isMenuList()) {
 				continue;
 			}
-			if (this.navigationView.getMenu().findItem(dst.getNavResId()) == null) {
+			final MenuItem dstMenuItem = this.navigationView.getMenu().findItem(dst.getNavResId());
+			if (dstMenuItem == null) {
 				continue;
 			}
-			this.navigationView.getMenu().findItem(dst.getNavResId()).setVisible(false);
+			dstMenuItem.setVisible(false);
 		}
 		if (allAgencyTypes != null) {
 			for (DataSourceType dst : allAgencyTypes) {
-				if (this.navigationView.getMenu().findItem(dst.getNavResId()) == null) {
-					MenuItem newMenuItem = this.navigationView.getMenu().add(R.id.drawer_modules, dst.getNavResId(), Menu.NONE, dst.getAllStringResId());
-					newMenuItem.setIcon(dst.getIconResId());
+				MenuItem dstMenuItem = this.navigationView.getMenu().findItem(dst.getNavResId());
+				if (dstMenuItem == null) {
+					dstMenuItem = this.navigationView.getMenu().add(R.id.drawer_modules, dst.getNavResId(), Menu.NONE, dst.getAllStringResId());
+					dstMenuItem.setIcon(dst.getIconResId());
 				}
-				this.navigationView.getMenu().findItem(dst.getNavResId()).setVisible(true);
+				dstMenuItem.setVisible(true);
 			}
 		}
-		boolean hasAgencyInstalled = allAgencyTypes != null && allAgencyTypes.size() > MIN_AGENCY_INSTALLED;
-		this.navigationView.getMenu().findItem(R.id.nav_rate_review).setVisible(hasAgencyInstalled);
-		this.navigationView.getMenu().findItem(R.id.nav_support).setVisible(hasAgencyInstalled);
+		this.navigationView.getMenu().findItem(R.id.nav_rate_review).setVisible(hasAgenciesAdded);
+		this.navigationView.getMenu().findItem(R.id.nav_support).setVisible(hasAgenciesAdded);
 	}
 
 	private boolean menuUpdated = false;

@@ -1,7 +1,7 @@
 package org.mtransit.android.ui.map
 
 import android.app.PendingIntent
-import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Location
 import androidx.collection.ArrayMap
 import androidx.core.content.edit
@@ -14,7 +14,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -23,8 +22,8 @@ import kotlinx.coroutines.launch
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.data.RouteTripStop
+import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.DataSourceType
@@ -42,19 +41,18 @@ import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
 import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.android.util.containsEntirely
-import java.util.HashSet
 import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.min
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    @ApplicationContext appContext: Context,
     private val savedStateHandle: SavedStateHandle,
     private val dataSourcesRepository: DataSourcesRepository,
     private val poiRepository: POIRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val adManager: AdManager,
+    private val pm: PackageManager,
 ) : MTViewModelWithLocation(),
     ModuleDisabledAwareViewModel,
     LocationSettingsAwareViewModel {
@@ -92,7 +90,7 @@ class MapViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     override val hasDisabledModule = moduleDisabled.map {
-        it.any { agency -> !PackageManagerUtils.isAppEnabled(appContext, agency.pkg) }
+        it.any { agency -> !pm.isAppEnabled(agency.pkg) }
     }
 
     val selectedUUID = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_SELECTED_UUID)

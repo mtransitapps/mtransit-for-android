@@ -11,9 +11,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.mtransit.android.commons.MTLog
+import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.DataSourceType.DataSourceTypeShortNameComparator
 import org.mtransit.android.data.IAgencyProperties
+import org.mtransit.android.data.ITargetedProviderProperties
 import org.mtransit.android.data.NewsProviderProperties
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.dev.filterDemoModeAgency
@@ -179,6 +181,18 @@ class DataSourcesRepository @Inject constructor(
 
     // endregion
 
+    // region TARGETED PROVIDERS
+
+    fun List<ITargetedProviderProperties>.filterEnabled(): List<ITargetedProviderProperties> {
+        return this.filter { pm.isAppEnabled(it.pkg) }
+    }
+
+    fun Set<ITargetedProviderProperties>.filterEnabled(): Set<ITargetedProviderProperties> {
+        return this.filterTo(HashSet()) { pm.isAppEnabled(it.pkg) }
+    }
+
+    // endregion
+
     // region NEWS
 
     private fun List<NewsProviderProperties>.filterTwitter(): List<NewsProviderProperties> {
@@ -191,6 +205,8 @@ class DataSourcesRepository @Inject constructor(
 
     fun getAllNewsProviders() = this.dataSourcesInMemoryCache.getAllNewsProviders()
         .filterDemoModeTargeted(demoModeManager).filterTwitter()
+
+    fun getAllNewsProvidersEnabled() = getAllNewsProviders().filterEnabled()
 
     fun readingAllNewsProviders() = liveData {
         emit(

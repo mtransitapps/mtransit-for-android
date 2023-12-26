@@ -400,9 +400,10 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 							context.getString(R.string.add_fav) //
 			};
 		case POI.ITEM_ACTION_TYPE_APP:
-			if (PackageManagerUtils.isAppInstalled(context, ((Module) this.poi).getPkg())) {
-				if (PackageManagerUtils.isAppEnabled(context, ((Module) this.poi).getPkg())) {
-					final AgencyProperties agencyProperties = dataSourcesRepository.getAgencyForPkg(((Module) poi).getPkg());
+			final String pkg = ((Module) this.poi).getPkg();
+			if (PackageManagerUtils.isAppInstalled(context, pkg)) {
+				if (PackageManagerUtils.isAppEnabled(context, pkg)) {
+					final AgencyProperties agencyProperties = dataSourcesRepository.getAgencyForPkg(pkg);
 					if (agencyProperties != null && agencyProperties.hasContactUs()) {
 						return new CharSequence[]{
 								context.getString(R.string.view_on_store),

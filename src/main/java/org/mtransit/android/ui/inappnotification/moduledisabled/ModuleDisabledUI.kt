@@ -4,8 +4,8 @@ import android.content.Context
 import android.view.View
 import org.mtransit.android.BuildConfig
 import org.mtransit.android.R
-import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.StoreUtils
+import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.ui.inappnotification.InAppNotificationUI
 import org.mtransit.android.ui.inappnotification.InAppNotificationUI.Companion.IN_APP_NOTIFICATION_MODULE_DISABLED
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
@@ -16,7 +16,7 @@ object ModuleDisabledUI : InAppNotificationUI<ModuleDisabledAwareFragment> {
         InAppNotificationUI.getNotificationId(
             IN_APP_NOTIFICATION_MODULE_DISABLED,
             fragment.context?.let { context ->
-                fragment.viewModel.moduleDisabled.value?.firstOrNull { !PackageManagerUtils.isAppEnabled(context, it.pkg) }?.pkg
+                fragment.viewModel.moduleDisabled.value?.firstOrNull { !context.packageManager.isAppEnabled(it.pkg) }?.pkg
             } ?: fragment.viewModel.moduleDisabled.value?.firstOrNull()?.pkg,
         )
 
@@ -30,7 +30,7 @@ object ModuleDisabledUI : InAppNotificationUI<ModuleDisabledAwareFragment> {
     }
 
     override fun getLabelText(fragment: ModuleDisabledAwareFragment, context: Context) =
-        fragment.viewModel.moduleDisabled.value?.firstOrNull { !PackageManagerUtils.isAppEnabled(context, it.pkg) }?.let { agency ->
+        fragment.viewModel.moduleDisabled.value?.firstOrNull { !context.packageManager.isAppEnabled(it.pkg) }?.let { agency ->
             context.getString(
                 R.string.module_disabled_in_app_notification_label_and_agency,
                 agency.getShortNameAndType(context)

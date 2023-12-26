@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.os.Bundle;
@@ -125,6 +126,8 @@ public class MainActivity extends MTActivityWithLocation implements
 	@Inject
 	StatusLoader statusLoader;
 	@Inject
+	PackageManager packageManager;
+	@Inject
 	ServiceUpdateLoader serviceUpdateLoader;
 	@Inject
 	DemoModeManager demoModeManager;
@@ -147,6 +150,7 @@ public class MainActivity extends MTActivityWithLocation implements
 				this.analyticsManager,
 				this.dataSourcesRepository,
 				this.statusLoader,
+				this.packageManager,
 				this.serviceUpdateLoader,
 				this.demoModeManager
 		);

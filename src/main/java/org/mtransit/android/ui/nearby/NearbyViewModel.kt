@@ -2,6 +2,7 @@ package org.mtransit.android.ui.nearby
 
 import android.app.PendingIntent
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Location
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
@@ -23,7 +24,7 @@ import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.PackageManagerUtils
+import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -59,6 +60,7 @@ class NearbyViewModel @Inject constructor(
     private val lclPrefRepository: LocalPreferenceRepository,
     private val statusLoader: StatusLoader,
     private val serviceUpdateLoader: ServiceUpdateLoader,
+    private val pm: PackageManager,
 ) : MTViewModelWithLocation(),
     NewLocationAwareViewModel,
     LocationSettingsAwareViewModel,
@@ -268,6 +270,6 @@ class NearbyViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     override val hasDisabledModule = moduleDisabled.map {
-        it.any { agency -> !PackageManagerUtils.isAppEnabled(appContext, agency.pkg) }
+        it.any { agency -> !pm.isAppEnabled(agency.pkg) }
     }
 }

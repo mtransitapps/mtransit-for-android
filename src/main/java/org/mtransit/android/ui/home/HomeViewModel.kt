@@ -2,6 +2,7 @@ package org.mtransit.android.ui.home
 
 import android.app.PendingIntent
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -22,9 +23,9 @@ import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.data.RouteTripStop
+import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
@@ -71,6 +72,7 @@ class HomeViewModel @Inject constructor(
     private val favoriteRepository: FavoriteRepository,
     private val adManager: IAdManager,
     private val demoModeManager: DemoModeManager,
+    private val pm: PackageManager,
 ) : MTViewModelWithLocation(),
     NewLocationAwareViewModel,
     LocationSettingsAwareViewModel,
@@ -406,6 +408,6 @@ class HomeViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     override val hasDisabledModule = moduleDisabled.map {
-        it.any { agency -> !PackageManagerUtils.isAppEnabled(appContext, agency.pkg) }
+        it.any { agency -> !pm.isAppEnabled(agency.pkg) }
     }
 }

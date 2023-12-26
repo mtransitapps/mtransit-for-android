@@ -1,6 +1,6 @@
 package org.mtransit.android.ui.news
 
-import android.content.Context
+import android.content.pm.PackageManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -10,13 +10,12 @@ import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.ad.AdManager
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
-import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.data.News
+import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.data.AuthorityAndUuid
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.NewsRepository
@@ -29,11 +28,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewsListViewModel @Inject constructor(
-    @ApplicationContext appContext: Context,
     private val savedStateHandle: SavedStateHandle,
     private val newsRepository: NewsRepository,
     private val dataSourcesRepository: DataSourcesRepository,
     private val adManager: AdManager,
+    private val pm: PackageManager,
 ) : ViewModel(),
     ModuleDisabledAwareViewModel,
     MTLog.Loggable {
@@ -145,6 +144,6 @@ class NewsListViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     override val hasDisabledModule = moduleDisabled.map {
-        it.any { agency -> !PackageManagerUtils.isAppEnabled(appContext, agency.pkg) }
+        it.any { agency -> !pm.isAppEnabled(agency.pkg) }
     }
 }
