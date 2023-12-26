@@ -11,7 +11,7 @@ public interface IAdManager {
 
 	void init(@NonNull IActivity activity);
 
-	void onNbAgenciesEnabledUpdated(@NonNull IActivity activity, int nbAgenciesEnabled);
+	void onHasAgenciesEnabledUpdated(@NonNull IActivity activity, @Nullable Boolean hasAgenciesEnabled);
 
 	void setShowingAds(@Nullable Boolean newShowingAds, @NonNull IActivity activity);
 

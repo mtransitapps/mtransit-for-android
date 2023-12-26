@@ -21,7 +21,6 @@ import androidx.fragment.app.Fragment;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.MTLog;
-import org.mtransit.android.datasource.DataSourcesRepository;
 import org.mtransit.android.ui.fragment.ABFragment;
 
 import java.lang.ref.WeakReference;
@@ -306,7 +305,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		if (mainActivity != null) {
 			mainActivity.updateNavigationDrawerToggleIndicator();
 		}
-		updateSearchMenuItemVisibility(); // action bar icons are options menu items
+		updateMenuItemsVisibility(); // action bar icons are options menu items
 		ab.show();
 	}
 
@@ -372,35 +371,28 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	}
 
 	@Nullable
-	private Integer nbAgenciesEnabled = null;
+	private Boolean hasAgenciesEnabled = null;
 
-	public void onNbAgenciesEnabledUpdated(int nbAgenciesEnabled) {
-		this.nbAgenciesEnabled = nbAgenciesEnabled;
-	}
-
-	@Nullable
-	private Boolean isOnboarding() {
-		if (this.nbAgenciesEnabled == null) {
-			return null;
-		}
-		return this.nbAgenciesEnabled <= DataSourcesRepository.DEFAULT_AGENCY_COUNT;
+	public void onHasAgenciesEnabledUpdated(@Nullable Boolean hasAgenciesEnabled) {
+		this.hasAgenciesEnabled = hasAgenciesEnabled;
+		updateMenuItemsVisibility();
 	}
 
 	@SuppressWarnings("UnusedReturnValue")
 	public boolean onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
 		menuInflater.inflate(R.menu.menu_main, menu);
 		this.searchMenuItem = menu.findItem(R.id.nav_search);
-		updateSearchMenuItemVisibility();
+		updateMenuItemsVisibility();
 		return true;
 	}
 
 	@Nullable
 	private MenuItem searchMenuItem = null;
 
-	public void updateSearchMenuItemVisibility() {
+	public void updateMenuItemsVisibility() {
 		if (this.searchMenuItem != null) {
 			this.searchMenuItem.setVisible(
-					!Boolean.TRUE.equals(isOnboarding())
+					Boolean.TRUE.equals(this.hasAgenciesEnabled)
 							&& this.fragmentShowSearchMenuItem
 			);
 		}

@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -203,6 +204,7 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 			return new Pair<>(itemId, showDrawerLearning);
 		}
 
+		@MainThread
 		@Override
 		protected void onPostExecuteNotCancelledMT(@Nullable Pair<String, Boolean> itemIdAndUserHasLearned) {
 			final NavigationDrawerController navigationDrawerController = this.navigationDrawerControllerWR.get();
@@ -241,13 +243,8 @@ public class NavigationDrawerController implements MTLog.Loggable, NavigationVie
 	}
 
 	@WorkerThread
-	private boolean isOnboarding() {
-		return dataSourcesRepository.getAllAgenciesEnabledCount() <= DataSourcesRepository.DEFAULT_AGENCY_COUNT;
-	}
-
-	@WorkerThread
 	private boolean showDrawerLearning() {
-		return !isOnboarding() && !hasUserLearnedDrawer();
+		return this.dataSourcesRepository.hasAgenciesEnabled() && !hasUserLearnedDrawer();
 	}
 
 	@Nullable

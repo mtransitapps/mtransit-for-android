@@ -95,9 +95,6 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	private static final boolean IGNORE_REWARD_HIDING_BANNER = false;
 	// private static final boolean IGNORE_REWARD_HIDING_BANNER = true; // DEBUG
 
-	private static final int MIN_AGENCIES_FOR_ADS = DataSourcesRepository.DEFAULT_AGENCY_COUNT;
-	// private static final int MIN_AGENCIES_FOR_ADS = 0; // DEBUG
-
 	private static final ArrayList<String> KEYWORDS = ArrayUtils.asArrayList(
 			"transit", "bus", "subway", "bike", "sharing", "ferries", "boat", "trail", "lrt", "streetcar", "tram", "tramway",
 			"transport", "velo", "metro", "taxi", "train", "traversier");
@@ -105,7 +102,7 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	@Nullable
 	private Boolean showingAds = null;
 	@Nullable
-	private Integer nbAgenciesEnabled = null;
+	private Boolean hasAgenciesEnabled = null;
 	@Nullable
 	private Boolean adLoaded = null;
 
@@ -131,8 +128,8 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		this.demoModeManager = demoModeManager;
 		this.defaultPrefRepository = defaultPrefRepository;
 		this.dataSourcesRepository = dataSourcesRepository;
-		this.dataSourcesRepository.readingAllAgenciesEnabledCount().observeForever(newNbAgenciesEnabled -> { // SINGLETON
-			this.nbAgenciesEnabled = newNbAgenciesEnabled;
+		this.dataSourcesRepository.readingHasAgenciesEnabled().observeForever(hasAgenciesEnabled -> { // SINGLETON
+			this.hasAgenciesEnabled = hasAgenciesEnabled;
 		});
 	}
 
@@ -221,8 +218,8 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 	}
 
 	@Override
-	public void onNbAgenciesEnabledUpdated(@NonNull IActivity activity, int nbAgenciesEnabled) {
-		this.nbAgenciesEnabled = nbAgenciesEnabled;
+	public void onHasAgenciesEnabledUpdated(@NonNull IActivity activity, @Nullable Boolean hasAgenciesEnabled) {
+		this.hasAgenciesEnabled = hasAgenciesEnabled;
 		refreshAdStatus(activity);
 	}
 
@@ -705,16 +702,16 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 		if (!AD_ENABLED) {
 			return false;
 		}
-		if (nbAgenciesEnabled == null) {
-			nbAgenciesEnabled = this.dataSourcesRepository.getAllAgenciesEnabledCount();
+		if (hasAgenciesEnabled == null) {
+			hasAgenciesEnabled = this.dataSourcesRepository.hasAgenciesEnabled();
 		}
 		if (!Boolean.TRUE.equals(this.initialized)) {
 			MTLog.d(this, "isShowingAds() > Not showing ads (not initialized yet).");
 			return false; // not showing ads
 		}
 		// number of agency unknown
-		if (nbAgenciesEnabled <= MIN_AGENCIES_FOR_ADS) { // no (real) agency installed
-			MTLog.d(this, "isShowingAds() > Not showing ads (no '%d' agency installed).", nbAgenciesEnabled);
+		if (!hasAgenciesEnabled) { // no (real) agency installed
+			MTLog.d(this, "isShowingAds() > Not showing ads (no agency added).");
 			return false; // not showing ads
 		} else if (demoModeManager.getEnabled()) {
 			MTLog.d(this, "isShowingAds() > Not showing ads (demo mode).");

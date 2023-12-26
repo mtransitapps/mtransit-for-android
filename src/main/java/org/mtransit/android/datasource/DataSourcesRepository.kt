@@ -25,7 +25,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 
-@Suppress("unused")
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 @Singleton
 class DataSourcesRepository @Inject constructor(
     @ApplicationContext private val appContext: Context,
@@ -39,7 +39,7 @@ class DataSourcesRepository @Inject constructor(
     companion object {
         private val LOG_TAG = DataSourcesRepository::class.java.simpleName
 
-        const val DEFAULT_AGENCY_COUNT = 2
+        private const val DEFAULT_AGENCY_COUNT = 2
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -122,6 +122,14 @@ class DataSourcesRepository @Inject constructor(
             emitSource(readingTypeDataSourcesIO(it).map { agency -> agency.filterDemoModeAgency(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
+
+    fun hasAgenciesAdded() = getAllAgenciesCount() > DEFAULT_AGENCY_COUNT
+
+    fun readingHasAgenciesAdded() = readingAllAgenciesCount().map { it > DEFAULT_AGENCY_COUNT }
+
+    fun hasAgenciesEnabled() = getAllAgenciesEnabledCount() > DEFAULT_AGENCY_COUNT
+
+    fun readingHasAgenciesEnabled() = readingAllAgenciesEnabledCount().map { it > DEFAULT_AGENCY_COUNT }
 
     // endregion
 

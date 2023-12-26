@@ -242,8 +242,8 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
                 binding?.swipeRefresh?.isRefreshing = false
             }
         }
-        viewModel.onboarding.observe(viewLifecycleOwner) {
-            updateMenuItemsVisibility(onboarding = it)
+        viewModel.hasAgenciesAdded.observe(viewLifecycleOwner) {
+            updateMenuItemsVisibility(hasAgenciesAdded = it)
         }
         ModuleDisabledUI.onViewCreated(this)
         LocationSettingsUI.onViewCreated(this)
@@ -331,9 +331,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     }
 
     private fun updateMenuItemsVisibility(
-        onboarding: Boolean? = viewModel.onboarding.value,
+        hasAgenciesAdded: Boolean? = viewModel.hasAgenciesAdded.value,
     ) {
-        mapMenuItem?.isVisible = onboarding == false
+        mapMenuItem?.isVisible = hasAgenciesAdded == true
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

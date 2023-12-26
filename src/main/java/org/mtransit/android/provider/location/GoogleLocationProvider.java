@@ -117,7 +117,7 @@ public class GoogleLocationProvider
 			onLocationProviderReady();
 			return;
 		}
-		if (this.dataSourcesRepository.getAllAgenciesCount() <= DataSourcesRepository.DEFAULT_AGENCY_COUNT) {
+		if (!this.dataSourcesRepository.hasAgenciesAdded()) {
 			return; // wait until 1 module is installed
 		}
 		doSetup(screenWithLocationView);

@@ -247,8 +247,8 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
         viewModel.isFixedOn.observe(viewLifecycleOwner) {
             updateMenuItemsVisibility(isFixedOn = it)
         }
-        viewModel.onboarding.observe(viewLifecycleOwner) {
-            updateMenuItemsVisibility(onboarding = it)
+        viewModel.hasAgenciesAdded.observe(viewLifecycleOwner) {
+            updateMenuItemsVisibility(hasAgenciesAdded = it)
         }
         viewModel.fixedOnName.observe(viewLifecycleOwner) {
             abController?.setABTitle(this, getABTitle(context), false)
@@ -346,10 +346,10 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
 
     private fun updateMenuItemsVisibility(
         isFixedOn: Boolean? = viewModel.isFixedOn.value,
-        onboarding: Boolean? = viewModel.onboarding.value,
+        hasAgenciesAdded: Boolean? = viewModel.hasAgenciesAdded.value,
     ) {
-        showDirectionsMenuItem?.isVisible = onboarding == false && isFixedOn == true
-        mapMenuItem?.isVisible = onboarding == false
+        showDirectionsMenuItem?.isVisible = hasAgenciesAdded == true && isFixedOn == true
+        mapMenuItem?.isVisible = hasAgenciesAdded == true
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

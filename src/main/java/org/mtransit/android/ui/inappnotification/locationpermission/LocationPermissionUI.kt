@@ -13,7 +13,7 @@ object LocationPermissionUI : InAppNotificationUI<LocationPermissionAwareFragmen
         InAppNotificationUI.getNotificationId(IN_APP_NOTIFICATION_LOCATION_PERMISSION)
 
     override fun onViewCreated(fragment: LocationPermissionAwareFragment) {
-        fragment.viewModel.onboarding.observe(fragment.getViewLifecycleOwner()) {
+        fragment.viewModel.hasAgenciesAdded.observe(fragment.getViewLifecycleOwner()) {
             // DO NOTHING
         }
         fragment.viewModel.locationPermissionNeeded.observe(fragment.getViewLifecycleOwner()) { needed ->
@@ -23,7 +23,7 @@ object LocationPermissionUI : InAppNotificationUI<LocationPermissionAwareFragmen
 
     override fun getLabelText(fragment: LocationPermissionAwareFragment, context: Context) =
         context.getText(
-            if (fragment.viewModel.onboarding.value == true) R.string.location_permission_in_app_notification_label_onboarding
+            if (fragment.viewModel.hasAgenciesAdded.value == false) R.string.location_permission_in_app_notification_label_onboarding
             else R.string.location_permission_in_app_notification_label
         )
 

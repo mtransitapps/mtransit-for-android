@@ -43,11 +43,11 @@ class NetworkLocationRepository @Inject constructor(
     private var _ipLocationLat = lclPreferenceRepository.pref.liveDataN(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LAT, DEFAULT_LOCATION_VALUE)
     private var _ipLocationLng = lclPreferenceRepository.pref.liveDataN(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_LNG, DEFAULT_LOCATION_VALUE)
 
-    private val _agenciesCount = dataSourcesRepository.readingAllAgenciesCount()
+    private val _hasAgenciesAdded = dataSourcesRepository.readingHasAgenciesAdded()
 
-    val ipLocation: LiveData<Location?> = TripleMediatorLiveData(_ipLocationLat, _ipLocationLng, _agenciesCount).switchMap { (lat, lng, agenciesCount) ->
+    val ipLocation: LiveData<Location?> = TripleMediatorLiveData(_ipLocationLat, _ipLocationLng, _hasAgenciesAdded).switchMap { (lat, lng, hasAgenciesAdded) ->
         liveData {
-            if (lat != null && lng != null && agenciesCount != null && agenciesCount <= DataSourcesRepository.DEFAULT_AGENCY_COUNT) {
+            if (lat != null && lng != null && hasAgenciesAdded != null && !hasAgenciesAdded) {
                 emit(LocationUtils.getNewLocation(lat.toDouble(), lng.toDouble(), NETWORK_LOCATION_ACCURACY_IN_METERS))
             }
         }
@@ -60,7 +60,7 @@ class NetworkLocationRepository @Inject constructor(
         if (locationPermissionProvider.allRequiredPermissionsGranted(appContext)) {
             return
         }
-        if (dataSourcesRepository.getAllAgenciesCount() > DataSourcesRepository.DEFAULT_AGENCY_COUNT) {
+        if (dataSourcesRepository.hasAgenciesAdded()) {
             return
         }
         val lastCheckInMs = lclPreferenceRepository.getValue(LocalPreferenceRepository.PREFS_LCL_IP_LOCATION_TIMESTAMP, -1L)

@@ -8,7 +8,7 @@ interface LocationPermissionAwareViewModel : InAppNotificationViewModel {
 
     val locationPermissionNeeded: LiveData<Boolean>
 
-    val onboarding: LiveData<Boolean>
+    val hasAgenciesAdded: LiveData<Boolean>
 
     fun refreshLocationPermissionNeeded()
 

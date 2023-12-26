@@ -143,9 +143,7 @@ class NearbyViewModel @Inject constructor(
         return lastDeviceLocation
     }
 
-    override val onboarding: LiveData<Boolean> = this.dataSourcesRepository.readingAllAgenciesCount().map {
-        it <= DataSourcesRepository.DEFAULT_AGENCY_COUNT
-    }
+    override val hasAgenciesAdded: LiveData<Boolean> = this.dataSourcesRepository.readingHasAgenciesAdded()
 
     private var _locationPermissionNeeded = MutableLiveData(!locationPermissionProvider.allRequiredPermissionsGranted(appContext))
 

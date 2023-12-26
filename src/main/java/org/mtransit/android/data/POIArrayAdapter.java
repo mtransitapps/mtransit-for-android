@@ -528,7 +528,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		CollectionUtils.removeIfNN(allAgencyTypes, dst -> !dst.isHomeScreen());
 		final boolean hasFavorites = (this.favUUIDs != null && !this.favUUIDs.isEmpty())
 				|| (this.favUUIDsFolderIds != null && !this.favUUIDsFolderIds.isEmpty());
-		if (hasFavorites && this.dataSourcesRepository.getAllAgenciesEnabledCount() > DataSourcesRepository.DEFAULT_AGENCY_COUNT) {
+		if (hasFavorites && this.dataSourcesRepository.hasAgenciesEnabled()) {
 			allAgencyTypes.add(0, DataSourceType.TYPE_FAVORITE); // 1st
 		}
 		if (allAgencyTypes.size() > 0) {

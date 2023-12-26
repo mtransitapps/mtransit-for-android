@@ -54,7 +54,7 @@ class MainViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val allAgenciesEnabledCount = this.dataSourcesRepository.readingAllAgenciesEnabledCount()
+    val hasAgenciesEnabled = this.dataSourcesRepository.readingHasAgenciesEnabled()
 
     val scrollToTopEvent = MutableLiveData<Event<Boolean>>()
 
@@ -93,16 +93,14 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private val _onboarding: LiveData<Boolean> = this.dataSourcesRepository.readingAllAgenciesCount().map {
-        it <= DataSourcesRepository.DEFAULT_AGENCY_COUNT
-    }
+    private val _hasAgenciesAdded: LiveData<Boolean> = this.dataSourcesRepository.readingHasAgenciesAdded()
 
     private val _userLearnedDrawer: LiveData<Boolean> = defaultPrefRepository.pref.liveData(
         DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER, DefaultPreferenceRepository.PREF_USER_LEARNED_DRAWER_DEFAULT
     ).distinctUntilChanged()
 
-    val showDrawerLearning: LiveData<Boolean> = PairMediatorLiveData(_onboarding, _userLearnedDrawer).map { (onboarding, userLearnedDrawer) ->
-        onboarding == false && userLearnedDrawer == false
+    val showDrawerLearning: LiveData<Boolean> = PairMediatorLiveData(_hasAgenciesAdded, _userLearnedDrawer).map { (hasAgenciesAdded, userLearnedDrawer) ->
+        hasAgenciesAdded == true && userLearnedDrawer == false
     }
 
     fun setUserLearnedDrawer(learned: Boolean) {
