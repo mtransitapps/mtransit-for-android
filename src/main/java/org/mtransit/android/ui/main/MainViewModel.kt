@@ -56,6 +56,8 @@ class MainViewModel @Inject constructor(
 
     val hasAgenciesEnabled = this.dataSourcesRepository.readingHasAgenciesEnabled()
 
+    val hasAgenciesAdded = this.dataSourcesRepository.readingHasAgenciesAdded()
+
     val scrollToTopEvent = MutableLiveData<Event<Boolean>>()
 
     private val _abTitle = MutableLiveData<CharSequence?>(DEFAULT_AB_TITLE)

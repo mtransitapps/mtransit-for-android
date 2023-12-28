@@ -35,6 +35,10 @@ public abstract class MTActivityWithLocation extends MTActivity implements
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 	}
 
+	protected void onHasAgenciesAddedChanged() {
+		this.locationProvider.doSetupIfRequired(this);
+	}
+
 	@CallSuper
 	@Override
 	protected void onResume() {

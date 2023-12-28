@@ -205,6 +205,11 @@ class MainActivity : MTActivityWithLocation(),
             // ad-manager does not persist activity but listen for changes itself
             adManager.onHasAgenciesEnabledUpdated(this, hasAgenciesEnabled)
         }
+        viewModel.hasAgenciesAdded.observe(this) { hasAgenciesEnabled ->
+            if (hasAgenciesEnabled) {
+                onHasAgenciesAddedChanged()
+            }
+        }
         viewModel.abTitle.observe(this) {
             binding.abToolbar.title = it
         }

@@ -127,11 +127,15 @@ class DataSourcesRepository @Inject constructor(
 
     fun hasAgenciesAdded() = getAllAgenciesCount() > DEFAULT_AGENCY_COUNT
 
-    fun readingHasAgenciesAdded() = readingAllAgenciesCount().map { it > DEFAULT_AGENCY_COUNT }
+    fun readingHasAgenciesAdded() = readingAllAgenciesCount().map { agenciesCount ->
+        agenciesCount > DEFAULT_AGENCY_COUNT
+    }.distinctUntilChanged()
 
     fun hasAgenciesEnabled() = getAllAgenciesEnabledCount() > DEFAULT_AGENCY_COUNT
 
-    fun readingHasAgenciesEnabled() = readingAllAgenciesEnabledCount().map { it > DEFAULT_AGENCY_COUNT }
+    fun readingHasAgenciesEnabled() = readingAllAgenciesEnabledCount().map { enabledAgenciesCount ->
+        enabledAgenciesCount > DEFAULT_AGENCY_COUNT
+    }.distinctUntilChanged()
 
     // endregion
 

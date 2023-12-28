@@ -160,6 +160,11 @@ public class MainActivity extends MTActivityWithLocation implements
 			this.adManager.onHasAgenciesEnabledUpdated(this, hasAgenciesEnabled); // ad-manager does not persist activity but listen for changes itself
 			this.abController.onHasAgenciesEnabledUpdated(hasAgenciesEnabled);
 		});
+		this.dataSourcesRepository.readingHasAgenciesAdded().observe(this, hasAgenciesAdded -> {
+			if (hasAgenciesAdded) {
+				onHasAgenciesAddedChanged();
+			}
+		});
 		this.billingManager.getCurrentSubscription().observe(this, currentSubscription -> {
 			// do nothing
 		});
@@ -473,6 +478,7 @@ public class MainActivity extends MTActivityWithLocation implements
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onBackPressed() {
 		if (this.navigationDrawerController != null && this.navigationDrawerController.onBackPressed()) {
