@@ -187,8 +187,8 @@ public class GoogleLocationProvider
 
 	private void onLocationProviderReady() {
 		if (this.foregroundLocationUpdatesEnabled) {
-			crashReporter.shouldNotHappen("Foreground location updates enabled before provider ready!");
-			return;
+			MTLog.d(this, "Foreground location updates enabled before provider ready!");
+			return; // can be called multiple times (when adding 1st module)
 		}
 		enableDisableForegroundLocationUpdates();
 	}
