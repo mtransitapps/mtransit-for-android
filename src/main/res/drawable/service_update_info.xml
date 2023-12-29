@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <color android:color="?attr/colorSurface" />
+    </item>
+
+    <item
+        android:bottom="@dimen/baseline_16"
+        android:drawable="@drawable/ic_info_outline_on_surface_16dp"
+        android:gravity="top|left"
+        android:left="@dimen/baseline_16"
+        android:right="@dimen/baseline_8"
+        android:top="20dp" />
+
+</layer-list>

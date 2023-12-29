@@ -94,6 +94,10 @@ public abstract class ABFragment extends MTFragmentX implements
 		return this.defaultABBgColor;
 	}
 
+	public boolean isABOverrideGradient() {
+		return false;
+	}
+
 	public boolean isABStatusBarTransparent() {
 		return false;
 	}

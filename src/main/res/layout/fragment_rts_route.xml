@@ -1,17 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingTop="@dimen/action_bar_size_static">
+    android:layout_height="match_parent">
+
+    <View
+        android:id="@+id/route_direction_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/tabs"
+        android:layout_alignParentTop="true"
+        android:foreground="@drawable/route_direction_gradient"
+        tools:background="#FF00FF"
+        tools:ignore="UnusedAttribute" />
+
     <!-- TABS -->
     <com.google.android.material.tabs.TabLayout
         android:id="@id/tabs"
         style="@style/Widget.MaterialComponents.TabLayout.Colored"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="@dimen/action_bar_size_static"
+        android:background="@color/transparent"
         android:theme="@style/MTThemeOverlay"
         android:visibility="gone"
         app:tabContentStart="@dimen/tab_content_start"
@@ -21,12 +33,14 @@
         app:tabMode="scrollable"
         app:tabTextAppearance="@style/MTTabTextStyle"
         tools:visibility="visible" />
+
     <!-- LOADING -->
     <include
         android:id="@id/loading_layout"
         layout="@layout/layout_loading_large"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/tabs"
         android:visibility="gone"
         tools:visibility="visible" />
     <!-- VIEWPAGER -->
@@ -34,6 +48,7 @@
         android:id="@id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/tabs"
         android:orientation="horizontal"
         android:visibility="visible"
         tools:layout="@layout/fragment_rts_trip_stops"
@@ -44,6 +59,8 @@
         layout="@layout/layout_empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/tabs"
         android:visibility="gone"
         tools:visibility="visible" />
-</LinearLayout>
+
+</RelativeLayout>

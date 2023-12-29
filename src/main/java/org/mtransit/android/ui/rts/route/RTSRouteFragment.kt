@@ -136,7 +136,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
                 registerOnPageChangeCallback(onPageChangeCallback)
                 adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
                 MTTabLayoutMediator(tabs, this, autoRefresh = true, smoothScroll = true) { tab, position ->
-                    tab.text = viewModel.routeTrips.value?.get(position)?.decorateDirection(this.context, false)
+                    tab.text = viewModel.routeTrips.value?.get(position)?.decorateDirection(this.context, small = false, centered = false)
                 }.attach()
             }
             if (FeatureFlags.F_NAVIGATION) {
@@ -144,7 +144,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
                     tabs.elevation = it
                 }
             }
-            getABBgColor(tabs.context)?.let { tabs.setBackgroundColor(it) }
+            attachedViewModel?.colorInt?.value?.let { routeDirectionBackground.setBackgroundColor(it) }
             showSelectedTab()
         }
         viewModel.selectedStopId.observe(viewLifecycleOwner) { selectedStopId ->
@@ -172,7 +172,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
                 }
             )
             binding?.apply {
-                getABBgColor(tabs.context)?.let { tabs.setBackgroundColor(it) }
+                attachedViewModel?.colorInt?.value?.let { routeDirectionBackground.setBackgroundColor(it) }
             }
             abController?.setABBgColor(this, getABBgColor(context), false)
             abController?.setABTitle(this, getABTitle(context), false)
@@ -180,9 +180,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
         }
         viewModel.colorInt.observe(viewLifecycleOwner) {
             binding?.apply {
-                getABBgColor(tabs.context)?.let { colorInt ->
-                    tabs.setBackgroundColor(colorInt)
-                }
+                attachedViewModel?.colorInt?.value?.let { routeDirectionBackground.setBackgroundColor(it) }
             }
             abController?.setABBgColor(this, getABBgColor(context), true)
         }
@@ -238,12 +236,14 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
                     tabs.isVisible = false
                     loadingLayout.isVisible = true
                 }
+
                 pagerAdapter?.itemCount == 0 -> { // EMPTY
                     loadingLayout.isVisible = false
                     viewPager.isVisible = false
                     tabs.isVisible = false
                     emptyLayout.isVisible = true
                 }
+
                 else -> { // LOADED
                     loadingLayout.isVisible = false
                     emptyLayout.isVisible = false
@@ -274,7 +274,12 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
 
     override fun isABReady() = attachedViewModel?.route?.value != null
 
-    override fun getABBgColor(context: Context?) = attachedViewModel?.colorInt?.value ?: super.getABBgColor(context)
+    override fun isABStatusBarTransparent() = true
+
+    override fun isABOverrideGradient() = true
+
+    override fun getABBgColor(context: Context?) =
+        attachedViewModel?.colorInt?.value ?: super.getABBgColor(context)
 
     override fun getABTitle(context: Context?): CharSequence? {
         return attachedViewModel?.route?.value?.let { makeABTitle(it) }

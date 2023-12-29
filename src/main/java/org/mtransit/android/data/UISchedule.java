@@ -510,9 +510,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			SpannableStringBuilder timeSSB = new SpannableStringBuilder(fTime);
 			if (t.hasHeadsign() && !Trip.isSameHeadsign(t.getHeading(context), optDefaultHeadSign)) {
 				headSignSSB = new SpannableStringBuilder(
-						UIDirectionUtils.decorateDirection(context,
-								t.getUIHeading(context, true)
-						)
+						UIDirectionUtils.decorateDirection(context, t.getUIHeading(context, true), false)
 				);
 			}
 			if (FeatureFlags.F_ACCESSIBILITY_CONSUMER) {
@@ -888,7 +886,7 @@ public class UISchedule extends org.mtransit.android.commons.data.Schedule imple
 			return;
 		}
 		ArrayList<Timestamp> nextTimestamps = getStatusNextTimestamps(after, optMinCoverageInMs, optMaxCoverageInMs, optMinCount, optMaxCount);
-		if (nextTimestamps.size() <= 0) { // NO SERVICE
+		if (nextTimestamps.size() == 0) { // NO SERVICE
 			generateStatusStringsNoService(context);
 			this.statusStringsTimestamp = after;
 			return;

@@ -48,6 +48,8 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	@ColorInt
 	private Integer fragmentBgColor = null;
 
+	private boolean fragmentOverrideGradient = false;
+
 	@Nullable
 	private View fragmentCustomView = null;
 
@@ -91,6 +93,12 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 	private ActionBar getABOrNull() {
 		MainActivity mainActivity = getMainActivityOrNull();
 		return mainActivity == null ? null : mainActivity.getSupportActionBar();
+	}
+
+	@Nullable
+	private View getABDGradientOrNull() {
+		final MainActivity mainActivity = getMainActivityOrNull();
+		return mainActivity == null ? null : mainActivity.findViewById(R.id.ab_toolbar_transparent);
 	}
 
 	private final Handler handler = new Handler(Looper.getMainLooper());
@@ -138,6 +146,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 					abf.getABTitle(context),
 					abf.getABSubtitle(context),
 					abf.getABBgColor(context),
+					abf.isABOverrideGradient(),
 					abf.getABCustomView(),
 					abf.isABCustomViewFocusable(),
 					abf.isABCustomViewRequestFocus(),
@@ -149,12 +158,21 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		}
 	}
 
-	private void setAB(CharSequence title, CharSequence subtitle, @ColorInt Integer bgColor, View customView, boolean customViewFocusable,
-					   boolean customViewRequestFocus, boolean themeDarkInsteadOfThemeLight, boolean displayHomeAsUpEnabled, boolean showSearchMenuItem,
+	private void setAB(CharSequence title,
+					   CharSequence subtitle,
+					   @ColorInt Integer bgColor,
+					   boolean overrideGradient,
+					   View customView,
+					   boolean customViewFocusable,
+					   boolean customViewRequestFocus,
+					   boolean themeDarkInsteadOfThemeLight,
+					   boolean displayHomeAsUpEnabled,
+					   boolean showSearchMenuItem,
 					   boolean fragmentReady) {
 		this.fragmentTitle = title;
 		this.fragmentSubtitle = subtitle;
 		this.fragmentBgColor = bgColor;
+		this.fragmentOverrideGradient = overrideGradient;
 		this.fragmentCustomView = customView;
 		this.fragmentCustomViewFocusable = customViewFocusable;
 		this.fragmentCustomViewRequestFocus = customViewRequestFocus;
@@ -204,6 +222,16 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 			return;
 		}
 		this.fragmentBgColor = bgColor;
+		if (update) {
+			updateABDrawerClosed();
+		}
+	}
+
+	public void setABOverrideGradient(@Nullable Fragment source, boolean overrideGradient, boolean update) {
+		if (!isCurrentFragmentVisible(source)) {
+			return;
+		}
+		this.fragmentOverrideGradient = overrideGradient;
 		if (update) {
 			updateABDrawerClosed();
 		}
@@ -301,6 +329,7 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		if (this.fragmentBgColor != null) {
 			setBgColor(ab, this.fragmentBgColor);
 		}
+		setOverrideGradient(ab, this.fragmentOverrideGradient);
 		final MainActivity mainActivity = getMainActivityOrNull();
 		if (mainActivity != null) {
 			mainActivity.updateNavigationDrawerToggleIndicator();
@@ -322,6 +351,20 @@ public class ActionBarController implements Drawable.Callback, MTLog.Loggable {
 		final ColorDrawable bgDrawable = getBgDrawableOrNull(ab);
 		if (bgDrawable != null) {
 			bgDrawable.setColor(colorInt);
+		}
+	}
+
+	public void updateABOverrideGradient() {
+		if (!this.fragmentReady) {
+			return;
+		}
+		setOverrideGradient(getABOrNull(), this.fragmentOverrideGradient);
+	}
+
+	private void setOverrideGradient(ActionBar ab, boolean overrideABGradient) {
+		final View abdGradient = getABDGradientOrNull();
+		if (abdGradient != null) {
+			abdGradient.setVisibility(overrideABGradient ? View.GONE : View.VISIBLE);
 		}
 	}
 

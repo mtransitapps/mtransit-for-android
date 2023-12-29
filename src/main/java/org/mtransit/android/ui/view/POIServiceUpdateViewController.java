@@ -23,6 +23,7 @@ import org.mtransit.commons.CollectionUtils;
 
 import java.util.List;
 
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class POIServiceUpdateViewController implements MTLog.Loggable {
 
 	private static final String LOG_TAG = POIServiceUpdateViewController.class.getSimpleName();
@@ -185,8 +186,12 @@ public class POIServiceUpdateViewController implements MTLog.Loggable {
 					serviceMessageDisplayed++;
 				}
 			}
-			serviceUpdatesListViewHolder.messagesTv.setText(LinkUtils.linkifyHtml(ssb.toString(), true), TextView.BufferType.SPANNABLE);
+			serviceUpdatesListViewHolder.messagesTv.setText(LinkUtils.linkifyHtml(HtmlUtils.fromHtml(ssb.toString()), false), TextView.BufferType.SPANNABLE);
 			serviceUpdatesListViewHolder.messagesTv.setMovementMethod(LinkUtils.LinkMovementMethodInterceptor.getInstance(dataProvider));
+			serviceUpdatesListViewHolder.messagesTv.setBackgroundResource(
+					isWarning ? R.drawable.service_update_warning
+							: R.drawable.service_update_info
+			);
 		}
 		if (serviceMessageDisplayed == 0) {
 			serviceUpdatesListViewHolder.layout.setVisibility(View.GONE);

@@ -1882,7 +1882,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setVisibility(View.VISIBLE);
-				holder.tripHeadingTv.setText(UIDirectionUtils.decorateDirection(getContext(), rts.getTrip().getUIHeading(getContext(), true)));
+				holder.tripHeadingTv.setText(
+						UIDirectionUtils.decorateDirection(getContext(), rts.getTrip().getUIHeading(getContext(), true), true)
+				);
 				holder.tripHeadingBg.setVisibility(View.VISIBLE);
 				holder.rtsExtraV.setBackgroundColor(poim.getColor(dataSourcesRepository));
 				holder.rtsExtraV.setOnClickListener(view -> {

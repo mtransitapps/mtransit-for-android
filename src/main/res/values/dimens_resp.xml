@@ -20,7 +20,7 @@
     <dimen name="news_article_horizontal_list_margin">@dimen/baseline_16</dimen>
     <dimen name="news_article_horizontal_list_item_margin">@dimen/baseline_4</dimen>
 
-    <dimen name="poi_extra_width">@dimen/list_view_item_height</dimen>
+    <dimen name="poi_extra_width">@dimen/baseline_96</dimen>
     <dimen name="poi_extra_height">@dimen/list_view_item_height</dimen>
 
     <dimen name="list_view_item_height">@dimen/platform_listPreferredItemHeight</dimen>

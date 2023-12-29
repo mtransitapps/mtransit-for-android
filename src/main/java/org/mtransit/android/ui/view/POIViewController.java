@@ -530,9 +530,7 @@ public class POIViewController implements MTLog.Loggable {
 					holder.tripHeadingBg.setVisibility(View.GONE);
 				} else {
 					holder.tripHeadingTv.setText(
-							UIDirectionUtils.decorateDirection(context,
-									rts.getTrip().getUIHeading(context, true)
-							)
+							UIDirectionUtils.decorateDirection(context, rts.getTrip().getUIHeading(context, true), true)
 					);
 					final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
 					holder.tripHeadingTv.setSingleLine(true); // marquee forever
@@ -637,9 +635,7 @@ public class POIViewController implements MTLog.Loggable {
 					holder.tripHeadingBg.setVisibility(View.GONE);
 				} else {
 					holder.tripHeadingTv.setText(
-							UIDirectionUtils.decorateDirection(context,
-									rts.getTrip().getUIHeading(context, true)
-							)
+							UIDirectionUtils.decorateDirection(context, rts.getTrip().getUIHeading(context, true), true)
 					);
 					final DemoModeManager demoModeManager = dataProvider.providesDemoModeManager();
 					holder.tripHeadingTv.setSingleLine(true); // marquee forever

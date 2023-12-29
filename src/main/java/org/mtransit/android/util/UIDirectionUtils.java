@@ -1,5 +1,7 @@
 package org.mtransit.android.util;
 
+import static org.mtransit.commons.Constants.SPACE_;
+
 import android.content.Context;
 import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
@@ -47,7 +49,16 @@ public final class UIDirectionUtils implements MTLog.Loggable {
 
 	@NonNull
 	public static CharSequence decorateDirection(@NonNull Context context,
-												 @NonNull String direction) {
+												 @NonNull String direction,
+												 boolean centered) {
+		if (centered) {
+			int spaceAdded = 0;
+			while (direction.length() < 13 && spaceAdded <= 5) {
+				//noinspection StringConcatenationInLoop
+				direction += SPACE_;
+				spaceAdded++;
+			}
+		}
 		if (!USE_DRAWABLE) {
 			return direction;
 		}

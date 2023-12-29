@@ -20,10 +20,10 @@
     <dimen name="news_article_horizontal_list_margin">@dimen/baseline_320</dimen>
     <dimen name="news_article_horizontal_list_item_margin">@dimen/baseline_8</dimen>
 
-    <dimen name="poi_extra_width">@dimen/list_view_item_height</dimen>
+    <dimen name="poi_extra_width">@dimen/baseline_104</dimen>
     <dimen name="poi_extra_height">@dimen/list_view_item_height</dimen>
 
-    <dimen name="list_view_item_height">72dp</dimen><!-- between listPreferredItemHeight & listPreferredItemHeightLarge-->
+    <dimen name="list_view_item_height">@dimen/baseline_72</dimen><!-- between listPreferredItemHeight & listPreferredItemHeightLarge-->
 
     <dimen name="route_short_name_min_text_size">@dimen/text_size_large</dimen>
     <dimen name="route_short_name_max_text_size">@dimen/text_size_extra_extra_extra_large</dimen>

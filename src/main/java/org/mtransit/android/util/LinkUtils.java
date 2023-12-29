@@ -3,7 +3,6 @@ package org.mtransit.android.util;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.text.Html;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -26,6 +25,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 
 import org.mtransit.android.R;
+import org.mtransit.android.commons.HtmlUtils;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.PackageManagerUtils;
 import org.mtransit.android.commons.PreferenceUtils;
@@ -58,7 +58,17 @@ public final class LinkUtils implements MTLog.Loggable {
 	@NonNull
 	public static CharSequence linkifyHtml(@NonNull String originalText, boolean isHTML) {
 		try {
-			Spanned text = isHTML ? Html.fromHtml(originalText) : new SpannedString(originalText);
+			Spanned text = isHTML ? HtmlUtils.fromHtml(originalText) : new SpannedString(originalText);
+			return linkifyHtml(text, isHTML);
+		} catch (Exception e) {
+			MTLog.w(LOG_TAG, e, "Error while linkify-ing '%s'!", originalText);
+			return originalText;
+		}
+	}
+
+	@NonNull
+	public static CharSequence linkifyHtml(@NonNull Spanned text, boolean isHTML) {
+		try {
 			URLSpan[] currentSpans = text.getSpans(0, text.length(), URLSpan.class);
 			SpannableStringBuilder buffer = new SpannableStringBuilder(text);
 			Linkify.addLinks(buffer, isHTML ? Linkify.EMAIL_ADDRESSES | Linkify.PHONE_NUMBERS | Linkify.MAP_ADDRESSES : Linkify.ALL);
@@ -67,8 +77,8 @@ public final class LinkUtils implements MTLog.Loggable {
 			}
 			return buffer;
 		} catch (Exception e) {
-			MTLog.w(LOG_TAG, e, "Error while linkify-ing '%s'!", originalText);
-			return originalText;
+			MTLog.w(LOG_TAG, e, "Error while linkify-ing '%s'!", text);
+			return text;
 		}
 	}
 
