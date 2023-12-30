@@ -1009,7 +1009,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (this.showServiceUpdate) {
 			CommonStatusViewHolder statusViewHolder = this.poiStatusViewHoldersWR.get(targetUUID);
 			if (statusViewHolder != null && targetUUID.equals(statusViewHolder.uuid)) {
-				updateServiceUpdate(statusViewHolder, ServiceUpdate.isSeverityWarning(serviceUpdates));
+				updateServiceUpdate(statusViewHolder,
+						ServiceUpdate.isSeverityWarning(serviceUpdates),
+						ServiceUpdate.isSeverityInfo(serviceUpdates)
+				);
 			} else {
 				notifyDataSetChanged(false);
 			}
@@ -1596,7 +1599,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	private static void initCommonStatusViewHolderHolder(CommonStatusViewHolder holder, View convertView) {
 		holder.statusV = convertView.findViewById(R.id.status);
-		holder.warningImg = convertView.findViewById(R.id.service_update_warning);
+		holder.serviceUpdateImg = convertView.findViewById(R.id.service_update_img);
 	}
 
 	@SuppressWarnings("UnusedReturnValue")
@@ -1617,7 +1620,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 		if (poim != null) {
 			poim.setServiceUpdateLoaderListener(this);
-			updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext(), serviceUpdateLoader));
+			updateServiceUpdate(statusViewHolder,
+					poim.isServiceUpdateWarning(getContext(), serviceUpdateLoader),
+					ServiceUpdate.isSeverityInfo(poim.getServiceUpdatesOrNull())
+			);
 		}
 	}
 
@@ -1633,14 +1639,21 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 	}
 
-	private void updateServiceUpdate(CommonStatusViewHolder statusViewHolder, Boolean isServiceUpdateWarning) {
-		if (statusViewHolder.warningImg == null) {
+	private void updateServiceUpdate(CommonStatusViewHolder statusViewHolder,
+									 boolean isServiceUpdateWarning,
+									 boolean isServiceUpdateInfo) {
+		if (statusViewHolder.serviceUpdateImg == null) {
 			return;
 		}
-		if (this.showServiceUpdate && isServiceUpdateWarning != null) {
-			statusViewHolder.warningImg.setVisibility(isServiceUpdateWarning ? View.VISIBLE : View.GONE);
+		if (isServiceUpdateWarning) {
+			statusViewHolder.serviceUpdateImg.setImageResource(R.drawable.ic_warning_on_surface_16dp);
+			statusViewHolder.serviceUpdateImg.setVisibility(View.VISIBLE);
+		} else if (isServiceUpdateInfo) {
+			statusViewHolder.serviceUpdateImg.setImageResource(R.drawable.ic_info_outline_on_surface_16dp);
+			statusViewHolder.serviceUpdateImg.setVisibility(View.VISIBLE);
 		} else {
-			statusViewHolder.warningImg.setVisibility(View.GONE);
+			statusViewHolder.serviceUpdateImg.setImageDrawable(null);
+			statusViewHolder.serviceUpdateImg.setVisibility(View.GONE);
 		}
 	}
 
@@ -1653,7 +1666,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 		if (poim != null) {
 			poim.setServiceUpdateLoaderListener(this);
-			updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext(), serviceUpdateLoader));
+			updateServiceUpdate(statusViewHolder,
+					poim.isServiceUpdateWarning(getContext(), serviceUpdateLoader),
+					ServiceUpdate.isSeverityInfo(poim.getServiceUpdatesOrNull())
+			);
 		}
 	}
 
@@ -1981,7 +1997,10 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		}
 		if (poim != null) {
 			poim.setServiceUpdateLoaderListener(this);
-			updateServiceUpdate(statusViewHolder, poim.isServiceUpdateWarning(getContext(), serviceUpdateLoader));
+			updateServiceUpdate(statusViewHolder,
+					poim.isServiceUpdateWarning(getContext(), serviceUpdateLoader),
+					ServiceUpdate.isSeverityInfo(poim.getServiceUpdatesOrNull())
+			);
 		}
 	}
 
@@ -2283,7 +2302,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	public static class CommonStatusViewHolder {
 		String uuid;
 		View statusV;
-		ImageView warningImg;
+		ImageView serviceUpdateImg;
 	}
 
 	private static class FavoriteFolderHeaderViewHolder {

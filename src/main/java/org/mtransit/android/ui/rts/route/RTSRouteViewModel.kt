@@ -137,7 +137,7 @@ class RTSRouteViewModel @Inject constructor(
         }
     }
 
-    val selectedTripId: LiveData<Long?> = PairMediatorLiveData(_selectedTripId, _selectedTripIdPref).map { (selectedTripId, selectedTripIdPref) ->
+    private val selectedTripId: LiveData<Long?> = PairMediatorLiveData(_selectedTripId, _selectedTripIdPref).map { (selectedTripId, selectedTripIdPref) ->
         selectedTripId ?: selectedTripIdPref
     }.distinctUntilChanged()
 

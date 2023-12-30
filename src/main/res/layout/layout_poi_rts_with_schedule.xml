@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/list_view_item_height"
@@ -12,19 +11,7 @@
     android:paddingEnd="@dimen/poi_padding_end"
     android:paddingBottom="@dimen/poi_padding_bottom">
 
-    <ImageView
-        android:id="@+id/service_update_warning"
-        android:layout_width="@dimen/poi_img_width"
-        android:layout_height="@dimen/poi_img_height"
-        android:layout_alignWithParentIfMissing="true"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:layout_marginEnd="@dimen/poi_status_inner_padding"
-        android:scaleType="fitCenter"
-        android:visibility="gone"
-        app:srcCompat="@drawable/ic_warning_black_24dp"
-        app:tint="@color/color_secondary_on_background"
-        tools:visibility="visible" />
+    <include layout="@layout/layout_poi_status_service_update_img" />
 
     <include
         android:id="@+id/status"
@@ -35,7 +22,8 @@
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_marginEnd="@dimen/poi_status_inner_padding"
-        android:minWidth="@dimen/list_view_item_height" />
+        android:minWidth="@dimen/list_view_item_height"
+        tools:layout_width="100dp" />
 
     <include
         android:id="@+id/extra"

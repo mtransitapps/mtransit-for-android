@@ -223,7 +223,7 @@ public class POIViewController implements MTLog.Loggable {
 
 	private static ServiceUpdateViewHolder initServiceUpdateViewHolder(@NonNull View view) {
 		ServiceUpdateViewHolder holder = new ServiceUpdateViewHolder();
-		holder.warningImg = view.findViewById(R.id.service_update_warning);
+		holder.serviceUpdateImg = view.findViewById(R.id.service_update_img);
 		return holder;
 	}
 
@@ -334,7 +334,7 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		if (holder.serviceUpdateViewHolder != null && !dataProvider.isShowingServiceUpdates()) {
-			holder.serviceUpdateViewHolder.warningImg.setVisibility(View.GONE);
+			holder.serviceUpdateViewHolder.serviceUpdateImg.setVisibility(View.GONE);
 		}
 	}
 
@@ -888,7 +888,12 @@ public class POIViewController implements MTLog.Loggable {
 			return;
 		}
 		CommonViewHolder holder = (CommonViewHolder) view.getTag();
-		updateServiceUpdateViewHolder(holder.serviceUpdateViewHolder, ServiceUpdate.isSeverityWarning(serviceUpdates), dataProvider);
+		updateServiceUpdateViewHolder(
+				holder.serviceUpdateViewHolder,
+				ServiceUpdate.isSeverityWarning(serviceUpdates),
+				ServiceUpdate.isSeverityInfo(serviceUpdates),
+				dataProvider
+		);
 	}
 
 	public static void updatePOIServiceUpdate(@Nullable View view,
@@ -914,23 +919,38 @@ public class POIViewController implements MTLog.Loggable {
 		if (serviceUpdateViewHolder != null) {
 			if (dataProvider.isShowingServiceUpdates()) {
 				poim.setServiceUpdateLoaderListener(dataProvider);
-				updateServiceUpdateViewHolder(serviceUpdateViewHolder, poim.isServiceUpdateWarning(context, dataProvider.providesServiceUpdateLoader()), dataProvider);
+				updateServiceUpdateViewHolder(
+						serviceUpdateViewHolder,
+						poim.isServiceUpdateWarning(context, dataProvider.providesServiceUpdateLoader()),
+						ServiceUpdate.isSeverityInfo(poim.getServiceUpdatesOrNull()),
+						dataProvider
+				);
 			} else {
-				serviceUpdateViewHolder.warningImg.setVisibility(View.GONE);
+				serviceUpdateViewHolder.serviceUpdateImg.setVisibility(View.GONE);
 			}
 		}
 	}
 
 	private static void updateServiceUpdateViewHolder(@NonNull ServiceUpdateViewHolder serviceUpdateViewHolder,
-													  @Nullable Boolean isServiceUpdateWarning,
+													  boolean isServiceUpdateWarning,
+													  boolean isServiceUpdateInfo,
 													  @NonNull POIDataProvider dataProvider) {
-		if (serviceUpdateViewHolder.warningImg == null) {
+		if (serviceUpdateViewHolder.serviceUpdateImg == null) {
 			return;
 		}
-		if (dataProvider.isShowingServiceUpdates() && isServiceUpdateWarning != null) {
-			serviceUpdateViewHolder.warningImg.setVisibility(isServiceUpdateWarning ? View.VISIBLE : View.GONE);
+		if (dataProvider.isShowingServiceUpdates()) {
+			if (isServiceUpdateWarning) {
+				serviceUpdateViewHolder.serviceUpdateImg.setImageResource(R.drawable.ic_warning_on_surface_16dp);
+				serviceUpdateViewHolder.serviceUpdateImg.setVisibility(View.VISIBLE);
+			} else if (isServiceUpdateInfo) {
+				serviceUpdateViewHolder.serviceUpdateImg.setImageResource(R.drawable.ic_info_outline_on_surface_16dp);
+				serviceUpdateViewHolder.serviceUpdateImg.setVisibility(View.VISIBLE);
+			} else {
+				serviceUpdateViewHolder.serviceUpdateImg.setImageDrawable(null);
+				serviceUpdateViewHolder.serviceUpdateImg.setVisibility(View.GONE);
+			}
 		} else {
-			serviceUpdateViewHolder.warningImg.setVisibility(View.GONE);
+			serviceUpdateViewHolder.serviceUpdateImg.setVisibility(View.GONE);
 		}
 	}
 
@@ -1097,7 +1117,7 @@ public class POIViewController implements MTLog.Loggable {
 	}
 
 	private static class ServiceUpdateViewHolder {
-		ImageView warningImg;
+		ImageView serviceUpdateImg;
 	}
 
 	private static class CommonStatusViewHolder {
