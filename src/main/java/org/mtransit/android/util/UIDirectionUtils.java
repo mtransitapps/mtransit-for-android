@@ -5,6 +5,7 @@ import static org.mtransit.commons.Constants.SPACE_;
 import android.content.Context;
 import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
+import android.text.style.TypefaceSpan;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,10 +48,14 @@ public final class UIDirectionUtils implements MTLog.Loggable {
 		);
 	}
 
+	private static final TypefaceSpan FONT_REGULAR = SpanUtils.getNewSansSerifTypefaceSpan();
+	private static final TypefaceSpan FONT_CONDENSED = SpanUtils.getNewSansSerifCondensedTypefaceSpan();
+
 	@NonNull
 	public static CharSequence decorateDirection(@NonNull Context context,
 												 @NonNull String direction,
 												 boolean centered) {
+		final int originalDirectionLength = direction.length();
 		if (centered) {
 			int spaceAdded = 0;
 			while (direction.length() < 13 && spaceAdded <= 5) {
@@ -58,6 +63,9 @@ public final class UIDirectionUtils implements MTLog.Loggable {
 				direction += SPACE_;
 				spaceAdded++;
 			}
+			return SpanUtils.setAll(direction,
+					originalDirectionLength < 7 + 2 ? FONT_REGULAR : FONT_CONDENSED
+			);
 		}
 		if (!USE_DRAWABLE) {
 			return direction;

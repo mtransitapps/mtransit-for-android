@@ -59,4 +59,5 @@
     <dimen name="text_size_extra_large">26sp</dimen>
     <dimen name="text_size_extra_extra_large">30sp</dimen>
     <dimen name="text_size_extra_extra_extra_large">34sp</dimen>
+    <dimen name="text_size_extra_extra_extra_extra_large">40sp</dimen>
 </resources>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- STATIC (not responsive to screen size/class) -->
     <dimen name="list_view_divider_height">1dp</dimen>
     <dimen name="grid_view_spacing">1dp</dimen>
@@ -31,7 +31,7 @@
     <dimen name="button_drawable_padding">8dp</dimen>
     <dimen name="button_padding_half">4dp</dimen>
     <dimen name="tab_content_start">20dp</dimen>
-    <dimen name="trip_head_sign_text_size" tools:ignore="SpUsage">14dp</dimen>
+    <dimen name="trip_head_sign_text_size">14sp</dimen>
 
     <dimen name="touch_target_min_height">@dimen/baseline_48</dimen>
     <dimen name="touch_target_min_height_btn">36dp</dimen>

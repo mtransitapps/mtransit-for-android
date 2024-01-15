@@ -25,7 +25,7 @@
 
     <dimen name="list_view_item_height">@dimen/platform_listPreferredItemHeight</dimen>
 
-    <dimen name="route_short_name_min_text_size">@dimen/text_size_extra_extra_small</dimen>
+    <dimen name="route_short_name_min_text_size">@dimen/text_size_small</dimen>
     <dimen name="route_short_name_max_text_size">@dimen/text_size_extra_extra_extra_large</dimen>
 
     <integer name="rts_routes_default_grid_min_count">10</integer>

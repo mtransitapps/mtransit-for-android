@@ -18,7 +18,7 @@
         android:layout_gravity="center"
         android:gravity="center">
         <!-- ROUTE SHORT NAME -->
-        <androidx.appcompat.widget.AppCompatTextView
+        <TextView
             android:id="@+id/route_short_name"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -35,7 +35,7 @@
             app:autoSizeMaxTextSize="@dimen/route_short_name_max_text_size"
             app:autoSizeMinTextSize="@dimen/route_short_name_min_text_size"
             app:autoSizeTextType="uniform"
-            tools:text="RSN"
+            tools:text="RSN1234"
             tools:visibility="visible" />
         <!-- ROUTE TYPE IMG -->
         <org.mtransit.android.ui.view.MTJPathsView

@@ -143,7 +143,7 @@ class RTSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyPropertie
                 binding.routeLongName.text = route.longName
                 binding.routeLongName.isVisible = route.longName.isNotBlank()
             } else { // GRID
-                binding.route.setPaddingRelative(0, 0, 0, 0)
+                binding.route.setPaddingRelative(2.dp, 0, 2.dp, 0)
                 binding.rsnOrLogo.layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.MATCH_PARENT

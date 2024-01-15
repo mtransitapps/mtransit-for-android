@@ -47,14 +47,13 @@
         android:marqueeRepeatLimit="1"
         android:paddingStart="@dimen/baseline_2"
         android:paddingEnd="@dimen/baseline_2"
-        android:paddingBottom="@dimen/baseline_4"
+        android:paddingBottom="@dimen/baseline_2"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="?android:attr/textColorTertiary"
         android:textSize="@dimen/trip_head_sign_text_size"
         android:visibility="invisible"
-        tools:ignore="SpUsage"
-        tools:text="HEADING HEADING HEADING HEADING HEADING HEADING HEADING"
+        tools:text="&#10132;&#x200A;Head sign"
         tools:visibility="visible" />
 
     <TextView
