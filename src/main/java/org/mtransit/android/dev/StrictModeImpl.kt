@@ -27,9 +27,7 @@ class StrictModeImpl @Inject constructor(
                 .detectNetwork()
                 // .detectCustomSlowCalls() // CustomViolation: gcore.dynamite com.google.android.gms.dynamite.DynamiteModule...
                 .apply {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        this.detectResourceMismatches()
-                    }
+                    this.detectResourceMismatches()
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         this.detectUnbufferedIo()
                     }

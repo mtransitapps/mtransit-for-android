@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -139,12 +138,7 @@ public class PurchaseDialogFragment extends MTDialogFragment implements IActivit
 	@NonNull
 	@Override
 	public Context requireContext() throws IllegalStateException {
-		final Context context;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-			context = getContext();
-		} else {
-			context = getActivity();
-		}
+		final Context context = getContext();
 		if (context == null) {
 			throw new IllegalStateException("Fragment " + this + " not attached to a context.");
 		}

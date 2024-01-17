@@ -230,11 +230,7 @@ class MainPreferencesFragment : PreferenceFragmentCompat(), MTLog.Loggable {
             } ?: false
         }
         (findPreference(MainPreferencesViewModel.DEVICE_SETTINGS_POWER_MANAGEMENT_PREF) as? Preference)?.apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                isEnabled = true
-            } else {
-                (findPreference(MainPreferencesViewModel.DEVICE_SETTINGS_GROUP_PREF) as? PreferenceCategory)?.removePreference(this)
-            }
+            isEnabled = true
         }
         (findPreference(MainPreferencesViewModel.ABOUT_APP_VERSION_PREF) as? Preference)?.apply {
             context.let {
