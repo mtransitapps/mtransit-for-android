@@ -9,7 +9,6 @@ import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
-import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.core.app.ComponentActivity
 import androidx.core.content.res.ResourcesCompat
@@ -34,10 +33,6 @@ fun ComponentActivity.setUpEdgeToEdge() {
         EdgeToEdgeApi29()
     } else if (Build.VERSION.SDK_INT >= 26) {
         EdgeToEdgeApi26()
-    } else if (Build.VERSION.SDK_INT >= 23) {
-        EdgeToEdgeApi23()
-    } else if (Build.VERSION.SDK_INT >= 21) {
-        EdgeToEdgeApi21()
     } else {
         EdgeToEdgeBase()
     }
@@ -147,34 +142,6 @@ private class EdgeToEdgeApi26 : EdgeToEdgeImpl {
         val controller = WindowInsetsControllerCompat(window, view)
         controller.isAppearanceLightStatusBars = true
         controller.isAppearanceLightNavigationBars = true
-    }
-}
-
-@RequiresApi(23)
-private class EdgeToEdgeApi23 : EdgeToEdgeImpl {
-
-    override fun setUp(window: Window, view: View, theme: Resources.Theme) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        val resources = view.resources
-        val transparent = ResourcesCompat.getColor(resources, android.R.color.transparent, theme)
-        window.statusBarColor = transparent
-        val controller = WindowInsetsControllerCompat(window, view)
-        controller.isAppearanceLightStatusBars = true
-        @Suppress("DEPRECATION")
-        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
-    }
-}
-
-@SuppressLint("ObsoleteSdkInt")
-@RequiresApi(21)
-private class EdgeToEdgeApi21 : EdgeToEdgeImpl {
-
-    override fun setUp(window: Window, view: View, theme: Resources.Theme) {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        @Suppress("DEPRECATION")
-        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-        @Suppress("DEPRECATION")
-        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
     }
 }
 
