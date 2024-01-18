@@ -90,7 +90,6 @@ public abstract class MTPreferenceFragment extends PreferenceFragment implements
 		super.onAttach(activity);
 	}
 
-	@TargetApi(Build.VERSION_CODES.M)
 	@Override
 	public void onAttach(Context context) {
 		if (Constants.LOG_LIFECYCLE) {
@@ -155,7 +154,6 @@ public abstract class MTPreferenceFragment extends PreferenceFragment implements
 		super.onInflate(activity, attrs, savedInstanceState);
 	}
 
-	@TargetApi(Build.VERSION_CODES.M)
 	@Override
 	public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {

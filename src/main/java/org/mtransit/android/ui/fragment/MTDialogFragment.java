@@ -168,7 +168,6 @@ public abstract class MTDialogFragment extends DialogFragment implements MTLog.L
 		super.onInflate(activity, attrs, savedInstanceState);
 	}
 
-	@TargetApi(Build.VERSION_CODES.M)
 	@Override
 	public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
