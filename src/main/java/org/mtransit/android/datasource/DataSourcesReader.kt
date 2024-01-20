@@ -235,6 +235,7 @@ class DataSourcesReader @Inject constructor(
         val knownScheduleProviderProperties = dataSourcesDatabase.scheduleProviderPropertiesDao().getAllScheduleProvider()
         val knownServiceUpdateProviderProperties = dataSourcesDatabase.serviceUpdateProviderPropertiesDao().getAllServiceUpdateProvider()
         val knownNewsProviderProperties = dataSourcesDatabase.newsProviderPropertiesDao().getAllNewsProvider()
+        @Suppress("DEPRECATION") // DO request all PKG providers info
         pm.getAllInstalledProvidersWithMetaData().forEach pkg@{ packageInfo ->
             val pkg = packageInfo.packageName
             if (!pm.isAppEnabled(pkg)) {
@@ -449,7 +450,7 @@ class DataSourcesReader @Inject constructor(
         agencyAuthority: String,
         agencyProperties: AgencyProperties? = null, // NEW
         longVersionCode: Long = pm.getAppLongVersionCode(pkg, IAgencyProperties.DEFAULT_LONG_VERSION_CODE), // NEW,
-        pkgProviders: List<ProviderInfo>? = pm.getInstalledProvidersWithMetaData(pkg),
+        pkgProviders: Collection<ProviderInfo>? = pm.getInstalledProvidersWithMetaData(pkg),
         triggerUpdate: Boolean = false,
         markUpdated: () -> Unit,
     ) {

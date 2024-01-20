@@ -42,7 +42,7 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="?android:attr/textColorPrimary"
             android:textStyle="normal"
-            tools:text="NAME NAME NAME NAME NAME NAME NAME NAME NAME NAME NAME NAME" />
+            tools:text="Place name place name place name place name" />
         <!-- DISTANCE & COMPASS -->
         <include
             layout="@layout/layout_distance_and_compass"

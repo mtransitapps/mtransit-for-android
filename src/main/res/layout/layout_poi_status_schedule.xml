@@ -24,7 +24,7 @@
         android:textColor="?android:attr/textColorSecondary"
         android:textStyle="normal"
         android:visibility="visible"
-        tools:text="NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT" />
+        tools:text="0 Minutes" />
 
     <TextView
         android:id="@+id/data_next_line_2"
@@ -38,6 +38,6 @@
         android:textColor="?android:attr/textColorTertiary"
         android:textStyle="normal"
         android:visibility="gone"
-        tools:text="NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT NEXT"
+        tools:text="Next Week"
         tools:visibility="visible" />
 </LinearLayout>

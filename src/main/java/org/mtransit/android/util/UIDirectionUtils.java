@@ -4,6 +4,7 @@ import static org.mtransit.commons.Constants.SPACE_;
 
 import android.content.Context;
 import android.text.SpannableStringBuilder;
+import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ImageSpan;
 import android.text.style.TypefaceSpan;
 
@@ -51,6 +52,28 @@ public final class UIDirectionUtils implements MTLog.Loggable {
 	private static final TypefaceSpan FONT_REGULAR = SpanUtils.getNewSansSerifTypefaceSpan();
 	private static final TypefaceSpan FONT_CONDENSED = SpanUtils.getNewSansSerifCondensedTypefaceSpan();
 
+	@Nullable
+	private static AbsoluteSizeSpan headSignTextSize = null;
+
+	@NonNull
+	private static AbsoluteSizeSpan getHeadSignTextSize(@NonNull Context context) {
+		if (headSignTextSize == null) {
+			headSignTextSize = SpanUtils.getNewAbsoluteSizeSpan(context.getResources().getDimensionPixelSize(R.dimen.head_sign_text_size));
+		}
+		return headSignTextSize;
+	}
+
+	@Nullable
+	private static AbsoluteSizeSpan headSignTextSizeShort = null;
+
+	@NonNull
+	private static AbsoluteSizeSpan getHeadSignTextSizeShort(@NonNull Context context) {
+		if (headSignTextSizeShort == null) {
+			headSignTextSizeShort = SpanUtils.getNewAbsoluteSizeSpan(context.getResources().getDimensionPixelSize(R.dimen.head_sign_text_size_short));
+		}
+		return headSignTextSizeShort;
+	}
+
 	@NonNull
 	public static CharSequence decorateDirection(@NonNull Context context,
 												 @NonNull String direction,
@@ -65,6 +88,7 @@ public final class UIDirectionUtils implements MTLog.Loggable {
 			}
 			return SpanUtils.setAll(direction,
 					originalDirectionLength < 7 + 2 ? FONT_REGULAR : FONT_CONDENSED
+					originalDirectionLength < 7 + 2 ? getHeadSignTextSizeShort(context) : getHeadSignTextSize(context)
 			);
 		}
 		if (!USE_DRAWABLE) {
@@ -88,5 +112,7 @@ public final class UIDirectionUtils implements MTLog.Loggable {
 	@SuppressWarnings("WeakerAccess")
 	public static void resetColorCache() {
 		directionImage = null;
+		headSignTextSize = null;
+		headSignTextSizeShort = null;
 	}
 }
