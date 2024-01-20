@@ -19,6 +19,22 @@ fun TextView.setTextQuantityString(@PluralsRes resId: Int, quantity: Int, vararg
     this.text = this.resources.getQuantityString(resId, quantity, *formatArgs)
 }
 
+fun View.setPadding(
+    horizontal: Int = 0,
+    vertical: Int = 0,
+    left: Int = horizontal,
+    top: Int = vertical,
+    right: Int = horizontal,
+    bottom: Int = vertical,
+    relative: Boolean = false,
+) {
+    if (relative) {
+        this.setPaddingRelative(left, top, right, bottom)
+    } else {
+        this.setPadding(left, top, right, bottom)
+    }
+}
+
 inline var ViewBinding.isVisible: Boolean
     get() = root.visibility == View.VISIBLE
     set(value) {
@@ -71,7 +87,7 @@ fun View.prettyId(): String {
                 out.append(typeName)
                 out.append("/")
                 out.append(entryName)
-            } catch (e: NotFoundException) {
+            } catch (_: NotFoundException) {
             }
         }
     }

@@ -31,6 +31,7 @@ import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
+import org.mtransit.android.util.UIRouteUtils
 import org.mtransit.commons.FeatureFlags
 import kotlin.math.abs
 
@@ -42,8 +43,8 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
 
         private const val TRACKING_SCREEN_NAME = "RTSRoute"
 
-        private val TITLE_RSN_FONT = SpanUtils.getNewSansSerifCondensedTypefaceSpan()
         private val TITLE_RSN_STYLE = SpanUtils.getNewBoldStyleSpan()
+
         private val TITLE_RLN_FONT = SpanUtils.getNewSansSerifLightTypefaceSpan()
 
         @JvmStatic
@@ -308,7 +309,8 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
         if (startShortName < endShortName) {
             ssb = SpanUtils.setNN(
                 ssb, startShortName, endShortName,  //
-                TITLE_RSN_FONT, TITLE_RSN_STYLE
+                UIRouteUtils.getRouteShortNameFont(route.shortName),
+                TITLE_RSN_STYLE
             )
         }
         if (startLongName < endLongName) {

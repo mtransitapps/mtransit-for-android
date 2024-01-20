@@ -78,17 +78,18 @@ public final class UIDirectionUtils implements MTLog.Loggable {
 	public static CharSequence decorateDirection(@NonNull Context context,
 												 @NonNull String direction,
 												 boolean centered) {
-		final int originalDirectionLength = direction.length();
 		if (centered) {
+			final int originalDirectionLength = direction.length();
 			int spaceAdded = 0;
 			while (direction.length() < 13 && spaceAdded <= 5) {
 				//noinspection StringConcatenationInLoop
 				direction += SPACE_;
 				spaceAdded++;
 			}
+			final boolean shortDir = originalDirectionLength < 7 + 2;
 			return SpanUtils.setAll(direction,
-					originalDirectionLength < 7 + 2 ? FONT_REGULAR : FONT_CONDENSED
-					originalDirectionLength < 7 + 2 ? getHeadSignTextSizeShort(context) : getHeadSignTextSize(context)
+					shortDir ? FONT_REGULAR : FONT_CONDENSED,
+					shortDir ? getHeadSignTextSizeShort(context) : getHeadSignTextSize(context)
 			);
 		}
 		if (!USE_DRAWABLE) {

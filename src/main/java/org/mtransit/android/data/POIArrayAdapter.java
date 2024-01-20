@@ -76,6 +76,7 @@ import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.UIDirectionUtils;
+import org.mtransit.android.util.UIRouteUtils;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.CollectionUtils;
 import org.mtransit.commons.FeatureFlags;
@@ -1893,7 +1894,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 					}
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
-					holder.routeShortNameTv.setText(route.getShortName());
+					holder.routeShortNameTv.setText(UIRouteUtils.decorateRouteShortName(getContext(), route.getShortName()));
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);

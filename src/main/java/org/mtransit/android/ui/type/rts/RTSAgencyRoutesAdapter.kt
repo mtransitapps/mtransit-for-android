@@ -18,6 +18,8 @@ import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.IAgencyUIProperties
 import org.mtransit.android.databinding.LayoutRtsRouteItemBinding
 import org.mtransit.android.ui.view.common.MTTransitions
+import org.mtransit.android.ui.view.common.setPadding
+import org.mtransit.android.util.UIRouteUtils
 
 class RTSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyProperties) -> Unit) :
     ListAdapter<Route, RTSAgencyRoutesAdapter.RouteViewHolder>(RoutesDiffCallback),
@@ -128,12 +130,12 @@ class RTSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyPropertie
                 }
             } else {
                 binding.routeTypeImg.isVisible = false
-                binding.routeShortName.text = route.shortName
+                binding.routeShortName.text = UIRouteUtils.decorateRouteShortName(binding.root.context, route.shortName)
                 binding.routeShortName.isVisible = true
             }
             // LONG NAME (grid only)
             if (showingListInsteadOfGrid != false) { // LIST
-                binding.route.setPaddingRelative(8.dp, 0, 8.dp, 0)
+                binding.route.setPadding(horizontal = 8.dp, relative = true)
                 binding.rsnOrLogo.layoutParams = LinearLayout.LayoutParams(
                     binding.root.context.resources.getDimensionInt(R.dimen.poi_extra_width),
                     // 64.dp, // TO DO poi_extra_width
@@ -143,7 +145,7 @@ class RTSAgencyRoutesAdapter(private val onClick: (View, Route, IAgencyPropertie
                 binding.routeLongName.text = route.longName
                 binding.routeLongName.isVisible = route.longName.isNotBlank()
             } else { // GRID
-                binding.route.setPaddingRelative(2.dp, 0, 2.dp, 0)
+                binding.route.setPadding(horizontal = 4.dp, relative = true)
                 binding.rsnOrLogo.layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.MATCH_PARENT

@@ -45,6 +45,7 @@ import org.mtransit.android.ui.rts.route.RTSRouteFragment;
 import org.mtransit.android.ui.view.common.MTTransitions;
 import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.android.util.UIDirectionUtils;
+import org.mtransit.android.util.UIRouteUtils;
 import org.mtransit.commons.FeatureFlags;
 
 import java.util.ArrayList;
@@ -520,7 +521,7 @@ public class POIViewController implements MTLog.Loggable {
 					}
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
-					holder.routeShortNameTv.setText(route.getShortName());
+					holder.routeShortNameTv.setText(UIRouteUtils.decorateRouteShortName(context, route.getShortName()));
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);
@@ -625,7 +626,7 @@ public class POIViewController implements MTLog.Loggable {
 					}
 				} else {
 					holder.routeTypeImg.setVisibility(View.GONE);
-					holder.routeShortNameTv.setText(route.getShortName());
+					holder.routeShortNameTv.setText(UIRouteUtils.decorateRouteShortName(context, route.getShortName()));
 					holder.routeShortNameTv.setVisibility(View.VISIBLE);
 				}
 				holder.routeFL.setVisibility(View.VISIBLE);
