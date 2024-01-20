@@ -13,6 +13,7 @@ import androidx.core.view.doOnAttach
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.MTLog
@@ -27,7 +28,6 @@ import org.mtransit.android.ui.MTActivityWithLocation.DeviceLocationListener
 import org.mtransit.android.ui.MainActivity
 import org.mtransit.android.ui.fragment.ABFragment
 import org.mtransit.android.ui.view.common.EventObserver
-import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -136,7 +136,7 @@ class RTSRouteFragment : ABFragment(R.layout.fragment_rts_route), DeviceLocation
                 offscreenPageLimit = 1
                 registerOnPageChangeCallback(onPageChangeCallback)
                 adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
-                MTTabLayoutMediator(tabs, this, autoRefresh = true, smoothScroll = true) { tab, position ->
+                TabLayoutMediator(tabs, viewPager, true, true) { tab, position ->
                     tab.text = viewModel.routeTrips.value?.get(position)?.decorateDirection(this.context, small = false, centered = false)
                 }.attach()
             }

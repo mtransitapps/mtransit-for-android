@@ -25,6 +25,8 @@
 
     <dimen name="list_view_item_height">@dimen/platform_listPreferredItemHeight</dimen>
 
+    <dimen name="tab_head_sign_max_width">@dimen/baseline_440</dimen>
+
     <dimen name="route_short_name_min_text_size">@dimen/text_size_medium</dimen>
     <dimen name="route_short_name_max_text_size">@dimen/text_size_extra_extra_extra_large</dimen>
 

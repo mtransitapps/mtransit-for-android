@@ -153,7 +153,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             viewPager.offscreenPageLimit = 2
             viewPager.registerOnPageChangeCallback(onPageChangeCallback)
             viewPager.adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
-            MTTabLayoutMediator(tabs, viewPager, autoRefresh = true, smoothScroll = true) { tab, position ->
+            MTTabLayoutMediator(tabs, viewPager, autoRefresh = true, smoothScroll = false) { tab, position ->
                 tab.text = viewModel.typeAgencies.value?.get(position)?.shortName
             }.attach()
             if (FeatureFlags.F_NAVIGATION) {

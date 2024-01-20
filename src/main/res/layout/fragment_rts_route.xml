@@ -29,6 +29,7 @@
         app:tabContentStart="@dimen/tab_content_start"
         app:tabGravity="start"
         app:tabIndicatorColor="?attr/colorOnPrimary"
+        app:tabMaxWidth="@dimen/tab_head_sign_max_width"
         app:tabMinWidth="0dp"
         app:tabMode="scrollable"
         app:tabTextAppearance="@style/MTTabTextStyle"

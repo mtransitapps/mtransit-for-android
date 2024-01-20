@@ -4,6 +4,7 @@ import android.content.res.Resources.NotFoundException
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.PluralsRes
+import androidx.annotation.Px
 import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBinding
 
@@ -20,12 +21,12 @@ fun TextView.setTextQuantityString(@PluralsRes resId: Int, quantity: Int, vararg
 }
 
 fun View.setPadding(
-    horizontal: Int = 0,
-    vertical: Int = 0,
-    left: Int = horizontal,
-    top: Int = vertical,
-    right: Int = horizontal,
-    bottom: Int = vertical,
+    @Px horizontal: Int = 0,
+    @Px vertical: Int = 0,
+    @Px left: Int = horizontal,
+    @Px top: Int = vertical,
+    @Px right: Int = horizontal,
+    @Px bottom: Int = vertical,
     relative: Boolean = false,
 ) {
     if (relative) {

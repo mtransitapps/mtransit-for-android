@@ -6,7 +6,7 @@
     <dimen name="body_horizontal_margin">@dimen/baseline_32</dimen>
 
     <dimen name="news_image_max_height">@dimen/news_image_height</dimen>
-    <dimen name="news_image_height">@dimen/baseline_300</dimen>
+    <dimen name="news_image_height">@dimen/baseline_320</dimen>
     <dimen name="news_image_grid_item_height">@dimen/news_image_height</dimen>
     <dimen name="news_image_grid_item_width">@dimen/news_image_grid_item_height</dimen>
     <integer name="news_image_grid_span_count">1</integer>
@@ -25,10 +25,12 @@
 
     <dimen name="list_view_item_height">@dimen/baseline_72</dimen><!-- between listPreferredItemHeight & listPreferredItemHeightLarge-->
 
+    <dimen name="tab_head_sign_max_width">@dimen/baseline_512</dimen>
+
     <dimen name="route_short_name_min_text_size">@dimen/text_size_large</dimen>
     <dimen name="route_short_name_max_text_size">@dimen/text_size_extra_extra_extra_extra_large</dimen>
 
     <integer name="rts_routes_default_grid_min_count">20</integer>
 
-    <dimen name="bottom_sheet_min_height">@dimen/baseline_300</dimen>
+    <dimen name="bottom_sheet_min_height">@dimen/baseline_320</dimen>
 </resources>

@@ -20,6 +20,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
@@ -42,7 +43,6 @@ import org.mtransit.android.ui.inappnotification.newlocation.NewLocationAwareFra
 import org.mtransit.android.ui.inappnotification.newlocation.NewLocationUI
 import org.mtransit.android.ui.main.MainViewModel
 import org.mtransit.android.ui.map.MapFragment
-import org.mtransit.android.ui.view.common.MTTabLayoutMediator
 import org.mtransit.android.ui.view.common.MTTransitions
 import org.mtransit.android.ui.view.common.isAttached
 import org.mtransit.android.ui.view.common.isVisible
@@ -218,7 +218,7 @@ class NearbyFragment : ABFragment(R.layout.fragment_nearby),
             viewPager.offscreenPageLimit = 3
             viewPager.registerOnPageChangeCallback(onPageChangeCallback)
             viewPager.adapter = pagerAdapter ?: makePagerAdapter().also { pagerAdapter = it } // cannot re-use Adapter w/ ViewPager
-            MTTabLayoutMediator(tabs, viewPager, autoRefresh = true, smoothScroll = true) { tab, position ->
+            TabLayoutMediator(tabs, viewPager, true, true) { tab, position ->
                 tab.text = viewModel.availableTypes.value?.get(position)?.allStringResId?.let { viewPager.context.getString(it) }
             }.attach()
             if (FeatureFlags.F_NAVIGATION) {
