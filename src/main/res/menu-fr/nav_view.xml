@@ -58,7 +58,7 @@
             tools:visible="true" />
         <item
             android:id="@id/root_nav_light_rail"
-            android:icon="@drawable/ic_tram_black_24dp"
+            android:icon="@drawable/ic_light_rail_black_24dp"
             android:title="@string/agency_type_light_rail_all"
             android:visible="false"
             tools:visible="true" />

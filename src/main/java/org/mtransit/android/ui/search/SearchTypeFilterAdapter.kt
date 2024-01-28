@@ -9,6 +9,7 @@ import org.mtransit.android.R
 import org.mtransit.android.commons.ui.widget.MTArrayAdapter
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.databinding.LayoutPoiTypeItemBinding
+import org.mtransit.android.ui.view.common.setDrawables
 
 class SearchTypeFilterAdapter @JvmOverloads constructor(
     context: Context,
@@ -72,16 +73,13 @@ class SearchTypeFilterAdapter @JvmOverloads constructor(
         }
 
         fun bind(dst: DataSourceType?) {
-            if (dst != null) {
-                binding.name.setText(dst.poiShortNameResId)
-            } else {
-                binding.name.setText(R.string.all) // ALL
-            }
-            if (dst != null && dst.iconResId != -1) {
-                binding.name.setCompoundDrawablesWithIntrinsicBounds(dst.iconResId, 0, 0, 0)
-            } else { // ALL
-                binding.name.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
-            }
+            binding.name.text = dst?.getPoiShortName(binding.root.context)
+                ?: binding.root.context?.getText(R.string.all) // ALL
+            binding.name.setDrawables(
+                start = dst?.iconResId.takeIf { it != -1 },
+                relative = false,
+                withIntrinsicBounds = true,
+            )
         }
     }
 }

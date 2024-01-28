@@ -579,7 +579,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			}
 			btn = makeHeaderBrowseButton(gridLine);
 			gridLine.addView(btn);
-			btn.setText(dst.getAllStringResId());
+			btn.setText(dst.getShortNamesResId());
 			if (dst.getIconResId() != -1) {
 				btn.setIconResource(dst.getIconResId());
 			} else {
@@ -1462,7 +1462,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			convertView.setTag(holder);
 		}
 		TypeHeaderViewHolder holder = (TypeHeaderViewHolder) convertView.getTag();
-		holder.nameTv.setText(this.showTypeHeaderNearby ? type.getNearbyNameResId() : type.getPoiShortNameResId());
+		holder.nameTv.setText(this.showTypeHeaderNearby ? type.getNearbyName(holder.nameTv.getContext()) : type.getPoiShortName(holder.nameTv.getContext()));
 		if (type.getIconResId() != -1) {
 			holder.nameTv.setCompoundDrawablesWithIntrinsicBounds(type.getIconResId(), 0, 0, 0);
 		}

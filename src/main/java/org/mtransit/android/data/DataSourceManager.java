@@ -15,6 +15,7 @@ import androidx.collection.SimpleArrayMap;
 import org.json.JSONObject;
 import org.mtransit.android.commons.AppUpdateUtils;
 import org.mtransit.android.commons.Constants;
+import org.mtransit.android.commons.CursorExtKt;
 import org.mtransit.android.commons.MTLog;
 import org.mtransit.android.commons.SqlUtils;
 import org.mtransit.android.commons.UriUtils;
@@ -267,30 +268,14 @@ public final class DataSourceManager implements MTLog.Loggable {
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
-					String shortName = cursor.getString(cursor.getColumnIndexOrThrow(AgencyProviderContract.SHORT_NAME_PATH));
-					String longName = cursor.getString(cursor.getColumnIndexOrThrow(AgencyProviderContract.LABEL_PATH));
-					String color = cursor.getString(cursor.getColumnIndexOrThrow(AgencyProviderContract.COLOR_PATH));
-					Area area = Area.fromCursorNN(cursor);
-					int maxValidInSec = -1; // unknown
-					final int maxValidSecIdx = cursor.getColumnIndex(AgencyProviderContract.MAX_VALID_SEC);
-					if (maxValidSecIdx >= 0) {
-						maxValidInSec = cursor.getInt(maxValidSecIdx);
-					}
-					int availableVersionCode = -1;
-					final int availableVersionCodeIdx = cursor.getColumnIndex(AgencyProviderContract.AVAILABLE_VERSION_CODE);
-					if (availableVersionCodeIdx >= 0) {
-						availableVersionCode = cursor.getInt(availableVersionCodeIdx);
-					}
-					String contactUsWeb = null;
-					final int contactUsWebIdx = cursor.getColumnIndex(AgencyProviderContract.CONTACT_US_WEB);
-					if (contactUsWebIdx >= 0) {
-						contactUsWeb = cursor.getString(contactUsWebIdx);
-					}
-					String contactUsWebFr = null;
-					final int contactUsWebFrIdx = cursor.getColumnIndex(AgencyProviderContract.CONTACT_US_WEB_FR);
-					if (contactUsWebFrIdx >= 0) {
-						contactUsWebFr = cursor.getString(contactUsWebFrIdx);
-					}
+					final String shortName = CursorExtKt.getString(cursor, AgencyProviderContract.SHORT_NAME_PATH);
+					final String longName = CursorExtKt.getString(cursor, AgencyProviderContract.LABEL_PATH);
+					final String color = CursorExtKt.getString(cursor, AgencyProviderContract.COLOR_PATH);
+					final Area area = Area.fromCursorNN(cursor);
+					final int maxValidInSec = CursorExtKt.optIntNN(cursor, AgencyProviderContract.MAX_VALID_SEC, -1);
+					final int availableVersionCode = CursorExtKt.optIntNN(cursor, AgencyProviderContract.AVAILABLE_VERSION_CODE, -1);
+					final String contactUsWeb = CursorExtKt.optString(cursor, AgencyProviderContract.CONTACT_US_WEB, null);
+					final String contactUsWebFr = CursorExtKt.optString(cursor, AgencyProviderContract.CONTACT_US_WEB_FR, null);
 					result = new AgencyProperties(
 							authority,
 							dst,

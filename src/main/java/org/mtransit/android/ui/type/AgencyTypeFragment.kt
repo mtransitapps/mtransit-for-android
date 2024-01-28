@@ -301,7 +301,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
     override fun isABReady() = attachedViewModel?.type?.value != null
 
     override fun getABTitle(context: Context?): CharSequence? {
-        return attachedViewModel?.type?.value?.let { context?.getString(it.allStringResId) }
+        return attachedViewModel?.type?.value?.let { context?.getString(it.shortNamesResId) }
             ?: context?.getString(commonsR.string.ellipsis)
             ?: super.getABTitle(context)
     }

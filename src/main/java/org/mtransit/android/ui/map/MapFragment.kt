@@ -283,7 +283,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
         val selectedItems = mutableSetOf<Int>()
         attachedViewModel?.mapTypes?.value?.forEach { type ->
             typeIds.add(type.id)
-            typeNames.add(getString(type.poiShortNameResId))
+            typeNames.add(type.getPoiShortName(activity))
             checked.add(filterTypeIds.isEmpty() || filterTypeIds.contains(type.id))
         }
         val checkedItems = BooleanArray(checked.size)
@@ -332,7 +332,7 @@ class MapFragment : ABFragment(R.layout.fragment_map),
     private fun makeABTitle(context: Context): CharSequence {
         return (attachedViewModel?.filterTypeIds?.value?.let { it.ifEmpty { null } } // empty = all
             ?.mapNotNull { typeId ->
-                DataSourceType.parseId(typeId)?.allStringResId?.let { context.getString(it) }
+                DataSourceType.parseId(typeId)?.shortNamesResId?.let { context.getString(it) }
             } ?: listOf(context.getString(R.string.all)))
             .joinToString(prefix = "${context.getString(R.string.map)} (", separator = ", ", postfix = ")")
     }

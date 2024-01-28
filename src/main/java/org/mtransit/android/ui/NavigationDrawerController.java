@@ -360,7 +360,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			for (DataSourceType dst : allAgencyTypes) {
 				MenuItem dstMenuItem = this.navigationView.getMenu().findItem(dst.getNavResId());
 				if (dstMenuItem == null) {
-					dstMenuItem = this.navigationView.getMenu().add(R.id.drawer_modules, dst.getNavResId(), Menu.NONE, dst.getAllStringResId());
+					dstMenuItem = this.navigationView.getMenu().add(R.id.drawer_modules, dst.getNavResId(), Menu.NONE, dst.getShortNamesResId());
 					dstMenuItem.setIcon(dst.getIconResId());
 				}
 				dstMenuItem.setVisible(true);

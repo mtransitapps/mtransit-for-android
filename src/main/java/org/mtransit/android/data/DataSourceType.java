@@ -26,62 +26,63 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 public enum DataSourceType {
 
 	TYPE_LIGHT_RAIL(DataSourceTypeId.LIGHT_RAIL, // GTFS - Tram, Streetcar
+			DataSourceStopType.STOP,
 			R.string.agency_type_light_rail_short_name, R.string.agency_type_light_rail_all, //
-			R.string.agency_type_light_rail_stations_short_name, R.string.agency_type_light_rail_nearby, //
-			R.drawable.ic_tram_black_24dp, //
+			R.drawable.ic_light_rail_black_24dp, //
 			R.id.root_nav_light_rail, //
 			true, true, true, true, true), //
 	TYPE_SUBWAY(DataSourceTypeId.SUBWAY, // GTFS - Metro
+			DataSourceStopType.STATION,
 			R.string.agency_type_subway_short_name, R.string.agency_type_subway_all, //
-			R.string.agency_type_subway_stations_short_name, R.string.agency_type_subway_nearby, //
 			R.drawable.ic_directions_subway_black_24dp, //
 			R.id.root_nav_subway, //
 			true, true, true, true, true), //
 	TYPE_RAIL(DataSourceTypeId.RAIL, // GTFS - Train
+			DataSourceStopType.TRAIN_STATION,
 			R.string.agency_type_rail_short_name, R.string.agency_type_rail_all, //
-			R.string.agency_type_rail_stations_short_name, R.string.agency_type_rail_nearby, //
 			R.drawable.ic_directions_railway_black_24dp, //
 			R.id.root_nav_rail, //
 			true, true, true, true, true), //
 	TYPE_BUS(DataSourceTypeId.BUS, // GTFS - Bus
+			DataSourceStopType.STOP,
 			R.string.agency_type_bus_short_name, R.string.agency_type_bus_all, //
-			R.string.agency_type_bus_stops_short_name, R.string.agency_type_bus_nearby, //
 			R.drawable.ic_directions_bus_black_24dp, //
 			R.id.root_nav_bus, //
 			true, true, true, true, true), //
 	TYPE_FERRY(DataSourceTypeId.FERRY, // GTFS - Boat
+			DataSourceStopType.TERMINAL,
 			R.string.agency_type_ferry_short_name, R.string.agency_type_ferry_all, //
-			R.string.agency_type_ferry_stations_short_name, R.string.agency_type_ferry_nearby, //
 			R.drawable.ic_directions_boat_black_24dp, //
 			R.id.root_nav_ferry, //
 			true, true, true, true, true), //
 	TYPE_BIKE(DataSourceTypeId.BIKE, // like BIXI, Velib
+			DataSourceStopType.STATION,
 			R.string.agency_type_bike_short_name, R.string.agency_type_bike_all, //
-			R.string.agency_type_bike_stations_short_name, R.string.agency_type_bike_nearby, //
+			// R.string.agency_type_bike_stations_short_name, R.string.agency_type_bike_nearby, //
 			R.drawable.ic_directions_bike_black_24dp, //
 			R.id.root_nav_bike, //
 			true, true, true, true, true), //
 	TYPE_PLACE(DataSourceTypeId.PLACE, //
+			DataSourceStopType.PLACE,
 			R.string.agency_type_place_short_name, R.string.agency_type_place_all, //
-			R.string.agency_type_place_app_short_name, R.string.agency_type_place_nearby, //
 			R.drawable.ic_place_black_24dp, //
 			-1, // no nav ID
 			false, false, false, false, true), //
 	TYPE_MODULE(DataSourceTypeId.MODULE, //
+			DataSourceStopType.MODULE,
 			R.string.agency_type_module_short_name, R.string.agency_type_module_all, //
-			R.string.agency_type_module_app_short_name, R.string.agency_type_module_nearby, //
 			R.drawable.ic_library_add_black_24dp, //
 			R.id.root_nav_module, //
 			true, true, true, false, false), //
 	TYPE_FAVORITE(DataSourceTypeId.FAVORITE, //
+			DataSourceStopType.FAVORITE,
 			R.string.agency_type_favorite_short_name, R.string.agency_type_favorite_all, //
-			R.string.agency_type_favorite_app_short_name, R.string.agency_type_favorite_nearby, //
 			R.drawable.ic_star_black_24dp, //
 			R.id.root_nav_favorites, //
 			false, false, false, false, false), //
 	TYPE_NEWS(DataSourceTypeId.NEWS, //
+			DataSourceStopType.NEWS_ARTICLE,
 			R.string.agency_type_news_short_name, R.string.agency_type_news_all, //
-			R.string.agency_type_news_app_short_name, R.string.agency_type_news_nearby, //
 			R.drawable.ic_newspaper_black_24dp, //
 			R.id.root_nav_news, //
 			false, false, false, false, false), //
@@ -93,14 +94,12 @@ public enum DataSourceType {
 
 	private final int id;
 
+	private final DataSourceStopType stopType;
+
 	@StringRes
 	private final int shortNameResId;
 	@StringRes
-	private final int allStringResId;
-	@StringRes
-	private final int poiShortNameResId;
-	@StringRes
-	private final int nearbyNameResId;
+	private final int shortNamesResId;
 
 	@DrawableRes
 	private final int iconResId;
@@ -114,7 +113,8 @@ public enum DataSourceType {
 	private final boolean searchable;
 
 	DataSourceType(@DataSourceTypeId.DataSourceType int id,
-				   @StringRes int shortNameResId, @StringRes int allStringResId, @StringRes int poiShortNameResId, @StringRes int nearbyNameResId,
+				   DataSourceStopType stopType,
+				   @StringRes int shortNameResId, @StringRes int shortNamesResId,
 				   @DrawableRes int iconResId,
 				   @IdRes int navResId,
 				   boolean menuList, boolean homeScreen, boolean nearbyScreen, boolean mapScreen, boolean searchable) {
@@ -122,10 +122,9 @@ public enum DataSourceType {
 			throw new UnsupportedOperationException(String.format("Data source type ID '%s' must be lower than '%s'!", id, MAX_ID));
 		}
 		this.id = id;
+		this.stopType = stopType;
 		this.shortNameResId = shortNameResId;
-		this.allStringResId = allStringResId;
-		this.poiShortNameResId = poiShortNameResId;
-		this.nearbyNameResId = nearbyNameResId;
+		this.shortNamesResId = shortNamesResId;
 		this.iconResId = iconResId;
 		this.navResId = navResId;
 		this.menuList = menuList;
@@ -145,18 +144,23 @@ public enum DataSourceType {
 	}
 
 	@StringRes
-	public int getAllStringResId() {
-		return allStringResId;
+	public int getShortNamesResId() {
+		return shortNamesResId;
 	}
 
-	@StringRes
-	public int getPoiShortNameResId() {
-		return poiShortNameResId;
+	@NonNull
+	public CharSequence getPoiShortName(@NonNull Context context) {
+		return context.getString(R.string.agency_type_stops_nearby,
+				context.getString(getShortNamesResId()),
+				context.getString(this.stopType.getStopsStringResId())
+		);
 	}
 
-	@StringRes
-	public int getNearbyNameResId() {
-		return nearbyNameResId;
+	@NonNull
+	public CharSequence getNearbyName(@NonNull Context context) {
+		return context.getString(R.string.agency_type_stops_nearby,
+				context.getString(this.stopType.getStopsStringResId())
+		);
 	}
 
 	@DrawableRes

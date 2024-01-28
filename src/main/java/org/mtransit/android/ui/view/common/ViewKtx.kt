@@ -1,10 +1,13 @@
 package org.mtransit.android.ui.view.common
 
 import android.content.res.Resources.NotFoundException
+import android.graphics.drawable.Drawable
 import android.view.View
 import android.widget.TextView
+import androidx.annotation.DrawableRes
 import androidx.annotation.PluralsRes
 import androidx.annotation.Px
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.isVisible
 import androidx.viewbinding.ViewBinding
 
@@ -18,6 +21,47 @@ fun TextView.setTextQuantityString(@PluralsRes resId: Int, quantity: Int) {
 
 fun TextView.setTextQuantityString(@PluralsRes resId: Int, quantity: Int, vararg formatArgs: Any) {
     this.text = this.resources.getQuantityString(resId, quantity, *formatArgs)
+}
+
+fun TextView.setDrawables(
+    @DrawableRes start: Int? = null,
+    @DrawableRes top: Int? = null,
+    @DrawableRes end: Int? = null,
+    @DrawableRes bottom: Int? = null,
+    relative: Boolean,
+    withIntrinsicBounds: Boolean,
+) {
+    setDrawables(
+        left = start.takeIf { it != 0 }?.let { AppCompatResources.getDrawable(context, it) },
+        top = top.takeIf { it != 0 }?.let { AppCompatResources.getDrawable(context, it) },
+        right = end.takeIf { it != 0 }?.let { AppCompatResources.getDrawable(context, it) },
+        bottom = bottom.takeIf { it != 0 }?.let { AppCompatResources.getDrawable(context, it) },
+        relative = relative,
+        withIntrinsicBounds = withIntrinsicBounds,
+    )
+}
+
+fun TextView.setDrawables(
+    left: Drawable? = null,
+    top: Drawable? = null,
+    right: Drawable? = null,
+    bottom: Drawable? = null,
+    relative: Boolean,
+    withIntrinsicBounds: Boolean,
+) {
+    if (relative) {
+        if (withIntrinsicBounds) {
+            setCompoundDrawablesRelativeWithIntrinsicBounds(left, top, right, bottom)
+        } else {
+            setCompoundDrawablesRelative(left, top, right, bottom)
+        }
+    } else {
+        if (withIntrinsicBounds) {
+            setCompoundDrawablesWithIntrinsicBounds(left, top, right, bottom)
+        } else {
+            this.setCompoundDrawables(left, top, right, bottom)
+        }
+    }
 }
 
 fun View.setPadding(
