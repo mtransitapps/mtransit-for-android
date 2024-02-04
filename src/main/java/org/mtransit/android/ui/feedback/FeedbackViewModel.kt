@@ -18,6 +18,8 @@ class FeedbackViewModel @Inject constructor(
 
     companion object {
         private val LOG_TAG = FeedbackViewModel::class.java.simpleName
+
+        private val UNSUPPORTED_TYPE = listOf(DataSourceType.TYPE_PLACE, DataSourceType.TYPE_MODULE)
     }
 
     override fun getLogTag(): String = LOG_TAG
@@ -27,8 +29,7 @@ class FeedbackViewModel @Inject constructor(
         agencies
             .ifEmpty { null } // difference between loading & loaded
             ?.filter { agency ->
-                agency.type != DataSourceType.TYPE_PLACE
-                        && agency.type != DataSourceType.TYPE_MODULE
+                agency.getSupportedType() !in UNSUPPORTED_TYPE
             }
             ?.filter { it.hasContactUs() }
             ?.sortedBy {

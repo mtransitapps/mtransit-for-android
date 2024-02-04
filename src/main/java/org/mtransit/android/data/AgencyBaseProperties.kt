@@ -33,6 +33,8 @@ data class AgencyBaseProperties(
     override val logo: JPaths? = null,
     @ColumnInfo(name = "trigger")
     val trigger: Int = 0, // #onModulesUpdated
+    @ColumnInfo(name = "extended_type")
+    override val extendedType: DataSourceType? = null,
 ) : IAgencyNearbyUIProperties {
     @Ignore
     override val authority = id

@@ -155,6 +155,7 @@ class MainViewModel @Inject constructor(
         ITEM_ID_STATIC_START_WITH + ITEM_INDEX_TRIP_PLANNER -> R.id.nav_trip_planner
         ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEWS -> R.id.root_nav_news
         ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_LIGHT_RAIL.id -> R.id.root_nav_light_rail
+        ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_TRAM.id -> R.id.root_nav_tram
         ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_SUBWAY.id -> R.id.root_nav_subway
         ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_RAIL.id -> R.id.root_nav_rail
         ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BUS.id -> R.id.root_nav_bus
@@ -176,6 +177,7 @@ class MainViewModel @Inject constructor(
         R.id.nav_trip_planner -> ITEM_ID_STATIC_START_WITH + ITEM_INDEX_TRIP_PLANNER
         R.id.root_nav_news -> ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEWS
         R.id.root_nav_light_rail -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_LIGHT_RAIL.id
+        R.id.root_nav_tram -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_TRAM.id
         R.id.root_nav_subway -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_SUBWAY.id
         R.id.root_nav_rail -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_RAIL.id
         R.id.root_nav_bus -> ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_BUS.id
@@ -200,6 +202,7 @@ class MainViewModel @Inject constructor(
         R.id.root_nav_bus,
         R.id.root_nav_ferry,
         R.id.root_nav_light_rail,
+        R.id.root_nav_tram,
         R.id.root_nav_subway,
         R.id.root_nav_rail,
         R.id.root_nav_module

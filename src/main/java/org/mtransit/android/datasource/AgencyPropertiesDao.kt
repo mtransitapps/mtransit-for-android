@@ -42,11 +42,17 @@ interface AgencyPropertiesDao : BaseDao<AgencyProperties> {
     @Query("SELECT COUNT(*) FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE AND is_enabled = $BOOLEAN_TRUE")
     suspend fun getAllEnabledAgenciesCount(): Int
 
-    @Query("SELECT DISTINCT type FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE")
-    suspend fun getAllDataSourceTypes(): List<DataSourceType>
+    @Query("SELECT DISTINCT type FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE AND extended_type IS NULL")
+    suspend fun getAllNotExtendedDataSourceTypes(): List<DataSourceType>
 
-    @Query("SELECT DISTINCT type FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE")
-    fun readingAllDataSourceTypes(): LiveData<List<DataSourceType>>
+    @Query("SELECT DISTINCT type FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE AND extended_type IS NULL")
+    fun readingAllNotExtendedDataSourceTypes(): LiveData<List<DataSourceType>>
+
+    @Query("SELECT DISTINCT extended_type FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE AND extended_type IS NOT NULL")
+    suspend fun getAllExtendedDataSourceTypes(): List<DataSourceType?>
+
+    @Query("SELECT DISTINCT extended_type FROM agency_properties WHERE is_installed = $BOOLEAN_TRUE AND extended_type IS NOT NULL")
+    fun readingAllExtendedDataSourceTypes(): LiveData<List<DataSourceType?>>
 
     @Query("SELECT * FROM agency_properties WHERE id = :authority")
     suspend fun getAgency(authority: String): AgencyProperties?
@@ -63,10 +69,4 @@ interface AgencyPropertiesDao : BaseDao<AgencyProperties> {
 
     @Query("SELECT color_int FROM agency_properties WHERE id = :authority")
     suspend fun getAgencyColorInt(authority: String): Int?
-
-    @Query("SELECT * FROM agency_properties WHERE type = :dst")
-    suspend fun getTypeDataSources(dst: DataSourceType): List<AgencyProperties>
-
-    @Query("SELECT * FROM agency_properties WHERE type = :dst")
-    fun readingTypeDataSources(dst: DataSourceType): LiveData<List<AgencyProperties>>
 }

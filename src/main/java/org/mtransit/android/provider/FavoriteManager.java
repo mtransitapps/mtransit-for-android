@@ -193,6 +193,7 @@ public class FavoriteManager implements MTLog.Loggable {
 		return cache;
 	}
 
+	@WorkerThread
 	@NonNull
 	public HashSet<String> findFavoriteUUIDs(@NonNull Context context) {
 		return extractFavoriteUUIDs(findFavorites(context));

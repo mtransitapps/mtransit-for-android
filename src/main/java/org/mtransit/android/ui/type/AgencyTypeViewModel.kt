@@ -54,7 +54,7 @@ class AgencyTypeViewModel @Inject constructor(
     private val allAvailableAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModulesUpdated
 
     val typeAgencies = PairMediatorLiveData(type, allAvailableAgencies).map { (dst, allAgencies) ->
-        allAgencies?.filter { it.type == dst }
+        allAgencies?.filter { it.getSupportedType() == dst }
     }
 
     override val moduleDisabled = typeAgencies.map {

@@ -188,12 +188,12 @@ public final class LinkUtils implements MTLog.Loggable {
 		try {
 			final List<AgencyProperties> allAgencies = dataSourcesRepository.getAllAgencies();
 			for (IAgencyProperties agencyProperties : allAgencies) {
-				if (!agencyProperties.getType().isMapScreen()) {
+				if (!agencyProperties.getSupportedType().isMapScreen()) {
 					continue;
 				}
 				subjectSb //
 						.append(" - ").append(agencyProperties.getShortName()) //
-						.append(" ").append(activity.getString(agencyProperties.getType().getShortNameResId()));
+						.append(" ").append(activity.getString(agencyProperties.getSupportedType().getShortNameResId()));
 				final String pkg = agencyProperties.getPkg();
 				if (!pkg.isEmpty()) {
 					subjectSb //

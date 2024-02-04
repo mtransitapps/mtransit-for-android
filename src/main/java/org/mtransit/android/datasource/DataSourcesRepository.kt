@@ -23,6 +23,8 @@ import org.mtransit.android.dev.filterDemoModeTargeted
 import org.mtransit.android.dev.filterDemoModeType
 import org.mtransit.android.dev.takeIfDemoModeAgency
 import org.mtransit.android.dev.takeIfDemoModeTargeted
+import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.commons.addAllNNE
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -103,26 +105,20 @@ class DataSourcesRepository @Inject constructor(
     }.distinctUntilChanged()
 
     @Deprecated(message = "Use live data")
-    fun getAllDataSourceTypes() = this.dataSourcesInMemoryCache.getAllDataSourceTypes().filterDemoModeType(demoModeManager)
+    fun getAllSupportedDataSourceTypes() = this.dataSourcesInMemoryCache.getAllSupportedDataSourceTypes().filterDemoModeType(demoModeManager)
 
-    private fun readingAllDataSourceTypesIO() = dataSourcesIOCache.readingAllDataSourceTypes().map {
-        it.filterDemoModeType(demoModeManager).sortedWith(defaultDataSourceTypeComparator)
+    private fun readingAllSupportedDataSourceTypesIO() = PairMediatorLiveData(
+        dataSourcesIOCache.readingAllNotExtendedDataSourceTypes(),
+        dataSourcesIOCache.readingAllExtendedDataSourceTypes()
+    ).map { (notExtendedDST, extendedDST) ->
+        (notExtendedDST?.toMutableList()?.apply { addAllNNE(extendedDST) }
+            ?: extendedDST?.filterNotNull().orEmpty())
+            .filterDemoModeType(demoModeManager).sortedWith(defaultDataSourceTypeComparator)
     }
 
-    fun readingAllDataSourceTypes() = liveData {
-        emit(dataSourcesInMemoryCache.getAllDataSourceTypes().filterDemoModeType(demoModeManager))
-        emitSource(readingAllDataSourceTypesIO().map { it.filterDemoModeType(demoModeManager) }) // #onModulesUpdated
-    }.distinctUntilChanged()
-
-    private fun readingTypeDataSourcesIO(dst: DataSourceType) = this.dataSourcesIOCache.readingTypeDataSources(dst).map {
-        it.filterDemoModeAgency(demoModeManager).sortedWith(defaultAgencyComparator)
-    }
-
-    fun readingTypeDataSources(dst: DataSourceType?) = liveData {
-        dst?.let {
-            emit(dataSourcesInMemoryCache.getTypeDataSources(it).filterDemoModeAgency(demoModeManager))
-            emitSource(readingTypeDataSourcesIO(it).map { agency -> agency.filterDemoModeAgency(demoModeManager) }) // #onModulesUpdated
-        }
+    fun readingAllSupportedDataSourceTypes() = liveData {
+        emit(dataSourcesInMemoryCache.getAllSupportedDataSourceTypes().filterDemoModeType(demoModeManager))
+        emitSource(readingAllSupportedDataSourceTypesIO().map { it.filterDemoModeType(demoModeManager) }) // #onModulesUpdated
     }.distinctUntilChanged()
 
     fun hasAgenciesAdded() = getAllAgenciesCount() > DEFAULT_AGENCY_COUNT

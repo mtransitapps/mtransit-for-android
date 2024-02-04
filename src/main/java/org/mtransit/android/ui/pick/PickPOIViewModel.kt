@@ -3,12 +3,12 @@ package org.mtransit.android.ui.pick
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.liveData
+import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -42,44 +42,50 @@ class PickPOIViewModel @Inject constructor(
 
     private val _authorities = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_POI_AUTHORITIES)
 
-    private val _allAgencyAuthorities = dataSourcesRepository.readingAllAgencyAuthorities()
+    private val _allAgencyAuthorities = dataSourcesRepository.readingAllAgenciesBase()
+
+    private val _agencies = PairMediatorLiveData(_authorities, _allAgencyAuthorities).map { (authorities, allAgencyAuthorities) ->
+        authorities?.let {
+            allAgencyAuthorities?.filter { it.authority in authorities }
+        }
+    }
 
     val dataSourceRemovedEvent: LiveData<Event<Boolean?>> =
         PairMediatorLiveData(_authorities, _allAgencyAuthorities).switchMap { (authorities, allAgencyAuthorities) ->
-            liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+            liveData {
                 emit(Event(checkForDataSourceRemoved(authorities, allAgencyAuthorities)))
             }
         }
 
-    private fun checkForDataSourceRemoved(authorities: List<String>?, allAgencyAuthorities: List<String>?): Boolean? {
-        if (authorities == null || allAgencyAuthorities == null) {
+    private fun checkForDataSourceRemoved(authorities: List<String>?, allAgencies: List<IAgencyProperties>?): Boolean? {
+        if (authorities == null || allAgencies == null) {
             return null // SKIP
         }
-        authorities.firstOrNull { !allAgencyAuthorities.contains(it) }?.let {
+        authorities.firstOrNull { authority -> allAgencies.none { it.authority == authority } }?.let {
             MTLog.d(this, "Authority $it doesn't exist anymore, dismissing dialog.")
             return true
         }
         return false
     }
 
-    val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(_uuids, _authorities).switchMap { (uuids, authorities) ->
-        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getPOIList(uuids, authorities))
+    val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(_uuids, _agencies).switchMap { (uuids, agencies) ->
+        liveData {
+            emit(getPOIList(uuids, agencies))
         }
     }
 
-    private suspend fun getPOIList(uuids: List<String>?, authorities: List<String>?): List<POIManager>? {
-        if (uuids == null || authorities == null) {
+    private suspend fun getPOIList(uuids: List<String>?, agencies: List<IAgencyProperties>?): List<POIManager>? {
+        if (uuids == null || agencies == null) {
             return null
         }
-        val size = min(uuids.size, authorities.size)
-        val authorityToUUIDs = mutableMapOf<String, MutableList<String>>()
+        val size = min(uuids.size, agencies.size)
+        val agencyToUUIDs = mutableMapOf<IAgencyProperties, MutableList<String>>()
         for (i in 0 until size) {
-            authorityToUUIDs.getOrPut(authorities[i]) { mutableListOf() }.add(uuids[i])
+            agencyToUUIDs.getOrPut(agencies[i]) { mutableListOf() }.add(uuids[i])
         }
         val poiList = mutableListOf<POIManager>()
-        authorityToUUIDs.forEach { (authority, uuids) ->
-            poiRepository.findPOIMs(authority, POIProviderContract.Filter.getNewUUIDsFilter(uuids))?.let {
+        agencyToUUIDs.forEach { (agency, uuids) ->
+            poiRepository.findPOIMs(agency, POIProviderContract.Filter.getNewUUIDsFilter(uuids))?.let {
                 poiList.addAll(it)
             }
         }

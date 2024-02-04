@@ -2,7 +2,6 @@ package org.mtransit.android.datasource
 
 import android.location.Location
 import androidx.collection.LruCache
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import kotlinx.coroutines.CoroutineDispatcher
@@ -20,7 +19,8 @@ import org.mtransit.android.commons.updateDistance
 import org.mtransit.android.data.DataSourceType
 import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
-import org.mtransit.commons.FeatureFlags
+import org.mtransit.android.data.toPOIM
+import org.mtransit.android.data.updateSupportedType
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.CoroutineContext
@@ -64,54 +64,62 @@ class POIRepository(
 
     private fun commonSetup(filter: POIProviderContract.Filter) = filter
 
-    suspend fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? {
-        return dataSourceRequestManager.findPOI(authority, commonSetup(poiFilter))
+
+    suspend fun findPOI(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): POI? {
+        return dataSourceRequestManager.findPOI(agency.authority, commonSetup(poiFilter))
+            ?.updateSupportedType(agency)
     }
 
-    suspend fun findPOIM(authority: String, poiFilter: POIProviderContract.Filter): POIManager? {
-        return dataSourceRequestManager.findPOIM(authority, commonSetup(poiFilter))
+    suspend fun findPOIM(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): POIManager? {
+        return dataSourceRequestManager.findPOIM(agency.authority, commonSetup(poiFilter))
+            ?.updateSupportedType(agency)
     }
 
     fun readingPOIM(
-        authority: String?,
+        agency: IAgencyProperties?,
         uuid: String?,
         currentValue: POIManager? = null,
         onDataSourceRemoved: () -> Unit
-    ): LiveData<POIManager?> = liveData {
-        if (authority == null && currentValue != null) {
+    ) = liveData {
+        if (agency?.authority == null && currentValue != null) {
             MTLog.d(this@POIRepository, "readingPOIM() > SKIP (agency removed)")
             onDataSourceRemoved() // agency removed
         }
-        if (authority == null || uuid == null) {
+        if (agency?.authority == null || uuid == null) {
             MTLog.d(this@POIRepository, "readingPOIM() > SKIP (no authority OR no UUID)")
         } else {
-            val cachePOIM = read(authority, uuid)
+            val cachePOIM = read(agency.authority, uuid)
                 ?.also { emit(it) }
-            dataSourceRequestManager.findPOIM(authority, commonSetup(POIProviderContract.Filter.getNewUUIDFilter(uuid)))?.let { newPOIM ->
-                if (cachePOIM == null // no cache POI
-                    || newPOIM.poi != cachePOIM.poi // new POI != cache POI
-                ) {
-                    emit(newPOIM)
-                    push(newPOIM)
-                } else { // ELSE same POI, keep cache w/ extras (status...)
-                    MTLog.d(this@POIRepository, "readingPOIM() > SKIP (new POI == cache POI, keep extras)")
+            dataSourceRequestManager.findPOI(agency.authority, commonSetup(POIProviderContract.Filter.getNewUUIDFilter(uuid)))
+                ?.updateSupportedType(agency)
+                ?.let { newPOIFromModule -> // WITHOUT status OR service update
+                    if (cachePOIM == null // no cache POI
+                        || newPOIFromModule != cachePOIM.poi // new POI != cache POI
+                    ) {
+                        MTLog.d(this@POIRepository, "readingPOIM() > EMIT (new POI != cache POI)")
+                        val newPOIM = newPOIFromModule.toPOIM()
+                        emit(newPOIM)
+                        push(newPOIM)
+                    } else { // ELSE same POI, keep cache w/ extras (status, service update...)
+                        MTLog.d(this@POIRepository, "readingPOIM() > SKIP (new POI == cache POI, keep status, service update...)")
+                    }
                 }
-            } ?: run {
-                MTLog.d(this@POIRepository, "readingPOIM() > SKIP (removed from agency)")
-                onDataSourceRemoved() // POI removed from agency
-                emit(null)
-            }
+                ?: run {
+                    MTLog.d(this@POIRepository, "readingPOIM() > SKIP (removed from agency)")
+                    onDataSourceRemoved() // POI removed from agency
+                    emit(null)
+                }
         }
     }.distinctUntilChanged()
 
-    suspend fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI>? {
-        return dataSourceRequestManager.findPOIs(authority, commonSetup(poiFilter))
+    suspend fun findPOIs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): List<POI>? {
+        return dataSourceRequestManager.findPOIs(agency.authority, commonSetup(poiFilter))
+            ?.updateSupportedType(agency)
     }
 
-    suspend fun findPOIMs(provider: IAgencyProperties, poiFilter: POIProviderContract.Filter) = findPOIMs(provider.authority, poiFilter)
-
-    suspend fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): MutableList<POIManager>? {
-        return dataSourceRequestManager.findPOIMs(authority, commonSetup(poiFilter))
+    suspend fun findPOIMs(agency: IAgencyProperties, poiFilter: POIProviderContract.Filter): MutableList<POIManager>? {
+        return dataSourceRequestManager.findPOIMs(agency.authority, commonSetup(poiFilter))
+            ?.updateSupportedType(agency)
     }
 
     fun loadingPOIMs(
@@ -200,6 +208,6 @@ class POIRepository(
         poiFilter: POIProviderContract.Filter,
         context: CoroutineContext = ioDispatcher
     ) = withContext(context) {
-        findPOIMs(agency.authority, poiFilter).orEmpty()
+        findPOIMs(agency, poiFilter).orEmpty()
     }
 }

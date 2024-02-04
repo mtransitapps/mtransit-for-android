@@ -208,6 +208,16 @@
             app:argType="integer" />
     </fragment>
     <fragment
+        android:id="@id/root_nav_tram"
+        android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
+        android:label="@string/agency_type_tram_all"
+        tools:layout="@layout/fragment_agency_type">
+        <argument
+            android:name="extra_type_id"
+            android:defaultValue="9"
+            app:argType="integer" />
+    </fragment>
+    <fragment
         android:id="@id/root_nav_subway"
         android:name="org.mtransit.android.ui.type.AgencyTypeFragment"
         android:label="@string/agency_type_subway_all"

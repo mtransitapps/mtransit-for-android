@@ -25,62 +25,71 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 @SuppressWarnings("WeakerAccess")
 public enum DataSourceType {
 
-	TYPE_LIGHT_RAIL(DataSourceTypeId.LIGHT_RAIL, // GTFS - Tram, Streetcar
-			DataSourceStopType.STOP,
+	TYPE_LIGHT_RAIL(DataSourceTypeId.LIGHT_RAIL, false, // GTFS - LRT
+			DataSourceStopType.STATION,
 			R.string.agency_type_light_rail_short_name, R.string.agency_type_light_rail_all, //
 			R.drawable.ic_light_rail_black_24dp, //
 			R.id.root_nav_light_rail, //
 			true, true, true, true, true), //
-	TYPE_SUBWAY(DataSourceTypeId.SUBWAY, // GTFS - Metro
+	TYPE_SUBWAY(DataSourceTypeId.SUBWAY, false, // GTFS - Metro
 			DataSourceStopType.STATION,
 			R.string.agency_type_subway_short_name, R.string.agency_type_subway_all, //
 			R.drawable.ic_directions_subway_black_24dp, //
 			R.id.root_nav_subway, //
 			true, true, true, true, true), //
-	TYPE_RAIL(DataSourceTypeId.RAIL, // GTFS - Train
+	TYPE_RAIL(DataSourceTypeId.RAIL, false, // GTFS - Train
 			DataSourceStopType.TRAIN_STATION,
 			R.string.agency_type_rail_short_name, R.string.agency_type_rail_all, //
 			R.drawable.ic_directions_railway_black_24dp, //
 			R.id.root_nav_rail, //
 			true, true, true, true, true), //
-	TYPE_BUS(DataSourceTypeId.BUS, // GTFS - Bus
+	TYPE_BUS(DataSourceTypeId.BUS, false, // GTFS - Bus
 			DataSourceStopType.STOP,
 			R.string.agency_type_bus_short_name, R.string.agency_type_bus_all, //
 			R.drawable.ic_directions_bus_black_24dp, //
 			R.id.root_nav_bus, //
 			true, true, true, true, true), //
-	TYPE_FERRY(DataSourceTypeId.FERRY, // GTFS - Boat
+	TYPE_FERRY(DataSourceTypeId.FERRY, false, // GTFS - Boat
 			DataSourceStopType.TERMINAL,
 			R.string.agency_type_ferry_short_name, R.string.agency_type_ferry_all, //
 			R.drawable.ic_directions_boat_black_24dp, //
 			R.id.root_nav_ferry, //
 			true, true, true, true, true), //
-	TYPE_BIKE(DataSourceTypeId.BIKE, // like BIXI, Velib
+
+	TYPE_TRAM(DataSourceTypeId.EX_TRAM, true, // GTFS - Tram, Streetcar
+			DataSourceStopType.STOP,
+			R.string.agency_type_tram_short_name, R.string.agency_type_tram_all, //
+			R.drawable.ic_light_rail_black_24dp, //
+			R.id.root_nav_tram, //
+			true, true, true, true, true), //
+
+	TYPE_BIKE(DataSourceTypeId.BIKE, false,// like BIXI, Velib
 			DataSourceStopType.STATION,
 			R.string.agency_type_bike_short_name, R.string.agency_type_bike_all, //
-			// R.string.agency_type_bike_stations_short_name, R.string.agency_type_bike_nearby, //
 			R.drawable.ic_directions_bike_black_24dp, //
 			R.id.root_nav_bike, //
 			true, true, true, true, true), //
-	TYPE_PLACE(DataSourceTypeId.PLACE, //
+
+	TYPE_PLACE(DataSourceTypeId.PLACE, false,//
 			DataSourceStopType.PLACE,
 			R.string.agency_type_place_short_name, R.string.agency_type_place_all, //
 			R.drawable.ic_place_black_24dp, //
 			-1, // no nav ID
 			false, false, false, false, true), //
-	TYPE_MODULE(DataSourceTypeId.MODULE, //
+	TYPE_MODULE(DataSourceTypeId.MODULE, false,//
 			DataSourceStopType.MODULE,
 			R.string.agency_type_module_short_name, R.string.agency_type_module_all, //
 			R.drawable.ic_library_add_black_24dp, //
 			R.id.root_nav_module, //
 			true, true, true, false, false), //
-	TYPE_FAVORITE(DataSourceTypeId.FAVORITE, //
+	TYPE_FAVORITE(DataSourceTypeId.FAVORITE, false,//
 			DataSourceStopType.FAVORITE,
 			R.string.agency_type_favorite_short_name, R.string.agency_type_favorite_all, //
 			R.drawable.ic_star_black_24dp, //
 			R.id.root_nav_favorites, //
 			false, false, false, false, false), //
-	TYPE_NEWS(DataSourceTypeId.NEWS, //
+
+	TYPE_NEWS(DataSourceTypeId.NEWS, false, //
 			DataSourceStopType.NEWS_ARTICLE,
 			R.string.agency_type_news_short_name, R.string.agency_type_news_all, //
 			R.drawable.ic_newspaper_black_24dp, //
@@ -88,11 +97,12 @@ public enum DataSourceType {
 			false, false, false, false, false), //
 	;
 
-	private static final String TAG = DataSourceType.class.getSimpleName();
+	private static final String LOG_TAG = DataSourceType.class.getSimpleName();
 
 	public static final int MAX_ID = 1000;
 
 	private final int id;
+	private final boolean extendedType;
 
 	private final DataSourceStopType stopType;
 
@@ -113,7 +123,8 @@ public enum DataSourceType {
 	private final boolean searchable;
 
 	DataSourceType(@DataSourceTypeId.DataSourceType int id,
-				   DataSourceStopType stopType,
+				   boolean extendedType,
+				   @NonNull DataSourceStopType stopType,
 				   @StringRes int shortNameResId, @StringRes int shortNamesResId,
 				   @DrawableRes int iconResId,
 				   @IdRes int navResId,
@@ -122,6 +133,7 @@ public enum DataSourceType {
 			throw new UnsupportedOperationException(String.format("Data source type ID '%s' must be lower than '%s'!", id, MAX_ID));
 		}
 		this.id = id;
+		this.extendedType = extendedType;
 		this.stopType = stopType;
 		this.shortNameResId = shortNameResId;
 		this.shortNamesResId = shortNamesResId;
@@ -134,8 +146,13 @@ public enum DataSourceType {
 		this.searchable = searchable;
 	}
 
+	@DataSourceTypeId.DataSourceType
 	public int getId() {
 		return id;
+	}
+
+	public boolean isExtendedType() {
+		return extendedType;
 	}
 
 	@StringRes
@@ -150,7 +167,7 @@ public enum DataSourceType {
 
 	@NonNull
 	public CharSequence getPoiShortName(@NonNull Context context) {
-		return context.getString(R.string.agency_type_stops_nearby,
+		return context.getString(R.string.agency_type_stops_short_name,
 				context.getString(getShortNamesResId()),
 				context.getString(this.stopType.getStopsStringResId())
 		);
@@ -195,30 +212,36 @@ public enum DataSourceType {
 	}
 
 	@Nullable
-	public static DataSourceType parseId(@Nullable Integer id) {
+	public static DataSourceType parseId(@DataSourceTypeId.DataSourceType @Nullable Integer id) {
 		if (id == null) {
-			MTLog.w(TAG, "ID 'null' doesn't match any type!");
+			MTLog.w(LOG_TAG, "ID 'null' doesn't match any type!");
 			return null;
 		}
 		switch (id) {
-		case 0:
+		case DataSourceTypeId.LIGHT_RAIL:
 			return TYPE_LIGHT_RAIL;
-		case 1:
+		case DataSourceTypeId.SUBWAY:
 			return TYPE_SUBWAY;
-		case 2:
+		case DataSourceTypeId.RAIL:
 			return TYPE_RAIL;
-		case 3:
+		case DataSourceTypeId.BUS:
 			return TYPE_BUS;
-		case 4:
+		case DataSourceTypeId.FERRY:
 			return TYPE_FERRY;
-		case 100:
+		case DataSourceTypeId.EX_TRAM:
+			return TYPE_TRAM;
+		case DataSourceTypeId.BIKE:
 			return TYPE_BIKE;
-		case 666:
+		case DataSourceTypeId.PLACE:
 			return TYPE_PLACE;
-		case 999:
+		case DataSourceTypeId.MODULE:
 			return TYPE_MODULE;
+		case DataSourceTypeId.NEWS:
+			return TYPE_NEWS;
+		case DataSourceTypeId.INVALID:
+			return null;
 		default:
-			MTLog.w(TAG, "ID '%s' doesn't match any type!", id);
+			MTLog.w(LOG_TAG, "ID '%s' doesn't match any type!", id);
 			return null;
 		}
 	}
@@ -226,11 +249,13 @@ public enum DataSourceType {
 	@Nullable
 	public static DataSourceType parseNavResId(@Nullable Integer navResId) {
 		if (navResId == null) {
-			MTLog.w(TAG, "Nav res ID 'null' doesn't match any type!");
+			MTLog.w(LOG_TAG, "Nav res ID 'null' doesn't match any type!");
 			return null;
 		}
 		if (navResId == R.id.root_nav_light_rail) {
 			return TYPE_LIGHT_RAIL;
+		} else if (navResId == R.id.root_nav_tram) {
+			return TYPE_TRAM;
 		} else if (navResId == R.id.root_nav_subway) {
 			return TYPE_SUBWAY;
 		} else if (navResId == R.id.root_nav_rail) {
@@ -244,7 +269,7 @@ public enum DataSourceType {
 		} else if (navResId == R.id.root_nav_module) {
 			return TYPE_MODULE;
 		}
-		MTLog.w(TAG, "Nav res ID '5s' doesn't match any type!", navResId);
+		MTLog.w(LOG_TAG, "Nav res ID '5s' doesn't match any type!", navResId);
 		return null;
 	}
 
@@ -268,7 +293,7 @@ public enum DataSourceType {
 
 		@Override
 		public int compare(@NonNull DataSourceType lType, @NonNull DataSourceType rType) {
-			Context context = this.contextWR.get();
+			final Context context = this.contextWR.get();
 			if (context == null) {
 				return ComparatorUtils.SAME;
 			}
@@ -284,8 +309,8 @@ public enum DataSourceType {
 			} else if (TYPE_PLACE.equals(rType)) {
 				return ComparatorUtils.BEFORE;
 			}
-			String lShortName = context.getString(lType.getShortNameResId());
-			String rShortName = context.getString(rType.getShortNameResId());
+			final String lShortName = context.getString(lType.getShortNameResId());
+			final String rShortName = context.getString(rType.getShortNameResId());
 			return lShortName.compareTo(rShortName);
 		}
 	}
@@ -312,8 +337,8 @@ public enum DataSourceType {
 			if (lAgency == null || rAgency == null) {
 				return 0;
 			}
-			final int lShortNameResId = lAgency.getType().getShortNameResId();
-			final int rShortNameResId = rAgency.getType().getShortNameResId();
+			final int lShortNameResId = lAgency.getSupportedType().getShortNameResId();
+			final int rShortNameResId = rAgency.getSupportedType().getShortNameResId();
 			final String lShortName = this.appContext.getString(lShortNameResId);
 			final String rShortName = this.appContext.getString(rShortNameResId);
 			return lShortName.compareTo(rShortName);

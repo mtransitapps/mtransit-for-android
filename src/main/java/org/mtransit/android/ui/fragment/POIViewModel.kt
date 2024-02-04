@@ -23,6 +23,7 @@ import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
 import org.mtransit.android.commons.updateDistanceM
 import org.mtransit.android.data.AgencyProperties
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.datasource.DataSourcesRepository
@@ -65,17 +66,16 @@ class POIViewModel @Inject constructor(
         this.dataSourcesRepository.readingAgency(authority) // #onModulesUpdated // UPDATE-ABLE
     }
 
-    private val _agencyAuthority = this.agency.map { it?.authority } // #onModulesUpdated
-
     val dataSourceRemovedEvent = MutableLiveData<Event<Boolean>>()
 
-    val poim: LiveData<POIManager?> = PairMediatorLiveData(_agencyAuthority, uuid).switchMap { (agencyAuthority, uuid) -> // #onModulesUpdated
-        getPOIManager(agencyAuthority, uuid)
+    val poim: LiveData<POIManager?> = PairMediatorLiveData(agency, uuid).switchMap { (agency, uuid) -> // #onModulesUpdated
+        getPOIManager(agency, uuid)
     }
 
-    private fun getPOIManager(agencyAuthority: String?, uuid: String?) = poiRepository.readingPOIM(agencyAuthority, uuid, poim.value) {
-        dataSourceRemovedEvent.postValue(Event(true))
-    }
+    private fun getPOIManager(agency: IAgencyProperties?, uuid: String?) =
+        poiRepository.readingPOIM(agency, uuid, poim.value, onDataSourceRemoved = {
+            dataSourceRemovedEvent.postValue(Event(true))
+        })
 
     private val _poi = this.poim.map {
         it?.poi
@@ -86,18 +86,18 @@ class POIViewModel @Inject constructor(
     }
 
     // like Home screen (no infinite loading like in Nearby screen)
-    val nearbyPOIs: LiveData<List<POIManager>?> = _poi.switchMap { poi ->
-        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getNearbyPOIs(poi))
+    val nearbyPOIs: LiveData<List<POIManager>?> = PairMediatorLiveData(agency, _poi).switchMap { (agency, poi) ->
+        liveData {
+            emit(getNearbyPOIs(agency, poi))
         }
     }
 
-    private suspend fun getNearbyPOIs(poi: POI?): List<POIManager>? {
-        return getNearbyPOIs(poi?.authority, poi?.lat, poi?.lng)
+    private suspend fun getNearbyPOIs(agency: IAgencyProperties?, poi: POI?): List<POIManager>? {
+        return getNearbyPOIs(agency, poi?.lat, poi?.lng)
     }
 
     private suspend fun getNearbyPOIs(
-        authority: String? = _poi.value?.authority,
+        agency: IAgencyProperties? = this.agency.value,
         lat: Double? = _poi.value?.lat,
         lng: Double? = _poi.value?.lng,
         excludedUUID: String? = _poi.value?.uuid
@@ -106,7 +106,7 @@ class POIViewModel @Inject constructor(
             MTLog.d(this, "getNearbyPOIs() > SKIP (feature disabled)")
             return null
         }
-        if (authority == null || lat == null || lng == null) {
+        if (agency?.authority == null || lat == null || lng == null) {
             MTLog.d(this, "getNearbyPOIs() > SKIP (no authority or nor lat/lng)")
             return null
         }
@@ -122,7 +122,7 @@ class POIViewModel @Inject constructor(
                 addExtra(POIProviderContract.POI_FILTER_EXTRA_AVOID_LOADING, true)
             }
             nearbyPOIs.addAllN(
-                poiRepository.findPOIMs(authority, poiFilter)
+                poiRepository.findPOIMs(agency, poiFilter)
                     ?.removeAllAnd { it.poi.uuid == excludedUUID }
                     ?.updateDistanceM(lat, lng)
                     ?.removeTooFar(maxDistance)

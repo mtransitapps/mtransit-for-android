@@ -295,7 +295,7 @@ package org.mtransit.android.ui.poi
 //    }
 //
 //    val poiFavorite: LiveData<Boolean?> = PairMediatorLiveData(_favoriteUpdatedTrigger, poi).switchMap { (_, poi) ->
-//        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+//        liveData {
 //            poi?.let {
 //                emit(getPOIFavorite(poi))
 //            } ?: run { emit(null) }
@@ -380,7 +380,7 @@ package org.mtransit.android.ui.poi
 //    }
 //
 //    val latestNewsArticleList: LiveData<List<News>?> = poi.switchMap { poi ->
-//        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+//        liveData {
 //            emit(getLatestNewsArticles(poi))
 //        }
 //    }
@@ -424,7 +424,7 @@ package org.mtransit.android.ui.poi
 //
 //    // like Home screen (no infinite loading like in Nearby screen)
 //    val nearbyPOIs: LiveData<List<POIManager>?> = poi.switchMap { poi ->
-//        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+//        liveData {
 //            emit(getNearbyPOIs(poi))
 //        }
 //    }

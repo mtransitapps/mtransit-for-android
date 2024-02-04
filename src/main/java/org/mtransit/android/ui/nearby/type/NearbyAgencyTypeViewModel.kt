@@ -1,7 +1,6 @@
 package org.mtransit.android.ui.nearby.type
 
 import android.location.Location
-import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -11,7 +10,6 @@ import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
@@ -24,7 +22,6 @@ import org.mtransit.android.data.IAgencyNearbyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
-import org.mtransit.android.ui.type.AgencyTypeViewModel
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import org.mtransit.commons.addAllN
@@ -48,7 +45,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
 
     override fun getLogTag(): String = typeId.value?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
 
-    val typeId = savedStateHandle.getLiveDataDistinct<Int?>(AgencyTypeViewModel.EXTRA_TYPE_ID)
+    val typeId = savedStateHandle.getLiveDataDistinct<Int?>(EXTRA_TYPE_ID)
 
     private val _allAgencies = this.dataSourcesRepository.readingAllAgenciesBase() // #onModuleChanged
 
@@ -58,7 +55,11 @@ class NearbyAgencyTypeViewModel @Inject constructor(
             typeId = typeId,
             allAgencies = allAgencies,
         )
-        typeId?.let { dstId -> allAgencies?.filter { agency -> agency.type.id == dstId } }
+        typeId?.let { dstId ->
+            allAgencies?.filter { agency ->
+                agency.getSupportedType().id == dstId
+            }
+        }
     }
 
     fun setNearbyLocation(newNearbyLocation: Location?) {
@@ -110,12 +111,11 @@ class NearbyAgencyTypeViewModel @Inject constructor(
     private val _params = MutableLiveData(NearbyParams())
 
     val nearbyPOIs: LiveData<List<POIManager>?> = _params.switchMap { params ->
-        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+        liveData {
             emit(getNearbyPOIs(params))
         }
     }
 
-    @WorkerThread
     private suspend fun getNearbyPOIs(
         currentParams: NearbyParams? = null,
     ): List<POIManager>? {
@@ -142,7 +142,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
             .filter { it.isInArea(area) } // TODO latter optimize && !agency.isEntirelyInside(optLastArea)
             .forEach { agency ->
                 nearbyPOIs.addAllN(
-                    poiRepository.findPOIMs(agency.authority, poiFilter)
+                    poiRepository.findPOIMs(agency, poiFilter)
                         ?.updateDistanceM(lat, lng)
                         ?.removeTooFar(maxDistance)
                         ?.removeTooMuchWhenNotInCoverage(minCoverageInMeters, maxSize)

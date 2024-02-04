@@ -8,9 +8,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Route
@@ -65,7 +63,7 @@ class RTSRouteViewModel @Inject constructor(
     }
 
     val route: LiveData<Route?> = PairMediatorLiveData(_agency, routeId).switchMap { (agency, routeId) ->
-        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+        liveData {
             emit(getRoute(agency, routeId))
         }
     }
@@ -94,7 +92,7 @@ class RTSRouteViewModel @Inject constructor(
     }
 
     val routeTrips: LiveData<List<Trip>?> = PairMediatorLiveData(authority, routeId).switchMap { (authority, routeId) ->
-        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+        liveData {
             emit(getRouteTrips(authority, routeId))
         }
     }

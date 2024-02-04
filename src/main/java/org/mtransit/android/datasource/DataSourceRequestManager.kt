@@ -28,7 +28,7 @@ import javax.inject.Singleton
 @Singleton
 class DataSourceRequestManager(
     private val appContext: Context,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : MTLog.Loggable {
 
     @Inject
@@ -45,42 +45,42 @@ class DataSourceRequestManager(
 
     override fun getLogTag(): String = LOG_TAG
 
-    suspend fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? = withContext(dispatcher) {
+    suspend fun findPOI(authority: String, poiFilter: POIProviderContract.Filter): POI? = withContext(ioDispatcher) {
         DataSourceManager.findPOI(appContext, authority, poiFilter)?.poi
     }
 
-    suspend fun findPOIM(authority: String, poiFilter: POIProviderContract.Filter): POIManager? = withContext(dispatcher) {
+    suspend fun findPOIM(authority: String, poiFilter: POIProviderContract.Filter): POIManager? = withContext(ioDispatcher) {
         DataSourceManager.findPOI(appContext, authority, poiFilter)
     }
 
-    suspend fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI>? = withContext(dispatcher) {
+    suspend fun findPOIs(authority: String, poiFilter: POIProviderContract.Filter): List<POI>? = withContext(ioDispatcher) {
         DataSourceManager.findPOIs(appContext, authority, poiFilter)?.map { it.poi }
     }
 
     suspend fun findPOIMs(provider: IAgencyProperties, poiFilter: POIProviderContract.Filter) = findPOIMs(provider.authority, poiFilter)
 
-    suspend fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): MutableList<POIManager>? = withContext(dispatcher) {
+    suspend fun findPOIMs(authority: String, poiFilter: POIProviderContract.Filter): MutableList<POIManager>? = withContext(ioDispatcher) {
         DataSourceManager.findPOIs(appContext, authority, poiFilter)
     }
 
     suspend fun findAgencyAvailableVersionCode(authority: String, forceAppUpdateRefresh: Boolean = false, inFocus: Boolean = false): Int? =
-        withContext(dispatcher) {
+        withContext(ioDispatcher) {
             DataSourceManager.findAgencyAvailableVersionCode(appContext, authority, forceAppUpdateRefresh, inFocus)
         }
 
-    suspend fun findAgencyRTSRouteLogo(agencyAuthority: String): JPaths? = withContext(dispatcher) {
+    suspend fun findAgencyRTSRouteLogo(agencyAuthority: String): JPaths? = withContext(ioDispatcher) {
         DataSourceManager.findAgencyRTSRouteLogo(appContext, agencyAuthority)
     }
 
-    suspend fun findAllRTSAgencyRoutes(agencyAuthority: String): List<Route>? = withContext(dispatcher) {
+    suspend fun findAllRTSAgencyRoutes(agencyAuthority: String): List<Route>? = withContext(ioDispatcher) {
         DataSourceManager.findAllRTSAgencyRoutes(appContext, agencyAuthority)
     }
 
-    suspend fun findRTSRoute(agencyAuthority: String, routeId: Long): Route? = withContext(dispatcher) {
+    suspend fun findRTSRoute(agencyAuthority: String, routeId: Long): Route? = withContext(ioDispatcher) {
         DataSourceManager.findRTSRoute(appContext, agencyAuthority, routeId)
     }
 
-    suspend fun findRTSRouteTrips(agencyAuthority: String, routeId: Long): List<Trip>? = withContext(dispatcher) {
+    suspend fun findRTSRouteTrips(agencyAuthority: String, routeId: Long): List<Trip>? = withContext(ioDispatcher) {
         DataSourceManager.findRTSRouteTrips(appContext, agencyAuthority, routeId)
     }
 
@@ -93,22 +93,22 @@ class DataSourceRequestManager(
         longVersionCode: Long,
         enabled: Boolean,
         trigger: Int
-    ): AgencyProperties? = withContext(dispatcher) {
+    ): AgencyProperties? = withContext(ioDispatcher) {
         DataSourceManager.findAgencyProperties(appContext, agencyAuthority, agencyType, rts, logo, pkg, longVersionCode, enabled, trigger)
     }
 
     suspend fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?): ScheduleTimestamps? =
-        withContext(dispatcher) {
+        withContext(ioDispatcher) {
             DataSourceManager.findScheduleTimestamps(appContext, authority, scheduleTimestampsFilter)
         }
 
-    suspend fun findANews(authority: String, newsFilter: NewsProviderContract.Filter? = null): News? = withContext(dispatcher) {
+    suspend fun findANews(authority: String, newsFilter: NewsProviderContract.Filter? = null): News? = withContext(ioDispatcher) {
         DataSourceManager.findANews(appContext, authority, newsFilter)
     }
 
     suspend fun findNews(newsProvider: NewsProviderProperties, newsFilter: NewsProviderContract.Filter? = null) = findNews(newsProvider.authority, newsFilter)
 
-    suspend fun findNews(authority: String, newsFilter: NewsProviderContract.Filter? = null): List<News>? = withContext(dispatcher) {
+    suspend fun findNews(authority: String, newsFilter: NewsProviderContract.Filter? = null): List<News>? = withContext(ioDispatcher) {
         DataSourceManager.findNews(appContext, authority, newsFilter)
     }
 }

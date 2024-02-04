@@ -18,3 +18,5 @@ fun POI.getLabelDecorated(context: Context, isShowingAccessibilityInfo: Boolean)
     }
     return this.label
 }
+
+fun <P : POI> P.toPOIM() = POIManager(this)

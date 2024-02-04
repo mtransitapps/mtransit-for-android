@@ -63,6 +63,12 @@
             android:visible="false"
             tools:visible="true" />
         <item
+            android:id="@id/root_nav_tram"
+            android:icon="@drawable/ic_light_rail_black_24dp"
+            android:title="@string/agency_type_tram_all"
+            android:visible="false"
+            tools:visible="true" />
+        <item
             android:id="@id/root_nav_bike"
             android:icon="@drawable/ic_directions_bike_black_24dp"
             android:title="@string/agency_type_bike_all"

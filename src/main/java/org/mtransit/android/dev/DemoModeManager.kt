@@ -66,7 +66,7 @@ class DemoModeManager @Inject constructor(
     fun isFilteringAgency() = !filterAgencyAuthority.isNullOrBlank()
 
     private val filterAgencyType: DataSourceType?
-        get() = this.filterAgency?.type
+        get() = this.filterAgency?.getSupportedType()
 
     val filterAgencyTypeId: Int?
         get() = this.filterAgencyType?.id

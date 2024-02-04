@@ -1,8 +1,10 @@
 package org.mtransit.android.provider
 
 import android.content.Context
-import androidx.annotation.WorkerThread
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.mtransit.android.R
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.data.Favorite
@@ -11,47 +13,59 @@ import org.mtransit.android.dev.DemoModeManager
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Suppress("MemberVisibilityCanBePrivate", "unused")
 @Singleton
-class FavoriteRepository @Inject constructor(
+class FavoriteRepository(
     @ApplicationContext private val appContext: Context,
     private val favoriteManager: FavoriteManager,
     private val demoModeManager: DemoModeManager,
+    private val ioDispatcher: CoroutineDispatcher,
 ) {
+
+    @Inject
+    constructor(
+        @ApplicationContext appContext: Context,
+        favoriteManager: FavoriteManager,
+        demoModeManager: DemoModeManager,
+    ) : this(
+        appContext,
+        favoriteManager,
+        demoModeManager,
+        Dispatchers.IO,
+    )
 
     companion object {
         const val DEFAULT_FOLDER_ID = FavoriteManager.DEFAULT_FOLDER_ID
     }
 
-    fun findFavoriteUUIDs(): Set<String> {
+    suspend fun findFavoriteUUIDs(): Set<String> = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) {
-            return emptySet()
+            return@withContext emptySet()
         }
-        return favoriteManager.findFavoriteUUIDs(appContext)
+        favoriteManager.findFavoriteUUIDs(appContext)
     }
 
-    fun findFavorites(): List<Favorite> {
+    suspend fun findFavorites(): List<Favorite> = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) {
-            return emptyList()
+            return@withContext emptyList<Favorite>()
         }
-        return favoriteManager.findFavorites(appContext)
+        favoriteManager.findFavorites(appContext)
     }
 
-    fun findFoldersList(): List<Favorite.Folder> {
+    suspend fun findFoldersList(): List<Favorite.Folder> = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) {
-            return emptyList()
+            return@withContext emptyList()
         }
-        return favoriteManager.findFoldersList(appContext)
+        favoriteManager.findFoldersList(appContext)
     }
 
-    @WorkerThread
-    fun isFavorite(fkId: String): Boolean {
+    suspend fun isFavorite(fkId: String): Boolean = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) {
-            return false
+            return@withContext false
         }
-        return favoriteManager.isFavorite(appContext, fkId)
+        favoriteManager.isFavorite(appContext, fkId)
     }
 
-    @Suppress("MemberVisibilityCanBePrivate")
     fun isFavoriteDataSourceId(favoriteFolderId: Int): Boolean {
         if (demoModeManager.isFullDemo()) {
             return false
@@ -67,7 +81,6 @@ class FavoriteRepository @Inject constructor(
         }
     }
 
-    @Suppress("MemberVisibilityCanBePrivate")
     fun extractFavoriteFolderId(favoriteFolderId: Int): Int {
         return favoriteManager.extractFavoriteFolderId(favoriteFolderId)
     }

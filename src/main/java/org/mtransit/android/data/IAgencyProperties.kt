@@ -2,6 +2,7 @@ package org.mtransit.android.data
 
 import android.content.Context
 import android.content.pm.PackageManager
+import androidx.room.ColumnInfo
 import org.mtransit.android.commons.isAppEnabled
 import java.util.Locale
 
@@ -33,6 +34,9 @@ interface IAgencyProperties {
     val authority: String
 
     val type: DataSourceType
+    val extendedType: DataSourceType?
+
+    fun getSupportedType(): DataSourceType = this.extendedType ?: this.type
 
     val pkg: String
 
@@ -43,7 +47,7 @@ interface IAgencyProperties {
     val isEnabled: Boolean
 
     fun getShortNameAndType(context: Context): String {
-        return "$shortName ${context.getString(type.shortNameResId)}"
+        return "$shortName ${context.getString(getSupportedType().shortNameResId)}"
     }
 
     fun isEnabled(pm: PackageManager? = null): Boolean {

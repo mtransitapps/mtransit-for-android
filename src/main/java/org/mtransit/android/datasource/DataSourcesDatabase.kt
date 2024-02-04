@@ -23,7 +23,7 @@ import org.mtransit.commons.sql.SQLUtils
         ServiceUpdateProviderProperties::class,
         NewsProviderProperties::class,
     ],
-    version = 3,
+    version = 4,
     exportSchema = true
 )
 @TypeConverters(DataSourcesConverters::class)
@@ -68,6 +68,16 @@ abstract class DataSourcesDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                MTLog.i(LOG_TAG, "DB migration from version 3 to 4...")
+                db.execSQL(
+                    "ALTER TABLE agency_properties ADD COLUMN extended_type ${SQLUtils.INT} DEFAULT null"
+                )
+                MTLog.i(LOG_TAG, "DB migration from version 3 to 4... DONE")
+            }
+        }
+
         @Volatile
         private var instance: DataSourcesDatabase? = null
 
@@ -79,14 +89,20 @@ abstract class DataSourcesDatabase : RoomDatabase() {
         }
 
         private fun buildDatabase(appContext: Context): DataSourcesDatabase {
+            // if (true) { // DEBUG - force clear DB
+            // appContext.deleteDatabase(DB_NAME)
+            // } // DEBUG - force clear DB
             return Room
                 .databaseBuilder(
                     appContext,
                     DataSourcesDatabase::class.java,
                     DB_NAME
                 )
-                .addMigrations(MIGRATION_1_2)
-                .addMigrations(MIGRATION_2_3)
+                .addMigrations(
+                    MIGRATION_1_2,
+                    MIGRATION_2_3,
+                    MIGRATION_3_4,
+                )
                 .fallbackToDestructiveMigration()
                 .build()
         }

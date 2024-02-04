@@ -56,12 +56,12 @@ class SearchViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val searchableDataSourceTypes: LiveData<List<DataSourceType>> = this.dataSourcesRepository.readingAllDataSourceTypes().map { list ->
+    val searchableDataSourceTypes: LiveData<List<DataSourceType>> = this.dataSourcesRepository.readingAllSupportedDataSourceTypes().map { list ->
         list.filter { dst -> dst.isSearchable }
     }
 
     private val _searchableAgencies: LiveData<List<IAgencyProperties>> = this.dataSourcesRepository.readingAllAgenciesBase().map { list ->
-        list.filter { agency -> agency.type.isSearchable }
+        list.filter { agency -> agency.getSupportedType().isSearchable }
     }
 
     private val _loading = MutableLiveData(false)
@@ -123,8 +123,8 @@ class SearchViewModel @Inject constructor(
             var keepAll = false
             this.poiRepository.loadingPOIMs(
                 typeToProviders = searchableAgencies
-                    ?.filter { agency -> typeFilterId == null || typeFilterId == agency.type.id }
-                    ?.groupBy { it.type }
+                    ?.filter { agency -> typeFilterId == null || typeFilterId == agency.getSupportedType().id }
+                    ?.groupBy { it.getSupportedType() }
                     ?.toSortedMap(this.dataSourcesRepository.defaultDataSourceTypeComparator)
                     ?.also { typeToAgencies ->
                         keepAll = typeToAgencies.keys.size == 1

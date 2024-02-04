@@ -7,14 +7,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.AgencyBaseProperties
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
@@ -48,17 +47,17 @@ class AgencyPOIsViewModel @Inject constructor(
         this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
     }
 
-    val poiList: LiveData<List<POIManager>?> = _authority.switchMap { authority ->
-        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getPOIList(authority))
+    val poiList: LiveData<List<POIManager>?> = agency.switchMap { agency ->
+        liveData {
+            emit(getPOIList(agency))
         }
     }
 
-    private suspend fun getPOIList(authority: String?): List<POIManager>? {
-        if (authority.isNullOrEmpty()) {
+    private suspend fun getPOIList(agency: IAgencyProperties?): List<POIManager>? {
+        if (agency == null) {
             return null
         }
-        return poiRepository.findPOIMs(authority, POIProviderContract.Filter.getNewEmptyFilter())
+        return poiRepository.findPOIMs(agency, POIProviderContract.Filter.getNewEmptyFilter())
     }
 
     val showingListInsteadOfMap: LiveData<Boolean> = _authority.switchMap { authority ->

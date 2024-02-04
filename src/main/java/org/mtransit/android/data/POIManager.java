@@ -93,7 +93,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 	private CharSequence distanceString = null;
 	private float distance = -1;
 	@Nullable
-	private POIStatus status;
+	private POIStatus status = null;
 	@Nullable
 	private ArrayList<ServiceUpdate> serviceUpdates = null;
 	private boolean inFocus = false;
@@ -107,7 +107,6 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 
 	public POIManager(@NonNull POI poi) {
 		this.poi = poi;
-		this.status = null;
 	}
 
 	@NonNull
@@ -116,6 +115,15 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 		return POIManager.class.getSimpleName() + '[' +//
 				"poi:" + this.poi + ',' + //
 				"status:" + this.status + ',' + //
+				']';
+	}
+
+	@NonNull
+	public String toStringSimple() {
+		return POIManager.class.getSimpleName() + '[' +//
+				"poi:" + this.poi.getUUID() + ',' + //
+				"status:" + this.hasStatus() + ',' + //
+				"service updated:" + this.hasServiceUpdates() + ',' + //
 				']';
 	}
 
@@ -804,7 +812,7 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 					if (agency.isUpdateAvailable(activity.getPackageManager())) {
 						AppUpdateLauncher.launchAppUpdate(activity, pkg);
 					} else { // navigate to agency type screen
-						PreferenceUtils.savePrefLclAsync(activity, PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(agency.getType().getId()), agency.getAuthority());
+						PreferenceUtils.savePrefLclAsync(activity, PreferenceUtils.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(agency.getSupportedType().getId()), agency.getAuthority());
 						if (FeatureFlags.F_NAVIGATION) {
 							final NavController navController = Navigation.findNavController(view);
 							FragmentNavigator.Extras extras = null;
@@ -815,13 +823,13 @@ public class POIManager implements LocationPOI, MTLog.Loggable {
 							}
 							NavControllerExtKt.navigateF(navController,
 									R.id.nav_to_type_screen,
-									AgencyTypeFragment.newInstanceArgs(agency.getType()),
+									AgencyTypeFragment.newInstanceArgs(agency.getSupportedType()),
 									null,
 									extras
 							);
 						} else {
 							((MainActivity) activity).addFragmentToStack(
-									AgencyTypeFragment.newInstance(agency.getType())
+									AgencyTypeFragment.newInstance(agency.getSupportedType())
 							);
 						}
 					}

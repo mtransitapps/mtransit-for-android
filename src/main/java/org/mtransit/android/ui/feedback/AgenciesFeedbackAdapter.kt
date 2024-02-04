@@ -53,7 +53,7 @@ class AgenciesFeedbackAdapter(
                 }
                 extra.apply {
                     moduleTypeImg.apply {
-                        setImageResource(item?.type?.iconResId ?: 0)
+                        setImageResource(item?.getSupportedType()?.iconResId ?: 0)
                         setBackgroundColor(item?.colorInt ?: Color.BLACK)
                     }
                 }

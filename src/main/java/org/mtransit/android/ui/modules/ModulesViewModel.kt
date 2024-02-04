@@ -24,12 +24,13 @@ class ModulesViewModel @Inject constructor(
 
         @Suppress("KotlinConstantConditions")
         private const val ADD_FAKE_AGENCIES = FAKE_AGENCIES_COUNT > 0
+
+        private val UNSUPPORTED_TYPE = listOf(DataSourceType.TYPE_PLACE, DataSourceType.TYPE_MODULE)
     }
 
     private val _filteredAgencies = dataSourcesRepository.readingAllAgencies().map { agencies ->
         agencies.filter { agency ->
-            agency.type != DataSourceType.TYPE_PLACE
-                    && agency.type != DataSourceType.TYPE_MODULE
+            agency.getSupportedType() !in UNSUPPORTED_TYPE
         }
     }
 

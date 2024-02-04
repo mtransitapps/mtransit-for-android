@@ -22,6 +22,7 @@ import org.mtransit.android.commons.UriUtils;
 import org.mtransit.android.commons.data.AppStatus;
 import org.mtransit.android.commons.data.Area;
 import org.mtransit.android.commons.data.AvailabilityPercent;
+import org.mtransit.android.commons.data.DataSourceTypeId;
 import org.mtransit.android.commons.data.News;
 import org.mtransit.android.commons.data.POI;
 import org.mtransit.android.commons.data.POIStatus;
@@ -264,18 +265,21 @@ public final class DataSourceManager implements MTLog.Loggable {
 		AgencyProperties result = null;
 		Cursor cursor = null;
 		try {
-			Uri uri = Uri.withAppendedPath(getUri(authority), AgencyProviderContract.ALL_PATH);
+			final Uri uri = Uri.withAppendedPath(getUri(authority), AgencyProviderContract.ALL_PATH);
 			cursor = queryContentResolver(context.getContentResolver(), uri, null, null, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					final String shortName = CursorExtKt.getString(cursor, AgencyProviderContract.SHORT_NAME_PATH);
 					final String longName = CursorExtKt.getString(cursor, AgencyProviderContract.LABEL_PATH);
-					final String color = CursorExtKt.getString(cursor, AgencyProviderContract.COLOR_PATH);
+					final String color = CursorExtKt.optString(cursor, AgencyProviderContract.COLOR_PATH, null);
 					final Area area = Area.fromCursorNN(cursor);
 					final int maxValidInSec = CursorExtKt.optIntNN(cursor, AgencyProviderContract.MAX_VALID_SEC, -1);
 					final int availableVersionCode = CursorExtKt.optIntNN(cursor, AgencyProviderContract.AVAILABLE_VERSION_CODE, -1);
 					final String contactUsWeb = CursorExtKt.optString(cursor, AgencyProviderContract.CONTACT_US_WEB, null);
 					final String contactUsWebFr = CursorExtKt.optString(cursor, AgencyProviderContract.CONTACT_US_WEB_FR, null);
+					final DataSourceType exType = DataSourceType.parseId(
+							CursorExtKt.optIntNN(cursor, AgencyProviderContract.EXTENDED_TYPE_ID, DataSourceTypeId.INVALID)
+					);
 					result = new AgencyProperties(
 							authority,
 							dst,
@@ -293,7 +297,8 @@ public final class DataSourceManager implements MTLog.Loggable {
 							maxValidInSec,
 							trigger,
 							contactUsWeb,
-							contactUsWebFr
+							contactUsWebFr,
+							exType
 					);
 				}
 			}

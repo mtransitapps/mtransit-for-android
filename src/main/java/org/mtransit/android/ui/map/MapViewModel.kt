@@ -15,7 +15,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
@@ -99,7 +98,7 @@ class MapViewModel @Inject constructor(
         savedStateHandle[EXTRA_SELECTED_UUID] = null // set once only (then manage by map controller
     }
 
-    private val allTypes = this.dataSourcesRepository.readingAllDataSourceTypes() // #onModulesUpdated
+    private val allTypes = this.dataSourcesRepository.readingAllSupportedDataSourceTypes() // #onModulesUpdated
 
     val mapTypes = allTypes.map {
         it.filter { dst -> dst.isMapScreen }
@@ -195,8 +194,8 @@ class MapViewModel @Inject constructor(
     val typeMapAgencies: LiveData<List<IAgencyNearbyUIProperties>?> = PairMediatorLiveData(_allAgencies, filterTypeIds).map { (allAgencies, filterTypeIds) ->
         filterTypeIds?.let { theFilterTypeIds ->
             allAgencies?.filter { agency ->
-                agency.type.isMapScreen
-                        && (theFilterTypeIds.isEmpty() || theFilterTypeIds.contains(agency.type.id))
+                agency.getSupportedType().isMapScreen
+                        && (theFilterTypeIds.isEmpty() || theFilterTypeIds.contains(agency.getSupportedType().id))
             }
         }
     }
@@ -256,7 +255,7 @@ class MapViewModel @Inject constructor(
         if (reset) {
             _poiMarkers.value = null
         }
-        poiMarkersLoadJob = viewModelScope.launch(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+        poiMarkersLoadJob = viewModelScope.launch {
             val areaTypeMapAgencies: List<IAgencyNearbyUIProperties>? = areaTypeMapAgencies.value
             val loadedArea: LatLngBounds? = _loadedArea.value
             val loadingArea: LatLngBounds? = _loadingArea.value
@@ -320,7 +319,7 @@ class MapViewModel @Inject constructor(
             loadedArea?.let { max(it.northeast.longitude, it.southwest.longitude) },
         )
         coroutineScope.ensureActive()
-        val agencyPOIs = poiRepository.findPOIMs(agency.authority, poiFilter)
+        val agencyPOIs = poiRepository.findPOIMs(agency, poiFilter)
         val agencyShortName = agency.shortName
         var positionTrunc: LatLng
         var name: String

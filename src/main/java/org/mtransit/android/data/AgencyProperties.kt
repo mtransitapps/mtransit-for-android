@@ -50,6 +50,8 @@ data class AgencyProperties(
     val contactUsWeb: String? = null,
     @ColumnInfo(name = "contact_us_web_fr")
     val contactUsWebFr: String? = null,
+    @ColumnInfo(name = "extended_type")
+    override val extendedType: DataSourceType? = null,
 ) : IAgencyNearbyUIProperties, IAgencyUpdatableProperties {
 
     @Ignore
@@ -72,6 +74,7 @@ data class AgencyProperties(
         trigger: Int = 0,
         contactUsWeb: String? = null,
         contactUsWebFr: String? = null,
+        extendedType: DataSourceType? = null,
     ) : this(
         id,
         type,
@@ -90,6 +93,7 @@ data class AgencyProperties(
         trigger,
         contactUsWeb.takeIf { it?.isNotBlank() == true }, // ignore empty
         contactUsWebFr.takeIf { it?.isNotBlank() == true }, // ignore empty
+        extendedType,
     )
 
     @Ignore

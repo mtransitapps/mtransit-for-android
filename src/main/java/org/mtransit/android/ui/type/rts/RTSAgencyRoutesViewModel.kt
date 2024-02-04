@@ -8,9 +8,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
@@ -54,7 +52,7 @@ class RTSAgencyRoutesViewModel @Inject constructor(
     }
 
     val routes: LiveData<List<Route>?> = this._authority.switchMap { authority ->
-        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+        liveData {
             authority?.let {
                 emit(
                     dataSourceRequestManager.findAllRTSAgencyRoutes(authority)

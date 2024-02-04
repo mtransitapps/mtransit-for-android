@@ -33,8 +33,6 @@
     <string name="agency_stop_type_ports">Ports</string>
     <string name="agency_stop_type_terminal">Terminal</string>
     <string name="agency_stop_type_terminals">Terminals</string>
-    <string name="agency_stop_type_streetcar">Tram</string>
-    <string name="agency_stop_type_streetcars">Trams</string>
     <string name="agency_stop_type_place">Lieu</string>
     <string name="agency_stop_type_places">Lieux</string>
     <string name="agency_stop_type_module">Agence</string>
@@ -49,12 +47,16 @@
     <string name="agency_type_ferry_all">Bateaux</string>
     <string name="agency_type_light_rail_short_name">Train Léger</string>
     <string name="agency_type_light_rail_all">Trains Légers</string>
+    <string name="agency_type_tram_short_name">Tram</string>
+    <string name="agency_type_tram_all">Trams</string>
     <string name="agency_type_subway_short_name">Métro</string>
     <string name="agency_type_subway_all">Métros</string>
     <string name="agency_type_rail_short_name">Train</string>
     <string name="agency_type_rail_all">Trains</string>
-    <string name="agency_type_bus_short_name">Autobus</string>
-    <string name="agency_type_bus_all">Autobus</string>
+    <!-- <string name="agency_type_bus_short_name">Autobus</string> --><!-- TODO FR-fr -->
+    <string name="agency_type_bus_short_name">Bus</string><!-- FR-ca -->
+    <!-- <string name="agency_type_bus_all">Autobus</string> --><!-- TODO FR-fr -->
+    <string name="agency_type_bus_all">Bus</string><!-- FR-ca -->
     <string name="agency_type_bike_short_name">Vélo</string>
     <string name="agency_type_bike_all">Vélos</string>
     <string name="agency_type_place_short_name">Lieu</string>

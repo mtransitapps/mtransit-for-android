@@ -15,6 +15,8 @@ import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.dev.filterDemoModeAgency
 import org.mtransit.android.dev.filterDemoModeTargeted
 import org.mtransit.android.dev.filterDemoModeType
+import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.commons.addAllNNE
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,7 +40,8 @@ class DataSourcesInMemoryCache @Inject constructor(
 
     private var _agencyProperties = listOf<AgencyProperties>() // sorted
     private var _agencyBaseProperties = listOf<AgencyBaseProperties>() // sorted
-    private var _dataSourceTypes = listOf<DataSourceType>() // sorted
+    private var _supportedDataSourceTypes = listOf<DataSourceType>() // sorted
+
     private var _statusProviderProperties = setOf<StatusProviderProperties>() // not sorted
     private var _scheduleProviderProperties = setOf<ScheduleProviderProperties>() // not sorted
     private var _serviceUpdateProviderProperties = setOf<ServiceUpdateProviderProperties>() // not sorted
@@ -60,8 +63,12 @@ class DataSourcesInMemoryCache @Inject constructor(
                 .filterDemoModeAgency(demoModeManager)
                 .sortedWith(defaultAgencyComparator)
         }
-        dataSourcesCache.readingAllDataSourceTypes().observeForever { // SINGLETON
-            this._dataSourceTypes = it
+        PairMediatorLiveData(
+            dataSourcesCache.readingAllNotExtendedDataSourceTypes(),
+            dataSourcesCache.readingAllExtendedDataSourceTypes(),
+        ).observeForever { (notExtendedDST, extendedDST) -> // SINGLETON
+            this._supportedDataSourceTypes = (notExtendedDST?.toMutableList()?.apply { addAllNNE(extendedDST) }
+                ?: extendedDST?.filterNotNull().orEmpty())
                 .filterDemoModeType(demoModeManager)
                 .sortedWith(defaultDataSourceTypeComparator)
         }
@@ -97,12 +104,7 @@ class DataSourcesInMemoryCache @Inject constructor(
 
     fun getAgencyForPkg(pkg: String) = this._agencyProperties.singleOrNull { it.pkg == pkg }
 
-    fun getAllDataSourceTypes() = this._dataSourceTypes
-
-    fun getTypeDataSources(type: DataSourceType) = getTypeDataSources(type.id)
-
-    fun getTypeDataSources(typeId: Int): List<AgencyProperties> = this._agencyProperties.filter { it.type.id == typeId }
-        .sortedWith(defaultAgencyComparator)
+    fun getAllSupportedDataSourceTypes() = this._supportedDataSourceTypes
 
     // STATUS
 

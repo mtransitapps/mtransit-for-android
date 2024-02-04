@@ -8,9 +8,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
@@ -19,6 +17,7 @@ import org.mtransit.android.commons.data.Schedule
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.ScheduleTimestampsProviderContract
 import org.mtransit.android.data.AgencyBaseProperties
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
 import org.mtransit.android.data.ScheduleProviderProperties
 import org.mtransit.android.datasource.DataSourceRequestManager
@@ -69,15 +68,14 @@ class ScheduleViewModel @Inject constructor(
         this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
     }
 
-    private val _agencyAuthority = this.agency.map { it?.authority } // #onModulesUpdated
-
-    val poim: LiveData<POIManager?> = PairMediatorLiveData(_agencyAuthority, uuid).switchMap { (agencyAuthority, uuid) -> // #onModulesUpdated
-        getPOIManager(agencyAuthority, uuid)
+    val poim: LiveData<POIManager?> = PairMediatorLiveData(agency, uuid).switchMap { (agency, uuid) -> // #onModulesUpdated
+        getPOIManager(agency, uuid)
     }
 
-    private fun getPOIManager(agencyAuthority: String?, uuid: String?) = poiRepository.readingPOIM(agencyAuthority, uuid, poim.value) {
-        dataSourceRemovedEvent.postValue(Event(true))
-    }
+    private fun getPOIManager(agency: IAgencyProperties?, uuid: String?) =
+        poiRepository.readingPOIM(agency, uuid, poim.value, onDataSourceRemoved = {
+            dataSourceRemovedEvent.postValue(Event(true))
+        })
 
     val rts: LiveData<RouteTripStop?> = this.poim.map { it?.let { if (it.poi is RouteTripStop) it.poi else null } }
 
@@ -114,7 +112,7 @@ class ScheduleViewModel @Inject constructor(
 
     val timestamps: LiveData<List<Schedule.Timestamp>?> =
         QuadrupleMediatorLiveData(rts, _startsAtInMs, _endsAtInMs, _scheduleProviders).switchMap { (rts, startsAtInMs, endsAtInMs, scheduleProviders) ->
-            liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+            liveData {
                 emit(getTimestamps(rts, startsAtInMs, endsAtInMs, scheduleProviders))
             }
         }

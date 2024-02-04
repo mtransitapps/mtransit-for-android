@@ -8,16 +8,17 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SqlUtils
 import org.mtransit.android.commons.pref.liveData
 import org.mtransit.android.commons.provider.GTFSProviderContract
 import org.mtransit.android.commons.provider.POIProviderContract
+import org.mtransit.android.data.AgencyBaseProperties
+import org.mtransit.android.data.IAgencyProperties
 import org.mtransit.android.data.POIManager
+import org.mtransit.android.datasource.DataSourcesRepository
 import org.mtransit.android.datasource.POIRepository
 import org.mtransit.android.dev.DemoModeManager
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
@@ -30,6 +31,7 @@ import javax.inject.Inject
 class RTSTripStopsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val poiRepository: POIRepository,
+    private val dataSourcesRepository: DataSourcesRepository,
     private val lclPrefRepository: LocalPreferenceRepository,
     private val demoModeManager: DemoModeManager,
 ) : ViewModel(), MTLog.Loggable {
@@ -50,7 +52,11 @@ class RTSTripStopsViewModel @Inject constructor(
 
     override fun getLogTag(): String = tripId.value?.let { "${LOG_TAG}-$it" } ?: LOG_TAG
 
-    val agencyAuthority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AGENCY_AUTHORITY)
+    private val _authority = savedStateHandle.getLiveDataDistinct<String?>(EXTRA_AGENCY_AUTHORITY)
+
+    private val _agency: LiveData<AgencyBaseProperties?> = this._authority.switchMap { authority ->
+        this.dataSourcesRepository.readingAgencyBase(authority) // #onModulesUpdated
+    }
 
     private val _routeId = savedStateHandle.getLiveDataDistinct<Long?>(EXTRA_ROUTE_ID)
 
@@ -66,14 +72,14 @@ class RTSTripStopsViewModel @Inject constructor(
         savedStateHandle[EXTRA_CLOSEST_POI_SHOWN] = true
     }
 
-    val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(agencyAuthority, tripId).switchMap { (agencyAuthority, tripId) ->
-        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getPOIList(agencyAuthority, tripId))
+    val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(_agency, tripId).switchMap { (agency, tripId) ->
+        liveData {
+            emit(getPOIList(agency, tripId))
         }
     }
 
-    private suspend fun getPOIList(agencyAuthority: String?, tripId: Long?): List<POIManager>? {
-        if (agencyAuthority == null || tripId == null) {
+    private suspend fun getPOIList(agency: IAgencyProperties?, tripId: Long?): List<POIManager>? {
+        if (agency == null || tripId == null) {
             return null
         }
         val poiFilter = POIProviderContract.Filter.getNewSqlSelectionFilter(
@@ -86,13 +92,10 @@ class RTSTripStopsViewModel @Inject constructor(
                 SqlUtils.getSortOrderAscending(GTFSProviderContract.RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE)
             )
         }
-        return this.poiRepository.findPOIMs(
-            agencyAuthority,
-            poiFilter
-        )
+        return this.poiRepository.findPOIMs(agency, poiFilter)
     }
 
-    val showingListInsteadOfMap: LiveData<Boolean> = TripleMediatorLiveData(agencyAuthority, _routeId, tripId).switchMap { (authority, routeId, tripId) ->
+    val showingListInsteadOfMap: LiveData<Boolean> = TripleMediatorLiveData(_authority, _routeId, tripId).switchMap { (authority, routeId, tripId) ->
         liveData {
             if (authority == null || routeId == null || tripId == null) {
                 return@liveData // SKIP
@@ -115,7 +118,7 @@ class RTSTripStopsViewModel @Inject constructor(
             return // SKIP (demo mode ON)
         }
         lclPrefRepository.pref.edit {
-            val authority = agencyAuthority.value ?: return
+            val authority = _authority.value ?: return
             val routeId = _routeId.value ?: return
             val tripId = tripId.value ?: return
             putBoolean(

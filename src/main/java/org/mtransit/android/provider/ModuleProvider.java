@@ -609,6 +609,12 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		return Constants.EMPTY;
 	}
 
+	@DataSourceTypeId.DataSourceType
+	@Override
+	public int getExtendedTypeId(@NonNull Context context) {
+		return DataSourceTypeId.INVALID; // not supported
+	}
+
 	/**
 	 * Override if multiple {@link ModuleProvider} implementations in same app.
 	 */

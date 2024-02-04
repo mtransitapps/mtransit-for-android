@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
+import androidx.annotation.WorkerThread
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -121,7 +122,7 @@ class NearbyViewModel @Inject constructor(
             _nearbyLocationForceReset,
             _ipLocation
         ).switchMap { (fixedOnLocation, lastDeviceLocation, forceResetEvent, ipLocation) ->
-            liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+            liveData {
                 val forceReset: Boolean = forceResetEvent?.getContentIfNotHandled() ?: false
                 if (forceReset) {
                     emit(null) // force reset
@@ -175,11 +176,8 @@ class NearbyViewModel @Inject constructor(
         }
     }
 
-    private fun getNearbyLocationAddress(location: Location?): String? {
-        return location?.let {
-            locationProvider.getLocationAddressString(it)
-        }
-    }
+    @WorkerThread
+    private fun getNearbyLocationAddress(location: Location?) = location?.let { locationProvider.getLocationAddressString(it) }
 
     val fixedOnName = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_NAME, EXTRA_FIXED_ON_NAME_DEFAULT)
 
@@ -198,7 +196,7 @@ class NearbyViewModel @Inject constructor(
     val fixedOnColorInt = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_COLOR, EXTRA_FIXED_ON_COLOR_DEFAULT)
         .map { it?.let { ColorUtils.parseColor(it) } }
 
-    val availableTypes: LiveData<List<DataSourceType>?> = this.dataSourcesRepository.readingAllDataSourceTypes().map { // #onModulesUpdated
+    val availableTypes: LiveData<List<DataSourceType>?> = this.dataSourcesRepository.readingAllSupportedDataSourceTypes().map { // #onModulesUpdated
         it.filter { dst -> dst.isNearbyScreen }
     }
 

@@ -17,7 +17,7 @@ data class NearbyParams(
     // TODO ? val lastEmptyAroundDiff: Double? = null,
 ) {
     val typeAgencies: List<AgencyBaseProperties>?
-        get() = typeId?.let { dstId -> allAgencies?.filter { agency -> agency.type.id == dstId } }
+        get() = typeId?.let { dstId -> allAgencies?.filter { agency -> agency.getSupportedType().id == dstId } }
 
     val area: Area?
         get() {

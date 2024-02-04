@@ -33,6 +33,7 @@ public class Module extends DefaultPOI {
 	@NonNull
 	private final String pkg;
 
+	@DataSourceTypeId.DataSourceType
 	private final int targetTypeId;
 
 	@Nullable
@@ -44,7 +45,7 @@ public class Module extends DefaultPOI {
 	@Nullable
 	private String nameFr = null;
 
-	public Module(@NonNull String authority, @NonNull String pkg, int targetTypeId) {
+	public Module(@NonNull String authority, @NonNull String pkg, @DataSourceTypeId.DataSourceType int targetTypeId) {
 		super(authority, DataSourceTypeId.MODULE, POI.ITEM_VIEW_TYPE_MODULE, POI.ITEM_STATUS_TYPE_APP, POI.ITEM_ACTION_TYPE_APP);
 		this.pkg = pkg;
 		resetUUID();
@@ -59,6 +60,7 @@ public class Module extends DefaultPOI {
 		return pkg;
 	}
 
+	@DataSourceTypeId.DataSourceType
 	public int getTargetTypeId() {
 		return targetTypeId;
 	}

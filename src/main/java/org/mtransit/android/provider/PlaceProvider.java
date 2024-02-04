@@ -393,6 +393,12 @@ public class PlaceProvider extends AgencyProvider implements POIProviderContract
 		return Constants.EMPTY;
 	}
 
+	@DataSourceTypeId.DataSourceType
+	@Override
+	public int getExtendedTypeId(@NonNull Context context) {
+		return DataSourceTypeId.INVALID; // not supported
+	}
+
 	@Nullable
 	private static String authority = null;
 

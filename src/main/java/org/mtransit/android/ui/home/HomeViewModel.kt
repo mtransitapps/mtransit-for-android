@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
+import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.distinctUntilChanged
@@ -106,7 +107,7 @@ class HomeViewModel @Inject constructor(
 
     private val _nearbyLocation: LiveData<Location?> =
         TripleMediatorLiveData(deviceLocation, _nearbyLocationForceReset, _ipLocation).switchMap { (lastDeviceLocation, forceResetEvent, ipLocation) ->
-            liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+            liveData {
                 val forceReset: Boolean = forceResetEvent?.getContentIfNotHandled() ?: false
                 if (forceReset) {
                     emit(null) // force reset
@@ -156,11 +157,8 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getNearbyLocationAddress(location: Location?): String? {
-        return location?.let {
-            locationProvider.getLocationAddressString(it)
-        }
-    }
+    @WorkerThread
+    private fun getNearbyLocationAddress(location: Location?) = location?.let { locationProvider.getLocationAddressString(it) }
 
     override val newLocationAvailable: LiveData<Boolean?> =
         PairMediatorLiveData(_nearbyLocation, deviceLocation).map { (nearbyLocation, newDeviceLocation) ->
@@ -179,8 +177,8 @@ class HomeViewModel @Inject constructor(
             null
         } else {
             allAgencies
-                .filter { it.type.isHomeScreen }
-                .groupBy { it.type }
+                .filter { it.getSupportedType().isHomeScreen }
+                .groupBy { it.getSupportedType() }
                 .toSortedMap(dataSourcesRepository.defaultDataSourceTypeComparator)
         }
     }.distinctUntilChanged()
@@ -195,7 +193,7 @@ class HomeViewModel @Inject constructor(
         liveData {
             if (dstToHomeAgencies?.isNotEmpty() == true && nearbyLocation != null) {
                 nearbyPOIsLoadJob?.cancel()
-                nearbyPOIsLoadJob = viewModelScope.launch(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+                nearbyPOIsLoadJob = viewModelScope.launch {
                     getNearbyPOIs(this, dstToHomeAgencies, nearbyLocation)
                 }
             }
@@ -366,7 +364,7 @@ class HomeViewModel @Inject constructor(
             .forEach { agency ->
                 scope.ensureActive()
                 typePOIs.addAllN(
-                    poiRepository.findPOIMs(agency.authority, poiFilter)
+                    poiRepository.findPOIMs(agency, poiFilter)
                         ?.removeAllAnd {
                             if (FeatureFlags.F_USE_ROUTE_TYPE_FILTER) {
                                 hideBookingRequired && (it.poi as? RouteTripStop)?.route?.type in GTFSCommons.ROUTE_TYPES_REQUIRES_BOOKING

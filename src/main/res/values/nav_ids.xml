@@ -13,6 +13,7 @@
     <item name="nav_news" type="id" />
     <item name="nav_type" type="id" />
     <item name="root_nav_light_rail" type="id" />
+    <item name="root_nav_tram" type="id" />
     <item name="root_nav_subway" type="id" />
     <item name="root_nav_rail" type="id" />
     <item name="root_nav_bus" type="id" />

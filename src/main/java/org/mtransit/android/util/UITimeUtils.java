@@ -810,11 +810,11 @@ public class UITimeUtils extends org.mtransit.android.commons.TimeUtils implemen
 
 		@Override
 		public void onReceive(@Nullable Context context, @Nullable Intent intent) {
-			String action = intent == null ? null : intent.getAction();
+			final String action = intent == null ? null : intent.getAction();
 			if (Intent.ACTION_TIME_TICK.equals(action) //
 					|| Intent.ACTION_TIME_CHANGED.equals(action) //
 					|| Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
-				TimeChangedListener listener = this.listenerWR.get();
+				final TimeChangedListener listener = this.listenerWR.get();
 				if (listener != null) {
 					listener.onTimeChanged();
 				}

@@ -7,9 +7,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.commons.ComparatorUtils
 import org.mtransit.android.commons.MTLog
@@ -69,7 +67,7 @@ class FavoritesViewModel @Inject constructor(
 
     val favoritePOIs: LiveData<List<POIManager>?> =
         PairMediatorLiveData(_favoriteUpdatedTrigger, _agencies).switchMap { (_, agencies) ->
-            liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+            liveData {
                 emit(getFavorites(agencies))
             }
         }
@@ -90,7 +88,8 @@ class FavoritesViewModel @Inject constructor(
             .filterKeys { authority -> authority.isNotEmpty() && agencies.any { it.authority == authority } }
             .filterValues { it.isNotEmpty() }
             .forEach { (authority, authorityUUIDs) ->
-                this.poiRepository.findPOIMs(authority, POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs))
+                val agency = agencies.singleOrNull { it.authority == authority } ?: return@forEach
+                this.poiRepository.findPOIMs(agency, POIProviderContract.Filter.getNewUUIDsFilter(authorityUUIDs))
                     .takeIf { !it.isNullOrEmpty() }
                     ?.let { agencyPOIs ->
                         pois.addAll(

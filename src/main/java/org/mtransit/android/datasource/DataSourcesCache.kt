@@ -26,13 +26,11 @@ class DataSourcesCache @Inject constructor(
 
     fun readingAgencyBase(authority: String) = agencyPropertiesDao().readingAgencyBase(authority)
 
-    suspend fun getAllDataSourceTypes() = agencyPropertiesDao().getAllDataSourceTypes()
+    suspend fun getAllNotExtendedDataSourceTypes() = agencyPropertiesDao().getAllNotExtendedDataSourceTypes()
+    suspend fun getAllExtendedDataSourceTypes() = agencyPropertiesDao().getAllExtendedDataSourceTypes()
 
-    fun readingAllDataSourceTypes() = agencyPropertiesDao().readingAllDataSourceTypes()
-
-    suspend fun getTypeDataSources(dst: DataSourceType) = agencyPropertiesDao().getTypeDataSources(dst)
-
-    fun readingTypeDataSources(dst: DataSourceType) = agencyPropertiesDao().readingTypeDataSources(dst)
+    fun readingAllNotExtendedDataSourceTypes() = agencyPropertiesDao().readingAllNotExtendedDataSourceTypes()
+    fun readingAllExtendedDataSourceTypes() = agencyPropertiesDao().readingAllExtendedDataSourceTypes()
 
     suspend fun getAgencyPkg(authority: String) = agencyPropertiesDao().getAgencyPkg(authority)
 

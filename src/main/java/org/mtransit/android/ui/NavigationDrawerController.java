@@ -125,7 +125,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 		this.packageManager = packageManager;
 		this.serviceUpdateLoader = serviceUpdateLoader;
 		this.demoModeManager = demoModeManager;
-		this.dataSourcesRepository.readingAllDataSourceTypes().observe(mainActivity, dataSourceTypes -> {
+		this.dataSourcesRepository.readingAllSupportedDataSourceTypes().observe(mainActivity, dataSourceTypes -> {
 			this.allAgencyTypes = filterAgencyTypes(dataSourceTypes);
 			setVisibleMenuItems();
 			onMenuUpdated();
@@ -313,7 +313,7 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 	@NonNull
 	private List<DataSourceType> getNewFilteredAgencyTypes() {
 		//noinspection deprecation // FIXME
-		final List<DataSourceType> availableAgencyTypes = this.dataSourcesRepository.getAllDataSourceTypes();
+		final List<DataSourceType> availableAgencyTypes = this.dataSourcesRepository.getAllSupportedDataSourceTypes();
 		return filterAgencyTypes(availableAgencyTypes);
 	}
 
@@ -422,6 +422,8 @@ class NavigationDrawerController implements MTLog.Loggable, NavigationView.OnNav
 			return ITEM_ID_STATIC_START_WITH + ITEM_INDEX_NEWS;
 		} else if (navItemId == R.id.root_nav_light_rail) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_LIGHT_RAIL.getId();
+		} else if (navItemId == R.id.root_nav_tram) {
+			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_TRAM.getId();
 		} else if (navItemId == R.id.root_nav_subway) {
 			return ITEM_ID_AGENCY_TYPE_START_WITH + DataSourceType.TYPE_SUBWAY.getId();
 		} else if (navItemId == R.id.root_nav_rail) {

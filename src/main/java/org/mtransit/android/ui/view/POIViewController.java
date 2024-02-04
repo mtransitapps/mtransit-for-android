@@ -806,7 +806,7 @@ public class POIViewController implements MTLog.Loggable {
 		CharSequence line2CS = null;
 		if (status instanceof UISchedule) {
 			UISchedule schedule = (UISchedule) status;
-			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getStatus(
+			final ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getStatus(
 					context,
 					dataProvider.getNowToTheMinute(),
 					TimeUnit.MINUTES.toMillis(30L),
