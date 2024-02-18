@@ -61,7 +61,7 @@
     <string name="agency_type_bike_all">Vélos</string>
     <string name="agency_type_place_short_name">Lieu</string>
     <string name="agency_type_place_all">Lieux</string>
-    <string name="agency_type_module_short_name">+</string>
+    <string name="agency_type_module_short_name">Agence</string>
     <string name="agency_type_module_all">Agences</string>
     <string name="agency_type_favorite_short_name">Favoris</string>
     <string name="agency_type_favorite_all">Favoris</string>
@@ -127,8 +127,8 @@
     <string name="new_location_in_app_notification_action">RAFRAICHIR</string>
     <string name="no_results">Aucun Résultats</string>
     <string name="world_explored">Exploration planétaire complète</string>
-    <string name="module_label">+</string>
-    <string name="module_short_name">+</string>
+    <string name="module_label">Agences</string>
+    <string name="module_short_name">Agences</string>
     <string name="place_label">Lieux</string>
     <string name="place_short_name">Lieux</string>
     <string name="view_stop">Voir l\'arrêt</string>

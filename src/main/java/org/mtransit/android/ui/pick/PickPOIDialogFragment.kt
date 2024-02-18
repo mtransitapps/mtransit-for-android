@@ -19,6 +19,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.getDimensionInt
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentDialogPickPoiBinding
@@ -82,6 +83,9 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), MTActivityWithLoca
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
+    lateinit var localPreferenceRepository: LocalPreferenceRepository
+
+    @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
@@ -110,6 +114,7 @@ class PickPOIDialogFragment : MTBottomSheetDialogFragmentX(), MTActivityWithLoca
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
+            this.localPreferenceRepository,
             this.poiRepository,
             this.favoriteManager,
             this.statusLoader,

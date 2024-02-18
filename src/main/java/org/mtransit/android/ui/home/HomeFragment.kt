@@ -21,6 +21,7 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
+import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.ThemeUtils
 import org.mtransit.android.data.POIArrayAdapter
 import org.mtransit.android.databinding.FragmentHomeBinding
@@ -96,6 +97,9 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     lateinit var defaultPrefRepository: DefaultPreferenceRepository
 
     @Inject
+    lateinit var localPreferenceRepository: LocalPreferenceRepository
+
+    @Inject
     lateinit var poiRepository: POIRepository
 
     @Inject
@@ -155,6 +159,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
             this.sensorManager,
             this.dataSourcesRepository,
             this.defaultPrefRepository,
+            this.localPreferenceRepository,
             this.poiRepository,
             this.favoriteManager,
             this.statusLoader,

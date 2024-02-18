@@ -10,6 +10,8 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.ColorInt
+import androidx.annotation.WorkerThread
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
@@ -89,7 +91,8 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
 
     private var binding: FragmentAgencyTypeBinding? = null
 
-    private var abBgColor: Int? = null
+    @ColorInt
+    private var abBgColorInt: Int? = null
 
     private var lastPageSelected = -1
     private var selectedPosition = -1
@@ -166,9 +169,12 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         viewModel.typeAgencies.observe(viewLifecycleOwner) { agencies ->
             if (pagerAdapter?.setAgencies(agencies) == true) {
                 showSelectedTab()
-                abBgColor = null // reset
-                abColorizer.setBgColors(*(agencies?.map { it.colorInt ?: defaultColor }?.toIntArray() ?: arrayOf(defaultColor).toIntArray()))
-                abController?.setABBgColor(this, getABBgColor(context), true)
+                abBgColorInt = null // reset
+                abColorizer.setBgColors(
+                    *(agencies?.map { it.colorInt ?: defaultColor }?.toIntArray()
+                        ?: arrayOf(defaultColor).toIntArray())
+                )
+                updateABColorNow()
             } else {
                 switchView()
             }
@@ -176,10 +182,12 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 MTTransitions.startPostponedEnterTransitionOnPreDraw(view.parent as? ViewGroup, this)
             }
         }
-        viewModel.type.observe(viewLifecycleOwner) { type ->
-            binding?.tabs?.isVisible = type != DataSourceType.TYPE_MODULE
+        viewModel.title.observe(viewLifecycleOwner) {
             abController?.setABTitle(this, getABTitle(context), false)
             abController?.setABReady(this, isABReady, true)
+        }
+        viewModel.tabsVisible.observe(viewLifecycleOwner) {
+            binding?.tabs?.isVisible = it
         }
         viewModel.selectedTypeAgencyPosition.observe(viewLifecycleOwner) { newLastPageSelected ->
             newLastPageSelected?.let {
@@ -213,7 +221,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
                 else -> { // LOADED
                     loadingLayout.isVisible = false
                     emptyLayout.isVisible = false
-                    tabs.isVisible = viewModel.type.value != DataSourceType.TYPE_MODULE
+                    tabs.isVisible = viewModel.tabsVisible.value == true
                     viewPager.isVisible = true
                 }
             }
@@ -279,18 +287,16 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         if (updateABColorJob?.isActive == true) {
             return // SKIP (already planned)
         }
-        updateABColorJob = viewLifecycleOwner.lifecycleScope.launch {
-            if (abBgColor != null && delayInMs > 0L) {
+        updateABColorJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) { // CPU
+            if (abBgColorInt != null && delayInMs > 0L) {
                 delay(delayInMs) // debounce
             }
-            withContext(Dispatchers.Default) { // CPU
-                abBgColor = getNewABBgColor()?.also { abBgColor ->
-                    withContext(Dispatchers.Main) { // UI
-                        binding?.tabs?.setBackgroundColor(abBgColor)
-                        abController?.apply {
-                            setABBgColor(this@AgencyTypeFragment, abBgColor, false)
-                            updateABBgColor()
-                        }
+            abBgColorInt = getNewABBgColorInt()?.also { abBgColorInt ->
+                withContext(Dispatchers.Main) { // UI
+                    binding?.tabs?.setBackgroundColor(abBgColorInt)
+                    abController?.apply {
+                        setABBgColor(this@AgencyTypeFragment, abBgColorInt, false)
+                        updateABBgColor()
                     }
                 }
             }
@@ -298,33 +304,33 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
         }
     }
 
-    override fun isABReady() = attachedViewModel?.type?.value != null
+    override fun isABReady() = attachedViewModel?.title?.value != null
 
     override fun getABTitle(context: Context?): CharSequence? {
-        return attachedViewModel?.type?.value?.let { context?.getString(it.shortNamesResId) }
+        return attachedViewModel?.title?.value
             ?: context?.getString(commonsR.string.ellipsis)
             ?: super.getABTitle(context)
     }
 
     override fun getABBgColor(context: Context?): Int? {
-        return abBgColor
-            ?: getNewABBgColor()?.also { newABBGColor -> abBgColor = newABBGColor }
+        return abBgColorInt
             ?: super.getABBgColor(context)
     }
 
-    private fun getNewABBgColor(): Int? {
-        if (this.selectedPosition >= 0) {
-            val colorInt = abColorizer.getBgColor(this.selectedPosition) ?: return null
-            val count = this.pagerAdapter?.itemCount ?: 0
-            if (this.selectionOffset > 0f && this.selectedPosition < (count - 1)) {
-                val nextColorInt = abColorizer.getBgColor(this.selectedPosition + 1) ?: return null
+    @ColorInt
+    @WorkerThread
+    private fun getNewABBgColorInt(): Int? {
+        val selectedPosition = this.selectedPosition.takeIf { it >= 0 } ?: return null
+        val colorInt = this.abColorizer.getBgColor(selectedPosition) ?: return null
+        val count = this.pagerAdapter?.itemCount ?: 0
+        if (this.selectionOffset > 0f && selectedPosition < (count - 1)) {
+            this.abColorizer.getBgColor(selectedPosition + 1)?.let { nextColorInt ->
                 if (colorInt != nextColorInt) {
                     return ColorUtils.blendColors(nextColorInt, colorInt, selectionOffset)
                 }
             }
-            return colorInt
         }
-        return null
+        return colorInt
     }
 
     override fun onDestroyView() {

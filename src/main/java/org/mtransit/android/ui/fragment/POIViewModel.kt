@@ -18,6 +18,7 @@ import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.News
 import org.mtransit.android.commons.data.POI
+import org.mtransit.android.commons.data.RouteTripStop
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.commons.removeTooFar
 import org.mtransit.android.commons.removeTooMuchWhenNotInCoverage
@@ -36,6 +37,7 @@ import org.mtransit.android.util.UITimeUtils
 import org.mtransit.commons.addAllN
 import org.mtransit.commons.keepFirst
 import org.mtransit.commons.removeAllAnd
+import org.mtransit.commons.sortWithAnd
 import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.min
@@ -92,24 +94,24 @@ class POIViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getNearbyPOIs(agency: IAgencyProperties?, poi: POI?): List<POIManager>? {
-        return getNearbyPOIs(agency, poi?.lat, poi?.lng)
-    }
+    private val poiSameRouteComparator by lazy { POIManager.POISameRouteComparator() }
 
     private suspend fun getNearbyPOIs(
         agency: IAgencyProperties? = this.agency.value,
-        lat: Double? = _poi.value?.lat,
-        lng: Double? = _poi.value?.lng,
-        excludedUUID: String? = _poi.value?.uuid
+        excludedPoi: POI? = this._poi.value,
     ): List<POIManager>? {
         if (Constants.FORCE_NEARBY_POI_LIST_OFF) {
             MTLog.d(this, "getNearbyPOIs() > SKIP (feature disabled)")
             return null
         }
-        if (agency?.authority == null || lat == null || lng == null) {
+        if (agency == null || excludedPoi == null) {
             MTLog.d(this, "getNearbyPOIs() > SKIP (no authority or nor lat/lng)")
             return null
         }
+        val lat = excludedPoi.lat
+        val lng = excludedPoi.lng
+        val excludedUUID = excludedPoi.uuid
+        this.poiSameRouteComparator.targetedRoute = (excludedPoi as? RouteTripStop)?.route
         val nearbyPOIs = mutableListOf<POIManager>()
         val ad = LocationUtils.getNewDefaultAroundDiff()
         // TODO latter ? var lastTypeAroundDiff: Double? = null
@@ -138,6 +140,7 @@ class POIViewModel @Inject constructor(
                 LocationUtils.incAroundDiff(ad)
             }
         }
+        nearbyPOIs.sortWithAnd(poiSameRouteComparator)
         return nearbyPOIs.keepFirst(LocationUtils.MAX_POI_NEARBY_POIS_LIST)
     }
 

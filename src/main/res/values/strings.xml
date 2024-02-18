@@ -59,7 +59,7 @@
     <string name="agency_type_bike_all">Bikes</string>
     <string name="agency_type_place_short_name">Place</string>
     <string name="agency_type_place_all">Places</string>
-    <string name="agency_type_module_short_name">+</string>
+    <string name="agency_type_module_short_name">Agency</string>
     <string name="agency_type_module_all">Agencies</string>
     <string name="agency_type_favorite_short_name">Favorite</string>
     <string name="agency_type_favorite_all">Favorites</string>
@@ -124,8 +124,8 @@
     <string name="new_location_in_app_notification_action">REFRESH</string>
     <string name="no_results">No Results</string>
     <string name="world_explored">Planetary exploration completed</string>
-    <string name="module_label">+</string>
-    <string name="module_short_name">+</string>
+    <string name="module_label">Agencies</string>
+    <string name="module_short_name">Agencies</string>
     <string name="place_label">Places</string>
     <string name="place_short_name">Places</string>
     <string name="view_stop">View stop</string>

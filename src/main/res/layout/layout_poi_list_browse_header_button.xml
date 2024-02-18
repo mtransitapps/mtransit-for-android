@@ -8,5 +8,12 @@
     android:layout_weight="1"
     android:visibility="invisible"
     tools:icon="@drawable/ic_directions_bus_black_24dp"
+    tools:layout_width="wrap_content"
     tools:text="Agencies Agencies Agencies Browse Browse Browse Browse Browse Browse Browse"
     tools:visibility="visible" />
+
+    <!--
+        custom drawable with: (remove corner radius...
+        tools:background="@drawable/test_gradient"
+        tools:backgroundTint="@null"
+    -->

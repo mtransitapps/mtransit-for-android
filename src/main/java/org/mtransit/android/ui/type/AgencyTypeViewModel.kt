@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.type
 
+import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
@@ -9,6 +10,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.isAppEnabled
@@ -23,10 +25,12 @@ import org.mtransit.android.ui.inappnotification.moduledisabled.ModuleDisabledAw
 import org.mtransit.android.ui.view.common.IActivity
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
+import org.mtransit.android.util.UIFeatureFlags
 import javax.inject.Inject
 
 @HiltViewModel
 class AgencyTypeViewModel @Inject constructor(
+    @ApplicationContext appContext: Context,
     savedStateHandle: SavedStateHandle,
     private val adManager: IAdManager,
     private val dataSourcesRepository: DataSourcesRepository,
@@ -60,6 +64,24 @@ class AgencyTypeViewModel @Inject constructor(
     override val moduleDisabled = typeAgencies.map {
         it?.filter { agency -> !agency.isEnabled } ?: emptyList()
     }.distinctUntilChanged()
+
+    val title: LiveData<String?> = PairMediatorLiveData(type, typeAgencies).map { (dst, agencies) ->
+        if (UIFeatureFlags.F_HIDE_ONE_AGENCY_TYPE_TABS) {
+            if (agencies?.size == 1) {
+                return@map agencies[0].shortName
+            }
+        }
+        return@map dst?.shortNamesResId?.let { appContext.getString(it) }
+    }
+
+    val tabsVisible: LiveData<Boolean> = PairMediatorLiveData(type, typeAgencies).map { (dst, agencies) ->
+        if (UIFeatureFlags.F_HIDE_ONE_AGENCY_TYPE_TABS) {
+            if (agencies?.size == 1) {
+                return@map false
+            }
+        }
+        return@map dst != DataSourceType.TYPE_MODULE
+    }
 
     override val hasDisabledModule = moduleDisabled.map {
         it.any { agency -> !pm.isAppEnabled(agency.pkg) }

@@ -279,7 +279,7 @@ class MapViewModel @Inject constructor(
                 !agency.isEntirelyInside(loadedArea)
             }.map { agency ->
                 getAgencyPOIMarkers(agency, loadingArea, loadedArea, this).also {
-                    if (!hasChanged && !it.isEmpty) {
+                    if (!hasChanged && it.isNotEmpty()) {
                         hasChanged = true
                     }
                 }

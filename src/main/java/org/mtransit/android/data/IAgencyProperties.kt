@@ -2,7 +2,6 @@ package org.mtransit.android.data
 
 import android.content.Context
 import android.content.pm.PackageManager
-import androidx.room.ColumnInfo
 import org.mtransit.android.commons.isAppEnabled
 import java.util.Locale
 
@@ -29,6 +28,13 @@ interface IAgencyProperties {
                 }
             }
         }
+
+        @JvmName("countAgenciesListShortName")
+        @JvmStatic
+        fun countAgenciesShortName(it: Collection<Collection<IAgencyProperties>>, shortName: String) = countAgenciesShortName(it.flatten(), shortName)
+
+        @JvmStatic
+        fun countAgenciesShortName(it: Collection<IAgencyProperties>, shortName: String) = it.count { it.shortName == shortName }
     }
 
     val authority: String

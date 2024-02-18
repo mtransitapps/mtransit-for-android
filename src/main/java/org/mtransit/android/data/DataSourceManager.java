@@ -481,7 +481,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 
 	@NonNull
 	private static List<POIManager> getPOIs(@Nullable Cursor cursor, @NonNull String authority) {
-		ArrayList<POIManager> result = new ArrayList<>();
+		final ArrayList<POIManager> result = new ArrayList<>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
 				do {

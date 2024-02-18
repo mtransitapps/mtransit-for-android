@@ -3,6 +3,7 @@ package org.mtransit.android.data;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -28,18 +29,23 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Pair;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.FragmentNavigator;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.common.primitives.Ints;
 
 import org.mtransit.android.R;
 import org.mtransit.android.common.repository.DefaultPreferenceRepository;
+import org.mtransit.android.common.repository.LocalPreferenceRepository;
+import org.mtransit.android.commons.ColorUtils;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
 import org.mtransit.android.commons.LocationUtilsExtKt;
 import org.mtransit.android.commons.MTLog;
+import org.mtransit.android.commons.ResourceUtils;
 import org.mtransit.android.commons.TaskUtils;
 import org.mtransit.android.commons.ThemeUtils;
 import org.mtransit.android.commons.api.SupportFactory;
@@ -76,6 +82,7 @@ import org.mtransit.android.ui.view.common.NavControllerExtKt;
 import org.mtransit.android.util.CrashUtils;
 import org.mtransit.android.util.DegreeUtils;
 import org.mtransit.android.util.UIDirectionUtils;
+import org.mtransit.android.util.UIFeatureFlags;
 import org.mtransit.android.util.UIRouteUtils;
 import org.mtransit.android.util.UITimeUtils;
 import org.mtransit.commons.CollectionUtils;
@@ -88,6 +95,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -187,6 +195,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	@NonNull
 	private final DefaultPreferenceRepository defaultPrefRepository;
 	@NonNull
+	private final LocalPreferenceRepository localPreferenceRepository;
+	@NonNull
 	private final POIRepository poiRepository;
 	@NonNull
 	private final FavoriteManager favoriteManager;
@@ -199,6 +209,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 						   @NonNull MTSensorManager sensorManager,
 						   @NonNull DataSourcesRepository dataSourcesRepository,
 						   @NonNull DefaultPreferenceRepository defaultPrefRepository,
+						   @NonNull LocalPreferenceRepository localPreferenceRepository,
 						   @NonNull POIRepository poiRepository,
 						   @NonNull FavoriteManager favoriteManager,
 						   @NonNull StatusLoader statusLoader,
@@ -209,11 +220,16 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		this.sensorManager = sensorManager;
 		this.dataSourcesRepository = dataSourcesRepository;
 		this.defaultPrefRepository = defaultPrefRepository;
+		this.localPreferenceRepository = localPreferenceRepository;
 		this.poiRepository = poiRepository;
 		this.favoriteManager = favoriteManager;
 		this.statusLoader = statusLoader;
 		this.serviceUpdateLoader = serviceUpdateLoader;
-		this.dataSourcesRepository.readingAllAgencies().observe(activity.getLifecycleOwner(), agencyProperties ->
+		observe(activity.getLifecycleOwner());
+	}
+
+	private void observe(@NonNull LifecycleOwner lifecycleOwner) {
+		this.dataSourcesRepository.readingAllAgencies().observe(lifecycleOwner, agencyProperties ->
 				resetModulesStatus()
 		);
 	}
@@ -523,8 +539,9 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private int nbDisplayedAgencyTypes = -1;
 
 	private View getBrowseHeaderSectionView(@Nullable View convertView, @NonNull ViewGroup parent) {
+		final Map<DataSourceType, List<AgencyProperties>> dstToAgencies = this.dataSourcesRepository.getAllTypeToAgencies();
 		// noinspection deprecation // FIXME
-		ArrayList<DataSourceType> allAgencyTypes = new ArrayList<>(this.dataSourcesRepository.getAllSupportedDataSourceTypes());
+		final ArrayList<DataSourceType> allAgencyTypes = new ArrayList<>(this.dataSourcesRepository.getAllSupportedDataSourceTypes());
 		CollectionUtils.removeIfNN(allAgencyTypes, dst -> !dst.isHomeScreen());
 		final boolean hasFavorites = (this.favUUIDs != null && !this.favUUIDs.isEmpty())
 				|| (this.favUUIDsFolderIds != null && !this.favUUIDsFolderIds.isEmpty());
@@ -580,6 +597,19 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			btn = makeHeaderBrowseButton(gridLine);
 			gridLine.addView(btn);
 			btn.setText(dst.getShortNamesResId());
+			if (UIFeatureFlags.F_HIDE_ONE_AGENCY_TYPE_TABS) {
+				final List<AgencyProperties> dstAgencies = dstToAgencies.get(dst);
+				final AgencyProperties oneAgency = dstAgencies == null || dstAgencies.size() != 1
+						|| DataSourceType.TYPE_MODULE.equals(dstAgencies.get(0).getType()) ? null
+						: dstAgencies.get(0);
+				final String oneAgencyShortName = oneAgency == null ? null : oneAgency.getShortName();
+				if (oneAgencyShortName != null && !oneAgencyShortName.isEmpty()) {
+					final int shortNameCount = IAgencyProperties.countAgenciesListShortName(dstToAgencies.values(), oneAgencyShortName);
+					if (shortNameCount == 1) {
+						btn.setText(oneAgencyShortName);
+					}
+				}
+			}
 			if (dst.getIconResId() != -1) {
 				btn.setIconResource(dst.getIconResId());
 			} else {
@@ -588,6 +618,46 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			btn.setOnClickListener(view ->
 					onTypeHeaderButtonClick(view, TypeHeaderButtonsClickListener.BUTTON_ALL, dst)
 			);
+			if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT > 0) {
+				final List<AgencyProperties> dstAgencies = dstToAgencies.get(dst);
+				if (dstAgencies != null && !dstAgencies.isEmpty()) {
+					String selectedAgencyAuthority = null;
+					if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT == 1) {
+						selectedAgencyAuthority = this.localPreferenceRepository.getValue( // TODO async?
+								LocalPreferenceRepository.getPREFS_LCL_AGENCY_TYPE_TAB_AGENCY(dst.getId()),
+								LocalPreferenceRepository.PREFS_LCL_AGENCY_TYPE_TAB_AGENCY_DEFAULT
+						);
+						if (selectedAgencyAuthority == null || selectedAgencyAuthority.isEmpty()) {
+							selectedAgencyAuthority = dstAgencies.get(0).getAuthority();
+						}
+					}
+					final ArrayList<Integer> colors = new ArrayList<>();
+					for (AgencyProperties agency : dstAgencies) {
+						if (UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT == 1
+								&& !agency.getAuthority().equals(selectedAgencyAuthority)) {
+							continue;
+						}
+						final Integer color = agency.getColorInt();
+						if (color != null) {
+							colors.add(color);
+						}
+					}
+					if (colors.size() == 1) {
+						btn.setBackgroundColor(colors.get(0));
+					} else if (colors.size() >= 2) {
+						final int max = Math.max(2, UIFeatureFlags.F_HOME_SCREEN_BROWSE_COLORS_COUNT); // gradient needs 2+
+						final int[] colorArray = Ints.toArray(ColorUtils.filterColors(colors, max));
+						final GradientDrawable gradient = new GradientDrawable(
+								GradientDrawable.Orientation.LEFT_RIGHT,
+								colorArray
+						);
+						gradient.setShape(GradientDrawable.RECTANGLE);
+						gradient.setCornerRadius(ResourceUtils.convertDPtoPX(getContext(), 4));
+						btn.setBackgroundTintList(null);
+						btn.setBackgroundDrawable(gradient);
+					}
+				}
+			}
 			btn.setVisibility(View.VISIBLE);
 			availableButtons--;
 		}

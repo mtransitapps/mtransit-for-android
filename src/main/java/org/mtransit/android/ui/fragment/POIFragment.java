@@ -45,6 +45,7 @@ import org.mtransit.android.analytics.AnalyticsEventsParamsProvider;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.common.IContext;
 import org.mtransit.android.common.repository.DefaultPreferenceRepository;
+import org.mtransit.android.common.repository.LocalPreferenceRepository;
 import org.mtransit.android.commons.AppUpdateLauncher;
 import org.mtransit.android.commons.Constants;
 import org.mtransit.android.commons.LocationUtils;
@@ -103,7 +104,6 @@ import org.mtransit.commons.FeatureFlags;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -209,6 +209,8 @@ public class POIFragment extends ABFragment implements
 	DemoModeManager demoModeManager;
 	@Inject
 	DefaultPreferenceRepository defaultPrefRepository;
+	@Inject
+	LocalPreferenceRepository localPreferenceRepository;
 	@Inject
 	ImageManager imageManager;
 
@@ -589,22 +591,6 @@ public class POIFragment extends ABFragment implements
 	}
 
 	private void onNearbyPOIsLoaded(@Nullable List<POIManager> nearbyPOIs) {
-		final POIManager poim = getPoimOrNull();
-		if (poim != null && nearbyPOIs != null) {
-			final String uuid = poim.poi.getUUID();
-			int i = 0;
-			final Iterator<POIManager> it = nearbyPOIs.iterator();
-			while (it.hasNext()) {
-				if (it.next().poi.getUUID().equals(uuid)) {
-					it.remove();
-					continue;
-				}
-				if (i >= LocationUtils.MAX_POI_NEARBY_POIS_LIST) {
-					it.remove();
-				}
-				i++;
-			}
-		}
 		if (this.adapter != null) {
 			this.adapter.setPois(nearbyPOIs);
 			this.adapter.updateDistanceNowAsync(this.deviceLocation);
@@ -641,6 +627,7 @@ public class POIFragment extends ABFragment implements
 				this.sensorManager,
 				this.dataSourcesRepository,
 				this.defaultPrefRepository,
+				this.localPreferenceRepository,
 				this.poiRepository,
 				this.favoriteManager,
 				this.statusLoader,
