@@ -69,7 +69,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     companion object {
         private val LOG_TAG = HomeFragment::class.java.simpleName
 
-        private const val TRACKING_SCREEN_NAME = "Home"
+        const val TRACKING_SCREEN_NAME = "Home"
 
         @JvmStatic
         fun newInstance(): HomeFragment {
@@ -87,6 +87,7 @@ class HomeFragment : ABFragment(R.layout.fragment_home),
     private val mainViewModel by activityViewModels<MainViewModel>()
 
     override fun getContextView(): View? = this.binding?.contextView ?: this.view
+
     @Inject
     lateinit var sensorManager: MTSensorManager
 

@@ -7,7 +7,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.mtransit.android.analytics.AnalyticsUserProperties
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
@@ -42,21 +44,26 @@ class SplashScreenViewModel @Inject constructor(
 
     fun onAppOpen() {
         viewModelScope.launch {
-            var appOpenCounts = defaultPrefRepository.getValue(PREF_USER_APP_OPEN_COUNTS, PREF_USER_APP_OPEN_COUNTS_DEFAULT)
-            appOpenCounts++
-            var appOpenLast = defaultPrefRepository.getValue(PREF_USER_APP_OPEN_LAST, PREF_USER_APP_OPEN_LAST_DEFAULT)
-            val dailyUser = appOpenLast > TimeUtils.currentTimeMillis() - TimeUnit.DAYS.toMillis(7L)
-            appOpenLast = TimeUtils.currentTimeMillis()
-            defaultPrefRepository.pref.edit {
-                putInt(PREF_USER_APP_OPEN_COUNTS, appOpenCounts)
-                putLong(PREF_USER_APP_OPEN_LAST, appOpenLast)
-                putBoolean(PREF_USER_DAILY, dailyUser)
-            }
+            val appOpenCounts = getAndUpdateAppOpenCounts()
             analyticsManager.setUserProperty(AnalyticsUserProperties.OPEN_APP_COUNTS, appOpenCounts)
             demoModeManager.read(savedStateHandle, dataSourcesCache)
             if (demoModeManager.isFullDemo()) {
                 NightModeUtils.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO) // light for screenshots (demo mode ON)
             }
         }
+    }
+
+    private suspend fun getAndUpdateAppOpenCounts(): Int = withContext(Dispatchers.IO) {
+        var appOpenCounts = defaultPrefRepository.getValue(PREF_USER_APP_OPEN_COUNTS, PREF_USER_APP_OPEN_COUNTS_DEFAULT)
+        appOpenCounts++
+        var appOpenLast = defaultPrefRepository.getValue(PREF_USER_APP_OPEN_LAST, PREF_USER_APP_OPEN_LAST_DEFAULT)
+        val dailyUser = appOpenLast > TimeUtils.currentTimeMillis() - TimeUnit.DAYS.toMillis(7L)
+        appOpenLast = TimeUtils.currentTimeMillis()
+        defaultPrefRepository.pref.edit {
+            putInt(PREF_USER_APP_OPEN_COUNTS, appOpenCounts)
+            putLong(PREF_USER_APP_OPEN_LAST, appOpenLast)
+            putBoolean(PREF_USER_DAILY, dailyUser)
+        }
+        appOpenCounts
     }
 }

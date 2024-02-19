@@ -3,7 +3,6 @@ package org.mtransit.android.ui.pref.main
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView

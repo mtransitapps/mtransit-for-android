@@ -1,5 +1,6 @@
 package org.mtransit.android.ui.fragment
 
+import androidx.annotation.WorkerThread
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -186,9 +187,11 @@ class POIViewModel @Inject constructor(
         hasSeenDisabledModule = false // click on the message once, show again next module disabled
     }
 
+    @get:WorkerThread
+    @set:WorkerThread
     @get:JvmName("hasSeenDisabledModule")
     var hasSeenDisabledModule: Boolean = LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
-        get() = lclPrefRepository.pref.getBoolean(
+        get() = lclPrefRepository.getValue(
             LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED,
             LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
         )

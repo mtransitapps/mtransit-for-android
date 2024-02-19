@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.ProviderInfo
 import android.os.Bundle
+import androidx.annotation.WorkerThread
 import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -100,8 +101,10 @@ class DataSourcesReader @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
+    @get:WorkerThread
+    @set:WorkerThread
     private var hasSeenDisabledModule: Boolean = LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
-        get() = lclPrefRepository.pref.getBoolean(
+        get() = lclPrefRepository.getValue(
             LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED,
             LocalPreferenceRepository.PREF_USER_SEEN_APP_DISABLED_DEFAULT
         )

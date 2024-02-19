@@ -43,7 +43,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
     companion object {
         private val LOG_TAG = ScheduleFragment::class.java.simpleName
 
-        private const val TRACKING_SCREEN_NAME = "Schedule"
+        const val TRACKING_SCREEN_NAME = "Schedule"
 
         @JvmStatic
         fun newInstance(poim: POIManager, dataSourcesRepository: DataSourcesRepository) = newInstance(poim.poi, poim.getColor(dataSourcesRepository))
@@ -203,6 +203,7 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
                 }
                 true // handled
             }
+
             else -> false // not handled
         }
     }

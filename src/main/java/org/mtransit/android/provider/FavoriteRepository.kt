@@ -38,6 +38,13 @@ class FavoriteRepository(
         const val DEFAULT_FOLDER_ID = FavoriteManager.DEFAULT_FOLDER_ID
     }
 
+    suspend fun hasFavorites(): Boolean = withContext(ioDispatcher) {
+        if (demoModeManager.isFullDemo()) {
+            return@withContext false
+        }
+        favoriteManager.hasFavorites(appContext)
+    }
+
     suspend fun findFavoriteUUIDs(): Set<String> = withContext(ioDispatcher) {
         if (demoModeManager.isFullDemo()) {
             return@withContext emptySet()

@@ -18,6 +18,9 @@ class DefaultPreferenceRepository @Inject constructor(
 
     companion object {
 
+        const val PREF_USER_RATING_REQUEST_OPEN_COUNTS = PreferenceUtils.PREF_USER_RATING_REQUEST_OPEN_COUNTS
+        const val PREF_USER_RATING_REQUEST_OPEN_COUNTS_DEFAULT = PreferenceUtils.PREF_USER_RATING_REQUEST_OPEN_COUNTS_DEFAULT
+
         const val PREF_USER_APP_OPEN_COUNTS = PreferenceUtils.PREF_USER_APP_OPEN_COUNTS
         const val PREF_USER_APP_OPEN_COUNTS_DEFAULT = PreferenceUtils.PREF_USER_APP_OPEN_COUNTS_DEFAULT
 

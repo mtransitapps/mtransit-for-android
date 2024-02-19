@@ -22,6 +22,8 @@ import com.google.android.material.snackbar.Snackbar;
 import org.mtransit.android.analytics.AnalyticsManager;
 import org.mtransit.android.analytics.IAnalyticsManager;
 import org.mtransit.android.commons.ThemeUtils;
+import org.mtransit.android.rate.AppRatingsManager;
+import org.mtransit.android.rate.AppRatingsUIManager;
 import org.mtransit.android.task.ServiceUpdateLoader;
 import org.mtransit.android.task.StatusLoader;
 import org.mtransit.android.ui.ActionBarController;
@@ -36,6 +38,7 @@ import java.util.WeakHashMap;
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import kotlin.Unit;
 
 @AndroidEntryPoint
 public abstract class ABFragment extends MTFragmentX implements
@@ -54,6 +57,8 @@ public abstract class ABFragment extends MTFragmentX implements
 	StatusLoader statusLoader;
 	@Inject
 	ServiceUpdateLoader serviceUpdateLoader;
+	@Inject
+	AppRatingsManager appRatingsManager;
 
 	public ABFragment() {
 		super();
@@ -165,6 +170,21 @@ public abstract class ABFragment extends MTFragmentX implements
 			abController.setAB(this);
 			abController.updateAB();
 		}
+		appRatingsManager.getShouldShowAppRatingRequest(this).observe(this, shouldShow -> {
+			if (!Boolean.TRUE.equals(shouldShow)) {
+				return;
+			}
+			final MainActivity mainActivity = getMainActivity();
+			if (mainActivity == null) {
+				return;
+			}
+			AppRatingsUIManager.showAppRatingsUI(mainActivity, appRatingDisplayed -> {
+				if (appRatingDisplayed) {
+					this.appRatingsManager.onAppRequestDisplayedSync();
+				}
+				return Unit.INSTANCE;
+			});
+		});
 	}
 
 	public boolean onBackPressed() {

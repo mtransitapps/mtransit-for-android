@@ -51,7 +51,7 @@ class FavoritesFragment : ABFragment(R.layout.fragment_favorites),
     companion object {
         private val LOG_TAG = FavoritesFragment::class.java.simpleName
 
-        private const val TRACKING_SCREEN_NAME = "Favorites"
+        const val TRACKING_SCREEN_NAME = "Favorites"
 
         @JvmStatic
         fun newInstance(): FavoritesFragment {

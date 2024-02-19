@@ -161,10 +161,6 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 
 	@WorkerThread
 	private static void initOnBackgroundThread(@NonNull AdManager adManager, IActivity activity, Activity theActivity) {
-		MobileAds.initialize( // doing I/O #StrictMode
-				theActivity, // some adapters require activity
-				new MTOnInitializationCompleteListener(adManager, activity)
-		);
 		if (DEBUG) {
 			List<String> testDeviceIds = new ArrayList<>();
 			testDeviceIds.add(AdRequest.DEVICE_ID_EMULATOR);
@@ -175,6 +171,10 @@ public class AdManager implements IAdManager, MTLog.Loggable {
 							.build()
 			);
 		}
+		MobileAds.initialize( // doing I/O #StrictMode
+				theActivity, // some adapters require activity
+				new MTOnInitializationCompleteListener(adManager, activity)
+		);
 	}
 
 	private static class MTOnInitializationCompleteListener implements OnInitializationCompleteListener, MTLog.Loggable {

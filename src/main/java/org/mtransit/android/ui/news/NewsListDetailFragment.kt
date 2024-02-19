@@ -44,7 +44,7 @@ class NewsListDetailFragment : ABFragment(R.layout.fragment_news_list_details),
     companion object {
         private val LOG_TAG = NewsListDetailFragment::class.java.simpleName
 
-        private const val TRACKING_SCREEN_NAME = "News"
+        const val TRACKING_SCREEN_NAME = "News"
 
         private const val BACK_STACK_NAME = "panel"
 
