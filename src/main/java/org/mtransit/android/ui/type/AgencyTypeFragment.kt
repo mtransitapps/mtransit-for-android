@@ -312,6 +312,7 @@ class AgencyTypeFragment : ABFragment(R.layout.fragment_agency_type),
             ?: super.getABTitle(context)
     }
 
+    @ColorInt
     override fun getABBgColor(context: Context?): Int? {
         return abBgColorInt
             ?: super.getABBgColor(context)

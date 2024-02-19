@@ -7,8 +7,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.mtransit.android.analytics.AnalyticsEvents
+import org.mtransit.android.analytics.AnalyticsEventsParamsProvider
 import org.mtransit.android.analytics.IAnalyticsManager
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.Constants
@@ -24,12 +27,14 @@ import org.mtransit.android.ui.view.common.QuadrupleMediatorLiveData
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.seconds
 
 @Singleton
 class AppRatingsManager @Inject constructor(
     private val defaultPrefRepository: DefaultPreferenceRepository,
     dataSourcesRepository: DataSourcesRepository,
     private val favoriteRepository: FavoriteRepository,
+    private val analyticsManager: IAnalyticsManager,
 ) : MTLog.Loggable {
 
     companion object {
@@ -91,13 +96,18 @@ class AppRatingsManager @Inject constructor(
     private suspend fun hasFavorites() = favoriteRepository.hasFavorites()
 
     @WorkerThread
-    fun onAppRequestDisplayedSync() = runBlocking { onAppRequestDisplayed() }
+    fun onAppRequestDisplayedSync(trackingScreen: IAnalyticsManager.Trackable? = null) = runBlocking { onAppRequestDisplayed(trackingScreen) }
 
-    suspend fun onAppRequestDisplayed() = withContext(Dispatchers.IO) {
+    @Suppress("MemberVisibilityCanBePrivate")
+    suspend fun onAppRequestDisplayed(trackingScreen: IAnalyticsManager.Trackable? = null) = withContext(Dispatchers.IO) {
         val currentAppOpenCount = defaultPrefRepository.getValue(
             DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS,
             DefaultPreferenceRepository.PREF_USER_APP_OPEN_COUNTS_DEFAULT
         )
+        analyticsManager.logEvent(AnalyticsEvents.APP_RATINGS_REQUEST_DISPLAYED, AnalyticsEventsParamsProvider().apply {
+            trackingScreen?.let { put(AnalyticsEvents.Params.SCREEN, it.screenName) }
+            put(AnalyticsEvents.Params.COUNT, currentAppOpenCount)
+        })
         // if (true) return@withContext // DEBUG do not persist for now
         defaultPrefRepository.pref.edit {
             putInt(DefaultPreferenceRepository.PREF_USER_RATING_REQUEST_OPEN_COUNTS, currentAppOpenCount)
@@ -112,6 +122,7 @@ class AppRatingsManager @Inject constructor(
         dailyUser,
     ).switchMap { (hasAgenciesEnabled, lastRequestAppOpenCount, appOpenCounts, dailyUser) ->
         liveData {
+            delay(7.seconds) // wait until the screen is rendered and the user has finished navigating between screen
             val hasFavorites = hasFavorites()
             val isSamsungDevice = BatteryOptimizationIssueUtils.isSamsungDevice()
             val trackingScreenName = trackingScreen?.screenName
@@ -124,7 +135,11 @@ class AppRatingsManager @Inject constructor(
                     dailyUser = dailyUser,
                     appOpenCounts = appOpenCounts,
                     lastRequestAppOpenCount = lastRequestAppOpenCount,
-                )
+                ).also { showAppRatingsRequest ->
+                    if (showAppRatingsRequest) {
+                        analyticsManager.logEvent(AnalyticsEvents.APP_RATINGS_REQUEST_CAN_DISPLAY)
+                    }
+                }
             )
         }
     }

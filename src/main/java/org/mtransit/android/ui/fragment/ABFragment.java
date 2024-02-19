@@ -178,9 +178,9 @@ public abstract class ABFragment extends MTFragmentX implements
 			if (mainActivity == null) {
 				return;
 			}
-			AppRatingsUIManager.showAppRatingsUI(mainActivity, appRatingDisplayed -> {
+			AppRatingsUIManager.showAppRatingsUI(mainActivity, analyticsManager, appRatingDisplayed -> {
 				if (appRatingDisplayed) {
-					this.appRatingsManager.onAppRequestDisplayedSync();
+					this.appRatingsManager.onAppRequestDisplayedSync(this);
 				}
 				return Unit.INSTANCE;
 			});

@@ -466,7 +466,7 @@ public class ModuleProvider extends AgencyProvider implements POIProviderContrac
 		if (appInstalled && !appEnabled) {
 			getAnalyticsManager().logEvent(AnalyticsEvents.FOUND_DISABLED_MODULE, new AnalyticsEventsParamsProvider()
 					.put(AnalyticsEvents.Params.PKG, filter.getPkg())
-					.put(AnalyticsEvents.Params.STATE, (long) PackageManagerUtils.getAppEnabledState(context, filter.getPkg())));
+					.put(AnalyticsEvents.Params.STATE, PackageManagerUtils.getAppEnabledState(context, filter.getPkg())));
 		}
 		if (updateAvailable) {
 			getAnalyticsManager().logEvent(AnalyticsEvents.FOUND_APP_UPDATE, new AnalyticsEventsParamsProvider()

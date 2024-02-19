@@ -353,7 +353,7 @@ public class GoogleLocationProvider
 		if (e instanceof ResolvableApiException) {
 			final ResolvableApiException resolvable = (ResolvableApiException) e;
 			analyticsManager.logEvent(AnalyticsEvents.LOCATION_SETTINGS_RESOLUTION_AVAILABLE, new AnalyticsEventsParamsProvider()
-					.put(AnalyticsEvents.Params.CODE, (long) resolvable.getStatusCode())
+					.put(AnalyticsEvents.Params.CODE, resolvable.getStatusCode())
 			);
 			broadcastLocationSettingsChanged(resolvable.getResolution());
 		} else {

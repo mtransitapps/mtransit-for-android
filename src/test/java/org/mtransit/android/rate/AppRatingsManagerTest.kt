@@ -4,21 +4,15 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.mockito.Mockito.mock
-import org.mtransit.android.common.repository.DefaultPreferenceRepository
-import org.mtransit.android.datasource.DataSourcesRepository
-import org.mtransit.android.provider.FavoriteRepository
 
 
 class AppRatingsManagerTest {
 
-    private val defaultPrefRepository: DefaultPreferenceRepository = mock()
-    private val dataSourcesRepository: DataSourcesRepository = mock()
-    private val favoriteRepository: FavoriteRepository = mock()
-
     private val subject = AppRatingsManager(
-        defaultPrefRepository,
-        dataSourcesRepository,
-        favoriteRepository,
+        defaultPrefRepository = mock(),
+        dataSourcesRepository = mock(),
+        favoriteRepository = mock(),
+        analyticsManager = mock(),
     )
 
     @Test

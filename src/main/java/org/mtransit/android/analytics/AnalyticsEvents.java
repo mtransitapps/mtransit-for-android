@@ -12,6 +12,10 @@ public interface AnalyticsEvents {
 	String HIDDEN_APP_UPDATE_POI = "mt_hidden_app_update_poi";
 	String CLICK_APP_UPDATE_POI = "mt_click_app_update_poi";
 
+	String APP_RATINGS_REQUEST_CAN_DISPLAY = "mt_app_ratings_can_display";
+	String APP_RATINGS_REQUEST_DISPLAYED = "mt_app_ratings_displayed";
+	String APP_RATINGS_REQUEST_PLAY_ERROR = "mt_app_ratings_play_error";
+
 	String OPENED_GOOGLE_MAPS_TRIP_PLANNER = "mt_open_google_maps_trip_planner";
 
 	String LOCATION_SETTINGS_RESOLUTION_AVAILABLE = "mt_location_settings_resolution";
@@ -20,5 +24,7 @@ public interface AnalyticsEvents {
 		String CODE = "mt_code";
 		String PKG = "mt_pkg";
 		String STATE = "mt_state";
+		String SCREEN = "mt_screen";
+		String COUNT = "mt_count";
 	}
 }
