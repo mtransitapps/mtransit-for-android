@@ -175,7 +175,7 @@ class MTTabLayoutMediator @JvmOverloads constructor(
 
         fun reset() {
             scrollState = ViewPager2.SCROLL_STATE_IDLE
-            previousScrollState = scrollState
+            previousScrollState = ViewPager2.SCROLL_STATE_IDLE
         }
 
 

@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.mtransit.android.R;
 import org.mtransit.android.commons.KeyboardUtils;
@@ -25,15 +26,15 @@ public class MTSearchView extends SearchView implements MTLog.Loggable, View.OnF
 		return TAG;
 	}
 
-	public MTSearchView(MainActivity mainActivity, Context context) {
+	public MTSearchView(@Nullable MainActivity mainActivity, @NonNull Context context) {
 		super(context);
 		init(mainActivity);
 	}
 
-
+	@Nullable
 	private WeakReference<MainActivity> mainActivityWR;
 
-	private void init(MainActivity mainActivity) {
+	private void init(@Nullable MainActivity mainActivity) {
 		this.mainActivityWR = new WeakReference<>(mainActivity);
 		setQueryHint(getContext().getString(R.string.search_hint));
 		setIconifiedByDefault(true);
@@ -45,7 +46,7 @@ public class MTSearchView extends SearchView implements MTLog.Loggable, View.OnF
 
 	@Override
 	public boolean onQueryTextChange(String newText) {
-		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 		if (mainActivity != null) {
 			mainActivity.onSearchQueryRequested(newText);
 		}
@@ -54,7 +55,7 @@ public class MTSearchView extends SearchView implements MTLog.Loggable, View.OnF
 
 	@Override
 	public boolean onQueryTextSubmit(String query) {
-		MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+		final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 		if (mainActivity != null) {
 			mainActivity.onSearchQueryRequested(query);
 			KeyboardUtils.hideKeyboard(mainActivity, this);
@@ -65,7 +66,7 @@ public class MTSearchView extends SearchView implements MTLog.Loggable, View.OnF
 	@Override
 	public void onFocusChange(View v, boolean hasFocus) {
 		if (!hasFocus) {
-			MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
+			final MainActivity mainActivity = this.mainActivityWR == null ? null : this.mainActivityWR.get();
 			if (mainActivity != null) {
 				KeyboardUtils.hideKeyboard(mainActivity, this);
 			}
@@ -76,5 +77,4 @@ public class MTSearchView extends SearchView implements MTLog.Loggable, View.OnF
 	public boolean onClose() {
 		return true; // do not close
 	}
-
 }

@@ -548,8 +548,8 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (hasFavorites && this.dataSourcesRepository.hasAgenciesEnabled()) {
 			allAgencyTypes.add(0, DataSourceType.TYPE_FAVORITE); // 1st
 		}
-		if (allAgencyTypes.size() > 0) {
-			if (this.dataSourcesRepository.getAllNewsProvidersEnabled().size() > 0) {
+		if (!allAgencyTypes.isEmpty()) {
+			if (!this.dataSourcesRepository.getAllNewsProvidersEnabled().isEmpty()) {
 				allAgencyTypes.add(allAgencyTypes.size() - 1, DataSourceType.TYPE_NEWS); // LAST before MODULE
 			}
 		}
@@ -935,7 +935,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 		if (this.poisByType != null) {
 			for (Integer type : this.poisByType.keySet()) {
 				List<POIManager> poiManagers = this.poisByType.get(type);
-				if (poiManagers == null || poiManagers.size() == 0) {
+				if (poiManagers == null || poiManagers.isEmpty()) {
 					continue;
 				}
 				this.closestPoiUuids.addAll(
@@ -948,7 +948,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	}
 
 	public boolean hasClosestPOI() {
-		return this.closestPoiUuids != null && this.closestPoiUuids.size() > 0;
+		return this.closestPoiUuids != null && !this.closestPoiUuids.isEmpty();
 	}
 
 	public boolean isClosestPOI(int position) {
@@ -961,7 +961,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 
 	@Nullable
 	public POIManager getClosestPOI() {
-		if (this.closestPoiUuids == null || this.closestPoiUuids.size() == 0) {
+		if (this.closestPoiUuids == null || this.closestPoiUuids.isEmpty()) {
 			return null;
 		}
 		String closestPOIUUID = this.closestPoiUuids.iterator().next();
@@ -2082,7 +2082,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 			UISchedule schedule = (UISchedule) status;
 			ArrayList<Pair<CharSequence, CharSequence>> lines = schedule.getStatus(getContext(), getNowToTheMinute(), TimeUnit.MINUTES.toMillis(30L), null, 10,
 					null);
-			if (lines != null && lines.size() >= 1) {
+			if (lines != null && !lines.isEmpty()) {
 				line1CS = lines.get(0).first;
 				line2CS = lines.get(0).second;
 			}

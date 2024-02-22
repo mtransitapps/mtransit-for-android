@@ -21,6 +21,7 @@ import org.mtransit.android.commons.MTLog;
 /**
  * NO LOGIC HERE, just logs.
  */
+@SuppressWarnings("WeakerAccess")
 public abstract class MTAppCompatActivity extends AppCompatActivity implements MTLog.Loggable {
 
 	public MTAppCompatActivity() {
@@ -207,7 +208,7 @@ public abstract class MTAppCompatActivity extends AppCompatActivity implements M
 	}
 
 	@Override
-	public void startSearch(String initialQuery, boolean selectInitialQuery, Bundle appSearchData, boolean globalSearch) {
+	public void startSearch(@Nullable String initialQuery, boolean selectInitialQuery, @Nullable Bundle appSearchData, boolean globalSearch) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "startSearch(%s,%s,%s,%s)", initialQuery, selectInitialQuery, appSearchData, globalSearch);
 		}

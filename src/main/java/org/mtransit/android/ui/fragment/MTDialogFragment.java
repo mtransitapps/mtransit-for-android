@@ -1,6 +1,5 @@
 package org.mtransit.android.ui.fragment;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -10,7 +9,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -26,7 +24,7 @@ import org.mtransit.android.commons.MTLog;
 /**
  * NO LOGIC HERE, just logs.
  */
-@SuppressWarnings("DeprecatedIsStillUsed")
+@SuppressWarnings({"DeprecatedIsStillUsed", "deprecation"})
 @Deprecated
 public abstract class MTDialogFragment extends DialogFragment implements MTLog.Loggable {
 

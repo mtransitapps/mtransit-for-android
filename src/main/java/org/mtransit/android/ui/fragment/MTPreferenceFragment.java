@@ -1,11 +1,9 @@
 package org.mtransit.android.ui.fragment;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -19,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.mtransit.android.commons.Constants;
@@ -67,7 +66,7 @@ public abstract class MTPreferenceFragment extends PreferenceFragment implements
 	// INHERITED FROM FRAGMENT
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
+	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onActivityCreated(%s)", savedInstanceState);
 		}
@@ -99,7 +98,7 @@ public abstract class MTPreferenceFragment extends PreferenceFragment implements
 	}
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onConfigurationChanged(%s)", newConfig);
 		}
@@ -107,15 +106,16 @@ public abstract class MTPreferenceFragment extends PreferenceFragment implements
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCreate(%s)", savedInstanceState);
 		}
 		super.onCreate(savedInstanceState);
 	}
 
+	@Nullable
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onCreateView(%s,%s,%s)", inflater, container, savedInstanceState);
 		}
@@ -211,7 +211,7 @@ public abstract class MTPreferenceFragment extends PreferenceFragment implements
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
+	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		if (Constants.LOG_LIFECYCLE) {
 			MTLog.v(this, "onViewCreated(%s, %s)", view, savedInstanceState);
 		}

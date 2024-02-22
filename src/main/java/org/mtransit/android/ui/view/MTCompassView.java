@@ -72,7 +72,7 @@ public class MTCompassView extends MTView {
 	}
 
 	@Override
-	protected void onDraw(@SuppressLint("UnknownNullness") Canvas canvas) {
+	protected void onDraw(@NonNull Canvas canvas) {
 		super.onDraw(canvas);
 		if (this.headingInDegree >= 0) {
 			canvas.rotate(this.headingInDegree, this.boundsExactCenterX, this.boundsExactCenterY);
