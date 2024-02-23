@@ -212,7 +212,7 @@ class NearbyViewModel @Inject constructor(
     val selectedTypePosition: LiveData<Int?> = PairMediatorLiveData(selectedTypeId, availableTypes).map { (selectedTypeId, availableTypes) ->
         availableTypes?.let {
             selectedTypeId?.let {
-                val availableSelectedId = if (selectedTypeId < 0) availableTypes.first().id else selectedTypeId
+                val availableSelectedId = selectedTypeId.takeIf { it >= 0 } ?: availableTypes.firstOrNull()?.id
                 availableTypes
                     .indexOf(DataSourceType.parseId(availableSelectedId))
                     .takeIf { it >= 0 } // selected might not be in available (installed) types
