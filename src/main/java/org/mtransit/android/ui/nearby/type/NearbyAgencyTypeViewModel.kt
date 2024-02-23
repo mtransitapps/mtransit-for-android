@@ -8,9 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
@@ -153,11 +151,12 @@ class NearbyAgencyTypeViewModel @Inject constructor(
         if (nearbyPOIs.size < minSize
             && !LocationUtils.searchComplete(nearbyLocation.latitude, nearbyLocation.longitude, aroundDiff)
         ) {
-            viewModelScope.launch {
-                _params.value = _params.value?.copy(
+            _params.postValue(
+                _params.value?.copy(
                     ad = LocationUtils.incAroundDiff(ad) // trigger new data load
                 )
-            }
+            )
+            if (nearbyPOIs.isEmpty()) return null // still loading (not found any result)
         } else {
             _distanceCoveredInMeters.postValue(minCoverageInMeters)
             _sizeCovered.postValue(nearbyPOIs.size)

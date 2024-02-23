@@ -5,6 +5,7 @@ import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.data.Area
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.AgencyBaseProperties
+import org.mtransit.android.util.toLatLngS
 
 data class NearbyParams(
     val typeId: Int? = null,
@@ -51,6 +52,6 @@ data class NearbyParams(
 
     @Suppress("unused")
     fun toStringS(): String {
-        return "NearbyParams(type=$typeId, agencies=${allAgencies?.size}, ad=$ad, nearby=$nearbyLocation, minCoverage=$minCoverageInMeters, min=$minSize, max=$maxSize)"
+        return "NearbyParams(type=$typeId, agencies=${allAgencies?.size}, ad=$ad, nearby=${nearbyLocation.toLatLngS()}, minCoverageMeter=$minCoverageInMeters, min=$minSize, max=$maxSize)"
     }
 }

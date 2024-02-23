@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
+import androidx.lifecycle.switchMap
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -54,7 +55,7 @@ class DataSourcesRepository @Inject constructor(
 
     // region AGENCY
 
-    fun getAllAgencies() = this.dataSourcesInMemoryCache.getAllAgencies().filterDemoModeAgency(demoModeManager)
+    fun getAllAgencies() = this.dataSourcesInMemoryCache.getAllAgencies()
 
     fun getAllTypeToAgencies() = getAllAgencies().groupBy {
         it.getSupportedType()
@@ -85,45 +86,51 @@ class DataSourcesRepository @Inject constructor(
     fun getAllAgenciesCount() = getAllAgencies().size
 
     fun readingAllAgenciesCount() = liveData {
-        emit(dataSourcesInMemoryCache.getAllAgencies().filterDemoModeAgency(demoModeManager).size)
+        emit(dataSourcesInMemoryCache.getAllAgencies().size)
         emitSource(dataSourcesIOCache.readingAllAgencies().map { it.filterDemoModeAgency(demoModeManager).size }) // #onModulesUpdated
     }
 
-    fun getAgency(authority: String) = this.dataSourcesInMemoryCache.getAgency(authority).takeIfDemoModeAgency(demoModeManager)
+    fun getAgency(authority: String) = this.dataSourcesInMemoryCache.getAgency(authority)
 
-    fun getAgencyBase(authority: String) = this.dataSourcesInMemoryCache.getAgencyBase(authority).takeIfDemoModeAgency(demoModeManager)
+    fun getAgencyBase(authority: String) = this.dataSourcesInMemoryCache.getAgencyBase(authority)
 
-    fun getAgencyForPkg(pkg: String) = this.dataSourcesInMemoryCache.getAgencyForPkg(pkg).takeIfDemoModeAgency(demoModeManager)
+    fun getAgencyForPkg(pkg: String) = this.dataSourcesInMemoryCache.getAgencyForPkg(pkg)
 
     fun readingAgency(authority: String?) = liveData {
         authority?.let {
-            emit(dataSourcesInMemoryCache.getAgency(it).takeIfDemoModeAgency(demoModeManager))
+            emit(dataSourcesInMemoryCache.getAgency(it))
             emitSource(dataSourcesIOCache.readingAgency(it).map { agency -> agency.takeIfDemoModeAgency(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
     fun readingAgencyBase(authority: String?) = liveData {
         authority?.let {
-            emit(dataSourcesInMemoryCache.getAgencyBase(it).takeIfDemoModeAgency(demoModeManager))
+            emit(dataSourcesInMemoryCache.getAgencyBase(it))
             emitSource(dataSourcesIOCache.readingAgencyBase(it).map { agency -> agency.takeIfDemoModeAgency(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
     @Deprecated(message = "Use live data")
-    fun getAllSupportedDataSourceTypes() = this.dataSourcesInMemoryCache.getAllSupportedDataSourceTypes().filterDemoModeType(demoModeManager)
+    fun getAllSupportedDataSourceTypes() = this.dataSourcesInMemoryCache.getAllSupportedDataSourceTypes()
 
     private fun readingAllSupportedDataSourceTypesIO() = PairMediatorLiveData(
         dataSourcesIOCache.readingAllNotExtendedDataSourceTypes(),
         dataSourcesIOCache.readingAllExtendedDataSourceTypes()
-    ).map { (notExtendedDST, extendedDST) ->
-        (notExtendedDST?.toMutableList()?.apply { addAllNNE(extendedDST) }
-            ?: extendedDST?.filterNotNull().orEmpty())
-            .filterDemoModeType(demoModeManager).sortedWith(defaultDataSourceTypeComparator)
+    ).switchMap { (notExtendedDST, extendedDST) ->
+        liveData {
+            MTLog.v(this, "readingAllSupportedDataSourceTypesIO > $notExtendedDST, $extendedDST")
+            if (notExtendedDST == null || extendedDST == null) return@liveData
+            emit(
+                notExtendedDST.toMutableList().apply { addAllNNE(extendedDST) }
+                    .filterDemoModeType(demoModeManager)
+                    .sortedWith(defaultDataSourceTypeComparator)
+            )
+        }
     }
 
     fun readingAllSupportedDataSourceTypes() = liveData {
-        emit(dataSourcesInMemoryCache.getAllSupportedDataSourceTypes().filterDemoModeType(demoModeManager))
-        emitSource(readingAllSupportedDataSourceTypesIO().map { it.filterDemoModeType(demoModeManager) }) // #onModulesUpdated
+        emit(dataSourcesInMemoryCache.getAllSupportedDataSourceTypes())
+        emitSource(readingAllSupportedDataSourceTypesIO()) // #onModulesUpdated
     }.distinctUntilChanged()
 
     fun hasAgenciesAdded() = getAllAgenciesCount() > DEFAULT_AGENCY_COUNT
@@ -142,33 +149,33 @@ class DataSourcesRepository @Inject constructor(
 
     // region STATUS
 
-    fun getAllStatusProviders() = this.dataSourcesInMemoryCache.getAllStatusProviders().filterDemoModeTargeted(demoModeManager)
+    fun getAllStatusProviders() = this.dataSourcesInMemoryCache.getAllStatusProviders()
 
-    fun getStatusProviders(targetAuthority: String) = this.dataSourcesInMemoryCache.getStatusProviders(targetAuthority).filterDemoModeTargeted(demoModeManager)
+    fun getStatusProviders(targetAuthority: String) = this.dataSourcesInMemoryCache.getStatusProviders(targetAuthority)
 
-    fun getStatusProvider(authority: String) = this.dataSourcesInMemoryCache.getStatusProvider(authority).takeIfDemoModeTargeted(demoModeManager)
+    fun getStatusProvider(authority: String) = this.dataSourcesInMemoryCache.getStatusProvider(authority)
 
     // endregion
 
     // region SCHEDULE
 
-    fun getAllScheduleProviders() = this.dataSourcesInMemoryCache.getAllScheduleProviders().filterDemoModeTargeted(demoModeManager)
+    fun getAllScheduleProviders() = this.dataSourcesInMemoryCache.getAllScheduleProviders()
 
     fun getScheduleProviders(targetAuthority: String?) =
-        this.dataSourcesInMemoryCache.getScheduleProviders(targetAuthority).filterDemoModeTargeted(demoModeManager)
+        this.dataSourcesInMemoryCache.getScheduleProviders(targetAuthority)
 
     fun readingScheduleProviders(targetAuthority: String?) = liveData {
         targetAuthority?.let { providerAuthority ->
-            emit(dataSourcesInMemoryCache.getScheduleProvidersList(providerAuthority).filterDemoModeTargeted(demoModeManager))
+            emit(dataSourcesInMemoryCache.getScheduleProvidersList(providerAuthority))
             emitSource(dataSourcesIOCache.readingScheduleProviders(providerAuthority).map { it.filterDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
 
-    fun getScheduleProvider(authority: String) = this.dataSourcesInMemoryCache.getScheduleProvider(authority).takeIfDemoModeTargeted(demoModeManager)
+    fun getScheduleProvider(authority: String) = this.dataSourcesInMemoryCache.getScheduleProvider(authority)
 
     fun readingScheduleProvider(authority: String?) = liveData {
         authority?.let { providerAuthority ->
-            emit(dataSourcesInMemoryCache.getScheduleProvider(providerAuthority).takeIfDemoModeTargeted(demoModeManager))
+            emit(dataSourcesInMemoryCache.getScheduleProvider(providerAuthority))
             emitSource(dataSourcesIOCache.readingScheduleProvider(providerAuthority).map { it.takeIfDemoModeTargeted(demoModeManager) }) // #onModulesUpdated
         }
     }.distinctUntilChanged()
@@ -177,12 +184,11 @@ class DataSourcesRepository @Inject constructor(
 
     // region SERVICE UPDATE
 
-    fun getAllServiceUpdateProviders() = this.dataSourcesInMemoryCache.getAllServiceUpdateProviders().filterDemoModeTargeted(demoModeManager)
+    fun getAllServiceUpdateProviders() = this.dataSourcesInMemoryCache.getAllServiceUpdateProviders()
 
-    fun getServiceUpdateProviders(targetAuthority: String) =
-        this.dataSourcesInMemoryCache.getServiceUpdateProviders(targetAuthority).filterDemoModeTargeted(demoModeManager)
+    fun getServiceUpdateProviders(targetAuthority: String) = this.dataSourcesInMemoryCache.getServiceUpdateProviders(targetAuthority)
 
-    fun getServiceUpdateProvider(authority: String) = this.dataSourcesInMemoryCache.getServiceUpdateProvider(authority).takeIfDemoModeTargeted(demoModeManager)
+    fun getServiceUpdateProvider(authority: String) = this.dataSourcesInMemoryCache.getServiceUpdateProvider(authority)
 
     // endregion
 
@@ -208,15 +214,13 @@ class DataSourcesRepository @Inject constructor(
         return this.filterTo(HashSet()) { !it.authority.contains("news.twitter") }
     }
 
-    fun getAllNewsProviders() = this.dataSourcesInMemoryCache.getAllNewsProviders()
-        .filterDemoModeTargeted(demoModeManager).filterTwitter()
+    fun getAllNewsProviders() = this.dataSourcesInMemoryCache.getAllNewsProviders().filterTwitter()
 
     fun getAllNewsProvidersEnabled() = getAllNewsProviders().filterEnabled()
 
     fun readingAllNewsProviders() = liveData {
         emit(
-            dataSourcesInMemoryCache.getAllNewsProviders()
-                .filterDemoModeTargeted(demoModeManager).filterTwitter()
+            dataSourcesInMemoryCache.getAllNewsProviders().filterTwitter()
         )
         emitSource(dataSourcesIOCache.readingAllNewsProviders().map {
             it.toSet().filterDemoModeTargeted(demoModeManager).filterTwitter()
@@ -224,14 +228,12 @@ class DataSourcesRepository @Inject constructor(
     }.distinctUntilChanged()
 
     fun getNewsProviders(targetAuthority: String) =
-        this.dataSourcesInMemoryCache.getNewsProviders(targetAuthority)
-            .filterDemoModeTargeted(demoModeManager).filterTwitter()
+        this.dataSourcesInMemoryCache.getNewsProviders(targetAuthority).filterTwitter()
 
     fun readingNewsProviders(targetAuthority: String?) = liveData {
         targetAuthority?.let { providerAuthority ->
             emit(
-                dataSourcesInMemoryCache.getNewsProvidersList(providerAuthority)
-                    .filterDemoModeTargeted(demoModeManager).filterTwitter()
+                dataSourcesInMemoryCache.getNewsProvidersList(providerAuthority).filterTwitter()
             )
             emitSource(
                 dataSourcesIOCache.readingNewsProviders(providerAuthority).map {

@@ -196,7 +196,7 @@ class NearbyViewModel @Inject constructor(
     val fixedOnColorInt = savedStateHandle.getLiveDataDistinct(EXTRA_FIXED_ON_COLOR, EXTRA_FIXED_ON_COLOR_DEFAULT)
         .map { it?.let { ColorUtils.parseColor(it) } }
 
-    val availableTypes: LiveData<List<DataSourceType>?> = this.dataSourcesRepository.readingAllSupportedDataSourceTypes().map { // #onModulesUpdated
+    val availableTypes = this.dataSourcesRepository.readingAllSupportedDataSourceTypes().map { // #onModulesUpdated
         it.filter { dst -> dst.isNearbyScreen }
     }
 
@@ -210,15 +210,12 @@ class NearbyViewModel @Inject constructor(
     }
 
     val selectedTypePosition: LiveData<Int?> = PairMediatorLiveData(selectedTypeId, availableTypes).map { (selectedTypeId, availableTypes) ->
-        availableTypes?.let {
-            selectedTypeId?.let {
-                val availableSelectedId = selectedTypeId.takeIf { it >= 0 } ?: availableTypes.firstOrNull()?.id
-                availableTypes
-                    .indexOf(DataSourceType.parseId(availableSelectedId))
-                    .takeIf { it >= 0 } // selected might not be in available (installed) types
-                    ?: 0 // 1st tab by default
-            }
-        }
+        if (availableTypes == null || selectedTypeId == null) return@map null
+        val availableSelectedId = selectedTypeId.takeIf { it >= 0 } ?: availableTypes.firstOrNull()?.id
+        availableTypes
+            .indexOf(DataSourceType.parseId(availableSelectedId))
+            .takeIf { it >= 0 } // selected might not be in available (installed) types
+            ?: 0 // 1st tab by default
     }
 
     fun onPageSelected(position: Int) {

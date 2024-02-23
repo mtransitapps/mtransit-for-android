@@ -56,7 +56,7 @@ class SearchViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    val searchableDataSourceTypes: LiveData<List<DataSourceType>> = this.dataSourcesRepository.readingAllSupportedDataSourceTypes().map { list ->
+    val searchableDataSourceTypes = this.dataSourcesRepository.readingAllSupportedDataSourceTypes().map { list ->
         list.filter { dst -> dst.isSearchable }
     }
 

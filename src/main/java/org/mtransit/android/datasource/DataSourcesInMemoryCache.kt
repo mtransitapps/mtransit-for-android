@@ -67,8 +67,8 @@ class DataSourcesInMemoryCache @Inject constructor(
             dataSourcesCache.readingAllNotExtendedDataSourceTypes(),
             dataSourcesCache.readingAllExtendedDataSourceTypes(),
         ).observeForever { (notExtendedDST, extendedDST) -> // SINGLETON
-            this._supportedDataSourceTypes = (notExtendedDST?.toMutableList()?.apply { addAllNNE(extendedDST) }
-                ?: extendedDST?.filterNotNull().orEmpty())
+            if (notExtendedDST == null || extendedDST == null) return@observeForever
+            this._supportedDataSourceTypes = notExtendedDST.toMutableList().apply { addAllNNE(extendedDST) }
                 .filterDemoModeType(demoModeManager)
                 .sortedWith(defaultDataSourceTypeComparator)
         }
