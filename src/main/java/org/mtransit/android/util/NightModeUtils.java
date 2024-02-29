@@ -67,6 +67,7 @@ public final class NightModeUtils implements MTLog.Loggable {
 		UITimeUtils.resetColorCache();
 		AvailabilityPercent.resetColorCache();
 		ScheduleAdapter.resetColorCache();
+		MapUtils.resetColorCache();
 	}
 
 	@AppCompatDelegate.NightMode

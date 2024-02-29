@@ -132,6 +132,10 @@ public final class MapUtils implements MTLog.Loggable {
 		viewGroup.requestTransparentRegion(viewGroup);
 	}
 
+	public static void resetColorCache() {
+		cache.evictAll();
+	}
+
 	@NonNull
 	private static final LruCache<Pair<Integer, Integer>, BitmapDescriptor> cache = new LruCache<>(128);
 
