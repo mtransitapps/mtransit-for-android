@@ -83,7 +83,8 @@ object AppRatingsUIManager : MTLog.Loggable {
                 }
             } else {
                 // There was some problem, log or handle the error code.
-                @ReviewErrorCode val reviewErrorCode = (task.exception as ReviewException).errorCode
+                @ReviewErrorCode val reviewErrorCode = (task.exception as? ReviewException)?.errorCode
+                    ?: -1 // Huawei crash (RemoteException)
                 MTLog.w(this, task.exception, "Error while requesting review flow (code: $reviewErrorCode)")
                 analyticsManager.logEvent(AnalyticsEvents.APP_RATINGS_REQUEST_PLAY_ERROR, AnalyticsEventsParamsProvider().apply {
                     put(AnalyticsEvents.Params.CODE, reviewErrorCode)
