@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <!-- CLOUD BACKUP -->
+    <cloud-backup disableIfNoEncryptionCapabilities="false">
+        <!-- same as <full-backup-content> -->
+        <!-- SHARED PREFERENCES -->
+        <!-- INCLUDE all -->
+        <include
+            domain="sharedpref"
+            path="." />
+        <!-- EXCEPT shared_prefs/lcl.xml -->
+        <exclude
+            domain="sharedpref"
+            path="lcl.xml" />
+        <!-- DATABASE -->
+        <!-- EXCLUDE ALL -->
+        <exclude domain="database" />
+        <!-- databases/favorite.db -->
+        <include
+            domain="database"
+            path="favorite.db" />
+    </cloud-backup>
+    <!-- DEVICE TRANSFER = DEFAULT = all included -->
+    <device-transfer />
+</data-extraction-rules>
