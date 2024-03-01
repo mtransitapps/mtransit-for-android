@@ -491,7 +491,7 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 				}
 			}
 			CrashUtils.w(this, "getView() > Cannot create view for null poi at position '%s'!", position);
-			return getInfiniteLoadingView(convertView, parent);
+			return getInfiniteLoadingView(null, parent); // ignore convert view since we don't know what it was
 		}
 		switch (poim.poi.getType()) {
 		case POI.ITEM_VIEW_TYPE_TEXT_MESSAGE:
@@ -512,12 +512,12 @@ public class POIArrayAdapter extends MTArrayAdapter<POIManager> implements MTSen
 	private View getInfiniteLoadingView(@Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			convertView = this.layoutInflater.inflate(R.layout.layout_poi_infinite_loading, parent, false);
-			InfiniteLoadingViewHolder holder = new InfiniteLoadingViewHolder();
+			final InfiniteLoadingViewHolder holder = new InfiniteLoadingViewHolder();
 			holder.progressBar = convertView.findViewById(R.id.progress_bar);
 			holder.worldExplored = convertView.findViewById(R.id.worldExploredTv);
 			convertView.setTag(holder);
 		}
-		InfiniteLoadingViewHolder holder = (InfiniteLoadingViewHolder) convertView.getTag();
+		final InfiniteLoadingViewHolder holder = (InfiniteLoadingViewHolder) convertView.getTag();
 		if (this.infiniteLoadingListener != null) {
 			if (this.infiniteLoadingListener.isLoadingMore()) {
 				holder.worldExplored.setVisibility(View.GONE);
