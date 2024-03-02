@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
@@ -134,7 +135,7 @@ class ClusterMarker implements IMarker, MTLog.Loggable {
 
 	@Override
 	public int getClusterGroup() {
-		if (markers.size() > 0) {
+		if (!markers.isEmpty()) {
 			return markers.get(0).getClusterGroup();
 		}
 		throw new IllegalStateException();
@@ -270,7 +271,11 @@ class ClusterMarker implements IMarker, MTLog.Loggable {
 	}
 
 	@Override
-	public void setIcon(Context context, @DrawableRes Integer iconResId, @ColorInt Integer color, @ColorInt Integer secondaryColor, @ColorInt Integer defaultColor) {
+	public void setIcon(@Nullable Context context,
+						@DrawableRes int iconResId,
+						@ColorInt int color,
+						@ColorInt @Nullable Integer secondaryColor,
+						@ColorInt int defaultColor) {
 		throw new UnsupportedOperationException();
 	}
 

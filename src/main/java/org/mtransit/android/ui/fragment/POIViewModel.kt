@@ -90,7 +90,7 @@ class POIViewModel @Inject constructor(
 
     // like Home screen (no infinite loading like in Nearby screen)
     val nearbyPOIs: LiveData<List<POIManager>?> = PairMediatorLiveData(agency, _poi).switchMap { (agency, poi) ->
-        liveData {
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             emit(getNearbyPOIs(agency, poi))
         }
     }

@@ -190,7 +190,7 @@ class HomeViewModel @Inject constructor(
     val nearbyPOIsTrigger: LiveData<Event<Boolean>> = _nearbyPOIsTrigger
 
     val nearbyPOIsTriggerListener: LiveData<Void> = PairMediatorLiveData(_dstToHomeAgencies, _nearbyLocation).switchMap { (dstToHomeAgencies, nearbyLocation) ->
-        liveData {
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             if (dstToHomeAgencies?.isNotEmpty() == true && nearbyLocation != null) {
                 nearbyPOIsLoadJob?.cancel()
                 nearbyPOIsLoadJob = viewModelScope.launch {

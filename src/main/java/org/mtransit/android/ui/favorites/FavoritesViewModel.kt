@@ -7,7 +7,9 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.ad.IAdManager
 import org.mtransit.android.commons.ComparatorUtils
 import org.mtransit.android.commons.MTLog
@@ -67,7 +69,7 @@ class FavoritesViewModel @Inject constructor(
 
     val favoritePOIs: LiveData<List<POIManager>?> =
         PairMediatorLiveData(_favoriteUpdatedTrigger, _agencies).switchMap { (_, agencies) ->
-            liveData {
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 emit(getFavorites(agencies))
             }
         }

@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
@@ -80,7 +81,11 @@ public interface IMarker {
 	@Deprecated
 	void setIcon(BitmapDescriptor icon);
 
-	void setIcon(Context context, @DrawableRes Integer iconResId, @ColorInt Integer color, @ColorInt Integer secondaryColor, @ColorInt Integer defaultColor);
+	void setIcon(@Nullable Context context,
+				 @DrawableRes int iconResId,
+				 @ColorInt int color,
+				 @ColorInt @Nullable Integer secondaryColor,
+				 @ColorInt int defaultColor);
 
 	Integer getColor();
 

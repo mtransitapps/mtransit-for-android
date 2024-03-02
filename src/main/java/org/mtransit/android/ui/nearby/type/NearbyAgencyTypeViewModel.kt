@@ -8,7 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.LocationUtils
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.Area
@@ -109,7 +111,7 @@ class NearbyAgencyTypeViewModel @Inject constructor(
     private val _params = MutableLiveData(NearbyParams())
 
     val nearbyPOIs: LiveData<List<POIManager>?> = _params.switchMap { params ->
-        liveData {
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             emit(getNearbyPOIs(params))
         }
     }

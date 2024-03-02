@@ -5,7 +5,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.provider.POIProviderContract
 import org.mtransit.android.data.IAgencyProperties
@@ -69,7 +71,7 @@ class PickPOIViewModel @Inject constructor(
     }
 
     val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(_uuids, _agencies).switchMap { (uuids, agencies) ->
-        liveData {
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             emit(getPOIList(uuids, agencies))
         }
     }

@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import dagger.hilt.android.AndroidEntryPoint
 import org.mtransit.android.R
 import org.mtransit.android.commons.ColorUtils
-import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.data.POI
 import org.mtransit.android.commons.dp
 import org.mtransit.android.commons.registerReceiverCompat
@@ -141,14 +140,12 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
             // NOTHING
         }
         viewModel.timestamps.observe(viewLifecycleOwner) { timestamps ->
-            MTLog.d(this, "onChange() > ${timestamps?.size} - timestamps")
             val scrollPosition = (binding?.list?.layoutManager as? LinearLayoutManager)?.findFirstCompletelyVisibleItemPosition() ?: -1
             listAdapter.setTimes(timestamps)
             binding?.apply {
                 if (timestamps != null) {
                     if (viewModel.scrolledToNow.value == false) {
                         listAdapter.getScrollToNowPosition()?.let {
-                            MTLog.d(this, "onChange() > getScrollToNowPosition() = $it")
                             list.scrollToPositionWithOffset(it, 48.dp)
                         }
                         viewModel.setScrolledToNow(true)
@@ -191,12 +188,10 @@ class ScheduleFragment : ABFragment(R.layout.fragment_schedule_infinite), MenuPr
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        MTLog.v(this, "onMenuItemSelected($menuItem)")
         return when (menuItem.itemId) {
             R.id.menu_today -> {
                 binding?.apply {
                     listAdapter.getScrollToNowPosition()?.let {
-                        MTLog.d(this, "onMenuItemSelected() > getScrollToNowPosition() = $it")
                         this.list.scrollToPositionWithOffset(it, 48.dp)
                     }
                     viewModel.setScrolledToNow(true)

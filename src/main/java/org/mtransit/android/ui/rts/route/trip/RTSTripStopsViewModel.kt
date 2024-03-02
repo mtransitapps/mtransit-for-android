@@ -8,7 +8,9 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.LocalPreferenceRepository
 import org.mtransit.android.commons.MTLog
 import org.mtransit.android.commons.SqlUtils
@@ -73,7 +75,7 @@ class RTSTripStopsViewModel @Inject constructor(
     }
 
     val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(_agency, tripId).switchMap { (agency, tripId) ->
-        liveData {
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             emit(getPOIList(agency, tripId))
         }
     }

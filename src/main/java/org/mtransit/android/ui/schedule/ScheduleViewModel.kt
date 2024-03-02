@@ -8,7 +8,9 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import org.mtransit.android.common.repository.DefaultPreferenceRepository
 import org.mtransit.android.commons.ColorUtils
 import org.mtransit.android.commons.MTLog
@@ -112,7 +114,7 @@ class ScheduleViewModel @Inject constructor(
 
     val timestamps: LiveData<List<Schedule.Timestamp>?> =
         QuadrupleMediatorLiveData(rts, _startsAtInMs, _endsAtInMs, _scheduleProviders).switchMap { (rts, startsAtInMs, endsAtInMs, scheduleProviders) ->
-            liveData {
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 emit(getTimestamps(rts, startsAtInMs, endsAtInMs, scheduleProviders))
             }
         }

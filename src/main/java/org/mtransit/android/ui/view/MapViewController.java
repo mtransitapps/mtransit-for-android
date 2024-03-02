@@ -772,7 +772,7 @@ public class MapViewController implements ExtendedGoogleMap.OnCameraChangeListen
 
 	private boolean includeMarkersInLatLngBounds(@NonNull LatLngBounds.Builder llb) {
 		java.util.List<IMarker> markers = this.extendedGoogleMap == null ? null : this.extendedGoogleMap.getMarkers();
-		if (markers != null && markers.size() > 0) {
+		if (markers != null && !markers.isEmpty()) {
 			for (IMarker imarker : markers) {
 				llb.include(imarker.getPosition());
 			}

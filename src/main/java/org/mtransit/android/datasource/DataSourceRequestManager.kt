@@ -97,10 +97,9 @@ class DataSourceRequestManager(
         DataSourceManager.findAgencyProperties(appContext, agencyAuthority, agencyType, rts, logo, pkg, longVersionCode, enabled, trigger)
     }
 
-    suspend fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?): ScheduleTimestamps? =
-        withContext(ioDispatcher) {
-            DataSourceManager.findScheduleTimestamps(appContext, authority, scheduleTimestampsFilter)
-        }
+    suspend fun findScheduleTimestamps(authority: String, scheduleTimestampsFilter: ScheduleTimestampsProviderContract.Filter?) = withContext(ioDispatcher) {
+        DataSourceManager.findScheduleTimestamps(appContext, authority, scheduleTimestampsFilter)
+    }
 
     suspend fun findANews(authority: String, newsFilter: NewsProviderContract.Filter? = null): News? = withContext(ioDispatcher) {
         DataSourceManager.findANews(appContext, authority, newsFilter)
