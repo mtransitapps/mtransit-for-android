@@ -12,6 +12,7 @@ import org.mtransit.android.commons.PackageManagerUtils
 import org.mtransit.android.commons.StoreUtils
 import java.net.URL
 import java.util.Locale
+import org.mtransit.android.commons.R as commonsR
 
 object BatteryOptimizationIssueUtils {
 
@@ -90,7 +91,7 @@ object BatteryOptimizationIssueUtils {
 
     @JvmStatic
     fun installSamsungDeviceCare(context: Context) {
-        StoreUtils.viewAppPage(context, SAMSUNG_DEVICE_CARE_PKG, context.getString(org.mtransit.android.commons.R.string.google_play))
+        StoreUtils.viewAppPage(context, SAMSUNG_DEVICE_CARE_PKG, context.getString(commonsR.string.google_play))
     }
 
     @JvmStatic

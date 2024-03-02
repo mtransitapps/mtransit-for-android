@@ -9,6 +9,7 @@ import org.mtransit.android.commons.isAppEnabled
 import org.mtransit.android.ui.inappnotification.InAppNotificationUI
 import org.mtransit.android.ui.inappnotification.InAppNotificationUI.Companion.IN_APP_NOTIFICATION_MODULE_DISABLED
 import org.mtransit.android.util.BatteryOptimizationIssueUtils
+import org.mtransit.android.commons.R as commonsR
 
 object ModuleDisabledUI : InAppNotificationUI<ModuleDisabledAwareFragment> {
 
@@ -54,7 +55,7 @@ object ModuleDisabledUI : InAppNotificationUI<ModuleDisabledAwareFragment> {
                     StoreUtils.viewAppPage(
                         activity,
                         firstDisabledPkg,
-                        activity.getString(org.mtransit.android.commons.R.string.google_play)
+                        activity.getString(commonsR.string.google_play)
                     )
                 }
             }
