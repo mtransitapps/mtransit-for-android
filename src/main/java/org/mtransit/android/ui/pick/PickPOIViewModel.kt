@@ -3,7 +3,6 @@ package org.mtransit.android.ui.pick
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.liveData
-import androidx.lifecycle.map
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +17,7 @@ import org.mtransit.android.ui.MTViewModelWithLocation
 import org.mtransit.android.ui.favorites.FavoritesViewModel
 import org.mtransit.android.ui.view.common.Event
 import org.mtransit.android.ui.view.common.PairMediatorLiveData
+import org.mtransit.android.ui.view.common.TripleMediatorLiveData
 import org.mtransit.android.ui.view.common.getLiveDataDistinct
 import javax.inject.Inject
 import kotlin.math.min
@@ -40,22 +40,16 @@ class PickPOIViewModel @Inject constructor(
 
     override fun getLogTag(): String = LOG_TAG
 
-    private val _uuids = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_POI_UUIDS)
+    private val _poiUuids = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_POI_UUIDS)
 
-    private val _authorities = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_POI_AUTHORITIES)
+    private val _poiAuthorities = savedStateHandle.getLiveDataDistinct<ArrayList<String>?>(EXTRA_POI_AUTHORITIES)
 
-    private val _allAgencyAuthorities = dataSourcesRepository.readingAllAgenciesBase()
-
-    private val _agencies = PairMediatorLiveData(_authorities, _allAgencyAuthorities).map { (authorities, allAgencyAuthorities) ->
-        authorities?.let {
-            allAgencyAuthorities?.filter { it.authority in authorities }
-        }
-    }
+    private val _allAgencies = dataSourcesRepository.readingAllAgenciesBase()
 
     val dataSourceRemovedEvent: LiveData<Event<Boolean?>> =
-        PairMediatorLiveData(_authorities, _allAgencyAuthorities).switchMap { (authorities, allAgencyAuthorities) ->
+        PairMediatorLiveData(_poiAuthorities, _allAgencies).switchMap { (authorities, allAgencies) ->
             liveData {
-                emit(Event(checkForDataSourceRemoved(authorities, allAgencyAuthorities)))
+                emit(Event(checkForDataSourceRemoved(authorities, allAgencies)))
             }
         }
 
@@ -70,20 +64,29 @@ class PickPOIViewModel @Inject constructor(
         return false
     }
 
-    val poiList: LiveData<List<POIManager>?> = PairMediatorLiveData(_uuids, _agencies).switchMap { (uuids, agencies) ->
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            emit(getPOIList(uuids, agencies))
+    val poiList: LiveData<List<POIManager>?> =
+        TripleMediatorLiveData(_poiUuids, _poiAuthorities, _allAgencies).switchMap { (poiUuids, poiAuthorities, allAgencies) ->
+            liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+                emit(getPOIList(poiUuids, poiAuthorities, allAgencies))
+            }
         }
-    }
 
-    private suspend fun getPOIList(uuids: List<String>?, agencies: List<IAgencyProperties>?): List<POIManager>? {
-        if (uuids == null || agencies == null) {
+    private suspend fun getPOIList(
+        poiUuids: List<String>?,
+        poiAuthorities: List<String>?,
+        allAgencies: List<IAgencyProperties>?
+    ): List<POIManager>? {
+        if (poiUuids == null || poiAuthorities == null || allAgencies == null) {
             return null
         }
-        val size = min(uuids.size, agencies.size)
+        val size = min(poiUuids.size, poiAuthorities.size)
         val agencyToUUIDs = mutableMapOf<IAgencyProperties, MutableList<String>>()
         for (i in 0 until size) {
-            agencyToUUIDs.getOrPut(agencies[i]) { mutableListOf() }.add(uuids[i])
+            allAgencies.singleOrNull { it.authority == poiAuthorities[i] }?.let { agency ->
+                agencyToUUIDs.getOrPut(agency, defaultValue = { mutableListOf() }).add(poiUuids[i])
+            } ?: run {
+                MTLog.w(this, "getPOIList() > SKIP (missing agency for ${poiAuthorities[i]}!")
+            }
         }
         val poiList = mutableListOf<POIManager>()
         agencyToUUIDs.forEach { (agency, uuids) ->

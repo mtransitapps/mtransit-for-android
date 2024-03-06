@@ -110,7 +110,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	@Nullable
 	public static News findANews(@NonNull Context context, @NonNull String authority, @Nullable NewsProviderContract.Filter newsFilter) {
 		ArrayList<News> news = findNews(context, authority, newsFilter);
-		return news == null || news.size() == 0 ? null : news.get(0);
+		return news == null || news.isEmpty() ? null : news.get(0);
 	}
 
 	@Nullable
@@ -339,7 +339,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.TripColumns.T_TRIP_K_ID, tripId);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_TRIP, selection, null, null);
 			ArrayList<Trip> rtsTrips = getRTSTrips(cursor);
-			return rtsTrips.size() == 0 ? null : rtsTrips.get(0);
+			return rtsTrips.isEmpty() ? null : rtsTrips.get(0);
 		} catch (Exception e) {
 			MTLog.w(LOG_TAG, e, "Error!");
 			return null;
@@ -386,7 +386,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 			String selection = SqlUtils.getWhereEquals(GTFSProviderContract.RouteColumns.T_ROUTE_K_ID, routeId);
 			cursor = queryContentResolver(context.getContentResolver(), uri, GTFSProviderContract.PROJECTION_ROUTE, selection, null, null);
 			List<Route> rtsRoutes = getRTSRoutes(cursor);
-			return rtsRoutes.size() == 0 ? null : rtsRoutes.get(0);
+			return rtsRoutes.isEmpty() ? null : rtsRoutes.get(0);
 		} catch (Exception e) {
 			MTLog.w(LOG_TAG, e, "Error!");
 			return null;
@@ -455,7 +455,7 @@ public final class DataSourceManager implements MTLog.Loggable {
 	@Nullable
 	public static POIManager findPOI(@NonNull Context context, @NonNull String authority, @Nullable POIProviderContract.Filter poiFilter) {
 		final List<POIManager> pois = findPOIs(context, authority, poiFilter);
-		return pois == null || pois.size() == 0 ? null : pois.get(0);
+		return pois == null || pois.isEmpty() ? null : pois.get(0);
 	}
 
 	@Nullable
