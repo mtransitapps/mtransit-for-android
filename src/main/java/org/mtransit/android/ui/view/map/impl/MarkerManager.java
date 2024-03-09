@@ -53,9 +53,9 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 
 	@NonNull
 	public IMarker addMarker(@NonNull ExtendedMarkerOptions markerOptions) {
-		boolean visible = markerOptions.isVisible();
+		final boolean visible = markerOptions.isVisible();
 		markerOptions.visible(false);
-		DelegatingMarker marker = createMarker(markerOptions.getReal());
+		final DelegatingMarker marker = createMarker(markerOptions.getReal());
 		setExtendedOptions(marker, markerOptions);
 		clusteringStrategy.onAdd(marker);
 		marker.setVisible(visible);
@@ -63,7 +63,7 @@ class MarkerManager implements LazyMarker.OnMarkerCreateListener, MTLog.Loggable
 		return marker;
 	}
 
-	private void setExtendedOptions(DelegatingMarker marker, ExtendedMarkerOptions markerOptions) {
+	private void setExtendedOptions(@NonNull DelegatingMarker marker, @NonNull ExtendedMarkerOptions markerOptions) {
 		marker.setClusterGroup(markerOptions.getClusterGroup());
 		marker.setData(markerOptions.getData());
 		marker.setIcon(

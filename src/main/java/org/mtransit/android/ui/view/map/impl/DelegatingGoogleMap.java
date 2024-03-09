@@ -504,6 +504,9 @@ class DelegatingGoogleMap implements ExtendedGoogleMap, MTLog.Loggable {
 		@Override
 		public void onMarkerDragEnd(@NonNull com.google.android.gms.maps.model.Marker marker) {
 			DelegatingMarker delegating = markerManager.mapToDelegatingMarker(marker);
+			if (delegating == null) {
+				return;
+			}
 			delegating.clearCachedPosition();
 			markerManager.onPositionChange(delegating);
 			if (onMarkerDragListener != null) {

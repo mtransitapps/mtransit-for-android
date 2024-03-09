@@ -195,10 +195,10 @@ class DelegatingMarker implements IMarker, MTLog.Loggable {
 
 	@Override
 	public void setIcon(@Nullable Context context,
-						@DrawableRes int iconResId,
-						@ColorInt int color,
+						@DrawableRes @Nullable Integer iconResId,
+						@ColorInt @Nullable Integer color,
 						@ColorInt @Nullable Integer secondaryColor,
-						@ColorInt int defaultColor) {
+						@ColorInt @Nullable Integer defaultColor) {
 		real.setIcon(context, iconResId, color, secondaryColor, defaultColor);
 	}
 
