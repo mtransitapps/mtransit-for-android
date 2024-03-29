@@ -1,6 +1,6 @@
 Promotional Text:
 Transit information in your pocket.
-Bike, Bus, Ferry, Streetcar, Subway, Train…
+Bike, Bus, Ferry, Light Rail, Subway, Train…
 Offline & Real-Time.
 ----------
 Website: https://github.com/mtransitapps
