@@ -286,8 +286,8 @@
       "priceMicros": "1490000"
     },
     "HR": {
-      "currency": "HRK",
-      "priceMicros": "13000000"
+      "currency": "EUR",
+      "priceMicros": "1730000"
     },
     "LV": {
       "currency": "EUR",
@@ -326,5 +326,8 @@
   "sku": "f_yearly_subscription_2",
   "status": "active",
   "subscriptionPeriod": "P1Y",
+  "subscriptionTaxesAndComplianceSettings": {
+    "eeaWithdrawalRightType": "WITHDRAWAL_RIGHT_SERVICE"
+  },
   "trialPeriod": "P4W3D"
 }
